@@ -2,7 +2,7 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160), objects in Y82Objects.al
 // Probe (runner issues 6796 and 6797): Code fields with SQLDataType in secondary keys, in no key, in compound keys, in a table extension; FlowFields; Format and Evaluate; metadata.
-// BC versions: 27.5, 28.5, 29.0
+// BC versions: 27.5, 28.5, 29.0 (values observed on the Linux CI containers; Windows pending)
 codeunit 94312 "LT Y82 Sec Tests"
 {
     Subtype = Test;
@@ -28,7 +28,18 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('filter 1|9', H.DumpFilter(94305, 2, 1, 2, '1|9'));
         Observer.Observe('count blank', H.CountFilter(94305, 2, ''''''));
         Observer.Observe('count nonblank', H.CountFilter(94305, 2, '<>'''''));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok');
+        Observer.Expect('asc', '6,4,1,5,3,2');
+        Observer.Expect('desc', '2,3,5,1,4,6');
+        Observer.Expect('range 2..10', '(none)');
+        Observer.Expect('filter <10', '6,4');
+        Observer.Expect('filter >=9', '2');
+        Observer.Expect('filter 2..10', '(none)');
+        Observer.Expect('filter ..9', '6,4,1,5,3,2');
+        Observer.Expect('filter 1|9', '4,2');
+        Observer.Expect('count blank', '1');
+        Observer.Expect('count nonblank', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -43,7 +54,13 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('range A..B', H.DumpRange(94305, 2, 1, 2, 'A', 'B'));
         Observer.Observe('range 1..10', H.DumpRange(94305, 2, 1, 2, '1', '10'));
         Observer.Observe('filter A*', H.DumpFilter(94305, 2, 1, 2, 'A*'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok | ok | ok | ok');
+        Observer.Expect('asc', '9,7,5,3,6,1,8,4,2');
+        Observer.Expect('desc', '2,4,8,1,6,3,5,7,9');
+        Observer.Expect('range A..B', '1,8,4,2');
+        Observer.Expect('range 1..10', '5');
+        Observer.Expect('filter A*', '1,8,4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -58,7 +75,13 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('range 2..10', TypedRangeFVar('2', '10'));
         Observer.Observe('filter >9', TypedFilterFVar('>%1', '9'));
         Observer.Observe('firstlast', TypedFirstLastFVar());
-        Observer.Finish();
+        Observer.Expect('seed', 'ok');
+        Observer.Expect('asc', '6=,4=1,1=10,5=100,3=2,2=9');
+        Observer.Expect('desc', '2=9,3=2,5=100,1=10,4=1,6=');
+        Observer.Expect('range 2..10', '0: ');
+        Observer.Expect('filter >9', '0:  | filter=>9');
+        Observer.Expect('firstlast', '6 .. 2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -78,7 +101,18 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('filter 1|9', H.DumpFilter(94305, 3, 1, 3, '1|9'));
         Observer.Observe('count blank', H.CountFilter(94305, 3, ''''''));
         Observer.Observe('count nonblank', H.CountFilter(94305, 3, '<>'''''));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok');
+        Observer.Expect('asc', '6,4,3,2,1,5');
+        Observer.Expect('desc', '5,1,2,3,4,6');
+        Observer.Expect('range 2..10', '3,2,1');
+        Observer.Expect('filter <10', '6,4,3,2');
+        Observer.Expect('filter >=9', '2,1,5');
+        Observer.Expect('filter 2..10', '3,2,1');
+        Observer.Expect('filter ..9', '6,4,3,2');
+        Observer.Expect('filter 1|9', '4,2');
+        Observer.Expect('count blank', '1');
+        Observer.Expect('count nonblank', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -89,7 +123,9 @@ codeunit 94312 "LT Y82 Sec Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 3, '007,7,07'));
         Observer.Observe('asc', H.Dump(94305, 3, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ERR[NDBCS:BadCSideCodeData]: The LT Y82 Sec table contains a value that is not valid in an integer Code field:\\Id=''1''\Error code: 22928070 | ok | ERR[NDBCS:BadCSideCodeData]: The LT Y82 Sec table contains a value that is not valid in an integer Code field:\\Id=''3''\Error code: 22928070');
+        Observer.Expect('asc', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -100,7 +136,9 @@ codeunit 94312 "LT Y82 Sec Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 3, '1,2,10'));
         Observer.Observe('range A..B', H.DumpRange(94305, 3, 1, 3, 'A', 'B'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('range A..B', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -111,7 +149,9 @@ codeunit 94312 "LT Y82 Sec Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 3, '1,2,10'));
         Observer.Observe('filter A..B', H.DumpFilter(94305, 3, 1, 3, 'A..B'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('filter A..B', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -126,7 +166,13 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('range 2..10', TypedRangeFInt('2', '10'));
         Observer.Observe('filter >9', TypedFilterFInt('>%1', '9'));
         Observer.Observe('firstlast', TypedFirstLastFInt());
-        Observer.Finish();
+        Observer.Expect('seed', 'ok');
+        Observer.Expect('asc', '6=,4=1,3=2,2=9,1=10,5=100');
+        Observer.Expect('desc', '5=100,1=10,2=9,3=2,4=1,6=');
+        Observer.Expect('range 2..10', '3: 3,2,1');
+        Observer.Expect('filter >9', '2: 1,5 | filter=>9');
+        Observer.Expect('firstlast', '6 .. 5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -146,7 +192,18 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('filter 1|9', H.DumpFilter(94305, 4, 1, 4, '1|9'));
         Observer.Observe('count blank', H.CountFilter(94305, 4, ''''''));
         Observer.Observe('count nonblank', H.CountFilter(94305, 4, '<>'''''));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok');
+        Observer.Expect('asc', '6,4,3,2,1,5');
+        Observer.Expect('desc', '5,1,2,3,4,6');
+        Observer.Expect('range 2..10', '3,2,1');
+        Observer.Expect('filter <10', '6,4,3,2');
+        Observer.Expect('filter >=9', '2,1,5');
+        Observer.Expect('filter 2..10', '3,2,1');
+        Observer.Expect('filter ..9', '6,4,3,2');
+        Observer.Expect('filter 1|9', '4,2');
+        Observer.Expect('count blank', '1');
+        Observer.Expect('count nonblank', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -157,7 +214,9 @@ codeunit 94312 "LT Y82 Sec Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 4, '007,7,07'));
         Observer.Observe('asc', H.Dump(94305, 4, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ERR[NDBCS:BadCSideCodeData]: The LT Y82 Sec table contains a value that is not valid in an integer Code field:\\Id=''1''\Error code: 22928070 | ok | ERR[NDBCS:BadCSideCodeData]: The LT Y82 Sec table contains a value that is not valid in an integer Code field:\\Id=''3''\Error code: 22928070');
+        Observer.Expect('asc', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -168,7 +227,9 @@ codeunit 94312 "LT Y82 Sec Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 4, '1,2,10'));
         Observer.Observe('range A..B', H.DumpRange(94305, 4, 1, 4, 'A', 'B'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('range A..B', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -179,7 +240,9 @@ codeunit 94312 "LT Y82 Sec Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 4, '1,2,10'));
         Observer.Observe('filter A..B', H.DumpFilter(94305, 4, 1, 4, 'A..B'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('filter A..B', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -194,7 +257,13 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('range 2..10', TypedRangeFBig('2', '10'));
         Observer.Observe('filter >9', TypedFilterFBig('>%1', '9'));
         Observer.Observe('firstlast', TypedFirstLastFBig());
-        Observer.Finish();
+        Observer.Expect('seed', 'ok');
+        Observer.Expect('asc', '6=,4=1,3=2,2=9,1=10,5=100');
+        Observer.Expect('desc', '5=100,1=10,2=9,3=2,4=1,6=');
+        Observer.Expect('range 2..10', '3: 3,2,1');
+        Observer.Expect('filter >9', '2: 1,5 | filter=>9');
+        Observer.Expect('firstlast', '6 .. 5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -214,7 +283,18 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('filter 1|9', H.DumpFilter(94305, 5, 1, 5, '1|9'));
         Observer.Observe('count blank', H.CountFilter(94305, 5, ''''''));
         Observer.Observe('count nonblank', H.CountFilter(94305, 5, '<>'''''));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok');
+        Observer.Expect('asc', '6,4,3,2,1,5');
+        Observer.Expect('desc', '5,1,2,3,4,6');
+        Observer.Expect('range 2..10', '3,2,1');
+        Observer.Expect('filter <10', '6,4,3,2');
+        Observer.Expect('filter >=9', '2,1,5');
+        Observer.Expect('filter 2..10', '3,2,1');
+        Observer.Expect('filter ..9', '6,4,3,2');
+        Observer.Expect('filter 1|9', '4,2');
+        Observer.Expect('count blank', '1');
+        Observer.Expect('count nonblank', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -229,7 +309,13 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('range A..B', H.DumpRange(94305, 5, 1, 5, 'A', 'B'));
         Observer.Observe('range 1..10', H.DumpRange(94305, 5, 1, 5, '1', '10'));
         Observer.Observe('filter A*', H.DumpFilter(94305, 5, 1, 5, 'A*'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok | ok | ok | ok');
+        Observer.Expect('asc', '9,3,1,8,4,2,7,6,5');
+        Observer.Expect('desc', '5,6,7,2,4,8,1,3,9');
+        Observer.Expect('range A..B', '1,8,4,2');
+        Observer.Expect('range 1..10', '7,6,5');
+        Observer.Expect('filter A*', '1,8,4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -244,7 +330,13 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('range 2..10', TypedRangeFVnt('2', '10'));
         Observer.Observe('filter >9', TypedFilterFVnt('>%1', '9'));
         Observer.Observe('firstlast', TypedFirstLastFVnt());
-        Observer.Finish();
+        Observer.Expect('seed', 'ok');
+        Observer.Expect('asc', '6=,4=1,3=2,2=9,1=10,5=100');
+        Observer.Expect('desc', '5=100,1=10,2=9,3=2,4=1,6=');
+        Observer.Expect('range 2..10', '3: 3,2,1');
+        Observer.Expect('filter >9', '2: 1,5 | filter=>9');
+        Observer.Expect('firstlast', '6 .. 5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -264,7 +356,18 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('filter 1|9', H.DumpFilter(94305, 6, 1, 6, '1|9'));
         Observer.Observe('count blank', H.CountFilter(94305, 6, ''''''));
         Observer.Observe('count nonblank', H.CountFilter(94305, 6, '<>'''''));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok');
+        Observer.Expect('asc', '6,4,1,5,3,2');
+        Observer.Expect('desc', '2,3,5,1,4,6');
+        Observer.Expect('range 2..10', '(none)');
+        Observer.Expect('filter <10', '6,4');
+        Observer.Expect('filter >=9', '2');
+        Observer.Expect('filter 2..10', '(none)');
+        Observer.Expect('filter ..9', '6,4,1,5,3,2');
+        Observer.Expect('filter 1|9', '4,2');
+        Observer.Expect('count blank', '1');
+        Observer.Expect('count nonblank', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -279,7 +382,13 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('range A..B', H.DumpRange(94305, 6, 1, 6, 'A', 'B'));
         Observer.Observe('range 1..10', H.DumpRange(94305, 6, 1, 6, '1', '10'));
         Observer.Observe('filter A*', H.DumpFilter(94305, 6, 1, 6, 'A*'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok | ok | ok | ok');
+        Observer.Expect('asc', '9,7,5,3,6,1,8,4,2');
+        Observer.Expect('desc', '2,4,8,1,6,3,5,7,9');
+        Observer.Expect('range A..B', '1,8,4,2');
+        Observer.Expect('range 1..10', '5');
+        Observer.Expect('filter A*', '1,8,4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -294,7 +403,13 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('range 2..10', TypedRangeFDef('2', '10'));
         Observer.Observe('filter >9', TypedFilterFDef('>%1', '9'));
         Observer.Observe('firstlast', TypedFirstLastFDef());
-        Observer.Finish();
+        Observer.Expect('seed', 'ok');
+        Observer.Expect('asc', '6=,4=1,1=10,5=100,3=2,2=9');
+        Observer.Expect('desc', '2=9,3=2,5=100,1=10,4=1,6=');
+        Observer.Expect('range 2..10', '0: ');
+        Observer.Expect('filter >9', '0:  | filter=>9');
+        Observer.Expect('firstlast', '6 .. 2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -310,7 +425,14 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('filter >=9', H.DumpFilter(94305, 1, 1, 7, '>=9'));
         Observer.Observe('filter 1|9', H.DumpFilter(94305, 1, 1, 7, '1|9'));
         Observer.Observe('count blank', H.CountFilter(94305, 7, ''''''));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok');
+        Observer.Expect('by id', '1,2,3,4,5');
+        Observer.Expect('range 2..10', '1,2,3');
+        Observer.Expect('filter <10', '2,3,5');
+        Observer.Expect('filter >=9', '1,2,4');
+        Observer.Expect('filter 1|9', '2');
+        Observer.Expect('count blank', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -321,7 +443,9 @@ codeunit 94312 "LT Y82 Sec Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 7, 'A,1'));
         Observer.Observe('by id', H.Dump(94305, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ERR[NDBCS:BadSqlIntCodeData]: The LT Y82 Sec table contains a value that is not valid in an integer Code field:\\Id=''1''\Error code: 22928072 | ok');
+        Observer.Expect('by id', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -332,7 +456,9 @@ codeunit 94312 "LT Y82 Sec Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 7, '1,2'));
         Observer.Observe('filter A*', H.CountFilter(94305, 7, 'A*'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('filter A*', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -343,7 +469,9 @@ codeunit 94312 "LT Y82 Sec Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 7, '1,2'));
         Observer.Observe('range A..B', H.CountRange(94305, 7, 'A', 'B'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('range A..B', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -359,7 +487,14 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('filter >=9', H.DumpFilter(94305, 1, 1, 8, '>=9'));
         Observer.Observe('filter 1|9', H.DumpFilter(94305, 1, 1, 8, '1|9'));
         Observer.Observe('count blank', H.CountFilter(94305, 8, ''''''));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok');
+        Observer.Expect('by id', '1,2,3,4,5');
+        Observer.Expect('range 2..10', '1,2,3');
+        Observer.Expect('filter <10', '2,3,5');
+        Observer.Expect('filter >=9', '1,2,4');
+        Observer.Expect('filter 1|9', '2');
+        Observer.Expect('count blank', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -370,7 +505,9 @@ codeunit 94312 "LT Y82 Sec Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 8, 'A,1'));
         Observer.Observe('by id', H.Dump(94305, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('by id', '1,2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -381,7 +518,9 @@ codeunit 94312 "LT Y82 Sec Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 8, '1,2'));
         Observer.Observe('filter A*', H.CountFilter(94305, 8, 'A*'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('filter A*', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -392,7 +531,9 @@ codeunit 94312 "LT Y82 Sec Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 8, '1,2'));
         Observer.Observe('range A..B', H.CountRange(94305, 8, 'A', 'B'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('range A..B', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -408,7 +549,14 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('filter >=9', H.DumpFilter(94305, 1, 1, 9, '>=9'));
         Observer.Observe('filter 1|9', H.DumpFilter(94305, 1, 1, 9, '1|9'));
         Observer.Observe('count blank', H.CountFilter(94305, 9, ''''''));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok');
+        Observer.Expect('by id', '1,2,3,4,5');
+        Observer.Expect('range 2..10', '1,2,3');
+        Observer.Expect('filter <10', '2,3,5');
+        Observer.Expect('filter >=9', '1,2,4');
+        Observer.Expect('filter 1|9', '2');
+        Observer.Expect('count blank', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -419,7 +567,9 @@ codeunit 94312 "LT Y82 Sec Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 9, 'A,1'));
         Observer.Observe('by id', H.Dump(94305, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ERR[NDBCS:BadSqlIntCodeData]: The LT Y82 Sec table contains a value that is not valid in an integer Code field:\\Id=''1''\Error code: 22928072 | ok');
+        Observer.Expect('by id', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -430,7 +580,9 @@ codeunit 94312 "LT Y82 Sec Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 9, '1,2'));
         Observer.Observe('filter A*', H.CountFilter(94305, 9, 'A*'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('filter A*', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -441,7 +593,9 @@ codeunit 94312 "LT Y82 Sec Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 9, '1,2'));
         Observer.Observe('range A..B', H.CountRange(94305, 9, 'A', 'B'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('range A..B', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -457,7 +611,14 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('filter >=9', H.DumpFilter(94305, 1, 1, 10, '>=9'));
         Observer.Observe('filter 1|9', H.DumpFilter(94305, 1, 1, 10, '1|9'));
         Observer.Observe('count blank', H.CountFilter(94305, 10, ''''''));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok');
+        Observer.Expect('by id', '1,2,3,4,5');
+        Observer.Expect('range 2..10', '(none)');
+        Observer.Expect('filter <10', '5');
+        Observer.Expect('filter >=9', '2');
+        Observer.Expect('filter 1|9', '2');
+        Observer.Expect('count blank', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -468,7 +629,9 @@ codeunit 94312 "LT Y82 Sec Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 10, 'A,1'));
         Observer.Observe('by id', H.Dump(94305, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('by id', '1,2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -479,7 +642,9 @@ codeunit 94312 "LT Y82 Sec Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 10, '1,2'));
         Observer.Observe('filter A*', H.CountFilter(94305, 10, 'A*'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('filter A*', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -490,7 +655,9 @@ codeunit 94312 "LT Y82 Sec Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 10, '1,2'));
         Observer.Observe('range A..B', H.CountRange(94305, 10, 'A', 'B'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('range A..B', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -503,7 +670,11 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('asc', H.Dump(94305, 94300, 1, true));
         Observer.Observe('desc', H.Dump(94305, 94300, 1, false));
         Observer.Observe('range 2..10', H.DumpRange(94305, 94300, 1, 94300, '2', '10'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok');
+        Observer.Expect('asc', '6,4,3,2,1,5');
+        Observer.Expect('desc', '5,1,2,3,4,6');
+        Observer.Expect('range 2..10', '3,2,1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -514,7 +685,9 @@ codeunit 94312 "LT Y82 Sec Tests"
         H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 94300, 1, 'ABC'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('insert', 'ERR[NDBCS:BadSqlIntCodeData]: The LT Y82 Sec table contains a value that is not valid in an integer Code field:\\Id=''1''\Error code: 22928072');
+        Observer.Expect('rows', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -527,7 +700,11 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('asc', H.Dump(94305, 94301, 1, true));
         Observer.Observe('desc', H.Dump(94305, 94301, 1, false));
         Observer.Observe('range 2..10', H.DumpRange(94305, 94301, 1, 94301, '2', '10'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok');
+        Observer.Expect('asc', '6,4,3,2,1,5');
+        Observer.Expect('desc', '5,1,2,3,4,6');
+        Observer.Expect('range 2..10', '3,2,1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -538,7 +715,9 @@ codeunit 94312 "LT Y82 Sec Tests"
         H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 94301, 1, 'ABC'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('insert', 'ok');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -549,7 +728,8 @@ codeunit 94312 "LT Y82 Sec Tests"
     begin
         H.Wipe();
         Observer.Observe('typed', TypedCompoundVnt(RecA));
-        Observer.Finish();
+        Observer.Expect('typed', '4,2,1,5,3 | desc 5,1,2,4,3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -559,7 +739,8 @@ codeunit 94312 "LT Y82 Sec Tests"
     begin
         H.Wipe();
         Observer.Observe('keys', H.KeyInfo(94305));
-        Observer.Finish();
+        Observer.Expect('keys', 'keys=12 1=Id* 2=FVar* 3=FInt* 4=FBig* 5=FVnt* 6=FDef* 7=FDef+FVnt* 8=FDef+FObs* 9=FDef+FInt* 10=ExtInt* 11=ExtVnt* 12=$systemId*');
+        Observer.Verify();
     end;
 
     [Test]
@@ -570,7 +751,8 @@ codeunit 94312 "LT Y82 Sec Tests"
     begin
         H.Wipe();
         Observer.Observe('typed', TypedObsolete(RecA));
-        Observer.Finish();
+        Observer.Expect('typed', '3,2,1 count=3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -581,7 +763,8 @@ codeunit 94312 "LT Y82 Sec Tests"
     begin
         H.Wipe();
         Observer.Observe('typed', TypedCompound(RecA));
-        Observer.Finish();
+        Observer.Expect('typed', '4,2,1,5,3 | desc 5,1,2,4,3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -597,7 +780,13 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('seed vnt', H.Seed(94303, 1, '1,2,9,10,100'));
         Observer.Observe('seed def', H.Seed(94304, 1, '1,2,9,10,100'));
         Observer.Observe('counts', FlowRange(Flow));
-        Observer.Finish();
+        Observer.Expect('seed var', 'ok | ok | ok | ok | ok');
+        Observer.Expect('seed int', 'ok | ok | ok | ok | ok');
+        Observer.Expect('seed big', 'ok | ok | ok | ok | ok');
+        Observer.Expect('seed vnt', 'ok | ok | ok | ok | ok');
+        Observer.Expect('seed def', 'ok | ok | ok | ok | ok');
+        Observer.Expect('counts', 'range 2..10: var 0 int 3 big 3 vnt 3 def 0 | less 10: int 3 var 1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -611,7 +800,11 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer.Observe('seed int', H.Seed(94301, 1, '1,2,9,10,100'));
         Observer.Observe('seed vnt', H.Seed(94303, 1, '1,2,9,10,100'));
         Observer.Observe('counts', FlowByField(Flow));
-        Observer.Finish();
+        Observer.Expect('seed var', 'ok | ok | ok | ok | ok');
+        Observer.Expect('seed int', 'ok | ok | ok | ok | ok');
+        Observer.Expect('seed vnt', 'ok | ok | ok | ok | ok');
+        Observer.Expect('counts', 'int by refint 1 | int by refvar 1 | var by refint 1 | vnt by refvar 1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -622,7 +815,8 @@ codeunit 94312 "LT Y82 Sec Tests"
     begin
         H.Wipe();
         Observer.Observe('fmt', FormatEvaluate(Sec));
-        Observer.Finish();
+        Observer.Expect('fmt', 'assign abc: ABC | 007: 007 | eval 12: Yes 12 | eval xyz: Yes XYZ | eval vnt xyz: Yes XYZ | format len: 0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -633,7 +827,8 @@ codeunit 94312 "LT Y82 Sec Tests"
     begin
         H.Wipe();
         Observer.Observe('values', FieldRefValues(Sec));
-        Observer.Finish();
+        Observer.Expect('values', 'int: 12 10 | vnt: 12 10 | after FieldRef.Value := abc: ABC');
+        Observer.Verify();
     end;
 
     [Test]
@@ -643,7 +838,8 @@ codeunit 94312 "LT Y82 Sec Tests"
     begin
         H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 2));
-        Observer.Finish();
+        Observer.Expect('field', 'FVar type=Code len=10 class=Normal sql=Varchar pk=No enabled=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -653,7 +849,8 @@ codeunit 94312 "LT Y82 Sec Tests"
     begin
         H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 3));
-        Observer.Finish();
+        Observer.Expect('field', 'FInt type=Code len=10 class=Normal sql=Integer pk=No enabled=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -663,7 +860,8 @@ codeunit 94312 "LT Y82 Sec Tests"
     begin
         H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 4));
-        Observer.Finish();
+        Observer.Expect('field', 'FBig type=Code len=10 class=Normal sql=BigInteger pk=No enabled=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -673,7 +871,8 @@ codeunit 94312 "LT Y82 Sec Tests"
     begin
         H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 5));
-        Observer.Finish();
+        Observer.Expect('field', 'FVnt type=Code len=10 class=Normal sql=Variant pk=No enabled=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -683,7 +882,8 @@ codeunit 94312 "LT Y82 Sec Tests"
     begin
         H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 6));
-        Observer.Finish();
+        Observer.Expect('field', 'FDef type=Code len=10 class=Normal sql=Varchar pk=No enabled=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -693,7 +893,8 @@ codeunit 94312 "LT Y82 Sec Tests"
     begin
         H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 7));
-        Observer.Finish();
+        Observer.Expect('field', 'NoKInt type=Code len=10 class=Normal sql=Integer pk=No enabled=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -703,7 +904,8 @@ codeunit 94312 "LT Y82 Sec Tests"
     begin
         H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 8));
-        Observer.Finish();
+        Observer.Expect('field', 'NoKVnt type=Code len=10 class=Normal sql=Variant pk=No enabled=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -713,7 +915,8 @@ codeunit 94312 "LT Y82 Sec Tests"
     begin
         H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 9));
-        Observer.Finish();
+        Observer.Expect('field', 'NoKBig type=Code len=10 class=Normal sql=BigInteger pk=No enabled=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -723,7 +926,8 @@ codeunit 94312 "LT Y82 Sec Tests"
     begin
         H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 10));
-        Observer.Finish();
+        Observer.Expect('field', 'NoKVar type=Code len=10 class=Normal sql=Varchar pk=No enabled=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -733,7 +937,8 @@ codeunit 94312 "LT Y82 Sec Tests"
     begin
         H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 11));
-        Observer.Finish();
+        Observer.Expect('field', 'FObs type=Code len=6 class=Normal sql=Variant pk=No enabled=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -743,7 +948,8 @@ codeunit 94312 "LT Y82 Sec Tests"
     begin
         H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 94300));
-        Observer.Finish();
+        Observer.Expect('field', 'ExtInt type=Code len=10 class=Normal sql=Integer pk=No enabled=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -753,7 +959,8 @@ codeunit 94312 "LT Y82 Sec Tests"
     begin
         H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 94301));
-        Observer.Finish();
+        Observer.Expect('field', 'ExtVnt type=Code len=10 class=Normal sql=Variant pk=No enabled=Yes');
+        Observer.Verify();
     end;
 
 

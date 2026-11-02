@@ -2,7 +2,7 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160), objects in Y82Objects.al
 // Probe (runner issues 6796 and 6797): Code primary key with SQLDataType Varchar, Integer, BigInteger, Variant and none: order, filters, rename, metadata, typed record.
-// BC versions: 27.5, 28.5, 29.0
+// BC versions: 27.5, 28.5, 29.0 (values observed on the Linux CI containers; Windows pending)
 codeunit 94310 "LT Y82 Pk Tests"
 {
     Subtype = Test;
@@ -33,7 +33,23 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('filter ..9', H.DumpFilter(94300, 1, 1, 1, '..9'));
         Observer.Observe('filter <>10', H.DumpFilter(94300, 1, 1, 1, '<>10'));
         Observer.Observe('filter 1*', H.DumpFilter(94300, 1, 1, 1, '1*'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok');
+        Observer.Expect('asc', '1,10,100,2,20,9');
+        Observer.Expect('desc', '9,20,2,100,10,1');
+        Observer.Expect('count', '6');
+        Observer.Expect('find 9', 'found 9');
+        Observer.Expect('find 100', 'found 100');
+        Observer.Expect('find 3', 'not found');
+        Observer.Expect('range 2..10', '(none)');
+        Observer.Expect('filter <10', '1');
+        Observer.Expect('filter >=9', '9');
+        Observer.Expect('filter 1|9|100', '1,100,9');
+        Observer.Expect('filter 2..10', '(none)');
+        Observer.Expect('filter 1..', '1,10,100,2,20,9');
+        Observer.Expect('filter ..9', '1,10,100,2,20,9');
+        Observer.Expect('filter <>10', '1,100,2,20,9');
+        Observer.Expect('filter 1*', '1,10,100');
+        Observer.Verify();
     end;
 
     [Test]
@@ -48,7 +64,13 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('find blank', H.FindKey(94300, ''));
         Observer.Observe('filter =''''', H.DumpFilter(94300, 1, 1, 1, ''''''));
         Observer.Observe('filter <>''''', H.DumpFilter(94300, 1, 1, 1, '<>'''''));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('asc', ',1,2');
+        Observer.Expect('desc', '2,1,');
+        Observer.Expect('find blank', 'found ');
+        Observer.Expect('filter =''''', '(none)');
+        Observer.Expect('filter <>''''', '1,2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -59,7 +81,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94300, 1, '007,7,07'));
         Observer.Observe('asc', H.Dump(94300, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('asc', '007,07,7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -71,7 +95,10 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('seed', H.Seed(94300, 1, 'A,B,1A,A1,10,9,a,'));
         Observer.Observe('asc', H.Dump(94300, 1, 1, true));
         Observer.Observe('desc', H.Dump(94300, 1, 1, false));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok | ERR[DB:RecordExists]: The record in table LT Y82 PkVar already exists. Identification fields and values: K=''A'' | ok');
+        Observer.Expect('asc', ',10,1A,9,A,A1,B');
+        Observer.Expect('desc', 'B,A1,A,9,1A,10,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -85,7 +112,12 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('find abc', H.FindKey(94300, 'abc'));
         Observer.Observe('filter abc', H.DumpFilter(94300, 1, 1, 1, 'abc'));
         Observer.Observe('range a..b', H.DumpRange(94300, 1, 1, 1, 'a', 'b'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('asc', 'ABC,ABD');
+        Observer.Expect('find abc', 'found ABC');
+        Observer.Expect('filter abc', 'ABC');
+        Observer.Expect('range a..b', 'ABC,ABD');
+        Observer.Verify();
     end;
 
     [Test]
@@ -96,7 +128,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94300, 1, '1,2,10'));
         Observer.Observe('range A..B', H.DumpRange(94300, 1, 1, 1, 'A', 'B'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('range A..B', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -107,7 +141,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94300, 1, '1,2,10'));
         Observer.Observe('filter A..B', H.DumpFilter(94300, 1, 1, 1, 'A..B'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('filter A..B', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -118,7 +154,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94300, 1, '1,2,10'));
         Observer.Observe('filter 1A', H.DumpFilter(94300, 1, 1, 1, '1A'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('filter 1A', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -129,7 +167,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94300, 1, '1,2,10'));
         Observer.Observe('count filter A*', H.CountFilter(94300, 1, 'A*'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('count filter A*', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -141,7 +181,10 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('seed', H.Seed(94300, 1, '10,9'));
         Observer.Observe('rename 9 to 11', H.RenameKey(94300, '9', '11'));
         Observer.Observe('asc', H.Dump(94300, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('rename 9 to 11', 'ok');
+        Observer.Expect('asc', '10,11');
+        Observer.Verify();
     end;
 
     [Test]
@@ -153,7 +196,10 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('seed', H.Seed(94300, 1, '10,9'));
         Observer.Observe('rename 9 to ABC', H.RenameKey(94300, '9', 'ABC'));
         Observer.Observe('asc', H.Dump(94300, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('rename 9 to ABC', 'ok');
+        Observer.Expect('asc', '10,ABC');
+        Observer.Verify();
     end;
 
     [Test]
@@ -164,7 +210,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('field', H.FieldInfo(94300, 1));
         Observer.Observe('keys', H.KeyInfo(94300));
-        Observer.Finish();
+        Observer.Expect('field', 'K type=Code len=10 class=Normal sql=Varchar pk=Yes enabled=Yes');
+        Observer.Expect('keys', 'keys=2 1=K* 2=$systemId*');
+        Observer.Verify();
     end;
 
     [Test]
@@ -182,7 +230,15 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('range 2..10', TypedRange(Rec, '2', '10'));
         Observer.Observe('filter >9', TypedFilter(Rec, '>%1', '9'));
         Observer.Observe('firstlast', TypedFirstLast(Rec));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok');
+        Observer.Expect('asc', '1,10,100,2,20,9');
+        Observer.Expect('desc', '9,20,2,100,10,1');
+        Observer.Expect('get 9', 'found 9');
+        Observer.Expect('get 3', 'not found');
+        Observer.Expect('range 2..10', '0: ');
+        Observer.Expect('filter >9', '0:  | filter=>9');
+        Observer.Expect('firstlast', '1 .. 9');
+        Observer.Verify();
     end;
 
     [Test]
@@ -207,7 +263,23 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('filter ..9', H.DumpFilter(94301, 1, 1, 1, '..9'));
         Observer.Observe('filter <>10', H.DumpFilter(94301, 1, 1, 1, '<>10'));
         Observer.Observe('filter 1*', H.DumpFilter(94301, 1, 1, 1, '1*'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok');
+        Observer.Expect('asc', '1,2,9,10,20,100');
+        Observer.Expect('desc', '100,20,10,9,2,1');
+        Observer.Expect('count', '6');
+        Observer.Expect('find 9', 'found 9');
+        Observer.Expect('find 100', 'found 100');
+        Observer.Expect('find 3', 'not found');
+        Observer.Expect('range 2..10', '2,9,10');
+        Observer.Expect('filter <10', '1,2,9');
+        Observer.Expect('filter >=9', '9,10,20,100');
+        Observer.Expect('filter 1|9|100', '1,9,100');
+        Observer.Expect('filter 2..10', '2,9,10');
+        Observer.Expect('filter 1..', '1,2,9,10,20,100');
+        Observer.Expect('filter ..9', '1,2,9');
+        Observer.Expect('filter <>10', '1,2,9,20,100');
+        Observer.Expect('filter 1*', '1,10,100');
+        Observer.Verify();
     end;
 
     [Test]
@@ -222,7 +294,13 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('find blank', H.FindKey(94301, ''));
         Observer.Observe('filter =''''', H.DumpFilter(94301, 1, 1, 1, ''''''));
         Observer.Observe('filter <>''''', H.DumpFilter(94301, 1, 1, 1, '<>'''''));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('asc', ',1,2');
+        Observer.Expect('desc', '2,1,');
+        Observer.Expect('find blank', 'found ');
+        Observer.Expect('filter =''''', '(none)');
+        Observer.Expect('filter <>''''', '1,2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -233,7 +311,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94301, 1, '007,7,07'));
         Observer.Observe('asc', H.Dump(94301, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ERR[NDBCS:BadCSideCodeData]: The LT Y82 PkInt table contains a value that is not valid in an integer Code field:\\K=''007''\Error code: 22928070 | ok | ERR[NDBCS:BadCSideCodeData]: The LT Y82 PkInt table contains a value that is not valid in an integer Code field:\\K=''07''\Error code: 22928070');
+        Observer.Expect('asc', '7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -245,7 +325,10 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('seed', H.Seed(94301, 1, 'A,B,1A,A1,10,9,a,'));
         Observer.Observe('asc', H.Dump(94301, 1, 1, true));
         Observer.Observe('desc', H.Dump(94301, 1, 1, false));
-        Observer.Finish();
+        Observer.Expect('seed', 'ERR[NDBCS:BadSqlIntCodeData]: The LT Y82 PkInt table contains a value that is not valid in an integer Code field:\\K=''A''\Error code: 22928072 | ERR[NDBCS:BadSqlIntCodeData]: The LT Y82 PkInt table contains a value that is not valid in an integer Code field:\\K=''B''\Error code: 22928072 | ERR[NDBCS:BadSqlIntCodeData]: The LT Y82 PkInt table contains a value that is not valid in an integer Code field:\\K=''1A''\Error code: 22928072 | ERR[NDBCS:BadSqlIntCodeData]: The LT Y82 PkInt table contains a value that is not valid in an integer Code field:\\K=''A1''\Error code: 22928072 | ok | ok | ERR[NDBCS:BadSqlIntCodeData]: The LT Y82 PkInt table contains a value that is not valid in an integer Code field:\\K=''A''\Error code: 22928072 | ok');
+        Observer.Expect('asc', ',9,10');
+        Observer.Expect('desc', '10,9,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -259,7 +342,12 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('find abc', H.FindKey(94301, 'abc'));
         Observer.Observe('filter abc', H.DumpFilter(94301, 1, 1, 1, 'abc'));
         Observer.Observe('range a..b', H.DumpRange(94301, 1, 1, 1, 'a', 'b'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ERR[NDBCS:BadSqlIntCodeData]: The LT Y82 PkInt table contains a value that is not valid in an integer Code field:\\K=''ABC''\Error code: 22928072 | ERR[NDBCS:BadSqlIntCodeData]: The LT Y82 PkInt table contains a value that is not valid in an integer Code field:\\K=''ABD''\Error code: 22928072');
+        Observer.Expect('asc', '(none)');
+        Observer.Expect('find abc', 'not found');
+        Observer.Expect('filter abc', '(none)');
+        Observer.Expect('range a..b', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -270,7 +358,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94301, 1, '1,2,10'));
         Observer.Observe('range A..B', H.DumpRange(94301, 1, 1, 1, 'A', 'B'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('range A..B', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -281,7 +371,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94301, 1, '1,2,10'));
         Observer.Observe('filter A..B', H.DumpFilter(94301, 1, 1, 1, 'A..B'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('filter A..B', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -292,7 +384,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94301, 1, '1,2,10'));
         Observer.Observe('filter 1A', H.DumpFilter(94301, 1, 1, 1, '1A'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('filter 1A', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -303,7 +397,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94301, 1, '1,2,10'));
         Observer.Observe('count filter A*', H.CountFilter(94301, 1, 'A*'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('count filter A*', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -315,7 +411,10 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('seed', H.Seed(94301, 1, '10,9'));
         Observer.Observe('rename 9 to 11', H.RenameKey(94301, '9', '11'));
         Observer.Observe('asc', H.Dump(94301, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('rename 9 to 11', 'ok');
+        Observer.Expect('asc', '10,11');
+        Observer.Verify();
     end;
 
     [Test]
@@ -327,7 +426,10 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('seed', H.Seed(94301, 1, '10,9'));
         Observer.Observe('rename 9 to ABC', H.RenameKey(94301, '9', 'ABC'));
         Observer.Observe('asc', H.Dump(94301, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('rename 9 to ABC', 'ERR[NDBCS:BadSqlIntCodeData]: The LT Y82 PkInt table contains a value that is not valid in an integer Code field:\\K=''ABC''\Error code: 22928072');
+        Observer.Expect('asc', '9,10');
+        Observer.Verify();
     end;
 
     [Test]
@@ -338,7 +440,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('field', H.FieldInfo(94301, 1));
         Observer.Observe('keys', H.KeyInfo(94301));
-        Observer.Finish();
+        Observer.Expect('field', 'K type=Code len=10 class=Normal sql=Integer pk=Yes enabled=Yes');
+        Observer.Expect('keys', 'keys=2 1=K* 2=$systemId*');
+        Observer.Verify();
     end;
 
     [Test]
@@ -356,7 +460,15 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('range 2..10', TypedRange(Rec, '2', '10'));
         Observer.Observe('filter >9', TypedFilter(Rec, '>%1', '9'));
         Observer.Observe('firstlast', TypedFirstLast(Rec));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok');
+        Observer.Expect('asc', '1,2,9,10,20,100');
+        Observer.Expect('desc', '100,20,10,9,2,1');
+        Observer.Expect('get 9', 'found 9');
+        Observer.Expect('get 3', 'not found');
+        Observer.Expect('range 2..10', '3: 2,9,10');
+        Observer.Expect('filter >9', '3: 10,20,100 | filter=>9');
+        Observer.Expect('firstlast', '1 .. 100');
+        Observer.Verify();
     end;
 
     [Test]
@@ -381,7 +493,23 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('filter ..9', H.DumpFilter(94302, 1, 1, 1, '..9'));
         Observer.Observe('filter <>10', H.DumpFilter(94302, 1, 1, 1, '<>10'));
         Observer.Observe('filter 1*', H.DumpFilter(94302, 1, 1, 1, '1*'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok');
+        Observer.Expect('asc', '1,2,9,10,20,100');
+        Observer.Expect('desc', '100,20,10,9,2,1');
+        Observer.Expect('count', '6');
+        Observer.Expect('find 9', 'found 9');
+        Observer.Expect('find 100', 'found 100');
+        Observer.Expect('find 3', 'not found');
+        Observer.Expect('range 2..10', '2,9,10');
+        Observer.Expect('filter <10', '1,2,9');
+        Observer.Expect('filter >=9', '9,10,20,100');
+        Observer.Expect('filter 1|9|100', '1,9,100');
+        Observer.Expect('filter 2..10', '2,9,10');
+        Observer.Expect('filter 1..', '1,2,9,10,20,100');
+        Observer.Expect('filter ..9', '1,2,9');
+        Observer.Expect('filter <>10', '1,2,9,20,100');
+        Observer.Expect('filter 1*', '1,10,100');
+        Observer.Verify();
     end;
 
     [Test]
@@ -396,7 +524,13 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('find blank', H.FindKey(94302, ''));
         Observer.Observe('filter =''''', H.DumpFilter(94302, 1, 1, 1, ''''''));
         Observer.Observe('filter <>''''', H.DumpFilter(94302, 1, 1, 1, '<>'''''));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('asc', ',1,2');
+        Observer.Expect('desc', '2,1,');
+        Observer.Expect('find blank', 'found ');
+        Observer.Expect('filter =''''', '(none)');
+        Observer.Expect('filter <>''''', '1,2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -407,7 +541,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94302, 1, '007,7,07'));
         Observer.Observe('asc', H.Dump(94302, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ERR[NDBCS:BadCSideCodeData]: The LT Y82 PkBig table contains a value that is not valid in an integer Code field:\\K=''007''\Error code: 22928070 | ok | ERR[NDBCS:BadCSideCodeData]: The LT Y82 PkBig table contains a value that is not valid in an integer Code field:\\K=''07''\Error code: 22928070');
+        Observer.Expect('asc', '7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -419,7 +555,10 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('seed', H.Seed(94302, 1, 'A,B,1A,A1,10,9,a,'));
         Observer.Observe('asc', H.Dump(94302, 1, 1, true));
         Observer.Observe('desc', H.Dump(94302, 1, 1, false));
-        Observer.Finish();
+        Observer.Expect('seed', 'ERR[NDBCS:BadSqlIntCodeData]: The LT Y82 PkBig table contains a value that is not valid in an integer Code field:\\K=''A''\Error code: 22928072 | ERR[NDBCS:BadSqlIntCodeData]: The LT Y82 PkBig table contains a value that is not valid in an integer Code field:\\K=''B''\Error code: 22928072 | ERR[NDBCS:BadSqlIntCodeData]: The LT Y82 PkBig table contains a value that is not valid in an integer Code field:\\K=''1A''\Error code: 22928072 | ERR[NDBCS:BadSqlIntCodeData]: The LT Y82 PkBig table contains a value that is not valid in an integer Code field:\\K=''A1''\Error code: 22928072 | ok | ok | ERR[NDBCS:BadSqlIntCodeData]: The LT Y82 PkBig table contains a value that is not valid in an integer Code field:\\K=''A''\Error code: 22928072 | ok');
+        Observer.Expect('asc', ',9,10');
+        Observer.Expect('desc', '10,9,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -433,7 +572,12 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('find abc', H.FindKey(94302, 'abc'));
         Observer.Observe('filter abc', H.DumpFilter(94302, 1, 1, 1, 'abc'));
         Observer.Observe('range a..b', H.DumpRange(94302, 1, 1, 1, 'a', 'b'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ERR[NDBCS:BadSqlIntCodeData]: The LT Y82 PkBig table contains a value that is not valid in an integer Code field:\\K=''ABC''\Error code: 22928072 | ERR[NDBCS:BadSqlIntCodeData]: The LT Y82 PkBig table contains a value that is not valid in an integer Code field:\\K=''ABD''\Error code: 22928072');
+        Observer.Expect('asc', '(none)');
+        Observer.Expect('find abc', 'not found');
+        Observer.Expect('filter abc', '(none)');
+        Observer.Expect('range a..b', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -444,7 +588,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94302, 1, '1,2,10'));
         Observer.Observe('range A..B', H.DumpRange(94302, 1, 1, 1, 'A', 'B'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('range A..B', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -455,7 +601,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94302, 1, '1,2,10'));
         Observer.Observe('filter A..B', H.DumpFilter(94302, 1, 1, 1, 'A..B'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('filter A..B', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -466,7 +614,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94302, 1, '1,2,10'));
         Observer.Observe('filter 1A', H.DumpFilter(94302, 1, 1, 1, '1A'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('filter 1A', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -477,7 +627,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94302, 1, '1,2,10'));
         Observer.Observe('count filter A*', H.CountFilter(94302, 1, 'A*'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('count filter A*', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -489,7 +641,10 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('seed', H.Seed(94302, 1, '10,9'));
         Observer.Observe('rename 9 to 11', H.RenameKey(94302, '9', '11'));
         Observer.Observe('asc', H.Dump(94302, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('rename 9 to 11', 'ok');
+        Observer.Expect('asc', '10,11');
+        Observer.Verify();
     end;
 
     [Test]
@@ -501,7 +656,10 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('seed', H.Seed(94302, 1, '10,9'));
         Observer.Observe('rename 9 to ABC', H.RenameKey(94302, '9', 'ABC'));
         Observer.Observe('asc', H.Dump(94302, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('rename 9 to ABC', 'ERR[NDBCS:BadSqlIntCodeData]: The LT Y82 PkBig table contains a value that is not valid in an integer Code field:\\K=''ABC''\Error code: 22928072');
+        Observer.Expect('asc', '9,10');
+        Observer.Verify();
     end;
 
     [Test]
@@ -512,7 +670,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('field', H.FieldInfo(94302, 1));
         Observer.Observe('keys', H.KeyInfo(94302));
-        Observer.Finish();
+        Observer.Expect('field', 'K type=Code len=10 class=Normal sql=BigInteger pk=Yes enabled=Yes');
+        Observer.Expect('keys', 'keys=2 1=K* 2=$systemId*');
+        Observer.Verify();
     end;
 
     [Test]
@@ -530,7 +690,15 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('range 2..10', TypedRange(Rec, '2', '10'));
         Observer.Observe('filter >9', TypedFilter(Rec, '>%1', '9'));
         Observer.Observe('firstlast', TypedFirstLast(Rec));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok');
+        Observer.Expect('asc', '1,2,9,10,20,100');
+        Observer.Expect('desc', '100,20,10,9,2,1');
+        Observer.Expect('get 9', 'found 9');
+        Observer.Expect('get 3', 'not found');
+        Observer.Expect('range 2..10', '3: 2,9,10');
+        Observer.Expect('filter >9', '3: 10,20,100 | filter=>9');
+        Observer.Expect('firstlast', '1 .. 100');
+        Observer.Verify();
     end;
 
     [Test]
@@ -555,7 +723,23 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('filter ..9', H.DumpFilter(94303, 1, 1, 1, '..9'));
         Observer.Observe('filter <>10', H.DumpFilter(94303, 1, 1, 1, '<>10'));
         Observer.Observe('filter 1*', H.DumpFilter(94303, 1, 1, 1, '1*'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok');
+        Observer.Expect('asc', '1,2,9,10,20,100');
+        Observer.Expect('desc', '100,20,10,9,2,1');
+        Observer.Expect('count', '6');
+        Observer.Expect('find 9', 'found 9');
+        Observer.Expect('find 100', 'found 100');
+        Observer.Expect('find 3', 'not found');
+        Observer.Expect('range 2..10', '2,9,10');
+        Observer.Expect('filter <10', '1,2,9');
+        Observer.Expect('filter >=9', '9,10,20,100');
+        Observer.Expect('filter 1|9|100', '1,9,100');
+        Observer.Expect('filter 2..10', '2,9,10');
+        Observer.Expect('filter 1..', '1,2,9,10,20,100');
+        Observer.Expect('filter ..9', '1,2,9');
+        Observer.Expect('filter <>10', '1,2,9,20,100');
+        Observer.Expect('filter 1*', '1,10,100');
+        Observer.Verify();
     end;
 
     [Test]
@@ -570,7 +754,13 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('find blank', H.FindKey(94303, ''));
         Observer.Observe('filter =''''', H.DumpFilter(94303, 1, 1, 1, ''''''));
         Observer.Observe('filter <>''''', H.DumpFilter(94303, 1, 1, 1, '<>'''''));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('asc', ',1,2');
+        Observer.Expect('desc', '2,1,');
+        Observer.Expect('find blank', 'found ');
+        Observer.Expect('filter =''''', '(none)');
+        Observer.Expect('filter <>''''', '1,2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -581,7 +771,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94303, 1, '007,7,07'));
         Observer.Observe('asc', H.Dump(94303, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ERR[DB:RecordExists]: The record in table LT Y82 PkVnt already exists. Identification fields and values: K=''7'' | ERR[DB:RecordExists]: The record in table LT Y82 PkVnt already exists. Identification fields and values: K=''7''');
+        Observer.Expect('asc', '7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -593,7 +785,10 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('seed', H.Seed(94303, 1, 'A,B,1A,A1,10,9,a,'));
         Observer.Observe('asc', H.Dump(94303, 1, 1, true));
         Observer.Observe('desc', H.Dump(94303, 1, 1, false));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok | ERR[DB:RecordExists]: The record in table LT Y82 PkVnt already exists. Identification fields and values: K=''A'' | ok');
+        Observer.Expect('asc', ',1A,A,A1,B,9,10');
+        Observer.Expect('desc', '10,9,B,A1,A,1A,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -607,7 +802,12 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('find abc', H.FindKey(94303, 'abc'));
         Observer.Observe('filter abc', H.DumpFilter(94303, 1, 1, 1, 'abc'));
         Observer.Observe('range a..b', H.DumpRange(94303, 1, 1, 1, 'a', 'b'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('asc', 'ABC,ABD');
+        Observer.Expect('find abc', 'found ABC');
+        Observer.Expect('filter abc', 'ABC');
+        Observer.Expect('range a..b', 'ABC,ABD');
+        Observer.Verify();
     end;
 
     [Test]
@@ -618,7 +818,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94303, 1, '1,2,10'));
         Observer.Observe('range A..B', H.DumpRange(94303, 1, 1, 1, 'A', 'B'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('range A..B', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -629,7 +831,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94303, 1, '1,2,10'));
         Observer.Observe('filter A..B', H.DumpFilter(94303, 1, 1, 1, 'A..B'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('filter A..B', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -640,7 +844,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94303, 1, '1,2,10'));
         Observer.Observe('filter 1A', H.DumpFilter(94303, 1, 1, 1, '1A'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('filter 1A', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -651,7 +857,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94303, 1, '1,2,10'));
         Observer.Observe('count filter A*', H.CountFilter(94303, 1, 'A*'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('count filter A*', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -663,7 +871,10 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('seed', H.Seed(94303, 1, '10,9'));
         Observer.Observe('rename 9 to 11', H.RenameKey(94303, '9', '11'));
         Observer.Observe('asc', H.Dump(94303, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('rename 9 to 11', 'ok');
+        Observer.Expect('asc', '10,11');
+        Observer.Verify();
     end;
 
     [Test]
@@ -675,7 +886,10 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('seed', H.Seed(94303, 1, '10,9'));
         Observer.Observe('rename 9 to ABC', H.RenameKey(94303, '9', 'ABC'));
         Observer.Observe('asc', H.Dump(94303, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('rename 9 to ABC', 'ok');
+        Observer.Expect('asc', 'ABC,10');
+        Observer.Verify();
     end;
 
     [Test]
@@ -686,7 +900,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('field', H.FieldInfo(94303, 1));
         Observer.Observe('keys', H.KeyInfo(94303));
-        Observer.Finish();
+        Observer.Expect('field', 'K type=Code len=10 class=Normal sql=Variant pk=Yes enabled=Yes');
+        Observer.Expect('keys', 'keys=2 1=K* 2=$systemId*');
+        Observer.Verify();
     end;
 
     [Test]
@@ -704,7 +920,15 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('range 2..10', TypedRange(Rec, '2', '10'));
         Observer.Observe('filter >9', TypedFilter(Rec, '>%1', '9'));
         Observer.Observe('firstlast', TypedFirstLast(Rec));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok');
+        Observer.Expect('asc', '1,2,9,10,20,100');
+        Observer.Expect('desc', '100,20,10,9,2,1');
+        Observer.Expect('get 9', 'found 9');
+        Observer.Expect('get 3', 'not found');
+        Observer.Expect('range 2..10', '3: 2,9,10');
+        Observer.Expect('filter >9', '3: 10,20,100 | filter=>9');
+        Observer.Expect('firstlast', '1 .. 100');
+        Observer.Verify();
     end;
 
     [Test]
@@ -729,7 +953,23 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('filter ..9', H.DumpFilter(94304, 1, 1, 1, '..9'));
         Observer.Observe('filter <>10', H.DumpFilter(94304, 1, 1, 1, '<>10'));
         Observer.Observe('filter 1*', H.DumpFilter(94304, 1, 1, 1, '1*'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok');
+        Observer.Expect('asc', '1,10,100,2,20,9');
+        Observer.Expect('desc', '9,20,2,100,10,1');
+        Observer.Expect('count', '6');
+        Observer.Expect('find 9', 'found 9');
+        Observer.Expect('find 100', 'found 100');
+        Observer.Expect('find 3', 'not found');
+        Observer.Expect('range 2..10', '(none)');
+        Observer.Expect('filter <10', '1');
+        Observer.Expect('filter >=9', '9');
+        Observer.Expect('filter 1|9|100', '1,100,9');
+        Observer.Expect('filter 2..10', '(none)');
+        Observer.Expect('filter 1..', '1,10,100,2,20,9');
+        Observer.Expect('filter ..9', '1,10,100,2,20,9');
+        Observer.Expect('filter <>10', '1,100,2,20,9');
+        Observer.Expect('filter 1*', '1,10,100');
+        Observer.Verify();
     end;
 
     [Test]
@@ -744,7 +984,13 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('find blank', H.FindKey(94304, ''));
         Observer.Observe('filter =''''', H.DumpFilter(94304, 1, 1, 1, ''''''));
         Observer.Observe('filter <>''''', H.DumpFilter(94304, 1, 1, 1, '<>'''''));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('asc', ',1,2');
+        Observer.Expect('desc', '2,1,');
+        Observer.Expect('find blank', 'found ');
+        Observer.Expect('filter =''''', '(none)');
+        Observer.Expect('filter <>''''', '1,2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -755,7 +1001,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94304, 1, '007,7,07'));
         Observer.Observe('asc', H.Dump(94304, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('asc', '007,07,7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -767,7 +1015,10 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('seed', H.Seed(94304, 1, 'A,B,1A,A1,10,9,a,'));
         Observer.Observe('asc', H.Dump(94304, 1, 1, true));
         Observer.Observe('desc', H.Dump(94304, 1, 1, false));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok | ERR[DB:RecordExists]: The record in table LT Y82 PkDef already exists. Identification fields and values: K=''A'' | ok');
+        Observer.Expect('asc', ',10,1A,9,A,A1,B');
+        Observer.Expect('desc', 'B,A1,A,9,1A,10,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -781,7 +1032,12 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('find abc', H.FindKey(94304, 'abc'));
         Observer.Observe('filter abc', H.DumpFilter(94304, 1, 1, 1, 'abc'));
         Observer.Observe('range a..b', H.DumpRange(94304, 1, 1, 1, 'a', 'b'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('asc', 'ABC,ABD');
+        Observer.Expect('find abc', 'found ABC');
+        Observer.Expect('filter abc', 'ABC');
+        Observer.Expect('range a..b', 'ABC,ABD');
+        Observer.Verify();
     end;
 
     [Test]
@@ -792,7 +1048,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94304, 1, '1,2,10'));
         Observer.Observe('range A..B', H.DumpRange(94304, 1, 1, 1, 'A', 'B'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('range A..B', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -803,7 +1061,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94304, 1, '1,2,10'));
         Observer.Observe('filter A..B', H.DumpFilter(94304, 1, 1, 1, 'A..B'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('filter A..B', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -814,7 +1074,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94304, 1, '1,2,10'));
         Observer.Observe('filter 1A', H.DumpFilter(94304, 1, 1, 1, '1A'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('filter 1A', '(none)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -825,7 +1087,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('seed', H.Seed(94304, 1, '1,2,10'));
         Observer.Observe('count filter A*', H.CountFilter(94304, 1, 'A*'));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok');
+        Observer.Expect('count filter A*', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -837,7 +1101,10 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('seed', H.Seed(94304, 1, '10,9'));
         Observer.Observe('rename 9 to 11', H.RenameKey(94304, '9', '11'));
         Observer.Observe('asc', H.Dump(94304, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('rename 9 to 11', 'ok');
+        Observer.Expect('asc', '10,11');
+        Observer.Verify();
     end;
 
     [Test]
@@ -849,7 +1116,10 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('seed', H.Seed(94304, 1, '10,9'));
         Observer.Observe('rename 9 to ABC', H.RenameKey(94304, '9', 'ABC'));
         Observer.Observe('asc', H.Dump(94304, 1, 1, true));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok');
+        Observer.Expect('rename 9 to ABC', 'ok');
+        Observer.Expect('asc', '10,ABC');
+        Observer.Verify();
     end;
 
     [Test]
@@ -860,7 +1130,9 @@ codeunit 94310 "LT Y82 Pk Tests"
         H.Wipe();
         Observer.Observe('field', H.FieldInfo(94304, 1));
         Observer.Observe('keys', H.KeyInfo(94304));
-        Observer.Finish();
+        Observer.Expect('field', 'K type=Code len=10 class=Normal sql=Varchar pk=Yes enabled=Yes');
+        Observer.Expect('keys', 'keys=2 1=K* 2=$systemId*');
+        Observer.Verify();
     end;
 
     [Test]
@@ -878,7 +1150,15 @@ codeunit 94310 "LT Y82 Pk Tests"
         Observer.Observe('range 2..10', TypedRange(Rec, '2', '10'));
         Observer.Observe('filter >9', TypedFilter(Rec, '>%1', '9'));
         Observer.Observe('firstlast', TypedFirstLast(Rec));
-        Observer.Finish();
+        Observer.Expect('seed', 'ok | ok | ok | ok | ok | ok');
+        Observer.Expect('asc', '1,10,100,2,20,9');
+        Observer.Expect('desc', '9,20,2,100,10,1');
+        Observer.Expect('get 9', 'found 9');
+        Observer.Expect('get 3', 'not found');
+        Observer.Expect('range 2..10', '0: ');
+        Observer.Expect('filter >9', '0:  | filter=>9');
+        Observer.Expect('firstlast', '1 .. 9');
+        Observer.Verify();
     end;
 
 
