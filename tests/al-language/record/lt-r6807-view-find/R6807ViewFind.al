@@ -214,11 +214,11 @@ codeunit 94522 "LT R6807 View Find"
                 end;
             'copyFlowZero':
                 begin
-                    Q.SetRange(Cnt, 0); R2.GetTable(Q); R.CopyFilters(R2);
+                    Q.SetRange(Cnt, 0); R2.GetTable(Q); F := R.Field(3); F.CopyFilter(R2.Field(3));
                 end;
             'copyStored':
                 begin
-                    Q.SetRange("No.", 'B'); R2.GetTable(Q); R.CopyFilters(R2);
+                    Q.SetRange("No.", 'B'); R2.GetTable(Q); F := R.Field(1); F.CopyFilter(R2.Field(1));
                 end;
             'viewThenGet':
                 begin
