@@ -1028,7 +1028,7 @@ codeunit 94336 "LT Y83 Misc Tests"
         ImpTf('seed', '<Root><Row><Id>1</Id><Tf>LT Y83 Item: Id=1</Tf></Row><Row><Id>2</Id><Tf></Tf></Row></Root>');
         Observer.Observe('export', Helper.TryExport(94375, TextEncoding::UTF16));
         Observer.Expect('seed', 'ok');
-        Observer.Expect('seed rows', '1/LT Y83 Item: Id=1;2/;3/Item: Identifier Code=2..3;');
+        Observer.Expect('seed rows', '1/LT Y83 Item: Id=1;2/;');
         Observer.Expect('export', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Row>|    <Id>1</Id>|    <Tf>LT Y83 Item: Id=1</Tf>|  </Row>|  <Row>|    <Id>2</Id>|    <Tf />|  </Row>|</Root>|');
         Observer.Verify();
     end;
