@@ -154,4 +154,37 @@ codeunit 92913 "LT Y47 DT Install Read"
         Observer.Expect('triggerLog', '');
         Observer.Verify();
     end;
+
+    // Writer Y65 (al-runner issue 6668): S8 and S9 on Base Application's "Item Attribute" with this app's table extension
+    // (Y65DtItemAttributeExt.al). Counts, so the result does not depend on the demo data: rows where the copy did not happen.
+    [Test]
+    procedure Y65_DtItemAttribute_Outcomes()
+    var
+        Observer: Codeunit "Probe Observer";
+        ItemAttribute: Record "Item Attribute";
+        NotCopied: Integer;
+        NotTagged: Integer;
+        WronglyTagged: Integer;
+    begin
+        Observer.Observe('s8', ObsText('S8'));
+        Observer.Observe('s9', ObsText('S9'));
+        if ItemAttribute.FindSet() then
+            repeat
+                if ItemAttribute."LT Y65 Display Name" <> ItemAttribute.Name then
+                    NotCopied += 1;
+                if (not ItemAttribute.Blocked) and (ItemAttribute."LT Y65 Tag" <> 'y65') then
+                    NotTagged += 1;
+                if ItemAttribute.Blocked and (ItemAttribute."LT Y65 Tag" <> '') then
+                    WronglyTagged += 1;
+            until ItemAttribute.Next() = 0;
+        Observer.Observe('not copied', Format(NotCopied));
+        Observer.Observe('not tagged', Format(NotTagged));
+        Observer.Observe('blocked but tagged', Format(WronglyTagged));
+        Observer.Expect('s8', 'ok');
+        Observer.Expect('s9', 'ok');
+        Observer.Expect('not copied', '0');
+        Observer.Expect('not tagged', '0');
+        Observer.Expect('blocked but tagged', '0');
+        Observer.Verify();
+    end;
 }
