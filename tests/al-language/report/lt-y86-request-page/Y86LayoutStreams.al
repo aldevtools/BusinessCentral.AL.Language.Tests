@@ -136,4 +136,39 @@ codeunit 94588 "LT Y86 Layout Streams"
         Obs.ObserveError('report zero');
         Obs.Finish();
     end;
+
+    local procedure DumpLines(FromLine: Integer; ToLine: Integer)
+    var
+        Obs: Codeunit "Probe Observer";
+        InS: InStream;
+        Line: Text;
+        N: Integer;
+    begin
+        Report.RdlcLayout(Report::"LT Y86 Rdlc Report", InS);
+        while not InS.EOS() do begin
+            InS.ReadText(Line);
+            N += 1;
+            if (N >= FromLine) and (N <= ToLine) then
+                Obs.Observe(Format(N), Line);
+        end;
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure Y86_Dump1()
+    begin
+        DumpLines(1, 25);
+    end;
+
+    [Test]
+    procedure Y86_Dump2()
+    begin
+        DumpLines(26, 50);
+    end;
+
+    [Test]
+    procedure Y86_Dump3()
+    begin
+        DumpLines(51, 75);
+    end;
 }
