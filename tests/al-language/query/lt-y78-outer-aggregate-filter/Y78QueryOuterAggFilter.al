@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-columnfilter-property
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); tables 94130 94131, queries 94132 to 94149, test codeunit 94150 (writer Y78)
-// Probe: measured on Windows BC containers and the BC SaaS sandbox; BC versions are checked by the corpus CI matrix.
+// Probe: measured on Windows BC 27.5 and 28.5 containers and a BC 29 SaaS sandbox: identical on all three.
 // Facts: a static ColumnFilter and a runtime SetFilter / SetRange on an AGGREGATED column (Sum, Average, Min, Max, Count) of a query whose
 //   child data item is a LeftOuterJoin, RightOuterJoin or FullOuterJoin, with parents that have no child, a child that has no parent, and
 //   groups that total zero: which groups come back and with which aggregate values (AL Runner issue 6675, a Microsoft O365 Activities page).
@@ -1052,7 +1052,24 @@ codeunit 94150 "LT Y78 Query Agg Outer"
         Observer.Observe('sum or filters', Q.GetFilters());
         Observer.Observe('sum or SumQ', Q.GetFilter(SumQ));
         Observer.Observe('sum or', DumpLeftAll(Q));
-        Observer.Finish();
+        Observer.Expect('none filters', '');
+        Observer.Expect('none', '[P1/30/15/10/20/2][P2/30/30/30/30/1][P3/0/0/0/0/0][P4/0/0/0/0/1][P5/0/0/-5/5/2]');
+        Observer.Expect('sum gt0 filters', 'SumQ: >0');
+        Observer.Expect('sum gt0 SumQ', '>0');
+        Observer.Expect('sum gt0', '[P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('sum eq0 filters', 'SumQ: 0');
+        Observer.Expect('sum eq0 SumQ', '0');
+        Observer.Expect('sum eq0', '[P3/0/0/0/0/0][P4/0/0/0/0/1][P5/0/0/-5/5/2]');
+        Observer.Expect('sum ne0 filters', 'SumQ: <>0');
+        Observer.Expect('sum ne0 SumQ', '<>0');
+        Observer.Expect('sum ne0', '[P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('sum empty filters', '');
+        Observer.Expect('sum empty SumQ', '');
+        Observer.Expect('sum empty', '[P1/30/15/10/20/2][P2/30/30/30/30/1][P3/0/0/0/0/0][P4/0/0/0/0/1][P5/0/0/-5/5/2]');
+        Observer.Expect('sum or filters', 'SumQ: <0|>=30');
+        Observer.Expect('sum or SumQ', '<0|>=30');
+        Observer.Expect('sum or', '[P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1094,7 +1111,26 @@ codeunit 94150 "LT Y78 Query Agg Outer"
         Observer.Observe('sum gt0 cnt gt1 SumQ', Q.GetFilter(SumQ));
         Observer.Observe('sum gt0 cnt gt1 CntQ', Q.GetFilter(CntQ));
         Observer.Observe('sum gt0 cnt gt1', DumpLeftAll(Q));
-        Observer.Finish();
+        Observer.Expect('avg gt10 filters', 'AvgQ: >10');
+        Observer.Expect('avg gt10 AvgQ', '>10');
+        Observer.Expect('avg gt10', '[P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('min lt10 filters', 'MinQ: <10');
+        Observer.Expect('min lt10 MinQ', '<10');
+        Observer.Expect('min lt10', '[P3/0/0/0/0/0][P4/0/0/0/0/1][P5/0/0/-5/5/2]');
+        Observer.Expect('max ge20 filters', 'MaxQ: >=20');
+        Observer.Expect('max ge20 MaxQ', '>=20');
+        Observer.Expect('max ge20', '[P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('cnt eq0 filters', 'CntQ: 0');
+        Observer.Expect('cnt eq0 CntQ', '0');
+        Observer.Expect('cnt eq0', '[P3/0/0/0/0/0]');
+        Observer.Expect('cnt gt1 filters', 'CntQ: >1');
+        Observer.Expect('cnt gt1 CntQ', '>1');
+        Observer.Expect('cnt gt1', '[P1/30/15/10/20/2][P5/0/0/-5/5/2]');
+        Observer.Expect('sum gt0 cnt gt1 filters', 'SumQ: >0, CntQ: >1');
+        Observer.Expect('sum gt0 cnt gt1 SumQ', '>0');
+        Observer.Expect('sum gt0 cnt gt1 CntQ', '>1');
+        Observer.Expect('sum gt0 cnt gt1', '[P1/30/15/10/20/2]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1132,7 +1168,24 @@ codeunit 94150 "LT Y78 Query Agg Outer"
         Observer.Observe('sum or filters', Q.GetFilters());
         Observer.Observe('sum or SumQ', Q.GetFilter(SumQ));
         Observer.Observe('sum or', DumpRightAll(Q));
-        Observer.Finish();
+        Observer.Expect('none filters', '');
+        Observer.Expect('none', '[/7/7/7/7/1][P1/30/15/10/20/2][P2/30/30/30/30/1][P4/0/0/0/0/1][P5/0/0/-5/5/2]');
+        Observer.Expect('sum gt0 filters', 'SumQ: >0');
+        Observer.Expect('sum gt0 SumQ', '>0');
+        Observer.Expect('sum gt0', '[/7/7/7/7/1][P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('sum eq0 filters', 'SumQ: 0');
+        Observer.Expect('sum eq0 SumQ', '0');
+        Observer.Expect('sum eq0', '[P4/0/0/0/0/1][P5/0/0/-5/5/2]');
+        Observer.Expect('sum ne0 filters', 'SumQ: <>0');
+        Observer.Expect('sum ne0 SumQ', '<>0');
+        Observer.Expect('sum ne0', '[/7/7/7/7/1][P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('sum empty filters', '');
+        Observer.Expect('sum empty SumQ', '');
+        Observer.Expect('sum empty', '[/7/7/7/7/1][P1/30/15/10/20/2][P2/30/30/30/30/1][P4/0/0/0/0/1][P5/0/0/-5/5/2]');
+        Observer.Expect('sum or filters', 'SumQ: <0|>=30');
+        Observer.Expect('sum or SumQ', '<0|>=30');
+        Observer.Expect('sum or', '[P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1174,7 +1227,26 @@ codeunit 94150 "LT Y78 Query Agg Outer"
         Observer.Observe('sum gt0 cnt gt1 SumQ', Q.GetFilter(SumQ));
         Observer.Observe('sum gt0 cnt gt1 CntQ', Q.GetFilter(CntQ));
         Observer.Observe('sum gt0 cnt gt1', DumpRightAll(Q));
-        Observer.Finish();
+        Observer.Expect('avg gt10 filters', 'AvgQ: >10');
+        Observer.Expect('avg gt10 AvgQ', '>10');
+        Observer.Expect('avg gt10', '[P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('min lt10 filters', 'MinQ: <10');
+        Observer.Expect('min lt10 MinQ', '<10');
+        Observer.Expect('min lt10', '[/7/7/7/7/1][P4/0/0/0/0/1][P5/0/0/-5/5/2]');
+        Observer.Expect('max ge20 filters', 'MaxQ: >=20');
+        Observer.Expect('max ge20 MaxQ', '>=20');
+        Observer.Expect('max ge20', '[P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('cnt eq0 filters', 'CntQ: 0');
+        Observer.Expect('cnt eq0 CntQ', '0');
+        Observer.Expect('cnt eq0', '');
+        Observer.Expect('cnt gt1 filters', 'CntQ: >1');
+        Observer.Expect('cnt gt1 CntQ', '>1');
+        Observer.Expect('cnt gt1', '[P1/30/15/10/20/2][P5/0/0/-5/5/2]');
+        Observer.Expect('sum gt0 cnt gt1 filters', 'SumQ: >0, CntQ: >1');
+        Observer.Expect('sum gt0 cnt gt1 SumQ', '>0');
+        Observer.Expect('sum gt0 cnt gt1 CntQ', '>1');
+        Observer.Expect('sum gt0 cnt gt1', '[P1/30/15/10/20/2]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1212,7 +1284,24 @@ codeunit 94150 "LT Y78 Query Agg Outer"
         Observer.Observe('sum or filters', Q.GetFilters());
         Observer.Observe('sum or SumQ', Q.GetFilter(SumQ));
         Observer.Observe('sum or', DumpFullAll(Q));
-        Observer.Finish();
+        Observer.Expect('none filters', '');
+        Observer.Expect('none', '[/7/7/7/7/1][P1/30/15/10/20/2][P2/30/30/30/30/1][P3/0/0/0/0/0][P4/0/0/0/0/1][P5/0/0/-5/5/2]');
+        Observer.Expect('sum gt0 filters', 'SumQ: >0');
+        Observer.Expect('sum gt0 SumQ', '>0');
+        Observer.Expect('sum gt0', '[/7/7/7/7/1][P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('sum eq0 filters', 'SumQ: 0');
+        Observer.Expect('sum eq0 SumQ', '0');
+        Observer.Expect('sum eq0', '[P3/0/0/0/0/0][P4/0/0/0/0/1][P5/0/0/-5/5/2]');
+        Observer.Expect('sum ne0 filters', 'SumQ: <>0');
+        Observer.Expect('sum ne0 SumQ', '<>0');
+        Observer.Expect('sum ne0', '[/7/7/7/7/1][P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('sum empty filters', '');
+        Observer.Expect('sum empty SumQ', '');
+        Observer.Expect('sum empty', '[/7/7/7/7/1][P1/30/15/10/20/2][P2/30/30/30/30/1][P3/0/0/0/0/0][P4/0/0/0/0/1][P5/0/0/-5/5/2]');
+        Observer.Expect('sum or filters', 'SumQ: <0|>=30');
+        Observer.Expect('sum or SumQ', '<0|>=30');
+        Observer.Expect('sum or', '[P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1254,7 +1343,26 @@ codeunit 94150 "LT Y78 Query Agg Outer"
         Observer.Observe('sum gt0 cnt gt1 SumQ', Q.GetFilter(SumQ));
         Observer.Observe('sum gt0 cnt gt1 CntQ', Q.GetFilter(CntQ));
         Observer.Observe('sum gt0 cnt gt1', DumpFullAll(Q));
-        Observer.Finish();
+        Observer.Expect('avg gt10 filters', 'AvgQ: >10');
+        Observer.Expect('avg gt10 AvgQ', '>10');
+        Observer.Expect('avg gt10', '[P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('min lt10 filters', 'MinQ: <10');
+        Observer.Expect('min lt10 MinQ', '<10');
+        Observer.Expect('min lt10', '[/7/7/7/7/1][P3/0/0/0/0/0][P4/0/0/0/0/1][P5/0/0/-5/5/2]');
+        Observer.Expect('max ge20 filters', 'MaxQ: >=20');
+        Observer.Expect('max ge20 MaxQ', '>=20');
+        Observer.Expect('max ge20', '[P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('cnt eq0 filters', 'CntQ: 0');
+        Observer.Expect('cnt eq0 CntQ', '0');
+        Observer.Expect('cnt eq0', '[P3/0/0/0/0/0]');
+        Observer.Expect('cnt gt1 filters', 'CntQ: >1');
+        Observer.Expect('cnt gt1 CntQ', '>1');
+        Observer.Expect('cnt gt1', '[P1/30/15/10/20/2][P5/0/0/-5/5/2]');
+        Observer.Expect('sum gt0 cnt gt1 filters', 'SumQ: >0, CntQ: >1');
+        Observer.Expect('sum gt0 cnt gt1 SumQ', '>0');
+        Observer.Expect('sum gt0 cnt gt1 CntQ', '>1');
+        Observer.Expect('sum gt0 cnt gt1', '[P1/30/15/10/20/2]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1283,7 +1391,22 @@ codeunit 94150 "LT Y78 Query Agg Outer"
         Observer.Observe('Cnt 0 filters', QCnt.GetFilters());
         Observer.Observe('Cnt 0 filter', QCnt.GetFilter(CntQ));
         Observer.Observe('Cnt 0', DumpLeftCnt(QCnt));
-        Observer.Finish();
+        Observer.Expect('Sum > 0 filters', 'SumQ: >0');
+        Observer.Expect('Sum > 0 filter', '>0');
+        Observer.Expect('Sum > 0', '[P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('Avg > 10 filters', 'AvgQ: >10');
+        Observer.Expect('Avg > 10 filter', '>10');
+        Observer.Expect('Avg > 10', '[P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('Min < 10 filters', 'MinQ: <10');
+        Observer.Expect('Min < 10 filter', '<10');
+        Observer.Expect('Min < 10', '[P3/0/0/0/0/0][P4/0/0/0/0/1][P5/0/0/-5/5/2]');
+        Observer.Expect('Max >= 20 filters', 'MaxQ: >=20');
+        Observer.Expect('Max >= 20 filter', '>=20');
+        Observer.Expect('Max >= 20', '[P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('Cnt 0 filters', 'CntQ: 0');
+        Observer.Expect('Cnt 0 filter', '0');
+        Observer.Expect('Cnt 0', '[P3/0/0/0/0/0]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1312,7 +1435,22 @@ codeunit 94150 "LT Y78 Query Agg Outer"
         Observer.Observe('Cnt 0 filters', QCnt.GetFilters());
         Observer.Observe('Cnt 0 filter', QCnt.GetFilter(CntQ));
         Observer.Observe('Cnt 0', DumpRightCnt(QCnt));
-        Observer.Finish();
+        Observer.Expect('Sum > 0 filters', 'SumQ: >0');
+        Observer.Expect('Sum > 0 filter', '>0');
+        Observer.Expect('Sum > 0', '[/7/7/7/7/1][P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('Avg > 10 filters', 'AvgQ: >10');
+        Observer.Expect('Avg > 10 filter', '>10');
+        Observer.Expect('Avg > 10', '[P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('Min < 10 filters', 'MinQ: <10');
+        Observer.Expect('Min < 10 filter', '<10');
+        Observer.Expect('Min < 10', '[/7/7/7/7/1][P4/0/0/0/0/1][P5/0/0/-5/5/2]');
+        Observer.Expect('Max >= 20 filters', 'MaxQ: >=20');
+        Observer.Expect('Max >= 20 filter', '>=20');
+        Observer.Expect('Max >= 20', '[P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('Cnt 0 filters', 'CntQ: 0');
+        Observer.Expect('Cnt 0 filter', '0');
+        Observer.Expect('Cnt 0', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1341,6 +1479,22 @@ codeunit 94150 "LT Y78 Query Agg Outer"
         Observer.Observe('Cnt 0 filters', QCnt.GetFilters());
         Observer.Observe('Cnt 0 filter', QCnt.GetFilter(CntQ));
         Observer.Observe('Cnt 0', DumpFullCnt(QCnt));
-        Observer.Finish();
+        Observer.Expect('Sum > 0 filters', 'SumQ: >0');
+        Observer.Expect('Sum > 0 filter', '>0');
+        Observer.Expect('Sum > 0', '[/7/7/7/7/1][P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('Avg > 10 filters', 'AvgQ: >10');
+        Observer.Expect('Avg > 10 filter', '>10');
+        Observer.Expect('Avg > 10', '[P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('Min < 10 filters', 'MinQ: <10');
+        Observer.Expect('Min < 10 filter', '<10');
+        Observer.Expect('Min < 10', '[/7/7/7/7/1][P3/0/0/0/0/0][P4/0/0/0/0/1][P5/0/0/-5/5/2]');
+        Observer.Expect('Max >= 20 filters', 'MaxQ: >=20');
+        Observer.Expect('Max >= 20 filter', '>=20');
+        Observer.Expect('Max >= 20', '[P1/30/15/10/20/2][P2/30/30/30/30/1]');
+        Observer.Expect('Cnt 0 filters', 'CntQ: 0');
+        Observer.Expect('Cnt 0 filter', '0');
+        Observer.Expect('Cnt 0', '[P3/0/0/0/0/0]');
+        Observer.Verify();
     end;
 }
+
