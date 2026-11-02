@@ -12,8 +12,8 @@ codeunit 93739 "LT Y69 Debug"
         i: Integer;
         Kind: Integer;
     begin
-        asserterror Helper.SeedMoved();
-        Observer.ObserveError('seed');
+        Helper.SeedMoved();
+        Observer.Observe('seeded', 'ok');
         for i := 1 to Helper.MovedTableCount() do
             for Kind := 1 to 4 do
                 Observer.Observe(Format(Helper.MovedTableId(i)) + '|' + Format(Kind), Helper.ErrorOf(Kind, Helper.MovedTableId(i)));
