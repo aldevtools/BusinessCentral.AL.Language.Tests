@@ -106,13 +106,6 @@ codeunit 93709 "LT Y69 MV Writer"
     end;
 }
 
-// Compile-only: an entitlement over a set that names moved tables (entitlements have no runtime observable in a test).
-entitlement "LT Y69 MV Ent"
-{
-    Type = Implicit;
-    ObjectEntitlements = "LT Y69 MV All";
-}
-
 // System object grants (issue 6717).
 permissionset 93720 "LT Y69 SY Basic"
 {
