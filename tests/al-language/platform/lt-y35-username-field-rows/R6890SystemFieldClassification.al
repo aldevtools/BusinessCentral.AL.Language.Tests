@@ -1,6 +1,10 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-system-fields
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own tables 92356 (LT Y35 UN Table, CustomerContent), 95020, 95021
+// BC versions: 27.5, 28.5, 29.0
+// Measured (Windows 27.5 and 28.5 identical; 29.0 see commit): SystemId (2000000000), SystemCreatedBy and SystemModifiedBy carry
+//   DataClassification EndUserPseudonymousIdentifiers (4); SystemCreatedAt and SystemModifiedAt carry SystemMetadata (6), whatever the table
+//   declares (CustomerContent, ToBeClassified or nothing); Class Normal, Enabled, ObsoleteState 0; field 0 has no row.
 // Probe (al-runner issue 6890): the Field rows of SystemId and the audit fields (No. 2000000000-2000000004): what DataClassification, Class,
 //   Type, FieldName, Enabled and ObsoleteState they carry in a table that declares CustomerContent, ToBeClassified or no DataClassification, by
 //   Field.Get and in a SetRange(TableNo) walk. The user-name rows 2000000005-2000000008 are pinned in Y35UserNameFieldRows.al.
@@ -95,7 +99,20 @@ codeunit 95022 "LT R6890 System Field Class"
     begin
         ObserveRows('cc', Database::"LT Y35 UN Table");
         Walk('cc', Database::"LT Y35 UN Table");
-        Observer.Finish();
+        Observer.Expect('cc get 0', 'not found');
+        Observer.Expect('cc get 1', 'No.: DataClassification=0; Class=0; Type=31489; Enabled=Yes; ObsoleteState=0');
+        Observer.Expect('cc get 2', 'Description: DataClassification=0; Class=0; Type=31488; Enabled=Yes; ObsoleteState=0');
+        Observer.Expect('cc get 3', 'not found');
+        Observer.Expect('cc get 4', 'not found');
+        Observer.Expect('cc get 2000000000', '$systemId: DataClassification=4; Class=0; Type=37119; Enabled=Yes; ObsoleteState=0');
+        Observer.Expect('cc get 2000000001', 'SystemCreatedAt: DataClassification=6; Class=0; Type=37375; Enabled=Yes; ObsoleteState=0');
+        Observer.Expect('cc get 2000000002', 'SystemCreatedBy: DataClassification=4; Class=0; Type=37119; Enabled=Yes; ObsoleteState=0');
+        Observer.Expect('cc get 2000000003', 'SystemModifiedAt: DataClassification=6; Class=0; Type=37375; Enabled=Yes; ObsoleteState=0');
+        Observer.Expect('cc get 2000000004', 'SystemModifiedBy: DataClassification=4; Class=0; Type=37119; Enabled=Yes; ObsoleteState=0');
+        Observer.Expect('cc walk', '2000000000=4,2000000001=6,2000000002=4,2000000003=6,2000000004=4,');
+        Observer.Expect('cc walk SystemMetadata', '2000000001,2000000003,');
+        Observer.Expect('cc walk EndUserPseudonymousIdentifiers', '2000000000,2000000002,2000000004,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -103,7 +120,20 @@ codeunit 95022 "LT R6890 System Field Class"
     begin
         ObserveRows('none', Database::"LT R6890 No Class Table");
         Walk('none', Database::"LT R6890 No Class Table");
-        Observer.Finish();
+        Observer.Expect('none get 0', 'not found');
+        Observer.Expect('none get 1', 'No.: DataClassification=0; Class=0; Type=31489; Enabled=Yes; ObsoleteState=0');
+        Observer.Expect('none get 2', 'not found');
+        Observer.Expect('none get 3', 'not found');
+        Observer.Expect('none get 4', 'not found');
+        Observer.Expect('none get 2000000000', '$systemId: DataClassification=4; Class=0; Type=37119; Enabled=Yes; ObsoleteState=0');
+        Observer.Expect('none get 2000000001', 'SystemCreatedAt: DataClassification=6; Class=0; Type=37375; Enabled=Yes; ObsoleteState=0');
+        Observer.Expect('none get 2000000002', 'SystemCreatedBy: DataClassification=4; Class=0; Type=37119; Enabled=Yes; ObsoleteState=0');
+        Observer.Expect('none get 2000000003', 'SystemModifiedAt: DataClassification=6; Class=0; Type=37375; Enabled=Yes; ObsoleteState=0');
+        Observer.Expect('none get 2000000004', 'SystemModifiedBy: DataClassification=4; Class=0; Type=37119; Enabled=Yes; ObsoleteState=0');
+        Observer.Expect('none walk', '2000000000=4,2000000001=6,2000000002=4,2000000003=6,2000000004=4,');
+        Observer.Expect('none walk SystemMetadata', '2000000001,2000000003,');
+        Observer.Expect('none walk EndUserPseudonymousIdentifiers', '2000000000,2000000002,2000000004,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -111,6 +141,19 @@ codeunit 95022 "LT R6890 System Field Class"
     begin
         ObserveRows('tbc', Database::"LT R6890 ToBeClass Table");
         Walk('tbc', Database::"LT R6890 ToBeClass Table");
-        Observer.Finish();
+        Observer.Expect('tbc get 0', 'not found');
+        Observer.Expect('tbc get 1', 'No.: DataClassification=1; Class=0; Type=31489; Enabled=Yes; ObsoleteState=0');
+        Observer.Expect('tbc get 2', 'not found');
+        Observer.Expect('tbc get 3', 'not found');
+        Observer.Expect('tbc get 4', 'not found');
+        Observer.Expect('tbc get 2000000000', '$systemId: DataClassification=4; Class=0; Type=37119; Enabled=Yes; ObsoleteState=0');
+        Observer.Expect('tbc get 2000000001', 'SystemCreatedAt: DataClassification=6; Class=0; Type=37375; Enabled=Yes; ObsoleteState=0');
+        Observer.Expect('tbc get 2000000002', 'SystemCreatedBy: DataClassification=4; Class=0; Type=37119; Enabled=Yes; ObsoleteState=0');
+        Observer.Expect('tbc get 2000000003', 'SystemModifiedAt: DataClassification=6; Class=0; Type=37375; Enabled=Yes; ObsoleteState=0');
+        Observer.Expect('tbc get 2000000004', 'SystemModifiedBy: DataClassification=4; Class=0; Type=37119; Enabled=Yes; ObsoleteState=0');
+        Observer.Expect('tbc walk', '2000000000=4,2000000001=6,2000000002=4,2000000003=6,2000000004=4,');
+        Observer.Expect('tbc walk SystemMetadata', '2000000001,2000000003,');
+        Observer.Expect('tbc walk EndUserPseudonymousIdentifiers', '2000000000,2000000002,2000000004,');
+        Observer.Verify();
     end;
 }
