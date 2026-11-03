@@ -99,6 +99,12 @@ codeunit 94646 "LT Y87 Move Answer Tests"
     end;
 
     [TryFunction]
+    local procedure TryListClose(var P: TestPage "LT Y80 MD List")
+    begin
+        P.Close();
+    end;
+
+    [TryFunction]
     local procedure TryCardMove(var P: TestPage "LT Y80 MD Card"; Which: Text; Preset: Boolean)
     begin
         Moved := Preset;
@@ -140,6 +146,12 @@ codeunit 94646 "LT Y87 Move Answer Tests"
                 else
                     Branch := 'else';
         end;
+    end;
+
+    [TryFunction]
+    local procedure TryCardClose(var P: TestPage "LT Y80 MD Card")
+    begin
+        P.Close();
     end;
 
     [TryFunction]
@@ -186,6 +198,12 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         end;
     end;
 
+    [TryFunction]
+    local procedure TryWorksheetClose(var P: TestPage "LT Y80 MD Worksheet")
+    begin
+        P.Close();
+    end;
+
     [Test]
     procedure Y87_SA_List_Next()
     var
@@ -203,7 +221,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('10 branch', TryListBranch(P, 'next'), false);
         Observer.Observe('10 branch taken', Branch);
         Observer.Observe('10 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('10 close', TryListClose(P), false);
         Observer.Observe('10 stored', Stored(10));
         P.OpenEdit();
         P.GoToKey(20);
@@ -216,7 +234,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('20 branch', TryListBranch(P, 'next'), false);
         Observer.Observe('20 branch taken', Branch);
         Observer.Observe('20 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('20 close', TryListClose(P), false);
         Observer.Observe('20 stored', Stored(20));
         P.OpenEdit();
         P.GoToKey(30);
@@ -229,7 +247,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('30 branch', TryListBranch(P, 'next'), false);
         Observer.Observe('30 branch taken', Branch);
         Observer.Observe('30 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('30 close', TryListClose(P), false);
         Observer.Observe('30 stored', Stored(30));
 
         Observer.Finish();
@@ -258,7 +276,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('10 branch', TryListBranch(P, 'previous'), false);
         Observer.Observe('10 branch taken', Branch);
         Observer.Observe('10 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('10 close', TryListClose(P), false);
         Observer.Observe('10 stored', Stored(10));
         P.OpenEdit();
         P.GoToKey(20);
@@ -271,7 +289,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('20 branch', TryListBranch(P, 'previous'), false);
         Observer.Observe('20 branch taken', Branch);
         Observer.Observe('20 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('20 close', TryListClose(P), false);
         Observer.Observe('20 stored', Stored(20));
         P.OpenEdit();
         P.GoToKey(30);
@@ -284,7 +302,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('30 branch', TryListBranch(P, 'previous'), false);
         Observer.Observe('30 branch taken', Branch);
         Observer.Observe('30 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('30 close', TryListClose(P), false);
         Observer.Observe('30 stored', Stored(30));
 
         Observer.Finish();
@@ -313,7 +331,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('10 branch', TryListBranch(P, 'first'), false);
         Observer.Observe('10 branch taken', Branch);
         Observer.Observe('10 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('10 close', TryListClose(P), false);
         Observer.Observe('10 stored', Stored(10));
         P.OpenEdit();
         P.GoToKey(20);
@@ -326,7 +344,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('20 branch', TryListBranch(P, 'first'), false);
         Observer.Observe('20 branch taken', Branch);
         Observer.Observe('20 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('20 close', TryListClose(P), false);
         Observer.Observe('20 stored', Stored(20));
         P.OpenEdit();
         P.GoToKey(30);
@@ -339,7 +357,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('30 branch', TryListBranch(P, 'first'), false);
         Observer.Observe('30 branch taken', Branch);
         Observer.Observe('30 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('30 close', TryListClose(P), false);
         Observer.Observe('30 stored', Stored(30));
 
         Observer.Finish();
@@ -368,7 +386,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('10 branch', TryListBranch(P, 'last'), false);
         Observer.Observe('10 branch taken', Branch);
         Observer.Observe('10 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('10 close', TryListClose(P), false);
         Observer.Observe('10 stored', Stored(10));
         P.OpenEdit();
         P.GoToKey(20);
@@ -381,7 +399,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('20 branch', TryListBranch(P, 'last'), false);
         Observer.Observe('20 branch taken', Branch);
         Observer.Observe('20 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('20 close', TryListClose(P), false);
         Observer.Observe('20 stored', Stored(20));
         P.OpenEdit();
         P.GoToKey(30);
@@ -394,7 +412,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('30 branch', TryListBranch(P, 'last'), false);
         Observer.Observe('30 branch taken', Branch);
         Observer.Observe('30 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('30 close', TryListClose(P), false);
         Observer.Observe('30 stored', Stored(30));
 
         Observer.Finish();
@@ -423,7 +441,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('10 branch', TryCardBranch(P, 'next'), false);
         Observer.Observe('10 branch taken', Branch);
         Observer.Observe('10 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('10 close', TryCardClose(P), false);
         Observer.Observe('10 stored', Stored(10));
         P.OpenEdit();
         P.GoToKey(20);
@@ -436,7 +454,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('20 branch', TryCardBranch(P, 'next'), false);
         Observer.Observe('20 branch taken', Branch);
         Observer.Observe('20 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('20 close', TryCardClose(P), false);
         Observer.Observe('20 stored', Stored(20));
         P.OpenEdit();
         P.GoToKey(30);
@@ -449,7 +467,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('30 branch', TryCardBranch(P, 'next'), false);
         Observer.Observe('30 branch taken', Branch);
         Observer.Observe('30 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('30 close', TryCardClose(P), false);
         Observer.Observe('30 stored', Stored(30));
 
         Observer.Finish();
@@ -478,7 +496,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('10 branch', TryCardBranch(P, 'previous'), false);
         Observer.Observe('10 branch taken', Branch);
         Observer.Observe('10 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('10 close', TryCardClose(P), false);
         Observer.Observe('10 stored', Stored(10));
         P.OpenEdit();
         P.GoToKey(20);
@@ -491,7 +509,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('20 branch', TryCardBranch(P, 'previous'), false);
         Observer.Observe('20 branch taken', Branch);
         Observer.Observe('20 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('20 close', TryCardClose(P), false);
         Observer.Observe('20 stored', Stored(20));
         P.OpenEdit();
         P.GoToKey(30);
@@ -504,7 +522,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('30 branch', TryCardBranch(P, 'previous'), false);
         Observer.Observe('30 branch taken', Branch);
         Observer.Observe('30 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('30 close', TryCardClose(P), false);
         Observer.Observe('30 stored', Stored(30));
 
         Observer.Finish();
@@ -533,7 +551,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('10 branch', TryCardBranch(P, 'first'), false);
         Observer.Observe('10 branch taken', Branch);
         Observer.Observe('10 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('10 close', TryCardClose(P), false);
         Observer.Observe('10 stored', Stored(10));
         P.OpenEdit();
         P.GoToKey(20);
@@ -546,7 +564,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('20 branch', TryCardBranch(P, 'first'), false);
         Observer.Observe('20 branch taken', Branch);
         Observer.Observe('20 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('20 close', TryCardClose(P), false);
         Observer.Observe('20 stored', Stored(20));
         P.OpenEdit();
         P.GoToKey(30);
@@ -559,7 +577,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('30 branch', TryCardBranch(P, 'first'), false);
         Observer.Observe('30 branch taken', Branch);
         Observer.Observe('30 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('30 close', TryCardClose(P), false);
         Observer.Observe('30 stored', Stored(30));
 
         Observer.Finish();
@@ -588,7 +606,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('10 branch', TryCardBranch(P, 'last'), false);
         Observer.Observe('10 branch taken', Branch);
         Observer.Observe('10 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('10 close', TryCardClose(P), false);
         Observer.Observe('10 stored', Stored(10));
         P.OpenEdit();
         P.GoToKey(20);
@@ -601,7 +619,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('20 branch', TryCardBranch(P, 'last'), false);
         Observer.Observe('20 branch taken', Branch);
         Observer.Observe('20 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('20 close', TryCardClose(P), false);
         Observer.Observe('20 stored', Stored(20));
         P.OpenEdit();
         P.GoToKey(30);
@@ -614,7 +632,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('30 branch', TryCardBranch(P, 'last'), false);
         Observer.Observe('30 branch taken', Branch);
         Observer.Observe('30 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('30 close', TryCardClose(P), false);
         Observer.Observe('30 stored', Stored(30));
 
         Observer.Finish();
@@ -643,7 +661,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('10 branch', TryWorksheetBranch(P, 'next'), false);
         Observer.Observe('10 branch taken', Branch);
         Observer.Observe('10 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('10 close', TryWorksheetClose(P), false);
         Observer.Observe('10 stored', Stored(10));
         P.OpenEdit();
         P.GoToKey(20);
@@ -656,7 +674,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('20 branch', TryWorksheetBranch(P, 'next'), false);
         Observer.Observe('20 branch taken', Branch);
         Observer.Observe('20 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('20 close', TryWorksheetClose(P), false);
         Observer.Observe('20 stored', Stored(20));
         P.OpenEdit();
         P.GoToKey(30);
@@ -669,7 +687,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('30 branch', TryWorksheetBranch(P, 'next'), false);
         Observer.Observe('30 branch taken', Branch);
         Observer.Observe('30 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('30 close', TryWorksheetClose(P), false);
         Observer.Observe('30 stored', Stored(30));
 
         Observer.Finish();
@@ -698,7 +716,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('10 branch', TryWorksheetBranch(P, 'previous'), false);
         Observer.Observe('10 branch taken', Branch);
         Observer.Observe('10 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('10 close', TryWorksheetClose(P), false);
         Observer.Observe('10 stored', Stored(10));
         P.OpenEdit();
         P.GoToKey(20);
@@ -711,7 +729,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('20 branch', TryWorksheetBranch(P, 'previous'), false);
         Observer.Observe('20 branch taken', Branch);
         Observer.Observe('20 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('20 close', TryWorksheetClose(P), false);
         Observer.Observe('20 stored', Stored(20));
         P.OpenEdit();
         P.GoToKey(30);
@@ -724,7 +742,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('30 branch', TryWorksheetBranch(P, 'previous'), false);
         Observer.Observe('30 branch taken', Branch);
         Observer.Observe('30 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('30 close', TryWorksheetClose(P), false);
         Observer.Observe('30 stored', Stored(30));
 
         Observer.Finish();
@@ -753,7 +771,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('10 branch', TryWorksheetBranch(P, 'first'), false);
         Observer.Observe('10 branch taken', Branch);
         Observer.Observe('10 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('10 close', TryWorksheetClose(P), false);
         Observer.Observe('10 stored', Stored(10));
         P.OpenEdit();
         P.GoToKey(20);
@@ -766,7 +784,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('20 branch', TryWorksheetBranch(P, 'first'), false);
         Observer.Observe('20 branch taken', Branch);
         Observer.Observe('20 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('20 close', TryWorksheetClose(P), false);
         Observer.Observe('20 stored', Stored(20));
         P.OpenEdit();
         P.GoToKey(30);
@@ -779,7 +797,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('30 branch', TryWorksheetBranch(P, 'first'), false);
         Observer.Observe('30 branch taken', Branch);
         Observer.Observe('30 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('30 close', TryWorksheetClose(P), false);
         Observer.Observe('30 stored', Stored(30));
 
         Observer.Finish();
@@ -808,7 +826,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('10 branch', TryWorksheetBranch(P, 'last'), false);
         Observer.Observe('10 branch taken', Branch);
         Observer.Observe('10 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('10 close', TryWorksheetClose(P), false);
         Observer.Observe('10 stored', Stored(10));
         P.OpenEdit();
         P.GoToKey(20);
@@ -821,7 +839,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('20 branch', TryWorksheetBranch(P, 'last'), false);
         Observer.Observe('20 branch taken', Branch);
         Observer.Observe('20 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('20 close', TryWorksheetClose(P), false);
         Observer.Observe('20 stored', Stored(20));
         P.OpenEdit();
         P.GoToKey(30);
@@ -834,7 +852,7 @@ codeunit 94646 "LT Y87 Move Answer Tests"
         Step('30 branch', TryWorksheetBranch(P, 'last'), false);
         Observer.Observe('30 branch taken', Branch);
         Observer.Observe('30 shown after', P.IdCtl.Value() + '/' + P.TxtCtl.Value());
-        P.Close();
+        Step('30 close', TryWorksheetClose(P), false);
         Observer.Observe('30 stored', Stored(30));
 
         Observer.Finish();

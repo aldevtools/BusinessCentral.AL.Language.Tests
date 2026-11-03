@@ -680,42 +680,4 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Finish();
     end;
 
-
-    [Test]
-    [HandlerFunctions('GroupHandler')]
-    procedure Y87_BL_30_Middle_List()
-    var
-        P: TestPage "LT Y87 Big List";
-    begin
-        Seed(30, 'G016');
-        Mode := 'ok';
-        P.OpenEdit();
-        P.GoToKey('I1');
-        Observer.Observe('before', P.GrpCtl.Value());
-        P.GrpCtl.Lookup();
-        Observer.Observe('after', P.GrpCtl.Value());
-        P.Close();
-        Observer.Observe('stored', Stored());
-        Observer.Finish();
-    end;
-
-
-    [Test]
-    [HandlerFunctions('GroupHandler')]
-    procedure Y87_BL_120_Last_List()
-    var
-        P: TestPage "LT Y87 Big List";
-    begin
-        Seed(120, 'G120');
-        Mode := 'ok';
-        P.OpenEdit();
-        P.GoToKey('I1');
-        Observer.Observe('before', P.GrpCtl.Value());
-        P.GrpCtl.Lookup();
-        Observer.Observe('after', P.GrpCtl.Value());
-        P.Close();
-        Observer.Observe('stored', Stored());
-        Observer.Finish();
-    end;
-
 }

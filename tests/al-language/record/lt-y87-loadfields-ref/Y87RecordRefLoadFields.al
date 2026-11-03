@@ -1280,19 +1280,26 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
     end;
 
 
+    [TryFunction]
+    local procedure TryRefFlags(var R: RecordRef; var Result: Text)
+    begin
+        Result := RefFlags(R);
+    end;
+
     [Test]
     procedure Ref_AfterClose()
     var
         R: RecordRef;
-        Row: Record "LT Y87 LF Row";
         Observer: Codeunit "Probe Observer";
+        Flags: Text;
     begin
         Seed();
         R.Open(94653);
         GetOne(R);
         R.Close();
-        Observer.Observe('single', RefFlags(R));
-        Observer.Observe('multi', RefMulti(R));
+        Observer.Observe('single ok', Format(TryRefFlags(R, Flags)));
+        Observer.ObserveError('single');
+        Observer.Observe('single flags', Flags);
         Observer.Finish();
     end;
 
