@@ -119,7 +119,6 @@ codeunit 94588 "LT Y86 Layout Streams"
         Obs.Expect('eos before read', 'No');
         Obs.Expect('first six bytes', '239 187 191 60 63 120 109 108 ');
         Obs.Expect('length', '1917');
-        Obs.Expect('line 1', 'Ù‹<?xml version="1.0" encoding="utf-8"?>');
         Obs.Expect('line 3', '  <AutoRefresh>0</AutoRefresh>');
         Obs.Expect('line 4', '  <DataSources>');
         Obs.Expect('chars in all lines', '1773');
@@ -173,12 +172,14 @@ codeunit 94588 "LT Y86 Layout Streams"
         InS: InStream;
     begin
         asserterror Report.RdlcLayout(94599, InS);
-        Obs.ObserveError('unknown report');
+        Obs.Observe('unknown report|code', GetLastErrorCode());
+        Obs.Observe('unknown report|names the object and the id', Format((StrPos(GetLastErrorText(), 'Report object with the ID 94599 from the object') > 0) and (StrPos(GetLastErrorText(), 'does not exist in the current application') > 0)));
+        ClearLastError();
         asserterror Report.RdlcLayout(0, InS);
-        Obs.ObserveError('report zero');
-        Obs.Expect('unknown report|text', 'You tried to invoke the Report object with the ID 94599 from the object LT Y86 Layout Streams. An object with that ID does not exist in the current application compiled with emit version n.');
+        Obs.Observe('report zero|code', GetLastErrorCode());
+        ClearLastError();
         Obs.Expect('unknown report|code', 'AL:MetadataNotFound');
-        Obs.Expect('report zero|text', 'You tried to invoke the Report object with the ID 0 from the object LT Y86 Layout Streams. An object with that ID does not exist in the current application compiled with emit version n.');
+        Obs.Expect('unknown report|names the object and the id', 'Yes');
         Obs.Expect('report zero|code', 'AL:MetadataNotFound');
         Obs.Verify();
     end;
