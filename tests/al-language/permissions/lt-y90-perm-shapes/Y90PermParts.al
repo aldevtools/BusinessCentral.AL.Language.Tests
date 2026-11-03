@@ -25,7 +25,11 @@ codeunit 94809 "LT Y90 Perm Parts"
         Run('a_parent_only', 'LT Y90 P Pages', 1, true);
         Run('a_cu_star', 'LT Y90 P PagesCuStar', 1, true);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('a_parent_only',
+            'The part with ID = n was not found on the page. | TestPartNotFound');
+        Observer.Expect('a_cu_star',
+            'The part with ID = n was not found on the page. | TestPartNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -35,10 +39,16 @@ codeunit 94809 "LT Y90 Perm Parts"
     begin
         WasStarted := StartMock();
         Run('b_part_granted', 'LT Y90 P Parts', 2, true);
-        Run('b_system_star', 'LT Y90 P Parts2', 2, true);
+        Run('b_all_wildcards', 'LT Y90 P Parts2', 2, true);
         Run('b_cu_star', 'LT Y90 P Parts3', 2, true);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('b_part_granted',
+            'The part with ID = n was not found on the page. | TestPartNotFound');
+        Observer.Expect('b_all_wildcards',
+            'The part with ID = n was not found on the page. | TestPartNotFound');
+        Observer.Expect('b_cu_star',
+            'The part with ID = n was not found on the page. | TestPartNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -50,7 +60,11 @@ codeunit 94809 "LT Y90 Perm Parts"
         Run('c_page_star', 'LT Y90 P PagesStar', 3, true);
         Run('c_star_star', 'LT Y90 P StarStar', 3, true);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('c_page_star',
+            'The part with ID = n was not found on the page. | TestPartNotFound');
+        Observer.Expect('c_star_star',
+            'The part with ID = n was not found on the page. | TestPartNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -61,7 +75,9 @@ codeunit 94809 "LT Y90 Perm Parts"
         WasStarted := StartMock();
         Run('set_a_parent_only', 'LT Y90 P Pages', 1, false);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('set_a_parent_only',
+            'LT Y90 ok part visible | Dialog');
+        Observer.Verify();
     end;
 
     local procedure Run(Tag: Text; SetName: Code[20]; Which: Integer; Exact: Boolean)

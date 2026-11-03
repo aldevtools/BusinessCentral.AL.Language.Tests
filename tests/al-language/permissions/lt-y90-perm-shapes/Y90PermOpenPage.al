@@ -28,7 +28,15 @@ codeunit 94808 "LT Y90 Perm OpenPage"
         Run('pages_star', 'LT Y90 P PagesStar', 3, true);
         Run('star_star', 'LT Y90 P StarStar', 4, true);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('caption',
+            'Page LT Y90 Shown Caption has to close. | FormAbort:Permission');
+        Observer.Expect('pages_cu_star',
+            'LT Y90 ok opened | Dialog');
+        Observer.Expect('pages_star',
+            'Page LT Y90 Open 3 has to close. | FormAbort:Permission');
+        Observer.Expect('star_star',
+            'LT Y90 ok opened | Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -41,7 +49,13 @@ codeunit 94808 "LT Y90 Perm OpenPage"
         Run('exact_sys_star', 'LT Y90 P PagesSys', 6, true);
         Run('set_not_exact', 'LT Y90 P Pages', 6, false);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('cu_star_only',
+            'Page LT Y90 Open 5 has to close. | FormAbort:Permission');
+        Observer.Expect('exact_sys_star',
+            'LT Y90 ok opened | Dialog');
+        Observer.Expect('set_not_exact',
+            'LT Y90 ok opened | Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -54,7 +68,13 @@ codeunit 94808 "LT Y90 Perm OpenPage"
         Run('after_get_record', 'LT Y90 P Pages', 8, true);
         Run('codeunit_run', 'LT Y90 P Pages', 9, true);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('on_init',
+            'Page LT Y90 Open 7 has to close. | FormAbort:Permission');
+        Observer.Expect('after_get_record',
+            'Page LT Y90 Open 8 has to close. | FormAbort:Permission');
+        Observer.Expect('codeunit_run',
+            'Page LT Y90 Open 9 has to close. | FormAbort:Permission');
+        Observer.Verify();
     end;
 
     local procedure Run(Tag: Text; SetName: Code[20]; Which: Integer; Exact: Boolean)

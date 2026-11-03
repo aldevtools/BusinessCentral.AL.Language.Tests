@@ -27,7 +27,13 @@ codeunit 94807 "LT Y90 Perm ActionRef"
         ObserveExact('LT Y90 A None', 'none');
         ObserveExact('LT Y90 A R', 'r');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('noset',
+            'PlainAct=Y GuardAct=Y GuardActRimd=Y CuAct=Y InGrpAct=Y CreateAct=Y NavAct=Y RepAct=Y');
+        Observer.Expect('none',
+            'PlainAct=Y GuardAct=N GuardActRimd=N CuAct=N InGrpAct=N CreateAct=N NavAct=N RepAct=N');
+        Observer.Expect('r',
+            'PlainAct=Y GuardAct=Y GuardActRimd=Y CuAct=N InGrpAct=Y CreateAct=Y NavAct=Y RepAct=Y');
+        Observer.Verify();
     end;
 
     [Test]
@@ -40,7 +46,13 @@ codeunit 94807 "LT Y90 Perm ActionRef"
         ObserveExact('LT Y90 A Ind R', 'indr');
         ObserveExact('LT Y90 A Cu', 'cu');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('rimd',
+            'PlainAct=Y GuardAct=Y GuardActRimd=Y CuAct=N InGrpAct=Y CreateAct=Y NavAct=Y RepAct=Y');
+        Observer.Expect('indr',
+            'PlainAct=Y GuardAct=N GuardActRimd=N CuAct=N InGrpAct=N CreateAct=N NavAct=N RepAct=N');
+        Observer.Expect('cu',
+            'PlainAct=Y GuardAct=N GuardActRimd=N CuAct=Y InGrpAct=N CreateAct=N NavAct=N RepAct=N');
+        Observer.Verify();
     end;
 
     [Test]
@@ -54,7 +66,11 @@ codeunit 94807 "LT Y90 Perm ActionRef"
         Mock.Set('LT Y90 A R');
         ObserveOne('set r');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('set none',
+            'PlainAct=Y GuardAct=N GuardActRimd=N CuAct=Y InGrpAct=N CreateAct=N NavAct=N RepAct=N');
+        Observer.Expect('set r',
+            'PlainAct=Y GuardAct=Y GuardActRimd=Y CuAct=Y InGrpAct=Y CreateAct=Y NavAct=Y RepAct=Y');
+        Observer.Verify();
     end;
 
     local procedure ObserveExact(SetName: Code[20]; Tag: Text)

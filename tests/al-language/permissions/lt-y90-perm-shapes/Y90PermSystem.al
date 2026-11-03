@@ -26,7 +26,35 @@ codeunit 94810 "LT Y90 Perm System"
         WasStarted := StartMock();
         RunAll('LT Y90 S None', true, 'none');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('none|1',
+            'lang find Yes');
+        Observer.Expect('none|2',
+            'lang count>0 Yes');
+        Observer.Expect('none|3',
+            'lang isempty No');
+        Observer.Expect('none|4',
+            'layout find Yes');
+        Observer.Expect('none|5',
+            'rel find Yes');
+        Observer.Expect('none|6',
+            'Sorry, the current permissions prevented the action. (TableData 2000000153 NAV App Installed App Read: AL Language Coverage Tests) | DB:ClientReadDenied');
+        Observer.Expect('none|7',
+            'flow lang>0 Yes');
+        Observer.Expect('none|8',
+            'flow layout calculated');
+        Observer.Expect('none|9',
+            'flow rel>0 Yes');
+        Observer.Expect('none|10',
+            'Sorry, the current permissions prevented the action. (TableData 2000000153 NAV App Installed App IndirectRead: AL Language Coverage Tests) | DB:ClientReadDenied');
+        Observer.Expect('none|11',
+            'flow exist Yes');
+        Observer.Expect('none|12',
+            'The Language Selection table is read-only. | DB:Ok');
+        Observer.Expect('none|13',
+            'lang R/W Yes/Yes layout R/W Yes/Yes rel R/W Yes/Yes app R/W No/No');
+        Observer.Expect('none|14',
+            'autocalc lang>0 Yes rel>0 Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -37,7 +65,35 @@ codeunit 94810 "LT Y90 Perm System"
         WasStarted := StartMock();
         RunAll('LT Y90 S R', true, 'r');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('r|1',
+            'lang find Yes');
+        Observer.Expect('r|2',
+            'lang count>0 Yes');
+        Observer.Expect('r|3',
+            'lang isempty No');
+        Observer.Expect('r|4',
+            'layout find Yes');
+        Observer.Expect('r|5',
+            'rel find Yes');
+        Observer.Expect('r|6',
+            'app find Yes');
+        Observer.Expect('r|7',
+            'flow lang>0 Yes');
+        Observer.Expect('r|8',
+            'flow layout calculated');
+        Observer.Expect('r|9',
+            'flow rel>0 Yes');
+        Observer.Expect('r|10',
+            'flow app>0 Yes');
+        Observer.Expect('r|11',
+            'flow exist Yes');
+        Observer.Expect('r|12',
+            'The Language Selection table is read-only. | DB:Ok');
+        Observer.Expect('r|13',
+            'lang R/W Yes/Yes layout R/W Yes/Yes rel R/W Yes/Yes app R/W Yes/No');
+        Observer.Expect('r|14',
+            'autocalc lang>0 Yes rel>0 Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -48,7 +104,35 @@ codeunit 94810 "LT Y90 Perm System"
         WasStarted := StartMock();
         RunAll('LT Y90 S RIMD', true, 'rimd');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('rimd|1',
+            'lang find Yes');
+        Observer.Expect('rimd|2',
+            'lang count>0 Yes');
+        Observer.Expect('rimd|3',
+            'lang isempty No');
+        Observer.Expect('rimd|4',
+            'layout find Yes');
+        Observer.Expect('rimd|5',
+            'rel find Yes');
+        Observer.Expect('rimd|6',
+            'app find Yes');
+        Observer.Expect('rimd|7',
+            'flow lang>0 Yes');
+        Observer.Expect('rimd|8',
+            'flow layout calculated');
+        Observer.Expect('rimd|9',
+            'flow rel>0 Yes');
+        Observer.Expect('rimd|10',
+            'flow app>0 Yes');
+        Observer.Expect('rimd|11',
+            'flow exist Yes');
+        Observer.Expect('rimd|12',
+            'The Language Selection table is read-only. | DB:Ok');
+        Observer.Expect('rimd|13',
+            'lang R/W Yes/Yes layout R/W Yes/Yes rel R/W Yes/Yes app R/W Yes/Yes');
+        Observer.Expect('rimd|14',
+            'autocalc lang>0 Yes rel>0 Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -59,7 +143,35 @@ codeunit 94810 "LT Y90 Perm System"
         WasStarted := StartMock();
         RunAll('LT Y90 S None', false, 'setnone');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('setnone|1',
+            'lang find Yes');
+        Observer.Expect('setnone|2',
+            'lang count>0 Yes');
+        Observer.Expect('setnone|3',
+            'lang isempty No');
+        Observer.Expect('setnone|4',
+            'layout find Yes');
+        Observer.Expect('setnone|5',
+            'rel find Yes');
+        Observer.Expect('setnone|6',
+            'Sorry, the current permissions prevented the action. (TableData 2000000153 NAV App Installed App Read: AL Language Coverage Tests) | DB:ClientReadDenied');
+        Observer.Expect('setnone|7',
+            'flow lang>0 Yes');
+        Observer.Expect('setnone|8',
+            'flow layout calculated');
+        Observer.Expect('setnone|9',
+            'flow rel>0 Yes');
+        Observer.Expect('setnone|10',
+            'Sorry, the current permissions prevented the action. (TableData 2000000153 NAV App Installed App IndirectRead: AL Language Coverage Tests) | DB:ClientReadDenied');
+        Observer.Expect('setnone|11',
+            'flow exist Yes');
+        Observer.Expect('setnone|12',
+            'The Language Selection table is read-only. | DB:Ok');
+        Observer.Expect('setnone|13',
+            'lang R/W Yes/Yes layout R/W Yes/Yes rel R/W Yes/Yes app R/W No/No');
+        Observer.Expect('setnone|14',
+            'autocalc lang>0 Yes rel>0 Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -70,7 +182,35 @@ codeunit 94810 "LT Y90 Perm System"
         WasStarted := StartMock();
         RunAll('LT Y90 S R', false, 'setr');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('setr|1',
+            'lang find Yes');
+        Observer.Expect('setr|2',
+            'lang count>0 Yes');
+        Observer.Expect('setr|3',
+            'lang isempty No');
+        Observer.Expect('setr|4',
+            'layout find Yes');
+        Observer.Expect('setr|5',
+            'rel find Yes');
+        Observer.Expect('setr|6',
+            'app find Yes');
+        Observer.Expect('setr|7',
+            'flow lang>0 Yes');
+        Observer.Expect('setr|8',
+            'flow layout calculated');
+        Observer.Expect('setr|9',
+            'flow rel>0 Yes');
+        Observer.Expect('setr|10',
+            'flow app>0 Yes');
+        Observer.Expect('setr|11',
+            'flow exist Yes');
+        Observer.Expect('setr|12',
+            'The Language Selection table is read-only. | DB:Ok');
+        Observer.Expect('setr|13',
+            'lang R/W Yes/Yes layout R/W Yes/Yes rel R/W Yes/Yes app R/W Yes/No');
+        Observer.Expect('setr|14',
+            'autocalc lang>0 Yes rel>0 Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -86,9 +226,33 @@ codeunit 94810 "LT Y90 Perm System"
         EffectiveSystem('LT Y69 SY Indirect', true, 'indirect exact');
         Mock.ClearAssignments();
         Observer.Observe('noset', EffectiveSystemNow());
+        RestoreMock(WasStarted);
+        Observer.Expect('many exact',
+            '5810=----- 9026=----X 6110=----X 5310=----X 9100=----X 5820=-----');
+        Observer.Expect('many set',
+            '5810=----- 9026=----X 6110=----X 5310=----X 9100=----X 5820=-----');
+        Observer.Expect('wild exact',
+            '5810=----X 9026=----X 6110=----X 5310=----X 9100=----X 5820=----X');
+        Observer.Expect('basic exact',
+            '5810=----X 9026=----- 6110=----- 5310=----- 9100=----- 5820=-----');
+        Observer.Expect('indirect exact',
+            '5810=----x 9026=----- 6110=----- 5310=----- 9100=----- 5820=-----');
+        Observer.Expect('noset',
+            '5810=----X 9026=----X 6110=----X 5310=----X 9100=----X 5820=----X');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y90_Sys_EffectiveMixedLetters()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
         EffectiveGuard('LT Y90 E Mixed', true, 'RiMd exact');
         EffectiveGuard('LT Y90 E Mixed', false, 'RiMd set');
         EffectiveGuard('LT Y90 S None', true, 'none exact');
+        Mock.ClearAssignments();
+        Observer.Observe('noset', Rights(0, Database::"LT Y90 Guard"));
         RestoreMock(WasStarted);
         Observer.Finish();
     end;
