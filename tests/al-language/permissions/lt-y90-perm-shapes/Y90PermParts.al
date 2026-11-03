@@ -23,8 +23,12 @@ codeunit 94809 "LT Y90 Perm Parts"
     begin
         WasStarted := StartMock();
         Run('a_parent_only', 'LT Y90 P Pages', 1, true);
+        Run('a_cu_star', 'LT Y90 P PagesCuStar', 1, true);
         Run('b_part_granted', 'LT Y90 P Parts', 2, true);
+        Run('b_system_star', 'LT Y90 P Parts2', 2, true);
+        Run('b_cu_star', 'LT Y90 P Parts3', 2, true);
         Run('c_page_star', 'LT Y90 P PagesStar', 3, true);
+        Run('c_star_star', 'LT Y90 P StarStar', 3, true);
         RestoreMock(WasStarted);
         Observer.Finish();
     end;

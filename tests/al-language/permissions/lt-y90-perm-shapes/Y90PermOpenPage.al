@@ -28,6 +28,7 @@ codeunit 94808 "LT Y90 Perm OpenPage"
         Run('pages_star', 'LT Y90 P PagesStar', 3, true);
         Run('star_star', 'LT Y90 P StarStar', 4, true);
         Run('cu_star_only', 'LT Y90 P CuStar', 5, true);
+        Run('exact_sys_star', 'LT Y90 P PagesSys', 6, true);
         Run('set_not_exact', 'LT Y90 P Pages', 6, false);
         Run('on_init', 'LT Y90 P Pages', 7, true);
         Run('after_get_record', 'LT Y90 P Pages', 8, true);

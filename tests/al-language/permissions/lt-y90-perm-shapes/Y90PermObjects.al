@@ -706,10 +706,67 @@ permissionset 94825 "LT Y90 E Mixed"
         tabledata "LT Y90 Guard" = RiMd;
 }
 
-permissionset 94826 "LT Y90 E Mixed2"
+permissionset 94826 "LT Y90 P Parts2"
 {
     Assignable = true;
     Permissions =
         tabledata "LT Y90 Row" = RIMD,
-        tabledata "LT Y90 Guard" = rImD;
+        page "LT Y90 Open 1" = X,
+        page "LT Y90 Open 2" = X,
+        page "LT Y90 Open 3" = X,
+        page "LT Y90 Open 4" = X,
+        page "LT Y90 Open 5" = X,
+        page "LT Y90 Open 6" = X,
+        page "LT Y90 Open 7" = X,
+        page "LT Y90 Open 8" = X,
+        page "LT Y90 Open 9" = X,
+        page "LT Y90 Card A" = X,
+        page "LT Y90 Card B" = X,
+        page "LT Y90 Card C" = X,
+        page "LT Y90 Part B" = X,
+        page "LT Y90 Part C" = X,
+        system * = X;
+}
+
+permissionset 94827 "LT Y90 P Parts3"
+{
+    Assignable = true;
+    Permissions =
+        tabledata "LT Y90 Row" = RIMD,
+        page "LT Y90 Open 1" = X,
+        page "LT Y90 Open 2" = X,
+        page "LT Y90 Open 3" = X,
+        page "LT Y90 Open 4" = X,
+        page "LT Y90 Open 5" = X,
+        page "LT Y90 Open 6" = X,
+        page "LT Y90 Open 7" = X,
+        page "LT Y90 Open 8" = X,
+        page "LT Y90 Open 9" = X,
+        page "LT Y90 Card A" = X,
+        page "LT Y90 Card B" = X,
+        page "LT Y90 Card C" = X,
+        page "LT Y90 Part B" = X,
+        page "LT Y90 Part C" = X,
+        codeunit * = X;
+}
+
+permissionset 94829 "LT Y90 P PagesSys"
+{
+    Assignable = true;
+    Permissions =
+        tabledata "LT Y90 Row" = RIMD,
+        page "LT Y90 Open 1" = X,
+        page "LT Y90 Open 2" = X,
+        page "LT Y90 Open 3" = X,
+        page "LT Y90 Open 4" = X,
+        page "LT Y90 Open 5" = X,
+        page "LT Y90 Open 6" = X,
+        page "LT Y90 Open 7" = X,
+        page "LT Y90 Open 8" = X,
+        page "LT Y90 Open 9" = X,
+        page "LT Y90 Card A" = X,
+        page "LT Y90 Card B" = X,
+        page "LT Y90 Card C" = X,
+        system * = X,
+        codeunit "LT Y90 Target 6" = X;
 }

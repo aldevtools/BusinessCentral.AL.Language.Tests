@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-system-tables
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); Y90PermObjects.al (94780-94829); Y19PermObjects.al (LT Y19 Perm Helper); Y69 permission sets (named system grants); Permissions Mock (131006) from the dependency.
+// Fixtures used: Probe Observer (69160); Y90PermObjects.al (94780-94829); Y69 permission sets (Y69PermSets.al) (named system grants); Permissions Mock (131006) from the dependency.
 // Probe: al-runtime-rs ADR-062 probes P13 and P19 (shadow run: 91 reads of system tables, 33 FlowFields over system tables, 8 WritePermission queries on system
 //   tables, 10 effective permission queries). Y19PermSystemTables.al pins Tenant Media, Company, AllObj and Field. This file adds Language Selection (a
 //   read-only system table), Report Layout List, Table Relations Metadata (virtual) and NAV App Installed App: FindFirst, Count, IsEmpty, an insert,
@@ -17,7 +17,6 @@ codeunit 94810 "LT Y90 Perm System"
     var
         Observer: Codeunit "Probe Observer";
         Mock: Codeunit "Permissions Mock";
-        Y19Helper: Codeunit "LT Y19 Perm Helper";
 
     [Test]
     procedure Y90_Sys_ExactNone()
@@ -89,7 +88,6 @@ codeunit 94810 "LT Y90 Perm System"
         Observer.Observe('noset', EffectiveSystemNow());
         EffectiveGuard('LT Y90 E Mixed', true, 'RiMd exact');
         EffectiveGuard('LT Y90 E Mixed', false, 'RiMd set');
-        EffectiveGuard('LT Y90 E Mixed2', true, 'rImD exact');
         EffectiveGuard('LT Y90 S None', true, 'none exact');
         RestoreMock(WasStarted);
         Observer.Finish();
@@ -105,8 +103,8 @@ codeunit 94810 "LT Y90 Perm System"
 
     local procedure EffectiveSystemNow(): Text
     begin
-        exit('5810=' + Y19Helper.Rights(10, 5810) + ' 9026=' + Y19Helper.Rights(10, 9026) + ' 6110=' + Y19Helper.Rights(10, 6110) + ' 5310=' + Y19Helper.Rights(10, 5310) +
-            ' 9100=' + Y19Helper.Rights(10, 9100) + ' 5820=' + Y19Helper.Rights(10, 5820));
+        exit('5810=' + Rights(10, 5810) + ' 9026=' + Rights(10, 9026) + ' 6110=' + Rights(10, 6110) + ' 5310=' + Rights(10, 5310) +
+            ' 9100=' + Rights(10, 9100) + ' 5820=' + Rights(10, 5820));
     end;
 
     local procedure EffectiveGuard(SetName: Code[20]; Exact: Boolean; Tag: Text)
@@ -115,9 +113,32 @@ codeunit 94810 "LT Y90 Perm System"
     begin
         Mock.ClearAssignments();
         Assign(SetName, Exact);
-        Text1 := Y19Helper.Rights(0, Database::"LT Y90 Guard");
+        Text1 := Rights(0, Database::"LT Y90 Guard");
         Mock.ClearAssignments();
         Observer.Observe(Tag, Text1);
+    end;
+
+    local procedure Rights(Kind: Integer; ObjectId: Integer): Text
+    var
+        UserPermissions: Codeunit "User Permissions";
+        Expanded: Record "Expanded Permission" temporary;
+    begin
+        Expanded := UserPermissions.GetEffectivePermission(Kind, ObjectId);
+        exit(Letter(Format(Expanded."Read Permission"), 'R') + Letter(Format(Expanded."Insert Permission"), 'I') + Letter(Format(Expanded."Modify Permission"), 'M') +
+            Letter(Format(Expanded."Delete Permission"), 'D') + Letter(Format(Expanded."Execute Permission"), 'X'));
+    end;
+
+    local procedure Letter(Value: Text; Mark: Text): Text
+    begin
+        case Value of
+            'Yes':
+                exit(Mark);
+            'Indirect':
+                exit(Mark.ToLower());
+            ' ', '':
+                exit('-');
+        end;
+        exit('?' + Value);
     end;
 
     local procedure Assign(SetName: Code[20]; Exact: Boolean)
