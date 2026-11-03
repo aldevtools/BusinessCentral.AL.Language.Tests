@@ -7,7 +7,9 @@
       was made) is mapped by rule: its folder's decision when the folder is already mapped, else the folder rules below,
       else the content classifier. Every rule-mapped file is printed for review; nothing is dropped.
       --write stores the result back into path-map.tsv (decisions already in it never change).
-  restructure-move.py apply
+  restructure-move.py apply [--part 1|2]
+      (--part: GitHub shows at most 3,000 files of a pull request, so the move can land in two pull requests. Part 1 moves
+      the files whose target area sorts before SPLIT_AT, part 2 the rest; run part 2 on the master that has part 1.)
       plan, then: `git mv` every file, rewrite the layout path strings (RDLCLayout, WordLayout, ExcelLayout, LayoutFile and
       other quoted app-relative paths) of the moved non-AL files, follow app.json resourceFolders, remove the tracked build
       outputs, write the area READMEs. Stages everything; commits nothing.
@@ -322,9 +324,12 @@ def plan(root, refs=()):
         if new != DELETE:
             by_dir[os.path.dirname(old)].add(os.path.dirname(new))
     pending = []
+    targets = {n for n, _ in frozen.values()}
     for f in files:
         if f in frozen:
             out[f] = frozen[f]
+        elif f in targets:
+            out[f] = (f, 'map: already at its new path')
         else:
             pending.append(f)
     split_files = []
@@ -489,11 +494,26 @@ def app_of(p):
     return '/'.join(p.split('/')[:2])
 
 
-def apply(root):
+SPLIT_AT = 'recordref-fieldref'
+
+
+def area_of(p):
+    parts = p.split('/')
+    return parts[2] if len(parts) > 3 else ''
+
+
+def in_part(n, part):
+    if part is None:
+        return True
+    first = n == DELETE or area_of(n) < SPLIT_AT
+    return first if part == 1 else not first
+
+
+def apply(root, part=None):
     out, review, files = plan(root)
     if check_collisions(out):
         sys.exit('collisions; run plan')
-    moves = {o: n for o, (n, _) in out.items() if n != o and files[o] is None}
+    moves = {o: n for o, (n, _) in out.items() if n != o and files[o] is None and in_part(n, part)}
     # 1. path strings: quoted app-relative paths of moved non-AL files, in the AL files of the same app
     rel_moves = {}
     for o, n in moves.items():
@@ -519,6 +539,8 @@ def apply(root):
     for f in files:
         if not f.endswith('.al') or files[f] is not None:
             continue
+        # generated layouts follow their AL file: only rewrite them in the part that moves it (or when it never moves)
+        own_move = f in moves or out[f][0] == f
         p = os.path.join(root, f)
         src = open(p, encoding='utf-8-sig', errors='strict', newline='').read()
         raw = open(p, 'rb').read()
@@ -535,6 +557,8 @@ def apply(root):
             # a layout the compiler generates (not committed) in a folder that moves: follow the folder, so the generated file
             # lands next to its report and no old folder comes back at build time
             d = os.path.dirname(key[1])
+            if not own_move:
+                return m.group(0)
             if not d and key[0] == 'tests/al-language' and s.lower().endswith(LAYOUT_EXT):
                 # app-root layouts move to _fixtures/layouts, also the ones the compiler generates
                 return "'" + ('./' if dot else '') + '_fixtures/layouts/' + s.split('/')[-1] + "'"
@@ -601,18 +625,20 @@ def apply(root):
     if doc_edits:
         git('add', '--', *doc_edits, cwd=root)
     # 5. READMEs
-    readmes = write_readmes(root, out, files)
+    readmes = write_readmes(root, out, files, part)
     git('add', '--', *readmes, cwd=root)
-    with open(os.path.join(DATA, 'layout-edits.txt'), 'w', encoding='utf-8') as o:
-        o.write('# AL files whose quoted layout/resource paths apply() rewrote (new path); check accepts only these as modified\n')
-        for f in sorted(moves.get(f, f) for f in edited):
+    le = os.path.join(DATA, 'layout-edits.txt')
+    prev = {line.strip() for line in open(le) if line.strip() and not line.startswith('#')} if os.path.exists(le) else set()
+    with open(le, 'w', encoding='utf-8') as o:
+        o.write('# AL files whose quoted layout/resource paths apply() rewrote (path after the move); check accepts only these as modified\n')
+        for f in sorted(prev | {moves.get(f, f) for f in edited}):
             o.write(f + '\n')
     git('add', '--', os.path.relpath(os.path.join(DATA, 'layout-edits.txt'), root), cwd=root)
     print(f'moved {sum(1 for n in moves.values() if n != DELETE)}, deleted {sum(1 for n in moves.values() if n == DELETE)}, '
           f'layout path edits {len(edited)}, doc path edits {len(doc_edits)}, READMEs {len(readmes)}')
 
 
-def write_readmes(root, out, files):
+def write_readmes(root, out, files, part=None):
     final = {}
     for o, (n, _) in out.items():
         if files[o] is None and n != DELETE:
@@ -621,7 +647,7 @@ def write_readmes(root, out, files):
     fx = {}
     for n in final:
         if n.startswith('tests/al-language/_fixtures/') and n.endswith('.al'):
-            src = open(os.path.join(root, n), encoding='utf-8-sig', errors='replace').read()
+            src = read(n)
             for kind, oid, name in re.findall(r'^\s*(table|page|report|query|xmlport|enum|codeunit|interface|permissionset)\s+(\d+)\s+"([^"]+)"', src, re.I | re.M):
                 fx[name] = f'{kind.lower()} {oid}'
     sens = {}
@@ -638,7 +664,11 @@ def write_readmes(root, out, files):
             mnc[f[1]].append(f[0])
     apps = sorted({app_of(n) for n in final if app_of(n) != 'tests/al-language'})
     written = []
+    def read(n):
+        return open(os.path.join(root, n if os.path.exists(os.path.join(root, n)) else final[n]), encoding='utf-8-sig', errors='replace').read()
     for area, scope in AREAS:
+        if not in_part(f'tests/al-language/{area}/x', part):
+            continue
         prefix = f'tests/al-language/{area}/'
         mine = [n for n in final if n.startswith(prefix)]
         topics = collections.Counter(n[len(prefix):].split('/')[0] if '/' in n[len(prefix):] else '' for n in mine if n.endswith('.al'))
@@ -646,7 +676,7 @@ def write_readmes(root, out, files):
         if area != '_fixtures':
             for n in mine:
                 if n.endswith('.al'):
-                    src = open(os.path.join(root, n), encoding='utf-8-sig', errors='replace').read()
+                    src = read(n)
                     for name in fx:
                         if f'"{name}"' in src:
                             used[name] += 1
@@ -758,7 +788,7 @@ def main(argv):
     if argv[:1] == ['plan']:
         return cmd_plan(root, argv[1:])
     if argv[:1] == ['apply']:
-        apply(root)
+        apply(root, int(argv[argv.index('--part') + 1]) if '--part' in argv else None)
         return 0
     if argv[:1] == ['check'] and len(argv) == 2:
         return cmd_check(root, argv[1])
