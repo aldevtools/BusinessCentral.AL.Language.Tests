@@ -325,8 +325,24 @@ codeunit 94810 "LT Y90 Perm System"
     var
         Which: Integer;
     begin
+        WarmUpLanguageSelection();
         for Which := 1 to 14 do
             RunOne(Tag, SetName, Exact, Which);
+    end;
+
+    local procedure WarmUpLanguageSelection()
+    var
+        Lang: Record "Language Selection";
+    begin
+        // Order independence: the first insert a session tries on Language Selection under a set without
+        // insert rights can give the permission error instead of the read-only error, depending on whether
+        // an earlier test already tried one. Try one here with no assignment so every run sees the same state.
+        Mock.ClearAssignments();
+        Lang.Init();
+        Lang.Name := 'LT Y90 Warm';
+        Lang."Language ID" := 99998;
+        asserterror Lang.Insert();
+        ClearLastError();
     end;
 
     local procedure RunOne(Tag: Text; SetName: Code[20]; Exact: Boolean; Which: Integer)
