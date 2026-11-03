@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-permissions-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); Y24PermObjects.al (91936-91978); Permissions Mock (131006) from the dependency.
+// Fixtures used: Probe Observer (69160); Y24PermObjects.al (91936-91978); Y24PermExecuteObjects.al (95060-95067, the Execute denial cases); Permissions Mock (131006) from the dependency.
 // Probe: al-runtime-rs ADR-062 (permission enforcement in stages), stage 3 probes, writer Y24:
 //   P20 Execute: SetExactPermissionSet of a set with table data grants only (no All Objects): Codeunit.Run, a call on a codeunit
 //       variable, a report run, Page.Run, TestPage.OpenView, XmlPort.Export, Query.Open, a table procedure call; then the same from a
@@ -49,19 +49,19 @@ codeunit 91977 "LT Y24 Perm Execute"
         RunExact(Observer, 'tdonly_query_open', 'LT Y24 TD Only', 7);
         RunExact(Observer, 'tdonly_table_procedure', 'LT Y24 TD Only', 8);
         RestoreMock(WasStarted);
-        Observer.Expect('tdonly_codeunit_run|text', 'Sorry, the current permissions prevented the action. (CodeUnit 91947 LT Y24 Exec Target Execute: AL Language Coverage Tests)');
+        Observer.Expect('tdonly_codeunit_run|text', 'Sorry, the current permissions prevented the action. (CodeUnit 95061 LT Y24 Fx Target Execute: AL Language Coverage Tests)');
         Observer.Expect('tdonly_codeunit_run|code', 'DB:ExecuteObjDenied');
-        Observer.Expect('tdonly_codeunit_var|text', 'Sorry, the current permissions prevented the action. (CodeUnit 91947 LT Y24 Exec Target Execute: AL Language Coverage Tests)');
+        Observer.Expect('tdonly_codeunit_var|text', 'Sorry, the current permissions prevented the action. (CodeUnit 95061 LT Y24 Fx Target Execute: AL Language Coverage Tests)');
         Observer.Expect('tdonly_codeunit_var|code', 'DB:ExecuteObjDenied');
-        Observer.Expect('tdonly_report_run|text', 'Sorry, the current permissions prevented the action. (Report 91970 LT Y24 Proc Rep Execute: AL Language Coverage Tests)');
+        Observer.Expect('tdonly_report_run|text', 'Sorry, the current permissions prevented the action. (Report 95063 LT Y24 Fx Rep Execute: AL Language Coverage Tests)');
         Observer.Expect('tdonly_report_run|code', 'DB:ExecuteObjDenied');
-        Observer.Expect('tdonly_testpage_openview|text', 'Page LT Y24 Row Card has to close.');
+        Observer.Expect('tdonly_testpage_openview|text', 'Page LT Y24 Fx Card has to close.');
         Observer.Expect('tdonly_testpage_openview|code', 'FormAbort:Permission');
-        Observer.Expect('tdonly_xmlport_export|text', 'Sorry, the current permissions prevented the action. (XmlPort 91943 LT Y24 Row Xml Execute: AL Language Coverage Tests)');
+        Observer.Expect('tdonly_xmlport_export|text', 'Sorry, the current permissions prevented the action. (XmlPort 95066 LT Y24 Fx Xml Execute: AL Language Coverage Tests)');
         Observer.Expect('tdonly_xmlport_export|code', 'DB:ExecuteObjDenied');
-        Observer.Expect('tdonly_query_open|text', 'Sorry, the current permissions prevented the action. (Query 91941 LT Y24 Row Query Execute: AL Language Coverage Tests)');
+        Observer.Expect('tdonly_query_open|text', 'Sorry, the current permissions prevented the action. (Query 95065 LT Y24 Fx Query Execute: AL Language Coverage Tests)');
         Observer.Expect('tdonly_query_open|code', 'DB:ExecuteObjDenied');
-        Observer.Expect('tdonly_table_procedure|text', 'Sorry, the current permissions prevented the action. (Table 91936 LT Y24 Row Execute: AL Language Coverage Tests)');
+        Observer.Expect('tdonly_table_procedure|text', 'Sorry, the current permissions prevented the action. (Table 95060 LT Y24 Fx Tbl Execute: AL Language Coverage Tests)');
         Observer.Expect('tdonly_table_procedure|code', 'DB:ExecuteObjDenied');
         Observer.Verify();
     end;
@@ -72,24 +72,24 @@ codeunit 91977 "LT Y24 Perm Execute"
         WasStarted: Boolean;
     begin
         WasStarted := StartMock();
-        RunExact(Observer, 'granter_codeunit_run', 'LT Y24 TD Granter', 11);
-        RunExact(Observer, 'granter_codeunit_var', 'LT Y24 TD Granter', 12);
-        RunExact(Observer, 'granter_report_run', 'LT Y24 TD Granter', 13);
-        RunExact(Observer, 'granter_xmlport_export', 'LT Y24 TD Granter', 16);
-        RunExact(Observer, 'granter_query_open', 'LT Y24 TD Granter', 17);
-        RunExact(Observer, 'granter_table_procedure', 'LT Y24 TD Granter', 18);
+        RunExact(Observer, 'granter_codeunit_run', 'LT Y24 Fx Granter', 11);
+        RunExact(Observer, 'granter_codeunit_var', 'LT Y24 Fx Granter', 12);
+        RunExact(Observer, 'granter_report_run', 'LT Y24 Fx Granter', 13);
+        RunExact(Observer, 'granter_xmlport_export', 'LT Y24 Fx Granter', 16);
+        RunExact(Observer, 'granter_query_open', 'LT Y24 Fx Granter', 17);
+        RunExact(Observer, 'granter_table_procedure', 'LT Y24 Fx Granter', 18);
         RestoreMock(WasStarted);
-        Observer.Expect('granter_codeunit_run|text', 'Sorry, the current permissions prevented the action. (CodeUnit 91947 LT Y24 Exec Target Execute: AL Language Coverage Tests)');
+        Observer.Expect('granter_codeunit_run|text', 'Sorry, the current permissions prevented the action. (CodeUnit 95061 LT Y24 Fx Target Execute: AL Language Coverage Tests)');
         Observer.Expect('granter_codeunit_run|code', 'DB:ExecuteObjDenied');
-        Observer.Expect('granter_codeunit_var|text', 'Sorry, the current permissions prevented the action. (CodeUnit 91947 LT Y24 Exec Target Execute: AL Language Coverage Tests)');
+        Observer.Expect('granter_codeunit_var|text', 'Sorry, the current permissions prevented the action. (CodeUnit 95061 LT Y24 Fx Target Execute: AL Language Coverage Tests)');
         Observer.Expect('granter_codeunit_var|code', 'DB:ExecuteObjDenied');
-        Observer.Expect('granter_report_run|text', 'Sorry, the current permissions prevented the action. (Report 91970 LT Y24 Proc Rep Execute: AL Language Coverage Tests)');
+        Observer.Expect('granter_report_run|text', 'Sorry, the current permissions prevented the action. (Report 95063 LT Y24 Fx Rep Execute: AL Language Coverage Tests)');
         Observer.Expect('granter_report_run|code', 'DB:ExecuteObjDenied');
-        Observer.Expect('granter_xmlport_export|text', 'Sorry, the current permissions prevented the action. (XmlPort 91943 LT Y24 Row Xml Execute: AL Language Coverage Tests)');
+        Observer.Expect('granter_xmlport_export|text', 'Sorry, the current permissions prevented the action. (XmlPort 95066 LT Y24 Fx Xml Execute: AL Language Coverage Tests)');
         Observer.Expect('granter_xmlport_export|code', 'DB:ExecuteObjDenied');
-        Observer.Expect('granter_query_open|text', 'Sorry, the current permissions prevented the action. (Query 91941 LT Y24 Row Query Execute: AL Language Coverage Tests)');
+        Observer.Expect('granter_query_open|text', 'Sorry, the current permissions prevented the action. (Query 95065 LT Y24 Fx Query Execute: AL Language Coverage Tests)');
         Observer.Expect('granter_query_open|code', 'DB:ExecuteObjDenied');
-        Observer.Expect('granter_table_procedure|text', 'Sorry, the current permissions prevented the action. (Table 91936 LT Y24 Row Execute: AL Language Coverage Tests)');
+        Observer.Expect('granter_table_procedure|text', 'Sorry, the current permissions prevented the action. (Table 95060 LT Y24 Fx Tbl Execute: AL Language Coverage Tests)');
         Observer.Expect('granter_table_procedure|code', 'DB:ExecuteObjDenied');
         Observer.Verify();
     end;
@@ -102,15 +102,15 @@ codeunit 91977 "LT Y24 Perm Execute"
         WasStarted: Boolean;
     begin
         WasStarted := StartMock();
-        RunExact(Observer, 'tdonly_page_run', 'LT Y24 TD Only', 4);
-        RunExact(Observer, 'granter_page_run', 'LT Y24 TD Granter', 14);
+        RunExact(Observer, 'tdonly_page_run', 'LT Y24 TD Only', 9);
+        RunExact(Observer, 'granter_page_run', 'LT Y24 Fx Granter', 14);
         Mock.ClearAssignments();
         asserterror Op(4);
         Observer.ObserveError('noset_page_run');
         RestoreMock(WasStarted);
-        Observer.Expect('tdonly_page_run|text', 'Page LT Y24 Row Card has to close.');
+        Observer.Expect('tdonly_page_run|text', 'Page LT Y24 Fx Card has to close.');
         Observer.Expect('tdonly_page_run|code', 'FormAbort:Permission');
-        Observer.Expect('granter_page_run|text', 'Page LT Y24 Row Card has to close.');
+        Observer.Expect('granter_page_run|text', 'Page LT Y24 Fx Card has to close.');
         Observer.Expect('granter_page_run|code', 'FormAbort:Permission');
         Observer.Expect('noset_page_run|text', 'LT Y24 ok page');
         Observer.Expect('noset_page_run|code', 'Dialog');
@@ -250,35 +250,37 @@ codeunit 91977 "LT Y24 Perm Execute"
         Observer.Observe(Name + '|code', ErrorCode);
     end;
 
+    // Every case uses the objects of Y24PermExecuteObjects.al, which no other test loads. Case 4 runs with no set: it opens the card
+    // (the page handler must exist for the card or the run ends with "Unhandled UI" before any permission check).
     local procedure Op(Which: Integer)
     var
-        Row: Record "LT Y24 Row";
         TempRow: Record "LT Y24 Row" temporary;
-        Target: Codeunit "LT Y24 Exec Target";
-        Granter: Codeunit "LT Y24 Exec Granter";
-        ProcRep: Report "LT Y24 Proc Rep";
-        Qry: Query "LT Y24 Row Query";
-        Card: TestPage "LT Y24 Row Card";
+        Row: Record "LT Y24 Fx Tbl";
+        Target: Codeunit "LT Y24 Fx Target";
+        Granter: Codeunit "LT Y24 Fx Granter";
+        FxRep: Report "LT Y24 Fx Rep";
+        Qry: Query "LT Y24 Fx Query";
+        Card: TestPage "LT Y24 Fx Card";
         OutS: OutStream;
         Result: Text;
     begin
         case Which of
             1:
                 begin
-                    Codeunit.Run(Codeunit::"LT Y24 Exec Target");
+                    Codeunit.Run(Codeunit::"LT Y24 Fx Target");
                     Result := 'run';
                 end;
             2:
                 Result := Target.Ping();
             3:
                 begin
-                    ProcRep.UseRequestPage(false);
-                    ProcRep.RunModal();
-                    Result := ProcRep.Seen();
+                    FxRep.UseRequestPage(false);
+                    FxRep.RunModal();
+                    Result := FxRep.Seen();
                 end;
             4:
                 begin
-                    Page.Run(Page::"LT Y24 Row Card");
+                    Page.Run(Page::"LT Y24 Fx Card");
                     Result := 'page';
                 end;
             5:
@@ -290,7 +292,7 @@ codeunit 91977 "LT Y24 Perm Execute"
             6:
                 begin
                     TempRow.Data.CreateOutStream(OutS);
-                    Xmlport.Export(Xmlport::"LT Y24 Row Xml", OutS);
+                    Xmlport.Export(Xmlport::"LT Y24 Fx Xml", OutS);
                     Result := 'xml ' + Format(TempRow.Data.Length());
                 end;
             7:
@@ -300,6 +302,11 @@ codeunit 91977 "LT Y24 Perm Execute"
                 end;
             8:
                 Result := Row.Describe();
+            9:
+                begin
+                    Page.Run(Page::"LT Y24 Fx Card");
+                    Result := 'page';
+                end;
             11, 12, 13, 14, 16, 17, 18:
                 Result := Granter.Run(Which - 10);
         end;
@@ -430,7 +437,7 @@ codeunit 91977 "LT Y24 Perm Execute"
     end;
 
     [PageHandler]
-    procedure Y24RowCardHandler(var Card: TestPage "LT Y24 Row Card")
+    procedure Y24RowCardHandler(var Card: TestPage "LT Y24 Fx Card")
     begin
         Card.Close();
     end;
