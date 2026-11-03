@@ -87,7 +87,7 @@ TOP = {
     'access-control': 'permissions/access-control', 'addin': 'controladdins', 'appareas': 'pages/application-area',
     'autoformat': 'format-evaluate/autoformat', 'bgtasks': 'pages/background-tasks', 'calcfields': 'record/flowfields',
     'codeunit': 'codeunits', 'collections': 'collections', 'controls': 'pages/controls', 'coverage': 'test-framework/code-coverage',
-    'dateformulacontrol': 'pages/controls', 'enum': 'types/enum', 'error-handling': 'errors', 'errors': 'errors',
+    'dateformulacontrol': 'pages/controls', 'enum': 'types/enum-option', 'error-handling': 'errors', 'errors': 'errors',
     'errorinfo': 'errors/errorinfo', 'events': 'events', 'extensionevents': 'events/extension-events',
     'fieldref': 'recordref-fieldref/fieldref', 'recordref': 'recordref-fieldref/recordref', 'filterpage': 'pages/filterpagebuilder',
     'filters': 'record/filters', 'handlers': 'SPLIT', 'install': 'install-upgrade', 'json': 'json', 'localization': 'localization',
@@ -176,6 +176,40 @@ NAME_HEADS = (('record', ('record',)), ('json', ('json', 'jsonobject', 'jsonarra
               ('text', ('text', 'textbuilder', 'strsubstno')), ('format-evaluate', ('format', 'evaluate')), ('http', ('http', 'httpclient')),
               ('xmlports', ('xmlport',)), ('queries', ('query',)), ('pages', ('page', 'currpage')))
 LOW_CONFIDENCE = 0.25
+TOPIC_SCOPE = {
+    'flowfields': 'FlowFields, CalcFields, CalcSums, CalcFormula and AutoCalcFields', 'filters': 'SetRange, SetFilter, filter syntax and GetFilter(s)',
+    'keys-sorting': 'keys, SetCurrentKey, SetAscending and sort order', 'load-fields': 'SetLoadFields, AddLoadFields and AreFieldsLoaded',
+    'views': 'SetView and GetView', 'table-relation': 'TableRelation and its conditions', 'testfield': 'TestField and FieldError',
+    'temporary': 'temporary records and tables', 'system-fields': 'SystemId, SystemCreatedAt and the other system fields, timestamps',
+    'crud': 'Insert, Modify, Delete, Rename, Get, Find*, TransferFields, Copy and Init', 'captions': 'captions and CaptionClass of fields and records',
+    'events': 'record and table events seen from the record', 'table-properties': 'table and field properties seen through a record',
+    'date-time': 'Date, Time and DateTime, date formulas and date functions', 'duration': 'Duration and its arithmetic',
+    'variant': 'Variant and its Is* tests', 'enum-option': 'Enum and Option values, ordinals, names and conversions', 'guid': 'Guid',
+    'text-code-char': 'Text, Code, Char, Byte, Label and SecretText as values', 'decimal-integer': 'Decimal, Integer, BigInteger and rounding',
+    'operators-expressions': 'operators, precedence, ternary, implicit conversions', 'arrays': 'arrays', 'clear': 'Clear and ClearAll',
+    'extensions': 'extension objects of this object type', 'parts': 'page parts and subpages', 'controls': 'page controls and their properties',
+    'actions': 'actions and promoted actions', 'triggers': 'page triggers', 'currpage': 'CurrPage, Update, SetRecord, SetTableView, SetSelectionFilter',
+    'run-modal': 'Page.Run and RunModal and their results', 'properties': 'page properties', 'lifecycle': 'opening, closing and page variables',
+    'application-area': 'ApplicationArea', 'background-tasks': 'page background tasks', 'filterpagebuilder': 'FilterPageBuilder',
+    'lookups': 'Lookup and DrillDown', 'record-save': 'how a page saves its record', 'request-page': 'request pages',
+    'dataset': 'datasets, data items and columns', 'layouts-saveas': 'layouts, rendering and Report.SaveAs*', 'runtime': 'running a report and its members',
+    'import': 'xmlport import', 'shapes-properties': 'xmlport shapes, elements and properties', 'platform-triggers': 'platform trigger events',
+    'subscriber-order': 'the order subscribers run in', 'page-events': 'page events', 'table-events': 'table events',
+    'binding-senders': 'binding, senders and parameters of subscribers', 'extension-events': 'events of extension objects',
+    'company': 'Company and CompanyName', 'isolated-storage': 'IsolatedStorage and encryption', 'session': 'Session, User and system functions',
+    'code-coverage': 'code coverage', 'platform-tables': 'platform and system tables', 'session-system': 'platform objects about the session (REVIEW)',
+    'headers': 'HttpHeaders and cookies', 'client': 'HttpClient and requests', 'json': 'the JSON types', 'xml': 'the XML types',
+    'textbuilder-bigtext': 'TextBuilder and BigText', 'textconst-label': 'TextConst and Label', 'text-methods': 'Text and Code methods',
+    'media': 'Media and MediaSet', 'blob-tempblob': 'Blob fields and TempBlob', 'instream-outstream': 'InStream and OutStream',
+    'joins-links': 'query joins and links', 'flowfields-filters': 'query filters and FlowFields', 'read-lifecycle': 'Open, Read, Close and SaveAs',
+    'install-order': 'the order install and upgrade code runs in', 'install-triggers': 'install and upgrade triggers',
+    'testpermissions': 'TestPermissions and the runner permission sets', 'permission-sets': 'permission sets and entitlements',
+    'access-control': 'access control', 'errorinfo': 'ErrorInfo and error notifications', 'last-error': 'GetLastError* and call stacks',
+    'error-texts': 'the texts of runtime errors', 'interfaces': 'interfaces', 'run-onrun': 'Codeunit.Run, OnRun and commit behavior',
+    'call-depth': 'call depth', 'procedures': 'procedures, overloads, var parameters', 'autoformat': 'AutoFormatType and AutoFormatExpression',
+    'filters-lifecycle': 'TestPage filters', 'globals': 'table globals', 'fieldref': 'FieldRef', 'recordref': 'RecordRef and KeyRef',
+    'translations': 'translation files', 'app-xliff': 'app translation files', 'dotnet': 'DotNet interop',
+}
 
 
 def git(*args, cwd=None):
@@ -248,6 +282,8 @@ def folder_rule(d):
     else:
         topic = next((t for t, pat in TOPICS.get(head, []) if re.search(pat, c)), None)
         tgt = f'{base}/{area}/{topic or c}'
+        if (area, topic) in (('types', 'format-evaluate'), ('pages', 'testpage')):
+            tgt = f'{base}/{topic}'  # its own area (plan section B)
     why = 'topic folder' if '/' in area or topic or head not in TOPICS else 'topic folder, REVIEW: no topic rule matched'
     if len(sub) > 1:
         tgt += '/' + '/'.join(sub[1:])
@@ -579,7 +615,8 @@ def write_readmes(root, out, files):
         if topics.get(''):
             L.append(f'- (area folder itself): {topics[""]} AL files that are about the area as a whole or were not given a topic yet.')
         for t in sorted(k for k in topics if k):
-            L.append(f'- `{t}/`: {topics[t]} AL files.')
+            scope = TOPIC_SCOPE.get(t, 'named after its old folder; scope to be written (REVIEW)')
+            L.append(f'- `{t}/`: {scope} ({topics[t]} AL {"file" if topics[t] == 1 else "files"}).')
         L += ['', 'A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).', '']
         if area == '_fixtures':
             L += ['## Objects', '']
@@ -591,7 +628,7 @@ def write_readmes(root, out, files):
             L += ['## Shared fixtures used here', '']
             if used:
                 for name, c in used.most_common(12):
-                    L.append(f'- {fx[name]} "{name}": {c} files')
+                    L.append(f'- {fx[name]} "{name}": {c} {"file" if c == 1 else "files"}')
             else:
                 L.append('- none yet; see `../_fixtures/README.md` before you add a local object.')
             L.append('')

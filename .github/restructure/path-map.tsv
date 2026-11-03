@@ -744,9 +744,9 @@ tests/al-language/coverage/W6CodeCoverageIds.al	tests/al-language/test-framework
 tests/al-language/dateformulacontrol/DateFormulaCard.Page.al	tests/al-language/pages/controls/DateFormulaCard.Page.al	map
 tests/al-language/dateformulacontrol/DateFormulaRow.Table.al	tests/al-language/pages/controls/DateFormulaRow.Table.al	map
 tests/al-language/dateformulacontrol/TestDateFormulaControl.al	tests/al-language/pages/controls/TestDateFormulaControl.al	map
-tests/al-language/enum/lt-cw-enum-ordinals/CwEnumOrdinals.al	tests/al-language/types/enum/CwEnumOrdinals.al	map
-tests/al-language/enum/lt-enum-foreach-integer/EnumForeachInteger.al	tests/al-language/types/enum/EnumForeachInteger.al	map
-tests/al-language/enum/lt-enum-fromint-variant/EnumFromIntegerVariant.al	tests/al-language/types/enum/EnumFromIntegerVariant.al	map
+tests/al-language/enum/lt-cw-enum-ordinals/CwEnumOrdinals.al	tests/al-language/types/enum-option/CwEnumOrdinals.al	map (fixed: one enum-option topic (plan section B))
+tests/al-language/enum/lt-enum-foreach-integer/EnumForeachInteger.al	tests/al-language/types/enum-option/EnumForeachInteger.al	map (fixed: one enum-option topic (plan section B))
+tests/al-language/enum/lt-enum-fromint-variant/EnumFromIntegerVariant.al	tests/al-language/types/enum-option/EnumFromIntegerVariant.al	map (fixed: one enum-option topic (plan section B))
 tests/al-language/error-handling/TestAssertError.al	tests/al-language/errors/TestAssertError.al	map
 tests/al-language/error-handling/TestAssertErrorRollback.al	tests/al-language/errors/TestAssertErrorRollback.al	map
 tests/al-language/error-handling/TestAssertErrorRollbackNestedTransaction.al	tests/al-language/errors/TestAssertErrorRollbackNestedTransaction.al	map
@@ -2149,13 +2149,13 @@ tests/al-language/pages/lt-ai-list-order/AiListOrderTests.al	tests/al-language/p
 tests/al-language/pages/lt-ai-list-order/LookupGoToKeyTypedReads.al	tests/al-language/pages/list-order/LookupGoToKeyTypedReads.al	map
 tests/al-language/pages/lt-ai-list-order/QgGoToKeyNextCall.al	tests/al-language/pages/list-order/QgGoToKeyNextCall.al	map
 tests/al-language/pages/lt-ai-list-order/QpUpdateEmptyList.al	tests/al-language/pages/list-order/QpUpdateEmptyList.al	map
-tests/al-language/pages/lt-an-testpage-640/AnAreaTests.al	tests/al-language/pages/testpage/AnAreaTests.al	map
-tests/al-language/pages/lt-an-testpage-640/AnObjects.al	tests/al-language/pages/testpage/AnObjects.al	map
-tests/al-language/pages/lt-an-testpage-640/AnTestPageTests.al	tests/al-language/pages/testpage/AnTestPageTests.al	map
-tests/al-language/pages/lt-ao-testpage/AoFixtures.al	tests/al-language/pages/testpage/AoFixtures.al	map
-tests/al-language/pages/lt-ao-testpage/AoTests.al	tests/al-language/pages/testpage/AoTests.al	map
-tests/al-language/pages/lt-ap-testpage-642/ApObjects.al	tests/al-language/pages/testpage/ApObjects.al	map
-tests/al-language/pages/lt-ap-testpage-642/ApTestPageTests.al	tests/al-language/pages/testpage/ApTestPageTests.al	map
+tests/al-language/pages/lt-an-testpage-640/AnAreaTests.al	tests/al-language/testpage/AnAreaTests.al	map (fixed: TestPage is its own area (plan section B))
+tests/al-language/pages/lt-an-testpage-640/AnObjects.al	tests/al-language/testpage/AnObjects.al	map (fixed: TestPage is its own area (plan section B))
+tests/al-language/pages/lt-an-testpage-640/AnTestPageTests.al	tests/al-language/testpage/AnTestPageTests.al	map (fixed: TestPage is its own area (plan section B))
+tests/al-language/pages/lt-ao-testpage/AoFixtures.al	tests/al-language/testpage/AoFixtures.al	map (fixed: TestPage is its own area (plan section B))
+tests/al-language/pages/lt-ao-testpage/AoTests.al	tests/al-language/testpage/AoTests.al	map (fixed: TestPage is its own area (plan section B))
+tests/al-language/pages/lt-ap-testpage-642/ApObjects.al	tests/al-language/testpage/ApObjects.al	map (fixed: TestPage is its own area (plan section B))
+tests/al-language/pages/lt-ap-testpage-642/ApTestPageTests.al	tests/al-language/testpage/ApTestPageTests.al	map (fixed: TestPage is its own area (plan section B))
 tests/al-language/pages/lt-bare-control-local/BareControlLocalCode.al	tests/al-language/pages/controls/BareControlLocalCode.al	map
 tests/al-language/pages/lt-bare-control-local/BareControlLocalInteger.al	tests/al-language/pages/controls/BareControlLocalInteger.al	map
 tests/al-language/pages/lt-bare-control-local/BareControlLocalText.al	tests/al-language/pages/controls/BareControlLocalText.al	map
@@ -2415,14 +2415,14 @@ tests/al-language/pages/lt-table-globals-page/TableGlobalsPageWithoutValidation.
 tests/al-language/pages/lt-tc-bare-page-methods/TcBarePageMethodsTests.al	tests/al-language/pages/bare-page-methods/TcBarePageMethodsTests.al	map
 tests/al-language/pages/lt-tc-bare-page-methods/TcBarePageObjects.al	tests/al-language/pages/bare-page-methods/TcBarePageObjects.al	map
 tests/al-language/pages/lt-test-field-lookup/TestFieldLookupTriggers.al	tests/al-language/pages/run-modal/TestFieldLookupTriggers.al	map
-tests/al-language/pages/lt-testpage-assertequals-option/TestPageAssertEqualsOption.al	tests/al-language/pages/testpage/TestPageAssertEqualsOption.al	map
-tests/al-language/pages/lt-testpage-list-rows/ListRowsActionEdit.al	tests/al-language/pages/testpage/ListRowsActionEdit.al	map
-tests/al-language/pages/lt-testpage-list-rows/ListRowsActionNew.al	tests/al-language/pages/testpage/ListRowsActionNew.al	map
-tests/al-language/pages/lt-testpage-list-rows/ListRowsGoToFirst.al	tests/al-language/pages/testpage/ListRowsGoToFirst.al	map
-tests/al-language/pages/lt-testpage-list-rows/ListRowsOpenAG.al	tests/al-language/pages/testpage/ListRowsOpenAG.al	map
-tests/al-language/pages/lt-testpage-list-rows/ListRowsOpenNone.al	tests/al-language/pages/testpage/ListRowsOpenNone.al	map
-tests/al-language/pages/lt-testpage-list-rows/ListRowsWindow.al	tests/al-language/pages/testpage/ListRowsWindow.al	map
-tests/al-language/pages/lt-testpage-list-rows/TwBlockEdge.al	tests/al-language/pages/testpage/TwBlockEdge.al	map
+tests/al-language/pages/lt-testpage-assertequals-option/TestPageAssertEqualsOption.al	tests/al-language/testpage/TestPageAssertEqualsOption.al	map (fixed: TestPage is its own area (plan section B))
+tests/al-language/pages/lt-testpage-list-rows/ListRowsActionEdit.al	tests/al-language/testpage/ListRowsActionEdit.al	map (fixed: TestPage is its own area (plan section B))
+tests/al-language/pages/lt-testpage-list-rows/ListRowsActionNew.al	tests/al-language/testpage/ListRowsActionNew.al	map (fixed: TestPage is its own area (plan section B))
+tests/al-language/pages/lt-testpage-list-rows/ListRowsGoToFirst.al	tests/al-language/testpage/ListRowsGoToFirst.al	map (fixed: TestPage is its own area (plan section B))
+tests/al-language/pages/lt-testpage-list-rows/ListRowsOpenAG.al	tests/al-language/testpage/ListRowsOpenAG.al	map (fixed: TestPage is its own area (plan section B))
+tests/al-language/pages/lt-testpage-list-rows/ListRowsOpenNone.al	tests/al-language/testpage/ListRowsOpenNone.al	map (fixed: TestPage is its own area (plan section B))
+tests/al-language/pages/lt-testpage-list-rows/ListRowsWindow.al	tests/al-language/testpage/ListRowsWindow.al	map (fixed: TestPage is its own area (plan section B))
+tests/al-language/pages/lt-testpage-list-rows/TwBlockEdge.al	tests/al-language/testpage/TwBlockEdge.al	map (fixed: TestPage is its own area (plan section B))
 tests/al-language/pages/lt-th-part-update-cursor/R6877PartBothLaterRow.al	tests/al-language/pages/parts/R6877PartBothLaterRow.al	rule: folder already mapped
 tests/al-language/pages/lt-th-part-update-cursor/ThPartUpdateCursor.al	tests/al-language/pages/parts/ThPartUpdateCursor.al	map
 tests/al-language/pages/lt-uf-unqualified-runmodal/UfUnqualifiedRunModal.al	tests/al-language/pages/run-modal/UfUnqualifiedRunModal.al	map
@@ -2533,7 +2533,7 @@ tests/al-language/pages/lt-y80-new-host-key/Y80NewHostKey.al	tests/al-language/p
 tests/al-language/pages/lt-y80-setvalue-types/Y80SetValueTypes.al	tests/al-language/pages/properties/Y80SetValueTypes.al	map
 tests/al-language/pages/lt-y80-subpageview/Y80SubPageViewObjects.al	tests/al-language/pages/subpageview/Y80SubPageViewObjects.al	map
 tests/al-language/pages/lt-y80-subpageview/Y80SubPageViewTests.al	tests/al-language/pages/subpageview/Y80SubPageViewTests.al	map
-tests/al-language/pages/lt-y86-testpage-values/Y86TestPageValues.al	tests/al-language/pages/testpage/Y86TestPageValues.al	map
+tests/al-language/pages/lt-y86-testpage-values/Y86TestPageValues.al	tests/al-language/testpage/Y86TestPageValues.al	map (fixed: TestPage is its own area (plan section B))
 tests/al-language/pages/lt-y87-probes/Y87BigLookup.al	tests/al-language/testpage/Y87BigLookup.al	map
 tests/al-language/pages/lt-y87-probes/Y87LookupParts.al	tests/al-language/testpage/Y87LookupParts.al	map
 tests/al-language/pages/lt-y87-probes/Y87MoveAnswer.al	tests/al-language/testpage/Y87MoveAnswer.al	map
@@ -4044,27 +4044,27 @@ tests/al-language/types/W7Scalars.al	tests/al-language/types/W7Scalars.al	map
 tests/al-language/types/W7ThisBind.al	tests/al-language/types/W7ThisBind.al	map
 tests/al-language/types/W7VarArray.al	tests/al-language/types/W7VarArray.al	map
 tests/al-language/types/lt-af-char-literal/AfCharLiteralArithmetic.al	tests/al-language/types/text-code-char/AfCharLiteralArithmetic.al	map
-tests/al-language/types/lt-ah-operators-evaluate/AhOperatorsEvaluate.al	tests/al-language/types/format-evaluate/AhOperatorsEvaluate.al	map
+tests/al-language/types/lt-ah-operators-evaluate/AhOperatorsEvaluate.al	tests/al-language/format-evaluate/AhOperatorsEvaluate.al	map (fixed: Format/Evaluate is its own area (plan section B))
 tests/al-language/types/lt-aj-probes/AjMisc.al	tests/al-language/types/AjMisc.al	map
 tests/al-language/types/lt-aj-probes/AjScalars.al	tests/al-language/format-evaluate/AjScalars.al	map
 tests/al-language/types/lt-array-index-option/ArrayIndexByOption.al	tests/al-language/types/enum-option/ArrayIndexByOption.al	map
 tests/al-language/types/lt-at-partner-gaps/AtPrecisionStandardFormat2.al	tests/al-language/format-evaluate/AtPrecisionStandardFormat2.al	map
 tests/al-language/types/lt-at-partner-gaps/AtTextCharLiteral.al	tests/al-language/format-evaluate/AtTextCharLiteral.al	map
-tests/al-language/types/lt-auto-format-currency/AutoFormatCurrencyPlaces.al	tests/al-language/types/format-evaluate/AutoFormatCurrencyPlaces.al	map
-tests/al-language/types/lt-auto-format-currency/QiTableFieldAutoFormat.al	tests/al-language/types/format-evaluate/QiTableFieldAutoFormat.al	map
-tests/al-language/types/lt-auto-format-currency/Y17AfProcedure.al	tests/al-language/types/format-evaluate/Y17AfProcedure.al	map
-tests/al-language/types/lt-ax-text-format-dates/AxCodeCompare.al	tests/al-language/types/format-evaluate/AxCodeCompare.al	map
-tests/al-language/types/lt-ax-text-format-dates/AxDurationDateTime.al	tests/al-language/types/format-evaluate/AxDurationDateTime.al	map
-tests/al-language/types/lt-ax-text-format-dates/AxEvaluateText.al	tests/al-language/types/format-evaluate/AxEvaluateText.al	map
-tests/al-language/types/lt-ax-text-format-dates/AxFillerBuilderAutoFormat.al	tests/al-language/types/format-evaluate/AxFillerBuilderAutoFormat.al	map
-tests/al-language/types/lt-ax-text-format-dates/AxFormatOption.al	tests/al-language/types/format-evaluate/AxFormatOption.al	map
-tests/al-language/types/lt-ax-text-format-dates/AxLanguageFormats.al	tests/al-language/types/format-evaluate/AxLanguageFormats.al	map
+tests/al-language/types/lt-auto-format-currency/AutoFormatCurrencyPlaces.al	tests/al-language/format-evaluate/AutoFormatCurrencyPlaces.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-auto-format-currency/QiTableFieldAutoFormat.al	tests/al-language/format-evaluate/QiTableFieldAutoFormat.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-auto-format-currency/Y17AfProcedure.al	tests/al-language/format-evaluate/Y17AfProcedure.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-ax-text-format-dates/AxCodeCompare.al	tests/al-language/format-evaluate/AxCodeCompare.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-ax-text-format-dates/AxDurationDateTime.al	tests/al-language/format-evaluate/AxDurationDateTime.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-ax-text-format-dates/AxEvaluateText.al	tests/al-language/format-evaluate/AxEvaluateText.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-ax-text-format-dates/AxFillerBuilderAutoFormat.al	tests/al-language/format-evaluate/AxFillerBuilderAutoFormat.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-ax-text-format-dates/AxFormatOption.al	tests/al-language/format-evaluate/AxFormatOption.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-ax-text-format-dates/AxLanguageFormats.al	tests/al-language/format-evaluate/AxLanguageFormats.al	map (fixed: Format/Evaluate is its own area (plan section B))
 tests/al-language/types/lt-bc-date-methods/BcDateMethods.al	tests/al-language/types/date-time/BcDateMethods.al	map
 tests/al-language/types/lt-bc-enum-variant/BcEnumObjects.al	tests/al-language/types/variant/BcEnumObjects.al	map
 tests/al-language/types/lt-bc-enum-variant/BcEnumVariant.al	tests/al-language/types/variant/BcEnumVariant.al	map
 tests/al-language/types/lt-bc-round-duration/BcRoundDuration.al	tests/al-language/types/duration/BcRoundDuration.al	map
 tests/al-language/types/lt-bigint-enum-option/BigIntToEnumOption.al	tests/al-language/types/enum-option/BigIntToEnumOption.al	map
-tests/al-language/types/lt-bl-evaluate-lists/EvaluateLists.al	tests/al-language/types/format-evaluate/EvaluateLists.al	map
+tests/al-language/types/lt-bl-evaluate-lists/EvaluateLists.al	tests/al-language/format-evaluate/EvaluateLists.al	map (fixed: Format/Evaluate is its own area (plan section B))
 tests/al-language/types/lt-bu-property-conversions/BuPropertyConversions.al	tests/al-language/types/operators-expressions/BuPropertyConversions.al	map
 tests/al-language/types/lt-byte-char-high/ByteCharHigh.al	tests/al-language/types/text-code-char/ByteCharHigh.al	map
 tests/al-language/types/lt-clear-array-row/ClearArrayRow.al	tests/al-language/types/arrays/ClearArrayRow.al	map
@@ -4117,22 +4117,22 @@ tests/al-language/types/lt-enum-option-conversions/P67ToEnum.al	tests/al-languag
 tests/al-language/types/lt-enum-to-text-fieldref/EnumToTextFieldRef.al	tests/al-language/types/enum-option/EnumToTextFieldRef.al	map
 tests/al-language/types/lt-enum-to-text-fieldref/EnumVariantToText.al	tests/al-language/types/enum-option/EnumVariantToText.al	map
 tests/al-language/types/lt-enum-type-before-rec-field/EnumTypeBeforeRecField.al	tests/al-language/types/enum-option/EnumTypeBeforeRecField.al	map
-tests/al-language/types/lt-evaluate-date-3digit-year/EvaluateDate3DigitYear.al	tests/al-language/types/format-evaluate/EvaluateDate3DigitYear.al	map
-tests/al-language/types/lt-evaluate-decimal-text/EvalDecimalDe.al	tests/al-language/types/format-evaluate/EvalDecimalDe.al	map
-tests/al-language/types/lt-evaluate-decimal-text/EvalDecimalEn.al	tests/al-language/types/format-evaluate/EvalDecimalEn.al	map
-tests/al-language/types/lt-evaluate-decimal/EvaluateDecimal.al	tests/al-language/types/format-evaluate/EvaluateDecimal.al	map
-tests/al-language/types/lt-evaluate-format-lasterror-setview/EvaluateDateFormat9Space.al	tests/al-language/types/format-evaluate/EvaluateDateFormat9Space.al	map
-tests/al-language/types/lt-evaluate-format-lasterror-setview/P86Eval.al	tests/al-language/types/format-evaluate/P86Eval.al	map
-tests/al-language/types/lt-evaluate-format-lasterror-setview/P86FormatDecimal.al	tests/al-language/types/format-evaluate/P86FormatDecimal.al	map
-tests/al-language/types/lt-evaluate-format-lasterror-setview/P86LastError.al	tests/al-language/types/format-evaluate/P86LastError.al	map
-tests/al-language/types/lt-evaluate-format-lasterror-setview/P86SetView.al	tests/al-language/types/format-evaluate/P86SetView.al	map
-tests/al-language/types/lt-evaluate-format-lasterror-setview/P86StrSubstNo.al	tests/al-language/types/format-evaluate/P86StrSubstNo.al	map
-tests/al-language/types/lt-evaluate-format-lasterror-setview/P86TaskExists.al	tests/al-language/types/format-evaluate/P86TaskExists.al	map
-tests/al-language/types/lt-evaluate-mixed-text/EvalMixedTextDe.al	tests/al-language/types/format-evaluate/EvalMixedTextDe.al	map
-tests/al-language/types/lt-evaluate-mixed-text/EvalMixedTextEn.al	tests/al-language/types/format-evaluate/EvalMixedTextEn.al	map
-tests/al-language/types/lt-evaluate-recordid/EvaluateRecordIdComposite.al	tests/al-language/types/format-evaluate/EvaluateRecordIdComposite.al	map
-tests/al-language/types/lt-evaluate-text-decimal/EvaluateTextCodeDecimal.al	tests/al-language/types/format-evaluate/EvaluateTextCodeDecimal.al	map
-tests/al-language/types/lt-evaluate-wide-decimal/EvaluateWideDecimal.al	tests/al-language/types/format-evaluate/EvaluateWideDecimal.al	map
+tests/al-language/types/lt-evaluate-date-3digit-year/EvaluateDate3DigitYear.al	tests/al-language/format-evaluate/EvaluateDate3DigitYear.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-evaluate-decimal-text/EvalDecimalDe.al	tests/al-language/format-evaluate/EvalDecimalDe.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-evaluate-decimal-text/EvalDecimalEn.al	tests/al-language/format-evaluate/EvalDecimalEn.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-evaluate-decimal/EvaluateDecimal.al	tests/al-language/format-evaluate/EvaluateDecimal.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-evaluate-format-lasterror-setview/EvaluateDateFormat9Space.al	tests/al-language/format-evaluate/EvaluateDateFormat9Space.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-evaluate-format-lasterror-setview/P86Eval.al	tests/al-language/format-evaluate/P86Eval.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-evaluate-format-lasterror-setview/P86FormatDecimal.al	tests/al-language/format-evaluate/P86FormatDecimal.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-evaluate-format-lasterror-setview/P86LastError.al	tests/al-language/format-evaluate/P86LastError.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-evaluate-format-lasterror-setview/P86SetView.al	tests/al-language/format-evaluate/P86SetView.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-evaluate-format-lasterror-setview/P86StrSubstNo.al	tests/al-language/format-evaluate/P86StrSubstNo.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-evaluate-format-lasterror-setview/P86TaskExists.al	tests/al-language/format-evaluate/P86TaskExists.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-evaluate-mixed-text/EvalMixedTextDe.al	tests/al-language/format-evaluate/EvalMixedTextDe.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-evaluate-mixed-text/EvalMixedTextEn.al	tests/al-language/format-evaluate/EvalMixedTextEn.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-evaluate-recordid/EvaluateRecordIdComposite.al	tests/al-language/format-evaluate/EvaluateRecordIdComposite.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-evaluate-text-decimal/EvaluateTextCodeDecimal.al	tests/al-language/format-evaluate/EvaluateTextCodeDecimal.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-evaluate-wide-decimal/EvaluateWideDecimal.al	tests/al-language/format-evaluate/EvaluateWideDecimal.al	map (fixed: Format/Evaluate is its own area (plan section B))
 tests/al-language/types/lt-expression-operators-literals/ExpressionBinaryDateTimeOperands.al	tests/al-language/types/operators-expressions/ExpressionBinaryDateTimeOperands.al	map
 tests/al-language/types/lt-expression-operators-literals/ExpressionBinaryDivisionByZero.al	tests/al-language/types/operators-expressions/ExpressionBinaryDivisionByZero.al	map
 tests/al-language/types/lt-expression-operators-literals/ExpressionBinaryOperators.al	tests/al-language/types/operators-expressions/ExpressionBinaryOperators.al	map
@@ -4148,24 +4148,24 @@ tests/al-language/types/lt-filter-enum-relation-duration-guid/E_Guid.al	tests/al
 tests/al-language/types/lt-for-option-time-decimal/ForLoopOptionVariable.al	tests/al-language/types/date-time/ForLoopOptionVariable.al	map
 tests/al-language/types/lt-for-option-time-decimal/ForOptionEnum_risky.al	tests/al-language/types/date-time/ForOptionEnum_risky.al	map
 tests/al-language/types/lt-for-option-time-decimal/TimeAddWholeDecimal.al	tests/al-language/types/date-time/TimeAddWholeDecimal.al	map
-tests/al-language/types/lt-format-codes-textbuilder-pagerun-labels/P144DateTextWidth.al	tests/al-language/types/format-evaluate/P144DateTextWidth.al	map
-tests/al-language/types/lt-format-codes-textbuilder-pagerun-labels/P144FormatCodes.al	tests/al-language/types/format-evaluate/P144FormatCodes.al	map
-tests/al-language/types/lt-format-codes-textbuilder-pagerun-labels/P144PageRunField.al	tests/al-language/types/format-evaluate/P144PageRunField.al	map
-tests/al-language/types/lt-format-codes-textbuilder-pagerun-labels/P144ReportLabelsCaption.al	tests/al-language/types/format-evaluate/P144ReportLabelsCaption.al	map
-tests/al-language/types/lt-format-codes-textbuilder-pagerun-labels/P144TextBuilderCapacity.al	tests/al-language/types/format-evaluate/P144TextBuilderCapacity.al	map
-tests/al-language/types/lt-format-codes-textbuilder-pagerun-labels/SqReportLabelsObjects.al	tests/al-language/types/format-evaluate/SqReportLabelsObjects.al	map
-tests/al-language/types/lt-format-comma-format-string/FormatCommaFormatString.al	tests/al-language/types/format-evaluate/FormatCommaFormatString.al	map
-tests/al-language/types/lt-format-comma-more/FormatCommaMore.al	tests/al-language/types/format-evaluate/FormatCommaMore.al	map
-tests/al-language/types/lt-format-currency-prefix/FormatCurrencyPrefix.al	tests/al-language/types/format-evaluate/FormatCurrencyPrefix.al	map
-tests/al-language/types/lt-format-option-field/FormatOptionFieldCaptions.al	tests/al-language/types/format-evaluate/FormatOptionFieldCaptions.al	map
-tests/al-language/types/lt-format-precision-standard-more/FormatPrecStdMoreDe.al	tests/al-language/types/format-evaluate/FormatPrecStdMoreDe.al	map
-tests/al-language/types/lt-format-precision-standard-more/FormatPrecStdMoreEn.al	tests/al-language/types/format-evaluate/FormatPrecStdMoreEn.al	map
-tests/al-language/types/lt-format-precision-standard/FormatPrecStdDe.al	tests/al-language/types/format-evaluate/FormatPrecStdDe.al	map
-tests/al-language/types/lt-format-precision-standard/FormatPrecStdEn.al	tests/al-language/types/format-evaluate/FormatPrecStdEn.al	map
-tests/al-language/types/lt-format-precision-standard/FormatPrecision03Comma.al	tests/al-language/types/format-evaluate/FormatPrecision03Comma.al	map
-tests/al-language/types/lt-format-week-code/FormatWeekCodeIso.al	tests/al-language/types/format-evaluate/FormatWeekCodeIso.al	map
+tests/al-language/types/lt-format-codes-textbuilder-pagerun-labels/P144DateTextWidth.al	tests/al-language/format-evaluate/P144DateTextWidth.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-format-codes-textbuilder-pagerun-labels/P144FormatCodes.al	tests/al-language/format-evaluate/P144FormatCodes.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-format-codes-textbuilder-pagerun-labels/P144PageRunField.al	tests/al-language/format-evaluate/P144PageRunField.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-format-codes-textbuilder-pagerun-labels/P144ReportLabelsCaption.al	tests/al-language/format-evaluate/P144ReportLabelsCaption.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-format-codes-textbuilder-pagerun-labels/P144TextBuilderCapacity.al	tests/al-language/format-evaluate/P144TextBuilderCapacity.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-format-codes-textbuilder-pagerun-labels/SqReportLabelsObjects.al	tests/al-language/format-evaluate/SqReportLabelsObjects.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-format-comma-format-string/FormatCommaFormatString.al	tests/al-language/format-evaluate/FormatCommaFormatString.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-format-comma-more/FormatCommaMore.al	tests/al-language/format-evaluate/FormatCommaMore.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-format-currency-prefix/FormatCurrencyPrefix.al	tests/al-language/format-evaluate/FormatCurrencyPrefix.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-format-option-field/FormatOptionFieldCaptions.al	tests/al-language/format-evaluate/FormatOptionFieldCaptions.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-format-precision-standard-more/FormatPrecStdMoreDe.al	tests/al-language/format-evaluate/FormatPrecStdMoreDe.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-format-precision-standard-more/FormatPrecStdMoreEn.al	tests/al-language/format-evaluate/FormatPrecStdMoreEn.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-format-precision-standard/FormatPrecStdDe.al	tests/al-language/format-evaluate/FormatPrecStdDe.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-format-precision-standard/FormatPrecStdEn.al	tests/al-language/format-evaluate/FormatPrecStdEn.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-format-precision-standard/FormatPrecision03Comma.al	tests/al-language/format-evaluate/FormatPrecision03Comma.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-format-week-code/FormatWeekCodeIso.al	tests/al-language/format-evaluate/FormatWeekCodeIso.al	map (fixed: Format/Evaluate is its own area (plan section B))
 tests/al-language/types/lt-guid-as-text-argument/GuidAsTextArgument.al	tests/al-language/types/guid/GuidAsTextArgument.al	map
-tests/al-language/types/lt-guid-create-format/CreateGuidFormat.al	tests/al-language/types/format-evaluate/CreateGuidFormat.al	map
+tests/al-language/types/lt-guid-create-format/CreateGuidFormat.al	tests/al-language/format-evaluate/CreateGuidFormat.al	map (fixed: Format/Evaluate is its own area (plan section B))
 tests/al-language/types/lt-implicit-conversions/P79AcceptedShapes.al	tests/al-language/types/operators-expressions/P79AcceptedShapes.al	map
 tests/al-language/types/lt-implicit-conversions/P79BigOption.al	tests/al-language/types/operators-expressions/P79BigOption.al	map
 tests/al-language/types/lt-implicit-conversions/P79Boolean.al	tests/al-language/types/operators-expressions/P79Boolean.al	map
@@ -4243,8 +4243,8 @@ tests/al-language/types/lt-in-precedence-date-guid-filters/P143Prec_XorIn_IntMis
 tests/al-language/types/lt-in-precedence-date-guid-filters/P143Prec_XorIn_TrueTrueT.al	tests/al-language/types/date-time/P143Prec_XorIn_TrueTrueT.al	map
 tests/al-language/types/lt-in-precedence-date-guid-filters/P143Prec_XorIn_TrueTrueTF.al	tests/al-language/types/date-time/P143Prec_XorIn_TrueTrueTF.al	map
 tests/al-language/types/lt-notification-id-text/NotificationIdFromText.al	tests/al-language/types/text-code-char/NotificationIdFromText.al	map
-tests/al-language/types/lt-number-to-text/NumberToTextIsFormat.al	tests/al-language/types/format-evaluate/NumberToTextIsFormat.al	map
-tests/al-language/types/lt-option-evaluate-captions/OptionEvaluateCaptions.al	tests/al-language/types/format-evaluate/OptionEvaluateCaptions.al	map
+tests/al-language/types/lt-number-to-text/NumberToTextIsFormat.al	tests/al-language/format-evaluate/NumberToTextIsFormat.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-option-evaluate-captions/OptionEvaluateCaptions.al	tests/al-language/format-evaluate/OptionEvaluateCaptions.al	map (fixed: Format/Evaluate is its own area (plan section B))
 tests/al-language/types/lt-page-style/PageStyle.al	tests/al-language/types/page-style/PageStyle.al	map
 tests/al-language/types/lt-quarter-duration/FormatQuarterDuration.al	tests/al-language/types/date-time/FormatQuarterDuration.al	map
 tests/al-language/types/lt-qw-ternary/QwTernaryHelpers.al	tests/al-language/types/operators-expressions/QwTernaryHelpers.al	map
@@ -4269,14 +4269,14 @@ tests/al-language/types/lt-secret-text-from-text/SecretTextFromText.al	tests/al-
 tests/al-language/types/lt-text-char-index/TextCharIndexAssignEdges.al	tests/al-language/types/text-code-char/TextCharIndexAssignEdges.al	map
 tests/al-language/types/lt-time-big-integer/TimeBigIntegerArithmetic.al	tests/al-language/types/date-time/TimeBigIntegerArithmetic.al	map
 tests/al-language/types/lt-time-decimal-arithmetic/TimeDecimalArithmetic.al	tests/al-language/types/date-time/TimeDecimalArithmetic.al	map
-tests/al-language/types/lt-totext-bigtext-codeunit-run/P93BigText.al	tests/al-language/types/format-evaluate/P93BigText.al	map
-tests/al-language/types/lt-totext-bigtext-codeunit-run/P93CodeunitRun.al	tests/al-language/types/format-evaluate/P93CodeunitRun.al	map
-tests/al-language/types/lt-totext-bigtext-codeunit-run/P93Date.al	tests/al-language/types/format-evaluate/P93Date.al	map
-tests/al-language/types/lt-totext-bigtext-codeunit-run/P93DateTime.al	tests/al-language/types/format-evaluate/P93DateTime.al	map
-tests/al-language/types/lt-totext-bigtext-codeunit-run/P93Guid.al	tests/al-language/types/format-evaluate/P93Guid.al	map
-tests/al-language/types/lt-totext-bigtext-codeunit-run/P93ScalarToText.al	tests/al-language/types/format-evaluate/P93ScalarToText.al	map
+tests/al-language/types/lt-totext-bigtext-codeunit-run/P93BigText.al	tests/al-language/format-evaluate/P93BigText.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-totext-bigtext-codeunit-run/P93CodeunitRun.al	tests/al-language/format-evaluate/P93CodeunitRun.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-totext-bigtext-codeunit-run/P93Date.al	tests/al-language/format-evaluate/P93Date.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-totext-bigtext-codeunit-run/P93DateTime.al	tests/al-language/format-evaluate/P93DateTime.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-totext-bigtext-codeunit-run/P93Guid.al	tests/al-language/format-evaluate/P93Guid.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-totext-bigtext-codeunit-run/P93ScalarToText.al	tests/al-language/format-evaluate/P93ScalarToText.al	map (fixed: Format/Evaluate is its own area (plan section B))
 tests/al-language/types/lt-uf-enum-arithmetic/UfEnumArithmetic.al	tests/al-language/types/enum-option/UfEnumArithmetic.al	map
-tests/al-language/types/lt-uf-evaluate-json-rfc1123/UfEvaluateJsonRfc.al	tests/al-language/types/format-evaluate/UfEvaluateJsonRfc.al	map
+tests/al-language/types/lt-uf-evaluate-json-rfc1123/UfEvaluateJsonRfc.al	tests/al-language/format-evaluate/UfEvaluateJsonRfc.al	map (fixed: Format/Evaluate is its own area (plan section B))
 tests/al-language/types/lt-uf-ternary-guid-label/UfTernaryGuidLabel.al	tests/al-language/types/guid/UfTernaryGuidLabel.al	map
 tests/al-language/types/lt-up-ternary/UpTernary.al	tests/al-language/types/operators-expressions/UpTernary.al	map
 tests/al-language/types/lt-up-this-field/UpThisField.al	tests/al-language/types/operators-expressions/UpThisField.al	map
@@ -4323,11 +4323,11 @@ tests/al-language/types/lt-y31-conversion-matrix/Y31ConvCv.al	tests/al-language/
 tests/al-language/types/lt-y31-conversion-matrix/Y31ConvObjects.al	tests/al-language/types/operators-expressions/Y31ConvObjects.al	map
 tests/al-language/types/lt-y31-conversion-matrix/Y31ConvSus.al	tests/al-language/types/operators-expressions/Y31ConvSus.al	map
 tests/al-language/types/lt-y31-conversion-matrix/Y31ConvTp.al	tests/al-language/types/operators-expressions/Y31ConvTp.al	map
-tests/al-language/types/lt-y43-auto-format-11/Y43AfType11.al	tests/al-language/types/format-evaluate/Y43AfType11.al	map
+tests/al-language/types/lt-y43-auto-format-11/Y43AfType11.al	tests/al-language/format-evaluate/Y43AfType11.al	map (fixed: Format/Evaluate is its own area (plan section B))
 tests/al-language/types/lt-y49-datetime-9999/Y49DateTime9999.al	tests/al-language/types/date-time/Y49DateTime9999.al	map
-tests/al-language/types/lt-y49-evaluate-date-blanks/Y49EvaluateDateBlanks.al	tests/al-language/types/format-evaluate/Y49EvaluateDateBlanks.al	map
-tests/al-language/types/lt-y49-recordid-format10/Y49RecordIdFormat10.al	tests/al-language/types/format-evaluate/Y49RecordIdFormat10.al	map
-tests/al-language/types/lt-y62-dateformula-format/Y62DateFormulaFormat.al	tests/al-language/types/format-evaluate/Y62DateFormulaFormat.al	map
+tests/al-language/types/lt-y49-evaluate-date-blanks/Y49EvaluateDateBlanks.al	tests/al-language/format-evaluate/Y49EvaluateDateBlanks.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-y49-recordid-format10/Y49RecordIdFormat10.al	tests/al-language/format-evaluate/Y49RecordIdFormat10.al	map (fixed: Format/Evaluate is its own area (plan section B))
+tests/al-language/types/lt-y62-dateformula-format/Y62DateFormulaFormat.al	tests/al-language/format-evaluate/Y62DateFormulaFormat.al	map (fixed: Format/Evaluate is its own area (plan section B))
 tests/al-language/types/lt-y62-undefined-date/Y62UndefinedDate.al	tests/al-language/types/date-time/Y62UndefinedDate.al	map
 tests/al-language/types/lt-y64-clear-types/Y64ClearTypes.al	tests/al-language/types/clear/Y64ClearTypes.al	map
 tests/al-language/types/lt-y65-undefined-arith/Y65UndefinedArith.al	tests/al-language/types/decimal-integer/Y65UndefinedArith.al	map
@@ -4335,7 +4335,7 @@ tests/al-language/types/lt-y66-bigint-into-int/Y66BigIntIntoInt.al	tests/al-lang
 tests/al-language/types/lt-y66-ternary-label/Y66TernaryLabel.al	tests/al-language/types/text-code-char/Y66TernaryLabel.al	map
 tests/al-language/types/lt-y67-variant-numeric/Y67VariantNumeric.al	tests/al-language/types/variant/Y67VariantNumeric.al	map
 tests/al-language/types/lt-y71-caption-class-events/Y71CaptionClassEvents.al	tests/al-language/types/caption-class-events/Y71CaptionClassEvents.al	map
-tests/al-language/types/lt-y71-evaluate-dmy2date/Y71EvaluateDashedDates.al	tests/al-language/types/format-evaluate/Y71EvaluateDashedDates.al	map
+tests/al-language/types/lt-y71-evaluate-dmy2date/Y71EvaluateDashedDates.al	tests/al-language/format-evaluate/Y71EvaluateDashedDates.al	map (fixed: Format/Evaluate is its own area (plan section B))
 tests/al-language/types/lt-y71-value-conversions/Y71ValueConversions.al	tests/al-language/types/operators-expressions/Y71ValueConversions.al	map
 tests/al-language/types/lt-y73-quoted-this/Y73ThisCodeunit.al	tests/al-language/types/operators-expressions/Y73ThisCodeunit.al	map
 tests/al-language/types/lt-y73-quoted-this/Y73ThisObjects.al	tests/al-language/types/operators-expressions/Y73ThisObjects.al	map
