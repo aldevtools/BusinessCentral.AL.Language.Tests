@@ -1206,13 +1206,10 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Expect('OtherD next log', 'drR2;dfR2;dcR2;dfR2');
         Observer.Expect('Resources next', 'false|R1');
         Observer.Expect('Resources next log', '');
-        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|<MORE>
-AL Callstack:
-"Probe Observer State"(CodeUnit 69163).Raise line 7 - AL Language Coverage Tests by AL Language version 1.0.0.0
-"Probe Observer"(CodeUnit 69160).Finish line 6 - AL Language Coverage Tests by AL Language version 1.0.0.0
-"LT Y87 Lookup Part Tests"(CodeUnit 94645).Y87_ABCDL_NextOtherA line 28 - AL Language Coverage Tests by AL Language version 1.0.0.0
-
-');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', 'prR1;hrR1');
+        Observer.Expect('stored', 'R2');
         Observer.Verify();
     end;
 
@@ -1262,13 +1259,10 @@ AL Callstack:
         Observer.Expect('OtherC next log', 'crR2;cfR2;ccR2;cfR2');
         Observer.Expect('OtherD next', 'true|R2');
         Observer.Expect('OtherD next log', 'drR2;dfR2;dcR2;dfR2');
-        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2<MORE>
-AL Callstack:
-"Probe Observer State"(CodeUnit 69163).Raise line 7 - AL Language Coverage Tests by AL Language version 1.0.0.0
-"Probe Observer"(CodeUnit 69160).Finish line 6 - AL Language Coverage Tests by AL Language version 1.0.0.0
-"LT Y87 Lookup Part Tests"(CodeUnit 94645).Y87_ABCDL_NextResources line 28 - AL Language Coverage Tests by AL Language version 1.0.0.0
-
-');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', 'prR1;hrR1');
+        Observer.Expect('stored', 'R2');
         Observer.Verify();
     end;
 
@@ -1310,13 +1304,10 @@ AL Callstack:
         Observer.Expect('after next log', '');
         Observer.Expect('host previous', 'true|R1');
         Observer.Expect('host previous log', 'hrR1;hrR1;hfR1;hcR1;hfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;arR1;arR1;afR1;acR1;afR1;brR1;brR1;bfR1;bcR1;bfR1;crR1;crR1;cfR1;ccR1;cfR1;drR1;drR1;dfR1;dcR1;dfR1');
-        Observer.Expect('after', 'R2|R1/R2|R1|<MORE>
-AL Callstack:
-"Probe Observer State"(CodeUnit 69163).Raise line 7 - AL Language Coverage Tests by AL Language version 1.0.0.0
-"Probe Observer"(CodeUnit 69160).Finish line 6 - AL Language Coverage Tests by AL Language version 1.0.0.0
-"LT Y87 Lookup Part Tests"(CodeUnit 94645).Y87_ABCDL_HostNext line 24 - AL Language Coverage Tests by AL Language version 1.0.0.0
-
-');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
         Observer.Verify();
     end;
 
@@ -1485,13 +1476,19 @@ AL Callstack:
         Observer.Expect('OtherA next', 'true|R2');
         Observer.Expect('OtherA next log', 'arR2;arR2;afR2;acR2;afR2;hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR2;afR2;arR3;afR3;arR2;arR1;afR1;arR2;arR2;afR2;acR2;afR2;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;drR2;dfR2;drR3;dfR3;drR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;erR2;efR2;erR3;efR3;erR1;erR1;efR1;ecR1;efR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;dcR1;dfR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;ecR1;efR1');
         Observer.Expect('OtherB next', 'true|R2');
-        Observer.Expect('OtherB next log', 'brR<MORE>
-AL Callstack:
-"Probe Observer State"(CodeUnit 69163).Raise line 7 - AL Language Coverage Tests by AL Language version 1.0.0.0
-"Probe Observer"(CodeUnit 69160).Finish line 6 - AL Language Coverage Tests by AL Language version 1.0.0.0
-"LT Y87 Lookup Part Tests"(CodeUnit 94645).Y87_ABCDEL_NextOtherA line 30 - AL Language Coverage Tests by AL Language version 1.0.0.0
-
-');
+        Observer.Expect('OtherB next log', 'brR2;brR2;bfR2;bcR2;bfR2;hrR2;hrR2;hfR2;hcR2;hfR2;arR2;arR2;afR2;acR2;afR2;crR2;crR2;cfR2;ccR2;cfR2;drR2;drR2;dfR2;dcR2;dfR2;erR2;erR2;efR2;ecR2;efR2;prR2');
+        Observer.Expect('OtherC next', 'true|R2');
+        Observer.Expect('OtherC next log', 'crR2;cfR2;ccR2;cfR2');
+        Observer.Expect('OtherD next', 'true|R2');
+        Observer.Expect('OtherD next log', 'drR2;dfR2;dcR2;dfR2');
+        Observer.Expect('OtherE next', 'true|R2');
+        Observer.Expect('OtherE next log', 'erR2;efR2;ecR2;efR2');
+        Observer.Expect('Resources next', 'false|R1');
+        Observer.Expect('Resources next log', '');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', 'prR1;hrR1');
+        Observer.Expect('stored', 'R2');
         Observer.Verify();
     end;
 
@@ -1536,13 +1533,19 @@ AL Callstack:
         Observer.Expect('Resources next', 'false|R1');
         Observer.Expect('Resources next log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;drR2;dfR2;drR3;dfR3;drR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;erR2;efR2;erR3;efR3;erR1;erR1;efR1;ecR1;efR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;dcR1;dfR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;ecR1;efR1');
         Observer.Expect('OtherA next', 'true|R2');
-        Observer.Expect('OtherA next log', 'arR2;arR2;a<MORE>
-AL Callstack:
-"Probe Observer State"(CodeUnit 69163).Raise line 7 - AL Language Coverage Tests by AL Language version 1.0.0.0
-"Probe Observer"(CodeUnit 69160).Finish line 6 - AL Language Coverage Tests by AL Language version 1.0.0.0
-"LT Y87 Lookup Part Tests"(CodeUnit 94645).Y87_ABCDEL_NextResources line 30 - AL Language Coverage Tests by AL Language version 1.0.0.0
-
-');
+        Observer.Expect('OtherA next log', 'arR2;arR2;afR2;acR2;afR2;hrR2;hrR2;hfR2;hcR2;hfR2;brR2;brR2;bfR2;bcR2;bfR2;crR2;crR2;cfR2;ccR2;cfR2;drR2;drR2;dfR2;dcR2;dfR2;erR2;erR2;efR2;ecR2;efR2;prR2');
+        Observer.Expect('OtherB next', 'true|R2');
+        Observer.Expect('OtherB next log', 'brR2;bfR2;bcR2;bfR2');
+        Observer.Expect('OtherC next', 'true|R2');
+        Observer.Expect('OtherC next log', 'crR2;cfR2;ccR2;cfR2');
+        Observer.Expect('OtherD next', 'true|R2');
+        Observer.Expect('OtherD next log', 'drR2;dfR2;dcR2;dfR2');
+        Observer.Expect('OtherE next', 'true|R2');
+        Observer.Expect('OtherE next log', 'erR2;efR2;ecR2;efR2');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', 'prR1;hrR1');
+        Observer.Expect('stored', 'R2');
         Observer.Verify();
     end;
 
@@ -1563,7 +1566,7 @@ AL Callstack:
         Schedule.ResourceNo.Lookup();
         Observer.Observe('lookup log', Log.Take());
         Observer.Observe('host next', Format(Schedule.Next(), 0, 9) + '|' + Schedule."No.".Value());
-        Observer.Observe('host next log', Log.Take());
+        ObserveChunks('host next log', Log.Take());
         Observer.Observe('after next', SnapABCDEL(Schedule));
         Observer.Observe('after next log', Log.Take());
         Observer.Observe('host previous', Format(Schedule.Previous(), 0, 9) + '|' + Schedule."No.".Value());
@@ -1579,13 +1582,17 @@ AL Callstack:
         Observer.Expect('before log', '');
         Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
         Observer.Expect('host next', 'true|R2');
-        Observer.Expect('host next log', 'hrR2;hrR2;hfR2;hcR2;hfR2;hrR2;hfR2;hrR3;hfR3;hrR2;hrR1;hfR1;hrR2;hrR2;hfR2;hcR2;hfR2;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;drR2;dfR2;drR3;dfR3;drR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;erR2;efR2;erR3;efR3;erR1;erR1;efR1;ecR1;efR1;prR2;pfR2;prR2;pfR2;pcR2;pfR2;hrR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR2;hrR2;hfR2;hcR2;hfR2;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR2;arR2;afR2;acR2;afR2;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR2;brR2;bfR2;bcR2;bfR2;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;crR2;crR2;cfR2;ccR2;cfR2;drR1;dfR1;dcR1;dfR1;drR2;drR2;dfR2;dcR2;dfR2;erR2;erR2;efR2;ecR<MORE>
-AL Callstack:
-"Probe Observer State"(CodeUnit 69163).Raise line 7 - AL Language Coverage Tests by AL Language version 1.0.0.0
-"Probe Observer"(CodeUnit 69160).Finish line 6 - AL Language Coverage Tests by AL Language version 1.0.0.0
-"LT Y87 Lookup Part Tests"(CodeUnit 94645).Y87_ABCDEL_HostNext line 24 - AL Language Coverage Tests by AL Language version 1.0.0.0
-
-');
+        Observer.Expect('host next log 1', 'hrR2;hrR2;hfR2;hcR2;hfR2;hrR2;hfR2;hrR3;hfR3;hrR2;hrR1;hfR1;hrR2;hrR2;hfR2;hcR2;hfR2;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;drR2;dfR2;drR3;dfR3;drR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;erR2;efR2;erR3;efR3;erR1;erR1;efR1;ecR1;efR1;prR2;pfR2;prR2;pfR2;pcR2;pfR2;hrR1;hrR1;');
+        Observer.Expect('host next log 2', 'hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR2;hrR2;hfR2;hcR2;hfR2;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR2;arR2;afR2;acR2;afR2;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR2;brR2;bfR2;bcR2;bfR2;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;crR2;crR2;cfR2;ccR2;cfR2;drR1;dfR1;dcR1;dfR1;drR2;');
+        Observer.Expect('host next log 3', 'drR2;dfR2;dcR2;dfR2;erR2;erR2;efR2;ecR2;efR2');
+        Observer.Expect('after next', 'R2|R2/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2');
+        Observer.Expect('after next log', '');
+        Observer.Expect('host previous', 'true|R1');
+        Observer.Expect('host previous log', 'hrR1;hrR1;hfR1;hcR1;hfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;arR1;arR1;afR1;acR1;afR1;brR1;brR1;bfR1;bcR1;bfR1;crR1;crR1;cfR1;ccR1;cfR1;drR1;drR1;dfR1;dcR1;dfR1;erR1;erR1;efR1;ecR1;efR1');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
         Observer.Verify();
     end;
 
@@ -2768,6 +2775,21 @@ AL Callstack:
         Resource.Insert();
     end;
 
+
+    local procedure ObserveChunks(Label: Text; Value: Text)
+    var
+        Index: Integer;
+        Part: Integer;
+    begin
+        // keeps every observation short enough that the failure message of the runner never cuts it
+        Part := 1;
+        Index := 1;
+        while Index <= StrLen(Value) do begin
+            Observer.Observe(Label + ' ' + Format(Part), CopyStr(Value, Index, 400));
+            Index += 400;
+            Part += 1;
+        end;
+    end;
 
     local procedure SnapABCDL(var Schedule: TestPage "LT Y87 Host ABCDL"): Text
     begin
