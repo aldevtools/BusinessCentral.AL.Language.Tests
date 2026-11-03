@@ -86,6 +86,17 @@ codeunit 94920 "LT WD Call Stack Write Text"
         exit(Value);
     end;
 
+    local procedure CountLineFeeds(Value: Text): Integer
+    var
+        At: Integer;
+        Count: Integer;
+    begin
+        for At := 1 to StrLen(Value) do
+            if Value[At] = 10 then
+                Count += 1;
+        exit(Count);
+    end;
+
     local procedure NoBreaks(Value: Text): Text
     var
         Cr: Text[1];
@@ -142,7 +153,9 @@ codeunit 94920 "LT WD Call Stack Write Text"
             Lines += 1;
             Joined += ReadBack;
         end;
-        Observer.Observe('loop lines', Format(Lines));
+        // The number of lines ReadText returns for a call stack depends on how deep the test runner's own frames are (Windows 27.5 and 28.5: 3 lines, Linux 27.5: 9),
+        // so only the difference to the line feeds of the original text is pinned: 0 for WriteText, 1 for Write (it appends a line break).
+        Observer.Observe('loop lines minus line feeds', Format(Lines - CountLineFeeds(Orig)));
         Observer.Observe('loop joined is text without breaks', Format(Joined = NoBreaks(Orig)));
         Verify(Observer, Want);
     end;
@@ -154,7 +167,7 @@ codeunit 94920 "LT WD Call Stack Write Text"
         Values: List of [Text];
         Index: Integer;
     begin
-        Names := 'length minus bytes|readtext equal|readtext is first line|eos after readtext|readtext len is first line|read equal|loop lines|loop joined is text without breaks'.Split('|');
+        Names := 'length minus bytes|readtext equal|readtext is first line|eos after readtext|readtext len is first line|read equal|loop lines minus line feeds|loop joined is text without breaks'.Split('|');
         Values := Want.Split('|');
         for Index := 1 to Names.Count() do
             Observer.Expect(Names.Get(Index), Values.Get(Index));
@@ -177,21 +190,21 @@ codeunit 94920 "LT WD Call Stack Write Text"
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_DefaultEncoding_Collected_WriteText()
     begin
-        RoundTrip(Source(1), 0, 1, '0|No|Yes|No|Yes|Yes|3|Yes');
+        RoundTrip(Source(1), 0, 1, '0|No|Yes|No|Yes|Yes|0|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_DefaultEncoding_Collected_Write()
     begin
-        RoundTrip(Source(1), 0, 2, '1|No|Yes|No|Yes|Yes|4|Yes');
+        RoundTrip(Source(1), 0, 2, '1|No|Yes|No|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_DefaultEncoding_Collected_WriteTextLength()
     begin
-        RoundTrip(Source(1), 0, 3, '0|No|Yes|No|Yes|Yes|3|Yes');
+        RoundTrip(Source(1), 0, 3, '0|No|Yes|No|Yes|Yes|0|Yes');
     end;
 
     [Test]
@@ -240,21 +253,21 @@ codeunit 94920 "LT WD Call Stack Write Text"
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF8_Collected_WriteText()
     begin
-        RoundTrip(Source(1), 1, 1, '0|No|Yes|No|Yes|Yes|3|Yes');
+        RoundTrip(Source(1), 1, 1, '0|No|Yes|No|Yes|Yes|0|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF8_Collected_Write()
     begin
-        RoundTrip(Source(1), 1, 2, '1|No|Yes|No|Yes|Yes|4|Yes');
+        RoundTrip(Source(1), 1, 2, '1|No|Yes|No|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF8_Collected_WriteTextLength()
     begin
-        RoundTrip(Source(1), 1, 3, '0|No|Yes|No|Yes|Yes|3|Yes');
+        RoundTrip(Source(1), 1, 3, '0|No|Yes|No|Yes|Yes|0|Yes');
     end;
 
     [Test]
@@ -303,21 +316,21 @@ codeunit 94920 "LT WD Call Stack Write Text"
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF16_Collected_WriteText()
     begin
-        RoundTrip(Source(1), 2, 1, '0|No|Yes|No|Yes|Yes|3|Yes');
+        RoundTrip(Source(1), 2, 1, '0|No|Yes|No|Yes|Yes|0|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF16_Collected_Write()
     begin
-        RoundTrip(Source(1), 2, 2, '2|No|Yes|No|Yes|Yes|4|Yes');
+        RoundTrip(Source(1), 2, 2, '2|No|Yes|No|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF16_Collected_WriteTextLength()
     begin
-        RoundTrip(Source(1), 2, 3, '0|No|Yes|No|Yes|Yes|3|Yes');
+        RoundTrip(Source(1), 2, 3, '0|No|Yes|No|Yes|Yes|0|Yes');
     end;
 
     [Test]
@@ -366,21 +379,21 @@ codeunit 94920 "LT WD Call Stack Write Text"
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_Windows_Collected_WriteText()
     begin
-        RoundTrip(Source(1), 3, 1, '0|No|Yes|No|Yes|Yes|3|Yes');
+        RoundTrip(Source(1), 3, 1, '0|No|Yes|No|Yes|Yes|0|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_Windows_Collected_Write()
     begin
-        RoundTrip(Source(1), 3, 2, '1|No|Yes|No|Yes|Yes|4|Yes');
+        RoundTrip(Source(1), 3, 2, '1|No|Yes|No|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_Windows_Collected_WriteTextLength()
     begin
-        RoundTrip(Source(1), 3, 3, '0|No|Yes|No|Yes|Yes|3|Yes');
+        RoundTrip(Source(1), 3, 3, '0|No|Yes|No|Yes|Yes|0|Yes');
     end;
 
     [Test]
@@ -429,21 +442,21 @@ codeunit 94920 "LT WD Call Stack Write Text"
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_MSDos_Collected_WriteText()
     begin
-        RoundTrip(Source(1), 4, 1, '0|No|Yes|No|Yes|Yes|3|Yes');
+        RoundTrip(Source(1), 4, 1, '0|No|Yes|No|Yes|Yes|0|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_MSDos_Collected_Write()
     begin
-        RoundTrip(Source(1), 4, 2, '1|No|Yes|No|Yes|Yes|4|Yes');
+        RoundTrip(Source(1), 4, 2, '1|No|Yes|No|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_MSDos_Collected_WriteTextLength()
     begin
-        RoundTrip(Source(1), 4, 3, '0|No|Yes|No|Yes|Yes|3|Yes');
+        RoundTrip(Source(1), 4, 3, '0|No|Yes|No|Yes|Yes|0|Yes');
     end;
 
     [Test]
