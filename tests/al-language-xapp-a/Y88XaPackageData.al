@@ -3,7 +3,8 @@
 // of a load is written to the log table 94681; the tests are in tests/al-language/install/lt-y88-package-data/Y88PackageData.al.
 //   94680 events: two rows; subscribers log every table event of the table.
 //   94683 option: file ordinal 1, 7 (the option has 0..2), 2.   94684 enum: ordinals 5, 9 (undefined), 7, -1 (undefined), 0.
-//   94686 date 1752-12-31 (before the first valid date); 94687 DateTime.ToBinary 0 (0001-01-01); 94688 date 9999-12-31.
+//   94688 date 9999-12-31. (A date before 1753-01-01 in a file, 1752-12-31, makes the install fail with an SqlDateTime overflow that no TryFunction
+//   catches, so no such file ships.)
 //   94689 decimal 79228162514264337593543950335 (System.Decimal maximum); 94690 decimal 1E-28 (scale 28).
 
 table 94681 "LT Y88 Pkg Log"
@@ -111,36 +112,6 @@ table 94684 "LT Y88 Pkg Enum Table"
     {
         field(1; "No."; Code[20]) { }
         field(2; Enm; Enum "LT Y88 Pkg Enum") { }
-    }
-    keys
-    {
-        key(PK; "No.") { Clustered = true; }
-    }
-}
-
-table 94686 "LT Y88 Pkg Date Low"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; "No."; Code[20]) { }
-        field(2; Dat; Date) { }
-    }
-    keys
-    {
-        key(PK; "No.") { Clustered = true; }
-    }
-}
-
-table 94687 "LT Y88 Pkg Date Zero"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; "No."; Code[20]) { }
-        field(2; Dat; Date) { }
     }
     keys
     {

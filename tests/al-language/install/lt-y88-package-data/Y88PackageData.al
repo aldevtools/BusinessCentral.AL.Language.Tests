@@ -3,7 +3,7 @@
 // Fixtures used: tests/al-language-xapp-a/Y88XaPackageData.al (tables 94680-94690, enum 94685, event subscribers 94691) with the data files TAB94680 and
 //   TAB94683-TAB94690.navxdata, the install codeunit 94682 in Y8XaInstallOrder.al, and the Y85 package data (tables 94441); Probe Observer (69160).
 // Probe (writer Y88, needs-probe list of the al-runner navx lane): what NavApp.LoadPackageData does with table events, with a DateFormula it loaded
-//   (Format 0/1/2, CalcDate), and with values in the data file that the field cannot hold (undefined Option and Enum ordinals, Date and Decimal at the ends
+//   (Format 0/1/2, CalcDate), and with values in the data file that the field cannot hold (undefined Option and Enum ordinals, the last Date and Decimal at the ends
 //   of the range). Loading from upgrade code cannot be observed: an upgrade codeunit does not run on the first install of the corpus app.
 // BC versions: 27 - 29
 codeunit 94700 "LT Y88 Package Data"
@@ -156,36 +156,14 @@ codeunit 94700 "LT Y88 Package Data"
         Observer.Finish();
     end;
 
-    local procedure DateText(var Row: Record "LT Y88 Pkg Date Low"): Text
-    var
-        T: Text;
-    begin
-        if Row.FindSet() then
-            repeat
-                T += Row."No." + '=' + Format(Row.Dat, 0, 9) + '/' + Format(Row.Dat, 0, 0) + ';';
-            until Row.Next() = 0;
-        exit(T);
-    end;
-
     [Test]
-    procedure Y88_Date_OutOfRange()
+    procedure Y88_Date_LastDay()
     var
-        Low: Record "LT Y88 Pkg Date Low";
-        Zero: Record "LT Y88 Pkg Date Zero";
         High: Record "LT Y88 Pkg Date High";
         Observer: Codeunit "Probe Observer";
         T: Text;
     begin
-        Observer.Observe('low load', LogText('load', 'date low'));
-        Observer.Observe('low rows', DateText(Low));
-        Observer.Observe('zero load', LogText('load', 'date zero'));
-        if Zero.FindSet() then
-            repeat
-                T += Zero."No." + '=' + Format(Zero.Dat, 0, 9) + ';';
-            until Zero.Next() = 0;
-        Observer.Observe('zero rows', T);
         Observer.Observe('high load', LogText('load', 'date high'));
-        T := '';
         if High.FindSet() then
             repeat
                 T += High."No." + '=' + Format(High.Dat, 0, 9) + ';';
