@@ -35,7 +35,17 @@ codeunit 94897 "LT Y90 Perm More2"
         Run('indirect_m_direct', 'LT Y90 L Indir', 1);
         Run('indirect_m_codeunit', 'LT Y90 L Indir', 2);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('super_direct',
+            'LT Y90 ok modified');
+        Observer.Expect('direct_M_direct',
+            'LT Y90 ok modified');
+        Observer.Expect('direct_M_codeunit',
+            'LT Y90 ok modified');
+        Observer.Expect('indirect_m_direct',
+            'Sorry, the current permissions prevented the action. (TableData 17 G/L Entry Modify: AL Language Coverage Tests) | DB:ClientModifyDenied');
+        Observer.Expect('indirect_m_codeunit',
+            'LT Y90 ok modified');
+        Observer.Verify();
     end;
 
     [Test]
@@ -55,20 +65,57 @@ codeunit 94897 "LT Y90 Perm More2"
     end;
 
     [Test]
-    procedure Y90_TenantSet_Lifecycle()
+    procedure Y90_TenantSet_ThroughAccessControl()
+    begin
+        Run('ts_read_only', '', 8);
+        Run('ts_widened', '', 9);
+        Run('ts_reduced', '', 10);
+        Run('ts_removed', '', 11);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y90_TenantSet_Mock()
     var
         WasStarted: Boolean;
+        ErrorText: Text;
     begin
         WasStarted := StartMock();
         CreateTenantSet(false);
-        Run('ts_read_only', 'LT Y90 TS', 7);
-        CreateTenantSet(true);
-        Run('ts_widened', 'LT Y90 TS', 7);
-        ReduceTenantSet();
-        Run('ts_reduced', 'LT Y90 TS', 7);
-        RemoveTenantSet();
-        Run('ts_removed', 'LT Y90 TS', 7);
+        ClearLastError();
+        asserterror Mock.SetExactPermissionSet('LT Y90 TS');
+        ErrorText := GetLastErrorText();
+        ClearLastError();
+        Observer.Observe('mock_exact', ErrorText);
+        asserterror Mock.Set('LT Y90 TS');
+        ErrorText := GetLastErrorText();
+        ClearLastError();
+        Observer.Observe('mock_set', ErrorText);
         RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y90_License_Rows()
+    var
+        LicensePermission: Record "License Permission";
+        Line: Text;
+        Count: Integer;
+    begin
+        LicensePermission.SetRange("Object Type", LicensePermission."Object Type"::TableData);
+        LicensePermission.SetRange("Object Number", 17);
+        if LicensePermission.FindFirst() then
+            Line := 'R ' + Format(LicensePermission."Read Permission") + ' I ' + Format(LicensePermission."Insert Permission") + ' M ' +
+                Format(LicensePermission."Modify Permission") + ' D ' + Format(LicensePermission."Delete Permission")
+        else
+            Line := 'no row for 17';
+        Observer.Observe('table17', Line);
+        LicensePermission.Reset();
+        LicensePermission.SetRange("Object Type", LicensePermission."Object Type"::TableData);
+        LicensePermission.SetRange("Modify Permission", LicensePermission."Modify Permission"::Indirect);
+        Observer.Observe('indirect_modify_count', Format(LicensePermission.Count()));
+        if LicensePermission.FindFirst() then
+            Observer.Observe('indirect_modify_first', Format(LicensePermission."Object Number"));
         Observer.Finish();
     end;
 
@@ -146,29 +193,20 @@ codeunit 94897 "LT Y90 Perm More2"
         Result := Format(Customer.FindFirst());
     end;
 
-    [TryFunction]
-    local procedure TryInsertRow(var Result: Text)
-    var
-        Row: Record "LT Y90 Row";
-    begin
-        Row.Id := 777;
-        Row.Insert();
-        Result := 'inserted';
-    end;
-
     local procedure Describe(): Text
     var
         Text1: Text;
         Text2: Text;
     begin
+        ClearLastError();
         if TryRead(Text1) then
             Text1 := 'customer read ' + Text1
         else begin
             Text1 := 'customer read error: ' + GetLastErrorText();
             ClearLastError();
         end;
-        if TryInsertRow(Text2) then
-            Text2 := 'own row ' + Text2
+        if Codeunit.Run(Codeunit::"LT Y90 Try Insert") then
+            Text2 := 'own row inserted'
         else begin
             Text2 := 'own row error: ' + GetLastErrorText();
             ClearLastError();
@@ -206,8 +244,7 @@ codeunit 94897 "LT Y90 Perm More2"
                 end;
             3:
                 Result := 'AccessControl>0 ' + Format(not AccessControl.IsEmpty()) + ' User>0 ' + Format(not UserRec.IsEmpty()) + ' PermissionSet>0 ' +
-                    Format(not PermSet.IsEmpty()) + ' Aggregate>0 ' + Format(not Aggregate.IsEmpty()) + ' TenantSet>0 ' + Format(not TenantSet.IsEmpty()) +
-                    ' TenantPermission>0 ' + Format(not TenantPermission.IsEmpty()) + ' Expanded>0 ' + Format(not Expanded.IsEmpty());
+                    Format(not PermSet.IsEmpty()) + ' Aggregate>0 ' + Format(not Aggregate.IsEmpty()) + ' Expanded>0 ' + Format(not Expanded.IsEmpty());
             4:
                 begin
                     AccessControl.SetRange("User Security ID", UserSecurityId());
@@ -238,9 +275,22 @@ codeunit 94897 "LT Y90 Perm More2"
                     AccessControl.Insert();
                     Result := 'after replace: ' + Describe();
                 end;
-            7:
+            8, 9, 10, 11:
                 begin
-                    Row.DeleteAll();
+                    NavApp.GetCurrentModuleInfo(Info);
+                    CreateTenantSet(Which = 9);
+                    if Which = 10 then
+                        ReduceTenantSet();
+                    if Which = 11 then
+                        RemoveTenantSet();
+                    AccessControl.SetRange("User Security ID", UserSecurityId());
+                    AccessControl.SetRange("Role ID", 'SUPER');
+                    AccessControl.DeleteAll();
+                    Clear(AccessControl);
+                    AccessControl."User Security ID" := UserSecurityId();
+                    AccessControl."Role ID" := 'LT Y90 TS';
+                    AccessControl.Scope := AccessControl.Scope::Tenant;
+                    AccessControl.Insert();
                     Result := Describe();
                 end;
         end;

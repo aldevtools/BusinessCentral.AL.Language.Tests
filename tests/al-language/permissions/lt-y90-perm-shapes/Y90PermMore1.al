@@ -26,7 +26,13 @@ codeunit 94896 "LT Y90 Perm More1"
         Run('cu_var', 'LT Y90 X Data', 2);
         Run('cu_run', 'LT Y90 X Data', 3);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('table_proc',
+            'Sorry, the current permissions prevented the action. (Table 94880 LT Y90 Tbl Exec Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('cu_var',
+            'Sorry, the current permissions prevented the action. (CodeUnit 94881 LT Y90 X Cu Var Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('cu_run',
+            'Sorry, the current permissions prevented the action. (CodeUnit 94882 LT Y90 X Cu Run Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -38,7 +44,11 @@ codeunit 94896 "LT Y90 Perm More1"
         Run('report_run', 'LT Y90 X Data', 4);
         Run('page_open', 'LT Y90 X Data', 5);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('report_run',
+            'Sorry, the current permissions prevented the action. (CodeUnit 44 ReportManagement Execute: ) | DB:ExecuteObjDenied');
+        Observer.Expect('page_open',
+            'Page LT Y90 X Page has to close. | FormAbort:Permission');
+        Observer.Verify();
     end;
 
     [Test]
@@ -50,7 +60,11 @@ codeunit 94896 "LT Y90 Perm More1"
         Run('query_open', 'LT Y90 X Data', 6);
         Run('xmlport_export', 'LT Y90 X Data', 7);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('query_open',
+            'Sorry, the current permissions prevented the action. (Query 94885 LT Y90 X Query Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('xmlport_export',
+            'Sorry, the current permissions prevented the action. (XmlPort 94886 LT Y90 X Xml Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -62,7 +76,11 @@ codeunit 94896 "LT Y90 Perm More1"
         Run('inherent_own', 'LT Y90 I Base', 8);
         Run('plain_own', 'LT Y90 I Base', 9);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('inherent_own',
+            'LT Y90 ok inserted');
+        Observer.Expect('plain_own',
+            'Sorry, the current permissions prevented the action. (TableData 94781 LT Y90 Guard Insert: AL Language Coverage Tests) | DB:ClientInsertDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -74,7 +92,11 @@ codeunit 94896 "LT Y90 Perm More1"
         Run('prop_yes', 'LT Y90 I Base', 12);
         Run('prop_no', 'LT Y90 I Base', 13);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('prop_yes',
+            'LT Y90 ok ping');
+        Observer.Expect('prop_no',
+            'Sorry, the current permissions prevented the action. (CodeUnit 94889 LT Y90 Inh Prop No Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Verify();
     end;
 
     local procedure Run(Tag: Text; SetName: Code[20]; Which: Integer)

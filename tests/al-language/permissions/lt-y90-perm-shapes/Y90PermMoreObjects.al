@@ -125,6 +125,18 @@ codeunit 94889 "LT Y90 Inh Prop No"
     end;
 }
 
+// Inserts one row of an own table; run with Codeunit.Run so a write can be tried inside a probe without a TryFunction.
+codeunit 94895 "LT Y90 Try Insert"
+{
+    trigger OnRun()
+    var
+        Row: Record "LT Y90 Row";
+    begin
+        Row.Id := 777;
+        Row.Insert();
+    end;
+}
+
 // A codeunit that modifies G/L Entry with its own indirect permission.
 codeunit 94890 "LT Y90 GL Mod"
 {
