@@ -587,7 +587,7 @@ permissionset 94813 "LT Y90 P PagesStar"
         page * = X;
 }
 
-permissionset 94814 "LT Y90 P PagesStarCuStar"
+permissionset 94814 "LT Y90 P StarStar"
 {
     Assignable = true;
     Permissions =
