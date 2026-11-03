@@ -19,6 +19,7 @@ table 94940 "LT R6858 Rec"
         field(3; Status; Code[10]) { }
         field(4; "Other value"; Text[30]) { }
         field(5; "Doc no."; Code[10]) { }
+        field(6; "Plain field"; Code[10]) { }
     }
 
     keys
@@ -97,6 +98,9 @@ pageextension 94942 "LT R6858 Card Ext" extends "LT R6858 Card"
         {
             field(ExtSource; "Container location") { }
             field(ctlExtStatus; Status) { }
+            field(ExtBarePlain; "Plain field") { }
+            field(ExtRecPlain; Rec."Plain field") { }
+            field(ExtRecContainer; Rec."Container location") { }
         }
     }
 }
@@ -120,6 +124,7 @@ codeunit 94943 "LT R6858 Control Names"
         Rec.Status := 'OPEN';
         Rec."Other value" := 'OTHERVAL';
         Rec."Doc no." := 'DOC1';
+        Rec."Plain field" := 'PLAIN';
         Rec.Insert();
     end;
 
@@ -263,6 +268,42 @@ codeunit 94943 "LT R6858 Control Names"
         Setup();
         Card.OpenView();
         Observer.Observe('ctlExtStatus', Card.ctlExtStatus.Value());
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6858_Read_ExtBarePlain()
+    var
+        Card: TestPage "LT R6858 Card";
+    begin
+        Setup();
+        Card.OpenView();
+        Observer.Observe('ExtBarePlain', Card.ExtBarePlain.Value());
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6858_Read_ExtRecPlain()
+    var
+        Card: TestPage "LT R6858 Card";
+    begin
+        Setup();
+        Card.OpenView();
+        Observer.Observe('ExtRecPlain', Card.ExtRecPlain.Value());
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6858_Read_ExtRecContainer()
+    var
+        Card: TestPage "LT R6858 Card";
+    begin
+        Setup();
+        Card.OpenView();
+        Observer.Observe('ExtRecContainer', Card.ExtRecContainer.Value());
         Card.Close();
         Observer.Finish();
     end;
