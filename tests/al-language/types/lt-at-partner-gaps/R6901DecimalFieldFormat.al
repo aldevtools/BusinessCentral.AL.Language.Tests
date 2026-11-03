@@ -57,10 +57,9 @@ codeunit 95081 "LT R6901 Dec Field Format"
         exit(Format(R.P04, Len, Spec) + '|' + Format(R.P02, Len, Spec) + '|' + Format(R.P13, Len, Spec) + '|' + Format(R.P03, Len, Spec) + '|' + Format(R.P24, Len, Spec) + '|' + Format(R.P05, Len, Spec) + '|' + Format(R.P22, Len, Spec) + '|' + Format(R.P00, Len, Spec) + '|' + Format(R.Plain, Len, Spec) + '|' + Format(R.Amt, Len, Spec) + '|' + Format(V, Len, Spec));
     end;
 
-    local procedure Values(var Observer: Codeunit "Probe Observer"; Len: Integer; Spec: Text)
+    local procedure Values(var Observer: Codeunit "Probe Observer"; Len: Integer; Spec: Text; First: Integer; Last: Integer)
     var
         List: List of [Decimal];
-        D: Decimal;
         N: Integer;
     begin
         List.Add(0);
@@ -72,117 +71,331 @@ codeunit 95081 "LT R6901 Dec Field Format"
         List.Add(-3.5);
         List.Add(-0.00001);
         List.Add(99999.99999);
-        foreach D in List do begin
-            N += 1;
-            Observer.Observe('v' + Format(N), Row(D, Len, Spec));
-        end;
+        for N := First to Last do
+            Observer.Observe('v' + Format(N), Row(List.Get(N), Len, Spec));
     end;
 
     [Test]
-    procedure R6901_IntFill4Dec4Len8()
+    procedure R6901_IntFill4Dec4Len8_A()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Values(Observer, 8, '<Integer,4><Filler character,0><Decimal,4><Filler character,0>');
+        Values(Observer, 8, '<Integer,4><Filler character,0><Decimal,4><Filler character,0>', 1, 3);
         Observer.Finish();
     end;
 
     [Test]
-    procedure R6901_IntFill4Dec4Len0()
+    procedure R6901_IntFill4Dec4Len8_B()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Values(Observer, 0, '<Integer,4><Filler character,0><Decimal,4><Filler character,0>');
+        Values(Observer, 8, '<Integer,4><Filler character,0><Decimal,4><Filler character,0>', 4, 6);
         Observer.Finish();
     end;
 
     [Test]
-    procedure R6901_Integer()
+    procedure R6901_IntFill4Dec4Len8_C()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Values(Observer, 0, '<Integer>');
+        Values(Observer, 8, '<Integer,4><Filler character,0><Decimal,4><Filler character,0>', 7, 9);
         Observer.Finish();
     end;
 
     [Test]
-    procedure R6901_Integer8()
+    procedure R6901_IntFill4Dec4Len0_A()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Values(Observer, 0, '<Integer,8>');
+        Values(Observer, 0, '<Integer,4><Filler character,0><Decimal,4><Filler character,0>', 1, 3);
         Observer.Finish();
     end;
 
     [Test]
-    procedure R6901_IntegerFill4()
+    procedure R6901_IntFill4Dec4Len0_B()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Values(Observer, 0, '<Integer,4><Filler character,0>');
+        Values(Observer, 0, '<Integer,4><Filler character,0><Decimal,4><Filler character,0>', 4, 6);
         Observer.Finish();
     end;
 
     [Test]
-    procedure R6901_Decimal()
+    procedure R6901_IntFill4Dec4Len0_C()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Values(Observer, 0, '<Decimal>');
+        Values(Observer, 0, '<Integer,4><Filler character,0><Decimal,4><Filler character,0>', 7, 9);
         Observer.Finish();
     end;
 
     [Test]
-    procedure R6901_Decimal3()
+    procedure R6901_Integer_A()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Values(Observer, 0, '<Decimal,3>');
+        Values(Observer, 0, '<Integer>', 1, 3);
         Observer.Finish();
     end;
 
     [Test]
-    procedure R6901_Decimal4Fill()
+    procedure R6901_Integer_B()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Values(Observer, 0, '<Decimal,4><Filler character,0>');
+        Values(Observer, 0, '<Integer>', 4, 6);
         Observer.Finish();
     end;
 
     [Test]
-    procedure R6901_IntegerDecimal()
+    procedure R6901_Integer_C()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Values(Observer, 0, '<Integer><Decimal>');
+        Values(Observer, 0, '<Integer>', 7, 9);
         Observer.Finish();
     end;
 
     [Test]
-    procedure R6901_SignIntegerDecimal()
+    procedure R6901_Integer8_A()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Values(Observer, 0, '<Sign><Integer><Decimal>');
+        Values(Observer, 0, '<Integer,8>', 1, 3);
         Observer.Finish();
     end;
 
     [Test]
-    procedure R6901_IntegerThousandDecimal()
+    procedure R6901_Integer8_B()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Values(Observer, 0, '<Integer Thousand><Decimal>');
+        Values(Observer, 0, '<Integer,8>', 4, 6);
         Observer.Finish();
     end;
 
     [Test]
-    procedure R6901_PrecisionControl()
+    procedure R6901_Integer8_C()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Values(Observer, 0, '<Precision,2:4><Integer><Decimal>');
+        Values(Observer, 0, '<Integer,8>', 7, 9);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_IntegerFill4_A()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Integer,4><Filler character,0>', 1, 3);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_IntegerFill4_B()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Integer,4><Filler character,0>', 4, 6);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_IntegerFill4_C()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Integer,4><Filler character,0>', 7, 9);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_Decimal_A()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Decimal>', 1, 3);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_Decimal_B()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Decimal>', 4, 6);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_Decimal_C()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Decimal>', 7, 9);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_Decimal3_A()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Decimal,3>', 1, 3);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_Decimal3_B()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Decimal,3>', 4, 6);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_Decimal3_C()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Decimal,3>', 7, 9);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_Decimal4Fill_A()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Decimal,4><Filler character,0>', 1, 3);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_Decimal4Fill_B()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Decimal,4><Filler character,0>', 4, 6);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_Decimal4Fill_C()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Decimal,4><Filler character,0>', 7, 9);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_IntegerDecimal_A()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Integer><Decimal>', 1, 3);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_IntegerDecimal_B()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Integer><Decimal>', 4, 6);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_IntegerDecimal_C()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Integer><Decimal>', 7, 9);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_SignIntegerDecimal_A()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Sign><Integer><Decimal>', 1, 3);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_SignIntegerDecimal_B()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Sign><Integer><Decimal>', 4, 6);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_SignIntegerDecimal_C()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Sign><Integer><Decimal>', 7, 9);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_IntegerThousandDecimal_A()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Integer Thousand><Decimal>', 1, 3);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_IntegerThousandDecimal_B()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Integer Thousand><Decimal>', 4, 6);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_IntegerThousandDecimal_C()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Integer Thousand><Decimal>', 7, 9);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_PrecisionControl_A()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Precision,2:4><Integer><Decimal>', 1, 3);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_PrecisionControl_B()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Precision,2:4><Integer><Decimal>', 4, 6);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6901_PrecisionControl_C()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Values(Observer, 0, '<Precision,2:4><Integer><Decimal>', 7, 9);
         Observer.Finish();
     end;
 }
