@@ -235,7 +235,7 @@ codeunit 94900 "LT R6859 Numeric Init"
         ClearLastError();
         Value := '';
         Observer.Observe('validate', Step(TryValidateNumNames(Value), Value));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
 
@@ -313,7 +313,7 @@ codeunit 94900 "LT R6859 Numeric Init"
         ClearLastError();
         Value := '';
         Observer.Observe('validate', Step(TryValidateCollide(Value), Value));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
 
@@ -391,7 +391,7 @@ codeunit 94900 "LT R6859 Numeric Init"
         ClearLastError();
         Value := '';
         Observer.Observe('validate', Step(TryValidateSpaces(Value), Value));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
 
@@ -469,7 +469,7 @@ codeunit 94900 "LT R6859 Numeric Init"
         ClearLastError();
         Value := '';
         Observer.Observe('validate', Step(TryValidateNumEnum(Value), Value));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
 
@@ -486,6 +486,6 @@ codeunit 94900 "LT R6859 Numeric Init"
         Card2.OpenNew();
         Observer.Observe('collide', Card2.QuotedOne.Value + '|' + Card2.BareOne.Value + '|' + Card2.QuotedZero.Value + '|' + Card2.QuotedTwo.Value);
         Card2.Close();
-        Observer.Verify();
+        Observer.Finish();
     end;
 }
