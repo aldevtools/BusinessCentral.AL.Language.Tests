@@ -584,7 +584,7 @@ xmlport 94845 "LT Y91 Run Both"
                 var
                     Log: Codeunit "LT Y91 Run Log";
                 begin
-                    Log.Add('un Both agr ' + Format(Rw.Id));
+                    Log.Add('Both agr ' + Format(Rw.Id));
                 end;
             }
         }
@@ -594,7 +594,7 @@ xmlport 94845 "LT Y91 Run Both"
     var
         Log: Codeunit "LT Y91 Run Log";
     begin
-        Log.Add('un Both pre');
+        Log.Add('Both pre');
     end;
 }
 
@@ -618,7 +618,7 @@ xmlport 94846 "LT Y91 Run Export"
                 var
                     Log: Codeunit "LT Y91 Run Log";
                 begin
-                    Log.Add('un Export agr ' + Format(Rw.Id));
+                    Log.Add('Export agr ' + Format(Rw.Id));
                 end;
             }
         }
@@ -628,7 +628,7 @@ xmlport 94846 "LT Y91 Run Export"
     var
         Log: Codeunit "LT Y91 Run Log";
     begin
-        Log.Add('un Export pre');
+        Log.Add('Export pre');
     end;
 }
 
@@ -652,7 +652,7 @@ xmlport 94847 "LT Y91 Run Import"
                 var
                     Log: Codeunit "LT Y91 Run Log";
                 begin
-                    Log.Add('un Import agr ' + Format(Rw.Id));
+                    Log.Add('Import agr ' + Format(Rw.Id));
                 end;
             }
         }
@@ -662,7 +662,7 @@ xmlport 94847 "LT Y91 Run Import"
     var
         Log: Codeunit "LT Y91 Run Log";
     begin
-        Log.Add('un Import pre');
+        Log.Add('Import pre');
     end;
 }
 

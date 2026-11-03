@@ -126,7 +126,7 @@ codeunit 94833 "LT Y91 Helper"
         TempBlob: Codeunit "Temp Blob";
         OutS: OutStream;
     begin
-        TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
+        TempBlob.CreateOutStream(OutS);
         case PortId of
             94836:
                 begin
@@ -176,7 +176,10 @@ codeunit 94833 "LT Y91 Helper"
                     PortLog := P8.GetLog();
                 end;
         end;
-        Result := ReadRaw(TempBlob);
+        if PortId in [94836, 94839, 94842, 94843] then
+            Result := ReadRaw(TempBlob, TextEncoding::UTF16)
+        else
+            Result := ReadRaw(TempBlob, TextEncoding::UTF8);
     end;
 
     // The exported text exactly (line ends shown by the observer as \r \n), then " log=<port log>", or error:<text>|<code>.
@@ -191,13 +194,13 @@ codeunit 94833 "LT Y91 Helper"
         exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
     end;
 
-    local procedure ReadRaw(var TempBlob: Codeunit "Temp Blob"): Text
+    local procedure ReadRaw(var TempBlob: Codeunit "Temp Blob"; Enc: TextEncoding): Text
     var
         InS: InStream;
         Big: BigText;
         Result: Text;
     begin
-        TempBlob.CreateInStream(InS, TextEncoding::UTF8);
+        TempBlob.CreateInStream(InS, Enc);
         Big.Read(InS);
         if Big.Length() > 0 then
             Big.GetSubText(Result, 1, Big.Length());
