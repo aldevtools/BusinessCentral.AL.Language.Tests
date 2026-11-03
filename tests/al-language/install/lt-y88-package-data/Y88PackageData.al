@@ -175,17 +175,10 @@ codeunit 94700 "LT Y88 Package Data"
     [Test]
     procedure Y88_Decimal_OutOfRange()
     var
-        Huge: Record "LT Y88 Pkg Dec Huge";
         Tiny: Record "LT Y88 Pkg Dec Tiny";
         Observer: Codeunit "Probe Observer";
         T: Text;
     begin
-        Observer.Observe('huge load', LogText('load', 'decimal huge'));
-        if Huge.FindSet() then
-            repeat
-                T += Huge."No." + '=' + Format(Huge.Dec, 0, 9) + ';';
-            until Huge.Next() = 0;
-        Observer.Observe('huge rows', T);
         Observer.Observe('tiny load', LogText('load', 'decimal tiny'));
         T := '';
         if Tiny.FindSet() then

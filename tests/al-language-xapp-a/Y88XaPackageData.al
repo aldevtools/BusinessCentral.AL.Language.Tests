@@ -5,7 +5,8 @@
 //   94683 option: file ordinal 1, 7 (the option has 0..2), 2.   94684 enum: ordinals 5, 9 (undefined), 7, -1 (undefined), 0.
 //   94688 date 9999-12-31. (A date before 1753-01-01 in a file, 1752-12-31, makes the install fail with an SqlDateTime overflow that no TryFunction
 //   catches, so no such file ships.)
-//   94689 decimal 79228162514264337593543950335 (System.Decimal maximum); 94690 decimal 1E-28 (scale 28).
+//   94690 decimal 1E-28 (scale 28). (The System.Decimal maximum 79228162514264337593543950335 in a file makes the install fail with "The given value
+//   '79228162514264337593543950335' of type Decimal from the data source cannot be converted to type decimal for Column 2 [Dec].", no TryFunction catches it.)
 
 table 94681 "LT Y88 Pkg Log"
 {
@@ -127,21 +128,6 @@ table 94688 "LT Y88 Pkg Date High"
     {
         field(1; "No."; Code[20]) { }
         field(2; Dat; Date) { }
-    }
-    keys
-    {
-        key(PK; "No.") { Clustered = true; }
-    }
-}
-
-table 94689 "LT Y88 Pkg Dec Huge"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; "No."; Code[20]) { }
-        field(2; Dec; Decimal) { }
     }
     keys
     {

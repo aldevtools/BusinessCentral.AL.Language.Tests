@@ -163,7 +163,6 @@ codeunit 94682 "LT Y88 Pkg Install"
         Opt: Record "LT Y88 Pkg Option";
         Enm: Record "LT Y88 Pkg Enum Table";
         DateHigh: Record "LT Y88 Pkg Date High";
-        DecHuge: Record "LT Y88 Pkg Dec Huge";
         DecTiny: Record "LT Y88 Pkg Dec Tiny";
     begin
         if Events.IsEmpty() then
@@ -174,8 +173,6 @@ codeunit 94682 "LT Y88 Pkg Install"
             LoadOne(Database::"LT Y88 Pkg Enum Table", 'enum');
         if DateHigh.IsEmpty() then
             LoadOne(Database::"LT Y88 Pkg Date High", 'date high');
-        if DecHuge.IsEmpty() then
-            LoadOne(Database::"LT Y88 Pkg Dec Huge", 'decimal huge');
         if DecTiny.IsEmpty() then
             LoadOne(Database::"LT Y88 Pkg Dec Tiny", 'decimal tiny');
     end;
