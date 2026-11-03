@@ -762,3 +762,85 @@ permissionset 94829 "LT Y90 P PagesSys"
         system * = X,
         codeunit "LT Y90 Target 6" = X;
 }
+
+page 94898 "LT Y90 D365 Page A"
+{
+    PageType = Card;
+    SourceTable = "LT Y90 Row";
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field(IdCtl; Rec.Id) { ApplicationArea = All; }
+        }
+    }
+
+    trigger OnOpenPage()
+    var
+        Feature: Codeunit "LT Y90 D365 Feature A";
+    begin
+        if not Feature.IsEnabled() then
+            Error('LT Y90 feature off');
+    end;
+}
+
+codeunit 94898 "LT Y90 D365 Feature A"
+{
+    procedure IsEnabled(): Boolean
+    begin
+        exit(true);
+    end;
+}
+
+permissionset 94898 "LT Y90 D365 Set A"
+{
+    Assignable = true;
+    Permissions =
+        tabledata "LT Y90 Row" = RIMD,
+        table "LT Y90 Row" = X,
+        codeunit "LT Y90 D365 Feature A" = X,
+        page "LT Y90 D365 Page A" = X;
+}
+
+page 94899 "LT Y90 D365 Page B"
+{
+    PageType = Card;
+    SourceTable = "LT Y90 Row";
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field(IdCtl; Rec.Id) { ApplicationArea = All; }
+        }
+    }
+
+    trigger OnOpenPage()
+    var
+        Feature: Codeunit "LT Y90 D365 Feature B";
+    begin
+        if not Feature.IsEnabled() then
+            Error('LT Y90 feature off');
+    end;
+}
+
+codeunit 94899 "LT Y90 D365 Feature B"
+{
+    procedure IsEnabled(): Boolean
+    begin
+        exit(true);
+    end;
+}
+
+permissionset 94899 "LT Y90 D365 Set B"
+{
+    Assignable = true;
+    Permissions =
+        tabledata "LT Y90 Row" = RIMD,
+        table "LT Y90 Row" = X,
+        codeunit "LT Y90 D365 Feature B" = X,
+        page "LT Y90 D365 Page B" = X;
+}

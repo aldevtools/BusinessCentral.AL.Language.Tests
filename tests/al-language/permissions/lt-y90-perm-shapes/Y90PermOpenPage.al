@@ -77,6 +77,48 @@ codeunit 94808 "LT Y90 Perm OpenPage"
         Observer.Verify();
     end;
 
+    [Test]
+    procedure Y90_Open_D365BasicPlusAppSet()
+    var
+        WasStarted: Boolean;
+        PageA: TestPage "LT Y90 D365 Page A";
+        PageB: TestPage "LT Y90 D365 Page B";
+        Trig: Record "LT Y90 Row";
+    begin
+        // Shape of runner issue 6867: Set('D365 BASIC') (wildcard Execute) + Assign(a set that grants the callee codeunit X by name), page trigger calls
+        // the codeunit. Control: the same kind of set alone as an exact set (Y84 pin: aborts).
+        WasStarted := StartMock();
+        Mock.ClearAssignments();
+        Trig.DeleteAll();
+        Trig.Id := 1;
+        Trig.Insert();
+        Mock.Set('D365 BASIC');
+        Mock.Assign('LT Y90 D365 Set A');
+        asserterror begin
+            PageA.OpenEdit();
+            PageA.Close();
+            Error('LT Y90 ok opened');
+        end;
+        Observer.Observe('basic_plus_app', GetLastErrorText() + ' | ' + GetLastErrorCode());
+        Mock.ClearAssignments();
+        ClearLastError();
+        Mock.SetExactPermissionSet('LT Y90 D365 Set B');
+        asserterror begin
+            PageB.OpenEdit();
+            PageB.Close();
+            Error('LT Y90 ok opened');
+        end;
+        Observer.Observe('exact_app_only', GetLastErrorText() + ' | ' + GetLastErrorCode());
+        Mock.ClearAssignments();
+        ClearLastError();
+        RestoreMock(WasStarted);
+        Observer.Expect('basic_plus_app',
+            'LT Y90 ok opened | Dialog');
+        Observer.Expect('exact_app_only',
+            'Page LT Y90 D365 Page B has to close. | FormAbort:Permission');
+        Observer.Verify();
+    end;
+
     local procedure Run(Tag: Text; SetName: Code[20]; Which: Integer; Exact: Boolean)
     var
         Trig: Record "LT Y90 Row";
