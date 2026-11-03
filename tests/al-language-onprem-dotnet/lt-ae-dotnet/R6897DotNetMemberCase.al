@@ -40,7 +40,10 @@ codeunit 99460 "LT R6897 DotNet Member Case"
         Observer.Observe('lower', Doc.OuterXml());
         Doc.LOADXML('<a><b>upper</b></a>');
         Observer.Observe('upper', Doc.OuterXml());
-        Observer.Finish();
+        Observer.Expect('exact', '<a><b>x</b></a>');
+        Observer.Expect('lower', '<a><b>lower</b></a>');
+        Observer.Expect('upper', '<a><b>upper</b></a>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -56,7 +59,11 @@ codeunit 99460 "LT R6897 DotNet Member Case"
         Observer.Observe('as OuterXML', Elem.OuterXML);
         Observer.Observe('as outerxml', Elem.outerxml);
         Observer.Observe('as OuterXML call', Elem.OuterXML());
-        Observer.Finish();
+        Observer.Expect('exact', '<a><b>x</b></a>');
+        Observer.Expect('as OuterXML', '<a><b>x</b></a>');
+        Observer.Expect('as outerxml', '<a><b>x</b></a>');
+        Observer.Expect('as OuterXML call', '<a><b>x</b></a>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -74,7 +81,10 @@ codeunit 99460 "LT R6897 DotNet Member Case"
         Observer.Observe('after INNERTEXT :=', Elem.InnerText);
         Elem.innertext('as call');
         Observer.Observe('after innertext(...)', Elem.InnerText);
-        Observer.Finish();
+        Observer.Expect('after innertext :=', 'set lower');
+        Observer.Expect('after INNERTEXT :=', 'set upper');
+        Observer.Expect('after innertext(...)', 'as call');
+        Observer.Verify();
     end;
 
     [Test]
@@ -85,6 +95,9 @@ codeunit 99460 "LT R6897 DotNet Member Case"
         Observer.Observe('exact', Format(Conv.ToInt32('7')));
         Observer.Observe('as TOINT32', Format(Conv.TOINT32('8')));
         Observer.Observe('as toint32', Format(Conv.toint32('9')));
-        Observer.Finish();
+        Observer.Expect('exact', '7');
+        Observer.Expect('as TOINT32', '8');
+        Observer.Expect('as toint32', '9');
+        Observer.Verify();
     end;
 }
