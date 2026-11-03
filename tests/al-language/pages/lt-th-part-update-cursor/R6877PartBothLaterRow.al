@@ -6,7 +6,10 @@
 //   action that runs Rec.Next()) and on line 2 by the action from line 1; with a control that only updates (Note) and with one that first
 //   changes the host's stored row (Qty. to Ship). After the SetValue: the part's Line No., the trigger log of host and part, where a following
 //   SetValue of another field (Bin Code) is stored, and the stored rows.
-// Facts: (filled from the measured values)
+// Facts: on all three host types the part stays on its row (line 2 after Next, line 3 after Next and the action, line 2 after the action from
+//   line 1). Update(false) in Note or Qty. to Ship drops the typed value (stored empty and 0); the Qty. to Ship trigger's change of the host's
+//   stored row is shown on the host (Info). The log is the trigger order of the host and the part; the next SetValue (Bin Code) is stored on the
+//   same line, and no trigger runs for it.
 // BC versions: 27+ (tested by the corpus CI matrix)
 
 table 95000 "LT R6877 Doc"
@@ -374,7 +377,14 @@ codeunit 95005 "LT R6877 Probe"
         Observer: Codeunit "Probe Observer";
     begin
         RunDoc(Observer, 1, 1);
-        Observer.Finish();
+        Observer.Expect('line before', '20000');
+        Observer.Expect('line after', '20000');
+        Observer.Expect('log', 'N.V N.V.end HR HC R2 R3 R2 R1 R2 R2 C2 ');
+        Observer.Expect('info shown', '');
+        Observer.Expect('line after bin', '20000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', ' 1:/0/ 2:/0/Z 3:/0/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -383,7 +393,14 @@ codeunit 95005 "LT R6877 Probe"
         Observer: Codeunit "Probe Observer";
     begin
         RunDoc(Observer, 1, 2);
-        Observer.Finish();
+        Observer.Expect('line before', '20000');
+        Observer.Expect('line after', '20000');
+        Observer.Expect('log', 'Q.V Q.V.end HR HC R2 R3 R2 R1 R2 R2 C2 ');
+        Observer.Expect('info shown', 'changed');
+        Observer.Expect('line after bin', '20000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', 'changed 1:/0/ 2:/0/Z 3:/0/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -392,7 +409,14 @@ codeunit 95005 "LT R6877 Probe"
         Observer: Codeunit "Probe Observer";
     begin
         RunDoc(Observer, 2, 1);
-        Observer.Finish();
+        Observer.Expect('line before', '30000');
+        Observer.Expect('line after', '30000');
+        Observer.Expect('log', 'N.V N.V.end HR HC R3 R2 R1 R3 R3 C3 ');
+        Observer.Expect('info shown', '');
+        Observer.Expect('line after bin', '30000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', ' 1:/0/ 2:/0/ 3:/0/Z ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -401,7 +425,14 @@ codeunit 95005 "LT R6877 Probe"
         Observer: Codeunit "Probe Observer";
     begin
         RunDoc(Observer, 2, 2);
-        Observer.Finish();
+        Observer.Expect('line before', '30000');
+        Observer.Expect('line after', '30000');
+        Observer.Expect('log', 'Q.V Q.V.end HR HC R3 R2 R1 R3 R3 C3 ');
+        Observer.Expect('info shown', 'changed');
+        Observer.Expect('line after bin', '30000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', 'changed 1:/0/ 2:/0/ 3:/0/Z ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -410,7 +441,14 @@ codeunit 95005 "LT R6877 Probe"
         Observer: Codeunit "Probe Observer";
     begin
         RunDoc(Observer, 3, 1);
-        Observer.Finish();
+        Observer.Expect('line before', '20000');
+        Observer.Expect('line after', '20000');
+        Observer.Expect('log', 'N.V N.V.end HR HC R2 R3 R2 R1 R2 R2 C2 ');
+        Observer.Expect('info shown', '');
+        Observer.Expect('line after bin', '20000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', ' 1:/0/ 2:/0/Z 3:/0/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -419,7 +457,14 @@ codeunit 95005 "LT R6877 Probe"
         Observer: Codeunit "Probe Observer";
     begin
         RunDoc(Observer, 3, 2);
-        Observer.Finish();
+        Observer.Expect('line before', '20000');
+        Observer.Expect('line after', '20000');
+        Observer.Expect('log', 'Q.V Q.V.end HR HC R2 R3 R2 R1 R2 R2 C2 ');
+        Observer.Expect('info shown', 'changed');
+        Observer.Expect('line after bin', '20000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', 'changed 1:/0/ 2:/0/Z 3:/0/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -428,7 +473,14 @@ codeunit 95005 "LT R6877 Probe"
         Observer: Codeunit "Probe Observer";
     begin
         RunCard(Observer, 1, 1);
-        Observer.Finish();
+        Observer.Expect('line before', '20000');
+        Observer.Expect('line after', '20000');
+        Observer.Expect('log', 'N.V N.V.end HR HC R2 R3 R2 R1 R2 R2 C2 ');
+        Observer.Expect('info shown', '');
+        Observer.Expect('line after bin', '20000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', ' 1:/0/ 2:/0/Z 3:/0/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -437,7 +489,14 @@ codeunit 95005 "LT R6877 Probe"
         Observer: Codeunit "Probe Observer";
     begin
         RunCard(Observer, 1, 2);
-        Observer.Finish();
+        Observer.Expect('line before', '20000');
+        Observer.Expect('line after', '20000');
+        Observer.Expect('log', 'Q.V Q.V.end HR HC R2 R3 R2 R1 R2 R2 C2 ');
+        Observer.Expect('info shown', 'changed');
+        Observer.Expect('line after bin', '20000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', 'changed 1:/0/ 2:/0/Z 3:/0/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -446,7 +505,14 @@ codeunit 95005 "LT R6877 Probe"
         Observer: Codeunit "Probe Observer";
     begin
         RunCard(Observer, 2, 1);
-        Observer.Finish();
+        Observer.Expect('line before', '30000');
+        Observer.Expect('line after', '30000');
+        Observer.Expect('log', 'N.V N.V.end HR HC R3 R2 R1 R3 R3 C3 ');
+        Observer.Expect('info shown', '');
+        Observer.Expect('line after bin', '30000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', ' 1:/0/ 2:/0/ 3:/0/Z ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -455,7 +521,14 @@ codeunit 95005 "LT R6877 Probe"
         Observer: Codeunit "Probe Observer";
     begin
         RunCard(Observer, 2, 2);
-        Observer.Finish();
+        Observer.Expect('line before', '30000');
+        Observer.Expect('line after', '30000');
+        Observer.Expect('log', 'Q.V Q.V.end HR HC R3 R2 R1 R3 R3 C3 ');
+        Observer.Expect('info shown', 'changed');
+        Observer.Expect('line after bin', '30000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', 'changed 1:/0/ 2:/0/ 3:/0/Z ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -464,7 +537,14 @@ codeunit 95005 "LT R6877 Probe"
         Observer: Codeunit "Probe Observer";
     begin
         RunCard(Observer, 3, 1);
-        Observer.Finish();
+        Observer.Expect('line before', '20000');
+        Observer.Expect('line after', '20000');
+        Observer.Expect('log', 'N.V N.V.end HR HC R2 R3 R2 R1 R2 R2 C2 ');
+        Observer.Expect('info shown', '');
+        Observer.Expect('line after bin', '20000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', ' 1:/0/ 2:/0/Z 3:/0/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -473,7 +553,14 @@ codeunit 95005 "LT R6877 Probe"
         Observer: Codeunit "Probe Observer";
     begin
         RunCard(Observer, 3, 2);
-        Observer.Finish();
+        Observer.Expect('line before', '20000');
+        Observer.Expect('line after', '20000');
+        Observer.Expect('log', 'Q.V Q.V.end HR HC R2 R3 R2 R1 R2 R2 C2 ');
+        Observer.Expect('info shown', 'changed');
+        Observer.Expect('line after bin', '20000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', 'changed 1:/0/ 2:/0/Z 3:/0/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -482,7 +569,14 @@ codeunit 95005 "LT R6877 Probe"
         Observer: Codeunit "Probe Observer";
     begin
         RunPlus(Observer, 1, 1);
-        Observer.Finish();
+        Observer.Expect('line before', '20000');
+        Observer.Expect('line after', '20000');
+        Observer.Expect('log', 'N.V N.V.end HR HC R2 R3 R2 R1 R2 R2 C2 ');
+        Observer.Expect('info shown', '');
+        Observer.Expect('line after bin', '20000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', ' 1:/0/ 2:/0/Z 3:/0/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -491,7 +585,14 @@ codeunit 95005 "LT R6877 Probe"
         Observer: Codeunit "Probe Observer";
     begin
         RunPlus(Observer, 1, 2);
-        Observer.Finish();
+        Observer.Expect('line before', '20000');
+        Observer.Expect('line after', '20000');
+        Observer.Expect('log', 'Q.V Q.V.end HR HC R2 R3 R2 R1 R2 R2 C2 ');
+        Observer.Expect('info shown', 'changed');
+        Observer.Expect('line after bin', '20000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', 'changed 1:/0/ 2:/0/Z 3:/0/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -500,7 +601,14 @@ codeunit 95005 "LT R6877 Probe"
         Observer: Codeunit "Probe Observer";
     begin
         RunPlus(Observer, 2, 1);
-        Observer.Finish();
+        Observer.Expect('line before', '30000');
+        Observer.Expect('line after', '30000');
+        Observer.Expect('log', 'N.V N.V.end HR HC R3 R2 R1 R3 R3 C3 ');
+        Observer.Expect('info shown', '');
+        Observer.Expect('line after bin', '30000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', ' 1:/0/ 2:/0/ 3:/0/Z ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -509,7 +617,14 @@ codeunit 95005 "LT R6877 Probe"
         Observer: Codeunit "Probe Observer";
     begin
         RunPlus(Observer, 2, 2);
-        Observer.Finish();
+        Observer.Expect('line before', '30000');
+        Observer.Expect('line after', '30000');
+        Observer.Expect('log', 'Q.V Q.V.end HR HC R3 R2 R1 R3 R3 C3 ');
+        Observer.Expect('info shown', 'changed');
+        Observer.Expect('line after bin', '30000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', 'changed 1:/0/ 2:/0/ 3:/0/Z ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -518,7 +633,14 @@ codeunit 95005 "LT R6877 Probe"
         Observer: Codeunit "Probe Observer";
     begin
         RunPlus(Observer, 3, 1);
-        Observer.Finish();
+        Observer.Expect('line before', '20000');
+        Observer.Expect('line after', '20000');
+        Observer.Expect('log', 'N.V N.V.end HR HC R2 R3 R2 R1 R2 R2 C2 ');
+        Observer.Expect('info shown', '');
+        Observer.Expect('line after bin', '20000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', ' 1:/0/ 2:/0/Z 3:/0/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -527,6 +649,13 @@ codeunit 95005 "LT R6877 Probe"
         Observer: Codeunit "Probe Observer";
     begin
         RunPlus(Observer, 3, 2);
-        Observer.Finish();
+        Observer.Expect('line before', '20000');
+        Observer.Expect('line after', '20000');
+        Observer.Expect('log', 'Q.V Q.V.end HR HC R2 R3 R2 R1 R2 R2 C2 ');
+        Observer.Expect('info shown', 'changed');
+        Observer.Expect('line after bin', '20000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', 'changed 1:/0/ 2:/0/Z 3:/0/ ');
+        Observer.Verify();
     end;
 }
