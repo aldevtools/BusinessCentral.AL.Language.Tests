@@ -1,0 +1,8 @@
+# Intended changes of asserted facts (append-only). The owner reviews the new lines of each pull request.
+# Use it when real BC does something else than a test asserted and the test is corrected: the old fact is then gone, and
+# .github/scripts/facts.py diff would report it as lost. One line per changed fact, ten tab-separated columns:
+#   key (<app folder>/<codeunit id>/<test name> or mnc/<case stem>), the old fact (kind, value, members, ifctx),
+#   the new fact (kind, value, members, ifctx) and the reason. The reason is required.
+# The "LOST FACT" report of facts.py diff prints the first five columns of the line to add.
+# Never edit or remove a line.
+key	old_kind	old_value	old_members	old_ifctx	new_kind	new_value	new_members	new_ifctx	reason
