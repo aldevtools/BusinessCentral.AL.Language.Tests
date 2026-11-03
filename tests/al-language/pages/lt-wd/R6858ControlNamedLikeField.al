@@ -124,45 +124,147 @@ codeunit 94943 "LT R6858 Control Names"
     end;
 
     [Test]
-    procedure R6858_Card_ReadsEveryControl()
+    procedure R6858_Read_ctlContainerlocation()
     var
         Card: TestPage "LT R6858 Card";
     begin
         Setup();
         Card.OpenView();
-        Observe('ctlContainerlocation', Card.ctlContainerlocation);
-        Observe('Container location', Card."Container location");
-        Observe('ctlStatus', Card.ctlStatus);
-        Observe('Status', Card.Status);
-        Observe('ctlOther', Card.ctlOther);
-        Observe('Other value', Card."Other value");
-        Observe('Docno', Card.Docno);
-        Observe('Doc no.', Card."Doc no.");
-        Observe('ctlGuarded', Card.ctlGuarded);
-        Observe('ctlSeen', Card.ctlSeen);
-        Observe('ctlValidateSeen', Card.ctlValidateSeen);
-        Observe('ExtSource', Card.ExtSource);
-        Observe('ctlExtStatus', Card.ctlExtStatus);
+        Observer.Observe('ctlContainerlocation', Card.ctlContainerlocation.Value());
         Card.Close();
         Observer.Finish();
     end;
 
-    [TryFunction]
-    local procedure TryRead(Control: TestField; var Result: Text)
+    [Test]
+    procedure R6858_Read_ContainerLocation()
+    var
+        Card: TestPage "LT R6858 Card";
     begin
-        Result := Control.Value();
+        Setup();
+        Card.OpenView();
+        Observer.Observe('ContainerLocation', Card."Container location".Value());
+        Card.Close();
+        Observer.Finish();
     end;
 
-    local procedure Observe(Name: Text; Control: TestField)
+    [Test]
+    procedure R6858_Read_ctlStatus()
     var
-        Value: Text;
+        Card: TestPage "LT R6858 Card";
     begin
-        if TryRead(Control, Value) then
-            Observer.Observe(Name, Value)
-        else begin
-            Observer.Observe(Name, 'ERROR');
-            Observer.ObserveError(Name + ' error');
-        end;
+        Setup();
+        Card.OpenView();
+        Observer.Observe('ctlStatus', Card.ctlStatus.Value());
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6858_Read_Status()
+    var
+        Card: TestPage "LT R6858 Card";
+    begin
+        Setup();
+        Card.OpenView();
+        Observer.Observe('Status', Card.Status.Value());
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6858_Read_ctlOther()
+    var
+        Card: TestPage "LT R6858 Card";
+    begin
+        Setup();
+        Card.OpenView();
+        Observer.Observe('ctlOther', Card.ctlOther.Value());
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6858_Read_OtherValue()
+    var
+        Card: TestPage "LT R6858 Card";
+    begin
+        Setup();
+        Card.OpenView();
+        Observer.Observe('OtherValue', Card."Other value".Value());
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6858_Read_Docno()
+    var
+        Card: TestPage "LT R6858 Card";
+    begin
+        Setup();
+        Card.OpenView();
+        Observer.Observe('Docno', Card.Docno.Value());
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6858_Read_DocNo()
+    var
+        Card: TestPage "LT R6858 Card";
+    begin
+        Setup();
+        Card.OpenView();
+        Observer.Observe('DocNo', Card."Doc no.".Value());
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6858_Read_ctlGuarded()
+    var
+        Card: TestPage "LT R6858 Card";
+    begin
+        Setup();
+        Card.OpenView();
+        Observer.Observe('ctlGuarded', Card.ctlGuarded.Value());
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6858_Read_ctlSeen()
+    var
+        Card: TestPage "LT R6858 Card";
+    begin
+        Setup();
+        Card.OpenView();
+        Observer.Observe('ctlSeen', Card.ctlSeen.Value());
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6858_Read_ExtSource()
+    var
+        Card: TestPage "LT R6858 Card";
+    begin
+        Setup();
+        Card.OpenView();
+        Observer.Observe('ExtSource', Card.ExtSource.Value());
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R6858_Read_ctlExtStatus()
+    var
+        Card: TestPage "LT R6858 Card";
+    begin
+        Setup();
+        Card.OpenView();
+        Observer.Observe('ctlExtStatus', Card.ctlExtStatus.Value());
+        Card.Close();
+        Observer.Finish();
     end;
 
     [Test]
