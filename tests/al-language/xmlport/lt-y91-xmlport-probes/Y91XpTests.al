@@ -440,3 +440,32 @@ codeunit 94851 "LT Y91 Run Tests"
     end;
 }
 
+codeunit 94853 "LT Y91 Text In Table Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Observer: Codeunit "Probe Observer";
+        Helper: Codeunit "LT Y91 Helper";
+
+    [Test]
+    procedure Y91_TextInTable_Export()
+    begin
+        Helper.Seed();
+        Observer.Observe('export', Helper.Export(94852, 0));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y91_TextInTable_Import()
+    begin
+        Helper.Seed();
+        Observer.Observe('import', Helper.Import(94852, 0, '<Root><Item><Id>7</Id><Tag>a</Tag><Name>seven</Name><Fixed>f7</Fixed></Item><Item><Id>8</Id><Tag /><Name>eight</Name><Fixed></Fixed></Item></Root>'));
+        Helper.Seed();
+        Observer.Observe('import blank', Helper.Import(94852, 0, '<Root><Item><Id>9</Id><Tag>b</Tag><Name>nine</Name><Fixed>f9</Fixed><Blank>x</Blank></Item></Root>'));
+        Helper.Seed();
+        Observer.Observe('import missing', Helper.Import(94852, 0, '<Root><Item><Id>10</Id><Name>ten</Name><Fixed>f</Fixed></Item></Root>'));
+        Observer.Finish();
+    end;
+}

@@ -123,6 +123,7 @@ codeunit 94833 "LT Y91 Helper"
         P6: XmlPort "LT Y91 Dec Fixed";
         P7: XmlPort "LT Y91 Dec Legacy";
         P8: XmlPort "LT Y91 Width Text";
+        P9: XmlPort "LT Y91 Text In Table";
         TempBlob: Codeunit "Temp Blob";
         OutS: OutStream;
     begin
@@ -169,6 +170,12 @@ codeunit 94833 "LT Y91 Helper"
                     P7.SetDestination(OutS);
                     P7.Export();
                 end;
+            94852:
+                begin
+                    P9.SetDestination(OutS);
+                    P9.Export();
+                    PortLog := P9.GetLog();
+                end;
             94843:
                 begin
                     P8.SetDestination(OutS);
@@ -176,7 +183,7 @@ codeunit 94833 "LT Y91 Helper"
                     PortLog := P8.GetLog();
                 end;
         end;
-        if PortId in [94836, 94839, 94842, 94843] then
+        if PortId in [94836, 94839, 94842, 94843, 94852] then
             Result := ReadRaw(TempBlob, TextEncoding::UTF16)
         else
             Result := ReadRaw(TempBlob, TextEncoding::UTF8);
@@ -221,6 +228,7 @@ codeunit 94834 "LT Y91 Import Runner"
         R3: XmlPort "LT Y91 Root Fixed";
         W1: XmlPort "LT Y91 Width Text";
         W2: XmlPort "LT Y91 Width Unbound";
+        T1: XmlPort "LT Y91 Text In Table";
         TempBlob: Codeunit "Temp Blob";
         OutS: OutStream;
         InS: InStream;
@@ -267,6 +275,12 @@ codeunit 94834 "LT Y91 Import Runner"
                     W1.SetSource(InS);
                     W1.Import();
                     Rec.Content := CopyStr(W1.GetLog(), 1, MaxStrLen(Rec.Content));
+                end;
+            94852:
+                begin
+                    T1.SetSource(InS);
+                    T1.Import();
+                    Rec.Content := CopyStr(T1.GetLog(), 1, MaxStrLen(Rec.Content));
                 end;
             94844:
                 begin

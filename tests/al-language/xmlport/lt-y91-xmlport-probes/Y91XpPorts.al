@@ -666,3 +666,70 @@ xmlport 94847 "LT Y91 Run Import"
     end;
 }
 
+xmlport 94852 "LT Y91 Text In Table"
+{
+    Format = Xml;
+    Direction = Both;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Rw; "LT Y91 Item")
+            {
+                XmlName = 'Item';
+                fieldelement(Id; Rw.Id) { }
+                textelement(Tag)
+                {
+                    trigger OnBeforePassVariable()
+                    begin
+                        Log += 'tag-bpv(' + Format(Rw.Id) + ',' + Tag + ');';
+                    end;
+
+                    trigger OnAfterAssignVariable()
+                    begin
+                        Log += 'tag-aav(' + Tag + ');';
+                    end;
+                }
+                fieldelement(Name; Rw.Name) { }
+                textelement(Fixed)
+                {
+                }
+                textelement(Blank)
+                {
+                    MinOccurs = Zero;
+                }
+
+                trigger OnAfterGetRecord()
+                begin
+                    Tag := 'T' + Format(Rw.Id);
+                    Log += 'agr(' + Format(Rw.Id) + ');';
+                end;
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    Log += 'bir(' + Format(Rw.Id) + ',' + Tag + ',' + Fixed + ');';
+                end;
+            }
+        }
+    }
+
+    var
+        Log: Text;
+
+    trigger OnPreXmlPort()
+    begin
+        Fixed := 'fx';
+    end;
+
+    trigger OnPostXmlPort()
+    begin
+        Log += 'post Tag=[' + Tag + '] Fixed=[' + Fixed + '] Blank=[' + Blank + '];';
+    end;
+
+    procedure GetLog(): Text
+    begin
+        exit(Log);
+    end;
+}
