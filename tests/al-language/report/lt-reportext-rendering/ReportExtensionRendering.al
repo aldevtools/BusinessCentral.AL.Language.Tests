@@ -28,7 +28,7 @@ report 72955 "LT P175 Ext Base"
         layout(BaseRdlc)
         {
             Type = RDLC;
-            LayoutFile = './FixtureLayout_7.rdlc';
+            LayoutFile = './_fixtures/layouts/FixtureLayout_7.rdlc';
             Caption = 'P175 base layout';
         }
     }
@@ -56,14 +56,14 @@ reportextension 72956 "LT P175 Ext Rendering" extends "LT P175 Ext Base"
         layout(ExtRdlcA)
         {
             Type = RDLC;
-            LayoutFile = './ProbeSaveAsDatasetLayout_6.rdl';
+            LayoutFile = './_fixtures/layouts/ProbeSaveAsDatasetLayout_6.rdl';
             Caption = 'P175 ext A';
             Summary = 'P175 ext A summary';
         }
         layout(ExtRdlcB)
         {
             Type = RDLC;
-            LayoutFile = './FixtureLayout_8.rdlc';
+            LayoutFile = './_fixtures/layouts/FixtureLayout_8.rdlc';
             Caption = 'P175 ext B';
         }
     }
@@ -76,7 +76,7 @@ reportextension 72958 "LT P175 Ext NoRender Ext" extends "LT P175 Ext Base NoRen
         layout(ExtOnly)
         {
             Type = RDLC;
-            LayoutFile = './FixtureLayout_9.rdlc';
+            LayoutFile = './_fixtures/layouts/FixtureLayout_9.rdlc';
             Caption = 'P175 ext only';
         }
     }

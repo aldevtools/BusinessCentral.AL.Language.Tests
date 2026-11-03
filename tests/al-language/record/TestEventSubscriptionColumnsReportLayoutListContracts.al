@@ -65,14 +65,14 @@ report 69083 "Probe RL Report"
         layout(Rdlc)
         {
             Type = RDLC;
-            LayoutFile = './ProbeRlLayout.rdl';
+            LayoutFile = './_fixtures/layouts/ProbeRlLayout.rdl';
             Caption = 'RL rdlc';
             Summary = 'rdlc summary';
         }
         layout(Word)
         {
             Type = Word;
-            LayoutFile = './ProbeRlLayout_2.docx';
+            LayoutFile = './_fixtures/layouts/ProbeRlLayout_2.docx';
             Caption = 'RL word';
         }
     }
@@ -85,7 +85,7 @@ reportextension 69084 "Probe RL Report Ext" extends "Probe RL Report"
         layout(ExtWord)
         {
             Type = Word;
-            LayoutFile = './ProbeRlExtLayout.docx';
+            LayoutFile = './_fixtures/layouts/ProbeRlExtLayout.docx';
             Caption = 'RL ext word';
         }
     }

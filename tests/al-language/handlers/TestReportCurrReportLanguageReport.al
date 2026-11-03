@@ -34,7 +34,7 @@ report 60528 "CurrReport Language Report"
         layout(CurrReportLanguageLayout)
         {
             Type = RDLC;
-            LayoutFile = './TestReportCurrReportLanguageReport.rdl';
+            LayoutFile = './_fixtures/layouts/TestReportCurrReportLanguageReport.rdl';
             Caption = 'CurrReport Language layout';
         }
     }

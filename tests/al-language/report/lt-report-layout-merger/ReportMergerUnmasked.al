@@ -36,7 +36,7 @@ report 90864 "LT Y2 RptMrg NoCaption"
         layout(Y2NoCap)
         {
             Type = Custom;
-            LayoutFile = './ReportMergerLayoutY2_NoCaption.rlblayout';
+            LayoutFile = './_fixtures/layouts/ReportMergerLayoutY2_NoCaption.rlblayout';
             MimeType = 'application/x-lmc-layout-y2';
         }
     }
@@ -62,7 +62,7 @@ report 90865 "LT Y2 RptMrg View"
         layout(Y2View)
         {
             Type = Custom;
-            LayoutFile = './ReportMergerLayoutY2_View.rlblayout';
+            LayoutFile = './_fixtures/layouts/ReportMergerLayoutY2_View.rlblayout';
             MimeType = 'application/x-lmc-layout-y2';
         }
     }

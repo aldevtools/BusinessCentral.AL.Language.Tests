@@ -92,7 +92,7 @@ report 70883 "LT RptMrg Report"
         layout(CustomA)
         {
             Type = Custom;
-            LayoutFile = './ReportMergerLayoutA_2.rlblayout';
+            LayoutFile = './_fixtures/layouts/ReportMergerLayoutA_2.rlblayout';
             MimeType = 'application/x-lmc-layout';
             Caption = 'Merger layout A';
             Summary = 'First custom layout, the default.';
@@ -100,7 +100,7 @@ report 70883 "LT RptMrg Report"
         layout(CustomB)
         {
             Type = Custom;
-            LayoutFile = './ReportMergerLayoutB.rlblayout';
+            LayoutFile = './_fixtures/layouts/ReportMergerLayoutB.rlblayout';
             MimeType = 'application/x-lmc-layout-b';
             Caption = 'Merger layout B';
             Summary = 'Second custom layout.';
@@ -136,14 +136,14 @@ report 70884 "LT RptMrg NoDefault"
         layout(CustomB)
         {
             Type = Custom;
-            LayoutFile = './ReportMergerLayoutB_2.rlblayout';
+            LayoutFile = './_fixtures/layouts/ReportMergerLayoutB_2.rlblayout';
             MimeType = 'application/x-lmc-layout-b';
             Caption = 'Merger layout B';
         }
         layout(CustomA)
         {
             Type = Custom;
-            LayoutFile = './ReportMergerLayoutA_3.rlblayout';
+            LayoutFile = './_fixtures/layouts/ReportMergerLayoutA_3.rlblayout';
             MimeType = 'application/x-lmc-layout';
             Caption = 'Merger layout A';
         }

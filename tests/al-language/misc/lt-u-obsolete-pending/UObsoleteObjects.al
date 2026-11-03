@@ -19,7 +19,7 @@ controladdin "LT U Obsolete AddIn"
     ObsoleteState = Pending;
     ObsoleteReason = 'The control add-in is replaced.';
     ObsoleteTag = '27.1';
-    Scripts = 'addin/lt-p121.js';
+    Scripts = 'controladdins/lt-p121.js';
 
     event Ready();
 }

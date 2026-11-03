@@ -24,7 +24,7 @@ report 69367 "LT T Layout Rpt"
         layout(TRdlc)
         {
             Type = RDLC;
-            LayoutFile = './FixtureLayout.rdlc';
+            LayoutFile = './_fixtures/layouts/FixtureLayout.rdlc';
         }
     }
 }

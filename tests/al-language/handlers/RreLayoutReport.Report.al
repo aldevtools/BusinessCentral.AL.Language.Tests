@@ -27,7 +27,7 @@ report 60869 "RRE Layout Report"
         layout(RreWordish)
         {
             Type = RDLC;
-            LayoutFile = './RreLayout.rdl';
+            LayoutFile = './_fixtures/layouts/RreLayout.rdl';
             Caption = 'RRE layout';
         }
     }
