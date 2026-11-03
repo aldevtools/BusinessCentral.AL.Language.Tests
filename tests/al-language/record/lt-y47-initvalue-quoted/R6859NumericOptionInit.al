@@ -186,14 +186,10 @@ codeunit 94900 "LT R6859 Numeric Init"
     end;
 
     [TryFunction]
-    local procedure TryInsertGetNumNames(var Value: Text)
+    local procedure TryGetNumNames(var Value: Text)
     var
-        Row: Record "LT R6859 Num Names";
         Back: Record "LT R6859 Num Names";
     begin
-        Row.Init();
-        Row."Primary Key" := 1;
-        Row.Insert();
         Back.Get(1);
         Value := DumpNumNames(Back);
     end;
@@ -216,6 +212,7 @@ codeunit 94900 "LT R6859 Numeric Init"
         Observer: Codeunit "Probe Observer";
         Ids: List of [Integer];
         Value: Text;
+        Row: Record "LT R6859 Num Names";
     begin
         Ids.Add(2);
         Ids.Add(3);
@@ -227,14 +224,18 @@ codeunit 94900 "LT R6859 Numeric Init"
         Observer.Observe('fresh', Step(TryFreshNumNames(Value), Value));
         ClearLastError();
         Value := '';
-        Observer.Observe('insertGet', Step(TryInsertGetNumNames(Value), Value));
+        Row.Init();
+        Row."Primary Key" := 1;
+        Row.Insert();
+        ClearLastError();
+        Observer.Observe('insertGet', Step(TryGetNumNames(Value), Value));
         ClearLastError();
         Value := '';
         Observer.Observe('refInit', Step(TryRefInit(Database::"LT R6859 Num Names", Ids, Value), Value));
         ClearLastError();
         Value := '';
         Observer.Observe('validate', Step(TryValidateNumNames(Value), Value));
-        Observer.Finish();
+        Observer.Verify();
     end;
 
 
@@ -261,14 +262,10 @@ codeunit 94900 "LT R6859 Numeric Init"
     end;
 
     [TryFunction]
-    local procedure TryInsertGetCollide(var Value: Text)
+    local procedure TryGetCollide(var Value: Text)
     var
-        Row: Record "LT R6859 Collide";
         Back: Record "LT R6859 Collide";
     begin
-        Row.Init();
-        Row."Primary Key" := 1;
-        Row.Insert();
         Back.Get(1);
         Value := DumpCollide(Back);
     end;
@@ -292,6 +289,7 @@ codeunit 94900 "LT R6859 Numeric Init"
         Observer: Codeunit "Probe Observer";
         Ids: List of [Integer];
         Value: Text;
+        Row: Record "LT R6859 Collide";
     begin
         Ids.Add(2);
         Ids.Add(3);
@@ -304,14 +302,18 @@ codeunit 94900 "LT R6859 Numeric Init"
         Observer.Observe('fresh', Step(TryFreshCollide(Value), Value));
         ClearLastError();
         Value := '';
-        Observer.Observe('insertGet', Step(TryInsertGetCollide(Value), Value));
+        Row.Init();
+        Row."Primary Key" := 1;
+        Row.Insert();
+        ClearLastError();
+        Observer.Observe('insertGet', Step(TryGetCollide(Value), Value));
         ClearLastError();
         Value := '';
         Observer.Observe('refInit', Step(TryRefInit(Database::"LT R6859 Collide", Ids, Value), Value));
         ClearLastError();
         Value := '';
         Observer.Observe('validate', Step(TryValidateCollide(Value), Value));
-        Observer.Finish();
+        Observer.Verify();
     end;
 
 
@@ -338,14 +340,10 @@ codeunit 94900 "LT R6859 Numeric Init"
     end;
 
     [TryFunction]
-    local procedure TryInsertGetSpaces(var Value: Text)
+    local procedure TryGetSpaces(var Value: Text)
     var
-        Row: Record "LT R6859 Spaces";
         Back: Record "LT R6859 Spaces";
     begin
-        Row.Init();
-        Row."Primary Key" := 1;
-        Row.Insert();
         Back.Get(1);
         Value := DumpSpaces(Back);
     end;
@@ -369,6 +367,7 @@ codeunit 94900 "LT R6859 Numeric Init"
         Observer: Codeunit "Probe Observer";
         Ids: List of [Integer];
         Value: Text;
+        Row: Record "LT R6859 Spaces";
     begin
         Ids.Add(2);
         Ids.Add(3);
@@ -381,14 +380,18 @@ codeunit 94900 "LT R6859 Numeric Init"
         Observer.Observe('fresh', Step(TryFreshSpaces(Value), Value));
         ClearLastError();
         Value := '';
-        Observer.Observe('insertGet', Step(TryInsertGetSpaces(Value), Value));
+        Row.Init();
+        Row."Primary Key" := 1;
+        Row.Insert();
+        ClearLastError();
+        Observer.Observe('insertGet', Step(TryGetSpaces(Value), Value));
         ClearLastError();
         Value := '';
         Observer.Observe('refInit', Step(TryRefInit(Database::"LT R6859 Spaces", Ids, Value), Value));
         ClearLastError();
         Value := '';
         Observer.Observe('validate', Step(TryValidateSpaces(Value), Value));
-        Observer.Finish();
+        Observer.Verify();
     end;
 
 
@@ -415,14 +418,10 @@ codeunit 94900 "LT R6859 Numeric Init"
     end;
 
     [TryFunction]
-    local procedure TryInsertGetNumEnum(var Value: Text)
+    local procedure TryGetNumEnum(var Value: Text)
     var
-        Row: Record "LT R6859 Num Enum";
         Back: Record "LT R6859 Num Enum";
     begin
-        Row.Init();
-        Row."Primary Key" := 1;
-        Row.Insert();
         Back.Get(1);
         Value := DumpNumEnum(Back);
     end;
@@ -446,6 +445,7 @@ codeunit 94900 "LT R6859 Numeric Init"
         Observer: Codeunit "Probe Observer";
         Ids: List of [Integer];
         Value: Text;
+        Row: Record "LT R6859 Num Enum";
     begin
         Ids.Add(2);
         Ids.Add(3);
@@ -458,14 +458,18 @@ codeunit 94900 "LT R6859 Numeric Init"
         Observer.Observe('fresh', Step(TryFreshNumEnum(Value), Value));
         ClearLastError();
         Value := '';
-        Observer.Observe('insertGet', Step(TryInsertGetNumEnum(Value), Value));
+        Row.Init();
+        Row."Primary Key" := 1;
+        Row.Insert();
+        ClearLastError();
+        Observer.Observe('insertGet', Step(TryGetNumEnum(Value), Value));
         ClearLastError();
         Value := '';
         Observer.Observe('refInit', Step(TryRefInit(Database::"LT R6859 Num Enum", Ids, Value), Value));
         ClearLastError();
         Value := '';
         Observer.Observe('validate', Step(TryValidateNumEnum(Value), Value));
-        Observer.Finish();
+        Observer.Verify();
     end;
 
 
@@ -482,6 +486,6 @@ codeunit 94900 "LT R6859 Numeric Init"
         Card2.OpenNew();
         Observer.Observe('collide', Card2.QuotedOne.Value + '|' + Card2.BareOne.Value + '|' + Card2.QuotedZero.Value + '|' + Card2.QuotedTwo.Value);
         Card2.Close();
-        Observer.Finish();
+        Observer.Verify();
     end;
 }
