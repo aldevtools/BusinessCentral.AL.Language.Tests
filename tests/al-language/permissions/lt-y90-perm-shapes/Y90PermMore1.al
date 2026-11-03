@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (69160); Y90PermMoreObjects.al (94880-94899); Y90PermObjects.al; Permissions Mock (131006).
 // Probe (owner items 2, 5 and 6): the first touch of each object kind under an exact set that grants table data but no Execute: a procedure of a table, a
 //   codeunit variable method, Codeunit.Run, Report.Run, a TestPage open, a query read, an xmlport export. InherentPermissions on a procedure for a table of this
-//   app, a table of another app (xapp-a) and a Base Application table, against a plain procedure; InherentPermissions = X as a codeunit property against a
+//   app, against a plain procedure (a table of another app does not compile, case 2820); InherentPermissions = X as a codeunit property against a
 //   codeunit without it, called under a set without Execute on them.
 // BC versions: 27, 28, 29
 
@@ -61,8 +61,6 @@ codeunit 94896 "LT Y90 Perm More1"
         WasStarted := StartMock();
         Run('inherent_own', 'LT Y90 I Base', 8);
         Run('plain_own', 'LT Y90 I Base', 9);
-        Run('inherent_other_app', 'LT Y90 I Base', 10);
-        Run('inherent_customer', 'LT Y90 I Base', 11);
         RestoreMock(WasStarted);
         Observer.Finish();
     end;
@@ -153,16 +151,6 @@ codeunit 94896 "LT Y90 Perm More1"
                 begin
                     Inherit.InsertOwnPlain();
                     Result := 'inserted';
-                end;
-            10:
-                begin
-                    Inherit.InsertOtherApp();
-                    Result := 'inserted';
-                end;
-            11:
-                begin
-                    Inherit.ReadCustomer();
-                    Result := 'read';
                 end;
             12:
                 Result := Yes.Ping();

@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-permissions-property
 // Scope: in-scope
-// Fixtures used: none (own objects; table 61184 "LT Y19 XA Row" of the cross-app fixture xapp-a as a table of another app).
+// Fixtures used: none (own objects; InherentPermissions naming a table of another app does not compile: tests/must-not-compile/cases/2820).
 // Objects for the second part of the writer Y90 probes: Execute on a first touch of each object kind, InherentPermissions on a procedure and on a codeunit,
 // the license ceiling for G/L Entry, Access Control and tenant permission sets. Object ids 94880-94899.
 
@@ -85,7 +85,7 @@ xmlport 94886 "LT Y90 X Xml"
     }
 }
 
-// InherentPermissions on procedures: own table, a table of another app, a Base Application table; a plain procedure for contrast.
+// InherentPermissions on a procedure for an own table; a plain procedure for contrast. (A table of another app or of Base Application is AL0720, case 2820.)
 codeunit 94887 "LT Y90 Inherit Proc"
 {
     [InherentPermissions(PermissionObjectType::TableData, Database::"LT Y90 Guard", 'I')]
@@ -103,23 +103,6 @@ codeunit 94887 "LT Y90 Inherit Proc"
     begin
         Guard.Id := 1;
         Guard.Insert();
-    end;
-
-    [InherentPermissions(PermissionObjectType::TableData, Database::"LT Y19 XA Row", 'I')]
-    procedure InsertOtherApp()
-    var
-        Other: Record "LT Y19 XA Row";
-    begin
-        Other.Id := 90;
-        Other.Insert();
-    end;
-
-    [InherentPermissions(PermissionObjectType::TableData, Database::Customer, 'R')]
-    procedure ReadCustomer()
-    var
-        Customer: Record Customer;
-    begin
-        if Customer.FindFirst() then;
     end;
 }
 
@@ -164,7 +147,7 @@ permissionset 94891 "LT Y90 X Data"
         tabledata "LT Y90 Tbl Exec" = RIMD;
 }
 
-permissionset 94892 "LT Y90 L M"
+permissionset 94892 "LT Y90 L Direct"
 {
     Assignable = true;
     Permissions =
@@ -172,7 +155,7 @@ permissionset 94892 "LT Y90 L M"
         codeunit "LT Y90 GL Mod" = X;
 }
 
-permissionset 94893 "LT Y90 L m"
+permissionset 94893 "LT Y90 L Indir"
 {
     Assignable = true;
     Permissions =

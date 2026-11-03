@@ -30,10 +30,10 @@ codeunit 94897 "LT Y90 Perm More2"
         end;
         WasStarted := StartMock();
         Run('super_direct', '', 1);
-        Run('direct_M_direct', 'LT Y90 L M', 1);
-        Run('direct_M_codeunit', 'LT Y90 L M', 2);
-        Run('indirect_m_direct', 'LT Y90 L m', 1);
-        Run('indirect_m_codeunit', 'LT Y90 L m', 2);
+        Run('direct_M_direct', 'LT Y90 L Direct', 1);
+        Run('direct_M_codeunit', 'LT Y90 L Direct', 2);
+        Run('indirect_m_direct', 'LT Y90 L Indir', 1);
+        Run('indirect_m_codeunit', 'LT Y90 L Indir', 2);
         RestoreMock(WasStarted);
         Observer.Finish();
     end;
