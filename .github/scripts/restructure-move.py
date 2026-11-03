@@ -458,6 +458,10 @@ def apply(root):
             # a layout the compiler generates (not committed) in a folder that moves: follow the folder, so the generated file
             # lands next to its report and no old folder comes back at build time
             d = os.path.dirname(key[1])
+            prop = re.search(r'(LayoutFile|RDLCLayout|WordLayout|ExcelLayout)\s*=\s*$', m.string[m.string.rfind('\n', 0, m.start()) + 1:m.start()], re.I)
+            if not d and prop and key[0] == 'tests/al-language':
+                # app-root layouts move to _fixtures/layouts, also the ones the compiler generates
+                return "'" + ('./' if dot else '') + '_fixtures/layouts/' + s.split('/')[-1] + "'"
             if d and (key[0], d) in gone_dirs and s.lower().endswith(LAYOUT_EXT):
                 nd = dir_moves.get((key[0], d)) or os.path.dirname(moves.get(f, f))[len(key[0]) + 1:]
                 return "'" + ('./' if dot else '') + nd + '/' + os.path.basename(s) + "'"
