@@ -17,7 +17,7 @@ codeunit 94998 "LT Y93 Wild Scope"
 
     // Own app, set declared in the same app, one set per object kind.
     [Test]
-    procedure Y93_Main_PerKind_A()
+    procedure Y93_Main_PerKind_A_1()
     var
         WasStarted: Boolean;
     begin
@@ -28,6 +28,16 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('page|W Page', 'E:LT Y93 W Page', 10);
         Run('table|control', 'E:LT Y93 W Sys', 20);
         Run('table|W Table', 'E:LT Y93 W Table', 20);
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y93_Main_PerKind_A_2()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
         Run('tabledata|control', 'E:LT Y93 W Sys', 60);
         Run('tabledata|W Data insert', 'E:LT Y93 W Data', 60);
         Run('tabledata|W Data read', 'E:LT Y93 W Data', 61);
@@ -36,7 +46,7 @@ codeunit 94998 "LT Y93 Wild Scope"
     end;
 
     [Test]
-    procedure Y93_Main_PerKind_B()
+    procedure Y93_Main_PerKind_B_1()
     var
         WasStarted: Boolean;
     begin
@@ -47,6 +57,16 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('query|control', 'E:LT Y93 W Sys', 40);
         Run('query|W Query', 'E:LT Y93 W Query', 40);
         Run('query|W Query+Data', 'E:LT Y93 W Qry Data', 40);
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y93_Main_PerKind_B_2()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
         Run('xmlport|control', 'E:LT Y93 W Sys', 50);
         Run('xmlport|W Xml', 'E:LT Y93 W Xml', 50);
         Run('xmlport|W Xml+Data', 'E:LT Y93 W Xml Data', 50);
@@ -56,7 +76,7 @@ codeunit 94998 "LT Y93 Wild Scope"
 
     // A wildcard next to an explicit lower grant on one object, and an excluded permission set.
     [Test]
-    procedure Y93_Main_Mixed()
+    procedure Y93_Main_Mixed_1()
     var
         WasStarted: Boolean;
     begin
@@ -67,6 +87,16 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('plaindata|narrow insert', 'E:LT Y93 W Data', 62);
         Run('mixcu|M3 explicit x', 'E:LT Y93 W Mix Cu', 3);
         Run('mixcu|M5 wildcard only', 'E:LT Y93 W Mix Cu', 5);
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y93_Main_Mixed_2()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
         Run('excl|M4 excluded', 'E:LT Y93 W Excl', 4);
         Run('excl|M6 other', 'E:LT Y93 W Excl', 6);
         Run('excl|row insert', 'E:LT Y93 W Excl', 60);
@@ -77,7 +107,7 @@ codeunit 94998 "LT Y93 Wild Scope"
 
     // A set declared in the main app (LT Y93 W All) used on objects of xapp-a and of Base Application.
     [Test]
-    procedure Y93_Cross_SetInMain_A()
+    procedure Y93_Cross_SetInMain_A_1()
     var
         WasStarted: Boolean;
     begin
@@ -88,6 +118,16 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('xa page|W All', 'E:LT Y93 W All', 102);
         Run('xa table|control', 'E:LT Y93 W Sys', 104);
         Run('xa table|W All', 'E:LT Y93 W All', 104);
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y93_Cross_SetInMain_A_2()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
         Run('xa td insert|control', 'E:LT Y93 W Sys', 112);
         Run('xa td insert|W Data', 'E:LT Y93 W Data', 112);
         Run('xa td read|W Data', 'E:LT Y93 W Data', 113);
@@ -98,7 +138,7 @@ codeunit 94998 "LT Y93 Wild Scope"
     end;
 
     [Test]
-    procedure Y93_Cross_SetInMain_B()
+    procedure Y93_Cross_SetInMain_B_1()
     var
         WasStarted: Boolean;
     begin
@@ -109,12 +149,32 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('xa xmlport|W All', 'E:LT Y93 W All', 110);
         Run('base cu|control', 'E:LT Y93 W Sys', 201);
         Run('base cu|W All', 'E:LT Y93 W All', 201);
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y93_Cross_SetInMain_B_2()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
         Run('sysapp cu|control', 'E:LT Y93 W Sys', 200);
         Run('sysapp cu|W All', 'E:LT Y93 W All', 200);
         Run('base page|control', 'E:LT Y93 W Sys', 204);
         Run('base page|W All', 'E:LT Y93 W All', 204);
         Run('base table|control', 'E:LT Y93 W Sys', 206);
         Run('base table|W All', 'E:LT Y93 W All', 206);
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y93_Cross_SetInMain_B_3()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
         Run('base td insert|control', 'E:LT Y93 W Sys', 208);
         Run('base td insert|W Data', 'E:LT Y93 W Data', 208);
         Run('base td read|W Data', 'E:LT Y93 W Data', 209);
@@ -124,7 +184,7 @@ codeunit 94998 "LT Y93 Wild Scope"
 
     // A set declared in xapp-a (LT Y93 XA All) used on objects of the main app, of xapp-a and of Base Application.
     [Test]
-    procedure Y93_Cross_SetInXapp_A()
+    procedure Y93_Cross_SetInXapp_A_1()
     var
         WasStarted: Boolean;
     begin
@@ -135,12 +195,32 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('main page|XA All', 'E:LT Y93 XA All', 11);
         Run('main table|control', 'E:LT Y93 W Sys', 21);
         Run('main table|XA All', 'E:LT Y93 XA All', 21);
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y93_Cross_SetInXapp_A_2()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
         Run('main td insert|control', 'E:LT Y93 W Sys', 62);
         Run('main td insert|XA All', 'E:LT Y93 XA All', 62);
         Run('main report|control', 'E:LT Y93 W Sys', 31);
         Run('main report|XA All', 'E:LT Y93 XA All', 31);
         Run('main query|control', 'E:LT Y93 W Sys', 41);
         Run('main query|XA All', 'E:LT Y93 XA All', 41);
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y93_Cross_SetInXapp_A_3()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
         Run('main xmlport|control', 'E:LT Y93 W Sys', 51);
         Run('main xmlport|XA All', 'E:LT Y93 XA All', 51);
         RestoreMock(WasStarted);
@@ -148,7 +228,7 @@ codeunit 94998 "LT Y93 Wild Scope"
     end;
 
     [Test]
-    procedure Y93_Cross_SetInXapp_B()
+    procedure Y93_Cross_SetInXapp_B_1()
     var
         WasStarted: Boolean;
     begin
@@ -159,19 +239,39 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('xa page|XA All', 'E:LT Y93 XA All', 103);
         Run('xa table|control', 'E:LT Y93 W Sys', 105);
         Run('xa table|XA All', 'E:LT Y93 XA All', 105);
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y93_Cross_SetInXapp_B_2()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
         Run('xa td insert|XA All', 'E:LT Y93 XA All', 112);
         Run('xa report|control', 'E:LT Y93 W Sys', 107);
         Run('xa report|XA All', 'E:LT Y93 XA All', 107);
         Run('xa query|control', 'E:LT Y93 W Sys', 109);
         Run('xa query|XA All', 'E:LT Y93 XA All', 109);
         Run('xa xmlport|control', 'E:LT Y93 W Sys', 111);
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y93_Cross_SetInXapp_B_3()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
         Run('xa xmlport|XA All', 'E:LT Y93 XA All', 111);
         RestoreMock(WasStarted);
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y93_Cross_SetInXapp_C()
+    procedure Y93_Cross_SetInXapp_C_1()
     var
         WasStarted: Boolean;
     begin
@@ -182,6 +282,16 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('sysapp cu|XA All', 'E:LT Y93 XA All', 202);
         Run('base page|control', 'E:LT Y93 W Sys', 205);
         Run('base page|XA All', 'E:LT Y93 XA All', 205);
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y93_Cross_SetInXapp_C_2()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
         Run('base table|control', 'E:LT Y93 W Sys', 207);
         Run('base table|XA All', 'E:LT Y93 XA All', 207);
         Run('base td insert|XA All', 'E:LT Y93 XA All', 210);
@@ -191,7 +301,7 @@ codeunit 94998 "LT Y93 Wild Scope"
 
     // Set (adds all objects) and Assign next to SetExactPermissionSet, with a set that names no object of the call.
     [Test]
-    procedure Y93_SetAndAssign()
+    procedure Y93_SetAndAssign_1()
     var
         WasStarted: Boolean;
     begin
@@ -202,6 +312,16 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('set W Data|row insert', 'S:LT Y93 W Data', 60);
         Run('set W Data|xa row insert', 'S:LT Y93 W Data', 112);
         Run('set W Data|base insert', 'S:LT Y93 W Data', 208);
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y93_SetAndAssign_2()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
         Run('assign W Data|row insert', 'A:LT Y93 W Data', 60);
         Run('assign W Data|xa row insert', 'A:LT Y93 W Data', 112);
         Run('assign W Data|base insert', 'A:LT Y93 W Data', 208);
@@ -211,7 +331,7 @@ codeunit 94998 "LT Y93 Wild Scope"
 
     // tabledata * = rimd (indirect) and a codeunit with the Permissions property.
     [Test]
-    procedure Y93_IndirectWildcard()
+    procedure Y93_IndirectWildcard_1()
     var
         WasStarted: Boolean;
     begin
@@ -222,6 +342,16 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('ind|row read', 'E:LT Y93 W Ind Cu', 61);
         Run('indcu|no cu grant', 'E:LT Y93 W Ind', 300);
         Run('indcu|via own', 'E:LT Y93 W Ind Cu', 300);
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y93_IndirectWildcard_2()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
         Run('indcu|via xa', 'E:LT Y93 W Ind Cu', 301);
         Run('indcu|via base', 'E:LT Y93 W Ind Cu', 302);
         Run('indcu|no ind set', 'E:LT Y93 W Cu', 300);
@@ -518,7 +648,7 @@ codeunit 94998 "LT Y93 Wild Scope"
     local procedure OpBase(Which: Integer): Text
     var
         Base64: Codeunit "Base64 Convert";
-        TypeHelper: Codeunit "Type Helper";
+        CalendarMgt: Codeunit "Calendar Management";
         ClientType: Codeunit "Client Type Management";
         FormatAddr: Codeunit "Format Address";
         Uom: Record "Unit of Measure";
@@ -532,7 +662,7 @@ codeunit 94998 "LT Y93 Wild Scope"
             200:
                 exit(Base64.ToBase64('a'));
             201:
-                exit(Format(TypeHelper.IsLeapYear(DMY2Date(1, 1, 2024))));
+                exit(Format(CalendarMgt.GetMaxDate()));
             202:
                 exit(Format(ClientType.GetCurrentClientType()));
             203:

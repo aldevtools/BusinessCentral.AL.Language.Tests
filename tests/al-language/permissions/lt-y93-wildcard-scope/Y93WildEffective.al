@@ -18,7 +18,7 @@ codeunit 94999 "LT Y93 Wild Effective"
         Values: List of [Text];
 
     [Test]
-    procedure Y93_Eff_Exact_A()
+    procedure Y93_Eff_Exact_1()
     var
         WasStarted: Boolean;
     begin
@@ -29,6 +29,19 @@ codeunit 94999 "LT Y93 Wild Effective"
         Collect('LT Y93 W Cu');
         Mock.SetExactPermissionSet('LT Y93 W Page');
         Collect('LT Y93 W Page');
+        RestoreMock(WasStarted);
+        Flush();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y93_Eff_Exact_2()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
+        Clear(Names);
+        Clear(Values);
         Mock.SetExactPermissionSet('LT Y93 W Table');
         Collect('LT Y93 W Table');
         Mock.SetExactPermissionSet('LT Y93 W Data');
@@ -39,7 +52,7 @@ codeunit 94999 "LT Y93 Wild Effective"
     end;
 
     [Test]
-    procedure Y93_Eff_Exact_B()
+    procedure Y93_Eff_Exact_3()
     var
         WasStarted: Boolean;
     begin
@@ -50,6 +63,19 @@ codeunit 94999 "LT Y93 Wild Effective"
         Collect('LT Y93 W Report');
         Mock.SetExactPermissionSet('LT Y93 W Query');
         Collect('LT Y93 W Query');
+        RestoreMock(WasStarted);
+        Flush();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y93_Eff_Exact_4()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
+        Clear(Names);
+        Clear(Values);
         Mock.SetExactPermissionSet('LT Y93 W Xml');
         Collect('LT Y93 W Xml');
         Mock.SetExactPermissionSet('LT Y93 W Sys');
@@ -60,7 +86,7 @@ codeunit 94999 "LT Y93 Wild Effective"
     end;
 
     [Test]
-    procedure Y93_Eff_Exact_C()
+    procedure Y93_Eff_Exact_5()
     var
         WasStarted: Boolean;
     begin
@@ -71,6 +97,19 @@ codeunit 94999 "LT Y93 Wild Effective"
         Collect('LT Y93 W All');
         Mock.SetExactPermissionSet('LT Y93 XA All');
         Collect('LT Y93 XA All');
+        RestoreMock(WasStarted);
+        Flush();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y93_Eff_Exact_6()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
+        Clear(Names);
+        Clear(Values);
         Mock.SetExactPermissionSet('LT Y93 W Ind');
         Collect('LT Y93 W Ind');
         Mock.SetExactPermissionSet('LT Y93 W Mix Data');
@@ -81,7 +120,7 @@ codeunit 94999 "LT Y93 Wild Effective"
     end;
 
     [Test]
-    procedure Y93_Eff_Exact_D()
+    procedure Y93_Eff_Exact_7()
     var
         WasStarted: Boolean;
     begin
@@ -111,7 +150,19 @@ codeunit 94999 "LT Y93 Wild Effective"
         Mock.ClearAssignments();
         Mock.Assign('LT Y93 W Sys');
         Collect('Assign W Sys');
-        Mock.ClearAssignments();
+        RestoreMock(WasStarted);
+        Flush();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y93_Eff_SetAssign_2()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
+        Clear(Names);
+        Clear(Values);
         Mock.Set('LT Y93 W Data');
         Collect('Set W Data');
         Mock.ClearAssignments();
@@ -126,7 +177,7 @@ codeunit 94999 "LT Y93 Wild Effective"
     var
         Line: Text;
     begin
-        Line := Row('cu', 5, Codeunit::"LT Y93 Cu Q1", Codeunit::"LT Y93 XA Cu 1", Codeunit::"Type Helper") +
+        Line := Row('cu', 5, Codeunit::"LT Y93 Cu Q1", Codeunit::"LT Y93 XA Cu 1", Codeunit::"Calendar Management") +
             Row('pg', 8, Page::"LT Y93 Page M1", Page::"LT Y93 XA Page 1", Page::"Units of Measure") +
             Row('tbl', 1, Database::"LT Y93 Tab M1", Database::"LT Y93 XA Tab 1", Database::"Unit of Measure") +
             Row('td', 0, Database::"LT Y93 Row", Database::"LT Y93 XA Row", Database::"Unit of Measure") +
