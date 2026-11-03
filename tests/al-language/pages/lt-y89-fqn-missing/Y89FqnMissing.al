@@ -56,7 +56,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Row.Insert();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_Missing_Run()
     var
         Row: Record "LT Y89 Fq Row";
@@ -68,7 +69,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_Missing_RunRec()
     var
         Row: Record "LT Y89 Fq Row";
@@ -80,7 +82,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_Missing_RunModal()
     var
         Row: Record "LT Y89 Fq Row";
@@ -92,7 +95,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_Missing_RunModalRec()
     var
         Row: Record "LT Y89 Fq Row";
@@ -104,7 +108,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_Empty_Run()
     var
         Row: Record "LT Y89 Fq Row";
@@ -125,10 +130,13 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Row.Get(1);
         asserterror Page.Run('', Row);
         Observer.ObserveError('e');
-        Observer.Finish();
+        Observer.Expect('e|text', 'You tried to invoke the Page object with the ID 0 from the object LT Y89 Fq Run Tests. An object with that ID does not exist in the current application compiled with emit version n.');
+        Observer.Expect('e|code', 'AL:MetadataNotFound');
+        Observer.Verify();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_Empty_RunModal()
     var
         Row: Record "LT Y89 Fq Row";
@@ -149,10 +157,13 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Row.Get(1);
         asserterror Page.RunModal('', Row);
         Observer.ObserveError('e');
-        Observer.Finish();
+        Observer.Expect('e|text', 'You tried to invoke the Page object with the ID 0 from the object LT Y89 Fq Run Tests. An object with that ID does not exist in the current application compiled with emit version n.');
+        Observer.Expect('e|code', 'AL:MetadataNotFound');
+        Observer.Verify();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_TableName_Run()
     var
         Row: Record "LT Y89 Fq Row";
@@ -164,7 +175,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_TableName_RunRec()
     var
         Row: Record "LT Y89 Fq Row";
@@ -176,7 +188,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_TableName_RunModal()
     var
         Row: Record "LT Y89 Fq Row";
@@ -188,7 +201,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_TableName_RunModalRec()
     var
         Row: Record "LT Y89 Fq Row";
@@ -200,7 +214,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_CodeunitName_Run()
     var
         Row: Record "LT Y89 Fq Row";
@@ -212,7 +227,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_CodeunitName_RunRec()
     var
         Row: Record "LT Y89 Fq Row";
@@ -224,7 +240,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_CodeunitName_RunModal()
     var
         Row: Record "LT Y89 Fq Row";
@@ -236,7 +253,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_CodeunitName_RunModalRec()
     var
         Row: Record "LT Y89 Fq Row";
@@ -248,7 +266,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_OtherNamespace_Run()
     var
         Row: Record "LT Y89 Fq Row";
@@ -260,7 +279,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_OtherNamespace_RunRec()
     var
         Row: Record "LT Y89 Fq Row";
@@ -272,7 +292,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_OtherNamespace_RunModal()
     var
         Row: Record "LT Y89 Fq Row";
@@ -284,7 +305,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_OtherNamespace_RunModalRec()
     var
         Row: Record "LT Y89 Fq Row";
@@ -296,7 +318,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_NamespaceOnly_Run()
     var
         Row: Record "LT Y89 Fq Row";
@@ -308,7 +331,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_NamespaceOnly_RunRec()
     var
         Row: Record "LT Y89 Fq Row";
@@ -320,7 +344,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_NamespaceOnly_RunModal()
     var
         Row: Record "LT Y89 Fq Row";
@@ -332,7 +357,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_NamespaceOnly_RunModalRec()
     var
         Row: Record "LT Y89 Fq Row";
@@ -353,7 +379,9 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Row.Get(1);
         asserterror Page.Run('LT Y89 Fq Card');
         Observer.ObserveError('e');
-        Observer.Finish();
+        Observer.Expect('e|text', 'The provided object name is not fully qualified.');
+        Observer.Expect('e|code', 'InvalidOperation');
+        Observer.Verify();
     end;
 
     [Test]
@@ -365,7 +393,9 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Row.Get(1);
         asserterror Page.Run('LT Y89 Fq Card', Row);
         Observer.ObserveError('e');
-        Observer.Finish();
+        Observer.Expect('e|text', 'The provided object name is not fully qualified.');
+        Observer.Expect('e|code', 'InvalidOperation');
+        Observer.Verify();
     end;
 
     [Test]
@@ -377,7 +407,9 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Row.Get(1);
         asserterror Page.RunModal('LT Y89 Fq Card');
         Observer.ObserveError('e');
-        Observer.Finish();
+        Observer.Expect('e|text', 'The provided object name is not fully qualified.');
+        Observer.Expect('e|code', 'InvalidOperation');
+        Observer.Verify();
     end;
 
     [Test]
@@ -389,7 +421,9 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Row.Get(1);
         asserterror Page.RunModal('LT Y89 Fq Card', Row);
         Observer.ObserveError('e');
-        Observer.Finish();
+        Observer.Expect('e|text', 'The provided object name is not fully qualified.');
+        Observer.Expect('e|code', 'InvalidOperation');
+        Observer.Verify();
     end;
 
     [Test]
@@ -401,7 +435,9 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Row.Get(1);
         asserterror Page.Run('LT.Y89.Fqn.');
         Observer.ObserveError('e');
-        Observer.Finish();
+        Observer.Expect('e|text', 'The provided object name is not fully qualified.');
+        Observer.Expect('e|code', 'InvalidOperation');
+        Observer.Verify();
     end;
 
     [Test]
@@ -413,7 +449,9 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Row.Get(1);
         asserterror Page.Run('LT.Y89.Fqn.', Row);
         Observer.ObserveError('e');
-        Observer.Finish();
+        Observer.Expect('e|text', 'The provided object name is not fully qualified.');
+        Observer.Expect('e|code', 'InvalidOperation');
+        Observer.Verify();
     end;
 
     [Test]
@@ -425,7 +463,9 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Row.Get(1);
         asserterror Page.RunModal('LT.Y89.Fqn.');
         Observer.ObserveError('e');
-        Observer.Finish();
+        Observer.Expect('e|text', 'The provided object name is not fully qualified.');
+        Observer.Expect('e|code', 'InvalidOperation');
+        Observer.Verify();
     end;
 
     [Test]
@@ -437,10 +477,13 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Row.Get(1);
         asserterror Page.RunModal('LT.Y89.Fqn.', Row);
         Observer.ObserveError('e');
-        Observer.Finish();
+        Observer.Expect('e|text', 'The provided object name is not fully qualified.');
+        Observer.Expect('e|code', 'InvalidOperation');
+        Observer.Verify();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_Quoted_Run()
     var
         Row: Record "LT Y89 Fq Row";
@@ -452,7 +495,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_Quoted_RunRec()
     var
         Row: Record "LT Y89 Fq Row";
@@ -464,7 +508,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_Quoted_RunModal()
     var
         Row: Record "LT Y89 Fq Row";
@@ -476,7 +521,8 @@ codeunit 94736 "LT Y89 Fq Run Tests"
         Observer.Finish();
     end;
 
-    [Test]
+    // Windows BC 28.5 (writer Y89, 2026-11-03): this call ends in an uncatchable System.NullReferenceException (NavForm.Run*Async), the same on Windows as on Linux:
+    // not an assertable behavior, so this is not a [Test]. The runtime refuses it.
     procedure Y89_Fqn_Quoted_RunModalRec()
     var
         Row: Record "LT Y89 Fq Row";
