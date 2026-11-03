@@ -369,17 +369,31 @@ codeunit 94851 "LT Y91 Run Tests"
         Log: Codeunit "LT Y91 Run Log";
 
     [Test]
-    procedure Y91_Run_WithoutStream()
+    procedure Y91_Run_Both()
     begin
         Seed();
         Observer.Observe('both static', RunPort(94845, 1, false));
         Observer.Observe('both static import', RunPort(94845, 1, true));
         Observer.Observe('both instance', RunPort(94845, 2, false));
         Observer.Observe('both view', RunPort(94845, 3, false));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y91_Run_Export()
+    begin
+        Seed();
         Observer.Observe('export static', RunPort(94846, 1, false));
         Observer.Observe('export static import', RunPort(94846, 1, true));
         Observer.Observe('export instance', RunPort(94846, 2, false));
         Observer.Observe('export view', RunPort(94846, 3, false));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y91_Run_Import()
+    begin
+        Seed();
         Observer.Observe('import static', RunPort(94847, 1, false));
         Observer.Observe('import static import', RunPort(94847, 1, true));
         Observer.Observe('import instance', RunPort(94847, 2, false));
