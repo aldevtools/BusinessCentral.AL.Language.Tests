@@ -72,9 +72,10 @@ def repo(d, files):
 
 
 def run_diff(base, head, ren=None):
+    # in GitHub Actions the report lines start with ::error::; compare the report itself
     lines = []
     rc = facts.diff(base, head, ren, out=lines.append)
-    return rc, lines
+    return rc, [l[len('::error::'):] if l.startswith('::error::') else l for l in lines]
 
 
 with tempfile.TemporaryDirectory() as t:
