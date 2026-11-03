@@ -643,6 +643,8 @@ def write_readmes(root, out, files, part=None):
     for o, (n, _) in out.items():
         if files[o] is None and n != DELETE:
             final[n] = o
+    def read(n):
+        return open(os.path.join(root, n if os.path.exists(os.path.join(root, n)) else final[n]), encoding='utf-8-sig', errors='replace').read()
     # fixture names: objects defined under _fixtures
     fx = {}
     for n in final:
@@ -664,8 +666,6 @@ def write_readmes(root, out, files, part=None):
             mnc[f[1]].append(f[0])
     apps = sorted({app_of(n) for n in final if app_of(n) != 'tests/al-language'})
     written = []
-    def read(n):
-        return open(os.path.join(root, n if os.path.exists(os.path.join(root, n)) else final[n]), encoding='utf-8-sig', errors='replace').read()
     for area, scope in AREAS:
         if not in_part(f'tests/al-language/{area}/x', part):
             continue
