@@ -99,7 +99,7 @@ codeunit 95042 "LT BSS Probe"
         end;
     end;
 
-    local procedure MeasureCompressed(var Observer: Codeunit "Probe Observer"; Key: Text; Kind: Integer; N: Integer)
+    local procedure MeasureCompressed(var Observer: Codeunit "Probe Observer"; Tag: Text; Kind: Integer; N: Integer)
     var
         Rec: Record "LT BSS Compressed";
         Got: Record "LT BSS Compressed";
@@ -113,18 +113,18 @@ codeunit 95042 "LT BSS Probe"
             Rec.Data.CreateOutStream(OutS);
             WriteContent(OutS, Kind, N);
         end;
-        Observer.Observe('C-' + Key + '-written', Format(Rec.Data.Length()) + '|' + Format(Rec.Data.HasValue()));
+        Observer.Observe('C-' + Tag + '-written', Format(Rec.Data.Length()) + '|' + Format(Rec.Data.HasValue()));
         Rec.Insert();
-        Observer.Observe('C-' + Key + '-inserted', Format(Rec.Data.Length()) + '|' + Format(Rec.Data.HasValue()));
+        Observer.Observe('C-' + Tag + '-inserted', Format(Rec.Data.Length()) + '|' + Format(Rec.Data.HasValue()));
         Got.Get(1);
-        Observer.Observe('C-' + Key + '-get', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
+        Observer.Observe('C-' + Tag + '-get', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
         Got.CalcFields(Data);
-        Observer.Observe('C-' + Key + '-getcalc', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
+        Observer.Observe('C-' + Tag + '-getcalc', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
         Got2.SetRange(Id, 1);
         Got2.FindSet();
-        Observer.Observe('C-' + Key + '-findset', Format(Got2.Data.Length()) + '|' + Format(Got2.Data.HasValue()));
+        Observer.Observe('C-' + Tag + '-findset', Format(Got2.Data.Length()) + '|' + Format(Got2.Data.HasValue()));
         Got2.CalcFields(Data);
-        Observer.Observe('C-' + Key + '-findsetcalc', Format(Got2.Data.Length()) + '|' + Format(Got2.Data.HasValue()));
+        Observer.Observe('C-' + Tag + '-findsetcalc', Format(Got2.Data.Length()) + '|' + Format(Got2.Data.HasValue()));
         Clear(Rec);
         Clear(Got);
         Rec.Id := 2;
@@ -134,15 +134,15 @@ codeunit 95042 "LT BSS Probe"
             WriteContent(OutS, Kind, N);
         end;
         Rec.Modify();
-        Observer.Observe('C-' + Key + '-modified', Format(Rec.Data.Length()) + '|' + Format(Rec.Data.HasValue()));
+        Observer.Observe('C-' + Tag + '-modified', Format(Rec.Data.Length()) + '|' + Format(Rec.Data.HasValue()));
         Got.Get(2);
-        Observer.Observe('C-' + Key + '-modget', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
+        Observer.Observe('C-' + Tag + '-modget', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
         Got.CalcFields(Data);
-        Observer.Observe('C-' + Key + '-modgetcalc', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
+        Observer.Observe('C-' + Tag + '-modgetcalc', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
         Rec.DeleteAll();
     end;
 
-    local procedure MeasurePlain(var Observer: Codeunit "Probe Observer"; Key: Text; Kind: Integer; N: Integer)
+    local procedure MeasurePlain(var Observer: Codeunit "Probe Observer"; Tag: Text; Kind: Integer; N: Integer)
     var
         Rec: Record "LT BSS Plain";
         Got: Record "LT BSS Plain";
@@ -156,18 +156,18 @@ codeunit 95042 "LT BSS Probe"
             Rec.Data.CreateOutStream(OutS);
             WriteContent(OutS, Kind, N);
         end;
-        Observer.Observe('U-' + Key + '-written', Format(Rec.Data.Length()) + '|' + Format(Rec.Data.HasValue()));
+        Observer.Observe('U-' + Tag + '-written', Format(Rec.Data.Length()) + '|' + Format(Rec.Data.HasValue()));
         Rec.Insert();
-        Observer.Observe('U-' + Key + '-inserted', Format(Rec.Data.Length()) + '|' + Format(Rec.Data.HasValue()));
+        Observer.Observe('U-' + Tag + '-inserted', Format(Rec.Data.Length()) + '|' + Format(Rec.Data.HasValue()));
         Got.Get(1);
-        Observer.Observe('U-' + Key + '-get', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
+        Observer.Observe('U-' + Tag + '-get', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
         Got.CalcFields(Data);
-        Observer.Observe('U-' + Key + '-getcalc', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
+        Observer.Observe('U-' + Tag + '-getcalc', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
         Got2.SetRange(Id, 1);
         Got2.FindSet();
-        Observer.Observe('U-' + Key + '-findset', Format(Got2.Data.Length()) + '|' + Format(Got2.Data.HasValue()));
+        Observer.Observe('U-' + Tag + '-findset', Format(Got2.Data.Length()) + '|' + Format(Got2.Data.HasValue()));
         Got2.CalcFields(Data);
-        Observer.Observe('U-' + Key + '-findsetcalc', Format(Got2.Data.Length()) + '|' + Format(Got2.Data.HasValue()));
+        Observer.Observe('U-' + Tag + '-findsetcalc', Format(Got2.Data.Length()) + '|' + Format(Got2.Data.HasValue()));
         Clear(Rec);
         Clear(Got);
         Rec.Id := 2;
@@ -177,18 +177,18 @@ codeunit 95042 "LT BSS Probe"
             WriteContent(OutS, Kind, N);
         end;
         Rec.Modify();
-        Observer.Observe('U-' + Key + '-modified', Format(Rec.Data.Length()) + '|' + Format(Rec.Data.HasValue()));
+        Observer.Observe('U-' + Tag + '-modified', Format(Rec.Data.Length()) + '|' + Format(Rec.Data.HasValue()));
         Got.Get(2);
-        Observer.Observe('U-' + Key + '-modget', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
+        Observer.Observe('U-' + Tag + '-modget', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
         Got.CalcFields(Data);
-        Observer.Observe('U-' + Key + '-modgetcalc', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
+        Observer.Observe('U-' + Tag + '-modgetcalc', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
         Rec.DeleteAll();
     end;
 
-    local procedure Both(var Observer: Codeunit "Probe Observer"; Key: Text; Kind: Integer; N: Integer)
+    local procedure Both(var Observer: Codeunit "Probe Observer"; Tag: Text; Kind: Integer; N: Integer)
     begin
-        MeasureCompressed(Observer, Key, Kind, N);
-        MeasurePlain(Observer, Key, Kind, N);
+        MeasureCompressed(Observer, Tag, Kind, N);
+        MeasurePlain(Observer, Tag, Kind, N);
     end;
 
     [Test]
