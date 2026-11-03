@@ -3594,8 +3594,8 @@ tests/al-language/report/lt-y17-ext-settableview/Y17ExtSetTableViewObjects.al	te
 tests/al-language/report/lt-y17-ext-settableview/Y17ExtSetTableViewTests.al	tests/al-language/reports/ext-settableview/Y17ExtSetTableViewTests.al	map
 tests/al-language/report/lt-y17-layout-export/Y17LayR1.docx	tests/al-language/reports/layouts-saveas/Y17LayR1.docx	map
 tests/al-language/report/lt-y17-layout-export/Y17LayR1.rdl	tests/al-language/reports/layouts-saveas/Y17LayR1.rdl	map
-tests/al-language/report/lt-y17-layout-export/Y17LayR2.docx	tests/al-language/reports/layouts-saveas/Y17LayR2.docx	map
-tests/al-language/report/lt-y17-layout-export/Y17LayR2.rdl	tests/al-language/reports/layouts-saveas/Y17LayR2.rdl	map
+tests/al-language/report/lt-y17-layout-export/Y17LayR2.docx	tests/al-language/report/lt-y17-layout-export/Y17LayR2.docx	rule: a test asserts this path, it stays
+tests/al-language/report/lt-y17-layout-export/Y17LayR2.rdl	tests/al-language/report/lt-y17-layout-export/Y17LayR2.rdl	rule: a test asserts this path, it stays
 tests/al-language/report/lt-y17-layout-export/Y17LayR4.xlsx	tests/al-language/reports/layouts-saveas/Y17LayR4.xlsx	map
 tests/al-language/report/lt-y17-layout-export/Y17LayoutExportObjects.al	tests/al-language/reports/layouts-saveas/Y17LayoutExportObjects.al	map
 tests/al-language/report/lt-y17-layout-export/Y17LayoutExportTests.al	tests/al-language/reports/layouts-saveas/Y17LayoutExportTests.al	map

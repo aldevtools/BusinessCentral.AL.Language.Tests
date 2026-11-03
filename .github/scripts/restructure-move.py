@@ -417,7 +417,36 @@ def plan(root, refs=()):
             out[f] = (f'{base}/_fixtures/layouts/unreferenced/{name}' if name.lower().endswith(LAYOUT_EXT) else f'{base}/{name}',
                       'rule: non-AL file of a split folder, no AL file names it (candidate for removal)')
             review.append((f, out[f][0], out[f][1], 'LOW'))
+    # a file whose path a test asserts (a layout name read back from the metadata) stays where it is: moving it would change
+    # an observed value, and expected values are never edited in a move
+    pinned = asserted_paths(al_of_app, content)
+    for f in files:
+        if not f.endswith('.al') and (app_of(f), f[len(app_of(f)) + 1:].lower()) in pinned and out[f][0] != f:
+            out[f] = (f, 'rule: a test asserts this path, it stays')
+            review.append((f, f, out[f][1], ''))
     return out, review, files
+
+
+PROPERTY = re.compile(r'^(LayoutFile|RDLCLayout|WordLayout|ExcelLayout|Scripts|StyleSheets|Images|StartupScript|RecreateScript|RefreshScript)\s*=', re.I)
+
+
+def quoted_paths(src):
+    """(match, in a path property) for every quoted file path of an AL source."""
+    for m in QUOTED.finditer(src):
+        start = max(src.rfind(c, 0, m.start()) for c in ';{}') + 1
+        ctx = '\n'.join(line.split('//')[0] for line in src[start:m.start()].split('\n')).strip()
+        yield m, bool(PROPERTY.match(ctx))
+
+
+def asserted_paths(al_of_app, content):
+    keys = set()
+    for app, fs in al_of_app.items():
+        for g in fs:
+            for m, prop in quoted_paths(content(g)):
+                if not prop:
+                    s = m.group(1)
+                    keys.add((app, (s[2:] if s.startswith('./') else s).replace('\\', '/').lower()))
+    return keys
 
 
 def check_collisions(out):
@@ -481,6 +510,11 @@ def apply(root):
             old_dirs[(a, d)].add(os.path.dirname(n[len(app_of(n)) + 1:]))
     gone_dirs = {k for k in old_dirs if k not in kept_dirs}
     dir_moves = {k: next(iter(v)) for k, v in old_dirs.items() if len(v) == 1 and k in gone_dirs}
+    al_of_app = collections.defaultdict(list)
+    for g in files:
+        if g.endswith('.al') and files[g] is None:
+            al_of_app[app_of(g)].append(g)
+    pinned = asserted_paths(al_of_app, lambda g: open(os.path.join(root, g), encoding='utf-8-sig', errors='replace').read())
     edited = []
     for f in files:
         if not f.endswith('.al') or files[f] is not None:
@@ -494,20 +528,26 @@ def apply(root):
             s = m.group(1)
             dot = s.startswith('./')
             key = (app_of(f), (s[2:] if dot else s).replace('\\', '/').lower())
+            if key in pinned:
+                return m.group(0)
             if key in rel_moves:
                 return "'" + ('./' if dot else '') + rel_moves[key] + "'"
             # a layout the compiler generates (not committed) in a folder that moves: follow the folder, so the generated file
             # lands next to its report and no old folder comes back at build time
             d = os.path.dirname(key[1])
-            prop = re.search(r'(LayoutFile|RDLCLayout|WordLayout|ExcelLayout)\s*=\s*$', m.string[m.string.rfind('\n', 0, m.start()) + 1:m.start()], re.I)
-            if not d and prop and key[0] == 'tests/al-language':
+            if not d and key[0] == 'tests/al-language' and s.lower().endswith(LAYOUT_EXT):
                 # app-root layouts move to _fixtures/layouts, also the ones the compiler generates
                 return "'" + ('./' if dot else '') + '_fixtures/layouts/' + s.split('/')[-1] + "'"
             if d and (key[0], d) in gone_dirs and s.lower().endswith(LAYOUT_EXT):
                 nd = dir_moves.get((key[0], d)) or os.path.dirname(moves.get(f, f))[len(key[0]) + 1:]
                 return "'" + ('./' if dot else '') + nd + '/' + os.path.basename(s) + "'"
             return m.group(0)
-        new = QUOTED.sub(sub, src)
+        parts, last = [], 0
+        for m, prop in quoted_paths(src):
+            if prop:
+                parts += [src[last:m.start()], sub(m)]
+                last = m.end()
+        new = ''.join(parts) + src[last:]
         if new != src:
             open(p, 'w', encoding='utf-8-sig' if bom else 'utf-8', newline='').write(new)
             edited.append(f)
