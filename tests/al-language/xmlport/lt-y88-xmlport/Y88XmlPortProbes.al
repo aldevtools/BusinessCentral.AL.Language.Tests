@@ -222,7 +222,8 @@ codeunit 94701 "LT Y88 XmlPort Probes"
         else
             Observer.Observe('evaluate', ErrorShown());
         ClearLastError();
-        Observer.Finish();
+        Observer.Expect('evaluate', 'len=376 at=71 code=Evaluate:MetadataNotFound text=The value "Id: 1..9" can''t be evaluated into type TableFilter. {92}      The metadata object Table -1 was not found.{92}      The application might be incompatible with the current compiler. Please unpublish the application that contains the application object Table -1 and republish it. {92}      Or, run a technical upgrade of the application database with the ''Force'' flag set.{92}    ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -237,7 +238,8 @@ codeunit 94701 "LT Y88 XmlPort Probes"
         else
             Observer.Observe('evaluate', ErrorShown());
         ClearLastError();
-        Observer.Finish();
+        Observer.Expect('evaluate', 'len=387 at=82 code=Evaluate:MetadataNotFound text=The value "No Such Table: Id=1" can''t be evaluated into type TableFilter. {92}      The metadata object Table -1 was not found.{92}      The application might be incompatible with the current compiler. Please unpublish the application that contains the application object Table -1 and republish it. {92}      Or, run a technical upgrade of the application database with the ''Force'' flag set.{92}    ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -251,7 +253,8 @@ codeunit 94701 "LT Y88 XmlPort Probes"
         else
             Observer.Observe('import', ErrorShown());
         ClearLastError();
-        Observer.Finish();
+        Observer.Expect('import', 'len=376 at=71 code=Evaluate:MetadataNotFound text=The value "Id: 1..9" can''t be evaluated into type TableFilter. {92}      The metadata object Table -1 was not found.{92}      The application might be incompatible with the current compiler. Please unpublish the application that contains the application object Table -1 and republish it. {92}      Or, run a technical upgrade of the application database with the ''Force'' flag set.{92}    ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -284,6 +287,10 @@ codeunit 94701 "LT Y88 XmlPort Probes"
         D.SetDestination(OutS);
         D.Export();
         Observer.Observe('D default', Show(D.GetSeen()) + ' len=' + Format(StrLen(D.GetSeen())));
-        Observer.Finish();
+        Observer.Expect('A tab|none|crlf|lf', '{9}##{13}{10}#{10} len=7');
+        Observer.Expect('B cr|quote|newline|cr', '{13}#"#{13}{10}#{13} len=8');
+        Observer.Expect('C none', '### len=3');
+        Observer.Expect('D default', ',#"#{13}{10}#{13}{10}{13}{10} len=11');
+        Observer.Verify();
     end;
 }

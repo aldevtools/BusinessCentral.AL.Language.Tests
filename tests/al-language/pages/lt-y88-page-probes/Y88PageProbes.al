@@ -46,7 +46,9 @@ codeunit 94723 "LT Y88 Part Propagation"
         Observer.Observe('host total', TP.TotalF.Value());
         Observer.Observe('stored', Stored());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('host total', '5.00');
+        Observer.Expect('stored', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -63,7 +65,10 @@ codeunit 94723 "LT Y88 Part Propagation"
         Observer.Observe('host descr', TP.DescrF.Value());
         Observer.Observe('stored', Stored());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('host total', '5.00');
+        Observer.Expect('host descr', 'orig');
+        Observer.Expect('stored', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -79,7 +84,9 @@ codeunit 94723 "LT Y88 Part Propagation"
         Observer.Observe('host total', TP.TotalF.Value());
         Observer.Observe('stored', Stored());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('host total', '5.00');
+        Observer.Expect('stored', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -96,7 +103,10 @@ codeunit 94723 "LT Y88 Part Propagation"
         Observer.Observe('host descr', TP.DescrF.Value());
         Observer.Observe('stored', Stored());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('host total', '5.00');
+        Observer.Expect('host descr', 'orig');
+        Observer.Expect('stored', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -112,7 +122,9 @@ codeunit 94723 "LT Y88 Part Propagation"
         Observer.Observe('host total', TP.TotalF.Value());
         Observer.Observe('stored', Stored());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('host total', '5.00');
+        Observer.Expect('stored', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -129,7 +141,10 @@ codeunit 94723 "LT Y88 Part Propagation"
         Observer.Observe('host descr', TP.DescrF.Value());
         Observer.Observe('stored', Stored());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('host total', '5.00');
+        Observer.Expect('host descr', 'orig');
+        Observer.Expect('stored', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -145,7 +160,9 @@ codeunit 94723 "LT Y88 Part Propagation"
         Observer.Observe('host total', TP.TotalF.Value());
         Observer.Observe('stored', Stored());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('host total', '5.00');
+        Observer.Expect('stored', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -161,7 +178,9 @@ codeunit 94723 "LT Y88 Part Propagation"
         Observer.Observe('host total', TP.TotalF.Value());
         Observer.Observe('stored', Stored());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('host total', '7.00');
+        Observer.Expect('stored', '7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -177,7 +196,9 @@ codeunit 94723 "LT Y88 Part Propagation"
         Observer.Observe('host total', TP.TotalF.Value());
         Observer.Observe('stored', Stored());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('host total', '5.00');
+        Observer.Expect('stored', '5');
+        Observer.Verify();
     end;
 }
 
@@ -212,6 +233,13 @@ codeunit 94724 "LT Y88 Profile Probes"
         Observer.Observe('count enabled', Format(Profile.Count()));
         Profile.SetRange(Enabled, false);
         Observer.Observe('count disabled', Format(Profile.Count()));
-        Observer.Finish();
+        Observer.Expect('profile Enabled=false', 'count=1 enabled=No rc=94725 descr= default=No');
+        Observer.Expect('profile Enabled omitted', 'count=1 enabled=Yes rc=94725 descr= default=No');
+        Observer.Expect('profile false, extension true', 'count=1 enabled=Yes rc=94725 descr= default=No');
+        Observer.Expect('profile true, extension caption only', 'count=1 enabled=Yes rc=94725 descr= default=No');
+        Observer.Expect('count by role center', '4');
+        Observer.Expect('count enabled', '3');
+        Observer.Expect('count disabled', '1');
+        Observer.Verify();
     end;
 }

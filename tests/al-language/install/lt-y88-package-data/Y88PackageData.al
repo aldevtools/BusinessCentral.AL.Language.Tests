@@ -35,7 +35,10 @@ codeunit 94700 "LT Y88 Package Data"
         Observer.Observe('load', LogText('load', 'events'));
         Observer.Observe('events during load', LogText('event', ''));
         Observer.Observe('rows', Format(Row.Count()));
-        Observer.Finish();
+        Observer.Expect('load', 'events -> ok;');
+        Observer.Expect('events during load', '');
+        Observer.Expect('rows', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -59,7 +62,8 @@ codeunit 94700 "LT Y88 Package Data"
         Row.Get('A1');
         Row.Description := 'one';
         Row.Modify();
-        Observer.Finish();
+        Observer.Expect('events', 'before validate -> A1=changed;after validate -> A1=changed;before modify Yes -> A1=changed;before insert Yes -> A3=changed;after insert Yes -> A3=changed;');
+        Observer.Verify();
     end;
 
     local procedure DfmText(No: Code[20]): Text
@@ -72,14 +76,23 @@ codeunit 94700 "LT Y88 Package Data"
         exit(Format(Row.Dfm) + '|' + Format(Row.Dfm, 0, 1) + '|' + Format(Row.Dfm, 0, 2) + '|' + Format(Row.Dfm, 0, 9) + '|' + Format(Formula) + '|' + Format(Formula, 0, 1));
     end;
 
-    local procedure CalcText(No: Code[20]; Base: Date): Text
+    [TryFunction]
+    local procedure TryCalc(No: Code[20]; Base: Date; var Result: Date)
     var
         Row: Record "LT Y85 Pkg Types";
-        Result: Date;
     begin
         Row.Get(No);
         Result := CalcDate(Row.Dfm, Base);
-        exit(Format(Result, 0, 9));
+    end;
+
+    local procedure CalcText(No: Code[20]; Base: Date): Text
+    var
+        Result: Date;
+    begin
+        ClearLastError();
+        if TryCalc(No, Base, Result) then
+            exit(Format(Result, 0, 9));
+        exit('error ' + GetLastErrorCode() + ': ' + GetLastErrorText());
     end;
 
     [Test]
@@ -95,7 +108,12 @@ codeunit 94700 "LT Y88 Package Data"
         Observer.Observe('evaluated <CM+1D>', Format(Formula) + '|' + Format(Formula, 0, 1) + '|' + Format(Formula, 0, 2) + '|' + Format(Formula, 0, 9));
         Evaluate(Formula, '1D');
         Observer.Observe('evaluated 1D', Format(Formula) + '|' + Format(Formula, 0, 1) + '|' + Format(Formula, 0, 2) + '|' + Format(Formula, 0, 9));
-        Observer.Finish();
+        Observer.Expect('T1 loaded <CM+1D>', '<CM+1D>|<CM+1D>|<<CM+1D>>|<CM+1D>|<CM+1D>|<CM+1D>');
+        Observer.Expect('T2 loaded 1D', '1D|1D|<1D>|1D|1D|1D');
+        Observer.Expect('T3 loaded empty', '||<>|||');
+        Observer.Expect('evaluated <CM+1D>', 'CM+1D|CM+1D|<CM+1D>|CM+1D');
+        Observer.Expect('evaluated 1D', '1D|1D|<1D>|1D');
+        Observer.Verify();
     end;
 
     [Test]
@@ -143,7 +161,9 @@ codeunit 94700 "LT Y88 Package Data"
     begin
         Observer.Observe('load', LogText('load', 'option'));
         Observer.Observe('rows', OptionText());
-        Observer.Finish();
+        Observer.Expect('load', 'option -> ok;');
+        Observer.Expect('rows', 'R0=1/One/1;R1=7/7/7;R2=2/Two/2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -153,7 +173,9 @@ codeunit 94700 "LT Y88 Package Data"
     begin
         Observer.Observe('load', LogText('load', 'enum'));
         Observer.Observe('rows', EnumText());
-        Observer.Finish();
+        Observer.Expect('load', 'enum -> ok;');
+        Observer.Expect('rows', 'E0=5/Five/5;E1=9/9/9;E2=7/Seven Up/7;E3=-1/-1/-1;E4=0/Zero/0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -169,7 +191,9 @@ codeunit 94700 "LT Y88 Package Data"
                 T += High."No." + '=' + Format(High.Dat, 0, 9) + ';';
             until High.Next() = 0;
         Observer.Observe('high rows', T);
-        Observer.Finish();
+        Observer.Expect('high load', 'date high -> ok;');
+        Observer.Expect('high rows', 'D0=2025-06-01;D1=9999-12-31;D2=2025-06-02;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -186,6 +210,8 @@ codeunit 94700 "LT Y88 Package Data"
                 T += Tiny."No." + '=' + Format(Tiny.Dec, 0, 9) + ';';
             until Tiny.Next() = 0;
         Observer.Observe('tiny rows', T);
-        Observer.Finish();
+        Observer.Expect('tiny load', 'decimal tiny -> ok;');
+        Observer.Expect('tiny rows', 'C0=5;C1=0;C2=6;');
+        Observer.Verify();
     end;
 }
