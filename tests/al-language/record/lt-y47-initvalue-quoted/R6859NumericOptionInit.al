@@ -6,6 +6,9 @@
 //   with the ordinals; quoted and bare InitValue), 94902 (names with spaces, a blank member, upper and lower case) and 94903 (an enum whose
 //   names are numbers and whose ordinals differ from the names). Observed after Init(), on a fresh variable, after Insert + Get, through
 //   RecordRef.Init, after Validate of the default and on a new row of a Card TestPage. Each step runs in a TryFunction.
+// Result (Windows BC 27.5 and 28.5, same on every step): a quoted or bare InitValue that is a member's name picks the member NAMED so, never the
+//   ordinal ("100" is the member "100" at ordinal 9; with members "3","2","1","0" both "1" and bare 1 give the member "1" at ordinal 2). The match
+//   ignores case ("net 30" gives "Net 30"); " " gives the blank member. On an enum the same holds for names that are numbers.
 // BC versions: 27, 28, 29
 
 enum 94900 "LT R6859 Numbers"
@@ -235,7 +238,12 @@ codeunit 94900 "LT R6859 Numeric Init"
         ClearLastError();
         Value := '';
         Observer.Observe('validate', Step(TryValidateNumNames(Value), Value));
-        Observer.Finish();
+        Observer.Expect('init', 'ok 100/9;10/0;120/11;');
+        Observer.Expect('fresh', 'ok 100/9;10/0;120/11;');
+        Observer.Expect('insertGet', 'ok 100/9;10/0;120/11;');
+        Observer.Expect('refInit', 'ok 100/9;10/0;120/11;');
+        Observer.Expect('validate', 'ok 100/9;10/0;120/11;');
+        Observer.Verify();
     end;
 
 
@@ -313,7 +321,12 @@ codeunit 94900 "LT R6859 Numeric Init"
         ClearLastError();
         Value := '';
         Observer.Observe('validate', Step(TryValidateCollide(Value), Value));
-        Observer.Finish();
+        Observer.Expect('init', 'ok 1/2;1/2;0/3;2/1;');
+        Observer.Expect('fresh', 'ok 1/2;1/2;0/3;2/1;');
+        Observer.Expect('insertGet', 'ok 1/2;1/2;0/3;2/1;');
+        Observer.Expect('refInit', 'ok 1/2;1/2;0/3;2/1;');
+        Observer.Expect('validate', 'ok 1/2;1/2;0/3;2/1;');
+        Observer.Verify();
     end;
 
 
@@ -391,7 +404,12 @@ codeunit 94900 "LT R6859 Numeric Init"
         ClearLastError();
         Value := '';
         Observer.Observe('validate', Step(TryValidateSpaces(Value), Value));
-        Observer.Finish();
+        Observer.Expect('init', 'ok Net 60/2; /0;Due On Receipt/3;Net 30/1;');
+        Observer.Expect('fresh', 'ok Net 60/2; /0;Due On Receipt/3;Net 30/1;');
+        Observer.Expect('insertGet', 'ok Net 60/2; /0;Due On Receipt/3;Net 30/1;');
+        Observer.Expect('refInit', 'ok Net 60/2; /0;Due On Receipt/3;Net 30/1;');
+        Observer.Expect('validate', 'ok Net 60/2; /0;Due On Receipt/3;Net 30/1;');
+        Observer.Verify();
     end;
 
 
@@ -469,7 +487,12 @@ codeunit 94900 "LT R6859 Numeric Init"
         ClearLastError();
         Value := '';
         Observer.Observe('validate', Step(TryValidateNumEnum(Value), Value));
-        Observer.Finish();
+        Observer.Expect('init', 'ok 20/1;7/7;5/3;1/100;');
+        Observer.Expect('fresh', 'ok 20/1;7/7;5/3;1/100;');
+        Observer.Expect('insertGet', 'ok 20/1;7/7;5/3;1/100;');
+        Observer.Expect('refInit', 'ok 20/1;7/7;5/3;1/100;');
+        Observer.Expect('validate', 'ok 20/1;7/7;5/3;1/100;');
+        Observer.Verify();
     end;
 
 
@@ -486,6 +509,8 @@ codeunit 94900 "LT R6859 Numeric Init"
         Card2.OpenNew();
         Observer.Observe('collide', Card2.QuotedOne.Value + '|' + Card2.BareOne.Value + '|' + Card2.QuotedZero.Value + '|' + Card2.QuotedTwo.Value);
         Card2.Close();
-        Observer.Finish();
+        Observer.Expect('numNames', '100|10|120');
+        Observer.Expect('collide', '1|1|0|2');
+        Observer.Verify();
     end;
 }
