@@ -129,3 +129,51 @@ codeunit 94449 "LT Y85 Pkg Install"
             NavApp.LoadPackageData(Database::"LT Y85 Pkg Database");
     end;
 }
+
+// Writer Y88: loads the package data files of Y88XaPackageData.al. Every load runs in a TryFunction (a value the platform rejects must not fail the
+// install); the error of a failed load goes to the log table, `if Insert() then;` is the only write. A table is loaded only while it is empty.
+codeunit 94682 "LT Y88 Pkg Install"
+{
+    Subtype = Install;
+
+    local procedure LoadOne(TableId: Integer; Name: Text)
+    var
+        Log: Record "LT Y88 Pkg Log";
+        Ok: Boolean;
+    begin
+        Ok := TryLoad(TableId);
+        Log.Kind := 'load';
+        Log.Subject := CopyStr(Name, 1, 50);
+        if Ok then
+            Log.Detail := 'ok'
+        else
+            Log.Detail := CopyStr('error ' + GetLastErrorCode() + ': ' + GetLastErrorText(), 1, 250);
+        if Log.Insert() then;
+    end;
+
+    [TryFunction]
+    local procedure TryLoad(TableId: Integer)
+    begin
+        NavApp.LoadPackageData(TableId);
+    end;
+
+    trigger OnInstallAppPerCompany()
+    var
+        Events: Record "LT Y88 Pkg Events";
+        Opt: Record "LT Y88 Pkg Option";
+        Enm: Record "LT Y88 Pkg Enum Table";
+        DateHigh: Record "LT Y88 Pkg Date High";
+        DecTiny: Record "LT Y88 Pkg Dec Tiny";
+    begin
+        if Events.IsEmpty() then
+            LoadOne(Database::"LT Y88 Pkg Events", 'events');
+        if Opt.IsEmpty() then
+            LoadOne(Database::"LT Y88 Pkg Option", 'option');
+        if Enm.IsEmpty() then
+            LoadOne(Database::"LT Y88 Pkg Enum Table", 'enum');
+        if DateHigh.IsEmpty() then
+            LoadOne(Database::"LT Y88 Pkg Date High", 'date high');
+        if DecTiny.IsEmpty() then
+            LoadOne(Database::"LT Y88 Pkg Dec Tiny", 'decimal tiny');
+    end;
+}
