@@ -127,7 +127,13 @@ codeunit 94700 "LT Y88 Package Data"
         Observer.Observe('T2 from 2025-01-31', CalcText('T2', DMY2Date(31, 1, 2025)));
         Observer.Observe('T3 from 2025-01-15', CalcText('T3', DMY2Date(15, 1, 2025)));
         Observer.Observe('T3 from 0D', CalcText('T3', 0D));
-        Observer.Finish();
+        Observer.Expect('T1 from 2025-01-15', '2025-02-01');
+        Observer.Expect('T1 from 2025-01-31', '2025-02-01');
+        Observer.Expect('T2 from 2025-01-15', '2025-01-16');
+        Observer.Expect('T2 from 2025-01-31', '2025-02-01');
+        Observer.Expect('T3 from 2025-01-15', '2025-01-15');
+        Observer.Expect('T3 from 0D', 'error Argument: You cannot base a date calculation on an undefined date.\\Date: 0D\Formula: .');
+        Observer.Verify();
     end;
 
     local procedure OptionText(): Text
