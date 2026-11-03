@@ -145,4 +145,54 @@ codeunit 72829 "LT CodeCoverage Refresh"
         Observer.Expect('logging', 'No');
         Observer.Verify();
     end;
+
+    // Writer Y86 (al-runtime-rs assumption code-coverage-snapshot-while-logging): the table holds what the last CodeCoverageRefresh wrote while
+    // logging goes on; hits after the refresh show up only after the next CodeCoverageRefresh.
+    [Test]
+    procedure Y86_CodeCoverageRefresh_SnapshotWhileLogging()
+    var
+        Observer: Codeunit "Probe Observer";
+        Dummy: Integer;
+        I: Integer;
+        Hits1: Integer;
+        Hits2: Integer;
+        Hits3: Integer;
+        Hits4: Integer;
+        Rows1: Integer;
+        Rows2: Integer;
+        Rows3: Integer;
+    begin
+        Reset();
+        Observer.Observe('log on', Format(CodeCoverageLog(true, false)));
+        for I := 1 to 20 do
+            Dummy := Work(I);
+        CodeCoverageRefresh();
+        Hits1 := OwnHits();
+        Rows1 := RowCount();
+        for I := 1 to 50 do
+            Dummy := Work(I);
+        Hits2 := OwnHits();
+        Rows2 := RowCount();
+        CodeCoverageRefresh();
+        Hits3 := OwnHits();
+        Rows3 := RowCount();
+        for I := 1 to 50 do
+            Dummy := Work(I);
+        Hits4 := OwnHits();
+        Observer.Observe('first snapshot has hits', Format(Hits1 > 0));
+        Observer.Observe('later hits not visible before refresh', Format(Hits2 = Hits1));
+        Observer.Observe('rows unchanged before refresh', Format(Rows2 = Rows1));
+        Observer.Observe('second refresh sees the later hits', Format(Hits3 > Hits2));
+        Observer.Observe('rows not fewer after second refresh', Format(Rows3 >= Rows2));
+        Observer.Observe('hits after second snapshot not visible', Format(Hits4 = Hits3));
+        CodeCoverageLog(false, false);
+        Observer.Expect('log on', 'Yes');
+        Observer.Expect('first snapshot has hits', 'Yes');
+        Observer.Expect('later hits not visible before refresh', 'Yes');
+        Observer.Expect('rows unchanged before refresh', 'Yes');
+        Observer.Expect('second refresh sees the later hits', 'Yes');
+        Observer.Expect('rows not fewer after second refresh', 'Yes');
+        Observer.Expect('hits after second snapshot not visible', 'Yes');
+        Observer.Verify();
+    end;
 }
