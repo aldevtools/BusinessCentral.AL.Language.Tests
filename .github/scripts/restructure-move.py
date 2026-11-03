@@ -424,6 +424,15 @@ def apply(root):
             if app_of(o) != app_of(n):
                 sys.exit(f'non-AL file changes app: {o}')
             rel_moves[(app_of(o), o[len(app_of(o)) + 1:].lower())] = n[len(app_of(n)) + 1:]
+    old_dirs, kept_dirs = collections.defaultdict(set), set()
+    for o, (n, _) in out.items():
+        a, d = app_of(o), os.path.dirname(o[len(app_of(o)) + 1:]).lower()
+        if n == o:
+            kept_dirs.add((a, d))
+        elif n != DELETE:
+            old_dirs[(a, d)].add(os.path.dirname(n[len(app_of(n)) + 1:]))
+    gone_dirs = {k for k in old_dirs if k not in kept_dirs}
+    dir_moves = {k: next(iter(v)) for k, v in old_dirs.items() if len(v) == 1 and k in gone_dirs}
     edited = []
     for f in files:
         if not f.endswith('.al') or files[f] is not None:
@@ -439,6 +448,12 @@ def apply(root):
             key = (app_of(f), (s[2:] if dot else s).replace('\\', '/').lower())
             if key in rel_moves:
                 return "'" + ('./' if dot else '') + rel_moves[key] + "'"
+            # a layout the compiler generates (not committed) in a folder that moves: follow the folder, so the generated file
+            # lands next to its report and no old folder comes back at build time
+            d = os.path.dirname(key[1])
+            if d and (key[0], d) in gone_dirs and s.lower().endswith(LAYOUT_EXT):
+                nd = dir_moves.get((key[0], d)) or os.path.dirname(moves.get(f, f))[len(key[0]) + 1:]
+                return "'" + ('./' if dot else '') + nd + '/' + os.path.basename(s) + "'"
             return m.group(0)
         new = QUOTED.sub(sub, src)
         if new != src:
@@ -574,6 +589,7 @@ def cmd_check(root, base):
     txt = subprocess.run(['git', '-c', 'diff.renameLimit=20000', 'diff', '--cached', '-M100%', '--name-status', base],
                          cwd=root, capture_output=True, text=True, check=True).stdout
     kinds, bad = collections.Counter(), []
+    pm = read_map()
     for line in txt.splitlines():
         f = line.split('\t')
         k = f[0]
@@ -586,8 +602,8 @@ def cmd_check(root, base):
             kinds['build output removed'] += 1
         elif path.startswith('.github/restructure/') or path == '.github/scripts/restructure-move.py':
             kinds['restructure data'] += 1
-        elif k.startswith('R') and path in edits:
-            kinds['layout edit'] += 1
+        elif (k.startswith(('R', 'A', 'M')) and path in edits) or (k == 'D' and pm.get(path, ('',))[0] in edits):
+            kinds['layout edit (' + k[:1] + ')'] += 1
         else:
             bad.append(line)
     print(dict(kinds))
@@ -595,8 +611,10 @@ def cmd_check(root, base):
         print('UNEXPECTED\t' + b)
     if edits:
         # a layout edit may only change quoted paths
+        back = {n: o for o, (n, _) in read_map().items()}
         for path in sorted(edits):
-            d = subprocess.run(['git', '-c', 'diff.renameLimit=20000', 'diff', '--cached', '-M50%', '-U0', base, '--', path],
+            d = subprocess.run(['git', '-c', 'diff.renameLimit=20000', 'diff', '--cached', '-M50%', '-U0', base, '--',
+                                back.get(path, path), path],
                                cwd=root, capture_output=True, text=True).stdout
             for line in d.splitlines():
                 if line[:1] in '+-' and not line.startswith(('+++', '---')) and not QUOTED.search(line):
