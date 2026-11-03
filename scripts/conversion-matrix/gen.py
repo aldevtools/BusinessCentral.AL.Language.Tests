@@ -9,7 +9,7 @@ message. Warnings are recorded too (for example AL0603, the Integer-to-Enum warn
 
 usage: gen.py --al <AL command> --symbols <dir with System.app> [--runtime 18.0] [--out compile-matrix.csv] [--keep DIR]
 
-The matrix is the input for the run matrix (tests/al-language/types/lt-y31-conversion-matrix/): only accepted cells run.
+The matrix is the input for the run matrix (tests/al-language/types/operators-expressions/): only accepted cells run.
 """
 import argparse
 import csv

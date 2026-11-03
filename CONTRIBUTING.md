@@ -199,7 +199,7 @@ Some behavior only shows when code is spread over several apps: an extension of 
 
 CI publishes the fixture, A, D, B, C and then the main test app (D right after A, before B, on purpose) (`app_dirs` of every job in `ci.yml` that compiles `al-language`, and `$apps` in `nightly-windows.yml`). A change to one of these apps is a change to a dependency app, so the pull request gets a full run.
 
-**The ids, names and publishers are fixed on purpose.** The cross-app subscriber order probe (`tests/al-language/events/lt-bw-subscriber-order/`) needs every candidate rule to predict another order of the four apps A, B, C and the main app (M):
+**The ids, names and publishers are fixed on purpose.** The cross-app subscriber order probe (`tests/al-language/events/subscriber-order/`) needs every candidate rule to predict another order of the four apps A, B, C and the main app (M):
 
 | Rule | Order of the apps |
 |---|---|

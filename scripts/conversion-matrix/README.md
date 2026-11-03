@@ -30,7 +30,7 @@ The rejected cell kinds that no case covered before are must-not-compile cases 2
 
 ## Run matrix
 
-`gen_run.py` writes `tests/al-language/types/lt-y31-conversion-matrix/` from the accepted cells: boundary values per source (empty,
+`gen_run.py` writes `tests/al-language/types/operators-expressions/` from the accepted cells: boundary values per source (empty,
 too long for Text[10]/Code[10]/Text[3], lower case for Code, negative, zero, fractions, out of range for Byte, Char, Option and Enum
 ordinals), each operation in a `[TryFunction]`, so a cell gives the value (`Format`, `StrLen` for text, the ordinal for Char, Option and
 Enum, the `Is...` kinds of a Variant result) or the error text and code.
