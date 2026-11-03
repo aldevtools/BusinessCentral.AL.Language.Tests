@@ -2,7 +2,7 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own tables 95040 and 95041 and codeunit 95042 below
 // Probe: measured on Windows BC 27.5 and 28.5 (identical); every literal asserted below is what those produced. 29 by CI.
-// Question (al-runner issue 6896): is the stored size that Blob.Length gives before CalcFields positive for every non-empty content whenever HasValue is Yes. Answer: yes for every case measured. Stage names in the observations: w written (new content in the variable), i inserted, g Get, gc Get then CalcFields, fs FindSet, fsc FindSet then CalcFields, m Modify (content written to a row inserted empty), mg Get after that, mgc CalcFields after that; <length><y|n for HasValue>.
+// Question (al-runner issue 6896): is the stored size that Blob.Length gives before CalcFields positive for every non-empty content whenever HasValue is Yes. Answer: yes for every case measured. The exact stored size of a Compressed field is not asserted (Linux and BC 29 compress to other sizes than Windows 27/28); p in an observation means positive. A field with Compressed = false stores the content size on every host. Stage names in the observations: w written (new content in the variable), i inserted, g Get, gc Get then CalcFields, fs FindSet, fsc FindSet then CalcFields, m Modify (content written to a row inserted empty), mg Get after that, mgc CalcFields after that; <length><y|n for HasValue>.
 // Facts: Blob.Length and HasValue before CalcFields (after Insert, after Get, after FindSet, after Modify) and after CalcFields, for a Compressed = true and a Compressed = false Blob field, for contents of 1 byte to 5 MB (text, XML, random-looking binary, zero bytes, one repeated byte), an empty Blob and a Blob cleared with Clear and Modify
 // BC versions: 29 (27 and 28 by CI)
 
@@ -52,6 +52,17 @@ codeunit 95042 "LT BSS Probe"
         if Has then
             Mark := 'y';
         exit(Stage + '=' + Format(Size) + Mark + ';');
+    end;
+
+    // The same for a stored size of a Compressed field, which depends on the host's compression: only "positive" (p) or the number 0.
+    local procedure SnapPositive(Stage: Text; Size: Integer; Has: Boolean): Text
+    var
+        Shown: Text;
+    begin
+        Shown := Format(Size);
+        if Size > 0 then
+            Shown := 'p';
+        exit(Snap(Stage, 0, Has).Replace('=0', '=' + Shown));
     end;
 
     local procedure Xml(Target: Integer): Text
@@ -132,12 +143,12 @@ codeunit 95042 "LT BSS Probe"
         Rec.Insert();
         Line += Snap('i', Rec.Data.Length(), Rec.Data.HasValue());
         Got.Get(1);
-        Line += Snap('g', Got.Data.Length(), Got.Data.HasValue());
+        Line += SnapPositive('g', Got.Data.Length(), Got.Data.HasValue());
         Got.CalcFields(Data);
         Line += Snap('gc', Got.Data.Length(), Got.Data.HasValue());
         Got2.SetRange(Id, 1);
         Got2.FindSet();
-        Line += Snap('fs', Got2.Data.Length(), Got2.Data.HasValue());
+        Line += SnapPositive('fs', Got2.Data.Length(), Got2.Data.HasValue());
         Got2.CalcFields(Data);
         Line += Snap('fsc', Got2.Data.Length(), Got2.Data.HasValue());
         Clear(Rec);
@@ -151,7 +162,7 @@ codeunit 95042 "LT BSS Probe"
         Rec.Modify();
         Line += Snap('m', Rec.Data.Length(), Rec.Data.HasValue());
         Got.Get(2);
-        Line += Snap('mg', Got.Data.Length(), Got.Data.HasValue());
+        Line += SnapPositive('mg', Got.Data.Length(), Got.Data.HasValue());
         Got.CalcFields(Data);
         Line += Snap('mgc', Got.Data.Length(), Got.Data.HasValue());
         Observer.Observe('C-' + Tag, Line);
@@ -217,11 +228,11 @@ codeunit 95042 "LT BSS Probe"
         Both(Observer, 'text1', 1, 1);
         Both(Observer, 'text2', 1, 2);
         Both(Observer, 'text5', 1, 5);
-        Observer.Expect('C-text1', 'w=1y;i=1y;g=7y;gc=1y;fs=7y;fsc=1y;m=1y;mg=7y;mgc=1y;');
+        Observer.Expect('C-text1', 'w=1y;i=1y;g=py;gc=1y;fs=py;fsc=1y;m=1y;mg=py;mgc=1y;');
         Observer.Expect('U-text1', 'w=1y;i=1y;g=1y;gc=1y;fs=1y;fsc=1y;m=1y;mg=1y;mgc=1y;');
-        Observer.Expect('C-text2', 'w=2y;i=2y;g=8y;gc=2y;fs=8y;fsc=2y;m=2y;mg=8y;mgc=2y;');
+        Observer.Expect('C-text2', 'w=2y;i=2y;g=py;gc=2y;fs=py;fsc=2y;m=2y;mg=py;mgc=2y;');
         Observer.Expect('U-text2', 'w=2y;i=2y;g=2y;gc=2y;fs=2y;fsc=2y;m=2y;mg=2y;mgc=2y;');
-        Observer.Expect('C-text5', 'w=5y;i=5y;g=9y;gc=5y;fs=9y;fsc=5y;m=5y;mg=9y;mgc=5y;');
+        Observer.Expect('C-text5', 'w=5y;i=5y;g=py;gc=5y;fs=py;fsc=5y;m=5y;mg=py;mgc=5y;');
         Observer.Expect('U-text5', 'w=5y;i=5y;g=5y;gc=5y;fs=5y;fsc=5y;m=5y;mg=5y;mgc=5y;');
         Observer.Verify();
     end;
@@ -234,11 +245,11 @@ codeunit 95042 "LT BSS Probe"
         Both(Observer, 'text100', 1, 100);
         Both(Observer, 'text1000', 1, 1000);
         Both(Observer, 'text4000', 1, 4000);
-        Observer.Expect('C-text100', 'w=100y;i=100y;g=10y;gc=100y;fs=10y;fsc=100y;m=100y;mg=10y;mgc=100y;');
+        Observer.Expect('C-text100', 'w=100y;i=100y;g=py;gc=100y;fs=py;fsc=100y;m=100y;mg=py;mgc=100y;');
         Observer.Expect('U-text100', 'w=100y;i=100y;g=100y;gc=100y;fs=100y;fsc=100y;m=100y;mg=100y;mgc=100y;');
-        Observer.Expect('C-text1000', 'w=1000y;i=1000y;g=15y;gc=1000y;fs=15y;fsc=1000y;m=1000y;mg=15y;mgc=1000y;');
+        Observer.Expect('C-text1000', 'w=1000y;i=1000y;g=py;gc=1000y;fs=py;fsc=1000y;m=1000y;mg=py;mgc=1000y;');
         Observer.Expect('U-text1000', 'w=1000y;i=1000y;g=1000y;gc=1000y;fs=1000y;fsc=1000y;m=1000y;mg=1000y;mgc=1000y;');
-        Observer.Expect('C-text4000', 'w=4000y;i=4000y;g=25y;gc=4000y;fs=25y;fsc=4000y;m=4000y;mg=25y;mgc=4000y;');
+        Observer.Expect('C-text4000', 'w=4000y;i=4000y;g=py;gc=4000y;fs=py;fsc=4000y;m=4000y;mg=py;mgc=4000y;');
         Observer.Expect('U-text4000', 'w=4000y;i=4000y;g=4000y;gc=4000y;fs=4000y;fsc=4000y;m=4000y;mg=4000y;mgc=4000y;');
         Observer.Verify();
     end;
@@ -250,9 +261,9 @@ codeunit 95042 "LT BSS Probe"
     begin
         Both(Observer, 'xml600', 2, 600);
         Both(Observer, 'xml3800', 2, 3800);
-        Observer.Expect('C-xml600', 'w=615y;i=615y;g=134y;gc=615y;fs=134y;fsc=615y;m=615y;mg=134y;mgc=615y;');
+        Observer.Expect('C-xml600', 'w=615y;i=615y;g=py;gc=615y;fs=py;fsc=615y;m=615y;mg=py;mgc=615y;');
         Observer.Expect('U-xml600', 'w=615y;i=615y;g=615y;gc=615y;fs=615y;fsc=615y;m=615y;mg=615y;mgc=615y;');
-        Observer.Expect('C-xml3800', 'w=3807y;i=3807y;g=276y;gc=3807y;fs=276y;fsc=3807y;m=3807y;mg=276y;mgc=3807y;');
+        Observer.Expect('C-xml3800', 'w=3807y;i=3807y;g=py;gc=3807y;fs=py;fsc=3807y;m=3807y;mg=py;mgc=3807y;');
         Observer.Expect('U-xml3800', 'w=3807y;i=3807y;g=3807y;gc=3807y;fs=3807y;fsc=3807y;m=3807y;mg=3807y;mgc=3807y;');
         Observer.Verify();
     end;
@@ -266,13 +277,13 @@ codeunit 95042 "LT BSS Probe"
         Both(Observer, 'rand100000', 3, 100000);
         Both(Observer, 'zero1000', 4, 1000);
         Both(Observer, 'zero100000', 4, 100000);
-        Observer.Expect('C-rand1000', 'w=1000y;i=1000y;g=1009y;gc=1000y;fs=1009y;fsc=1000y;m=1000y;mg=1009y;mgc=1000y;');
+        Observer.Expect('C-rand1000', 'w=1000y;i=1000y;g=py;gc=1000y;fs=py;fsc=1000y;m=1000y;mg=py;mgc=1000y;');
         Observer.Expect('U-rand1000', 'w=1000y;i=1000y;g=1000y;gc=1000y;fs=1000y;fsc=1000y;m=1000y;mg=1000y;mgc=1000y;');
-        Observer.Expect('C-rand100000', 'w=100000y;i=100000y;g=100039y;gc=100000y;fs=100039y;fsc=100000y;m=100000y;mg=100039y;mgc=100000y;');
+        Observer.Expect('C-rand100000', 'w=100000y;i=100000y;g=py;gc=100000y;fs=py;fsc=100000y;m=100000y;mg=py;mgc=100000y;');
         Observer.Expect('U-rand100000', 'w=100000y;i=100000y;g=100000y;gc=100000y;fs=100000y;fsc=100000y;m=100000y;mg=100000y;mgc=100000y;');
-        Observer.Expect('C-zero1000', 'w=1000y;i=1000y;g=15y;gc=1000y;fs=15y;fsc=1000y;m=1000y;mg=15y;mgc=1000y;');
+        Observer.Expect('C-zero1000', 'w=1000y;i=1000y;g=py;gc=1000y;fs=py;fsc=1000y;m=1000y;mg=py;mgc=1000y;');
         Observer.Expect('U-zero1000', 'w=1000y;i=1000y;g=1000y;gc=1000y;fs=1000y;fsc=1000y;m=1000y;mg=1000y;mgc=1000y;');
-        Observer.Expect('C-zero100000', 'w=100000y;i=100000y;g=118y;gc=100000y;fs=118y;fsc=100000y;m=100000y;mg=118y;mgc=100000y;');
+        Observer.Expect('C-zero100000', 'w=100000y;i=100000y;g=py;gc=100000y;fs=py;fsc=100000y;m=100000y;mg=py;mgc=100000y;');
         Observer.Expect('U-zero100000', 'w=100000y;i=100000y;g=100000y;gc=100000y;fs=100000y;fsc=100000y;m=100000y;mg=100000y;mgc=100000y;');
         Observer.Verify();
     end;
@@ -284,9 +295,9 @@ codeunit 95042 "LT BSS Probe"
     begin
         Both(Observer, 'byte1000', 5, 1000);
         Both(Observer, 'byte100000', 5, 100000);
-        Observer.Expect('C-byte1000', 'w=1000y;i=1000y;g=15y;gc=1000y;fs=15y;fsc=1000y;m=1000y;mg=15y;mgc=1000y;');
+        Observer.Expect('C-byte1000', 'w=1000y;i=1000y;g=py;gc=1000y;fs=py;fsc=1000y;m=1000y;mg=py;mgc=1000y;');
         Observer.Expect('U-byte1000', 'w=1000y;i=1000y;g=1000y;gc=1000y;fs=1000y;fsc=1000y;m=1000y;mg=1000y;mgc=1000y;');
-        Observer.Expect('C-byte100000', 'w=100000y;i=100000y;g=118y;gc=100000y;fs=118y;fsc=100000y;m=100000y;mg=118y;mgc=100000y;');
+        Observer.Expect('C-byte100000', 'w=100000y;i=100000y;g=py;gc=100000y;fs=py;fsc=100000y;m=100000y;mg=py;mgc=100000y;');
         Observer.Expect('U-byte100000', 'w=100000y;i=100000y;g=100000y;gc=100000y;fs=100000y;fsc=100000y;m=100000y;mg=100000y;mgc=100000y;');
         Observer.Verify();
     end;
@@ -298,9 +309,9 @@ codeunit 95042 "LT BSS Probe"
     begin
         Both(Observer, 'rtext1000', 6, 1000);
         Both(Observer, 'rtext100000', 6, 100000);
-        Observer.Expect('C-rtext1000', 'w=1000y;i=1000y;g=626y;gc=1000y;fs=626y;fsc=1000y;m=1000y;mg=626y;mgc=1000y;');
+        Observer.Expect('C-rtext1000', 'w=1000y;i=1000y;g=py;gc=1000y;fs=py;fsc=1000y;m=1000y;mg=py;mgc=1000y;');
         Observer.Expect('U-rtext1000', 'w=1000y;i=1000y;g=1000y;gc=1000y;fs=1000y;fsc=1000y;m=1000y;mg=1000y;mgc=1000y;');
-        Observer.Expect('C-rtext100000', 'w=100000y;i=100000y;g=64866y;gc=100000y;fs=64866y;fsc=100000y;m=100000y;mg=64866y;mgc=100000y;');
+        Observer.Expect('C-rtext100000', 'w=100000y;i=100000y;g=py;gc=100000y;fs=py;fsc=100000y;m=100000y;mg=py;mgc=100000y;');
         Observer.Expect('U-rtext100000', 'w=100000y;i=100000y;g=100000y;gc=100000y;fs=100000y;fsc=100000y;m=100000y;mg=100000y;mgc=100000y;');
         Observer.Verify();
     end;
@@ -314,13 +325,13 @@ codeunit 95042 "LT BSS Probe"
         Both(Observer, 'rand1m', 3, 1048576);
         Both(Observer, 'zero1m', 4, 1048576);
         Both(Observer, 'rtext1m', 6, 1048576);
-        Observer.Expect('C-text1m', 'w=1048576y;i=1048576y;g=1037y;gc=1048576y;fs=1037y;fsc=1048576y;m=1048576y;mg=1037y;mgc=1048576y;');
+        Observer.Expect('C-text1m', 'w=1048576y;i=1048576y;g=py;gc=1048576y;fs=py;fsc=1048576y;m=1048576y;mg=py;mgc=1048576y;');
         Observer.Expect('U-text1m', 'w=1048576y;i=1048576y;g=1048576y;gc=1048576y;fs=1048576y;fsc=1048576y;m=1048576y;mg=1048576y;mgc=1048576y;');
-        Observer.Expect('C-rand1m', 'w=1048576y;i=1048576y;g=1048900y;gc=1048576y;fs=1048900y;fsc=1048576y;m=1048576y;mg=1048900y;mgc=1048576y;');
+        Observer.Expect('C-rand1m', 'w=1048576y;i=1048576y;g=py;gc=1048576y;fs=py;fsc=1048576y;m=1048576y;mg=py;mgc=1048576y;');
         Observer.Expect('U-rand1m', 'w=1048576y;i=1048576y;g=1048576y;gc=1048576y;fs=1048576y;fsc=1048576y;m=1048576y;mg=1048576y;mgc=1048576y;');
-        Observer.Expect('C-zero1m', 'w=1048576y;i=1048576y;g=1037y;gc=1048576y;fs=1037y;fsc=1048576y;m=1048576y;mg=1037y;mgc=1048576y;');
+        Observer.Expect('C-zero1m', 'w=1048576y;i=1048576y;g=py;gc=1048576y;fs=py;fsc=1048576y;m=1048576y;mg=py;mgc=1048576y;');
         Observer.Expect('U-zero1m', 'w=1048576y;i=1048576y;g=1048576y;gc=1048576y;fs=1048576y;fsc=1048576y;m=1048576y;mg=1048576y;mgc=1048576y;');
-        Observer.Expect('C-rtext1m', 'w=1048576y;i=1048576y;g=678699y;gc=1048576y;fs=678699y;fsc=1048576y;m=1048576y;mg=678699y;mgc=1048576y;');
+        Observer.Expect('C-rtext1m', 'w=1048576y;i=1048576y;g=py;gc=1048576y;fs=py;fsc=1048576y;m=1048576y;mg=py;mgc=1048576y;');
         Observer.Expect('U-rtext1m', 'w=1048576y;i=1048576y;g=1048576y;gc=1048576y;fs=1048576y;fsc=1048576y;m=1048576y;mg=1048576y;mgc=1048576y;');
         Observer.Verify();
     end;
@@ -332,9 +343,9 @@ codeunit 95042 "LT BSS Probe"
     begin
         Both(Observer, 'text5m', 1, 5242880);
         Both(Observer, 'rand5m', 3, 5242880);
-        Observer.Expect('C-text5m', 'w=5242880y;i=5242880y;g=5114y;gc=5242880y;fs=5114y;fsc=5242880y;m=5242880y;mg=5114y;mgc=5242880y;');
+        Observer.Expect('C-text5m', 'w=5242880y;i=5242880y;g=py;gc=5242880y;fs=py;fsc=5242880y;m=5242880y;mg=py;mgc=5242880y;');
         Observer.Expect('U-text5m', 'w=5242880y;i=5242880y;g=5242880y;gc=5242880y;fs=5242880y;fsc=5242880y;m=5242880y;mg=5242880y;mgc=5242880y;');
-        Observer.Expect('C-rand5m', 'w=5242880y;i=5242880y;g=5244484y;gc=5242880y;fs=5244484y;fsc=5242880y;m=5242880y;mg=5244484y;mgc=5242880y;');
+        Observer.Expect('C-rand5m', 'w=5242880y;i=5242880y;g=py;gc=5242880y;fs=py;fsc=5242880y;m=5242880y;mg=py;mgc=5242880y;');
         Observer.Expect('U-rand5m', 'w=5242880y;i=5242880y;g=5242880y;gc=5242880y;fs=5242880y;fsc=5242880y;m=5242880y;mg=5242880y;mgc=5242880y;');
         Observer.Verify();
     end;
@@ -367,7 +378,7 @@ codeunit 95042 "LT BSS Probe"
         RecC.Insert();
         Clear(GotC);
         GotC.Get(2);
-        Observer.Observe('C-before-clear-get', Format(GotC.Data.Length()) + '|' + Format(GotC.Data.HasValue()));
+        Observer.Observe('C-before-clear-get', Format(GotC.Data.Length() > 0) + '|' + Format(GotC.Data.HasValue()));
         Clear(GotC.Data);
         Observer.Observe('C-cleared-var', Format(GotC.Data.Length()) + '|' + Format(GotC.Data.HasValue()));
         GotC.Modify();
@@ -397,7 +408,7 @@ codeunit 95042 "LT BSS Probe"
         RecU.DeleteAll();
         Observer.Expect('C-empty-get', '0|No');
         Observer.Expect('U-empty-get', '0|No');
-        Observer.Expect('C-before-clear-get', '10|Yes');
+        Observer.Expect('C-before-clear-get', 'Yes|Yes');
         Observer.Expect('C-cleared-var', '0|No');
         Observer.Expect('C-cleared-modified', '0|No');
         Observer.Expect('C-cleared-get', '0|No');
