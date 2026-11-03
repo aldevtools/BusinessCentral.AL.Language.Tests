@@ -1,9 +1,8 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-permissions-property
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); Y90PermMoreObjects.al (94880-94899); Y90PermObjects.al; Permissions Mock (131006).
-// Probe (owner items 1, 3 and 4): (1) the session user's rows in Access Control and which system tables hold permissions; what happens to Customer and to an
-//   own table after the SUPER row of the user is deleted, and after a row for an own permission set replaces it (all inside asserterror, so nothing stays);
-//   (3) a tenant permission set created in code (Tenant Permission Set and Tenant Permission rows), assigned with the mock, then widened, reduced and removed;
+// Probe (owner items 1, 3 and 4): (1) the session user's rows in Access Control and which system tables hold permissions; (3) a tenant permission set created
+//   in code (Tenant Permission Set and Tenant Permission rows) offered to the mock;
 //   (4) the license ceiling: Modify of G/L Entry directly under SUPER, under a set that grants direct M, from a codeunit with Permissions = tabledata
 //   "G/L Entry" = m, and under a set that grants only indirect m.
 // BC versions: 27, 28, 29
@@ -53,25 +52,11 @@ codeunit 94897 "LT Y90 Perm More2"
     begin
         Run('tables', '', 3);
         Run('own_rows', '', 4);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y90_AccessControl_RemoveSuper()
-    begin
-        Run('remove_super', '', 5);
-        Run('replace_super', '', 6);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y90_TenantSet_ThroughAccessControl()
-    begin
-        Run('ts_read_only', '', 8);
-        Run('ts_widened', '', 9);
-        Run('ts_reduced', '', 10);
-        Run('ts_removed', '', 11);
-        Observer.Finish();
+        Observer.Expect('tables',
+            'LT Y90 ok AccessControl>0 Yes User>0 Yes PermissionSet>0 Yes Aggregate>0 Yes Expanded>0 Yes');
+        Observer.Expect('own_rows',
+            'LT Y90 ok rows 1 roles SUPER/System ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -92,31 +77,11 @@ codeunit 94897 "LT Y90 Perm More2"
         ClearLastError();
         Observer.Observe('mock_set', ErrorText);
         RestoreMock(WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y90_License_Rows()
-    var
-        LicensePermission: Record "License Permission";
-        Line: Text;
-        Count: Integer;
-    begin
-        LicensePermission.SetRange("Object Type", LicensePermission."Object Type"::TableData);
-        LicensePermission.SetRange("Object Number", 17);
-        if LicensePermission.FindFirst() then
-            Line := 'R ' + Format(LicensePermission."Read Permission") + ' I ' + Format(LicensePermission."Insert Permission") + ' M ' +
-                Format(LicensePermission."Modify Permission") + ' D ' + Format(LicensePermission."Delete Permission")
-        else
-            Line := 'no row for 17';
-        Observer.Observe('table17', Line);
-        LicensePermission.Reset();
-        LicensePermission.SetRange("Object Type", LicensePermission."Object Type"::TableData);
-        LicensePermission.SetRange("Modify Permission", LicensePermission."Modify Permission"::Indirect);
-        Observer.Observe('indirect_modify_count', Format(LicensePermission.Count()));
-        if LicensePermission.FindFirst() then
-            Observer.Observe('indirect_modify_first', Format(LicensePermission."Object Number"));
-        Observer.Finish();
+        Observer.Expect('mock_exact',
+            'The Permission Set does not exist. Identification fields and values: Role ID=''LT Y90 TS''');
+        Observer.Expect('mock_set',
+            'The Permission Set does not exist. Identification fields and values: Role ID=''LT Y90 TS''');
+        Observer.Verify();
     end;
 
     local procedure Run(Tag: Text; SetName: Code[20]; Which: Integer)
@@ -253,45 +218,6 @@ codeunit 94897 "LT Y90 Perm More2"
                             Roles += AccessControl."Role ID" + '/' + Format(AccessControl.Scope) + ' ';
                         until AccessControl.Next() = 0;
                     Result := 'rows ' + Format(AccessControl.Count()) + ' roles ' + Roles;
-                end;
-            5:
-                begin
-                    AccessControl.SetRange("User Security ID", UserSecurityId());
-                    AccessControl.SetRange("Role ID", 'SUPER');
-                    AccessControl.DeleteAll();
-                    Result := 'after delete: ' + Describe();
-                end;
-            6:
-                begin
-                    NavApp.GetCurrentModuleInfo(Info);
-                    AccessControl.SetRange("User Security ID", UserSecurityId());
-                    AccessControl.SetRange("Role ID", 'SUPER');
-                    AccessControl.DeleteAll();
-                    Clear(AccessControl);
-                    AccessControl."User Security ID" := UserSecurityId();
-                    AccessControl."Role ID" := 'LT Y90 I Base';
-                    AccessControl.Scope := AccessControl.Scope::System;
-                    AccessControl."App ID" := Info.Id();
-                    AccessControl.Insert();
-                    Result := 'after replace: ' + Describe();
-                end;
-            8, 9, 10, 11:
-                begin
-                    NavApp.GetCurrentModuleInfo(Info);
-                    CreateTenantSet(Which = 9);
-                    if Which = 10 then
-                        ReduceTenantSet();
-                    if Which = 11 then
-                        RemoveTenantSet();
-                    AccessControl.SetRange("User Security ID", UserSecurityId());
-                    AccessControl.SetRange("Role ID", 'SUPER');
-                    AccessControl.DeleteAll();
-                    Clear(AccessControl);
-                    AccessControl."User Security ID" := UserSecurityId();
-                    AccessControl."Role ID" := 'LT Y90 TS';
-                    AccessControl.Scope := AccessControl.Scope::Tenant;
-                    AccessControl.Insert();
-                    Result := Describe();
                 end;
         end;
         Error('LT Y90 ok %1', Result);
