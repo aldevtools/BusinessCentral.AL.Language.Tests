@@ -17,16 +17,36 @@ codeunit 94809 "LT Y90 Perm Parts"
         Mock: Codeunit "Permissions Mock";
 
     [Test]
-    procedure Y90_Part_Exact()
+    procedure Y90_Part_ExactA()
     var
         WasStarted: Boolean;
     begin
         WasStarted := StartMock();
         Run('a_parent_only', 'LT Y90 P Pages', 1, true);
         Run('a_cu_star', 'LT Y90 P PagesCuStar', 1, true);
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y90_Part_ExactB()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
         Run('b_part_granted', 'LT Y90 P Parts', 2, true);
         Run('b_system_star', 'LT Y90 P Parts2', 2, true);
         Run('b_cu_star', 'LT Y90 P Parts3', 2, true);
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y90_Part_ExactC()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
         Run('c_page_star', 'LT Y90 P PagesStar', 3, true);
         Run('c_star_star', 'LT Y90 P StarStar', 3, true);
         RestoreMock(WasStarted);
@@ -63,8 +83,7 @@ codeunit 94809 "LT Y90 Perm Parts"
         ErrorCode := GetLastErrorCode();
         Mock.ClearAssignments();
         ClearLastError();
-        Observer.Observe(Tag + '|text', ErrorText);
-        Observer.Observe(Tag + '|code', ErrorCode);
+        Observer.Observe(Tag, ErrorText + ' | ' + ErrorCode);
     end;
 
     local procedure Op(Which: Integer)

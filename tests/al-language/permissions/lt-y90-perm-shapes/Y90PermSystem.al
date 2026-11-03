@@ -173,7 +173,10 @@ codeunit 94810 "LT Y90 Perm System"
         ErrorCode := GetLastErrorCode();
         Mock.ClearAssignments();
         ClearLastError();
-        Observer.Observe(Tag + '|' + Format(Which), ErrorText + ' | ' + ErrorCode);
+        if ErrorText.StartsWith('LT Y90 ok ') then
+            Observer.Observe(Tag + '|' + Format(Which), CopyStr(ErrorText, 11))
+        else
+            Observer.Observe(Tag + '|' + Format(Which), ErrorText + ' | ' + ErrorCode);
     end;
 
     local procedure Op(Which: Integer)

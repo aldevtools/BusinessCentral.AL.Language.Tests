@@ -17,7 +17,7 @@ codeunit 94807 "LT Y90 Perm ActionRef"
         Mock: Codeunit "Permissions Mock";
 
     [Test]
-    procedure Y90_ActionRef_Sets()
+    procedure Y90_ActionRef_NoSetAndNone()
     var
         WasStarted: Boolean;
     begin
@@ -26,9 +26,29 @@ codeunit 94807 "LT Y90 Perm ActionRef"
         ObserveOne('noset');
         ObserveExact('LT Y90 A None', 'none');
         ObserveExact('LT Y90 A R', 'r');
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y90_ActionRef_RimdIndirectCodeunit()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
         ObserveExact('LT Y90 A RIMD', 'rimd');
         ObserveExact('LT Y90 A Ind R', 'indr');
         ObserveExact('LT Y90 A Cu', 'cu');
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y90_ActionRef_NotExact()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
         Mock.Set('LT Y90 A None');
         ObserveOne('set none');
         Mock.Set('LT Y90 A R');

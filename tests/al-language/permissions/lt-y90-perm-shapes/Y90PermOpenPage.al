@@ -18,7 +18,7 @@ codeunit 94808 "LT Y90 Perm OpenPage"
         Mock: Codeunit "Permissions Mock";
 
     [Test]
-    procedure Y90_Open_Exact()
+    procedure Y90_Open_CaptionAndGrants()
     var
         WasStarted: Boolean;
     begin
@@ -27,9 +27,29 @@ codeunit 94808 "LT Y90 Perm OpenPage"
         Run('pages_cu_star', 'LT Y90 P PagesCuStar', 2, true);
         Run('pages_star', 'LT Y90 P PagesStar', 3, true);
         Run('star_star', 'LT Y90 P StarStar', 4, true);
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y90_Open_CodeunitStarSystemStarSet()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
         Run('cu_star_only', 'LT Y90 P CuStar', 5, true);
         Run('exact_sys_star', 'LT Y90 P PagesSys', 6, true);
         Run('set_not_exact', 'LT Y90 P Pages', 6, false);
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y90_Open_TriggerKinds()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
         Run('on_init', 'LT Y90 P Pages', 7, true);
         Run('after_get_record', 'LT Y90 P Pages', 8, true);
         Run('codeunit_run', 'LT Y90 P Pages', 9, true);
@@ -56,8 +76,7 @@ codeunit 94808 "LT Y90 Perm OpenPage"
         ErrorCode := GetLastErrorCode();
         Mock.ClearAssignments();
         ClearLastError();
-        Observer.Observe(Tag + '|text', ErrorText);
-        Observer.Observe(Tag + '|code', ErrorCode);
+        Observer.Observe(Tag, ErrorText + ' | ' + ErrorCode);
     end;
 
     local procedure Op(Which: Integer)
