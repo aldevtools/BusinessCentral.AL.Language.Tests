@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-rename-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); self-contained objects 94970-94973
+// Fixtures used: Probe Observer (codeunit 69160); self-contained objects 94970-94972
 // Probe (al-runner issue 6863, follow-up to 5517): the order of the checks in Rename on a table whose primary key is an AutoIncrement field
 //   and that has an OnRename trigger. Pinned elsewhere: without a trigger, Rename of the AutoIncrement key raises the AutoIncrement error
 //   (record/TestAutoIncrementExplicitKey.al:211). Not pinned: with a trigger, which of the two runs and raises first (the trigger has a
@@ -80,25 +80,6 @@ codeunit 94971 "LT R6863 Cfg"
     procedure Describe(): Text
     begin
         exit(StrSubstNo('hits=%1 rec=%2 xrec=%3', Hits, LastRec, LastXRec));
-    end;
-}
-
-codeunit 94973 "LT R6863 Do Rename"
-{
-    TableNo = "LT R6863 Work";
-
-    trigger OnRun()
-    var
-        Cfg: Codeunit "LT R6863 Cfg";
-        Ref: RecordRef;
-        NewId: Integer;
-    begin
-        if Cfg.NextRename(NewId) then begin
-            Ref.GetTable(Rec);
-            Ref.Rename(NewId);
-            Ref.SetTable(Rec);
-        end else
-            Rec.Rename(NewId);
     end;
 }
 
@@ -313,13 +294,24 @@ codeunit 94972 "LT R6863 Rename Tests"
         Observer.Observe(Label + ' rec.ID', Format(T.ID));
     end;
 
+    // True when the Rename ended without an error; an error text left behind is read with ObserveError.
     local procedure RunRename(var W: Record "LT R6863 Work"; NewId: Integer; UseRef: Boolean): Boolean
     var
-        Cfg: Codeunit "LT R6863 Cfg";
-        DoRename: Codeunit "LT R6863 Do Rename";
+        Ref: RecordRef;
     begin
-        Cfg.SetNext(NewId, UseRef);
-        exit(DoRename.Run(W));
+        if UseRef then begin
+            Ref.GetTable(W);
+            asserterror begin
+                Ref.Rename(NewId);
+                Error('LT R6863 no error');
+            end;
+            Ref.SetTable(W);
+        end else
+            asserterror begin
+                W.Rename(NewId);
+                Error('LT R6863 no error');
+            end;
+        exit(GetLastErrorText() = 'LT R6863 no error');
     end;
 
     local procedure Describe(): Text
