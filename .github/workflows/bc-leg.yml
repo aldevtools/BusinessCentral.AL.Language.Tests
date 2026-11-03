@@ -50,15 +50,16 @@ jobs:
       fail-fast: false
       matrix:
         shard: ${{ fromJson(inputs.shards != 'null' && inputs.shards || format('[{{"n":"1 of 1","range":"{0}"}}]', inputs.codeunit_range)) }}
-    # Workflow and scripts pinned for corpus bump 63 to bc-linux 65f6b26: a write into a missing folder fails with
+    # Workflow and scripts pinned for corpus bump 64 to bc-linux 5bd6cab: the publish limit is 1200 s and the publish_timeout
+    # input sets it (#210), DateFormula OR filters and the fr-CH separator match Windows (#211). Bump 63 pin 65f6b26 before: a write into a missing folder fails with
     # InvalidPath as on Windows (#189). Bump 62 pin 84291ff before: fr-FR group separator U+00A0 on BC 27/28 as on
     # Windows (#174); DotNet System.IO sees the files AL File wrote under the user folder and returns paths with '\'
     # (#175, #181); MediaSet.ImportFile stores the bare file name (#176); Directory/DirectoryInfo listings match patterns
     # case-insensitively and list in name order (#183). Earlier: #165, #166, #167. The runner images in ci.yml carry
     # the same commit; move both together.
-    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@65f6b26bbc5041a567790812773522accfae5473
+    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@5bd6cab2b87d252d0042e5d0a8e199b90c0ee46a
     with:
-      bc_linux_ref:           "65f6b26bbc5041a567790812773522accfae5473"
+      bc_linux_ref:           "5bd6cab2b87d252d0042e5d0a8e199b90c0ee46a"
       runner_image:           ${{ inputs.runner_image }}
       bc_version:             ${{ inputs.bc_version }}
       bc_country:             ${{ inputs.bc_country }}
