@@ -161,20 +161,59 @@ Never delete individual records by hand inside a test.
 
 ### Fixture objects
 
-Use only the shared fixture objects from `_fixtures/`. Do not define
-per-test tables, enums, pages, or codeunits.
+Use the shared fixture objects from `_fixtures/`. A test file defines its
+own object only for a reason of standing rule 2 below, and says so in one
+line: `// local object: <reason>`.
 
 | Object | When to use |
 |---|---|
-| ALT Universal (50900) | Any test involving primitive field types |
-| ALT Composite (50901) | Multi-field PK, composite filter, Rename |
-| ALT Triggered (50902) | Trigger verification (OnInsert/Modify/Delete/Rename) |
-| ALT Trigger Log (50903) | Assert which triggers fired |
-| ALT Parent / ALT Child (50904/50905) | FlowFields, Sum/Count/Lookup |
-| ALT Keyed (50906) | SetCurrentKey, secondary key ordering |
-| ALT Blob (50908) | InStream/OutStream, Blob.HasValue |
-| IALTCompute / ALTDouble / ALTSquare | Interface injection, codeunit-as-variable |
-| ALT Event Publisher (50910) | Published events, bind/unbind |
+| ALT Universal (60000) | Any test involving primitive field types |
+| ALT Composite (60001) | Multi-field PK, composite filter, Rename |
+| ALT Triggered (60002) | Trigger verification (OnInsert/Modify/Delete/Rename) |
+| ALT Trigger Log (60003) | Assert which triggers fired |
+| ALT Parent / ALT Child (60004/60005) | FlowFields, Sum/Count/Lookup |
+| ALT Keyed (60006) | SetCurrentKey, secondary key ordering |
+| ALT Blob (60008) | InStream/OutStream, Blob.HasValue |
+| IALTCompute / ALTDouble (60011) / ALTSquare (60012) | Interface injection, codeunit-as-variable |
+| ALT Event Publisher (60014) | Published events, bind/unbind |
+
+### Standing rules for new tests (accepted 2026-11-03)
+
+The full text is in CONTRIBUTING.md, "Standing rules for new tests". In short:
+
+1. **Placement.** `tests/<app>/<area>/<topic>/File.al`, with the 30 areas
+   listed in CONTRIBUTING.md. A new topic gets a line in the area README.
+   No writer id, issue number or batch name in a folder name: no new
+   `lt-<writer>-...`, `probes-needed-N`, `ms-refusals-N`, `triage` folders.
+2. **Fixture first.** A local object only when its own definition is under
+   test, the test asserts its name, id, caption or field names, the test must
+   commit, run in another session or install, or it enumerates fields or
+   keys. The file says so: `// local object: <reason>`.
+3. **Object budget.** At most 3 non-test objects per new test codeunit without
+   that line (enforced by an object budget check in CI, added in a later
+   restructure pull request). Shared fixtures never change once merged; add a
+   new one in 50000..50999.
+4. **Look for a duplicate first** with `find-similar.py <draft>` (added in a
+   later restructure pull request; until then search the corpus by hand). On a
+   hit, cite the existing test and write nothing.
+5. **Extend at the end.** Add `[Test]` procedures to the topic's existing
+   codeunit (claims as today), at the end of the codeunit. Never insert lines
+   above existing code in a line-sensitive file (listed in the area README).
+6. **Keys never change.** Never renumber a codeunit or rename a `[Test]`
+   procedure or a must-not-compile case. Moving files is fine. Removing or
+   merging a test needs a `tests/rename-map.tsv` line and a green
+   `Coverage facts must not shrink` check. A corrected expected value (real
+   BC does something else) needs a `tests/facts-changes.tsv` line (key, old
+   fact, new fact, reason). Both files are append-only; the owner reviews
+   them per pull request. The check is advisory during the restructure and
+   becomes required after it.
+7. **Names.** New objects: `<area code> <topic> <role>` (for example
+   `REC SetFilter Row`), unique. Existing names stay. Id blocks stay per writer.
+8. **README.** A new topic, shared fixture or must-not-compile case updates
+   the area README; a new must-not-compile case also adds its line to
+   `tests/must-not-compile/areas.tsv`.
+9. **No build outputs** in commits. One claim per test procedure; many test
+   procedures per codeunit of a topic.
 
 ---
 
@@ -184,9 +223,9 @@ per-test tables, enums, pages, or codeunits.
 
 `Test<TypeName><Aspect>.al` -- e.g. `TestRecordInsert.al`, `TestJsonObject.al`
 
-Place in the area subfolder: `record/`, `json/`, `xml/`, `text/`, etc. --
-including tests that prove a call throws in Cloud; there is no separate
-out-of-scope folder.
+Place in `<area>/<topic>/` of the app (standing rule 1): `record/crud/`,
+`json/json/`, `text/text-methods/`, etc. -- including tests that prove a call
+throws in Cloud; there is no separate out-of-scope folder.
 
 ### Procedures
 
@@ -247,7 +286,8 @@ Before submitting a test:
 2. The test passes against a real BC instance (local Docker or CI).
 3. The test name uniquely identifies the claim without opening the body.
 4. `Initialize()` is the first line of every [Test] procedure.
-5. No per-test fixture definitions -- only shared `_fixtures/` objects.
+5. Shared `_fixtures/` objects used; every local object has a
+   `// local object: <reason>` line (standing rule 2).
 6. A test that asserts a call throws still calls the real API -- no
    `Assert.IsTrue(true, ...)` stubs.
 7. The doc-link comment block is present at the top of the file.

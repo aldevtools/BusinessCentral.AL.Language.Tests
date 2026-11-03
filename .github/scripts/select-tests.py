@@ -60,6 +60,8 @@ IGNORED_OUTSIDE_APPS = (
     re.compile(r'^docs/'), re.compile(r'^scripts/'), re.compile(r'^\.claude/'), re.compile(r'^tests/must-not-compile/'),
     re.compile(r'^[^/]+\.md$'), re.compile(r'^tests/[^/]+\.md$'), re.compile(r'^tests/al-surface(-inscope)?\.json$'),
     re.compile(r'^(tests/)?v2-classification\.json$'), re.compile(r'^\.gitignore$'),
+    # The restructure rename map and facts-changes file: read by facts.py (coverage-facts job) and by al-runtime-rs, never by a BC leg.
+    re.compile(r'^tests/rename-map\.tsv$'), re.compile(r'^tests/facts-changes\.tsv$'),
     # The Windows nightly's own files: ci.yml and the scripts it runs never read them.
     re.compile(r'^\.github/nightly-windows/'), re.compile(r'^\.github/workflows/nightly-windows\.yml$'),
 )
