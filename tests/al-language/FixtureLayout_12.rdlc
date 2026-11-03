@@ -73,6 +73,9 @@ End Function
         <Field Name="Amount">
           <DataField>Amount</DataField>
         </Field>
+        <Field Name="AmountFormat">
+          <DataField>AmountFormat</DataField>
+        </Field>
       </Fields>
       <Query>
         <DataSourceName>DataSource</DataSourceName>

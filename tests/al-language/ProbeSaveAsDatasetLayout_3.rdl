@@ -70,8 +70,23 @@ End Function
         <Field Name="PName">
           <DataField>PName</DataField>
         </Field>
+        <Field Name="PAmt">
+          <DataField>PAmt</DataField>
+        </Field>
+        <Field Name="PAmtFormat">
+          <DataField>PAmtFormat</DataField>
+        </Field>
+        <Field Name="PDate">
+          <DataField>PDate</DataField>
+        </Field>
+        <Field Name="PBool">
+          <DataField>PBool</DataField>
+        </Field>
         <Field Name="CNo">
           <DataField>CNo</DataField>
+        </Field>
+        <Field Name="CCode">
+          <DataField>CCode</DataField>
         </Field>
       </Fields>
       <Query>
