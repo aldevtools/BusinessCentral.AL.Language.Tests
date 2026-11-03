@@ -1,0 +1,552 @@
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-unbound-property
+// Scope: in-scope
+// Fixtures used: Probe Observer (codeunit 69160); own tables 93220-93222, xmlports 93220-93223, codeunits 93220-93222.
+// Probe (gap cycle 6, G6-06): Unbound = true on a text element. A VariableText import port whose table element holds a text element
+// col1 (MaxOccurs = Once) and an unbound text element colx (MinOccurs = Zero), the shape of a generic CSV import port: lines with more
+// columns than elements, short lines, empty columns, a quoted value with the separator, a trailing separator; the same port without
+// Unbound (control) and with MaxOccurs = Unbounded; an Xml port with an unbound leaf text element below the root (export and import).
+// The separator set from OnPreXmlPort is pinned by platform/lt-xmlport-session-navapp-cookie/P94Fixtures.al:356 (not repeated).
+// An unbound text element inside a table element on export is pinned by pages/lt-report-page-properties/06-xmlport-unbound.al.
+// Facts: Unbound = true makes the text element take every further column of the line (OnAfterAssignVariable runs once per column, empty
+// columns included, all in one record); without Unbound only the next column is read and the rest is ignored without an error;
+// MaxOccurs = Unbounded with Unbound changes nothing. In an Xml port the unbound text element imports like a plain one, and the export
+// does not end (see Unbound_Text_Xml_Export).
+// BC versions: 27-29
+
+table 93220 "LT Y60 UT Cell"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Line No."; Integer) { }
+        field(2; "Col No."; Integer) { }
+        field(3; Value; Text[50]) { }
+    }
+
+    keys
+    {
+        key(PK; "Line No.", "Col No.") { Clustered = true; }
+    }
+}
+
+table 93221 "LT Y60 UT Line"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+table 93222 "LT Y60 UT Job"
+{
+    DataClassification = SystemMetadata;
+    TableType = Temporary;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Content; Blob) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+codeunit 93220 "LT Y60 UT Log"
+{
+    SingleInstance = true;
+
+    var
+        Entries: Text;
+        LineNo: Integer;
+        ColNo: Integer;
+
+    procedure Add(Entry: Text)
+    begin
+        Entries += Entry + ';';
+    end;
+
+    procedure Take(): Text
+    var
+        Result: Text;
+    begin
+        Result := Entries;
+        Entries := '';
+        LineNo := 0;
+        ColNo := 0;
+        exit(Result);
+    end;
+
+    procedure NextLine()
+    begin
+        LineNo += 1;
+    end;
+
+    procedure StoreColumn(Value: Text)
+    var
+        Cell: Record "LT Y60 UT Cell";
+    begin
+        ColNo += 1;
+        Cell."Line No." := LineNo;
+        Cell."Col No." := ColNo;
+        Cell.Value := CopyStr(Value, 1, MaxStrLen(Cell.Value));
+        Cell.Insert();
+    end;
+}
+
+xmlport 93220 "LT Y60 UT Csv Unbound"
+{
+    Direction = Import;
+    Format = VariableText;
+    FieldSeparator = ',';
+    FieldDelimiter = '"';
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            MinOccurs = Zero;
+            tableelement(Hdr; "LT Y60 UT Line")
+            {
+                AutoSave = false;
+                textelement(col1)
+                {
+                    MaxOccurs = Once;
+                    MinOccurs = Zero;
+
+                    trigger OnAfterAssignVariable()
+                    begin
+                        Log.Add('c1=' + col1);
+                    end;
+                }
+                textelement(colx)
+                {
+                    MinOccurs = Zero;
+                    Unbound = true;
+
+                    trigger OnAfterAssignVariable()
+                    begin
+                        Log.Add('cx=' + colx);
+                        Log.StoreColumn(colx);
+                        colx := '';
+                    end;
+                }
+
+                trigger OnAfterInitRecord()
+                begin
+                    Log.NextLine();
+                    Log.Add('init');
+                end;
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    Log.Add('ins');
+                end;
+            }
+        }
+    }
+
+    trigger OnPostXmlPort()
+    begin
+        Log.Add('post col1=[' + col1 + '] colx=[' + colx + ']');
+    end;
+
+    var
+        Log: Codeunit "LT Y60 UT Log";
+}
+
+xmlport 93221 "LT Y60 UT Csv Bound"
+{
+    Direction = Import;
+    Format = VariableText;
+    FieldSeparator = ',';
+    FieldDelimiter = '"';
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            MinOccurs = Zero;
+            tableelement(Hdr; "LT Y60 UT Line")
+            {
+                AutoSave = false;
+                textelement(col1)
+                {
+                    MaxOccurs = Once;
+                    MinOccurs = Zero;
+
+                    trigger OnAfterAssignVariable()
+                    begin
+                        Log.Add('c1=' + col1);
+                    end;
+                }
+                textelement(colx)
+                {
+                    MinOccurs = Zero;
+
+                    trigger OnAfterAssignVariable()
+                    begin
+                        Log.Add('cx=' + colx);
+                        Log.StoreColumn(colx);
+                        colx := '';
+                    end;
+                }
+
+                trigger OnAfterInitRecord()
+                begin
+                    Log.NextLine();
+                    Log.Add('init');
+                end;
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    Log.Add('ins');
+                end;
+            }
+        }
+    }
+
+    trigger OnPostXmlPort()
+    begin
+        Log.Add('post col1=[' + col1 + '] colx=[' + colx + ']');
+    end;
+
+    var
+        Log: Codeunit "LT Y60 UT Log";
+}
+
+xmlport 93222 "LT Y60 UT Csv Unbounded"
+{
+    Direction = Import;
+    Format = VariableText;
+    FieldSeparator = ',';
+    FieldDelimiter = '"';
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            MinOccurs = Zero;
+            tableelement(Hdr; "LT Y60 UT Line")
+            {
+                AutoSave = false;
+                textelement(col1)
+                {
+                    MaxOccurs = Once;
+                    MinOccurs = Zero;
+
+                    trigger OnAfterAssignVariable()
+                    begin
+                        Log.Add('c1=' + col1);
+                    end;
+                }
+                textelement(colx)
+                {
+                    MinOccurs = Zero;
+                    MaxOccurs = Unbounded;
+                    Unbound = true;
+
+                    trigger OnAfterAssignVariable()
+                    begin
+                        Log.Add('cx=' + colx);
+                        Log.StoreColumn(colx);
+                        colx := '';
+                    end;
+                }
+
+                trigger OnAfterInitRecord()
+                begin
+                    Log.NextLine();
+                    Log.Add('init');
+                end;
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    Log.Add('ins');
+                end;
+            }
+        }
+    }
+
+    trigger OnPostXmlPort()
+    begin
+        Log.Add('post col1=[' + col1 + '] colx=[' + colx + ']');
+    end;
+
+    var
+        Log: Codeunit "LT Y60 UT Log";
+}
+
+xmlport 93223 "LT Y60 UT Xml Unbound"
+{
+    Direction = Both;
+    Format = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            textelement(Plain)
+            {
+                MinOccurs = Zero;
+
+                trigger OnAfterAssignVariable()
+                begin
+                    Log.Add('plain=' + Plain);
+                end;
+            }
+            textelement(Free)
+            {
+                MinOccurs = Zero;
+                Unbound = true;
+
+                trigger OnAfterAssignVariable()
+                begin
+                    Log.Add('free=' + Free);
+                end;
+            }
+        }
+    }
+
+    trigger OnPreXmlPort()
+    begin
+        if currXMLport.ImportFile() then
+            exit;
+        Plain := 'p-out';
+        Free := 'f-out';
+    end;
+
+    trigger OnPostXmlPort()
+    begin
+        Log.Add('post plain=[' + Plain + '] free=[' + Free + ']');
+    end;
+
+    var
+        Log: Codeunit "LT Y60 UT Log";
+}
+
+codeunit 93221 "LT Y60 UT Import Runner"
+{
+    TableNo = "LT Y60 UT Job";
+
+    trigger OnRun()
+    var
+        InS: InStream;
+    begin
+        Rec.CalcFields(Content);
+        Rec.Content.CreateInStream(InS, TextEncoding::UTF8);
+        Xmlport.Import(Rec.Id, InS);
+    end;
+}
+
+codeunit 93222 "LT Y60 UT Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Log: Codeunit "LT Y60 UT Log";
+
+    local procedure CrLf(): Text
+    var
+        C: Char;
+        Result: Text;
+    begin
+        C := 13;
+        Result += C;
+        C := 10;
+        Result += C;
+        exit(Result);
+    end;
+
+    local procedure Cells(): Text
+    var
+        Cell: Record "LT Y60 UT Cell";
+        Result: Text;
+    begin
+        if Cell.FindSet() then
+            repeat
+                Result += Format(Cell."Line No.") + '/' + Format(Cell."Col No.") + '=' + Cell.Value + ',';
+            until Cell.Next() = 0;
+        exit(Result);
+    end;
+
+    local procedure Clean()
+    var
+        Cell: Record "LT Y60 UT Cell";
+        Line: Record "LT Y60 UT Line";
+    begin
+        Cell.DeleteAll();
+        Line.DeleteAll();
+        Log.Take();
+        Commit();
+    end;
+
+    local procedure RunImport(XmlportId: Integer; Content: Text): Boolean
+    var
+        Job: Record "LT Y60 UT Job" temporary;
+        OutS: OutStream;
+    begin
+        Job.Id := XmlportId;
+        Job.Insert();
+        Job.Content.CreateOutStream(OutS, TextEncoding::UTF8);
+        OutS.WriteText(Content);
+        Job.Modify();
+        Commit();
+        exit(Codeunit.Run(Codeunit::"LT Y60 UT Import Runner", Job));
+    end;
+
+    local procedure ObserveImport(var Observer: Codeunit "Probe Observer"; Name: Text; XmlportId: Integer; Content: Text)
+    var
+        Line: Record "LT Y60 UT Line";
+    begin
+        Clean();
+        ClearLastError();
+        Observer.Observe(Name + ' ok', Format(RunImport(XmlportId, Content)));
+        if GetLastErrorText() <> '' then begin
+            Observer.Observe(Name + ' error', GetLastErrorText());
+            Observer.Observe(Name + ' code', GetLastErrorCode());
+            ClearLastError();
+        end;
+        Observer.Observe(Name + ' log', Log.Take());
+        Observer.Observe(Name + ' cells', Cells());
+        Observer.Observe(Name + ' lines', Format(Line.Count()));
+    end;
+
+    [Test]
+    procedure Unbound_Text_Import_ManyColumns()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveImport(Observer, 'two lines', Xmlport::"LT Y60 UT Csv Unbound", 'a,b,c,d' + CrLf() + 'e,f,g,h' + CrLf());
+        ObserveImport(Observer, 'no last line end', Xmlport::"LT Y60 UT Csv Unbound", 'a,b,c');
+        Observer.Expect('two lines ok', 'Yes');
+        Observer.Expect('two lines log', 'init;c1=a;cx=b;cx=c;cx=d;ins;init;c1=e;cx=f;cx=g;cx=h;ins;post col1=[e] colx=[];');
+        Observer.Expect('two lines cells', '1/1=b,1/2=c,1/3=d,2/4=f,2/5=g,2/6=h,');
+        Observer.Expect('two lines lines', '0');
+        Observer.Expect('no last line end ok', 'Yes');
+        Observer.Expect('no last line end log', 'init;c1=a;cx=b;cx=c;ins;post col1=[a] colx=[];');
+        Observer.Expect('no last line end cells', '1/1=b,1/2=c,');
+        Observer.Expect('no last line end lines', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Unbound_Text_Import_ShortAndEmptyColumns()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveImport(Observer, 'short and empty', Xmlport::"LT Y60 UT Csv Unbound", 'a' + CrLf() + 'b,,d' + CrLf() + 'e,f' + CrLf());
+        ObserveImport(Observer, 'empty last', Xmlport::"LT Y60 UT Csv Unbound", 'a,b,' + CrLf());
+        Observer.Expect('short and empty ok', 'Yes');
+        Observer.Expect('short and empty log', 'init;c1=a;ins;init;c1=b;cx=;cx=d;ins;init;c1=e;cx=f;ins;post col1=[e] colx=[];');
+        Observer.Expect('short and empty cells', '2/1=,2/2=d,3/3=f,');
+        Observer.Expect('short and empty lines', '0');
+        Observer.Expect('empty last ok', 'Yes');
+        Observer.Expect('empty last log', 'init;c1=a;cx=b;cx=;ins;post col1=[a] colx=[];');
+        Observer.Expect('empty last cells', '1/1=b,1/2=,');
+        Observer.Expect('empty last lines', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Unbound_Text_Import_WithoutUnbound_SameFile()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveImport(Observer, 'bound', Xmlport::"LT Y60 UT Csv Bound", 'a,b,c,d' + CrLf() + 'e,f,g,h' + CrLf());
+        ObserveImport(Observer, 'bound two columns', Xmlport::"LT Y60 UT Csv Bound", 'a,b' + CrLf() + 'e,f' + CrLf());
+        Observer.Expect('bound ok', 'Yes');
+        Observer.Expect('bound log', 'init;c1=a;cx=b;ins;init;c1=e;cx=f;ins;post col1=[e] colx=[];');
+        Observer.Expect('bound cells', '1/1=b,2/2=f,');
+        Observer.Expect('bound lines', '0');
+        Observer.Expect('bound two columns ok', 'Yes');
+        Observer.Expect('bound two columns log', 'init;c1=a;cx=b;ins;init;c1=e;cx=f;ins;post col1=[e] colx=[];');
+        Observer.Expect('bound two columns cells', '1/1=b,2/2=f,');
+        Observer.Expect('bound two columns lines', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Unbound_Text_MaxOccursUnbounded()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveImport(Observer, 'unbounded', Xmlport::"LT Y60 UT Csv Unbounded", 'a,b,c,d' + CrLf() + 'e,f,g,h' + CrLf());
+        Observer.Expect('unbounded ok', 'Yes');
+        Observer.Expect('unbounded log', 'init;c1=a;cx=b;cx=c;cx=d;ins;init;c1=e;cx=f;cx=g;cx=h;ins;post col1=[e] colx=[];');
+        Observer.Expect('unbounded cells', '1/1=b,1/2=c,1/3=d,2/4=f,2/5=g,2/6=h,');
+        Observer.Expect('unbounded lines', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Unbound_Text_Import_TrailingSeparator_QuotedValue()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveImport(Observer, 'quoted', Xmlport::"LT Y60 UT Csv Unbound", 'a,"b,x",c,' + CrLf());
+        Observer.Expect('quoted ok', 'Yes');
+        Observer.Expect('quoted log', 'init;c1=a;cx=b,x;cx=c;cx=;ins;post col1=[a] colx=[];');
+        Observer.Expect('quoted cells', '1/1=b,x,1/2=c,1/3=,');
+        Observer.Expect('quoted lines', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Unbound_Text_Xml_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveImport(Observer, 'both', Xmlport::"LT Y60 UT Xml Unbound", '<Root><Plain>p</Plain><Free>f</Free></Root>');
+        ObserveImport(Observer, 'free only', Xmlport::"LT Y60 UT Xml Unbound", '<Root><Free>f</Free></Root>');
+        Observer.Expect('both ok', 'Yes');
+        Observer.Expect('both log', 'plain=p;free=f;post plain=[p] free=[f];');
+        Observer.Expect('both cells', '');
+        Observer.Expect('both lines', '0');
+        Observer.Expect('free only ok', 'Yes');
+        Observer.Expect('free only log', 'free=f;post plain=[] free=[f];');
+        Observer.Expect('free only cells', '');
+        Observer.Expect('free only lines', '0');
+        Observer.Verify();
+    end;
+
+    // Not a [Test]: the export of this port does not end. On BC 29 (SaaS) and on 27.5, 28.5, 29.0 (Linux CI) it fails after the
+    // output stream grows to its limit with an error the test cannot catch: "Unexpected CLR exception thrown.:
+    // System.IO.IOException: Maximum capacity exceeded". The same happens for an unbound field element (YXmlPortProps.al:715).
+    procedure Unbound_Text_Xml_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBlob: Codeunit "Temp Blob";
+        OutS: OutStream;
+        InS: InStream;
+        Line: Text;
+        Result: Text;
+    begin
+        Clean();
+        TempBlob.CreateOutStream(OutS);
+        Xmlport.Export(Xmlport::"LT Y60 UT Xml Unbound", OutS);
+        TempBlob.CreateInStream(InS, TextEncoding::UTF16);
+        while not InS.EOS() do begin
+            InS.ReadText(Line);
+            Result += Line + '|';
+        end;
+        Observer.Observe('export', Result);
+        Observer.Observe('log', Log.Take());
+        Observer.Discard();
+    end;
+}

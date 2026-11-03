@@ -1,0 +1,319 @@
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-setfilter-method
+// Scope: in-scope
+// Fixtures used: Probe Observer (codeunit 69160); own table 94250, test codeunit 94251
+// Probe (writer Y81): the date filter letters Y and T-1D set with Record.SetFilter under fixed work dates, and the letters around them (T, T+1D, T-xD, W, Q, M, D, 1Y, -1Y,
+// and ranges with Y or T-1D). Today() and the work date are never written as literals: every expectation that depends on them is computed from them in the test.
+// Facts measured (SaaS BC 29, Today() 2026-11-02): Y is the fiscal year of the work date taken from the Accounting Period table (rows with New Fiscal Year): from the
+// latest New Fiscal Year row on or before the work date to the day before the next New Fiscal Year row (or 9999-12-31 after the last one); with no such row the filter
+// fails ("The Accounting Period does not exist.", Filter:CSide). The test writes its own periods in 2060 to 2062 and removes them again. T-1D is the Tuesday of ISO week 1 of
+// the ISO year of the work date; T and T+1D follow Today().
+// Pinned elsewhere: record/lt-date-filter-letters-workdates/DateFilterLettersWorkDates.al (evaluates Y and T-1D but ignores their values).
+// BC versions: 27, 28, 29
+
+table 94250 "LT Y81 DF"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Code; Code[10]) { }
+        field(2; D; Date) { }
+    }
+
+    keys
+    {
+        key(PK; Code) { Clustered = true; }
+    }
+}
+
+codeunit 94251 "LT Y81 Date Filter Letters"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Observer: Codeunit "Probe Observer";
+        InsertedPeriods: List of [Date];
+
+    [TryFunction]
+    local procedure TryFilter(Txt: Text; var R: Text)
+    var
+        Row: Record "LT Y81 DF";
+    begin
+        Row.SetFilter(D, Txt);
+        R := 'ok|' + Row.GetFilter(D);
+        R += '|' + Format(Row.GetRangeMin(D), 0, 9);
+        R += '|' + Format(Row.GetRangeMax(D), 0, 9);
+    end;
+
+    // The filter text, then the range ends in format 9; an error ends the text with ' E <text>|<code>'.
+    local procedure Apply(Txt: Text): Text
+    var
+        R: Text;
+    begin
+        ClearLastError();
+        if TryFilter(Txt, R) then
+            exit(R);
+        exit(R + ' E ' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    // Only the range ends (no filter text), for expectations computed from dates.
+    local procedure Ends(Txt: Text): Text
+    var
+        R: Text;
+        P: List of [Text];
+    begin
+        R := Apply(Txt);
+        if not R.StartsWith('ok|') then
+            exit(R);
+        P := R.Split('|');
+        exit('ok|' + P.Get(3) + '|' + P.Get(4));
+    end;
+
+    local procedure Range(MinDate: Date; MaxDate: Date): Text
+    begin
+        exit('ok|' + Format(MinDate, 0, 9) + '|' + Format(MaxDate, 0, 9));
+    end;
+
+    local procedure InsertPeriod(StartingDate: Date; NewFiscalYear: Boolean)
+    var
+        Period: Record "Accounting Period";
+    begin
+        if Period.Get(StartingDate) then
+            exit;
+        Period.Init();
+        Period."Starting Date" := StartingDate;
+        Period.Name := CopyStr('Y81 ' + Format(StartingDate, 0, 9), 1, MaxStrLen(Period.Name));
+        Period."New Fiscal Year" := NewFiscalYear;
+        Period.Insert();
+        InsertedPeriods.Add(StartingDate);
+    end;
+
+    local procedure WritePeriods()
+    var
+        Month: Integer;
+    begin
+        InsertPeriod(20600101D, true);
+        for Month := 2 to 12 do
+            InsertPeriod(DMY2Date(1, Month, 2060), false);
+        InsertPeriod(20610401D, true);
+        InsertPeriod(20610501D, false);
+        InsertPeriod(20620101D, true);
+    end;
+
+    local procedure RestorePeriods()
+    var
+        Period: Record "Accounting Period";
+        StartingDate: Date;
+    begin
+        foreach StartingDate in InsertedPeriods do
+            if Period.Get(StartingDate) then
+                Period.Delete();
+        Clear(InsertedPeriods);
+    end;
+
+    local procedure ObserveFor(WorkDay: Date; Txt: Text)
+    var
+        Saved: Date;
+    begin
+        Saved := WorkDate();
+        WorkDate(WorkDay);
+        Observer.Observe(Format(WorkDay, 0, 9) + ' ' + Txt, Apply(Txt));
+        WorkDate(Saved);
+    end;
+
+    [Test]
+    procedure Y81_Y_FiscalYearOfWorkDate()
+    begin
+        WritePeriods();
+        ObserveFor(20600101D, 'Y');
+        ObserveFor(20600615D, 'Y');
+        ObserveFor(20601231D, 'Y');
+        ObserveFor(20610331D, 'Y');
+        ObserveFor(20610401D, 'Y');
+        ObserveFor(20611231D, 'Y');
+        ObserveFor(20620101D, 'Y');
+        ObserveFor(20620615D, 'Y');
+        ObserveFor(20700101D, 'Y');
+        RestorePeriods();
+        Observer.Expect('2060-01-01 Y', 'ok|01/01/2060..03/31/2061|2060-01-01|2061-03-31');
+        Observer.Expect('2060-06-15 Y', 'ok|01/01/2060..03/31/2061|2060-01-01|2061-03-31');
+        Observer.Expect('2060-12-31 Y', 'ok|01/01/2060..03/31/2061|2060-01-01|2061-03-31');
+        Observer.Expect('2061-03-31 Y', 'ok|01/01/2060..03/31/2061|2060-01-01|2061-03-31');
+        Observer.Expect('2061-04-01 Y', 'ok|04/01/2061..12/31/2061|2061-04-01|2061-12-31');
+        Observer.Expect('2061-12-31 Y', 'ok|04/01/2061..12/31/2061|2061-04-01|2061-12-31');
+        Observer.Expect('2062-01-01 Y', 'ok|01/01/2062..12/31/9999|2062-01-01|9999-12-31');
+        Observer.Expect('2062-06-15 Y', 'ok|01/01/2062..12/31/9999|2062-01-01|9999-12-31');
+        Observer.Expect('2070-01-01 Y', 'ok|01/01/2062..12/31/9999|2062-01-01|9999-12-31');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y81_Y_InRanges()
+    begin
+        WritePeriods();
+        ObserveFor(20600615D, 'Y..');
+        ObserveFor(20600615D, '..Y');
+        ObserveFor(20600615D, 'Y|Y');
+        ObserveFor(20600615D, '<>Y');
+        ObserveFor(20600615D, '>Y');
+        ObserveFor(20600615D, '<=Y');
+        ObserveFor(20610615D, 'Y&>01/01/2061');
+        RestorePeriods();
+        Observer.Expect('2060-06-15 Y..', ' E The filter "Y.." is not valid for the D field on the LT Y81 DF table. The variable "Y" did not resolve to a single value.|Filter:CSide');
+        Observer.Expect('2060-06-15 ..Y', ' E The filter "..Y" is not valid for the D field on the LT Y81 DF table. The variable "Y" did not resolve to a single value.|Filter:CSide');
+        Observer.Expect('2060-06-15 Y|Y', 'ok|01/01/2060..03/31/2061|01/01/2060..03/31/2061|2060-01-01|2061-03-31');
+        Observer.Expect('2060-06-15 <>Y', 'ok|<01/01/2060|>03/31/2061 E The filter expression "<01/01/2060|>03/31/2061" applied to the field D in the LT Y81 DF table results in more than one range.|DB:NotIntervalFilter');
+        Observer.Expect('2060-06-15 >Y', ' E The filter ">Y" is not valid for the D field on the LT Y81 DF table. The variable "Y" did not resolve to a single value.|Filter:CSide');
+        Observer.Expect('2060-06-15 <=Y', ' E The filter "<=Y" is not valid for the D field on the LT Y81 DF table. The variable "Y" did not resolve to a single value.|Filter:CSide');
+        Observer.Expect('2061-06-15 Y&>01/01/2061', 'ok|04/01/2061..12/31/2061&>01/01/2061|2061-04-01|2061-12-31');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y81_T1D_TuesdayOfIsoWeek1()
+    var
+        WorkDays: List of [Date];
+        WorkDay: Date;
+        Saved: Date;
+        Tuesday: Date;
+    begin
+        WorkDays.Add(20200615D);
+        WorkDays.Add(20201231D);
+        WorkDays.Add(20210101D);
+        WorkDays.Add(20210104D);
+        WorkDays.Add(20240615D);
+        WorkDays.Add(20251231D);
+        WorkDays.Add(20260101D);
+        WorkDays.Add(20260615D);
+        WorkDays.Add(20261231D);
+        WorkDays.Add(20270101D);
+        WorkDays.Add(20270615D);
+        WorkDays.Add(20280229D);
+        WorkDays.Add(20300515D);
+        WorkDays.Add(20310101D);
+        WorkDays.Add(20991231D);
+        Saved := WorkDate();
+        foreach WorkDay in WorkDays do begin
+            WorkDate(WorkDay);
+            Tuesday := DWY2Date(2, 1, Date2DWY(WorkDay, 3));
+            Observer.Observe(Format(WorkDay, 0, 9), Ends('T-1D'));
+            Observer.Expect(Format(WorkDay, 0, 9), Range(Tuesday, Tuesday));
+        end;
+        WorkDate(Saved);
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y81_T1D_FilterTextAndRanges()
+    var
+        Saved: Date;
+    begin
+        Saved := WorkDate();
+        WorkDate(20240615D);
+        Observer.Observe('2024 text', Apply('T-1D'));
+        Observer.Observe('2024 T-1D..T', Ends('T-1D..T'));
+        Observer.Observe('2024 ..T-1D', Apply('..T-1D'));
+        Observer.Observe('2024 T-1D..', Apply('T-1D..'));
+        WorkDate(20260615D);
+        Observer.Observe('2026 text', Apply('T-1D'));
+        Observer.Observe('2026 T-1D..T', Ends('T-1D..T'));
+        Observer.Observe('2026 ..T-1D', Apply('..T-1D'));
+        Observer.Observe('2026 T-1D..', Apply('T-1D..'));
+        Observer.Observe('2026 T..T-1D', Ends('T..T-1D'));
+        WorkDate(Saved);
+        Observer.Expect('2024 text', 'ok|01/02/24|2024-01-02|2024-01-02');
+        Observer.Expect('2024 T-1D..T', Range(20240102D, Today()));
+        Observer.Expect('2024 ..T-1D', 'ok|..01/02/24 E The filter "..01/02/24" on the D field in the LT Y81 DF table has no lower bound.|DB:Ok');
+        Observer.Expect('2024 T-1D..', 'ok|01/02/24..|2024-01-02 E The filter "01/02/24.." on the D field in the LT Y81 DF table has no upper bound.|DB:Ok');
+        Observer.Expect('2026 text', 'ok|12/30/25|2025-12-30|2025-12-30');
+        Observer.Expect('2026 T-1D..T', Range(20251230D, Today()));
+        Observer.Expect('2026 ..T-1D', 'ok|..12/30/25 E The filter "..12/30/25" on the D field in the LT Y81 DF table has no lower bound.|DB:Ok');
+        Observer.Expect('2026 T-1D..', 'ok|12/30/25..|2025-12-30 E The filter "12/30/25.." on the D field in the LT Y81 DF table has no upper bound.|DB:Ok');
+        Observer.Expect('2026 T..T-1D', Range(Today(), 20251230D));
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y81_Letters_FollowingToday()
+    var
+        WorkDays: List of [Date];
+        WorkDay: Date;
+        Saved: Date;
+        Pfx: Text;
+    begin
+        WorkDays.Add(20240615D);
+        WorkDays.Add(20260615D);
+        WorkDays.Add(20300515D);
+        Saved := WorkDate();
+        foreach WorkDay in WorkDays do begin
+            WorkDate(WorkDay);
+            Pfx := Format(WorkDay, 0, 9) + ' ';
+            Observer.Observe(Pfx + 'T', Ends('T'));
+            Observer.Expect(Pfx + 'T', Range(Today(), Today()));
+            Observer.Observe(Pfx + 'T+1D', Ends('T+1D'));
+            Observer.Expect(Pfx + 'T+1D', Range(Today() + 1, Today() + 1));
+            Observer.Observe(Pfx + 'Q', Ends('Q'));
+            Observer.Expect(Pfx + 'Q', Range(CalcDate('<-CQ>', Today()), CalcDate('<CQ>', Today())));
+            Observer.Observe(Pfx + '-1Y', Ends('-1Y'));
+            Observer.Expect(Pfx + '-1Y', Range(CalcDate('<-1Y>', Today()), CalcDate('<-1Y>', Today())));
+            Observer.Observe(Pfx + 'W', Ends('W'));
+            Observer.Expect(Pfx + 'W', Range(WorkDay, WorkDay));
+            Observer.Observe(Pfx + 'D', Ends('D'));
+            Observer.Expect(Pfx + 'D', Range(WorkDay, WorkDay));
+            Observer.Observe(Pfx + 'M', Ends('M'));
+            Observer.Expect(Pfx + 'M', Range(WorkDay - (Date2DWY(WorkDay, 1) - 1), WorkDay - (Date2DWY(WorkDay, 1) - 1)));
+            Observer.Observe(Pfx + '1Y', Ends('1Y'));
+            Observer.Expect(Pfx + '1Y', Range(CalcDate('<-CM>', WorkDay), CalcDate('<-CM>', WorkDay)));
+        end;
+        WorkDate(Saved);
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y81_Letters_TFamily()
+    var
+        WorkDays: List of [Date];
+        WorkDay: Date;
+        Saved: Date;
+        Pfx: Text;
+        Week: Integer;
+        IsoYear: Integer;
+    begin
+        WorkDays.Add(20240615D);
+        WorkDays.Add(20260615D);
+        WorkDays.Add(20300515D);
+        Saved := WorkDate();
+        foreach WorkDay in WorkDays do begin
+            WorkDate(WorkDay);
+            Pfx := Format(WorkDay, 0, 9) + ' ';
+            IsoYear := Date2DWY(WorkDay, 3);
+            // T-nD with n from 1: the Tuesday of ISO week n of the ISO year of the work date; T-D: the Tuesday of the week of the work date.
+            for Week := 1 to 7 do begin
+                Observer.Observe(Pfx + 'T-' + Format(Week) + 'D', Ends('T-' + Format(Week) + 'D'));
+                Observer.Expect(Pfx + 'T-' + Format(Week) + 'D', Range(DWY2Date(2, Week, IsoYear), DWY2Date(2, Week, IsoYear)));
+            end;
+            Observer.Observe(Pfx + 'T-D', Ends('T-D'));
+            Observer.Expect(Pfx + 'T-D', Range(DWY2Date(2, Date2DWY(WorkDay, 2), IsoYear), DWY2Date(2, Date2DWY(WorkDay, 2), IsoYear)));
+            // The other T forms count from Today().
+            Observer.Observe(Pfx + 'T-0D', Ends('T-0D'));
+            Observer.Expect(Pfx + 'T-0D', Range(Today(), Today()));
+            Observer.Observe(Pfx + 'T+0D', Ends('T+0D'));
+            Observer.Expect(Pfx + 'T+0D', Range(Today(), Today()));
+            Observer.Observe(Pfx + 'T+7D', Ends('T+7D'));
+            Observer.Expect(Pfx + 'T+7D', Range(Today() + 7, Today() + 7));
+            Observer.Observe(Pfx + 'T-1W', Ends('T-1W'));
+            Observer.Expect(Pfx + 'T-1W', Range(CalcDate('<-1W>', Today()), CalcDate('<-1W>', Today())));
+            Observer.Observe(Pfx + 'T+1W', Ends('T+1W'));
+            Observer.Expect(Pfx + 'T+1W', Range(CalcDate('<+1W>', Today()), CalcDate('<+1W>', Today())));
+            Observer.Observe(Pfx + 'T-1M', Ends('T-1M'));
+            Observer.Expect(Pfx + 'T-1M', Range(CalcDate('<-1M>', Today()), CalcDate('<-1M>', Today())));
+            Observer.Observe(Pfx + 'T-1Y', Ends('T-1Y'));
+            Observer.Expect(Pfx + 'T-1Y', Range(CalcDate('<-1Y>', Today()), CalcDate('<-1Y>', Today())));
+        end;
+        Observer.Observe('T-1CM', Apply('T-1CM'));
+        Observer.Expect('T-1CM', ' E The filter "T-1CM" is not valid for the D field on the LT Y81 DF table. The format of the Date ''T-1CM'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.|Filter:CSide');
+        WorkDate(Saved);
+        Observer.Verify();
+    end;
+}

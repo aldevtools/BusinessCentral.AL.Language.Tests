@@ -124,4 +124,94 @@ codeunit 70502 "LT TxB DelStr"
         Obs.Verify();
     end;
 
+    [Test]
+    procedure DelStrDecimalPos1()
+    var
+        D: Decimal;
+        D2: Decimal;
+        R: Text;
+    begin
+        D := 2;
+        Obs.Observe('d1_2', RunPos(D, R));
+        D := 2.4;
+        Obs.Observe('d1_2.4', RunPos(D, R));
+        D := 2.5;
+        Obs.Observe('d1_2.5', RunPos(D, R));
+        D := 2.6;
+        Obs.Observe('d1_2.6', RunPos(D, R));
+        D := 0.5;
+        Obs.Observe('d1_0.5', RunPos(D, R));
+        D := -1.5;
+        Obs.Observe('d1_-1.5', RunPos(D, R));
+        Obs.Expect('d1_2', '[a]');
+        Obs.Expect('d1_2.4', 'ERR ConversionCast: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.4 to System.Int32.');
+        Obs.Expect('d1_2.5', 'ERR ConversionCast: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.');
+        Obs.Expect('d1_2.6', 'ERR ConversionCast: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.6 to System.Int32.');
+        Obs.Expect('d1_0.5', 'ERR ConversionCast: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.5 to System.Int32.');
+        Obs.Expect('d1_-1.5', 'ERR ConversionCast: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int32.');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure DelStrDecimalPosLen1()
+    var
+        D: Decimal;
+        D2: Decimal;
+        R: Text;
+    begin
+        D := 2;
+        D2 := 3;
+        Obs.Observe('d2_2_3', RunPosLen(D, D2, R));
+        D := 2;
+        D2 := 3.4;
+        Obs.Observe('d2_2_3.4', RunPosLen(D, D2, R));
+        D := 2;
+        D2 := 3.6;
+        Obs.Observe('d2_2_3.6', RunPosLen(D, D2, R));
+        D := 2.5;
+        D2 := 3;
+        Obs.Observe('d2_2.5_3', RunPosLen(D, D2, R));
+        D := 2.5;
+        D2 := 3.4;
+        Obs.Observe('d2_2.5_3.4', RunPosLen(D, D2, R));
+        D := 2.5;
+        D2 := 3.6;
+        Obs.Observe('d2_2.5_3.6', RunPosLen(D, D2, R));
+        Obs.Expect('d2_2_3', '[aef]');
+        Obs.Expect('d2_2_3.4', 'ERR ConversionCast: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 3.4 to System.Int32.');
+        Obs.Expect('d2_2_3.6', 'ERR ConversionCast: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 3.6 to System.Int32.');
+        Obs.Expect('d2_2.5_3', 'ERR ConversionCast: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.');
+        Obs.Expect('d2_2.5_3.4', 'ERR ConversionCast: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.');
+        Obs.Expect('d2_2.5_3.6', 'ERR ConversionCast: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.');
+        Obs.Verify();
+    end;
+
+    [TryFunction]
+    local procedure TryPos(Pos: Decimal; var Res: Text)
+    begin
+        Res := '[' + DelStr('abcdef', Pos) + ']';
+    end;
+
+    local procedure RunPos(Pos: Decimal; var Res: Text): Text
+    begin
+        ClearLastError();
+        if TryPos(Pos, Res) then
+            exit(Res);
+        exit('ERR ' + GetLastErrorCode() + ': ' + GetLastErrorText());
+    end;
+
+    [TryFunction]
+    local procedure TryPosLen(Pos: Decimal; Len: Decimal; var Res: Text)
+    begin
+        Res := '[' + DelStr('abcdef', Pos, Len) + ']';
+    end;
+
+    local procedure RunPosLen(Pos: Decimal; Len: Decimal; var Res: Text): Text
+    begin
+        ClearLastError();
+        if TryPosLen(Pos, Len, Res) then
+            exit(Res);
+        exit('ERR ' + GetLastErrorCode() + ': ' + GetLastErrorText());
+    end;
+
 }

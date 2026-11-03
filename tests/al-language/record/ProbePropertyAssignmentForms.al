@@ -371,4 +371,537 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Expect('tableIdAfterAssign', '0');
         Observer.Verify();
     end;
+
+    // al-runner 6526 (writer Y29): `X.M := v` compiles for any built-in method M with exactly one overload that takes one
+    // required parameter (alc 18.1 with runtime 16.0 and alc 30 with runtime 18.0 alike) and is checked as M(v); the
+    // refused shapes are tests/must-not-compile/cases/2365-2372. These tests read back what the assignment form did.
+    [Test]
+    procedure Y29_HttpClient_AssignForms()
+    var
+        C: HttpClient;
+        Observer: Codeunit "Probe Observer";
+    begin
+        C.Timeout := 5000;
+        Observer.Observe('timeout', Format(C.Timeout()));
+        C.Timeout := C.Timeout;
+        Observer.Observe('timeout_self', Format(C.Timeout));
+        C.SetBaseAddress := 'https://example.com/y29/';
+        Observer.Observe('baseAddress', C.GetBaseAddress());
+        C.UseResponseCookies := true;
+        Observer.Observe('useResponseCookies', 'ran');
+        Observer.Expect('timeout', '5 seconds');
+        Observer.Expect('timeout_self', '5 seconds');
+        Observer.Expect('baseAddress', 'https://example.com/y29/');
+        Observer.Expect('useResponseCookies', 'ran');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y29_HttpRequestMessage_AssignForms()
+    var
+        R: HttpRequestMessage;
+        Ct: HttpContent;
+        Body: Text;
+        Observer: Codeunit "Probe Observer";
+    begin
+        R.Method := 'POST';
+        Observer.Observe('method', R.Method());
+        R.SetRequestUri := 'https://example.com/y29?b=1';
+        Observer.Observe('requestUri', R.GetRequestUri());
+        Ct.WriteFrom('body-y29');
+        R.Content := Ct;
+        R.Content().ReadAs(Body);
+        Observer.Observe('content', Body);
+        Observer.Expect('method', 'POST');
+        Observer.Expect('requestUri', 'https://example.com/y29?b=1');
+        Observer.Expect('content', 'body-y29');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y29_XmlNodes_AssignForms()
+    var
+        A: XmlAttribute;
+        Tx: XmlText;
+        Cm: XmlComment;
+        Cd: XmlCData;
+        Decl: XmlDeclaration;
+        E: XmlElement;
+        Xml: Text;
+        Observer: Codeunit "Probe Observer";
+    begin
+        A := XmlAttribute.Create('a', '1');
+        A.Value := '2';
+        Observer.Observe('attribute', A.Value());
+        Tx := XmlText.Create('t');
+        Tx.Value := 'u';
+        Observer.Observe('text', Tx.Value());
+        Cm := XmlComment.Create('c');
+        Cm.Value := 'd';
+        Observer.Observe('comment', Cm.Value());
+        Cd := XmlCData.Create('x');
+        Cd.Value := 'y';
+        Observer.Observe('cdata', Cd.Value());
+        Decl := XmlDeclaration.Create('1.0', 'utf-8', 'yes');
+        Decl.Version := '1.0';
+        Decl.Encoding := 'utf-16';
+        Decl.Standalone := 'no';
+        Observer.Observe('declaration', Decl.Version() + '|' + Decl.Encoding() + '|' + Decl.Standalone());
+        E := XmlElement.Create('e');
+        E.Add := 'txt-y29';
+        E.WriteTo(Xml);
+        Observer.Observe('element_add', E.InnerText() + '|' + Xml);
+        Observer.Expect('attribute', '2');
+        Observer.Expect('text', 'u');
+        Observer.Expect('comment', 'd');
+        Observer.Expect('cdata', 'y');
+        Observer.Expect('declaration', '1.0|utf-16|no');
+        Observer.Expect('element_add', 'txt-y29|<e>txt-y29</e>');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y29_XmlOptions_AssignForms()
+    var
+        WO: XmlWriteOptions;
+        RO: XmlReadOptions;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('write_default', Format(WO.PreserveWhitespace()));
+        WO.PreserveWhitespace := true;
+        Observer.Observe('write', Format(WO.PreserveWhitespace()));
+        Observer.Observe('read_default', Format(RO.PreserveWhitespace()));
+        RO.PreserveWhitespace := true;
+        Observer.Observe('read', Format(RO.PreserveWhitespace()));
+        Observer.Expect('write_default', 'No');
+        Observer.Expect('write', 'Yes');
+        Observer.Expect('read_default', 'No');
+        Observer.Expect('read', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y29_TextBuilder_AssignForms()
+    var
+        B: TextBuilder;
+        Observer: Codeunit "Probe Observer";
+    begin
+        B.Append := 'abc';
+        B.Append := 'def';
+        Observer.Observe('append', B.ToText());
+        B.Length := 2;
+        Observer.Observe('length', B.ToText() + '|' + Format(B.Length()));
+        B.Capacity := 200;
+        Observer.Observe('capacity', Format(B.Capacity()));
+        Observer.Expect('append', 'abcdef');
+        Observer.Expect('length', 'ab|2');
+        Observer.Expect('capacity', '200');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y29_Notification_AssignForms()
+    var
+        N: Notification;
+        G: Guid;
+        Observer: Codeunit "Probe Observer";
+    begin
+        N.Message := 'm-y29';
+        Observer.Observe('message', N.Message());
+        N.Scope := NotificationScope::LocalScope;
+        Observer.Observe('scope', Format(N.Scope()));
+        Evaluate(G, '{29292929-0000-0000-0000-000000006526}');
+        N.Id := G;
+        Observer.Observe('id', Format(N.Id()));
+        Observer.Expect('message', 'm-y29');
+        Observer.Expect('scope', 'LocalScope');
+        Observer.Expect('id', '{29292929-0000-0000-0000-000000006526}');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y29_RecordRef_FilterPage_Session_AssignForms()
+    var
+        RR: RecordRef;
+        F: FilterPageBuilder;
+        S: SessionSettings;
+        Observer: Codeunit "Probe Observer";
+    begin
+        RR.Open(Database::"Probe Pf Row");
+        RR.CurrentKeyIndex := 2;
+        Observer.Observe('currentKeyIndex', Format(RR.CurrentKeyIndex()));
+        RR.Close();
+        F.PageCaption := 'cap-y29';
+        Observer.Observe('pageCaption', F.PageCaption());
+        S.Init();
+        S.LanguageId := 1031;
+        Observer.Observe('languageId', Format(S.LanguageId()));
+        Observer.Expect('currentKeyIndex', '2');
+        Observer.Expect('pageCaption', 'cap-y29');
+        Observer.Expect('languageId', '1031');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y29_Collections_Text_Sleep_AssignForms()
+    var
+        L: List of [Integer];
+        D: Dictionary of [Integer, Text];
+        Txt: Text;
+        Dlg: Dialog;
+        Observer: Codeunit "Probe Observer";
+    begin
+        L.Add := 5;
+        L.Add := 6;
+        Observer.Observe('list', Format(L.Count()) + '|' + Format(L.Get(2)));
+        D.Add(1, 'a');
+        D.Add(2, 'b');
+        D.Remove := 1;
+        Observer.Observe('dictionary', Format(D.Count()) + '|' + Format(D.ContainsKey(1)));
+        Txt := 'abc';
+        Txt.Contains := 'b';
+        Observer.Observe('contains', Txt);
+        Sleep := 1;
+        Observer.Observe('sleep', 'ran');
+        Dlg.HideSubsequentDialogs := true;
+        Observer.Observe('hideSubsequentDialogs', 'ran');
+        Observer.Expect('list', '2|6');
+        Observer.Expect('dictionary', '1|No');
+        Observer.Expect('contains', 'abc');
+        Observer.Expect('sleep', 'ran');
+        Observer.Expect('hideSubsequentDialogs', 'ran');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y29_XmlDocument_GetRoot_AssignForm()
+    var
+        Doc: XmlDocument;
+        E: XmlElement;
+        Observer: Codeunit "Probe Observer";
+    begin
+        XmlDocument.ReadFrom('<root-y29><c/></root-y29>', Doc);
+        Doc.GetRoot := E;
+        Observer.Observe('getRoot', E.Name());
+        Observer.Observe('getRoot_empty', Format(TryGetRootAssign()));
+        Observer.ObserveError('getRoot_empty');
+        Observer.Expect('getRoot', 'root-y29');
+        Observer.Expect('getRoot_empty', 'No');
+        Observer.Expect('getRoot_empty|text', 'The XML node is not set.');
+        Observer.Expect('getRoot_empty|code', 'XmlNodeNotFound');
+        Observer.Verify();
+    end;
+
+    [TryFunction]
+    local procedure TryGetRootAssign()
+    var
+        Doc: XmlDocument;
+        E: XmlElement;
+    begin
+        Doc := XmlDocument.Create();
+        Doc.GetRoot := E;
+    end;
+
+    [Test]
+    procedure Y29_Record_AssignForms()
+    var
+        Row: Record "Probe Pf Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Row.Get := 2;
+        Observer.Observe('get', Format(Row.Id) + '|' + Row.Txt);
+        Observer.Observe('get_missing_assign', Format(TryGetAssign(99)));
+        Observer.ObserveError('get_missing_assign');
+        Observer.Observe('get_missing_call', Format(TryGetCall(99)));
+        Observer.ObserveError('get_missing_call');
+        Row.ReadIsolation := IsolationLevel::ReadCommitted;
+        Observer.Observe('readIsolation', Format(Row.ReadIsolation()));
+        Row.SecurityFiltering := SecurityFilter::Filtered;
+        Observer.Observe('securityFiltering', Format(Row.SecurityFiltering()));
+        Observer.Expect('get', '2|row2');
+        Observer.Expect('get_missing_assign', 'No');
+        Observer.Expect('get_missing_assign|text', 'The Probe Pf Row does not exist. Identification fields and values: Id=''99''');
+        Observer.Expect('get_missing_assign|code', 'DB:RecordNotFound');
+        Observer.Expect('get_missing_call', 'No');
+        Observer.Expect('get_missing_call|text', 'The Probe Pf Row does not exist. Identification fields and values: Id=''99''');
+        Observer.Expect('get_missing_call|code', 'DB:RecordNotFound');
+        Observer.Expect('readIsolation', 'ReadCommitted');
+        Observer.Expect('securityFiltering', 'Filtered');
+        Observer.Verify();
+    end;
+
+    [TryFunction]
+    local procedure TryGetAssign(Id: Integer)
+    var
+        Row: Record "Probe Pf Row";
+    begin
+        Row.Get := Id;
+    end;
+
+    [TryFunction]
+    local procedure TryGetCall(Id: Integer)
+    var
+        Row: Record "Probe Pf Row";
+    begin
+        Row.Get(Id);
+    end;
+
+    [Test]
+    procedure Y29_OwnProcedure_AssignForms()
+    var
+        Target: Codeunit "LT Y29 Assign Target";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Target.SetCounter := 7;
+        Observer.Observe('member', Format(Target.Counter()));
+        Observer.Observe('unqualified', Format(Target.RunUnqualified()));
+        Target.SetAndAnswer := 3;
+        Observer.Observe('withReturnValue', Format(Target.Counter()));
+        Observer.Expect('member', '7');
+        Observer.Expect('unqualified', '8');
+        Observer.Expect('withReturnValue', '30');
+        Observer.Verify();
+    end;
+
+    // Writer Y36 (gap cycle 3, C3-09): the assignment form on a RecordRef (Mark, MarkedOnly, Ascending, FilterGroup,
+    // SecurityFiltering, ReadIsolation, ChangeCompany) and on a FieldRef (Validate), next to the call form. Compile (alc 18.1
+    // runtime 16.0 and alc 30 runtime 18.0, same result): these compile; RecordRef.LockTable := and ReadConsistency := (AL0129),
+    // FieldRef.SetRange := (AL0129) and FieldRef.SetFilter := (AL0135) do not (must-not-compile cases 2501 to 2504).
+    // BC (SaaS BC 29): every assignment form does what the call form does: marks set by RR.Mark := true in a loop on a var RecordRef
+    // are seen by MarkedOnly(true) (2 of 4 rows) and kept by Duplicate() and a copy; MarkedOnly := true with no marks finds 0 rows.
+    local procedure Y36SeedRows()
+    var
+        Row: Record "Probe Pf Row";
+        I: Integer;
+    begin
+        Row.DeleteAll();
+        for I := 1 to 4 do begin
+            Row.Init();
+            Row.Id := I;
+            Row.Txt := CopyStr('dcba', I, 1);
+            Row.Insert();
+        end;
+    end;
+
+    local procedure Y36SetMarks(var RR: RecordRef; Value: Boolean)
+    begin
+        if RR.FindSet() then
+            repeat
+                RR.Mark := Value;
+            until RR.Next() = 0;
+    end;
+
+    local procedure Y36Ids(var RR: RecordRef): Text
+    var
+        Result: Text;
+    begin
+        if RR.FindSet() then
+            repeat
+                if Result <> '' then
+                    Result += ',';
+                Result += Format(RR.Field(1).Value());
+            until RR.Next() = 0;
+        exit(Format(RR.Count()) + ':' + Result);
+    end;
+
+    [Test]
+    procedure Y36_RecordRef_Mark_AssignInLoop_ThenMarkedOnly()
+    var
+        RR: RecordRef;
+        FR: FieldRef;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y36SeedRows();
+        RR.Open(Database::"Probe Pf Row");
+        FR := RR.Field(1);
+        FR.SetRange(2, 3);
+        Y36SetMarks(RR, true);
+        FR.SetRange();
+        Observer.Observe('all_rows_before_markedonly', Y36Ids(RR));
+        RR.MarkedOnly(true);
+        Observer.Observe('markedonly_call_true', Y36Ids(RR));
+        RR.MarkedOnly := false;
+        Observer.Observe('markedonly_assign_false', Y36Ids(RR));
+        Observer.Observe('markedonly_getter_after_assign_false', Format(RR.MarkedOnly()));
+        RR.MarkedOnly := true;
+        Observer.Observe('markedonly_assign_true', Y36Ids(RR));
+        Observer.Observe('markedonly_getter_after_assign_true', Format(RR.MarkedOnly()));
+        RR.MarkedOnly(false);
+        FR.SetRange(3);
+        Y36SetMarks(RR, false);
+        FR.SetRange();
+        RR.MarkedOnly(true);
+        Observer.Observe('markedonly_after_unmark_3', Y36Ids(RR));
+        RR.Close();
+        Observer.Expect('all_rows_before_markedonly', '4:1,2,3,4');
+        Observer.Expect('markedonly_call_true', '2:2,3');
+        Observer.Expect('markedonly_assign_false', '4:1,2,3,4');
+        Observer.Expect('markedonly_getter_after_assign_false', 'No');
+        Observer.Expect('markedonly_assign_true', '2:2,3');
+        Observer.Expect('markedonly_getter_after_assign_true', 'Yes');
+        Observer.Expect('markedonly_after_unmark_3', '1:2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y36_RecordRef_Mark_AssignThenReadBothForms()
+    var
+        RR: RecordRef;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y36SeedRows();
+        RR.Open(Database::"Probe Pf Row");
+        RR.FindFirst();
+        Observer.Observe('mark_initial', Format(RR.Mark()));
+        RR.Mark := true;
+        Observer.Observe('mark_after_assign_true', Format(RR.Mark()));
+        RR.Mark(false);
+        Observer.Observe('mark_after_call_false', Format(RR.Mark()));
+        RR.Mark := true;
+        RR.Mark := false;
+        Observer.Observe('mark_after_assign_true_then_false', Format(RR.Mark()));
+        RR.Next();
+        RR.Mark := false;
+        Observer.Observe('mark_assign_false_on_unmarked', Format(RR.Mark()));
+        RR.MarkedOnly(true);
+        Observer.Observe('markedonly_after_all_cleared', Y36Ids(RR));
+        RR.Close();
+        Observer.Expect('mark_initial', 'No');
+        Observer.Expect('mark_after_assign_true', 'Yes');
+        Observer.Expect('mark_after_call_false', 'No');
+        Observer.Expect('mark_after_assign_true_then_false', 'No');
+        Observer.Expect('mark_assign_false_on_unmarked', 'No');
+        Observer.Expect('markedonly_after_all_cleared', '0:');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y36_RecordRef_Ascending_MarkedOnly_Assign()
+    var
+        RR: RecordRef;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y36SeedRows();
+        RR.Open(Database::"Probe Pf Row");
+        Observer.Observe('ascending_initial', Format(RR.Ascending()));
+        RR.Ascending := false;
+        Observer.Observe('ascending_after_assign_false', Format(RR.Ascending()));
+        RR.FindFirst();
+        Observer.Observe('findfirst_descending', Format(RR.Field(1).Value()));
+        RR.CurrentKeyIndex := 2;
+        RR.Ascending := true;
+        RR.FindFirst();
+        Observer.Observe('findfirst_key2_ascending', Format(RR.Field(1).Value()) + ' ' + Format(RR.Field(2).Value()));
+        RR.Ascending := false;
+        RR.FindFirst();
+        Observer.Observe('findfirst_key2_descending', Format(RR.Field(1).Value()) + ' ' + Format(RR.Field(2).Value()));
+        RR.Close();
+        RR.Open(Database::"Probe Pf Row");
+        RR.MarkedOnly := true;
+        Observer.Observe('markedonly_assign_no_marks', Y36Ids(RR));
+        Observer.Observe('markedonly_getter_no_marks', Format(RR.MarkedOnly()));
+        RR.Close();
+        Observer.Expect('ascending_initial', 'Yes');
+        Observer.Expect('ascending_after_assign_false', 'No');
+        Observer.Expect('findfirst_descending', '4');
+        Observer.Expect('findfirst_key2_ascending', '4 a');
+        Observer.Expect('findfirst_key2_descending', '1 d');
+        Observer.Expect('markedonly_assign_no_marks', '0:');
+        Observer.Expect('markedonly_getter_no_marks', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y36_RecordRef_Mark_AfterDuplicate()
+    var
+        RR: RecordRef;
+        RR2: RecordRef;
+        RR3: RecordRef;
+        FR: FieldRef;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y36SeedRows();
+        RR.Open(Database::"Probe Pf Row");
+        FR := RR.Field(1);
+        FR.SetRange(1, 2);
+        Y36SetMarks(RR, true);
+        FR.SetRange();
+        RR2 := RR.Duplicate();
+        RR2.MarkedOnly(true);
+        Observer.Observe('duplicate_markedonly', Y36Ids(RR2));
+        RR3 := RR;
+        RR3.MarkedOnly := true;
+        Observer.Observe('copy_markedonly', Y36Ids(RR3));
+        Observer.Observe('original_markedonly_after_copy', Format(RR.MarkedOnly()));
+        RR.Close();
+        Observer.Expect('duplicate_markedonly', '2:1,2');
+        Observer.Expect('copy_markedonly', '2:1,2');
+        Observer.Expect('original_markedonly_after_copy', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y36_RecordRef_Other_AssignForms()
+    var
+        RR: RecordRef;
+        FR: FieldRef;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y36SeedRows();
+        RR.Open(Database::"Probe Pf Row");
+        RR.FilterGroup := 2;
+        Observer.Observe('filtergroup', Format(RR.FilterGroup()));
+        RR.FilterGroup := 0;
+        RR.SecurityFiltering := SecurityFilter::Filtered;
+        Observer.Observe('securityfiltering', Format(RR.SecurityFiltering()));
+        RR.ReadIsolation := IsolationLevel::ReadCommitted;
+        Observer.Observe('readisolation', Format(RR.ReadIsolation()));
+        Observer.Observe('changecompany_result_before', Format(RR.CurrentCompany() = CompanyName()));
+        RR.ChangeCompany := CompanyName();
+        Observer.Observe('changecompany_same', Format(RR.CurrentCompany() = CompanyName()) + ' ' + Format(RR.Count()));
+        RR.FindFirst();
+        FR := RR.Field(2);
+        FR.Validate := 'v';
+        Observer.Observe('fieldref_validate_assign', Format(FR.Value()));
+        FR.Value := 'w';
+        Observer.Observe('fieldref_value_assign', Format(FR.Value()));
+        RR.Close();
+        Observer.Expect('filtergroup', '2');
+        Observer.Expect('securityfiltering', 'Filtered');
+        Observer.Expect('readisolation', 'ReadCommitted');
+        Observer.Expect('changecompany_result_before', 'Yes');
+        Observer.Expect('changecompany_same', 'Yes 4');
+        Observer.Expect('fieldref_validate_assign', 'v');
+        Observer.Expect('fieldref_value_assign', 'w');
+        Observer.Verify();
+    end;
+}
+
+codeunit 92290 "LT Y29 Assign Target"
+{
+    var
+        Value: Integer;
+
+    procedure SetCounter(NewValue: Integer)
+    begin
+        Value := NewValue;
+    end;
+
+    procedure SetAndAnswer(NewValue: Integer): Boolean
+    begin
+        Value := NewValue * 10;
+        exit(true);
+    end;
+
+    procedure Counter(): Integer
+    begin
+        exit(Value);
+    end;
+
+    procedure RunUnqualified(): Integer
+    begin
+        SetCounter := Value + 1;
+        exit(Value);
+    end;
 }

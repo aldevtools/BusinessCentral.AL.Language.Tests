@@ -8,6 +8,7 @@
 // on the root, on a table element and on a field element; XmlVersionNo = V11 imports of a 1.0 declaration and of no declaration; Unbound = true on a
 // table element; a namespace prefix that no node uses; InlineSchema with more field types, attributes, empty values and no rows.
 // The export of a port with an unbound field element is not probed: it does not end (YXmlPortProps.al:716).
+// Writer SQ (2026-10-28): xmlport 89580 with UseDefaultNamespace = true and no DefaultNamespace: export text and imports by root namespace (SqUseDefaultNamespace_NoDefaultNamespace).
 // BC versions: 27-29
 
 table 81080 "BD XP Types"
@@ -490,6 +491,38 @@ codeunit 81086 "BD XmlPort Tests"
         Observer.Expect('empty', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">|  <xs:complexType name="Row">|    <xs:sequence>|      <xs:element minOccurs="1" maxOccurs="1" name="Name" type="xs:string" />|      <xs:element minOccurs="0" maxOccurs="unbounded" name="Extra" type="xs:string" />|    </xs:sequence>|    <xs:attribute name="Id" type="xs:string" use="required" />|    <xs:attribute name="Amt" type="xs:string" use="required" />|    <xs:attribute name="B" type="xs:string" use="optional" />|    <xs:attribute name="Note" type="xs:string" use="required" />|  </xs:complexType>|  <xs:complexType name="Root" mixed="true">|    <xs:sequence>|      <xs:element minOccurs="0" maxOccurs="unbounded" name="Row" type="Row" />|    </xs:sequence>|  </xs:complexType>|  <xs:element name="Root" type="Root" />|</xs:schema><Row Id="1" Amt="0.00" B="No" Note=""><Name /><Extra /></Row></Root>|');
         Observer.Verify();
     end;
+
+    // Writer SQ (NP lane 2026-10-28): UseDefaultNamespace = true and no DefaultNamespace (xmlport 89580). The export writes BC's own namespace
+    // urn:microsoft-dynamics-nav/xmlports/x<id>; the imports put the root in that namespace, in another one, in none, behind a prefix, and in that
+    // namespace with children reset to no namespace.
+    [Test]
+    procedure SqUseDefaultNamespace_NoDefaultNamespace()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Export(Observer, 'export', 89580);
+        Import(Observer, 'bc namespace', 89580, '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x89580"><Item><Id>14</Id><Name>fourteen</Name></Item></Root>');
+        Import(Observer, 'other namespace', 89580, '<Root xmlns="urn:other"><Item><Id>15</Id><Name>fifteen</Name></Item></Root>');
+        Import(Observer, 'no namespace', 89580, '<Root><Item><Id>16</Id><Name>sixteen</Name></Item></Root>');
+        Import(Observer, 'bc namespace prefixed', 89580, '<p:Root xmlns:p="urn:microsoft-dynamics-nav/xmlports/x89580"><p:Item><p:Id>17</p:Id><p:Name>seventeen</p:Name></p:Item></p:Root>');
+        Import(Observer, 'bc namespace children none', 89580, '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x89580"><Item xmlns=""><Id>18</Id><Name>eighteen</Name></Item></Root>');
+        Import(Observer, 'other port namespace', 89580, '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x81085"><Item><Id>19</Id><Name>nineteen</Name></Item></Root>');
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x89580">|  <Item>|    <Id>1</Id>|    <Name>one</Name>|  </Item>|  <Item>|    <Id>2</Id>|    <Name>two</Name>|  </Item>|</Root>|');
+        Observer.Expect('bc namespace', 'ok');
+        Observer.Expect('bc namespace rows', '1/one/5;2/two/6;14/fourteen/0;');
+        Observer.Expect('other namespace', 'error:The element <Root> cannot be found in the object description.|XmlPortElementNotFound');
+        Observer.Expect('other namespace rows', '1/one/5;2/two/6;');
+        Observer.Expect('no namespace', 'error:The element <Root> cannot be found in the object description.|XmlPortElementNotFound');
+        Observer.Expect('no namespace rows', '1/one/5;2/two/6;');
+        Observer.Expect('bc namespace prefixed', 'ok');
+        Observer.Expect('bc namespace prefixed rows', '1/one/5;2/two/6;17/seventeen/0;');
+        Observer.Expect('bc namespace children none', 'error:Imported XML cannot validate with the schema: The element ''Root'' in namespace ''urn:microsoft-dynamics-nav/xmlports/x89580'' has invalid child element ''Item''. List of possible elements expected: ''Item'' in namespace ''urn:microsoft-dynamics-nav/xmlports/x89580''.|XmlPortInvalidXml');
+        Observer.Expect('bc namespace children none rows', '1/one/5;2/two/6;');
+        Observer.Expect('other port namespace', 'error:The element <Root> cannot be found in the object description.|XmlPortElementNotFound');
+        Observer.Expect('other port namespace rows', '1/one/5;2/two/6;');
+        Observer.Verify();
+    end;
 }
 
 codeunit 81114 "BD XP State"
@@ -543,4 +576,27 @@ codeunit 81115 "BD XP Import Runner"
         Evaluate(Id, Text);
         exit(Id);
     end;
+}
+
+
+// Writer SQ (NP lane 2026-10-28): UseDefaultNamespace = true without DefaultNamespace and without Namespaces.
+xmlport 89580 "LT SQ XP Use Default Ns"
+{
+    Format = Xml;
+    Direction = Both;
+    UseRequestPage = false;
+    UseDefaultNamespace = true;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Rw; "LT Y Item")
+            {
+                XmlName = 'Item';
+                fieldelement(Id; Rw.Id) { }
+                fieldelement(Name; Rw.Name) { }
+            }
+        }
+    }
 }

@@ -646,4 +646,129 @@ codeunit 79013 "LT AJ Misc"
 #endif
         Observer.Verify();
     end;
+
+    // ---- Writer SG (2026-10-27): every column of the Field row of the rowversion field (timestamp) found by TableNo + FieldName, the lookups
+    // that combine the name with other filters (ObsoleteState, Type, Class, a case-insensitive name filter), the name alone (no TableNo), and
+    // Base Application's Data Type Management.FindFieldByName on a RecordRef. ----
+
+    local procedure SgAllColumns(var Fld: Record Field): Text
+    begin
+        exit(StrSubstNo('TableNo=%1|No=%2|TableName=%3|FieldName=%4|Type=%5|Len=%6|Class=%7|Enabled=%8|TypeName=%9', Fld.TableNo, Fld."No.", Fld.TableName, Fld.FieldName, Fld.Type, Fld.Len, Fld.Class, Fld.Enabled, Fld."Type Name") +
+            StrSubstNo('|Caption=%1|RelationTableNo=%2|RelationFieldNo=%3|SQLDataType=%4|OptionString=%5|ObsoleteState=%6|ObsoleteReason=%7|DataClassification=%8|IsPartOfPrimaryKey=%9', Fld."Field Caption", Fld.RelationTableNo, Fld.RelationFieldNo, Fld.SQLDataType, Fld.OptionString, Fld.ObsoleteState, Fld.ObsoleteReason, Fld.DataClassification, Fld.IsPartOfPrimaryKey));
+    end;
+
+    local procedure SgFound(var Fld: Record Field): Text
+    begin
+        if not Fld.FindFirst() then
+            exit('none');
+        exit(Format(Fld.Count()) + ':' + Format(Fld."No.") + ':' + Fld.FieldName);
+    end;
+
+    [Test]
+    procedure SG_FieldTable_RowVersion_AllColumns()
+    var
+        Fld: Record Field;
+    begin
+        Fld.SetRange(TableNo, Database::Customer);
+        Fld.SetRange(FieldName, 'timestamp');
+        if Fld.FindFirst() then
+            Observer.Observe('customer', SgAllColumns(Fld))
+        else
+            Observer.Observe('customer', 'none');
+        Fld.SetRange(TableNo, Database::"LT AJ Ts");
+        if Fld.FindFirst() then
+            Observer.Observe('own table', SgAllColumns(Fld))
+        else
+            Observer.Observe('own table', 'none');
+        Observer.Expect('customer', 'TableNo=18|No=0|TableName=Customer|FieldName=timestamp|Type=BigInteger|Len=8|Class=Normal|Enabled=Yes|TypeName=BigInteger|Caption=timestamp|RelationTableNo=0|RelationFieldNo=0|SQLDataType=Varchar|OptionString=|ObsoleteState=No|ObsoleteReason=|DataClassification=ToBeClassified|IsPartOfPrimaryKey=No');
+        Observer.Expect('own table', 'TableNo=79018|No=0|TableName=LT AJ Ts|FieldName=timestamp|Type=BigInteger|Len=8|Class=Normal|Enabled=Yes|TypeName=BigInteger|Caption=timestamp|RelationTableNo=0|RelationFieldNo=0|SQLDataType=Varchar|OptionString=|ObsoleteState=No|ObsoleteReason=|DataClassification=ToBeClassified|IsPartOfPrimaryKey=No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SG_FieldTable_RowVersion_NameWithOtherFilters()
+    var
+        Fld: Record Field;
+    begin
+        Fld.SetRange(TableNo, Database::Customer);
+        Fld.SetRange(FieldName, 'timestamp');
+        Fld.SetRange(ObsoleteState, Fld.ObsoleteState::No);
+        Observer.Observe('name + ObsoleteState No', SgFound(Fld));
+        Fld.SetFilter(ObsoleteState, '<>%1', Fld.ObsoleteState::Removed);
+        Observer.Observe('name + ObsoleteState <> Removed', SgFound(Fld));
+        Fld.SetRange(ObsoleteState);
+        Fld.SetRange(Type, Fld.Type::BigInteger);
+        Observer.Observe('name + Type BigInteger', SgFound(Fld));
+        Fld.SetRange(Type);
+        Fld.SetRange(Class, Fld.Class::Normal);
+        Observer.Observe('name + Class Normal', SgFound(Fld));
+        Fld.SetRange(Class);
+        Fld.SetRange(Enabled, true);
+        Observer.Observe('name + Enabled', SgFound(Fld));
+        Fld.Reset();
+        Fld.SetRange(TableNo, Database::Customer);
+        Fld.SetFilter(FieldName, '@TIMESTAMP');
+        Observer.Observe('case-insensitive name filter', SgFound(Fld));
+        Fld.SetFilter(FieldName, 'times*');
+        Observer.Observe('wildcard name filter', SgFound(Fld));
+        Fld.SetFilter(FieldName, 'timestamp|No.');
+        Observer.Observe('name or another name', SgFound(Fld));
+        Fld.Reset();
+        Fld.SetRange(TableNo, Database::Customer);
+        Fld.SetRange(Type, Fld.Type::BigInteger);
+        Observer.Observe('TableNo + Type BigInteger, no name', SgFound(Fld));
+        Observer.Expect('name + ObsoleteState No', '1:0:timestamp');
+        Observer.Expect('name + ObsoleteState <> Removed', '1:0:timestamp');
+        Observer.Expect('name + Type BigInteger', '1:0:timestamp');
+        Observer.Expect('name + Class Normal', '1:0:timestamp');
+        Observer.Expect('name + Enabled', '1:0:timestamp');
+        Observer.Expect('case-insensitive name filter', 'none');
+        Observer.Expect('wildcard name filter', 'none');
+        Observer.Expect('name or another name', '1:1:No.');
+        Observer.Expect('TableNo + Type BigInteger, no name', 'none');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SG_FieldTable_RowVersion_NameAlone()
+    var
+        Fld: Record Field;
+    begin
+        Fld.SetRange(FieldName, 'timestamp');
+        Observer.Observe('name alone is empty', Format(Fld.IsEmpty()));
+        Fld.SetRange(TableNo, Database::Customer, Database::Customer);
+        Observer.Observe('name + TableNo range of one', SgFound(Fld));
+        Fld.SetFilter(TableNo, '%1|%2', Database::Customer, Database::"LT AJ Ts");
+        Observer.Observe('name + two tables', SgFound(Fld));
+        Observer.Expect('name alone is empty', 'No');
+        Observer.Expect('name + TableNo range of one', '1:0:timestamp');
+        Observer.Expect('name + two tables', '2:0:timestamp');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SG_FieldTable_RowVersion_FindFieldByName()
+    var
+        DataTypeMgt: Codeunit "Data Type Management";
+        RecRef: RecordRef;
+        FRef: FieldRef;
+    begin
+        RecRef.Open(Database::Customer);
+        Observer.Observe('customer found', Format(DataTypeMgt.FindFieldByName(RecRef, FRef, 'timestamp')));
+        Observer.Observe('customer field', Format(FRef.Number) + ':' + FRef.Name + ':' + Format(FRef.Type) + ':' + Format(FRef.Class));
+        RecRef.Close();
+        RecRef.Open(Database::"LT AJ Ts");
+        Observer.Observe('own found', Format(DataTypeMgt.FindFieldByName(RecRef, FRef, 'timestamp')));
+        Observer.Observe('own field', Format(FRef.Number) + ':' + FRef.Name + ':' + Format(FRef.Type) + ':' + Format(FRef.Class));
+        Observer.Observe('upper case found', Format(DataTypeMgt.FindFieldByName(RecRef, FRef, 'TIMESTAMP')));
+        Observer.Observe('SystemRowVersion found', Format(DataTypeMgt.FindFieldByName(RecRef, FRef, 'SystemRowVersion')));
+        RecRef.Close();
+        Observer.Expect('customer found', 'Yes');
+        Observer.Expect('customer field', '0:timestamp:BigInteger:Normal');
+        Observer.Expect('own found', 'Yes');
+        Observer.Expect('own field', '0:timestamp:BigInteger:Normal');
+        Observer.Expect('upper case found', 'No');
+        Observer.Expect('SystemRowVersion found', 'No');
+        Observer.Verify();
+    end;
 }

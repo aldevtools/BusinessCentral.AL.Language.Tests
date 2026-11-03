@@ -1,0 +1,153 @@
+name: BC leg (shards of one test app on one BC version)
+
+# Called by every test job of ci.yml: one leg = one test app on one BC version. It runs the leg's shards (planned by
+# the prepare job, .github/scripts/ci-shards.py), each in a BC container of its own, through bc-linux's
+# bc-test-from-source.yml, and then the job `test`, which merges the shards' JUnit into the one artifact the leg has
+# always had and reports the leg's result.
+#
+# CHECK NAMES. A caller job named "BC 29.0" gets the checks "BC 29.0 / shard 1 of 3 / test" (one per shard) and
+# "BC 29.0 / test" (the job `test` below). The second is the name the master ruleset requires, so the required checks
+# and the names the CI batcher and corpus_bump.sh read did not change when the legs were split into shards.
+#
+# ARTIFACT. Every shard uploads junit-test-results-<bc_version> (the name is fixed in bc-linux). With more than one shard
+# the job `test` merges them, uploads the merged file under the same name and deletes the shards' artifacts, so a run
+# keeps one artifact per leg holding one JUnit file, as before. A shard re-run ("Re-run failed jobs") uploads a new
+# artifact; the merge then takes the earlier merged file and replaces the re-run shard's codeunits with the new results.
+#
+# SKIPPED LEG. On a pull request a leg whose app has nothing affected gets no shard (shards = []). The shard job is
+# then skipped and `test` reports success without starting BC. Any other skipped or cancelled shard fails `test`.
+
+on:
+  workflow_call:
+    inputs:
+      shards:
+        description: 'JSON list [{"n": "1 of 3", "range": codeunit_range}] from the prepare job; [] runs nothing; "null" (no plan) runs codeunit_range as one shard'
+        type: string
+        required: true
+      runner_image:           {type: string, default: ""}
+      bc_version:             {type: string, required: true}
+      bc_country:             {type: string, default: "w1"}
+      app_dirs:               {type: string, default: ""}
+      test_app_dirs:          {type: string, required: true}
+      codeunit_range:         {type: string, required: true}
+      preprocessor_symbols:   {type: string, default: ""}
+      al_tool_version:        {type: string, default: ""}
+      runtime_version:        {type: string, default: ""}
+      bc_artifact_url:        {type: string, default: ""}
+      sql_image:              {type: string, default: ""}
+      timeout_minutes:        {type: number, default: 45}
+      test_timeout_minutes:   {type: number, default: 30}
+      rdlc_renderer:          {type: boolean, default: false}
+      rdlc_trust_layouts:     {type: boolean, default: false}
+      assembly_probing_paths: {type: string, default: ""}
+      extra_apps:             {type: string, default: ""}
+
+jobs:
+  shard:
+    if: ${{ inputs.shards != '[]' }}
+    name: shard ${{ matrix.shard.n }}
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJson(inputs.shards != 'null' && inputs.shards || format('[{{"n":"1 of 1","range":"{0}"}}]', inputs.codeunit_range)) }}
+    # Workflow and scripts pinned for corpus bump 63 to bc-linux 65f6b26: a write into a missing folder fails with
+    # InvalidPath as on Windows (#189). Bump 62 pin 84291ff before: fr-FR group separator U+00A0 on BC 27/28 as on
+    # Windows (#174); DotNet System.IO sees the files AL File wrote under the user folder and returns paths with '\'
+    # (#175, #181); MediaSet.ImportFile stores the bare file name (#176); Directory/DirectoryInfo listings match patterns
+    # case-insensitively and list in name order (#183). Earlier: #165, #166, #167. The runner images in ci.yml carry
+    # the same commit; move both together.
+    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@65f6b26bbc5041a567790812773522accfae5473
+    with:
+      bc_linux_ref:           "65f6b26bbc5041a567790812773522accfae5473"
+      runner_image:           ${{ inputs.runner_image }}
+      bc_version:             ${{ inputs.bc_version }}
+      bc_country:             ${{ inputs.bc_country }}
+      app_dirs:               ${{ inputs.app_dirs }}
+      test_app_dirs:          ${{ inputs.test_app_dirs }}
+      codeunit_range:         ${{ matrix.shard.range }}
+      preprocessor_symbols:   ${{ inputs.preprocessor_symbols }}
+      al_tool_version:        ${{ inputs.al_tool_version }}
+      runtime_version:        ${{ inputs.runtime_version }}
+      bc_artifact_url:        ${{ inputs.bc_artifact_url }}
+      sql_image:              ${{ inputs.sql_image }}
+      timeout_minutes:        ${{ inputs.timeout_minutes }}
+      test_timeout_minutes:   ${{ inputs.test_timeout_minutes }}
+      rdlc_renderer:          ${{ inputs.rdlc_renderer }}
+      rdlc_trust_layouts:     ${{ inputs.rdlc_trust_layouts }}
+      assembly_probing_paths: ${{ inputs.assembly_probing_paths }}
+      extra_apps:             ${{ inputs.extra_apps }}
+
+  test:
+    needs: shard
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+      - id: merge
+        name: Merge the shards' JUnit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NAME: junit-test-results-${{ inputs.bc_version }}
+          TEST_APP_DIRS: ${{ inputs.test_app_dirs }}
+          SHARDS: ${{ inputs.shards }}
+        run: |
+          set -euo pipefail
+          xml="junit-$(basename "$(printf '%s\n' "$TEST_APP_DIRS" | sed '/^$/d' | head -n 1)").xml"
+          n=$(python3 -c 'import json,sys; s=sys.argv[1]; print(1 if s == "null" else len(json.loads(s)))' "$SHARDS")
+          echo "xml=$xml" >> "$GITHUB_OUTPUT"
+          [ "$n" -gt 0 ] || { echo "no shard planned: nothing to merge"; exit 0; }
+          mkdir -p shards merged
+          # This run's artifacts of this leg: the name is shared by every test app of the BC version, so keep those that
+          # hold this app's JUnit file. Oldest first: a later one (a re-run shard) wins in the merge.
+          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?per_page=100" \
+            --jq ".artifacts[] | select(.name == \"$NAME\") | \"\(.created_at) \(.id)\"" | sort | while read -r _ id; do
+            d="shards/$id"; mkdir -p "$d"
+            gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$id/zip" > "$d/a.zip"
+            if unzip -o -q "$d/a.zip" "$xml" -d "$d" 2>/dev/null; then echo "$id" >> ids.txt; else rm -rf "$d"; fi
+          done
+          touch ids.txt
+          count=$(grep -c . ids.txt || true)
+          echo "artifacts of this leg: $count (shards planned: $n)"
+          if [ "$count" -eq 0 ]; then echo "::warning::no JUnit artifact of this leg"; exit 0; fi
+          if [ "$count" -eq 1 ] && [ "$n" -eq 1 ]; then echo "one shard: its artifact is the leg's artifact"; exit 0; fi
+          files=(); while read -r id; do files+=("shards/$id/$xml"); done < ids.txt
+          python3 .github/scripts/ci-shards.py merge --out "merged/$xml" "${files[@]}"
+          python3 - "merged/$xml" <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import sys, xml.etree.ElementTree as ET
+          r = ET.parse(sys.argv[1]).getroot()
+          print('Merged JUnit: %d codeunits, %s tests, %s failures, %s errors' % (len(r.findall('testsuite')), r.get('tests'), r.get('failures'), r.get('errors')))
+          EOF
+          echo "merged=1" >> "$GITHUB_OUTPUT"
+      - name: Upload the leg's JUnit
+        if: ${{ steps.merge.outputs.merged == '1' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-test-results-${{ inputs.bc_version }}
+          path: merged/${{ steps.merge.outputs.xml }}
+          retention-days: 14
+      # The merged artifact is the newest, so a consumer that takes the newest per JUnit file name is right even when
+      # this step fails; it only keeps the run's artifact list as it was before shards.
+      - name: Delete the shards' artifacts
+        if: ${{ steps.merge.outputs.merged == '1' }}
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          while read -r id; do gh api -X DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$id" && echo "deleted $id"; done < ids.txt
+      - name: Leg result
+        env:
+          RESULT: ${{ needs.shard.result }}
+          SHARDS: ${{ inputs.shards }}
+        run: |
+          if [ "$SHARDS" = "[]" ] && [ "$RESULT" = "skipped" ]; then
+            echo "Nothing in this leg's test app is affected by the change: no BC container started." | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "shards: $RESULT"
+          [ "$RESULT" = "success" ]
