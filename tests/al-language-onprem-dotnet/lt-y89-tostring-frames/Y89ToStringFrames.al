@@ -68,6 +68,8 @@ codeunit 99336 "LT Y89 Frame Tests"
         L: Text;
         Parts: List of [Text];
         I: Integer;
+        Kept: Integer;
+        Generated: Integer;
         Cr: Text[1];
         Lf: Text[1];
     begin
@@ -76,9 +78,15 @@ codeunit 99336 "LT Y89 Frame Tests"
         Exc := GetLastErrorObject();
         Full := Exc.ToString().Replace(Cr, '');
         Parts := Full.Split(Lf);
-        Observer.Observe(Name + ' count', Format(Parts.Count()));
+        // Lines of compiler-generated methods (their names carry numbers that change with the code around them) are only counted.
         for I := 1 to Parts.Count() do
-            Observer.Observe(Name + ' ' + Format(I), Parts.Get(I));
+            if Parts.Get(I).Contains('b__') then
+                Generated += 1
+            else begin
+                Kept += 1;
+                Observer.Observe(Name + ' ' + Format(Kept), Parts.Get(I));
+            end;
+        Observer.Observe(Name + ' generated', Format(Generated));
     end;
 
     [Test]
@@ -88,7 +96,11 @@ codeunit 99336 "LT Y89 Frame Tests"
     begin
         asserterror Error('LT Y89 plain');
         Lines(Observer, 'l');
-        Observer.Finish();
+        Observer.Expect('l 1', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavNCLDialogException: LT Y89 plain');
+        Observer.Expect('l 2', '--- End of stack trace from previous location ---');
+        Observer.Expect('l 3', '   at Microsoft.Dynamics.Nav.Runtime.NavMethodScope.AssertErrorAsync(Func`1 body)');
+        Observer.Expect('l generated', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -99,7 +111,23 @@ codeunit 99336 "LT Y89 Frame Tests"
     begin
         asserterror T.Level1();
         Lines(Observer, 'l');
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('l 1', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavNCLDialogException: LT Y89 deep');
+        Observer.Expect('l 2', '   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99335.Level2()');
+        Observer.Expect('l 3', '   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99335.Level1()');
+        Observer.Expect('l 4', '   at Microsoft.Dynamics.Nav.Types.ValueTaskExtensions.ManualResetValueTaskSource`1.GetResult(Int16 token)');
+        Observer.Expect('l 5', '--- End of stack trace from previous location ---');
+        Observer.Expect('l 6', '   at Microsoft.Dynamics.Nav.Runtime.NavMethodScope.AssertErrorAsync(Func`1 body)');
+        Observer.Expect('l generated', '1');
+#else
+        Observer.Expect('l 1', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavNCLDialogException: LT Y89 deep');
+        Observer.Expect('l 2', '   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99335.Level2()');
+        Observer.Expect('l 3', '   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99335.Level1()');
+        Observer.Expect('l 4', '--- End of stack trace from previous location ---');
+        Observer.Expect('l 5', '   at Microsoft.Dynamics.Nav.Runtime.NavMethodScope.AssertErrorAsync(Func`1 body)');
+        Observer.Expect('l generated', '1');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -110,7 +138,27 @@ codeunit 99336 "LT Y89 Frame Tests"
     begin
         asserterror T.Divide();
         Lines(Observer, 'l');
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('l 1', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavALException: Attempted to divide by zero.');
+        Observer.Expect('l 2', ' ---> System.DivideByZeroException: Attempted to divide by zero.');
+        Observer.Expect('l 3', '   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99335.Divide()');
+        Observer.Expect('l 4', '   --- End of inner exception stack trace ---');
+        Observer.Expect('l 5', '   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99335.Divide()');
+        Observer.Expect('l 6', '   at Microsoft.Dynamics.Nav.Types.ValueTaskExtensions.ManualResetValueTaskSource`1.GetResult(Int16 token)');
+        Observer.Expect('l 7', '--- End of stack trace from previous location ---');
+        Observer.Expect('l 8', '   at Microsoft.Dynamics.Nav.Runtime.NavMethodScope.AssertErrorAsync(Func`1 body)');
+        Observer.Expect('l generated', '1');
+#else
+        Observer.Expect('l 1', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavALException: Attempted to divide by zero.');
+        Observer.Expect('l 2', ' ---> System.DivideByZeroException: Attempted to divide by zero.');
+        Observer.Expect('l 3', '   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99335.Divide()');
+        Observer.Expect('l 4', '   --- End of inner exception stack trace ---');
+        Observer.Expect('l 5', '   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99335.Divide()');
+        Observer.Expect('l 6', '--- End of stack trace from previous location ---');
+        Observer.Expect('l 7', '   at Microsoft.Dynamics.Nav.Runtime.NavMethodScope.AssertErrorAsync(Func`1 body)');
+        Observer.Expect('l generated', '1');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -120,7 +168,23 @@ codeunit 99336 "LT Y89 Frame Tests"
     begin
         if TryDeep() then;
         Lines(Observer, 'l');
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('l 1', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavNCLDialogException: LT Y89 deep');
+        Observer.Expect('l 2', '   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99335.Level2()');
+        Observer.Expect('l 3', '   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99335.Level1()');
+        Observer.Expect('l 4', '   at Microsoft.Dynamics.Nav.Types.ValueTaskExtensions.ManualResetValueTaskSource`1.GetResult(Int16 token)');
+        Observer.Expect('l 5', '   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99336.TryDeep()');
+        Observer.Expect('l 6', '   at Microsoft.Dynamics.Nav.Runtime.NavApplicationObjectBase.TryInvokeAsync(NavSession session, Func`1 method)');
+        Observer.Expect('l generated', '1');
+#else
+        Observer.Expect('l 1', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavNCLDialogException: LT Y89 deep');
+        Observer.Expect('l 2', '   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99335.Level2()');
+        Observer.Expect('l 3', '   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99335.Level1()');
+        Observer.Expect('l 4', '   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99336.TryDeep()');
+        Observer.Expect('l 5', '   at Microsoft.Dynamics.Nav.Runtime.NavApplicationObjectBase.TryInvokeAsync(NavSession session, Func`1 method)');
+        Observer.Expect('l generated', '1');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -130,6 +194,26 @@ codeunit 99336 "LT Y89 Frame Tests"
     begin
         if TryDivide() then;
         Lines(Observer, 'l');
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('l 1', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavALException: Attempted to divide by zero.');
+        Observer.Expect('l 2', ' ---> System.DivideByZeroException: Attempted to divide by zero.');
+        Observer.Expect('l 3', '   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99335.Divide()');
+        Observer.Expect('l 4', '   --- End of inner exception stack trace ---');
+        Observer.Expect('l 5', '   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99335.Divide()');
+        Observer.Expect('l 6', '   at Microsoft.Dynamics.Nav.Types.ValueTaskExtensions.ManualResetValueTaskSource`1.GetResult(Int16 token)');
+        Observer.Expect('l 7', '   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99336.TryDivide()');
+        Observer.Expect('l 8', '   at Microsoft.Dynamics.Nav.Runtime.NavApplicationObjectBase.TryInvokeAsync(NavSession session, Func`1 method)');
+        Observer.Expect('l generated', '1');
+#else
+        Observer.Expect('l 1', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavALException: Attempted to divide by zero.');
+        Observer.Expect('l 2', ' ---> System.DivideByZeroException: Attempted to divide by zero.');
+        Observer.Expect('l 3', '   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99335.Divide()');
+        Observer.Expect('l 4', '   --- End of inner exception stack trace ---');
+        Observer.Expect('l 5', '   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99335.Divide()');
+        Observer.Expect('l 6', '   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99336.TryDivide()');
+        Observer.Expect('l 7', '   at Microsoft.Dynamics.Nav.Runtime.NavApplicationObjectBase.TryInvokeAsync(NavSession session, Func`1 method)');
+        Observer.Expect('l generated', '1');
+#endif
+        Observer.Verify();
     end;
 }
