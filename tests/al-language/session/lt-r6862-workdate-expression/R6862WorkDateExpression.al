@@ -46,9 +46,9 @@ codeunit 94960 "LT R6862 WorkDate Tests"
         Saved := WorkDate();
         WorkDate(DMY2Date(1, 2, 2031));
         Result := WorkDate(0D);
-        Observer.Observe('empty: result', Format(Result, 0, 9));
+        Observer.Observe('empty: result = Today', Format(Result = Today()));
         Observer.Observe('empty: result = 0D', Format(Result = 0D));
-        Observer.Observe('empty: WorkDate after', Format(WorkDate(), 0, 9));
+        Observer.Observe('empty: WorkDate = Today', Format(WorkDate() = Today()));
         Observer.Observe('empty: WorkDate = 0D', Format(WorkDate() = 0D));
         WorkDate(DMY2Date(1, 2, 2031));
         Result := WorkDate(ClosingDate(DMY2Date(31, 12, 2031)));

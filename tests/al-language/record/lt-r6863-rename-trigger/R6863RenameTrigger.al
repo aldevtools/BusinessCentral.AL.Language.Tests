@@ -42,6 +42,8 @@ codeunit 94971 "LT R6863 Cfg"
         Hits: Integer;
         LastRec: Integer;
         LastXRec: Integer;
+        NextId: Integer;
+        UseRef: Boolean;
 
     procedure Reset(NewRaise: Boolean)
     begin
@@ -58,6 +60,18 @@ codeunit 94971 "LT R6863 Cfg"
         LastXRec := OldId;
     end;
 
+    procedure SetNext(NewId: Integer; NewUseRef: Boolean)
+    begin
+        NextId := NewId;
+        UseRef := NewUseRef;
+    end;
+
+    procedure NextRename(var NewId: Integer): Boolean
+    begin
+        NewId := NextId;
+        exit(UseRef);
+    end;
+
     procedure RaiseError(): Boolean
     begin
         exit(Raise);
@@ -66,6 +80,25 @@ codeunit 94971 "LT R6863 Cfg"
     procedure Describe(): Text
     begin
         exit(StrSubstNo('hits=%1 rec=%2 xrec=%3', Hits, LastRec, LastXRec));
+    end;
+}
+
+codeunit 94973 "LT R6863 Do Rename"
+{
+    TableNo = "LT R6863 Work";
+
+    trigger OnRun()
+    var
+        Cfg: Codeunit "LT R6863 Cfg";
+        Ref: RecordRef;
+        NewId: Integer;
+    begin
+        if Cfg.NextRename(NewId) then begin
+            Ref.GetTable(Rec);
+            Ref.Rename(NewId);
+            Ref.SetTable(Rec);
+        end else
+            Rec.Rename(NewId);
     end;
 }
 
@@ -147,7 +180,7 @@ codeunit 94972 "LT R6863 Rename Tests"
         W.Payload := 'a';
         W.Insert(true);
         First := W.ID;
-        Observer.Observe('ok', Format(TryRename(W, W.ID + 1000)));
+        Observer.Observe('ok', Format(RunRename(W, W.ID + 1000, false)));
         Observer.ObserveError('rename');
         Observer.Observe('rec.ID changed', Format(W.ID <> First));
         Observer.Observe('old row exists', Format(W.Get(First)));
@@ -195,7 +228,7 @@ codeunit 94972 "LT R6863 Rename Tests"
         Label := 'new raise=' + Format(Raise);
         Setup(Raise, W, Observer, Label);
         First := W.ID;
-        Observer.Observe(Label + ' ok', Format(TryRename(W, W.ID + 1000)));
+        Observer.Observe(Label + ' ok', Format(RunRename(W, W.ID + 1000, false)));
         Report(Observer, Label, W, First);
     end;
 
@@ -208,7 +241,7 @@ codeunit 94972 "LT R6863 Rename Tests"
         Label := 'same raise=' + Format(Raise);
         Setup(Raise, W, Observer, Label);
         First := W.ID;
-        Observer.Observe(Label + ' ok', Format(TryRename(W, W.ID)));
+        Observer.Observe(Label + ' ok', Format(RunRename(W, W.ID, false)));
         Report(Observer, Label, W, First);
     end;
 
@@ -226,7 +259,7 @@ codeunit 94972 "LT R6863 Rename Tests"
         Other.ID := 0;
         Other.Payload := 'b';
         Other.Insert(true);
-        Observer.Observe(Label + ' ok', Format(TryRename(W, Other.ID)));
+        Observer.Observe(Label + ' ok', Format(RunRename(W, Other.ID, false)));
         Report(Observer, Label, W, First);
     end;
 
@@ -241,7 +274,7 @@ codeunit 94972 "LT R6863 Rename Tests"
         Setup(Raise, W, Observer, Label);
         First := W.ID;
         Missing.ID := First + 500;
-        Observer.Observe(Label + ' ok', Format(TryRename(Missing, First + 600)));
+        Observer.Observe(Label + ' ok', Format(RunRename(Missing, First + 600, false)));
         Observer.ObserveError(Label);
         Observer.Observe(Label + ' trigger', Describe());
     end;
@@ -257,7 +290,7 @@ codeunit 94972 "LT R6863 Rename Tests"
         Setup(Raise, W, Observer, Label);
         First := W.ID;
         Ref.GetTable(W);
-        Observer.Observe(Label + ' ok', Format(TryRenameRef(Ref, First + 1000)));
+        Observer.Observe(Label + ' ok', Format(RunRename(W, First + 1000, true)));
         Report(Observer, Label, W, First);
     end;
 
@@ -273,23 +306,20 @@ codeunit 94972 "LT R6863 Rename Tests"
         T.ID := 7;
         T.Payload := 'a';
         T.Insert(false);
-        Observer.Observe(Label + ' ok', Format(TryRename(T, 8)));
+        Observer.Observe(Label + ' ok', Format(RunRename(T, 8, false)));
         Observer.ObserveError(Label);
         Observer.Observe(Label + ' trigger', Cfg.Describe());
         Observer.Observe(Label + ' rows', Format(T.Count()));
         Observer.Observe(Label + ' rec.ID', Format(T.ID));
     end;
 
-    [TryFunction]
-    local procedure TryRename(var W: Record "LT R6863 Work"; NewId: Integer)
+    local procedure RunRename(var W: Record "LT R6863 Work"; NewId: Integer; UseRef: Boolean): Boolean
+    var
+        Cfg: Codeunit "LT R6863 Cfg";
+        DoRename: Codeunit "LT R6863 Do Rename";
     begin
-        W.Rename(NewId);
-    end;
-
-    [TryFunction]
-    local procedure TryRenameRef(var Ref: RecordRef; NewId: Integer)
-    begin
-        Ref.Rename(NewId);
+        Cfg.SetNext(NewId, UseRef);
+        exit(DoRename.Run(W));
     end;
 
     local procedure Describe(): Text
