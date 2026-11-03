@@ -739,7 +739,7 @@ permissionset 94827 "LT Y90 P Parts3"
         page "LT Y90 Card C" = X,
         page "LT Y90 Part B" = X,
         page "LT Y90 Part C" = X,
-        codeunit * = X;
+        table "LT Y90 Row" = X;
 }
 
 permissionset 94829 "LT Y90 P PagesSys"

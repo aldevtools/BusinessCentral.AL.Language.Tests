@@ -254,7 +254,15 @@ codeunit 94810 "LT Y90 Perm System"
         Mock.ClearAssignments();
         Observer.Observe('noset', Rights(0, Database::"LT Y90 Guard"));
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('RiMd exact',
+            'RiMd-');
+        Observer.Expect('RiMd set',
+            'RiMd-');
+        Observer.Expect('none exact',
+            '-----');
+        Observer.Expect('noset',
+            'RIMD-');
+        Observer.Verify();
     end;
 
     local procedure EffectiveSystem(SetName: Code[20]; Exact: Boolean; Tag: Text)

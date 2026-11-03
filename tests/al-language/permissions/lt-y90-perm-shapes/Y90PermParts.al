@@ -40,13 +40,13 @@ codeunit 94809 "LT Y90 Perm Parts"
         WasStarted := StartMock();
         Run('b_part_granted', 'LT Y90 P Parts', 2, true);
         Run('b_all_wildcards', 'LT Y90 P Parts2', 2, true);
-        Run('b_cu_star', 'LT Y90 P Parts3', 2, true);
+        Run('b_table_x', 'LT Y90 P Parts3', 2, true);
         RestoreMock(WasStarted);
         Observer.Expect('b_part_granted',
             'The part with ID = n was not found on the page. | TestPartNotFound');
         Observer.Expect('b_all_wildcards',
-            'The part with ID = n was not found on the page. | TestPartNotFound');
-        Observer.Expect('b_cu_star',
+            'LT Y90 ok part visible | Dialog');
+        Observer.Expect('b_table_x',
             'The part with ID = n was not found on the page. | TestPartNotFound');
         Observer.Verify();
     end;
