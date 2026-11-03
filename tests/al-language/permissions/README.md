@@ -4,22 +4,23 @@ Permission sets, entitlements, access control, inherent permissions and TestPerm
 
 ## Topics
 
-- (area folder itself): 27 AL files that are about the area as a whole or were not given a topic yet.
+- (area folder itself): 28 AL files that are about the area as a whole or were not given a topic yet.
 - `access-control/`: access control (5 AL files).
 - `permission-sets/`: permission sets and entitlements (38 AL files).
 - `testpermissions/`: TestPermissions and the runner permission sets (13 AL files).
+- `wildcard-scope/`: wildcard object scope in permission sets (3 AL files).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 
 ## Shared fixtures used here
 
-- codeunit 69160 "Probe Observer": 55 files
+- codeunit 69160 "Probe Observer": 57 files
 - table 60000 "ALT Universal": 6 files
 - table 60006 "ALT Keyed": 3 files
-- table 60003 "ALT Trigger Log": 1 file
 - table 60001 "ALT Composite": 1 file
 - table 60404 "ALT Reten Pol Owned": 1 file
 - table 60590 "ALT No Subscriber Table": 1 file
+- table 60003 "ALT Trigger Log": 1 file
 
 ## Other apps
 

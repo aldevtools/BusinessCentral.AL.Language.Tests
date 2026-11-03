@@ -69,11 +69,11 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 
 - codeunit 69160 "Probe Observer": 322 files
 - table 60000 "ALT Universal": 4 files
+- enum 60009 "ALT Status": 1 file
+- page 60016 "ALT List Page": 1 file
 - table 60001 "ALT Composite": 1 file
 - table 67698 "W3 Row": 1 file
 - table 67699 "W3 Child": 1 file
-- enum 60009 "ALT Status": 1 file
-- page 60016 "ALT List Page": 1 file
 
 ## Other apps
 

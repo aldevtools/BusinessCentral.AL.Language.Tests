@@ -16,24 +16,18 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 - codeunit 69160 "Probe Observer": 67 files
 - table 60000 "ALT Universal": 10 files
 - table 60590 "ALT No Subscriber Table": 1 file
+- table 60291 "ALT CRM Entity": 1 file
 - table 60025 "ALT Temp Only": 1 file
 - query 60022 "ALT Universal Query": 1 file
 - xmlport 60023 "ALT Universal XmlPort": 1 file
 - codeunit 60014 "ALT Event Publisher": 1 file
 - table 60002 "ALT Triggered": 1 file
 - table 60003 "ALT Trigger Log": 1 file
-- table 60291 "ALT CRM Entity": 1 file
 
 ## Other apps
 
 - Same area in other apps (only what cannot compile in the Cloud app): none.
 - Must-not-compile cases (6, in `tests/must-not-compile/cases/`, listed by `tests/must-not-compile/areas.tsv`): `0068-trigger-function-with-return-value`, `0110-getlasterrorobject-is-onprem`, `1372-tryfunction-explicit-return-value`, `1384-tryfunction-implements-interface`, `1752-tryfunction-implements-interface-method`, `1760-tryfunction-explicit-exit-value`.
-
-## Line-sensitive files
-
-These files assert line numbers or call stacks. Only append at the end of the codeunit; never add or remove lines above existing code (standing rule 5).
-
-- `PnBErrorsCollections.al`
 
 ## Adding a test
 
