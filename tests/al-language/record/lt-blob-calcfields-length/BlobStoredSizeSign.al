@@ -62,6 +62,7 @@ codeunit 95042 "LT BSS Probe"
         Big: BigInteger;
         Value: Integer;
         I: Integer;
+        Letter: Integer;
         Tb: TextBuilder;
     begin
         Big := 12345;
@@ -92,7 +93,8 @@ codeunit 95042 "LT BSS Probe"
                 begin
                     for I := 1 to N do begin
                         Big := (Big * 16807) mod 2147483647;
-                        Tb.Append(CopyStr('abcdefghijklmnopqrstuvwxyz', (Big mod 26) + 1, 1));
+                        Letter := Big mod 26;
+                        Tb.Append(CopyStr('abcdefghijklmnopqrstuvwxyz', Letter + 1, 1));
                     end;
                     OutS.WriteText(Tb.ToText());
                 end;
