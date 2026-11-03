@@ -277,13 +277,34 @@ codeunit 94850 "LT Y91 Misc Tests"
         Helper: Codeunit "LT Y91 Helper";
 
     [Test]
-    procedure Y91_Decimal_Export_Negative()
+    procedure Y91_Decimal_Export_Negative_Xml()
     begin
         SeedDecimals();
-        Observer.Observe('xml', Helper.Export(94839, 0));
-        Observer.Observe('legacy', Helper.Export(94842, 0));
-        Observer.Observe('vt', Helper.Export(94840, 0));
-        Observer.Observe('fixed', Helper.Export(94841, 0));
+        Observer.Observe('export', Helper.Export(94839, 0));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y91_Decimal_Export_Negative_Legacy()
+    begin
+        SeedDecimals();
+        Observer.Observe('export', Helper.Export(94842, 0));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y91_Decimal_Export_Negative_VT()
+    begin
+        SeedDecimals();
+        Observer.Observe('export', Helper.Export(94840, 0));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y91_Decimal_Export_Negative_Fixed()
+    begin
+        SeedDecimals();
+        Observer.Observe('export', Helper.Export(94841, 0));
         Observer.Finish();
     end;
 
