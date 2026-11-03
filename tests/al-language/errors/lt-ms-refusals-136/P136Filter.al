@@ -245,7 +245,8 @@ codeunit 74334 "LT P136 Filter"
         Observer.Expect('oneDAngles|code', 'Filter:CSide');
         Observer.Expect('notOneM', '2|<>1M');
         Observer.Expect('geOneD', '3|>=1D');
-        Observer.Expect('orBoth', '2|1M|1D');
+        // '1M|1D' matches 3 rows on Windows BC (measured, corpus issue 1076); bc-linux matched 2 before bc-linux #211.
+        Observer.Expect('orBoth', '3|1M|1D');
         Observer.Expect('range', '3|1D..1M');
         Observer.Expect('cm', '0|CM');
         Observer.Expect('garbage|text', 'The filter "x" is not valid for the DF field on the LT P136 Row table. The date formula ''X'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.');

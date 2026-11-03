@@ -17,13 +17,8 @@ codeunit 94808 "LT Y90 Perm OpenPage"
         Observer: Codeunit "Probe Observer";
         Mock: Codeunit "Permissions Mock";
 
-#if BC28PLUS
     [Test]
     procedure Y90_Open_CaptionAndGrants()
-#else
-    // Linux suspect on BC 27: Windows 27.5 gives the asserted value, the Linux 27.5 container does not (hand-off, Fix round 27.5). Not a test on 27.
-    procedure Suspect_Open_CaptionAndGrants()
-#endif
     var
         WasStarted: Boolean;
     begin
@@ -44,13 +39,8 @@ codeunit 94808 "LT Y90 Perm OpenPage"
         Observer.Verify();
     end;
 
-#if BC28PLUS
     [Test]
     procedure Y90_Open_CodeunitStarSystemStarSet()
-#else
-    // Linux suspect on BC 27: Windows 27.5 gives the asserted value, the Linux 27.5 container does not (hand-off, Fix round 27.5). Not a test on 27.
-    procedure Suspect_Open_CodeunitStarSystemStarSet()
-#endif
     var
         WasStarted: Boolean;
     begin

@@ -6,3 +6,4 @@
 # The "LOST FACT" report of facts.py diff prints the first five columns of the line to add.
 # Never edit or remove a line.
 key	old_kind	old_value	old_members	old_ifctx	new_kind	new_value	new_members	new_ifctx	reason
+al-language/74334/P136_SetFilter_DateFormula	expect	'orBoth'='2|1M|1D'			expect	'orBoth'='3|1M|1D'			Windows BC matches 3 rows for the OR filter 1M|1D (corpus issue 1076); bc-linux matched 2 until bc-linux #211

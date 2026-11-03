@@ -67,13 +67,8 @@ codeunit 94896 "LT Y90 Perm More1"
         Observer.Verify();
     end;
 
-#if BC28PLUS
     [Test]
     procedure Y90_Inherent_Procedure()
-#else
-    // Linux suspect on BC 27: Windows 27.5 gives the asserted value, the Linux 27.5 container does not (hand-off, Fix round 27.5). Not a test on 27.
-    procedure Suspect_Inherent_Procedure()
-#endif
     var
         WasStarted: Boolean;
     begin
