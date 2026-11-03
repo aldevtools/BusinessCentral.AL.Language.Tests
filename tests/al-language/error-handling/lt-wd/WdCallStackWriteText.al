@@ -6,7 +6,7 @@
 // Facts: stream length relative to StrLen, equality of the read-back text, the lines ReadText returns; the reporter's three shapes. The call stack text itself is not asserted.
 // BC versions: 27, 28, 29
 
-codeunit 94890 "LT WD Call Stack Write Text"
+codeunit 94920 "LT WD Call Stack Write Text"
 {
     Subtype = Test;
     TestPermissions = Disabled;
