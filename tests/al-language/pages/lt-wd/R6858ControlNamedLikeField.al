@@ -40,6 +40,8 @@ page 94941 "LT R6858 Card"
     {
         area(Content)
         {
+          group(General)
+          {
             field("No."; Rec."No.") { }
             field(ctlContainerlocation; "Container location")
             {
@@ -71,6 +73,7 @@ page 94941 "LT R6858 Card"
             }
             field(ctlSeen; TriggerSeen) { }
             field(ctlValidateSeen; ValidateSeen) { }
+          }
         }
     }
 
@@ -94,7 +97,7 @@ pageextension 94942 "LT R6858 Card Ext" extends "LT R6858 Card"
 {
     layout
     {
-        addlast(Content)
+        addlast(General)
         {
             field(ExtSource; "Container location") { }
             field(ctlExtStatus; Status) { }
@@ -137,7 +140,8 @@ codeunit 94943 "LT R6858 Control Names"
         Card.OpenView();
         Observer.Observe('ctlContainerlocation', Card.ctlContainerlocation.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('ctlContainerlocation', 'DOCK');
+        Observer.Verify();
     end;
 
     [Test]
@@ -149,7 +153,8 @@ codeunit 94943 "LT R6858 Control Names"
         Card.OpenView();
         Observer.Observe('ContainerLocation', Card."Container location".Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('ContainerLocation', 'DOCK');
+        Observer.Verify();
     end;
 
     [Test]
@@ -161,7 +166,8 @@ codeunit 94943 "LT R6858 Control Names"
         Card.OpenView();
         Observer.Observe('ctlStatus', Card.ctlStatus.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('ctlStatus', 'OPEN');
+        Observer.Verify();
     end;
 
     [Test]
@@ -173,7 +179,8 @@ codeunit 94943 "LT R6858 Control Names"
         Card.OpenView();
         Observer.Observe('Status', Card.Status.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('Status', 'OPEN');
+        Observer.Verify();
     end;
 
     [Test]
@@ -185,7 +192,8 @@ codeunit 94943 "LT R6858 Control Names"
         Card.OpenView();
         Observer.Observe('ctlOther', Card.ctlOther.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('ctlOther', 'OTHERVAL');
+        Observer.Verify();
     end;
 
     [Test]
@@ -197,7 +205,8 @@ codeunit 94943 "LT R6858 Control Names"
         Card.OpenView();
         Observer.Observe('OtherValue', Card."Other value".Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('OtherValue', 'R1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -209,7 +218,8 @@ codeunit 94943 "LT R6858 Control Names"
         Card.OpenView();
         Observer.Observe('Docno', Card.Docno.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('Docno', 'DOC1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -221,7 +231,8 @@ codeunit 94943 "LT R6858 Control Names"
         Card.OpenView();
         Observer.Observe('DocNo', Card."Doc no.".Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('DocNo', 'DOC1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -233,7 +244,8 @@ codeunit 94943 "LT R6858 Control Names"
         Card.OpenView();
         Observer.Observe('ctlGuarded', Card.ctlGuarded.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('ctlGuarded', 'OPEN');
+        Observer.Verify();
     end;
 
     [Test]
@@ -245,7 +257,8 @@ codeunit 94943 "LT R6858 Control Names"
         Card.OpenView();
         Observer.Observe('ctlSeen', Card.ctlSeen.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('ctlSeen', 'DOCK/OPEN/DOC1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -324,7 +337,13 @@ codeunit 94943 "LT R6858 Control Names"
         Card."Container location".SetValue('YARD');
         Observer.Observe('ctlGuarded editable after YARD', Format(Card.ctlGuarded.Editable()));
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('ctlContainerlocation visible', 'Yes');
+        Observer.Expect('Container location visible', 'Yes');
+        Observer.Expect('Container location editable', 'Yes');
+        Observer.Expect('ctlGuarded editable', 'Yes');
+        Observer.Expect('ctlGuarded visible', 'Yes');
+        Observer.Expect('ctlGuarded editable after YARD', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -357,6 +376,19 @@ codeunit 94943 "LT R6858 Control Names"
         Observer.Observe('stored status', Rec.Status);
         Observer.Observe('stored other value', Rec."Other value");
         Observer.Observe('stored doc no', Rec."Doc no.");
-        Observer.Finish();
+        Observer.Expect('named: other control', 'BYNAME');
+        Observer.Expect('named: validate', 'named:BYNAME:OPEN');
+        Observer.Expect('ctl: other control', 'BYCTL');
+        Observer.Expect('ctl: validate', 'named:BYNAME:OPEN');
+        Observer.Expect('ctlStatus: Status control', 'CLOSED');
+        Observer.Expect('ctlStatus: validate', 'ctlStatus:CLOSED');
+        Observer.Expect('Status: ctlStatus', 'BACK');
+        Observer.Expect('ctlOther: Other value control', 'R1');
+        Observer.Expect('Docno: Doc no. control', 'DOC2');
+        Observer.Expect('stored container', 'BYCTL');
+        Observer.Expect('stored status', 'BACK');
+        Observer.Expect('stored other value', 'CHANGED');
+        Observer.Expect('stored doc no', 'DOC2');
+        Observer.Verify();
     end;
 }
