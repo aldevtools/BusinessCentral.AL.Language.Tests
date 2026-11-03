@@ -136,6 +136,24 @@ codeunit 94999 "LT Y93 Wild Effective"
         Observer.Finish();
     end;
 
+    // Permission sets that Microsoft ships (declared in Base Application), exact: do they reach the objects of this app?
+    [Test]
+    procedure Y93_Eff_MicrosoftSets()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
+        Clear(Names);
+        Clear(Values);
+        Mock.SetExactPermissionSet('D365 BASIC');
+        Collect('D365 BASIC');
+        Mock.SetExactPermissionSet('D365 READ');
+        Collect('D365 READ');
+        RestoreMock(WasStarted);
+        Flush();
+        Observer.Finish();
+    end;
+
     // Set and Assign (not exact) with a set that names no object of the call.
     [Test]
     procedure Y93_Eff_SetAssign()
