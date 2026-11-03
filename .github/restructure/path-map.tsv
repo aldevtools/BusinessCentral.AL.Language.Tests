@@ -552,13 +552,13 @@ tests/al-language/access-control/TestAccessControlBacksIsSuper.al	tests/al-langu
 tests/al-language/access-control/TestAggregatePermissionSetTable.al	tests/al-language/permissions/access-control/TestAggregatePermissionSetTable.al	map
 tests/al-language/access-control/TestInternalsVisibleTo.al	tests/al-language/permissions/access-control/TestInternalsVisibleTo.al	map
 tests/al-language/access-control/TestUserTableSessionUser.al	tests/al-language/permissions/access-control/TestUserTableSessionUser.al	map
-tests/al-language/addin/lt-p121-2.js	tests/al-language/addin/lt-p121-2.js	map
-tests/al-language/addin/lt-p121-recreate.js	tests/al-language/addin/lt-p121-recreate.js	map
-tests/al-language/addin/lt-p121-refresh.js	tests/al-language/addin/lt-p121-refresh.js	map
-tests/al-language/addin/lt-p121-start.js	tests/al-language/addin/lt-p121-start.js	map
-tests/al-language/addin/lt-p121.css	tests/al-language/addin/lt-p121.css	map
-tests/al-language/addin/lt-p121.js	tests/al-language/addin/lt-p121.js	map
-tests/al-language/addin/lt-p121.png	tests/al-language/addin/lt-p121.png	map
+tests/al-language/addin/lt-p121-2.js	tests/al-language/controladdins/lt-p121-2.js	map (fixed: add-in scripts follow their controladdin)
+tests/al-language/addin/lt-p121-recreate.js	tests/al-language/controladdins/lt-p121-recreate.js	map (fixed: add-in scripts follow their controladdin)
+tests/al-language/addin/lt-p121-refresh.js	tests/al-language/controladdins/lt-p121-refresh.js	map (fixed: add-in scripts follow their controladdin)
+tests/al-language/addin/lt-p121-start.js	tests/al-language/controladdins/lt-p121-start.js	map (fixed: add-in scripts follow their controladdin)
+tests/al-language/addin/lt-p121.css	tests/al-language/controladdins/lt-p121.css	map (fixed: add-in scripts follow their controladdin)
+tests/al-language/addin/lt-p121.js	tests/al-language/controladdins/lt-p121.js	map (fixed: add-in scripts follow their controladdin)
+tests/al-language/addin/lt-p121.png	tests/al-language/controladdins/lt-p121.png	map (fixed: add-in scripts follow their controladdin)
 tests/al-language/app.json	tests/al-language/app.json	map
 tests/al-language/appareas/W2AppAreas.al	tests/al-language/pages/application-area/W2AppAreas.al	map
 tests/al-language/autoformat/AutoFormatCard.Page.al	tests/al-language/format-evaluate/autoformat/AutoFormatCard.Page.al	map

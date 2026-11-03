@@ -213,6 +213,8 @@ def folder_rule(d):
     base = f'tests/{app}'
     if top == '_fixtures':
         return 'KEEP', 'shared fixture'
+    if top == 'Translations' or 'res' in sub:
+        return 'KEEP', 'translation or resource folder (fixed by the compiler or app.json resourceFolders)'
     if top.startswith('lt-') and app != 'al-language':
         c = clean(top)
         area = 'dotnet' if 'dotnet' in app else ('test-framework' if 'testlibraries' in app else None)
