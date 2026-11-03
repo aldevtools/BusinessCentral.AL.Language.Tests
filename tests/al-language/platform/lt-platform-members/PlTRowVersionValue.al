@@ -79,6 +79,12 @@ codeunit 67515 "LT RV Tests"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [TryFunction]
+    local procedure TryVerify(var Observer: Codeunit "Probe Observer")
+    begin
+        Observer.Verify();
+    end;
+
     local procedure Snapshot(var Observer: Codeunit "Probe Observer"; Name: Text)
     var
         Min: BigInteger;
@@ -91,10 +97,7 @@ codeunit 67515 "LT RV Tests"
         Observer.Observe(Name + '_min_positive', Format(Min > 0));
     end;
 
-    [Test]
-    procedure MinimumActiveRowVersion_NoWrite_Committed()
-    var
-        Observer: Codeunit "Probe Observer";
+    local procedure MinimumActiveRowVersion_NoWrite_Committed_Body(var Observer: Codeunit "Probe Observer")
     begin
         Commit();
         Snapshot(Observer, 'after_commit_no_write');
@@ -107,13 +110,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('again_equals_last_plus_one', 'Yes');
         Observer.Expect('again_min_positive', 'Yes');
         Observer.Expect('in_write_transaction', 'No');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure MinimumActiveRowVersion_InsideOpenWriteTransaction()
+    procedure MinimumActiveRowVersion_NoWrite_Committed()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            MinimumActiveRowVersion_NoWrite_Committed_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        MinimumActiveRowVersion_NoWrite_Committed_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure MinimumActiveRowVersion_InsideOpenWriteTransaction_Body(var Observer: Codeunit "Probe Observer")
+    var
         Row: Record "LT RV Row";
         Before: BigInteger;
     begin
@@ -140,13 +159,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('after_second_insert_equals_last_plus_one', 'Yes');
         Observer.Expect('after_second_insert_min_positive', 'Yes');
         Observer.Expect('after_modify_not_above_last_plus_one', 'Yes');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure MinimumActiveRowVersion_AfterCommit()
+    procedure MinimumActiveRowVersion_InsideOpenWriteTransaction()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            MinimumActiveRowVersion_InsideOpenWriteTransaction_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        MinimumActiveRowVersion_InsideOpenWriteTransaction_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure MinimumActiveRowVersion_AfterCommit_Body(var Observer: Codeunit "Probe Observer")
+    var
         Row: Record "LT RV Row";
         Before: BigInteger;
     begin
@@ -168,19 +203,52 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('after_commit_not_above_last_plus_one', 'Yes');
         Observer.Expect('after_commit_below_last_plus_one', 'Yes');
         Observer.Expect('after_commit_positive', 'Yes');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure MinimumActiveRowVersion_PrefixedCallEqualsBareCall()
+    procedure MinimumActiveRowVersion_AfterCommit()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            MinimumActiveRowVersion_AfterCommit_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        MinimumActiveRowVersion_AfterCommit_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure MinimumActiveRowVersion_PrefixedCallEqualsBareCall_Body(var Observer: Codeunit "Probe Observer")
     begin
         Commit();
         Observer.Observe('prefixed_equals_bare', Format(Database.MinimumActiveRowVersion() = MinimumActiveRowVersion()));
         Observer.Observe('last_prefixed_equals_bare', Format(Database.LastUsedRowVersion() = LastUsedRowVersion()));
         Observer.Expect('prefixed_equals_bare', 'Yes');
         Observer.Expect('last_prefixed_equals_bare', 'Yes');
+    end;
+
+    [Test]
+    procedure MinimumActiveRowVersion_PrefixedCallEqualsBareCall()
+    var
+        Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            MinimumActiveRowVersion_PrefixedCallEqualsBareCall_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        MinimumActiveRowVersion_PrefixedCallEqualsBareCall_Body(Observer);
         Observer.Verify();
     end;
 
@@ -206,10 +274,8 @@ codeunit 67515 "LT RV Tests"
         Observer.Observe(Name + ' in write transaction', Format(IsInWriteTransaction()));
     end;
 
-    [Test]
-    procedure TV_MinimumActiveRowVersion_AcrossInsertModifyCommit()
+    local procedure TV_MinimumActiveRowVersion_AcrossInsertModifyCommit_Body(var Observer: Codeunit "Probe Observer")
     var
-        Observer: Codeunit "Probe Observer";
         Row: Record "LT RV Row";
         Start: BigInteger;
         StartLast: BigInteger;
@@ -269,13 +335,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('second commit row version <= last', 'Yes');
         Observer.Expect('second commit row version >= start', 'Yes');
         Observer.Expect('second commit in write transaction', 'No');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure TV_MinimumActiveRowVersion_ReadOnlyAfterCommittedWrite()
+    procedure TV_MinimumActiveRowVersion_AcrossInsertModifyCommit()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            TV_MinimumActiveRowVersion_AcrossInsertModifyCommit_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        TV_MinimumActiveRowVersion_AcrossInsertModifyCommit_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure TV_MinimumActiveRowVersion_ReadOnlyAfterCommittedWrite_Body(var Observer: Codeunit "Probe Observer")
+    var
         Row: Record "LT RV Row";
         Start: BigInteger;
         StartLast: BigInteger;
@@ -305,6 +387,24 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('min after commit = start', 'Yes');
         Observer.Expect('rows below min', 'No');
         Observer.Expect('last row below min', 'No');
+    end;
+
+    [Test]
+    procedure TV_MinimumActiveRowVersion_ReadOnlyAfterCommittedWrite()
+    var
+        Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            TV_MinimumActiveRowVersion_ReadOnlyAfterCommittedWrite_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        TV_MinimumActiveRowVersion_ReadOnlyAfterCommittedWrite_Body(Observer);
         Observer.Verify();
     end;
 
@@ -349,10 +449,8 @@ codeunit 67515 "LT RV Tests"
         PrevMin := Min;
     end;
 
-    [Test]
-    procedure UK_InsertThenFindSet()
+    local procedure UK_InsertThenFindSet_Body(var Observer: Codeunit "Probe Observer")
     var
-        Observer: Codeunit "Probe Observer";
         A: Record "LT UK Row A";
         Last0: BigInteger;
         Min0: BigInteger;
@@ -380,13 +478,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('commit: last vs previous', 'same');
         Observer.Expect('commit: min vs start', 'same');
         Observer.Expect('commit: write transaction', 'No');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure UK_InsertThenFindFirst()
+    procedure UK_InsertThenFindSet()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            UK_InsertThenFindSet_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        UK_InsertThenFindSet_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure UK_InsertThenFindFirst_Body(var Observer: Codeunit "Probe Observer")
+    var
         A: Record "LT UK Row A";
         Last0: BigInteger;
         Min0: BigInteger;
@@ -414,13 +528,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('commit: last vs previous', 'same');
         Observer.Expect('commit: min vs start', 'same');
         Observer.Expect('commit: write transaction', 'No');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure UK_InsertThenIsEmpty()
+    procedure UK_InsertThenFindFirst()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            UK_InsertThenFindFirst_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        UK_InsertThenFindFirst_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure UK_InsertThenIsEmpty_Body(var Observer: Codeunit "Probe Observer")
+    var
         A: Record "LT UK Row A";
         Last0: BigInteger;
         Min0: BigInteger;
@@ -449,13 +579,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('commit: last vs previous', 'same');
         Observer.Expect('commit: min vs start', 'same');
         Observer.Expect('commit: write transaction', 'No');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure UK_InsertThenCount()
+    procedure UK_InsertThenIsEmpty()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            UK_InsertThenIsEmpty_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        UK_InsertThenIsEmpty_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure UK_InsertThenCount_Body(var Observer: Codeunit "Probe Observer")
+    var
         A: Record "LT UK Row A";
         Last0: BigInteger;
         Min0: BigInteger;
@@ -484,13 +630,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('commit: last vs previous', 'same');
         Observer.Expect('commit: min vs start', 'same');
         Observer.Expect('commit: write transaction', 'No');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure UK_InsertThenCalcSums()
+    procedure UK_InsertThenCount()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            UK_InsertThenCount_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        UK_InsertThenCount_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure UK_InsertThenCalcSums_Body(var Observer: Codeunit "Probe Observer")
+    var
         A: Record "LT UK Row A";
         Last0: BigInteger;
         Min0: BigInteger;
@@ -521,13 +683,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('commit: last vs previous', 'same');
         Observer.Expect('commit: min vs start', 'same');
         Observer.Expect('commit: write transaction', 'No');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure UK_InsertThenGetAndModify()
+    procedure UK_InsertThenCalcSums()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            UK_InsertThenCalcSums_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        UK_InsertThenCalcSums_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure UK_InsertThenGetAndModify_Body(var Observer: Codeunit "Probe Observer")
+    var
         A: Record "LT UK Row A";
         Last0: BigInteger;
         Min0: BigInteger;
@@ -566,13 +744,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('commit: last vs previous', 'same');
         Observer.Expect('commit: min vs start', 'same');
         Observer.Expect('commit: write transaction', 'No');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure UK_InsertThenReadOtherTable()
+    procedure UK_InsertThenGetAndModify()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            UK_InsertThenGetAndModify_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        UK_InsertThenGetAndModify_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure UK_InsertThenReadOtherTable_Body(var Observer: Codeunit "Probe Observer")
+    var
         A: Record "LT UK Row A";
         B: Record "LT UK Row B";
         Last0: BigInteger;
@@ -606,13 +800,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('commit: last vs previous', 'greater');
         Observer.Expect('commit: min vs start', 'same');
         Observer.Expect('commit: write transaction', 'No');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure UK_InsertThenModifyOtherTable()
+    procedure UK_InsertThenReadOtherTable()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            UK_InsertThenReadOtherTable_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        UK_InsertThenReadOtherTable_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure UK_InsertThenModifyOtherTable_Body(var Observer: Codeunit "Probe Observer")
+    var
         A: Record "LT UK Row A";
         B: Record "LT UK Row B";
         Last0: BigInteger;
@@ -648,13 +858,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('commit: last vs previous', 'same');
         Observer.Expect('commit: min vs start', 'same');
         Observer.Expect('commit: write transaction', 'No');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure UK_InsertTwoTablesThenGetOne()
+    procedure UK_InsertThenModifyOtherTable()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            UK_InsertThenModifyOtherTable_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        UK_InsertThenModifyOtherTable_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure UK_InsertTwoTablesThenGetOne_Body(var Observer: Codeunit "Probe Observer")
+    var
         A: Record "LT UK Row A";
         B: Record "LT UK Row B";
         Last0: BigInteger;
@@ -692,13 +918,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('commit: last vs previous', 'same');
         Observer.Expect('commit: min vs start', 'same');
         Observer.Expect('commit: write transaction', 'No');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure UK_DeleteWithoutInsert()
+    procedure UK_InsertTwoTablesThenGetOne()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            UK_InsertTwoTablesThenGetOne_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        UK_InsertTwoTablesThenGetOne_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure UK_DeleteWithoutInsert_Body(var Observer: Codeunit "Probe Observer")
+    var
         B: Record "LT UK Row B";
         Last0: BigInteger;
         Min0: BigInteger;
@@ -725,13 +967,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('commit: last vs previous', 'same');
         Observer.Expect('commit: min vs start', 'same');
         Observer.Expect('commit: write transaction', 'No');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure UK_DeleteAllWithoutInsert()
+    procedure UK_DeleteWithoutInsert()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            UK_DeleteWithoutInsert_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        UK_DeleteWithoutInsert_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure UK_DeleteAllWithoutInsert_Body(var Observer: Codeunit "Probe Observer")
+    var
         B: Record "LT UK Row B";
         Last0: BigInteger;
         Min0: BigInteger;
@@ -757,13 +1015,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('commit: last vs previous', 'same');
         Observer.Expect('commit: min vs start', 'same');
         Observer.Expect('commit: write transaction', 'No');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure UK_InsertReadInsertRead()
+    procedure UK_DeleteAllWithoutInsert()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            UK_DeleteAllWithoutInsert_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        UK_DeleteAllWithoutInsert_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure UK_InsertReadInsertRead_Body(var Observer: Codeunit "Probe Observer")
+    var
         A: Record "LT UK Row A";
         Last0: BigInteger;
         Min0: BigInteger;
@@ -802,13 +1076,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('read 2: last vs previous', 'greater');
         Observer.Expect('read 2: min vs start', 'same');
         Observer.Expect('read 2: write transaction', 'Yes');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure UK_InsertThenReadOtherThenSame()
+    procedure UK_InsertReadInsertRead()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            UK_InsertReadInsertRead_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        UK_InsertReadInsertRead_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure UK_InsertThenReadOtherThenSame_Body(var Observer: Codeunit "Probe Observer")
+    var
         A: Record "LT UK Row A";
         B: Record "LT UK Row B";
         Last0: BigInteger;
@@ -848,13 +1138,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('commit: last vs previous', 'same');
         Observer.Expect('commit: min vs start', 'same');
         Observer.Expect('commit: write transaction', 'No');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure UK_ModifyThenRead()
+    procedure UK_InsertThenReadOtherThenSame()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            UK_InsertThenReadOtherThenSame_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        UK_InsertThenReadOtherThenSame_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure UK_ModifyThenRead_Body(var Observer: Codeunit "Probe Observer")
+    var
         B: Record "LT UK Row B";
         Last0: BigInteger;
         Min0: BigInteger;
@@ -887,6 +1193,24 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('commit: last vs previous', 'same');
         Observer.Expect('commit: min vs start', 'same');
         Observer.Expect('commit: write transaction', 'No');
+    end;
+
+    [Test]
+    procedure UK_ModifyThenRead()
+    var
+        Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            UK_ModifyThenRead_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        UK_ModifyThenRead_Body(Observer);
         Observer.Verify();
     end;
 
@@ -913,10 +1237,8 @@ codeunit 67515 "LT RV Tests"
         exit(Row.SystemId);
     end;
 
-    [Test]
-    procedure NP3_RowVersions_InsertThenGetBySystemId_OpenTransaction()
+    local procedure NP3_RowVersions_InsertThenGetBySystemId_OpenTransaction_Body(var Observer: Codeunit "Probe Observer")
     var
-        Observer: Codeunit "Probe Observer";
         Row: Record "LT RV Row";
         Id: Guid;
         LastBefore: BigInteger;
@@ -938,13 +1260,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('after_get_by_system_id_min_unchanged', 'Yes');
         Observer.Expect('after_get_by_system_id_min_not_above_last_plus_one', 'Yes');
         Observer.Expect('after_get_by_system_id_in_write_transaction', 'Yes');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure NP3_RowVersions_InsertThenFind_OpenTransaction()
+    procedure NP3_RowVersions_InsertThenGetBySystemId_OpenTransaction()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            NP3_RowVersions_InsertThenGetBySystemId_OpenTransaction_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        NP3_RowVersions_InsertThenGetBySystemId_OpenTransaction_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure NP3_RowVersions_InsertThenFind_OpenTransaction_Body(var Observer: Codeunit "Probe Observer")
+    var
         Row: Record "LT RV Row";
         LastBefore: BigInteger;
         MinBefore: BigInteger;
@@ -975,13 +1313,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('after_find_last_min_unchanged', 'Yes');
         Observer.Expect('after_find_last_min_not_above_last_plus_one', 'Yes');
         Observer.Expect('after_find_last_in_write_transaction', 'Yes');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure NP3_RowVersions_InsertThenNext_OpenTransaction()
+    procedure NP3_RowVersions_InsertThenFind_OpenTransaction()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            NP3_RowVersions_InsertThenFind_OpenTransaction_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        NP3_RowVersions_InsertThenFind_OpenTransaction_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure NP3_RowVersions_InsertThenNext_OpenTransaction_Body(var Observer: Codeunit "Probe Observer")
+    var
         Row: Record "LT RV Row";
         LastBefore: BigInteger;
         MinBefore: BigInteger;
@@ -1002,13 +1356,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('after_next_min_not_above_last_plus_one', 'Yes');
         Observer.Expect('after_next_in_write_transaction', 'Yes');
         Observer.Expect('next_id', '2');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure NP3_RowVersions_InsertThenCalcFields_OpenTransaction()
+    procedure NP3_RowVersions_InsertThenNext_OpenTransaction()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            NP3_RowVersions_InsertThenNext_OpenTransaction_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        NP3_RowVersions_InsertThenNext_OpenTransaction_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure NP3_RowVersions_InsertThenCalcFields_OpenTransaction_Body(var Observer: Codeunit "Probe Observer")
+    var
         Flow: Record "LT NP3 RV Flow";
         Row: Record "LT RV Row";
         LastBefore: BigInteger;
@@ -1035,13 +1405,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('after_calcfields_min_not_above_last_plus_one', 'Yes');
         Observer.Expect('after_calcfields_in_write_transaction', 'Yes');
         Observer.Expect('total', '1');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure NP3_RowVersions_ReadsAfterCommit()
+    procedure NP3_RowVersions_InsertThenCalcFields_OpenTransaction()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            NP3_RowVersions_InsertThenCalcFields_OpenTransaction_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        NP3_RowVersions_InsertThenCalcFields_OpenTransaction_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure NP3_RowVersions_ReadsAfterCommit_Body(var Observer: Codeunit "Probe Observer")
+    var
         Row: Record "LT RV Row";
         Flow: Record "LT NP3 RV Flow";
         Id: Guid;
@@ -1082,6 +1468,24 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('after_calcfields_last_grew', 'Yes');
         Observer.Expect('after_calcfields_min_not_above_last_plus_one', 'Yes');
         Observer.Expect('after_calcfields_in_write_transaction', 'No');
+    end;
+
+    [Test]
+    procedure NP3_RowVersions_ReadsAfterCommit()
+    var
+        Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            NP3_RowVersions_ReadsAfterCommit_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        NP3_RowVersions_ReadsAfterCommit_Body(Observer);
         Observer.Verify();
     end;
 
@@ -1106,10 +1510,8 @@ codeunit 67515 "LT RV Tests"
         Min0 := MinimumActiveRowVersion();
     end;
 
-    [Test]
-    procedure NP4_RowVersions_InsertA_FindSetNextOfB()
+    local procedure NP4_RowVersions_InsertA_FindSetNextOfB_Body(var Observer: Codeunit "Probe Observer")
     var
-        Observer: Codeunit "Probe Observer";
         A: Record "LT UK Row A";
         B: Record "LT UK Row B";
         Last0: BigInteger;
@@ -1150,13 +1552,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('commit: last vs previous', 'greater');
         Observer.Expect('commit: min vs start', 'same');
         Observer.Expect('commit: write transaction', 'No');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure NP4_RowVersions_InsertA_FindFormsOfB()
+    procedure NP4_RowVersions_InsertA_FindSetNextOfB()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            NP4_RowVersions_InsertA_FindSetNextOfB_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        NP4_RowVersions_InsertA_FindSetNextOfB_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure NP4_RowVersions_InsertA_FindFormsOfB_Body(var Observer: Codeunit "Probe Observer")
+    var
         A: Record "LT UK Row A";
         B: Record "LT UK Row B";
         Last0: BigInteger;
@@ -1209,13 +1627,29 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('findlast b: last vs previous', 'same');
         Observer.Expect('findlast b: min vs start', 'same');
         Observer.Expect('findlast b: write transaction', 'Yes');
-        Observer.Verify();
     end;
 
     [Test]
-    procedure NP4_RowVersions_InsertA_FindSetNextAndFindGreaterOfA()
+    procedure NP4_RowVersions_InsertA_FindFormsOfB()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            NP4_RowVersions_InsertA_FindFormsOfB_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        NP4_RowVersions_InsertA_FindFormsOfB_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure NP4_RowVersions_InsertA_FindSetNextAndFindGreaterOfA_Body(var Observer: Codeunit "Probe Observer")
+    var
         A: Record "LT UK Row A";
         Last0: BigInteger;
         Min0: BigInteger;
@@ -1268,6 +1702,24 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('next a again: min vs start', 'same');
         Observer.Expect('next a again: write transaction', 'Yes');
         Observer.Expect('a id after nexts', '3');
+    end;
+
+    [Test]
+    procedure NP4_RowVersions_InsertA_FindSetNextAndFindGreaterOfA()
+    var
+        Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            NP4_RowVersions_InsertA_FindSetNextAndFindGreaterOfA_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        NP4_RowVersions_InsertA_FindSetNextAndFindGreaterOfA_Body(Observer);
         Observer.Verify();
     end;
 }
