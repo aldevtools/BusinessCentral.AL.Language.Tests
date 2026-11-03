@@ -315,6 +315,10 @@ codeunit 94741 "LT Y89 DateFormula Filter"
             R.SetFilter(DF, T);
             Observer.Observe(T + ' count', Format(R.Count()));
         end;
-        Observer.Finish();
+        Observer.Expect('1M count', '2');
+        Observer.Expect('1D count', '1');
+        Observer.Expect('1M|1D count', '3');
+        Observer.Expect('1D|1M count', '3');
+        Observer.Verify();
     end;
 }
