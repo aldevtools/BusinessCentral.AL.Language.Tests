@@ -141,24 +141,24 @@ tests/al-language-onprem/lt-bg-file-windows/BgDataFileInfoNotSupported.al	tests/
 tests/al-language-onprem/lt-bg-file-windows/BgExportData.al	tests/al-language-onprem/streams/files/file-windows/BgExportData.al	map
 tests/al-language-onprem/lt-bg-file-windows/BgFileDownload.al	tests/al-language-onprem/streams/files/file-windows/BgFileDownload.al	map
 tests/al-language-onprem/lt-bg-file-windows/BgIsPathTemporaryOutside.al	tests/al-language-onprem/streams/files/file-windows/BgIsPathTemporaryOutside.al	map
-tests/al-language-onprem/lt-debugger-type/P111_Attach.al	tests/al-language-onprem/session-system/debugger-type/P111_Attach.al	map
-tests/al-language-onprem/lt-debugger-type/P111_Break.al	tests/al-language-onprem/session-system/debugger-type/P111_Break.al	map
-tests/al-language-onprem/lt-debugger-type/P111_BreakOnError.al	tests/al-language-onprem/session-system/debugger-type/P111_BreakOnError.al	map
-tests/al-language-onprem/lt-debugger-type/P111_BreakOnRecordChanges.al	tests/al-language-onprem/session-system/debugger-type/P111_BreakOnRecordChanges.al	map
-tests/al-language-onprem/lt-debugger-type/P111_Continue.al	tests/al-language-onprem/session-system/debugger-type/P111_Continue.al	map
-tests/al-language-onprem/lt-debugger-type/P111_Deactivate.al	tests/al-language-onprem/session-system/debugger-type/P111_Deactivate.al	map
-tests/al-language-onprem/lt-debugger-type/P111_EnableSqlTrace.al	tests/al-language-onprem/session-system/debugger-type/P111_EnableSqlTrace.al	map
-tests/al-language-onprem/lt-debugger-type/P111_GetLastErrorText.al	tests/al-language-onprem/session-system/debugger-type/P111_GetLastErrorText.al	map
-tests/al-language-onprem/lt-debugger-type/P111_IsActive.al	tests/al-language-onprem/session-system/debugger-type/P111_IsActive.al	map
-tests/al-language-onprem/lt-debugger-type/P111_IsAttached.al	tests/al-language-onprem/session-system/debugger-type/P111_IsAttached.al	map
-tests/al-language-onprem/lt-debugger-type/P111_IsBreakpointHit.al	tests/al-language-onprem/session-system/debugger-type/P111_IsBreakpointHit.al	map
-tests/al-language-onprem/lt-debugger-type/P111_SessionIds.al	tests/al-language-onprem/session-system/debugger-type/P111_SessionIds.al	map
-tests/al-language-onprem/lt-debugger-type/P111_SkipSystemTriggers.al	tests/al-language-onprem/session-system/debugger-type/P111_SkipSystemTriggers.al	map
-tests/al-language-onprem/lt-debugger-type/P111_StepInto.al	tests/al-language-onprem/session-system/debugger-type/P111_StepInto.al	map
-tests/al-language-onprem/lt-debugger-type/P111_StepOut.al	tests/al-language-onprem/session-system/debugger-type/P111_StepOut.al	map
-tests/al-language-onprem/lt-debugger-type/P111_StepOver.al	tests/al-language-onprem/session-system/debugger-type/P111_StepOver.al	map
-tests/al-language-onprem/lt-debugger-type/P111_Stop.al	tests/al-language-onprem/session-system/debugger-type/P111_Stop.al	map
-tests/al-language-onprem/lt-debugger-type/PActivate.al	tests/al-language-onprem/session-system/debugger-type/PActivate.al	map
+tests/al-language-onprem/lt-debugger-type/P111_Attach.al	tests/al-language-onprem/session-system/debugger/P111_Attach.al	map (reviewed)
+tests/al-language-onprem/lt-debugger-type/P111_Break.al	tests/al-language-onprem/session-system/debugger/P111_Break.al	map (reviewed)
+tests/al-language-onprem/lt-debugger-type/P111_BreakOnError.al	tests/al-language-onprem/session-system/debugger/P111_BreakOnError.al	map (reviewed)
+tests/al-language-onprem/lt-debugger-type/P111_BreakOnRecordChanges.al	tests/al-language-onprem/session-system/debugger/P111_BreakOnRecordChanges.al	map (reviewed)
+tests/al-language-onprem/lt-debugger-type/P111_Continue.al	tests/al-language-onprem/session-system/debugger/P111_Continue.al	map (reviewed)
+tests/al-language-onprem/lt-debugger-type/P111_Deactivate.al	tests/al-language-onprem/session-system/debugger/P111_Deactivate.al	map (reviewed)
+tests/al-language-onprem/lt-debugger-type/P111_EnableSqlTrace.al	tests/al-language-onprem/session-system/debugger/P111_EnableSqlTrace.al	map (reviewed)
+tests/al-language-onprem/lt-debugger-type/P111_GetLastErrorText.al	tests/al-language-onprem/session-system/debugger/P111_GetLastErrorText.al	map (reviewed)
+tests/al-language-onprem/lt-debugger-type/P111_IsActive.al	tests/al-language-onprem/session-system/debugger/P111_IsActive.al	map (reviewed)
+tests/al-language-onprem/lt-debugger-type/P111_IsAttached.al	tests/al-language-onprem/session-system/debugger/P111_IsAttached.al	map (reviewed)
+tests/al-language-onprem/lt-debugger-type/P111_IsBreakpointHit.al	tests/al-language-onprem/session-system/debugger/P111_IsBreakpointHit.al	map (reviewed)
+tests/al-language-onprem/lt-debugger-type/P111_SessionIds.al	tests/al-language-onprem/session-system/debugger/P111_SessionIds.al	map (reviewed)
+tests/al-language-onprem/lt-debugger-type/P111_SkipSystemTriggers.al	tests/al-language-onprem/session-system/debugger/P111_SkipSystemTriggers.al	map (reviewed)
+tests/al-language-onprem/lt-debugger-type/P111_StepInto.al	tests/al-language-onprem/session-system/debugger/P111_StepInto.al	map (reviewed)
+tests/al-language-onprem/lt-debugger-type/P111_StepOut.al	tests/al-language-onprem/session-system/debugger/P111_StepOut.al	map (reviewed)
+tests/al-language-onprem/lt-debugger-type/P111_StepOver.al	tests/al-language-onprem/session-system/debugger/P111_StepOver.al	map (reviewed)
+tests/al-language-onprem/lt-debugger-type/P111_Stop.al	tests/al-language-onprem/session-system/debugger/P111_Stop.al	map (reviewed)
+tests/al-language-onprem/lt-debugger-type/PActivate.al	tests/al-language-onprem/session-system/debugger/PActivate.al	map (reviewed)
 tests/al-language-onprem/lt-file-type/FileBasics.al	tests/al-language-onprem/streams/files/file-type/FileBasics.al	map
 tests/al-language-onprem/lt-file-type/FileEraseAndTempPath.al	tests/al-language-onprem/streams/files/file-type/FileEraseAndTempPath.al	map
 tests/al-language-onprem/lt-file-type/FileErrors.al	tests/al-language-onprem/streams/files/file-type/FileErrors.al	map
@@ -176,24 +176,24 @@ tests/al-language-onprem/lt-file-type/FileView.al	tests/al-language-onprem/strea
 tests/al-language-onprem/lt-file-type/FileViewFromStream.al	tests/al-language-onprem/streams/files/file-type/FileViewFromStream.al	map
 tests/al-language-onprem/lt-file-type/FileWriteRecord.al	tests/al-language-onprem/streams/files/file-type/FileWriteRecord.al	map
 tests/al-language-onprem/lt-file-type/FileWriteTypes.al	tests/al-language-onprem/streams/files/file-type/FileWriteTypes.al	map
-tests/al-language-onprem/lt-o-system-onprem/OBlobAndSession.al	tests/al-language-onprem/session-system/system-onprem/OBlobAndSession.al	map
-tests/al-language-onprem/lt-o-system-onprem/ODatabaseOps.al	tests/al-language-onprem/session-system/system-onprem/ODatabaseOps.al	map
-tests/al-language-onprem/lt-system-database-onprem/PApplicationPath.al	tests/al-language-onprem/session-system/system-database-onprem/PApplicationPath.al	map
-tests/al-language-onprem/lt-system-database-onprem/PCheckLicenseFile.al	tests/al-language-onprem/session-system/system-database-onprem/PCheckLicenseFile.al	map
-tests/al-language-onprem/lt-system-database-onprem/PDataFileInfo.al	tests/al-language-onprem/session-system/system-database-onprem/PDataFileInfo.al	map
-tests/al-language-onprem/lt-system-database-onprem/PDocServiceToken.al	tests/al-language-onprem/session-system/system-database-onprem/PDocServiceToken.al	map
-tests/al-language-onprem/lt-system-database-onprem/PExportObjects.al	tests/al-language-onprem/session-system/system-database-onprem/PExportObjects.al	map
-tests/al-language-onprem/lt-system-database-onprem/PGetDocumentUrl.al	tests/al-language-onprem/session-system/system-database-onprem/PGetDocumentUrl.al	map
-tests/al-language-onprem/lt-system-database-onprem/PGetUrl.al	tests/al-language-onprem/session-system/system-database-onprem/PGetUrl.al	map
-tests/al-language-onprem/lt-system-database-onprem/PImportObjects.al	tests/al-language-onprem/session-system/system-database-onprem/PImportObjects.al	map
-tests/al-language-onprem/lt-system-database-onprem/PLogAuditMessage.al	tests/al-language-onprem/session-system/system-database-onprem/PLogAuditMessage.al	map
-tests/al-language-onprem/lt-system-database-onprem/PLogInternalError1.al	tests/al-language-onprem/session-system/system-database-onprem/PLogInternalError1.al	map
-tests/al-language-onprem/lt-system-database-onprem/PLogInternalError2.al	tests/al-language-onprem/session-system/system-database-onprem/PLogInternalError2.al	map
-tests/al-language-onprem/lt-system-database-onprem/PSendTraceTag.al	tests/al-language-onprem/session-system/system-database-onprem/PSendTraceTag.al	map
-tests/al-language-onprem/lt-system-database-onprem/PSid.al	tests/al-language-onprem/session-system/system-database-onprem/PSid.al	map
-tests/al-language-onprem/lt-system-database-onprem/PTemporaryPath.al	tests/al-language-onprem/session-system/system-database-onprem/PTemporaryPath.al	map
-tests/al-language-onprem/lt-system-database-onprem/PVerboseTelemetry.al	tests/al-language-onprem/session-system/system-database-onprem/PVerboseTelemetry.al	map
-tests/al-language-onprem/lt-y5/Y5AuthenticationTypeOnPrem.al	tests/al-language-onprem/session-system/y5/Y5AuthenticationTypeOnPrem.al	map
+tests/al-language-onprem/lt-o-system-onprem/OBlobAndSession.al	tests/al-language-onprem/session-system/database-and-blob-operations/OBlobAndSession.al	map (reviewed)
+tests/al-language-onprem/lt-o-system-onprem/ODatabaseOps.al	tests/al-language-onprem/session-system/database-and-blob-operations/ODatabaseOps.al	map (reviewed)
+tests/al-language-onprem/lt-system-database-onprem/PApplicationPath.al	tests/al-language-onprem/session-system/server-system-functions/PApplicationPath.al	map (reviewed)
+tests/al-language-onprem/lt-system-database-onprem/PCheckLicenseFile.al	tests/al-language-onprem/session-system/server-system-functions/PCheckLicenseFile.al	map (reviewed)
+tests/al-language-onprem/lt-system-database-onprem/PDataFileInfo.al	tests/al-language-onprem/session-system/server-system-functions/PDataFileInfo.al	map (reviewed)
+tests/al-language-onprem/lt-system-database-onprem/PDocServiceToken.al	tests/al-language-onprem/session-system/server-system-functions/PDocServiceToken.al	map (reviewed)
+tests/al-language-onprem/lt-system-database-onprem/PExportObjects.al	tests/al-language-onprem/session-system/server-system-functions/PExportObjects.al	map (reviewed)
+tests/al-language-onprem/lt-system-database-onprem/PGetDocumentUrl.al	tests/al-language-onprem/session-system/server-system-functions/PGetDocumentUrl.al	map (reviewed)
+tests/al-language-onprem/lt-system-database-onprem/PGetUrl.al	tests/al-language-onprem/session-system/server-system-functions/PGetUrl.al	map (reviewed)
+tests/al-language-onprem/lt-system-database-onprem/PImportObjects.al	tests/al-language-onprem/session-system/server-system-functions/PImportObjects.al	map (reviewed)
+tests/al-language-onprem/lt-system-database-onprem/PLogAuditMessage.al	tests/al-language-onprem/session-system/server-system-functions/PLogAuditMessage.al	map (reviewed)
+tests/al-language-onprem/lt-system-database-onprem/PLogInternalError1.al	tests/al-language-onprem/session-system/server-system-functions/PLogInternalError1.al	map (reviewed)
+tests/al-language-onprem/lt-system-database-onprem/PLogInternalError2.al	tests/al-language-onprem/session-system/server-system-functions/PLogInternalError2.al	map (reviewed)
+tests/al-language-onprem/lt-system-database-onprem/PSendTraceTag.al	tests/al-language-onprem/session-system/server-system-functions/PSendTraceTag.al	map (reviewed)
+tests/al-language-onprem/lt-system-database-onprem/PSid.al	tests/al-language-onprem/session-system/server-system-functions/PSid.al	map (reviewed)
+tests/al-language-onprem/lt-system-database-onprem/PTemporaryPath.al	tests/al-language-onprem/session-system/server-system-functions/PTemporaryPath.al	map (reviewed)
+tests/al-language-onprem/lt-system-database-onprem/PVerboseTelemetry.al	tests/al-language-onprem/session-system/server-system-functions/PVerboseTelemetry.al	map (reviewed)
+tests/al-language-onprem/lt-y5/Y5AuthenticationTypeOnPrem.al	tests/al-language-onprem/session-system/authentication-type/Y5AuthenticationTypeOnPrem.al	map (reviewed)
 tests/al-language-onprem/media/MediaFiles.al	tests/al-language-onprem/streams/media/MediaFiles.al	map
 tests/al-language-onprem/media/ReMediaJpgHoldingPng.al	tests/al-language-onprem/streams/media/ReMediaJpgHoldingPng.al	map
 tests/al-language-onprem/network/HttpClientAuthConfig.al	tests/al-language-onprem/http/HttpClientAuthConfig.al	map
@@ -251,11 +251,11 @@ tests/al-language-onprem/session/UsAppLogo.al	tests/al-language-onprem/session-s
 tests/al-language-onprem/session/Y16CrmTableConnectionOps.al	tests/al-language-onprem/session-system/Y16CrmTableConnectionOps.al	map
 tests/al-language-onprem/types/ByteFormat.al	tests/al-language-onprem/types/ByteFormat.al	map
 tests/al-language-testlibraries/app.json	tests/al-language-testlibraries/app.json	map
-tests/al-language-testlibraries/lt-bi-test-framework/BiDataDriven.al	tests/al-language-testlibraries/test-framework/test-framework/BiDataDriven.al	map
-tests/al-language-testlibraries/lt-bi-test-framework/BiTestDataSource.al	tests/al-language-testlibraries/test-framework/test-framework/BiTestDataSource.al	map
-tests/al-language-testlibraries/lt-bi-test-framework/BiTestHandler.al	tests/al-language-testlibraries/test-framework/test-framework/BiTestHandler.al	map
-tests/al-language-testlibraries/lt-bi-test-framework/BiTestHandlerBehavior.al	tests/al-language-testlibraries/test-framework/test-framework/BiTestHandlerBehavior.al	map
-tests/al-language-testlibraries/lt-bi-test-framework/BiTestHandlerBehaviorNs.al	tests/al-language-testlibraries/test-framework/test-framework/BiTestHandlerBehaviorNs.al	map
+tests/al-language-testlibraries/lt-bi-test-framework/BiDataDriven.al	tests/al-language-testlibraries/test-framework/data-driven-tests-and-handlers/BiDataDriven.al	map (reviewed)
+tests/al-language-testlibraries/lt-bi-test-framework/BiTestDataSource.al	tests/al-language-testlibraries/test-framework/data-driven-tests-and-handlers/BiTestDataSource.al	map (reviewed)
+tests/al-language-testlibraries/lt-bi-test-framework/BiTestHandler.al	tests/al-language-testlibraries/test-framework/data-driven-tests-and-handlers/BiTestHandler.al	map (reviewed)
+tests/al-language-testlibraries/lt-bi-test-framework/BiTestHandlerBehavior.al	tests/al-language-testlibraries/test-framework/data-driven-tests-and-handlers/BiTestHandlerBehavior.al	map (reviewed)
+tests/al-language-testlibraries/lt-bi-test-framework/BiTestHandlerBehaviorNs.al	tests/al-language-testlibraries/test-framework/data-driven-tests-and-handlers/BiTestHandlerBehaviorNs.al	map (reviewed)
 tests/al-language-testlibraries/lt-bi-test-framework/res/bom.csv	tests/al-language-testlibraries/lt-bi-test-framework/res/bom.csv	map
 tests/al-language-testlibraries/lt-bi-test-framework/res/cases.csv	tests/al-language-testlibraries/lt-bi-test-framework/res/cases.csv	map
 tests/al-language-testlibraries/lt-bi-test-framework/res/cases.json	tests/al-language-testlibraries/lt-bi-test-framework/res/cases.json	map
@@ -272,10 +272,10 @@ tests/al-language-testlibraries/lt-bi-testpermissions/BiTpNoneMDis.al	tests/al-l
 tests/al-language-testlibraries/lt-bi-testpermissions/BiTpRestr.al	tests/al-language-testlibraries/test-framework/testpermissions/BiTpRestr.al	map
 tests/al-language-testlibraries/lt-bi-testpermissions/BiTpRestrMDis.al	tests/al-language-testlibraries/test-framework/testpermissions/BiTpRestrMDis.al	map
 tests/al-language-testlibraries/lt-bi-trigger-setup/BiTriggerSetup.al	tests/al-language-testlibraries/test-framework/trigger-setup/BiTriggerSetup.al	map
-tests/al-language-testlibraries/lt-wb-6286/WbStaleDeleteTables.al	tests/al-language-testlibraries/test-framework/6286/WbStaleDeleteTables.al	map
-tests/al-language-testlibraries/lt-wb-6286/WbStaleDeleteTests.al	tests/al-language-testlibraries/test-framework/6286/WbStaleDeleteTests.al	map
-tests/al-language-testlibraries/lt-wb-6286/WbStaleDeleteTrace.al	tests/al-language-testlibraries/test-framework/6286/WbStaleDeleteTrace.al	map
-tests/al-language-testlibraries/lt-y24-runner-perms/Y24RunnerPerms.al	tests/al-language-testlibraries/test-framework/runner-perms/Y24RunnerPerms.al	map
+tests/al-language-testlibraries/lt-wb-6286/WbStaleDeleteTables.al	tests/al-language-testlibraries/test-framework/stale-delete-triggers/WbStaleDeleteTables.al	map (reviewed)
+tests/al-language-testlibraries/lt-wb-6286/WbStaleDeleteTests.al	tests/al-language-testlibraries/test-framework/stale-delete-triggers/WbStaleDeleteTests.al	map (reviewed)
+tests/al-language-testlibraries/lt-wb-6286/WbStaleDeleteTrace.al	tests/al-language-testlibraries/test-framework/stale-delete-triggers/WbStaleDeleteTrace.al	map (reviewed)
+tests/al-language-testlibraries/lt-y24-runner-perms/Y24RunnerPerms.al	tests/al-language-testlibraries/test-framework/runner-permissions/Y24RunnerPerms.al	map (reviewed)
 tests/al-language-testlibraries/lt-y3-setup-order/Y3SetupOrderTests.al	tests/al-language-testlibraries/test-framework/setup-order/Y3SetupOrderTests.al	map
 tests/al-language-testlibraries/lt-y35-onrun-storage/Y35OnRunStorage.al	tests/al-language-testlibraries/test-framework/onrun-storage/Y35OnRunStorage.al	map
 tests/al-language-xapp-a/BwXaInstall.al	tests/al-language-xapp-a/BwXaInstall.al	map
@@ -730,11 +730,11 @@ tests/al-language/collections/TestList.al	tests/al-language/collections/TestList
 tests/al-language/collections/TestListByRefContracts.al	tests/al-language/collections/TestListByRefContracts.al	map
 tests/al-language/collections/TestListOfCodeunitState.al	tests/al-language/collections/TestListOfCodeunitState.al	map
 tests/al-language/collections/TestListTrappableError.al	tests/al-language/collections/TestListTrappableError.al	map
-tests/al-language/collections/lt-array-rows/ArrayRows.al	tests/al-language/collections/array-rows/ArrayRows.al	map
+tests/al-language/collections/lt-array-rows/ArrayRows.al	tests/al-language/collections/multi-dimension-array-rows/ArrayRows.al	map (reviewed)
 tests/al-language/collections/lt-cs-odd-leads/CsCollections.al	tests/al-language/collections/CsCollections.al	map
 tests/al-language/collections/lt-cs-odd-leads/CsDictInterface.al	tests/al-language/collections/CsDictInterface.al	map
 tests/al-language/collections/lt-cs-odd-leads/CsRecordGet.al	tests/al-language/errors/CsRecordGet.al	map
-tests/al-language/collections/lt-y66-copyarray-fn-result/Y66CopyArrayFnResult.al	tests/al-language/collections/copyarray-fn-result/Y66CopyArrayFnResult.al	map
+tests/al-language/collections/lt-y66-copyarray-fn-result/Y66CopyArrayFnResult.al	tests/al-language/collections/copyarray-procedure-result/Y66CopyArrayFnResult.al	map (reviewed)
 tests/al-language/controls/W2FindFieldAssign.al	tests/al-language/pages/controls/W2FindFieldAssign.al	map
 tests/al-language/controls/W2PageVariableInit.al	tests/al-language/pages/controls/W2PageVariableInit.al	map
 tests/al-language/controls/W2ValueControls.al	tests/al-language/pages/controls/W2ValueControls.al	map
@@ -769,7 +769,7 @@ tests/al-language/error-handling/lt-last-error-text-forms/LastErrorTextExcludeTe
 tests/al-language/error-handling/lt-last-error-text-forms/LastErrorTextExcludeTextVariable.al	tests/al-language/errors/last-error/LastErrorTextExcludeTextVariable.al	map
 tests/al-language/error-handling/lt-last-error-text-forms/SnLastErrorTextMoreForms.al	tests/al-language/errors/last-error/SnLastErrorTextMoreForms.al	map
 tests/al-language/error-handling/lt-last-error-text-forms/TestFieldOptionEnumExcludeFlag.al	tests/al-language/errors/last-error/TestFieldOptionEnumExcludeFlag.al	map
-tests/al-language/error-handling/lt-wd/WdCallStackToBlob.al	tests/al-language/streams/WdCallStackToBlob.al	map
+tests/al-language/error-handling/lt-wd/WdCallStackToBlob.al	tests/al-language/errors/last-error/WdCallStackToBlob.al	map (reviewed)
 tests/al-language/error-handling/lt-wd/WdCallStackWriteText.al	tests/al-language/errors/WdCallStackWriteText.al	rule: classifier unsure (0.29), area of the top folder
 tests/al-language/errorinfo/ALTErrorInfoActionSink.Codeunit.al	tests/al-language/errors/errorinfo/ALTErrorInfoActionSink.Codeunit.al	map
 tests/al-language/errorinfo/ALTErrorInfoRow.Table.al	tests/al-language/errors/errorinfo/ALTErrorInfoRow.Table.al	map
@@ -807,22 +807,22 @@ tests/al-language/errors/lt-last-error-and-events/P70_07RequestCaption.al	tests/
 tests/al-language/errors/lt-ms-refusals-128/N582EvalFieldRefUnused.al	tests/al-language/recordref-fieldref/N582EvalFieldRefUnused.al	map
 tests/al-language/errors/lt-ms-refusals-128/N582RecordIdText.al	tests/al-language/format-evaluate/N582RecordIdText.al	map
 tests/al-language/errors/lt-ms-refusals-128/P128ArrayRow.al	tests/al-language/permissions/P128ArrayRow.al	map
-tests/al-language/errors/lt-ms-refusals-128/P128CalcDateForms.al	tests/al-language/types/P128CalcDateForms.al	map
-tests/al-language/errors/lt-ms-refusals-128/P128Callstack.al	tests/al-language/record/P128Callstack.al	map
+tests/al-language/errors/lt-ms-refusals-128/P128CalcDateForms.al	tests/al-language/types/date-time/P128CalcDateForms.al	map (reviewed)
+tests/al-language/errors/lt-ms-refusals-128/P128Callstack.al	tests/al-language/session-system/callstack/P128Callstack.al	map (reviewed)
 tests/al-language/errors/lt-ms-refusals-128/P128CallstackPageEvents.al	tests/al-language/events/P128CallstackPageEvents.al	map
-tests/al-language/errors/lt-ms-refusals-128/P128ClearAllReport.al	tests/al-language/record/P128ClearAllReport.al	map
+tests/al-language/errors/lt-ms-refusals-128/P128ClearAllReport.al	tests/al-language/reports/runtime/P128ClearAllReport.al	map (reviewed)
 tests/al-language/errors/lt-ms-refusals-128/P128EvalBasic.al	tests/al-language/recordref-fieldref/P128EvalBasic.al	map
 tests/al-language/errors/lt-ms-refusals-128/P128EvalFieldRef.al	tests/al-language/recordref-fieldref/P128EvalFieldRef.al	map
 tests/al-language/errors/lt-ms-refusals-128/P128EvalRecordId.al	tests/al-language/format-evaluate/P128EvalRecordId.al	map
 tests/al-language/errors/lt-ms-refusals-128/P128ModalOnInit.al	tests/al-language/ui-handlers/P128ModalOnInit.al	map
 tests/al-language/errors/lt-ms-refusals-128/P128SelectionFilter.al	tests/al-language/testpage/P128SelectionFilter.al	map
-tests/al-language/errors/lt-ms-refusals-128/P128TestFieldRecordId.al	tests/al-language/errors/P128TestFieldRecordId.al	map
+tests/al-language/errors/lt-ms-refusals-128/P128TestFieldRecordId.al	tests/al-language/record/testfield/P128TestFieldRecordId.al	map (reviewed)
 tests/al-language/errors/lt-ms-refusals-128/P128WindowsLanguage.al	tests/al-language/record/P128WindowsLanguage.al	map
 tests/al-language/errors/lt-ms-refusals-129/P129ArrayIndex.al	tests/al-language/errors/P129ArrayIndex.al	map
-tests/al-language/errors/lt-ms-refusals-129/P129CalcDateAngles.al	tests/al-language/errors/P129CalcDateAngles.al	map
+tests/al-language/errors/lt-ms-refusals-129/P129CalcDateAngles.al	tests/al-language/types/date-time/P129CalcDateAngles.al	map (reviewed)
 tests/al-language/errors/lt-ms-refusals-129/P129CallstackEvents.al	tests/al-language/events/P129CallstackEvents.al	map
 tests/al-language/errors/lt-ms-refusals-129/P129CallstackPageControls.al	tests/al-language/testpage/P129CallstackPageControls.al	map
-tests/al-language/errors/lt-ms-refusals-129/P129CallstackQuery.al	tests/al-language/queries/P129CallstackQuery.al	map
+tests/al-language/errors/lt-ms-refusals-129/P129CallstackQuery.al	tests/al-language/session-system/callstack/P129CallstackQuery.al	map (reviewed)
 tests/al-language/errors/lt-ms-refusals-129/P129CallstackTableExt.al	tests/al-language/table-objects/P129CallstackTableExt.al	map
 tests/al-language/errors/lt-ms-refusals-129/P129CallstackXmlPort.al	tests/al-language/streams/P129CallstackXmlPort.al	map
 tests/al-language/errors/lt-ms-refusals-129/P129Evaluate.al	tests/al-language/types/P129Evaluate.al	map
@@ -831,24 +831,24 @@ tests/al-language/errors/lt-ms-refusals-129/P129FormatTestPageControl.al	tests/a
 tests/al-language/errors/lt-ms-refusals-129/P129Handlers.al	tests/al-language/ui-handlers/P129Handlers.al	map
 tests/al-language/errors/lt-ms-refusals-129/P129PageHandlerTypedB.al	tests/al-language/ui-handlers/P129PageHandlerTypedB.al	map
 tests/al-language/errors/lt-ms-refusals-129/P129PageMisc.al	tests/al-language/testpage/P129PageMisc.al	map
-tests/al-language/errors/lt-ms-refusals-129/P129ReportBreak.al	tests/al-language/reports/P129ReportBreak.al	map
+tests/al-language/errors/lt-ms-refusals-129/P129ReportBreak.al	tests/al-language/reports/runtime/P129ReportBreak.al	map (reviewed)
 tests/al-language/errors/lt-ms-refusals-129/P129ReportExtBreak.al	tests/al-language/reports/P129ReportExtBreak.al	map
 tests/al-language/errors/lt-ms-refusals-129/P129StreamWriteText.al	tests/al-language/streams/P129StreamWriteText.al	map
 tests/al-language/errors/lt-ms-refusals-129/P129WindowsLanguage.al	tests/al-language/record/P129WindowsLanguage.al	map
-tests/al-language/errors/lt-ms-refusals-129/Y9LookupNoRow.al	tests/al-language/ui-handlers/Y9LookupNoRow.al	map
+tests/al-language/errors/lt-ms-refusals-129/Y9LookupNoRow.al	tests/al-language/pages/run-modal/Y9LookupNoRow.al	map (reviewed)
 tests/al-language/errors/lt-ms-refusals-130/P130DatasetHelper.al	tests/al-language/reports/P130DatasetHelper.al	map
-tests/al-language/errors/lt-ms-refusals-130/P130DateFilters.al	tests/al-language/record/P130DateFilters.al	map
+tests/al-language/errors/lt-ms-refusals-130/P130DateFilters.al	tests/al-language/record/filters/P130DateFilters.al	map (reviewed)
 tests/al-language/errors/lt-ms-refusals-130/P130DateFilters2.al	tests/al-language/errors/P130DateFilters2.al	map
 tests/al-language/errors/lt-ms-refusals-130/P130EvaluateDate.al	tests/al-language/types/P130EvaluateDate.al	map
 tests/al-language/errors/lt-ms-refusals-130/P130Fixtures.al	tests/al-language/reports/P130Fixtures.al	map
 tests/al-language/errors/lt-ms-refusals-130/P130GuidFilters.al	tests/al-language/types/P130GuidFilters.al	map
 tests/al-language/errors/lt-ms-refusals-130/P130HandlerPairs.al	tests/al-language/ui-handlers/P130HandlerPairs.al	map
 tests/al-language/errors/lt-ms-refusals-130/P130QueryOuterFlow.al	tests/al-language/queries/P130QueryOuterFlow.al	map
-tests/al-language/errors/lt-ms-refusals-130/P130ReportInclCap.al	tests/al-language/reports/P130ReportInclCap.al	map
-tests/al-language/errors/lt-ms-refusals-130/P130ReportOpt.al	tests/al-language/reports/P130ReportOpt.al	map
-tests/al-language/errors/lt-ms-refusals-130/P130TransferTypes.al	tests/al-language/errors/P130TransferTypes.al	map
+tests/al-language/errors/lt-ms-refusals-130/P130ReportInclCap.al	tests/al-language/reports/dataset/P130ReportInclCap.al	map (reviewed)
+tests/al-language/errors/lt-ms-refusals-130/P130ReportOpt.al	tests/al-language/reports/dataset/P130ReportOpt.al	map (reviewed)
+tests/al-language/errors/lt-ms-refusals-130/P130TransferTypes.al	tests/al-language/record/crud/P130TransferTypes.al	map (reviewed)
 tests/al-language/errors/lt-ms-refusals-130/P130WriteText.al	tests/al-language/streams/P130WriteText.al	map
-tests/al-language/errors/lt-ms-refusals-131/P131CalcDate.al	tests/al-language/types/P131CalcDate.al	map
+tests/al-language/errors/lt-ms-refusals-131/P131CalcDate.al	tests/al-language/types/date-time/P131CalcDate.al	map (reviewed)
 tests/al-language/errors/lt-ms-refusals-131/P131EvalOption.al	tests/al-language/format-evaluate/P131EvalOption.al	map
 tests/al-language/errors/lt-ms-refusals-131/P131EvalScalars.al	tests/al-language/types/P131EvalScalars.al	map
 tests/al-language/errors/lt-ms-refusals-131/P131HandlerFixtures.al	tests/al-language/ui-handlers/P131HandlerFixtures.al	map
@@ -863,7 +863,7 @@ tests/al-language/errors/lt-ms-refusals-132/P132DateFormula.al	tests/al-language
 tests/al-language/errors/lt-ms-refusals-132/P132DateGuidTextFilters.al	tests/al-language/types/P132DateGuidTextFilters.al	map
 tests/al-language/errors/lt-ms-refusals-132/P132EvaluateCodeOption.al	tests/al-language/format-evaluate/P132EvaluateCodeOption.al	map
 tests/al-language/errors/lt-ms-refusals-132/P132OutStreamUnicode.al	tests/al-language/streams/P132OutStreamUnicode.al	map
-tests/al-language/errors/lt-ms-refusals-132/P132PageControlVisible.al	tests/al-language/record/P132PageControlVisible.al	map
+tests/al-language/errors/lt-ms-refusals-132/P132PageControlVisible.al	tests/al-language/pages/controls/P132PageControlVisible.al	map (reviewed)
 tests/al-language/errors/lt-ms-refusals-132/P132ReportTimeMs.al	tests/al-language/streams/P132ReportTimeMs.al	map
 tests/al-language/errors/lt-ms-refusals-132/P132SelectionFilter.al	tests/al-language/testpage/P132SelectionFilter.al	map
 tests/al-language/errors/lt-ms-refusals-132/P132TestPageFormatRisky.al	tests/al-language/testpage/P132TestPageFormatRisky.al	map
@@ -876,24 +876,24 @@ tests/al-language/errors/lt-ms-refusals-133/P133QueryOuterFilters.al	tests/al-la
 tests/al-language/errors/lt-ms-refusals-133/P133RelationLookups.al	tests/al-language/testpage/P133RelationLookups.al	map
 tests/al-language/errors/lt-ms-refusals-133/P133SelectionFilter.al	tests/al-language/record/P133SelectionFilter.al	map
 tests/al-language/errors/lt-ms-refusals-133/P133WindowsLanguage.al	tests/al-language/record/P133WindowsLanguage.al	map
-tests/al-language/errors/lt-ms-refusals-134/P134DateTextFilters.al	tests/al-language/collections/P134DateTextFilters.al	map
+tests/al-language/errors/lt-ms-refusals-134/P134DateTextFilters.al	tests/al-language/testpage/filters/P134DateTextFilters.al	map (reviewed)
 tests/al-language/errors/lt-ms-refusals-134/P134MinMaxDecimals.al	tests/al-language/pages/P134MinMaxDecimals.al	map
 tests/al-language/errors/lt-ms-refusals-134/P134ModalPair.al	tests/al-language/pages/P134ModalPair.al	map
 tests/al-language/errors/lt-ms-refusals-134/P134QueryOuterColumnFilter.al	tests/al-language/queries/P134QueryOuterColumnFilter.al	map
 tests/al-language/errors/lt-ms-refusals-135/P135CallstackPage.al	tests/al-language/testpage/P135CallstackPage.al	map
-tests/al-language/errors/lt-ms-refusals-135/P135CallstackTable.al	tests/al-language/events/P135CallstackTable.al	map
+tests/al-language/errors/lt-ms-refusals-135/P135CallstackTable.al	tests/al-language/session-system/callstack/P135CallstackTable.al	map (reviewed)
 tests/al-language/errors/lt-ms-refusals-135/P135CallstackXmlportEtc.al	tests/al-language/xmlports/P135CallstackXmlportEtc.al	map
-tests/al-language/errors/lt-ms-refusals-135/P135ClearAllReport.al	tests/al-language/record/P135ClearAllReport.al	map
+tests/al-language/errors/lt-ms-refusals-135/P135ClearAllReport.al	tests/al-language/reports/runtime/P135ClearAllReport.al	map (reviewed)
 tests/al-language/errors/lt-ms-refusals-135/P135RecordIdTestField.al	tests/al-language/recordref-fieldref/P135RecordIdTestField.al	map
 tests/al-language/errors/lt-ms-refusals-135/P135RecordRefGet.al	tests/al-language/recordref-fieldref/P135RecordRefGet.al	map
 tests/al-language/errors/lt-ms-refusals-135/P135SelectionFilter.al	tests/al-language/testpage/P135SelectionFilter.al	map
 tests/al-language/errors/lt-ms-refusals-135/P135TestPageFormat.al	tests/al-language/testpage/P135TestPageFormat.al	map
-tests/al-language/errors/lt-ms-refusals-136/P136CsBase.al	tests/al-language/events/P136CsBase.al	map
+tests/al-language/errors/lt-ms-refusals-136/P136CsBase.al	tests/al-language/session-system/callstack/P136CsBase.al	map (reviewed)
 tests/al-language/errors/lt-ms-refusals-136/P136Filter.al	tests/al-language/types/P136Filter.al	map
-tests/al-language/errors/lt-ms-refusals-136/P136PageTyped.al	tests/al-language/pages/P136PageTyped.al	map
+tests/al-language/errors/lt-ms-refusals-136/P136PageTyped.al	tests/al-language/ui-handlers/P136PageTyped.al	map (reviewed)
 tests/al-language/errors/lt-ms-refusals-136/P136Report.al	tests/al-language/record/P136Report.al	map
-tests/al-language/errors/lt-ms-refusals-136/P136SelFilter.al	tests/al-language/pages/P136SelFilter.al	map
-tests/al-language/errors/lt-ms-refusals-136/P136Text.al	tests/al-language/permissions/P136Text.al	map
+tests/al-language/errors/lt-ms-refusals-136/P136SelFilter.al	tests/al-language/pages/currpage/P136SelFilter.al	map (reviewed)
+tests/al-language/errors/lt-ms-refusals-136/P136Text.al	tests/al-language/text/text-methods/P136Text.al	map (reviewed)
 tests/al-language/errors/lt-ms-refusals-137/P137Callstack.al	tests/al-language/events/P137Callstack.al	map
 tests/al-language/errors/lt-ms-refusals-137/P137DateFormula.al	tests/al-language/errors/P137DateFormula.al	map
 tests/al-language/errors/lt-ms-refusals-137/P137Fix.al	tests/al-language/events/P137Fix.al	map
@@ -1014,7 +1014,7 @@ tests/al-language/filters/W4Filters.al	tests/al-language/record/filters/W4Filter
 tests/al-language/filters/lt-date-text-forms/DateFilterTextForms.al	tests/al-language/record/filters/DateFilterTextForms.al	map
 tests/al-language/filters/lt-filter-empty-dateformula/FilterEmptyDateFormula.al	tests/al-language/record/filters/FilterEmptyDateFormula.al	map
 tests/al-language/filters/lt-uc-quoted-values/UcQuotedValues.al	tests/al-language/record/filters/UcQuotedValues.al	map
-tests/al-language/filters/lt-wc/WcInvalidFilterExpr.al	tests/al-language/errors/WcInvalidFilterExpr.al	map
+tests/al-language/filters/lt-wc/WcInvalidFilterExpr.al	tests/al-language/record/filters/WcInvalidFilterExpr.al	map (reviewed)
 tests/al-language/filters/lt-wc/WcRecordIdFilter.al	tests/al-language/record/WcRecordIdFilter.al	map
 tests/al-language/filters/lt-y62-date-filter-short/Y62DateFilterShort.al	tests/al-language/record/filters/Y62DateFilterShort.al	map
 tests/al-language/fixtures/W3Fixtures.al	tests/al-language/_fixtures/W3Fixtures.al	map
@@ -1033,7 +1033,7 @@ tests/al-language/handlers/AskLinesNoSplit.Page.al	tests/al-language/pages/AskLi
 tests/al-language/handlers/AskProbe.Codeunit.al	tests/al-language/testpage/AskProbe.Codeunit.al	map
 tests/al-language/handlers/CnhConfirmFalse.Page.al	tests/al-language/ui-handlers/CnhConfirmFalse.Page.al	map
 tests/al-language/handlers/CnhConfirmTrue.Page.al	tests/al-language/ui-handlers/CnhConfirmTrue.Page.al	map
-tests/al-language/handlers/CnhRow.Table.al	tests/al-language/language/CnhRow.Table.al	map
+tests/al-language/handlers/CnhRow.Table.al	tests/al-language/ui-handlers/CnhRow.Table.al	map (reviewed)
 tests/al-language/handlers/FixtureLayout.rdlc	tests/al-language/_fixtures/layouts/unreferenced/FixtureLayout.rdlc	rule: non-AL file of a split folder, no AL file names it (candidate for removal)
 tests/al-language/handlers/IpfCard.Page.al	tests/al-language/testpage/IpfCard.Page.al	map
 tests/al-language/handlers/IpfDelayedCard.Page.al	tests/al-language/testpage/IpfDelayedCard.Page.al	map
@@ -1057,7 +1057,7 @@ tests/al-language/handlers/OngCard.Page.al	tests/al-language/testpage/OngCard.Pa
 tests/al-language/handlers/OngRow.Table.al	tests/al-language/testpage/OngRow.Table.al	map
 tests/al-language/handlers/OnplCard.Page.al	tests/al-language/testpage/OnplCard.Page.al	map
 tests/al-language/handlers/OnplHeader.Table.al	tests/al-language/testpage/OnplHeader.Table.al	map
-tests/al-language/handlers/OnplLines.Page.al	tests/al-language/pages/OnplLines.Page.al	map
+tests/al-language/handlers/OnplLines.Page.al	tests/al-language/testpage/OnplLines.Page.al	map (reviewed)
 tests/al-language/handlers/OnrcCard.Page.al	tests/al-language/testpage/OnrcCard.Page.al	map
 tests/al-language/handlers/OnrcHeader.Table.al	tests/al-language/testpage/OnrcHeader.Table.al	map
 tests/al-language/handlers/OnrcLine.Table.al	tests/al-language/testpage/OnrcLine.Table.al	map
@@ -1067,8 +1067,8 @@ tests/al-language/handlers/OnrcLog.Table.al	tests/al-language/testpage/OnrcLog.T
 tests/al-language/handlers/OpcCloseCard.Page.al	tests/al-language/testpage/OpcCloseCard.Page.al	map
 tests/al-language/handlers/OpcHead.Table.al	tests/al-language/testpage/OpcHead.Table.al	map
 tests/al-language/handlers/OpcResult.Table.al	tests/al-language/testpage/OpcResult.Table.al	map
-tests/al-language/handlers/OpfLine.Table.al	tests/al-language/language/OpfLine.Table.al	map
-tests/al-language/handlers/OpfLinesPart.Page.al	tests/al-language/record/OpfLinesPart.Page.al	map
+tests/al-language/handlers/OpfLine.Table.al	tests/al-language/ui-handlers/OpfLine.Table.al	map (reviewed)
+tests/al-language/handlers/OpfLinesPart.Page.al	tests/al-language/ui-handlers/OpfLinesPart.Page.al	map (reviewed)
 tests/al-language/handlers/OpfOuterCard.Page.al	tests/al-language/ui-handlers/OpfOuterCard.Page.al	map
 tests/al-language/handlers/OpfResult.Table.al	tests/al-language/ui-handlers/OpfResult.Table.al	map
 tests/al-language/handlers/PRPageObjectId.al	tests/al-language/pages/PRPageObjectId.al	map
@@ -1093,7 +1093,7 @@ tests/al-language/handlers/PkflLines.Page.al	tests/al-language/pages/PkflLines.P
 tests/al-language/handlers/PkflPopulateLines.Page.al	tests/al-language/pages/PkflPopulateLines.Page.al	map
 tests/al-language/handlers/ProbeEventSubscriberOrder.al	tests/al-language/events/ProbeEventSubscriberOrder.al	map
 tests/al-language/handlers/ProbeNotificationRecallEdges.al	tests/al-language/ui-handlers/ProbeNotificationRecallEdges.al	map
-tests/al-language/handlers/ProbeObjectMetadataTables.al	tests/al-language/table-objects/ProbeObjectMetadataTables.al	map
+tests/al-language/handlers/ProbeObjectMetadataTables.al	tests/al-language/metadata/platform-tables/ProbeObjectMetadataTables.al	map (reviewed)
 tests/al-language/handlers/ProbePageMetadataFixtures.al	tests/al-language/pages/ProbePageMetadataFixtures.al	map
 tests/al-language/handlers/ProbeTestPageForms.al	tests/al-language/testpage/ProbeTestPageForms.al	map
 tests/al-language/handlers/QbCaptionClassModify.al	tests/al-language/testpage/QbCaptionClassModify.al	map
@@ -1139,7 +1139,7 @@ tests/al-language/handlers/TestActionRunPageLinkFilterGroup.al	tests/al-language
 tests/al-language/handlers/TestBCReportHandlerContracts.al	tests/al-language/testpage/TestBCReportHandlerContracts.al	map
 tests/al-language/handlers/TestConfirmFormatArgs.al	tests/al-language/ui-handlers/TestConfirmFormatArgs.al	map
 tests/al-language/handlers/TestConfirmNoHandler.al	tests/al-language/ui-handlers/TestConfirmNoHandler.al	map
-tests/al-language/handlers/TestHandlersDialogProgressNoOp.al	tests/al-language/collections/TestHandlersDialogProgressNoOp.al	map
+tests/al-language/handlers/TestHandlersDialogProgressNoOp.al	tests/al-language/ui-handlers/TestHandlersDialogProgressNoOp.al	map (reviewed)
 tests/al-language/handlers/TestManualObjectIntegrationEvent.al	tests/al-language/record/TestManualObjectIntegrationEvent.al	map
 tests/al-language/handlers/TestMessageHandler.al	tests/al-language/ui-handlers/TestMessageHandler.al	map
 tests/al-language/handlers/TestNotificationHandler.al	tests/al-language/ui-handlers/TestNotificationHandler.al	map
@@ -1173,7 +1173,7 @@ tests/al-language/handlers/TestPageAutoSplitKeyRanges_Tests.al	tests/al-language
 tests/al-language/handlers/TestPageAutoSplitKey_Tests.al	tests/al-language/testpage/TestPageAutoSplitKey_Tests.al	map
 tests/al-language/handlers/TestPageBgTaskCard.Page.al	tests/al-language/testpage/TestPageBgTaskCard.Page.al	map
 tests/al-language/handlers/TestPageBgTaskRow.Table.al	tests/al-language/testpage/TestPageBgTaskRow.Table.al	map
-tests/al-language/handlers/TestPageBgTaskTempRow.Table.al	tests/al-language/language/TestPageBgTaskTempRow.Table.al	map
+tests/al-language/handlers/TestPageBgTaskTempRow.Table.al	tests/al-language/testpage/TestPageBgTaskTempRow.Table.al	map (reviewed)
 tests/al-language/handlers/TestPageBgTaskTempWorker.Codeunit.al	tests/al-language/testpage/TestPageBgTaskTempWorker.Codeunit.al	map
 tests/al-language/handlers/TestPageBgTaskTxCard.Page.al	tests/al-language/testpage/TestPageBgTaskTxCard.Page.al	map
 tests/al-language/handlers/TestPageBgTaskTxNoop.Codeunit.al	tests/al-language/testpage/TestPageBgTaskTxNoop.Codeunit.al	map
@@ -1227,7 +1227,7 @@ tests/al-language/handlers/TestPageEditable_Tests.al	tests/al-language/testpage/
 tests/al-language/handlers/TestPageEnumDeclaredOrder_Objects.al	tests/al-language/testpage/TestPageEnumDeclaredOrder_Objects.al	map
 tests/al-language/handlers/TestPageEnumDeclaredOrder_Tests.al	tests/al-language/testpage/TestPageEnumDeclaredOrder_Tests.al	map
 tests/al-language/handlers/TestPageEnumField.al	tests/al-language/testpage/TestPageEnumField.al	map
-tests/al-language/handlers/TestPageEnumField_Enum.al	tests/al-language/language/TestPageEnumField_Enum.al	map
+tests/al-language/handlers/TestPageEnumField_Enum.al	tests/al-language/testpage/TestPageEnumField_Enum.al	map (reviewed)
 tests/al-language/handlers/TestPageEnumField_Page.al	tests/al-language/testpage/TestPageEnumField_Page.al	map
 tests/al-language/handlers/TestPageEnumField_Tests.al	tests/al-language/testpage/TestPageEnumField_Tests.al	map
 tests/al-language/handlers/TestPageEnumVariableControl.al	tests/al-language/ui-handlers/TestPageEnumVariableControl.al	map
@@ -1244,12 +1244,12 @@ tests/al-language/handlers/TestPageExtensionActionInvoke_Tests.al	tests/al-langu
 tests/al-language/handlers/TestPageExtensionActionWithPart.al	tests/al-language/testpage/TestPageExtensionActionWithPart.al	map
 tests/al-language/handlers/TestPageExtensionActionWithPart_Page.al	tests/al-language/testpage/TestPageExtensionActionWithPart_Page.al	map
 tests/al-language/handlers/TestPageExtensionActionWithPart_Tests.al	tests/al-language/testpage/TestPageExtensionActionWithPart_Tests.al	map
-tests/al-language/handlers/TestPageExtensionBaseAccessContracts.al	tests/al-language/testpage/TestPageExtensionBaseAccessContracts.al	map
+tests/al-language/handlers/TestPageExtensionBaseAccessContracts.al	tests/al-language/pages/extensions/TestPageExtensionBaseAccessContracts.al	map (reviewed)
 tests/al-language/handlers/TestPageExtensionBaseMembersContracts.al	tests/al-language/pages/TestPageExtensionBaseMembersContracts.al	map
 tests/al-language/handlers/TestPageExtensionControlCaption_Page.al	tests/al-language/reports/TestPageExtensionControlCaption_Page.al	map
-tests/al-language/handlers/TestPageExtensionControlCaption_Tests.al	tests/al-language/reports/TestPageExtensionControlCaption_Tests.al	map
+tests/al-language/handlers/TestPageExtensionControlCaption_Tests.al	tests/al-language/pages/extensions/TestPageExtensionControlCaption_Tests.al	map (reviewed)
 tests/al-language/handlers/TestPageExtensionModifyCaption_Page.al	tests/al-language/testpage/TestPageExtensionModifyCaption_Page.al	map
-tests/al-language/handlers/TestPageExtensionModifyCaption_Tests.al	tests/al-language/testpage/TestPageExtensionModifyCaption_Tests.al	map
+tests/al-language/handlers/TestPageExtensionModifyCaption_Tests.al	tests/al-language/pages/extensions/TestPageExtensionModifyCaption_Tests.al	map (reviewed)
 tests/al-language/handlers/TestPageFailedInsert_Tests.al	tests/al-language/testpage/TestPageFailedInsert_Tests.al	map
 tests/al-language/handlers/TestPageFieldCaption.al	tests/al-language/testpage/TestPageFieldCaption.al	map
 tests/al-language/handlers/TestPageFieldCaption_Page.al	tests/al-language/testpage/TestPageFieldCaption_Page.al	map
@@ -1289,11 +1289,11 @@ tests/al-language/handlers/TestPageGoToRecordDupCaption.al	tests/al-language/tes
 tests/al-language/handlers/TestPageGoToRecordDupCaption_Tests.al	tests/al-language/testpage/TestPageGoToRecordDupCaption_Tests.al	map
 tests/al-language/handlers/TestPageGoToRecordNonKeyRefresh.al	tests/al-language/testpage/TestPageGoToRecordNonKeyRefresh.al	map
 tests/al-language/handlers/TestPageGoToRecordNonKeyRefresh_Tests.al	tests/al-language/testpage/TestPageGoToRecordNonKeyRefresh_Tests.al	map
-tests/al-language/handlers/TestPageGoToRecordPrecompiled_Ext.al	tests/al-language/text/TestPageGoToRecordPrecompiled_Ext.al	map
+tests/al-language/handlers/TestPageGoToRecordPrecompiled_Ext.al	tests/al-language/testpage/TestPageGoToRecordPrecompiled_Ext.al	map (reviewed)
 tests/al-language/handlers/TestPageGoToRecordPrecompiled_Tests.al	tests/al-language/testpage/TestPageGoToRecordPrecompiled_Tests.al	map
 tests/al-language/handlers/TestPageGoToRecord_Page.al	tests/al-language/testpage/TestPageGoToRecord_Page.al	map
 tests/al-language/handlers/TestPageGoToRecord_Tests.al	tests/al-language/testpage/TestPageGoToRecord_Tests.al	map
-tests/al-language/handlers/TestPageHandler.al	tests/al-language/pages/TestPageHandler.al	map
+tests/al-language/handlers/TestPageHandler.al	tests/al-language/testpage/TestPageHandler.al	map (reviewed)
 tests/al-language/handlers/TestPageHandlerEditable_Objects.al	tests/al-language/ui-handlers/TestPageHandlerEditable_Objects.al	map
 tests/al-language/handlers/TestPageHandlerEditable_Tests.al	tests/al-language/ui-handlers/TestPageHandlerEditable_Tests.al	map
 tests/al-language/handlers/TestPageInsertAllowed.al	tests/al-language/testpage/TestPageInsertAllowed.al	map
@@ -1324,8 +1324,8 @@ tests/al-language/handlers/TestPageModalPart_NoSrcHost.al	tests/al-language/test
 tests/al-language/handlers/TestPageModalPart_PartList.al	tests/al-language/pages/TestPageModalPart_PartList.al	map
 tests/al-language/handlers/TestPageModalPart_Tests.al	tests/al-language/ui-handlers/TestPageModalPart_Tests.al	map
 tests/al-language/handlers/TestPageModalQueryClose_Tests.al	tests/al-language/ui-handlers/TestPageModalQueryClose_Tests.al	map
-tests/al-language/handlers/TestPageModalResultsAndTriggersContracts.al	tests/al-language/pages/TestPageModalResultsAndTriggersContracts.al	map
-tests/al-language/handlers/TestPageModalRowLoad_Tests.al	tests/al-language/ui-handlers/TestPageModalRowLoad_Tests.al	map
+tests/al-language/handlers/TestPageModalResultsAndTriggersContracts.al	tests/al-language/pages/run-modal/TestPageModalResultsAndTriggersContracts.al	map (reviewed)
+tests/al-language/handlers/TestPageModalRowLoad_Tests.al	tests/al-language/pages/run-modal/TestPageModalRowLoad_Tests.al	map (reviewed)
 tests/al-language/handlers/TestPageModalSelfClose_Tests.al	tests/al-language/ui-handlers/TestPageModalSelfClose_Tests.al	map
 tests/al-language/handlers/TestPageModeSwitchAction_Objects.al	tests/al-language/testpage/TestPageModeSwitchAction_Objects.al	map
 tests/al-language/handlers/TestPageModeSwitchAction_Tests.al	tests/al-language/testpage/TestPageModeSwitchAction_Tests.al	map
@@ -1351,7 +1351,7 @@ tests/al-language/handlers/TestPagePartAgcrHost.Page.al	tests/al-language/text/T
 tests/al-language/handlers/TestPagePartAgcrPart.Page.al	tests/al-language/pages/TestPagePartAgcrPart.Page.al	map
 tests/al-language/handlers/TestPagePartAgcrRow.Table.al	tests/al-language/text/TestPagePartAgcrRow.Table.al	map
 tests/al-language/handlers/TestPagePartAgcrTrace.Codeunit.al	tests/al-language/text/TestPagePartAgcrTrace.Codeunit.al	map
-tests/al-language/handlers/TestPagePartAgcr_Tests.al	tests/al-language/text/TestPagePartAgcr_Tests.al	map
+tests/al-language/handlers/TestPagePartAgcr_Tests.al	tests/al-language/testpage/TestPagePartAgcr_Tests.al	map (reviewed)
 tests/al-language/handlers/TestPagePartDraftLineLink.al	tests/al-language/testpage/TestPagePartDraftLineLink.al	map
 tests/al-language/handlers/TestPagePartLinkFilterGroup.al	tests/al-language/testpage/TestPagePartLinkFilterGroup.al	map
 tests/al-language/handlers/TestPagePartOnNewRecordCount.al	tests/al-language/testpage/TestPagePartOnNewRecordCount.al	map
@@ -1368,7 +1368,7 @@ tests/al-language/handlers/TestPageRunHandler_Objects.al	tests/al-language/testp
 tests/al-language/handlers/TestPageRunHandler_Tests.al	tests/al-language/ui-handlers/TestPageRunHandler_Tests.al	map
 tests/al-language/handlers/TestPageRunModalLookupPageId.al	tests/al-language/ui-handlers/TestPageRunModalLookupPageId.al	map
 tests/al-language/handlers/TestPageRunModalLookupPageId_Page.al	tests/al-language/ui-handlers/TestPageRunModalLookupPageId_Page.al	map
-tests/al-language/handlers/TestPageRunModalLookupPageId_Tests.al	tests/al-language/ui-handlers/TestPageRunModalLookupPageId_Tests.al	map
+tests/al-language/handlers/TestPageRunModalLookupPageId_Tests.al	tests/al-language/pages/run-modal/TestPageRunModalLookupPageId_Tests.al	map (reviewed)
 tests/al-language/handlers/TestPageRunObjectContracts.al	tests/al-language/testpage/TestPageRunObjectContracts.al	map
 tests/al-language/handlers/TestPageRunTempRecordStoredRow_Objects.al	tests/al-language/pages/TestPageRunTempRecordStoredRow_Objects.al	map
 tests/al-language/handlers/TestPageRunTempRecordStoredRow_Tests.al	tests/al-language/pages/TestPageRunTempRecordStoredRow_Tests.al	map
@@ -1377,7 +1377,7 @@ tests/al-language/handlers/TestPageSameValueSetValue_Tests.al	tests/al-language/
 tests/al-language/handlers/TestPageSaveRecordInOnValidate.al	tests/al-language/testpage/TestPageSaveRecordInOnValidate.al	map
 tests/al-language/handlers/TestPageSaveRecordInOnValidate_Page.al	tests/al-language/testpage/TestPageSaveRecordInOnValidate_Page.al	map
 tests/al-language/handlers/TestPageSaveRecordInOnValidate_Tests.al	tests/al-language/testpage/TestPageSaveRecordInOnValidate_Tests.al	map
-tests/al-language/handlers/TestPageSaveValues.al	tests/al-language/ui-handlers/TestPageSaveValues.al	map
+tests/al-language/handlers/TestPageSaveValues.al	tests/al-language/pages/properties/TestPageSaveValues.al	map (reviewed)
 tests/al-language/handlers/TestPageSetRecord.al	tests/al-language/testpage/TestPageSetRecord.al	map
 tests/al-language/handlers/TestPageSharedSourceField_Objects.al	tests/al-language/testpage/TestPageSharedSourceField_Objects.al	map
 tests/al-language/handlers/TestPageSharedSourceField_Tests.al	tests/al-language/testpage/TestPageSharedSourceField_Tests.al	map
@@ -1401,7 +1401,7 @@ tests/al-language/handlers/TestPageSubscriberRefusal_Tests.al	tests/al-language/
 tests/al-language/handlers/TestPageSystemPartListWindowContracts.al	tests/al-language/testpage/TestPageSystemPartListWindowContracts.al	map
 tests/al-language/handlers/TestPageTempPart_Host.al	tests/al-language/testpage/TestPageTempPart_Host.al	map
 tests/al-language/handlers/TestPageTempPart_Part.al	tests/al-language/pages/TestPageTempPart_Part.al	map
-tests/al-language/handlers/TestPageTempPart_Row.Table.al	tests/al-language/language/TestPageTempPart_Row.Table.al	map
+tests/al-language/handlers/TestPageTempPart_Row.Table.al	tests/al-language/testpage/TestPageTempPart_Row.Table.al	map (reviewed)
 tests/al-language/handlers/TestPageTempPart_Tests.al	tests/al-language/testpage/TestPageTempPart_Tests.al	map
 tests/al-language/handlers/TestPageTemporalSetValue.al	tests/al-language/testpage/TestPageTemporalSetValue.al	map
 tests/al-language/handlers/TestPageTemporalSetValue_Page.al	tests/al-language/testpage/TestPageTemporalSetValue_Page.al	map
@@ -1416,7 +1416,7 @@ tests/al-language/handlers/TestPageVariableControlCaption_Tests.al	tests/al-lang
 tests/al-language/handlers/TestPageVariableControlErrorName.al	tests/al-language/testpage/TestPageVariableControlErrorName.al	map
 tests/al-language/handlers/TestPageVariableControl_Page.al	tests/al-language/testpage/TestPageVariableControl_Page.al	map
 tests/al-language/handlers/TestPageVariableControl_Tests.al	tests/al-language/testpage/TestPageVariableControl_Tests.al	map
-tests/al-language/handlers/TestPageVariableEditableContracts.al	tests/al-language/testpage/TestPageVariableEditableContracts.al	map
+tests/al-language/handlers/TestPageVariableEditableContracts.al	tests/al-language/pages/run-modal/TestPageVariableEditableContracts.al	map (reviewed)
 tests/al-language/handlers/TestPageVariableMinMaxContracts.al	tests/al-language/errors/TestPageVariableMinMaxContracts.al	map
 tests/al-language/handlers/TestPageViewRoundTripRoutes.al	tests/al-language/testpage/TestPageViewRoundTripRoutes.al	map
 tests/al-language/handlers/TestPartOwnSortVsSubPageView.al	tests/al-language/testpage/TestPartOwnSortVsSubPageView.al	map
@@ -1440,19 +1440,19 @@ tests/al-language/handlers/TestReportInstanceRunReqPageReport.al	tests/al-langua
 tests/al-language/handlers/TestReportLayoutByNameMergerCapture.al	tests/al-language/streams/TestReportLayoutByNameMergerCapture.al	map
 tests/al-language/handlers/TestReportLayoutByNameOne.rdlc	tests/al-language/_fixtures/layouts/unreferenced/TestReportLayoutByNameOne.rdlc	rule: non-AL file of a split folder, no AL file names it (candidate for removal)
 tests/al-language/handlers/TestReportLayoutByNameReport.al	tests/al-language/reports/TestReportLayoutByNameReport.al	map
-tests/al-language/handlers/TestReportLayoutByNameSample.al	tests/al-language/language/TestReportLayoutByNameSample.al	map
+tests/al-language/handlers/TestReportLayoutByNameSample.al	tests/al-language/reports/layouts-saveas/TestReportLayoutByNameSample.al	map (reviewed)
 tests/al-language/handlers/TestReportMetadataColumns.al	tests/al-language/record/TestReportMetadataColumns.al	map
 tests/al-language/handlers/TestReportMetadataColumnsReport.al	tests/al-language/reports/TestReportMetadataColumnsReport.al	map
-tests/al-language/handlers/TestReportMetadataColumnsSample.Table.al	tests/al-language/language/TestReportMetadataColumnsSample.Table.al	map
+tests/al-language/handlers/TestReportMetadataColumnsSample.Table.al	tests/al-language/reports/TestReportMetadataColumnsSample.Table.al	map (reviewed)
 tests/al-language/handlers/TestReportMetadataLoader.al	tests/al-language/permissions/TestReportMetadataLoader.al	map
 tests/al-language/handlers/TestReportMetadataLoaderReport.al	tests/al-language/reports/TestReportMetadataLoaderReport.al	map
-tests/al-language/handlers/TestReportMetadataLoaderSample.al	tests/al-language/language/TestReportMetadataLoaderSample.al	map
+tests/al-language/handlers/TestReportMetadataLoaderSample.al	tests/al-language/reports/TestReportMetadataLoaderSample.al	map (reviewed)
 tests/al-language/handlers/TestReportMultiDataItem.al	tests/al-language/streams/TestReportMultiDataItem.al	map
 tests/al-language/handlers/TestReportMultiDataItemNested.al	tests/al-language/streams/TestReportMultiDataItemNested.al	map
 tests/al-language/handlers/TestReportMultiDataItemSiblings.al	tests/al-language/streams/TestReportMultiDataItemSiblings.al	map
 tests/al-language/handlers/TestReportMultiDataItemSingle.al	tests/al-language/streams/TestReportMultiDataItemSingle.al	map
 tests/al-language/handlers/TestReportMultiLineDataItemView.al	tests/al-language/reports/TestReportMultiLineDataItemView.al	map
-tests/al-language/handlers/TestReportNestedLinkImplicitParent.al	tests/al-language/xml/TestReportNestedLinkImplicitParent.al	map
+tests/al-language/handlers/TestReportNestedLinkImplicitParent.al	tests/al-language/reports/dataset/TestReportNestedLinkImplicitParent.al	map (reviewed)
 tests/al-language/handlers/TestReportOnInitReportTiming.al	tests/al-language/reports/TestReportOnInitReportTiming.al	map
 tests/al-language/handlers/TestReportOnInitReportTimingFixtures.al	tests/al-language/reports/TestReportOnInitReportTimingFixtures.al	map
 tests/al-language/handlers/TestReportRequestPageAction.al	tests/al-language/reports/TestReportRequestPageAction.al	map
@@ -1464,7 +1464,7 @@ tests/al-language/handlers/TestReportRequestPageSaveValues.al	tests/al-language/
 tests/al-language/handlers/TestReportRequestPageSourceTable.al	tests/al-language/reports/TestReportRequestPageSourceTable.al	map
 tests/al-language/handlers/TestReportRequestPageSourceTableCompiledContracts.al	tests/al-language/reports/TestReportRequestPageSourceTableCompiledContracts.al	map
 tests/al-language/handlers/TestReportRequestPageUpdateObjectIdContracts.al	tests/al-language/reports/TestReportRequestPageUpdateObjectIdContracts.al	map
-tests/al-language/handlers/TestReportRunExecution.al	tests/al-language/reports/TestReportRunExecution.al	map
+tests/al-language/handlers/TestReportRunExecution.al	tests/al-language/reports/runtime/TestReportRunExecution.al	map (reviewed)
 tests/al-language/handlers/TestReportRunFromPrecompiledCaller.al	tests/al-language/reports/TestReportRunFromPrecompiledCaller.al	map
 tests/al-language/handlers/TestReportRunFromPrecompiledCallerControls.al	tests/al-language/reports/TestReportRunFromPrecompiledCallerControls.al	map
 tests/al-language/handlers/TestReportRunRequestPage.al	tests/al-language/reports/TestReportRunRequestPage.al	map
@@ -1476,14 +1476,14 @@ tests/al-language/handlers/TestReportRunRequestPageRow.al	tests/al-language/repo
 tests/al-language/handlers/TestReportRunWithRequestPage.al	tests/al-language/reports/TestReportRunWithRequestPage.al	map
 tests/al-language/handlers/TestReportRuntimeContracts.al	tests/al-language/reports/TestReportRuntimeContracts.al	map
 tests/al-language/handlers/TestReportSaveAsColumnDetailsContracts.al	tests/al-language/streams/TestReportSaveAsColumnDetailsContracts.al	map
-tests/al-language/handlers/TestReportSaveAsColumnTypesContracts.al	tests/al-language/text/TestReportSaveAsColumnTypesContracts.al	map
+tests/al-language/handlers/TestReportSaveAsColumnTypesContracts.al	tests/al-language/reports/layouts-saveas/TestReportSaveAsColumnTypesContracts.al	map (reviewed)
 tests/al-language/handlers/TestReportSaveAsDatasetContracts.al	tests/al-language/text/TestReportSaveAsDatasetContracts.al	map
 tests/al-language/handlers/TestReportSaveAsPdfContent.al	tests/al-language/reports/TestReportSaveAsPdfContent.al	map
 tests/al-language/handlers/TestReportSaveAsRecordRefFilter.al	tests/al-language/streams/TestReportSaveAsRecordRefFilter.al	map
 tests/al-language/handlers/TestReportSaveAsRecordRefFilterReport.al	tests/al-language/streams/TestReportSaveAsRecordRefFilterReport.al	map
 tests/al-language/handlers/TestReportSaveAsRecordRefFilterReport.rdl	tests/al-language/_fixtures/layouts/unreferenced/TestReportSaveAsRecordRefFilterReport.rdl	rule: non-AL file of a split folder, no AL file names it (candidate for removal)
 tests/al-language/handlers/TestReportSaveAsRecordRefFilterRow.al	tests/al-language/streams/TestReportSaveAsRecordRefFilterRow.al	map
-tests/al-language/handlers/TestReportSaveAsStream.al	tests/al-language/reports/TestReportSaveAsStream.al	map
+tests/al-language/handlers/TestReportSaveAsStream.al	tests/al-language/reports/layouts-saveas/TestReportSaveAsStream.al	map (reviewed)
 tests/al-language/handlers/TestReportSetTableView.al	tests/al-language/reports/TestReportSetTableView.al	map
 tests/al-language/handlers/TestReqPageBoundVisibility.al	tests/al-language/reports/TestReqPageBoundVisibility.al	map
 tests/al-language/handlers/TestReqPageBoundVisibilityObjects.al	tests/al-language/reports/TestReqPageBoundVisibilityObjects.al	map
@@ -1492,7 +1492,7 @@ tests/al-language/handlers/TestRequestPageOnInit.al	tests/al-language/reports/Te
 tests/al-language/handlers/TestRequestPageOnInitReport.al	tests/al-language/reports/TestRequestPageOnInitReport.al	map
 tests/al-language/handlers/TestSourceReportLayoutFlags.al	tests/al-language/permissions/TestSourceReportLayoutFlags.al	map
 tests/al-language/handlers/TestTableRrpLog.al	tests/al-language/record/TestTableRrpLog.al	map
-tests/al-language/handlers/TestTableRrpRow.al	tests/al-language/language/TestTableRrpRow.al	map
+tests/al-language/handlers/TestTableRrpRow.al	tests/al-language/reports/request-page/TestTableRrpRow.al	map (reviewed)
 tests/al-language/handlers/TestTempIntegerListPart.al	tests/al-language/testpage/TestTempIntegerListPart.al	map
 tests/al-language/handlers/TestUnhandledUiAndDialogDefaults.al	tests/al-language/errors/TestUnhandledUiAndDialogDefaults.al	map
 tests/al-language/handlers/TflCard.Page.al	tests/al-language/testpage/TflCard.Page.al	map
@@ -1648,12 +1648,12 @@ tests/al-language/json/lt-json-typed-readback/JsonTypedNumbersReadBack.al	tests/
 tests/al-language/json/lt-y44-format-jsonvalue/Y44FormatJsonValue.al	tests/al-language/json/json/Y44FormatJsonValue.al	map
 tests/al-language/localization/lt-ta-app-xliff/TaXliff.al	tests/al-language/localization/app-xliff/TaXliff.al	map
 tests/al-language/lookups/W2Lookups.al	tests/al-language/pages/lookups/W2Lookups.al	map
-tests/al-language/lt-ac/ACAttributes.al	tests/al-language/reports/ACAttributes.al	map
+tests/al-language/lt-ac/ACAttributes.al	tests/al-language/reports/runtime/ACAttributes.al	map (reviewed)
 tests/al-language/lt-ac/ACAuditCategory.al	tests/al-language/format-evaluate/ACAuditCategory.al	map
 tests/al-language/lt-ac/ACBc29ModuleNavApp.al	tests/al-language/session-system/ACBc29ModuleNavApp.al	map
 tests/al-language/lt-ac/ACContexts.al	tests/al-language/permissions/ACContexts.al	map
 tests/al-language/lt-ac/ACControlAddIn.al	tests/al-language/testpage/ACControlAddIn.al	map
-tests/al-language/lt-ac/ACEnumNames.al	tests/al-language/collections/ACEnumNames.al	map
+tests/al-language/lt-ac/ACEnumNames.al	tests/al-language/types/enum-option/ACEnumNames.al	map (reviewed)
 tests/al-language/lt-ac/ACHttpRequestType.al	tests/al-language/format-evaluate/ACHttpRequestType.al	map
 tests/al-language/lt-ac/ACIsolatedStorageIsolation.al	tests/al-language/session-system/ACIsolatedStorageIsolation.al	map
 tests/al-language/lt-ac/ACPageBackgroundTaskErrorLevel.al	tests/al-language/format-evaluate/ACPageBackgroundTaskErrorLevel.al	map
@@ -1667,11 +1667,11 @@ tests/al-language/lt-ac/Y8RecordIsDirtyShapes.al	tests/al-language/record/Y8Reco
 tests/al-language/lt-ak-fulltext/LtAkFulltext.al	tests/al-language/record/LtAkFulltext.al	map
 tests/al-language/lt-bb-probes/BbObjects.al	tests/al-language/pages/BbObjects.al	map
 tests/al-language/lt-bb-probes/BbProbes.al	tests/al-language/pages/BbProbes.al	map
-tests/al-language/lt-o-small-builtins/OSmallBuiltins.al	tests/al-language/types/OSmallBuiltins.al	map
+tests/al-language/lt-o-small-builtins/OSmallBuiltins.al	tests/al-language/types/variant/OSmallBuiltins.al	map (reviewed)
 tests/al-language/lt-ss1030/SsCallerModulesTestRunner.al	tests/al-language/collections/SsCallerModulesTestRunner.al	map
 tests/al-language/lt-ss1030/SsInterfaceExtendsOverload.al	tests/al-language/codeunits/SsInterfaceExtendsOverload.al	map
-tests/al-language/lt-ss1030/SsLicensePermissionObjects.al	tests/al-language/permissions/SsLicensePermissionObjects.al	map
-tests/al-language/lt-ss1030/SsPageCaptionAssign.al	tests/al-language/testpage/SsPageCaptionAssign.al	map
+tests/al-language/lt-ss1030/SsLicensePermissionObjects.al	tests/al-language/permissions/permission-sets/SsLicensePermissionObjects.al	map (reviewed)
+tests/al-language/lt-ss1030/SsPageCaptionAssign.al	tests/al-language/pages/properties/SsPageCaptionAssign.al	map (reviewed)
 tests/al-language/lt-ss1030/SsPageMetaFilterView.al	tests/al-language/pages/SsPageMetaFilterView.al	map
 tests/al-language/lt-ss1030/SsTernaryBuiltinText.al	tests/al-language/session-system/SsTernaryBuiltinText.al	map
 tests/al-language/media/PXMediaFileName.al	tests/al-language/streams/media/PXMediaFileName.al	map
@@ -1709,12 +1709,12 @@ tests/al-language/misc/W5DataTransferOutside.al	tests/al-language/install-upgrad
 tests/al-language/misc/W5MissingObject.al	tests/al-language/errors/W5MissingObject.al	map
 tests/al-language/misc/W5TableConnections.al	tests/al-language/format-evaluate/W5TableConnections.al	map
 tests/al-language/misc/W5TempRecordVariant.al	tests/al-language/types/W5TempRecordVariant.al	map
-tests/al-language/misc/W5WsacDuplicateKey.al	tests/al-language/permissions/W5WsacDuplicateKey.al	map
+tests/al-language/misc/W5WsacDuplicateKey.al	tests/al-language/errors/error-texts/W5WsacDuplicateKey.al	map (reviewed)
 tests/al-language/misc/lt-au-language-edges/AuEdgeTests.al	tests/al-language/streams/AuEdgeTests.al	map
 tests/al-language/misc/lt-au-language-edges/AuObjects.al	tests/al-language/streams/AuObjects.al	map
 tests/al-language/misc/lt-bm-preprocessor-scope/BmPreprocessorDefine.al	tests/al-language/permissions/BmPreprocessorDefine.al	map
-tests/al-language/misc/lt-bm-preprocessor-scope/BmPreprocessorScope.al	tests/al-language/permissions/BmPreprocessorScope.al	map
-tests/al-language/misc/lt-bn3-array-procedure/Bn3ArrayProcedure.al	tests/al-language/json/Bn3ArrayProcedure.al	map
+tests/al-language/misc/lt-bm-preprocessor-scope/BmPreprocessorScope.al	tests/al-language/language/BmPreprocessorScope.al	map (reviewed)
+tests/al-language/misc/lt-bn3-array-procedure/Bn3ArrayProcedure.al	tests/al-language/language/Bn3ArrayProcedure.al	map (reviewed)
 tests/al-language/misc/lt-bn3-identifiers/Bn3Labels.al	tests/al-language/language/Bn3Labels.al	map
 tests/al-language/misc/lt-bn3-key-field-count/Bn3Key16.al	tests/al-language/recordref-fieldref/Bn3Key16.al	map
 tests/al-language/misc/lt-bn3-key-field-count/Bn3Key17.al	tests/al-language/recordref-fieldref/Bn3Key17.al	map
@@ -1727,44 +1727,44 @@ tests/al-language/misc/lt-bo2-odd-leads/BoSparseEnumFixtures.al	tests/al-languag
 tests/al-language/misc/lt-cb-odd-leads/CbFixtures.al	tests/al-language/ui-handlers/CbFixtures.al	map
 tests/al-language/misc/lt-cb-odd-leads/CbHandlerTests.al	tests/al-language/ui-handlers/CbHandlerTests.al	map
 tests/al-language/misc/lt-cb-odd-leads/CbPageTriggerTests.al	tests/al-language/testpage/CbPageTriggerTests.al	map
-tests/al-language/misc/lt-chained-array-index/ChainedArrayIndex.al	tests/al-language/errors/ChainedArrayIndex.al	map
+tests/al-language/misc/lt-chained-array-index/ChainedArrayIndex.al	tests/al-language/types/arrays/ChainedArrayIndex.al	map (reviewed)
 tests/al-language/misc/lt-cm-upgrade-tag/CmUpgradeTag.al	tests/al-language/install-upgrade/CmUpgradeTag.al	map
 tests/al-language/misc/lt-cq-odd-leads/CqOddLeadObjects.al	tests/al-language/format-evaluate/CqOddLeadObjects.al	map
-tests/al-language/misc/lt-cq-odd-leads/CqOddLeads.al	tests/al-language/format-evaluate/CqOddLeads.al	map
+tests/al-language/misc/lt-cq-odd-leads/CqOddLeads.al	tests/al-language/types/CqOddLeads.al	map (reviewed)
 tests/al-language/misc/lt-ct-odd-leads/CtErrorLeads.al	tests/al-language/errors/CtErrorLeads.al	map
 tests/al-language/misc/lt-ct-odd-leads/SpCollectFixtures.al	tests/al-language/errors/SpCollectFixtures.al	map
 tests/al-language/misc/lt-cu-odd-leads/CuCommitTests.al	tests/al-language/errors/CuCommitTests.al	map
 tests/al-language/misc/lt-cu-odd-leads/CuFixtures.al	tests/al-language/errors/CuFixtures.al	map
 tests/al-language/misc/lt-cu-odd-leads/CuNamedRun.al	tests/al-language/session-system/CuNamedRun.al	map
 tests/al-language/misc/lt-cu-odd-leads/CuTryTests.al	tests/al-language/errors/CuTryTests.al	map
-tests/al-language/misc/lt-cu-odd-leads/CuWriteTxTests.al	tests/al-language/session-system/CuWriteTxTests.al	map
+tests/al-language/misc/lt-cu-odd-leads/CuWriteTxTests.al	tests/al-language/session-system/isolated-storage/CuWriteTxTests.al	map (reviewed)
 tests/al-language/misc/lt-cu-odd-leads/SpRollbackFixtures.al	tests/al-language/errors/SpRollbackFixtures.al	map
 tests/al-language/misc/lt-cv-odd-leads/CvEnumCaptionComma.al	tests/al-language/testpage/CvEnumCaptionComma.al	map
-tests/al-language/misc/lt-cv-odd-leads/CvEnumLongNames.al	tests/al-language/collections/CvEnumLongNames.al	map
+tests/al-language/misc/lt-cv-odd-leads/CvEnumLongNames.al	tests/al-language/types/enum-option/CvEnumLongNames.al	map (reviewed)
 tests/al-language/misc/lt-cv-odd-leads/CvEnumOrdinalCompare.al	tests/al-language/format-evaluate/CvEnumOrdinalCompare.al	map
-tests/al-language/misc/lt-cv-odd-leads/CvInterfaceShapes.al	tests/al-language/codeunits/CvInterfaceShapes.al	map
+tests/al-language/misc/lt-cv-odd-leads/CvInterfaceShapes.al	tests/al-language/codeunits/interfaces/CvInterfaceShapes.al	map (reviewed)
 tests/al-language/misc/lt-cv-odd-leads/CvReadIsolationState.al	tests/al-language/record/CvReadIsolationState.al	map
-tests/al-language/misc/lt-cv-odd-leads/CvTestRunOrder.al	tests/al-language/record/CvTestRunOrder.al	map
+tests/al-language/misc/lt-cv-odd-leads/CvTestRunOrder.al	tests/al-language/test-framework/CvTestRunOrder.al	map (reviewed)
 tests/al-language/misc/lt-cv-odd-leads/CvWriteTxCallbacks.al	tests/al-language/ui-handlers/CvWriteTxCallbacks.al	map
 tests/al-language/misc/lt-cx-odd-leads/CxScalars.al	tests/al-language/types/CxScalars.al	map
-tests/al-language/misc/lt-cx-odd-leads/CxVariants.al	tests/al-language/types/CxVariants.al	map
-tests/al-language/misc/lt-dh-obsolete-props/DhObsoleteNoReason.al	tests/al-language/record/DhObsoleteNoReason.al	map
+tests/al-language/misc/lt-cx-odd-leads/CxVariants.al	tests/al-language/types/variant/CxVariants.al	map (reviewed)
+tests/al-language/misc/lt-dh-obsolete-props/DhObsoleteNoReason.al	tests/al-language/language/obsolete-pending/DhObsoleteNoReason.al	map (reviewed)
 tests/al-language/misc/lt-dh-obsolete-props/DhOtherProps.al	tests/al-language/reports/DhOtherProps.al	map
 tests/al-language/misc/lt-dh-obsolete-props/DhPageActionProps.al	tests/al-language/testpage/DhPageActionProps.al	map
 tests/al-language/misc/lt-expressions-statements/PBinaryUnaryExpressions.al	tests/al-language/types/PBinaryUnaryExpressions.al	map
-tests/al-language/misc/lt-expressions-statements/PEmptyStatement.al	tests/al-language/format-evaluate/PEmptyStatement.al	map
-tests/al-language/misc/lt-expressions-statements/PLiteralExpressions.al	tests/al-language/text/PLiteralExpressions.al	map
+tests/al-language/misc/lt-expressions-statements/PEmptyStatement.al	tests/al-language/language/PEmptyStatement.al	map (reviewed)
+tests/al-language/misc/lt-expressions-statements/PLiteralExpressions.al	tests/al-language/language/PLiteralExpressions.al	map (reviewed)
 tests/al-language/misc/lt-inferred-behaviors/P69CurrFieldNo.al	tests/al-language/table-objects/P69CurrFieldNo.al	map
 tests/al-language/misc/lt-inferred-behaviors/P69GuidTextLengths.al	tests/al-language/types/P69GuidTextLengths.al	map
-tests/al-language/misc/lt-inferred-behaviors/P69NsConsumers.al	tests/al-language/reports/P69NsConsumers.al	map
+tests/al-language/misc/lt-inferred-behaviors/P69NsConsumers.al	tests/al-language/language/namespaces/P69NsConsumers.al	map (reviewed)
 tests/al-language/misc/lt-inferred-behaviors/P69NsTable.al	tests/al-language/reports/P69NsTable.al	map
 tests/al-language/misc/lt-inferred-behaviors/P69OptionInText.al	tests/al-language/text/P69OptionInText.al	map
 tests/al-language/misc/lt-inferred-behaviors/P69Overloads.al	tests/al-language/types/P69Overloads.al	map
-tests/al-language/misc/lt-inferred-behaviors/P69PartPageControl.al	tests/al-language/testpage/P69PartPageControl.al	map
-tests/al-language/misc/lt-inferred-behaviors/P69ProcResultField.al	tests/al-language/record/P69ProcResultField.al	map
-tests/al-language/misc/lt-inferred-behaviors/P69QueryTwoOuters.al	tests/al-language/queries/P69QueryTwoOuters.al	map
+tests/al-language/misc/lt-inferred-behaviors/P69PartPageControl.al	tests/al-language/pages/parts/P69PartPageControl.al	map (reviewed)
+tests/al-language/misc/lt-inferred-behaviors/P69ProcResultField.al	tests/al-language/codeunits/procedures/P69ProcResultField.al	map (reviewed)
+tests/al-language/misc/lt-inferred-behaviors/P69QueryTwoOuters.al	tests/al-language/queries/joins-links/P69QueryTwoOuters.al	map (reviewed)
 tests/al-language/misc/lt-inferred-behaviors/RiNsPlatformTable.al	tests/al-language/record/RiNsPlatformTable.al	map
-tests/al-language/misc/lt-np4-probes/Np4DateFormulas.al	tests/al-language/errors/Np4DateFormulas.al	map
+tests/al-language/misc/lt-np4-probes/Np4DateFormulas.al	tests/al-language/types/date-time/Np4DateFormulas.al	map (reviewed)
 tests/al-language/misc/lt-np4-probes/Np4EmptyError.al	tests/al-language/testpage/Np4EmptyError.al	map
 tests/al-language/misc/lt-np4-probes/Np4FormatJson.al	tests/al-language/json/Np4FormatJson.al	map
 tests/al-language/misc/lt-np4-probes/Np4Misc.al	tests/al-language/format-evaluate/Np4Misc.al	map
@@ -1784,11 +1784,11 @@ tests/al-language/misc/lt-open-overloads-collections-isolated/P107FilterPage.al	
 tests/al-language/misc/lt-open-overloads-collections-isolated/P107IsoStorage.al	tests/al-language/session-system/P107IsoStorage.al	map
 tests/al-language/misc/lt-open-overloads-collections-isolated/P107Objects.al	tests/al-language/recordref-fieldref/P107Objects.al	map
 tests/al-language/misc/lt-open-overloads-collections-isolated/P107RecRefNames.al	tests/al-language/recordref-fieldref/P107RecRefNames.al	map
-tests/al-language/misc/lt-outside-format-json-list/RwDecimalFieldPlaces.al	tests/al-language/text/RwDecimalFieldPlaces.al	map
+tests/al-language/misc/lt-outside-format-json-list/RwDecimalFieldPlaces.al	tests/al-language/text/text-methods/RwDecimalFieldPlaces.al	map (reviewed)
 tests/al-language/misc/lt-outside-format-json-list/RwJsonTimeMs.al	tests/al-language/json/RwJsonTimeMs.al	map
 tests/al-language/misc/lt-outside-format-json-list/RwListLoadCheck.al	tests/al-language/collections/RwListLoadCheck.al	map
 tests/al-language/misc/lt-probe-requests-140/P140IntegerToText.al	tests/al-language/format-evaluate/P140IntegerToText.al	map
-tests/al-language/misc/lt-probe-requests-140/P140TextConstLang.al	tests/al-language/text/P140TextConstLang.al	map
+tests/al-language/misc/lt-probe-requests-140/P140TextConstLang.al	tests/al-language/text/textconst-label/P140TextConstLang.al	map (reviewed)
 tests/al-language/misc/lt-probe-requests-140/P140TextConstMessage.al	tests/al-language/ui-handlers/P140TextConstMessage.al	map
 tests/al-language/misc/lt-probe-requests-140/P140TextConstNoEnu.al	tests/al-language/text/P140TextConstNoEnu.al	map
 tests/al-language/misc/lt-probes-needed-1/PnABlobAssignRename.al	tests/al-language/record/PnABlobAssignRename.al	map
@@ -1804,15 +1804,15 @@ tests/al-language/misc/lt-probes-needed-1/PnAGetFilters.al	tests/al-language/rec
 tests/al-language/misc/lt-probes-needed-1/PnAJsonGetters.al	tests/al-language/json/PnAJsonGetters.al	map
 tests/al-language/misc/lt-probes-needed-1/PnAJsonReadKinds.al	tests/al-language/json/PnAJsonReadKinds.al	map
 tests/al-language/misc/lt-probes-needed-1/PnAJsonYaml.al	tests/al-language/json/PnAJsonYaml.al	map
-tests/al-language/misc/lt-probes-needed-1/PnAModuleInfoNull.al	tests/al-language/permissions/PnAModuleInfoNull.al	map
-tests/al-language/misc/lt-probes-needed-1/PnAPlatformOptions.al	tests/al-language/types/PnAPlatformOptions.al	map
+tests/al-language/misc/lt-probes-needed-1/PnAModuleInfoNull.al	tests/al-language/session-system/PnAModuleInfoNull.al	map (reviewed)
+tests/al-language/misc/lt-probes-needed-1/PnAPlatformOptions.al	tests/al-language/format-evaluate/PnAPlatformOptions.al	map (reviewed)
 tests/al-language/misc/lt-probes-needed-1/PnAQueryAverage.al	tests/al-language/queries/PnAQueryAverage.al	map
 tests/al-language/misc/lt-probes-needed-1/PnAQueryFiltersColumnNo.al	tests/al-language/record/PnAQueryFiltersColumnNo.al	map
 tests/al-language/misc/lt-probes-needed-1/PnAQueryObjects.al	tests/al-language/queries/PnAQueryObjects.al	map
-tests/al-language/misc/lt-probes-needed-1/PnAQueryOpenRead.al	tests/al-language/format-evaluate/PnAQueryOpenRead.al	map
+tests/al-language/misc/lt-probes-needed-1/PnAQueryOpenRead.al	tests/al-language/queries/read-lifecycle/PnAQueryOpenRead.al	map (reviewed)
 tests/al-language/misc/lt-probes-needed-1/PnARecordRefDuplicate.al	tests/al-language/recordref-fieldref/PnARecordRefDuplicate.al	map
 tests/al-language/misc/lt-probes-needed-1/PnAStreamDateBytes.al	tests/al-language/types/PnAStreamDateBytes.al	map
-tests/al-language/misc/lt-probes-needed-1/PnAStreamDecimalBytes.al	tests/al-language/streams/PnAStreamDecimalBytes.al	map
+tests/al-language/misc/lt-probes-needed-1/PnAStreamDecimalBytes.al	tests/al-language/streams/instream-outstream/PnAStreamDecimalBytes.al	map (reviewed)
 tests/al-language/misc/lt-probes-needed-1/PnAStreamReadMisc.al	tests/al-language/streams/PnAStreamReadMisc.al	map
 tests/al-language/misc/lt-probes-needed-1/PnAStreamWriteMisc.al	tests/al-language/types/PnAStreamWriteMisc.al	map
 tests/al-language/misc/lt-probes-needed-1/PnASystemFields.al	tests/al-language/record/PnASystemFields.al	map
@@ -1837,7 +1837,7 @@ tests/al-language/misc/lt-probes-needed-3/PnC01Events.al	tests/al-language/event
 tests/al-language/misc/lt-probes-needed-3/PnC02Filters.al	tests/al-language/record/PnC02Filters.al	map
 tests/al-language/misc/lt-probes-needed-3/PnC03Truncate.al	tests/al-language/streams/PnC03Truncate.al	map
 tests/al-language/misc/lt-probes-needed-3/PnC04FormatRecord.al	tests/al-language/recordref-fieldref/PnC04FormatRecord.al	map
-tests/al-language/misc/lt-probes-needed-3/PnC05ReportRun.al	tests/al-language/record/PnC05ReportRun.al	map
+tests/al-language/misc/lt-probes-needed-3/PnC05ReportRun.al	tests/al-language/reports/runtime/PnC05ReportRun.al	map (reviewed)
 tests/al-language/misc/lt-probes-needed-3/PnC06ReportLanguage.al	tests/al-language/reports/PnC06ReportLanguage.al	map
 tests/al-language/misc/lt-probes-needed-3/PnC07TestPage.al	tests/al-language/testpage/PnC07TestPage.al	map
 tests/al-language/misc/lt-probes-needed-3/PnC08FieldValueAssign.al	tests/al-language/testpage/PnC08FieldValueAssign.al	map
@@ -1845,13 +1845,13 @@ tests/al-language/misc/lt-probes-needed-3/PnC09UnhandledUi.al	tests/al-language/
 tests/al-language/misc/lt-probes-needed-3/PnC10Notification.al	tests/al-language/ui-handlers/PnC10Notification.al	map
 tests/al-language/misc/lt-probes-needed-3/PnC11SystemEnums.al	tests/al-language/format-evaluate/PnC11SystemEnums.al	map
 tests/al-language/misc/lt-probes-needed-3/PnC12ClearEvaluate.al	tests/al-language/format-evaluate/PnC12ClearEvaluate.al	map
-tests/al-language/misc/lt-probes-needed-3/PnC13RefAndCopyFilter.al	tests/al-language/record/PnC13RefAndCopyFilter.al	map
+tests/al-language/misc/lt-probes-needed-3/PnC13RefAndCopyFilter.al	tests/al-language/record/filters/PnC13RefAndCopyFilter.al	map (reviewed)
 tests/al-language/misc/lt-probes-needed-3/PnC14NsEnumDecl.al	tests/al-language/collections/PnC14NsEnumDecl.al	map
-tests/al-language/misc/lt-probes-needed-3/PnC14NsEnumQualified.al	tests/al-language/collections/PnC14NsEnumQualified.al	map
-tests/al-language/misc/lt-probes-needed-3/PnC14NsEnumUsing.al	tests/al-language/collections/PnC14NsEnumUsing.al	map
-tests/al-language/misc/lt-probes-needed-3/PnC14OptionArray.al	tests/al-language/format-evaluate/PnC14OptionArray.al	map
+tests/al-language/misc/lt-probes-needed-3/PnC14NsEnumQualified.al	tests/al-language/language/namespaces/PnC14NsEnumQualified.al	map (reviewed)
+tests/al-language/misc/lt-probes-needed-3/PnC14NsEnumUsing.al	tests/al-language/language/namespaces/PnC14NsEnumUsing.al	map (reviewed)
+tests/al-language/misc/lt-probes-needed-3/PnC14OptionArray.al	tests/al-language/types/arrays/PnC14OptionArray.al	map (reviewed)
 tests/al-language/misc/lt-probes-needed-3/PnC14This.al	tests/al-language/events/PnC14This.al	map
-tests/al-language/misc/lt-probes-needed-3/PnC15PropertyForms.al	tests/al-language/format-evaluate/PnC15PropertyForms.al	map
+tests/al-language/misc/lt-probes-needed-3/PnC15PropertyForms.al	tests/al-language/language/PnC15PropertyForms.al	map (reviewed)
 tests/al-language/misc/lt-probes-needed-3/PnC16HyperlinkTask.al	tests/al-language/session-system/PnC16HyperlinkTask.al	map
 tests/al-language/misc/lt-probes-needed-3/PnC18Query.al	tests/al-language/queries/PnC18Query.al	map
 tests/al-language/misc/lt-probes-needed-3/PnC19XmlPort.al	tests/al-language/xmlports/PnC19XmlPort.al	map
@@ -1859,18 +1859,18 @@ tests/al-language/misc/lt-probes-needed-3/PnC20JsonStreams.al	tests/al-language/
 tests/al-language/misc/lt-probes-needed-3/PnC21Metadata.al	tests/al-language/recordref-fieldref/PnC21Metadata.al	map
 tests/al-language/misc/lt-probes-needed-4/PnD01_RoundDateTime.al	tests/al-language/types/PnD01_RoundDateTime.al	map
 tests/al-language/misc/lt-probes-needed-4/PnD02_RecordIdGetRecord.al	tests/al-language/recordref-fieldref/PnD02_RecordIdGetRecord.al	map
-tests/al-language/misc/lt-probes-needed-4/PnD03_TempRecordVariant.al	tests/al-language/types/PnD03_TempRecordVariant.al	map
+tests/al-language/misc/lt-probes-needed-4/PnD03_TempRecordVariant.al	tests/al-language/types/variant/PnD03_TempRecordVariant.al	map (reviewed)
 tests/al-language/misc/lt-probes-needed-4/PnD04_GetBySystemId.al	tests/al-language/record/PnD04_GetBySystemId.al	map
-tests/al-language/misc/lt-probes-needed-4/PnD05_UnassignedFieldRef.al	tests/al-language/errors/PnD05_UnassignedFieldRef.al	map
+tests/al-language/misc/lt-probes-needed-4/PnD05_UnassignedFieldRef.al	tests/al-language/recordref-fieldref/fieldref/PnD05_UnassignedFieldRef.al	map (reviewed)
 tests/al-language/misc/lt-probes-needed-4/PnD06_SetRequestUri.al	tests/al-language/http/PnD06_SetRequestUri.al	map
-tests/al-language/misc/lt-probes-needed-4/PnD07_ReportObjectIdPreview.al	tests/al-language/reports/PnD07_ReportObjectIdPreview.al	map
+tests/al-language/misc/lt-probes-needed-4/PnD07_ReportObjectIdPreview.al	tests/al-language/reports/runtime/PnD07_ReportObjectIdPreview.al	map (reviewed)
 tests/al-language/misc/lt-probes-needed-4/PnD08_CollectedErrors.al	tests/al-language/errors/PnD08_CollectedErrors.al	map
-tests/al-language/misc/lt-probes-needed-4/PnD09_CallstackSources.al	tests/al-language/testpage/PnD09_CallstackSources.al	map
+tests/al-language/misc/lt-probes-needed-4/PnD09_CallstackSources.al	tests/al-language/session-system/callstack/PnD09_CallstackSources.al	map (reviewed)
 tests/al-language/misc/lt-probes-needed-4/PnD10_RenameGlobals.al	tests/al-language/record/PnD10_RenameGlobals.al	map
 tests/al-language/misc/lt-probes-needed-4/PnD11_TempCrmRecord.al	tests/al-language/errors/PnD11_TempCrmRecord.al	map
 tests/al-language/misc/lt-probes-needed-4/PnD12_RemovedFieldRecordRef.al	tests/al-language/recordref-fieldref/PnD12_RemovedFieldRecordRef.al	map
 tests/al-language/misc/lt-probes-needed-4/PnD13_PageEditableViewMode.al	tests/al-language/testpage/PnD13_PageEditableViewMode.al	map
-tests/al-language/misc/lt-probes-needed-5/PnE01Arrays.al	tests/al-language/collections/PnE01Arrays.al	map
+tests/al-language/misc/lt-probes-needed-5/PnE01Arrays.al	tests/al-language/types/arrays/PnE01Arrays.al	map (reviewed)
 tests/al-language/misc/lt-probes-needed-5/PnE02Scalars.al	tests/al-language/types/PnE02Scalars.al	map
 tests/al-language/misc/lt-probes-needed-5/PnE03Filters.al	tests/al-language/record/PnE03Filters.al	map
 tests/al-language/misc/lt-probes-needed-5/PnE04Streams.al	tests/al-language/streams/PnE04Streams.al	map
@@ -1882,28 +1882,28 @@ tests/al-language/misc/lt-probes-needed-5/PnE09Platform.al	tests/al-language/jso
 tests/al-language/misc/lt-probes-needed-5/PnE10Formats.al	tests/al-language/json/PnE10Formats.al	map
 tests/al-language/misc/lt-probes-needed-5/PnE11EventSub.al	tests/al-language/recordref-fieldref/PnE11EventSub.al	map
 tests/al-language/misc/lt-probes-needed-5/PnE12HttpContent.al	tests/al-language/http/PnE12HttpContent.al	map
-tests/al-language/misc/lt-probes-needed-5/PnE13EnumConv.al	tests/al-language/format-evaluate/PnE13EnumConv.al	map
-tests/al-language/misc/lt-probes-needed-5/PnE14ReportExt.al	tests/al-language/record/PnE14ReportExt.al	map
+tests/al-language/misc/lt-probes-needed-5/PnE13EnumConv.al	tests/al-language/types/enum-option/PnE13EnumConv.al	map (reviewed)
+tests/al-language/misc/lt-probes-needed-5/PnE14ReportExt.al	tests/al-language/reports/extensions/PnE14ReportExt.al	map (reviewed)
 tests/al-language/misc/lt-probes-needed-5/Y8FormatOptionForms.al	tests/al-language/text/Y8FormatOptionForms.al	map
 tests/al-language/misc/lt-probes-needed-6/PnF01LastErrorFlag.al	tests/al-language/errors/PnF01LastErrorFlag.al	map
 tests/al-language/misc/lt-probes-needed-6/PnF02SaveValuesExt.al	tests/al-language/pages/PnF02SaveValuesExt.al	map
 tests/al-language/misc/lt-probes-needed-6/PnF03RelationQuotedFilter.al	tests/al-language/table-objects/PnF03RelationQuotedFilter.al	map
-tests/al-language/misc/lt-probes-needed-6/PnF04ListOpenReads.al	tests/al-language/testpage/PnF04ListOpenReads.al	map
+tests/al-language/misc/lt-probes-needed-6/PnF04ListOpenReads.al	tests/al-language/pages/triggers/PnF04ListOpenReads.al	map (reviewed)
 tests/al-language/misc/lt-probes-needed-6/PnF05ActionReads.al	tests/al-language/pages/PnF05ActionReads.al	map
 tests/al-language/misc/lt-probes-needed-6/PnF06FindListMoves.al	tests/al-language/testpage/PnF06FindListMoves.al	map
-tests/al-language/misc/lt-probes-needed-6/PnF07TransferEnumOption.al	tests/al-language/errors/PnF07TransferEnumOption.al	map
+tests/al-language/misc/lt-probes-needed-6/PnF07TransferEnumOption.al	tests/al-language/record/crud/PnF07TransferEnumOption.al	map (reviewed)
 tests/al-language/misc/lt-probes-needed-6/PnF08RecordReturnField.al	tests/al-language/record/PnF08RecordReturnField.al	map
 tests/al-language/misc/lt-probes-needed-6/PnF09GetByRecordId.al	tests/al-language/record/PnF09GetByRecordId.al	map
 tests/al-language/misc/lt-probes-needed-6/PnF10SetFilterEmpty.al	tests/al-language/record/PnF10SetFilterEmpty.al	map
 tests/al-language/misc/lt-probes-needed-6/PnF11DateDecimalArithmetic.al	tests/al-language/errors/PnF11DateDecimalArithmetic.al	map
-tests/al-language/misc/lt-probes-needed-6/PnF12OptionAsIntegerArgument.al	tests/al-language/errors/PnF12OptionAsIntegerArgument.al	map
-tests/al-language/misc/lt-probes-needed-6/PnF13RelationFilterConditions.al	tests/al-language/recordref-fieldref/PnF13RelationFilterConditions.al	map
+tests/al-language/misc/lt-probes-needed-6/PnF12OptionAsIntegerArgument.al	tests/al-language/types/enum-option/PnF12OptionAsIntegerArgument.al	map (reviewed)
+tests/al-language/misc/lt-probes-needed-6/PnF13RelationFilterConditions.al	tests/al-language/record/table-relation/PnF13RelationFilterConditions.al	map (reviewed)
 tests/al-language/misc/lt-probes-needed-6/PnF14StaleModifyAfterRollback.al	tests/al-language/record/PnF14StaleModifyAfterRollback.al	map
 tests/al-language/misc/lt-probes-needed-6/PnF15GuidToText.al	tests/al-language/types/PnF15GuidToText.al	map
 tests/al-language/misc/lt-probes-needed-6/PnF16RecRefFilterGroupSetter.al	tests/al-language/record/PnF16RecRefFilterGroupSetter.al	map
 tests/al-language/misc/lt-probes-needed-6/PnF17PageMethodVsControl.al	tests/al-language/pages/PnF17PageMethodVsControl.al	map
 tests/al-language/misc/lt-probes-needed-6/PnF18ThisInTable.al	tests/al-language/record/PnF18ThisInTable.al	map
-tests/al-language/misc/lt-probes-needed-6/PnF19ThisInPageExtension.al	tests/al-language/testpage/PnF19ThisInPageExtension.al	map
+tests/al-language/misc/lt-probes-needed-6/PnF19ThisInPageExtension.al	tests/al-language/pages/extensions/PnF19ThisInPageExtension.al	map (reviewed)
 tests/al-language/misc/lt-probes-needed-6/PnF21QueryNamesLikeMethods.al	tests/al-language/queries/PnF21QueryNamesLikeMethods.al	map
 tests/al-language/misc/lt-probes-needed-6/PnF23DecimalToIntegerParam.al	tests/al-language/errors/PnF23DecimalToIntegerParam.al	map
 tests/al-language/misc/lt-probes-needed-6/PnF24ArrayChainedIndex.al	tests/al-language/permissions/PnF24ArrayChainedIndex.al	map
@@ -1914,7 +1914,7 @@ tests/al-language/misc/lt-probes-needed-6/PnF28ClientTypeTeams.al	tests/al-langu
 tests/al-language/misc/lt-probes-needed-6/PnF29RelationByFlowField.al	tests/al-language/record/PnF29RelationByFlowField.al	map
 tests/al-language/misc/lt-probes-needed-6/PnF30LoadFields.al	tests/al-language/record/PnF30LoadFields.al	map
 tests/al-language/misc/lt-probes-needed-6/PnF31TimeArithmetic.al	tests/al-language/errors/PnF31TimeArithmetic.al	map
-tests/al-language/misc/lt-probes-needed-6/PnF32FindDirections.al	tests/al-language/record/PnF32FindDirections.al	map
+tests/al-language/misc/lt-probes-needed-6/PnF32FindDirections.al	tests/al-language/record/crud/PnF32FindDirections.al	map (reviewed)
 tests/al-language/misc/lt-probes-needed-7/PnGActionOrdinals.al	tests/al-language/ui-handlers/PnGActionOrdinals.al	map
 tests/al-language/misc/lt-probes-needed-7/PnGControlKinds.al	tests/al-language/testpage/PnGControlKinds.al	map
 tests/al-language/misc/lt-probes-needed-7/PnGEditable.al	tests/al-language/testpage/PnGEditable.al	map
@@ -1948,28 +1948,28 @@ tests/al-language/misc/lt-probes-needed-8/PnH5bExtRp.al	tests/al-language/report
 tests/al-language/misc/lt-probes-needed-8/PnH6SaveAs.al	tests/al-language/streams/PnH6SaveAs.al	map
 tests/al-language/misc/lt-probes-needed-8/PnH7XmlPort.al	tests/al-language/xmlports/PnH7XmlPort.al	map
 tests/al-language/misc/lt-protected-var-abs-query-views/P146AbsDuration.al	tests/al-language/types/P146AbsDuration.al	map
-tests/al-language/misc/lt-protected-var-abs-query-views/P146AbsDurationBigInt.al	tests/al-language/types/P146AbsDurationBigInt.al	map
+tests/al-language/misc/lt-protected-var-abs-query-views/P146AbsDurationBigInt.al	tests/al-language/types/duration/P146AbsDurationBigInt.al	map (reviewed)
 tests/al-language/misc/lt-protected-var-abs-query-views/P146AbsDurationInt.al	tests/al-language/permissions/P146AbsDurationInt.al	map
-tests/al-language/misc/lt-protected-var-abs-query-views/P146FormatCalcDate.al	tests/al-language/text/P146FormatCalcDate.al	map
+tests/al-language/misc/lt-protected-var-abs-query-views/P146FormatCalcDate.al	tests/al-language/types/date-time/P146FormatCalcDate.al	map (reviewed)
 tests/al-language/misc/lt-protected-var-abs-query-views/P146PageExprSetValue.al	tests/al-language/testpage/P146PageExprSetValue.al	map
 tests/al-language/misc/lt-protected-var-abs-query-views/P146QueryFilterAfterRead.al	tests/al-language/queries/P146QueryFilterAfterRead.al	map
 tests/al-language/misc/lt-protected-var-abs-query-views/P146TableExtProtected.al	tests/al-language/record/P146TableExtProtected.al	map
 tests/al-language/misc/lt-protected-var-abs-query-views/P146ViewMarkedTemp.al	tests/al-language/record/P146ViewMarkedTemp.al	map
 tests/al-language/misc/lt-protected-var-abs-query-views/QzExprControlNoSource.al	tests/al-language/testpage/QzExprControlNoSource.al	map
 tests/al-language/misc/lt-qk-setup-rows/QkSetupRows.al	tests/al-language/record/QkSetupRows.al	map
-tests/al-language/misc/lt-sa-unit-amount-subst/SaUnitAmountSubst.al	tests/al-language/language/SaUnitAmountSubst.al	map
+tests/al-language/misc/lt-sa-unit-amount-subst/SaUnitAmountSubst.al	tests/al-language/text/text-methods/SaUnitAmountSubst.al	map (reviewed)
 tests/al-language/misc/lt-system-functions/Arrays.al	tests/al-language/collections/Arrays.al	map
-tests/al-language/misc/lt-system-functions/ControlFlow.al	tests/al-language/types/ControlFlow.al	map
-tests/al-language/misc/lt-system-functions/ErrorMessage.al	tests/al-language/errors/ErrorMessage.al	map
+tests/al-language/misc/lt-system-functions/ControlFlow.al	tests/al-language/language/ControlFlow.al	map (reviewed)
+tests/al-language/misc/lt-system-functions/ErrorMessage.al	tests/al-language/errors/error-texts/ErrorMessage.al	map (reviewed)
 tests/al-language/misc/lt-system-functions/EvalLastError.al	tests/al-language/format-evaluate/EvalLastError.al	map
 tests/al-language/misc/lt-system-functions/RandomFormat.al	tests/al-language/format-evaluate/RandomFormat.al	map
-tests/al-language/misc/lt-system-functions/Round.al	tests/al-language/format-evaluate/Round.al	map
-tests/al-language/misc/lt-system-functions/RunCommitClear.al	tests/al-language/errors/RunCommitClear.al	map
+tests/al-language/misc/lt-system-functions/Round.al	tests/al-language/types/decimal-integer/Round.al	map (reviewed)
+tests/al-language/misc/lt-system-functions/RunCommitClear.al	tests/al-language/codeunits/run-onrun/RunCommitClear.al	map (reviewed)
 tests/al-language/misc/lt-u-entitlements/UEntitlements.al	tests/al-language/permissions/UEntitlements.al	map
 tests/al-language/misc/lt-u-obsolete-pending/UObsoleteObjects.al	tests/al-language/streams/UObsoleteObjects.al	map
-tests/al-language/misc/lt-u-obsolete-pending/UObsoletePending.al	tests/al-language/streams/UObsoletePending.al	map
-tests/al-language/misc/lt-uf-nbsp/UfNbsp.al	tests/al-language/format-evaluate/UfNbsp.al	map
-tests/al-language/misc/lt-y12-file-account/Y12FileAccount.al	tests/al-language/record/Y12FileAccount.al	map
+tests/al-language/misc/lt-u-obsolete-pending/UObsoletePending.al	tests/al-language/language/obsolete-pending/UObsoletePending.al	map (reviewed)
+tests/al-language/misc/lt-uf-nbsp/UfNbsp.al	tests/al-language/language/UfNbsp.al	map (reviewed)
+tests/al-language/misc/lt-y12-file-account/Y12FileAccount.al	tests/al-language/session-system/system-application/Y12FileAccount.al	map (reviewed)
 tests/al-language/misc/lt-y13-triage/Y13FieldRefValueToText.al	tests/al-language/recordref-fieldref/Y13FieldRefValueToText.al	map
 tests/al-language/misc/lt-y13-triage/Y13PageTriage.al	tests/al-language/testpage/Y13PageTriage.al	map
 tests/al-language/misc/lt-y13-triage/Y13ReportSystemPrinter.al	tests/al-language/reports/Y13ReportSystemPrinter.al	map
@@ -1979,13 +1979,13 @@ tests/al-language/misc/lt-y14-triage/Y14PageTriage.al	tests/al-language/testpage
 tests/al-language/misc/lt-y14-triage/Y14ReportSubstitute.al	tests/al-language/reports/Y14ReportSubstitute.al	map
 tests/al-language/misc/lt-y14-triage/Y14Small.al	tests/al-language/format-evaluate/Y14Small.al	map
 tests/al-language/misc/lt-y14-triage/Y14XmlPortLink.al	tests/al-language/streams/Y14XmlPortLink.al	map
-tests/al-language/misc/lt-y58-password/Y58PasswordHandler.al	tests/al-language/types/Y58PasswordHandler.al	map
+tests/al-language/misc/lt-y58-password/Y58PasswordHandler.al	tests/al-language/session-system/system-application/Y58PasswordHandler.al	map (reviewed)
 tests/al-language/misc/lt-y64-obsolete-subelements/Y64ObsoleteSub.al	tests/al-language/reports/Y64ObsoleteSub.al	map
 tests/al-language/misc/lt-y68-small-probes/Y68Small.al	tests/al-language/errors/Y68Small.al	map
 tests/al-language/misc/lt-y70-assumptions/Y70Probes.al	tests/al-language/record/Y70Probes.al	map
 tests/al-language/misc/lt-y70-assumptions/Y70Tables.al	tests/al-language/record/Y70Tables.al	map
 tests/al-language/misc/lt-y76-assumptions/Y76IsolatedStorage.al	tests/al-language/session-system/Y76IsolatedStorage.al	map
-tests/al-language/misc/lt-y76-assumptions/Y76PackageIds.al	tests/al-language/record/Y76PackageIds.al	map
+tests/al-language/misc/lt-y76-assumptions/Y76PackageIds.al	tests/al-language/table-objects/Y76PackageIds.al	map (reviewed)
 tests/al-language/network/TestHttpClient.al	tests/al-language/http/TestHttpClient.al	map
 tests/al-language/network/TestHttpClientBlockNoHandler.al	tests/al-language/http/TestHttpClientBlockNoHandler.al	map
 tests/al-language/network/TestHttpRequestMessage.al	tests/al-language/http/TestHttpRequestMessage.al	map
@@ -1994,7 +1994,7 @@ tests/al-language/network/lt-ay-http/AyCookieSetterExpression.al	tests/al-langua
 tests/al-language/network/lt-ay-http/AyHeaderAddResult.al	tests/al-language/http/AyHeaderAddResult.al	map
 tests/al-language/network/lt-cz-http-leads/CzHttpNoNetwork.al	tests/al-language/http/CzHttpNoNetwork.al	map
 tests/al-language/network/lt-cz-http-leads/CzHttpOutbound.al	tests/al-language/http/CzHttpOutbound.al	map
-tests/al-language/network/lt-db-http-leads/DbHttpContentLeads.al	tests/al-language/streams/DbHttpContentLeads.al	map
+tests/al-language/network/lt-db-http-leads/DbHttpContentLeads.al	tests/al-language/http/content/DbHttpContentLeads.al	map (reviewed)
 tests/al-language/network/lt-http-cookies/HttpCookieForms.al	tests/al-language/http/headers/HttpCookieForms.al	map
 tests/al-language/network/lt-http-header-names-cache-control/CacheControlOtherKinds.al	tests/al-language/http/headers/CacheControlOtherKinds.al	map
 tests/al-language/network/lt-http-header-names-cache-control/CacheControlPairs.al	tests/al-language/http/headers/CacheControlPairs.al	map
@@ -2015,11 +2015,11 @@ tests/al-language/network/lt-http-header-rules/P87Values.al	tests/al-language/ht
 tests/al-language/network/lt-http-relative-request/HttpRelativeRequestPath.al	tests/al-language/http/client/HttpRelativeRequestPath.al	map
 tests/al-language/network/lt-http-send-failure/LtDaSendFailure.al	tests/al-language/http/client/LtDaSendFailure.al	map
 tests/al-language/network/lt-http/HttpClient.al	tests/al-language/http/HttpClient.al	map
-tests/al-language/network/lt-http/HttpContent.al	tests/al-language/streams/HttpContent.al	map
+tests/al-language/network/lt-http/HttpContent.al	tests/al-language/http/content/HttpContent.al	map (reviewed)
 tests/al-language/network/lt-http/HttpHeaders.al	tests/al-language/http/HttpHeaders.al	map
 tests/al-language/network/lt-http/HttpRequest.al	tests/al-language/http/HttpRequest.al	map
 tests/al-language/network/lt-http/HttpResponse.al	tests/al-language/http/HttpResponse.al	map
-tests/al-language/network/lt-http/TestHttpMessages.al	tests/al-language/format-evaluate/TestHttpMessages.al	map
+tests/al-language/network/lt-http/TestHttpMessages.al	tests/al-language/http/test-messages/TestHttpMessages.al	map (reviewed)
 tests/al-language/network/lt-httpclient-config-certificates/P108Cert1.al	tests/al-language/http/client/P108Cert1.al	map
 tests/al-language/network/lt-httpclient-config-certificates/P108Cert2.al	tests/al-language/http/client/P108Cert2.al	map
 tests/al-language/network/lt-httpclient-config-certificates/Y20AddCertificate.al	tests/al-language/http/client/Y20AddCertificate.al	map
@@ -2168,9 +2168,9 @@ tests/al-language/pages/lt-bg-client-features/BgClientFeatures.al	tests/al-langu
 tests/al-language/pages/lt-bg-part-line-all-versions/BgPartLineAllVersions.al	tests/al-language/pages/parts/BgPartLineAllVersions.al	map
 tests/al-language/pages/lt-bl-unopened-currpage/UnopenedCurrPage.al	tests/al-language/pages/currpage/UnopenedCurrPage.al	map
 tests/al-language/pages/lt-bl-unopened-currpage/UnopenedFixtures.al	tests/al-language/pages/currpage/UnopenedFixtures.al	map
-tests/al-language/pages/lt-ca-odd-667/CaNotificationTests.al	tests/al-language/pages/odd-667/CaNotificationTests.al	map
-tests/al-language/pages/lt-ca-odd-667/CaObjects.al	tests/al-language/pages/odd-667/CaObjects.al	map
-tests/al-language/pages/lt-ca-odd-667/CaTestPageTests.al	tests/al-language/pages/odd-667/CaTestPageTests.al	map
+tests/al-language/pages/lt-ca-odd-667/CaNotificationTests.al	tests/al-language/testpage/notifications-and-control-values/CaNotificationTests.al	map (reviewed)
+tests/al-language/pages/lt-ca-odd-667/CaObjects.al	tests/al-language/testpage/notifications-and-control-values/CaObjects.al	map (reviewed)
+tests/al-language/pages/lt-ca-odd-667/CaTestPageTests.al	tests/al-language/testpage/notifications-and-control-values/CaTestPageTests.al	map (reviewed)
 tests/al-language/pages/lt-caption-assigned-before-run/CaptionAssignedBeforeRun.al	tests/al-language/pages/run-modal/CaptionAssignedBeforeRun.al	map
 tests/al-language/pages/lt-caption-before-run/CaptionDirectMember.al	tests/al-language/pages/run-modal/CaptionDirectMember.al	map
 tests/al-language/pages/lt-caption-before-run/CaptionReadBeforeRun.al	tests/al-language/pages/run-modal/CaptionReadBeforeRun.al	map
@@ -2186,14 +2186,14 @@ tests/al-language/pages/lt-ce-page-run/CePageExt.al	tests/al-language/pages/run-
 tests/al-language/pages/lt-ce-page-run/CePageRun.al	tests/al-language/pages/run-modal/CePageRun.al	map
 tests/al-language/pages/lt-cf-page-leads/CfPageLeads.al	tests/al-language/testpage/CfPageLeads.al	map
 tests/al-language/pages/lt-cf-page-leads/CfPageObjects.al	tests/al-language/testpage/CfPageObjects.al	map
-tests/al-language/pages/lt-changed-by-other/ChangedByOtherAsserterror.al	tests/al-language/pages/changed-by-other/ChangedByOtherAsserterror.al	map
-tests/al-language/pages/lt-changed-by-other/ChangedByOtherFixtures.al	tests/al-language/pages/changed-by-other/ChangedByOtherFixtures.al	map
-tests/al-language/pages/lt-changed-by-other/ChangedByOtherPlain.al	tests/al-language/pages/changed-by-other/ChangedByOtherPlain.al	map
+tests/al-language/pages/lt-changed-by-other/ChangedByOtherAsserterror.al	tests/al-language/pages/record-changed-by-other-user/ChangedByOtherAsserterror.al	map (reviewed)
+tests/al-language/pages/lt-changed-by-other/ChangedByOtherFixtures.al	tests/al-language/pages/record-changed-by-other-user/ChangedByOtherFixtures.al	map (reviewed)
+tests/al-language/pages/lt-changed-by-other/ChangedByOtherPlain.al	tests/al-language/pages/record-changed-by-other-user/ChangedByOtherPlain.al	map (reviewed)
 tests/al-language/pages/lt-closed-page-variable-currpage/ClosedPageVariableCurrPageClose.al	tests/al-language/pages/currpage/ClosedPageVariableCurrPageClose.al	map
 tests/al-language/pages/lt-closed-page-variable-currpage/ClosedPageVariableCurrPageUpdate.al	tests/al-language/pages/currpage/ClosedPageVariableCurrPageUpdate.al	map
 tests/al-language/pages/lt-f3-pages/F3Fixtures.al	tests/al-language/testpage/F3Fixtures.al	map
 tests/al-language/pages/lt-f3-pages/F3ListTests.al	tests/al-language/testpage/F3ListTests.al	map
-tests/al-language/pages/lt-f3-pages/F3PageOrder.al	tests/al-language/ui-handlers/F3PageOrder.al	map
+tests/al-language/pages/lt-f3-pages/F3PageOrder.al	tests/al-language/pages/run-modal/F3PageOrder.al	map (reviewed)
 tests/al-language/pages/lt-f3-pages/F3PartFiltersSM.al	tests/al-language/testpage/F3PartFiltersSM.al	map
 tests/al-language/pages/lt-f3-pages/F3PartFixtures.al	tests/al-language/testpage/F3PartFixtures.al	map
 tests/al-language/pages/lt-f3-pages/F3PartTests.al	tests/al-language/testpage/F3PartTests.al	map
@@ -2234,7 +2234,7 @@ tests/al-language/pages/lt-outside-worksheet/RmReadOnlyBlob.al	tests/al-language
 tests/al-language/pages/lt-outside-worksheet/RmReadOnlyPageVarControl.al	tests/al-language/testpage/RmReadOnlyPageVarControl.al	map
 tests/al-language/pages/lt-outside-worksheet/RmTempRefill.al	tests/al-language/testpage/RmTempRefill.al	map
 tests/al-language/pages/lt-outside-worksheet/RmWorksheetGoneRow.al	tests/al-language/testpage/RmWorksheetGoneRow.al	map
-tests/al-language/pages/lt-page-array-path/PageArrayPathSetValue.al	tests/al-language/pages/page-array-path/PageArrayPathSetValue.al	map
+tests/al-language/pages/lt-page-array-path/PageArrayPathSetValue.al	tests/al-language/pages/array-element-fields/PageArrayPathSetValue.al	map (reviewed)
 tests/al-language/pages/lt-page-autoformat-lookups/P113AutoFormat.al	tests/al-language/pages/run-modal/P113AutoFormat.al	map
 tests/al-language/pages/lt-page-autoformat-lookups/P113DataCaption.al	tests/al-language/pages/run-modal/P113DataCaption.al	map
 tests/al-language/pages/lt-page-autoformat-lookups/P113Lookups.al	tests/al-language/pages/run-modal/P113Lookups.al	map
@@ -2259,7 +2259,7 @@ tests/al-language/pages/lt-page-filtergroup-assumptions/P99DeleteEvent.al	tests/
 tests/al-language/pages/lt-page-filtergroup-assumptions/P99Fixtures.al	tests/al-language/testpage/P99Fixtures.al	map
 tests/al-language/pages/lt-page-filtergroup-assumptions/P99InvisiblePart.al	tests/al-language/testpage/P99InvisiblePart.al	map
 tests/al-language/pages/lt-page-filtergroup-assumptions/P99NewRow.al	tests/al-language/testpage/P99NewRow.al	map
-tests/al-language/pages/lt-page-filtergroup-assumptions/P99RangeGroups.al	tests/al-language/errors/P99RangeGroups.al	map
+tests/al-language/pages/lt-page-filtergroup-assumptions/P99RangeGroups.al	tests/al-language/record/filters/P99RangeGroups.al	map (reviewed)
 tests/al-language/pages/lt-page-filtergroup-assumptions/P99SaveValues.al	tests/al-language/testpage/P99SaveValues.al	map
 tests/al-language/pages/lt-page-metadata-api/PageMetadataApi.al	tests/al-language/pages/properties/PageMetadataApi.al	map
 tests/al-language/pages/lt-page-metadata-types/PageMetadataTypes.al	tests/al-language/pages/properties/PageMetadataTypes.al	map
@@ -2322,13 +2322,13 @@ tests/al-language/pages/lt-page-sourceview-current-row/TwPageRunDescView.al	test
 tests/al-language/pages/lt-page-types-empty-table/PageTypesEmptyTable.al	tests/al-language/pages/properties/PageTypesEmptyTable.al	map
 tests/al-language/pages/lt-page-variable-lifecycle/PageVariableLifecycle.al	tests/al-language/pages/lifecycle/PageVariableLifecycle.al	map
 tests/al-language/pages/lt-pageext-action-after/PageExtensionActionOnAfterAction.al	tests/al-language/pages/extensions/PageExtensionActionOnAfterAction.al	map
-tests/al-language/pages/lt-pages-xmlport-upload-members/P112Fix.al	tests/al-language/pages/pages-xmlport-upload-members/P112Fix.al	map
-tests/al-language/pages/lt-pages-xmlport-upload-members/P112Pages.al	tests/al-language/pages/pages-xmlport-upload-members/P112Pages.al	map
-tests/al-language/pages/lt-pages-xmlport-upload-members/P112PagesMod.al	tests/al-language/pages/pages-xmlport-upload-members/P112PagesMod.al	map
-tests/al-language/pages/lt-pages-xmlport-upload-members/P112Report.al	tests/al-language/pages/pages-xmlport-upload-members/P112Report.al	map
-tests/al-language/pages/lt-pages-xmlport-upload-members/P112Upload.al	tests/al-language/pages/pages-xmlport-upload-members/P112Upload.al	map
-tests/al-language/pages/lt-pages-xmlport-upload-members/P112XpCsv.al	tests/al-language/pages/pages-xmlport-upload-members/P112XpCsv.al	map
-tests/al-language/pages/lt-pages-xmlport-upload-members/P112XpXml.al	tests/al-language/pages/pages-xmlport-upload-members/P112XpXml.al	map
+tests/al-language/pages/lt-pages-xmlport-upload-members/P112Fix.al	tests/al-language/pages/pages-xmlports-upload-members/P112Fix.al	map (reviewed)
+tests/al-language/pages/lt-pages-xmlport-upload-members/P112Pages.al	tests/al-language/pages/pages-xmlports-upload-members/P112Pages.al	map (reviewed)
+tests/al-language/pages/lt-pages-xmlport-upload-members/P112PagesMod.al	tests/al-language/pages/pages-xmlports-upload-members/P112PagesMod.al	map (reviewed)
+tests/al-language/pages/lt-pages-xmlport-upload-members/P112Report.al	tests/al-language/pages/pages-xmlports-upload-members/P112Report.al	map (reviewed)
+tests/al-language/pages/lt-pages-xmlport-upload-members/P112Upload.al	tests/al-language/pages/pages-xmlports-upload-members/P112Upload.al	map (reviewed)
+tests/al-language/pages/lt-pages-xmlport-upload-members/P112XpCsv.al	tests/al-language/pages/pages-xmlports-upload-members/P112XpCsv.al	map (reviewed)
+tests/al-language/pages/lt-pages-xmlport-upload-members/P112XpXml.al	tests/al-language/pages/pages-xmlports-upload-members/P112XpXml.al	map (reviewed)
 tests/al-language/pages/lt-part-line-before-host-key/PartLineBeforeHostKey.al	tests/al-language/pages/parts/PartLineBeforeHostKey.al	map
 tests/al-language/pages/lt-part-link-unsaved-host/PagePartBlankKeyHost.al	tests/al-language/pages/parts/PagePartBlankKeyHost.al	map
 tests/al-language/pages/lt-part-link-unsaved-host/PagePartLinkUnsavedHost.al	tests/al-language/pages/parts/PagePartLinkUnsavedHost.al	map
@@ -2341,9 +2341,9 @@ tests/al-language/pages/lt-part-reads/PartReadsFixtures.al	tests/al-language/pag
 tests/al-language/pages/lt-part-reads/PartReadsOpen.al	tests/al-language/pages/parts/PartReadsOpen.al	map
 tests/al-language/pages/lt-part-subpageview-filter/PartViewFilter.al	tests/al-language/pages/parts/PartViewFilter.al	map
 tests/al-language/pages/lt-px-controls/PxControls.al	tests/al-language/pages/controls/PxControls.al	map
-tests/al-language/pages/lt-qi-empty-error/QiEmptyErrorPages.al	tests/al-language/pages/empty-error/QiEmptyErrorPages.al	map
-tests/al-language/pages/lt-qi-empty-error/QzTableValidateEmptyError.al	tests/al-language/pages/empty-error/QzTableValidateEmptyError.al	map
-tests/al-language/pages/lt-qi-row-page-var/QiRowPageVar.al	tests/al-language/pages/row-page-var/QiRowPageVar.al	map
+tests/al-language/pages/lt-qi-empty-error/QiEmptyErrorPages.al	tests/al-language/pages/empty-error-text/QiEmptyErrorPages.al	map (reviewed)
+tests/al-language/pages/lt-qi-empty-error/QzTableValidateEmptyError.al	tests/al-language/pages/empty-error-text/QzTableValidateEmptyError.al	map (reviewed)
+tests/al-language/pages/lt-qi-row-page-var/QiRowPageVar.al	tests/al-language/pages/row-page-variable/QiRowPageVar.al	map (reviewed)
 tests/al-language/pages/lt-qj-part-propagation/QjPartPropagation.al	tests/al-language/pages/parts/QjPartPropagation.al	map
 tests/al-language/pages/lt-qj-part-propagation/QtPartObjects.al	tests/al-language/pages/parts/QtPartObjects.al	map
 tests/al-language/pages/lt-qq-procedure-bound-action/QqBoundObjects.al	tests/al-language/pages/actions/QqBoundObjects.al	map
@@ -2397,7 +2397,7 @@ tests/al-language/pages/lt-report-page-properties/08-profile-customizations.al	t
 tests/al-language/pages/lt-rz-outside-page-moves/RzFixtures.al	tests/al-language/testpage/RzFixtures.al	map
 tests/al-language/pages/lt-rz-outside-page-moves/RzRunPageLinkView.al	tests/al-language/testpage/RzRunPageLinkView.al	map
 tests/al-language/pages/lt-rz-outside-page-moves/RzUpdateFromValidate.al	tests/al-language/testpage/RzUpdateFromValidate.al	map
-tests/al-language/pages/lt-rz-outside-page-moves/RzWorksheetSecondaryKeyOpen.al	tests/al-language/ui-handlers/RzWorksheetSecondaryKeyOpen.al	map
+tests/al-language/pages/lt-rz-outside-page-moves/RzWorksheetSecondaryKeyOpen.al	tests/al-language/pages/run-modal/RzWorksheetSecondaryKeyOpen.al	map (reviewed)
 tests/al-language/pages/lt-rz-outside-page-moves/SfRefreshKeyFixtures.al	tests/al-language/testpage/SfRefreshKeyFixtures.al	map
 tests/al-language/pages/lt-rz-outside-page-moves/SjRunPageLinkOpenFind.al	tests/al-language/testpage/SjRunPageLinkOpenFind.al	map
 tests/al-language/pages/lt-sa-other-record-control/SaOtherRecordControl.al	tests/al-language/pages/controls/SaOtherRecordControl.al	map
@@ -2407,8 +2407,8 @@ tests/al-language/pages/lt-sc-outside-pages/ScLookupGlobalRecordField.al	tests/a
 tests/al-language/pages/lt-sc-update-empty-row/ScUpdateEmptyRow.al	tests/al-language/pages/currpage/ScUpdateEmptyRow.al	map
 tests/al-language/pages/lt-sc-update-empty-row/Y6UpdateDraftRow.al	tests/al-language/pages/currpage/Y6UpdateDraftRow.al	map
 tests/al-language/pages/lt-selection-filter-no-row/SelectionFilterNoRow.al	tests/al-language/pages/currpage/SelectionFilterNoRow.al	map
-tests/al-language/pages/lt-sg-list-key-moves/SgListKeyMovesTests.al	tests/al-language/pages/list-key-moves/SgListKeyMovesTests.al	map
-tests/al-language/pages/lt-sg-list-key-moves/SgListKeyObjects.al	tests/al-language/pages/list-key-moves/SgListKeyObjects.al	map
+tests/al-language/pages/lt-sg-list-key-moves/SgListKeyMovesTests.al	tests/al-language/pages/list-key-navigation/SgListKeyMovesTests.al	map (reviewed)
+tests/al-language/pages/lt-sg-list-key-moves/SgListKeyObjects.al	tests/al-language/pages/list-key-navigation/SgListKeyObjects.al	map (reviewed)
 tests/al-language/pages/lt-sn-assistedit-refresh/SnAssistEditRefresh.al	tests/al-language/pages/assistedit-refresh/SnAssistEditRefresh.al	map
 tests/al-language/pages/lt-subpagelink-empty-term/SubPageLinkEmptyTerm.al	tests/al-language/pages/subpagelink-empty-term/SubPageLinkEmptyTerm.al	map
 tests/al-language/pages/lt-table-globals-page/TableGlobalsPageWithoutValidation.al	tests/al-language/pages/table-globals-page/TableGlobalsPageWithoutValidation.al	map
@@ -2440,17 +2440,17 @@ tests/al-language/pages/lt-wb-6290/WbLookupListPartTests.al	tests/al-language/te
 tests/al-language/pages/lt-wb-6291/WbCloseTrace.al	tests/al-language/ui-handlers/WbCloseTrace.al	map
 tests/al-language/pages/lt-wb-6291/WbModalHandlerCloseTests.al	tests/al-language/ui-handlers/WbModalHandlerCloseTests.al	map
 tests/al-language/pages/lt-wb-6291/WbModalPart.al	tests/al-language/pages/WbModalPart.al	map
-tests/al-language/pages/lt-wb-6291/WbModalRow.al	tests/al-language/language/WbModalRow.al	map
+tests/al-language/pages/lt-wb-6291/WbModalRow.al	tests/al-language/pages/WbModalRow.al	map (reviewed)
 tests/al-language/pages/lt-wb-6291/WbModalWorksheet.al	tests/al-language/ui-handlers/WbModalWorksheet.al	map
 tests/al-language/pages/lt-wb-6292/WbWorksheetPostDeletesLines.al	tests/al-language/testpage/WbWorksheetPostDeletesLines.al	map
 tests/al-language/pages/lt-wb-6320/WbDataCaptionExpression.al	tests/al-language/testpage/WbDataCaptionExpression.al	map
 tests/al-language/pages/lt-wd/R6858ControlNamedLikeField.al	tests/al-language/testpage/R6858ControlNamedLikeField.al	rule: classifier (0.92)
 tests/al-language/pages/lt-wd/WdBareQuotedField.al	tests/al-language/testpage/WdBareQuotedField.al	map
 tests/al-language/pages/lt-wd/WdGoToKeyTypedReads.al	tests/al-language/testpage/WdGoToKeyTypedReads.al	map
-tests/al-language/pages/lt-wd/WdModalGoToKeyDescSecondary.al	tests/al-language/ui-handlers/WdModalGoToKeyDescSecondary.al	map
-tests/al-language/pages/lt-wd/WdPartAfterRunModal.al	tests/al-language/ui-handlers/WdPartAfterRunModal.al	map
-tests/al-language/pages/lt-x-obsolete-pending/XObsoletePending.al	tests/al-language/pages/obsolete-pending/XObsoletePending.al	map
-tests/al-language/pages/lt-xrec-table-procedure/XRecTableProcedure.al	tests/al-language/pages/xrec-table-procedure/XRecTableProcedure.al	map
+tests/al-language/pages/lt-wd/WdModalGoToKeyDescSecondary.al	tests/al-language/testpage/WdModalGoToKeyDescSecondary.al	map (reviewed)
+tests/al-language/pages/lt-wd/WdPartAfterRunModal.al	tests/al-language/pages/parts/WdPartAfterRunModal.al	map (reviewed)
+tests/al-language/pages/lt-x-obsolete-pending/XObsoletePending.al	tests/al-language/language/obsolete-pending/XObsoletePending.al	map (reviewed)
+tests/al-language/pages/lt-xrec-table-procedure/XRecTableProcedure.al	tests/al-language/pages/xrec-in-table-procedure/XRecTableProcedure.al	map (reviewed)
 tests/al-language/pages/lt-y1-6288/Y1ExternalReapplyMarks.al	tests/al-language/testpage/Y1ExternalReapplyMarks.al	map
 tests/al-language/pages/lt-y1-6289/Y1ClearMarkedOnly.al	tests/al-language/pages/Y1ClearMarkedOnly.al	map
 tests/al-language/pages/lt-y1-6292/Y1WorksheetPostLog.al	tests/al-language/testpage/Y1WorksheetPostLog.al	map
@@ -2459,12 +2459,12 @@ tests/al-language/pages/lt-y15/Y15ActionWidensView.al	tests/al-language/testpage
 tests/al-language/pages/lt-y15/Y15LookupThreeFieldLink.al	tests/al-language/testpage/Y15LookupThreeFieldLink.al	map
 tests/al-language/pages/lt-y15/Y15ReapplyMarksSecondaryKey.al	tests/al-language/testpage/Y15ReapplyMarksSecondaryKey.al	map
 tests/al-language/pages/lt-y15/Y15WorksheetPartRefresh.al	tests/al-language/pages/Y15WorksheetPartRefresh.al	map
-tests/al-language/pages/lt-y17-activate-new-host/Y17ActivateNewHost.al	tests/al-language/pages/activate-new-host/Y17ActivateNewHost.al	map
-tests/al-language/pages/lt-y17-expr-refresh/Y17ExprRefresh.al	tests/al-language/pages/expr-refresh/Y17ExprRefresh.al	map
-tests/al-language/pages/lt-y17-journal-batch/Y17JournalBatchSwitch.al	tests/al-language/pages/journal-batch/Y17JournalBatchSwitch.al	map
-tests/al-language/pages/lt-y17-page-handler-record/Y17PageHandlerRecord.al	tests/al-language/pages/page-handler-record/Y17PageHandlerRecord.al	map
-tests/al-language/pages/lt-y17-refill-key/Y17RefillKey.al	tests/al-language/pages/refill-key/Y17RefillKey.al	map
-tests/al-language/pages/lt-y17-save-row-gone/Y17SaveRowGone.al	tests/al-language/pages/save-row-gone/Y17SaveRowGone.al	map
+tests/al-language/pages/lt-y17-activate-new-host/Y17ActivateNewHost.al	tests/al-language/pages/activate-field-blank-host-rows/Y17ActivateNewHost.al	map (reviewed)
+tests/al-language/pages/lt-y17-expr-refresh/Y17ExprRefresh.al	tests/al-language/pages/expression-refresh/Y17ExprRefresh.al	map (reviewed)
+tests/al-language/pages/lt-y17-journal-batch/Y17JournalBatchSwitch.al	tests/al-language/pages/journal-batch-switch/Y17JournalBatchSwitch.al	map (reviewed)
+tests/al-language/pages/lt-y17-page-handler-record/Y17PageHandlerRecord.al	tests/al-language/pages/page-handler-with-record/Y17PageHandlerRecord.al	map (reviewed)
+tests/al-language/pages/lt-y17-refill-key/Y17RefillKey.al	tests/al-language/pages/list-refill-key-order/Y17RefillKey.al	map (reviewed)
+tests/al-language/pages/lt-y17-save-row-gone/Y17SaveRowGone.al	tests/al-language/pages/save-deleted-row/Y17SaveRowGone.al	map (reviewed)
 tests/al-language/pages/lt-y37-link-filter/Y37LinkFilterObjects.al	tests/al-language/pages/link-filter/Y37LinkFilterObjects.al	map
 tests/al-language/pages/lt-y37-link-filter/Y37LinkFilterTests.al	tests/al-language/pages/link-filter/Y37LinkFilterTests.al	map
 tests/al-language/pages/lt-y37-list-caption/Y37ListCaptionObjects.al	tests/al-language/pages/properties/Y37ListCaptionObjects.al	map
@@ -2472,7 +2472,7 @@ tests/al-language/pages/lt-y37-list-caption/Y37ListCaptionTests.al	tests/al-lang
 tests/al-language/pages/lt-y37-long-list-open/Y37LongListObjects.al	tests/al-language/pages/long-list-open/Y37LongListObjects.al	map
 tests/al-language/pages/lt-y37-long-list-open/Y37LongListTests.al	tests/al-language/pages/long-list-open/Y37LongListTests.al	map
 tests/al-language/pages/lt-y37-part-after-close/Y37PartAfterClose.al	tests/al-language/pages/parts/Y37PartAfterClose.al	map
-tests/al-language/pages/lt-y37-values-allowed/Y37ValuesAllowedSetValue.al	tests/al-language/pages/values-allowed/Y37ValuesAllowedSetValue.al	map
+tests/al-language/pages/lt-y37-values-allowed/Y37ValuesAllowedSetValue.al	tests/al-language/pages/values-allowed-set-value/Y37ValuesAllowedSetValue.al	map (reviewed)
 tests/al-language/pages/lt-y41-page-probes/Y41GoToKeyFindListCurr.al	tests/al-language/testpage/Y41GoToKeyFindListCurr.al	map
 tests/al-language/pages/lt-y41-page-probes/Y41Log.al	tests/al-language/ui-handlers/Y41Log.al	map
 tests/al-language/pages/lt-y41-page-probes/Y41PageVarMarkedOnly.al	tests/al-language/ui-handlers/Y41PageVarMarkedOnly.al	map
@@ -2494,8 +2494,8 @@ tests/al-language/pages/lt-y5/Y5PartArrayElementControl.al	tests/al-language/tes
 tests/al-language/pages/lt-y5/Y5ProviderEditLink.al	tests/al-language/testpage/Y5ProviderEditLink.al	map
 tests/al-language/pages/lt-y5/Y5ProviderIndirectLink.al	tests/al-language/testpage/Y5ProviderIndirectLink.al	map
 tests/al-language/pages/lt-y50-list-caption-expr/Y50ListCaptionExpr.al	tests/al-language/pages/properties/Y50ListCaptionExpr.al	map
-tests/al-language/pages/lt-y50-or-group-page-rec/Y50OrGroupPageRec.al	tests/al-language/pages/or-group-page-rec/Y50OrGroupPageRec.al	map
-tests/al-language/pages/lt-y50-temp-list-key-desc/Y50TempListKeyDesc.al	tests/al-language/pages/temp-list-key-desc/Y50TempListKeyDesc.al	map
+tests/al-language/pages/lt-y50-or-group-page-rec/Y50OrGroupPageRec.al	tests/al-language/pages/or-filter-groups-on-page-rec/Y50OrGroupPageRec.al	map (reviewed)
+tests/al-language/pages/lt-y50-temp-list-key-desc/Y50TempListKeyDesc.al	tests/al-language/pages/temp-list-descending-key/Y50TempListKeyDesc.al	map (reviewed)
 tests/al-language/pages/lt-y50-tree-expand-leaf/Y50TreeExpandLeaf.al	tests/al-language/pages/tree-expand-leaf/Y50TreeExpandLeaf.al	map
 tests/al-language/pages/lt-y50-update-from-new-line/Y50UpdateFromNewLine.al	tests/al-language/pages/triggers/Y50UpdateFromNewLine.al	map
 tests/al-language/pages/lt-y50-update-never-run/Y50UpdateNeverRun.al	tests/al-language/pages/currpage/Y50UpdateNeverRun.al	map
@@ -2504,16 +2504,16 @@ tests/al-language/pages/lt-y61-page-probes/Y61CaptionClassCount.al	tests/al-lang
 tests/al-language/pages/lt-y61-page-probes/Y61GoToKeyEdges.al	tests/al-language/testpage/Y61GoToKeyEdges.al	map
 tests/al-language/pages/lt-y61-page-probes/Y61Log.al	tests/al-language/testpage/Y61Log.al	map
 tests/al-language/pages/lt-y61-page-probes/Y61ModifyDeniedSave.al	tests/al-language/testpage/Y61ModifyDeniedSave.al	map
-tests/al-language/pages/lt-y61-page-probes/Y61RunModalStatementCancel.al	tests/al-language/pages/Y61RunModalStatementCancel.al	map
+tests/al-language/pages/lt-y61-page-probes/Y61RunModalStatementCancel.al	tests/al-language/pages/run-modal/Y61RunModalStatementCancel.al	map (reviewed)
 tests/al-language/pages/lt-y61-page-probes/Y61RunPageLinkCopyFilter.al	tests/al-language/testpage/Y61RunPageLinkCopyFilter.al	map
 tests/al-language/pages/lt-y61-page-probes/Y61SelectionComposite.al	tests/al-language/testpage/Y61SelectionComposite.al	map
-tests/al-language/pages/lt-y61-page-probes/Y61StoredRecToTempCard.al	tests/al-language/ui-handlers/Y61StoredRecToTempCard.al	map
+tests/al-language/pages/lt-y61-page-probes/Y61StoredRecToTempCard.al	tests/al-language/pages/run-modal/Y61StoredRecToTempCard.al	map (reviewed)
 tests/al-language/pages/lt-y65-code-change-next-field/Y65CodeChangeNextField.al	tests/al-language/pages/extensions/Y65CodeChangeNextField.al	map
 tests/al-language/pages/lt-y65-cue-visible/Y65CueVisible.al	tests/al-language/pages/cue-visible/Y65CueVisible.al	map
 tests/al-language/pages/lt-y65-gotorecord-action-insert/Y65GoToRecordActionInsert.al	tests/al-language/pages/actions/Y65GoToRecordActionInsert.al	map
 tests/al-language/pages/lt-y65-readonly-repeater/Y65ReadOnlyRepeater.al	tests/al-language/pages/readonly-repeater/Y65ReadOnlyRepeater.al	map
 tests/al-language/pages/lt-y65-values-allowed-table-field/Y65ValuesAllowedTableField.al	tests/al-language/pages/values-allowed-table-field/Y65ValuesAllowedTableField.al	map
-tests/al-language/pages/lt-y66-temp-list-gone-row/Y66TempListGoneRow.al	tests/al-language/pages/temp-list-gone-row/Y66TempListGoneRow.al	map
+tests/al-language/pages/lt-y66-temp-list-gone-row/Y66TempListGoneRow.al	tests/al-language/pages/temp-list-deleted-row/Y66TempListGoneRow.al	map (reviewed)
 tests/al-language/pages/lt-y68-lookup-getrecord/Y68LookupGetRecord.al	tests/al-language/pages/run-modal/Y68LookupGetRecord.al	map
 tests/al-language/pages/lt-y72-page-probes/Y72CaptionRelationWhere.al	tests/al-language/testpage/Y72CaptionRelationWhere.al	map
 tests/al-language/pages/lt-y72-page-probes/Y72FindPagesEdges.al	tests/al-language/testpage/Y72FindPagesEdges.al	map
@@ -2526,10 +2526,10 @@ tests/al-language/pages/lt-y74-fqn-run/Y74FqnRunForms.al	tests/al-language/pages
 tests/al-language/pages/lt-y76-view-filters/Y76TestFilterEnum.al	tests/al-language/pages/view-filters/Y76TestFilterEnum.al	map
 tests/al-language/pages/lt-y76-view-filters/Y76ViewBlankDate.al	tests/al-language/pages/view-filters/Y76ViewBlankDate.al	map
 tests/al-language/pages/lt-y80-captionclass-empty/Y80CaptionClassEmpty.al	tests/al-language/pages/properties/Y80CaptionClassEmpty.al	map
-tests/al-language/pages/lt-y80-gone-rows/Y80GoneRows.al	tests/al-language/pages/gone-rows/Y80GoneRows.al	map
+tests/al-language/pages/lt-y80-gone-rows/Y80GoneRows.al	tests/al-language/pages/deleted-rows/Y80GoneRows.al	map (reviewed)
 tests/al-language/pages/lt-y80-lookup-holds-value/Y80LookupHoldsValue.al	tests/al-language/pages/run-modal/Y80LookupHoldsValue.al	map
 tests/al-language/pages/lt-y80-modify-denied/Y80ModifyDenied.al	tests/al-language/pages/modify-denied/Y80ModifyDenied.al	map
-tests/al-language/pages/lt-y80-new-host-key/Y80NewHostKey.al	tests/al-language/pages/new-host-key/Y80NewHostKey.al	map
+tests/al-language/pages/lt-y80-new-host-key/Y80NewHostKey.al	tests/al-language/pages/new-host-key-entry/Y80NewHostKey.al	map (reviewed)
 tests/al-language/pages/lt-y80-setvalue-types/Y80SetValueTypes.al	tests/al-language/pages/properties/Y80SetValueTypes.al	map
 tests/al-language/pages/lt-y80-subpageview/Y80SubPageViewObjects.al	tests/al-language/pages/subpageview/Y80SubPageViewObjects.al	map
 tests/al-language/pages/lt-y80-subpageview/Y80SubPageViewTests.al	tests/al-language/pages/subpageview/Y80SubPageViewTests.al	map
@@ -2539,11 +2539,11 @@ tests/al-language/pages/lt-y87-probes/Y87LookupParts.al	tests/al-language/testpa
 tests/al-language/pages/lt-y87-probes/Y87MoveAnswer.al	tests/al-language/testpage/Y87MoveAnswer.al	map
 tests/al-language/pages/lt-y88-page-probes/Y88PageObjects.al	tests/al-language/testpage/Y88PageObjects.al	map
 tests/al-language/pages/lt-y88-page-probes/Y88PageProbes.al	tests/al-language/testpage/Y88PageProbes.al	map
-tests/al-language/pages/lt-y89-fqn-missing/Y89FqnMissing.al	tests/al-language/pages/fqn-missing/Y89FqnMissing.al	rule: topic folder, REVIEW: no topic rule matched
-tests/al-language/pages/lt-y89-gone-single-move/Y89GoneSingleMove.al	tests/al-language/pages/gone-single-move/Y89GoneSingleMove.al	rule: topic folder, REVIEW: no topic rule matched
+tests/al-language/pages/lt-y89-fqn-missing/Y89FqnMissing.al	tests/al-language/pages/missing-object-fqn/Y89FqnMissing.al	rule: topic folder, REVIEW: no topic rule matched (reviewed)
+tests/al-language/pages/lt-y89-gone-single-move/Y89GoneSingleMove.al	tests/al-language/pages/deleted-rows-navigation/Y89GoneSingleMove.al	rule: topic folder, REVIEW: no topic rule matched (reviewed)
 tests/al-language/pages/lt-z-page-customization/ZPageCustomization.al	tests/al-language/pages/page-customization/ZPageCustomization.al	map
-tests/al-language/pages/lt-z-page-props/ZFixtures.al	tests/al-language/pages/page-props/ZFixtures.al	map
-tests/al-language/pages/lt-z-page-props/ZPageProps.al	tests/al-language/pages/page-props/ZPageProps.al	map
+tests/al-language/pages/lt-z-page-props/ZFixtures.al	tests/al-language/pages/page-property-metadata/ZFixtures.al	map (reviewed)
+tests/al-language/pages/lt-z-page-props/ZPageProps.al	tests/al-language/pages/page-property-metadata/ZPageProps.al	map (reviewed)
 tests/al-language/pagesave/PageSaveCard.Page.al	tests/al-language/pages/record-save/PageSaveCard.Page.al	map
 tests/al-language/pagesave/PageSaveRow.Table.al	tests/al-language/pages/record-save/PageSaveRow.Table.al	map
 tests/al-language/pagesave/TestPageSaveDataLayer.al	tests/al-language/pages/record-save/TestPageSaveDataLayer.al	map
@@ -2591,7 +2591,7 @@ tests/al-language/permissions/lt-ba-testpermissions/BaTpNoneMDis.al	tests/al-lan
 tests/al-language/permissions/lt-ba-testpermissions/BaTpRestr.al	tests/al-language/permissions/testpermissions/BaTpRestr.al	map
 tests/al-language/permissions/lt-ba-testpermissions/BaTpRestrMDis.al	tests/al-language/permissions/testpermissions/BaTpRestrMDis.al	map
 tests/al-language/permissions/lt-co-permission-leads/CoPermissionLeads.al	tests/al-language/events/CoPermissionLeads.al	map
-tests/al-language/permissions/lt-cp-permission-leads/CpPermLeads.al	tests/al-language/record/CpPermLeads.al	map
+tests/al-language/permissions/lt-cp-permission-leads/CpPermLeads.al	tests/al-language/permissions/testpermissions/CpPermLeads.al	map (reviewed)
 tests/al-language/permissions/lt-cp-permission-leads/CpPermObjects.al	tests/al-language/record/CpPermObjects.al	map
 tests/al-language/permissions/lt-cp-permission-leads/CpTestPermissions.al	tests/al-language/permissions/CpTestPermissions.al	map
 tests/al-language/permissions/lt-permissions-mock-indirect/Objects.al	tests/al-language/permissions/permission-sets/Objects.al	map
@@ -2607,13 +2607,13 @@ tests/al-language/permissions/lt-permissions-mock-indirect/TestMockBasics.al	tes
 tests/al-language/permissions/lt-qc-runner-sets/QcRunnerSets.al	tests/al-language/permissions/testpermissions/QcRunnerSets.al	map
 tests/al-language/permissions/lt-y12-permset-name-length/Y12PermSetNames.al	tests/al-language/permissions/permission-sets/Y12PermSetNames.al	map
 tests/al-language/permissions/lt-y19-perm-probes/Y19PermComposition.al	tests/al-language/record/Y19PermComposition.al	map
-tests/al-language/permissions/lt-y19-perm-probes/Y19PermCrossApp.al	tests/al-language/record/Y19PermCrossApp.al	map
+tests/al-language/permissions/lt-y19-perm-probes/Y19PermCrossApp.al	tests/al-language/permissions/permission-sets/Y19PermCrossApp.al	map (reviewed)
 tests/al-language/permissions/lt-y19-perm-probes/Y19PermMockLifetime.al	tests/al-language/errors/Y19PermMockLifetime.al	map
 tests/al-language/permissions/lt-y19-perm-probes/Y19PermObjects.al	tests/al-language/record/Y19PermObjects.al	map
 tests/al-language/permissions/lt-y19-perm-probes/Y19PermSuper.al	tests/al-language/streams/Y19PermSuper.al	map
 tests/al-language/permissions/lt-y19-perm-probes/Y19PermSystemTables.al	tests/al-language/metadata/Y19PermSystemTables.al	map
 tests/al-language/permissions/lt-y19-perm-probes/Y19PermWrites.al	tests/al-language/record/Y19PermWrites.al	map
-tests/al-language/permissions/lt-y19-perm-probes/Y24PermExecute.al	tests/al-language/testpage/Y24PermExecute.al	map
+tests/al-language/permissions/lt-y19-perm-probes/Y24PermExecute.al	tests/al-language/permissions/permission-sets/Y24PermExecute.al	map (reviewed)
 tests/al-language/permissions/lt-y19-perm-probes/Y24PermObjectReads.al	tests/al-language/reports/Y24PermObjectReads.al	map
 tests/al-language/permissions/lt-y19-perm-probes/Y24PermObjects.al	tests/al-language/testpage/Y24PermObjects.al	map
 tests/al-language/permissions/lt-y19-perm-probes/Y24PermReads.al	tests/al-language/record/Y24PermReads.al	map
@@ -2666,7 +2666,7 @@ tests/al-language/platform/lt-code-coverage-refresh/CodeCoverageRefreshLogged.al
 tests/al-language/platform/lt-field-row-systemid/FieldRowSystemId.al	tests/al-language/metadata/platform-tables/FieldRowSystemId.al	map
 tests/al-language/platform/lt-license-permission/LicensePermissionIndirectWrite.al	tests/al-language/metadata/platform-tables/LicensePermissionIndirectWrite.al	map
 tests/al-language/platform/lt-license-permission/LicensePermissionRows.al	tests/al-language/metadata/platform-tables/LicensePermissionRows.al	map
-tests/al-language/platform/lt-outside-platform/RvActiveSessionWrites.al	tests/al-language/record/RvActiveSessionWrites.al	map
+tests/al-language/platform/lt-outside-platform/RvActiveSessionWrites.al	tests/al-language/metadata/platform-tables/RvActiveSessionWrites.al	map (reviewed)
 tests/al-language/platform/lt-outside-platform/RvPermissionSetAssigned.al	tests/al-language/session-system/RvPermissionSetAssigned.al	map
 tests/al-language/platform/lt-platform-members/PlTDatabase.al	tests/al-language/metadata/platform-tables/PlTDatabase.al	map
 tests/al-language/platform/lt-platform-members/PlTFilterPageBuilder.al	tests/al-language/metadata/platform-tables/PlTFilterPageBuilder.al	map
@@ -2726,7 +2726,7 @@ tests/al-language/platform/lt-ty-app-key-vault/TyAppKeyVault.al	tests/al-languag
 tests/al-language/platform/lt-ug-report-layout-list/UgReportLayoutList.al	tests/al-language/metadata/platform-tables/UgReportLayoutList.al	map
 tests/al-language/platform/lt-wc/WcFieldRowCopy.al	tests/al-language/metadata/WcFieldRowCopy.al	map
 tests/al-language/platform/lt-wc/WcSleepDuration.al	tests/al-language/types/WcSleepDuration.al	map
-tests/al-language/platform/lt-wd/WdScheduledTaskGet.al	tests/al-language/types/WdScheduledTaskGet.al	map
+tests/al-language/platform/lt-wd/WdScheduledTaskGet.al	tests/al-language/session-system/WdScheduledTaskGet.al	map (reviewed)
 tests/al-language/platform/lt-xmlport-session-navapp-cookie/P94Cookie.al	tests/al-language/metadata/session-system/P94Cookie.al	map
 tests/al-language/platform/lt-xmlport-session-navapp-cookie/P94Fixtures.al	tests/al-language/metadata/session-system/P94Fixtures.al	map
 tests/al-language/platform/lt-xmlport-session-navapp-cookie/P94NavApp.al	tests/al-language/metadata/session-system/P94NavApp.al	map
@@ -3113,22 +3113,22 @@ tests/al-language/record/lt-are-fields-loaded-unfetched/AreFieldsLoadedUnfetched
 tests/al-language/record/lt-arefieldsloaded-default/AreFieldsLoadedDefault.al	tests/al-language/record/load-fields/AreFieldsLoadedDefault.al	map
 tests/al-language/record/lt-as-records/AsCodeKeySigns.al	tests/al-language/record/AsCodeKeySigns.al	map
 tests/al-language/record/lt-as-records/AsDataTransferDestFilter.al	tests/al-language/install-upgrade/AsDataTransferDestFilter.al	map
-tests/al-language/record/lt-as-records/AsDtInstallRead.al	tests/al-language/text/AsDtInstallRead.al	map
+tests/al-language/record/lt-as-records/AsDtInstallRead.al	tests/al-language/install-upgrade/AsDtInstallRead.al	map (reviewed)
 tests/al-language/record/lt-as-records/AsDtInstallTables.al	tests/al-language/text/AsDtInstallTables.al	map
 tests/al-language/record/lt-as-records/AsDtInstaller.al	tests/al-language/install-upgrade/AsDtInstaller.al	map
 tests/al-language/record/lt-as-records/AsFieldRefCalcField.al	tests/al-language/recordref-fieldref/AsFieldRefCalcField.al	map
 tests/al-language/record/lt-as-records/AsFixtures.al	tests/al-language/recordref-fieldref/AsFixtures.al	map
 tests/al-language/record/lt-as-records/AsGetTableIsDirty.al	tests/al-language/recordref-fieldref/AsGetTableIsDirty.al	map
-tests/al-language/record/lt-as-records/AsGetTextKey.al	tests/al-language/record/AsGetTextKey.al	map
+tests/al-language/record/lt-as-records/AsGetTextKey.al	tests/al-language/record/crud/AsGetTextKey.al	map (reviewed)
 tests/al-language/record/lt-as-records/AsMarkedDeleteAll.al	tests/al-language/record/AsMarkedDeleteAll.al	map
 tests/al-language/record/lt-as-records/AsRecRefCopyRecord.al	tests/al-language/recordref-fieldref/AsRecRefCopyRecord.al	map
 tests/al-language/record/lt-as-records/AsRecRefGetTable.al	tests/al-language/recordref-fieldref/AsRecRefGetTable.al	map
-tests/al-language/record/lt-as-records/AsTestFieldTexts.al	tests/al-language/errors/AsTestFieldTexts.al	map
+tests/al-language/record/lt-as-records/AsTestFieldTexts.al	tests/al-language/record/testfield/AsTestFieldTexts.al	map (reviewed)
 tests/al-language/record/lt-as-records/Y47DtInstall.al	tests/al-language/record/Y47DtInstall.al	map
 tests/al-language/record/lt-as-records/Y47DtInstallRead.al	tests/al-language/record/Y47DtInstallRead.al	map
 tests/al-language/record/lt-as-records/Y57DtExtTables.al	tests/al-language/record/Y57DtExtTables.al	map
 tests/al-language/record/lt-as-records/Y65DtItemAttributeExt.al	tests/al-language/table-objects/Y65DtItemAttributeExt.al	map
-tests/al-language/record/lt-at-partner-gaps/AtGetIntegerOnCodeKey.al	tests/al-language/record/AtGetIntegerOnCodeKey.al	map
+tests/al-language/record/lt-at-partner-gaps/AtGetIntegerOnCodeKey.al	tests/al-language/record/crud/AtGetIntegerOnCodeKey.al	map (reviewed)
 tests/al-language/record/lt-at-partner-gaps/AtSystemIdOnInsert.al	tests/al-language/types/AtSystemIdOnInsert.al	map
 tests/al-language/record/lt-at-partner-gaps/AtTimeZoneNumbering.al	tests/al-language/record/AtTimeZoneNumbering.al	map
 tests/al-language/record/lt-bl-invalid-decimal-filter/InvalidDecimalFilter.al	tests/al-language/record/filters/InvalidDecimalFilter.al	map
@@ -3144,7 +3144,7 @@ tests/al-language/record/lt-br-record-size/RecordSizeExtension.al	tests/al-langu
 tests/al-language/record/lt-calcformula-date-literal/CalcFormulaDateLiteral.al	tests/al-language/record/flowfields/CalcFormulaDateLiteral.al	map
 tests/al-language/record/lt-calcsums-duration/CalcSumsDuration.al	tests/al-language/record/flowfields/CalcSumsDuration.al	map
 tests/al-language/record/lt-calcsums-flowfield-filter/CalcSumsFlowFieldFilter.al	tests/al-language/record/flowfields/CalcSumsFlowFieldFilter.al	map
-tests/al-language/record/lt-chained-array-index/ChainedArrayIndexRecords.al	tests/al-language/record/chained-array-index/ChainedArrayIndexRecords.al	map
+tests/al-language/record/lt-chained-array-index/ChainedArrayIndexRecords.al	tests/al-language/types/arrays/ChainedArrayIndexRecords.al	map (reviewed)
 tests/al-language/record/lt-cn-transferfields-modify/CnTransferFieldsModify.al	tests/al-language/record/crud/CnTransferFieldsModify.al	map
 tests/al-language/record/lt-curr-field-no/CurrFieldNoVarParam.al	tests/al-language/record/curr-field-no/CurrFieldNoVarParam.al	map
 tests/al-language/record/lt-date-filter-letters-workdates/DateFilterLettersWorkDates.al	tests/al-language/record/filters/DateFilterLettersWorkDates.al	map
@@ -3191,14 +3191,14 @@ tests/al-language/record/lt-qr-temp-sqltimestamp/QrTempTimestamp.al	tests/al-lan
 tests/al-language/record/lt-r6795-loadfields-flow/R6795LoadFieldsFlow.al	tests/al-language/record/load-fields/R6795LoadFieldsFlow.al	map
 tests/al-language/record/lt-r6807-view-find/R6807ViewFind.al	tests/al-language/record/views/R6807ViewFind.al	map
 tests/al-language/record/lt-r6863-rename-trigger/R6863RenameTrigger.al	tests/al-language/record/crud/R6863RenameTrigger.al	rule: topic folder
-tests/al-language/record/lt-record-conversion-assumptions/DateDecimalWhole.al	tests/al-language/types/DateDecimalWhole.al	map
+tests/al-language/record/lt-record-conversion-assumptions/DateDecimalWhole.al	tests/al-language/types/date-time/DateDecimalWhole.al	map (reviewed)
 tests/al-language/record/lt-record-conversion-assumptions/DateFraction_risky.al	tests/al-language/errors/DateFraction_risky.al	map
-tests/al-language/record/lt-record-conversion-assumptions/GetRecordId.al	tests/al-language/record/GetRecordId.al	map
-tests/al-language/record/lt-record-conversion-assumptions/Guid_GuidAssignText_risky.al	tests/al-language/types/Guid_GuidAssignText_risky.al	map
+tests/al-language/record/lt-record-conversion-assumptions/GetRecordId.al	tests/al-language/record/crud/GetRecordId.al	map (reviewed)
+tests/al-language/record/lt-record-conversion-assumptions/Guid_GuidAssignText_risky.al	tests/al-language/types/guid/Guid_GuidAssignText_risky.al	map (reviewed)
 tests/al-language/record/lt-record-conversion-assumptions/Guid_GuidCopyStr_risky.al	tests/al-language/text/Guid_GuidCopyStr_risky.al	map
 tests/al-language/record/lt-record-conversion-assumptions/Guid_GuidStrLen_risky.al	tests/al-language/text/Guid_GuidStrLen_risky.al	map
 tests/al-language/record/lt-record-conversion-assumptions/Guid_GuidStrPos_risky.al	tests/al-language/text/Guid_GuidStrPos_risky.al	map
-tests/al-language/record/lt-record-conversion-assumptions/Guid_GuidUpper_risky.al	tests/al-language/types/Guid_GuidUpper_risky.al	map
+tests/al-language/record/lt-record-conversion-assumptions/Guid_GuidUpper_risky.al	tests/al-language/types/guid/Guid_GuidUpper_risky.al	map (reviewed)
 tests/al-language/record/lt-record-conversion-assumptions/NextFraction_risky.al	tests/al-language/record/NextFraction_risky.al	map
 tests/al-language/record/lt-record-conversion-assumptions/OptCopyStr_risky.al	tests/al-language/text/OptCopyStr_risky.al	map
 tests/al-language/record/lt-record-conversion-assumptions/OptPadStr_risky.al	tests/al-language/permissions/OptPadStr_risky.al	map
@@ -3206,7 +3206,7 @@ tests/al-language/record/lt-record-conversion-assumptions/OptSelectStr_risky.al	
 tests/al-language/record/lt-record-conversion-assumptions/RecordResultField.al	tests/al-language/record/RecordResultField.al	map
 tests/al-language/record/lt-record-conversion-assumptions/StaleBuffer.al	tests/al-language/record/StaleBuffer.al	map
 tests/al-language/record/lt-record-conversion-assumptions/TransferEnumOption.al	tests/al-language/record/TransferEnumOption.al	map
-tests/al-language/record/lt-record-conversion-assumptions/Y8GetRecordIdCaption.al	tests/al-language/errors/Y8GetRecordIdCaption.al	map
+tests/al-language/record/lt-record-conversion-assumptions/Y8GetRecordIdCaption.al	tests/al-language/record/crud/Y8GetRecordIdCaption.al	map (reviewed)
 tests/al-language/record/lt-record-id-in/RecordIdInMessage.al	tests/al-language/record/filters/RecordIdInMessage.al	map
 tests/al-language/record/lt-record-read/RcAErrors.al	tests/al-language/record/crud/RcAErrors.al	map
 tests/al-language/record/lt-record-read/RcAFilterInfo.al	tests/al-language/record/crud/RcAFilterInfo.al	map
@@ -3248,7 +3248,7 @@ tests/al-language/record/lt-setview-sorting-nonkey/SetViewSortingNonKey.al	tests
 tests/al-language/record/lt-sx-captionclass-count/SxCaptionClassCount.al	tests/al-language/record/captions/SxCaptionClassCount.al	map
 tests/al-language/record/lt-system-stamp-order/SystemStampOrder.al	tests/al-language/record/system-fields/SystemStampOrder.al	map
 tests/al-language/record/lt-table-connection-duplicate/TableConnectionDuplicateRegister.al	tests/al-language/record/crud/TableConnectionDuplicateRegister.al	map
-tests/al-language/record/lt-table-globals-record/TableGlobalsRecordArrays.al	tests/al-language/record/table-globals-record/TableGlobalsRecordArrays.al	map
+tests/al-language/record/lt-table-globals-record/TableGlobalsRecordArrays.al	tests/al-language/record/table-globals-record-arrays/TableGlobalsRecordArrays.al	map (reviewed)
 tests/al-language/record/lt-table-relation-arms/TableRelationArms.al	tests/al-language/record/table-relation/TableRelationArms.al	map
 tests/al-language/record/lt-table-relation-quotes/TableRelationQuotes.al	tests/al-language/record/table-relation/TableRelationQuotes.al	map
 tests/al-language/record/lt-tablerelation-blank-option/TableRelationBlankOption.al	tests/al-language/record/table-relation/TableRelationBlankOption.al	map
@@ -3300,8 +3300,8 @@ tests/al-language/record/lt-y11-windows-language/Y11WindowsLanguagePrimary.al	te
 tests/al-language/record/lt-y12-published-as/Y12PublishedAs.al	tests/al-language/record/table-properties/Y12PublishedAs.al	map
 tests/al-language/record/lt-y17-sum-where-flowfield/Y17SumWhereFlowField.al	tests/al-language/record/flowfields/Y17SumWhereFlowField.al	map
 tests/al-language/record/lt-y38-dupkey-after-event/Y38DupKeyAfterEvent.al	tests/al-language/record/keys-sorting/Y38DupKeyAfterEvent.al	map
-tests/al-language/record/lt-y38-transfer-xapp/Y38TransferXApp.al	tests/al-language/record/transfer-xapp/Y38TransferXApp.al	map
-tests/al-language/record/lt-y38-transfer-xapp/Y38TransferXAppObjects.al	tests/al-language/record/transfer-xapp/Y38TransferXAppObjects.al	map
+tests/al-language/record/lt-y38-transfer-xapp/Y38TransferXApp.al	tests/al-language/record/transferfields-cross-app/Y38TransferXApp.al	map (reviewed)
+tests/al-language/record/lt-y38-transfer-xapp/Y38TransferXAppObjects.al	tests/al-language/record/transferfields-cross-app/Y38TransferXAppObjects.al	map (reviewed)
 tests/al-language/record/lt-y39-windows-language-table/Y39WindowsLanguageTable.al	tests/al-language/record/table-properties/Y39WindowsLanguageTable.al	map
 tests/al-language/record/lt-y47-initvalue-quoted/R6859NumericOptionInit.al	tests/al-language/record/crud/R6859NumericOptionInit.al	rule: folder already mapped
 tests/al-language/record/lt-y47-initvalue-quoted/Y47EnumInitQuoted.al	tests/al-language/record/crud/Y47EnumInitQuoted.al	map
@@ -3322,7 +3322,7 @@ tests/al-language/record/lt-y82-sqldatatype-code/Y82PkTests.al	tests/al-language
 tests/al-language/record/lt-y82-sqldatatype-code/Y82SecTests.al	tests/al-language/record/system-fields/Y82SecTests.al	map
 tests/al-language/record/lt-y87-loadfields-ref/Y87RecordRefLoadFields.al	tests/al-language/record/load-fields/Y87RecordRefLoadFields.al	map
 tests/al-language/record/lt-y89-dateformula-filter/Y89DateFormulaFilter.al	tests/al-language/record/filters/Y89DateFormulaFilter.al	rule: topic folder
-tests/al-language/record/lt-y89-stale-buffers/Y89StaleFind.al	tests/al-language/record/stale-buffers/Y89StaleFind.al	rule: topic folder, REVIEW: no topic rule matched
+tests/al-language/record/lt-y89-stale-buffers/Y89StaleFind.al	tests/al-language/record/stale-find/Y89StaleFind.al	rule: topic folder, REVIEW: no topic rule matched (reviewed)
 tests/al-language/recordref/PWRecordMisc.al	tests/al-language/recordref-fieldref/recordref/PWRecordMisc.al	map
 tests/al-language/recordref/TestBCMetadataContracts.al	tests/al-language/recordref-fieldref/recordref/TestBCMetadataContracts.al	map
 tests/al-language/recordref/TestBCSumIndexFieldContracts.al	tests/al-language/recordref-fieldref/recordref/TestBCSumIndexFieldContracts.al	map
@@ -3590,8 +3590,8 @@ tests/al-language/report/lt-y-report-props/YReports.al	tests/al-language/reports
 tests/al-language/report/lt-y-request-page/RsRequestPageRec.al	tests/al-language/reports/request-page/RsRequestPageRec.al	map
 tests/al-language/report/lt-y-request-page/YRequestPage.al	tests/al-language/reports/request-page/YRequestPage.al	map
 tests/al-language/report/lt-y-request-page/YRequestPageTests.al	tests/al-language/reports/request-page/YRequestPageTests.al	map
-tests/al-language/report/lt-y17-ext-settableview/Y17ExtSetTableViewObjects.al	tests/al-language/reports/ext-settableview/Y17ExtSetTableViewObjects.al	map
-tests/al-language/report/lt-y17-ext-settableview/Y17ExtSetTableViewTests.al	tests/al-language/reports/ext-settableview/Y17ExtSetTableViewTests.al	map
+tests/al-language/report/lt-y17-ext-settableview/Y17ExtSetTableViewObjects.al	tests/al-language/reports/extension-settableview/Y17ExtSetTableViewObjects.al	map (reviewed)
+tests/al-language/report/lt-y17-ext-settableview/Y17ExtSetTableViewTests.al	tests/al-language/reports/extension-settableview/Y17ExtSetTableViewTests.al	map (reviewed)
 tests/al-language/report/lt-y17-layout-export/Y17LayR1.docx	tests/al-language/reports/layouts-saveas/Y17LayR1.docx	map
 tests/al-language/report/lt-y17-layout-export/Y17LayR1.rdl	tests/al-language/reports/layouts-saveas/Y17LayR1.rdl	map
 tests/al-language/report/lt-y17-layout-export/Y17LayR2.docx	tests/al-language/report/lt-y17-layout-export/Y17LayR2.docx	rule: a test asserts this path, it stays
@@ -3701,7 +3701,7 @@ tests/al-language/session/lt-av-request-session-update/AvRequestSessionUpdateTru
 tests/al-language/session/lt-bl-sql-counters/SkSqlBudget.al	tests/al-language/session-system/session/SkSqlBudget.al	map
 tests/al-language/session/lt-bl-sql-counters/SqlCounters.al	tests/al-language/session-system/session/SqlCounters.al	map
 tests/al-language/session/lt-cn-session-leads/CnIsolatedStorageLeads.al	tests/al-language/session-system/CnIsolatedStorageLeads.al	map
-tests/al-language/session/lt-cn-session-leads/CnSessionLeads.al	tests/al-language/permissions/CnSessionLeads.al	map
+tests/al-language/session/lt-cn-session-leads/CnSessionLeads.al	tests/al-language/session-system/CnSessionLeads.al	map (reviewed)
 tests/al-language/session/lt-company-information/CompanyInformationValues.al	tests/al-language/session-system/company/CompanyInformationValues.al	map
 tests/al-language/session/lt-company-property/CompanyProperty.al	tests/al-language/session-system/company/CompanyProperty.al	map
 tests/al-language/session/lt-company-record/CompanyRecord.al	tests/al-language/session-system/company/CompanyRecord.al	map
@@ -3715,7 +3715,7 @@ tests/al-language/session/lt-isolated-storage-guid-case/IsoStorageGuidCaseKeys.a
 tests/al-language/session/lt-isolated-storage-guid/IsoStorageGuidKey.al	tests/al-language/session-system/isolated-storage/IsoStorageGuidKey.al	map
 tests/al-language/session/lt-isolated-storage-guid/IsoStorageGuidText.al	tests/al-language/session-system/isolated-storage/IsoStorageGuidText.al	map
 tests/al-language/session/lt-isolated-storage-variant-key/IsolatedStorageVariantKey.al	tests/al-language/session-system/isolated-storage/IsolatedStorageVariantKey.al	map
-tests/al-language/session/lt-outside-workdate/RlWorkDateAtStart.al	tests/al-language/permissions/RlWorkDateAtStart.al	map
+tests/al-language/session/lt-outside-workdate/RlWorkDateAtStart.al	tests/al-language/test-framework/RlWorkDateAtStart.al	map (reviewed)
 tests/al-language/session/lt-r6862-workdate-expression/R6862WorkDateExpression.al	tests/al-language/session-system/session/R6862WorkDateExpression.al	rule: topic folder
 tests/al-language/session/lt-save-values-across-codeunits/SaveValuesAcrossCodeunits.al	tests/al-language/session-system/session/SaveValuesAcrossCodeunits.al	map
 tests/al-language/session/lt-session-settings-fresh/SessionSettingsFreshReads.al	tests/al-language/session-system/session/SessionSettingsFreshReads.al	map
@@ -4081,7 +4081,7 @@ tests/al-language/types/lt-conversions-hidden-parts-doctype/P142DocTypeArgs.al	t
 tests/al-language/types/lt-conversions-hidden-parts-doctype/P142HiddenPartArea.al	tests/al-language/types/operators-expressions/P142HiddenPartArea.al	map
 tests/al-language/types/lt-conversions-hidden-parts-doctype/P142IntKey.al	tests/al-language/types/operators-expressions/P142IntKey.al	map
 tests/al-language/types/lt-conversions-hidden-parts-doctype/P142ToTextLang.al	tests/al-language/types/operators-expressions/P142ToTextLang.al	map
-tests/al-language/types/lt-cw-variant-leads/CwVariantArrays.al	tests/al-language/format-evaluate/CwVariantArrays.al	map
+tests/al-language/types/lt-cw-variant-leads/CwVariantArrays.al	tests/al-language/types/variant/CwVariantArrays.al	map (reviewed)
 tests/al-language/types/lt-cw-variant-leads/CwVariantChangeCompany.al	tests/al-language/recordref-fieldref/CwVariantChangeCompany.al	map
 tests/al-language/types/lt-date-formula-edges/DateFormulaEdges.al	tests/al-language/types/date-time/DateFormulaEdges.al	map
 tests/al-language/types/lt-date-formula-edges/DateFormulaInsidePeriod.al	tests/al-language/types/date-time/DateFormulaInsidePeriod.al	map
@@ -4313,7 +4313,7 @@ tests/al-language/types/lt-variant/VaTFormatEvaluate.al	tests/al-language/types/
 tests/al-language/types/lt-variant/VaTHelper.al	tests/al-language/types/variant/VaTHelper.al	map
 tests/al-language/types/lt-variant/VaTIsChecks.al	tests/al-language/types/variant/VaTIsChecks.al	map
 tests/al-language/types/lt-variant/VaTTextConst.al	tests/al-language/types/variant/VaTTextConst.al	map
-tests/al-language/types/lt-wc/WcIntegerCharLiteral.al	tests/al-language/format-evaluate/WcIntegerCharLiteral.al	map
+tests/al-language/types/lt-wc/WcIntegerCharLiteral.al	tests/al-language/types/text-code-char/WcIntegerCharLiteral.al	map (reviewed)
 tests/al-language/types/lt-wc/WcUnpinnedSingles.al	tests/al-language/errors/WcUnpinnedSingles.al	map
 tests/al-language/types/lt-y20-case-code-label/Y20CaseCodeLabel.al	tests/al-language/types/text-code-char/Y20CaseCodeLabel.al	map
 tests/al-language/types/lt-y31-conversion-matrix/Y31ConvAr.al	tests/al-language/types/operators-expressions/Y31ConvAr.al	map
@@ -4360,7 +4360,7 @@ tests/al-language/xml/XmlNodes.al	tests/al-language/xml/XmlNodes.al	map
 tests/al-language/xml/XmlXPathNamespaces.al	tests/al-language/xml/XmlXPathNamespaces.al	map
 tests/al-language/xml/lt-ay-xml/AyXPathAxesVariables.al	tests/al-language/xml/AyXPathAxesVariables.al	map
 tests/al-language/xml/lt-ay-xml/AyXmlNodeWriteToStream.al	tests/al-language/streams/AyXmlNodeWriteToStream.al	map
-tests/al-language/xml/lt-ay-xml/AyXmlReadFromStream.al	tests/al-language/streams/AyXmlReadFromStream.al	map
+tests/al-language/xml/lt-ay-xml/AyXmlReadFromStream.al	tests/al-language/xml/AyXmlReadFromStream.al	map (reviewed)
 tests/al-language/xml/lt-ay-xml/AyXmlRemoveNsAttribute.al	tests/al-language/xml/AyXmlRemoveNsAttribute.al	map
 tests/al-language/xml/lt-de-xml-leads/DeXmlSelectLeads.al	tests/al-language/xml/DeXmlSelectLeads.al	map
 tests/al-language/xml/lt-de-xml-leads/DeXmlWriteLeads.al	tests/al-language/xml/DeXmlWriteLeads.al	map

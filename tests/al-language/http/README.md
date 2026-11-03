@@ -6,13 +6,15 @@ HttpClient, HttpRequestMessage, HttpResponseMessage, HttpContent and HttpHeaders
 
 - (area folder itself): 13 AL files that are about the area as a whole or were not given a topic yet.
 - `client/`: HttpClient and requests (10 AL files).
+- `content/`: HttpContent (2 AL files).
 - `headers/`: HttpHeaders and cookies (20 AL files).
+- `test-messages/`: test HTTP request and response messages (1 AL file).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 
 ## Shared fixtures used here
 
-- codeunit 69160 "Probe Observer": 38 files
+- codeunit 69160 "Probe Observer": 41 files
 
 ## Other apps
 

@@ -4,7 +4,7 @@ Install and upgrade codeunits, upgrade tags, DataTransfer.
 
 ## Topics
 
-- (area folder itself): 25 AL files that are about the area as a whole or were not given a topic yet.
+- (area folder itself): 26 AL files that are about the area as a whole or were not given a topic yet.
 - `install-order/`: the order install and upgrade code runs in (7 AL files).
 - `install-triggers/`: install and upgrade triggers (8 AL files).
 
@@ -12,7 +12,7 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 
 ## Shared fixtures used here
 
-- codeunit 69160 "Probe Observer": 18 files
+- codeunit 69160 "Probe Observer": 19 files
 - table 60001 "ALT Composite": 2 files
 - table 60000 "ALT Universal": 2 files
 - codeunit 50302 "LT UR Install Low": 1 file

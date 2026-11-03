@@ -4,25 +4,25 @@ The simple data types: Date, Time, DateTime, Duration, Decimal, Integer, BigInte
 
 ## Topics
 
-- (area folder itself): 157 AL files that are about the area as a whole or were not given a topic yet.
-- `arrays/`: arrays (1 AL file).
-- `caption-class-events/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
+- (area folder itself): 145 AL files that are about the area as a whole or were not given a topic yet.
+- `arrays/`: arrays (5 AL files).
+- `caption-class-events/`: CaptionClass and language change events (1 AL file).
 - `clear/`: Clear and ClearAll (1 AL file).
-- `date-time/`: Date, Time and DateTime, date formulas and date functions (90 AL files).
-- `decimal-integer/`: Decimal, Integer, BigInteger and rounding (20 AL files).
-- `duration/`: Duration and its arithmetic (15 AL files).
-- `enum-option/`: Enum and Option values, ordinals, names and conversions (17 AL files).
-- `guid/`: Guid (2 AL files).
+- `date-time/`: Date, Time and DateTime, date formulas and date functions (96 AL files).
+- `decimal-integer/`: Decimal, Integer, BigInteger and rounding (21 AL files).
+- `duration/`: Duration and its arithmetic (16 AL files).
+- `enum-option/`: Enum and Option values, ordinals, names and conversions (21 AL files).
+- `guid/`: Guid (4 AL files).
 - `operators-expressions/`: operators, precedence, ternary, implicit conversions (34 AL files).
-- `page-style/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `text-code-char/`: Text, Code, Char, Byte, Label and SecretText as values (15 AL files).
-- `variant/`: Variant and its Is* tests (36 AL files).
+- `page-style/`: PageStyle (1 AL file).
+- `text-code-char/`: Text, Code, Char, Byte, Label and SecretText as values (16 AL files).
+- `variant/`: Variant and its Is* tests (40 AL files).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 
 ## Shared fixtures used here
 
-- codeunit 69160 "Probe Observer": 306 files
+- codeunit 69160 "Probe Observer": 317 files
 - table 60000 "ALT Universal": 8 files
 - enum 60009 "ALT Status": 7 files
 - enum 60910 "ALT Caption Kind": 1 file

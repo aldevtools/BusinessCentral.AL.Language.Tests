@@ -45,11 +45,11 @@ tests/al-language-onprem/json/lt-json-select-secrets	tests/al-language-onprem/js
 tests/al-language-onprem/lt-ak-fulltext	tests/al-language-onprem/record/fulltext/fulltext	per-writer folder of a secondary app: same area names as the main app	1
 tests/al-language-onprem/lt-au-file-bytes	tests/al-language-onprem/streams/files/file-bytes	per-writer folder of a secondary app: same area names as the main app	1
 tests/al-language-onprem/lt-bg-file-windows	tests/al-language-onprem/streams/files/file-windows	per-writer folder of a secondary app: same area names as the main app	4
-tests/al-language-onprem/lt-debugger-type	tests/al-language-onprem/session-system/debugger-type	per-writer folder of a secondary app: same area names as the main app	18
+tests/al-language-onprem/lt-debugger-type	tests/al-language-onprem/session-system/debugger	per-writer folder of a secondary app: same area names as the main app	18
 tests/al-language-onprem/lt-file-type	tests/al-language-onprem/streams/files/file-type	per-writer folder of a secondary app: same area names as the main app	17
-tests/al-language-onprem/lt-o-system-onprem	tests/al-language-onprem/session-system/system-onprem	per-writer folder of a secondary app: same area names as the main app	2
-tests/al-language-onprem/lt-system-database-onprem	tests/al-language-onprem/session-system/system-database-onprem	per-writer folder of a secondary app: same area names as the main app	15
-tests/al-language-onprem/lt-y5	tests/al-language-onprem/session-system/y5	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem/lt-o-system-onprem	tests/al-language-onprem/session-system/database-and-blob-operations	per-writer folder of a secondary app: same area names as the main app	2
+tests/al-language-onprem/lt-system-database-onprem	tests/al-language-onprem/session-system/server-system-functions	per-writer folder of a secondary app: same area names as the main app	15
+tests/al-language-onprem/lt-y5	tests/al-language-onprem/session-system/authentication-type	per-writer folder of a secondary app: same area names as the main app	1
 tests/al-language-onprem/media	tests/al-language-onprem/streams/media	small feature folder merged into its area	2
 tests/al-language-onprem/network	tests/al-language-onprem/http	area folder: files stay in the area	2
 tests/al-language-onprem/network/lt-ay-http-handler	tests/al-language-onprem/http/client	topic folder; writer id dropped from the name	3
@@ -77,11 +77,11 @@ tests/al-language-onprem/report/lt-y60-saveasxml-norow	tests/al-language-onprem/
 tests/al-language-onprem/report/lt-y67-saveasxml-columns	tests/al-language-onprem/reports/dataset	topic folder; writer id dropped from the name	1
 tests/al-language-onprem/session	tests/al-language-onprem/session-system	area folder: files stay in the area	15
 tests/al-language-onprem/types	tests/al-language-onprem/types	area folder: files stay in the area	1
-tests/al-language-testlibraries/lt-bi-test-framework	tests/al-language-testlibraries/test-framework/test-framework	per-writer folder of a secondary app: same area names as the main app	5
+tests/al-language-testlibraries/lt-bi-test-framework	tests/al-language-testlibraries/test-framework/data-driven-tests-and-handlers	per-writer folder of a secondary app: same area names as the main app	5
 tests/al-language-testlibraries/lt-bi-testpermissions	tests/al-language-testlibraries/test-framework/testpermissions	per-writer folder of a secondary app: same area names as the main app	12
 tests/al-language-testlibraries/lt-bi-trigger-setup	tests/al-language-testlibraries/test-framework/trigger-setup	per-writer folder of a secondary app: same area names as the main app	1
-tests/al-language-testlibraries/lt-wb-6286	tests/al-language-testlibraries/test-framework/6286	per-writer folder of a secondary app: same area names as the main app	3
-tests/al-language-testlibraries/lt-y24-runner-perms	tests/al-language-testlibraries/test-framework/runner-perms	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-testlibraries/lt-wb-6286	tests/al-language-testlibraries/test-framework/stale-delete-triggers	per-writer folder of a secondary app: same area names as the main app	3
+tests/al-language-testlibraries/lt-y24-runner-perms	tests/al-language-testlibraries/test-framework/runner-permissions	per-writer folder of a secondary app: same area names as the main app	1
 tests/al-language-testlibraries/lt-y3-setup-order	tests/al-language-testlibraries/test-framework/setup-order	per-writer folder of a secondary app: same area names as the main app	1
 tests/al-language-testlibraries/lt-y35-onrun-storage	tests/al-language-testlibraries/test-framework/onrun-storage	per-writer folder of a secondary app: same area names as the main app	1
 tests/al-language-xapp-a	tests/al-language-xapp-a	app root: files move into area folders like the main app	20
@@ -124,9 +124,9 @@ tests/al-language/codeunit/lt-var-global-alias	tests/al-language/codeunits/proce
 tests/al-language/codeunit/lt-wd	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
 tests/al-language/codeunit/lt-x-object-props	tests/al-language/codeunits/procedures	topic folder; writer id dropped from the name	1
 tests/al-language/collections	tests/al-language/collections	area folder: files stay in the area	24
-tests/al-language/collections/lt-array-rows	tests/al-language/collections/array-rows	topic folder	1
+tests/al-language/collections/lt-array-rows	tests/al-language/collections/multi-dimension-array-rows	topic folder	1
 tests/al-language/collections/lt-cs-odd-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
-tests/al-language/collections/lt-y66-copyarray-fn-result	tests/al-language/collections/copyarray-fn-result	topic folder; writer id dropped from the name	1
+tests/al-language/collections/lt-y66-copyarray-fn-result	tests/al-language/collections/copyarray-procedure-result	topic folder; writer id dropped from the name	1
 tests/al-language/controls	tests/al-language/pages/controls	small feature folder merged into its area	3
 tests/al-language/coverage	tests/al-language/test-framework/code-coverage	small feature folder merged into its area	3
 tests/al-language/dateformulacontrol	tests/al-language/pages/controls	small feature folder merged into its area	3

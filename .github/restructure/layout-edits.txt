@@ -67,5 +67,5 @@ tests/al-language/streams/TestReportSaveAsColumnDetailsContracts.al
 tests/al-language/streams/TestReportSaveAsRecordRefFilterReport.al
 tests/al-language/streams/UObsoleteObjects.al
 tests/al-language/testpage/TzAddinFixtures.al
-tests/al-language/text/TestReportSaveAsColumnTypesContracts.al
+tests/al-language/reports/layouts-saveas/TestReportSaveAsColumnTypesContracts.al
 tests/al-language/text/TestReportSaveAsDatasetContracts.al

@@ -5,14 +5,14 @@ Shared objects only: tables, pages, reports, xmlports, queries, codeunits, event
 ## Topics
 
 - (area folder itself): 29 AL files that are about the area as a whole or were not given a topic yet.
-- `enums/`: named after its old folder; scope to be written (REVIEW) (3 AL files).
+- `enums/`: shared enum fixtures (3 AL files).
 - `events/`: record and table events seen from the record (25 AL files).
 - `interfaces/`: interfaces (1 AL file).
-- `pages/`: named after its old folder; scope to be written (REVIEW) (16 AL files).
-- `queries/`: named after its old folder; scope to be written (REVIEW) (3 AL files).
-- `reports/`: named after its old folder; scope to be written (REVIEW) (3 AL files).
-- `tables/`: named after its old folder; scope to be written (REVIEW) (35 AL files).
-- `xmlports/`: named after its old folder; scope to be written (REVIEW) (10 AL files).
+- `pages/`: shared page fixtures (16 AL files).
+- `queries/`: shared query fixtures (3 AL files).
+- `reports/`: shared report fixtures (3 AL files).
+- `tables/`: shared table fixtures (35 AL files).
+- `xmlports/`: shared xmlport fixtures (10 AL files).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 

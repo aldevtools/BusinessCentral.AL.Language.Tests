@@ -6,14 +6,14 @@ Virtual and system tables (AllObj, Field, page metadata) and other platform tabl
 
 - (area folder itself): 13 AL files that are about the area as a whole or were not given a topic yet.
 - `code-coverage/`: code coverage (2 AL files).
-- `platform-tables/`: platform and system tables (74 AL files).
+- `platform-tables/`: platform and system tables (76 AL files).
 - `session-system/`: platform objects about the session (REVIEW) (20 AL files).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 
 ## Shared fixtures used here
 
-- codeunit 69160 "Probe Observer": 100 files
+- codeunit 69160 "Probe Observer": 102 files
 - page 60879 "ALT Prompt Dialog Page": 1 file
 - table 60000 "ALT Universal": 1 file
 

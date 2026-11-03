@@ -4,78 +4,76 @@ The page object: page triggers, parts, controls, actions, CurrPage, Run and RunM
 
 ## Topics
 
-- (area folder itself): 61 AL files that are about the area as a whole or were not given a topic yet.
+- (area folder itself): 56 AL files that are about the area as a whole or were not given a topic yet.
 - `actions/`: actions and promoted actions (8 AL files).
-- `activate-new-host/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
+- `activate-field-blank-host-rows/`: activating fields of a host page that has blank rows (1 AL file).
 - `application-area/`: ApplicationArea (13 AL files).
-- `assistedit-refresh/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
+- `array-element-fields/`: page fields that are array elements (1 AL file).
+- `assistedit-refresh/`: AssistEdit and the refresh of the page afterwards (1 AL file).
 - `background-tasks/`: page background tasks (2 AL files).
-- `bare-page-methods/`: named after its old folder; scope to be written (REVIEW) (2 AL files).
-- `changed-by-other/`: named after its old folder; scope to be written (REVIEW) (3 AL files).
-- `client-features/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `controls/`: page controls and their properties (24 AL files).
-- `cue-visible/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `currpage/`: CurrPage, Update, SetRecord, SetTableView, SetSelectionFilter (32 AL files).
-- `empty-error/`: named after its old folder; scope to be written (REVIEW) (2 AL files).
-- `enum-setvalue-blank/`: named after its old folder; scope to be written (REVIEW) (2 AL files).
-- `expr-refresh/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `extensions/`: extension objects of this object type (73 AL files).
+- `bare-page-methods/`: page methods called without CurrPage (2 AL files).
+- `client-features/`: client-only features seen in a test session (role centers, camera) (1 AL file).
+- `controls/`: page controls and their properties (25 AL files).
+- `cue-visible/`: visibility of cues (1 AL file).
+- `currpage/`: CurrPage, Update, SetRecord, SetTableView, SetSelectionFilter (33 AL files).
+- `deleted-rows/`: a page that is open when its rows are deleted (1 AL file).
+- `deleted-rows-navigation/`: moving through a page after its rows are deleted (1 AL file).
+- `empty-error-text/`: errors with an empty text in page actions and validation (2 AL files).
+- `enum-setvalue-blank/`: TestPage SetValue of a blank value on enum fields (2 AL files).
+- `expression-refresh/`: refreshing Visible and other expressions after a change (1 AL file).
+- `extensions/`: extension objects of this object type (77 AL files).
 - `filterpagebuilder/`: FilterPageBuilder (2 AL files).
-- `fqn-missing/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `gone-rows/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `gone-single-move/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `journal-batch/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
+- `journal-batch-switch/`: switching the batch of a journal worksheet page (1 AL file).
 - `lifecycle/`: opening, closing and page variables (1 AL file).
-- `link-filter/`: named after its old folder; scope to be written (REVIEW) (2 AL files).
-- `link-quoted-member/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `list-key-moves/`: named after its old folder; scope to be written (REVIEW) (2 AL files).
-- `list-order/`: named after its old folder; scope to be written (REVIEW) (5 AL files).
-- `long-list-open/`: named after its old folder; scope to be written (REVIEW) (2 AL files).
+- `link-filter/`: SubPageLink and RunPageLink filter values (2 AL files).
+- `link-quoted-member/`: page links that name a member in quotes (1 AL file).
+- `list-key-navigation/`: moving through a list page on a key (2 AL files).
+- `list-order/`: row order of list pages (5 AL files).
+- `list-refill-key-order/`: refilling a list on its key and order (1 AL file).
+- `long-list-open/`: opening and moving in long lists (2 AL files).
 - `lookups/`: Lookup and DrillDown (1 AL file).
-- `modify-denied/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `new-host-key/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `obsolete-pending/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `odd-667/`: named after its old folder; scope to be written (REVIEW) (3 AL files).
-- `onopenpage-moves-rec/`: named after its old folder; scope to be written (REVIEW) (7 AL files).
-- `opennew-findrecord/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `or-group-page-rec/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `page-array-path/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `page-customization/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `page-handler-record/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `page-props/`: named after its old folder; scope to be written (REVIEW) (2 AL files).
-- `page-summary/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `pages-xmlport-upload-members/`: named after its old folder; scope to be written (REVIEW) (7 AL files).
-- `parts/`: page parts and subpages (39 AL files).
-- `properties/`: page properties (78 AL files).
-- `readonly-repeater/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
+- `missing-object-fqn/`: running a page or report whose fully qualified name does not exist (1 AL file).
+- `modify-denied/`: pages where modify is not allowed (1 AL file).
+- `new-host-key-entry/`: entering the key of a new host row (1 AL file).
+- `onopenpage-moves-rec/`: OnOpenPage moving the record (7 AL files).
+- `opennew-findrecord/`: OpenNew and OnFindRecord (1 AL file).
+- `or-filter-groups-on-page-rec/`: OR filter groups on the record of a page (1 AL file).
+- `page-customization/`: page customizations (1 AL file).
+- `page-handler-with-record/`: page handlers for Page.Run with a record (1 AL file).
+- `page-property-metadata/`: page properties read as metadata (search terms, captions, prompt modes) (2 AL files).
+- `page-summary/`: page summary (1 AL file).
+- `pages-xmlports-upload-members/`: members of pages, xmlports, reports and Upload (7 AL files).
+- `parts/`: page parts and subpages (41 AL files).
+- `properties/`: page properties (80 AL files).
+- `readonly-repeater/`: read-only repeaters (1 AL file).
+- `record-changed-by-other-user/`: the error when another user changed the record (asserterror on save and edit) (3 AL files).
 - `record-save/`: how a page saves its record (3 AL files).
-- `refill-key/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `row-page-var/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `run-modal/`: Page.Run and RunModal and their results (30 AL files).
-- `save-row-gone/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `subpagelink-empty-term/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `subpageview/`: named after its old folder; scope to be written (REVIEW) (2 AL files).
-- `table-globals-page/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `temp-list-gone-row/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `temp-list-key-desc/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `tree-expand-leaf/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `triggers/`: page triggers (33 AL files).
-- `values-allowed/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `values-allowed-table-field/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `view-filters/`: named after its old folder; scope to be written (REVIEW) (2 AL files).
-- `xrec-table-procedure/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
+- `row-page-variable/`: rows bound to a page variable (1 AL file).
+- `run-modal/`: Page.Run and RunModal and their results (39 AL files).
+- `save-deleted-row/`: saving a page row that is gone (1 AL file).
+- `subpagelink-empty-term/`: SubPageLink with an empty term (1 AL file).
+- `subpageview/`: SubPageView (2 AL files).
+- `table-globals-page/`: table globals seen from a page (1 AL file).
+- `temp-list-deleted-row/`: temporary lists with a deleted row (1 AL file).
+- `temp-list-descending-key/`: temporary lists on a descending key (1 AL file).
+- `tree-expand-leaf/`: Expand on tree pages and leaf rows (1 AL file).
+- `triggers/`: page triggers (34 AL files).
+- `values-allowed-set-value/`: SetValue against ValuesAllowed (1 AL file).
+- `values-allowed-table-field/`: ValuesAllowed on table fields (1 AL file).
+- `view-filters/`: filters in the page view (2 AL files).
+- `xrec-in-table-procedure/`: xRec used from a table procedure (1 AL file).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 
 ## Shared fixtures used here
 
-- codeunit 69160 "Probe Observer": 316 files
+- codeunit 69160 "Probe Observer": 322 files
 - table 60000 "ALT Universal": 4 files
-- page 60016 "ALT List Page": 2 files
+- enum 60009 "ALT Status": 1 file
+- page 60016 "ALT List Page": 1 file
 - table 60001 "ALT Composite": 1 file
 - table 67698 "W3 Row": 1 file
 - table 67699 "W3 Child": 1 file
-- enum 60009 "ALT Status": 1 file
 
 ## Other apps
 

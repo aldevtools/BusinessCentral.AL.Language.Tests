@@ -4,16 +4,16 @@ InStream and OutStream, Blob fields, TempBlob, Media and MediaSet, files in memo
 
 ## Topics
 
-- (area folder itself): 80 AL files that are about the area as a whole or were not given a topic yet.
+- (area folder itself): 74 AL files that are about the area as a whole or were not given a topic yet.
 - `blob-tempblob/`: Blob fields and TempBlob (3 AL files).
-- `instream-outstream/`: InStream and OutStream (16 AL files).
+- `instream-outstream/`: InStream and OutStream (17 AL files).
 - `media/`: Media and MediaSet (17 AL files).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 
 ## Shared fixtures used here
 
-- codeunit 69160 "Probe Observer": 82 files
+- codeunit 69160 "Probe Observer": 77 files
 - table 60008 "ALT Blob": 7 files
 - table 60980 "ALT Media": 4 files
 
@@ -26,11 +26,7 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 
 These files assert line numbers or call stacks. Only append at the end of the codeunit; never add or remove lines above existing code (standing rule 5).
 
-- `AyXmlReadFromStream.al`
-- `P129CallstackXmlPort.al`
-- `P129StreamWriteText.al`
 - `StTMedia.al`
-- `Y72XpEInvoiceShapes.al`
 
 ## Adding a test
 

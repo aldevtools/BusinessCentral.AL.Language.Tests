@@ -4,16 +4,16 @@ Text and Code methods, TextBuilder, BigText, TextConst and Label.
 
 ## Topics
 
-- (area folder itself): 42 AL files that are about the area as a whole or were not given a topic yet.
-- `text-methods/`: Text and Code methods (25 AL files).
+- (area folder itself): 34 AL files that are about the area as a whole or were not given a topic yet.
+- `text-methods/`: Text and Code methods (28 AL files).
 - `textbuilder-bigtext/`: TextBuilder and BigText (7 AL files).
-- `textconst-label/`: TextConst and Label (10 AL files).
+- `textconst-label/`: TextConst and Label (11 AL files).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 
 ## Shared fixtures used here
 
-- codeunit 69160 "Probe Observer": 63 files
+- codeunit 69160 "Probe Observer": 62 files
 
 ## Other apps
 

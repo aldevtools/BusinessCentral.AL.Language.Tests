@@ -4,14 +4,13 @@ Test handlers: MessageHandler, ConfirmHandler, StrMenuHandler, ModalPageHandler,
 
 ## Topics
 
-- (area folder itself): 99 AL files that are about the area as a whole or were not given a topic yet.
+- (area folder itself): 95 AL files that are about the area as a whole or were not given a topic yet.
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 
 ## Shared fixtures used here
 
-- codeunit 69160 "Probe Observer": 36 files
-- table 60000 "ALT Universal": 1 file
+- codeunit 69160 "Probe Observer": 31 files
 - codeunit 67702 "W3 Runner": 1 file
 
 ## Other apps

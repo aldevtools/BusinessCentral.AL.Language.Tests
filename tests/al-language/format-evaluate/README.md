@@ -4,14 +4,14 @@ Format and Evaluate of every type, format strings and AutoFormat.
 
 ## Topics
 
-- (area folder itself): 95 AL files that are about the area as a whole or were not given a topic yet.
+- (area folder itself): 85 AL files that are about the area as a whole or were not given a topic yet.
 - `autoformat/`: AutoFormatType and AutoFormatExpression (7 AL files).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 
 ## Shared fixtures used here
 
-- codeunit 69160 "Probe Observer": 94 files
+- codeunit 69160 "Probe Observer": 84 files
 - table 60000 "ALT Universal": 1 file
 - codeunit 67703 "W3 Dataset": 1 file
 

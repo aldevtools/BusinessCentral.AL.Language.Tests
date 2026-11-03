@@ -4,14 +4,14 @@ Test runner behavior, test isolation, test permissions of the runner and code co
 
 ## Topics
 
-- (area folder itself): 1 AL files that are about the area as a whole or were not given a topic yet.
+- (area folder itself): 3 AL files that are about the area as a whole or were not given a topic yet.
 - `code-coverage/`: code coverage (3 AL files).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 
 ## Shared fixtures used here
 
-- codeunit 69160 "Probe Observer": 4 files
+- codeunit 69160 "Probe Observer": 5 files
 
 ## Other apps
 

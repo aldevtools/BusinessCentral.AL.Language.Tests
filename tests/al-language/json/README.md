@@ -4,14 +4,14 @@ JsonObject, JsonArray, JsonToken and JsonValue.
 
 ## Topics
 
-- (area folder itself): 34 AL files that are about the area as a whole or were not given a topic yet.
+- (area folder itself): 33 AL files that are about the area as a whole or were not given a topic yet.
 - `json/`: the JSON types (33 AL files).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 
 ## Shared fixtures used here
 
-- codeunit 69160 "Probe Observer": 55 files
+- codeunit 69160 "Probe Observer": 54 files
 - table 60008 "ALT Blob": 1 file
 
 ## Other apps

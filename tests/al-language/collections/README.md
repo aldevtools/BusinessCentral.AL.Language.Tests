@@ -4,15 +4,15 @@ List, Dictionary and the array functions (CopyArray, ArrayLen, CompressArray).
 
 ## Topics
 
-- (area folder itself): 43 AL files that are about the area as a whole or were not given a topic yet.
-- `array-rows/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
-- `copyarray-fn-result/`: named after its old folder; scope to be written (REVIEW) (1 AL file).
+- (area folder itself): 36 AL files that are about the area as a whole or were not given a topic yet.
+- `copyarray-procedure-result/`: CopyArray with a procedure result as source or target (1 AL file).
+- `multi-dimension-array-rows/`: rows of multi-dimensional arrays: clear, pass by value and var, CopyArray (1 AL file).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 
 ## Shared fixtures used here
 
-- codeunit 69160 "Probe Observer": 30 files
+- codeunit 69160 "Probe Observer": 24 files
 - table 60000 "ALT Universal": 2 files
 
 ## Other apps

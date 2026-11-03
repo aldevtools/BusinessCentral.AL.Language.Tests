@@ -4,13 +4,15 @@ Statements, operators, preprocessor directives, identifiers, scope, `with`, proc
 
 ## Topics
 
-- (area folder itself): 12 AL files that are about the area as a whole or were not given a topic yet.
+- (area folder itself): 8 AL files that are about the area as a whole or were not given a topic yet.
+- `namespaces/`: namespaces and using directives (3 AL files).
+- `obsolete-pending/`: objects and members with ObsoleteState Pending (3 AL files).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 
 ## Shared fixtures used here
 
-- codeunit 69160 "Probe Observer": 2 files
+- codeunit 69160 "Probe Observer": 14 files
 
 ## Other apps
 
