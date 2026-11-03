@@ -107,6 +107,9 @@ codeunit 94943 "LT R6858 Control Names"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    var
+        Observer: Codeunit "Probe Observer";
+
     local procedure Setup()
     var
         Rec: Record "LT R6858 Rec";
@@ -123,25 +126,43 @@ codeunit 94943 "LT R6858 Control Names"
     [Test]
     procedure R6858_Card_ReadsEveryControl()
     var
-        Observer: Codeunit "Probe Observer";
         Card: TestPage "LT R6858 Card";
     begin
         Setup();
         Card.OpenView();
-        Observer.Observe('ctlContainerlocation', Card.ctlContainerlocation.Value());
-        Observer.Observe('Container location', Card."Container location".Value());
-        Observer.Observe('ctlStatus', Card.ctlStatus.Value());
-        Observer.Observe('Status', Card.Status.Value());
-        Observer.Observe('ctlOther', Card.ctlOther.Value());
-        Observer.Observe('Other value', Card."Other value".Value());
-        Observer.Observe('Docno', Card.Docno.Value());
-        Observer.Observe('Doc no.', Card."Doc no.".Value());
-        Observer.Observe('ctlGuarded', Card.ctlGuarded.Value());
-        Observer.Observe('ctlSeen', Card.ctlSeen.Value());
-        Observer.Observe('ExtSource', Card.ExtSource.Value());
-        Observer.Observe('ctlExtStatus', Card.ctlExtStatus.Value());
+        Observe('ctlContainerlocation', Card.ctlContainerlocation);
+        Observe('Container location', Card."Container location");
+        Observe('ctlStatus', Card.ctlStatus);
+        Observe('Status', Card.Status);
+        Observe('ctlOther', Card.ctlOther);
+        Observe('Other value', Card."Other value");
+        Observe('Docno', Card.Docno);
+        Observe('Doc no.', Card."Doc no.");
+        Observe('ctlGuarded', Card.ctlGuarded);
+        Observe('ctlSeen', Card.ctlSeen);
+        Observe('ctlValidateSeen', Card.ctlValidateSeen);
+        Observe('ExtSource', Card.ExtSource);
+        Observe('ctlExtStatus', Card.ctlExtStatus);
         Card.Close();
         Observer.Finish();
+    end;
+
+    [TryFunction]
+    local procedure TryRead(Control: TestField; var Result: Text)
+    begin
+        Result := Control.Value();
+    end;
+
+    local procedure Observe(Name: Text; Control: TestField)
+    var
+        Value: Text;
+    begin
+        if TryRead(Control, Value) then
+            Observer.Observe(Name, Value)
+        else begin
+            Observer.Observe(Name, 'ERROR');
+            Observer.ObserveError(Name + ' error');
+        end;
     end;
 
     [Test]
