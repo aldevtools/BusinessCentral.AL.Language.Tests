@@ -368,4 +368,262 @@ codeunit 72502 "LT JsT Value Getters"
         Observer.Expect('char_asinteger', 'ok:66');
         Observer.Verify();
     end;
+
+    // Writer SQ (NP lane 2026-10-28): AsBigInteger, AsByte and AsOption of a JSON string that holds digits (AsInteger of "42" is NumericTextGetters).
+    [TryFunction]
+    local procedure SqDoGet(V: JsonValue; Kind: Text; var R: Text)
+    var
+        ByteAsInt: Integer;
+    begin
+        case Kind of
+            'AsBigInteger':
+                R := Format(V.AsBigInteger());
+            'AsByte':
+                begin
+                    ByteAsInt := V.AsByte();
+                    R := Format(ByteAsInt);
+                end;
+            'AsOption':
+                R := Format(V.AsOption());
+            'AsInteger':
+                R := Format(V.AsInteger());
+        end;
+    end;
+
+    local procedure SqTry(V: JsonValue; Kind: Text): Text
+    var
+        R: Text;
+    begin
+        if SqDoGet(V, Kind, R) then
+            exit('ok:' + R);
+        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    local procedure SqRow(Json: Text): Text
+    var
+        V: JsonValue;
+    begin
+        V := ValFrom(Json);
+        exit('big=' + SqTry(V, 'AsBigInteger') + ' ; byte=' + SqTry(V, 'AsByte') + ' ; option=' + SqTry(V, 'AsOption') + ' ; int=' + SqTry(V, 'AsInteger'));
+    end;
+
+    [Test]
+    procedure Sq_DigitText_BigIntegerByteOption()
+    begin
+        Observer.Observe('text 42', SqRow('"42"'));
+        Observer.Observe('text 7', SqRow('"7"'));
+        Observer.Observe('text 0', SqRow('"0"'));
+        Observer.Observe('text -5', SqRow('"-5"'));
+        Observer.Observe('text 300', SqRow('"300"'));
+        Observer.Observe('text 3000000000', SqRow('"3000000000"'));
+        Observer.Observe('text 4.5', SqRow('"4.5"'));
+        Observer.Observe('text space 42', SqRow('" 42"'));
+        Observer.Expect('text 42', 'big=ok:42 ; byte=ok:42 ; option=ok:42 ; int=ok:42');
+        Observer.Expect('text 7', 'big=ok:7 ; byte=ok:7 ; option=ok:7 ; int=ok:7');
+        Observer.Expect('text 0', 'big=ok:0 ; byte=ok:0 ; option=ok:0 ; int=ok:0');
+        Observer.Expect('text -5', 'big=ok:-5 ; byte=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Byte.|Conversion ; option=ok:-5 ; int=ok:-5');
+        Observer.Expect('text 300', 'big=ok:300 ; byte=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Byte.|Conversion ; option=ok:300 ; int=ok:300');
+        Observer.Expect('text 3000000000', 'big=ok:3000000000 ; byte=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Byte.|Conversion ; option=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavOption.|Conversion ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('text 4.5', 'big=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavBigInteger.|Conversion ; byte=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Byte.|Conversion ; option=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavOption.|Conversion ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('text space 42', 'big=ok:42 ; byte=ok:42 ; option=ok:42 ; int=ok:42');
+        Observer.Verify();
+    end;
+
+    // Writer UN (2026-10-29): AsBoolean of JSON texts other than "true" (only "true" and letters are pinned above).
+    [Test]
+    procedure UN_BooleanTextGetters()
+    var
+        V: JsonValue;
+    begin
+        V := ValFrom('"false"');
+        Observer.Observe('text false', Try(V, 'AsBoolean'));
+        V := ValFrom('"False"');
+        Observer.Observe('text False', Try(V, 'AsBoolean'));
+        V := ValFrom('"FALSE"');
+        Observer.Observe('text FALSE', Try(V, 'AsBoolean'));
+        Observer.Expect('text false', 'ok:No');
+        Observer.Expect('text False', 'ok:No');
+        Observer.Expect('text FALSE', 'ok:No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UN_BooleanTextGetters_2()
+    var
+        V: JsonValue;
+    begin
+        V := ValFrom('"True"');
+        Observer.Observe('text True', Try(V, 'AsBoolean'));
+        V := ValFrom('"TRUE"');
+        Observer.Observe('text TRUE', Try(V, 'AsBoolean'));
+        V := ValFrom('"0"');
+        Observer.Observe('text 0', Try(V, 'AsBoolean'));
+        Observer.Expect('text True', 'ok:Yes');
+        Observer.Expect('text TRUE', 'ok:Yes');
+        Observer.Expect('text 0', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UN_BooleanTextGetters_3()
+    var
+        V: JsonValue;
+    begin
+        V := ValFrom('"1"');
+        Observer.Observe('text 1', Try(V, 'AsBoolean'));
+        V := ValFrom('"yes"');
+        Observer.Observe('text yes', Try(V, 'AsBoolean'));
+        V := ValFrom('"Yes"');
+        Observer.Observe('text Yes', Try(V, 'AsBoolean'));
+        Observer.Expect('text 1', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Expect('text yes', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Expect('text Yes', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UN_BooleanTextGetters_4()
+    var
+        V: JsonValue;
+    begin
+        V := ValFrom('"No"');
+        Observer.Observe('text No', Try(V, 'AsBoolean'));
+        V := ValFrom('""');
+        Observer.Observe('text empty', Try(V, 'AsBoolean'));
+        V := ValFrom('" true"');
+        Observer.Observe('text space true', Try(V, 'AsBoolean'));
+        Observer.Expect('text No', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Expect('text empty', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Expect('text space true', 'ok:Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UN_BooleanTextGetters_5()
+    var
+        V: JsonValue;
+    begin
+        V := ValFrom('"true "');
+        Observer.Observe('text true space', Try(V, 'AsBoolean'));
+        V := ValFrom('0');
+        Observer.Observe('number 0', Try(V, 'AsBoolean'));
+        V := ValFrom('1');
+        Observer.Observe('number 1', Try(V, 'AsBoolean'));
+        Observer.Expect('text true space', 'ok:Yes');
+        Observer.Expect('number 0', 'ok:No');
+        Observer.Expect('number 1', 'ok:Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UN_BooleanTextGetters_6()
+    var
+        V: JsonValue;
+    begin
+        V := ValFrom('false');
+        Observer.Observe('bool false', Try(V, 'AsBoolean'));
+        Observer.Expect('bool false', 'ok:No');
+        Observer.Verify();
+    end;
+
+    // Writer Y65 (al-runner issue 6676): the reporter's 'n/a' through every getter (AsByte and AsOption too), and decimal-shaped strings
+    // through AsDecimal and AsInteger ("hello" through the other getters is TextGetters, digit strings are Sq_DigitText_BigIntegerByteOption).
+    [Test]
+    procedure Y65_NotANumberText_EveryGetter()
+    var
+        V: JsonValue;
+    begin
+        V := ValFrom('"n/a"');
+        Observer.Observe('n/a AsText', Try(V, 'AsText'));
+        Observer.Observe('n/a AsCode', Try(V, 'AsCode'));
+        Observer.Observe('n/a AsChar', Try(V, 'AsChar'));
+        Observer.Observe('n/a AsInteger', Try(V, 'AsInteger'));
+        Observer.Observe('n/a AsDecimal', Try(V, 'AsDecimal'));
+        Observer.Observe('n/a AsBoolean', Try(V, 'AsBoolean'));
+        Observer.Observe('n/a AsDate', Try(V, 'AsDate'));
+        Observer.Observe('n/a AsDateTime', Try(V, 'AsDateTime'));
+        Observer.Observe('n/a AsTime', Try(V, 'AsTime'));
+        Observer.Observe('n/a AsDuration', Try(V, 'AsDuration'));
+        Observer.Observe('n/a big byte option int', SqRow('"n/a"'));
+        Observer.Expect('n/a AsText', 'ok:n/a');
+        Observer.Expect('n/a AsCode', 'ok:N/A');
+        Observer.Expect('n/a AsChar', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Char.|Conversion');
+        Observer.Expect('n/a AsInteger', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('n/a AsDecimal', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion');
+        Observer.Expect('n/a AsBoolean', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Expect('n/a AsDate', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavDate.|Conversion');
+        Observer.Expect('n/a AsDateTime', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavDateTime.|Conversion');
+        Observer.Expect('n/a AsTime', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavTime.|Conversion');
+        Observer.Expect('n/a AsDuration', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavDuration.|Conversion');
+        Observer.Expect('n/a big byte option int', 'big=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavBigInteger.|Conversion ; byte=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Byte.|Conversion ; option=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavOption.|Conversion ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y65_DecimalShapedText_AsDecimal()
+    begin
+        Observer.Observe('4.5', Y65Num('"4.5"'));
+        Observer.Observe('4,5', Y65Num('"4,5"'));
+        Observer.Observe('1,000.5', Y65Num('"1,000.5"'));
+        Observer.Observe('1e3', Y65Num('"1e3"'));
+        Observer.Observe('-0', Y65Num('"-0"'));
+        Observer.Observe('+3', Y65Num('"+3"'));
+        Observer.Observe('.5', Y65Num('".5"'));
+        Observer.Observe('1.5.1', Y65Num('"1.5.1"'));
+        Observer.Observe('space 4.5 space', Y65Num('" 4.5 "'));
+        Observer.Expect('4.5', 'dec=ok:4.5 ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('4,5', 'dec=ok:45 ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('1,000.5', 'dec=ok:1,000.5 ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('1e3', 'dec=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('-0', 'dec=ok:0 ; int=ok:0');
+        Observer.Expect('+3', 'dec=ok:3 ; int=ok:3');
+        Observer.Expect('.5', 'dec=ok:0.5 ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('1.5.1', 'dec=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('space 4.5 space', 'dec=ok:4.5 ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y65_DecimalShapedText_AsDecimal_2()
+    begin
+        Observer.Observe('NaN', Y65Num('"NaN"'));
+        Observer.Observe('Infinity', Y65Num('"Infinity"'));
+        Observer.Observe('0x10', Y65Num('"0x10"'));
+        Observer.Observe('1 000', Y65Num('"1 000"'));
+        Observer.Observe('empty', Y65Num('""'));
+        Observer.Observe('99999999999999999999', Y65Num('"99999999999999999999"'));
+        Observer.Expect('NaN', 'dec=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('Infinity', 'dec=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('0x10', 'dec=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('1 000', 'dec=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('empty', 'dec=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('99999999999999999999', 'dec=error:The value of Decimal parameter  is outside of the permitted range. The current value is: 100,000,000,000,000,000,000. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99.|OutsidePermittedRange ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Verify();
+    end;
+
+    local procedure Y65Num(Json: Text): Text
+    var
+        V: JsonValue;
+    begin
+        V := ValFrom(Json);
+        exit('dec=' + Try(V, 'AsDecimal') + ' ; int=' + Try(V, 'AsInteger'));
+    end;
+
+    [Test]
+    procedure Y65_Reporter_AsDecimalOfTokenValue()
+    var
+        JObject: JsonObject;
+        JToken: JsonToken;
+        Value: Decimal;
+    begin
+        // al-runner issue 6676, the reporter's shape: asserterror around the getter of JsonToken.AsValue().
+        JObject.ReadFrom('{"value":"n/a"}');
+        JObject.Get('value', JToken);
+        asserterror Value := JToken.AsValue().AsDecimal();
+        Observer.Observe('error', GetLastErrorText() + '|' + GetLastErrorCode());
+        Observer.Observe('value', Format(Value));
+        Observer.Expect('error', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion');
+        Observer.Expect('value', '0');
+        Observer.Verify();
+    end;
 }

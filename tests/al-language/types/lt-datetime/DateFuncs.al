@@ -435,4 +435,64 @@ codeunit 73801 "LT DtT DateFuncs"
         Observer.Expect('year2', '24');
         Observer.Verify();
     end;
+
+    // Writer UN (2026-10-29): DMY2Date with year 0 and negative years (the "no error" for 1.1.0 is pinned above; here the value and the other days).
+    [TryFunction]
+    local procedure UnTryDmy(Day: Integer; Month: Integer; Year: Integer; var Outcome: Text)
+    var
+        D: Date;
+    begin
+        D := DMY2Date(Day, Month, Year);
+        Outcome := 'undefined=' + Format(D = 0D) + '|day=' + Format(Date2DMY(D, 1)) + '|month=' + Format(Date2DMY(D, 2)) + '|year is current=' + Format(Date2DMY(D, 3) = Date2DMY(Today(), 3)) + '|year=' + Format(Date2DMY(D, 3)) + '|iso=' + Format(D, 0, 9) + '|equals 1.1.1=' + Format(D = DMY2Date(1, 1, 1)) + '|equals omitted year=' + Format(D = DMY2Date(Day, Month));
+    end;
+
+    local procedure UnDmy(var Observer: Codeunit "Probe Observer"; Day: Integer; Month: Integer; Year: Integer)
+    var
+        O: Text;
+        Name: Text;
+    begin
+        Name := Format(Day) + '.' + Format(Month) + '.' + Format(Year);
+        ClearLastError();
+        if UnTryDmy(Day, Month, Year, O) then
+            Observer.Observe(Name, O)
+        else
+            Observer.ObserveError(Name);
+    end;
+
+    [Test]
+    procedure UN_DMY2Date_YearZero_Value()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UnDmy(Observer, 1, 1, 0);
+        UnDmy(Observer, 2, 1, 0);
+        UnDmy(Observer, 1, 2, 0);
+        UnDmy(Observer, 28, 2, 0);
+        UnDmy(Observer, 15, 6, 0);
+        UnDmy(Observer, 31, 12, 0);
+        UnDmy(Observer, 32, 1, 0);
+        UnDmy(Observer, 1, 13, 0);
+        UnDmy(Observer, 1, 1, -5);
+        UnDmy(Observer, 1, 1, -2024);
+        Observer.Expect('1.1.0', 'undefined=No|day=1|month=1|year is current=No|year=0|iso=0001-01-02|equals 1.1.1=No|equals omitted year=No');
+        Observer.Expect('2.1.0|text', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.');
+        Observer.Expect('2.1.0|code', 'OutsidePermittedRange');
+        Observer.Expect('1.2.0|text', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.');
+        Observer.Expect('1.2.0|code', 'OutsidePermittedRange');
+        Observer.Expect('28.2.0|text', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.');
+        Observer.Expect('28.2.0|code', 'OutsidePermittedRange');
+        Observer.Expect('15.6.0|text', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.');
+        Observer.Expect('15.6.0|code', 'OutsidePermittedRange');
+        Observer.Expect('31.12.0|text', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.');
+        Observer.Expect('31.12.0|code', 'OutsidePermittedRange');
+        Observer.Expect('32.1.0|text', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.');
+        Observer.Expect('32.1.0|code', 'OutsidePermittedRange');
+        Observer.Expect('1.13.0|text', 'The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: 13. The permitted range is: from 1 to 12.');
+        Observer.Expect('1.13.0|code', 'OutsidePermittedRange');
+        Observer.Expect('1.1.-5|text', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: -5. The permitted range is: from 1 to 9999.');
+        Observer.Expect('1.1.-5|code', 'OutsidePermittedRange');
+        Observer.Expect('1.1.-2024|text', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: -2024. The permitted range is: from 1 to 9999.');
+        Observer.Expect('1.1.-2024|code', 'OutsidePermittedRange');
+        Observer.Verify();
+    end;
 }

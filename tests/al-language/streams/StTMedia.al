@@ -613,4 +613,150 @@ codeunit 74204 "LT StT Media"
         Observer.Expect('text/plain', 'ok|hasvalue=Yes|returned=mediaid:Yes|mime=text/plain');
         Observer.Verify();
     end;
+
+    // ---- Writer SO (2026-10-28), aldevtools/BusinessCentral.AL.Runner#5993: ExportStream of a Media field that holds no media ----
+    // what ExportStream answers, what the stream holds and HasValue before and after, for a record that is only Init'ed, an inserted
+    // empty row, and the reporter's shape (Document Attachment."Document Reference ID" of an Init'ed record).
+
+    [TryFunction]
+    local procedure SoTryExport(var Rec: Record "LT StT Rec"; var Out: OutStream; var Answer: Boolean)
+    begin
+        Answer := Rec.Pic.ExportStream(Out);
+    end;
+
+    local procedure SoExportOutcome(var Rec: Record "LT StT Rec") Result: Text
+    var
+        TempBlob: Codeunit "Temp Blob";
+        Out: OutStream;
+        Answer: Boolean;
+    begin
+        Result := 'hasvalue=' + Format(Rec.Pic.HasValue()) + ' nullid=' + Format(IsNullGuid(Rec.Pic.MediaId()));
+        TempBlob.CreateOutStream(Out);
+        ClearLastError();
+        if SoTryExport(Rec, Out, Answer) then
+            Result += ' returned=' + Format(Answer)
+        else
+            Result += ' error=[' + GetLastErrorText() + '] code=' + GetLastErrorCode();
+        Result += ' len=' + Format(TempBlob.Length()) + ' hasvalue after=' + Format(Rec.Pic.HasValue());
+    end;
+
+    [TryFunction]
+    local procedure SoTryExportAttachment(var DocumentAttachment: Record "Document Attachment"; var Out: OutStream; var Answer: Boolean)
+    begin
+        Answer := DocumentAttachment."Document Reference ID".ExportStream(Out);
+    end;
+
+    local procedure SoExportAttachmentOutcome(var DocumentAttachment: Record "Document Attachment") Result: Text
+    var
+        TempBlob: Codeunit "Temp Blob";
+        Out: OutStream;
+        Answer: Boolean;
+    begin
+        Result := 'hasvalue=' + Format(DocumentAttachment."Document Reference ID".HasValue()) + ' nullid=' + Format(IsNullGuid(DocumentAttachment."Document Reference ID".MediaId()));
+        TempBlob.CreateOutStream(Out);
+        ClearLastError();
+        if SoTryExportAttachment(DocumentAttachment, Out, Answer) then
+            Result += ' returned=' + Format(Answer)
+        else
+            Result += ' error=[' + GetLastErrorText() + '] code=' + GetLastErrorCode();
+        Result += ' len=' + Format(TempBlob.Length()) + ' hasvalue after=' + Format(DocumentAttachment."Document Reference ID".HasValue());
+    end;
+
+    [Test]
+    procedure SO_MediaExportStream_InitNotInserted()
+    var
+        Rec: Record "LT StT Rec";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Rec.DeleteAll();
+        Rec.Init();
+        Rec.Id := 9;
+        Observer.Observe('init only', SoExportOutcome(Rec));
+        Observer.Expect('init only', 'hasvalue=No nullid=Yes returned=No len=0 hasvalue after=No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SO_MediaExportStream_InsertedEmpty()
+    var
+        Rec: Record "LT StT Rec";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Fresh(Rec);
+        Observer.Observe('inserted', SoExportOutcome(Rec));
+        Rec.Get(1);
+        Observer.Observe('read back', SoExportOutcome(Rec));
+        Observer.Expect('inserted', 'hasvalue=No nullid=Yes returned=No len=0 hasvalue after=No');
+        Observer.Expect('read back', 'hasvalue=No nullid=Yes returned=No len=0 hasvalue after=No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SO_MediaExportStream_DocumentAttachmentShape()
+    var
+        DocumentAttachment: Record "Document Attachment";
+        TempBlob: Codeunit "Temp Blob";
+        Observer: Codeunit "Probe Observer";
+        OutStream: OutStream;
+    begin
+        DocumentAttachment.Init();
+        Observer.Observe('outcome', SoExportAttachmentOutcome(DocumentAttachment));
+        // the reporter's exact statement form, the answer not read
+        TempBlob.CreateOutStream(OutStream);
+        DocumentAttachment."Document Reference ID".ExportStream(OutStream);
+        Observer.Observe('statement form len', Format(TempBlob.Length()));
+        Observer.Observe('statement form hasvalue', Format(DocumentAttachment."Document Reference ID".HasValue()));
+        Observer.Expect('outcome', 'hasvalue=No nullid=Yes returned=No len=0 hasvalue after=No');
+        Observer.Expect('statement form len', '0');
+        Observer.Expect('statement form hasvalue', 'No');
+        Observer.Verify();
+    end;
+
+    // Writer TR (NP lane, 2026-10-29): text (not an image) imported into a Media field with ImportStream, read back with ExportStream.
+    [Test]
+    procedure TR_MediaImportStream_TextContent_ExportStream()
+    var
+        Rec: Record "LT StT Rec";
+        Rec2: Record "LT StT Rec";
+        TempBlob: Codeunit "Temp Blob";
+        OutBlob: Codeunit "Temp Blob";
+        Observer: Codeunit "Probe Observer";
+        Out: OutStream;
+        Ins: InStream;
+        T: Text;
+        B: Byte;
+        I: Integer;
+        Bytes: Text;
+    begin
+        Fresh(Rec);
+        TempBlob.CreateOutStream(Out, TextEncoding::UTF8);
+        Out.WriteText('Fiscal line 1: ' + 'Ä€ 12,50');
+        TempBlob.CreateInStream(Ins);
+        Observer.Observe('imported length', Format(TempBlob.Length()));
+        Rec.Pic.ImportStream(Ins, 'receipt');
+        Rec.Modify();
+        Rec2.Get(1);
+        Observer.Observe('hasvalue', Format(Rec2.Pic.HasValue()));
+        OutBlob.CreateOutStream(Out);
+        Observer.Observe('exportstream', Format(Rec2.Pic.ExportStream(Out)));
+        Observer.Observe('exported length', Format(OutBlob.Length()));
+        OutBlob.CreateInStream(Ins, TextEncoding::UTF8);
+        Ins.ReadText(T);
+        Observer.Observe('readtext', T);
+        OutBlob.CreateInStream(Ins);
+        while not Ins.EOS() do begin
+            Ins.Read(B);
+            I := B;
+            Bytes += Format(I) + ' ';
+        end;
+        Observer.Observe('bytes', Bytes);
+        // the exported bytes are the imported UTF-8 bytes, unchanged
+        Observer.Expect('imported length', '26');
+        Observer.Expect('hasvalue', 'Yes');
+        Observer.Expect('exportstream', 'Yes');
+        Observer.Expect('exported length', '26');
+        Observer.Expect('readtext', 'Fiscal line 1: Ä€ 12,50');
+        Observer.Expect('bytes', '70 105 115 99 97 108 32 108 105 110 101 32 49 58 32 195 132 226 130 172 32 49 50 44 53 48 ');
+        Observer.Verify();
+    end;
 }

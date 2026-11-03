@@ -290,6 +290,33 @@ codeunit 84892 "LT CN Iso WriteTx"
     end;
 
     [Test]
+    procedure TO_IsoOverwrite_OutsideWriteTransaction()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        // Writer TO (NP lane): Set and SetEncrypted over a key that already exists, each right after a Commit.
+        // Every overwrite (also with the same value) opens the write transaction. The SetEncrypted cases are left out: on the
+        // BC 28.5 and 29.0 Linux CI containers SetEncrypted raised NavEncryptionKeyNotFoundException (no encryption key set up), a
+        // container setup question; queued for the Windows check before they are pinned.
+        Clean();
+        IsolatedStorage.Set('LTCNtx', 'v1', DataScope::Module);
+        Commit();
+        Observer.Observe('before', Format(Database.IsInWriteTransaction()));
+        Observer.Observe('set again', Format(IsolatedStorage.Set('LTCNtx', 'v2', DataScope::Module)));
+        Observer.Observe('after set again', Format(Database.IsInWriteTransaction()));
+        Commit();
+        Observer.Observe('set same value', Format(IsolatedStorage.Set('LTCNtx', 'v2', DataScope::Module)));
+        Observer.Observe('after set same value', Format(Database.IsInWriteTransaction()));
+        Commit();
+        Observer.Expect('before', 'No');
+        Observer.Expect('set again', 'Yes');
+        Observer.Expect('after set again', 'Yes');
+        Observer.Expect('set same value', 'Yes');
+        Observer.Expect('after set same value', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
     [HandlerFunctions('ModalHandler')]
     procedure IsoSet_ThenPageRunModal()
     var

@@ -103,9 +103,19 @@ codeunit 78000 "LT AD Date Filter Letters"
     end;
 
     // The filter text of a letter that follows Today(): the date formula applied to Today(), in the format of GetFilter.
-    local procedure TodayRel(Formula: Text): Text
+    // Scrubbed under the work date the observation ran with (RunWorkDate), as Apply scrubs it: scrubbed under the session's own
+    // work date instead, the expected text became '<workdate>' on a day when that formula hit the session's work date (master run
+    // 41377986019, 2026-11-02: '-1D' = 11/01/26 = the session's work date) while the observed text stayed a date.
+    local procedure TodayRel(Formula: Text; RunWorkDate: Date): Text
+    var
+        SavedWorkDate: Date;
+        Result: Text;
     begin
-        exit('ok|filter=' + Scrub(Format(CalcDate(Formula, Today()), 0, '<Month,2>/<Day,2>/<Year,2>')) + '|rows=');
+        SavedWorkDate := WorkDate();
+        WorkDate(RunWorkDate);
+        Result := 'ok|filter=' + Scrub(Format(CalcDate(Formula, Today()), 0, '<Month,2>/<Day,2>/<Year,2>')) + '|rows=';
+        WorkDate(SavedWorkDate);
+        exit(Result);
     end;
 
     local procedure RunFor(var Observer: Codeunit "Probe Observer"; WorkDay: Date; Part: Integer)
@@ -142,7 +152,7 @@ codeunit 78000 "LT AD Date Filter Letters"
         Observer.Expect('o M', 'ok|filter=12/29/25|rows=');
         Observer.Expect('o Y', 'ok|filter=<workdate>..12/31/26|rows=E2,E3,E4,');
         Observer.Expect('o D', 'ok|filter=<workdate>|rows=E2,');
-        Observer.Expect('o CM', TodayRel('<CM>'));
+        Observer.Expect('o CM', TodayRel('<CM>', 20260101D));
         Observer.Verify();
     end;
 
@@ -152,10 +162,10 @@ codeunit 78000 "LT AD Date Filter Letters"
         Observer: Codeunit "Probe Observer";
     begin
         RunOriginal(Observer, 2);
-        Observer.Expect('o CY', TodayRel('<CY>'));
-        Observer.Expect('o CW', TodayRel('<CW>'));
-        Observer.Expect('o -1D', TodayRel('<-1D>'));
-        Observer.Expect('o +1D', TodayRel('<+1D>'));
+        Observer.Expect('o CY', TodayRel('<CY>', 20260101D));
+        Observer.Expect('o CW', TodayRel('<CW>', 20260101D));
+        Observer.Expect('o -1D', TodayRel('<-1D>', 20260101D));
+        Observer.Expect('o +1D', TodayRel('<+1D>', 20260101D));
         Observer.Expect('o T-1D', 'ok|filter=12/30/25|rows=');
         Observer.Expect('o 1D', 'ok|filter=<workdate>|rows=E2,');
         Observer.Verify();
@@ -266,7 +276,7 @@ codeunit 78000 "LT AD Date Filter Letters"
         Observer.Expect('w2030-05-15 M', 'ok|filter=05/13/30|rows=');
         Observer.Ignore('w2030-05-15 Y'); // follows neither the work date nor Today in a way that stays stable; see the file header
         Observer.Expect('w2030-05-15 D', 'ok|filter=<workdate>|rows=P0,');
-        Observer.Expect('w2030-05-15 CM', TodayRel('<CM>'));
+        Observer.Expect('w2030-05-15 CM', TodayRel('<CM>', 20300515D));
         Observer.Verify();
     end;
 
@@ -276,10 +286,10 @@ codeunit 78000 "LT AD Date Filter Letters"
         Observer: Codeunit "Probe Observer";
     begin
         RunFor(Observer, 20300515D, 2);
-        Observer.Expect('w2030-05-15 CY', TodayRel('<CY>'));
-        Observer.Expect('w2030-05-15 CW', TodayRel('<CW>'));
-        Observer.Expect('w2030-05-15 -1D', TodayRel('<-1D>'));
-        Observer.Expect('w2030-05-15 +1D', TodayRel('<+1D>'));
+        Observer.Expect('w2030-05-15 CY', TodayRel('<CY>', 20300515D));
+        Observer.Expect('w2030-05-15 CW', TodayRel('<CW>', 20300515D));
+        Observer.Expect('w2030-05-15 -1D', TodayRel('<-1D>', 20300515D));
+        Observer.Expect('w2030-05-15 +1D', TodayRel('<+1D>', 20300515D));
         Observer.Ignore('w2030-05-15 T-1D'); // follows neither the work date nor Today in a way that stays stable; see the file header
         Observer.Expect('w2030-05-15 1D', 'ok|filter=05/01/30|rows=MS,');
         Observer.Verify();

@@ -23,6 +23,18 @@
       "name": "AL Language XApp A",
       "publisher": "AL Language",
       "version": "1.0.0.0"
+    },
+    {
+      "id": "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
+      "name": "System Application",
+      "publisher": "Microsoft",
+      "version": "27.0.0.0"
+    },
+    {
+      "id": "437dbf0e-84ff-417a-965d-ed2bb9650972",
+      "name": "Base Application",
+      "publisher": "Microsoft",
+      "version": "27.0.0.0"
     }
   ],
   "screenshots": [],
@@ -34,6 +46,18 @@
     {
       "from": 61140,
       "to": 61149
+    },
+    {
+      "from": 61185,
+      "to": 61189
+    },
+    {
+      "from": 61355,
+      "to": 61359
+    },
+    {
+      "from": 61380,
+      "to": 61389
     }
   ],
   "features": [],

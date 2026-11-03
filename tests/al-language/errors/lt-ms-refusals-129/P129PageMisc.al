@@ -7,6 +7,7 @@
 // what a value typed into the new record does and what Close leaves in the table; the same pages without OnFindRecord as the reference.
 // (2) CurrPage.SetSelectionFilter and Page.SetSelectionFilter into a record that ALREADY has filters (on the key field, on another field, in filter group 2, a view): the filters and the count afterwards.
 // (3) Page.GetRecord of a Page variable whose RunModal closed on a table with no row, for Cancel and LookupOK, with the record passed in holding values or cleared, and with a Page-typed handler.
+// (4) Writer TV: the same on a table that has rows, the page filtered to no row by SetTableView (OK, LookupOK, Cancel in lookup mode, after SetRecord, typed handler).
 // BC versions: 29 (27 and 28 by CI)
 
 table 73270 "LT P129 Item"
@@ -659,6 +660,149 @@ codeunit 73276 "LT P129 Page Misc"
     begin
         Item.DeleteAll();
         L.Take();
+        Result := Pg.RunModal();
+        Observer.Observe('result', Format(Result));
+        Observer.Observe('handler log', L.Take());
+        Observer.Observe('prefilled record', AfterEmptyRun(Pg, true));
+        Observer.Observe('cleared record', AfterEmptyRun(Pg, false));
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('handler log', 'handler getrecord id=0;');
+        Observer.Expect('prefilled record', 'ok|id=0|grp=|qty=0');
+        Observer.Expect('cleared record', 'ok|id=0|grp=|qty=0');
+        Observer.Verify();
+    end;
+
+    // ---- Writer TV (NP lane, 2026-10-29): Page.GetRecord of a Page variable whose RunModal closed on no row of a table that HAS rows
+    // (SetTableView with a filter no row meets), for OK, LookupOK and Cancel in lookup mode, after SetRecord of a row, and with a Page-typed
+    // handler. ----
+
+    // In lookup mode on no row, TestPage OK() is not found (BC 29 SaaS sandbox): the handler records the error and cancels.
+    [ModalPageHandler]
+    procedure TvLookupOkHandler(var P: TestPage "LT P129 Plain List")
+    begin
+        L.Add('tv first=' + Format(P.First()));
+        asserterror P.OK().Invoke();
+        L.Add('ok error=' + GetLastErrorText() + '|' + GetLastErrorCode());
+        P.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure TvLookupCancelHandler(var P: TestPage "LT P129 Plain List")
+    begin
+        L.Add('tv first=' + Format(P.First()));
+        P.Cancel().Invoke();
+    end;
+
+    local procedure TvNoRowView(var Pg: Page "LT P129 Plain List")
+    var
+        Item: Record "LT P129 Item";
+    begin
+        Item.SetRange(Grp, 'NONE');
+        Pg.SetTableView(Item);
+    end;
+
+    [Test]
+    [HandlerFunctions('OkHandler')]
+    procedure TV_GetRecord_AfterRunModalOk_FilteredToNoRow()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: Page "LT P129 Plain List";
+        Result: Action;
+    begin
+        Seed();
+        TvNoRowView(Pg);
+        Result := Pg.RunModal();
+        Observer.Observe('result', Format(Result));
+        Observer.Observe('prefilled record', AfterEmptyRun(Pg, true));
+        Observer.Observe('cleared record', AfterEmptyRun(Pg, false));
+        Observer.Expect('result', 'OK');
+        Observer.Expect('prefilled record', 'ok|id=0|grp=|qty=0');
+        Observer.Expect('cleared record', 'ok|id=0|grp=|qty=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('TvLookupOkHandler')]
+    procedure TV_GetRecord_AfterLookupOk_FilteredToNoRow()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: Page "LT P129 Plain List";
+        Result: Action;
+    begin
+        Seed();
+        TvNoRowView(Pg);
+        Pg.LookupMode(true);
+        Result := Pg.RunModal();
+        Observer.Observe('result', Format(Result));
+        Observer.Observe('handler log', L.Take());
+        Observer.Observe('prefilled record', AfterEmptyRun(Pg, true));
+        Observer.Observe('cleared record', AfterEmptyRun(Pg, false));
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler log', 'tv first=No;ok error=The built-in action = OK is not found on the page.|TestActionNotFound;');
+        Observer.Expect('prefilled record', 'ok|id=0|grp=|qty=0');
+        Observer.Expect('cleared record', 'ok|id=0|grp=|qty=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('TvLookupCancelHandler')]
+    procedure TV_GetRecord_AfterLookupCancel_FilteredToNoRow()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: Page "LT P129 Plain List";
+        Result: Action;
+    begin
+        Seed();
+        TvNoRowView(Pg);
+        Pg.LookupMode(true);
+        Result := Pg.RunModal();
+        Observer.Observe('result', Format(Result));
+        Observer.Observe('handler log', L.Take());
+        Observer.Observe('prefilled record', AfterEmptyRun(Pg, true));
+        Observer.Observe('cleared record', AfterEmptyRun(Pg, false));
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler log', 'tv first=No;');
+        Observer.Expect('prefilled record', 'ok|id=0|grp=|qty=0');
+        Observer.Expect('cleared record', 'ok|id=0|grp=|qty=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('TvLookupOkHandler')]
+    procedure TV_GetRecord_AfterSetRecordAndLookupOk_FilteredToNoRow()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: Page "LT P129 Plain List";
+        Item: Record "LT P129 Item";
+        Result: Action;
+    begin
+        Seed();
+        Item.Get(2);
+        Pg.SetRecord(Item);
+        TvNoRowView(Pg);
+        Pg.LookupMode(true);
+        Result := Pg.RunModal();
+        Observer.Observe('result', Format(Result));
+        Observer.Observe('handler log', L.Take());
+        Observer.Observe('prefilled record', AfterEmptyRun(Pg, true));
+        Observer.Observe('cleared record', AfterEmptyRun(Pg, false));
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler log', 'tv first=No;ok error=The built-in action = OK is not found on the page.|TestActionNotFound;');
+        Observer.Expect('prefilled record', 'ok|id=0|grp=|qty=0');
+        Observer.Expect('cleared record', 'ok|id=0|grp=|qty=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('TypedEmptyHandler')]
+    procedure TV_GetRecord_PageTypedHandler_FilteredToNoRow()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: Page "LT P129 Plain List";
+        Result: Action;
+    begin
+        Seed();
+        TvNoRowView(Pg);
         Result := Pg.RunModal();
         Observer.Observe('result', Format(Result));
         Observer.Observe('handler log', L.Take());

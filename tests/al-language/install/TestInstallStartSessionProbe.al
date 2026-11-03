@@ -42,3 +42,23 @@ codeunit 60445 "Install StartSession Probe"
         Observation.Insert();
     end;
 }
+
+// Probe UM (ADR-046 Q1): see install/lt-um-install-order/UmInstallOrder.al. Writes only `if Insert() then;` into a DataPerCompany = false log.
+codeunit 90435 "LT UM Zz Install"
+{
+    Subtype = Install;
+
+    trigger OnInstallAppPerCompany()
+    var
+        Writer: Codeunit "LT UM Install Writer";
+    begin
+        Writer.WriteRow('Zz', 'OnInstallAppPerCompany');
+    end;
+
+    trigger OnInstallAppPerDatabase()
+    var
+        Writer: Codeunit "LT UM Install Writer";
+    begin
+        Writer.WriteRow('Zz', 'OnInstallAppPerDatabase');
+    end;
+}

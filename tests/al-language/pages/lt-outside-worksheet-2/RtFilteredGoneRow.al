@@ -562,6 +562,288 @@ codeunit 88615 "LT RT Uf Tests"
         Observer.Expect('count after close', '0');
         Observer.Verify();
     end;
+
+    // ---- Writer TD, al-runner issue 6027 (follow-up to 5951): a Worksheet without the new-row line, filtered in FilterGroup 2 on a key field,
+    // whose action deletes every line of the batch and then leaves Rec on a primary key no row has (the shape of page 5510 "Production Journal":
+    // Rec."Line No." := 1), with and without CurrPage.Update(false); and Rec left on a batch the filter does not select. Mode: 1 key kept,
+    // 2 Line No. 1 with Update, 3 Line No. 1 without Update, 4 batch B2 line 1 with Update.
+
+    local procedure TdInsertLines(Count: Integer; OtherBatchRow: Boolean)
+    var
+        Line: Record "LT TD Line";
+        I: Integer;
+    begin
+        Line.DeleteAll();
+        for I := 1 to Count do begin
+            Line."Batch Name" := 'B1';
+            Line."Line No." := I * 10000;
+            Line.Description := 'Line ' + Format(I);
+            Line.Insert();
+        end;
+        if OtherBatchRow then begin
+            Line."Batch Name" := 'B2';
+            Line."Line No." := 10000;
+            Line.Description := 'Other batch';
+            Line.Insert();
+        end;
+        Log.SetMode(0);
+    end;
+
+    local procedure TdRunLeaves(Count: Integer; OtherBatchRow: Boolean; Mode: Integer)
+    var
+        Ws: TestPage "LT TD Ws Leaves Key";
+        Line: Record "LT TD Line";
+    begin
+        TdInsertLines(Count, OtherBatchRow);
+        Ws.OpenEdit();
+        Observer.Observe('open shown', Ws.BatchCtl.Value() + '|' + Ws.LineNoCtl.Value());
+        Observer.Observe('open log', Log.Take());
+        case Mode of
+            1:
+                Ws.PostKeepKey.Invoke();
+            2:
+                Ws.PostAnotherKey.Invoke();
+            3:
+                Ws.PostAnotherKeyNoUpdate.Invoke();
+            4:
+                Ws.PostOtherBatch.Invoke();
+        end;
+        Observer.Observe('action log', Log.Take());
+        Observer.Observe('shown after action', Ws.BatchCtl.Value() + '|' + Ws.LineNoCtl.Value() + '|' + Ws.DescriptionCtl.Value());
+        Line.SetRange("Batch Name", 'B1');
+        Observer.Observe('B1 count', Format(Line.Count()));
+        Line.SetRange("Batch Name");
+        Observer.Observe('total count', Format(Line.Count()));
+        Observer.Observe('first', Format(Ws.First()));
+        Observer.Observe('first log', Log.Take());
+        Ws.Close();
+        Observer.Observe('close log', Log.Take());
+    end;
+
+    [Test]
+    procedure TD_LeavesKey_KeepKey_OneLine()
+    begin
+        TdRunLeaves(1, false, 1);
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:10000;C:B1:10000;');
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;');
+        Observer.Expect('shown after action', '||');
+        Observer.Expect('B1 count', '0');
+        Observer.Expect('total count', '0');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('close log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_LeavesKey_Line1WithUpdate_OneLine()
+    begin
+        TdRunLeaves(1, false, 2);
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:10000;C:B1:10000;');
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;');
+        Observer.Expect('shown after action', '||');
+        Observer.Expect('B1 count', '0');
+        Observer.Expect('total count', '0');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('close log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_LeavesKey_Line1WithUpdate_ThreeLines()
+    begin
+        TdRunLeaves(3, false, 2);
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:20000;R:30000;R:10000;R:10000;C:B1:10000;');
+        // Three lines: BC 27 and 29 run OnNewRecord and OnAfterGetCurrRecord twice, BC 28.5 once (corpus CI, 2026-10-28).
+#if BC28PLUS and not BC29PLUS
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;');
+#else
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;N:B1:0;C:B1:0;');
+#endif
+        Observer.Expect('shown after action', '||');
+        Observer.Expect('B1 count', '0');
+        Observer.Expect('total count', '0');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('close log', '');
+        Observer.Verify();
+    end;
+
+    // Writer Y1, al-runner issue 6292: the same action with two lines (page 5510 "Production Journal" after an item whose routing has two
+    // operations).
+    [Test]
+    procedure TD_LeavesKey_Line1WithUpdate_TwoLines()
+    begin
+        TdRunLeaves(2, false, 2);
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:20000;R:10000;R:10000;C:B1:10000;');
+        // Two lines behave as three: BC 27 and 29 run OnNewRecord and OnAfterGetCurrRecord twice, BC 28.5 once (SaaS BC 29 and corpus CI, 2026-10-30).
+#if BC28PLUS and not BC29PLUS
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;');
+#else
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;N:B1:0;C:B1:0;');
+#endif
+        Observer.Expect('shown after action', '||');
+        Observer.Expect('B1 count', '0');
+        Observer.Expect('total count', '0');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('close log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_LeavesKey_Line1WithUpdate_OtherBatchRowRemains()
+    begin
+        TdRunLeaves(1, true, 2);
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:10000;C:B1:10000;');
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;');
+        Observer.Expect('shown after action', '||');
+        Observer.Expect('B1 count', '0');
+        Observer.Expect('total count', '1');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('close log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_LeavesKey_Line1WithoutUpdate_OneLine()
+    begin
+        TdRunLeaves(1, false, 3);
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:10000;C:B1:10000;');
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;');
+        Observer.Expect('shown after action', '||');
+        Observer.Expect('B1 count', '0');
+        Observer.Expect('total count', '0');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('close log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_LeavesKey_OtherBatchLine1WithUpdate_OneLine()
+    begin
+        TdRunLeaves(1, false, 4);
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:10000;C:B1:10000;');
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;');
+        Observer.Expect('shown after action', '||');
+        Observer.Expect('B1 count', '0');
+        Observer.Expect('total count', '0');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('close log', '');
+        Observer.Verify();
+    end;
+
+    // ---- Writer TD (coordinator addition to 6027): the action deletes ONE of two lines (the current one, 10000) and moves Rec to the other
+    // line (20000) or to a key no line has (5), with and without CurrPage.Update(false). Mode 5..8 = DelFirstToOther, ...NoUpdate, DelFirstToNoKey, ...NoUpdate.
+
+    local procedure TdRunDeleteOne(Mode: Integer)
+    var
+        Ws: TestPage "LT TD Ws Leaves Key";
+        Line: Record "LT TD Line";
+        Rows: Text;
+    begin
+        TdInsertLines(2, false);
+        Ws.OpenEdit();
+        Observer.Observe('open shown', Ws.BatchCtl.Value() + '|' + Ws.LineNoCtl.Value());
+        Observer.Observe('open log', Log.Take());
+        case Mode of
+            5:
+                Ws.DelFirstToOther.Invoke();
+            6:
+                Ws.DelFirstToOtherNoUpdate.Invoke();
+            7:
+                Ws.DelFirstToNoKey.Invoke();
+            8:
+                Ws.DelFirstToNoKeyNoUpdate.Invoke();
+        end;
+        Observer.Observe('action log', Log.Take());
+        Observer.Observe('shown after action', Ws.BatchCtl.Value() + '|' + Ws.LineNoCtl.Value() + '|' + Ws.DescriptionCtl.Value());
+        Observer.Observe('count', Format(Line.Count()));
+        if Ws.First() then
+            repeat
+                Rows += Ws.LineNoCtl.Value() + ' ';
+            until not Ws.Next();
+        Observer.Observe('rows', Rows);
+        Observer.Observe('walk log', Log.Take());
+        Observer.Observe('shown after walk', Ws.LineNoCtl.Value());
+        Ws.Close();
+        Observer.Observe('close log', Log.Take());
+    end;
+
+    [Test]
+    procedure TD_DeleteOneOfTwo_MoveToOther_WithUpdate()
+    begin
+        TdRunDeleteOne(5);
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:20000;R:10000;R:10000;C:B1:10000;');
+        Observer.Expect('action log', 'R:10000;R:20000;R:20000;C:B1:20000;R:20000;R:20000;C:B1:20000;');
+        Observer.Expect('shown after action', 'B1|20000|Line 2');
+        Observer.Expect('count', '1');
+        Observer.Expect('rows', '20000 ');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', '20000');
+        Observer.Expect('close log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_DeleteOneOfTwo_MoveToOther_NoUpdate()
+    begin
+        TdRunDeleteOne(6);
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:20000;R:10000;R:10000;C:B1:10000;');
+        Observer.Expect('action log', 'R:10000;R:20000;R:20000;C:B1:20000;R:20000;R:20000;C:B1:20000;');
+        Observer.Expect('shown after action', 'B1|20000|Line 2');
+        Observer.Expect('count', '1');
+        Observer.Expect('rows', '20000 ');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', '20000');
+        Observer.Expect('close log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_DeleteOneOfTwo_MoveToUnknownKey_WithUpdate()
+    begin
+        TdRunDeleteOne(7);
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:20000;R:10000;R:10000;C:B1:10000;');
+        Observer.Expect('action log', 'R:10000;R:20000;R:20000;C:B1:20000;R:20000;R:20000;C:B1:20000;');
+        Observer.Expect('shown after action', 'B1|20000|Line 2');
+        Observer.Expect('count', '1');
+        Observer.Expect('rows', '20000 ');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', '20000');
+        Observer.Expect('close log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_DeleteOneOfTwo_MoveToUnknownKey_NoUpdate()
+    begin
+        TdRunDeleteOne(8);
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:20000;R:10000;R:10000;C:B1:10000;');
+        Observer.Expect('action log', 'R:10000;R:20000;R:20000;C:B1:20000;R:20000;R:20000;C:B1:20000;');
+        Observer.Expect('shown after action', 'B1|20000|Line 2');
+        Observer.Expect('count', '1');
+        Observer.Expect('rows', '20000 ');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', '20000');
+        Observer.Expect('close log', '');
+        Observer.Verify();
+    end;
 }
 
 table 89434 "LT SH Rel Batch"
@@ -633,6 +915,163 @@ page 89436 "LT SH Rel Ws NoNew"
                 begin
                     Line.SetRange("Batch Name", Rec."Batch Name");
                     Line.DeleteAll();
+                    CurrPage.Update(false);
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Rec.FilterGroup(2);
+        Rec.SetRange("Batch Name", 'B1');
+        Rec.FilterGroup(0);
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        Log.Add('R:' + Format(Rec."Line No."));
+    end;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        Log.Add('N:' + Rec."Batch Name" + ':' + Format(Rec."Line No."));
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        Log.Add('C:' + Rec."Batch Name" + ':' + Format(Rec."Line No."));
+    end;
+
+    var
+        Log: Codeunit "LT RT Uf Log";
+}
+
+table 89812 "LT TD Line"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Batch Name"; Code[10]) { }
+        field(2; "Line No."; Integer) { }
+        field(3; Description; Text[50]) { }
+    }
+
+    keys
+    {
+        key(PK; "Batch Name", "Line No.") { Clustered = true; }
+    }
+}
+
+page 89813 "LT TD Ws Leaves Key"
+{
+    PageType = Worksheet;
+    SourceTable = "LT TD Line";
+    InsertAllowed = false;
+    DelayedInsert = true;
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(BatchCtl; Rec."Batch Name") { ApplicationArea = All; }
+                field(LineNoCtl; Rec."Line No.") { ApplicationArea = All; }
+                field(DescriptionCtl; Rec.Description) { ApplicationArea = All; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(PostKeepKey)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Rec.DeleteAll();
+                    CurrPage.Update(false);
+                end;
+            }
+            action(PostAnotherKey)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Rec.DeleteAll();
+                    Rec."Line No." := 1;
+                    CurrPage.Update(false);
+                end;
+            }
+            action(PostAnotherKeyNoUpdate)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Rec.DeleteAll();
+                    Rec."Line No." := 1;
+                end;
+            }
+            action(DelFirstToOther)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Rec.Delete();
+                    Rec.Get('B1', 20000);
+                    CurrPage.Update(false);
+                end;
+            }
+            action(DelFirstToOtherNoUpdate)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Rec.Delete();
+                    Rec.Get('B1', 20000);
+                end;
+            }
+            action(DelFirstToNoKey)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Rec.Delete();
+                    Rec."Line No." := 5;
+                    CurrPage.Update(false);
+                end;
+            }
+            action(DelFirstToNoKeyNoUpdate)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Rec.Delete();
+                    Rec."Line No." := 5;
+                end;
+            }
+            action(PostOtherBatch)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Rec.DeleteAll();
+                    Rec."Batch Name" := 'B2';
+                    Rec."Line No." := 1;
                     CurrPage.Update(false);
                 end;
             }
