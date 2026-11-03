@@ -1,6 +1,6 @@
 {
-  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  "name": "AL Language Coverage Tests",
+  "id": "5c0d89a1-6e7b-4f3a-9a52-89c0ffee0089",
+  "name": "LT Y89 Probe",
   "publisher": "AL Language",
   "version": "1.0.0.0",
   "brief": "Executable proof that the AL language works correctly against a real BC instance.",
