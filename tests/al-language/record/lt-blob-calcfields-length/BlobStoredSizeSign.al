@@ -42,6 +42,17 @@ codeunit 95042 "LT BSS Probe"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    // One stage as "name=<length><y if HasValue, n if not>;".
+    local procedure Snap(Stage: Text; Size: Integer; Has: Boolean): Text
+    var
+        Mark: Text;
+    begin
+        Mark := 'n';
+        if Has then
+            Mark := 'y';
+        exit(Stage + '=' + Format(Size) + Mark + ';');
+    end;
+
     local procedure Xml(Target: Integer): Text
     var
         Tb: TextBuilder;
@@ -107,6 +118,7 @@ codeunit 95042 "LT BSS Probe"
         Got: Record "LT BSS Compressed";
         Got2: Record "LT BSS Compressed";
         OutS: OutStream;
+        Line: Text;
     begin
         Rec.DeleteAll();
         Rec.Init();
@@ -115,18 +127,18 @@ codeunit 95042 "LT BSS Probe"
             Rec.Data.CreateOutStream(OutS);
             WriteContent(OutS, Kind, N);
         end;
-        Observer.Observe('C-' + Tag + '-written', Format(Rec.Data.Length()) + '|' + Format(Rec.Data.HasValue()));
+        Line += Snap('w', Rec.Data.Length(), Rec.Data.HasValue());
         Rec.Insert();
-        Observer.Observe('C-' + Tag + '-inserted', Format(Rec.Data.Length()) + '|' + Format(Rec.Data.HasValue()));
+        Line += Snap('i', Rec.Data.Length(), Rec.Data.HasValue());
         Got.Get(1);
-        Observer.Observe('C-' + Tag + '-get', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
+        Line += Snap('g', Got.Data.Length(), Got.Data.HasValue());
         Got.CalcFields(Data);
-        Observer.Observe('C-' + Tag + '-getcalc', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
+        Line += Snap('gc', Got.Data.Length(), Got.Data.HasValue());
         Got2.SetRange(Id, 1);
         Got2.FindSet();
-        Observer.Observe('C-' + Tag + '-findset', Format(Got2.Data.Length()) + '|' + Format(Got2.Data.HasValue()));
+        Line += Snap('fs', Got2.Data.Length(), Got2.Data.HasValue());
         Got2.CalcFields(Data);
-        Observer.Observe('C-' + Tag + '-findsetcalc', Format(Got2.Data.Length()) + '|' + Format(Got2.Data.HasValue()));
+        Line += Snap('fsc', Got2.Data.Length(), Got2.Data.HasValue());
         Clear(Rec);
         Clear(Got);
         Rec.Id := 2;
@@ -136,11 +148,12 @@ codeunit 95042 "LT BSS Probe"
             WriteContent(OutS, Kind, N);
         end;
         Rec.Modify();
-        Observer.Observe('C-' + Tag + '-modified', Format(Rec.Data.Length()) + '|' + Format(Rec.Data.HasValue()));
+        Line += Snap('m', Rec.Data.Length(), Rec.Data.HasValue());
         Got.Get(2);
-        Observer.Observe('C-' + Tag + '-modget', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
+        Line += Snap('mg', Got.Data.Length(), Got.Data.HasValue());
         Got.CalcFields(Data);
-        Observer.Observe('C-' + Tag + '-modgetcalc', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
+        Line += Snap('mgc', Got.Data.Length(), Got.Data.HasValue());
+        Observer.Observe('C-' + Tag, Line);
         Rec.DeleteAll();
     end;
 
@@ -150,6 +163,7 @@ codeunit 95042 "LT BSS Probe"
         Got: Record "LT BSS Plain";
         Got2: Record "LT BSS Plain";
         OutS: OutStream;
+        Line: Text;
     begin
         Rec.DeleteAll();
         Rec.Init();
@@ -158,18 +172,18 @@ codeunit 95042 "LT BSS Probe"
             Rec.Data.CreateOutStream(OutS);
             WriteContent(OutS, Kind, N);
         end;
-        Observer.Observe('U-' + Tag + '-written', Format(Rec.Data.Length()) + '|' + Format(Rec.Data.HasValue()));
+        Line += Snap('w', Rec.Data.Length(), Rec.Data.HasValue());
         Rec.Insert();
-        Observer.Observe('U-' + Tag + '-inserted', Format(Rec.Data.Length()) + '|' + Format(Rec.Data.HasValue()));
+        Line += Snap('i', Rec.Data.Length(), Rec.Data.HasValue());
         Got.Get(1);
-        Observer.Observe('U-' + Tag + '-get', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
+        Line += Snap('g', Got.Data.Length(), Got.Data.HasValue());
         Got.CalcFields(Data);
-        Observer.Observe('U-' + Tag + '-getcalc', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
+        Line += Snap('gc', Got.Data.Length(), Got.Data.HasValue());
         Got2.SetRange(Id, 1);
         Got2.FindSet();
-        Observer.Observe('U-' + Tag + '-findset', Format(Got2.Data.Length()) + '|' + Format(Got2.Data.HasValue()));
+        Line += Snap('fs', Got2.Data.Length(), Got2.Data.HasValue());
         Got2.CalcFields(Data);
-        Observer.Observe('U-' + Tag + '-findsetcalc', Format(Got2.Data.Length()) + '|' + Format(Got2.Data.HasValue()));
+        Line += Snap('fsc', Got2.Data.Length(), Got2.Data.HasValue());
         Clear(Rec);
         Clear(Got);
         Rec.Id := 2;
@@ -179,11 +193,12 @@ codeunit 95042 "LT BSS Probe"
             WriteContent(OutS, Kind, N);
         end;
         Rec.Modify();
-        Observer.Observe('U-' + Tag + '-modified', Format(Rec.Data.Length()) + '|' + Format(Rec.Data.HasValue()));
+        Line += Snap('m', Rec.Data.Length(), Rec.Data.HasValue());
         Got.Get(2);
-        Observer.Observe('U-' + Tag + '-modget', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
+        Line += Snap('mg', Got.Data.Length(), Got.Data.HasValue());
         Got.CalcFields(Data);
-        Observer.Observe('U-' + Tag + '-modgetcalc', Format(Got.Data.Length()) + '|' + Format(Got.Data.HasValue()));
+        Line += Snap('mgc', Got.Data.Length(), Got.Data.HasValue());
+        Observer.Observe('U-' + Tag, Line);
         Rec.DeleteAll();
     end;
 
@@ -201,6 +216,14 @@ codeunit 95042 "LT BSS Probe"
         Both(Observer, 'text1', 1, 1);
         Both(Observer, 'text2', 1, 2);
         Both(Observer, 'text5', 1, 5);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Probe_MediumText()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Both(Observer, 'text100', 1, 100);
         Both(Observer, 'text1000', 1, 1000);
         Both(Observer, 'text4000', 1, 4000);
@@ -226,8 +249,24 @@ codeunit 95042 "LT BSS Probe"
         Both(Observer, 'rand100000', 3, 100000);
         Both(Observer, 'zero1000', 4, 1000);
         Both(Observer, 'zero100000', 4, 100000);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Probe_RepeatedByte()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Both(Observer, 'byte1000', 5, 1000);
         Both(Observer, 'byte100000', 5, 100000);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Probe_RandomText()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Both(Observer, 'rtext1000', 6, 1000);
         Both(Observer, 'rtext100000', 6, 100000);
         Observer.Finish();
