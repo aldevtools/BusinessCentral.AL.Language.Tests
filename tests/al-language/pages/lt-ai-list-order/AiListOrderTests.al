@@ -844,6 +844,48 @@ codeunit 78861 "LT AI List Navigation Order"
         Observer.Expect('next_log', '');
         Observer.Verify();
     end;
+
+    // Probe (corpus writer Y3, al-runtime-rs docs/probes-needed.md "Page row window"): the reads while the list opens on its last row (R1006) and on the
+    // row before it (R1005), with rows above. Is the opening row read again before OnNextRecord(-1)?
+    [Test]
+    procedure OpenOnRow_SetPositionInOnOpenPage_LastRow_OpenLog()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT AI Log Mgt";
+        P: TestPage "LT AI List Pos";
+    begin
+        Log.Seed(6);
+        Log.SetStartKey('R1006');
+        Log.Clear();
+        P.OpenView();
+        Observer.Observe('open', Log.Dump());
+        Observer.Observe('current', P.NoCtl.Value());
+        Log.SetStartKey('');
+        P.Close();
+        Observer.Expect('open', 'F:=>=Yes;R:R1006;N:1=0;N:-1=-1;R:R1005;N:-1=-1;R:R1004;N:-1=-1;R:R1003;N:-1=-1;R:R1002;N:-1=-1;R:R1001;N:-1=0');
+        Observer.Expect('current', 'R1006');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure OpenOnRow_SetPositionInOnOpenPage_SecondLastRow_OpenLog()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT AI Log Mgt";
+        P: TestPage "LT AI List Pos";
+    begin
+        Log.Seed(6);
+        Log.SetStartKey('R1005');
+        Log.Clear();
+        P.OpenView();
+        Observer.Observe('open', Log.Dump());
+        Observer.Observe('current', P.NoCtl.Value());
+        Log.SetStartKey('');
+        P.Close();
+        Observer.Expect('open', 'F:=>=Yes;R:R1005;N:1=1;R:R1006;N:1=0;R:R1005;N:-1=-1;R:R1004;N:-1=-1;R:R1003;N:-1=-1;R:R1002;N:-1=-1;R:R1001;N:-1=0');
+        Observer.Expect('current', 'R1005');
+        Observer.Verify();
+    end;
 }
 
 codeunit 78862 "LT AI List Paging Order"

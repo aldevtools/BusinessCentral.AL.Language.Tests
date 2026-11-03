@@ -1123,4 +1123,672 @@ codeunit 60193 "Test Ternary Contracts"
         Trail += Name + ';';
         exit(Value);
     end;
+
+    // Writer TI (al-runner issue 6047): a Label branch against a Code[N] or Text[N] branch, a Label against a Label or a literal. Each test reads one pair, true and false, into a Text,
+    // a Code[20], a Text[10], a Code[10] parameter, StrLen and Format ([Text][Code20][Text10][Code10 parameter][StrLen][Format]; an error is [E code Llength/max V:value]).
+    // The branch before the colon decides the result type: Code[N] true gives a Code (upper case, limited to N), a Label or Text true gives a Text.
+    // Code20 : Label 7
+    [Test]
+    procedure TI_Ternary_CodeTrueLabelFalse_1()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Text;
+        S: Text;
+        Kind: Integer;
+        T: Boolean;
+    begin
+        for T := true downto false do begin
+            S := '';
+            for Kind := 1 to 6 do begin
+                if TICodeTrueLabelFalse0(T, Kind, R) then
+                    S += '[' + R + ']'
+                else
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
+                ClearLastError();
+            end;
+            Observer.Observe('Code20 : Label 7 ' + Format(T), S);
+        end;
+        Observer.Expect('Code20 : Label 7 Yes', '[MYCODE|6][MYCODE|6][MYCODE|6][MYCODE|6][6][MYCODE]');
+        Observer.Expect('Code20 : Label 7 No', '[ABC DEF|7][ABC DEF|7][ABC DEF|7][ABC DEF|7][7][ABC DEF]');
+        Observer.Verify();
+    end;
+
+    // Code20 : Label 20
+    [Test]
+    procedure TI_Ternary_CodeTrueLabelFalse_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Text;
+        S: Text;
+        Kind: Integer;
+        T: Boolean;
+    begin
+        for T := true downto false do begin
+            S := '';
+            for Kind := 1 to 6 do begin
+                if TICodeTrueLabelFalse1(T, Kind, R) then
+                    S += '[' + R + ']'
+                else
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
+                ClearLastError();
+            end;
+            Observer.Observe('Code20 : Label 20 ' + Format(T), S);
+        end;
+        Observer.Expect('Code20 : Label 20 Yes', '[MYCODE|6][MYCODE|6][MYCODE|6][MYCODE|6][6][MYCODE]');
+        Observer.Expect('Code20 : Label 20 No', '[ABCDEFGHIJ KLMNOPQRS|20][ABCDEFGHIJ KLMNOPQRS|20][E StringLengthExceeded L20/10 V:ABCDEFGHIJ KLMNOPQRS][E StringLengthExceeded L20/10 V:ABCDEFGHIJ KLMNOPQRS][20][ABCDEFGHIJ KLMNOPQRS]');
+        Observer.Verify();
+    end;
+
+    // Code20 : Label 30
+    [Test]
+    procedure TI_Ternary_CodeTrueLabelFalse_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Text;
+        S: Text;
+        Kind: Integer;
+        T: Boolean;
+    begin
+        for T := true downto false do begin
+            S := '';
+            for Kind := 1 to 6 do begin
+                if TICodeTrueLabelFalse2(T, Kind, R) then
+                    S += '[' + R + ']'
+                else
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
+                ClearLastError();
+            end;
+            Observer.Observe('Code20 : Label 30 ' + Format(T), S);
+        end;
+        Observer.Expect('Code20 : Label 30 Yes', '[MYCODE|6][MYCODE|6][MYCODE|6][MYCODE|6][6][MYCODE]');
+        Observer.Expect('Code20 : Label 30 No', '[E StringLengthExceeded L30/20 V:abcdefghij klmnopqrst uvwxyz12][E StringLengthExceeded L30/20 V:abcdefghij klmnopqrst uvwxyz12][E StringLengthExceeded L30/20 V:abcdefghij klmnopqrst uvwxyz12][E StringLengthExceeded L30/20 V:abcdefghij klmnopqrst uvwxyz12][E StringLengthExceeded L30/20 V:abcdefghij klmnopqrst uvwxyz12][E StringLengthExceeded L30/20 V:abcdefghij klmnopqrst uvwxyz12]');
+        Observer.Verify();
+    end;
+
+    // Label 7 : Code20
+    [Test]
+    procedure TI_Ternary_LabelTrueCodeFalse_1()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Text;
+        S: Text;
+        Kind: Integer;
+        T: Boolean;
+    begin
+        for T := true downto false do begin
+            S := '';
+            for Kind := 1 to 6 do begin
+                if TILabelTrueCodeFalse0(T, Kind, R) then
+                    S += '[' + R + ']'
+                else
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
+                ClearLastError();
+            end;
+            Observer.Observe('Label 7 : Code20 ' + Format(T), S);
+        end;
+        Observer.Expect('Label 7 : Code20 Yes', '[abc def|7][ABC DEF|7][abc def|7][ABC DEF|7][7][abc def]');
+        Observer.Expect('Label 7 : Code20 No', '[MYCODE|6][MYCODE|6][MYCODE|6][MYCODE|6][6][MYCODE]');
+        Observer.Verify();
+    end;
+
+    // Label 20 : Code20
+    [Test]
+    procedure TI_Ternary_LabelTrueCodeFalse_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Text;
+        S: Text;
+        Kind: Integer;
+        T: Boolean;
+    begin
+        for T := true downto false do begin
+            S := '';
+            for Kind := 1 to 6 do begin
+                if TILabelTrueCodeFalse1(T, Kind, R) then
+                    S += '[' + R + ']'
+                else
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
+                ClearLastError();
+            end;
+            Observer.Observe('Label 20 : Code20 ' + Format(T), S);
+        end;
+        Observer.Expect('Label 20 : Code20 Yes', '[abcdefghij klmnopqrs|20][ABCDEFGHIJ KLMNOPQRS|20][E StringLengthExceeded L20/10 V:abcdefghij klmnopqrs][E StringLengthExceeded L20/10 V:abcdefghij klmnopqrs][20][abcdefghij klmnopqrs]');
+        Observer.Expect('Label 20 : Code20 No', '[MYCODE|6][MYCODE|6][MYCODE|6][MYCODE|6][6][MYCODE]');
+        Observer.Verify();
+    end;
+
+    // Label 30 : Code20
+    [Test]
+    procedure TI_Ternary_LabelTrueCodeFalse_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Text;
+        S: Text;
+        Kind: Integer;
+        T: Boolean;
+    begin
+        for T := true downto false do begin
+            S := '';
+            for Kind := 1 to 6 do begin
+                if TILabelTrueCodeFalse2(T, Kind, R) then
+                    S += '[' + R + ']'
+                else
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
+                ClearLastError();
+            end;
+            Observer.Observe('Label 30 : Code20 ' + Format(T), S);
+        end;
+        Observer.Expect('Label 30 : Code20 Yes', '[abcdefghij klmnopqrst uvwxyz12|30][E StringLengthExceeded L30/20 V:abcdefghij klmnopqrst uvwxyz12][E StringLengthExceeded L30/10 V:abcdefghij klmnopqrst uvwxyz12][E StringLengthExceeded L30/10 V:abcdefghij klmnopqrst uvwxyz12][30][abcdefghij klmnopqrst uvwxyz12]');
+        Observer.Expect('Label 30 : Code20 No', '[MYCODE|6][MYCODE|6][MYCODE|6][MYCODE|6][6][MYCODE]');
+        Observer.Verify();
+    end;
+
+    // Text10 : Label 7
+    [Test]
+    procedure TI_Ternary_TextNLabel_1()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Text;
+        S: Text;
+        Kind: Integer;
+        T: Boolean;
+    begin
+        for T := true downto false do begin
+            S := '';
+            for Kind := 1 to 6 do begin
+                if TITextNLabel0(T, Kind, R) then
+                    S += '[' + R + ']'
+                else
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
+                ClearLastError();
+            end;
+            Observer.Observe('Text10 : Label 7 ' + Format(T), S);
+        end;
+        Observer.Expect('Text10 : Label 7 Yes', '[short abc|9][SHORT ABC|9][short abc|9][SHORT ABC|9][9][short abc]');
+        Observer.Expect('Text10 : Label 7 No', '[abc def|7][ABC DEF|7][abc def|7][ABC DEF|7][7][abc def]');
+        Observer.Verify();
+    end;
+
+    // Text10 : Label 10
+    [Test]
+    procedure TI_Ternary_TextNLabel_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Text;
+        S: Text;
+        Kind: Integer;
+        T: Boolean;
+    begin
+        for T := true downto false do begin
+            S := '';
+            for Kind := 1 to 6 do begin
+                if TITextNLabel1(T, Kind, R) then
+                    S += '[' + R + ']'
+                else
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
+                ClearLastError();
+            end;
+            Observer.Observe('Text10 : Label 10 ' + Format(T), S);
+        end;
+        Observer.Expect('Text10 : Label 10 Yes', '[short abc|9][SHORT ABC|9][short abc|9][SHORT ABC|9][9][short abc]');
+        Observer.Expect('Text10 : Label 10 No', '[abcdefghij|10][ABCDEFGHIJ|10][abcdefghij|10][ABCDEFGHIJ|10][10][abcdefghij]');
+        Observer.Verify();
+    end;
+
+    // Text10 : Label 15
+    [Test]
+    procedure TI_Ternary_TextNLabel_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Text;
+        S: Text;
+        Kind: Integer;
+        T: Boolean;
+    begin
+        for T := true downto false do begin
+            S := '';
+            for Kind := 1 to 6 do begin
+                if TITextNLabel2(T, Kind, R) then
+                    S += '[' + R + ']'
+                else
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
+                ClearLastError();
+            end;
+            Observer.Observe('Text10 : Label 15 ' + Format(T), S);
+        end;
+        Observer.Expect('Text10 : Label 15 Yes', '[short abc|9][SHORT ABC|9][short abc|9][SHORT ABC|9][9][short abc]');
+        Observer.Expect('Text10 : Label 15 No', '[E StringLengthExceeded L15/10 V:abcde fghij klm][E StringLengthExceeded L15/10 V:abcde fghij klm][E StringLengthExceeded L15/10 V:abcde fghij klm][E StringLengthExceeded L15/10 V:abcde fghij klm][E StringLengthExceeded L15/10 V:abcde fghij klm][E StringLengthExceeded L15/10 V:abcde fghij klm]');
+        Observer.Verify();
+    end;
+
+    // Label 15 : Text10
+    [Test]
+    procedure TI_Ternary_TextNLabel_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Text;
+        S: Text;
+        Kind: Integer;
+        T: Boolean;
+    begin
+        for T := true downto false do begin
+            S := '';
+            for Kind := 1 to 6 do begin
+                if TITextNLabel3(T, Kind, R) then
+                    S += '[' + R + ']'
+                else
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
+                ClearLastError();
+            end;
+            Observer.Observe('Label 15 : Text10 ' + Format(T), S);
+        end;
+        Observer.Expect('Label 15 : Text10 Yes', '[abcde fghij klm|15][ABCDE FGHIJ KLM|15][E StringLengthExceeded L15/10 V:abcde fghij klm][E StringLengthExceeded L15/10 V:abcde fghij klm][15][abcde fghij klm]');
+        Observer.Expect('Label 15 : Text10 No', '[short abc|9][SHORT ABC|9][short abc|9][SHORT ABC|9][9][short abc]');
+        Observer.Verify();
+    end;
+
+    // Label 7 : Label 30
+    [Test]
+    procedure TI_Ternary_LabelLabelAndConst_1()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Text;
+        S: Text;
+        Kind: Integer;
+        T: Boolean;
+    begin
+        for T := true downto false do begin
+            S := '';
+            for Kind := 1 to 6 do begin
+                if TILabelLabelAndConst0(T, Kind, R) then
+                    S += '[' + R + ']'
+                else
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
+                ClearLastError();
+            end;
+            Observer.Observe('Label 7 : Label 30 ' + Format(T), S);
+        end;
+        Observer.Expect('Label 7 : Label 30 Yes', '[abc def|7][ABC DEF|7][abc def|7][ABC DEF|7][7][abc def]');
+        Observer.Expect('Label 7 : Label 30 No', '[abcdefghij klmnopqrst uvwxyz12|30][E StringLengthExceeded L30/20 V:abcdefghij klmnopqrst uvwxyz12][E StringLengthExceeded L30/10 V:abcdefghij klmnopqrst uvwxyz12][E StringLengthExceeded L30/10 V:abcdefghij klmnopqrst uvwxyz12][30][abcdefghij klmnopqrst uvwxyz12]');
+        Observer.Verify();
+    end;
+
+    // Label 30 : Label 7
+    [Test]
+    procedure TI_Ternary_LabelLabelAndConst_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Text;
+        S: Text;
+        Kind: Integer;
+        T: Boolean;
+    begin
+        for T := true downto false do begin
+            S := '';
+            for Kind := 1 to 6 do begin
+                if TILabelLabelAndConst1(T, Kind, R) then
+                    S += '[' + R + ']'
+                else
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
+                ClearLastError();
+            end;
+            Observer.Observe('Label 30 : Label 7 ' + Format(T), S);
+        end;
+        Observer.Expect('Label 30 : Label 7 Yes', '[abcdefghij klmnopqrst uvwxyz12|30][E StringLengthExceeded L30/20 V:abcdefghij klmnopqrst uvwxyz12][E StringLengthExceeded L30/10 V:abcdefghij klmnopqrst uvwxyz12][E StringLengthExceeded L30/10 V:abcdefghij klmnopqrst uvwxyz12][30][abcdefghij klmnopqrst uvwxyz12]');
+        Observer.Expect('Label 30 : Label 7 No', '[abc def|7][ABC DEF|7][abc def|7][ABC DEF|7][7][abc def]');
+        Observer.Verify();
+    end;
+
+    // Label 7 : literal 15
+    [Test]
+    procedure TI_Ternary_LabelLabelAndConst_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Text;
+        S: Text;
+        Kind: Integer;
+        T: Boolean;
+    begin
+        for T := true downto false do begin
+            S := '';
+            for Kind := 1 to 6 do begin
+                if TILabelLabelAndConst2(T, Kind, R) then
+                    S += '[' + R + ']'
+                else
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
+                ClearLastError();
+            end;
+            Observer.Observe('Label 7 : literal 15 ' + Format(T), S);
+        end;
+        Observer.Expect('Label 7 : literal 15 Yes', '[abc def|7][ABC DEF|7][abc def|7][ABC DEF|7][7][abc def]');
+        Observer.Expect('Label 7 : literal 15 No', '[xyz uvw 1234567|15][XYZ UVW 1234567|15][E StringLengthExceeded L15/10 V:xyz uvw 1234567][E StringLengthExceeded L15/10 V:xyz uvw 1234567][15][xyz uvw 1234567]');
+        Observer.Verify();
+    end;
+
+    // literal 15 : Label 7
+    [Test]
+    procedure TI_Ternary_LabelLabelAndConst_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Text;
+        S: Text;
+        Kind: Integer;
+        T: Boolean;
+    begin
+        for T := true downto false do begin
+            S := '';
+            for Kind := 1 to 6 do begin
+                if TILabelLabelAndConst3(T, Kind, R) then
+                    S += '[' + R + ']'
+                else
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
+                ClearLastError();
+            end;
+            Observer.Observe('literal 15 : Label 7 ' + Format(T), S);
+        end;
+        Observer.Expect('literal 15 : Label 7 Yes', '[xyz uvw 1234567|15][XYZ UVW 1234567|15][E StringLengthExceeded L15/10 V:xyz uvw 1234567][E StringLengthExceeded L15/10 V:xyz uvw 1234567][15][xyz uvw 1234567]');
+        Observer.Expect('literal 15 : Label 7 No', '[abc def|7][ABC DEF|7][abc def|7][ABC DEF|7][7][abc def]');
+        Observer.Verify();
+    end;
+
+    [TryFunction]
+    local procedure TICodeTrueLabelFalse0(Cond: Boolean; Kind: Integer; var R: Text)
+    var
+        C20: Code[20];
+        Lbl: Label 'abc def';
+        RT: Text;
+        RC20: Code[20];
+        RT10: Text[10];
+    begin
+        C20 := 'mycode';
+        case Kind of
+            1: begin RT := Cond ? C20 : Lbl; R := RT + '|' + Format(StrLen(RT)); end;
+            2: begin RC20 := Cond ? C20 : Lbl; R := RC20 + '|' + Format(StrLen(RC20)); end;
+            3: begin RT10 := Cond ? C20 : Lbl; R := RT10 + '|' + Format(StrLen(RT10)); end;
+            4: R := TakeCode10(Cond ? C20 : Lbl);
+            5: R := Format(StrLen(Cond ? C20 : Lbl));
+            6: R := Format(Cond ? C20 : Lbl);
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TICodeTrueLabelFalse1(Cond: Boolean; Kind: Integer; var R: Text)
+    var
+        C20: Code[20];
+        Lbl: Label 'abcdefghij klmnopqrs';
+        RT: Text;
+        RC20: Code[20];
+        RT10: Text[10];
+    begin
+        C20 := 'mycode';
+        case Kind of
+            1: begin RT := Cond ? C20 : Lbl; R := RT + '|' + Format(StrLen(RT)); end;
+            2: begin RC20 := Cond ? C20 : Lbl; R := RC20 + '|' + Format(StrLen(RC20)); end;
+            3: begin RT10 := Cond ? C20 : Lbl; R := RT10 + '|' + Format(StrLen(RT10)); end;
+            4: R := TakeCode10(Cond ? C20 : Lbl);
+            5: R := Format(StrLen(Cond ? C20 : Lbl));
+            6: R := Format(Cond ? C20 : Lbl);
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TICodeTrueLabelFalse2(Cond: Boolean; Kind: Integer; var R: Text)
+    var
+        C20: Code[20];
+        Lbl: Label 'abcdefghij klmnopqrst uvwxyz12';
+        RT: Text;
+        RC20: Code[20];
+        RT10: Text[10];
+    begin
+        C20 := 'mycode';
+        case Kind of
+            1: begin RT := Cond ? C20 : Lbl; R := RT + '|' + Format(StrLen(RT)); end;
+            2: begin RC20 := Cond ? C20 : Lbl; R := RC20 + '|' + Format(StrLen(RC20)); end;
+            3: begin RT10 := Cond ? C20 : Lbl; R := RT10 + '|' + Format(StrLen(RT10)); end;
+            4: R := TakeCode10(Cond ? C20 : Lbl);
+            5: R := Format(StrLen(Cond ? C20 : Lbl));
+            6: R := Format(Cond ? C20 : Lbl);
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TILabelTrueCodeFalse0(Cond: Boolean; Kind: Integer; var R: Text)
+    var
+        C20: Code[20];
+        Lbl: Label 'abc def';
+        RT: Text;
+        RC20: Code[20];
+        RT10: Text[10];
+    begin
+        C20 := 'mycode';
+        case Kind of
+            1: begin RT := Cond ? Lbl : C20; R := RT + '|' + Format(StrLen(RT)); end;
+            2: begin RC20 := Cond ? Lbl : C20; R := RC20 + '|' + Format(StrLen(RC20)); end;
+            3: begin RT10 := Cond ? Lbl : C20; R := RT10 + '|' + Format(StrLen(RT10)); end;
+            4: R := TakeCode10(Cond ? Lbl : C20);
+            5: R := Format(StrLen(Cond ? Lbl : C20));
+            6: R := Format(Cond ? Lbl : C20);
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TILabelTrueCodeFalse1(Cond: Boolean; Kind: Integer; var R: Text)
+    var
+        C20: Code[20];
+        Lbl: Label 'abcdefghij klmnopqrs';
+        RT: Text;
+        RC20: Code[20];
+        RT10: Text[10];
+    begin
+        C20 := 'mycode';
+        case Kind of
+            1: begin RT := Cond ? Lbl : C20; R := RT + '|' + Format(StrLen(RT)); end;
+            2: begin RC20 := Cond ? Lbl : C20; R := RC20 + '|' + Format(StrLen(RC20)); end;
+            3: begin RT10 := Cond ? Lbl : C20; R := RT10 + '|' + Format(StrLen(RT10)); end;
+            4: R := TakeCode10(Cond ? Lbl : C20);
+            5: R := Format(StrLen(Cond ? Lbl : C20));
+            6: R := Format(Cond ? Lbl : C20);
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TILabelTrueCodeFalse2(Cond: Boolean; Kind: Integer; var R: Text)
+    var
+        C20: Code[20];
+        Lbl: Label 'abcdefghij klmnopqrst uvwxyz12';
+        RT: Text;
+        RC20: Code[20];
+        RT10: Text[10];
+    begin
+        C20 := 'mycode';
+        case Kind of
+            1: begin RT := Cond ? Lbl : C20; R := RT + '|' + Format(StrLen(RT)); end;
+            2: begin RC20 := Cond ? Lbl : C20; R := RC20 + '|' + Format(StrLen(RC20)); end;
+            3: begin RT10 := Cond ? Lbl : C20; R := RT10 + '|' + Format(StrLen(RT10)); end;
+            4: R := TakeCode10(Cond ? Lbl : C20);
+            5: R := Format(StrLen(Cond ? Lbl : C20));
+            6: R := Format(Cond ? Lbl : C20);
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TITextNLabel0(Cond: Boolean; Kind: Integer; var R: Text)
+    var
+        T10: Text[10];
+        Lbl: Label 'abc def';
+        RT: Text;
+        RC20: Code[20];
+        RT10: Text[10];
+    begin
+        T10 := 'short abc';
+        case Kind of
+            1: begin RT := Cond ? T10 : Lbl; R := RT + '|' + Format(StrLen(RT)); end;
+            2: begin RC20 := Cond ? T10 : Lbl; R := RC20 + '|' + Format(StrLen(RC20)); end;
+            3: begin RT10 := Cond ? T10 : Lbl; R := RT10 + '|' + Format(StrLen(RT10)); end;
+            4: R := TakeCode10(Cond ? T10 : Lbl);
+            5: R := Format(StrLen(Cond ? T10 : Lbl));
+            6: R := Format(Cond ? T10 : Lbl);
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TITextNLabel1(Cond: Boolean; Kind: Integer; var R: Text)
+    var
+        T10: Text[10];
+        Lbl: Label 'abcdefghij';
+        RT: Text;
+        RC20: Code[20];
+        RT10: Text[10];
+    begin
+        T10 := 'short abc';
+        case Kind of
+            1: begin RT := Cond ? T10 : Lbl; R := RT + '|' + Format(StrLen(RT)); end;
+            2: begin RC20 := Cond ? T10 : Lbl; R := RC20 + '|' + Format(StrLen(RC20)); end;
+            3: begin RT10 := Cond ? T10 : Lbl; R := RT10 + '|' + Format(StrLen(RT10)); end;
+            4: R := TakeCode10(Cond ? T10 : Lbl);
+            5: R := Format(StrLen(Cond ? T10 : Lbl));
+            6: R := Format(Cond ? T10 : Lbl);
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TITextNLabel2(Cond: Boolean; Kind: Integer; var R: Text)
+    var
+        T10: Text[10];
+        Lbl: Label 'abcde fghij klm';
+        RT: Text;
+        RC20: Code[20];
+        RT10: Text[10];
+    begin
+        T10 := 'short abc';
+        case Kind of
+            1: begin RT := Cond ? T10 : Lbl; R := RT + '|' + Format(StrLen(RT)); end;
+            2: begin RC20 := Cond ? T10 : Lbl; R := RC20 + '|' + Format(StrLen(RC20)); end;
+            3: begin RT10 := Cond ? T10 : Lbl; R := RT10 + '|' + Format(StrLen(RT10)); end;
+            4: R := TakeCode10(Cond ? T10 : Lbl);
+            5: R := Format(StrLen(Cond ? T10 : Lbl));
+            6: R := Format(Cond ? T10 : Lbl);
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TITextNLabel3(Cond: Boolean; Kind: Integer; var R: Text)
+    var
+        T10: Text[10];
+        Lbl: Label 'abcde fghij klm';
+        RT: Text;
+        RC20: Code[20];
+        RT10: Text[10];
+    begin
+        T10 := 'short abc';
+        case Kind of
+            1: begin RT := Cond ? Lbl : T10; R := RT + '|' + Format(StrLen(RT)); end;
+            2: begin RC20 := Cond ? Lbl : T10; R := RC20 + '|' + Format(StrLen(RC20)); end;
+            3: begin RT10 := Cond ? Lbl : T10; R := RT10 + '|' + Format(StrLen(RT10)); end;
+            4: R := TakeCode10(Cond ? Lbl : T10);
+            5: R := Format(StrLen(Cond ? Lbl : T10));
+            6: R := Format(Cond ? Lbl : T10);
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TILabelLabelAndConst0(Cond: Boolean; Kind: Integer; var R: Text)
+    var
+        Lbl: Label 'abc def';
+        Lbl2: Label 'abcdefghij klmnopqrst uvwxyz12';
+        RT: Text;
+        RC20: Code[20];
+        RT10: Text[10];
+    begin
+        case Kind of
+            1: begin RT := Cond ? Lbl : Lbl2; R := RT + '|' + Format(StrLen(RT)); end;
+            2: begin RC20 := Cond ? Lbl : Lbl2; R := RC20 + '|' + Format(StrLen(RC20)); end;
+            3: begin RT10 := Cond ? Lbl : Lbl2; R := RT10 + '|' + Format(StrLen(RT10)); end;
+            4: R := TakeCode10(Cond ? Lbl : Lbl2);
+            5: R := Format(StrLen(Cond ? Lbl : Lbl2));
+            6: R := Format(Cond ? Lbl : Lbl2);
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TILabelLabelAndConst1(Cond: Boolean; Kind: Integer; var R: Text)
+    var
+        Lbl: Label 'abc def';
+        Lbl2: Label 'abcdefghij klmnopqrst uvwxyz12';
+        RT: Text;
+        RC20: Code[20];
+        RT10: Text[10];
+    begin
+        case Kind of
+            1: begin RT := Cond ? Lbl2 : Lbl; R := RT + '|' + Format(StrLen(RT)); end;
+            2: begin RC20 := Cond ? Lbl2 : Lbl; R := RC20 + '|' + Format(StrLen(RC20)); end;
+            3: begin RT10 := Cond ? Lbl2 : Lbl; R := RT10 + '|' + Format(StrLen(RT10)); end;
+            4: R := TakeCode10(Cond ? Lbl2 : Lbl);
+            5: R := Format(StrLen(Cond ? Lbl2 : Lbl));
+            6: R := Format(Cond ? Lbl2 : Lbl);
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TILabelLabelAndConst2(Cond: Boolean; Kind: Integer; var R: Text)
+    var
+        Lbl: Label 'abc def';
+        RT: Text;
+        RC20: Code[20];
+        RT10: Text[10];
+    begin
+        case Kind of
+            1: begin RT := Cond ? Lbl : 'xyz uvw 1234567'; R := RT + '|' + Format(StrLen(RT)); end;
+            2: begin RC20 := Cond ? Lbl : 'xyz uvw 1234567'; R := RC20 + '|' + Format(StrLen(RC20)); end;
+            3: begin RT10 := Cond ? Lbl : 'xyz uvw 1234567'; R := RT10 + '|' + Format(StrLen(RT10)); end;
+            4: R := TakeCode10(Cond ? Lbl : 'xyz uvw 1234567');
+            5: R := Format(StrLen(Cond ? Lbl : 'xyz uvw 1234567'));
+            6: R := Format(Cond ? Lbl : 'xyz uvw 1234567');
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TILabelLabelAndConst3(Cond: Boolean; Kind: Integer; var R: Text)
+    var
+        Lbl: Label 'abc def';
+        RT: Text;
+        RC20: Code[20];
+        RT10: Text[10];
+    begin
+        case Kind of
+            1: begin RT := Cond ? 'xyz uvw 1234567' : Lbl; R := RT + '|' + Format(StrLen(RT)); end;
+            2: begin RC20 := Cond ? 'xyz uvw 1234567' : Lbl; R := RC20 + '|' + Format(StrLen(RC20)); end;
+            3: begin RT10 := Cond ? 'xyz uvw 1234567' : Lbl; R := RT10 + '|' + Format(StrLen(RT10)); end;
+            4: R := TakeCode10(Cond ? 'xyz uvw 1234567' : Lbl);
+            5: R := Format(StrLen(Cond ? 'xyz uvw 1234567' : Lbl));
+            6: R := Format(Cond ? 'xyz uvw 1234567' : Lbl);
+        end;
+    end;
+
+    local procedure TakeCode10(C: Code[10]): Text
+    begin
+        exit(C + '|' + Format(StrLen(C)));
+    end;
+
+    // The complete error texts of the three target kinds (a Code[20] variable, a Text[10] variable, a Code[10] parameter) for a 30-character Label false branch against a Code[20] true branch.
+    [Test]
+    procedure TI_Ternary_CodeLabelOverflowTexts()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Text;
+        Kind: Integer;
+    begin
+        for Kind := 2 to 4 do
+            if TICodeTrueLabelFalse2(false, Kind, R) then
+                Observer.Observe('Code20 : Label 30 k' + Format(Kind), 'ok|' + R)
+            else
+                Observer.ObserveError('Code20 : Label 30 k' + Format(Kind));
+        Observer.Expect('Code20 : Label 30 k2|text', 'The length of the string is 30, but it must be less than or equal to 20 characters. Value: abcdefghij klmnopqrst uvwxyz12');
+        Observer.Expect('Code20 : Label 30 k2|code', 'StringLengthExceeded');
+        Observer.Expect('Code20 : Label 30 k3|text', 'The length of the string is 30, but it must be less than or equal to 20 characters. Value: abcdefghij klmnopqrst uvwxyz12');
+        Observer.Expect('Code20 : Label 30 k3|code', 'StringLengthExceeded');
+        Observer.Expect('Code20 : Label 30 k4|text', 'The length of the string is 30, but it must be less than or equal to 20 characters. Value: abcdefghij klmnopqrst uvwxyz12');
+        Observer.Expect('Code20 : Label 30 k4|code', 'StringLengthExceeded');
+        Observer.Verify();
+    end;
 }

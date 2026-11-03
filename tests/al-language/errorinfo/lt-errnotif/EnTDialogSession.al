@@ -105,6 +105,68 @@ codeunit 73034 "LT EnT Dialog Session"
         Observer.Verify();
     end;
 
+    // Writer UJ (al-runner issue 6178, Microsoft's retention policy code calls HideSubsequentDialogs before it opens dialogs):
+    // Open / Update / Close after HideSubsequentDialogs(true) and (false), and the errors after it.
+    [Test]
+    procedure UJ_Dialog_HideSubsequent_OpenUpdateClose()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: Dialog;
+        Prev: Boolean;
+    begin
+        Prev := D.HideSubsequentDialogs(true);
+        D.Open('Working #1###### and #2######');
+        D.Update(1, 'abc');
+        D.Update(2, 5);
+        D.Update();
+        D.Close();
+        Observer.Observe('hidden open update close', 'ok');
+        D.HideSubsequentDialogs(false);
+        D.Open('Working #1######');
+        D.Update(1, 'def');
+        D.Close();
+        Observer.Observe('shown open update close', 'ok');
+        D.HideSubsequentDialogs(true);
+        D.Open('Value #1######');
+        asserterror D.Update(5, 'x');
+        Observer.ObserveError('hidden update bad index');
+        D.Close();
+        asserterror D.Close();
+        Observer.ObserveError('hidden close twice');
+        D.HideSubsequentDialogs(Prev);
+        Observer.Observe('after restore', Format(D.HideSubsequentDialogs(Prev)));
+        Observer.Expect('hidden open update close', 'ok');
+        Observer.Expect('shown open update close', 'ok');
+        Observer.Expect('hidden update bad index|text', 'No parameter with index ''5'' was found in the format string ''Value %s''.');
+        Observer.Expect('hidden update bad index|code', 'FormatStringParameterNotFound');
+        Observer.Expect('hidden close twice|text', 'The operation failed because the dialog box is not open.');
+        Observer.Expect('hidden close twice|code', 'Dialog');
+        Observer.Expect('after restore', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UJ_Dialog_HideSubsequent_OpenedBefore()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: Dialog;
+        Other: Dialog;
+    begin
+        D.Open('Before #1######');
+        Other.HideSubsequentDialogs(true);
+        D.Update(1, 'still open');
+        Observer.Observe('update of a dialog opened before', 'ok');
+        Other.Open('After #1######');
+        Other.Update(1, 'x');
+        Other.Close();
+        D.Close();
+        Other.HideSubsequentDialogs(false);
+        Observer.Observe('closed both', 'ok');
+        Observer.Expect('update of a dialog opened before', 'ok');
+        Observer.Expect('closed both', 'ok');
+        Observer.Verify();
+    end;
+
     [Test]
     procedure Session_Relations()
     var

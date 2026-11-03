@@ -434,4 +434,555 @@ codeunit 89030 "LT SE Header Values"
         Observer.Expect('expect_7', 'ret=Yes n=1[100-continue; a=b]');
         Observer.Verify();
     end;
+
+    // Writer Y2 (al-runtime-rs assumption http-typed-header-value-shapes): the request-only names on response, response content and
+    // client default headers, and more value shapes (two-digit years, offsets, case, spacing, empty list members). Measured: response headers
+    // store request-only names as written; response content headers refuse them (Add answers false); client headers parse them as on a request.
+
+    local procedure RespCnt(var Observer: Codeunit "Probe Observer"; ObsKey: Text; N: Text; V: Text)
+    var
+        R: HttpResponseMessage;
+        C: HttpContent;
+        H: HttpHeaders;
+    begin
+        C := R.Content();
+        C.GetHeaders(H);
+        AddTo(Observer, H, ObsKey, N, V);
+    end;
+
+    [Test]
+    procedure Y2_RequestOnlyNames_OnResponse()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Resp(Observer, 'acceptcharset_0', 'Accept-Charset', 'utf-8, iso-8859-1;q=0.5');
+        Resp(Observer, 'acceptencoding_1', 'Accept-Encoding', 'gzip, ;');
+        Resp(Observer, 'acceptlanguage_2', 'Accept-Language', 'de-DE, en;q=0.8');
+        Resp(Observer, 'from_3', 'From', 'not an address');
+        Resp(Observer, 'ifmodifiedsince_4', 'If-Modified-Since', 'yesterday');
+        Resp(Observer, 'ifnonematch_5', 'If-None-Match', 'abc');
+        Resp(Observer, 'ifrange_6', 'If-Range', 'abc');
+        Resp(Observer, 'ifunmodifiedsince_7', 'If-Unmodified-Since', 'yesterday');
+        Resp(Observer, 'proxyauthorization_8', 'Proxy-Authorization', 'a b c');
+        Resp(Observer, 'te_9', 'TE', 'trailers, deflate;q=0.5');
+        Observer.Expect('acceptcharset_0', 'ret=Yes n=1[utf-8, iso-8859-1;q=0.5]');
+        Observer.Expect('acceptencoding_1', 'ret=Yes n=1[gzip, ;]');
+        Observer.Expect('acceptlanguage_2', 'ret=Yes n=1[de-DE, en;q=0.8]');
+        Observer.Expect('from_3', 'ret=Yes n=1[not an address]');
+        Observer.Expect('ifmodifiedsince_4', 'ret=Yes n=1[yesterday]');
+        Observer.Expect('ifnonematch_5', 'ret=Yes n=1[abc]');
+        Observer.Expect('ifrange_6', 'ret=Yes n=1[abc]');
+        Observer.Expect('ifunmodifiedsince_7', 'ret=Yes n=1[yesterday]');
+        Observer.Expect('proxyauthorization_8', 'ret=Yes n=1[a b c]');
+        Observer.Expect('te_9', 'ret=Yes n=1[trailers, deflate;q=0.5]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y2_RequestOnlyNames_OnResponseContent()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RespCnt(Observer, 'acceptcharset_0', 'Accept-Charset', 'utf-8');
+        RespCnt(Observer, 'acceptlanguage_1', 'Accept-Language', 'de-DE');
+        RespCnt(Observer, 'from_2', 'From', 'x');
+        RespCnt(Observer, 'ifmodifiedsince_3', 'If-Modified-Since', 'yesterday');
+        RespCnt(Observer, 'te_4', 'TE', 'trailers');
+        Observer.Expect('acceptcharset_0', 'ret=No get=E');
+        Observer.Expect('acceptlanguage_1', 'ret=No get=E');
+        Observer.Expect('from_2', 'ret=No get=E');
+        Observer.Expect('ifmodifiedsince_3', 'ret=No get=E');
+        Observer.Expect('te_4', 'ret=No get=E');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y2_RequestOnlyNames_OnClient()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cli(Observer, 'acceptcharset_0', 'Accept-Charset', 'utf-8');
+        Cli(Observer, 'acceptencoding_1', 'Accept-Encoding', 'gzip');
+        Cli(Observer, 'acceptlanguage_2', 'Accept-Language', 'de-DE');
+        Cli(Observer, 'from_3', 'From', 'a@b.c');
+        Cli(Observer, 'ifmodifiedsince_4', 'If-Modified-Since', 'Tue, 15 Nov 1994 08:12:31 GMT');
+        Cli(Observer, 'ifnonematch_5', 'If-None-Match', '"a"');
+        Cli(Observer, 'ifrange_6', 'If-Range', '"a"');
+        Cli(Observer, 'ifunmodifiedsince_7', 'If-Unmodified-Since', 'yesterday');
+        Cli(Observer, 'proxyauthorization_8', 'Proxy-Authorization', 'Basic x');
+        Cli(Observer, 'te_9', 'TE', 'trailers');
+        Observer.Expect('acceptcharset_0', 'ret=Yes n=1[utf-8]');
+        Observer.Expect('acceptencoding_1', 'ret=Yes n=1[gzip]');
+        Observer.Expect('acceptlanguage_2', 'ret=Yes n=1[de-DE]');
+        Observer.Expect('from_3', 'ret=Yes n=1[a@b.c]');
+        Observer.Expect('ifmodifiedsince_4', 'ret=Yes n=1[Tue, 15 Nov 1994 08:12:31 GMT]');
+        Observer.Expect('ifnonematch_5', 'ret=Yes n=1["a"]');
+        Observer.Expect('ifrange_6', 'ret=Yes n=1["a"]');
+        Observer.Expect('ifunmodifiedsince_7', 'ret=No get=E');
+        Observer.Expect('proxyauthorization_8', 'ret=Yes n=1[Basic x]');
+        Observer.Expect('te_9', 'ret=Yes n=1[trailers]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y2_Shapes_RequestOnlyValues()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Req(Observer, 'acceptcharset_0', 'Accept-Charset', 'utf-8, iso-8859-1;q=0.5');
+        Req(Observer, 'acceptcharset_1', 'Accept-Charset', '*');
+        Req(Observer, 'acceptcharset_2', 'Accept-Charset', 'utf-8;q=x');
+        Req(Observer, 'acceptlanguage_3', 'Accept-Language', 'de-DE, en;q=0.8');
+        Req(Observer, 'acceptlanguage_4', 'Accept-Language', 'de DE');
+        Req(Observer, 'from_5', 'From', 'a@b.c');
+        Req(Observer, 'from_6', 'From', 'not an address');
+        Req(Observer, 'te_7', 'TE', 'trailers, deflate;q=0.5');
+        Req(Observer, 'te_8', 'TE', 'a b');
+        Req(Observer, 'ifmodifiedsince_9', 'If-Modified-Since', 'yesterday');
+        Observer.Expect('acceptcharset_0', 'ret=Yes n=2[utf-8][iso-8859-1; q=0.5]');
+        Observer.Expect('acceptcharset_1', 'ret=Yes n=1[*]');
+        Observer.Expect('acceptcharset_2', 'ret=No get=E');
+        Observer.Expect('acceptlanguage_3', 'ret=Yes n=2[de-DE][en; q=0.8]');
+        Observer.Expect('acceptlanguage_4', 'ret=No get=E');
+        Observer.Expect('from_5', 'ret=Yes n=1[a@b.c]');
+        Observer.Expect('from_6', 'ret=Yes n=1[not an address]');
+        Observer.Expect('te_7', 'ret=Yes n=2[trailers][deflate; q=0.5]');
+        Observer.Expect('te_8', 'ret=No get=E');
+        Observer.Expect('ifmodifiedsince_9', 'ret=No get=E');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y2_Shapes_DatesTwoDigitYearsOffsets()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Req(Observer, 'ifmodifiedsince_0', 'If-Modified-Since', 'Sunday, 06-Nov-94 08:49:37 GMT');
+        Req(Observer, 'ifmodifiedsince_1', 'If-Modified-Since', 'Sun, 06 Nov 49 08:49:37 GMT');
+        Req(Observer, 'ifmodifiedsince_2', 'If-Modified-Since', 'Sun, 06 Nov 50 08:49:37 GMT');
+        Req(Observer, 'ifmodifiedsince_3', 'If-Modified-Since', 'Sun, 06 Nov 1994 08:49:37 -0500');
+        Req(Observer, 'ifmodifiedsince_4', 'If-Modified-Since', 'Sun, 06 Nov 1994 08:49:37 +0000');
+        Req(Observer, 'ifmodifiedsince_5', 'If-Modified-Since', 'sun, 06 nov 1994 08:49:37 GMT');
+        Req(Observer, 'ifmodifiedsince_6', 'If-Modified-Since', 'Sun,06 Nov 1994 08:49:37 GMT');
+        Req(Observer, 'ifmodifiedsince_7', 'If-Modified-Since', '06 Nov 1994');
+        Req(Observer, 'ifmodifiedsince_8', 'If-Modified-Since', 'Sun, 6 Nov 1994 8:49:37 GMT');
+        Cnt(Observer, 'expires_9', 'Expires', '0');
+        Cnt(Observer, 'expires_10', 'Expires', '-1');
+        Observer.Expect('ifmodifiedsince_0', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('ifmodifiedsince_1', 'ret=No get=E');
+        Observer.Expect('ifmodifiedsince_2', 'ret=No get=E');
+        Observer.Expect('ifmodifiedsince_3', 'ret=Yes n=1[Sun, 06 Nov 1994 13:49:37 GMT]');
+        Observer.Expect('ifmodifiedsince_4', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('ifmodifiedsince_5', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('ifmodifiedsince_6', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('ifmodifiedsince_7', 'ret=No get=E');
+        Observer.Expect('ifmodifiedsince_8', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('expires_9', 'ret=No get=E');
+        Observer.Expect('expires_10', 'ret=No get=E');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y2_Shapes_CaseAndSpacing()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Req(Observer, 'authorization_0', 'Authorization', 'bearer abc');
+        Req(Observer, 'authorization_1', 'Authorization', 'BEARER');
+        Req(Observer, 'accept_2', 'Accept', 'TEXT/HTML');
+        Req(Observer, 'accept_3', 'Accept', 'text/html ,application/json');
+        Req(Observer, 'accept_4', 'Accept', 'text/html,,application/json');
+        Req(Observer, 'acceptencoding_5', 'Accept-Encoding', 'GZIP');
+        Req(Observer, 'connection_6', 'Connection', 'CLOSE');
+        Cnt(Observer, 'contenttype_7', 'Content-Type', 'TEXT/PLAIN; CHARSET=UTF-8');
+        Cnt(Observer, 'contentencoding_8', 'Content-Encoding', 'gzip ,  br');
+        Req(Observer, 'range_9', 'Range', 'BYTES=0-9');
+        Req(Observer, 'transferencoding_10', 'Transfer-Encoding', 'Chunked');
+        Observer.Expect('authorization_0', 'ret=Yes n=1[bearer abc]');
+        Observer.Expect('authorization_1', 'ret=Yes n=1[BEARER]');
+        Observer.Expect('accept_2', 'ret=Yes n=1[TEXT/HTML]');
+        Observer.Expect('accept_3', 'ret=Yes n=2[text/html][application/json]');
+        Observer.Expect('accept_4', 'ret=Yes n=2[text/html][application/json]');
+        Observer.Expect('acceptencoding_5', 'ret=Yes n=1[GZIP]');
+        Observer.Expect('connection_6', 'ret=Yes n=1[CLOSE]');
+        Observer.Expect('contenttype_7', 'ret=No n=1[text/plain; charset=utf-8]');
+        Observer.Expect('contentencoding_8', 'ret=Yes n=2[gzip][br]');
+        Observer.Expect('range_9', 'ret=Yes n=1[BYTES=0-9]');
+        Observer.Expect('transferencoding_10', 'ret=Yes n=1[Chunked]');
+        Observer.Verify();
+    end;
+
+    // ---- Writer Y76 (al-runtime-rs assumption http-typed-header-value-shapes): value shapes of typed headers that no earlier test measured: lists with
+    // parameters, quoted strings, every two-digit year form, dates without a weekday, other offsets and zone names, on request, content and response headers.
+
+    local procedure CntCT(var Observer: Codeunit "Probe Observer"; ObsKey: Text; V: Text)
+    var
+        C: HttpContent;
+        H: HttpHeaders;
+        Removed: Boolean;
+    begin
+        C.GetHeaders(H);
+        Removed := H.Remove('Content-Type');
+        AddTo(Observer, H, ObsKey, 'Content-Type', V);
+        Observer.Observe(ObsKey + '_removed', Format(Removed));
+    end;
+
+
+    [Test]
+    procedure Y76_Dates_Rfc850TwoDigitYears()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Req(Observer, 'y00', 'If-Modified-Since', 'Sunday, 06-Nov-00 08:49:37 GMT');
+        Req(Observer, 'y29', 'If-Modified-Since', 'Sunday, 06-Nov-29 08:49:37 GMT');
+        Req(Observer, 'y30', 'If-Modified-Since', 'Sunday, 06-Nov-30 08:49:37 GMT');
+        Req(Observer, 'y49', 'If-Modified-Since', 'Sunday, 06-Nov-49 08:49:37 GMT');
+        Req(Observer, 'y50', 'If-Modified-Since', 'Sunday, 06-Nov-50 08:49:37 GMT');
+        Req(Observer, 'y68', 'If-Modified-Since', 'Sunday, 06-Nov-68 08:49:37 GMT');
+        Req(Observer, 'y69', 'If-Modified-Since', 'Sunday, 06-Nov-69 08:49:37 GMT');
+        Req(Observer, 'y70', 'If-Modified-Since', 'Sunday, 06-Nov-70 08:49:37 GMT');
+        Req(Observer, 'y99', 'If-Modified-Since', 'Sunday, 06-Nov-99 08:49:37 GMT');
+        Req(Observer, 'y1', 'If-Modified-Since', 'Sunday, 06-Nov-1 08:49:37 GMT');
+        Req(Observer, 'y1994', 'If-Modified-Since', 'Sunday, 06-Nov-1994 08:49:37 GMT');
+        Req(Observer, 'short_weekday', 'If-Modified-Since', 'Sun, 06-Nov-94 08:49:37 GMT');
+        Observer.Expect('y00', 'ret=No get=E');
+        Observer.Expect('y29', 'ret=No get=E');
+        Observer.Expect('y30', 'ret=No get=E');
+        Observer.Expect('y49', 'ret=No get=E');
+        Observer.Expect('y50', 'ret=No get=E');
+        Observer.Expect('y68', 'ret=No get=E');
+        Observer.Expect('y69', 'ret=No get=E');
+        Observer.Expect('y70', 'ret=No get=E');
+        Observer.Expect('y99', 'ret=No get=E');
+        Observer.Expect('y1', 'ret=No get=E');
+        Observer.Expect('y1994', 'ret=No get=E');
+        Observer.Expect('short_weekday', 'ret=No get=E');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y76_Dates_NoWeekdayAndOffsets()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Req(Observer, 'noweekday_gmt', 'If-Modified-Since', '06 Nov 1994 08:49:37 GMT');
+        Req(Observer, 'noweekday_m0800', 'If-Modified-Since', '06 Nov 1994 08:49:37 -0800');
+        Req(Observer, 'noweekday_p0530', 'If-Modified-Since', '06 Nov 1994 08:49:37 +0530');
+        Req(Observer, 'weekday_p1400', 'If-Modified-Since', 'Sun, 06 Nov 1994 08:49:37 +1400');
+        Req(Observer, 'weekday_m1200', 'If-Modified-Since', 'Sun, 06 Nov 1994 08:49:37 -1200');
+        Req(Observer, 'weekday_wrong_day', 'If-Modified-Since', 'Mon, 06 Nov 1994 08:49:37 GMT');
+        Observer.Expect('noweekday_gmt', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('noweekday_m0800', 'ret=Yes n=1[Sun, 06 Nov 1994 16:49:37 GMT]');
+        Observer.Expect('noweekday_p0530', 'ret=Yes n=1[Sun, 06 Nov 1994 03:19:37 GMT]');
+        Observer.Expect('weekday_p1400', 'ret=Yes n=1[Sat, 05 Nov 1994 18:49:37 GMT]');
+        Observer.Expect('weekday_m1200', 'ret=Yes n=1[Sun, 06 Nov 1994 20:49:37 GMT]');
+        Observer.Expect('weekday_wrong_day', 'ret=No get=E');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y76_Dates_Zones()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Req(Observer, 'zone_est', 'If-Modified-Since', 'Sun, 06 Nov 1994 08:49:37 EST');
+        Req(Observer, 'zone_pst', 'If-Modified-Since', 'Sun, 06 Nov 1994 08:49:37 PST');
+        Req(Observer, 'zone_z', 'If-Modified-Since', 'Sun, 06 Nov 1994 08:49:37 Z');
+        Req(Observer, 'zone_ut', 'If-Modified-Since', 'Sun, 06 Nov 1994 08:49:37 UT');
+        Req(Observer, 'zone_none', 'If-Modified-Since', 'Sun, 06 Nov 1994 08:49:37');
+        Req(Observer, 'offset_colon', 'If-Modified-Since', 'Sun, 06 Nov 1994 08:49:37 +05:30');
+        Req(Observer, 'offset_short', 'If-Modified-Since', 'Sun, 06 Nov 1994 08:49:37 +01');
+        Observer.Expect('zone_est', 'ret=No get=E');
+        Observer.Expect('zone_pst', 'ret=No get=E');
+        Observer.Expect('zone_z', 'ret=No get=E');
+        Observer.Expect('zone_ut', 'ret=No get=E');
+        Observer.Expect('zone_none', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('offset_colon', 'ret=Yes n=1[Sun, 06 Nov 1994 03:19:37 GMT]');
+        Observer.Expect('offset_short', 'ret=No get=E');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y76_Dates_MalformedForms()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Req(Observer, 'no_seconds', 'If-Modified-Since', 'Sun, 06 Nov 1994 08:49 GMT');
+        Req(Observer, 'full_month', 'If-Modified-Since', 'Sun, 06 November 1994 08:49:37 GMT');
+        Req(Observer, 'iso', 'If-Modified-Since', '1994-11-06T08:49:37Z');
+        Req(Observer, 'leap_day', 'If-Modified-Since', 'Tue, 29 Feb 2000 00:00:00 GMT');
+        Req(Observer, 'bad_leap_day', 'If-Modified-Since', 'Thu, 29 Feb 2001 00:00:00 GMT');
+        Req(Observer, 'hour_24', 'If-Modified-Since', 'Sun, 06 Nov 1994 24:00:00 GMT');
+        Observer.Expect('no_seconds', 'ret=No get=E');
+        Observer.Expect('full_month', 'ret=No get=E');
+        Observer.Expect('iso', 'ret=No get=E');
+        Observer.Expect('leap_day', 'ret=Yes n=1[Tue, 29 Feb 2000 00:00:00 GMT]');
+        Observer.Expect('bad_leap_day', 'ret=No get=E');
+        Observer.Expect('hour_24', 'ret=No get=E');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y76_Dates_OtherDateHeaders()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Req(Observer, 'date_y94', 'Date', 'Sunday, 06-Nov-94 08:49:37 GMT');
+        Req(Observer, 'ifrange_date', 'If-Range', 'Sun, 06 Nov 1994 08:49:37 GMT');
+        Req(Observer, 'ifrange_etag', 'If-Range', '"abc"');
+        Req(Observer, 'ifrange_weak', 'If-Range', 'W/"abc"');
+        Req(Observer, 'ifrange_bad', 'If-Range', 'abc');
+        Resp(Observer, 'retryafter_seconds', 'Retry-After', '120');
+        Resp(Observer, 'retryafter_date', 'Retry-After', 'Sun, 06 Nov 1994 08:49:37 GMT');
+        Resp(Observer, 'retryafter_neg', 'Retry-After', '-1');
+        Resp(Observer, 'retryafter_text', 'Retry-After', 'soon');
+        Resp(Observer, 'age_num', 'Age', '60');
+        Resp(Observer, 'age_neg', 'Age', '-60');
+        Resp(Observer, 'age_text', 'Age', 'old');
+        Cnt(Observer, 'expires_date', 'Expires', 'Sun, 06 Nov 1994 08:49:37 +0530');
+        Cnt(Observer, 'lastmodified_y94', 'Last-Modified', 'Sunday, 06-Nov-94 08:49:37 GMT');
+        Resp(Observer, 'date_resp_offset', 'Date', 'Sun, 06 Nov 1994 08:49:37 +0200');
+        Observer.Expect('date_y94', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('ifrange_date', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('ifrange_etag', 'ret=Yes n=1["abc"]');
+        Observer.Expect('ifrange_weak', 'ret=Yes n=1[W/"abc"]');
+        Observer.Expect('ifrange_bad', 'ret=No get=E');
+        Observer.Expect('retryafter_seconds', 'ret=Yes n=1[120]');
+        Observer.Expect('retryafter_date', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('retryafter_neg', 'ret=No get=E');
+        Observer.Expect('retryafter_text', 'ret=No get=E');
+        Observer.Expect('age_num', 'ret=Yes n=1[60]');
+        Observer.Expect('age_neg', 'ret=No get=E');
+        Observer.Expect('age_text', 'ret=No get=E');
+        Observer.Expect('expires_date', 'ret=Yes n=1[Sun, 06 Nov 1994 03:19:37 GMT]');
+        Observer.Expect('lastmodified_y94', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('date_resp_offset', 'ret=Yes n=1[Sun, 06 Nov 1994 06:49:37 GMT]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y76_Lists_WithParameters()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Req(Observer, 'accept_q', 'Accept', 'text/html;q=0.9, application/json;q=0.8');
+        Req(Observer, 'accept_two_params', 'Accept', 'application/json;q=0.8;level=1');
+        Req(Observer, 'accept_wildcard', 'Accept', 'text/*;q=1.0, */*;q=0.1');
+        Req(Observer, 'accept_q_bad', 'Accept', 'text/html;q=2');
+        Req(Observer, 'accept_q_four_digits', 'Accept', 'text/html;q=0.1234');
+        Req(Observer, 'accept_q_neg', 'Accept', 'text/html;q=-1');
+        Req(Observer, 'accept_charset_param', 'Accept', 'text/html;charset=utf-8');
+        Req(Observer, 'accept_quoted_param', 'Accept', 'text/html;charset="utf-8"');
+        Observer.Expect('accept_q', 'ret=Yes n=2[text/html; q=0.9][application/json; q=0.8]');
+        Observer.Expect('accept_two_params', 'ret=Yes n=1[application/json; q=0.8; level=1]');
+        Observer.Expect('accept_wildcard', 'ret=Yes n=2[text/*; q=1.0][*/*; q=0.1]');
+        Observer.Expect('accept_q_bad', 'ret=Yes n=1[text/html; q=2]');
+        Observer.Expect('accept_q_four_digits', 'ret=Yes n=1[text/html; q=0.1234]');
+        Observer.Expect('accept_q_neg', 'ret=Yes n=1[text/html; q=-1]');
+        Observer.Expect('accept_charset_param', 'ret=Yes n=1[text/html; charset=utf-8]');
+        Observer.Expect('accept_quoted_param', 'ret=Yes n=1[text/html; charset="utf-8"]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y76_Lists_EncodingLanguageUserAgent()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Req(Observer, 'accept_encoding_q', 'Accept-Encoding', 'gzip;q=1.0, identity; q=0.5, *;q=0');
+        Req(Observer, 'accept_encoding_bad', 'Accept-Encoding', 'gzip;q=');
+        Req(Observer, 'accept_language_star', 'Accept-Language', '*');
+        Req(Observer, 'accept_language_three', 'Accept-Language', 'da, en-gb;q=0.8, en;q=0.7');
+        Req(Observer, 'connection_list', 'Connection', 'keep-alive, Upgrade');
+        Req(Observer, 'expect_continue', 'Expect', '100-continue');
+        Req(Observer, 'expect_other', 'Expect', 'foo=bar');
+        Req(Observer, 'useragent_product', 'User-Agent', 'Mozilla/5.0 (X11; Linux) Gecko/20100101');
+        Req(Observer, 'useragent_two', 'User-Agent', 'a/1 b/2');
+        Req(Observer, 'useragent_bad', 'User-Agent', '(unclosed');
+        Observer.Expect('accept_encoding_q', 'ret=Yes n=3[gzip; q=1.0][identity; q=0.5][*; q=0.0]');
+        Observer.Expect('accept_encoding_bad', 'ret=No get=E');
+        Observer.Expect('accept_language_star', 'ret=Yes n=1[*]');
+        Observer.Expect('accept_language_three', 'ret=Yes n=3[da][en-gb; q=0.8][en; q=0.7]');
+        Observer.Expect('connection_list', 'ret=Yes n=2[keep-alive][Upgrade]');
+        Observer.Expect('expect_continue', 'ret=Yes n=1[100-continue]');
+        Observer.Expect('expect_other', 'ret=Yes n=1[foo=bar]');
+        Observer.Expect('useragent_product', 'ret=Yes n=3[Mozilla/5.0][(X11; Linux)][Gecko/20100101]');
+        Observer.Expect('useragent_two', 'ret=Yes n=2[a/1][b/2]');
+        Observer.Expect('useragent_bad', 'ret=No get=E');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y76_QuotedStrings_AndEntityTags()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Req(Observer, 'ifmatch_list', 'If-Match', '"a", "b"');
+        Req(Observer, 'ifmatch_star', 'If-Match', '*');
+        Req(Observer, 'ifmatch_unquoted', 'If-Match', 'a');
+        Req(Observer, 'ifnonematch_weak_list', 'If-None-Match', 'W/"a", "b"');
+        Req(Observer, 'ifnonematch_quote_inside', 'If-None-Match', '"a\"b"');
+        Req(Observer, 'ifnonematch_empty', 'If-None-Match', '""');
+        Resp(Observer, 'etag_quoted', 'ETag', '"x y"');
+        Resp(Observer, 'etag_unquoted', 'ETag', 'x');
+        Resp(Observer, 'etag_weak', 'ETag', 'W/"x"');
+        Resp(Observer, 'etag_list', 'ETag', '"a", "b"');
+        Observer.Expect('ifmatch_list', 'ret=Yes n=2["a"]["b"]');
+        Observer.Expect('ifmatch_star', 'ret=Yes n=1[*]');
+        Observer.Expect('ifmatch_unquoted', 'ret=No get=E');
+        Observer.Expect('ifnonematch_weak_list', 'ret=Yes n=2[W/"a"]["b"]');
+        Observer.Expect('ifnonematch_quote_inside', 'ret=Yes n=1["a\"b"]');
+        Observer.Expect('ifnonematch_empty', 'ret=Yes n=1[""]');
+        Observer.Expect('etag_quoted', 'ret=Yes n=1["x y"]');
+        Observer.Expect('etag_unquoted', 'ret=No get=E');
+        Observer.Expect('etag_weak', 'ret=Yes n=1[W/"x"]');
+        Observer.Expect('etag_list', 'ret=No get=E');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y76_ContentHeaders()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CntCT(Observer, 'contenttype_quoted_charset', 'text/plain; charset="utf-8"');
+        CntCT(Observer, 'contenttype_boundary_space', 'multipart/form-data; boundary="x y"');
+        CntCT(Observer, 'contenttype_boundary_plain', 'multipart/form-data; boundary=abc');
+        CntCT(Observer, 'contenttype_two_params', 'text/plain; charset=utf-8; format=flowed');
+        CntCT(Observer, 'contenttype_no_slash', 'text');
+        CntCT(Observer, 'contenttype_json', 'application/json');
+        CntCT(Observer, 'contenttype_upper', 'APPLICATION/JSON; Charset=UTF-8');
+        CntCT(Observer, 'contenttype_bad_param', 'text/plain; charset');
+        Cnt(Observer, 'contentdisposition_name', 'Content-Disposition', 'form-data; name="a b"');
+        Cnt(Observer, 'contentdisposition_filename', 'Content-Disposition', 'attachment; filename="a b.txt"');
+        Cnt(Observer, 'contentdisposition_unquoted', 'Content-Disposition', 'attachment; filename=a.txt');
+        Cnt(Observer, 'contentdisposition_star', 'Content-Disposition', 'attachment; filename*=UTF-8''''%e2%82%ac.txt');
+        Observer.Expect('contenttype_quoted_charset', 'ret=Yes n=1[text/plain; charset="utf-8"]');
+        Observer.Expect('contenttype_quoted_charset_removed', 'Yes');
+        Observer.Expect('contenttype_boundary_space', 'ret=Yes n=1[multipart/form-data; boundary="x y"]');
+        Observer.Expect('contenttype_boundary_space_removed', 'Yes');
+        Observer.Expect('contenttype_boundary_plain', 'ret=Yes n=1[multipart/form-data; boundary=abc]');
+        Observer.Expect('contenttype_boundary_plain_removed', 'Yes');
+        Observer.Expect('contenttype_two_params', 'ret=Yes n=1[text/plain; charset=utf-8; format=flowed]');
+        Observer.Expect('contenttype_two_params_removed', 'Yes');
+        Observer.Expect('contenttype_no_slash', 'ret=No get=E');
+        Observer.Expect('contenttype_no_slash_removed', 'Yes');
+        Observer.Expect('contenttype_json', 'ret=Yes n=1[application/json]');
+        Observer.Expect('contenttype_json_removed', 'Yes');
+        Observer.Expect('contenttype_upper', 'ret=Yes n=1[APPLICATION/JSON; Charset=UTF-8]');
+        Observer.Expect('contenttype_upper_removed', 'Yes');
+        Observer.Expect('contenttype_bad_param', 'ret=Yes n=1[text/plain; charset]');
+        Observer.Expect('contenttype_bad_param_removed', 'Yes');
+        Observer.Expect('contentdisposition_name', 'ret=Yes n=1[form-data; name="a b"]');
+        Observer.Expect('contentdisposition_filename', 'ret=Yes n=1[attachment; filename="a b.txt"]');
+        Observer.Expect('contentdisposition_unquoted', 'ret=Yes n=1[attachment; filename=a.txt]');
+        Observer.Expect('contentdisposition_star', 'ret=Yes n=1[attachment; filename*=UTF-8''''%e2%82%ac.txt]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y76_ContentHeaders_Ranges()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cnt(Observer, 'contentrange', 'Content-Range', 'bytes 0-9/100');
+        Cnt(Observer, 'contentrange_star', 'Content-Range', 'bytes */100');
+        Cnt(Observer, 'contentrange_bad', 'Content-Range', 'bytes 9-0/100');
+        Cnt(Observer, 'contentmd5', 'Content-MD5', 'Q2hlY2sgSW50ZWdyaXR5IQ==');
+        Cnt(Observer, 'contentmd5_bad', 'Content-MD5', 'not base64!');
+        Cnt(Observer, 'contentlanguage_list', 'Content-Language', 'de, en-US');
+        Cnt(Observer, 'contentlength_text', 'Content-Length', 'abc');
+        Cnt(Observer, 'contentlocation', 'Content-Location', '/a b');
+        Observer.Expect('contentrange', 'ret=Yes n=1[bytes 0-9/100]');
+        Observer.Expect('contentrange_star', 'ret=Yes n=1[bytes */100]');
+        Observer.Expect('contentrange_bad', 'ret=No get=E');
+        Observer.Expect('contentmd5', 'ret=Yes n=1[Q2hlY2sgSW50ZWdyaXR5IQ==]');
+        Observer.Expect('contentmd5_bad', 'ret=No get=E');
+        Observer.Expect('contentlanguage_list', 'ret=Yes n=2[de][en-US]');
+        Observer.Expect('contentlength_text', 'ret=No get=E');
+        Observer.Expect('contentlocation', 'ret=Yes n=1[/a%20b]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y76_Authentication_AndRanges()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Req(Observer, 'auth_basic', 'Authorization', 'Basic dXNlcjpwYXNz');
+        Req(Observer, 'auth_digest_params', 'Authorization', 'Digest username="u", realm="r"');
+        Req(Observer, 'auth_quoted_token', 'Authorization', 'Bearer "abc"');
+        Req(Observer, 'auth_two_words', 'Authorization', 'Bearer a b');
+        Req(Observer, 'auth_scheme_only', 'Authorization', 'Negotiate');
+        Req(Observer, 'proxyauth', 'Proxy-Authorization', 'Basic dXNlcjpwYXNz');
+        Resp(Observer, 'wwwauth_list', 'WWW-Authenticate', 'Basic realm="x", Bearer');
+        Resp(Observer, 'wwwauth_param', 'WWW-Authenticate', 'Bearer realm="x", error="invalid_token"');
+        Resp(Observer, 'proxyauth_resp', 'Proxy-Authenticate', 'Basic realm="x"');
+        Observer.Expect('auth_basic', 'ret=Yes n=1[Basic dXNlcjpwYXNz]');
+        Observer.Expect('auth_digest_params', 'ret=Yes n=1[Digest username="u", realm="r"]');
+        Observer.Expect('auth_quoted_token', 'ret=Yes n=1[Bearer "abc"]');
+        Observer.Expect('auth_two_words', 'ret=Yes n=1[Bearer a b]');
+        Observer.Expect('auth_scheme_only', 'ret=Yes n=1[Negotiate]');
+        Observer.Expect('proxyauth', 'ret=Yes n=1[Basic dXNlcjpwYXNz]');
+        Observer.Expect('wwwauth_list', 'ret=Yes n=2[Basic realm="x"][Bearer]');
+        Observer.Expect('wwwauth_param', 'ret=Yes n=1[Bearer realm="x", error="invalid_token"]');
+        Observer.Expect('proxyauth_resp', 'ret=Yes n=1[Basic realm="x"]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y76_Ranges_Hosts_Via()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Req(Observer, 'range_multi', 'Range', 'bytes=0-9, 20-29');
+        Req(Observer, 'range_suffix', 'Range', 'bytes=-500');
+        Req(Observer, 'range_open', 'Range', 'bytes=500-');
+        Req(Observer, 'range_reverse', 'Range', 'bytes=9-0');
+        Req(Observer, 'range_unit', 'Range', 'items=1-2');
+        Req(Observer, 'range_noeq', 'Range', 'bytes 0-9');
+        Req(Observer, 'host_port', 'Host', 'example.invalid:8080');
+        Req(Observer, 'host_path', 'Host', 'example.invalid/x');
+        Req(Observer, 'host_ipv6', 'Host', '[::1]:80');
+        Req(Observer, 'maxforwards', 'Max-Forwards', '10');
+        Req(Observer, 'maxforwards_bad', 'Max-Forwards', '-1');
+        Req(Observer, 'referer', 'Referer', 'https://example.invalid/a?b=c');
+        Req(Observer, 'referer_relative', 'Referer', '/a');
+        Observer.Expect('range_multi', 'ret=Yes n=1[bytes=0-9, 20-29]');
+        Observer.Expect('range_suffix', 'ret=Yes n=1[bytes=-500]');
+        Observer.Expect('range_open', 'ret=Yes n=1[bytes=500-]');
+        Observer.Expect('range_reverse', 'ret=No get=E');
+        Observer.Expect('range_unit', 'ret=Yes n=1[items=1-2]');
+        Observer.Expect('range_noeq', 'ret=No get=E');
+        Observer.Expect('host_port', 'ret=Yes n=1[example.invalid:8080]');
+        Observer.Expect('host_path', 'ret=No get=E');
+        Observer.Expect('host_ipv6', 'ret=Yes n=1[[::1]:80]');
+        Observer.Expect('maxforwards', 'ret=Yes n=1[10]');
+        Observer.Expect('maxforwards_bad', 'ret=No get=E');
+        Observer.Expect('referer', 'ret=Yes n=1[https://example.invalid/a?b=c]');
+        Observer.Expect('referer_relative', 'ret=Yes n=1[/a]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y76_Via_Warning_Upgrade()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Req(Observer, 'via', 'Via', '1.1 proxy, 1.0 other');
+        Req(Observer, 'via_bad', 'Via', 'proxy');
+        Req(Observer, 'warning', 'Warning', '199 host "text"');
+        Req(Observer, 'warning_bad', 'Warning', '199 host text');
+        Req(Observer, 'upgrade', 'Upgrade', 'websocket, HTTP/2.0');
+        Req(Observer, 'pragma', 'Pragma', 'no-cache');
+        Req(Observer, 'trailer', 'Trailer', 'Expires');
+        Observer.Expect('via', 'ret=Yes n=2[1.1 proxy][1.0 other]');
+        Observer.Expect('via_bad', 'ret=No get=E');
+        Observer.Expect('warning', 'ret=Yes n=1[199 host "text"]');
+        Observer.Expect('warning_bad', 'ret=No get=E');
+        Observer.Expect('upgrade', 'ret=Yes n=2[websocket][HTTP/2.0]');
+        Observer.Expect('pragma', 'ret=Yes n=1[no-cache]');
+        Observer.Expect('trailer', 'ret=Yes n=1[Expires]');
+        Observer.Verify();
+    end;
 }

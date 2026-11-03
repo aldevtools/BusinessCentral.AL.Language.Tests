@@ -473,6 +473,92 @@ codeunit 85240 "LT CT Error Leads"
         Observer.Verify();
     end;
 
+    // ---------------------------------------------------------------- writer SP (2026-10-28): rollback probes
+    // Durability of writes in a Collect scope whose errors are taken with GetCollectedErrors(true), read after an
+    // unrelated error. Fixture: "LT SP Collect Get Runner" (89553).
+    [ErrorBehavior(ErrorBehavior::Collect)]
+    local procedure InsertCollectGetTrue(var Log: Text)
+    var
+        Row: Record "LT CT Row";
+        Errors: List of [ErrorInfo];
+    begin
+        Row.Id := 2533;
+        Row.Insert();
+        Error(ErrorInfo.Create('taken by get', true));
+        Errors := GetCollectedErrors(true);
+        Log += 'count=' + Format(Errors.Count()) + ';has=' + Format(HasCollectedErrors()) + ';';
+    end;
+
+    [Test]
+    procedure SP_GetCollectedErrorsTrue_DirectCall_DoesNotCommit()
+    var
+        Row: Record "LT CT Row";
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        Row.DeleteAll();
+        Commit();
+        InsertCollectGetTrue(Log);
+        Observer.Observe('log', Log);
+        Observer.Observe('row before error', Format(Row.Get(2533)));
+        asserterror Error('unrelated');
+        Observer.Observe('row after error', Format(Row.Get(2533)));
+        Row.DeleteAll();
+        Commit();
+        Observer.Expect('log', 'count=1;has=No;');
+        Observer.Expect('row before error', 'Yes');
+        Observer.Expect('row after error', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SP_GetCollectedErrorsTrue_InCodeunitRun_RunCommits()
+    var
+        Row: Record "LT CT Row";
+        Runner: Codeunit "LT SP Collect Get Runner";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Row.DeleteAll();
+        Commit();
+        ClearLastError();
+        Observer.Observe('run', Format(Runner.Run()));
+        Observer.Observe('lasterror', GetLastErrorText());
+        Observer.Observe('log', Runner.GetLog());
+        asserterror Error('unrelated');
+        Observer.Observe('first row', Format(Row.Get(2531)));
+        Observer.Observe('second row', Format(Row.Get(2532)));
+        Row.DeleteAll();
+        Commit();
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('lasterror', '');
+        Observer.Expect('log', 'count=1;has=No;');
+        Observer.Expect('first row', 'Yes');
+        Observer.Expect('second row', 'Yes');
+        Observer.Verify();
+    end;
+
+    // Item 24 follow-up: the caller collects, the run codeunit ("LT CT Run Target", no ErrorBehavior attribute) raises
+    // two collectible errors. Is the run codeunit's row durable once the guarded run returns true?
+    [Test]
+    procedure SP_CallerCollects_RunCodeunitWithoutAttribute_RowDurable()
+    var
+        Row: Record "LT CT Row";
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        Row.DeleteAll();
+        Commit();
+        RunInCollectScope('post collect only', Log);
+        Observer.Observe('log', Log);
+        asserterror Error('unrelated');
+        Observer.Observe('row after error', Format(Row.Get(241)));
+        Row.DeleteAll();
+        Commit();
+        Observer.Expect('log', 'run true;text=;has=Yes;count=2;msg=first collectible;msg=second collectible;');
+        Observer.Expect('row after error', 'Yes');
+        Observer.Verify();
+    end;
+
     // ---------------------------------------------------------------- item 26
     [TryFunction]
     local procedure DoWorkEmpty()

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="nl-NL" original="AL Language Coverage Tests">
+    <body>
+      <group id="body">
+        <trans-unit id="Table 3671255988 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>LT TA Item</source>
+          <target>LT TA Artikel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table LT TA Item - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3671255988 - Field 2882592404 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Kind</source>
+          <target>Soort</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table LT TA Item - Field Kind - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3671255988 - Field 2882592404 - Property 62802879" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Alpha,Beta,Gamma</source>
+          <target>Eerste,Tweede,Derde</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table LT TA Item - Field Kind - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Table 3671255988 - Field 4200184881 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item number</source>
+          <target>Artikelnummer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table LT TA Item - Field No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3671255988 - Field 513339096 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Status</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table LT TA Item - Field Status - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3621504644 - NamedType 3071622107" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 items found</source>
+          <target>%1 items gevonden</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT TA Labels - NamedType CountLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3621504644 - NamedType 868134460" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Hello world</source>
+          <target>Hallo wereld</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT TA Labels - NamedType HelloLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3621504644 - NamedType 839111229" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No translation here</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT TA Labels - NamedType UntranslatedLbl</note>
+        </trans-unit>
+        <trans-unit id="Enum 2433771011 - EnumValue 1178809860 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finished</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum LT TA Status - EnumValue Done - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2433771011 - EnumValue 4259830144 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open</source>
+          <target>Geopend</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum LT TA Status - EnumValue Open - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2433771011 - EnumValue 2943620325 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Released</source>
+          <target>Vrijgegeven</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum LT TA Status - EnumValue Rel - Property Caption</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

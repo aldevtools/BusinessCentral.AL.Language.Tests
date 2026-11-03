@@ -3,6 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); own tables 69377-69380, query 69376, test codeunit 69381; report 69367 and codeunit 69366 of lt-t-validate-layout
 // Facts: GetUrl text for every client type (Default, Web, Windows, Phone, Tablet, Desktop) with and without company, object and record; special characters in the company and in a filter; Report, Query and Codeunit
 // with a record; the bookmark of Code[10], Code[50] and two-Code-field keys. The server address (the GetUrl(ClientType::Web) text up to the first ?) is replaced by <base>.
+// Writer TV (2026-10-29, TV_* tests): the same texts for the client types SOAP, OData, ODataV4 and Api.
 // BC versions: 27.0 and later
 
 table 69377 "LT T Url Code10"
@@ -457,6 +458,94 @@ codeunit 69381 "LT T GetUrl Tests"
         Observer.Expect('two full', '<base>/?company=My%20Company&page=21&bookmark=96%3bAw8BAAJ7%2f0EAQgBDAEQARQBGAEcASABJAEoASwBMAE0ATgBPAFAAUQBSAFMAVAAAAAJ7%2f1UAVgBXAFgAWQBaADAAMQAyADMANAA1ADYANwA4ADkAQQBCAEMARA%3d%3d');
         Observer.Expect('two second empty', '<base>/?company=My%20Company&page=21&bookmark=18%3bAw8BAAJ7%2f0EAAAACew%3d%3d');
         Observer.Expect('two first empty', '<base>/?company=My%20Company&page=21&bookmark=18%3bAw8BAAJ7AAAAAnv%2fQg%3d%3d');
+        Observer.Verify();
+    end;
+
+    // ---- Writer TV (NP lane, 2026-10-29): the full text (host and instance masked) of GetUrl for the service client types SOAP, OData, ODataV4
+    // and Api, alone, with a company, with an object and with a record; SOAP and ODataV4 with a codeunit. ----
+
+    local procedure TvMaskCompanyId(Url: Text): Text
+    var
+        At: Integer;
+        Close: Integer;
+    begin
+        At := StrPos(Url, '/companies(');
+        if At = 0 then
+            exit(Url);
+        Close := StrPos(CopyStr(Url, At), ')');
+        if Close = 0 then
+            exit(Url);
+        exit(CopyStr(Url, 1, At + 10) + '<id>' + CopyStr(Url, At + Close - 1));
+    end;
+
+    [Test]
+    procedure TV_GetUrl_ClientSOAP()
+    begin
+        ClientTest(ClientType::SOAP, 'soap');
+        Observer.Observe('soap company codeunit', Obj(ClientType::SOAP, 'My Company', ObjectType::Codeunit, 69366));
+        Observer.Observe('soap codeunit', Obj(ClientType::SOAP, '', ObjectType::Codeunit, 69366));
+        Observer.Expect('soap alone', 'http://<host>/<instance>/WS/Services');
+        Observer.Expect('soap company', 'ok|http://<host>/<instance>/WS/My%20Company/Services');
+        Observer.Expect('soap empty company', 'ok|http://<host>/<instance>/WS/Services');
+        Observer.Expect('soap page', 'ok|');
+        Observer.Expect('soap company page', 'ok|');
+        Observer.Expect('soap company report', 'ok|');
+        Observer.Expect('soap company page record', 'ok|');
+        Observer.Expect('soap page record no company', 'ok|');
+        Observer.Expect('soap company codeunit', 'ok|');
+        Observer.Expect('soap codeunit', 'ok|');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TV_GetUrl_ClientOData()
+    begin
+        ClientTest(ClientType::OData, 'odata');
+        Observer.Expect('odata alone', 'http://<host>/<instance>/ODataV4');
+        Observer.Expect('odata company', 'ok|http://<host>/<instance>/ODataV4/Company(''My%20Company'')');
+        Observer.Expect('odata empty company', 'ok|http://<host>/<instance>/ODataV4');
+        Observer.Expect('odata page', 'ok|');
+        Observer.Expect('odata company page', 'ok|');
+        Observer.Expect('odata company report', 'ok|');
+        Observer.Expect('odata company page record', 'ok|');
+        Observer.Expect('odata page record no company', 'ok|');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TV_GetUrl_ClientODataV4()
+    begin
+        ClientTest(ClientType::ODataV4, 'odatav4');
+        Observer.Observe('odatav4 company codeunit', Obj(ClientType::ODataV4, 'My Company', ObjectType::Codeunit, 69366));
+        Observer.Observe('odatav4 company query', Obj(ClientType::ODataV4, 'My Company', ObjectType::Query, 69376));
+        Observer.Expect('odatav4 alone', 'http://<host>/<instance>/ODataV4');
+        Observer.Expect('odatav4 company', 'ok|http://<host>/<instance>/ODataV4/Company(''My%20Company'')');
+        Observer.Expect('odatav4 empty company', 'ok|http://<host>/<instance>/ODataV4');
+        Observer.Expect('odatav4 page', 'ok|');
+        Observer.Expect('odatav4 company page', 'ok|');
+        Observer.Expect('odatav4 company report', 'ok|');
+        Observer.Expect('odatav4 company page record', 'ok|');
+        Observer.Expect('odatav4 page record no company', 'ok|');
+        Observer.Expect('odatav4 company codeunit', 'ok|');
+        Observer.Expect('odatav4 company query', 'ok|');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TV_GetUrl_ClientApi()
+    begin
+        ClientTest(ClientType::Api, 'api');
+        // The id in companies(...) differs per database (it is not the current company's SystemId): it is masked as <id>.
+        Observer.Ignore('api company');
+        Observer.Observe('api company masked', TvMaskCompanyId(Company(ClientType::Api, 'My Company')));
+        Observer.Expect('api alone', 'http://<host>/<instance>/api/');
+        Observer.Expect('api empty company', 'ok|http://<host>/<instance>/api/');
+        Observer.Expect('api page', 'ok|');
+        Observer.Expect('api company page', 'ok|');
+        Observer.Expect('api company report', 'ok|');
+        Observer.Expect('api company page record', 'ok|');
+        Observer.Expect('api page record no company', 'ok|');
+        Observer.Expect('api company masked', 'ok|http://<host>/<instance>/api//companies(<id>)');
         Observer.Verify();
     end;
 }

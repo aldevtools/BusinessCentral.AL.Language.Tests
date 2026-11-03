@@ -1,6 +1,24 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-maxoccurs-property
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own tables 87275, 87276, 87279, xmlport 87277, runner codeunit 87278, test codeunit 87280 (writer QR); writer QS: tests QS_TextAttr_* on table 87360, xmlport 87361, runner 87362 (QsXpTextAttrObjects.al)
+// Writer TO: tests TO_* on table 90000, xmlports 90001-90003, runner 90004 (ToXpTextInTableObjects.al): a text element below a table element, with only text attributes or with content.
+// Writer TP: tests TP_* on tables 90020-90021, xmlports 90022-90023, runner 90024 (TpXpNestedObjects.al): a text element with one text attribute
+//   below a text element below a table element; an optional text element holding an unlinked temporary table element.
+// Writer TR: tests TR_* on tables 90060-90063, xmlports 90064-90066, runner 90067 (TrXpReplyObjects.al): request/reply ports with unlinked
+//   temporary table elements nested in optional text elements, export after import into the same instance; empty leaf elements on import.
+// Writer TS: tests TS_* on table 90080, xmlports 90081-90086 and 90088, runner 90087 (TsXpObjects.al) and xmlports 90064-90065: a second
+//   Export on the same instance, a linked table element with an explicit MaxOccurs = Unbounded, a default-occurs container text element over
+//   an unlinked temporary table element, MinOccurs = Once on the root text element, Guid import with FormatEvaluate = Xml.
+// Writer TT: tests TT_* on tables 90100-90102, xmlports 90103-90106, runner 90107 (TtXpObjects.al): a linked MaxOccurs = Once table element with
+//   a SourceTableView WHERE, OnPreXmlItem and OnAfterGetRecord three levels below a temporary reply table element (LinkTable without
+//   LinkFields); a text element with text attributes and a nested optional text element over an unlinked temporary table element; a
+//   second Import on one instance; an optional unlinked table element without rows.
+// Writer TU: tests TU_* on tables 90120-90125 and xmlports 90126-90129 (TuXpObjects.al), observed on the BC 29.0 SaaS sandbox (two runs, same
+//   values). LinkTable without LinkFields (90126 MaxOccurs = Once, 90127 Unbounded): every pass of the child element starts from the
+//   SourceTableView key (or the primary key without a view), ascending; a SetCurrentKey, Ascending(false) or Reset done in OnPreXmlItem at one
+//   pass does not carry to the next pass. Nested table elements without LinkTable over real (90128) or temporary (90129) tables: each pass
+//   starts with no filters (GetFilters is empty; a filter set at an earlier pass is gone) but the record keeps the row it was on. A
+//   MinOccurs = Once element without rows is written once from that row (no OnAfterGetRecord), and the elements below it still run.
 // Probe: observed on the corpus CI matrix; every literal asserted below is what the BC service tier produced.
 // Facts: MaxOccurs and MinOccurs on CONTAINER text elements (the root text element with MaxOccurs = Once, a required container with
 //   MinOccurs = Once and MaxOccurs = Once that holds a temporary table element, an optional container with MinOccurs = Zero and
@@ -530,6 +548,2533 @@ codeunit 87280 "LT QR XP Container Tests"
         Observer.Expect('required missing on second row|text', 'Imported XML cannot validate with the schema: The required attribute ''must'' is missing.');
         Observer.Expect('required missing on second row|code', 'XmlPortInvalidXml');
         Observer.Expect('required empty', 'ok log=version=2;row R1 ref= must=; values: instance= version=2 token= ref= must= rows=R1:/;');
+        Observer.Verify();
+    end;
+
+    local procedure ToRead(var Buffer: Record "LT QR XP Blob" temporary): Text
+    var
+        InS: InStream;
+        Line: Text;
+        Xml: Text;
+    begin
+        Buffer.Modify();
+        Buffer.CalcFields(Data);
+        Buffer.Data.CreateInStream(InS, TextEncoding::UTF8);
+        while not InS.EOS() do begin
+            InS.ReadText(Line);
+            Xml += Line + '|';
+        end;
+        exit(Xml);
+    end;
+
+    local procedure ToExportTrigger(var Port: XmlPort "LT TO XP Attr Item Trigger"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure ToExportPlain(var Port: XmlPort "LT TO XP Attr Item Plain"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure ToExportContent(var Port: XmlPort "LT TO XP Text Content"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure ToImport(var Observer: Codeunit "Probe Observer"; Name: Text; Mode: Integer; Body: Text)
+    var
+        Runner: Codeunit "LT TO XP Runner";
+    begin
+        Runner.SetInput(Mode, '<?xml version="1.0" encoding="UTF-8"?>' + Body);
+        ClearLastError();
+        if Runner.Run() then
+            Observer.Observe(Name, 'ok ' + Runner.Result())
+        else
+            Observer.ObserveError(Name);
+    end;
+
+    [Test]
+    procedure TO_AttrItem_Trigger_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TO XP Attr Item Trigger";
+    begin
+        // The text element's OnBeforePassVariable sets its text, its text attribute's OnBeforePassVariable sets the attribute.
+        Port.AddRow('R1', 'REQUIRED', '1');
+        Port.AddRow('R2', '', '2');
+        Port.AddRow('R3', 'TXT', '');
+        Observer.Observe('xml', ToExportTrigger(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <row no="R1">|    <item option_value="1">REQUIRED</item>|  </row>|  <row no="R2">|    <item option_value="2" />|  </row>|  <row no="R3">|    <item option_value="">TXT</item>|  </row>|</root>|');
+        Observer.Expect('log', 'get R1;pass item;pass attr;get R2;pass item;pass attr;get R3;pass item;pass attr;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TO_AttrItem_Trigger_Export_NoRows()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TO XP Attr Item Trigger";
+    begin
+        Observer.Observe('xml', ToExportTrigger(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root />|');
+        Observer.Expect('log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TO_AttrItem_Plain_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TO XP Attr Item Plain";
+        Empty: XmlPort "LT TO XP Attr Item Plain";
+    begin
+        // No trigger: the element and the attribute write their variables as they are.
+        Port.SetVariables('TEXT', '1');
+        Port.AddRow('R1');
+        Port.AddRow('R2');
+        Observer.Observe('set', ToExportPlain(Port));
+        Empty.AddRow('R1');
+        Observer.Observe('empty', ToExportPlain(Empty));
+        Observer.Expect('set', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <row no="R1">|    <item option_value="1">TEXT</item>|  </row>|  <row no="R2">|    <item option_value="1">TEXT</item>|  </row>|</root>|');
+        Observer.Expect('empty', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <row no="R1">|    <item option_value="" />|  </row>|</root>|');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TO_AttrItem_Trigger_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ToImport(Observer, 'two rows', 90001, '<root><row no="R1"><item option_value="1">REQ</item></row><row no="R2"><item option_value="2">X</item></row></root>');
+        ToImport(Observer, 'attribute missing', 90001, '<root><row no="R1"><item>REQ</item></row></root>');
+        ToImport(Observer, 'empty element', 90001, '<root><row no="R1"><item option_value="1"/></row></root>');
+        Observer.Expect('two rows', 'ok log=init;no=R1;attr=1;item=REQ;before insert R1 item=REQ attr=1;after insert;init;no=R2;attr=2;item=X;before insert R2 item=X attr=2;after insert; values: item=X attr=2 rows=R1:REQ/1;R2:X/2;');
+        Observer.Expect('attribute missing|text', 'Imported XML cannot validate with the schema: The required attribute ''option_value'' is missing.');
+        Observer.Expect('attribute missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('empty element', 'ok log=init;no=R1;attr=1;item=;before insert R1 item= attr=1;after insert; values: item= attr=1 rows=R1:/1;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TO_AttrItem_Trigger_Import_Missing()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ToImport(Observer, 'element missing', 90001, '<root><row no="R1"/></root>');
+        ToImport(Observer, 'second row attribute missing', 90001, '<root><row no="R1"><item option_value="1">A</item></row><row no="R2"><item>B</item></row></root>');
+        ToImport(Observer, 'child element', 90001, '<root><row no="R1"><item option_value="1">A<x/></item></row></root>');
+        Observer.Expect('element missing|text', 'Imported XML cannot validate with the schema: The element ''row'' has incomplete content. List of possible elements expected: ''item''.');
+        Observer.Expect('element missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('second row attribute missing|text', 'Imported XML cannot validate with the schema: The required attribute ''option_value'' is missing.');
+        Observer.Expect('second row attribute missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('child element|text', 'Imported XML cannot validate with the schema: The element ''item'' cannot contain child element ''x'' because the parent element''s content model is text only.');
+        Observer.Expect('child element|code', 'XmlPortInvalidXml');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TO_AttrItem_Plain_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ToImport(Observer, 'two rows', 90002, '<root><row no="R1"><item option_value="1">REQ</item></row><row no="R2"><item option_value="2">X</item></row></root>');
+        ToImport(Observer, 'second row bare', 90002, '<root><row no="R1"><item option_value="1">REQ</item></row><row no="R2"><item/></row></root>');
+        Observer.Expect('two rows', 'ok log=before insert R1 item=REQ attr=1;before insert R2 item=X attr=2; values: item=X attr=2 rows=R1:REQ/1;R2:X/2;');
+        Observer.Expect('second row bare|text', 'Imported XML cannot validate with the schema: The required attribute ''option_value'' is missing.');
+        Observer.Expect('second row bare|code', 'XmlPortInvalidXml');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TO_TextContent_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TO XP Text Content";
+    begin
+        Port.AddRow('R1', 'N1', 'k1', 's1');
+        Port.AddRow('R2', '', '', '');
+        Observer.Observe('xml', ToExportContent(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <row no="R1">|    <info kind="k1">|      <name>N1</name>|      <sub>s1</sub>|    </info>|  </row>|  <row no="R2">|    <info kind="">|      <name />|      <sub />|    </info>|  </row>|</root>|');
+        Observer.Expect('log', 'get R1;pass info;pass kind;pass name;pass sub;get R2;pass info;pass kind;pass name;pass sub;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TO_TextContent_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ToImport(Observer, 'two rows', 90003, '<root><row no="R1"><info kind="k1"><name>N1</name><sub>s1</sub></info></row><row no="R2"><info kind="k2"><name>N2</name><sub>s2</sub></info></row></root>');
+        ToImport(Observer, 'no kind', 90003, '<root><row no="R1"><info><name>N1</name><sub>s1</sub></info></row></root>');
+        Observer.Expect('two rows', 'ok log=init;no=R1;kind=k1;name=N1;sub=s1;info=;before insert R1 name=N1 kind=k1 sub=s1;after insert;init;no=R2;kind=k2;name=N2;sub=s2;info=;before insert R2 name=N2 kind=k2 sub=s2;after insert; values: info= kind=k2 sub=s2 rows=R1:N1/k1/s1;R2:N2/k2/s2;');
+        Observer.Expect('no kind|text', 'Imported XML cannot validate with the schema: The required attribute ''kind'' is missing.');
+        Observer.Expect('no kind|code', 'XmlPortInvalidXml');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TO_TextContent_Import_Shapes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ToImport(Observer, 'info missing', 90003, '<root><row no="R1"/></root>');
+        ToImport(Observer, 'sub missing', 90003, '<root><row no="R1"><info kind="k1"><name>N1</name></info></row></root>');
+        ToImport(Observer, 'empty info', 90003, '<root><row no="R1"><info/></row></root>');
+        ToImport(Observer, 'text in info', 90003, '<root><row no="R1"><info kind="k1">T<name>N1</name><sub>s1</sub></info></row></root>');
+        Observer.Expect('info missing|text', 'Imported XML cannot validate with the schema: The element ''row'' has incomplete content. List of possible elements expected: ''info''.');
+        Observer.Expect('info missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('sub missing|text', 'Imported XML cannot validate with the schema: The element ''info'' has incomplete content. List of possible elements expected: ''sub''.');
+        Observer.Expect('sub missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('empty info|text', 'Imported XML cannot validate with the schema: The required attribute ''kind'' is missing.');
+        Observer.Expect('empty info|code', 'XmlPortInvalidXml');
+        Observer.Expect('text in info', 'ok log=init;no=R1;kind=k1;name=N1;sub=s1;info=T;before insert R1 name=N1 kind=k1 sub=s1;after insert; values: info=T kind=k1 sub=s1 rows=R1:N1/k1/s1;');
+        Observer.Verify();
+    end;
+
+    local procedure TpExportNested(var Port: XmlPort "LT TP XP Nested Text"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TpExportUnlinked(var Port: XmlPort "LT TP XP Unlinked Temp"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TpImport(var Observer: Codeunit "Probe Observer"; Name: Text; Mode: Integer; Body: Text)
+    var
+        Runner: Codeunit "LT TP XP Runner";
+    begin
+        Runner.SetInput(Mode, '<?xml version="1.0" encoding="UTF-8"?>' + Body);
+        ClearLastError();
+        if Runner.Run() then
+            Observer.Observe(Name, 'ok ' + Runner.Result())
+        else
+            Observer.ObserveError(Name);
+    end;
+
+    [Test]
+    procedure TP_Nested_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TP XP Nested Text";
+    begin
+        // table element > text element (field attribute, text attributes) > text element with one text attribute.
+        Port.AddRow('R1', 'open', 'k1', 'A1', '1');
+        Port.AddRow('R2', '', '', '', '2');
+        Port.AddRow('R3', 'closed', 'k3', 'X', '');
+        Observer.Observe('xml', TpExportNested(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <row>|    <entry no="R1" status="open" kind="k1">|      <admission option_value="1">A1</admission>|    </entry>|  </row>|  <row>|    <entry no="R2" status="">|      <admission option_value="2" />|    </entry>|  </row>|  <row>|    <entry no="R3" status="closed" kind="k3">|      <admission option_value="">X</admission>|    </entry>|  </row>|</root>|');
+        Observer.Expect('log', 'get R1;pass entry;pass status;pass admission;pass admcode;get R2;pass entry;pass status;pass admission;pass admcode;get R3;pass entry;pass status;pass admission;pass admcode;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP_Nested_Export_NoRows()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TP XP Nested Text";
+    begin
+        Observer.Observe('xml', TpExportNested(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root />|');
+        Observer.Expect('log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP_Nested_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TpImport(Observer, 'two rows', 90022, '<root><row><entry no="R1" status="open" kind="k1"><admission option_value="1">A1</admission></entry></row><row><entry no="R2" status="closed" kind="k2"><admission option_value="2">A2</admission></entry></row></root>');
+        TpImport(Observer, 'empty admission', 90022, '<root><row><entry no="R1" status="open" kind="k1"><admission option_value="1"/></entry></row></root>');
+        TpImport(Observer, 'no kind', 90022, '<root><row><entry no="R1" status="open"><admission option_value="1">A1</admission></entry></row></root>');
+        Observer.Expect('two rows', 'ok log=init;no=R1;status=open;admission=A1 admcode=1;entry= kind=k1;before insert R1;after insert;init;no=R2;status=closed;admission=A2 admcode=2;entry= kind=k2;before insert R2;after insert; values: entry= status=closed kind=k2 admission=A2 admcode=2 rows=R1:open/k1/A1/1;R2:closed/k2/A2/2;');
+        Observer.Expect('empty admission', 'ok log=init;no=R1;status=open;admission= admcode=1;entry= kind=k1;before insert R1;after insert; values: entry= status=open kind=k1 admission= admcode=1 rows=R1:open/k1//1;');
+        Observer.Expect('no kind', 'ok log=init;no=R1;status=open;admission=A1 admcode=1;entry= kind=;before insert R1;after insert; values: entry= status=open kind= admission=A1 admcode=1 rows=R1:open//A1/1;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP_Nested_Import_Shapes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TpImport(Observer, 'admission missing', 90022, '<root><row><entry no="R1" status="open" kind="k1"/></row></root>');
+        TpImport(Observer, 'option_value missing', 90022, '<root><row><entry no="R1" status="open" kind="k1"><admission>A1</admission></entry></row></root>');
+        TpImport(Observer, 'status missing', 90022, '<root><row><entry no="R1" kind="k1"><admission option_value="1">A1</admission></entry></row></root>');
+        TpImport(Observer, 'entry missing', 90022, '<root><row/></root>');
+        TpImport(Observer, 'text in entry', 90022, '<root><row><entry no="R1" status="open" kind="k1">T<admission option_value="1">A1</admission></entry></row></root>');
+        Observer.Expect('admission missing|text', 'Imported XML cannot validate with the schema: The element ''entry'' has incomplete content. List of possible elements expected: ''admission''.');
+        Observer.Expect('admission missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('option_value missing|text', 'Imported XML cannot validate with the schema: The required attribute ''option_value'' is missing.');
+        Observer.Expect('option_value missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('status missing|text', 'Imported XML cannot validate with the schema: The required attribute ''status'' is missing.');
+        Observer.Expect('status missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('entry missing|text', 'Imported XML cannot validate with the schema: The element ''row'' has incomplete content. List of possible elements expected: ''entry''.');
+        Observer.Expect('entry missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('text in entry', 'ok log=init;no=R1;status=open;admission=A1 admcode=1;entry=T kind=k1;before insert R1;after insert; values: entry=T status=open kind=k1 admission=A1 admcode=1 rows=R1:open/k1/A1/1;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP_Unlinked_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TP XP Unlinked Temp";
+    begin
+        // The inner temporary table element has no LinkTable.
+        Port.AddRow('R1', 's1');
+        Port.AddRow('R2', 's2');
+        Port.AddAttr('R1', 'A', '1');
+        Port.AddAttr('R2', 'B', '2');
+        Port.AddAttr('X', 'C', '3');
+        Observer.Observe('xml', TpExportUnlinked(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <row no="R1">|    <attributes>|      <attribute code="A" value="1" />|      <attribute code="B" value="2" />|      <attribute code="C" value="3" />|    </attributes>|    <status>s1</status>|  </row>|  <row no="R2">|    <attributes>|      <attribute code="A" value="1" />|      <attribute code="B" value="2" />|      <attribute code="C" value="3" />|    </attributes>|    <status>s2</status>|  </row>|</root>|');
+        Observer.Expect('log', 'get R1;get attr R1/A;get attr R2/B;get attr X/C;get R2;get attr R1/A;get attr R2/B;get attr X/C;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP_Unlinked_Export_NoAttrs()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TP XP Unlinked Temp";
+    begin
+        Port.AddRow('R1', 's1');
+        Observer.Observe('xml', TpExportUnlinked(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <row no="R1">|    <attributes />|    <status>s1</status>|  </row>|</root>|');
+        Observer.Expect('log', 'get R1;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP_Unlinked_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TpImport(Observer, 'two rows', 90023, '<root><row no="R1"><attributes><attribute code="A" value="1"/><attribute code="B" value="2"/></attributes><status>s1</status></row><row no="R2"><attributes><attribute code="A" value="3"/></attributes><status>s2</status></row></root>');
+        TpImport(Observer, 'attributes absent', 90023, '<root><row no="R1"><status>s1</status></row><row no="R2"><attributes><attribute code="A" value="1"/></attributes></row></root>');
+        TpImport(Observer, 'attributes empty', 90023, '<root><row no="R1"><attributes/><status>s1</status></row></root>');
+        Observer.Expect('two rows', 'ok log=init;no=R1;init attr;before insert attr A=1 row=R1;after insert attr;init attr;before insert attr B=2 row=R1;after insert attr;before insert R1 status=s1;after insert;init;no=R2;init attr;before insert attr A=3 row=R2;after insert attr;before insert R2 status=s2;after insert; rows=R1:s1;R2:s2; attrs=R1/A=1;R1/B=2;R2/A=3;');
+        Observer.Expect('attributes absent', 'ok log=init;no=R1;before insert R1 status=s1;after insert;init;no=R2;init attr;before insert attr A=1 row=R2;after insert attr;before insert R2 status=;after insert; rows=R1:s1;R2:; attrs=R2/A=1;');
+        Observer.Expect('attributes empty', 'ok log=init;no=R1;before insert R1 status=s1;after insert; rows=R1:s1; attrs=');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP_Unlinked_Import_Shapes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TpImport(Observer, 'attributes twice', 90023, '<root><row no="R1"><attributes><attribute code="A" value="1"/></attributes><attributes><attribute code="B" value="2"/></attributes></row></root>');
+        TpImport(Observer, 'same code twice', 90023, '<root><row no="R1"><attributes><attribute code="A" value="1"/><attribute code="A" value="2"/></attributes></row></root>');
+        TpImport(Observer, 'code missing', 90023, '<root><row no="R1"><attributes><attribute value="1"/></attributes></row></root>');
+        TpImport(Observer, 'status first', 90023, '<root><row no="R1"><status>s1</status><attributes><attribute code="A" value="1"/></attributes></row></root>');
+        Observer.Expect('attributes twice|text', 'Imported XML cannot validate with the schema: The element ''row'' has invalid child element ''attributes''. List of possible elements expected: ''status''.');
+        Observer.Expect('attributes twice|code', 'XmlPortInvalidXml');
+        Observer.Expect('same code twice|text', 'The record in table LT TP XP Attr already exists. Identification fields and values: Parent=''R1'',Code=''A''');
+        Observer.Expect('same code twice|code', 'DB:RecordExists');
+        Observer.Expect('code missing|text', 'Imported XML cannot validate with the schema: The required attribute ''code'' is missing.');
+        Observer.Expect('code missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('status first|text', 'Imported XML cannot validate with the schema: The element ''row'' has invalid child element ''attributes''.');
+        Observer.Expect('status first|code', 'XmlPortInvalidXml');
+        Observer.Verify();
+    end;
+
+    // Writer TQ (NP lane, 2026-10-29): export (and import) of the response-style port 90041/90042 (TqXpResponseObjects.al):
+    // a text element with content, MinOccurs = Zero and MaxOccurs = Once, of field elements and leaf text elements below a temporary table element.
+    local procedure TqExport(var Port: XmlPort "LT TQ XP Response"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TqExportNs(var Port: XmlPort "LT TQ XP Response Ns"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TqImport(var Observer: Codeunit "Probe Observer"; Name: Text; Body: Text)
+    var
+        Runner: Codeunit "LT TQ XP Runner";
+    begin
+        Runner.SetInput('<?xml version="1.0" encoding="UTF-8"?>' + Body);
+        ClearLastError();
+        if Runner.Run() then
+            Observer.Observe(Name, 'ok ' + Runner.Result())
+        else
+            Observer.ObserveError(Name);
+    end;
+
+    [Test]
+    procedure TQ_Response_Export_NoRows()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TQ XP Response";
+    begin
+        Observer.Observe('xml', TqExport(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Observe('values', Port.Values());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<response />|');
+        Observer.Expect('log', '');
+        Observer.Expect('values', 'responsecode= responsemessage= tier= validuntil= membership= status=');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TQ_Response_Export_Rows()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TQ XP Response";
+    begin
+        Port.AddMember('M1', 'GOLDCLUB', 'Ann Smith', DMY2Date(15, 1, 2026), 150.5, false);
+        Port.AddMember('M2', 'BASIC', 'Bob', DMY2Date(1, 2, 2025), 7, true);
+        Observer.Observe('xml', TqExport(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Observe('values', Port.Values());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<response>|  <member no="M1">|    <status>|      <responsecode>OK-M1</responsecode>|      <responsemessage />|    </status>|    <membership>|      <code>GOLDCLUB</code>|      <name>Ann Smith</name>|      <tier>GOLD</tier>|      <issued>2026-01-15</issued>|      <points>150.50</points>|      <validuntil />|      <blocked>false</blocked>|    </membership>|  </member>|  <member no="M2">|    <status>|      <responsecode>OK-M2</responsecode>|      <responsemessage />|    </status>|    <membership>|      <code>BASIC</code>|      <name>Bob</name>|      <tier />|      <issued>2025-02-01</issued>|      <points>7.00</points>|      <validuntil />|      <blocked>true</blocked>|    </membership>|  </member>|</response>|');
+        Observer.Expect('log', 'get M1;pass status;pass responsemessage;pass membership;pass tier;get M2;pass status;pass responsemessage;pass membership;pass tier;');
+        Observer.Expect('values', 'responsecode=OK-M2 responsemessage= tier= validuntil= membership= status=');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TQ_Response_Export_EmptyValues()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TQ XP Response";
+    begin
+        Port.AddMember('M3', '', '', 0D, 0, false);
+        Observer.Observe('xml', TqExport(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<response>|  <member no="M3">|    <status>|      <responsecode>OK-M3</responsecode>|      <responsemessage>no membership</responsemessage>|    </status>|    <membership>|      <code />|      <name />|      <tier />|      <issued />|      <points>0.00</points>|      <validuntil />|      <blocked>false</blocked>|    </membership>|  </member>|</response>|');
+        Observer.Expect('log', 'get M3;pass status;pass responsemessage;pass membership;pass tier;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TQ_Response_Export_GlobalLeafSet()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TQ XP Response";
+    begin
+        Port.AddMember('M1', 'C1', 'N1', DMY2Date(15, 1, 2026), 1.25, false);
+        Port.AddMember('M2', '', '', 0D, 0, false);
+        Port.SetValidUntil('2027-12-31');
+        Observer.Observe('xml', TqExport(Port));
+        Observer.Observe('values', Port.Values());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<response>|  <member no="M1">|    <status>|      <responsecode>OK-M1</responsecode>|      <responsemessage />|    </status>|    <membership>|      <code>C1</code>|      <name>N1</name>|      <tier />|      <issued>2026-01-15</issued>|      <points>1.25</points>|      <validuntil>2027-12-31</validuntil>|      <blocked>false</blocked>|    </membership>|  </member>|  <member no="M2">|    <status>|      <responsecode>OK-M2</responsecode>|      <responsemessage>no membership</responsemessage>|    </status>|    <membership>|      <code />|      <name />|      <tier />|      <issued />|      <points>0.00</points>|      <validuntil>2027-12-31</validuntil>|      <blocked>false</blocked>|    </membership>|  </member>|</response>|');
+        Observer.Expect('values', 'responsecode=OK-M2 responsemessage=no membership tier= validuntil=2027-12-31 membership= status=');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TQ_ResponseNs_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TQ XP Response Ns";
+        Port2: XmlPort "LT TQ XP Response Ns";
+        Port3: XmlPort "LT TQ XP Response Ns";
+    begin
+        Observer.Observe('no rows', TqExportNs(Port));
+        Port2.AddMember('M1', 'C1', 12.5);
+        Port2.AddMember('M2', '', 0);
+        Observer.Observe('rows, leaves empty', TqExportNs(Port2));
+        Port3.AddMember('M1', 'C1', 12.5);
+        Port3.SetLeaves('OK', 'fine', 'GOLD', '2027-12-31');
+        Observer.Observe('rows, leaves set', TqExportNs(Port3));
+        Observer.Expect('no rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<response xmlns="urn:microsoft-dynamics-nav/xmlports/x90042" />|');
+        Observer.Expect('rows, leaves empty', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<response xmlns="urn:microsoft-dynamics-nav/xmlports/x90042">|  <member>|    <status>|      <responsecode />|      <responsemessage />|    </status>|    <membership>|      <code>C1</code>|      <tier />|      <points>12.50</points>|      <validuntil />|    </membership>|  </member>|  <member>|    <status>|      <responsecode />|      <responsemessage />|    </status>|    <membership>|      <code />|      <tier />|      <points>0.00</points>|      <validuntil />|    </membership>|  </member>|</response>|');
+        Observer.Expect('rows, leaves set', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<response xmlns="urn:microsoft-dynamics-nav/xmlports/x90042">|  <member>|    <status>|      <responsecode>OK</responsecode>|      <responsemessage>fine</responsemessage>|    </status>|    <membership>|      <code>C1</code>|      <tier>GOLD</tier>|      <points>12.50</points>|      <validuntil>2027-12-31</validuntil>|    </membership>|  </member>|</response>|');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TQ_Response_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TqImport(Observer, 'full', '<response><member no="M1"><status><responsecode>OK</responsecode><responsemessage>m</responsemessage></status><membership><code>C1</code><name>N1</name><tier>GOLD</tier><issued>2026-01-15</issued><points>12.5</points><validuntil>2027-12-31</validuntil><blocked>true</blocked></membership></member></response>');
+        TqImport(Observer, 'membership absent', '<response><member no="M1"><status><responsecode>OK</responsecode><responsemessage>m</responsemessage></status></member></response>');
+        Observer.Expect('full', 'ok log=init;responsecode=OK;tier=GOLD;membership=;before insert M1 code=C1 name=N1 issued=2026-01-15 points=12.5 blocked=true validuntil=2027-12-31; values: responsecode=OK responsemessage=m tier=GOLD validuntil=2027-12-31 membership= status= rows=M1:C1/N1/2026-01-15/12.5/true;');
+        Observer.Expect('membership absent', 'ok log=init;responsecode=OK;before insert M1 code= name= issued= points=0 blocked=false validuntil=; values: responsecode=OK responsemessage=m tier= validuntil= membership= status= rows=M1:///0/false;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TQ_Response_Import_Shapes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TqImport(Observer, 'optional leaves absent', '<response><member no="M1"><status><responsecode>OK</responsecode><responsemessage /></status><membership><code>C1</code><tier /><issued>2026-01-15</issued><blocked>false</blocked></membership></member></response>');
+        TqImport(Observer, 'membership twice', '<response><member no="M1"><status><responsecode>OK</responsecode><responsemessage /></status><membership><code>C1</code><tier /><issued /><blocked>false</blocked></membership><membership><code>C2</code><tier /><issued /><blocked>false</blocked></membership></member></response>');
+        TqImport(Observer, 'no rows', '<response />');
+        Observer.Expect('optional leaves absent', 'ok log=init;responsecode=OK;tier=;tier=;membership=;before insert M1 code=C1 name= issued=2026-01-15 points=0 blocked=false validuntil=; values: responsecode=OK responsemessage= tier= validuntil= membership= status= rows=M1:C1//2026-01-15/0/false;');
+        Observer.Expect('membership twice|text', 'Imported XML cannot validate with the schema: The element ''member'' has invalid child element ''membership''.');
+        Observer.Expect('membership twice|code', 'XmlPortInvalidXml');
+        Observer.Expect('no rows', 'ok log= values: responsecode= responsemessage= tier= validuntil= membership= status= rows=');
+        Observer.Verify();
+    end;
+
+    // Writer TR (NP lane, 2026-10-29): request/reply ports 90064-90066 (TrXpReplyObjects.al): unlinked temporary table elements nested
+    // in optional text elements below a temporary table element (MaxOccurs = Once), export with 0, 1 and 2 rows at each level after an
+    // import into the same instance; import of empty leaf elements written as <x /> and as <x></x>.
+    local procedure TrExportBooking(var Port: XmlPort "LT TR XP Booking"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    [TryFunction]
+    local procedure TrTryExportBooking(var Port: XmlPort "LT TR XP Booking"; var Xml: Text)
+    begin
+        Xml := TrExportBooking(Port);
+    end;
+
+    local procedure TrImportBooking(var Port: XmlPort "LT TR XP Booking"; Body: Text)
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+        InS: InStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        OutS.WriteText('<?xml version="1.0" encoding="UTF-8"?>' + Body);
+        Buffer.Insert();
+        Buffer.CalcFields(Data);
+        Buffer.Data.CreateInStream(InS, TextEncoding::UTF8);
+        Port.SetSource(InS);
+        Port.Import();
+    end;
+
+    local procedure TrExportMember(var Port: XmlPort "LT TR XP Member Reply"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TrImportMember(var Port: XmlPort "LT TR XP Member Reply"; Body: Text)
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+        InS: InStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        OutS.WriteText('<?xml version="1.0" encoding="UTF-8"?>' + Body);
+        Buffer.Insert();
+        Buffer.CalcFields(Data);
+        Buffer.Data.CreateInStream(InS, TextEncoding::UTF8);
+        Port.SetSource(InS);
+        Port.Import();
+    end;
+
+    local procedure TrLeaf(var Observer: Codeunit "Probe Observer"; Name: Text; Body: Text)
+    var
+        Runner: Codeunit "LT TR XP Leaf Runner";
+    begin
+        Runner.SetInput('<?xml version="1.0" encoding="UTF-8"?>' + Body);
+        ClearLastError();
+        if Runner.Run() then
+            Observer.Observe(Name, 'ok ' + Runner.Result())
+        else
+            Observer.ObserveError(Name);
+    end;
+
+    [TryFunction]
+    local procedure TrTryExportMember(var Port: XmlPort "LT TR XP Member Reply"; var Xml: Text)
+    begin
+        Xml := TrExportMember(Port);
+    end;
+
+    [Test]
+    procedure TR_Booking_Export_Fresh()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Booking";
+        Xml: Text;
+    begin
+        // nothing imported, no reply: the request table element (MinOccurs default Once) writes one row from the empty record
+        ClearLastError();
+        if TrTryExportBooking(Port, Xml) then
+            Observer.Observe('xml', Xml)
+        else
+            Observer.ObserveError('xml');
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings xmlns="urn:microsoft-dynamics-nav/xmlports/x90064">|  <request token="">|    <ticket code="" line_no="0" qty="0" amount="0.00" />|  </request>|</bookings>|');
+        Observer.Expect('log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_Booking_ImportThenExport()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Booking";
+    begin
+        // import the request, export (no reply yet), set an error reply on the same instance, export again
+        TrImportBooking(Port, '<bookings xmlns="urn:microsoft-dynamics-nav/xmlports/x90064"><request token="T1"><ticket code="ADULT" line_no="1" qty="2" amount="10.5"/><ticket code="CHILD" line_no="2" qty="1"/></request></bookings>');
+        Observer.Observe('import log', Port.GetLog());
+        Observer.Observe('token', Port.GetToken());
+        Observer.Observe('tickets', Port.Tickets());
+        Port.ClearLog();
+        Observer.Observe('export 1', TrExportBooking(Port));
+        Observer.Observe('export 1 log', Port.GetLog());
+        Port.ClearLog();
+        Port.SetErrorResult('T1', 'Ticket sold out');
+        Observer.Observe('export 2', TrExportBooking(Port));
+        Observer.Observe('export 2 log', Port.GetLog());
+        Observer.Observe('after', Port.ResultMessage());
+        Observer.Expect('import log', 'insert ticket ADULT;insert ticket CHILD;');
+        Observer.Expect('token', 'T1');
+        Observer.Expect('tickets', '1:ADULT/1/2/10.5;2:CHILD/2/1/0;');
+        Observer.Expect('export 1', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings xmlns="urn:microsoft-dynamics-nav/xmlports/x90064">|  <request token="T1">|    <ticket code="ADULT" line_no="1" qty="2" amount="10.50" />|    <ticket code="CHILD" line_no="2" qty="1" amount="0.00" />|  </request>|</bookings>|');
+        Observer.Expect('export 1 log', '');
+        Observer.Expect('export 2', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings xmlns="urn:microsoft-dynamics-nav/xmlports/x90064">|  <request token="T1">|    <ticket code="ADULT" line_no="1" qty="2" amount="10.50" />|    <ticket code="CHILD" line_no="2" qty="1" amount="0.00" />|  </request>|  <results>|    <state>false</state>|    <token>T1</token>|    <message>Ticket sold out</message>|    <details />|  </results>|</bookings>|');
+        Observer.Expect('export 2 log', 'get result;pass state;');
+        Observer.Expect('after', 'token=T1 message=Ticket sold out state=false');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_Booking_Reply_NoLines()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Booking";
+    begin
+        Port.SetResult(1, 'T9', true, 'OK');
+        Observer.Observe('xml', TrExportBooking(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Observe('after', Port.ResultMessage());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings xmlns="urn:microsoft-dynamics-nav/xmlports/x90064">|  <request token="">|    <ticket code="" line_no="0" qty="0" amount="0.00" />|  </request>|  <results>|    <state>true</state>|    <token>T9</token>|    <message>OK</message>|    <details />|  </results>|</bookings>|');
+        Observer.Expect('log', 'get result;pass state;');
+        Observer.Expect('after', 'token=T9 message=OK state=true');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_Booking_Reply_OneLineOnePart()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Booking";
+    begin
+        Port.SetResult(1, 'T9', true, 'OK');
+        Port.AddLine(10, 1, true, '');
+        Port.AddPart(1, 1, 'ZOO', 501, 2, 12.5, 'Zoo entrance');
+        Observer.Observe('xml', TrExportBooking(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Observe('parts after', Port.PartRows());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings xmlns="urn:microsoft-dynamics-nav/xmlports/x90064">|  <request token="">|    <ticket code="" line_no="0" qty="0" amount="0.00" />|  </request>|  <results>|    <state>true</state>|    <token>T9</token>|    <message>OK</message>|    <details>|      <line line_no="1" status="true" message="OK" price="12.5" quantity="1">|        <parts>|          <Part Code="ZOO">|            <Slot ExtNo="501" Type="Open" CanMove="No" UnitPrice="12.5">|              <kind_is option_value="2">Open</kind_is>|            </Slot>|            <Description>Zoo entrance</Description>|          </Part>|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('log', 'get result;pass state;get line 1;pass price;pass quantity;get part ZOO;pass unitprice;pass kind_is;pass kind_id;');
+        Observer.Expect('parts after', 'ZOO;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_Booking_Reply_TwoLinesTwoParts()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Booking";
+    begin
+        // each line's OnAfterGetRecord empties the unlinked part table and fills it for that line; parts follow SourceTableView (Kind)
+        Port.SetResult(1, 'T9', true, 'OK');
+        Port.AddLine(10, 1, true, '');
+        Port.AddLine(20, 2, false, 'Sold out');
+        Port.AddPart(1, 1, 'ZOO', 501, 2, 12.5, 'Zoo entrance');
+        Port.AddPart(2, 1, 'SHOW', 712, 1, 7, 'Evening show');
+        Port.AddPart(3, 2, 'PARK', 0, 3, 0, '');
+        Port.AddPart(4, 2, 'MUSEUM', 803, 1, 4.25, 'Museum');
+        Observer.Observe('xml', TrExportBooking(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Observe('parts after', Port.PartRows());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings xmlns="urn:microsoft-dynamics-nav/xmlports/x90064">|  <request token="">|    <ticket code="" line_no="0" qty="0" amount="0.00" />|  </request>|  <results>|    <state>true</state>|    <token>T9</token>|    <message>OK</message>|    <details>|      <line line_no="1" status="true" message="OK" price="19.5" quantity="2">|        <parts>|          <Part Code="SHOW">|            <Slot ExtNo="712" Type="Timed" Date="2026-03-02" StartTime="10:00:00" EndTime="11:30:00" CanMove="Yes" UnitPrice="7">|              <kind_is option_value="1">Timed</kind_is>|            </Slot>|            <Description>Evening show</Description>|          </Part>|          <Part Code="ZOO">|            <Slot ExtNo="501" Type="Open" CanMove="No" UnitPrice="12.5">|              <kind_is option_value="2">Open</kind_is>|            </Slot>|            <Description>Zoo entrance</Description>|          </Part>|        </parts>|      </line>|      <line line_no="2" status="false" message="Sold out" price="4.25" quantity="2">|        <parts>|          <Part Code="MUSEUM">|            <Slot ExtNo="803" Type="Timed" Date="2026-03-03" StartTime="10:00:00" EndTime="11:30:00" CanMove="Yes" UnitPrice="4.25">|              <kind_is option_value="1">Timed</kind_is>|            </Slot>|            <Description>Museum</Description>|          </Part>|          <Part Code="PARK">|            <Slot ExtNo="0" Type="Open" CanMove="No" UnitPrice="0">|              <kind_is option_value="3">Skipped</kind_is>|            </Slot>|            <Description />|          </Part>|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('log', 'get result;pass state;get line 1;pass price;pass quantity;get part SHOW;pass unitprice;pass kind_is;pass kind_id;get part ZOO;pass unitprice;pass kind_is;pass kind_id;get line 2;pass price;pass quantity;get part MUSEUM;pass unitprice;pass kind_is;pass kind_id;get part PARK;pass unitprice;pass kind_is;pass kind_id;');
+        Observer.Expect('parts after', 'PARK;MUSEUM;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_Booking_Reply_LinesWithoutParts()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Booking";
+        Xml: Text;
+    begin
+        // lines 1 and 3 get no part rows: the part table element (MinOccurs = Once) still writes one Part, from the record variable as it
+        // is (empty before any row was read, the last row read after line 2), its OnAfterGetRecord does not run, its children's triggers do
+        Port.SetResult(1, 'T9', true, 'OK');
+        Port.AddLine(10, 1, true, '');
+        Port.AddLine(20, 2, true, '');
+        Port.AddLine(30, 3, true, '');
+        Port.AddPart(1, 2, 'ZOO', 501, 2, 12.5, 'Zoo entrance');
+        ClearLastError();
+        if TrTryExportBooking(Port, Xml) then
+            Observer.Observe('xml', Xml)
+        else
+            Observer.ObserveError('xml');
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings xmlns="urn:microsoft-dynamics-nav/xmlports/x90064">|  <request token="">|    <ticket code="" line_no="0" qty="0" amount="0.00" />|  </request>|  <results>|    <state>true</state>|    <token>T9</token>|    <message>OK</message>|    <details>|      <line line_no="1" status="true" message="OK" price="0" quantity="0">|        <parts>|          <Part Code="">|            <Slot ExtNo="0" Type="" CanMove="" UnitPrice="0">|              <kind_is option_value="0"> </kind_is>|            </Slot>|            <Description />|          </Part>|        </parts>|      </line>|      <line line_no="2" status="true" message="OK" price="12.5" quantity="1">|        <parts>|          <Part Code="ZOO">|            <Slot ExtNo="501" Type="Open" CanMove="No" UnitPrice="12.5">|              <kind_is option_value="2">Open</kind_is>|            </Slot>|            <Description>Zoo entrance</Description>|          </Part>|        </parts>|      </line>|      <line line_no="3" status="true" message="OK" price="0" quantity="0">|        <parts>|          <Part Code="ZOO">|            <Slot ExtNo="501" Type="Open" CanMove="No" UnitPrice="12.5">|              <kind_is option_value="2">Open</kind_is>|            </Slot>|            <Description>Zoo entrance</Description>|          </Part>|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('log', 'get result;pass state;get line 1;pass price;pass quantity;pass unitprice;pass kind_is;pass kind_id;get line 2;pass price;pass quantity;get part ZOO;pass unitprice;pass kind_is;pass kind_id;get line 3;pass price;pass quantity;pass unitprice;pass kind_is;pass kind_id;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_Booking_TwoReplyRows()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Booking";
+        Xml: Text;
+    begin
+        // two rows in the reply table element (MaxOccurs = Once): only the first is written
+        Port.SetResult(1, 'T1', true, 'first');
+        Port.SetResult(2, 'T2', false, 'second');
+        ClearLastError();
+        if TrTryExportBooking(Port, Xml) then
+            Observer.Observe('xml', Xml)
+        else
+            Observer.ObserveError('xml');
+        Observer.Observe('log', Port.GetLog());
+        Observer.Observe('after', Port.ResultMessage());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings xmlns="urn:microsoft-dynamics-nav/xmlports/x90064">|  <request token="">|    <ticket code="" line_no="0" qty="0" amount="0.00" />|  </request>|  <results>|    <state>true</state>|    <token>T1</token>|    <message>first</message>|    <details />|  </results>|</bookings>|');
+        Observer.Expect('log', 'get result;pass state;');
+        Observer.Expect('after', 'token=T2 message=second state=true');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_Member_Export_Fresh()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Member Reply";
+    begin
+        Observer.Observe('xml', TrExportMember(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<members xmlns="urn:microsoft-dynamics-nav/xmlports/x90065">|  <addmember />|</members>|');
+        Observer.Expect('log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_Member_ImportThenExport()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Member Reply";
+    begin
+        TrImportMember(Port, '<members xmlns="urn:microsoft-dynamics-nav/xmlports/x90065"><addmember><request instance="i-1"><firstname>Ann</firstname><email>ann@example.com</email><guardian><membernumber>G1</membernumber><email>g@example.com</email></guardian></request></addmember></members>');
+        Observer.Observe('import log', Port.GetLog());
+        Observer.Observe('state', Port.Response());
+        Port.ClearLog();
+        Observer.Observe('export 1', TrExportMember(Port));
+        Observer.Observe('export 1 log', Port.GetLog());
+        Port.ClearLog();
+        Port.AddResponse(5, 'M-100', 'ann@example.com');
+        Port.AddCard(1, 'CARD-1', DMY2Date(31, 12, 2027));
+        Observer.Observe('export 2', TrExportMember(Port));
+        Observer.Observe('export 2 log', Port.GetLog());
+        Observer.Observe('after', Port.Response());
+        Observer.Expect('import log', 'insert request Ann instance=i-1 guardianemail=g@example.com;');
+        Observer.Expect('state', 'status= error= reply=none request=Ann/ann@example.com//G1');
+        Observer.Expect('export 1', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<members xmlns="urn:microsoft-dynamics-nav/xmlports/x90065">|  <addmember>|    <request instance="i-1">|      <firstname>Ann</firstname>|      <email>ann@example.com</email>|      <store />|      <guardian>|        <membernumber>G1</membernumber>|        <email>g@example.com</email>|      </guardian>|    </request>|  </addmember>|</members>|');
+        Observer.Expect('export 1 log', '');
+        Observer.Expect('export 2', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<members xmlns="urn:microsoft-dynamics-nav/xmlports/x90065">|  <addmember>|    <request instance="i-1">|      <firstname>Ann</firstname>|      <email>ann@example.com</email>|      <store />|      <guardian>|        <membernumber>G1</membernumber>|        <email>g@example.com</email>|      </guardian>|    </request>|    <response instance="svc-1">|      <status>1</status>|      <errordescription />|      <member>|        <membernumber>M-100</membernumber>|        <email>ann@example.com</email>|        <card>|          <cardnumber>CARD-1</cardnumber>|          <expirydate>2027-12-31</expirydate>|        </card>|      </member>|    </response>|  </addmember>|</members>|');
+        Observer.Expect('export 2 log', 'get reply M-100;pass instance;get card CARD-1;');
+        Observer.Expect('after', 'status=1 error= reply=5:M-100 request=Ann/ann@example.com//G1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_Member_Reply_Cards()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port0: XmlPort "LT TR XP Member Reply";
+        Port2: XmlPort "LT TR XP Member Reply";
+        Xml: Text;
+    begin
+        // the card table element (MaxOccurs = Once, MinOccurs = Zero, no link): no row writes no card, two rows write only the first
+        Port0.AddResponse(5, 'M-100', 'ann@example.com');
+        Observer.Observe('no card', TrExportMember(Port0));
+        Observer.Observe('no card log', Port0.GetLog());
+        Port2.AddResponse(5, 'M-100', 'ann@example.com');
+        Port2.AddCard(1, 'CARD-1', DMY2Date(31, 12, 2027));
+        Port2.AddCard(2, 'CARD-2', 0D);
+        ClearLastError();
+        if TrTryExportMember(Port2, Xml) then
+            Observer.Observe('two cards', Xml)
+        else
+            Observer.ObserveError('two cards');
+        Observer.Observe('two cards log', Port2.GetLog());
+        Observer.Expect('no card', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<members xmlns="urn:microsoft-dynamics-nav/xmlports/x90065">|  <addmember>|    <response instance="svc-1">|      <status>1</status>|      <errordescription />|      <member>|        <membernumber>M-100</membernumber>|        <email>ann@example.com</email>|      </member>|    </response>|  </addmember>|</members>|');
+        Observer.Expect('no card log', 'get reply M-100;pass instance;');
+        Observer.Expect('two cards', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<members xmlns="urn:microsoft-dynamics-nav/xmlports/x90065">|  <addmember>|    <response instance="svc-1">|      <status>1</status>|      <errordescription />|      <member>|        <membernumber>M-100</membernumber>|        <email>ann@example.com</email>|        <card>|          <cardnumber>CARD-1</cardnumber>|          <expirydate>2027-12-31</expirydate>|        </card>|      </member>|    </response>|  </addmember>|</members>|');
+        Observer.Expect('two cards log', 'get reply M-100;pass instance;get card CARD-1;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_Member_ErrorReply()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Member Reply";
+    begin
+        Port.AddErrorResponse('Member not found');
+        Observer.Observe('xml', TrExportMember(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Observe('after', Port.Response());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<members xmlns="urn:microsoft-dynamics-nav/xmlports/x90065">|  <addmember>|    <response instance="svc-1">|      <status>0</status>|      <errordescription>Member not found</errordescription>|      <member>|        <membernumber />|        <email />|      </member>|    </response>|  </addmember>|</members>|');
+        Observer.Expect('log', 'get reply ;pass instance;');
+        Observer.Expect('after', 'status=0 error=Member not found reply=0: request=none');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_EmptyLeaf_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        // <x /> runs a leaf text element's OnAfterAssignVariable twice (below the root, below a table element, inside a text element),
+        // <x></x> once; a field element's OnAfterAssignField and a container text element's OnAfterAssignVariable run once either way
+        TrLeaf(Observer, 'self-closing', '<root><top /><row no="1"><msg /><direct /><box><inner /></box></row></root>');
+        TrLeaf(Observer, 'open-close', '<root><top></top><row no="1"><msg></msg><direct></direct><box><inner></inner></box></row></root>');
+        TrLeaf(Observer, 'values', '<root><top>t</top><row no="1"><msg>m</msg><direct>d</direct><box><inner>i</inner></box></row></root>');
+        TrLeaf(Observer, 'space', '<root><top> </top><row no="1"><msg> </msg><direct> </direct><box><inner> </inner></box></row></root>');
+        TrLeaf(Observer, 'box self-closing', '<root><row no="1"><box /></row></root>');
+        TrLeaf(Observer, 'box open-close', '<root><row no="1"><box></box></row></root>');
+        TrLeaf(Observer, 'two rows', '<root><top /><row no="1"><direct /></row><row no="2"><direct></direct><box><inner /></box></row></root>');
+        Observer.Expect('self-closing', 'ok top=[];top=[];msg=[];direct=[];direct=[];inner=[];inner=[];box=[];insert 1 msg=[];');
+        Observer.Expect('open-close', 'ok top=[];msg=[];direct=[];inner=[];box=[];insert 1 msg=[];');
+        Observer.Expect('values', 'ok top=[t];msg=[m];direct=[d];inner=[i];box=[];insert 1 msg=[m];');
+        Observer.Expect('space', 'ok top=[];msg=[];direct=[];inner=[];box=[];insert 1 msg=[];');
+        Observer.Expect('box self-closing', 'ok box=[];insert 1 msg=[];');
+        Observer.Expect('box open-close', 'ok box=[];insert 1 msg=[];');
+        Observer.Expect('two rows', 'ok top=[];top=[];direct=[];direct=[];insert 1 msg=[];direct=[];inner=[];inner=[];box=[];insert 2 msg=[];');
+        Observer.Verify();
+    end;
+
+    // Writer TS (NP lane, 2026-10-29): objects 90080-90087 (TsXpObjects.al). A second Export on the same xmlport instance (which rows each
+    // export writes, what the table elements' records hold, SourceTableView and filters, after a record assignment, TransferFields or Init in
+    // between, SystemId); a linked table element with an explicit MaxOccurs = Unbounded next to the same port without it; a container text
+    // element with the default MinOccurs/MaxOccurs over an unlinked temporary table element; MinOccurs = Once on the root text element; import
+    // of Guid values with FormatEvaluate = Xml.
+    local procedure TsExportAgain(var Port: XmlPort "LT TS XP Booking Again"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TsSetupAgain(var Port: XmlPort "LT TS XP Booking Again")
+    begin
+        // lines 1 and 3 get no parts; line 2 gets ZOO (Entry No. 1, Kind Open) and SHOW (Entry No. 2, Kind Timed); SPARE belongs to no line
+        Port.SetResult(1, 'T9');
+        Port.AddLine(10, 1);
+        Port.AddLine(20, 2);
+        Port.AddLine(30, 3);
+        Port.AddPart(1, 2, 'ZOO', 2, 'Zoo');
+        Port.AddPart(2, 2, 'SHOW', 1, 'Show');
+        Port.AddPart(9, 9, 'SPARE', 3, 'Spare');
+    end;
+
+    local procedure TsExportUnbounded(var Port: XmlPort "LT TS XP Linked Unbounded"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TsExportLinked(var Port: XmlPort "LT TS XP Linked Default"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TsExportCards(var Port: XmlPort "LT TS XP Cards Default"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TsExportRootOnce(var Port: XmlPort "LT TS XP Root Once"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TsExportGuid(var Port: XmlPort "LT TS XP Guid"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TsExportView(var Port: XmlPort "LT TS XP View Again"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TsSetupView(var Port: XmlPort "LT TS XP View Again")
+    begin
+        // Kind order: B (Timed), A (Open), C (Skipped); Entry No. order: A, B, C, Z; Z has Qty 0 (outside the SourceTableView filter)
+        Port.AddRow(1, 'A', 2, 1);
+        Port.AddRow(2, 'B', 1, 2);
+        Port.AddRow(3, 'C', 3, 3);
+        Port.AddRow(4, 'Z', 1, 0);
+    end;
+
+    local procedure TsImport(var Observer: Codeunit "Probe Observer"; Name: Text; Mode: Integer; Body: Text)
+    var
+        Runner: Codeunit "LT TS XP Runner";
+    begin
+        Runner.SetInput(Mode, '<?xml version="1.0" encoding="UTF-8"?>' + Body);
+        ClearLastError();
+        if Runner.Run() then
+            Observer.Observe(Name, 'ok ' + Runner.Result())
+        else
+            Observer.ObserveError(Name);
+    end;
+
+    [Test]
+    procedure TS_Again_SameData()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TS XP Booking Again";
+    begin
+        // two exports on one instance with no change in between
+        TsSetupAgain(Port);
+        Observer.Observe('source sid', Port.SourceSid());
+        Observer.Observe('before', Port.State());
+        Observer.Observe('export 1', TsExportAgain(Port));
+        Observer.Observe('export 1 log', Port.GetLog());
+        Observer.Observe('after 1', Port.State());
+        Port.ClearLog();
+        Observer.Observe('export 2', TsExportAgain(Port));
+        Observer.Observe('export 2 log', Port.GetLog());
+        Observer.Observe('after 2', Port.State());
+        Observer.Expect('source sid', '{00000000-0000-0000-0000-000000000001}');
+        Observer.Expect('before', 'result=T9 line=3 part=0:/null parts=0 partview=VERSION(1) SORTING(Field1) lineview=VERSION(1) SORTING(Field1) resultview=VERSION(1) SORTING(Field1)');
+        Observer.Expect('export 1', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings>|  <results>|    <token>T9</token>|    <details>|      <line line_no="1">|        <parts>|          <Part No="0" Code="" Desc="" Sid="null" />|        </parts>|      </line>|      <line line_no="2">|        <parts>|          <Part No="2" Code="SHOW" Desc="Show" Sid="000000000002" />|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|      <line line_no="3">|        <parts>|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('export 1 log', 'get result T9;get line 1;pass sid;get line 2;get part SHOW;pass sid;get part ZOO;pass sid;get line 3;pass sid;');
+        Observer.Expect('after 1', 'result=T9 line=3 part=1:ZOO/000000000001 parts=0 partview=VERSION(1) SORTING(Field5) lineview=VERSION(1) SORTING(Field1) resultview=VERSION(1) SORTING(Field1)');
+        Observer.Expect('export 2', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings>|  <results>|    <token>T9</token>|    <details>|      <line line_no="1">|        <parts>|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|      <line line_no="2">|        <parts>|          <Part No="2" Code="SHOW" Desc="Show" Sid="000000000002" />|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|      <line line_no="3">|        <parts>|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('export 2 log', 'get result T9;get line 1;pass sid;get line 2;get part SHOW;pass sid;get part ZOO;pass sid;get line 3;pass sid;');
+        Observer.Expect('after 2', 'result=T9 line=3 part=1:ZOO/000000000001 parts=0 partview=VERSION(1) SORTING(Field5) lineview=VERSION(1) SORTING(Field1) resultview=VERSION(1) SORTING(Field1)');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TS_Again_AssignBetween()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TS XP Booking Again";
+        Fresh: XmlPort "LT TS XP Booking Again";
+    begin
+        // the Part record is assigned from the SPARE row between the exports; Fresh: assigned before its first export
+        TsSetupAgain(Port);
+        Observer.Observe('export 1', TsExportAgain(Port));
+        Port.AssignPart(9);
+        Observer.Observe('assigned', Port.State());
+        Port.ClearLog();
+        Observer.Observe('export 2', TsExportAgain(Port));
+        Observer.Observe('export 2 log', Port.GetLog());
+        Observer.Observe('after 2', Port.State());
+        TsSetupAgain(Fresh);
+        Fresh.AssignPart(9);
+        Observer.Observe('fresh export', TsExportAgain(Fresh));
+        Observer.Observe('fresh log', Fresh.GetLog());
+        Observer.Expect('export 1', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings>|  <results>|    <token>T9</token>|    <details>|      <line line_no="1">|        <parts>|          <Part No="0" Code="" Desc="" Sid="null" />|        </parts>|      </line>|      <line line_no="2">|        <parts>|          <Part No="2" Code="SHOW" Desc="Show" Sid="000000000002" />|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|      <line line_no="3">|        <parts>|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('assigned', 'result=T9 line=3 part=9:SPARE/000000000009 parts=0 partview=VERSION(1) SORTING(Field5) lineview=VERSION(1) SORTING(Field1) resultview=VERSION(1) SORTING(Field1)');
+        Observer.Expect('export 2', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings>|  <results>|    <token>T9</token>|    <details>|      <line line_no="1">|        <parts>|          <Part No="9" Code="SPARE" Desc="Spare" Sid="000000000009" />|        </parts>|      </line>|      <line line_no="2">|        <parts>|          <Part No="2" Code="SHOW" Desc="Show" Sid="000000000002" />|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|      <line line_no="3">|        <parts>|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('export 2 log', 'get result T9;get line 1;pass sid;get line 2;get part SHOW;pass sid;get part ZOO;pass sid;get line 3;pass sid;');
+        Observer.Expect('after 2', 'result=T9 line=3 part=1:ZOO/000000000001 parts=0 partview=VERSION(1) SORTING(Field5) lineview=VERSION(1) SORTING(Field1) resultview=VERSION(1) SORTING(Field1)');
+        Observer.Expect('fresh export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings>|  <results>|    <token>T9</token>|    <details>|      <line line_no="1">|        <parts>|          <Part No="9" Code="SPARE" Desc="Spare" Sid="000000000009" />|        </parts>|      </line>|      <line line_no="2">|        <parts>|          <Part No="2" Code="SHOW" Desc="Show" Sid="000000000002" />|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|      <line line_no="3">|        <parts>|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('fresh log', 'get result T9;get line 1;pass sid;get line 2;get part SHOW;pass sid;get part ZOO;pass sid;get line 3;pass sid;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TS_Again_TransferFieldsBetween()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TS XP Booking Again";
+    begin
+        // the Part record is filled with TransferFields(SPARE row, true) between the exports
+        TsSetupAgain(Port);
+        Observer.Observe('export 1', TsExportAgain(Port));
+        Port.TransferPart(9);
+        Observer.Observe('transferred', Port.State());
+        Port.ClearLog();
+        Observer.Observe('export 2', TsExportAgain(Port));
+        Observer.Observe('export 2 log', Port.GetLog());
+        Observer.Observe('after 2', Port.State());
+        Observer.Expect('export 1', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings>|  <results>|    <token>T9</token>|    <details>|      <line line_no="1">|        <parts>|          <Part No="0" Code="" Desc="" Sid="null" />|        </parts>|      </line>|      <line line_no="2">|        <parts>|          <Part No="2" Code="SHOW" Desc="Show" Sid="000000000002" />|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|      <line line_no="3">|        <parts>|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('transferred', 'result=T9 line=3 part=9:SPARE/000000000001 parts=0 partview=VERSION(1) SORTING(Field5) lineview=VERSION(1) SORTING(Field1) resultview=VERSION(1) SORTING(Field1)');
+        Observer.Expect('export 2', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings>|  <results>|    <token>T9</token>|    <details>|      <line line_no="1">|        <parts>|          <Part No="9" Code="SPARE" Desc="Spare" Sid="000000000001" />|        </parts>|      </line>|      <line line_no="2">|        <parts>|          <Part No="2" Code="SHOW" Desc="Show" Sid="000000000002" />|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|      <line line_no="3">|        <parts>|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('export 2 log', 'get result T9;get line 1;pass sid;get line 2;get part SHOW;pass sid;get part ZOO;pass sid;get line 3;pass sid;');
+        Observer.Expect('after 2', 'result=T9 line=3 part=1:ZOO/000000000001 parts=0 partview=VERSION(1) SORTING(Field5) lineview=VERSION(1) SORTING(Field1) resultview=VERSION(1) SORTING(Field1)');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TS_Again_InitBetween()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TS XP Booking Again";
+    begin
+        // Init on the Part record between the exports
+        TsSetupAgain(Port);
+        Observer.Observe('export 1', TsExportAgain(Port));
+        Port.InitPart();
+        Observer.Observe('init', Port.State());
+        Port.ClearLog();
+        Observer.Observe('export 2', TsExportAgain(Port));
+        Observer.Observe('after 2', Port.State());
+        Observer.Expect('export 1', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings>|  <results>|    <token>T9</token>|    <details>|      <line line_no="1">|        <parts>|          <Part No="0" Code="" Desc="" Sid="null" />|        </parts>|      </line>|      <line line_no="2">|        <parts>|          <Part No="2" Code="SHOW" Desc="Show" Sid="000000000002" />|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|      <line line_no="3">|        <parts>|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('init', 'result=T9 line=3 part=1:/null parts=0 partview=VERSION(1) SORTING(Field5) lineview=VERSION(1) SORTING(Field1) resultview=VERSION(1) SORTING(Field1)');
+        Observer.Expect('export 2', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings>|  <results>|    <token>T9</token>|    <details>|      <line line_no="1">|        <parts>|          <Part No="1" Code="" Desc="" Sid="null" />|        </parts>|      </line>|      <line line_no="2">|        <parts>|          <Part No="2" Code="SHOW" Desc="Show" Sid="000000000002" />|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|      <line line_no="3">|        <parts>|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('after 2', 'result=T9 line=3 part=1:ZOO/000000000001 parts=0 partview=VERSION(1) SORTING(Field5) lineview=VERSION(1) SORTING(Field1) resultview=VERSION(1) SORTING(Field1)');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TS_Again_KeyBetween()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TS XP Booking Again";
+    begin
+        // SetCurrentKey("Entry No.") on the Part record between the exports: does the second export sort by SourceTableView (Kind) again
+        TsSetupAgain(Port);
+        Observer.Observe('export 1', TsExportAgain(Port));
+        Port.SetPartKeyEntryNo();
+        Observer.Observe('key set', Port.State());
+        Port.ClearLog();
+        Observer.Observe('export 2', TsExportAgain(Port));
+        Observer.Observe('export 2 log', Port.GetLog());
+        Observer.Observe('after 2', Port.State());
+        Observer.Expect('export 1', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings>|  <results>|    <token>T9</token>|    <details>|      <line line_no="1">|        <parts>|          <Part No="0" Code="" Desc="" Sid="null" />|        </parts>|      </line>|      <line line_no="2">|        <parts>|          <Part No="2" Code="SHOW" Desc="Show" Sid="000000000002" />|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|      <line line_no="3">|        <parts>|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('key set', 'result=T9 line=3 part=1:ZOO/000000000001 parts=0 partview=VERSION(1) SORTING(Field1) lineview=VERSION(1) SORTING(Field1) resultview=VERSION(1) SORTING(Field1)');
+        Observer.Expect('export 2', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings>|  <results>|    <token>T9</token>|    <details>|      <line line_no="1">|        <parts>|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|      <line line_no="2">|        <parts>|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|          <Part No="2" Code="SHOW" Desc="Show" Sid="000000000002" />|        </parts>|      </line>|      <line line_no="3">|        <parts>|          <Part No="2" Code="SHOW" Desc="Show" Sid="000000000002" />|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('export 2 log', 'get result T9;get line 1;pass sid;get line 2;get part ZOO;pass sid;get part SHOW;pass sid;get line 3;pass sid;');
+        Observer.Expect('after 2', 'result=T9 line=3 part=2:SHOW/000000000002 parts=0 partview=VERSION(1) SORTING(Field1) lineview=VERSION(1) SORTING(Field1) resultview=VERSION(1) SORTING(Field1)');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TS_Again_LineFilter()
+    var
+        Observer: Codeunit "Probe Observer";
+        Before: XmlPort "LT TS XP Booking Again";
+        Between: XmlPort "LT TS XP Booking Again";
+    begin
+        // SetRange(Ref, 2) on the line record (no SourceTableView) before the first export, and between two exports
+        TsSetupAgain(Before);
+        Before.SetLineFilter(2);
+        Observer.Observe('filter before', TsExportAgain(Before));
+        Observer.Observe('filter before log', Before.GetLog());
+        Observer.Observe('filter before after', Before.State());
+        TsSetupAgain(Between);
+        Observer.Observe('export 1', TsExportAgain(Between));
+        Between.SetLineFilter(2);
+        Between.ClearLog();
+        Observer.Observe('export 2', TsExportAgain(Between));
+        Observer.Observe('export 2 log', Between.GetLog());
+        Observer.Observe('after 2', Between.State());
+        Observer.Expect('filter before', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings>|  <results>|    <token>T9</token>|    <details>|      <line line_no="2">|        <parts>|          <Part No="2" Code="SHOW" Desc="Show" Sid="000000000002" />|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('filter before log', 'get result T9;get line 2;get part SHOW;pass sid;get part ZOO;pass sid;');
+        Observer.Expect('filter before after', 'result=T9 line=2 part=1:ZOO/000000000001 parts=2 partview=VERSION(1) SORTING(Field5) lineview=VERSION(1) SORTING(Field1) WHERE(Field2=1(2)) resultview=VERSION(1) SORTING(Field1)');
+        Observer.Expect('export 1', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings>|  <results>|    <token>T9</token>|    <details>|      <line line_no="1">|        <parts>|          <Part No="0" Code="" Desc="" Sid="null" />|        </parts>|      </line>|      <line line_no="2">|        <parts>|          <Part No="2" Code="SHOW" Desc="Show" Sid="000000000002" />|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|      <line line_no="3">|        <parts>|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('export 2', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings>|  <results>|    <token>T9</token>|    <details>|      <line line_no="2">|        <parts>|          <Part No="2" Code="SHOW" Desc="Show" Sid="000000000002" />|          <Part No="1" Code="ZOO" Desc="Zoo" Sid="000000000001" />|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('export 2 log', 'get result T9;get line 2;get part SHOW;pass sid;get part ZOO;pass sid;');
+        Observer.Expect('after 2', 'result=T9 line=2 part=1:ZOO/000000000001 parts=2 partview=VERSION(1) SORTING(Field5) lineview=VERSION(1) SORTING(Field1) WHERE(Field2=1(2)) resultview=VERSION(1) SORTING(Field1)');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TS_View_FirstExport()
+    var
+        Observer: Codeunit "Probe Observer";
+        Plain: XmlPort "LT TS XP View Again";
+        KeySet: XmlPort "LT TS XP View Again";
+        Filtered: XmlPort "LT TS XP View Again";
+        QtyRange: XmlPort "LT TS XP View Again";
+    begin
+        // SourceTableView = sorting(Kind) where(Qty = filter(> 0)); a key or filters set on the record before the first export
+        TsSetupView(Plain);
+        Observer.Observe('plain', TsExportView(Plain));
+        Observer.Observe('plain view after', Plain.View());
+        TsSetupView(KeySet);
+        KeySet.SetKeyEntryNo();
+        Observer.Observe('key set', TsExportView(KeySet));
+        Observer.Observe('key set view after', KeySet.View());
+        TsSetupView(Filtered);
+        Filtered.SetCodeFilter('A|C|Z');
+        Observer.Observe('code filter', TsExportView(Filtered));
+        Observer.Observe('code filter view after', Filtered.View());
+        TsSetupView(QtyRange);
+        QtyRange.SetQtyRange(0, 2);
+        Observer.Observe('qty range', TsExportView(QtyRange));
+        Observer.Observe('qty range view after', QtyRange.View());
+        Observer.Expect('plain', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<rows>|  <row no="2" code="B" />|  <row no="1" code="A" />|  <row no="3" code="C" />|</rows>|');
+        Observer.Expect('plain view after', 'VERSION(1) SORTING(Field5) count=3');
+        Observer.Expect('key set', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<rows>|  <row no="2" code="B" />|  <row no="1" code="A" />|  <row no="3" code="C" />|</rows>|');
+        Observer.Expect('key set view after', 'VERSION(1) SORTING(Field5) count=3');
+        Observer.Expect('code filter', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<rows>|  <row no="1" code="A" />|  <row no="3" code="C" />|</rows>|');
+        Observer.Expect('code filter view after', 'VERSION(1) SORTING(Field5) WHERE(Field3=1(A|C|Z)) count=2');
+        Observer.Expect('qty range', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<rows>|  <row no="2" code="B" />|  <row no="1" code="A" />|</rows>|');
+        Observer.Expect('qty range view after', 'VERSION(1) SORTING(Field5) WHERE(Field8=1(0..2)) count=2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TS_View_SecondExport()
+    var
+        Observer: Codeunit "Probe Observer";
+        Again: XmlPort "LT TS XP View Again";
+        KeySet: XmlPort "LT TS XP View Again";
+        Filtered: XmlPort "LT TS XP View Again";
+        QtyRange: XmlPort "LT TS XP View Again";
+        ResetRow: XmlPort "LT TS XP View Again";
+    begin
+        // the same instance exported twice; between the exports: nothing, a key, a Code filter, a Qty range, Reset
+        TsSetupView(Again);
+        Observer.Observe('again 1', TsExportView(Again));
+        Observer.Observe('again 2', TsExportView(Again));
+        TsSetupView(KeySet);
+        Observer.Observe('key set 1', TsExportView(KeySet));
+        KeySet.SetKeyEntryNo();
+        Observer.Observe('key set 2', TsExportView(KeySet));
+        Observer.Observe('key set view after', KeySet.View());
+        TsSetupView(Filtered);
+        Observer.Observe('code filter 1', TsExportView(Filtered));
+        Filtered.SetCodeFilter('A|C|Z');
+        Observer.Observe('code filter 2', TsExportView(Filtered));
+        Observer.Observe('code filter view after', Filtered.View());
+        TsSetupView(QtyRange);
+        Observer.Observe('qty range 1', TsExportView(QtyRange));
+        QtyRange.SetQtyRange(0, 2);
+        Observer.Observe('qty range 2', TsExportView(QtyRange));
+        Observer.Observe('qty range view after', QtyRange.View());
+        TsSetupView(ResetRow);
+        Observer.Observe('reset 1', TsExportView(ResetRow));
+        ResetRow.ResetRow();
+        Observer.Observe('reset view', ResetRow.View());
+        Observer.Observe('reset 2', TsExportView(ResetRow));
+        Observer.Observe('reset view after', ResetRow.View());
+        Observer.Expect('again 1', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<rows>|  <row no="2" code="B" />|  <row no="1" code="A" />|  <row no="3" code="C" />|</rows>|');
+        Observer.Expect('again 2', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<rows>|  <row no="2" code="B" />|  <row no="1" code="A" />|  <row no="3" code="C" />|</rows>|');
+        Observer.Expect('key set 1', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<rows>|  <row no="2" code="B" />|  <row no="1" code="A" />|  <row no="3" code="C" />|</rows>|');
+        Observer.Expect('key set 2', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<rows>|  <row no="1" code="A" />|  <row no="2" code="B" />|  <row no="3" code="C" />|</rows>|');
+        Observer.Expect('key set view after', 'VERSION(1) SORTING(Field1) count=3');
+        Observer.Expect('code filter 1', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<rows>|  <row no="2" code="B" />|  <row no="1" code="A" />|  <row no="3" code="C" />|</rows>|');
+        Observer.Expect('code filter 2', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<rows>|  <row no="1" code="A" />|  <row no="3" code="C" />|</rows>|');
+        Observer.Expect('code filter view after', 'VERSION(1) SORTING(Field5) WHERE(Field3=1(A|C|Z)) count=2');
+        Observer.Expect('qty range 1', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<rows>|  <row no="2" code="B" />|  <row no="1" code="A" />|  <row no="3" code="C" />|</rows>|');
+        Observer.Expect('qty range 2', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<rows>|  <row no="2" code="B" />|  <row no="1" code="A" />|</rows>|');
+        Observer.Expect('qty range view after', 'VERSION(1) SORTING(Field5) WHERE(Field8=1(0..2)) count=2');
+        Observer.Expect('reset 1', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<rows>|  <row no="2" code="B" />|  <row no="1" code="A" />|  <row no="3" code="C" />|</rows>|');
+        Observer.Expect('reset view', 'VERSION(1) SORTING(Field1) count=4');
+        Observer.Expect('reset 2', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<rows>|  <row no="1" code="A" />|  <row no="2" code="B" />|  <row no="3" code="C" />|</rows>|');
+        Observer.Expect('reset view after', 'VERSION(1) SORTING(Field1) count=3');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TS_Again_TrBooking()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Booking";
+    begin
+        // xmlport 90064: line 1 has no parts, line 2 has ZOO; the same instance exported twice
+        Port.SetResult(1, 'T9', true, 'OK');
+        Port.AddLine(10, 1, true, '');
+        Port.AddLine(20, 2, true, '');
+        Port.AddPart(1, 2, 'ZOO', 501, 2, 12.5, 'Zoo entrance');
+        Observer.Observe('export 1', TrExportBooking(Port));
+        Observer.Observe('export 1 log', Port.GetLog());
+        Port.ClearLog();
+        Observer.Observe('export 2', TrExportBooking(Port));
+        Observer.Observe('export 2 log', Port.GetLog());
+        Observer.Observe('after', Port.ResultMessage());
+        Observer.Expect('export 1', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings xmlns="urn:microsoft-dynamics-nav/xmlports/x90064">|  <request token="">|    <ticket code="" line_no="0" qty="0" amount="0.00" />|  </request>|  <results>|    <state>true</state>|    <token>T9</token>|    <message>OK</message>|    <details>|      <line line_no="1" status="true" message="OK" price="0" quantity="0">|        <parts>|          <Part Code="">|            <Slot ExtNo="0" Type="" CanMove="" UnitPrice="0">|              <kind_is option_value="0"> </kind_is>|            </Slot>|            <Description />|          </Part>|        </parts>|      </line>|      <line line_no="2" status="true" message="OK" price="12.5" quantity="1">|        <parts>|          <Part Code="ZOO">|            <Slot ExtNo="501" Type="Open" CanMove="No" UnitPrice="12.5">|              <kind_is option_value="2">Open</kind_is>|            </Slot>|            <Description>Zoo entrance</Description>|          </Part>|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('export 1 log', 'get result;pass state;get line 1;pass price;pass quantity;pass unitprice;pass kind_is;pass kind_id;get line 2;pass price;pass quantity;get part ZOO;pass unitprice;pass kind_is;pass kind_id;');
+        Observer.Expect('export 2', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings xmlns="urn:microsoft-dynamics-nav/xmlports/x90064">|  <request token="">|    <ticket code="" line_no="0" qty="0" amount="0.00" />|  </request>|  <results>|    <state>true</state>|    <token>T9</token>|    <message>OK</message>|    <details>|      <line line_no="1" status="true" message="OK" price="0" quantity="0">|        <parts>|          <Part Code="ZOO">|            <Slot ExtNo="501" Type="Open" CanMove="No" UnitPrice="12.5">|              <kind_is option_value="2">Open</kind_is>|            </Slot>|            <Description>Zoo entrance</Description>|          </Part>|        </parts>|      </line>|      <line line_no="2" status="true" message="OK" price="12.5" quantity="1">|        <parts>|          <Part Code="ZOO">|            <Slot ExtNo="501" Type="Open" CanMove="No" UnitPrice="12.5">|              <kind_is option_value="2">Open</kind_is>|            </Slot>|            <Description>Zoo entrance</Description>|          </Part>|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('export 2 log', 'get result;pass state;get line 1;pass price;pass quantity;pass unitprice;pass kind_is;pass kind_id;get line 2;pass price;pass quantity;get part ZOO;pass unitprice;pass kind_is;pass kind_id;');
+        Observer.Expect('after', 'token=T9 message=OK state=true');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TS_Again_TrMember()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Member Reply";
+    begin
+        // xmlport 90065: two cards (MaxOccurs = Once), exported twice; a card that sorts first is added before the third export
+        Port.AddResponse(5, 'M-100', 'ann@example.com');
+        Port.AddCard(1, 'CARD-1', DMY2Date(31, 12, 2027));
+        Port.AddCard(2, 'CARD-2', 0D);
+        Observer.Observe('export 1', TrExportMember(Port));
+        Observer.Observe('export 1 log', Port.GetLog());
+        Port.ClearLog();
+        Observer.Observe('export 2', TrExportMember(Port));
+        Observer.Observe('export 2 log', Port.GetLog());
+        Port.ClearLog();
+        Port.AddCard(0, 'CARD-0', 0D);
+        Observer.Observe('export 3', TrExportMember(Port));
+        Observer.Observe('export 3 log', Port.GetLog());
+        Observer.Observe('after', Port.Response());
+        Observer.Expect('export 1', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<members xmlns="urn:microsoft-dynamics-nav/xmlports/x90065">|  <addmember>|    <response instance="svc-1">|      <status>1</status>|      <errordescription />|      <member>|        <membernumber>M-100</membernumber>|        <email>ann@example.com</email>|        <card>|          <cardnumber>CARD-1</cardnumber>|          <expirydate>2027-12-31</expirydate>|        </card>|      </member>|    </response>|  </addmember>|</members>|');
+        Observer.Expect('export 1 log', 'get reply M-100;pass instance;get card CARD-1;');
+        Observer.Expect('export 2', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<members xmlns="urn:microsoft-dynamics-nav/xmlports/x90065">|  <addmember>|    <response instance="svc-1">|      <status>1</status>|      <errordescription />|      <member>|        <membernumber>M-100</membernumber>|        <email>ann@example.com</email>|        <card>|          <cardnumber>CARD-1</cardnumber>|          <expirydate>2027-12-31</expirydate>|        </card>|      </member>|    </response>|  </addmember>|</members>|');
+        Observer.Expect('export 2 log', 'get reply M-100;pass instance;get card CARD-1;');
+        Observer.Expect('export 3', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<members xmlns="urn:microsoft-dynamics-nav/xmlports/x90065">|  <addmember>|    <response instance="svc-1">|      <status>1</status>|      <errordescription />|      <member>|        <membernumber>M-100</membernumber>|        <email>ann@example.com</email>|        <card>|          <cardnumber>CARD-0</cardnumber>|          <expirydate />|        </card>|      </member>|    </response>|  </addmember>|</members>|');
+        Observer.Expect('export 3 log', 'get reply M-100;pass instance;get card CARD-0;');
+        Observer.Expect('after', 'status=1 error= reply=5:M-100 request=none');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TS_Linked_Unbounded_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Unbounded: XmlPort "LT TS XP Linked Unbounded";
+        Linked: XmlPort "LT TS XP Linked Default";
+        UnboundedXml: Text;
+        LinkedXml: Text;
+    begin
+        // tickets 1, 2, 3 with 0, 1 and 2 linked items, item X linked to no ticket; explicit MaxOccurs = Unbounded and the default side by side
+        Unbounded.AddHead(1, 'T1');
+        Unbounded.AddHead(2, 'T2');
+        Unbounded.AddHead(3, 'T3');
+        Unbounded.AddItem(1, 2, 'A', 1);
+        Unbounded.AddItem(2, 3, 'B', 2);
+        Unbounded.AddItem(3, 3, 'C', 3);
+        Unbounded.AddItem(4, 7, 'X', 9);
+        Linked.AddHead(1, 'T1');
+        Linked.AddHead(2, 'T2');
+        Linked.AddHead(3, 'T3');
+        Linked.AddItem(1, 2, 'A', 1);
+        Linked.AddItem(2, 3, 'B', 2);
+        Linked.AddItem(3, 3, 'C', 3);
+        Linked.AddItem(4, 7, 'X', 9);
+        UnboundedXml := TsExportUnbounded(Unbounded);
+        LinkedXml := TsExportLinked(Linked);
+        Observer.Observe('unbounded', UnboundedXml);
+        Observer.Observe('unbounded log', Unbounded.GetLog());
+        Observer.Observe('same xml', Format(UnboundedXml = LinkedXml));
+        Observer.Observe('same log', Format(Unbounded.GetLog() = Linked.GetLog()));
+        Observer.Expect('unbounded', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<confirm>|  <ticket no="1">|    <token>T1</token>|  </ticket>|  <ticket no="2">|    <token>T2</token>|    <item info="A#1">|      <code>A</code>|      <qty>1</qty>|      <note>n1</note>|    </item>|  </ticket>|  <ticket no="3">|    <token>T3</token>|    <item info="B#2">|      <code>B</code>|      <qty>2</qty>|      <note>n2</note>|    </item>|    <item info="C#3">|      <code>C</code>|      <qty>3</qty>|      <note>n3</note>|    </item>|  </ticket>|</confirm>|');
+        Observer.Expect('unbounded log', 'get ticket 1;pass token T1;get ticket 2;pass token T2;get item A;pass info;pass code;pass qty;pass note;get ticket 3;pass token T3;get item B;pass info;pass code;pass qty;pass note;get item C;pass info;pass code;pass qty;pass note;');
+        Observer.Expect('same xml', 'Yes');
+        Observer.Expect('same log', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TS_Linked_Unbounded_Export_NoRows()
+    var
+        Observer: Codeunit "Probe Observer";
+        Unbounded: XmlPort "LT TS XP Linked Unbounded";
+        Linked: XmlPort "LT TS XP Linked Default";
+    begin
+        Observer.Observe('unbounded', TsExportUnbounded(Unbounded));
+        Observer.Observe('default', TsExportLinked(Linked));
+        Observer.Expect('unbounded', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<confirm />|');
+        Observer.Expect('default', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<confirm />|');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TS_Linked_Unbounded_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        // the same documents into the explicit-Unbounded port (1) and the default port (2)
+        TsImport(Observer, 'unbounded 0/1/2', 1, '<confirm><ticket no="1"><token>T1</token></ticket><ticket no="2"><token>T2</token><item info="i-a"><code>A</code><qty>1</qty><note>na</note></item></ticket><ticket no="3"><token>T3</token><item info="i-b"><code>B</code><qty>2</qty><note>nb</note></item><item info="i-c"><code>C</code><qty>3</qty><note>nc</note></item></ticket></confirm>');
+        TsImport(Observer, 'default 0/1/2', 2, '<confirm><ticket no="1"><token>T1</token></ticket><ticket no="2"><token>T2</token><item info="i-a"><code>A</code><qty>1</qty><note>na</note></item></ticket><ticket no="3"><token>T3</token><item info="i-b"><code>B</code><qty>2</qty><note>nb</note></item><item info="i-c"><code>C</code><qty>3</qty><note>nc</note></item></ticket></confirm>');
+        TsImport(Observer, 'unbounded no tickets', 1, '<confirm />');
+        TsImport(Observer, 'unbounded item missing note', 1, '<confirm><ticket no="1"><token>T1</token><item info="i-a"><code>A</code><qty>1</qty></item></ticket></confirm>');
+        TsImport(Observer, 'default item missing note', 2, '<confirm><ticket no="1"><token>T1</token><item info="i-a"><code>A</code><qty>1</qty></item></ticket></confirm>');
+        Observer.Expect('unbounded 0/1/2', 'ok ticket 1/T1;ticket 2/T2;ticket 3/T3;item 1/2/A/1;item 2/3/B/2;item 3/0/C/3; log=insert ticket 1;insert ticket 2;info=i-a;note=na;insert item A ref=2;insert ticket 3;info=i-b;note=nb;insert item B ref=3;info=i-c;note=nc;insert item C ref=0;');
+        Observer.Expect('default 0/1/2', 'ok ticket 1/T1;ticket 2/T2;ticket 3/T3;item 1/2/A/1;item 2/3/B/2;item 3/0/C/3; log=insert ticket 1;insert ticket 2;info=i-a;note=na;insert item A ref=2;insert ticket 3;info=i-b;note=nb;insert item B ref=3;info=i-c;note=nc;insert item C ref=0;');
+        Observer.Expect('unbounded no tickets', 'ok  log=');
+        Observer.Expect('unbounded item missing note|text', 'Imported XML cannot validate with the schema: The element ''item'' has incomplete content. List of possible elements expected: ''note''.');
+        Observer.Expect('unbounded item missing note|code', 'XmlPortInvalidXml');
+        Observer.Expect('default item missing note|text', 'Imported XML cannot validate with the schema: The element ''item'' has incomplete content. List of possible elements expected: ''note''.');
+        Observer.Expect('default item missing note|code', 'XmlPortInvalidXml');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TS_Cards_DefaultOccurs_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        NoReply: XmlPort "LT TS XP Cards Default";
+        NoCard: XmlPort "LT TS XP Cards Default";
+        OneCard: XmlPort "LT TS XP Cards Default";
+        TwoCards: XmlPort "LT TS XP Cards Default";
+    begin
+        // the text element cards (default MinOccurs/MaxOccurs) over an unlinked temporary table element (MaxOccurs = Once, MinOccurs = Zero)
+        Observer.Observe('no reply', TsExportCards(NoReply));
+        Observer.Observe('no reply log', NoReply.GetLog());
+        NoCard.AddResponse(5, 'M-100', 'ann@example.com');
+        Observer.Observe('no card', TsExportCards(NoCard));
+        Observer.Observe('no card log', NoCard.GetLog());
+        OneCard.AddResponse(5, 'M-100', 'ann@example.com');
+        OneCard.AddCard(1, 'CARD-1', DMY2Date(31, 12, 2027));
+        Observer.Observe('one card', TsExportCards(OneCard));
+        Observer.Observe('one card log', OneCard.GetLog());
+        TwoCards.AddResponse(5, 'M-100', 'ann@example.com');
+        TwoCards.AddCard(1, 'CARD-1', DMY2Date(31, 12, 2027));
+        TwoCards.AddCard(2, 'CARD-2', 0D);
+        Observer.Observe('two cards', TsExportCards(TwoCards));
+        Observer.Observe('two cards log', TwoCards.GetLog());
+        Observer.Expect('no reply', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<members />|');
+        Observer.Expect('no reply log', '');
+        Observer.Expect('no card', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<members>|  <response>|    <membernumber>M-100</membernumber>|    <email>ann@example.com</email>|    <cards />|  </response>|</members>|');
+        Observer.Expect('no card log', 'get reply M-100;');
+        Observer.Expect('one card', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<members>|  <response>|    <membernumber>M-100</membernumber>|    <email>ann@example.com</email>|    <cards>|      <card>|        <cardnumber>CARD-1</cardnumber>|        <expirydate>2027-12-31</expirydate>|      </card>|    </cards>|  </response>|</members>|');
+        Observer.Expect('one card log', 'get reply M-100;get card CARD-1;');
+        Observer.Expect('two cards', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<members>|  <response>|    <membernumber>M-100</membernumber>|    <email>ann@example.com</email>|    <cards>|      <card>|        <cardnumber>CARD-1</cardnumber>|        <expirydate>2027-12-31</expirydate>|      </card>|    </cards>|  </response>|</members>|');
+        Observer.Expect('two cards log', 'get reply M-100;get card CARD-1;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TS_RootOnce_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Empty: XmlPort "LT TS XP Root Once";
+        Filled: XmlPort "LT TS XP Root Once";
+    begin
+        Observer.Observe('empty', TsExportRootOnce(Empty));
+        Observer.Observe('empty log', Empty.GetLog());
+        Filled.SetToken('C1');
+        Filled.AddTicket(1, 'ADULT', 2);
+        Filled.AddTicket(2, 'CHILD', 1);
+        Observer.Observe('filled', TsExportRootOnce(Filled));
+        Observer.Observe('filled log', Filled.GetLog());
+        Observer.Expect('empty', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<changerequest>|  <token />|</changerequest>|');
+        Observer.Expect('empty log', '');
+        Observer.Expect('filled', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<changerequest>|  <token>C1</token>|  <ticket code="ADULT" qty="2" />|  <ticket code="CHILD" qty="1" />|</changerequest>|');
+        Observer.Expect('filled log', 'get ticket ADULT;get ticket CHILD;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TS_RootOnce_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TsImport(Observer, 'full', 3, '<changerequest><token>C1</token><ticket code="ADULT" qty="2"/><ticket code="CHILD" qty="1"/></changerequest>');
+        TsImport(Observer, 'token only', 3, '<changerequest><token>C1</token></changerequest>');
+        TsImport(Observer, 'empty root', 3, '<changerequest />');
+        TsImport(Observer, 'open-close root', 3, '<changerequest></changerequest>');
+        TsImport(Observer, 'other root', 3, '<other><token>C1</token></other>');
+        TsImport(Observer, 'no root', 3, '');
+        Observer.Expect('full', 'ok token=C1 log=insert ticket ADULT;insert ticket CHILD; rows=1:ADULT/2;2:CHILD/1;');
+        Observer.Expect('token only', 'ok token=C1 log= rows=');
+        Observer.Expect('empty root', 'ok token= log= rows=');
+        Observer.Expect('open-close root', 'ok token= log= rows=');
+        Observer.Expect('other root|text', 'Imported XML cannot validate with the schema: The ''other'' element is not declared.');
+        Observer.Expect('other root|code', 'XmlPortInvalidXml');
+        Observer.Expect('no root|text', 'Root element is missing.');
+        Observer.Expect('no root|code', 'XmlPortImport:Xml');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TS_Guid_Import_Element()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        // a Guid field element, FormatEvaluate = Xml
+        TsImport(Observer, 'braces upper', 4, '<guids><row no="1"><g>{5A2F6C9E-1B3D-4E8F-9A0B-1C2D3E4F5A6B}</g></row></guids>');
+        TsImport(Observer, 'braces lower', 4, '<guids><row no="1"><g>{5a2f6c9e-1b3d-4e8f-9a0b-1c2d3e4f5a6b}</g></row></guids>');
+        TsImport(Observer, 'plain upper', 4, '<guids><row no="1"><g>5A2F6C9E-1B3D-4E8F-9A0B-1C2D3E4F5A6B</g></row></guids>');
+        TsImport(Observer, 'plain lower', 4, '<guids><row no="1"><g>5a2f6c9e-1b3d-4e8f-9a0b-1c2d3e4f5a6b</g></row></guids>');
+        TsImport(Observer, 'mixed case', 4, '<guids><row no="1"><g>5a2F6c9E-1b3D-4e8F-9a0B-1c2D3e4F5a6B</g></row></guids>');
+        TsImport(Observer, 'digits only', 4, '<guids><row no="1"><g>5A2F6C9E1B3D4E8F9A0B1C2D3E4F5A6B</g></row></guids>');
+        TsImport(Observer, 'parentheses', 4, '<guids><row no="1"><g>(5A2F6C9E-1B3D-4E8F-9A0B-1C2D3E4F5A6B)</g></row></guids>');
+        TsImport(Observer, 'surrounding spaces', 4, '<guids><row no="1"><g> 5a2f6c9e-1b3d-4e8f-9a0b-1c2d3e4f5a6b </g></row></guids>');
+        TsImport(Observer, 'null guid', 4, '<guids><row no="1"><g>00000000-0000-0000-0000-000000000000</g></row></guids>');
+        TsImport(Observer, 'empty open-close', 4, '<guids><row no="1"><g></g></row></guids>');
+        TsImport(Observer, 'empty self-closing', 4, '<guids><row no="1"><g /></row></guids>');
+        TsImport(Observer, 'missing', 4, '<guids><row no="1"/></guids>');
+        TsImport(Observer, 'invalid', 4, '<guids><row no="1"><g>not-a-guid</g></row></guids>');
+        TsImport(Observer, 'one digit short', 4, '<guids><row no="1"><g>5A2F6C9E-1B3D-4E8F-9A0B-1C2D3E4F5A6</g></row></guids>');
+        Observer.Expect('braces upper', 'ok 1:g={5A2F6C9E-1B3D-4E8F-9A0B-1C2D3E4F5A6B} ga={00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('braces lower', 'ok 1:g={5A2F6C9E-1B3D-4E8F-9A0B-1C2D3E4F5A6B} ga={00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('plain upper', 'ok 1:g={5A2F6C9E-1B3D-4E8F-9A0B-1C2D3E4F5A6B} ga={00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('plain lower', 'ok 1:g={5A2F6C9E-1B3D-4E8F-9A0B-1C2D3E4F5A6B} ga={00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('mixed case', 'ok 1:g={5A2F6C9E-1B3D-4E8F-9A0B-1C2D3E4F5A6B} ga={00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('digits only', 'ok 1:g={5A2F6C9E-1B3D-4E8F-9A0B-1C2D3E4F5A6B} ga={00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('parentheses', 'ok 1:g={5A2F6C9E-1B3D-4E8F-9A0B-1C2D3E4F5A6B} ga={00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('surrounding spaces', 'ok 1:g={5A2F6C9E-1B3D-4E8F-9A0B-1C2D3E4F5A6B} ga={00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('null guid', 'ok 1:g={00000000-0000-0000-0000-000000000000} ga={00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('empty open-close', 'ok 1:g={00000000-0000-0000-0000-000000000000} ga={00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('empty self-closing', 'ok 1:g={00000000-0000-0000-0000-000000000000} ga={00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('missing', 'ok 1:g={00000000-0000-0000-0000-000000000000} ga={00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('invalid|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('invalid|code', 'InvalidGuidFormat');
+        Observer.Expect('one digit short|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('one digit short|code', 'InvalidGuidFormat');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TS_Guid_Import_Attribute()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        // a Guid field attribute, FormatEvaluate = Xml
+        TsImport(Observer, 'braces upper', 4, '<guids><row no="1" ga="{5A2F6C9E-1B3D-4E8F-9A0B-1C2D3E4F5A6B}"/></guids>');
+        TsImport(Observer, 'plain lower', 4, '<guids><row no="1" ga="5a2f6c9e-1b3d-4e8f-9a0b-1c2d3e4f5a6b"/></guids>');
+        TsImport(Observer, 'digits only', 4, '<guids><row no="1" ga="5A2F6C9E1B3D4E8F9A0B1C2D3E4F5A6B"/></guids>');
+        TsImport(Observer, 'empty', 4, '<guids><row no="1" ga=""/></guids>');
+        TsImport(Observer, 'invalid', 4, '<guids><row no="1" ga="not-a-guid"/></guids>');
+        Observer.Expect('braces upper', 'ok 1:g={00000000-0000-0000-0000-000000000000} ga={5A2F6C9E-1B3D-4E8F-9A0B-1C2D3E4F5A6B};');
+        Observer.Expect('plain lower', 'ok 1:g={00000000-0000-0000-0000-000000000000} ga={5A2F6C9E-1B3D-4E8F-9A0B-1C2D3E4F5A6B};');
+        Observer.Expect('digits only', 'ok 1:g={00000000-0000-0000-0000-000000000000} ga={5A2F6C9E-1B3D-4E8F-9A0B-1C2D3E4F5A6B};');
+        Observer.Expect('empty', 'ok 1:g={00000000-0000-0000-0000-000000000000} ga={00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('invalid|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('invalid|code', 'InvalidGuidFormat');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TS_Guid_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TS XP Guid";
+        Known: Guid;
+        Null: Guid;
+    begin
+        Known := '{5A2F6C9E-1B3D-4E8F-9A0B-1C2D3E4F5A6B}';
+        Port.AddRow(1, Known, Null);
+        Port.AddRow(2, Null, Known);
+        Observer.Observe('xml', TsExportGuid(Port));
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<guids>|  <row no="1" ga="{00000000-0000-0000-0000-000000000000}">|    <g>{5A2F6C9E-1B3D-4E8F-9A0B-1C2D3E4F5A6B}</g>|  </row>|  <row no="2" ga="{5A2F6C9E-1B3D-4E8F-9A0B-1C2D3E4F5A6B}">|    <g>{00000000-0000-0000-0000-000000000000}</g>|  </row>|</guids>|');
+        Observer.Verify();
+    end;
+
+    local procedure TtExportConfirm(var Port: XmlPort "LT TT XP Confirm Reply"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TtExportChange(var Port: XmlPort "LT TT XP Change Reply"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TtExportOptional(var Port: XmlPort "LT TT XP Optional Unlinked"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TtAddTicket(EntryNo: Integer; ReqNo: Integer; ExtNo: Code[20])
+    var
+        Ticket: Record "LT TT XP Ticket";
+    begin
+        Ticket."Entry No." := EntryNo;
+        Ticket.ReqNo := ReqNo;
+        Ticket.ExtNo := ExtNo;
+        Ticket.Insert();
+    end;
+
+    local procedure TtAddAccess(EntryNo: Integer; TicketNo: Integer; AdmCode: Code[20]; Qty: Integer)
+    var
+        Access: Record "LT TT XP Access";
+    begin
+        Access."Entry No." := EntryNo;
+        Access.TicketNo := TicketNo;
+        Access.AdmCode := AdmCode;
+        Access.Qty := Qty;
+        Access.Insert();
+    end;
+
+    local procedure TtAddDetail(EntryNo: Integer; AccessNo: Integer; Kind: Option " ",Admitted,Reservation; Qty: Integer; ExtSched: Integer)
+    var
+        Detail: Record "LT TT XP Detail";
+    begin
+        Detail."Entry No." := EntryNo;
+        Detail.AccessNo := AccessNo;
+        Detail.Kind := Kind;
+        Detail.Qty := Qty;
+        Detail.ExtSched := ExtSched;
+        Detail.Insert();
+    end;
+
+    // tickets 1 and 2 belong to request 10, ticket 3 to request 11; admission 1 (ticket 1) has only an Admitted detail, admission 2 (ticket 1)
+    // one Reservation detail, admission 3 (ticket 2) two Reservation details with Qty > 0 (entry 4 Qty 2, entry 5 Qty 1), an Admitted one and
+    // a Reservation with Qty 0, admission 4 (ticket 3) one Reservation detail
+    local procedure TtSeedConfirm()
+    var
+        Ticket: Record "LT TT XP Ticket";
+        Access: Record "LT TT XP Access";
+        Detail: Record "LT TT XP Detail";
+        Kind: Option " ",Admitted,Reservation;
+    begin
+        Ticket.DeleteAll();
+        Access.DeleteAll();
+        Detail.DeleteAll();
+        TtAddTicket(1, 10, 'TK-1');
+        TtAddTicket(2, 10, 'TK-2');
+        TtAddTicket(3, 11, 'TK-3');
+        TtAddAccess(1, 1, 'ADM-A', 1);
+        TtAddAccess(2, 1, 'ADM-B', 2);
+        TtAddAccess(3, 2, 'ADM-A', 3);
+        TtAddAccess(4, 3, 'ADM-C', 1);
+        TtAddDetail(1, 2, Kind::Reservation, 1, 501);
+        TtAddDetail(2, 1, Kind::Admitted, 3, 502);
+        TtAddDetail(4, 3, Kind::Reservation, 2, 504);
+        TtAddDetail(5, 3, Kind::Reservation, 1, 505);
+        TtAddDetail(6, 3, Kind::Admitted, 5, 506);
+        TtAddDetail(7, 3, Kind::Reservation, 0, 507);
+        TtAddDetail(8, 4, Kind::Reservation, 1, 508);
+    end;
+
+    local procedure TtSecondImport(var Observer: Codeunit "Probe Observer"; var Runner: Codeunit "LT TT XP Import Runner"; Name: Text; Mode: Integer; Input2: Text)
+    begin
+        Runner.SetSecond(Mode, Input2);
+        ClearLastError();
+        if Runner.Run() then
+            Observer.Observe(Name, 'ok')
+        else
+            Observer.ObserveError(Name);
+        Observer.Observe(Name + ' rows', Runner.Rows());
+        Observer.Observe(Name + ' log', Runner.GetLog());
+    end;
+
+    [Test]
+    procedure TT_Confirm_Export_NpFilters()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TT XP Confirm Reply";
+    begin
+        // OnPreXmlItem of `reservation` resets the record, then filters the link field, Kind = Reservation and Qty > 0 (mode 0)
+        TtSeedConfirm();
+        Port.AddReply(1, 10, true, 'ORD-1');
+        Port.SetDetailMode(0);
+        Observer.Observe('xml', TtExportConfirm(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<tickets>|  <results>|    <reply>|      <status>true</status>|      <order_uid>ORD-1</order_uid>|      <ticket line_no="10">|        <ticket_uid>TK-1</ticket_uid>|        <valid_from>V-TK-1</valid_from>|        <admission code="ADM-A">|          <quantity>1</quantity>|        </admission>|        <admission code="ADM-B">|          <quantity>2</quantity>|          <reservation external_id="501" start="S1" finish="F1" />|        </admission>|      </ticket>|      <ticket line_no="10">|        <ticket_uid>TK-2</ticket_uid>|        <valid_from>V-TK-2</valid_from>|        <admission code="ADM-A">|          <quantity>3</quantity>|          <reservation external_id="504" start="S4" finish="F2" />|        </admission>|      </ticket>|    </reply>|  </results>|</tickets>|');
+        Observer.Expect('log', 'get reply 1;pass status;pre ticket filters=;get ticket 1;pass uid TK-1;pass valid;get access 1;pre detail a1 filters= count=5 then count=0;get access 2;pre detail a2 filters= count=5 then count=1;get detail 1;get ticket 2;pass uid TK-2;pass valid;get access 3;pre detail a3 filters= count=5 then count=2;get detail 4;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TT_Confirm_Export_NoKindFilter()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TT XP Confirm Reply";
+    begin
+        // OnPreXmlItem of `reservation` resets the record, then filters only the link field and Qty > 0 (mode 1): does the SourceTableView
+        // WHERE (Kind = Reservation) and its key survive the Reset?
+        TtSeedConfirm();
+        Port.AddReply(1, 10, true, 'ORD-1');
+        Port.SetDetailMode(1);
+        Observer.Observe('xml', TtExportConfirm(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<tickets>|  <results>|    <reply>|      <status>true</status>|      <order_uid>ORD-1</order_uid>|      <ticket line_no="10">|        <ticket_uid>TK-1</ticket_uid>|        <valid_from>V-TK-1</valid_from>|        <admission code="ADM-A">|          <quantity>1</quantity>|          <reservation external_id="502" start="S2" finish="F3" />|        </admission>|        <admission code="ADM-B">|          <quantity>2</quantity>|          <reservation external_id="501" start="S1" finish="F1" />|        </admission>|      </ticket>|      <ticket line_no="10">|        <ticket_uid>TK-2</ticket_uid>|        <valid_from>V-TK-2</valid_from>|        <admission code="ADM-A">|          <quantity>3</quantity>|          <reservation external_id="504" start="S4" finish="F2" />|        </admission>|      </ticket>|    </reply>|  </results>|</tickets>|');
+        Observer.Expect('log', 'get reply 1;pass status;pre ticket filters=;get ticket 1;pass uid TK-1;pass valid;get access 1;pre detail a1 filters= count=5 then count=1;get detail 2;get access 2;pre detail a2 filters= count=5 then count=1;get detail 1;get ticket 2;pass uid TK-2;pass valid;get access 3;pre detail a3 filters= count=5 then count=3;get detail 4;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TT_Confirm_Export_NoPreFilter()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TT XP Confirm Reply";
+    begin
+        // OnPreXmlItem of `reservation` sets no filter (mode 2): LinkTable without LinkFields
+        TtSeedConfirm();
+        Port.AddReply(1, 10, true, 'ORD-1');
+        Port.SetDetailMode(2);
+        Observer.Observe('xml', TtExportConfirm(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<tickets>|  <results>|    <reply>|      <status>true</status>|      <order_uid>ORD-1</order_uid>|      <ticket line_no="10">|        <ticket_uid>TK-1</ticket_uid>|        <valid_from>V-TK-1</valid_from>|        <admission code="ADM-A">|          <quantity>1</quantity>|          <reservation external_id="501" start="S1" finish="F1" />|        </admission>|        <admission code="ADM-B">|          <quantity>2</quantity>|          <reservation external_id="501" start="S1" finish="F1" />|        </admission>|      </ticket>|      <ticket line_no="10">|        <ticket_uid>TK-2</ticket_uid>|        <valid_from>V-TK-2</valid_from>|        <admission code="ADM-A">|          <quantity>3</quantity>|          <reservation external_id="501" start="S1" finish="F1" />|        </admission>|      </ticket>|    </reply>|  </results>|</tickets>|');
+        Observer.Expect('log', 'get reply 1;pass status;pre ticket filters=;get ticket 1;pass uid TK-1;pass valid;get access 1;pre detail a1 filters= count=5 then count=5;get detail 1;get access 2;pre detail a2 filters= count=5 then count=5;get detail 1;get ticket 2;pass uid TK-2;pass valid;get access 3;pre detail a3 filters= count=5 then count=5;get detail 1;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TT_Confirm_Export_TwoReplies()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TT XP Confirm Reply";
+    begin
+        // reply 1 for request 10 is not confirmed (ticket filter -2), reply 2 for request 11 is confirmed
+        TtSeedConfirm();
+        Port.AddReply(1, 10, false, 'ORD-1');
+        Port.AddReply(2, 11, true, 'ORD-2');
+        Port.SetDetailMode(0);
+        Observer.Observe('xml', TtExportConfirm(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<tickets>|  <results>|    <reply>|      <status>false</status>|      <order_uid>ORD-1</order_uid>|    </reply>|    <reply>|      <status>true</status>|      <order_uid>ORD-2</order_uid>|      <ticket line_no="11">|        <ticket_uid>TK-3</ticket_uid>|        <valid_from>V-TK-3</valid_from>|        <admission code="ADM-C">|          <quantity>1</quantity>|          <reservation external_id="508" start="S8" finish="F1" />|        </admission>|      </ticket>|    </reply>|  </results>|</tickets>|');
+        Observer.Expect('log', 'get reply 1;pass status;pre ticket filters=;get reply 2;pass status;pre ticket filters=;get ticket 3;pass uid TK-3;pass valid;get access 4;pre detail a4 filters= count=5 then count=1;get detail 8;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TT_Confirm_Export_NoReply()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TT XP Confirm Reply";
+    begin
+        TtSeedConfirm();
+        Observer.Observe('xml', TtExportConfirm(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<tickets>|  <results />|</tickets>|');
+        Observer.Expect('log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TT_Change_Export_TwoRows()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TT XP Change Reply";
+    begin
+        Port.SetChange('CR-1', 2);
+        Observer.Observe('xml', TtExportChange(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Tickets>|  <Result>|    <ResponseCode>OK</ResponseCode>|    <ExpiresAt UTC="U1" />|    <Ticket ChangeRequestToken="CR-1" Kind="KCR-1">|      <Admissions>|        <Admission Code="ADM-1">|          <ScheduleEntry ExternalEntryNo="0" ReservationType="Open" />|          <AdmissionDescription>Admission 1</AdmissionDescription>|        </Admission>|        <Admission Code="ADM-2">|          <ScheduleEntry ExternalEntryNo="100" ReservationType="Reservation" />|          <AdmissionDescription>Admission 2</AdmissionDescription>|        </Admission>|      </Admissions>|    </Ticket>|  </Result>|</Tickets>|');
+        Observer.Expect('log', 'get result 1;pass utc;pass kind;get admission ADM-1;get admission ADM-2;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TT_Change_Export_OneRow()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TT XP Change Reply";
+    begin
+        Port.SetChange('CR-2', 1);
+        Observer.Observe('xml', TtExportChange(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Tickets>|  <Result>|    <ResponseCode>OK</ResponseCode>|    <ExpiresAt UTC="U1" />|    <Ticket ChangeRequestToken="CR-2" Kind="KCR-2">|      <Admissions>|        <Admission Code="ADM-1">|          <ScheduleEntry ExternalEntryNo="0" ReservationType="Open" />|          <AdmissionDescription>Admission 1</AdmissionDescription>|        </Admission>|      </Admissions>|    </Ticket>|  </Result>|</Tickets>|');
+        Observer.Expect('log', 'get result 1;pass utc;pass kind;get admission ADM-1;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TT_Change_Export_TokenNoRows()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TT XP Change Reply";
+    begin
+        // a result row and a token, but no Admission row (MinOccurs = Once)
+        Port.SetChange('CR-3', 0);
+        Observer.Observe('xml', TtExportChange(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Tickets>|  <Result>|    <ResponseCode>OK</ResponseCode>|    <ExpiresAt UTC="U1" />|    <Ticket ChangeRequestToken="CR-3" Kind="KCR-3">|      <Admissions>|        <Admission Code="">|          <ScheduleEntry ExternalEntryNo="0" ReservationType="" />|          <AdmissionDescription />|        </Admission>|      </Admissions>|    </Ticket>|  </Result>|</Tickets>|');
+        Observer.Expect('log', 'get result 1;pass utc;pass kind;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TT_Change_Export_Error()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TT XP Change Reply";
+    begin
+        // a result row, no token, no Admission row
+        Port.SetError('No such ticket');
+        Observer.Observe('xml', TtExportChange(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Tickets>|  <Result>|    <ResponseCode>ERROR</ResponseCode>|    <ExpiresAt UTC="U1" />|    <Ticket ChangeRequestToken="" Kind="K">|      <Admissions>|        <Admission Code="">|          <ScheduleEntry ExternalEntryNo="0" ReservationType="" />|          <AdmissionDescription />|        </Admission>|      </Admissions>|    </Ticket>|  </Result>|</Tickets>|');
+        Observer.Expect('log', 'get result 1;pass utc;pass kind;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TT_Change_Export_NoResult()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TT XP Change Reply";
+    begin
+        Observer.Observe('xml', TtExportChange(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Tickets />|');
+        Observer.Expect('log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TT_ImportTwice_SameSource()
+    var
+        Observer: Codeunit "Probe Observer";
+        Runner: Codeunit "LT TT XP Import Runner";
+    begin
+        // Import, then Import again on the same instance; the source stream was read to its end by the first Import
+        Runner.FirstImport('<?xml version="1.0" encoding="UTF-8"?><points><point no="1"><code>A</code></point><point no="2"><code>B</code></point></points>');
+        Observer.Observe('first rows', Runner.Rows());
+        Observer.Observe('first log', Runner.GetLog());
+        Observer.Observe('source at end', Runner.SourceAtEnd());
+        TtSecondImport(Observer, Runner, 'second', 1, '');
+        Observer.Expect('first rows', '1/A;2/B;');
+        Observer.Expect('first log', 'init;pre;code=A;insert 1;code=B;insert 2;post;');
+        Observer.Expect('source at end', 'No');
+        Observer.Expect('second', 'ok');
+        Observer.Expect('second rows', '1/A;2/B;');
+        Observer.Expect('second log', 'init;pre;code=A;insert 1;code=B;insert 2;post;pre;post;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TT_ImportTwice_SameStreamAgain()
+    var
+        Observer: Codeunit "Probe Observer";
+        Runner: Codeunit "LT TT XP Import Runner";
+    begin
+        // SetSource with the same, already read stream, then Import again
+        Runner.FirstImport('<?xml version="1.0" encoding="UTF-8"?><points><point no="1"><code>A</code></point><point no="2"><code>B</code></point></points>');
+        TtSecondImport(Observer, Runner, 'second', 3, '');
+        Observer.Expect('second', 'ok');
+        Observer.Expect('second rows', '1/A;2/B;');
+        Observer.Expect('second log', 'init;pre;code=A;insert 1;code=B;insert 2;post;pre;post;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TT_ImportTwice_NewSourceOtherRows()
+    var
+        Observer: Codeunit "Probe Observer";
+        Runner: Codeunit "LT TT XP Import Runner";
+    begin
+        // SetSource with a new stream (other rows), then Import again
+        Runner.FirstImport('<?xml version="1.0" encoding="UTF-8"?><points><point no="1"><code>A</code></point><point no="2"><code>B</code></point></points>');
+        TtSecondImport(Observer, Runner, 'second', 2, '<?xml version="1.0" encoding="UTF-8"?><points><point no="3"><code>C</code></point></points>');
+        Observer.Expect('second', 'ok');
+        Observer.Expect('second rows', '1/A;2/B;');
+        Observer.Expect('second log', 'init;pre;code=A;insert 1;code=B;insert 2;post;pre;post;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TT_ImportTwice_NewSourceSameRows()
+    var
+        Observer: Codeunit "Probe Observer";
+        Runner: Codeunit "LT TT XP Import Runner";
+    begin
+        // SetSource with a new stream holding a row the first Import already inserted, then Import again
+        Runner.FirstImport('<?xml version="1.0" encoding="UTF-8"?><points><point no="1"><code>A</code></point><point no="2"><code>B</code></point></points>');
+        TtSecondImport(Observer, Runner, 'second', 2, '<?xml version="1.0" encoding="UTF-8"?><points><point no="1"><code>Z</code></point></points>');
+        Observer.Expect('second', 'ok');
+        Observer.Expect('second rows', '1/A;2/B;');
+        Observer.Expect('second log', 'init;pre;code=A;insert 1;code=B;insert 2;post;pre;post;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TT_ImportTwice_Direct()
+    var
+        Observer: Codeunit "Probe Observer";
+        Again: XmlPort "LT TT XP Import Twice";
+        NewSource: XmlPort "LT TT XP Import Twice";
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+        InS: InStream;
+        InS2: InStream;
+    begin
+        // without Codeunit.Run: Again imports twice from one source; NewSource imports, then SetSource on a second stream with another row and
+        // imports again
+        Buffer.Id := 1;
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        OutS.WriteText('<?xml version="1.0" encoding="UTF-8"?><points><point no="1"><code>A</code></point></points>');
+        Buffer.Insert();
+        Buffer.Id := 2;
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        OutS.WriteText('<?xml version="1.0" encoding="UTF-8"?><points><point no="3"><code>C</code></point></points>');
+        Buffer.Insert();
+        Buffer.Get(1);
+        Buffer.CalcFields(Data);
+        Buffer.Data.CreateInStream(InS, TextEncoding::UTF8);
+        Again.SetSource(InS);
+        Again.Import();
+        Again.Import();
+        Observer.Observe('again rows', Again.Rows());
+        Observer.Observe('again log', Again.GetLog());
+        Buffer.Data.CreateInStream(InS, TextEncoding::UTF8);
+        NewSource.SetSource(InS);
+        NewSource.Import();
+        Buffer.Get(2);
+        Buffer.CalcFields(Data);
+        Buffer.Data.CreateInStream(InS2, TextEncoding::UTF8);
+        NewSource.SetSource(InS2);
+        NewSource.Import();
+        Observer.Observe('new source rows', NewSource.Rows());
+        Observer.Observe('new source log', NewSource.GetLog());
+        Observer.Expect('again rows', '1/A;');
+        Observer.Expect('again log', 'init;pre;code=A;insert 1;post;pre;post;');
+        Observer.Expect('new source rows', '1/A;');
+        Observer.Expect('new source log', 'init;pre;code=A;insert 1;post;pre;post;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TT_Import_SourceReadBefore()
+    var
+        Observer: Codeunit "Probe Observer";
+        Runner: Codeunit "LT TT XP Import Runner";
+    begin
+        // first Import on an instance whose source stream was read to its end before SetSource
+        TtSecondImport(Observer, Runner, 'import', 4, '<?xml version="1.0" encoding="UTF-8"?><points><point no="1"><code>A</code></point></points>');
+        Observer.Expect('import', 'ok');
+        Observer.Expect('import rows', '1/A;');
+        Observer.Expect('import log', 'init;pre;code=A;insert 1;post;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TT_Optional_Unlinked_NoRows()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TT XP Optional Unlinked";
+    begin
+        // no rows in either table element: which triggers run for the optional (MinOccurs = Zero) and the required one?
+        Observer.Observe('xml', TtExportOptional(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<confirm>|  <required no="0">|    <token />|    <note>n0</note>|  </required>|</confirm>|');
+        Observer.Expect('log', 'pre opt;pre req;pass req no;pass req token;pass req note;');
+        Observer.Verify();
+    end;
+
+    local procedure TuExportKeyOnce(var Port: XmlPort "LT TU XP Key Once"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TuExportKeyUnbounded(var Port: XmlPort "LT TU XP Key Unbounded"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TuExportReal(var Port: XmlPort "LT TU XP Nested Real"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TuExportTemp(var Port: XmlPort "LT TU XP Nested Temp"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TuSeedKeys()
+    var
+        Child: Record "LT TU XP KChild";
+    begin
+        // Id order 1,2,3; A order 2,3,1; B order 3,1,2
+        Child.DeleteAll();
+        Child.Id := 1;
+        Child.A := 30;
+        Child.B := 20;
+        Child.Insert();
+        Child.Id := 2;
+        Child.A := 10;
+        Child.B := 30;
+        Child.Insert();
+        Child.Id := 3;
+        Child.A := 20;
+        Child.B := 10;
+        Child.Insert();
+    end;
+
+    local procedure TuKeyRun(Mode: Integer; var XmlOnce: Text; var LogOnce: Text; var XmlUnbounded: Text; var LogUnbounded: Text)
+    var
+        PortOnce: XmlPort "LT TU XP Key Once";
+        PortUnbounded: XmlPort "LT TU XP Key Unbounded";
+    begin
+        TuSeedKeys();
+        PortOnce.AddParent(1);
+        PortOnce.AddParent(2);
+        PortOnce.AddParent(3);
+        PortOnce.SetMode(Mode);
+        XmlOnce := TuExportKeyOnce(PortOnce);
+        LogOnce := PortOnce.GetLog();
+        PortUnbounded.AddParent(1);
+        PortUnbounded.AddParent(2);
+        PortUnbounded.AddParent(3);
+        PortUnbounded.SetMode(Mode);
+        XmlUnbounded := TuExportKeyUnbounded(PortUnbounded);
+        LogUnbounded := PortUnbounded.GetLog();
+    end;
+
+    local procedure TuSeedReal()
+    var
+        Line: Record "LT TU XP Line";
+        Item: Record "LT TU XP Item";
+        Slot: Record "LT TU XP Slot";
+    begin
+        // order Ref 10: lines 1 (items 11, 12) and 2 (no item); order Ref 20: line 3 (item 13); order Ref 40: line 4 (item 14, slot 104)
+        // item 11: slots 101 (Reservation), 102 (Reservation), 103 (Admitted); item 12: slot 105 (Admitted only); item 13: slot 106
+        Line.DeleteAll();
+        Item.DeleteAll();
+        Slot.DeleteAll();
+        TuLine(1, 10, 'L1');
+        TuLine(2, 10, 'L2');
+        TuLine(3, 20, 'L3');
+        TuLine(4, 40, 'L4');
+        TuItem(11, 1, 'A', 2);
+        TuItem(12, 1, 'B', 1);
+        TuItem(13, 3, 'C', 5);
+        TuItem(14, 4, 'D', 1);
+        TuSlot(101, 11, Slot.Kind::Reservation, 7001);
+        TuSlot(102, 11, Slot.Kind::Reservation, 7002);
+        TuSlot(103, 11, Slot.Kind::Admitted, 7003);
+        TuSlot(104, 14, Slot.Kind::Reservation, 7004);
+        TuSlot(105, 12, Slot.Kind::Admitted, 7005);
+        TuSlot(106, 13, Slot.Kind::Reservation, 7006);
+    end;
+
+    local procedure TuLine(EntryNo: Integer; HeadNo: Integer; ExtCode: Code[20])
+    var
+        Line: Record "LT TU XP Line";
+    begin
+        Line."Entry No." := EntryNo;
+        Line.HeadNo := HeadNo;
+        Line.ExtCode := ExtCode;
+        Line.Insert();
+    end;
+
+    local procedure TuItem(EntryNo: Integer; LineNo: Integer; ItemCode: Code[20]; Qty: Integer)
+    var
+        Item: Record "LT TU XP Item";
+    begin
+        Item."Entry No." := EntryNo;
+        Item.LineNo := LineNo;
+        Item.ItemCode := ItemCode;
+        Item.Qty := Qty;
+        Item.Insert();
+    end;
+
+    local procedure TuSlot(EntryNo: Integer; ItemNo: Integer; Kind: Option; ExtNo: Integer)
+    var
+        Slot: Record "LT TU XP Slot";
+    begin
+        Slot."Entry No." := EntryNo;
+        Slot.ItemNo := ItemNo;
+        Slot.Kind := Kind;
+        Slot.ExtNo := ExtNo;
+        Slot.Insert();
+    end;
+
+    local procedure TuTemp(Mode: Integer; Outers: Text; Mids: Text; Inners: Text; var Log: Text): Text
+    var
+        Port: XmlPort "LT TU XP Nested Temp";
+        Parts: List of [Text];
+        Part: Text;
+        Id: Integer;
+        Parent: Integer;
+    begin
+        // Outers: 'id,id'; Mids and Inners: 'id:parent,id:parent'
+        Port.SetMode(Mode);
+        if Outers <> '' then
+            foreach Part in Outers.Split(',') do begin
+                Evaluate(Id, Part);
+                Port.AddOuter(Id);
+            end;
+        if Mids <> '' then
+            foreach Part in Mids.Split(',') do begin
+                Parts := Part.Split(':');
+                Evaluate(Id, Parts.Get(1));
+                Evaluate(Parent, Parts.Get(2));
+                Port.AddMid(Id, Parent);
+            end;
+        if Inners <> '' then
+            foreach Part in Inners.Split(',') do begin
+                Parts := Part.Split(':');
+                Evaluate(Id, Parts.Get(1));
+                Evaluate(Parent, Parts.Get(2));
+                Port.AddInner(Id, Parent);
+            end;
+        Part := TuExportTemp(Port);
+        Log := Port.GetLog();
+        exit(Part);
+    end;
+
+    [Test]
+    procedure TU_LinkedKey_NoChange()
+    var
+        Observer: Codeunit "Probe Observer";
+        XmlOnce: Text;
+        LogOnce: Text;
+        XmlUnbounded: Text;
+        LogUnbounded: Text;
+    begin
+        // Three parent rows; OnPreXmlItem of `c` (SourceTableView sorting(A)) and `d` (no view) does: nothing. Child rows: Id 1,2,3; by A 2,3,1; by B 3,1,2
+        TuKeyRun(0, XmlOnce, LogOnce, XmlUnbounded, LogUnbounded);
+        Observer.Observe('xml once', XmlOnce);
+        Observer.Observe('log once', LogOnce);
+        Observer.Observe('xml unbounded', XmlUnbounded);
+        Observer.Observe('log unbounded', LogUnbounded);
+        Observer.Expect('xml once', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="2" />|    <d id="1" />|  </p>|  <p id="2">|    <c id="2" />|    <d id="1" />|  </p>|  <p id="3">|    <c id="2" />|    <d id="1" />|  </p>|</root>|');
+        Observer.Expect('log once', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;');
+        Observer.Expect('xml unbounded', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|  <p id="2">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|  <p id="3">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|</root>|');
+        Observer.Expect('log unbounded', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_LinkedKey_KeyAtFirstPass()
+    var
+        Observer: Codeunit "Probe Observer";
+        XmlOnce: Text;
+        LogOnce: Text;
+        XmlUnbounded: Text;
+        LogUnbounded: Text;
+    begin
+        // Three parent rows; OnPreXmlItem of `c` (SourceTableView sorting(A)) and `d` (no view) does: SetCurrentKey(B) at pass 1 only. Child rows: Id 1,2,3; by A 2,3,1; by B 3,1,2
+        TuKeyRun(1, XmlOnce, LogOnce, XmlUnbounded, LogUnbounded);
+        Observer.Observe('xml once', XmlOnce);
+        Observer.Observe('log once', LogOnce);
+        Observer.Observe('xml unbounded', XmlUnbounded);
+        Observer.Observe('log unbounded', LogUnbounded);
+        Observer.Expect('xml once', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="3" />|    <d id="3" />|  </p>|  <p id="2">|    <c id="2" />|    <d id="1" />|  </p>|  <p id="3">|    <c id="2" />|    <d id="1" />|  </p>|</root>|');
+        Observer.Expect('log once', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3)];c3;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3)];d3;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;');
+        Observer.Expect('xml unbounded', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="3" />|    <c id="1" />|    <c id="2" />|    <d id="3" />|    <d id="1" />|    <d id="2" />|  </p>|  <p id="2">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|  <p id="3">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|</root>|');
+        Observer.Expect('log unbounded', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3)];c3;c1;c2;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3)];d3;d1;d2;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_LinkedKey_KeyDescendingAtFirstPass()
+    var
+        Observer: Codeunit "Probe Observer";
+        XmlOnce: Text;
+        LogOnce: Text;
+        XmlUnbounded: Text;
+        LogUnbounded: Text;
+    begin
+        // Three parent rows; OnPreXmlItem of `c` (SourceTableView sorting(A)) and `d` (no view) does: SetCurrentKey(B) and Ascending(false) at pass 1 only. Child rows: Id 1,2,3; by A 2,3,1; by B 3,1,2
+        TuKeyRun(2, XmlOnce, LogOnce, XmlUnbounded, LogUnbounded);
+        Observer.Observe('xml once', XmlOnce);
+        Observer.Observe('log once', LogOnce);
+        Observer.Observe('xml unbounded', XmlUnbounded);
+        Observer.Observe('log unbounded', LogUnbounded);
+        Observer.Expect('xml once', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="2" />|    <d id="2" />|  </p>|  <p id="2">|    <c id="2" />|    <d id="1" />|  </p>|  <p id="3">|    <c id="2" />|    <d id="1" />|  </p>|</root>|');
+        Observer.Expect('log once', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3) ORDER(1)];c2;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3) ORDER(1)];d2;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;');
+        Observer.Expect('xml unbounded', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="2" />|    <c id="1" />|    <c id="3" />|    <d id="2" />|    <d id="1" />|    <d id="3" />|  </p>|  <p id="2">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|  <p id="3">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|</root>|');
+        Observer.Expect('log unbounded', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3) ORDER(1)];c2;c1;c3;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3) ORDER(1)];d2;d1;d3;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_LinkedKey_KeyAtSecondPass()
+    var
+        Observer: Codeunit "Probe Observer";
+        XmlOnce: Text;
+        LogOnce: Text;
+        XmlUnbounded: Text;
+        LogUnbounded: Text;
+    begin
+        // Three parent rows; OnPreXmlItem of `c` (SourceTableView sorting(A)) and `d` (no view) does: SetCurrentKey(B) at pass 2 only. Child rows: Id 1,2,3; by A 2,3,1; by B 3,1,2
+        TuKeyRun(3, XmlOnce, LogOnce, XmlUnbounded, LogUnbounded);
+        Observer.Observe('xml once', XmlOnce);
+        Observer.Observe('log once', LogOnce);
+        Observer.Observe('xml unbounded', XmlUnbounded);
+        Observer.Observe('log unbounded', LogUnbounded);
+        Observer.Expect('xml once', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="2" />|    <d id="1" />|  </p>|  <p id="2">|    <c id="3" />|    <d id="3" />|  </p>|  <p id="3">|    <c id="2" />|    <d id="1" />|  </p>|</root>|');
+        Observer.Expect('log once', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3)];c3;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3)];d3;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;');
+        Observer.Expect('xml unbounded', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|  <p id="2">|    <c id="3" />|    <c id="1" />|    <c id="2" />|    <d id="3" />|    <d id="1" />|    <d id="2" />|  </p>|  <p id="3">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|</root>|');
+        Observer.Expect('log unbounded', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3)];c3;c1;c2;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3)];d3;d1;d2;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_LinkedKey_ResetAtFirstPass()
+    var
+        Observer: Codeunit "Probe Observer";
+        XmlOnce: Text;
+        LogOnce: Text;
+        XmlUnbounded: Text;
+        LogUnbounded: Text;
+    begin
+        // Three parent rows; OnPreXmlItem of `c` (SourceTableView sorting(A)) and `d` (no view) does: Reset at pass 1 only. Child rows: Id 1,2,3; by A 2,3,1; by B 3,1,2
+        TuKeyRun(4, XmlOnce, LogOnce, XmlUnbounded, LogUnbounded);
+        Observer.Observe('xml once', XmlOnce);
+        Observer.Observe('log once', LogOnce);
+        Observer.Observe('xml unbounded', XmlUnbounded);
+        Observer.Observe('log unbounded', LogUnbounded);
+        Observer.Expect('xml once', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="1" />|    <d id="1" />|  </p>|  <p id="2">|    <c id="2" />|    <d id="1" />|  </p>|  <p id="3">|    <c id="2" />|    <d id="1" />|  </p>|</root>|');
+        Observer.Expect('log once', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field1)];c1;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;');
+        Observer.Expect('xml unbounded', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="1" />|    <c id="2" />|    <c id="3" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|  <p id="2">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|  <p id="3">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|</root>|');
+        Observer.Expect('log unbounded', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field1)];c1;c2;c3;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_LinkedKey_KeyAtEveryPass()
+    var
+        Observer: Codeunit "Probe Observer";
+        XmlOnce: Text;
+        LogOnce: Text;
+        XmlUnbounded: Text;
+        LogUnbounded: Text;
+    begin
+        // Three parent rows; OnPreXmlItem of `c` (SourceTableView sorting(A)) and `d` (no view) does: SetCurrentKey(B) at every pass. Child rows: Id 1,2,3; by A 2,3,1; by B 3,1,2
+        TuKeyRun(5, XmlOnce, LogOnce, XmlUnbounded, LogUnbounded);
+        Observer.Observe('xml once', XmlOnce);
+        Observer.Observe('log once', LogOnce);
+        Observer.Observe('xml unbounded', XmlUnbounded);
+        Observer.Observe('log unbounded', LogUnbounded);
+        Observer.Expect('xml once', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="3" />|    <d id="3" />|  </p>|  <p id="2">|    <c id="3" />|    <d id="3" />|  </p>|  <p id="3">|    <c id="3" />|    <d id="3" />|  </p>|</root>|');
+        Observer.Expect('log once', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3)];c3;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3)];d3;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3)];c3;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3)];d3;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3)];c3;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3)];d3;');
+        Observer.Expect('xml unbounded', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="3" />|    <c id="1" />|    <c id="2" />|    <d id="3" />|    <d id="1" />|    <d id="2" />|  </p>|  <p id="2">|    <c id="3" />|    <c id="1" />|    <c id="2" />|    <d id="3" />|    <d id="1" />|    <d id="2" />|  </p>|  <p id="3">|    <c id="3" />|    <c id="1" />|    <c id="2" />|    <d id="3" />|    <d id="1" />|    <d id="2" />|  </p>|</root>|');
+        Observer.Expect('log unbounded', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3)];c3;c1;c2;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3)];d3;d1;d2;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3)];c3;c1;c2;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3)];d3;d1;d2;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3)];c3;c1;c2;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3)];d3;d1;d2;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_LinkedKey_DescendingAtFirstPass()
+    var
+        Observer: Codeunit "Probe Observer";
+        XmlOnce: Text;
+        LogOnce: Text;
+        XmlUnbounded: Text;
+        LogUnbounded: Text;
+    begin
+        // Three parent rows; OnPreXmlItem of `c` (SourceTableView sorting(A)) and `d` (no view) does: Ascending(false) at pass 1 only. Child rows: Id 1,2,3; by A 2,3,1; by B 3,1,2
+        TuKeyRun(6, XmlOnce, LogOnce, XmlUnbounded, LogUnbounded);
+        Observer.Observe('xml once', XmlOnce);
+        Observer.Observe('log once', LogOnce);
+        Observer.Observe('xml unbounded', XmlUnbounded);
+        Observer.Observe('log unbounded', LogUnbounded);
+        Observer.Expect('xml once', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="1" />|    <d id="3" />|  </p>|  <p id="2">|    <c id="2" />|    <d id="1" />|  </p>|  <p id="3">|    <c id="2" />|    <d id="1" />|  </p>|</root>|');
+        Observer.Expect('log once', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2) ORDER(1)];c1;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1) ORDER(1)];d3;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;');
+        Observer.Expect('xml unbounded', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="1" />|    <c id="3" />|    <c id="2" />|    <d id="3" />|    <d id="2" />|    <d id="1" />|  </p>|  <p id="2">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|  <p id="3">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|</root>|');
+        Observer.Expect('log unbounded', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2) ORDER(1)];c1;c3;c2;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1) ORDER(1)];d3;d2;d1;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedReal_Np()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TU XP Nested Real";
+    begin
+        // every OnPreXmlItem sets its filters; order Ref 10: line 1 with items 11 (2 reservations, 1 admitted) and 12 (admitted only), line 2 without items
+        TuSeedReal();
+        Port.SetHead(1, 10, 'ORD-10');
+        Port.SetResponse('OK', '');
+        Port.SetMode(0);
+        Observer.Observe('xml', TuExportReal(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Result>|    <ResponseCode>OK</ResponseCode>|    <ResponseMessage />|    <Order OrderId="ORD-10">|      <Line ext="X10">|        <line_no>10</line_no>|        <uid>L1</uid>|        <pin>P10</pin>|        <item code="A">|          <qty>2</qty>|          <slot ext="7001" start="S101" />|        </item>|        <item code="B">|          <qty>1</qty>|        </item>|      </Line>|      <Line ext="X10">|        <line_no>10</line_no>|        <uid>L2</uid>|        <pin>P10</pin>|        <item code="B">|          <qty>1</qty>|        </item>|      </Line>|    </Order>|  </Result>|</Root>|');
+        Observer.Expect('log', 'get head 1;pre line f=;get line 1;pre item f= at=0;get item 11;pre slot f= at=0;get slot 101;get item 12;pre slot f= at=102;get line 2;pre item f= at=12;pre slot f= at=102;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedReal_ItemNoFilter()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TU XP Nested Real";
+    begin
+        // `item` sets no filter in OnPreXmlItem: unlinked, it sees every item row at each line
+        TuSeedReal();
+        Port.SetHead(1, 10, 'ORD-10');
+        Port.SetResponse('OK', '');
+        Port.SetMode(1);
+        Observer.Observe('xml', TuExportReal(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Result>|    <ResponseCode>OK</ResponseCode>|    <ResponseMessage />|    <Order OrderId="ORD-10">|      <Line ext="X10">|        <line_no>10</line_no>|        <uid>L1</uid>|        <pin>P10</pin>|        <item code="A">|          <qty>2</qty>|          <slot ext="7001" start="S101" />|        </item>|        <item code="B">|          <qty>1</qty>|        </item>|        <item code="C">|          <qty>5</qty>|          <slot ext="7006" start="S106" />|        </item>|        <item code="D">|          <qty>1</qty>|          <slot ext="7004" start="S104" />|        </item>|      </Line>|      <Line ext="X10">|        <line_no>10</line_no>|        <uid>L2</uid>|        <pin>P10</pin>|        <item code="A">|          <qty>2</qty>|          <slot ext="7001" start="S101" />|        </item>|        <item code="B">|          <qty>1</qty>|        </item>|        <item code="C">|          <qty>5</qty>|          <slot ext="7006" start="S106" />|        </item>|        <item code="D">|          <qty>1</qty>|          <slot ext="7004" start="S104" />|        </item>|      </Line>|    </Order>|  </Result>|</Root>|');
+        Observer.Expect('log', 'get head 1;pre line f=;get line 1;pre item f= at=0;get item 11;pre slot f= at=0;get slot 101;get item 12;pre slot f= at=102;get item 13;pre slot f= at=102;get slot 106;get item 14;pre slot f= at=106;get slot 104;get line 2;pre item f= at=14;get item 11;pre slot f= at=104;get slot 101;get item 12;pre slot f= at=102;get item 13;pre slot f= at=102;get slot 106;get item 14;pre slot f= at=106;get slot 104;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedReal_ItemFilterFirstPass()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TU XP Nested Real";
+    begin
+        // `item` sets its filter at its first pass only: does the filter stay at the second line?
+        TuSeedReal();
+        Port.SetHead(1, 10, 'ORD-10');
+        Port.SetResponse('OK', '');
+        Port.SetMode(2);
+        Observer.Observe('xml', TuExportReal(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Result>|    <ResponseCode>OK</ResponseCode>|    <ResponseMessage />|    <Order OrderId="ORD-10">|      <Line ext="X10">|        <line_no>10</line_no>|        <uid>L1</uid>|        <pin>P10</pin>|        <item code="A">|          <qty>2</qty>|          <slot ext="7001" start="S101" />|        </item>|        <item code="B">|          <qty>1</qty>|        </item>|      </Line>|      <Line ext="X10">|        <line_no>10</line_no>|        <uid>L2</uid>|        <pin>P10</pin>|        <item code="A">|          <qty>2</qty>|          <slot ext="7001" start="S101" />|        </item>|        <item code="B">|          <qty>1</qty>|        </item>|        <item code="C">|          <qty>5</qty>|          <slot ext="7006" start="S106" />|        </item>|        <item code="D">|          <qty>1</qty>|          <slot ext="7004" start="S104" />|        </item>|      </Line>|    </Order>|  </Result>|</Root>|');
+        Observer.Expect('log', 'get head 1;pre line f=;get line 1;pre item f= at=0;get item 11;pre slot f= at=0;get slot 101;get item 12;pre slot f= at=102;get line 2;pre item f= at=12;get item 11;pre slot f= at=102;get slot 101;get item 12;pre slot f= at=102;get item 13;pre slot f= at=102;get slot 106;get item 14;pre slot f= at=106;get slot 104;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedReal_SlotNoFilter()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TU XP Nested Real";
+    begin
+        // `slot` sets no filter (MaxOccurs = Once: the first slot row of the table at each item)
+        TuSeedReal();
+        Port.SetHead(1, 10, 'ORD-10');
+        Port.SetResponse('OK', '');
+        Port.SetMode(3);
+        Observer.Observe('xml', TuExportReal(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Result>|    <ResponseCode>OK</ResponseCode>|    <ResponseMessage />|    <Order OrderId="ORD-10">|      <Line ext="X10">|        <line_no>10</line_no>|        <uid>L1</uid>|        <pin>P10</pin>|        <item code="A">|          <qty>2</qty>|          <slot ext="7001" start="S101" />|        </item>|        <item code="B">|          <qty>1</qty>|          <slot ext="7001" start="S101" />|        </item>|      </Line>|      <Line ext="X10">|        <line_no>10</line_no>|        <uid>L2</uid>|        <pin>P10</pin>|        <item code="B">|          <qty>1</qty>|          <slot ext="7001" start="S101" />|        </item>|      </Line>|    </Order>|  </Result>|</Root>|');
+        Observer.Expect('log', 'get head 1;pre line f=;get line 1;pre item f= at=0;get item 11;pre slot f= at=0;get slot 101;get item 12;pre slot f= at=102;get slot 101;get line 2;pre item f= at=12;pre slot f= at=102;get slot 101;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedReal_OneEach()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TU XP Nested Real";
+    begin
+        // order Ref 40: one line, one item, one slot
+        TuSeedReal();
+        Port.SetHead(1, 40, 'ORD-40');
+        Port.SetResponse('OK', '');
+        Port.SetMode(0);
+        Observer.Observe('xml', TuExportReal(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Result>|    <ResponseCode>OK</ResponseCode>|    <ResponseMessage />|    <Order OrderId="ORD-40">|      <Line ext="X40">|        <line_no>40</line_no>|        <uid>L4</uid>|        <pin>P40</pin>|        <item code="D">|          <qty>1</qty>|          <slot ext="7004" start="S104" />|        </item>|      </Line>|    </Order>|  </Result>|</Root>|');
+        Observer.Expect('log', 'get head 1;pre line f=;get line 4;pre item f= at=0;get item 14;pre slot f= at=0;get slot 104;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedReal_NoLines()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TU XP Nested Real";
+    begin
+        // order Ref 30 has no line: the default-occurs `Line` without rows, `item` (MinOccurs = Once) below it
+        TuSeedReal();
+        Port.SetHead(1, 30, 'BAD');
+        Port.SetResponse('ERROR', 'Invalid token');
+        Port.SetMode(0);
+        Observer.Observe('xml', TuExportReal(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Result>|    <ResponseCode>ERROR</ResponseCode>|    <ResponseMessage>Invalid token</ResponseMessage>|    <Order OrderId="BAD">|      <Line ext="X30">|        <line_no>30</line_no>|        <uid />|        <pin>P30</pin>|        <item code="">|          <qty>0</qty>|        </item>|      </Line>|    </Order>|  </Result>|</Root>|');
+        Observer.Expect('log', 'get head 1;pre line f=;pre item f= at=0;pre slot f= at=0;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedReal_NoOrder()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TU XP Nested Real";
+    begin
+        // no row in the temporary `Order` (MinOccurs = Zero): only the response texts
+        TuSeedReal();
+        Port.SetResponse('ERROR', 'Nothing');
+        Observer.Observe('xml', TuExportReal(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Result>|    <ResponseCode>ERROR</ResponseCode>|    <ResponseMessage>Nothing</ResponseMessage>|  </Result>|</Root>|');
+        Observer.Expect('log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedTemp_None()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        // no row at any level
+        Observer.Observe('xml', TuTemp(0, '', '', '', Log));
+        Observer.Observe('log', Log);
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <outer id="0">|    <mid id="0" parent="0" />|  </outer>|</root>|');
+        Observer.Expect('log', 'pre outer;pre mid f= at=0;pre inner f= at=0;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedTemp_OneOuter()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        // one outer row, no mid row (MinOccurs = Once), no inner row
+        Observer.Observe('xml', TuTemp(0, '1', '', '', Log));
+        Observer.Observe('log', Log);
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <outer id="1">|    <mid id="0" parent="0" />|  </outer>|</root>|');
+        Observer.Expect('log', 'pre outer;get outer 1;pre mid f= at=0;pre inner f= at=0;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedTemp_OneOneNone()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        // one outer, one mid, no inner
+        Observer.Observe('xml', TuTemp(0, '1', '11:1', '', Log));
+        Observer.Observe('log', Log);
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <outer id="1">|    <mid id="11" parent="1" />|  </outer>|</root>|');
+        Observer.Expect('log', 'pre outer;get outer 1;pre mid f= at=11;get mid 11;pre inner f= at=0;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedTemp_OneEach()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        // one row at each level
+        Observer.Observe('xml', TuTemp(0, '1', '11:1', '21:11', Log));
+        Observer.Observe('log', Log);
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <outer id="1">|    <mid id="11" parent="1">|      <inner id="21" parent="11" />|    </mid>|  </outer>|</root>|');
+        Observer.Expect('log', 'pre outer;get outer 1;pre mid f= at=11;get mid 11;pre inner f= at=21;get inner 21;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedTemp_OneTwoTwo()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        // one outer, two mids, two inners (MaxOccurs = Once)
+        Observer.Observe('xml', TuTemp(0, '1', '11:1,12:1', '21:11,22:12', Log));
+        Observer.Observe('log', Log);
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <outer id="1">|    <mid id="11" parent="1">|      <inner id="21" parent="11" />|    </mid>|    <mid id="12" parent="1">|      <inner id="21" parent="11" />|    </mid>|  </outer>|</root>|');
+        Observer.Expect('log', 'pre outer;get outer 1;pre mid f= at=12;get mid 11;pre inner f= at=22;get inner 21;get mid 12;pre inner f= at=22;get inner 21;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedTemp_TwoTwoTwo()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        // two rows at each level, no filters: every outer row writes every mid row
+        Observer.Observe('xml', TuTemp(0, '1,2', '11:1,12:2', '21:11,22:12', Log));
+        Observer.Observe('log', Log);
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <outer id="1">|    <mid id="11" parent="1">|      <inner id="21" parent="11" />|    </mid>|    <mid id="12" parent="2">|      <inner id="21" parent="11" />|    </mid>|  </outer>|  <outer id="2">|    <mid id="11" parent="1">|      <inner id="21" parent="11" />|    </mid>|    <mid id="12" parent="2">|      <inner id="21" parent="11" />|    </mid>|  </outer>|</root>|');
+        Observer.Expect('log', 'pre outer;get outer 1;pre mid f= at=12;get mid 11;pre inner f= at=22;get inner 21;get mid 12;pre inner f= at=22;get inner 21;get outer 2;pre mid f= at=12;get mid 11;pre inner f= at=22;get inner 21;get mid 12;pre inner f= at=22;get inner 21;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedTemp_TwoTwoTwoFiltered()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        // two rows at each level, OnPreXmlItem filters on the parent; both inner rows under mid 11
+        Observer.Observe('xml', TuTemp(1, '1,2', '11:1,12:2', '21:11,22:11', Log));
+        Observer.Observe('log', Log);
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <outer id="1">|    <mid id="11" parent="1">|      <inner id="21" parent="11" />|    </mid>|  </outer>|  <outer id="2">|    <mid id="12" parent="2" />|  </outer>|</root>|');
+        Observer.Expect('log', 'pre outer;get outer 1;pre mid f= at=12;get mid 11;pre inner f= at=22;get inner 21;get outer 2;pre mid f= at=11;get mid 12;pre inner f= at=22;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedTemp_TwoNoneTwo()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        // two outer rows, no mid row, two inner rows
+        Observer.Observe('xml', TuTemp(0, '1,2', '', '21:11,22:12', Log));
+        Observer.Observe('log', Log);
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <outer id="1">|    <mid id="0" parent="0">|      <inner id="21" parent="11" />|    </mid>|  </outer>|  <outer id="2">|    <mid id="0" parent="0">|      <inner id="21" parent="11" />|    </mid>|  </outer>|</root>|');
+        Observer.Expect('log', 'pre outer;get outer 1;pre mid f= at=0;pre inner f= at=22;get inner 21;get outer 2;pre mid f= at=0;pre inner f= at=22;get inner 21;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedTemp_TwoTwoNoneFiltered()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        // filtered: outer 2 has no mid row (MinOccurs = Once)
+        Observer.Observe('xml', TuTemp(1, '1,2', '11:1,12:1', '', Log));
+        Observer.Observe('log', Log);
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <outer id="1">|    <mid id="11" parent="1" />|    <mid id="12" parent="1" />|  </outer>|  <outer id="2">|    <mid id="12" parent="1" />|  </outer>|</root>|');
+        Observer.Expect('log', 'pre outer;get outer 1;pre mid f= at=12;get mid 11;pre inner f= at=0;get mid 12;pre inner f= at=0;get outer 2;pre mid f= at=12;pre inner f= at=0;');
         Observer.Verify();
     end;
 }
