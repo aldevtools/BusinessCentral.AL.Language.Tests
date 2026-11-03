@@ -50,17 +50,17 @@ jobs:
       fail-fast: false
       matrix:
         shard: ${{ fromJson(inputs.shards != 'null' && inputs.shards || format('[{{"n":"1 of 1","range":"{0}"}}]', inputs.codeunit_range)) }}
-    # Workflow and scripts pinned to bc-linux 622646e (scripts only; the runner images in ci.yml stay at 65f6b26 until
-    # bc-linux #214, GetUrl web URL, is fixed in a new image): publish limit 1200 s with a timeout reported as such
-    # (#210, #206); test codeunits run in ID order (#213, #209). Before, workflow and scripts for corpus bump 63 at 65f6b26: a write into a missing folder fails with
+    # Workflow and scripts pinned to bc-linux 79d557f (scripts only; the runner images in ci.yml stay at 65f6b26):
+    # publish limit 1200 s with a timeout reported as such (#210, #206); test codeunits run in ID order (#213, #209);
+    # the web client is off by default, so GetUrl builds the URL as on Windows (#215, #214). Before, workflow and scripts for corpus bump 63 at 65f6b26: a write into a missing folder fails with
     # InvalidPath as on Windows (#189). Bump 62 pin 84291ff before: fr-FR group separator U+00A0 on BC 27/28 as on
     # Windows (#174); DotNet System.IO sees the files AL File wrote under the user folder and returns paths with '\'
     # (#175, #181); MediaSet.ImportFile stores the bare file name (#176); Directory/DirectoryInfo listings match patterns
     # case-insensitively and list in name order (#183). Earlier: #165, #166, #167. The runner images in ci.yml carry
     # the same commit until 2026-11-03.
-    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@622646ee2cffa64505147c61ab3a713737af6406
+    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@79d557f7042ccc22a4d37ece6d7f4ca5d4fa617d
     with:
-      bc_linux_ref:           "622646ee2cffa64505147c61ab3a713737af6406"
+      bc_linux_ref:           "79d557f7042ccc22a4d37ece6d7f4ca5d4fa617d"
       runner_image:           ${{ inputs.runner_image }}
       bc_version:             ${{ inputs.bc_version }}
       bc_country:             ${{ inputs.bc_country }}
