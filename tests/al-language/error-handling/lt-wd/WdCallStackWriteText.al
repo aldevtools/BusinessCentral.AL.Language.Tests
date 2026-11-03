@@ -97,7 +97,7 @@ codeunit 94890 "LT WD Call Stack Write Text"
     end;
 
     // Writes Orig with WriteText (Method 1), Write (Method 2) or WriteText with a length (Method 3); reads it back with ReadText and Read.
-    local procedure RoundTrip(Label: Text; Orig: Text; Mode: Integer; Method: Integer)
+    local procedure RoundTrip(Orig: Text; Mode: Integer; Method: Integer; Want: Text)
     var
         Observer: Codeunit "Probe Observer";
         Log: Record "LT WD Call Stack Log" temporary;
@@ -144,7 +144,21 @@ codeunit 94890 "LT WD Call Stack Write Text"
         end;
         Observer.Observe('loop lines', Format(Lines));
         Observer.Observe('loop joined is text without breaks', Format(Joined = NoBreaks(Orig)));
-        Observer.Finish();
+        Verify(Observer, Want);
+    end;
+
+    // Want is the eight observed values in observation order, separated by |.
+    local procedure Verify(var Observer: Codeunit "Probe Observer"; Want: Text)
+    var
+        Names: List of [Text];
+        Values: List of [Text];
+        Index: Integer;
+    begin
+        Names := 'length minus bytes|readtext equal|readtext is first line|eos after readtext|readtext len is first line|read equal|loop lines|loop joined is text without breaks'.Split('|');
+        Values := Want.Split('|');
+        for Index := 1 to Names.Count() do
+            Observer.Expect(Names.Get(Index), Values.Get(Index));
+        Observer.Verify();
     end;
 
     local procedure Source(Src: Integer): Text
@@ -163,315 +177,315 @@ codeunit 94890 "LT WD Call Stack Write Text"
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_DefaultEncoding_Collected_WriteText()
     begin
-        RoundTrip('', Source(1), 0, 1);
+        RoundTrip(Source(1), 0, 1, '0|No|Yes|No|Yes|Yes|3|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_DefaultEncoding_Collected_Write()
     begin
-        RoundTrip('', Source(1), 0, 2);
+        RoundTrip(Source(1), 0, 2, '1|No|Yes|No|Yes|Yes|4|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_DefaultEncoding_Collected_WriteTextLength()
     begin
-        RoundTrip('', Source(1), 0, 3);
+        RoundTrip(Source(1), 0, 3, '0|No|Yes|No|Yes|Yes|3|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_DefaultEncoding_LastError_WriteText()
     begin
-        RoundTrip('', Source(2), 0, 1);
+        RoundTrip(Source(2), 0, 1, '0|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_DefaultEncoding_LastError_Write()
     begin
-        RoundTrip('', Source(2), 0, 2);
+        RoundTrip(Source(2), 0, 2, '1|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_DefaultEncoding_LastError_WriteTextLength()
     begin
-        RoundTrip('', Source(2), 0, 3);
+        RoundTrip(Source(2), 0, 3, '0|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_DefaultEncoding_Mark_WriteText()
     begin
-        RoundTrip('', Source(3), 0, 1);
+        RoundTrip(Source(3), 0, 1, '0|No|No|Yes|No|No|1|No');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_DefaultEncoding_Mark_Write()
     begin
-        RoundTrip('', Source(3), 0, 2);
+        RoundTrip(Source(3), 0, 2, '1|No|No|Yes|No|No|1|No');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_DefaultEncoding_Mark_WriteTextLength()
     begin
-        RoundTrip('', Source(3), 0, 3);
+        RoundTrip(Source(3), 0, 3, '0|No|No|Yes|No|No|1|No');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF8_Collected_WriteText()
     begin
-        RoundTrip('', Source(1), 1, 1);
+        RoundTrip(Source(1), 1, 1, '0|No|Yes|No|Yes|Yes|3|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF8_Collected_Write()
     begin
-        RoundTrip('', Source(1), 1, 2);
+        RoundTrip(Source(1), 1, 2, '1|No|Yes|No|Yes|Yes|4|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF8_Collected_WriteTextLength()
     begin
-        RoundTrip('', Source(1), 1, 3);
+        RoundTrip(Source(1), 1, 3, '0|No|Yes|No|Yes|Yes|3|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF8_LastError_WriteText()
     begin
-        RoundTrip('', Source(2), 1, 1);
+        RoundTrip(Source(2), 1, 1, '0|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF8_LastError_Write()
     begin
-        RoundTrip('', Source(2), 1, 2);
+        RoundTrip(Source(2), 1, 2, '1|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF8_LastError_WriteTextLength()
     begin
-        RoundTrip('', Source(2), 1, 3);
+        RoundTrip(Source(2), 1, 3, '0|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF8_Mark_WriteText()
     begin
-        RoundTrip('', Source(3), 1, 1);
+        RoundTrip(Source(3), 1, 1, '2|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF8_Mark_Write()
     begin
-        RoundTrip('', Source(3), 1, 2);
+        RoundTrip(Source(3), 1, 2, '3|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF8_Mark_WriteTextLength()
     begin
-        RoundTrip('', Source(3), 1, 3);
+        RoundTrip(Source(3), 1, 3, '2|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF16_Collected_WriteText()
     begin
-        RoundTrip('', Source(1), 2, 1);
+        RoundTrip(Source(1), 2, 1, '0|No|Yes|No|Yes|Yes|3|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF16_Collected_Write()
     begin
-        RoundTrip('', Source(1), 2, 2);
+        RoundTrip(Source(1), 2, 2, '2|No|Yes|No|Yes|Yes|4|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF16_Collected_WriteTextLength()
     begin
-        RoundTrip('', Source(1), 2, 3);
+        RoundTrip(Source(1), 2, 3, '0|No|Yes|No|Yes|Yes|3|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF16_LastError_WriteText()
     begin
-        RoundTrip('', Source(2), 2, 1);
+        RoundTrip(Source(2), 2, 1, '0|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF16_LastError_Write()
     begin
-        RoundTrip('', Source(2), 2, 2);
+        RoundTrip(Source(2), 2, 2, '2|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF16_LastError_WriteTextLength()
     begin
-        RoundTrip('', Source(2), 2, 3);
+        RoundTrip(Source(2), 2, 3, '0|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF16_Mark_WriteText()
     begin
-        RoundTrip('', Source(3), 2, 1);
+        RoundTrip(Source(3), 2, 1, '0|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF16_Mark_Write()
     begin
-        RoundTrip('', Source(3), 2, 2);
+        RoundTrip(Source(3), 2, 2, '2|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_UTF16_Mark_WriteTextLength()
     begin
-        RoundTrip('', Source(3), 2, 3);
+        RoundTrip(Source(3), 2, 3, '0|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_Windows_Collected_WriteText()
     begin
-        RoundTrip('', Source(1), 3, 1);
+        RoundTrip(Source(1), 3, 1, '0|No|Yes|No|Yes|Yes|3|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_Windows_Collected_Write()
     begin
-        RoundTrip('', Source(1), 3, 2);
+        RoundTrip(Source(1), 3, 2, '1|No|Yes|No|Yes|Yes|4|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_Windows_Collected_WriteTextLength()
     begin
-        RoundTrip('', Source(1), 3, 3);
+        RoundTrip(Source(1), 3, 3, '0|No|Yes|No|Yes|Yes|3|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_Windows_LastError_WriteText()
     begin
-        RoundTrip('', Source(2), 3, 1);
+        RoundTrip(Source(2), 3, 1, '0|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_Windows_LastError_Write()
     begin
-        RoundTrip('', Source(2), 3, 2);
+        RoundTrip(Source(2), 3, 2, '1|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_Windows_LastError_WriteTextLength()
     begin
-        RoundTrip('', Source(2), 3, 3);
+        RoundTrip(Source(2), 3, 3, '0|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_Windows_Mark_WriteText()
     begin
-        RoundTrip('', Source(3), 3, 1);
+        RoundTrip(Source(3), 3, 1, '0|No|No|Yes|No|No|1|No');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_Windows_Mark_Write()
     begin
-        RoundTrip('', Source(3), 3, 2);
+        RoundTrip(Source(3), 3, 2, '1|No|No|Yes|No|No|1|No');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_Windows_Mark_WriteTextLength()
     begin
-        RoundTrip('', Source(3), 3, 3);
+        RoundTrip(Source(3), 3, 3, '0|No|No|Yes|No|No|1|No');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_MSDos_Collected_WriteText()
     begin
-        RoundTrip('', Source(1), 4, 1);
+        RoundTrip(Source(1), 4, 1, '0|No|Yes|No|Yes|Yes|3|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_MSDos_Collected_Write()
     begin
-        RoundTrip('', Source(1), 4, 2);
+        RoundTrip(Source(1), 4, 2, '1|No|Yes|No|Yes|Yes|4|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_MSDos_Collected_WriteTextLength()
     begin
-        RoundTrip('', Source(1), 4, 3);
+        RoundTrip(Source(1), 4, 3, '0|No|Yes|No|Yes|Yes|3|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_MSDos_LastError_WriteText()
     begin
-        RoundTrip('', Source(2), 4, 1);
+        RoundTrip(Source(2), 4, 1, '0|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_MSDos_LastError_Write()
     begin
-        RoundTrip('', Source(2), 4, 2);
+        RoundTrip(Source(2), 4, 2, '1|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_MSDos_LastError_WriteTextLength()
     begin
-        RoundTrip('', Source(2), 4, 3);
+        RoundTrip(Source(2), 4, 3, '0|Yes|Yes|Yes|Yes|Yes|1|Yes');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_MSDos_Mark_WriteText()
     begin
-        RoundTrip('', Source(3), 4, 1);
+        RoundTrip(Source(3), 4, 1, '0|No|No|Yes|No|No|1|No');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_MSDos_Mark_Write()
     begin
-        RoundTrip('', Source(3), 4, 2);
+        RoundTrip(Source(3), 4, 2, '1|No|No|Yes|No|No|1|No');
     end;
 
     [Test]
     [ErrorBehavior(ErrorBehavior::Collect)]
     procedure WD_MSDos_Mark_WriteTextLength()
     begin
-        RoundTrip('', Source(3), 4, 3);
+        RoundTrip(Source(3), 4, 3, '0|No|No|Yes|No|No|1|No');
     end;
 
     [Test]
@@ -518,6 +532,14 @@ codeunit 94890 "LT WD Call Stack Write Text"
         Entry.WriteTo(JsonText);
         Observer.Observe('shape3 json empty', Format(JsonText = ''));
         Observer.Observe('shape3 json has key', Format(JsonText.Contains('"Callstack"')));
-        Observer.Finish();
+        Observer.Expect('shape1 json empty', 'No');
+        Observer.Expect('shape1 length minus strlen', '0');
+        Observer.Expect('shape1 readtext equal', 'Yes');
+        Observer.Expect('shape1 readtext strlen minus', '0');
+        Observer.Expect('shape2 length minus strlen', '0');
+        Observer.Expect('shape2 readtext is first line', 'Yes');
+        Observer.Expect('shape3 json empty', 'No');
+        Observer.Expect('shape3 json has key', 'Yes');
+        Observer.Verify();
     end;
 }
