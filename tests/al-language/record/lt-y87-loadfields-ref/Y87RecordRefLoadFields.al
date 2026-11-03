@@ -204,7 +204,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 1, 1, 1, 'Cnt');
-        Observer.Finish();
+        Observer.Expect('Cnt result', 'ok');
+        Observer.Expect('Cnt flags', 'loaded=NoNoNoNoNoNo');
+        Observer.Expect('Cnt values', 'Cnt=0 Tot=0');
+        Observer.Expect('Cnt after get', 'one Cnt=0');
+        Observer.Expect('Cnt after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -214,7 +219,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 1, 1, 2, 'Flt');
-        Observer.Finish();
+        Observer.Expect('Flt result', 'ok');
+        Observer.Expect('Flt flags', 'loaded=NoNoNoNoNoNo');
+        Observer.Expect('Flt values', 'Cnt=0 Tot=0');
+        Observer.Expect('Flt after get', 'one Cnt=0');
+        Observer.Expect('Flt after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -224,7 +234,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 1, 1, 3, 'NameCnt');
-        Observer.Finish();
+        Observer.Expect('NameCnt result', 'ok');
+        Observer.Expect('NameCnt flags', 'loaded=NoNoNoNoNoNo');
+        Observer.Expect('NameCnt values', 'Cnt=0 Tot=0');
+        Observer.Expect('NameCnt after get', 'one Cnt=0');
+        Observer.Expect('NameCnt after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -234,7 +249,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 1, 1, 4, 'CntName');
-        Observer.Finish();
+        Observer.Expect('CntName result', 'ok');
+        Observer.Expect('CntName flags', 'loaded=NoNoNoNoNoNo');
+        Observer.Expect('CntName values', 'Cnt=0 Tot=0');
+        Observer.Expect('CntName after get', 'one Cnt=0');
+        Observer.Expect('CntName after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -244,7 +264,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 1, 1, 5, 'CntTot');
-        Observer.Finish();
+        Observer.Expect('CntTot result', 'ok');
+        Observer.Expect('CntTot flags', 'loaded=NoNoNoNoNoNo');
+        Observer.Expect('CntTot values', 'Cnt=0 Tot=0');
+        Observer.Expect('CntTot after get', 'one Cnt=0');
+        Observer.Expect('CntTot after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -254,7 +279,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 1, 1, 6, 'FltName');
-        Observer.Finish();
+        Observer.Expect('FltName result', 'ok');
+        Observer.Expect('FltName flags', 'loaded=NoNoNoNoNoNo');
+        Observer.Expect('FltName values', 'Cnt=0 Tot=0');
+        Observer.Expect('FltName after get', 'one Cnt=0');
+        Observer.Expect('FltName after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -264,7 +294,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 1, 1, 7, 'Name');
-        Observer.Finish();
+        Observer.Expect('Name result', 'ok');
+        Observer.Expect('Name flags', 'loaded=NoNoNoNoNoNo');
+        Observer.Expect('Name values', 'Cnt=0 Tot=0');
+        Observer.Expect('Name after get', 'one Cnt=0');
+        Observer.Expect('Name after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -274,7 +309,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 1, 2, 1, 'Cnt');
-        Observer.Finish();
+        Observer.Expect('Cnt result', 'No');
+        Observer.Expect('Cnt flags', 'loaded=NoNoNoNoNoNo');
+        Observer.Expect('Cnt values', 'Cnt=0 Tot=0');
+        Observer.Expect('Cnt after get', 'one Cnt=0');
+        Observer.Expect('Cnt after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -284,7 +324,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 1, 2, 2, 'Flt');
-        Observer.Finish();
+        Observer.Expect('Flt result', 'No');
+        Observer.Expect('Flt flags', 'loaded=NoNoNoNoNoNo');
+        Observer.Expect('Flt values', 'Cnt=0 Tot=0');
+        Observer.Expect('Flt after get', 'one Cnt=0');
+        Observer.Expect('Flt after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -294,7 +339,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 1, 2, 3, 'NameCnt');
-        Observer.Finish();
+        Observer.Expect('NameCnt result', 'No');
+        Observer.Expect('NameCnt flags', 'loaded=NoNoNoNoNoNo');
+        Observer.Expect('NameCnt values', 'Cnt=0 Tot=0');
+        Observer.Expect('NameCnt after get', 'one Cnt=0');
+        Observer.Expect('NameCnt after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -304,7 +354,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 1, 2, 4, 'CntName');
-        Observer.Finish();
+        Observer.Expect('CntName result', 'No');
+        Observer.Expect('CntName flags', 'loaded=NoNoNoNoNoNo');
+        Observer.Expect('CntName values', 'Cnt=0 Tot=0');
+        Observer.Expect('CntName after get', 'one Cnt=0');
+        Observer.Expect('CntName after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -314,7 +369,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 1, 2, 5, 'CntTot');
-        Observer.Finish();
+        Observer.Expect('CntTot result', 'No');
+        Observer.Expect('CntTot flags', 'loaded=NoNoNoNoNoNo');
+        Observer.Expect('CntTot values', 'Cnt=0 Tot=0');
+        Observer.Expect('CntTot after get', 'one Cnt=0');
+        Observer.Expect('CntTot after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -324,7 +384,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 1, 2, 6, 'FltName');
-        Observer.Finish();
+        Observer.Expect('FltName result', 'No');
+        Observer.Expect('FltName flags', 'loaded=NoNoNoNoNoNo');
+        Observer.Expect('FltName values', 'Cnt=0 Tot=0');
+        Observer.Expect('FltName after get', 'one Cnt=0');
+        Observer.Expect('FltName after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -334,7 +399,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 1, 2, 7, 'Name');
-        Observer.Finish();
+        Observer.Expect('Name result', 'No');
+        Observer.Expect('Name flags', 'loaded=NoNoNoNoNoNo');
+        Observer.Expect('Name values', 'Cnt=0 Tot=0');
+        Observer.Expect('Name after get', 'one Cnt=0');
+        Observer.Expect('Name after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -344,7 +414,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 2, 1, 1, 'Cnt');
-        Observer.Finish();
+        Observer.Expect('Cnt error|text', 'The field ''Cnt'' in the ''LT Y87 LF Row'' table is not valid for auto loading and cannot be passed to calls to AddLoadFields, SetLoadFields, or LoadFields.');
+        Observer.Expect('Cnt error|code', 'DB:Ok');
+        Observer.Expect('Cnt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Cnt values', 'Cnt=0 Tot=0');
+        Observer.Expect('Cnt after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -354,7 +429,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 2, 1, 2, 'Flt');
-        Observer.Finish();
+        Observer.Expect('Flt error|text', 'The field ''Flt'' in the ''LT Y87 LF Row'' table is not valid for auto loading and cannot be passed to calls to AddLoadFields, SetLoadFields, or LoadFields.');
+        Observer.Expect('Flt error|code', 'DB:Ok');
+        Observer.Expect('Flt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Flt values', 'Cnt=0 Tot=0');
+        Observer.Expect('Flt after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -364,7 +444,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 2, 1, 3, 'NameCnt');
-        Observer.Finish();
+        Observer.Expect('NameCnt error|text', 'The field ''Cnt'' in the ''LT Y87 LF Row'' table is not valid for auto loading and cannot be passed to calls to AddLoadFields, SetLoadFields, or LoadFields.');
+        Observer.Expect('NameCnt error|code', 'DB:Ok');
+        Observer.Expect('NameCnt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('NameCnt values', 'Cnt=0 Tot=0');
+        Observer.Expect('NameCnt after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -374,7 +459,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 2, 1, 4, 'CntName');
-        Observer.Finish();
+        Observer.Expect('CntName error|text', 'The field ''Cnt'' in the ''LT Y87 LF Row'' table is not valid for auto loading and cannot be passed to calls to AddLoadFields, SetLoadFields, or LoadFields.');
+        Observer.Expect('CntName error|code', 'DB:Ok');
+        Observer.Expect('CntName flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('CntName values', 'Cnt=0 Tot=0');
+        Observer.Expect('CntName after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -384,7 +474,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 2, 1, 5, 'CntTot');
-        Observer.Finish();
+        Observer.Expect('CntTot error|text', 'The field ''Cnt'' in the ''LT Y87 LF Row'' table is not valid for auto loading and cannot be passed to calls to AddLoadFields, SetLoadFields, or LoadFields.');
+        Observer.Expect('CntTot error|code', 'DB:Ok');
+        Observer.Expect('CntTot flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('CntTot values', 'Cnt=0 Tot=0');
+        Observer.Expect('CntTot after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -394,7 +489,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 2, 1, 6, 'FltName');
-        Observer.Finish();
+        Observer.Expect('FltName error|text', 'The field ''Flt'' in the ''LT Y87 LF Row'' table is not valid for auto loading and cannot be passed to calls to AddLoadFields, SetLoadFields, or LoadFields.');
+        Observer.Expect('FltName error|code', 'DB:Ok');
+        Observer.Expect('FltName flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('FltName values', 'Cnt=0 Tot=0');
+        Observer.Expect('FltName after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -404,7 +504,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 2, 1, 7, 'Name');
-        Observer.Finish();
+        Observer.Expect('Name result', 'ok');
+        Observer.Expect('Name flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Name values', 'Cnt=0 Tot=0');
+        Observer.Expect('Name after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -414,7 +518,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 2, 2, 1, 'Cnt');
-        Observer.Finish();
+        Observer.Expect('Cnt result', 'No');
+        Observer.Expect('Cnt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Cnt values', 'Cnt=0 Tot=0');
+        Observer.Expect('Cnt after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -424,7 +532,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 2, 2, 2, 'Flt');
-        Observer.Finish();
+        Observer.Expect('Flt result', 'No');
+        Observer.Expect('Flt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Flt values', 'Cnt=0 Tot=0');
+        Observer.Expect('Flt after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -434,7 +546,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 2, 2, 3, 'NameCnt');
-        Observer.Finish();
+        Observer.Expect('NameCnt result', 'No');
+        Observer.Expect('NameCnt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('NameCnt values', 'Cnt=0 Tot=0');
+        Observer.Expect('NameCnt after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -444,7 +560,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 2, 2, 4, 'CntName');
-        Observer.Finish();
+        Observer.Expect('CntName result', 'No');
+        Observer.Expect('CntName flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('CntName values', 'Cnt=0 Tot=0');
+        Observer.Expect('CntName after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -454,7 +574,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 2, 2, 5, 'CntTot');
-        Observer.Finish();
+        Observer.Expect('CntTot result', 'No');
+        Observer.Expect('CntTot flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('CntTot values', 'Cnt=0 Tot=0');
+        Observer.Expect('CntTot after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -464,7 +588,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 2, 2, 6, 'FltName');
-        Observer.Finish();
+        Observer.Expect('FltName result', 'No');
+        Observer.Expect('FltName flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('FltName values', 'Cnt=0 Tot=0');
+        Observer.Expect('FltName after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -474,7 +602,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 2, 2, 7, 'Name');
-        Observer.Finish();
+        Observer.Expect('Name result', 'Yes');
+        Observer.Expect('Name flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Name values', 'Cnt=0 Tot=0');
+        Observer.Expect('Name after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -484,7 +616,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 3, 1, 1, 'Cnt');
-        Observer.Finish();
+        Observer.Expect('Cnt error|text', 'The field ''Cnt'' in the ''LT Y87 LF Row'' table is not valid for auto loading and cannot be passed to calls to AddLoadFields, SetLoadFields, or LoadFields.');
+        Observer.Expect('Cnt error|code', 'DB:Ok');
+        Observer.Expect('Cnt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Cnt values', 'Cnt=0 Tot=0');
+        Observer.Expect('Cnt after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -494,7 +631,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 3, 1, 2, 'Flt');
-        Observer.Finish();
+        Observer.Expect('Flt error|text', 'The field ''Flt'' in the ''LT Y87 LF Row'' table is not valid for auto loading and cannot be passed to calls to AddLoadFields, SetLoadFields, or LoadFields.');
+        Observer.Expect('Flt error|code', 'DB:Ok');
+        Observer.Expect('Flt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Flt values', 'Cnt=0 Tot=0');
+        Observer.Expect('Flt after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -504,7 +646,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 3, 1, 3, 'NameCnt');
-        Observer.Finish();
+        Observer.Expect('NameCnt error|text', 'The field ''Cnt'' in the ''LT Y87 LF Row'' table is not valid for auto loading and cannot be passed to calls to AddLoadFields, SetLoadFields, or LoadFields.');
+        Observer.Expect('NameCnt error|code', 'DB:Ok');
+        Observer.Expect('NameCnt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('NameCnt values', 'Cnt=0 Tot=0');
+        Observer.Expect('NameCnt after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -514,7 +661,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 3, 1, 4, 'CntName');
-        Observer.Finish();
+        Observer.Expect('CntName error|text', 'The field ''Cnt'' in the ''LT Y87 LF Row'' table is not valid for auto loading and cannot be passed to calls to AddLoadFields, SetLoadFields, or LoadFields.');
+        Observer.Expect('CntName error|code', 'DB:Ok');
+        Observer.Expect('CntName flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('CntName values', 'Cnt=0 Tot=0');
+        Observer.Expect('CntName after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -524,7 +676,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 3, 1, 5, 'CntTot');
-        Observer.Finish();
+        Observer.Expect('CntTot error|text', 'The field ''Cnt'' in the ''LT Y87 LF Row'' table is not valid for auto loading and cannot be passed to calls to AddLoadFields, SetLoadFields, or LoadFields.');
+        Observer.Expect('CntTot error|code', 'DB:Ok');
+        Observer.Expect('CntTot flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('CntTot values', 'Cnt=0 Tot=0');
+        Observer.Expect('CntTot after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -534,7 +691,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 3, 1, 6, 'FltName');
-        Observer.Finish();
+        Observer.Expect('FltName error|text', 'The field ''Flt'' in the ''LT Y87 LF Row'' table is not valid for auto loading and cannot be passed to calls to AddLoadFields, SetLoadFields, or LoadFields.');
+        Observer.Expect('FltName error|code', 'DB:Ok');
+        Observer.Expect('FltName flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('FltName values', 'Cnt=0 Tot=0');
+        Observer.Expect('FltName after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -544,7 +706,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 3, 1, 7, 'Name');
-        Observer.Finish();
+        Observer.Expect('Name result', 'ok');
+        Observer.Expect('Name flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Name values', 'Cnt=0 Tot=0');
+        Observer.Expect('Name after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -554,7 +720,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 3, 2, 1, 'Cnt');
-        Observer.Finish();
+        Observer.Expect('Cnt result', 'No');
+        Observer.Expect('Cnt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Cnt values', 'Cnt=0 Tot=0');
+        Observer.Expect('Cnt after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -564,7 +734,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 3, 2, 2, 'Flt');
-        Observer.Finish();
+        Observer.Expect('Flt result', 'No');
+        Observer.Expect('Flt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Flt values', 'Cnt=0 Tot=0');
+        Observer.Expect('Flt after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -574,7 +748,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 3, 2, 3, 'NameCnt');
-        Observer.Finish();
+        Observer.Expect('NameCnt result', 'No');
+        Observer.Expect('NameCnt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('NameCnt values', 'Cnt=0 Tot=0');
+        Observer.Expect('NameCnt after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -584,7 +762,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 3, 2, 4, 'CntName');
-        Observer.Finish();
+        Observer.Expect('CntName result', 'No');
+        Observer.Expect('CntName flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('CntName values', 'Cnt=0 Tot=0');
+        Observer.Expect('CntName after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -594,7 +776,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 3, 2, 5, 'CntTot');
-        Observer.Finish();
+        Observer.Expect('CntTot result', 'No');
+        Observer.Expect('CntTot flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('CntTot values', 'Cnt=0 Tot=0');
+        Observer.Expect('CntTot after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -604,7 +790,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 3, 2, 6, 'FltName');
-        Observer.Finish();
+        Observer.Expect('FltName result', 'No');
+        Observer.Expect('FltName flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('FltName values', 'Cnt=0 Tot=0');
+        Observer.Expect('FltName after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -614,7 +804,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 3, 2, 7, 'Name');
-        Observer.Finish();
+        Observer.Expect('Name result', 'Yes');
+        Observer.Expect('Name flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Name values', 'Cnt=0 Tot=0');
+        Observer.Expect('Name after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -624,7 +818,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 4, 1, 1, 'Cnt');
-        Observer.Finish();
+        Observer.Expect('Cnt error|text', 'The field ''Cnt'' in the ''LT Y87 LF Row'' table is not valid for auto loading and cannot be passed to calls to AddLoadFields, SetLoadFields, or LoadFields.');
+        Observer.Expect('Cnt error|code', 'DB:Ok');
+        Observer.Expect('Cnt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Cnt values', 'Cnt=0 Tot=0');
+        Observer.Expect('Cnt after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -634,7 +833,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 4, 1, 2, 'Flt');
-        Observer.Finish();
+        Observer.Expect('Flt error|text', 'The field ''Flt'' in the ''LT Y87 LF Row'' table is not valid for auto loading and cannot be passed to calls to AddLoadFields, SetLoadFields, or LoadFields.');
+        Observer.Expect('Flt error|code', 'DB:Ok');
+        Observer.Expect('Flt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Flt values', 'Cnt=0 Tot=0');
+        Observer.Expect('Flt after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -644,7 +848,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 4, 1, 3, 'NameCnt');
-        Observer.Finish();
+        Observer.Expect('NameCnt error|text', 'The field ''Cnt'' in the ''LT Y87 LF Row'' table is not valid for auto loading and cannot be passed to calls to AddLoadFields, SetLoadFields, or LoadFields.');
+        Observer.Expect('NameCnt error|code', 'DB:Ok');
+        Observer.Expect('NameCnt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('NameCnt values', 'Cnt=0 Tot=0');
+        Observer.Expect('NameCnt after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -654,7 +863,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 4, 1, 4, 'CntName');
-        Observer.Finish();
+        Observer.Expect('CntName error|text', 'The field ''Cnt'' in the ''LT Y87 LF Row'' table is not valid for auto loading and cannot be passed to calls to AddLoadFields, SetLoadFields, or LoadFields.');
+        Observer.Expect('CntName error|code', 'DB:Ok');
+        Observer.Expect('CntName flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('CntName values', 'Cnt=0 Tot=0');
+        Observer.Expect('CntName after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -664,7 +878,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 4, 1, 5, 'CntTot');
-        Observer.Finish();
+        Observer.Expect('CntTot error|text', 'The field ''Cnt'' in the ''LT Y87 LF Row'' table is not valid for auto loading and cannot be passed to calls to AddLoadFields, SetLoadFields, or LoadFields.');
+        Observer.Expect('CntTot error|code', 'DB:Ok');
+        Observer.Expect('CntTot flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('CntTot values', 'Cnt=0 Tot=0');
+        Observer.Expect('CntTot after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -674,7 +893,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 4, 1, 6, 'FltName');
-        Observer.Finish();
+        Observer.Expect('FltName error|text', 'The field ''Flt'' in the ''LT Y87 LF Row'' table is not valid for auto loading and cannot be passed to calls to AddLoadFields, SetLoadFields, or LoadFields.');
+        Observer.Expect('FltName error|code', 'DB:Ok');
+        Observer.Expect('FltName flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('FltName values', 'Cnt=0 Tot=0');
+        Observer.Expect('FltName after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -684,7 +908,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 4, 1, 7, 'Name');
-        Observer.Finish();
+        Observer.Expect('Name result', 'ok');
+        Observer.Expect('Name flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Name values', 'Cnt=0 Tot=0');
+        Observer.Expect('Name after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -694,7 +922,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 4, 2, 1, 'Cnt');
-        Observer.Finish();
+        Observer.Expect('Cnt result', 'No');
+        Observer.Expect('Cnt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Cnt values', 'Cnt=0 Tot=0');
+        Observer.Expect('Cnt after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -704,7 +936,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 4, 2, 2, 'Flt');
-        Observer.Finish();
+        Observer.Expect('Flt result', 'No');
+        Observer.Expect('Flt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Flt values', 'Cnt=0 Tot=0');
+        Observer.Expect('Flt after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -714,7 +950,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 4, 2, 3, 'NameCnt');
-        Observer.Finish();
+        Observer.Expect('NameCnt result', 'No');
+        Observer.Expect('NameCnt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('NameCnt values', 'Cnt=0 Tot=0');
+        Observer.Expect('NameCnt after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -724,7 +964,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 4, 2, 4, 'CntName');
-        Observer.Finish();
+        Observer.Expect('CntName result', 'No');
+        Observer.Expect('CntName flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('CntName values', 'Cnt=0 Tot=0');
+        Observer.Expect('CntName after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -734,7 +978,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 4, 2, 5, 'CntTot');
-        Observer.Finish();
+        Observer.Expect('CntTot result', 'No');
+        Observer.Expect('CntTot flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('CntTot values', 'Cnt=0 Tot=0');
+        Observer.Expect('CntTot after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -744,7 +992,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 4, 2, 6, 'FltName');
-        Observer.Finish();
+        Observer.Expect('FltName result', 'No');
+        Observer.Expect('FltName flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('FltName values', 'Cnt=0 Tot=0');
+        Observer.Expect('FltName after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -754,7 +1006,11 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 4, 2, 7, 'Name');
-        Observer.Finish();
+        Observer.Expect('Name result', 'Yes');
+        Observer.Expect('Name flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Name values', 'Cnt=0 Tot=0');
+        Observer.Expect('Name after calc', 'Cnt=2');
+        Observer.Verify();
     end;
 
 
@@ -764,7 +1020,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 5, 1, 1, 'Cnt');
-        Observer.Finish();
+        Observer.Expect('Cnt result', 'ok');
+        Observer.Expect('Cnt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Cnt values', 'Cnt=0 Tot=0');
+        Observer.Expect('Cnt after get', 'one Cnt=0');
+        Observer.Expect('Cnt after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -774,7 +1035,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 5, 1, 2, 'Flt');
-        Observer.Finish();
+        Observer.Expect('Flt result', 'ok');
+        Observer.Expect('Flt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Flt values', 'Cnt=0 Tot=0');
+        Observer.Expect('Flt after get', 'one Cnt=0');
+        Observer.Expect('Flt after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -784,7 +1050,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 5, 1, 3, 'NameCnt');
-        Observer.Finish();
+        Observer.Expect('NameCnt result', 'ok');
+        Observer.Expect('NameCnt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('NameCnt values', 'Cnt=0 Tot=0');
+        Observer.Expect('NameCnt after get', 'one Cnt=0');
+        Observer.Expect('NameCnt after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -794,7 +1065,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 5, 1, 4, 'CntName');
-        Observer.Finish();
+        Observer.Expect('CntName result', 'ok');
+        Observer.Expect('CntName flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('CntName values', 'Cnt=0 Tot=0');
+        Observer.Expect('CntName after get', 'one Cnt=0');
+        Observer.Expect('CntName after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -804,7 +1080,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 5, 1, 5, 'CntTot');
-        Observer.Finish();
+        Observer.Expect('CntTot result', 'ok');
+        Observer.Expect('CntTot flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('CntTot values', 'Cnt=0 Tot=0');
+        Observer.Expect('CntTot after get', 'one Cnt=0');
+        Observer.Expect('CntTot after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -814,7 +1095,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 5, 1, 6, 'FltName');
-        Observer.Finish();
+        Observer.Expect('FltName result', 'ok');
+        Observer.Expect('FltName flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('FltName values', 'Cnt=0 Tot=0');
+        Observer.Expect('FltName after get', 'one Cnt=0');
+        Observer.Expect('FltName after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -824,7 +1110,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 5, 1, 7, 'Name');
-        Observer.Finish();
+        Observer.Expect('Name result', 'ok');
+        Observer.Expect('Name flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Name values', 'Cnt=0 Tot=0');
+        Observer.Expect('Name after get', 'one Cnt=0');
+        Observer.Expect('Name after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -834,7 +1125,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 5, 2, 1, 'Cnt');
-        Observer.Finish();
+        Observer.Expect('Cnt result', 'No');
+        Observer.Expect('Cnt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Cnt values', 'Cnt=0 Tot=0');
+        Observer.Expect('Cnt after get', 'one Cnt=0');
+        Observer.Expect('Cnt after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -844,7 +1140,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 5, 2, 2, 'Flt');
-        Observer.Finish();
+        Observer.Expect('Flt result', 'No');
+        Observer.Expect('Flt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Flt values', 'Cnt=0 Tot=0');
+        Observer.Expect('Flt after get', 'one Cnt=0');
+        Observer.Expect('Flt after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -854,7 +1155,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 5, 2, 3, 'NameCnt');
-        Observer.Finish();
+        Observer.Expect('NameCnt result', 'No');
+        Observer.Expect('NameCnt flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('NameCnt values', 'Cnt=0 Tot=0');
+        Observer.Expect('NameCnt after get', 'one Cnt=0');
+        Observer.Expect('NameCnt after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -864,7 +1170,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 5, 2, 4, 'CntName');
-        Observer.Finish();
+        Observer.Expect('CntName result', 'No');
+        Observer.Expect('CntName flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('CntName values', 'Cnt=0 Tot=0');
+        Observer.Expect('CntName after get', 'one Cnt=0');
+        Observer.Expect('CntName after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -874,7 +1185,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 5, 2, 5, 'CntTot');
-        Observer.Finish();
+        Observer.Expect('CntTot result', 'No');
+        Observer.Expect('CntTot flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('CntTot values', 'Cnt=0 Tot=0');
+        Observer.Expect('CntTot after get', 'one Cnt=0');
+        Observer.Expect('CntTot after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -884,7 +1200,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 5, 2, 6, 'FltName');
-        Observer.Finish();
+        Observer.Expect('FltName result', 'No');
+        Observer.Expect('FltName flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('FltName values', 'Cnt=0 Tot=0');
+        Observer.Expect('FltName after get', 'one Cnt=0');
+        Observer.Expect('FltName after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 
@@ -894,7 +1215,12 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 5, 2, 7, 'Name');
-        Observer.Finish();
+        Observer.Expect('Name result', 'No');
+        Observer.Expect('Name flags', 'loaded=YesYesYesYesYesYes');
+        Observer.Expect('Name values', 'Cnt=0 Tot=0');
+        Observer.Expect('Name after get', 'one Cnt=0');
+        Observer.Expect('Name after calc', 'Cnt=2 Tot=30');
+        Observer.Verify();
     end;
 
 }
@@ -959,7 +1285,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         Clear(Row);
         Observer.Observe('single', RecFlags(Row));
         Observer.Observe('multi', RecMulti(Row));
-        Observer.Finish();
+        Observer.Expect('single', 'NoNoNoNoNoNo');
+        Observer.Expect('multi', 'NoNoNoNo');
+        Observer.Verify();
     end;
 
 
@@ -974,7 +1302,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         Row.Init();
         Observer.Observe('single', RecFlags(Row));
         Observer.Observe('multi', RecMulti(Row));
-        Observer.Finish();
+        Observer.Expect('single', 'NoNoNoNoNoNo');
+        Observer.Expect('multi', 'NoNoNoNo');
+        Observer.Verify();
     end;
 
 
@@ -989,7 +1319,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         Row.Id := 1;
         Observer.Observe('single', RecFlags(Row));
         Observer.Observe('multi', RecMulti(Row));
-        Observer.Finish();
+        Observer.Expect('single', 'YesYesYesYesYesYes');
+        Observer.Expect('multi', 'YesYesYesYes');
+        Observer.Verify();
     end;
 
 
@@ -1004,7 +1336,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         Row.Get(1);
         Observer.Observe('single', RecFlags(Row));
         Observer.Observe('multi', RecMulti(Row));
-        Observer.Finish();
+        Observer.Expect('single', 'YesYesYesYesYesYes');
+        Observer.Expect('multi', 'YesYesYesYes');
+        Observer.Verify();
     end;
 
 
@@ -1019,7 +1353,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         Row.SetLoadFields(Row.Name);
         Observer.Observe('single', RecFlags(Row));
         Observer.Observe('multi', RecMulti(Row));
-        Observer.Finish();
+        Observer.Expect('single', 'NoNoNoNoNoNo');
+        Observer.Expect('multi', 'NoNoNoNo');
+        Observer.Verify();
     end;
 
 
@@ -1034,7 +1370,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         Row.SetLoadFields(Row.Cnt);
         Observer.Observe('single', RecFlags(Row));
         Observer.Observe('multi', RecMulti(Row));
-        Observer.Finish();
+        Observer.Expect('single', 'NoNoNoNoNoNo');
+        Observer.Expect('multi', 'NoNoNoNo');
+        Observer.Verify();
     end;
 
 
@@ -1050,7 +1388,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         Row.Get(1);
         Observer.Observe('single', RecFlags(Row));
         Observer.Observe('multi', RecMulti(Row));
-        Observer.Finish();
+        Observer.Expect('single', 'YesYesNoYesYesYes');
+        Observer.Expect('multi', 'YesYesYesYes');
+        Observer.Verify();
     end;
 
 
@@ -1066,7 +1406,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         Row.Get(1);
         Observer.Observe('single', RecFlags(Row));
         Observer.Observe('multi', RecMulti(Row));
-        Observer.Finish();
+        Observer.Expect('single', 'YesNoNoYesYesYes');
+        Observer.Expect('multi', 'NoYesYesYes');
+        Observer.Verify();
     end;
 
 
@@ -1082,7 +1424,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         Row.CalcFields(Row.Cnt);
         Observer.Observe('single', RecFlags(Row));
         Observer.Observe('multi', RecMulti(Row));
-        Observer.Finish();
+        Observer.Expect('single', 'YesYesYesYesYesYes');
+        Observer.Expect('multi', 'YesYesYesYes');
+        Observer.Verify();
     end;
 
 
@@ -1098,7 +1442,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         Row.CalcFields(Row.Cnt);
         Observer.Observe('single', RecFlags(Row));
         Observer.Observe('multi', RecMulti(Row));
-        Observer.Finish();
+        Observer.Expect('single', 'YesYesYesYesYesYes');
+        Observer.Expect('multi', 'YesYesYesYes');
+        Observer.Verify();
     end;
 
 
@@ -1114,7 +1460,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         Row.Reset();
         Observer.Observe('single', RecFlags(Row));
         Observer.Observe('multi', RecMulti(Row));
-        Observer.Finish();
+        Observer.Expect('single', 'YesYesYesYesYesYes');
+        Observer.Expect('multi', 'YesYesYesYes');
+        Observer.Verify();
     end;
 
 
@@ -1130,7 +1478,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         Clear(Row);
         Observer.Observe('single', RecFlags(Row));
         Observer.Observe('multi', RecMulti(Row));
-        Observer.Finish();
+        Observer.Expect('single', 'NoNoNoNoNoNo');
+        Observer.Expect('multi', 'NoNoNoNo');
+        Observer.Verify();
     end;
 
 
@@ -1146,7 +1496,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         Row.Name := 'x';
         Observer.Observe('single', RecFlags(Row));
         Observer.Observe('multi', RecMulti(Row));
-        Observer.Finish();
+        Observer.Expect('single', 'YesYesYesYesYesYes');
+        Observer.Expect('multi', 'YesYesYesYes');
+        Observer.Verify();
     end;
 
 
@@ -1161,7 +1513,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         R.Open(94653);
         Observer.Observe('single', RefFlags(R));
         Observer.Observe('multi', RefMulti(R));
-        Observer.Finish();
+        Observer.Expect('single', 'NoNoNoNoNoNo');
+        Observer.Expect('multi', 'NoNoNoNo');
+        Observer.Verify();
     end;
 
 
@@ -1177,7 +1531,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         R.Init();
         Observer.Observe('single', RefFlags(R));
         Observer.Observe('multi', RefMulti(R));
-        Observer.Finish();
+        Observer.Expect('single', 'NoNoNoNoNoNo');
+        Observer.Expect('multi', 'NoNoNoNo');
+        Observer.Verify();
     end;
 
 
@@ -1193,7 +1549,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         R.Field(1).Value := 1;
         Observer.Observe('single', RefFlags(R));
         Observer.Observe('multi', RefMulti(R));
-        Observer.Finish();
+        Observer.Expect('single', 'YesYesYesYesYesYes');
+        Observer.Expect('multi', 'YesYesYesYes');
+        Observer.Verify();
     end;
 
 
@@ -1209,7 +1567,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         GetOne(R);
         Observer.Observe('single', RefFlags(R));
         Observer.Observe('multi', RefMulti(R));
-        Observer.Finish();
+        Observer.Expect('single', 'YesYesYesYesYesYes');
+        Observer.Expect('multi', 'YesYesYesYes');
+        Observer.Verify();
     end;
 
 
@@ -1225,7 +1585,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         R.SetLoadFields(2);
         Observer.Observe('single', RefFlags(R));
         Observer.Observe('multi', RefMulti(R));
-        Observer.Finish();
+        Observer.Expect('single', 'NoNoNoNoNoNo');
+        Observer.Expect('multi', 'NoNoNoNo');
+        Observer.Verify();
     end;
 
 
@@ -1242,7 +1604,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         GetOne(R);
         Observer.Observe('single', RefFlags(R));
         Observer.Observe('multi', RefMulti(R));
-        Observer.Finish();
+        Observer.Expect('single', 'YesYesYesYesYesYes');
+        Observer.Expect('multi', 'YesYesYesYes');
+        Observer.Verify();
     end;
 
 
@@ -1259,7 +1623,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         GetOne(R);
         Observer.Observe('single', RefFlags(R));
         Observer.Observe('multi', RefMulti(R));
-        Observer.Finish();
+        Observer.Expect('single', 'YesYesYesYesYesYes');
+        Observer.Expect('multi', 'YesYesYesYes');
+        Observer.Verify();
     end;
 
 
@@ -1276,7 +1642,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         R.Field(4).CalcField();
         Observer.Observe('single', RefFlags(R));
         Observer.Observe('multi', RefMulti(R));
-        Observer.Finish();
+        Observer.Expect('single', 'YesYesYesYesYesYes');
+        Observer.Expect('multi', 'YesYesYesYes');
+        Observer.Verify();
     end;
 
 
@@ -1300,7 +1668,11 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         Observer.Observe('single ok', Format(TryRefFlags(R, Flags)));
         Observer.ObserveError('single');
         Observer.Observe('single flags', Flags);
-        Observer.Finish();
+        Observer.Expect('single ok', 'No');
+        Observer.Expect('single|text', 'The record is not open.');
+        Observer.Expect('single|code', 'RecordNotOpened');
+        Observer.Expect('single flags', '');
+        Observer.Verify();
     end;
 
 
@@ -1316,7 +1688,9 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         R.GetTable(Row);
         Observer.Observe('single', RefFlags(R));
         Observer.Observe('multi', RefMulti(R));
-        Observer.Finish();
+        Observer.Expect('single', 'NoNoNoNoNoNo');
+        Observer.Expect('multi', 'NoNoNoNo');
+        Observer.Verify();
     end;
 
 }

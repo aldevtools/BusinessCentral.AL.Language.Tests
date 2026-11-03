@@ -263,229 +263,721 @@ codeunit 94646 "LT Y87 Move Answer Tests"
 
     [Test]
     procedure Y87_SA_List_Next()
-    var
-        P: TestPage "LT Y80 MD List";
     begin
         Seed();
-                CaseList(10, 'next');
+        CaseList(10, 'next');
         CaseList(20, 'next');
         CaseList(30, 'next');
 
-        Observer.Finish();
+        Observer.Expect('10 shown', '10/x');
+        Observer.Expect('10 preset true ok', 'Yes');
+        Observer.Expect('10 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('10 preset true|code', 'SaveAbort');
+        Observer.Expect('10 preset true log', '');
+        Observer.Expect('10 answer preset true', 'false');
+        Observer.Expect('10 preset false ok', 'Yes');
+        Observer.Expect('10 preset false log', '');
+        Observer.Expect('10 answer preset false', 'false');
+        Observer.Expect('10 branch ok', 'Yes');
+        Observer.Expect('10 branch log', '');
+        Observer.Expect('10 branch taken', 'else');
+        Observer.Expect('10 shown after', '10/x');
+        Observer.Expect('10 close ok', 'Yes');
+        Observer.Expect('10 close log', '');
+        Observer.Expect('10 stored', 'r10/1');
+        Observer.Expect('20 shown', '20/x');
+        Observer.Expect('20 preset true ok', 'Yes');
+        Observer.Expect('20 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('20 preset true|code', 'SaveAbort');
+        Observer.Expect('20 preset true log', '');
+        Observer.Expect('20 answer preset true', 'false');
+        Observer.Expect('20 preset false ok', 'Yes');
+        Observer.Expect('20 preset false log', '');
+        Observer.Expect('20 answer preset false', 'false');
+        Observer.Expect('20 branch ok', 'Yes');
+        Observer.Expect('20 branch log', '');
+        Observer.Expect('20 branch taken', 'else');
+        Observer.Expect('20 shown after', '20/x');
+        Observer.Expect('20 close ok', 'Yes');
+        Observer.Expect('20 close log', '');
+        Observer.Expect('20 stored', 'r20/2');
+        Observer.Expect('30 shown', '30/x');
+        Observer.Expect('30 preset true ok', 'Yes');
+        Observer.Expect('30 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('30 preset true|code', 'SaveAbort');
+        Observer.Expect('30 preset true log', '');
+        Observer.Expect('30 answer preset true', 'false');
+        Observer.Expect('30 preset false ok', 'Yes');
+        Observer.Expect('30 preset false log', '');
+        Observer.Expect('30 answer preset false', 'false');
+        Observer.Expect('30 branch ok', 'Yes');
+        Observer.Expect('30 branch log', '');
+        Observer.Expect('30 branch taken', 'else');
+        Observer.Expect('30 shown after', '30/x');
+        Observer.Expect('30 close ok', 'Yes');
+        Observer.Expect('30 close log', '');
+        Observer.Expect('30 stored', 'r30/3');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_SA_List_Next_More1()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Y87_SA_List_Previous()
-    var
-        P: TestPage "LT Y80 MD List";
     begin
         Seed();
-                CaseList(10, 'previous');
+        CaseList(10, 'previous');
         CaseList(20, 'previous');
         CaseList(30, 'previous');
 
-        Observer.Finish();
+        Observer.Expect('10 shown', '10/x');
+        Observer.Expect('10 preset true ok', 'Yes');
+        Observer.Expect('10 preset true|text', '');
+        Observer.Expect('10 preset true|code', '');
+        Observer.Expect('10 preset true log', '');
+        Observer.Expect('10 answer preset true', 'false');
+        Observer.Expect('10 preset false ok', 'Yes');
+        Observer.Expect('10 preset false log', '');
+        Observer.Expect('10 answer preset false', 'false');
+        Observer.Expect('10 branch ok', 'Yes');
+        Observer.Expect('10 branch log', '');
+        Observer.Expect('10 branch taken', 'else');
+        Observer.Expect('10 shown after', '10/x');
+        Observer.Expect('10 close ok', 'No');
+        Observer.Expect('10 close log', '');
+        Observer.Expect('10 stored', 'r10/1');
+        Observer.Expect('20 shown', '20/x');
+        Observer.Expect('20 preset true ok', 'Yes');
+        Observer.Expect('20 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('20 preset true|code', 'SaveAbort');
+        Observer.Expect('20 preset true log', '');
+        Observer.Expect('20 answer preset true', 'false');
+        Observer.Expect('20 preset false ok', 'Yes');
+        Observer.Expect('20 preset false log', '');
+        Observer.Expect('20 answer preset false', 'false');
+        Observer.Expect('20 branch ok', 'Yes');
+        Observer.Expect('20 branch log', '');
+        Observer.Expect('20 branch taken', 'else');
+        Observer.Expect('20 shown after', '20/x');
+        Observer.Expect('20 close ok', 'Yes');
+        Observer.Expect('20 close log', '');
+        Observer.Expect('20 stored', 'r20/2');
+        Observer.Expect('30 shown', '30/x');
+        Observer.Expect('30 preset true ok', 'Yes');
+        Observer.Expect('30 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('30 preset true|code', 'SaveAbort');
+        Observer.Expect('30 preset true log', '');
+        Observer.Expect('30 answer preset true', 'false');
+        Observer.Expect('30 preset false ok', 'Yes');
+        Observer.Expect('30 preset false log', '');
+        Observer.Expect('30 answer preset false', 'false');
+        Observer.Expect('30 branch ok', 'Yes');
+        Observer.Expect('30 branch log', '');
+        Observer.Expect('30 branch taken', 'else');
+        Observer.Expect('30 shown after', '30/x');
+        Observer.Expect('30 close ok', 'Yes');
+        Observer.Expect('30 close log', '');
+        Observer.Expect('30 stored', 'r30/3');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_SA_List_Previous_More1()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Y87_SA_List_First()
-    var
-        P: TestPage "LT Y80 MD List";
     begin
         Seed();
-                CaseList(10, 'first');
+        CaseList(10, 'first');
         CaseList(20, 'first');
         CaseList(30, 'first');
 
-        Observer.Finish();
+        Observer.Expect('10 shown', '10/x');
+        Observer.Expect('10 preset true ok', 'Yes');
+        Observer.Expect('10 preset true|text', '');
+        Observer.Expect('10 preset true|code', '');
+        Observer.Expect('10 preset true log', '');
+        Observer.Expect('10 answer preset true', 'true');
+        Observer.Expect('10 preset false ok', 'Yes');
+        Observer.Expect('10 preset false log', '');
+        Observer.Expect('10 answer preset false', 'true');
+        Observer.Expect('10 branch ok', 'Yes');
+        Observer.Expect('10 branch log', '');
+        Observer.Expect('10 branch taken', 'then');
+        Observer.Expect('10 shown after', '10/x');
+        Observer.Expect('10 close ok', 'No');
+        Observer.Expect('10 close log', '');
+        Observer.Expect('10 stored', 'r10/1');
+        Observer.Expect('20 shown', '20/x');
+        Observer.Expect('20 preset true ok', 'Yes');
+        Observer.Expect('20 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('20 preset true|code', 'SaveAbort');
+        Observer.Expect('20 preset true log', '');
+        Observer.Expect('20 answer preset true', 'false');
+        Observer.Expect('20 preset false ok', 'Yes');
+        Observer.Expect('20 preset false log', '');
+        Observer.Expect('20 answer preset false', 'false');
+        Observer.Expect('20 branch ok', 'Yes');
+        Observer.Expect('20 branch log', '');
+        Observer.Expect('20 branch taken', 'else');
+        Observer.Expect('20 shown after', '20/x');
+        Observer.Expect('20 close ok', 'Yes');
+        Observer.Expect('20 close log', '');
+        Observer.Expect('20 stored', 'r20/2');
+        Observer.Expect('30 shown', '30/x');
+        Observer.Expect('30 preset true ok', 'Yes');
+        Observer.Expect('30 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('30 preset true|code', 'SaveAbort');
+        Observer.Expect('30 preset true log', '');
+        Observer.Expect('30 answer preset true', 'false');
+        Observer.Expect('30 preset false ok', 'Yes');
+        Observer.Expect('30 preset false log', '');
+        Observer.Expect('30 answer preset false', 'false');
+        Observer.Expect('30 branch ok', 'Yes');
+        Observer.Expect('30 branch log', '');
+        Observer.Expect('30 branch taken', 'else');
+        Observer.Expect('30 shown after', '30/x');
+        Observer.Expect('30 close ok', 'Yes');
+        Observer.Expect('30 close log', '');
+        Observer.Expect('30 stored', 'r30/3');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_SA_List_First_More1()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Y87_SA_List_Last()
-    var
-        P: TestPage "LT Y80 MD List";
     begin
         Seed();
-                CaseList(10, 'last');
+        CaseList(10, 'last');
         CaseList(20, 'last');
         CaseList(30, 'last');
 
-        Observer.Finish();
+        Observer.Expect('10 shown', '10/x');
+        Observer.Expect('10 preset true ok', 'Yes');
+        Observer.Expect('10 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('10 preset true|code', 'SaveAbort');
+        Observer.Expect('10 preset true log', '');
+        Observer.Expect('10 answer preset true', 'true');
+        Observer.Expect('10 preset false ok', 'Yes');
+        Observer.Expect('10 preset false log', '');
+        Observer.Expect('10 answer preset false', 'true');
+        Observer.Expect('10 branch ok', 'Yes');
+        Observer.Expect('10 branch log', '');
+        Observer.Expect('10 branch taken', 'then');
+        Observer.Expect('10 shown after', '10/x');
+        Observer.Expect('10 close ok', 'Yes');
+        Observer.Expect('10 close log', '');
+        Observer.Expect('10 stored', 'r10/1');
+        Observer.Expect('20 shown', '20/x');
+        Observer.Expect('20 preset true ok', 'Yes');
+        Observer.Expect('20 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('20 preset true|code', 'SaveAbort');
+        Observer.Expect('20 preset true log', '');
+        Observer.Expect('20 answer preset true', 'true');
+        Observer.Expect('20 preset false ok', 'Yes');
+        Observer.Expect('20 preset false log', '');
+        Observer.Expect('20 answer preset false', 'true');
+        Observer.Expect('20 branch ok', 'Yes');
+        Observer.Expect('20 branch log', '');
+        Observer.Expect('20 branch taken', 'then');
+        Observer.Expect('20 shown after', '20/x');
+        Observer.Expect('20 close ok', 'Yes');
+        Observer.Expect('20 close log', '');
+        Observer.Expect('20 stored', 'r20/2');
+        Observer.Expect('30 shown', '30/x');
+        Observer.Expect('30 preset true ok', 'Yes');
+        Observer.Expect('30 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('30 preset true|code', 'SaveAbort');
+        Observer.Expect('30 preset true log', '');
+        Observer.Expect('30 answer preset true', 'true');
+        Observer.Expect('30 preset false ok', 'Yes');
+        Observer.Expect('30 preset false log', '');
+        Observer.Expect('30 answer preset false', 'true');
+        Observer.Expect('30 branch ok', 'Yes');
+        Observer.Expect('30 branch log', '');
+        Observer.Expect('30 branch taken', 'then');
+        Observer.Expect('30 shown after', '30/x');
+        Observer.Expect('30 close ok', 'Yes');
+        Observer.Expect('30 close log', '');
+        Observer.Expect('30 stored', 'r30/3');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_SA_List_Last_More1()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Y87_SA_Card_Next()
-    var
-        P: TestPage "LT Y80 MD Card";
     begin
         Seed();
-                CaseCard(10, 'next');
+        CaseCard(10, 'next');
         CaseCard(20, 'next');
         CaseCard(30, 'next');
 
-        Observer.Finish();
+        Observer.Expect('10 shown', '10/x');
+        Observer.Expect('10 preset true ok', 'Yes');
+        Observer.Expect('10 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('10 preset true|code', 'SaveAbort');
+        Observer.Expect('10 preset true log', '');
+        Observer.Expect('10 answer preset true', 'false');
+        Observer.Expect('10 preset false ok', 'Yes');
+        Observer.Expect('10 preset false log', '');
+        Observer.Expect('10 answer preset false', 'false');
+        Observer.Expect('10 branch ok', 'Yes');
+        Observer.Expect('10 branch log', '');
+        Observer.Expect('10 branch taken', 'else');
+        Observer.Expect('10 shown after', '10/x');
+        Observer.Expect('10 close ok', 'Yes');
+        Observer.Expect('10 close log', '');
+        Observer.Expect('10 stored', 'r10/1');
+        Observer.Expect('20 shown', '20/x');
+        Observer.Expect('20 preset true ok', 'Yes');
+        Observer.Expect('20 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('20 preset true|code', 'SaveAbort');
+        Observer.Expect('20 preset true log', '');
+        Observer.Expect('20 answer preset true', 'false');
+        Observer.Expect('20 preset false ok', 'Yes');
+        Observer.Expect('20 preset false log', '');
+        Observer.Expect('20 answer preset false', 'false');
+        Observer.Expect('20 branch ok', 'Yes');
+        Observer.Expect('20 branch log', '');
+        Observer.Expect('20 branch taken', 'else');
+        Observer.Expect('20 shown after', '20/x');
+        Observer.Expect('20 close ok', 'Yes');
+        Observer.Expect('20 close log', '');
+        Observer.Expect('20 stored', 'r20/2');
+        Observer.Expect('30 shown', '30/x');
+        Observer.Expect('30 preset true ok', 'Yes');
+        Observer.Expect('30 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('30 preset true|code', 'SaveAbort');
+        Observer.Expect('30 preset true log', '');
+        Observer.Expect('30 answer preset true', 'false');
+        Observer.Expect('30 preset false ok', 'Yes');
+        Observer.Expect('30 preset false log', '');
+        Observer.Expect('30 answer preset false', 'false');
+        Observer.Expect('30 branch ok', 'Yes');
+        Observer.Expect('30 branch log', '');
+        Observer.Expect('30 branch taken', 'else');
+        Observer.Expect('30 shown after', '30/x');
+        Observer.Expect('30 close ok', 'Yes');
+        Observer.Expect('30 close log', '');
+        Observer.Expect('30 stored', 'r30/3');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_SA_Card_Next_More1()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Y87_SA_Card_Previous()
-    var
-        P: TestPage "LT Y80 MD Card";
     begin
         Seed();
-                CaseCard(10, 'previous');
+        CaseCard(10, 'previous');
         CaseCard(20, 'previous');
         CaseCard(30, 'previous');
 
-        Observer.Finish();
+        Observer.Expect('10 shown', '10/x');
+        Observer.Expect('10 preset true ok', 'Yes');
+        Observer.Expect('10 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('10 preset true|code', 'SaveAbort');
+        Observer.Expect('10 preset true log', '');
+        Observer.Expect('10 answer preset true', 'false');
+        Observer.Expect('10 preset false ok', 'Yes');
+        Observer.Expect('10 preset false log', '');
+        Observer.Expect('10 answer preset false', 'false');
+        Observer.Expect('10 branch ok', 'Yes');
+        Observer.Expect('10 branch log', '');
+        Observer.Expect('10 branch taken', 'else');
+        Observer.Expect('10 shown after', '10/x');
+        Observer.Expect('10 close ok', 'Yes');
+        Observer.Expect('10 close log', '');
+        Observer.Expect('10 stored', 'r10/1');
+        Observer.Expect('20 shown', '20/x');
+        Observer.Expect('20 preset true ok', 'Yes');
+        Observer.Expect('20 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('20 preset true|code', 'SaveAbort');
+        Observer.Expect('20 preset true log', '');
+        Observer.Expect('20 answer preset true', 'false');
+        Observer.Expect('20 preset false ok', 'Yes');
+        Observer.Expect('20 preset false log', '');
+        Observer.Expect('20 answer preset false', 'false');
+        Observer.Expect('20 branch ok', 'Yes');
+        Observer.Expect('20 branch log', '');
+        Observer.Expect('20 branch taken', 'else');
+        Observer.Expect('20 shown after', '20/x');
+        Observer.Expect('20 close ok', 'Yes');
+        Observer.Expect('20 close log', '');
+        Observer.Expect('20 stored', 'r20/2');
+        Observer.Expect('30 shown', '30/x');
+        Observer.Expect('30 preset true ok', 'Yes');
+        Observer.Expect('30 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('30 preset true|code', 'SaveAbort');
+        Observer.Expect('30 preset true log', '');
+        Observer.Expect('30 answer preset true', 'false');
+        Observer.Expect('30 preset false ok', 'Yes');
+        Observer.Expect('30 preset false log', '');
+        Observer.Expect('30 answer preset false', 'false');
+        Observer.Expect('30 branch ok', 'Yes');
+        Observer.Expect('30 branch log', '');
+        Observer.Expect('30 branch taken', 'else');
+        Observer.Expect('30 shown after', '30/x');
+        Observer.Expect('30 close ok', 'Yes');
+        Observer.Expect('30 close log', '');
+        Observer.Expect('30 stored', 'r30/3');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_SA_Card_Previous_More1()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Y87_SA_Card_First()
-    var
-        P: TestPage "LT Y80 MD Card";
     begin
         Seed();
-                CaseCard(10, 'first');
+        CaseCard(10, 'first');
         CaseCard(20, 'first');
         CaseCard(30, 'first');
 
-        Observer.Finish();
+        Observer.Expect('10 shown', '10/x');
+        Observer.Expect('10 preset true ok', 'Yes');
+        Observer.Expect('10 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('10 preset true|code', 'SaveAbort');
+        Observer.Expect('10 preset true log', '');
+        Observer.Expect('10 answer preset true', 'true');
+        Observer.Expect('10 preset false ok', 'Yes');
+        Observer.Expect('10 preset false log', '');
+        Observer.Expect('10 answer preset false', 'true');
+        Observer.Expect('10 branch ok', 'Yes');
+        Observer.Expect('10 branch log', '');
+        Observer.Expect('10 branch taken', 'then');
+        Observer.Expect('10 shown after', '10/x');
+        Observer.Expect('10 close ok', 'Yes');
+        Observer.Expect('10 close log', '');
+        Observer.Expect('10 stored', 'r10/1');
+        Observer.Expect('20 shown', '20/x');
+        Observer.Expect('20 preset true ok', 'Yes');
+        Observer.Expect('20 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('20 preset true|code', 'SaveAbort');
+        Observer.Expect('20 preset true log', '');
+        Observer.Expect('20 answer preset true', 'true');
+        Observer.Expect('20 preset false ok', 'Yes');
+        Observer.Expect('20 preset false log', '');
+        Observer.Expect('20 answer preset false', 'true');
+        Observer.Expect('20 branch ok', 'Yes');
+        Observer.Expect('20 branch log', '');
+        Observer.Expect('20 branch taken', 'then');
+        Observer.Expect('20 shown after', '20/x');
+        Observer.Expect('20 close ok', 'Yes');
+        Observer.Expect('20 close log', '');
+        Observer.Expect('20 stored', 'r20/2');
+        Observer.Expect('30 shown', '30/x');
+        Observer.Expect('30 preset true ok', 'Yes');
+        Observer.Expect('30 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('30 preset true|code', 'SaveAbort');
+        Observer.Expect('30 preset true log', '');
+        Observer.Expect('30 answer preset true', 'true');
+        Observer.Expect('30 preset false ok', 'Yes');
+        Observer.Expect('30 preset false log', '');
+        Observer.Expect('30 answer preset false', 'true');
+        Observer.Expect('30 branch ok', 'Yes');
+        Observer.Expect('30 branch log', '');
+        Observer.Expect('30 branch taken', 'then');
+        Observer.Expect('30 shown after', '30/x');
+        Observer.Expect('30 close ok', 'Yes');
+        Observer.Expect('30 close log', '');
+        Observer.Expect('30 stored', 'r30/3');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_SA_Card_First_More1()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Y87_SA_Card_Last()
-    var
-        P: TestPage "LT Y80 MD Card";
     begin
         Seed();
-                CaseCard(10, 'last');
+        CaseCard(10, 'last');
         CaseCard(20, 'last');
         CaseCard(30, 'last');
 
-        Observer.Finish();
+        Observer.Expect('10 shown', '10/x');
+        Observer.Expect('10 preset true ok', 'Yes');
+        Observer.Expect('10 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('10 preset true|code', 'SaveAbort');
+        Observer.Expect('10 preset true log', '');
+        Observer.Expect('10 answer preset true', 'true');
+        Observer.Expect('10 preset false ok', 'Yes');
+        Observer.Expect('10 preset false log', '');
+        Observer.Expect('10 answer preset false', 'true');
+        Observer.Expect('10 branch ok', 'Yes');
+        Observer.Expect('10 branch log', '');
+        Observer.Expect('10 branch taken', 'then');
+        Observer.Expect('10 shown after', '10/x');
+        Observer.Expect('10 close ok', 'Yes');
+        Observer.Expect('10 close log', '');
+        Observer.Expect('10 stored', 'r10/1');
+        Observer.Expect('20 shown', '20/x');
+        Observer.Expect('20 preset true ok', 'Yes');
+        Observer.Expect('20 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('20 preset true|code', 'SaveAbort');
+        Observer.Expect('20 preset true log', '');
+        Observer.Expect('20 answer preset true', 'true');
+        Observer.Expect('20 preset false ok', 'Yes');
+        Observer.Expect('20 preset false log', '');
+        Observer.Expect('20 answer preset false', 'true');
+        Observer.Expect('20 branch ok', 'Yes');
+        Observer.Expect('20 branch log', '');
+        Observer.Expect('20 branch taken', 'then');
+        Observer.Expect('20 shown after', '20/x');
+        Observer.Expect('20 close ok', 'Yes');
+        Observer.Expect('20 close log', '');
+        Observer.Expect('20 stored', 'r20/2');
+        Observer.Expect('30 shown', '30/x');
+        Observer.Expect('30 preset true ok', 'Yes');
+        Observer.Expect('30 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('30 preset true|code', 'SaveAbort');
+        Observer.Expect('30 preset true log', '');
+        Observer.Expect('30 answer preset true', 'true');
+        Observer.Expect('30 preset false ok', 'Yes');
+        Observer.Expect('30 preset false log', '');
+        Observer.Expect('30 answer preset false', 'true');
+        Observer.Expect('30 branch ok', 'Yes');
+        Observer.Expect('30 branch log', '');
+        Observer.Expect('30 branch taken', 'then');
+        Observer.Expect('30 shown after', '30/x');
+        Observer.Expect('30 close ok', 'Yes');
+        Observer.Expect('30 close log', '');
+        Observer.Expect('30 stored', 'r30/3');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_SA_Card_Last_More1()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Y87_SA_Worksheet_Next()
-    var
-        P: TestPage "LT Y80 MD Worksheet";
     begin
         Seed();
-                CaseWorksheet(10, 'next');
+        CaseWorksheet(10, 'next');
         CaseWorksheet(20, 'next');
         CaseWorksheet(30, 'next');
 
-        Observer.Finish();
+        Observer.Expect('10 shown', '10/x');
+        Observer.Expect('10 preset true ok', 'Yes');
+        Observer.Expect('10 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('10 preset true|code', 'SaveAbort');
+        Observer.Expect('10 preset true log', '');
+        Observer.Expect('10 answer preset true', 'false');
+        Observer.Expect('10 preset false ok', 'Yes');
+        Observer.Expect('10 preset false log', '');
+        Observer.Expect('10 answer preset false', 'false');
+        Observer.Expect('10 branch ok', 'Yes');
+        Observer.Expect('10 branch log', '');
+        Observer.Expect('10 branch taken', 'else');
+        Observer.Expect('10 shown after', '10/x');
+        Observer.Expect('10 close ok', 'Yes');
+        Observer.Expect('10 close log', '');
+        Observer.Expect('10 stored', 'r10/1');
+        Observer.Expect('20 shown', '20/x');
+        Observer.Expect('20 preset true ok', 'Yes');
+        Observer.Expect('20 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('20 preset true|code', 'SaveAbort');
+        Observer.Expect('20 preset true log', '');
+        Observer.Expect('20 answer preset true', 'false');
+        Observer.Expect('20 preset false ok', 'Yes');
+        Observer.Expect('20 preset false log', '');
+        Observer.Expect('20 answer preset false', 'false');
+        Observer.Expect('20 branch ok', 'Yes');
+        Observer.Expect('20 branch log', '');
+        Observer.Expect('20 branch taken', 'else');
+        Observer.Expect('20 shown after', '20/x');
+        Observer.Expect('20 close ok', 'Yes');
+        Observer.Expect('20 close log', '');
+        Observer.Expect('20 stored', 'r20/2');
+        Observer.Expect('30 shown', '30/x');
+        Observer.Expect('30 preset true ok', 'Yes');
+        Observer.Expect('30 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('30 preset true|code', 'SaveAbort');
+        Observer.Expect('30 preset true log', '');
+        Observer.Expect('30 answer preset true', 'false');
+        Observer.Expect('30 preset false ok', 'Yes');
+        Observer.Expect('30 preset false log', '');
+        Observer.Expect('30 answer preset false', 'false');
+        Observer.Expect('30 branch ok', 'Yes');
+        Observer.Expect('30 branch log', '');
+        Observer.Expect('30 branch taken', 'else');
+        Observer.Expect('30 shown after', '30/x');
+        Observer.Expect('30 close ok', 'Yes');
+        Observer.Expect('30 close log', '');
+        Observer.Expect('30 stored', 'r30/3');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_SA_Worksheet_Next_More1()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Y87_SA_Worksheet_Previous()
-    var
-        P: TestPage "LT Y80 MD Worksheet";
     begin
         Seed();
-                CaseWorksheet(10, 'previous');
+        CaseWorksheet(10, 'previous');
         CaseWorksheet(20, 'previous');
         CaseWorksheet(30, 'previous');
 
-        Observer.Finish();
+        Observer.Expect('10 shown', '10/x');
+        Observer.Expect('10 preset true ok', 'Yes');
+        Observer.Expect('10 preset true|text', '');
+        Observer.Expect('10 preset true|code', '');
+        Observer.Expect('10 preset true log', '');
+        Observer.Expect('10 answer preset true', 'false');
+        Observer.Expect('10 preset false ok', 'Yes');
+        Observer.Expect('10 preset false log', '');
+        Observer.Expect('10 answer preset false', 'false');
+        Observer.Expect('10 branch ok', 'Yes');
+        Observer.Expect('10 branch log', '');
+        Observer.Expect('10 branch taken', 'else');
+        Observer.Expect('10 shown after', '10/x');
+        Observer.Expect('10 close ok', 'No');
+        Observer.Expect('10 close log', '');
+        Observer.Expect('10 stored', 'r10/1');
+        Observer.Expect('20 shown', '20/x');
+        Observer.Expect('20 preset true ok', 'Yes');
+        Observer.Expect('20 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('20 preset true|code', 'SaveAbort');
+        Observer.Expect('20 preset true log', '');
+        Observer.Expect('20 answer preset true', 'false');
+        Observer.Expect('20 preset false ok', 'Yes');
+        Observer.Expect('20 preset false log', '');
+        Observer.Expect('20 answer preset false', 'false');
+        Observer.Expect('20 branch ok', 'Yes');
+        Observer.Expect('20 branch log', '');
+        Observer.Expect('20 branch taken', 'else');
+        Observer.Expect('20 shown after', '20/x');
+        Observer.Expect('20 close ok', 'Yes');
+        Observer.Expect('20 close log', '');
+        Observer.Expect('20 stored', 'r20/2');
+        Observer.Expect('30 shown', '30/x');
+        Observer.Expect('30 preset true ok', 'Yes');
+        Observer.Expect('30 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('30 preset true|code', 'SaveAbort');
+        Observer.Expect('30 preset true log', '');
+        Observer.Expect('30 answer preset true', 'false');
+        Observer.Expect('30 preset false ok', 'Yes');
+        Observer.Expect('30 preset false log', '');
+        Observer.Expect('30 answer preset false', 'false');
+        Observer.Expect('30 branch ok', 'Yes');
+        Observer.Expect('30 branch log', '');
+        Observer.Expect('30 branch taken', 'else');
+        Observer.Expect('30 shown after', '30/x');
+        Observer.Expect('30 close ok', 'Yes');
+        Observer.Expect('30 close log', '');
+        Observer.Expect('30 stored', 'r30/3');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_SA_Worksheet_Previous_More1()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Y87_SA_Worksheet_First()
-    var
-        P: TestPage "LT Y80 MD Worksheet";
     begin
         Seed();
-                CaseWorksheet(10, 'first');
+        CaseWorksheet(10, 'first');
         CaseWorksheet(20, 'first');
         CaseWorksheet(30, 'first');
 
-        Observer.Finish();
+        Observer.Expect('10 shown', '10/x');
+        Observer.Expect('10 preset true ok', 'Yes');
+        Observer.Expect('10 preset true|text', '');
+        Observer.Expect('10 preset true|code', '');
+        Observer.Expect('10 preset true log', '');
+        Observer.Expect('10 answer preset true', 'true');
+        Observer.Expect('10 preset false ok', 'Yes');
+        Observer.Expect('10 preset false log', '');
+        Observer.Expect('10 answer preset false', 'true');
+        Observer.Expect('10 branch ok', 'Yes');
+        Observer.Expect('10 branch log', '');
+        Observer.Expect('10 branch taken', 'then');
+        Observer.Expect('10 shown after', '10/x');
+        Observer.Expect('10 close ok', 'No');
+        Observer.Expect('10 close log', '');
+        Observer.Expect('10 stored', 'r10/1');
+        Observer.Expect('20 shown', '20/x');
+        Observer.Expect('20 preset true ok', 'Yes');
+        Observer.Expect('20 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('20 preset true|code', 'SaveAbort');
+        Observer.Expect('20 preset true log', '');
+        Observer.Expect('20 answer preset true', 'false');
+        Observer.Expect('20 preset false ok', 'Yes');
+        Observer.Expect('20 preset false log', '');
+        Observer.Expect('20 answer preset false', 'false');
+        Observer.Expect('20 branch ok', 'Yes');
+        Observer.Expect('20 branch log', '');
+        Observer.Expect('20 branch taken', 'else');
+        Observer.Expect('20 shown after', '20/x');
+        Observer.Expect('20 close ok', 'Yes');
+        Observer.Expect('20 close log', '');
+        Observer.Expect('20 stored', 'r20/2');
+        Observer.Expect('30 shown', '30/x');
+        Observer.Expect('30 preset true ok', 'Yes');
+        Observer.Expect('30 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('30 preset true|code', 'SaveAbort');
+        Observer.Expect('30 preset true log', '');
+        Observer.Expect('30 answer preset true', 'false');
+        Observer.Expect('30 preset false ok', 'Yes');
+        Observer.Expect('30 preset false log', '');
+        Observer.Expect('30 answer preset false', 'false');
+        Observer.Expect('30 branch ok', 'Yes');
+        Observer.Expect('30 branch log', '');
+        Observer.Expect('30 branch taken', 'else');
+        Observer.Expect('30 shown after', '30/x');
+        Observer.Expect('30 close ok', 'Yes');
+        Observer.Expect('30 close log', '');
+        Observer.Expect('30 stored', 'r30/3');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_SA_Worksheet_First_More1()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Y87_SA_Worksheet_Last()
-    var
-        P: TestPage "LT Y80 MD Worksheet";
     begin
         Seed();
-                CaseWorksheet(10, 'last');
+        CaseWorksheet(10, 'last');
         CaseWorksheet(20, 'last');
         CaseWorksheet(30, 'last');
 
-        Observer.Finish();
+        Observer.Expect('10 shown', '10/x');
+        Observer.Expect('10 preset true ok', 'Yes');
+        Observer.Expect('10 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('10 preset true|code', 'SaveAbort');
+        Observer.Expect('10 preset true log', '');
+        Observer.Expect('10 answer preset true', 'true');
+        Observer.Expect('10 preset false ok', 'Yes');
+        Observer.Expect('10 preset false log', '');
+        Observer.Expect('10 answer preset false', 'true');
+        Observer.Expect('10 branch ok', 'Yes');
+        Observer.Expect('10 branch log', '');
+        Observer.Expect('10 branch taken', 'then');
+        Observer.Expect('10 shown after', '10/x');
+        Observer.Expect('10 close ok', 'Yes');
+        Observer.Expect('10 close log', '');
+        Observer.Expect('10 stored', 'r10/1');
+        Observer.Expect('20 shown', '20/x');
+        Observer.Expect('20 preset true ok', 'Yes');
+        Observer.Expect('20 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('20 preset true|code', 'SaveAbort');
+        Observer.Expect('20 preset true log', '');
+        Observer.Expect('20 answer preset true', 'true');
+        Observer.Expect('20 preset false ok', 'Yes');
+        Observer.Expect('20 preset false log', '');
+        Observer.Expect('20 answer preset false', 'true');
+        Observer.Expect('20 branch ok', 'Yes');
+        Observer.Expect('20 branch log', '');
+        Observer.Expect('20 branch taken', 'then');
+        Observer.Expect('20 shown after', '20/x');
+        Observer.Expect('20 close ok', 'Yes');
+        Observer.Expect('20 close log', '');
+        Observer.Expect('20 stored', 'r20/2');
+        Observer.Expect('30 shown', '30/x');
+        Observer.Expect('30 preset true ok', 'Yes');
+        Observer.Expect('30 preset true|text', 'Page cannot be saved.');
+        Observer.Expect('30 preset true|code', 'SaveAbort');
+        Observer.Expect('30 preset true log', '');
+        Observer.Expect('30 answer preset true', 'true');
+        Observer.Expect('30 preset false ok', 'Yes');
+        Observer.Expect('30 preset false log', '');
+        Observer.Expect('30 answer preset false', 'true');
+        Observer.Expect('30 branch ok', 'Yes');
+        Observer.Expect('30 branch log', '');
+        Observer.Expect('30 branch taken', 'then');
+        Observer.Expect('30 shown after', '30/x');
+        Observer.Expect('30 close ok', 'Yes');
+        Observer.Expect('30 close log', '');
+        Observer.Expect('30 stored', 'r30/3');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_SA_Worksheet_Last_More1()
-    begin
-        Observer.More();
-    end;
 }

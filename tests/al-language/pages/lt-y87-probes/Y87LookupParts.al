@@ -1081,20 +1081,33 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;drR2;dfR2;drR3;dfR3;drR1;drR1;dfR1;dcR1;dfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;dcR1;dfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('resource no log', '');
+        Observer.Expect('current no', 'R1/');
+        Observer.Expect('host fn', 'R1/R2');
+        Observer.Expect('host log', '');
+        Observer.Expect('OtherA read', 'R1|R1/|R1/');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('OtherB read', 'R1|R1/|R1/');
+        Observer.Expect('OtherB read log', '');
+        Observer.Expect('OtherC read', 'R1|R1/|R1/');
+        Observer.Expect('OtherC read log', '');
+        Observer.Expect('OtherD read', 'R1|R1/|R1/');
+        Observer.Expect('OtherD read log', '');
+        Observer.Expect('Resources read', 'R1|R1/|R1/');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('after', 'R2|R1/|R1|R1/|R1/R2|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABCDL_ReadEach_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABCDL_ReadEach_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -1126,20 +1139,28 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;drR2;dfR2;drR3;dfR3;drR1;drR1;dfR1;dcR1;dfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;dcR1;dfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('Resources read', 'R1|R1/|R1/');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('OtherD read', 'R1|R1/|R1/');
+        Observer.Expect('OtherD read log', '');
+        Observer.Expect('OtherC read', 'R1|R1/|R1/');
+        Observer.Expect('OtherC read log', '');
+        Observer.Expect('OtherB read', 'R1|R1/|R1/');
+        Observer.Expect('OtherB read log', '');
+        Observer.Expect('OtherA read', 'R1|R1/|R1/');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('after', 'R2|R1/|R1|R1/|R1/R2|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABCDL_ReadReverse_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABCDL_ReadReverse_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -1171,20 +1192,31 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;drR2;dfR2;drR3;dfR3;drR1;drR1;dfR1;dcR1;dfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;dcR1;dfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('OtherA next', 'true|R2');
+        Observer.Expect('OtherA next log', 'arR2;arR2;afR2;acR2;afR2;hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR2;afR2;arR3;afR3;arR2;arR1;afR1;arR2;arR2;afR2;acR2;afR2;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;drR2;dfR2;drR3;dfR3;drR1;drR1;dfR1;dcR1;dfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;dcR1;dfR1');
+        Observer.Expect('OtherB next', 'true|R2');
+        Observer.Expect('OtherB next log', 'brR2;brR2;bfR2;bcR2;bfR2;hrR2;hrR2;hfR2;hcR2;hfR2;arR2;arR2;afR2;acR2;afR2;crR2;crR2;cfR2;ccR2;cfR2;drR2;drR2;dfR2;dcR2;dfR2;prR2');
+        Observer.Expect('OtherC next', 'true|R2');
+        Observer.Expect('OtherC next log', 'crR2;cfR2;ccR2;cfR2');
+        Observer.Expect('OtherD next', 'true|R2');
+        Observer.Expect('OtherD next log', 'drR2;dfR2;dcR2;dfR2');
+        Observer.Expect('Resources next', 'false|R1');
+        Observer.Expect('Resources next log', '');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|<MORE>
+AL Callstack:
+"Probe Observer State"(CodeUnit 69163).Raise line 7 - AL Language Coverage Tests by AL Language version 1.0.0.0
+"Probe Observer"(CodeUnit 69160).Finish line 6 - AL Language Coverage Tests by AL Language version 1.0.0.0
+"LT Y87 Lookup Part Tests"(CodeUnit 94645).Y87_ABCDL_NextOtherA line 28 - AL Language Coverage Tests by AL Language version 1.0.0.0
+
+');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABCDL_NextOtherA_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABCDL_NextOtherA_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -1216,20 +1248,31 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;drR2;dfR2;drR3;dfR3;drR1;drR1;dfR1;dcR1;dfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;dcR1;dfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('Resources next', 'false|R1');
+        Observer.Expect('Resources next log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;drR2;dfR2;drR3;dfR3;drR1;drR1;dfR1;dcR1;dfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;dcR1;dfR1');
+        Observer.Expect('OtherA next', 'true|R2');
+        Observer.Expect('OtherA next log', 'arR2;arR2;afR2;acR2;afR2;hrR2;hrR2;hfR2;hcR2;hfR2;brR2;brR2;bfR2;bcR2;bfR2;crR2;crR2;cfR2;ccR2;cfR2;drR2;drR2;dfR2;dcR2;dfR2;prR2');
+        Observer.Expect('OtherB next', 'true|R2');
+        Observer.Expect('OtherB next log', 'brR2;bfR2;bcR2;bfR2');
+        Observer.Expect('OtherC next', 'true|R2');
+        Observer.Expect('OtherC next log', 'crR2;cfR2;ccR2;cfR2');
+        Observer.Expect('OtherD next', 'true|R2');
+        Observer.Expect('OtherD next log', 'drR2;dfR2;dcR2;dfR2');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2<MORE>
+AL Callstack:
+"Probe Observer State"(CodeUnit 69163).Raise line 7 - AL Language Coverage Tests by AL Language version 1.0.0.0
+"Probe Observer"(CodeUnit 69160).Finish line 6 - AL Language Coverage Tests by AL Language version 1.0.0.0
+"LT Y87 Lookup Part Tests"(CodeUnit 94645).Y87_ABCDL_NextResources line 28 - AL Language Coverage Tests by AL Language version 1.0.0.0
+
+');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABCDL_NextResources_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABCDL_NextResources_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -1257,20 +1300,27 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;drR2;dfR2;drR3;dfR3;drR1;drR1;dfR1;dcR1;dfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;dcR1;dfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('host next', 'true|R2');
+        Observer.Expect('host next log', 'hrR2;hrR2;hfR2;hcR2;hfR2;hrR2;hfR2;hrR3;hfR3;hrR2;hrR1;hfR1;hrR2;hrR2;hfR2;hcR2;hfR2;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;drR2;dfR2;drR3;dfR3;drR1;drR1;dfR1;dcR1;dfR1;prR2;pfR2;prR2;pfR2;pcR2;pfR2;hrR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR2;hrR2;hfR2;hcR2;hfR2;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR2;arR2;afR2;acR2;afR2;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR2;brR2;bfR2;bcR2;bfR2;crR1;cfR1;ccR1;cfR1;crR2;crR2;cfR2;ccR2;cfR2;drR2;drR2;dfR2;dcR2;dfR2');
+        Observer.Expect('after next', 'R2|R2/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2');
+        Observer.Expect('after next log', '');
+        Observer.Expect('host previous', 'true|R1');
+        Observer.Expect('host previous log', 'hrR1;hrR1;hfR1;hcR1;hfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;arR1;arR1;afR1;acR1;afR1;brR1;brR1;bfR1;bcR1;bfR1;crR1;crR1;cfR1;ccR1;cfR1;drR1;drR1;dfR1;dcR1;dfR1');
+        Observer.Expect('after', 'R2|R1/R2|R1|<MORE>
+AL Callstack:
+"Probe Observer State"(CodeUnit 69163).Raise line 7 - AL Language Coverage Tests by AL Language version 1.0.0.0
+"Probe Observer"(CodeUnit 69160).Finish line 6 - AL Language Coverage Tests by AL Language version 1.0.0.0
+"LT Y87 Lookup Part Tests"(CodeUnit 94645).Y87_ABCDL_HostNext line 24 - AL Language Coverage Tests by AL Language version 1.0.0.0
+
+');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABCDL_HostNext_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABCDL_HostNext_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -1309,20 +1359,35 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;drR2;dfR2;drR3;dfR3;drR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;erR2;efR2;erR3;efR3;erR1;erR1;efR1;ecR1;efR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;dcR1;dfR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;ecR1;efR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('resource no log', '');
+        Observer.Expect('current no', 'R1/');
+        Observer.Expect('host fn', 'R1/R2');
+        Observer.Expect('host log', '');
+        Observer.Expect('OtherA read', 'R1|R1/|R1/');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('OtherB read', 'R1|R1/|R1/');
+        Observer.Expect('OtherB read log', '');
+        Observer.Expect('OtherC read', 'R1|R1/|R1/');
+        Observer.Expect('OtherC read log', '');
+        Observer.Expect('OtherD read', 'R1|R1/|R1/');
+        Observer.Expect('OtherD read log', '');
+        Observer.Expect('OtherE read', 'R1|R1/|R1/');
+        Observer.Expect('OtherE read log', '');
+        Observer.Expect('Resources read', 'R1|R1/|R1/');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('after', 'R2|R1/|R1|R1/|R1/R2|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABCDEL_ReadEach_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABCDEL_ReadEach_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -1356,20 +1421,30 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;drR2;dfR2;drR3;dfR3;drR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;erR2;efR2;erR3;efR3;erR1;erR1;efR1;ecR1;efR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;dcR1;dfR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;ecR1;efR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('Resources read', 'R1|R1/|R1/');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('OtherE read', 'R1|R1/|R1/');
+        Observer.Expect('OtherE read log', '');
+        Observer.Expect('OtherD read', 'R1|R1/|R1/');
+        Observer.Expect('OtherD read log', '');
+        Observer.Expect('OtherC read', 'R1|R1/|R1/');
+        Observer.Expect('OtherC read log', '');
+        Observer.Expect('OtherB read', 'R1|R1/|R1/');
+        Observer.Expect('OtherB read log', '');
+        Observer.Expect('OtherA read', 'R1|R1/|R1/');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('after', 'R2|R1/|R1|R1/|R1/R2|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABCDEL_ReadReverse_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABCDEL_ReadReverse_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -1403,20 +1478,24 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;drR2;dfR2;drR3;dfR3;drR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;erR2;efR2;erR3;efR3;erR1;erR1;efR1;ecR1;efR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;dcR1;dfR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;ecR1;efR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('OtherA next', 'true|R2');
+        Observer.Expect('OtherA next log', 'arR2;arR2;afR2;acR2;afR2;hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR2;afR2;arR3;afR3;arR2;arR1;afR1;arR2;arR2;afR2;acR2;afR2;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;drR2;dfR2;drR3;dfR3;drR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;erR2;efR2;erR3;efR3;erR1;erR1;efR1;ecR1;efR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;dcR1;dfR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;ecR1;efR1');
+        Observer.Expect('OtherB next', 'true|R2');
+        Observer.Expect('OtherB next log', 'brR<MORE>
+AL Callstack:
+"Probe Observer State"(CodeUnit 69163).Raise line 7 - AL Language Coverage Tests by AL Language version 1.0.0.0
+"Probe Observer"(CodeUnit 69160).Finish line 6 - AL Language Coverage Tests by AL Language version 1.0.0.0
+"LT Y87 Lookup Part Tests"(CodeUnit 94645).Y87_ABCDEL_NextOtherA line 30 - AL Language Coverage Tests by AL Language version 1.0.0.0
+
+');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABCDEL_NextOtherA_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABCDEL_NextOtherA_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -1450,20 +1529,24 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;drR2;dfR2;drR3;dfR3;drR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;erR2;efR2;erR3;efR3;erR1;erR1;efR1;ecR1;efR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;dcR1;dfR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;ecR1;efR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('Resources next', 'false|R1');
+        Observer.Expect('Resources next log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;drR2;dfR2;drR3;dfR3;drR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;erR2;efR2;erR3;efR3;erR1;erR1;efR1;ecR1;efR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;dcR1;dfR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;ecR1;efR1');
+        Observer.Expect('OtherA next', 'true|R2');
+        Observer.Expect('OtherA next log', 'arR2;arR2;a<MORE>
+AL Callstack:
+"Probe Observer State"(CodeUnit 69163).Raise line 7 - AL Language Coverage Tests by AL Language version 1.0.0.0
+"Probe Observer"(CodeUnit 69160).Finish line 6 - AL Language Coverage Tests by AL Language version 1.0.0.0
+"LT Y87 Lookup Part Tests"(CodeUnit 94645).Y87_ABCDEL_NextResources line 30 - AL Language Coverage Tests by AL Language version 1.0.0.0
+
+');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABCDEL_NextResources_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABCDEL_NextResources_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -1491,20 +1574,22 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;drR2;dfR2;drR3;dfR3;drR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;erR2;efR2;erR3;efR3;erR1;erR1;efR1;ecR1;efR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;dcR1;dfR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;ecR1;efR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('host next', 'true|R2');
+        Observer.Expect('host next log', 'hrR2;hrR2;hfR2;hcR2;hfR2;hrR2;hfR2;hrR3;hfR3;hrR2;hrR1;hfR1;hrR2;hrR2;hfR2;hcR2;hfR2;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;drR1;dfR1;drR2;dfR2;drR3;dfR3;drR1;drR1;dfR1;dcR1;dfR1;erR1;efR1;erR2;efR2;erR3;efR3;erR1;erR1;efR1;ecR1;efR1;prR2;pfR2;prR2;pfR2;pcR2;pfR2;hrR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR2;hrR2;hfR2;hcR2;hfR2;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR2;arR2;afR2;acR2;afR2;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;brR2;brR2;bfR2;bcR2;bfR2;crR1;cfR1;ccR1;cfR1;crR1;cfR1;ccR1;cfR1;crR2;crR2;cfR2;ccR2;cfR2;drR1;dfR1;dcR1;dfR1;drR2;drR2;dfR2;dcR2;dfR2;erR2;erR2;efR2;ecR<MORE>
+AL Callstack:
+"Probe Observer State"(CodeUnit 69163).Raise line 7 - AL Language Coverage Tests by AL Language version 1.0.0.0
+"Probe Observer"(CodeUnit 69160).Finish line 6 - AL Language Coverage Tests by AL Language version 1.0.0.0
+"LT Y87 Lookup Part Tests"(CodeUnit 94645).Y87_ABCDEL_HostNext line 24 - AL Language Coverage Tests by AL Language version 1.0.0.0
+
+');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABCDEL_HostNext_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABCDEL_HostNext_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -1539,20 +1624,31 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;prR1;pfR1;pcR1;pfR1;prR1;pfR1;pcR1;pfR1;brR1;bfR1;bcR1;bfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('resource no log', '');
+        Observer.Expect('current no', 'R1/');
+        Observer.Expect('host fn', 'R1/R2');
+        Observer.Expect('host log', '');
+        Observer.Expect('OtherA read', 'R1|R1/|R1/');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('Resources read', 'R1|R1/|R1/');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('OtherB read', 'R1|R1/|R1/');
+        Observer.Expect('OtherB read log', '');
+        Observer.Expect('OtherC read', 'R1|R1/|R1/');
+        Observer.Expect('OtherC read log', '');
+        Observer.Expect('after', 'R2|R1/|R1|R1/|R1/R2|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ALBC_ReadEach_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ALBC_ReadEach_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -1582,20 +1678,26 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;prR1;pfR1;pcR1;pfR1;prR1;pfR1;pcR1;pfR1;brR1;bfR1;bcR1;bfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('OtherC read', 'R1|R1/|R1/');
+        Observer.Expect('OtherC read log', '');
+        Observer.Expect('OtherB read', 'R1|R1/|R1/');
+        Observer.Expect('OtherB read log', '');
+        Observer.Expect('Resources read', 'R1|R1/|R1/');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('OtherA read', 'R1|R1/|R1/');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('after', 'R2|R1/|R1|R1/|R1/R2|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ALBC_ReadReverse_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ALBC_ReadReverse_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -1625,20 +1727,26 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;prR1;pfR1;pcR1;pfR1;prR1;pfR1;pcR1;pfR1;brR1;bfR1;bcR1;bfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('OtherA next', 'true|R2');
+        Observer.Expect('OtherA next log', 'arR2;arR2;afR2;acR2;afR2;hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR2;afR2;arR3;afR3;arR2;arR1;afR1;arR2;arR2;afR2;acR2;afR2;prR1;pfR1;prR1;pfR1;pcR1;pfR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;prR1;pfR1;pcR1;pfR1;prR1;pfR1;pcR1;pfR1;brR1;bfR1;bcR1;bfR1');
+        Observer.Expect('Resources next', 'false|R1');
+        Observer.Expect('Resources next log', '');
+        Observer.Expect('OtherB next', 'true|R2');
+        Observer.Expect('OtherB next log', 'brR2;brR2;bfR2;bcR2;bfR2;hrR2;hrR2;hfR2;hcR2;hfR2;arR2;arR2;afR2;acR2;afR2;prR2;crR2;crR2;cfR2;ccR2;cfR2');
+        Observer.Expect('OtherC next', 'true|R2');
+        Observer.Expect('OtherC next log', 'crR2;cfR2;ccR2;cfR2');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', 'prR1;hrR1');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ALBC_NextOtherA_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ALBC_NextOtherA_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -1668,20 +1776,26 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;prR1;pfR1;pcR1;pfR1;prR1;pfR1;pcR1;pfR1;brR1;bfR1;bcR1;bfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('Resources next', 'false|R1');
+        Observer.Expect('Resources next log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;prR1;pfR1;pcR1;pfR1;prR1;pfR1;pcR1;pfR1;brR1;bfR1;bcR1;bfR1');
+        Observer.Expect('OtherA next', 'true|R2');
+        Observer.Expect('OtherA next log', 'arR2;arR2;afR2;acR2;afR2;hrR2;hrR2;hfR2;hcR2;hfR2;prR2;brR2;brR2;bfR2;bcR2;bfR2;crR2;crR2;cfR2;ccR2;cfR2');
+        Observer.Expect('OtherB next', 'true|R2');
+        Observer.Expect('OtherB next log', 'brR2;bfR2;bcR2;bfR2');
+        Observer.Expect('OtherC next', 'true|R2');
+        Observer.Expect('OtherC next log', 'crR2;cfR2;ccR2;cfR2');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', 'prR1;hrR1');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ALBC_NextResources_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ALBC_NextResources_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -1711,20 +1825,26 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;prR1;pfR1;pcR1;pfR1;prR1;pfR1;pcR1;pfR1;brR1;bfR1;bcR1;bfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('OtherC next', 'true|R2');
+        Observer.Expect('OtherC next log', 'crR2;crR2;cfR2;ccR2;cfR2;hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR2;cfR2;crR3;cfR3;crR2;crR1;cfR1;crR2;crR2;cfR2;ccR2;cfR2;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;prR1;pfR1;pcR1;pfR1');
+        Observer.Expect('OtherA next', 'true|R2');
+        Observer.Expect('OtherA next log', 'arR2;arR2;afR2;acR2;afR2;hrR2;hrR2;hfR2;hcR2;hfR2;prR2;brR2;brR2;bfR2;bcR2;bfR2;crR2;cfR2;ccR2;cfR2');
+        Observer.Expect('Resources next', 'false|R1');
+        Observer.Expect('Resources next log', '');
+        Observer.Expect('OtherB next', 'true|R2');
+        Observer.Expect('OtherB next log', 'brR2;bfR2;bcR2;bfR2');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', 'prR1;hrR1');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ALBC_NextOtherC_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ALBC_NextOtherC_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -1752,20 +1872,24 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;prR1;pfR1;pcR1;pfR1;prR1;pfR1;pcR1;pfR1;brR1;bfR1;bcR1;bfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('host next', 'true|R2');
+        Observer.Expect('host next log', 'hrR2;hrR2;hfR2;hcR2;hfR2;hrR2;hfR2;hrR3;hfR3;hrR2;hrR1;hfR1;hrR2;hrR2;hfR2;hcR2;hfR2;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;prR2;pfR2;prR2;pfR2;pcR2;pfR2;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;hrR1;hrR1;hfR1;hcR1;hfR1;hrR2;hrR2;hfR2;hcR2;hfR2;hrR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR2;arR2;afR2;acR2;afR2;arR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;prR1;brR1;bfR1;bcR1;bfR1');
+        Observer.Expect('after next', 'R2|R2/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after next log', '');
+        Observer.Expect('host previous', 'true|R1');
+        Observer.Expect('host previous log', 'hrR1;hfR1;hcR1;hfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;ccR1;cfR1');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ALBC_HostNext_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ALBC_HostNext_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -1800,20 +1924,31 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;pcR1;pfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('resource no log', '');
+        Observer.Expect('current no', 'R1/');
+        Observer.Expect('host fn', 'R1/R2');
+        Observer.Expect('host log', '');
+        Observer.Expect('OtherA read', 'R1|R1/|R1/');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('OtherB read', 'R1|R1/|R1/');
+        Observer.Expect('OtherB read log', '');
+        Observer.Expect('Resources read', 'R1|R1/|R1/');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('OtherC read', 'R1|R1/|R1/');
+        Observer.Expect('OtherC read log', '');
+        Observer.Expect('after', 'R2|R1/|R1|R1/|R1/R2|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABLC_ReadEach_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABLC_ReadEach_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -1843,20 +1978,26 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;pcR1;pfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('OtherC read', 'R1|R1/|R1/');
+        Observer.Expect('OtherC read log', '');
+        Observer.Expect('Resources read', 'R1|R1/|R1/');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('OtherB read', 'R1|R1/|R1/');
+        Observer.Expect('OtherB read log', '');
+        Observer.Expect('OtherA read', 'R1|R1/|R1/');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('after', 'R2|R1/|R1|R1/|R1/R2|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABLC_ReadReverse_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABLC_ReadReverse_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -1886,20 +2027,26 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;pcR1;pfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('OtherA next', 'true|R2');
+        Observer.Expect('OtherA next log', 'arR2;arR2;afR2;acR2;afR2;hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR2;afR2;arR3;afR3;arR2;arR1;afR1;arR2;arR2;afR2;acR2;afR2;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;pcR1;pfR1');
+        Observer.Expect('OtherB next', 'true|R2');
+        Observer.Expect('OtherB next log', 'brR2;brR2;bfR2;bcR2;bfR2;hrR2;hrR2;hfR2;hcR2;hfR2;arR2;arR2;afR2;acR2;afR2;prR2;crR2;crR2;cfR2;ccR2;cfR2');
+        Observer.Expect('Resources next', 'false|R1');
+        Observer.Expect('Resources next log', '');
+        Observer.Expect('OtherC next', 'true|R2');
+        Observer.Expect('OtherC next log', 'crR2;cfR2;ccR2;cfR2');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', 'prR1;hrR1');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABLC_NextOtherA_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABLC_NextOtherA_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -1929,20 +2076,26 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;pcR1;pfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('Resources next', 'false|R1');
+        Observer.Expect('Resources next log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;pcR1;pfR1');
+        Observer.Expect('OtherA next', 'true|R2');
+        Observer.Expect('OtherA next log', 'arR2;arR2;afR2;acR2;afR2;hrR2;hrR2;hfR2;hcR2;hfR2;brR2;brR2;bfR2;bcR2;bfR2;prR2;crR2;crR2;cfR2;ccR2;cfR2');
+        Observer.Expect('OtherB next', 'true|R2');
+        Observer.Expect('OtherB next log', 'brR2;bfR2;bcR2;bfR2');
+        Observer.Expect('OtherC next', 'true|R2');
+        Observer.Expect('OtherC next log', 'crR2;cfR2;ccR2;cfR2');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', 'prR1;hrR1');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABLC_NextResources_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABLC_NextResources_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -1972,20 +2125,26 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;pcR1;pfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('OtherC next', 'true|R2');
+        Observer.Expect('OtherC next log', 'crR2;crR2;cfR2;ccR2;cfR2;hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;crR2;cfR2;crR3;cfR3;crR2;crR1;cfR1;crR2;crR2;cfR2;ccR2;cfR2;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1');
+        Observer.Expect('OtherA next', 'true|R2');
+        Observer.Expect('OtherA next log', 'arR2;arR2;afR2;acR2;afR2;hrR2;hrR2;hfR2;hcR2;hfR2;brR2;brR2;bfR2;bcR2;bfR2;prR2;crR2;cfR2;ccR2;cfR2');
+        Observer.Expect('OtherB next', 'true|R2');
+        Observer.Expect('OtherB next log', 'brR2;bfR2;bcR2;bfR2');
+        Observer.Expect('Resources next', 'false|R1');
+        Observer.Expect('Resources next log', '');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', 'prR1;hrR1');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABLC_NextOtherC_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABLC_NextOtherC_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -2013,20 +2172,24 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;pcR1;pfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('host next', 'true|R2');
+        Observer.Expect('host next log', 'hrR2;hrR2;hfR2;hcR2;hfR2;hrR2;hfR2;hrR3;hfR3;hrR2;hrR1;hfR1;hrR2;hrR2;hfR2;hcR2;hfR2;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;prR2;pfR2;prR2;pfR2;pcR2;pfR2;crR1;cfR1;crR2;cfR2;crR3;cfR3;crR1;crR1;cfR1;ccR1;cfR1;hrR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR2;hrR2;hfR2;hcR2;hfR2;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR2;arR2;afR2;acR2;afR2;arR1;arR1;afR1;acR1;afR1;brR2;brR2;bfR2;bcR2;bfR2;brR1;brR1;bfR1;bcR1;bfR1;prR1');
+        Observer.Expect('after next', 'R2|R2/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after next log', '');
+        Observer.Expect('host previous', 'true|R1');
+        Observer.Expect('host previous log', 'hrR1;hfR1;hcR1;hfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1;crR1;cfR1;ccR1;cfR1');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABLC_HostNext_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABLC_HostNext_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -2063,20 +2226,33 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;krR1;kfR1;kcR1;kfR1;mrR1;mfR1;mcR1;mfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('resource no log', '');
+        Observer.Expect('current no', 'R1/');
+        Observer.Expect('host fn', 'R1/R2');
+        Observer.Expect('host log', '');
+        Observer.Expect('OtherA read', 'R1|R1/|R1/');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('OtherB read', 'R1|R1/|R1/');
+        Observer.Expect('OtherB read log', '');
+        Observer.Expect('Resources read', 'R1|R1/|R1/');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('Details read', 'R1|R1/|R1/');
+        Observer.Expect('Details read log', '');
+        Observer.Expect('Details2 read', 'R1|R1/|R1/');
+        Observer.Expect('Details2 read log', '');
+        Observer.Expect('after', 'R2|R1/|R1|R1/|R1/R2|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABLKM_ReadEach_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABLKM_ReadEach_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -2108,20 +2284,28 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;krR1;kfR1;kcR1;kfR1;mrR1;mfR1;mcR1;mfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('Details2 read', 'R1|R1/|R1/');
+        Observer.Expect('Details2 read log', '');
+        Observer.Expect('Details read', 'R1|R1/|R1/');
+        Observer.Expect('Details read log', '');
+        Observer.Expect('Resources read', 'R1|R1/|R1/');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('OtherB read', 'R1|R1/|R1/');
+        Observer.Expect('OtherB read log', '');
+        Observer.Expect('OtherA read', 'R1|R1/|R1/');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('after', 'R2|R1/|R1|R1/|R1/R2|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABLKM_ReadReverse_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABLKM_ReadReverse_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -2153,20 +2337,28 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;krR1;kfR1;kcR1;kfR1;mrR1;mfR1;mcR1;mfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('OtherA next', 'true|R2');
+        Observer.Expect('OtherA next log', 'arR2;arR2;afR2;acR2;afR2;hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR2;afR2;arR3;afR3;arR2;arR1;afR1;arR2;arR2;afR2;acR2;afR2;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;krR1;kfR1;kcR1;kfR1;mrR1;mfR1;mcR1;mfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1');
+        Observer.Expect('OtherB next', 'true|R2');
+        Observer.Expect('OtherB next log', 'brR2;brR2;bfR2;bcR2;bfR2;hrR2;hrR2;hfR2;hcR2;hfR2;arR2;arR2;afR2;acR2;afR2;prR2');
+        Observer.Expect('Resources next', 'false|R1');
+        Observer.Expect('Resources next log', '');
+        Observer.Expect('Details next', 'false|R1');
+        Observer.Expect('Details next log', '');
+        Observer.Expect('Details2 next', 'false|R1');
+        Observer.Expect('Details2 next log', '');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', 'prR1;hrR1');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABLKM_NextOtherA_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABLKM_NextOtherA_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -2198,20 +2390,28 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;krR1;kfR1;kcR1;kfR1;mrR1;mfR1;mcR1;mfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('Resources next', 'false|R1');
+        Observer.Expect('Resources next log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;krR1;kfR1;kcR1;kfR1;mrR1;mfR1;mcR1;mfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1');
+        Observer.Expect('OtherA next', 'true|R2');
+        Observer.Expect('OtherA next log', 'arR2;arR2;afR2;acR2;afR2;hrR2;hrR2;hfR2;hcR2;hfR2;brR2;brR2;bfR2;bcR2;bfR2;prR2');
+        Observer.Expect('OtherB next', 'true|R2');
+        Observer.Expect('OtherB next log', 'brR2;bfR2;bcR2;bfR2');
+        Observer.Expect('Details next', 'false|R1');
+        Observer.Expect('Details next log', '');
+        Observer.Expect('Details2 next', 'false|R1');
+        Observer.Expect('Details2 next log', '');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', 'prR1;hrR1');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABLKM_NextResources_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABLKM_NextResources_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -2243,20 +2443,28 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;krR1;kfR1;kcR1;kfR1;mrR1;mfR1;mcR1;mfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('Details2 next', 'false|R1');
+        Observer.Expect('Details2 next log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;krR1;kfR1;kcR1;kfR1;mrR1;mfR1;mcR1;mfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1');
+        Observer.Expect('OtherA next', 'true|R2');
+        Observer.Expect('OtherA next log', 'arR2;arR2;afR2;acR2;afR2;hrR2;hrR2;hfR2;hcR2;hfR2;brR2;brR2;bfR2;bcR2;bfR2;prR2');
+        Observer.Expect('OtherB next', 'true|R2');
+        Observer.Expect('OtherB next log', 'brR2;bfR2;bcR2;bfR2');
+        Observer.Expect('Resources next', 'false|R1');
+        Observer.Expect('Resources next log', '');
+        Observer.Expect('Details next', 'false|R1');
+        Observer.Expect('Details next log', '');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', 'prR1;hrR1');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABLKM_NextDetails2_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABLKM_NextDetails2_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -2284,20 +2492,24 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;krR1;kfR1;kcR1;kfR1;mrR1;mfR1;mcR1;mfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;arR1;afR1;acR1;afR1;arR1;afR1;acR1;afR1;brR1;bfR1;bcR1;bfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('host next', 'true|R2');
+        Observer.Expect('host next log', 'hrR2;hrR2;hfR2;hcR2;hfR2;hrR2;hfR2;hrR3;hfR3;hrR2;hrR1;hfR1;hrR2;hrR2;hfR2;hcR2;hfR2;arR1;afR1;arR2;afR2;arR3;afR3;arR1;arR1;afR1;acR1;afR1;brR1;bfR1;brR2;bfR2;brR3;bfR3;brR1;brR1;bfR1;bcR1;bfR1;prR2;pfR2;prR2;pfR2;pcR2;pfR2;krR2;kfR2;kcR2;kfR2;mrR2;mfR2;mcR2;mfR2;hrR1;hrR1;hfR1;hcR1;hfR1;hrR1;hfR1;hcR1;hfR1;hrR2;hrR2;hfR2;hcR2;hfR2;arR1;afR1;acR1;afR1;arR2;arR2;afR2;acR2;afR2;brR2;brR2;bfR2;bcR2;bfR2');
+        Observer.Expect('after next', 'R2|R2/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2');
+        Observer.Expect('after next log', '');
+        Observer.Expect('host previous', 'true|R1');
+        Observer.Expect('host previous log', 'hrR1;hrR1;hfR1;hcR1;hfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;krR1;kfR1;kcR1;kfR1;mrR1;mfR1;mcR1;mfR1;hrR1;hfR1;hcR1;hfR1;arR1;arR1;afR1;acR1;afR1;brR1;brR1;bfR1;bcR1;bfR1');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_ABLKM_HostNext_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_ABLKM_HostNext_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -2330,20 +2542,29 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;krR1;kfR1;kcR1;kfR1;mrR1;mfR1;mcR1;mfR1;hrR1;hfR1;hcR1;hfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('resource no log', '');
+        Observer.Expect('current no', 'R1/');
+        Observer.Expect('host fn', 'R1/R2');
+        Observer.Expect('host log', '');
+        Observer.Expect('Resources read', 'R1|R1/|R1/');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('Details read', 'R1|R1/|R1/');
+        Observer.Expect('Details read log', '');
+        Observer.Expect('Details2 read', 'R1|R1/|R1/');
+        Observer.Expect('Details2 read log', '');
+        Observer.Expect('after', 'R2|R1/|R1|R1/|R1/R2|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_LKM_ReadEach_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_LKM_ReadEach_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -2371,20 +2592,24 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;krR1;kfR1;kcR1;kfR1;mrR1;mfR1;mcR1;mfR1;hrR1;hfR1;hcR1;hfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('Details2 read', 'R1|R1/|R1/');
+        Observer.Expect('Details2 read log', '');
+        Observer.Expect('Details read', 'R1|R1/|R1/');
+        Observer.Expect('Details read log', '');
+        Observer.Expect('Resources read', 'R1|R1/|R1/');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('after', 'R2|R1/|R1|R1/|R1/R2|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_LKM_ReadReverse_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_LKM_ReadReverse_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -2412,20 +2637,24 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;krR1;kfR1;kcR1;kfR1;mrR1;mfR1;mcR1;mfR1;hrR1;hfR1;hcR1;hfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('Resources next', 'false|R1');
+        Observer.Expect('Resources next log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;krR1;kfR1;kcR1;kfR1;mrR1;mfR1;mcR1;mfR1;hrR1;hfR1;hcR1;hfR1');
+        Observer.Expect('Details next', 'false|R1');
+        Observer.Expect('Details next log', '');
+        Observer.Expect('Details2 next', 'false|R1');
+        Observer.Expect('Details2 next log', '');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_LKM_NextResources_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_LKM_NextResources_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -2453,20 +2682,24 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;krR1;kfR1;kcR1;kfR1;mrR1;mfR1;mcR1;mfR1;hrR1;hfR1;hcR1;hfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('Details2 next', 'false|R1');
+        Observer.Expect('Details2 next log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;krR1;kfR1;kcR1;kfR1;mrR1;mfR1;mcR1;mfR1;hrR1;hfR1;hcR1;hfR1');
+        Observer.Expect('Resources next', 'false|R1');
+        Observer.Expect('Resources next log', '');
+        Observer.Expect('Details next', 'false|R1');
+        Observer.Expect('Details next log', '');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_LKM_NextDetails2_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_LKM_NextDetails2_More2()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -2494,20 +2727,24 @@ codeunit 94645 "LT Y87 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'hrR1;hfR1;hrR2;hfR2;hrR3;hfR3;hrR1;hrR1;hfR1;hcR1;hfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;krR1;kfR1;kcR1;kfR1;mrR1;mfR1;mcR1;mfR1;hrR1;hfR1;hcR1;hfR1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;hfR1;validate R2;hfR1');
+        Observer.Expect('host next', 'true|R2');
+        Observer.Expect('host next log', 'hrR2;hrR2;hfR2;hcR2;hfR2;hrR2;hfR2;hrR3;hfR3;hrR2;hrR1;hfR1;hrR2;hrR2;hfR2;hcR2;hfR2;prR2;pfR2;prR2;pfR2;pcR2;pfR2;krR2;kfR2;kcR2;kfR2;mrR2;mfR2;mcR2;mfR2;hrR2;hfR2;hcR2;hfR2');
+        Observer.Expect('after next', 'R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2');
+        Observer.Expect('after next log', '');
+        Observer.Expect('host previous', 'true|R1');
+        Observer.Expect('host previous log', 'hrR1;hrR1;hfR1;hcR1;hfR1;prR1;pfR1;prR1;pfR1;pcR1;pfR1;krR1;kfR1;kcR1;kfR1;mrR1;mfR1;mcR1;mfR1;hrR1;hfR1;hcR1;hfR1');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y87_LKM_HostNext_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Y87_LKM_HostNext_More2()
-    begin
-        Observer.More();
-    end;
 
 
     local procedure Setup()

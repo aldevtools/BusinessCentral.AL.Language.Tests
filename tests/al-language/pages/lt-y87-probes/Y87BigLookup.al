@@ -240,7 +240,12 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G001');
+        Observer.Expect('handler first', 'G001');
+        Observer.Expect('handler log', 'open();open();R[10]:R:G001,R:G001,R:G002,...,R:G001;C:G001 [13 entries]');
+        Observer.Expect('after', 'G001');
+        Observer.Expect('stored', 'G001');
+        Observer.Verify();
     end;
 
 
@@ -259,7 +264,12 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G004');
+        Observer.Expect('handler first', 'G004');
+        Observer.Expect('handler log', 'open();open();R[11]:R:G004,R:G004,R:G005,...,R:G004;C:G004 [14 entries]');
+        Observer.Expect('after', 'G004');
+        Observer.Expect('stored', 'G004');
+        Observer.Verify();
     end;
 
 
@@ -278,7 +288,12 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G007');
+        Observer.Expect('handler first', 'G007');
+        Observer.Expect('handler log', 'open();open();R[10]:R:G007,R:G007,R:G006,...,R:G007;C:G007 [13 entries]');
+        Observer.Expect('after', 'G007');
+        Observer.Expect('stored', 'G007');
+        Observer.Verify();
     end;
 
 
@@ -297,7 +312,12 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G001');
+        Observer.Expect('handler first', 'G001');
+        Observer.Expect('handler log', 'open();open();R[23]:R:G001,R:G001,R:G002,...,R:G001;C:G001 [26 entries]');
+        Observer.Expect('after', 'G001');
+        Observer.Expect('stored', 'G001');
+        Observer.Verify();
     end;
 
 
@@ -316,7 +336,12 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G016');
+        Observer.Expect('handler first', 'G016');
+        Observer.Expect('handler log', 'open();open();R[34]:R:G016,R:G016,R:G017,...,R:G016;C:G016 [37 entries]');
+        Observer.Expect('after', 'G016');
+        Observer.Expect('stored', 'G016');
+        Observer.Verify();
     end;
 
 
@@ -335,7 +360,12 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G030');
+        Observer.Expect('handler first', 'G030');
+        Observer.Expect('handler log', 'open();open();R[24]:R:G030,R:G030,R:G029,...,R:G030;C:G030 [27 entries]');
+        Observer.Expect('after', 'G030');
+        Observer.Expect('stored', 'G030');
+        Observer.Verify();
     end;
 
 
@@ -354,7 +384,12 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G001');
+        Observer.Expect('handler first', 'G001');
+        Observer.Expect('handler log', 'open();open();R[23]:R:G001,R:G001,R:G002,...,R:G001;C:G001 [26 entries]');
+        Observer.Expect('after', 'G001');
+        Observer.Expect('stored', 'G001');
+        Observer.Verify();
     end;
 
 
@@ -373,7 +408,12 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G061');
+        Observer.Expect('handler first', 'G061');
+        Observer.Expect('handler log', 'open();open();R[44]:R:G061,R:G061,R:G062,...,R:G061;C:G061 [47 entries]');
+        Observer.Expect('after', 'G061');
+        Observer.Expect('stored', 'G061');
+        Observer.Verify();
     end;
 
 
@@ -392,7 +432,12 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G120');
+        Observer.Expect('handler first', 'G120');
+        Observer.Expect('handler log', 'open();open();R[24]:R:G120,R:G120,R:G119,...,R:G120;C:G120 [27 entries]');
+        Observer.Expect('after', 'G120');
+        Observer.Expect('stored', 'G120');
+        Observer.Verify();
     end;
 
 
@@ -411,7 +456,12 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G001');
+        Observer.Expect('handler first', 'G001');
+        Observer.Expect('handler log', 'open();open();R[23]:R:G001,R:G001,R:G002,...,R:G001;C:G001 [26 entries]');
+        Observer.Expect('after', 'G001');
+        Observer.Expect('stored', 'G001');
+        Observer.Verify();
     end;
 
 
@@ -430,7 +480,12 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G151');
+        Observer.Expect('handler first', 'G151');
+        Observer.Expect('handler log', 'open();open();R[44]:R:G151,R:G151,R:G152,...,R:G151;C:G151 [47 entries]');
+        Observer.Expect('after', 'G151');
+        Observer.Expect('stored', 'G151');
+        Observer.Verify();
     end;
 
 
@@ -449,7 +504,12 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G300');
+        Observer.Expect('handler first', 'G300');
+        Observer.Expect('handler log', 'open();open();R[24]:R:G300,R:G300,R:G299,...,R:G300;C:G300 [27 entries]');
+        Observer.Expect('after', 'G300');
+        Observer.Expect('stored', 'G300');
+        Observer.Verify();
     end;
 
 
@@ -468,7 +528,12 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G999');
+        Observer.Expect('handler first', 'G001');
+        Observer.Expect('handler log', 'open();open();R[9]:R:G001,R:G002,R:G003,...,R:G001;C:G001 [12 entries]');
+        Observer.Expect('after', 'G001');
+        Observer.Expect('stored', 'G001');
+        Observer.Verify();
     end;
 
 
@@ -487,7 +552,12 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G999');
+        Observer.Expect('handler first', 'G001');
+        Observer.Expect('handler log', 'open();open();R[22]:R:G001,R:G002,R:G003,...,R:G001;C:G001 [25 entries]');
+        Observer.Expect('after', 'G001');
+        Observer.Expect('stored', 'G001');
+        Observer.Verify();
     end;
 
 
@@ -506,7 +576,13 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G016');
+        Observer.Expect('handler first', 'G016');
+        Observer.Expect('handler log', 'open();open();R[34]:R:G016,R:G016,R:G017,...,R:G016;C:G016 [37 entries]');
+        Observer.Expect('next', 'true/G017');
+        Observer.Expect('after', 'G017');
+        Observer.Expect('stored', 'G017');
+        Observer.Verify();
     end;
 
 
@@ -525,7 +601,13 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G061');
+        Observer.Expect('handler first', 'G061');
+        Observer.Expect('handler log', 'open();open();R[44]:R:G061,R:G061,R:G062,...,R:G061;C:G061 [47 entries]');
+        Observer.Expect('next', 'true/G062');
+        Observer.Expect('after', 'G062');
+        Observer.Expect('stored', 'G062');
+        Observer.Verify();
     end;
 
 
@@ -544,7 +626,13 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G016');
+        Observer.Expect('handler first', 'G016');
+        Observer.Expect('handler log', 'open();open();R[34]:R:G016,R:G016,R:G017,...,R:G016;C:G016 [37 entries]');
+        Observer.Expect('previous', 'true/G015');
+        Observer.Expect('after', 'G015');
+        Observer.Expect('stored', 'G015');
+        Observer.Verify();
     end;
 
 
@@ -563,7 +651,13 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G061');
+        Observer.Expect('handler first', 'G061');
+        Observer.Expect('handler log', 'open();open();R[44]:R:G061,R:G061,R:G062,...,R:G061;C:G061 [47 entries]');
+        Observer.Expect('previous', 'true/G060');
+        Observer.Expect('after', 'G060');
+        Observer.Expect('stored', 'G060');
+        Observer.Verify();
     end;
 
 
@@ -582,7 +676,12 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G016');
+        Observer.Expect('handler first', 'G016');
+        Observer.Expect('handler log', 'open();open();R[34]:R:G016,R:G016,R:G017,...,R:G016;C:G016 [37 entries]');
+        Observer.Expect('after', 'G001');
+        Observer.Expect('stored', 'G001');
+        Observer.Verify();
     end;
 
 
@@ -601,7 +700,12 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G061');
+        Observer.Expect('handler first', 'G061');
+        Observer.Expect('handler log', 'open();open();R[44]:R:G061,R:G061,R:G062,...,R:G061;C:G061 [47 entries]');
+        Observer.Expect('after', 'G001');
+        Observer.Expect('stored', 'G001');
+        Observer.Verify();
     end;
 
 
@@ -620,7 +724,12 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G016');
+        Observer.Expect('handler first', 'G016');
+        Observer.Expect('handler log', 'open();open();R[34]:R:G016,R:G016,R:G017,...,R:G016;C:G016 [37 entries]');
+        Observer.Expect('after', 'G030');
+        Observer.Expect('stored', 'G030');
+        Observer.Verify();
     end;
 
 
@@ -639,7 +748,12 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G061');
+        Observer.Expect('handler first', 'G061');
+        Observer.Expect('handler log', 'open();open();R[44]:R:G061,R:G061,R:G062,...,R:G061;C:G061 [47 entries]');
+        Observer.Expect('after', 'G120');
+        Observer.Expect('stored', 'G120');
+        Observer.Verify();
     end;
 
 
@@ -658,7 +772,12 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G016');
+        Observer.Expect('handler first', 'G016');
+        Observer.Expect('handler log', 'open();open();R[34]:R:G016,R:G016,R:G017,...,R:G016;C:G016 [37 entries]');
+        Observer.Expect('after', 'G016');
+        Observer.Expect('stored', 'G016');
+        Observer.Verify();
     end;
 
 
@@ -677,7 +796,12 @@ codeunit 94652 "LT Y87 Big Lookup Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G061');
+        Observer.Expect('handler first', 'G061');
+        Observer.Expect('handler log', 'open();open();R[44]:R:G061,R:G061,R:G062,...,R:G061;C:G061 [47 entries]');
+        Observer.Expect('after', 'G061');
+        Observer.Expect('stored', 'G061');
+        Observer.Verify();
     end;
 
 }
