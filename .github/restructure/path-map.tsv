@@ -1034,7 +1034,7 @@ tests/al-language/handlers/AskProbe.Codeunit.al	tests/al-language/testpage/AskPr
 tests/al-language/handlers/CnhConfirmFalse.Page.al	tests/al-language/ui-handlers/CnhConfirmFalse.Page.al	map
 tests/al-language/handlers/CnhConfirmTrue.Page.al	tests/al-language/ui-handlers/CnhConfirmTrue.Page.al	map
 tests/al-language/handlers/CnhRow.Table.al	tests/al-language/language/CnhRow.Table.al	map
-tests/al-language/handlers/FixtureLayout.rdlc	tests/al-language/handlers/FixtureLayout.rdlc	map
+tests/al-language/handlers/FixtureLayout.rdlc	tests/al-language/_fixtures/layouts/unreferenced/FixtureLayout.rdlc	rule: non-AL file of a split folder, no AL file names it (candidate for removal)
 tests/al-language/handlers/IpfCard.Page.al	tests/al-language/testpage/IpfCard.Page.al	map
 tests/al-language/handlers/IpfDelayedCard.Page.al	tests/al-language/testpage/IpfDelayedCard.Page.al	map
 tests/al-language/handlers/IpfDelayedList.Page.al	tests/al-language/testpage/IpfDelayedList.Page.al	map
@@ -1105,13 +1105,13 @@ tests/al-language/handlers/QcvProbe.Codeunit.al	tests/al-language/testpage/QcvPr
 tests/al-language/handlers/QcvVetoCard.Page.al	tests/al-language/testpage/QcvVetoCard.Page.al	map
 tests/al-language/handlers/QzRunPageLinkOnOpen.al	tests/al-language/testpage/QzRunPageLinkOnOpen.al	map
 tests/al-language/handlers/RgfFilterReport.Report.al	tests/al-language/reports/RgfFilterReport.Report.al	map
-tests/al-language/handlers/RreLayout.rdl	tests/al-language/handlers/RreLayout.rdl	map
+tests/al-language/handlers/RreLayout.rdl	tests/al-language/_fixtures/layouts/unreferenced/RreLayout.rdl	rule: non-AL file of a split folder, no AL file names it (candidate for removal)
 tests/al-language/handlers/RreLayoutReport.Report.al	tests/al-language/reports/RreLayoutReport.Report.al	map
 tests/al-language/handlers/RreLog.Table.al	tests/al-language/reports/RreLog.Table.al	map
 tests/al-language/handlers/RreProcessingOnlyReport.Report.al	tests/al-language/reports/RreProcessingOnlyReport.Report.al	map
 tests/al-language/handlers/RreRow.Table.al	tests/al-language/reports/RreRow.Table.al	map
 tests/al-language/handlers/RreSetTableViewReport.Report.al	tests/al-language/reports/RreSetTableViewReport.Report.al	map
-tests/al-language/handlers/RrpLayout.rdl	tests/al-language/handlers/RrpLayout.rdl	map
+tests/al-language/handlers/RrpLayout.rdl	tests/al-language/_fixtures/layouts/unreferenced/RrpLayout.rdl	rule: non-AL file of a split folder, no AL file names it (candidate for removal)
 tests/al-language/handlers/RssFixtureReport.Report.al	tests/al-language/reports/RssFixtureReport.Report.al	map
 tests/al-language/handlers/RssSample.Table.al	tests/al-language/reports/RssSample.Table.al	map
 tests/al-language/handlers/SplgCard.Page.al	tests/al-language/testpage/SplgCard.Page.al	map
@@ -1121,10 +1121,10 @@ tests/al-language/handlers/SplgLinkPart.Page.al	tests/al-language/pages/SplgLink
 tests/al-language/handlers/SplgOwnFilterPart.Page.al	tests/al-language/pages/SplgOwnFilterPart.Page.al	map
 tests/al-language/handlers/SplgProbe.Codeunit.al	tests/al-language/testpage/SplgProbe.Codeunit.al	map
 tests/al-language/handlers/SrlLayoutReport.Report.al	tests/al-language/permissions/SrlLayoutReport.Report.al	map
-tests/al-language/handlers/SrlOneSheet.xlsx	tests/al-language/handlers/SrlOneSheet.xlsx	map
-tests/al-language/handlers/SrlPlain.xlsx	tests/al-language/handlers/SrlPlain.xlsx	map
-tests/al-language/handlers/SrlRetiring.xlsx	tests/al-language/handlers/SrlRetiring.xlsx	map
-tests/al-language/handlers/SrlSheets.xlsx	tests/al-language/handlers/SrlSheets.xlsx	map
+tests/al-language/handlers/SrlOneSheet.xlsx	tests/al-language/_fixtures/layouts/unreferenced/SrlOneSheet.xlsx	rule: non-AL file of a split folder, no AL file names it (candidate for removal)
+tests/al-language/handlers/SrlPlain.xlsx	tests/al-language/reports/SrlPlain.xlsx	rule: follows the AL file that names it
+tests/al-language/handlers/SrlRetiring.xlsx	tests/al-language/_fixtures/layouts/unreferenced/SrlRetiring.xlsx	rule: non-AL file of a split folder, no AL file names it (candidate for removal)
+tests/al-language/handlers/SrlSheets.xlsx	tests/al-language/_fixtures/layouts/unreferenced/SrlSheets.xlsx	rule: non-AL file of a split folder, no AL file names it (candidate for removal)
 tests/al-language/handlers/SvmCard.Page.al	tests/al-language/testpage/SvmCard.Page.al	map
 tests/al-language/handlers/SvmRow.Table.al	tests/al-language/testpage/SvmRow.Table.al	map
 tests/al-language/handlers/SvmTrace.Table.al	tests/al-language/testpage/SvmTrace.Table.al	map
@@ -1428,7 +1428,7 @@ tests/al-language/handlers/TestPrecompiledReportLayouts.al	tests/al-language/rec
 tests/al-language/handlers/TestProbePageHandlerContracts.al	tests/al-language/testpage/TestProbePageHandlerContracts.al	map
 tests/al-language/handlers/TestReportCurrReportLanguage.al	tests/al-language/streams/TestReportCurrReportLanguage.al	map
 tests/al-language/handlers/TestReportCurrReportLanguageReport.al	tests/al-language/streams/TestReportCurrReportLanguageReport.al	map
-tests/al-language/handlers/TestReportCurrReportLanguageReport.rdl	tests/al-language/handlers/TestReportCurrReportLanguageReport.rdl	map
+tests/al-language/handlers/TestReportCurrReportLanguageReport.rdl	tests/al-language/_fixtures/layouts/unreferenced/TestReportCurrReportLanguageReport.rdl	rule: non-AL file of a split folder, no AL file names it (candidate for removal)
 tests/al-language/handlers/TestReportCurrReportLanguageRow.al	tests/al-language/streams/TestReportCurrReportLanguageRow.al	map
 tests/al-language/handlers/TestReportDataItemLinkReferenceContracts.al	tests/al-language/streams/TestReportDataItemLinkReferenceContracts.al	map
 tests/al-language/handlers/TestReportDatasetHelpLink.al	tests/al-language/xml/TestReportDatasetHelpLink.al	map
@@ -1438,7 +1438,7 @@ tests/al-language/handlers/TestReportHandler.al	tests/al-language/reports/TestRe
 tests/al-language/handlers/TestReportInstanceRunReqPage.al	tests/al-language/reports/TestReportInstanceRunReqPage.al	map
 tests/al-language/handlers/TestReportInstanceRunReqPageReport.al	tests/al-language/reports/TestReportInstanceRunReqPageReport.al	map
 tests/al-language/handlers/TestReportLayoutByNameMergerCapture.al	tests/al-language/streams/TestReportLayoutByNameMergerCapture.al	map
-tests/al-language/handlers/TestReportLayoutByNameOne.rdlc	tests/al-language/handlers/TestReportLayoutByNameOne.rdlc	map
+tests/al-language/handlers/TestReportLayoutByNameOne.rdlc	tests/al-language/_fixtures/layouts/unreferenced/TestReportLayoutByNameOne.rdlc	rule: non-AL file of a split folder, no AL file names it (candidate for removal)
 tests/al-language/handlers/TestReportLayoutByNameReport.al	tests/al-language/reports/TestReportLayoutByNameReport.al	map
 tests/al-language/handlers/TestReportLayoutByNameSample.al	tests/al-language/language/TestReportLayoutByNameSample.al	map
 tests/al-language/handlers/TestReportMetadataColumns.al	tests/al-language/record/TestReportMetadataColumns.al	map
@@ -1469,7 +1469,7 @@ tests/al-language/handlers/TestReportRunFromPrecompiledCaller.al	tests/al-langua
 tests/al-language/handlers/TestReportRunFromPrecompiledCallerControls.al	tests/al-language/reports/TestReportRunFromPrecompiledCallerControls.al	map
 tests/al-language/handlers/TestReportRunRequestPage.al	tests/al-language/reports/TestReportRunRequestPage.al	map
 tests/al-language/handlers/TestReportRunRequestPageDatasetReport.al	tests/al-language/reports/TestReportRunRequestPageDatasetReport.al	map
-tests/al-language/handlers/TestReportRunRequestPageDatasetReport.rdl	tests/al-language/handlers/TestReportRunRequestPageDatasetReport.rdl	map
+tests/al-language/handlers/TestReportRunRequestPageDatasetReport.rdl	tests/al-language/_fixtures/layouts/unreferenced/TestReportRunRequestPageDatasetReport.rdl	rule: non-AL file of a split folder, no AL file names it (candidate for removal)
 tests/al-language/handlers/TestReportRunRequestPageLog.al	tests/al-language/reports/TestReportRunRequestPageLog.al	map
 tests/al-language/handlers/TestReportRunRequestPageReport.al	tests/al-language/reports/TestReportRunRequestPageReport.al	map
 tests/al-language/handlers/TestReportRunRequestPageRow.al	tests/al-language/reports/TestReportRunRequestPageRow.al	map
@@ -1481,7 +1481,7 @@ tests/al-language/handlers/TestReportSaveAsDatasetContracts.al	tests/al-language
 tests/al-language/handlers/TestReportSaveAsPdfContent.al	tests/al-language/reports/TestReportSaveAsPdfContent.al	map
 tests/al-language/handlers/TestReportSaveAsRecordRefFilter.al	tests/al-language/streams/TestReportSaveAsRecordRefFilter.al	map
 tests/al-language/handlers/TestReportSaveAsRecordRefFilterReport.al	tests/al-language/streams/TestReportSaveAsRecordRefFilterReport.al	map
-tests/al-language/handlers/TestReportSaveAsRecordRefFilterReport.rdl	tests/al-language/handlers/TestReportSaveAsRecordRefFilterReport.rdl	map
+tests/al-language/handlers/TestReportSaveAsRecordRefFilterReport.rdl	tests/al-language/_fixtures/layouts/unreferenced/TestReportSaveAsRecordRefFilterReport.rdl	rule: non-AL file of a split folder, no AL file names it (candidate for removal)
 tests/al-language/handlers/TestReportSaveAsRecordRefFilterRow.al	tests/al-language/streams/TestReportSaveAsRecordRefFilterRow.al	map
 tests/al-language/handlers/TestReportSaveAsStream.al	tests/al-language/reports/TestReportSaveAsStream.al	map
 tests/al-language/handlers/TestReportSetTableView.al	tests/al-language/reports/TestReportSetTableView.al	map
@@ -3447,10 +3447,10 @@ tests/al-language/report/lt-ch-report-leads/ChReportLeads.al	tests/al-language/r
 tests/al-language/report/lt-ch-report-leads/ChReportPart.al	tests/al-language/reports/ChReportPart.al	map
 tests/al-language/report/lt-ci-report-leads/CiReportFixtures.al	tests/al-language/reports/CiReportFixtures.al	map
 tests/al-language/report/lt-ci-report-leads/CiReportRunLeads.al	tests/al-language/reports/CiReportRunLeads.al	map
-tests/al-language/report/lt-ci-report-leads/LtCiExcelOnly.xlsx	tests/al-language/report/lt-ci-report-leads/LtCiExcelOnly.xlsx	map
-tests/al-language/report/lt-ci-report-leads/LtCiLayoutsExcel.xlsx	tests/al-language/report/lt-ci-report-leads/LtCiLayoutsExcel.xlsx	map
-tests/al-language/report/lt-ci-report-leads/LtCiLayoutsWord.docx	tests/al-language/report/lt-ci-report-leads/LtCiLayoutsWord.docx	map
-tests/al-language/report/lt-ci-report-leads/LtCiRdlcOnly.rdl	tests/al-language/report/lt-ci-report-leads/LtCiRdlcOnly.rdl	map
+tests/al-language/report/lt-ci-report-leads/LtCiExcelOnly.xlsx	tests/al-language/reports/LtCiExcelOnly.xlsx	rule: follows the AL file that names it
+tests/al-language/report/lt-ci-report-leads/LtCiLayoutsExcel.xlsx	tests/al-language/reports/LtCiLayoutsExcel.xlsx	rule: follows the AL file that names it
+tests/al-language/report/lt-ci-report-leads/LtCiLayoutsWord.docx	tests/al-language/reports/LtCiLayoutsWord.docx	rule: follows the AL file that names it
+tests/al-language/report/lt-ci-report-leads/LtCiRdlcOnly.rdl	tests/al-language/reports/LtCiRdlcOnly.rdl	rule: follows the AL file that names it
 tests/al-language/report/lt-cj-report-leads/CjDataset.al	tests/al-language/streams/CjDataset.al	map
 tests/al-language/report/lt-cj-report-leads/CjFix.al	tests/al-language/streams/CjFix.al	map
 tests/al-language/report/lt-cj-report-leads/CjReqPageExt.al	tests/al-language/reports/CjReqPageExt.al	map
@@ -3458,8 +3458,8 @@ tests/al-language/report/lt-cj-report-leads/CjSaveAsLayouts.al	tests/al-language
 tests/al-language/report/lt-cj-report-leads/CjWordSections.al	tests/al-language/streams/CjWordSections.al	map
 tests/al-language/report/lt-cj-report-leads/LtCjCallerWord.docx	tests/al-language/streams/LtCjCallerWord.docx	rule: follows the AL file that names it
 tests/al-language/report/lt-cj-report-leads/LtCjExcelOnly.xlsx	tests/al-language/streams/LtCjExcelOnly.xlsx	rule: follows the AL file that names it
-tests/al-language/report/lt-cj-report-leads/LtCjSectionsMerge.docx	tests/al-language/report/lt-cj-report-leads/LtCjSectionsMerge.docx	map
-tests/al-language/report/lt-cj-report-leads/LtCjSectionsPlain.docx	tests/al-language/report/lt-cj-report-leads/LtCjSectionsPlain.docx	map
+tests/al-language/report/lt-cj-report-leads/LtCjSectionsMerge.docx	tests/al-language/streams/LtCjSectionsMerge.docx	rule: follows the AL file that names it
+tests/al-language/report/lt-cj-report-leads/LtCjSectionsPlain.docx	tests/al-language/streams/LtCjSectionsPlain.docx	rule: follows the AL file that names it
 tests/al-language/report/lt-cj-report-leads/LtCjSharedWord.docx	tests/al-language/streams/LtCjSharedWord.docx	rule: follows the AL file that names it
 tests/al-language/report/lt-cj-report-leads/LtCjWordOnly.docx	tests/al-language/streams/LtCjWordOnly.docx	rule: follows the AL file that names it
 tests/al-language/report/lt-clearall-report/ClearAllReportInitReport.al	tests/al-language/reports/runtime/ClearAllReportInitReport.al	map

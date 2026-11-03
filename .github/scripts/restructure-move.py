@@ -357,6 +357,12 @@ def plan(root, refs=()):
     for g in files:
         if g.endswith('.al'):
             al_of_app[app_of(g)].append(g)
+    # a non-AL file that an older map left behind in a folder that is split up (it would keep the old folder alive)
+    for f in files:
+        if not f.endswith('.al') and out.get(f, (None,))[0] == f and len(f.split('/')) > 3:
+            tgt = folder_rule(os.path.dirname(f))[0]
+            if tgt.startswith('SPLIT:'):
+                split_files.append((f, tgt[6:]))
     for f, base in split_files:
         if f in info:
             continue
@@ -367,7 +373,8 @@ def plan(root, refs=()):
             out[f] = (os.path.dirname(out[users[0]][0]) + '/' + name, 'rule: follows the AL file that names it')
             review.append((f, out[f][0], out[f][1], ''))
         else:
-            out[f] = (f'{base}/{name}', 'rule: non-AL file of a split folder, no AL file names it')
+            out[f] = (f'{base}/_fixtures/layouts/unreferenced/{name}' if name.lower().endswith(LAYOUT_EXT) else f'{base}/{name}',
+                      'rule: non-AL file of a split folder, no AL file names it (candidate for removal)')
             review.append((f, out[f][0], out[f][1], 'LOW'))
     return out, review, files
 
