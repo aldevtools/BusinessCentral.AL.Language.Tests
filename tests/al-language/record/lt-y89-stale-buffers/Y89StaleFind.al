@@ -56,8 +56,46 @@ codeunit 94737 "LT Y89 Stale Find"
 
 
     local procedure MakeBuffer(var Row: Record "LT Y76 SB Row"; Origin: Text)
+    var
+        Src: Record "LT Y76 SB Row";
     begin
         case Origin of
+            'transfer_find_eq':
+                begin
+                    Src."Entry No." := 5;
+                    Src.Find('=');
+                    Row.TransferFields(Src);
+                end;
+            'transfer_find_gt':
+                begin
+                    Src."Entry No." := 4;
+                    Src.Find('>');
+                    Row.TransferFields(Src);
+                end;
+            'transfer_find_lt':
+                begin
+                    Src."Entry No." := 6;
+                    Src.Find('<');
+                    Row.TransferFields(Src);
+                end;
+            'transfer_find_minus':
+                begin
+                    Src.SetRange("Entry No.", 5);
+                    Src.Find('-');
+                    Row.TransferFields(Src);
+                end;
+            'transfer_find_plus':
+                begin
+                    Src.SetRange("Entry No.", 5);
+                    Src.Find('+');
+                    Row.TransferFields(Src);
+                end;
+            'transfer_next':
+                begin
+                    Src.FindFirst();
+                    Src.Next();
+                    Row.TransferFields(Src);
+                end;
             'find_def':
                 begin
                     Row."Entry No." := 5;
@@ -332,6 +370,66 @@ codeunit 94737 "LT Y89 Stale Find"
         Observer: Codeunit "Probe Observer";
     begin
         Part1Modes(Observer, 'descending_next');
+        Observer.Finish();
+    end;
+
+
+    [Test]
+    procedure Y89_Part1_transfer_find_eq()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Part1Modes(Observer, 'transfer_find_eq');
+        Observer.Finish();
+    end;
+
+
+    [Test]
+    procedure Y89_Part1_transfer_find_gt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Part1Modes(Observer, 'transfer_find_gt');
+        Observer.Finish();
+    end;
+
+
+    [Test]
+    procedure Y89_Part1_transfer_find_lt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Part1Modes(Observer, 'transfer_find_lt');
+        Observer.Finish();
+    end;
+
+
+    [Test]
+    procedure Y89_Part1_transfer_find_minus()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Part1Modes(Observer, 'transfer_find_minus');
+        Observer.Finish();
+    end;
+
+
+    [Test]
+    procedure Y89_Part1_transfer_find_plus()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Part1Modes(Observer, 'transfer_find_plus');
+        Observer.Finish();
+    end;
+
+
+    [Test]
+    procedure Y89_Part1_transfer_next()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Part1Modes(Observer, 'transfer_next');
         Observer.Finish();
     end;
 

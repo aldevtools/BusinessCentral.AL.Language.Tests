@@ -163,4 +163,42 @@ codeunit 94741 "LT Y89 DateFormula Filter"
         F(Observer, '25 *M', '*M');
         Observer.Finish();
     end;
+
+    [Test]
+    procedure Y89_Date_ZeroOffsets()
+    var
+        R: Record "LT Y89 DF Row";
+        Observer: Codeunit "Probe Observer";
+        Texts: List of [Text];
+        T: Text;
+        Plain: Integer;
+    begin
+        Texts.Add('T');
+        Texts.Add('T-0D');
+        Texts.Add('T+0D');
+        Texts.Add('W-0D');
+        Texts.Add('W+0D');
+        Texts.Add('CW-0W');
+        Texts.Add('CM+0M');
+        foreach T in Texts do begin
+            Clear(R);
+            R.Init();
+            Observer.Observe(T + ' valid', Format(TryDateFilter(T)));
+            if not TryDateFilter(T) then
+                Observer.ObserveError(T);
+        end;
+        Plain := 0;
+        Observer.Observe('plain', Format(Plain));
+        Observer.Finish();
+    end;
+
+    [TryFunction]
+    local procedure TryDateFilter(Txt: Text)
+    var
+        P136: Record "LT P136 Row";
+        N: Integer;
+    begin
+        P136.SetFilter(D, Txt);
+        N := P136.Count();
+    end;
 }
