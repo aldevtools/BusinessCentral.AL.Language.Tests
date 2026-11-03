@@ -35,6 +35,9 @@ SENSITIVE = os.path.join(DATA, 'sensitive-files.tsv')
 DELETE = '(delete: build output)'
 LAYOUT_EXT = ('.rdl', '.rdlc', '.docx', '.xlsx', '.rlblayout', '.dotx')
 FIXED_APPS = ('must-not-compile', 'al-language-isolation-probe', 'al-language-internals-fixture')
+DOCS = ('README.md', 'CONTRIBUTING.md', 'CLAUDE.md', 'tests/must-not-compile/README.md', 'scripts/conversion-matrix/README.md',
+        'scripts/conversion-matrix/gen.py', '.github/ISSUE_TEMPLATE/wrong-test.yml', 'tests/al-language/PLAN.md')
+DOC_PATH = re.compile(r'tests/al-language[a-z-]*/[A-Za-z0-9_./-]+')
 BUILD_OUTPUT = re.compile(r'^tests/al-language/(.*\.app|bc-full-results\.json)$')
 
 AREAS = [
@@ -494,7 +497,34 @@ def apply(root):
             git('mv', '--', o, n, cwd=root)
     if edited:
         git('add', '--', *[moves.get(f, f) for f in edited], cwd=root)
-    # 4. READMEs
+    # 4. paths in the docs that name moved files or folders (dated history under docs/ stays as written)
+    full_dirs = {}
+    for (a, d), nd in dir_moves.items():
+        full_dirs[f'{a}/{d}'] = f'{a}/{nd}'
+    lower_moves = {o.lower(): n for o, n in moves.items() if n != DELETE}
+    doc_edits = []
+    for doc in DOCS:
+        p = os.path.join(root, doc)
+        if not os.path.exists(p):
+            continue
+        txt = open(p, encoding='utf-8').read()
+
+        def dsub(m):
+            t = m.group(0)
+            core = t.rstrip('./')
+            tail = t[len(core):]
+            if core.lower() in lower_moves:
+                return lower_moves[core.lower()] + tail
+            if core.lower() in full_dirs:
+                return full_dirs[core.lower()] + tail
+            return t
+        new = DOC_PATH.sub(dsub, txt)
+        if new != txt:
+            open(p, 'w', encoding='utf-8').write(new)
+            doc_edits.append(doc)
+    if doc_edits:
+        git('add', '--', *doc_edits, cwd=root)
+    # 5. READMEs
     readmes = write_readmes(root, out, files)
     git('add', '--', *readmes, cwd=root)
     with open(os.path.join(DATA, 'layout-edits.txt'), 'w', encoding='utf-8') as o:
@@ -503,7 +533,7 @@ def apply(root):
             o.write(f + '\n')
     git('add', '--', os.path.relpath(os.path.join(DATA, 'layout-edits.txt'), root), cwd=root)
     print(f'moved {sum(1 for n in moves.values() if n != DELETE)}, deleted {sum(1 for n in moves.values() if n == DELETE)}, '
-          f'layout path edits {len(edited)}, READMEs {len(readmes)}')
+          f'layout path edits {len(edited)}, doc path edits {len(doc_edits)}, READMEs {len(readmes)}')
 
 
 def write_readmes(root, out, files):
@@ -615,6 +645,8 @@ def cmd_check(root, base):
             kinds['build output removed'] += 1
         elif path.startswith('.github/restructure/') or path == '.github/scripts/restructure-move.py':
             kinds['restructure data'] += 1
+        elif k == 'M' and path in DOCS:
+            kinds['doc path edit'] += 1
         elif (k.startswith(('R', 'A', 'M')) and path in edits) or (k == 'D' and pm.get(path, ('',))[0] in edits):
             kinds['layout edit (' + k[:1] + ')'] += 1
         else:
@@ -633,6 +665,14 @@ def cmd_check(root, base):
                 if line[:1] in '+-' and not line.startswith(('+++', '---')) and not QUOTED.search(line):
                     bad.append(f'{path}: {line}')
                     print(f'UNEXPECTED EDIT {path}: {line}')
+    # a doc edit may only change paths
+    for path in DOCS:
+        d = subprocess.run(['git', 'diff', '--cached', '-U0', '--word-diff=porcelain', base, '--', path], cwd=root,
+                           capture_output=True, text=True).stdout
+        for line in d.splitlines():
+            if line[:1] in '+-' and not line.startswith(('+++', '---')) and not DOC_PATH.search(line):
+                bad.append(f'{path}: {line}')
+                print(f'UNEXPECTED DOC EDIT {path}: {line}')
     return 1 if bad else 0
 
 
