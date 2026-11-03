@@ -260,7 +260,16 @@ codeunit 94737 "LT Y89 Stale Find"
         Observer: Codeunit "Probe Observer";
     begin
         Part1Modes(Observer, 'find_def');
-        Observer.Finish();
+        Observer.Expect('find_def/nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_def/get', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_def/modify_changed', 'ok at=5 stored=start|5');
+        Observer.Expect('find_def/modify_unchanged', 'ok at=5 stored=start|5');
+        Observer.Expect('find_def/lock', 'ok at=5 stored=start|5');
+        Observer.Expect('find_def/delete_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_def/delete_modify_changed', 'ok at=5 stored=none');
+        Observer.Expect('find_def/committed_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_def/committed_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Verify();
     end;
 
 
@@ -270,7 +279,16 @@ codeunit 94737 "LT Y89 Stale Find"
         Observer: Codeunit "Probe Observer";
     begin
         Part1Modes(Observer, 'find_eq');
-        Observer.Finish();
+        Observer.Expect('find_eq/nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_eq/get', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_eq/modify_changed', 'ok at=5 stored=start|5');
+        Observer.Expect('find_eq/modify_unchanged', 'ok at=5 stored=start|5');
+        Observer.Expect('find_eq/lock', 'ok at=5 stored=start|5');
+        Observer.Expect('find_eq/delete_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_eq/delete_modify_changed', 'ok at=5 stored=none');
+        Observer.Expect('find_eq/committed_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_eq/committed_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Verify();
     end;
 
 
@@ -280,7 +298,16 @@ codeunit 94737 "LT Y89 Stale Find"
         Observer: Codeunit "Probe Observer";
     begin
         Part1Modes(Observer, 'find_gt');
-        Observer.Finish();
+        Observer.Expect('find_gt/nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_gt/get', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_gt/modify_changed', 'ok at=5 stored=start|5');
+        Observer.Expect('find_gt/modify_unchanged', 'ok at=5 stored=start|5');
+        Observer.Expect('find_gt/lock', 'ok at=5 stored=start|5');
+        Observer.Expect('find_gt/delete_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_gt/delete_modify_changed', 'ok at=5 stored=none');
+        Observer.Expect('find_gt/committed_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_gt/committed_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Verify();
     end;
 
 
@@ -290,7 +317,16 @@ codeunit 94737 "LT Y89 Stale Find"
         Observer: Codeunit "Probe Observer";
     begin
         Part1Modes(Observer, 'find_ge');
-        Observer.Finish();
+        Observer.Expect('find_ge/nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_ge/get', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_ge/modify_changed', 'ok at=5 stored=start|5');
+        Observer.Expect('find_ge/modify_unchanged', 'ok at=5 stored=start|5');
+        Observer.Expect('find_ge/lock', 'ok at=5 stored=start|5');
+        Observer.Expect('find_ge/delete_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_ge/delete_modify_changed', 'ok at=5 stored=none');
+        Observer.Expect('find_ge/committed_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_ge/committed_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Verify();
     end;
 
 
@@ -300,7 +336,16 @@ codeunit 94737 "LT Y89 Stale Find"
         Observer: Codeunit "Probe Observer";
     begin
         Part1Modes(Observer, 'find_lt');
-        Observer.Finish();
+        Observer.Expect('find_lt/nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_lt/get', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_lt/modify_changed', 'ok at=5 stored=start|5');
+        Observer.Expect('find_lt/modify_unchanged', 'ok at=5 stored=start|5');
+        Observer.Expect('find_lt/lock', 'ok at=5 stored=start|5');
+        Observer.Expect('find_lt/delete_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_lt/delete_modify_changed', 'ok at=5 stored=none');
+        Observer.Expect('find_lt/committed_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_lt/committed_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Verify();
     end;
 
 
@@ -310,7 +355,16 @@ codeunit 94737 "LT Y89 Stale Find"
         Observer: Codeunit "Probe Observer";
     begin
         Part1Modes(Observer, 'find_le');
-        Observer.Finish();
+        Observer.Expect('find_le/nothing', 'ok at=4 stored=other|0');
+        Observer.Expect('find_le/get', 'ok at=4 stored=other|0');
+        Observer.Expect('find_le/modify_changed', 'ok at=4 stored=later|0');
+        Observer.Expect('find_le/modify_unchanged', 'ok at=4 stored=other|0');
+        Observer.Expect('find_le/lock', 'ok at=4 stored=other|0');
+        Observer.Expect('find_le/delete_nothing', 'ok at=4 stored=other|0');
+        Observer.Expect('find_le/delete_modify_changed', 'ok at=4 stored=later|0');
+        Observer.Expect('find_le/committed_nothing', 'ok at=4 stored=other|0');
+        Observer.Expect('find_le/committed_modify_changed', 'ok at=4 stored=later|0');
+        Observer.Verify();
     end;
 
 
@@ -320,7 +374,16 @@ codeunit 94737 "LT Y89 Stale Find"
         Observer: Codeunit "Probe Observer";
     begin
         Part1Modes(Observer, 'find_minus');
-        Observer.Finish();
+        Observer.Expect('find_minus/nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_minus/get', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_minus/modify_changed', 'ok at=5 stored=start|5');
+        Observer.Expect('find_minus/modify_unchanged', 'ok at=5 stored=start|5');
+        Observer.Expect('find_minus/lock', 'ok at=5 stored=start|5');
+        Observer.Expect('find_minus/delete_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_minus/delete_modify_changed', 'ok at=5 stored=none');
+        Observer.Expect('find_minus/committed_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_minus/committed_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Verify();
     end;
 
 
@@ -330,7 +393,16 @@ codeunit 94737 "LT Y89 Stale Find"
         Observer: Codeunit "Probe Observer";
     begin
         Part1Modes(Observer, 'find_plus');
-        Observer.Finish();
+        Observer.Expect('find_plus/nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_plus/get', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_plus/modify_changed', 'ok at=5 stored=start|5');
+        Observer.Expect('find_plus/modify_unchanged', 'ok at=5 stored=start|5');
+        Observer.Expect('find_plus/lock', 'ok at=5 stored=start|5');
+        Observer.Expect('find_plus/delete_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_plus/delete_modify_changed', 'ok at=5 stored=none');
+        Observer.Expect('find_plus/committed_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('find_plus/committed_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Verify();
     end;
 
 
@@ -340,7 +412,16 @@ codeunit 94737 "LT Y89 Stale Find"
         Observer: Codeunit "Probe Observer";
     begin
         Part1Modes(Observer, 'next');
-        Observer.Finish();
+        Observer.Expect('next/nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('next/get', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('next/modify_changed', 'ok at=5 stored=start|5');
+        Observer.Expect('next/modify_unchanged', 'ok at=5 stored=start|5');
+        Observer.Expect('next/lock', 'ok at=5 stored=start|5');
+        Observer.Expect('next/delete_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('next/delete_modify_changed', 'ok at=5 stored=none');
+        Observer.Expect('next/committed_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('next/committed_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Verify();
     end;
 
 
@@ -350,7 +431,16 @@ codeunit 94737 "LT Y89 Stale Find"
         Observer: Codeunit "Probe Observer";
     begin
         Part1Modes(Observer, 'next_back_forth');
-        Observer.Finish();
+        Observer.Expect('next_back_forth/nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('next_back_forth/get', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('next_back_forth/modify_changed', 'ok at=5 stored=start|5');
+        Observer.Expect('next_back_forth/modify_unchanged', 'ok at=5 stored=start|5');
+        Observer.Expect('next_back_forth/lock', 'ok at=5 stored=start|5');
+        Observer.Expect('next_back_forth/delete_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('next_back_forth/delete_modify_changed', 'ok at=5 stored=none');
+        Observer.Expect('next_back_forth/committed_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('next_back_forth/committed_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Verify();
     end;
 
 
@@ -360,7 +450,16 @@ codeunit 94737 "LT Y89 Stale Find"
         Observer: Codeunit "Probe Observer";
     begin
         Part1Modes(Observer, 'findset_next');
-        Observer.Finish();
+        Observer.Expect('findset_next/nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('findset_next/get', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('findset_next/modify_changed', 'ok at=5 stored=start|5');
+        Observer.Expect('findset_next/modify_unchanged', 'ok at=5 stored=start|5');
+        Observer.Expect('findset_next/lock', 'ok at=5 stored=start|5');
+        Observer.Expect('findset_next/delete_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('findset_next/delete_modify_changed', 'ok at=5 stored=none');
+        Observer.Expect('findset_next/committed_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('findset_next/committed_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Verify();
     end;
 
 
@@ -370,7 +469,16 @@ codeunit 94737 "LT Y89 Stale Find"
         Observer: Codeunit "Probe Observer";
     begin
         Part1Modes(Observer, 'descending_next');
-        Observer.Finish();
+        Observer.Expect('descending_next/nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('descending_next/get', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('descending_next/modify_changed', 'ok at=5 stored=start|5');
+        Observer.Expect('descending_next/modify_unchanged', 'ok at=5 stored=start|5');
+        Observer.Expect('descending_next/lock', 'ok at=5 stored=start|5');
+        Observer.Expect('descending_next/delete_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('descending_next/delete_modify_changed', 'ok at=5 stored=none');
+        Observer.Expect('descending_next/committed_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('descending_next/committed_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Verify();
     end;
 
 
@@ -380,7 +488,16 @@ codeunit 94737 "LT Y89 Stale Find"
         Observer: Codeunit "Probe Observer";
     begin
         Part1Modes(Observer, 'transfer_find_eq');
-        Observer.Finish();
+        Observer.Expect('transfer_find_eq/nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_eq/get', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_eq/modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_eq/modify_unchanged', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_eq/lock', 'ok at=5 stored=start|5');
+        Observer.Expect('transfer_find_eq/delete_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_eq/delete_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_eq/committed_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_eq/committed_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Verify();
     end;
 
 
@@ -390,7 +507,16 @@ codeunit 94737 "LT Y89 Stale Find"
         Observer: Codeunit "Probe Observer";
     begin
         Part1Modes(Observer, 'transfer_find_gt');
-        Observer.Finish();
+        Observer.Expect('transfer_find_gt/nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_gt/get', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_gt/modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_gt/modify_unchanged', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_gt/lock', 'ok at=5 stored=start|5');
+        Observer.Expect('transfer_find_gt/delete_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_gt/delete_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_gt/committed_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_gt/committed_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Verify();
     end;
 
 
@@ -400,7 +526,16 @@ codeunit 94737 "LT Y89 Stale Find"
         Observer: Codeunit "Probe Observer";
     begin
         Part1Modes(Observer, 'transfer_find_lt');
-        Observer.Finish();
+        Observer.Expect('transfer_find_lt/nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_lt/get', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_lt/modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_lt/modify_unchanged', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_lt/lock', 'ok at=5 stored=start|5');
+        Observer.Expect('transfer_find_lt/delete_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_lt/delete_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_lt/committed_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_lt/committed_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Verify();
     end;
 
 
@@ -410,7 +545,16 @@ codeunit 94737 "LT Y89 Stale Find"
         Observer: Codeunit "Probe Observer";
     begin
         Part1Modes(Observer, 'transfer_find_minus');
-        Observer.Finish();
+        Observer.Expect('transfer_find_minus/nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_minus/get', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_minus/modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_minus/modify_unchanged', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_minus/lock', 'ok at=5 stored=start|5');
+        Observer.Expect('transfer_find_minus/delete_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_minus/delete_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_minus/committed_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_minus/committed_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Verify();
     end;
 
 
@@ -420,7 +564,16 @@ codeunit 94737 "LT Y89 Stale Find"
         Observer: Codeunit "Probe Observer";
     begin
         Part1Modes(Observer, 'transfer_find_plus');
-        Observer.Finish();
+        Observer.Expect('transfer_find_plus/nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_plus/get', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_plus/modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_plus/modify_unchanged', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_plus/lock', 'ok at=5 stored=start|5');
+        Observer.Expect('transfer_find_plus/delete_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_plus/delete_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_plus/committed_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_find_plus/committed_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Verify();
     end;
 
 
@@ -430,7 +583,16 @@ codeunit 94737 "LT Y89 Stale Find"
         Observer: Codeunit "Probe Observer";
     begin
         Part1Modes(Observer, 'transfer_next');
-        Observer.Finish();
+        Observer.Expect('transfer_next/nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_next/get', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_next/modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_next/modify_unchanged', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_next/lock', 'ok at=5 stored=start|5');
+        Observer.Expect('transfer_next/delete_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_next/delete_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_next/committed_nothing', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Expect('transfer_next/committed_modify_changed', 'DB:RecordChanged at=5 stored=other|0');
+        Observer.Verify();
     end;
 
 }
@@ -601,7 +763,17 @@ codeunit 94738 "LT Y89 Stale Own Insert 3"
 
         Observer.Observe('del_othertable', Part2(false, 3, 'othertable', true));
 
-        Observer.Finish();
+        Observer.Expect('none', 'ok stored6=start|5|0');
+        Observer.Expect('delete', 'ok stored6=start|5|0');
+        Observer.Expect('rename', 'ok stored6=start|5|0');
+        Observer.Expect('othertable', 'ok stored6=start|5|0');
+        Observer.Expect('modify_other', 'ok stored6=start|5|0');
+        Observer.Expect('deleteall_other_table', 'ok stored6=start|5|0');
+        Observer.Expect('del_none', 'ok stored6=none');
+        Observer.Expect('del_delete', 'ok stored6=none');
+        Observer.Expect('del_rename', 'ok stored6=none');
+        Observer.Expect('del_othertable', 'ok stored6=none');
+        Observer.Verify();
     end;
 
 
@@ -630,7 +802,17 @@ codeunit 94738 "LT Y89 Stale Own Insert 3"
 
         Observer.Observe('del_othertable', Part2(true, 3, 'othertable', true));
 
-        Observer.Finish();
+        Observer.Expect('none', 'ok stored6=start|5|1');
+        Observer.Expect('delete', 'ok stored6=start|5|1');
+        Observer.Expect('rename', 'ok stored6=start|5|1');
+        Observer.Expect('othertable', 'ok stored6=start|5|1');
+        Observer.Expect('modify_other', 'ok stored6=start|5|1');
+        Observer.Expect('deleteall_other_table', 'ok stored6=start|5|1');
+        Observer.Expect('del_none', 'ok stored6=none');
+        Observer.Expect('del_delete', 'ok stored6=none');
+        Observer.Expect('del_rename', 'ok stored6=none');
+        Observer.Expect('del_othertable', 'ok stored6=none');
+        Observer.Verify();
     end;
 
 }
@@ -801,7 +983,17 @@ codeunit 94739 "LT Y89 Stale Own Insert 45"
 
         Observer.Observe('del_othertable', Part2(false, 4, 'othertable', true));
 
-        Observer.Finish();
+        Observer.Expect('none', 'ok stored6=start|5|0');
+        Observer.Expect('delete', 'ok stored6=start|5|0');
+        Observer.Expect('rename', 'ok stored6=start|5|0');
+        Observer.Expect('othertable', 'ok stored6=start|5|0');
+        Observer.Expect('modify_other', 'ok stored6=start|5|0');
+        Observer.Expect('deleteall_other_table', 'ok stored6=start|5|0');
+        Observer.Expect('del_none', 'ok stored6=none');
+        Observer.Expect('del_delete', 'ok stored6=none');
+        Observer.Expect('del_rename', 'ok stored6=none');
+        Observer.Expect('del_othertable', 'ok stored6=none');
+        Observer.Verify();
     end;
 
 
@@ -830,7 +1022,17 @@ codeunit 94739 "LT Y89 Stale Own Insert 45"
 
         Observer.Observe('del_othertable', Part2(true, 4, 'othertable', true));
 
-        Observer.Finish();
+        Observer.Expect('none', 'ok stored6=start|5|1');
+        Observer.Expect('delete', 'ok stored6=start|5|1');
+        Observer.Expect('rename', 'ok stored6=start|5|1');
+        Observer.Expect('othertable', 'ok stored6=start|5|1');
+        Observer.Expect('modify_other', 'ok stored6=start|5|1');
+        Observer.Expect('deleteall_other_table', 'ok stored6=start|5|1');
+        Observer.Expect('del_none', 'ok stored6=none');
+        Observer.Expect('del_delete', 'ok stored6=none');
+        Observer.Expect('del_rename', 'ok stored6=none');
+        Observer.Expect('del_othertable', 'ok stored6=none');
+        Observer.Verify();
     end;
 
 
@@ -859,7 +1061,17 @@ codeunit 94739 "LT Y89 Stale Own Insert 45"
 
         Observer.Observe('del_othertable', Part2(false, 5, 'othertable', true));
 
-        Observer.Finish();
+        Observer.Expect('none', 'ok stored6=start|5|0');
+        Observer.Expect('delete', 'ok stored6=start|5|0');
+        Observer.Expect('rename', 'ok stored6=start|5|0');
+        Observer.Expect('othertable', 'ok stored6=start|5|0');
+        Observer.Expect('modify_other', 'ok stored6=start|5|0');
+        Observer.Expect('deleteall_other_table', 'ok stored6=start|5|0');
+        Observer.Expect('del_none', 'ok stored6=none');
+        Observer.Expect('del_delete', 'ok stored6=none');
+        Observer.Expect('del_rename', 'ok stored6=none');
+        Observer.Expect('del_othertable', 'ok stored6=none');
+        Observer.Verify();
     end;
 
 
@@ -888,7 +1100,17 @@ codeunit 94739 "LT Y89 Stale Own Insert 45"
 
         Observer.Observe('del_othertable', Part2(true, 5, 'othertable', true));
 
-        Observer.Finish();
+        Observer.Expect('none', 'ok stored6=start|5|1');
+        Observer.Expect('delete', 'ok stored6=start|5|1');
+        Observer.Expect('rename', 'ok stored6=start|5|1');
+        Observer.Expect('othertable', 'ok stored6=start|5|1');
+        Observer.Expect('modify_other', 'ok stored6=start|5|1');
+        Observer.Expect('deleteall_other_table', 'ok stored6=start|5|1');
+        Observer.Expect('del_none', 'ok stored6=none');
+        Observer.Expect('del_delete', 'ok stored6=none');
+        Observer.Expect('del_rename', 'ok stored6=none');
+        Observer.Expect('del_othertable', 'ok stored6=none');
+        Observer.Verify();
     end;
 
 }

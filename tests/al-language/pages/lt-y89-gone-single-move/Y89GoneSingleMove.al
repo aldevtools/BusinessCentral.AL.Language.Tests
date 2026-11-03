@@ -449,7 +449,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveAll(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted|0|');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0;N:0;C:0;N:0;C:0');
+        Observer.Expect('move', 'false|0|');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown|0|');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -468,7 +477,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveAll(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted|0|');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0;N:0;C:0;N:0;C:0');
+        Observer.Expect('move', 'false|0|');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown|0|');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -487,7 +505,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveAll(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted|0|');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0;N:0;C:0;N:0;C:0');
+        Observer.Expect('move', 'false|0|');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown|0|');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -506,7 +533,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveAll(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted|0|');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0;N:0;C:0;N:0;C:0');
+        Observer.Expect('move', 'false|0|');
+        Observer.Expect('move log', 'N:0;C:0;N:0;C:0');
+        Observer.Expect('shown', 'shown|0|');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -525,7 +561,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveAll(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted|0|');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0;N:0;C:0;N:0;C:0');
+        Observer.Expect('move', 'false|0|');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown|0|');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -544,7 +589,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveAll(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted|0|');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0;N:0;C:0;N:0;C:0');
+        Observer.Expect('move', 'false|0|');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown|0|');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -563,7 +617,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveAll(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted|0|');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0;N:0;C:0;N:0;C:0');
+        Observer.Expect('move', 'false|0|');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown|0|');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -582,7 +645,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveAll(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted|0|');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0;N:0;C:0;N:0;C:0');
+        Observer.Expect('move', 'false|0|');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown|0|');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -601,7 +673,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveAll(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted|0|');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0;N:0;C:0;N:0;C:0');
+        Observer.Expect('move', 'false|0|');
+        Observer.Expect('move log', 'N:0;C:0;N:0;C:0');
+        Observer.Expect('shown', 'shown|0|');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -620,7 +701,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveAll(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted|0|');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0;N:0;C:0;N:0;C:0');
+        Observer.Expect('move', 'false|0|');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown|0|');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -639,7 +729,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveAll(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -658,7 +757,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveAll(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -677,7 +785,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveAll(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -696,7 +813,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveAll(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -715,7 +841,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveAll(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -734,7 +869,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveAll(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -753,7 +897,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveAll(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -772,7 +925,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveAll(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -791,7 +953,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveAll(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -810,7 +981,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveAll(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -829,7 +1009,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoNew(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -848,7 +1037,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoNew(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -867,7 +1065,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoNew(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -886,7 +1093,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoNew(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -905,7 +1121,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoNew(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -924,7 +1149,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoNew(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -943,7 +1177,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoNew(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -962,7 +1205,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoNew(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -981,7 +1233,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoNew(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1000,7 +1261,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoNew(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1019,7 +1289,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoNew(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1038,7 +1317,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoNew(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1057,7 +1345,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoNew(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1076,7 +1373,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoNew(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1095,7 +1401,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoNew(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1114,7 +1429,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoNew(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1133,7 +1457,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoNew(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1152,7 +1485,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoNew(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1171,7 +1513,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoNew(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1190,7 +1541,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoNew(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1209,7 +1569,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveReadOnly(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1228,7 +1597,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveReadOnly(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1247,7 +1625,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveReadOnly(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1266,7 +1653,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveReadOnly(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1285,7 +1681,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveReadOnly(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1304,7 +1709,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveReadOnly(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1323,7 +1737,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveReadOnly(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1342,7 +1765,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveReadOnly(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1361,7 +1793,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveReadOnly(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1380,7 +1821,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveReadOnly(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1399,7 +1849,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveReadOnly(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1418,7 +1877,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveReadOnly(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1437,7 +1905,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveReadOnly(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1456,7 +1933,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveReadOnly(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1475,7 +1961,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveReadOnly(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1494,7 +1989,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveReadOnly(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1513,7 +2017,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveReadOnly(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1532,7 +2045,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveReadOnly(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1551,7 +2073,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveReadOnly(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1570,7 +2101,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveReadOnly(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1589,7 +2129,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoInsMod(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1608,7 +2157,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoInsMod(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1627,7 +2185,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoInsMod(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1646,7 +2213,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoInsMod(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1665,7 +2241,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoInsMod(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1684,7 +2269,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoInsMod(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1703,7 +2297,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoInsMod(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1722,7 +2325,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoInsMod(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1741,7 +2353,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoInsMod(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1760,7 +2381,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoInsMod(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1779,7 +2409,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoInsMod(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1798,7 +2437,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoInsMod(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1817,7 +2465,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoInsMod(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1836,7 +2493,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoInsMod(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1855,7 +2521,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoInsMod(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1874,7 +2549,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoInsMod(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1893,7 +2577,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoInsMod(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1912,7 +2605,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoInsMod(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1931,7 +2633,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoInsMod(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1950,7 +2661,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveNoInsMod(P, 'close'));
         Observer.Observe('close log', TakeLog());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('move', 'false||');
+        Observer.Expect('move log', '');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -2013,7 +2733,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardTrue(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10/Q:OK:0;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2030,7 +2757,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardTrue(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10/Q:OK:0;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2047,7 +2781,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardTrue(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10/Q:OK:0;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2064,7 +2805,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardTrue(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', '/Q:OK:10;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '1');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2081,7 +2829,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardTrue(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', '/Q:OK:10;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '1');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2098,7 +2853,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardTrue(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10/Q:OK:20;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '1');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2115,7 +2877,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardTrue(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10;D:20/Q:OK:0;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2132,7 +2901,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardTrue(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10;D:20/Q:OK:0;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2149,7 +2925,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardTrue(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', '/Q:OK:10;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '2');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2166,7 +2949,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardTrue(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', '/Q:OK:10;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '2');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2183,7 +2973,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardTrue(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10/Q:OK:0;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2200,7 +2997,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardTrue(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10/Q:OK:0;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2217,7 +3021,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardTrue(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10/Q:OK:0;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2234,7 +3045,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardTrue(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', '/Q:OK:10;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '1');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2251,7 +3069,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardTrue(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', '/Q:OK:10;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '1');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2268,7 +3093,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardTrue(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10/Q:OK:20;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '1');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2285,7 +3117,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardTrue(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10;D:20/Q:OK:0;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2302,7 +3141,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardTrue(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10;D:20/Q:OK:0;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2319,7 +3165,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardTrue(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', '/Q:OK:10;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '2');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2336,7 +3189,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardTrue(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', '/Q:OK:10;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '2');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -2399,7 +3259,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardFalse(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'acted|');
+        Observer.Expect('action log', 'D:10/Q:OK:0');
+        Observer.Expect('shown', 'shown|');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/Q:OK:0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2416,7 +3283,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardFalse(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'acted|');
+        Observer.Expect('action log', 'D:10/Q:OK:0');
+        Observer.Expect('shown', 'shown|');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/Q:OK:0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2433,7 +3307,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardFalse(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'acted|');
+        Observer.Expect('action log', 'D:10/Q:OK:0');
+        Observer.Expect('shown', 'shown|');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/Q:OK:0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2450,7 +3331,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardFalse(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'acted|10');
+        Observer.Expect('action log', '/Q:OK:10;Q:OK:10');
+        Observer.Expect('shown', 'shown|10');
+        Observer.Expect('rows', '1');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/Q:OK:10');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2467,7 +3355,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardFalse(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', '/Q:OK:10');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '1');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2484,7 +3379,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardFalse(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'acted|20');
+        Observer.Expect('action log', 'D:10/Q:OK:10;Q:OK:10;Q:OK:20');
+        Observer.Expect('shown', 'shown|20');
+        Observer.Expect('rows', '1');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/Q:OK:20');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2501,7 +3403,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardFalse(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'acted|');
+        Observer.Expect('action log', 'D:10;D:20/Q:OK:0;Q:OK:20');
+        Observer.Expect('shown', 'shown|');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/Q:OK:0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2518,7 +3427,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardFalse(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'acted|');
+        Observer.Expect('action log', 'D:10;D:20/Q:OK:0');
+        Observer.Expect('shown', 'shown|');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/Q:OK:0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2535,7 +3451,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardFalse(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'acted|10');
+        Observer.Expect('action log', '/Q:OK:10;Q:OK:10');
+        Observer.Expect('shown', 'shown|10');
+        Observer.Expect('rows', '2');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/Q:OK:10');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2552,7 +3475,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardFalse(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', '/Q:OK:10');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '2');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2569,7 +3499,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardFalse(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'acted|');
+        Observer.Expect('action log', 'D:10/Q:OK:0;Q:OK:10;Q:OK:10');
+        Observer.Expect('shown', 'shown|');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/Q:OK:0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2586,7 +3523,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardFalse(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'acted|');
+        Observer.Expect('action log', 'D:10/Q:OK:0');
+        Observer.Expect('shown', 'shown|');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/Q:OK:0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2603,7 +3547,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardFalse(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'acted|');
+        Observer.Expect('action log', 'D:10/Q:OK:0');
+        Observer.Expect('shown', 'shown|');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/Q:OK:0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2620,7 +3571,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardFalse(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'acted|10');
+        Observer.Expect('action log', '/Q:OK:10;Q:OK:10');
+        Observer.Expect('shown', 'shown|10');
+        Observer.Expect('rows', '1');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/Q:OK:10');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2637,7 +3595,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardFalse(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', '/Q:OK:10');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '1');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2654,7 +3619,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardFalse(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'acted|20');
+        Observer.Expect('action log', 'D:10/Q:OK:10;Q:OK:10;Q:OK:20');
+        Observer.Expect('shown', 'shown|20');
+        Observer.Expect('rows', '1');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/Q:OK:20');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2671,7 +3643,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardFalse(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'acted|');
+        Observer.Expect('action log', 'D:10;D:20/Q:OK:0;Q:OK:20');
+        Observer.Expect('shown', 'shown|');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/Q:OK:0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2688,7 +3667,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardFalse(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'acted|');
+        Observer.Expect('action log', 'D:10;D:20/Q:OK:0');
+        Observer.Expect('shown', 'shown|');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/Q:OK:0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2705,7 +3691,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardFalse(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'acted|10');
+        Observer.Expect('action log', '/Q:OK:10;Q:OK:10');
+        Observer.Expect('shown', 'shown|10');
+        Observer.Expect('rows', '2');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/Q:OK:10');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2722,7 +3715,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardFalse(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', '/Q:OK:10');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '2');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
@@ -2803,7 +3803,11 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:10/Q:LookupCancel:0;X');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2821,7 +3825,11 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:10/Q:LookupCancel:0;X');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2839,7 +3847,11 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:10/Q:LookupCancel:0;X');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2857,7 +3869,11 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'None');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:10/Q:LookupCancel:0;Q:LookupCancel:0');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2875,7 +3891,11 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'None');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:10/Q:LookupCancel:0;Q:LookupCancel:0');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2893,7 +3913,11 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:10/Q:LookupCancel:20;X');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2911,7 +3935,11 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:10;D:20/Q:LookupCancel:0;X');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2929,7 +3957,11 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:10;D:20/Q:LookupCancel:0;X');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2947,7 +3979,11 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'None');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:10/Q:LookupCancel:20;Q:LookupCancel:20');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2965,7 +4001,11 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'None');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:10;D:20/Q:LookupCancel:0;Q:LookupCancel:0');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2983,7 +4023,11 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', '/Q:LookupCancel:10;X');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3001,7 +4045,11 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('handler', 'ok');
+        Observer.Expect('log', '/Q:LookupOK:10;X');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3019,7 +4067,11 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'cancel');
+        Observer.Expect('log', '/Q:LookupCancel:10;X');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3037,6 +4089,10 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'None');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', '/Q:LookupCancel:10;Q:LookupCancel:10;Q:LookupCancel:10');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 }

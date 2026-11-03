@@ -98,7 +98,27 @@ codeunit 94741 "LT Y89 DateFormula Filter"
         F(Observer, '14 1d', '1d');
         F(Observer, '15 0D', '0D');
         F(Observer, '16 1M1D', '1M1D');
-        Observer.Finish();
+        Observer.Expect('0 1M', '2|1,4|1M');
+        Observer.Expect('1 1D', '1|2|1D');
+        Observer.Expect('2 1W', '1|5|1W');
+        Observer.Expect('3 1Y', '0||1Y');
+        Observer.Expect('4 1Q', '0||1Q');
+        Observer.Expect('5 1WD', '0||1WD');
+        Observer.Expect('6 -1M', '1|6|-1M');
+        Observer.Expect('7 +1M', '0||+1M');
+        Observer.Expect('8 CM', '1|7|CM');
+        Observer.Expect('9 1D+1M', '1|8|1D+1M');
+        Observer.Expect('10 1M+1D', '0||1M+1D');
+        Observer.Expect('11 <1M>|text', 'The filter "<1M>" is not valid for the DF field on the LT Y89 DF Row table. An error occurred while interpreting the filter: Did not expect ''>''.\\For more information, see https://go.microsoft.com/fwlink/?linkid=2158058.');
+        Observer.Expect('11 <1M>|code', 'Filter:CSide');
+        Observer.Expect('12 <1D+1M>|text', 'The filter "<1D+1M>" is not valid for the DF field on the LT Y89 DF Row table. An error occurred while interpreting the filter: Did not expect ''>''.\\For more information, see https://go.microsoft.com/fwlink/?linkid=2158058.');
+        Observer.Expect('12 <1D+1M>|code', 'Filter:CSide');
+        Observer.Expect('13 1m', '2|1,4|1M');
+        Observer.Expect('14 1d', '1|2|1D');
+        Observer.Expect('15 0D', '0||0D');
+        Observer.Expect('16 1M1D|text', 'The filter "1M1D" is not valid for the DF field on the LT Y89 DF Row table. The date formula ''1M1D'' must include plus (+) or minus (-).');
+        Observer.Expect('16 1M1D|code', 'Filter:CSide');
+        Observer.Verify();
     end;
 
     [Test]
@@ -126,7 +146,32 @@ codeunit 94741 "LT Y89 DateFormula Filter"
         F(Observer, '16 1M| |1D', '1M| |1D');
         F(Observer, '17 (1M|1D)', '(1M|1D)');
         F(Observer, '18 1M|1D+1M|1W', '1M|1D+1M|1W');
-        Observer.Finish();
+        Observer.Expect('0 1M|1D', '3|1,2,4|1M|1D');
+        Observer.Expect('1 1D|1M', '3|1,2,4|1D|1M');
+        Observer.Expect('2 1M|1M', '2|1,4|1M|1M');
+        Observer.Expect('3 1D|1D', '1|2|1D|1D');
+        Observer.Expect('4 1M||text', 'The filter "1M|" is not valid for the DF field on the LT Y89 DF Row table. The right side of ''|'' operators cannot be empty.');
+        Observer.Expect('4 1M||code', 'Filter:CSide');
+        Observer.Expect('5 |1M|text', 'The filter "|1M" is not valid for the DF field on the LT Y89 DF Row table. The left side of ''|'' operators cannot be empty.');
+        Observer.Expect('5 |1M|code', 'Filter:CSide');
+        Observer.Expect('6 1M|1D|1W', '4|1,2,4,5|1M|1D|1W');
+        Observer.Expect('7 1D|1W|1M', '4|1,2,4,5|1D|1W|1M');
+        Observer.Expect('8 1M|-1M', '3|1,4,6|1M|-1M');
+        Observer.Expect('9 1M|CM', '3|1,4,7|1M|CM');
+        Observer.Expect('10 1D+1M|1D', '2|2,8|1D+1M|1D');
+        Observer.Expect('11 1M|<>1M', '8|1,2,3,4,5,6,7,8|1M|<>1M');
+        Observer.Expect('12 1M|0D', '2|1,4|1M|0D');
+        Observer.Expect('13 1M|x|text', 'The filter "1M|x" is not valid for the DF field on the LT Y89 DF Row table. The date formula ''X'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.');
+        Observer.Expect('13 1M|x|code', 'Filter:CSide');
+        Observer.Expect('14 x|1M|text', 'The filter "x|1M" is not valid for the DF field on the LT Y89 DF Row table. The date formula ''X'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.');
+        Observer.Expect('14 x|1M|code', 'Filter:CSide');
+        Observer.Expect('15 1M||1D|text', 'The filter "1M||1D" is not valid for the DF field on the LT Y89 DF Row table. The right side of ''|'' operators cannot be empty.');
+        Observer.Expect('15 1M||1D|code', 'Filter:CSide');
+        Observer.Expect('16 1M| |1D|text', 'The filter "1M| |1D" is not valid for the DF field on the LT Y89 DF Row table. The right side of ''|'' operators cannot be empty.');
+        Observer.Expect('16 1M| |1D|code', 'Filter:CSide');
+        Observer.Expect('17 (1M|1D)', '3|1,2,4|1M|1D');
+        Observer.Expect('18 1M|1D+1M|1W', '4|1,4,5,8|1M|1D+1M|1W');
+        Observer.Verify();
     end;
 
     [Test]
@@ -161,7 +206,37 @@ codeunit 94741 "LT Y89 DateFormula Filter"
         F(Observer, '23 ?', '?');
         F(Observer, '24 1*', '1*');
         F(Observer, '25 *M', '*M');
-        Observer.Finish();
+        Observer.Expect('0 1M&1D', '0||1M&1D');
+        Observer.Expect('1 1M&<>1D', '2|1,4|1M&<>1D');
+        Observer.Expect('2 <>1M&<>1D', '5|3,5,6,7,8|<>1M&<>1D');
+        Observer.Expect('3 <>1M&<>1D&<>|text', 'The filter "<>1M&<>1D&<>" is not valid for the DF field on the LT Y89 DF Row table. A value is expected after the ''<>''.');
+        Observer.Expect('3 <>1M&<>1D&<>|code', 'Filter:CSide');
+        Observer.Expect('4 1D..1M', '4|1,2,4,5|1D..1M');
+        Observer.Expect('5 1M..1D', '0||1M..1D');
+        Observer.Expect('6 1D..1M|1W', '4|1,2,4,5|1D..1M|1W');
+        Observer.Expect('7 1D..', '5|1,2,4,5,8|1D..');
+        Observer.Expect('8 ..1M', '7|1,2,3,4,5,6,7|..1M');
+        Observer.Expect('9 >1D', '4|1,4,5,8|>1D');
+        Observer.Expect('10 <1M', '5|2,3,5,6,7|<1M');
+        Observer.Expect('11 >=1D&<=1M', '4|1,2,4,5|>=1D&<=1M');
+        Observer.Expect('12 >=1D&<1M', '2|2,5|>=1D&<1M');
+        Observer.Expect('13 <>1M', '6|2,3,5,6,7,8|<>1M');
+        Observer.Expect('14 <>1D', '7|1,3,4,5,6,7,8|<>1D');
+        Observer.Expect('15 <>|text', 'The filter "<>" is not valid for the DF field on the LT Y89 DF Row table. A value is expected after the ''<>''.');
+        Observer.Expect('15 <>|code', 'Filter:CSide');
+        Observer.Expect('16 <>1M|1D', '6|2,3,5,6,7,8|<>1M|1D');
+        Observer.Expect('17 >1M|<1D', '4|3,6,7,8|>1M|<1D');
+        Observer.Expect('18 =1M', '2|1,4|1M');
+        Observer.Expect('19 =1M|=1D', '3|1,2,4|1M|1D');
+        Observer.Expect('20 1M..1M', '2|1,4|1M..1M');
+        Observer.Expect('21 @1M', '2|1,4|1M');
+        Observer.Expect('22 *', '1|3|''''');
+        Observer.Expect('23 ?', '1|3|''''');
+        Observer.Expect('24 1*|text', 'The filter "1*" is not valid for the DF field on the LT Y89 DF Row table. The date formula ''1*'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.');
+        Observer.Expect('24 1*|code', 'Filter:CSide');
+        Observer.Expect('25 *M|text', 'The filter "*M" is not valid for the DF field on the LT Y89 DF Row table. The date formula ''*M'' should include a number.');
+        Observer.Expect('25 *M|code', 'Filter:CSide');
+        Observer.Verify();
     end;
 
     [Test]
@@ -171,7 +246,6 @@ codeunit 94741 "LT Y89 DateFormula Filter"
         Observer: Codeunit "Probe Observer";
         Texts: List of [Text];
         T: Text;
-        Plain: Integer;
     begin
         Texts.Add('T');
         Texts.Add('T-0D');
@@ -187,9 +261,14 @@ codeunit 94741 "LT Y89 DateFormula Filter"
             if not TryDateFilter(T) then
                 Observer.ObserveError(T);
         end;
-        Plain := 0;
-        Observer.Observe('plain', Format(Plain));
-        Observer.Finish();
+        Observer.Expect('T valid', 'Yes');
+        Observer.Expect('T-0D valid', 'Yes');
+        Observer.Expect('T+0D valid', 'Yes');
+        Observer.Expect('W-0D valid', 'Yes');
+        Observer.Expect('W+0D valid', 'Yes');
+        Observer.Expect('CW-0W valid', 'Yes');
+        Observer.Expect('CM+0M valid', 'Yes');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -200,5 +279,43 @@ codeunit 94741 "LT Y89 DateFormula Filter"
     begin
         P136.SetFilter(D, Txt);
         N := P136.Count();
+    end;
+
+    // The shape of errors/lt-ms-refusals-136/P136Filter.al P136_SetFilter_DateFormula: four rows (1M, 1D, blank, 1M) and Count straight after SetFilter.
+    [Test]
+    procedure Y89_DF_FourRowsCountOnly()
+    var
+        R: Record "LT Y89 DF Row";
+        Observer: Codeunit "Probe Observer";
+        Texts: List of [Text];
+        T: Text;
+    begin
+        R.DeleteAll();
+        R.Init();
+        R.Id := 1;
+        Evaluate(R.DF, '<1M>');
+        R.Insert();
+        R.Init();
+        R.Id := 2;
+        Evaluate(R.DF, '<1D>');
+        R.Insert();
+        R.Init();
+        R.Id := 3;
+        R.Insert();
+        R.Init();
+        R.Id := 4;
+        Evaluate(R.DF, '<1M>');
+        R.Insert();
+        Texts.Add('1M');
+        Texts.Add('1D');
+        Texts.Add('1M|1D');
+        Texts.Add('1D|1M');
+        Texts.Add('1M|1D|');
+        foreach T in Texts do begin
+            Clear(R);
+            R.SetFilter(DF, T);
+            Observer.Observe(T + ' count', Format(R.Count()));
+        end;
+        Observer.Finish();
     end;
 }
