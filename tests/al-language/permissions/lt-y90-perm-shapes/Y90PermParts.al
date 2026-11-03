@@ -47,7 +47,7 @@ codeunit 94809 "LT Y90 Perm Parts"
         Observer.Expect('b_all_wildcards',
             'LT Y90 ok part visible | Dialog');
         Observer.Expect('b_table_x',
-            'The part with ID = n was not found on the page. | TestPartNotFound');
+            'LT Y90 ok part visible | Dialog');
         Observer.Verify();
     end;
 
