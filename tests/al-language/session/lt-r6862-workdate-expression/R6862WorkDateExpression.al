@@ -33,11 +33,17 @@ codeunit 94960 "LT R6862 WorkDate Tests"
         Result := WorkDate(DMY2Date(15, 3, 2032));
         Observer.Observe('same date result', Format(Result, 0, 9));
         WorkDate(Saved);
-        Observer.Finish();
+        Observer.Expect('result', '2032-03-15');
+        Observer.Expect('result = new', 'Yes');
+        Observer.Expect('result = old', 'No');
+        Observer.Expect('WorkDate after', '2032-03-15');
+        Observer.Expect('WorkDate = new', 'Yes');
+        Observer.Expect('same date result', '2032-03-15');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure R6862_Expression_EmptyAndClosingDate()
+    procedure R6862_Expression_EmptyDate()
     var
         Observer: Codeunit "Probe Observer";
         Saved: Date;
@@ -50,13 +56,32 @@ codeunit 94960 "LT R6862 WorkDate Tests"
         Observer.Observe('empty: result = 0D', Format(Result = 0D));
         Observer.Observe('empty: WorkDate = Today', Format(WorkDate() = Today()));
         Observer.Observe('empty: WorkDate = 0D', Format(WorkDate() = 0D));
+        WorkDate(Saved);
+        Observer.Expect('empty: result = Today', 'Yes');
+        Observer.Expect('empty: result = 0D', 'No');
+        Observer.Expect('empty: WorkDate = Today', 'Yes');
+        Observer.Expect('empty: WorkDate = 0D', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6862_Expression_ClosingDate()
+    var
+        Observer: Codeunit "Probe Observer";
+        Saved: Date;
+        Result: Date;
+    begin
+        Saved := WorkDate();
         WorkDate(DMY2Date(1, 2, 2031));
         Result := WorkDate(ClosingDate(DMY2Date(31, 12, 2031)));
         Observer.Observe('closing: result', Format(Result, 0, 9));
         Observer.Observe('closing: WorkDate after', Format(WorkDate(), 0, 9));
         Observer.Observe('closing: WorkDate = Normal', Format(WorkDate() = DMY2Date(31, 12, 2031)));
         WorkDate(Saved);
-        Observer.Finish();
+        Observer.Expect('closing: result', '2031-12-31');
+        Observer.Expect('closing: WorkDate after', '2031-12-31');
+        Observer.Expect('closing: WorkDate = Normal', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -93,7 +118,18 @@ codeunit 94960 "LT R6862 WorkDate Tests"
         Observer.Observe('SetRange count', Format(DateRec.Count()));
         Observer.Observe('nested', Format(WorkDate(WorkDate(DMY2Date(22, 3, 2032))), 0, 9));
         WorkDate(Saved);
-        Observer.Finish();
+        Observer.Expect('condition', 'equal');
+        Observer.Expect('exit', '2032-03-16');
+        Observer.Expect('exit then WorkDate', '2032-03-16');
+        Observer.Expect('as argument', '2032-03-17');
+        Observer.Expect('variant is date', 'Yes');
+        Observer.Expect('variant value', '2032-03-18');
+        Observer.Expect('format of call', '2032-03-19');
+        Observer.Expect('Date.Get', 'Yes');
+        Observer.Expect('Date.Get start', '2032-03-20');
+        Observer.Expect('SetRange count', '1');
+        Observer.Expect('nested', '2032-03-22');
+        Observer.Verify();
     end;
 
     [Test]
@@ -118,7 +154,14 @@ codeunit 94960 "LT R6862 WorkDate Tests"
         DateRec.SetFilter("Period Start", '%1', WorkDate());
         Observer.Observe('filter %1 count', Format(DateRec.Count()));
         WorkDate(Saved);
-        Observer.Finish();
+        Observer.Expect('Today unchanged', 'Yes');
+        Observer.Expect('CalcDate base WorkDate', '2032-05-31');
+        Observer.Expect('CalcDate 1D no base is tomorrow', 'Yes');
+        Observer.Expect('CalcDate base result', '2032-06-01');
+        Observer.Expect('filter W count', '1');
+        Observer.Expect('filter W first', '2032-05-10');
+        Observer.Expect('filter %1 count', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -141,7 +184,14 @@ codeunit 94960 "LT R6862 WorkDate Tests"
         Card.Close();
         Observer.Observe('test: WorkDate after close', Format(WorkDate(), 0, 9));
         WorkDate(Saved);
-        Observer.Finish();
+        Observer.Expect('page: returned by OnOpenPage', '2033-03-02');
+        Observer.Expect('page: WorkDate before OnOpenPage', '2031-02-01');
+        Observer.Expect('page: WorkDate after OnOpenPage', '2033-03-02');
+        Observer.Expect('test: WorkDate after open', '2033-03-02');
+        Observer.Expect('page: returned by action', '2034-04-03');
+        Observer.Expect('test: WorkDate after action', '2034-04-03');
+        Observer.Expect('test: WorkDate after close', '2034-04-03');
+        Observer.Verify();
     end;
 
     [Test]
@@ -152,7 +202,8 @@ codeunit 94960 "LT R6862 WorkDate Tests"
     begin
         Result := WorkDate(DMY2Date(5, 6, 2033));
         Observer.Observe('stays: first test returned', Format(Result, 0, 9));
-        Observer.Finish();
+        Observer.Expect('stays: first test returned', '2033-06-05');
+        Observer.Verify();
     end;
 
     [Test]
@@ -162,7 +213,9 @@ codeunit 94960 "LT R6862 WorkDate Tests"
     begin
         Observer.Observe('stays: second test WorkDate', Format(WorkDate(), 0, 9));
         Observer.Observe('stays: second test = 2033-06-05', Format(WorkDate() = DMY2Date(5, 6, 2033)));
-        Observer.Finish();
+        Observer.Expect('stays: second test WorkDate', '2033-06-05');
+        Observer.Expect('stays: second test = 2033-06-05', 'Yes');
+        Observer.Verify();
     end;
 
     local procedure ExitIt(D: Date): Date
