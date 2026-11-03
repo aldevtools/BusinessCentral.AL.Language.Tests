@@ -254,6 +254,8 @@ def folder_rule(d):
         return 'KEEP', 'shared fixture'
     if top == 'Translations' or 'res' in sub:
         return 'KEEP', 'translation or resource folder (fixed by the compiler or app.json resourceFolders)'
+    if (top in AREA_NAMES or top == 'dotnet') and not (sub and (sub[0].startswith('lt-') or WRITER.match(sub[0]) or GRAB.search(sub[0]))):
+        return 'KEEP', 'already in the area layout'
     if top.startswith('lt-') and app != 'al-language':
         c = clean(top)
         area = 'dotnet' if 'dotnet' in app else ('test-framework' if 'testlibraries' in app else None)
@@ -325,6 +327,7 @@ def plan(root, refs=()):
             by_dir[os.path.dirname(old)].add(os.path.dirname(new))
     pending = []
     targets = {n for n, _ in frozen.values()}
+    target_dirs = {os.path.dirname(n) for n in targets}
     for f in files:
         if f in frozen:
             out[f] = frozen[f]
@@ -345,6 +348,8 @@ def plan(root, refs=()):
                 out[f] = (f'tests/al-language/_fixtures/layouts/{name}', 'rule: app-root layout')
             else:
                 out[f] = (f, 'rule: app root file')
+        elif d in target_dirs and d not in by_dir:
+            out[f] = (f, 'rule: folder of the new layout')
         else:
             tgt, why = folder_rule(d)
             if not tgt.startswith('SPLIT:') and len(by_dir.get(d, ())) == 1:
