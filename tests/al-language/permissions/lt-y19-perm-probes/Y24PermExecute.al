@@ -250,8 +250,8 @@ codeunit 91977 "LT Y24 Perm Execute"
         Observer.Observe(Name + '|code', ErrorCode);
     end;
 
-    // Cases 1-3 and 5-8 and 11-18 (denied) use the objects of Y24PermExecuteObjects.al, which no other test loads. Case 4 is the
-    // case that runs with no set: it opens the shared card and so is not order-sensitive.
+    // Every case uses the objects of Y24PermExecuteObjects.al, which no other test loads. Case 4 runs with no set: it opens the card
+    // (the page handler must exist for the card or the run ends with "Unhandled UI" before any permission check).
     local procedure Op(Which: Integer)
     var
         TempRow: Record "LT Y24 Row" temporary;
@@ -280,7 +280,7 @@ codeunit 91977 "LT Y24 Perm Execute"
                 end;
             4:
                 begin
-                    Page.Run(Page::"LT Y24 Row Card");
+                    Page.Run(Page::"LT Y24 Fx Card");
                     Result := 'page';
                 end;
             5:
@@ -437,7 +437,7 @@ codeunit 91977 "LT Y24 Perm Execute"
     end;
 
     [PageHandler]
-    procedure Y24RowCardHandler(var Card: TestPage "LT Y24 Row Card")
+    procedure Y24RowCardHandler(var Card: TestPage "LT Y24 Fx Card")
     begin
         Card.Close();
     end;
