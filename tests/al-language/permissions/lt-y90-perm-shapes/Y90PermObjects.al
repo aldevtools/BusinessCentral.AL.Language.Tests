@@ -840,7 +840,6 @@ permissionset 94899 "LT Y90 D365 Set B"
     Assignable = true;
     Permissions =
         tabledata "LT Y90 Row" = RIMD,
-        table "LT Y90 Row" = X,
         codeunit "LT Y90 D365 Feature B" = X,
         page "LT Y90 D365 Page B" = X;
 }
