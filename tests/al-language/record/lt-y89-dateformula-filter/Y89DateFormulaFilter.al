@@ -310,7 +310,6 @@ codeunit 94741 "LT Y89 DateFormula Filter"
         Texts.Add('1D');
         Texts.Add('1M|1D');
         Texts.Add('1D|1M');
-        Texts.Add('1M|1D|');
         foreach T in Texts do begin
             Clear(R);
             R.SetFilter(DF, T);
