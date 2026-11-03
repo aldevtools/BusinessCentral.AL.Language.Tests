@@ -3,9 +3,9 @@
 
   facts.py extract <corpus checkout> <out.tsv>
       one row per asserted fact of every [Test] procedure, and per @expect line of every must-not-compile case
-  facts.py diff <base.tsv> <head.tsv> [rename-map.tsv]
+  facts.py diff <base.tsv> <head.tsv> [rename-map.tsv [facts-changes.tsv]]
       exit 1 when a base case is missing at head, or a base fact is not held at head by the same case
-      (or by the cases the rename map sends it to)
+      (or by the cases the rename map sends it to), unless a facts-changes line replaces that fact
 
 A case key is "<app folder>/<codeunit id>/<test name>" (the JUnit key: app, codeunit id, test name), or "mnc/<file stem>" for a
 must-not-compile case. A fact is (kind, expected value, API members of the checked expression, #if context of the test procedure):
@@ -25,6 +25,12 @@ the kind and the expected value are compared; the full CI run covers the rest.
 
 The rename map (tests/rename-map.tsv) has lines old_key<TAB>new_key. It is only read for a base key that is gone at head: its facts
 must then be held by the union of its new keys. Lines starting with # and the header line are skipped.
+
+The facts-changes file (tests/facts-changes.tsv) records an intended change of an asserted fact (real BC does something else than
+the test said). One line per changed fact, ten tab-separated columns:
+  key, old kind, old value, old members, old ifctx, new kind, new value, new members, new ifctx, reason
+A line covers one missing occurrence of the old fact of that base key when the new fact is held at head by the key (or by its
+rename targets). The reason is required. A lost-fact report prints the first five columns of the line to add.
 """
 import collections
 import os
@@ -38,6 +44,7 @@ CALL = re.compile(r'\b(Assert\.(AreEqual|AreNotEqual|IsTrue|IsFalse|ExpectedErro
 MNC_APP = 'must-not-compile'
 HEADER = 'key\tpath\tkind\tvalue\tmembers\tifctx\n'
 MAP_HEADER = 'old_key\tnew_key'
+CHANGES_HEADER = 'key\told_kind\told_value\told_members\told_ifctx\tnew_kind\tnew_value\tnew_members\tnew_ifctx\treason'
 
 
 def strip(src):
@@ -268,10 +275,27 @@ def load_map(p):
     return rmap
 
 
-def diff(base, head, ren=None, out=print):
+def load_changes(p):
+    """{base key: [(old fact, new fact)]} from a facts-changes file."""
+    changes = collections.defaultdict(list)
+    if not p:
+        return changes
+    with open(p, encoding='utf-8') as fh:
+        for line in fh.read().splitlines():
+            if not line.strip() or line.startswith('#') or line.startswith(CHANGES_HEADER):
+                continue
+            parts = line.split('\t')
+            if len(parts) != 10 or not parts[0] or not parts[1] or not parts[5] or not parts[9].strip():
+                raise SystemExit(f'{p}: not key, old kind, old value, old members, old ifctx, new kind, new value, new members, new ifctx, reason (10 columns, reason required): {line!r}')
+            changes[parts[0]].append((tuple(parts[1:5]), tuple(parts[5:9])))
+    return changes
+
+
+def diff(base, head, ren=None, chg=None, out=print):
     b, bp = load(base)
     h, _ = load(head)
     rmap = load_map(ren)
+    changes = load_changes(chg)
     gh = os.environ.get('GITHUB_ACTIONS') == 'true'
     err = '::error::' if gh else ''
     lost_cases, lost_facts, bad_targets = [], [], []
@@ -288,7 +312,11 @@ def diff(base, head, ren=None, out=print):
         for t in targets:
             pool.update(h.get(t, {}))
         for fct, n in facts.items():
-            if pool[fct] < n:
+            missing = n - pool[fct]
+            if missing > 0:
+                # an intended change: a facts-changes line from this fact to a fact the head holds
+                missing -= sum(1 for old, new in changes.get(k, []) if old == fct and pool[new] > 0)
+            if missing > 0:
                 lost_facts.append((k, bp[k], fct))
     for k in lost_cases:
         out(f'{err}LOST CASE  {k}  ({bp[k]}): not at head and not in the rename map')
@@ -296,6 +324,7 @@ def diff(base, head, ren=None, out=print):
         out(f'{err}BAD RENAME  {k} -> {t}: the new key is not at head')
     for k, p, f in lost_facts:
         out(f'{err}LOST FACT  {k}  ({p}): kind={f[0]} value={f[1]} members={f[2]} ifctx={f[3]}')
+        out('facts-changes line: ' + '\t'.join((k,) + f) + '\t<new kind>\t<new value>\t<new members>\t<new ifctx>\t<reason>')
     new = sum(1 for k in h if k not in b)
     out(f'{len(b)} base cases, {len(lost_cases)} lost cases, {len(lost_facts)} lost facts, {len(bad_targets)} bad renames, {new} new cases at head')
     return 1 if (lost_cases or lost_facts or bad_targets) else 0
@@ -304,8 +333,8 @@ def diff(base, head, ren=None, out=print):
 def main(argv):
     if len(argv) >= 3 and argv[0] == 'extract':
         return extract(argv[1], argv[2])
-    if len(argv) in (3, 4) and argv[0] == 'diff':
-        return diff(argv[1], argv[2], argv[3] if len(argv) > 3 else None)
+    if len(argv) in (3, 4, 5) and argv[0] == 'diff':
+        return diff(argv[1], argv[2], argv[3] if len(argv) > 3 else None, argv[4] if len(argv) > 4 else None)
     print(__doc__)
     return 2
 

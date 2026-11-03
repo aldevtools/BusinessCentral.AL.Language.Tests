@@ -118,7 +118,11 @@ batch, and the old rules "one claim per codeunit" and "never define an object in
    (other projects cite its line numbers); the area README lists those files.
 6. **Keys never change.** Never renumber a codeunit, and never rename a `[Test]` procedure or a must-not-compile case: the codeunit id
    and the test name (or the case file name) are the key of a result. Moving a file is fine. Removing or merging a test needs a line
-   in `tests/rename-map.tsv` and a green `Coverage facts must not shrink` check (`.github/scripts/facts.py`).
+   in `tests/rename-map.tsv` and a green `Coverage facts must not shrink` check (`.github/scripts/facts.py`). When real BC does
+   something else than a test asserted and the test is corrected, the old asserted fact is gone too: add a line to
+   `tests/facts-changes.tsv` (test key, old fact, new fact, reason; the check's report prints the start of the line). Both files
+   are append-only, and the owner reviews their new lines in each pull request. The check is advisory (not a required check)
+   during the corpus restructure; it becomes a required check after the restructure ends.
 7. **Names.** A new object is named `<area code> <topic> <role>` (for example `REC SetFilter Row`), and the name is unique.
    Existing names stay. Id blocks stay per writer: they are only a way to hand out ids.
 8. **README.** A pull request that adds a topic, a shared fixture or a must-not-compile case updates the area README. A new

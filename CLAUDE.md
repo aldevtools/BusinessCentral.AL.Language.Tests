@@ -202,7 +202,11 @@ The full text is in CONTRIBUTING.md, "Standing rules for new tests". In short:
 6. **Keys never change.** Never renumber a codeunit or rename a `[Test]`
    procedure or a must-not-compile case. Moving files is fine. Removing or
    merging a test needs a `tests/rename-map.tsv` line and a green
-   `Coverage facts must not shrink` check.
+   `Coverage facts must not shrink` check. A corrected expected value (real
+   BC does something else) needs a `tests/facts-changes.tsv` line (key, old
+   fact, new fact, reason). Both files are append-only; the owner reviews
+   them per pull request. The check is advisory during the restructure and
+   becomes required after it.
 7. **Names.** New objects: `<area code> <topic> <role>` (for example
    `REC SetFilter Row`), unique. Existing names stay. Id blocks stay per writer.
 8. **README.** A new topic, shared fixture or must-not-compile case updates

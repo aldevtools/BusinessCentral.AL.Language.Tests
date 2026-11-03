@@ -71,10 +71,10 @@ def repo(d, files):
     subprocess.run(['git', '-C', d, 'add', '-A'], check=True)
 
 
-def run_diff(base, head, ren=None):
+def run_diff(base, head, ren=None, chg=None):
     # in GitHub Actions the report lines start with ::error::; compare the report itself
     lines = []
-    rc = facts.diff(base, head, ren, out=lines.append)
+    rc = facts.diff(base, head, ren, chg, out=lines.append)
     return rc, [l[len('::error::'):] if l.startswith('::error::') else l for l in lines]
 
 
@@ -143,6 +143,33 @@ with tempfile.TemporaryDirectory() as t:
     expect(rc == 1 and any(l.startswith('LOST FACT  al-language/50100/Format_Zero_Integer ') for l in out)
            and any(l.startswith('LOST CASE  mnc/0001-x ') for l in out), 'edited value and removed mnc case: %r' % out)
 
+    # an intended expected-value change passes with a facts-changes line (old fact -> new fact) for that test
+    Path(head_dir, 'tests/must-not-compile/cases/0001-x.al').write_text(MNC)
+    subprocess.run(['git', '-C', head_dir, 'add', '-A'], check=True)
+    facts.extract(head_dir, head)
+    chg = t / 'facts-changes.tsv'
+    row = lambda new_value, reason='real BC returns 1': '\t'.join(['al-language/50100/Format_Zero_Integer', 'eq', "'0'", 'format', '',
+                                                                  'eq', new_value, 'format', '', reason]) + '\n'
+    chg.write_text('# comment\n' + facts.CHANGES_HEADER + '\n' + row("'1'"))
+    rc, out = run_diff(base, head, None, str(chg))
+    expect(rc == 0, 'facts-changes line covers the edited value: %r' % out)
+    # the new fact must be held at head
+    chg.write_text(row("'2'"))
+    rc, out = run_diff(base, head, None, str(chg))
+    expect(rc == 1 and any(l.startswith('LOST FACT  al-language/50100/Format_Zero_Integer ') for l in out), 'new fact not at head: %r' % out)
+    # a line without a reason is refused
+    chg.write_text(row("'1'", ''))
+    try:
+        run_diff(base, head, None, str(chg))
+        expect(False, 'a facts-changes line without a reason is refused')
+    except SystemExit:
+        pass
+    # the lost-fact report prints the start of the line to add
+    rc, out = run_diff(base, head)
+    expect(any(l.startswith("facts-changes line: al-language/50100/Format_Zero_Integer\teq\t'0'\tformat\t\t") for l in out), 'template line: %r' % out)
+
+    # the repository's own rename map and facts-changes file parse
+    expect(isinstance(facts.load_changes(str(Path(__file__).resolve().parents[2] / 'tests' / 'facts-changes.tsv')), dict), 'tests/facts-changes.tsv parses')
     # the repository's own rename map parses
     expect(isinstance(facts.load_map(str(Path(__file__).resolve().parents[2] / 'tests' / 'rename-map.tsv')), dict), 'tests/rename-map.tsv parses')
 

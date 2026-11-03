@@ -187,8 +187,11 @@ jobs:
     # No asserted fact may disappear from the corpus without a line in tests/rename-map.tsv. A fact is what a [Test]
     # asserts (kind, expected value, API members of the checked expression, #if context) or an @expect line of a
     # must-not-compile case; see .github/scripts/facts.py. Moving files and renaming locals keep every fact, so the
-    # restructure PRs pass; removing or merging a test needs a rename-map line to a test that holds its facts.
+    # restructure PRs pass; removing or merging a test needs a rename-map line to a test that holds its facts, and an
+    # intended change of an expected value needs a line in tests/facts-changes.tsv.
     # Base = the merge base of the PR with its base branch. No BC container: about one minute.
+    # Advisory during the corpus restructure (owner, 2026-11-03): not a required check of the master ruleset.
+    # It becomes a required check after the restructure ends.
     name: Coverage facts must not shrink
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -209,7 +212,7 @@ jobs:
           git worktree add --detach "$RUNNER_TEMP/base" "$base"
           python3 .github/scripts/facts.py extract "$RUNNER_TEMP/base" "$RUNNER_TEMP/facts-base.tsv"
           python3 .github/scripts/facts.py extract . "$RUNNER_TEMP/facts-head.tsv"
-          python3 .github/scripts/facts.py diff "$RUNNER_TEMP/facts-base.tsv" "$RUNNER_TEMP/facts-head.tsv" tests/rename-map.tsv
+          python3 .github/scripts/facts.py diff "$RUNNER_TEMP/facts-base.tsv" "$RUNNER_TEMP/facts-head.tsv" tests/rename-map.tsv tests/facts-changes.tsv
 
   prepare:
     # Gated on object-ids so a duplicate/out-of-range id never spends the BC matrix.
