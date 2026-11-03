@@ -5,7 +5,7 @@
 //   What does a bare name in field(<Control>; <Source>) bind to when a control of that name exists: the source field or the control? Names with a
 //   space ("Container location"), with a dot ("Doc no."), a one-word name (Status) and a control that has the field's name but another source
 //   ("Other value" shows "No."). Read through a TestPage (both controls), written by SetValue through each control, in Visible and Editable
-//   expressions, in the control's OnValidate trigger, in OnAfterGetRecord, through CurrPage.<control> and in a page extension.
+//   expressions, in the control's OnValidate trigger, in OnAfterGetRecord and in a page extension. CurrPage.<field control> does not compile (AL0118 on 27.5), so it is not probed.
 // BC versions: 27, 28, 29
 
 table 94940 "LT R6858 Rec"
@@ -70,21 +70,6 @@ page 94941 "LT R6858 Card"
             }
             field(ctlSeen; TriggerSeen) { }
             field(ctlValidateSeen; ValidateSeen) { }
-        }
-    }
-
-    actions
-    {
-        area(Processing)
-        {
-            action(ApplyCurrPage)
-            {
-                trigger OnAction()
-                begin
-                    CurrPage."Container location".Editable(false);
-                    CurrPage.ctlContainerlocation.Visible(false);
-                end;
-            }
         }
     }
 
@@ -208,23 +193,6 @@ codeunit 94943 "LT R6858 Control Names"
         Observer.Observe('stored status', Rec.Status);
         Observer.Observe('stored other value', Rec."Other value");
         Observer.Observe('stored doc no', Rec."Doc no.");
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure R6858_Card_CurrPageByControlName()
-    var
-        Observer: Codeunit "Probe Observer";
-        Card: TestPage "LT R6858 Card";
-    begin
-        Setup();
-        Card.OpenEdit();
-        Card.ApplyCurrPage.Invoke();
-        Observer.Observe('Container location editable', Format(Card."Container location".Editable()));
-        Observer.Observe('Container location visible', Format(Card."Container location".Visible()));
-        Observer.Observe('ctlContainerlocation visible', Format(Card.ctlContainerlocation.Visible()));
-        Observer.Observe('ctlContainerlocation editable', Format(Card.ctlContainerlocation.Editable()));
-        Card.Close();
         Observer.Finish();
     end;
 }
