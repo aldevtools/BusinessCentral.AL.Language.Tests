@@ -99,7 +99,17 @@ codeunit 94972 "LT R6863 Rename Tests"
     begin
         RenameNew(Observer, true);
         RenameNew(Observer, false);
-        Observer.Finish();
+        Observer.Expect('new raise=Yes ok', 'No');
+        Observer.Expect('new raise=Yes|text', 'LT R6863 trigger error');
+        Observer.Expect('new raise=Yes|code', 'Dialog');
+        Observer.Expect('new raise=Yes trigger', 'hits=1 rec-xrec=1000');
+        Observer.Expect('new raise=Yes rec.ID is old', 'No');
+        Observer.Expect('new raise=No ok', 'No');
+        Observer.Expect('new raise=No|text', 'You cannot change the value of an AutoIncrement field.\\Field: ID\Table: LT R6863 Work\\Identification fields and values:\ID=''<new>''');
+        Observer.Expect('new raise=No|code', 'DB:ModifyOnIdentityField');
+        Observer.Expect('new raise=No trigger', 'hits=1 rec-xrec=1000');
+        Observer.Expect('new raise=No rec.ID is old', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -109,7 +119,17 @@ codeunit 94972 "LT R6863 Rename Tests"
     begin
         RenameSame(Observer, true);
         RenameSame(Observer, false);
-        Observer.Finish();
+        Observer.Expect('same raise=Yes ok', 'No');
+        Observer.Expect('same raise=Yes|text', 'LT R6863 trigger error');
+        Observer.Expect('same raise=Yes|code', 'Dialog');
+        Observer.Expect('same raise=Yes trigger', 'hits=1 rec-xrec=0');
+        Observer.Expect('same raise=Yes rec.ID is old', 'Yes');
+        Observer.Expect('same raise=No ok', 'Yes');
+        Observer.Expect('same raise=No|text', 'LT R6863 no error');
+        Observer.Expect('same raise=No|code', 'Dialog');
+        Observer.Expect('same raise=No trigger', 'hits=1 rec-xrec=0');
+        Observer.Expect('same raise=No rec.ID is old', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -119,7 +139,17 @@ codeunit 94972 "LT R6863 Rename Tests"
     begin
         RenameExisting(Observer, true);
         RenameExisting(Observer, false);
-        Observer.Finish();
+        Observer.Expect('existing raise=Yes ok', 'No');
+        Observer.Expect('existing raise=Yes|text', 'LT R6863 trigger error');
+        Observer.Expect('existing raise=Yes|code', 'Dialog');
+        Observer.Expect('existing raise=Yes trigger', 'hits=1 rec-xrec=1');
+        Observer.Expect('existing raise=Yes rec.ID is old', 'No');
+        Observer.Expect('existing raise=No ok', 'No');
+        Observer.Expect('existing raise=No|text', 'You cannot change the value of an AutoIncrement field.\\Field: ID\Table: LT R6863 Work\\Identification fields and values:\ID=''<new>''');
+        Observer.Expect('existing raise=No|code', 'DB:ModifyOnIdentityField');
+        Observer.Expect('existing raise=No trigger', 'hits=1 rec-xrec=1');
+        Observer.Expect('existing raise=No rec.ID is old', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -129,17 +159,43 @@ codeunit 94972 "LT R6863 Rename Tests"
     begin
         RenameMissing(Observer, true);
         RenameMissing(Observer, false);
-        Observer.Finish();
+        Observer.Expect('missing raise=Yes ok', 'No');
+        Observer.Expect('missing raise=Yes|text', 'LT R6863 trigger error');
+        Observer.Expect('missing raise=Yes|code', 'Dialog');
+        Observer.Expect('missing raise=Yes trigger', 'hits=1 rec-xrec=100');
+        Observer.Expect('missing raise=No ok', 'No');
+        Observer.Expect('missing raise=No|text', 'The LT R6863 Work does not exist. Identification fields and values: ID=''<old>''');
+        Observer.Expect('missing raise=No|code', 'DB:RecordNotFound');
+        Observer.Expect('missing raise=No trigger', 'hits=1 rec-xrec=100');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure R6863_Rename_ThroughRecordRef()
+    procedure R6863_Rename_ThroughRecordRef_TriggerRaises()
     var
         Observer: Codeunit "Probe Observer";
     begin
         RenameRef(Observer, true);
+        Observer.Expect('recordref raise=Yes ok', 'No');
+        Observer.Expect('recordref raise=Yes|text', 'LT R6863 trigger error');
+        Observer.Expect('recordref raise=Yes|code', 'Dialog');
+        Observer.Expect('recordref raise=Yes trigger', 'hits=1 rec-xrec=1000');
+        Observer.Expect('recordref raise=Yes rec.ID is old', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6863_Rename_ThroughRecordRef_TriggerQuiet()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         RenameRef(Observer, false);
-        Observer.Finish();
+        Observer.Expect('recordref raise=No ok', 'No');
+        Observer.Expect('recordref raise=No|text', 'You cannot change the value of an AutoIncrement field.\\Field: ID\Table: LT R6863 Work\\Identification fields and values:\ID=''<new>''');
+        Observer.Expect('recordref raise=No|code', 'DB:ModifyOnIdentityField');
+        Observer.Expect('recordref raise=No trigger', 'hits=1 rec-xrec=1000');
+        Observer.Expect('recordref raise=No rec.ID is old', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -149,7 +205,19 @@ codeunit 94972 "LT R6863 Rename Tests"
     begin
         RenameTemp(Observer, true);
         RenameTemp(Observer, false);
-        Observer.Finish();
+        Observer.Expect('temporary raise=Yes ok', 'No');
+        Observer.Expect('temporary raise=Yes|text', 'LT R6863 trigger error');
+        Observer.Expect('temporary raise=Yes|code', 'Dialog');
+        Observer.Expect('temporary raise=Yes trigger', 'hits=1 rec-xrec=1');
+        Observer.Expect('temporary raise=Yes rows', '1');
+        Observer.Expect('temporary raise=Yes rec.ID', '8');
+        Observer.Expect('temporary raise=No ok', 'Yes');
+        Observer.Expect('temporary raise=No|text', 'LT R6863 no error');
+        Observer.Expect('temporary raise=No|code', 'Dialog');
+        Observer.Expect('temporary raise=No trigger', 'hits=1 rec-xrec=1');
+        Observer.Expect('temporary raise=No rows', '1');
+        Observer.Expect('temporary raise=No rec.ID', '8');
+        Observer.Verify();
     end;
 
     local procedure Setup(Raise: Boolean; var W: Record "LT R6863 Work"; var Observer: Codeunit "Probe Observer"; Label: Text)
