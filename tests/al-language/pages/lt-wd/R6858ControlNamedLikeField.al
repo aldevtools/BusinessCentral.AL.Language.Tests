@@ -160,7 +160,7 @@ codeunit 94943 "LT R6858 Control Names"
     end;
 
     [Test]
-    procedure R6858_Read_Status()
+    procedure R6858_Read_NamedStatus()
     var
         Card: TestPage "LT R6858 Card";
     begin
@@ -208,7 +208,7 @@ codeunit 94943 "LT R6858 Control Names"
     end;
 
     [Test]
-    procedure R6858_Read_DocNo()
+    procedure R6858_Read_NamedDocNo()
     var
         Card: TestPage "LT R6858 Card";
     begin
