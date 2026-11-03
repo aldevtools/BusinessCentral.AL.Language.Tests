@@ -745,12 +745,14 @@ def cmd_check(root, base):
                          cwd=root, capture_output=True, text=True, check=True).stdout
     kinds, bad = collections.Counter(), []
     pm = read_map()
+    pure = set()
     for line in txt.splitlines():
         f = line.split('\t')
         k = f[0]
         path = f[-1]
         if k == 'R100':
             kinds['R100'] += 1
+            pure.add(path)
         elif k == 'A' and re.match(r'^tests/al-language/[^/]+/README\.md$', path):
             kinds['README'] += 1
         elif k == 'D' and BUILD_OUTPUT.match(path):
@@ -769,7 +771,7 @@ def cmd_check(root, base):
     if edits:
         # a layout edit may only change quoted paths
         back = {n: o for o, (n, _) in read_map().items()}
-        for path in sorted(edits):
+        for path in sorted(edits - pure):
             d = subprocess.run(['git', '-c', 'diff.renameLimit=20000', 'diff', '--cached', '-M50%', '-U0', base, '--',
                                 back.get(path, path), path],
                                cwd=root, capture_output=True, text=True).stdout
