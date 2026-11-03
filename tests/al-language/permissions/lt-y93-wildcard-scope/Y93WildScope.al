@@ -29,7 +29,19 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('table|control', 'E:LT Y93 W Sys', 20);
         Run('table|W Table', 'E:LT Y93 W Table', 20);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('cu|control',
+            'Sorry, the current permissions prevented the action. (CodeUnit 94980 LT Y93 Cu M1 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('cu|W Cu',
+            'LT Y93 ok ping');
+        Observer.Expect('page|control',
+            'Page LT Y93 Page M1 has to close. | FormAbort:Permission');
+        Observer.Expect('page|W Page',
+            'LT Y93 ok opened');
+        Observer.Expect('table|control',
+            'Sorry, the current permissions prevented the action. (Table 94982 LT Y93 Tab M1 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('table|W Table',
+            'LT Y93 ok ping');
+        Observer.Verify();
     end;
 
     [Test]
@@ -42,7 +54,13 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('tabledata|W Data insert', 'E:LT Y93 W Data', 60);
         Run('tabledata|W Data read', 'E:LT Y93 W Data', 61);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('tabledata|control',
+            'Sorry, the current permissions prevented the action. (TableData 94980 LT Y93 Row Insert: AL Language Coverage Tests) | DB:ClientInsertDenied');
+        Observer.Expect('tabledata|W Data insert',
+            'LT Y93 ok inserted');
+        Observer.Expect('tabledata|W Data read',
+            'LT Y93 ok find No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -58,7 +76,19 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('query|W Query', 'E:LT Y93 W Query', 40);
         Run('query|W Query+Data', 'E:LT Y93 W Qry Data', 40);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('report|control',
+            'Sorry, the current permissions prevented the action. (CodeUnit 44 ReportManagement Execute: ) | DB:ExecuteObjDenied');
+        Observer.Expect('report|W Report',
+            'Sorry, the current permissions prevented the action. (CodeUnit 44 ReportManagement Execute: ) | DB:ExecuteObjDenied');
+        Observer.Expect('report|W Report+Cu',
+            'LT Y93 ok ran');
+        Observer.Expect('query|control',
+            'Sorry, the current permissions prevented the action. (Query 94980 LT Y93 Query M1 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('query|W Query',
+            'LT Y93 ok read No');
+        Observer.Expect('query|W Query+Data',
+            'LT Y93 ok read No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -71,7 +101,13 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('xmlport|W Xml', 'E:LT Y93 W Xml', 50);
         Run('xmlport|W Xml+Data', 'E:LT Y93 W Xml Data', 50);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('xmlport|control',
+            'Sorry, the current permissions prevented the action. (XmlPort 94980 LT Y93 Xml M1 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('xmlport|W Xml',
+            'LT Y93 ok exported');
+        Observer.Expect('xmlport|W Xml+Data',
+            'LT Y93 ok exported');
+        Observer.Verify();
     end;
 
     // A wildcard next to an explicit lower grant on one object, and an excluded permission set.
@@ -88,7 +124,19 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('mixcu|M3 explicit x', 'E:LT Y93 W Mix Cu', 3);
         Run('mixcu|M5 wildcard only', 'E:LT Y93 W Mix Cu', 5);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('mixdata|row insert',
+            'LT Y93 ok inserted');
+        Observer.Expect('mixdata|narrow insert',
+            'LT Y93 ok inserted');
+        Observer.Expect('mixdata|narrow read',
+            'LT Y93 ok find No');
+        Observer.Expect('plaindata|narrow insert',
+            'LT Y93 ok inserted');
+        Observer.Expect('mixcu|M3 explicit x',
+            'LT Y93 ok ping');
+        Observer.Expect('mixcu|M5 wildcard only',
+            'LT Y93 ok ping');
+        Observer.Verify();
     end;
 
     [Test]
@@ -102,7 +150,15 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('excl|row insert', 'E:LT Y93 W Excl', 60);
         Run('excl|row read', 'E:LT Y93 W Excl', 61);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('excl|M4 excluded',
+            'Sorry, the current permissions prevented the action. (CodeUnit 94983 LT Y93 Cu M4 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('excl|M6 other',
+            'LT Y93 ok ping');
+        Observer.Expect('excl|row insert',
+            'Sorry, the current permissions prevented the action. (TableData 94980 LT Y93 Row Insert: AL Language Coverage Tests) | DB:ClientInsertDenied');
+        Observer.Expect('excl|row read',
+            'LT Y93 ok find No');
+        Observer.Verify();
     end;
 
     // A set declared in the main app (LT Y93 W All) used on objects of xapp-a and of Base Application.
@@ -119,7 +175,19 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('xa table|control', 'E:LT Y93 W Sys', 104);
         Run('xa table|W All', 'E:LT Y93 W All', 104);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('xa cu|control',
+            'Sorry, the current permissions prevented the action. (CodeUnit 61170 LT Y93 XA Cu 1 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('xa cu|W All',
+            'LT Y93 ok ping');
+        Observer.Expect('xa page|control',
+            'Page LT Y93 XA Page 1 has to close. | FormAbort:Permission');
+        Observer.Expect('xa page|W All',
+            'LT Y93 ok opened');
+        Observer.Expect('xa table|control',
+            'Sorry, the current permissions prevented the action. (Table 61174 LT Y93 XA Tab 1 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('xa table|W All',
+            'LT Y93 ok ping');
+        Observer.Verify();
     end;
 
     [Test]
@@ -134,7 +202,17 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('xa report|control', 'E:LT Y93 W Sys', 106);
         Run('xa report|W All', 'E:LT Y93 W All', 106);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('xa td insert|control',
+            'Sorry, the current permissions prevented the action. (TableData 61173 LT Y93 XA Row Insert: AL Language Coverage Tests) | DB:ClientInsertDenied');
+        Observer.Expect('xa td insert|W Data',
+            'LT Y93 ok inserted');
+        Observer.Expect('xa td read|W Data',
+            'LT Y93 ok find No');
+        Observer.Expect('xa report|control',
+            'Sorry, the current permissions prevented the action. (Report 61170 LT Y93 XA Report 1 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('xa report|W All',
+            'LT Y93 ok ran');
+        Observer.Verify();
     end;
 
     [Test]
@@ -150,7 +228,19 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('base cu|control', 'E:LT Y93 W Sys', 201);
         Run('base cu|W All', 'E:LT Y93 W All', 201);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('xa query|control',
+            'Sorry, the current permissions prevented the action. (Query 61170 LT Y93 XA Query 1 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('xa query|W All',
+            'LT Y93 ok read No');
+        Observer.Expect('xa xmlport|control',
+            'Sorry, the current permissions prevented the action. (XmlPort 61170 LT Y93 XA Xml 1 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('xa xmlport|W All',
+            'LT Y93 ok exported');
+        Observer.Expect('base cu|control',
+            'Sorry, the current permissions prevented the action. (CodeUnit 7600 Calendar Management Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('base cu|W All',
+            'LT Y93 ok 12/31/9999');
+        Observer.Verify();
     end;
 
     [Test]
@@ -166,7 +256,17 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('base table|control', 'E:LT Y93 W Sys', 206);
         Run('base table|W All', 'E:LT Y93 W All', 206);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('sysapp cu|control',
+            'LT Y93 ok YQ==');
+        Observer.Expect('sysapp cu|W All',
+            'LT Y93 ok YQ==');
+        Observer.Expect('base page|control',
+            'Page Units of Measure has to close. | FormAbort:Permission');
+        Observer.Expect('base page|W All',
+            'LT Y93 ok opened');
+        Observer.Ignore('base table|control');
+        Observer.Ignore('base table|W All');
+        Observer.Verify();
     end;
 
     [Test]
@@ -179,7 +279,13 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('base td insert|W Data', 'E:LT Y93 W Data', 208);
         Run('base td read|W Data', 'E:LT Y93 W Data', 209);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('base td insert|control',
+            'Sorry, the current permissions prevented the action. (TableData 204 Unit of Measure Insert: AL Language Coverage Tests) | DB:ClientInsertDenied');
+        Observer.Expect('base td insert|W Data',
+            'LT Y93 ok inserted');
+        Observer.Expect('base td read|W Data',
+            'LT Y93 ok find Yes');
+        Observer.Verify();
     end;
 
     // A set declared in xapp-a (LT Y93 XA All) used on objects of the main app, of xapp-a and of Base Application.
@@ -196,7 +302,19 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('main table|control', 'E:LT Y93 W Sys', 21);
         Run('main table|XA All', 'E:LT Y93 XA All', 21);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('main cu|control',
+            'Sorry, the current permissions prevented the action. (CodeUnit 94981 LT Y93 Cu M2 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('main cu|XA All',
+            'LT Y93 ok ping');
+        Observer.Expect('main page|control',
+            'Page LT Y93 Page M2 has to close. | FormAbort:Permission');
+        Observer.Expect('main page|XA All',
+            'LT Y93 ok opened');
+        Observer.Expect('main table|control',
+            'Sorry, the current permissions prevented the action. (Table 94983 LT Y93 Tab M2 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('main table|XA All',
+            'LT Y93 ok ping');
+        Observer.Verify();
     end;
 
     [Test]
@@ -212,7 +330,19 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('main query|control', 'E:LT Y93 W Sys', 41);
         Run('main query|XA All', 'E:LT Y93 XA All', 41);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('main td insert|control',
+            'Sorry, the current permissions prevented the action. (TableData 94981 LT Y93 Row Narrow Insert: AL Language Coverage Tests) | DB:ClientInsertDenied');
+        Observer.Expect('main td insert|XA All',
+            'LT Y93 ok inserted');
+        Observer.Expect('main report|control',
+            'Sorry, the current permissions prevented the action. (Report 94981 LT Y93 Report M2 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('main report|XA All',
+            'LT Y93 ok ran');
+        Observer.Expect('main query|control',
+            'Sorry, the current permissions prevented the action. (Query 94981 LT Y93 Query M2 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('main query|XA All',
+            'LT Y93 ok read No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -224,7 +354,11 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('main xmlport|control', 'E:LT Y93 W Sys', 51);
         Run('main xmlport|XA All', 'E:LT Y93 XA All', 51);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('main xmlport|control',
+            'Sorry, the current permissions prevented the action. (XmlPort 94981 LT Y93 Xml M2 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('main xmlport|XA All',
+            'LT Y93 ok exported');
+        Observer.Verify();
     end;
 
     [Test]
@@ -240,7 +374,19 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('xa table|control', 'E:LT Y93 W Sys', 105);
         Run('xa table|XA All', 'E:LT Y93 XA All', 105);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('xa cu|control',
+            'Sorry, the current permissions prevented the action. (CodeUnit 61171 LT Y93 XA Cu 2 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('xa cu|XA All',
+            'LT Y93 ok ping');
+        Observer.Expect('xa page|control',
+            'Page LT Y93 XA Page 2 has to close. | FormAbort:Permission');
+        Observer.Expect('xa page|XA All',
+            'LT Y93 ok opened');
+        Observer.Expect('xa table|control',
+            'Sorry, the current permissions prevented the action. (Table 61175 LT Y93 XA Tab 2 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('xa table|XA All',
+            'LT Y93 ok ping');
+        Observer.Verify();
     end;
 
     [Test]
@@ -256,7 +402,19 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('xa query|XA All', 'E:LT Y93 XA All', 109);
         Run('xa xmlport|control', 'E:LT Y93 W Sys', 111);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('xa td insert|XA All',
+            'LT Y93 ok inserted');
+        Observer.Expect('xa report|control',
+            'Sorry, the current permissions prevented the action. (Report 61171 LT Y93 XA Report 2 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('xa report|XA All',
+            'LT Y93 ok ran');
+        Observer.Expect('xa query|control',
+            'Sorry, the current permissions prevented the action. (Query 61171 LT Y93 XA Query 2 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('xa query|XA All',
+            'LT Y93 ok read No');
+        Observer.Expect('xa xmlport|control',
+            'Sorry, the current permissions prevented the action. (XmlPort 61171 LT Y93 XA Xml 2 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -267,7 +425,9 @@ codeunit 94998 "LT Y93 Wild Scope"
         WasStarted := StartMock();
         Run('xa xmlport|XA All', 'E:LT Y93 XA All', 111);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('xa xmlport|XA All',
+            'LT Y93 ok exported');
+        Observer.Verify();
     end;
 
     [Test]
@@ -283,7 +443,19 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('base page|control', 'E:LT Y93 W Sys', 205);
         Run('base page|XA All', 'E:LT Y93 XA All', 205);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('base cu|control',
+            'Sorry, the current permissions prevented the action. (CodeUnit 365 Format Address Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('base cu|XA All',
+            'LT Y93 ok 1 Y93');
+        Observer.Expect('sysapp cu|control',
+            'LT Y93 ok Web');
+        Observer.Expect('sysapp cu|XA All',
+            'LT Y93 ok Web');
+        Observer.Expect('base page|control',
+            'Page Payment Terms has to close. | FormAbort:Permission');
+        Observer.Expect('base page|XA All',
+            'LT Y93 ok opened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -296,7 +468,12 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('base table|XA All', 'E:LT Y93 XA All', 207);
         Run('base td insert|XA All', 'E:LT Y93 XA All', 210);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Ignore('base table|control');
+        Observer.Expect('base table|XA All',
+            'LT Y93 ok Yes');
+        Observer.Expect('base td insert|XA All',
+            'LT Y93 ok inserted');
+        Observer.Verify();
     end;
 
     // Set (adds all objects) and Assign next to SetExactPermissionSet, with a set that names no object of the call.
@@ -313,7 +490,19 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('set W Data|xa row insert', 'S:LT Y93 W Data', 112);
         Run('set W Data|base insert', 'S:LT Y93 W Data', 208);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('set W Sys|cu',
+            'LT Y93 ok ping');
+        Observer.Expect('assign W Sys|cu',
+            'Sorry, the current permissions prevented the action. (CodeUnit 94987 LT Y93 Cu M8 Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('set W Sys|row insert',
+            'Sorry, the current permissions prevented the action. (TableData 94980 LT Y93 Row Insert: AL Language Coverage Tests) | DB:ClientInsertDenied');
+        Observer.Expect('set W Data|row insert',
+            'LT Y93 ok inserted');
+        Observer.Expect('set W Data|xa row insert',
+            'LT Y93 ok inserted');
+        Observer.Expect('set W Data|base insert',
+            'LT Y93 ok inserted');
+        Observer.Verify();
     end;
 
     [Test]
@@ -326,7 +515,13 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('assign W Data|xa row insert', 'A:LT Y93 W Data', 112);
         Run('assign W Data|base insert', 'A:LT Y93 W Data', 208);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('assign W Data|row insert',
+            'LT Y93 ok inserted');
+        Observer.Expect('assign W Data|xa row insert',
+            'LT Y93 ok inserted');
+        Observer.Expect('assign W Data|base insert',
+            'LT Y93 ok inserted');
+        Observer.Verify();
     end;
 
     // tabledata * = rimd (indirect) and a codeunit with the Permissions property.
@@ -343,7 +538,19 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('indcu|no cu grant', 'E:LT Y93 W Ind', 300);
         Run('indcu|via own', 'E:LT Y93 W Ind Cu', 300);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('ind|row insert',
+            'Sorry, the current permissions prevented the action. (TableData 94980 LT Y93 Row Insert: AL Language Coverage Tests) | DB:ClientInsertDenied');
+        Observer.Expect('ind|xa row insert',
+            'Sorry, the current permissions prevented the action. (TableData 61173 LT Y93 XA Row Insert: AL Language Coverage Tests) | DB:ClientInsertDenied');
+        Observer.Expect('ind|base insert',
+            'Sorry, the current permissions prevented the action. (TableData 204 Unit of Measure Insert: AL Language Coverage Tests) | DB:ClientInsertDenied');
+        Observer.Expect('ind|row read',
+            'LT Y93 ok find No');
+        Observer.Expect('indcu|no cu grant',
+            'Sorry, the current permissions prevented the action. (CodeUnit 94988 LT Y93 Cu Ind Execute: AL Language Coverage Tests) | DB:ExecuteObjDenied');
+        Observer.Expect('indcu|via own',
+            'LT Y93 ok inserted');
+        Observer.Verify();
     end;
 
     [Test]
@@ -356,7 +563,13 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('indcu|via base', 'E:LT Y93 W Ind Cu', 302);
         Run('indcu|no ind set', 'E:LT Y93 W Cu', 300);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('indcu|via xa',
+            'LT Y93 ok inserted');
+        Observer.Expect('indcu|via base',
+            'LT Y93 ok inserted');
+        Observer.Expect('indcu|no ind set',
+            'Sorry, the current permissions prevented the action. (TableData 94980 LT Y93 Row IndirectInsert: AL Language Coverage Tests) | DB:ClientInsertDenied');
+        Observer.Verify();
     end;
 
     // The neighbour of al-runner issue 6867: a page whose OnOpenPage calls a codeunit of the test app.
@@ -372,7 +585,17 @@ codeunit 94998 "LT Y93 Wild Scope"
         Run('q4 Exact W All', 'E:LT Y93 W All', 73);
         Run('q5 Exact basic', 'E:D365 BASIC', 74);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('q1 Set basic',
+            'LT Y93 ok opened');
+        Observer.Expect('q2 Set basic + Assign W Cu',
+            'LT Y93 ok opened');
+        Observer.Expect('q3 Exact basic + Assign W All',
+            'LT Y93 ok opened');
+        Observer.Expect('q4 Exact W All',
+            'LT Y93 ok opened');
+        Observer.Expect('q5 Exact basic',
+            'LT Y93 ok opened');
+        Observer.Verify();
     end;
 
     local procedure Run(Tag: Text; Spec: Text; Which: Integer)

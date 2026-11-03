@@ -31,7 +31,11 @@ codeunit 94999 "LT Y93 Wild Effective"
         Collect('LT Y93 W Page');
         RestoreMock(WasStarted);
         Flush();
-        Observer.Finish();
+        Observer.Expect('LT Y93 W Cu',
+            'cuM=----X cuA=----X cuB=----X pgM=----- pgA=----- pgB=----- tblM=----- tblA=----- tblB=----- tdM=----- tdA=----- tdB=----- repM=----- repA=----- repB=----- qryM=----- qryA=----- qryB=----- xmlM=----- xmlA=----- xmlB=----- cuS=----X tdN=----- sys6110=----- sys5810=----- sys9026=-----');
+        Observer.Expect('LT Y93 W Page',
+            'cuM=----- cuA=----- cuB=----- pgM=----X pgA=----X pgB=----X tblM=----- tblA=----- tblB=----- tdM=----- tdA=----- tdB=----- repM=----- repA=----- repB=----- qryM=----- qryA=----- qryB=----- xmlM=----- xmlA=----- xmlB=----- cuS=----X tdN=----- sys6110=----- sys5810=----- sys9026=-----');
+        Observer.Verify();
     end;
 
     [Test]
@@ -48,7 +52,11 @@ codeunit 94999 "LT Y93 Wild Effective"
         Collect('LT Y93 W Data');
         RestoreMock(WasStarted);
         Flush();
-        Observer.Finish();
+        Observer.Expect('LT Y93 W Table',
+            'cuM=----- cuA=----- cuB=----- pgM=----- pgA=----- pgB=----- tblM=----X tblA=----X tblB=----X tdM=----- tdA=----- tdB=----- repM=----- repA=----- repB=----- qryM=----- qryA=----- qryB=----- xmlM=----- xmlA=----- xmlB=----- cuS=----X tdN=----- sys6110=----- sys5810=----- sys9026=-----');
+        Observer.Expect('LT Y93 W Data',
+            'cuM=----- cuA=----- cuB=----- pgM=----- pgA=----- pgB=----- tblM=----- tblA=----- tblB=----- tdM=RIMD- tdA=RIMD- tdB=RIMD- repM=----- repA=----- repB=----- qryM=----- qryA=----- qryB=----- xmlM=----- xmlA=----- xmlB=----- cuS=----X tdN=RIMD- sys6110=----- sys5810=----- sys9026=-----');
+        Observer.Verify();
     end;
 
     [Test]
@@ -65,7 +73,11 @@ codeunit 94999 "LT Y93 Wild Effective"
         Collect('LT Y93 W Query');
         RestoreMock(WasStarted);
         Flush();
-        Observer.Finish();
+        Observer.Expect('LT Y93 W Report',
+            'cuM=----- cuA=----- cuB=----- pgM=----- pgA=----- pgB=----- tblM=----- tblA=----- tblB=----- tdM=----- tdA=----- tdB=----- repM=----X repA=----X repB=----X qryM=----- qryA=----- qryB=----- xmlM=----- xmlA=----- xmlB=----- cuS=----X tdN=----- sys6110=----- sys5810=----- sys9026=-----');
+        Observer.Expect('LT Y93 W Query',
+            'cuM=----- cuA=----- cuB=----- pgM=----- pgA=----- pgB=----- tblM=----- tblA=----- tblB=----- tdM=----- tdA=----- tdB=----- repM=----- repA=----- repB=----- qryM=----X qryA=----X qryB=----X xmlM=----- xmlA=----- xmlB=----- cuS=----X tdN=----- sys6110=----- sys5810=----- sys9026=-----');
+        Observer.Verify();
     end;
 
     [Test]
@@ -82,7 +94,11 @@ codeunit 94999 "LT Y93 Wild Effective"
         Collect('LT Y93 W Sys');
         RestoreMock(WasStarted);
         Flush();
-        Observer.Finish();
+        Observer.Expect('LT Y93 W Xml',
+            'cuM=----- cuA=----- cuB=----- pgM=----- pgA=----- pgB=----- tblM=----- tblA=----- tblB=----- tdM=----- tdA=----- tdB=----- repM=----- repA=----- repB=----- qryM=----- qryA=----- qryB=----- xmlM=----X xmlA=----X xmlB=----X cuS=----X tdN=----- sys6110=----- sys5810=----- sys9026=-----');
+        Observer.Expect('LT Y93 W Sys',
+            'cuM=----- cuA=----- cuB=----- pgM=----- pgA=----- pgB=----- tblM=----- tblA=----- tblB=----- tdM=----- tdA=----- tdB=----- repM=----- repA=----- repB=----- qryM=----- qryA=----- qryB=----- xmlM=----- xmlA=----- xmlB=----- cuS=----X tdN=----- sys6110=----X sys5810=----X sys9026=----X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -99,7 +115,11 @@ codeunit 94999 "LT Y93 Wild Effective"
         Collect('LT Y93 XA All');
         RestoreMock(WasStarted);
         Flush();
-        Observer.Finish();
+        Observer.Expect('LT Y93 W All',
+            'cuM=----X cuA=----X cuB=----X pgM=----X pgA=----X pgB=----X tblM=----X tblA=----X tblB=----X tdM=RIMD- tdA=RIMD- tdB=RIMD- repM=----X repA=----X repB=----X qryM=----X qryA=----X qryB=----X xmlM=----X xmlA=----X xmlB=----X cuS=----X tdN=RIMD- sys6110=----X sys5810=----X sys9026=----X');
+        Observer.Expect('LT Y93 XA All',
+            'cuM=----X cuA=----X cuB=----X pgM=----X pgA=----X pgB=----X tblM=----X tblA=----X tblB=----X tdM=RIMD- tdA=RIMD- tdB=RIMD- repM=----X repA=----X repB=----X qryM=----X qryA=----X qryB=----X xmlM=----X xmlA=----X xmlB=----X cuS=----X tdN=RIMD- sys6110=----X sys5810=----X sys9026=----X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -116,7 +136,11 @@ codeunit 94999 "LT Y93 Wild Effective"
         Collect('LT Y93 W Mix Data');
         RestoreMock(WasStarted);
         Flush();
-        Observer.Finish();
+        Observer.Expect('LT Y93 W Ind',
+            'cuM=----- cuA=----- cuB=----- pgM=----- pgA=----- pgB=----- tblM=----- tblA=----- tblB=----- tdM=rimd- tdA=rimd- tdB=rimd- repM=----- repA=----- repB=----- qryM=----- qryA=----- qryB=----- xmlM=----- xmlA=----- xmlB=----- cuS=----X tdN=rimd- sys6110=----- sys5810=----- sys9026=-----');
+        Observer.Expect('LT Y93 W Mix Data',
+            'cuM=----- cuA=----- cuB=----- pgM=----- pgA=----- pgB=----- tblM=----- tblA=----- tblB=----- tdM=RIMD- tdA=RIMD- tdB=RIMD- repM=----- repA=----- repB=----- qryM=----- qryA=----- qryB=----- xmlM=----- xmlA=----- xmlB=----- cuS=----X tdN=RIMD- sys6110=----- sys5810=----- sys9026=-----');
+        Observer.Verify();
     end;
 
     [Test]
@@ -133,7 +157,11 @@ codeunit 94999 "LT Y93 Wild Effective"
         Collect('LT Y93 W Excl');
         RestoreMock(WasStarted);
         Flush();
-        Observer.Finish();
+        Observer.Expect('LT Y93 W Mix Cu',
+            'cuM=----X cuA=----X cuB=----X pgM=----- pgA=----- pgB=----- tblM=----- tblA=----- tblB=----- tdM=----- tdA=----- tdB=----- repM=----- repA=----- repB=----- qryM=----- qryA=----- qryB=----- xmlM=----- xmlA=----- xmlB=----- cuS=----X tdN=----- sys6110=----- sys5810=----- sys9026=-----');
+        Observer.Expect('LT Y93 W Excl',
+            'cuM=----X cuA=----X cuB=----X pgM=----X pgA=----X pgB=----X tblM=----X tblA=----X tblB=----X tdM=R-MD- tdA=RIMD- tdB=RIMD- repM=----X repA=----X repB=----X qryM=----X qryA=----X qryB=----X xmlM=----X xmlA=----X xmlB=----X cuS=----X tdN=RIMD- sys6110=----X sys5810=----X sys9026=----X');
+        Observer.Verify();
     end;
 
     // Permission sets that Microsoft ships (declared in Base Application), exact: do they reach the objects of this app?
@@ -151,7 +179,11 @@ codeunit 94999 "LT Y93 Wild Effective"
         Collect('D365 READ');
         RestoreMock(WasStarted);
         Flush();
-        Observer.Finish();
+        Observer.Expect('D365 BASIC',
+            'cuM=----X cuA=----X cuB=----X pgM=----X pgA=----X pgB=----X tblM=----X tblA=----X tblB=----X tdM=----- tdA=----- tdB=RIMD- repM=----X repA=----X repB=----X qryM=----X qryA=----X qryB=----X xmlM=----X xmlA=----X xmlB=----X cuS=----X tdN=----- sys6110=----- sys5810=----- sys9026=-----');
+        Observer.Expect('D365 READ',
+            'cuM=----X cuA=----X cuB=----X pgM=----X pgA=----X pgB=----X tblM=----X tblA=----X tblB=----X tdM=----- tdA=----- tdB=R---- repM=----X repA=----X repB=----X qryM=----X qryA=----X qryB=----X xmlM=----X xmlA=----X xmlB=----X cuS=----X tdN=----- sys6110=----- sys5810=----X sys9026=-----');
+        Observer.Verify();
     end;
 
     // Set and Assign (not exact) with a set that names no object of the call.
@@ -170,7 +202,11 @@ codeunit 94999 "LT Y93 Wild Effective"
         Collect('Assign W Sys');
         RestoreMock(WasStarted);
         Flush();
-        Observer.Finish();
+        Observer.Expect('Set W Sys',
+            'cuM=----X cuA=----X cuB=----X pgM=----X pgA=----X pgB=----X tblM=----X tblA=----X tblB=----X tdM=----- tdA=----- tdB=----- repM=----X repA=----X repB=----X qryM=----X qryA=----X qryB=----X xmlM=----X xmlA=----X xmlB=----X cuS=----X tdN=----- sys6110=----X sys5810=----X sys9026=----X');
+        Observer.Expect('Assign W Sys',
+            'cuM=----- cuA=----- cuB=----- pgM=----- pgA=----- pgB=----- tblM=----- tblA=----- tblB=----- tdM=----- tdA=----- tdB=----- repM=----- repA=----- repB=----- qryM=----- qryA=----- qryB=----- xmlM=----- xmlA=----- xmlB=----- cuS=----X tdN=----- sys6110=----X sys5810=----X sys9026=----X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -188,7 +224,11 @@ codeunit 94999 "LT Y93 Wild Effective"
         Collect('Assign W Data');
         RestoreMock(WasStarted);
         Flush();
-        Observer.Finish();
+        Observer.Expect('Set W Data',
+            'cuM=----X cuA=----X cuB=----X pgM=----X pgA=----X pgB=----X tblM=----X tblA=----X tblB=----X tdM=RIMD- tdA=RIMD- tdB=RIMD- repM=----X repA=----X repB=----X qryM=----X qryA=----X qryB=----X xmlM=----X xmlA=----X xmlB=----X cuS=----X tdN=RIMD- sys6110=----- sys5810=----- sys9026=-----');
+        Observer.Expect('Assign W Data',
+            'cuM=----- cuA=----- cuB=----- pgM=----- pgA=----- pgB=----- tblM=----- tblA=----- tblB=----- tdM=RIMD- tdA=RIMD- tdB=RIMD- repM=----- repA=----- repB=----- qryM=----- qryA=----- qryB=----- xmlM=----- xmlA=----- xmlB=----- cuS=----X tdN=RIMD- sys6110=----- sys5810=----- sys9026=-----');
+        Observer.Verify();
     end;
 
     local procedure Collect(Tag: Text)
