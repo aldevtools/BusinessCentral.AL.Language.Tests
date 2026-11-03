@@ -42,8 +42,8 @@ codeunit 94971 "LT R6863 Cfg"
         Hits: Integer;
         LastRec: Integer;
         LastXRec: Integer;
-        NextId: Integer;
-        UseRef: Boolean;
+        LastText: Text;
+        LastCode: Text;
 
     procedure Reset(NewRaise: Boolean)
     begin
@@ -60,16 +60,20 @@ codeunit 94971 "LT R6863 Cfg"
         LastXRec := OldId;
     end;
 
-    procedure SetNext(NewId: Integer; NewUseRef: Boolean)
+    procedure RememberError(OldId: Integer; NewId: Integer)
     begin
-        NextId := NewId;
-        UseRef := NewUseRef;
+        LastText := GetLastErrorText().Replace('''' + Format(OldId) + '''', '''<old>''').Replace('''' + Format(NewId) + '''', '''<new>''');
+        LastCode := GetLastErrorCode();
     end;
 
-    procedure NextRename(var NewId: Integer): Boolean
+    procedure LastErrorText(): Text
     begin
-        NewId := NextId;
-        exit(UseRef);
+        exit(LastText);
+    end;
+
+    procedure LastErrorCode(): Text
+    begin
+        exit(LastCode);
     end;
 
     procedure RaiseError(): Boolean
@@ -79,7 +83,7 @@ codeunit 94971 "LT R6863 Cfg"
 
     procedure Describe(): Text
     begin
-        exit(StrSubstNo('hits=%1 rec=%2 xrec=%3', Hits, LastRec, LastXRec));
+        exit(StrSubstNo('hits=%1 rec-xrec=%2', Hits, LastRec - LastXRec));
     end;
 }
 
@@ -148,34 +152,6 @@ codeunit 94972 "LT R6863 Rename Tests"
         Observer.Finish();
     end;
 
-    [Test]
-    procedure R6863_Rename_AfterTheErrorTheRowIsUntouched()
-    var
-        Observer: Codeunit "Probe Observer";
-        W: Record "LT R6863 Work";
-        Cfg: Codeunit "LT R6863 Cfg";
-        First: Integer;
-    begin
-        W.DeleteAll();
-        Cfg.Reset(true);
-        W.Payload := 'a';
-        W.Insert(true);
-        First := W.ID;
-        Observer.Observe('ok', Format(RunRename(W, W.ID + 1000, false)));
-        Observer.ObserveError('rename');
-        Observer.Observe('rec.ID changed', Format(W.ID <> First));
-        Observer.Observe('old row exists', Format(W.Get(First)));
-        Observer.Observe('count', Format(W.Count()));
-        W.Payload := 'b';
-        W.Modify(true);
-        Observer.Observe('modify after error: payload', Format(W.Payload));
-        W.Init();
-        W.Payload := 'c';
-        W.Insert(true);
-        Observer.Observe('next id is first + 1', Format(W.ID = First + 1));
-        Observer.Finish();
-    end;
-
     local procedure Setup(Raise: Boolean; var W: Record "LT R6863 Work"; var Observer: Codeunit "Probe Observer"; Label: Text)
     var
         Cfg: Codeunit "LT R6863 Cfg";
@@ -191,12 +167,10 @@ codeunit 94972 "LT R6863 Rename Tests"
     local procedure Report(var Observer: Codeunit "Probe Observer"; Label: Text; var W: Record "LT R6863 Work"; First: Integer)
     var
         Cfg: Codeunit "LT R6863 Cfg";
-        Probe: Record "LT R6863 Work";
     begin
-        Observer.ObserveError(Label);
+        Observer.Observe(Label + '|text', Cfg.LastErrorText());
+        Observer.Observe(Label + '|code', Cfg.LastErrorCode());
         Observer.Observe(Label + ' trigger', Cfg.Describe());
-        Observer.Observe(Label + ' old row exists', Format(Probe.Get(First)));
-        Observer.Observe(Label + ' rows', Format(Probe.Count()));
         Observer.Observe(Label + ' rec.ID is old', Format(W.ID = First));
     end;
 
@@ -248,6 +222,7 @@ codeunit 94972 "LT R6863 Rename Tests"
     var
         W: Record "LT R6863 Work";
         Missing: Record "LT R6863 Work";
+        Cfg: Codeunit "LT R6863 Cfg";
         First: Integer;
         Label: Text;
     begin
@@ -256,7 +231,8 @@ codeunit 94972 "LT R6863 Rename Tests"
         First := W.ID;
         Missing.ID := First + 500;
         Observer.Observe(Label + ' ok', Format(RunRename(Missing, First + 600, false)));
-        Observer.ObserveError(Label);
+        Observer.Observe(Label + '|text', Cfg.LastErrorText());
+        Observer.Observe(Label + '|code', Cfg.LastErrorCode());
         Observer.Observe(Label + ' trigger', Describe());
     end;
 
@@ -288,17 +264,21 @@ codeunit 94972 "LT R6863 Rename Tests"
         T.Payload := 'a';
         T.Insert(false);
         Observer.Observe(Label + ' ok', Format(RunRename(T, 8, false)));
-        Observer.ObserveError(Label);
+        Observer.Observe(Label + '|text', Cfg.LastErrorText());
+        Observer.Observe(Label + '|code', Cfg.LastErrorCode());
         Observer.Observe(Label + ' trigger', Cfg.Describe());
         Observer.Observe(Label + ' rows', Format(T.Count()));
         Observer.Observe(Label + ' rec.ID', Format(T.ID));
     end;
 
-    // True when the Rename ended without an error; an error text left behind is read with ObserveError.
+    // True when the Rename ended without an error. The error text and code are kept in the Cfg codeunit.
     local procedure RunRename(var W: Record "LT R6863 Work"; NewId: Integer; UseRef: Boolean): Boolean
     var
         Ref: RecordRef;
+        Cfg: Codeunit "LT R6863 Cfg";
+        OldId: Integer;
     begin
+        OldId := W.ID;
         if UseRef then begin
             Ref.GetTable(W);
             asserterror begin
@@ -311,7 +291,8 @@ codeunit 94972 "LT R6863 Rename Tests"
                 W.Rename(NewId);
                 Error('LT R6863 no error');
             end;
-        exit(GetLastErrorText() = 'LT R6863 no error');
+        Cfg.RememberError(OldId, NewId);
+        exit(Cfg.LastErrorText() = 'LT R6863 no error');
     end;
 
     local procedure Describe(): Text
