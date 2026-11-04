@@ -23,7 +23,7 @@ Thank you for contributing! This repo is an executable specification proving AL 
 
 **Positive tests** — prove an AL language feature works correctly in BC Cloud. This is the primary contribution type. See the in-scope list in [CLAUDE.md](CLAUDE.md#in-scope-and-out-of-scope) for what belongs here.
 
-**Negative tests (out-of-scope)** — prove that Cloud-restricted features throw the expected error. One test per surface area, placed in `tests/al-language/out-of-scope/`. Do not add more than one per feature.
+**Negative tests (out-of-scope)** — prove that Cloud-restricted features throw the expected error. One test per surface area, placed in the area of the feature (see [Standing rules for new tests](#standing-rules-for-new-tests)). Do not add more than one per feature.
 
 If you are unsure whether something is in scope, open an issue first and describe what you want to test.
 
@@ -40,13 +40,13 @@ Every `[Test]` procedure must satisfy:
 
 ### File structure
 
-One codeunit per file, one behavioral claim per codeunit:
+One codeunit per file. One claim per test procedure, and many test procedures per codeunit of a topic:
 
 ```al
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/
 //   dev-itpro/developer/methods-auto/record/record-insert-boolean-method
 // Scope: in-scope (Cloud-compatible)
-// Fixtures used: ALT Universal (50900)
+// Fixtures used: ALT Universal (60000)
 // BC versions: 27.5+
 
 codeunit 60XXX "Record Insert Tests"
@@ -81,9 +81,54 @@ codeunit 60XXX "Record Insert Tests"
 ### Rules
 
 - **`Initialize()` first** — every `[Test]` procedure must call `Initialize()` as its first line. `Initialize()` must call `DeleteAll()` on every table used by the codeunit.
-- **No per-test fixture definitions** — only use shared objects from `_fixtures/`. Never define tables, enums, pages, or codeunits in a test file.
-- **One claim per codeunit** — a file named `TestRecordInsert.al` should only test `Record.Insert`.
+- **Shared fixtures first** — use the objects in `_fixtures/`; a local object needs a `// local object: <reason>` line (standing rule 2).
+- **One claim per test procedure** — the test name states the claim; a codeunit holds many tests of one topic.
 - **Doc-link comment** — the top-of-file comment block must link to the relevant BC documentation page.
+
+### Standing rules for new tests
+
+The owner accepted these rules on 2026-11-03 for the corpus restructure. They replace the older habit of one folder per writer or
+batch, and the old rules "one claim per codeunit" and "never define an object in a test file".
+
+1. **Placement.** Every test file lives in `tests/<app>/<area>/<topic>/`. The areas are:
+   `_fixtures`, `language`, `types`, `format-evaluate`, `text`, `collections`, `json`, `xml`, `http`, `streams`, `record`,
+   `recordref-fieldref`, `table-objects`, `codeunits`, `events`, `errors`, `pages`, `testpage`, `ui-handlers`, `reports`,
+   `xmlports`, `queries`, `session-system`, `metadata`, `permissions`, `install-upgrade`, `localization`, `profiles`,
+   `controladdins`, `test-framework`. The OnPrem, OnPrem DotNet and TestLibraries apps use the same area names (DotNet tests go to
+   `dotnet/<topic>`). A test that proves a call throws goes into the area of the feature; there is no separate out-of-scope folder.
+   A new topic needs a one-line entry in the area README in the same pull request. A folder name never carries a writer id, an
+   issue number or a batch name (`lt-y66-...`, `lt-wb-6291`, `ms-refusals-131`, `probes-needed-N`, `odd-leads`, `triage`).
+   The move pull request of the restructure creates the area folders and their READMEs.
+2. **Fixture first.** Use a shared object from `_fixtures/` unless one of these is true:
+   - the object's own definition is what the test checks (a property, a trigger or the shape of a field);
+   - the test asserts the object's name, id, caption or field names;
+   - the test must commit, run in another session or install;
+   - the test enumerates fields or keys.
+
+   A file that defines its own object for one of these reasons says so in one line: `// local object: <reason>`.
+3. **Object budget.** A new test codeunit may add at most 3 objects that are not tests (tables, pages, reports, xmlports and so on)
+   without the `// local object:` line. Enforced by an object budget check in CI (added in a later restructure pull request).
+   Shared fixtures do not change once they are merged: never change their fields, keys or triggers. Add a new fixture instead,
+   with an id in 50000..50999.
+4. **Look for a duplicate before writing.** Run `find-similar.py <draft>`: it lists existing tests with the same calls and asserted
+   values (enforced by `find-similar.py`, added in a later restructure pull request; until then, search the corpus by hand). When it
+   finds one, cite the existing test and write nothing.
+5. **Extend the existing codeunit, at its end.** Add `[Test]` procedures to the existing codeunit of the topic (writers claim the
+   topic first, as today), always at the end of the codeunit. Never insert lines above existing code in a line-sensitive file
+   (other projects cite its line numbers); the area README lists those files.
+6. **Keys never change.** Never renumber a codeunit, and never rename a `[Test]` procedure or a must-not-compile case: the codeunit id
+   and the test name (or the case file name) are the key of a result. Moving a file is fine. Removing or merging a test needs a line
+   in `tests/rename-map.tsv` and a green `Coverage facts must not shrink` check (`.github/scripts/facts.py`). When real BC does
+   something else than a test asserted and the test is corrected, the old asserted fact is gone too: add a line to
+   `tests/facts-changes.tsv` (test key, old fact, new fact, reason; the check's report prints the start of the line). Both files
+   are append-only, and the owner reviews their new lines in each pull request. The check is advisory (not a required check)
+   during the corpus restructure; it becomes a required check after the restructure ends.
+7. **Names.** A new object is named `<area code> <topic> <role>` (for example `REC SetFilter Row`), and the name is unique.
+   Existing names stay. Id blocks stay per writer: they are only a way to hand out ids.
+8. **README.** A pull request that adds a topic, a shared fixture or a must-not-compile case updates the area README. A new
+   must-not-compile case also adds its line `<file stem><TAB><area>` to `tests/must-not-compile/areas.tsv`.
+9. **No build outputs.** Do not commit build outputs or generated layouts (`.app` files, `bc-full-results.json`).
+   One claim per test procedure; many test procedures per codeunit of a topic.
 
 ---
 
@@ -91,16 +136,15 @@ codeunit 60XXX "Record Insert Tests"
 
 ### Files
 
-`Test<TypeName><Aspect>.al` — placed in the matching area subfolder:
+`Test<TypeName><Aspect>.al` — placed in `<area>/<topic>/` of its app (standing rule 1):
 
 ```
 tests/al-language/
-  record/          TestRecordInsert.al, TestRecordFindFirst.al
-  json/            TestJsonObjectGet.al, TestJsonArrayAdd.al
-  query/           TestQueryOpen.al, TestQueryFilters.al
-  xml/             TestXmlDocumentLoad.al
-  text/            TestTextBuilderAppend.al
-  out-of-scope/    TestFileSystemThrows.al, TestHttpClientThrows.al
+  record/crud/            TestRecordInsert.al, TestRecordFindFirst.al
+  json/json/              TestJsonObjectGet.al, TestJsonArrayAdd.al
+  queries/read-lifecycle/ TestQueryOpen.al
+  xml/xml/                TestXmlDocumentLoad.al
+  text/textbuilder-bigtext/ TestTextBuilderAppend.al
 ```
 
 ### Procedures
@@ -126,36 +170,37 @@ Do not edit `.github/workflows/ci.yml` for a new id block or a new range in `app
 
 ## Fixture library
 
-All tests share a single fixture library in `_fixtures/`. Never define your own schema objects in a test file.
+All tests share a single fixture library in `_fixtures/`. Define a local object only for a reason of standing rule 2, and say so in a `// local object: <reason>` line.
 
 | Object | ID | When to use |
 |--------|-----|-------------|
-| ALT Universal | 50900 | Primitive field types: Integer, Text, Boolean, Decimal, Date, etc. |
-| ALT Composite | 50901 | Multi-field primary keys, composite filters, Rename |
-| ALT Triggered | 50902 | Verifying OnInsert / OnModify / OnDelete / OnRename triggers |
-| ALT Trigger Log | 50903 | Asserting which triggers fired |
-| ALT Parent / ALT Child | 50904/50905 | FlowFields: Sum, Count, Lookup |
-| ALT Keyed | 50906 | SetCurrentKey, secondary key ordering |
-| ALT Blob | 50908 | InStream / OutStream, Blob.HasValue |
-| IALTCompute / ALTDouble / ALTSquare | — | Interface injection, codeunit-as-variable |
-| ALT Event Publisher | 50910 | Published events, bind / unbind |
+| ALT Universal | 60000 | Primitive field types: Integer, Text, Boolean, Decimal, Date, etc. |
+| ALT Composite | 60001 | Multi-field primary keys, composite filters, Rename |
+| ALT Triggered | 60002 | Verifying OnInsert / OnModify / OnDelete / OnRename triggers |
+| ALT Trigger Log | 60003 | Asserting which triggers fired |
+| ALT Parent / ALT Child | 60004/60005 | FlowFields: Sum, Count, Lookup |
+| ALT Keyed | 60006 | SetCurrentKey, secondary key ordering |
+| ALT Blob | 60008 | InStream / OutStream, Blob.HasValue |
+| IALTCompute / ALTDouble / ALTSquare | — / 60011 / 60012 | Interface injection, codeunit-as-variable |
+| ALT Event Publisher | 60014 | Published events, bind / unbind |
+| ALT Shape 00 .. ALT Shape 29 | 50000-50029 | A plain table of one exact field shape (list in `tests/al-language/_fixtures/README.md`, "Shape tables") |
 
 ---
 
 ## Multi-app fixtures
 
-Some behavior only shows when code is spread over several apps: an extension of a table that another app extends too, a subscriber in another app, the order of subscribers of different apps. Besides the main test app (`tests/al-language`) and the AL Internals Test Fixture (`tests/al-language-internals-fixture`), CI publishes four small apps for these cases. They hold no tests; the tests stay in the main test app, which depends on A, B and C. D depends on A only, and no other app depends on D.
+Some behavior only shows when code is spread over several apps: an extension of a table that another app extends too, a subscriber in another app, the order of subscribers of different apps. Besides the main test app (`tests/al-language`) and the AL Internals Test Fixture (`tests/al-language-internals-fixture`), CI publishes four small apps for these cases. They hold no tests; the tests stay in the main test app, which depends on A, B and C. D depends on A only, and only C depends on D (so D is visited before C; writer UI).
 
 | Folder | App id | Name | Publisher | Object ids | Depends on | What it is for |
 |---|---|---|---|---|---|---|
-| `tests/al-language-xapp-a` | `cd6a4292-f27b-4af9-89bc-15a5956f5c71` | AL Language XApp A | AL Language | 61100-61109, 61130-61139 | nothing | the base app: an event other apps subscribe to, tables other apps extend, a local event, a Company Triggers counter |
+| `tests/al-language-xapp-a` | `cd6a4292-f27b-4af9-89bc-15a5956f5c71` | AL Language XApp A | AL Language | 61100-61109, 61130-61139, 61170-61179 | System Application, Base Application (for the upgrade tag probe) | the base app: an event other apps subscribe to, tables other apps extend, a local event, a Company Triggers counter, the install codeunit and subscribers of the upgrade tag and company initialization probe (in A, not in the main app, so the main app keeps its install rows and its dependency count) |
 | `tests/al-language-xapp-b` | `c87ced6d-11a6-4ad2-87c7-ac10083d0a2f` | AL Language XApp B | Zulu Probe Publisher | 61110-61119, 61140-61149 | fixture, A | table extensions of A's tables, a page with a protected variable whose type is a fixture table |
-| `tests/al-language-xapp-c` | `0df0fadc-d339-4b0f-a1d5-51dc51f10900` | AL Language XApp C | Bravo Probe Publisher | 61120-61129, 61150-61159 | A, B (not the fixture) | a page extension of B's page |
-| `tests/al-language-xapp-d` | `e92be076-de11-44ed-895e-17031341df29` | AL Language XApp D | Mike Probe Publisher | 61160-61169 | A | a subscriber of an event of A, in an app that no other app depends on and that depends on none of B, C and the main test app (subscriber order of apps that do not depend on each other) |
+| `tests/al-language-xapp-c` | `0df0fadc-d339-4b0f-a1d5-51dc51f10900` | AL Language XApp C | Bravo Probe Publisher | 61120-61129, 61150-61159 | B, A (in this order on purpose), D (not the fixture) | a page extension of B's page |
+| `tests/al-language-xapp-d` | `e92be076-de11-44ed-895e-17031341df29` | AL Language XApp D | Mike Probe Publisher | 61160-61169 | A | a subscriber of an event of A, in an app that only C depends on and that depends on none of B, C and the main test app (subscriber order of apps that do not depend on each other) |
 
 CI publishes the fixture, A, D, B, C and then the main test app (D right after A, before B, on purpose) (`app_dirs` of every job in `ci.yml` that compiles `al-language`, and `$apps` in `nightly-windows.yml`). A change to one of these apps is a change to a dependency app, so the pull request gets a full run.
 
-**The ids, names and publishers are fixed on purpose.** The cross-app subscriber order probe (`tests/al-language/events/lt-bw-subscriber-order/`) needs every candidate rule to predict another order of the four apps A, B, C and the main app (M):
+**The ids, names and publishers are fixed on purpose.** The cross-app subscriber order probe (`tests/al-language/events/subscriber-order/`) needs every candidate rule to predict another order of the four apps A, B, C and the main app (M):
 
 | Rule | Order of the apps |
 |---|---|
@@ -278,7 +323,7 @@ You can also trigger a single-version run manually via **Actions → AL Language
 
 ## Test selection in CI
 
-A full BC leg takes about 26 minutes, and about 21 of them are the "Run AL tests" step. So a pull request runs only the test codeunits that its change can affect. Every app is still compiled and published on every leg, and the job and check names stay the same.
+The "Run AL tests" step of a full `al-language` leg takes about 50 minutes (in three shards, see "Shards in CI"). So a pull request runs only the test codeunits that its change can affect. Every app is still compiled and published in every shard that runs, and the required check names stay the same.
 
 ### What runs on a pull request
 
@@ -356,16 +401,48 @@ python3 .github/scripts/select-tests.py --head HEAD --codeunits '{"tests/al-lang
 
 ---
 
+## Shards in CI
+
+Each test job of `ci.yml` (one test app on one BC version, a "leg") calls `.github/workflows/bc-leg.yml`. That workflow runs the leg in one or more shards, each in a BC container of its own, and then merges their JUnit. The `al-language` legs run in three or four shards; the other test apps run in one.
+
+- **Check names.** The leg "BC 29.0" has the checks `BC 29.0 / shard 1 of 3 / test` to `BC 29.0 / shard 3 of 3 / test`, one per shard, and `BC 29.0 / test`. The last one is the job that merges and reports; it is the check the master ruleset requires. It fails when any shard failed or was cancelled.
+- **Artifact.** Each shard uploads `junit-test-results-<bc version>`. The merging job uploads the merged file under the same name and deletes the shards' artifacts, so each leg still has one artifact with one JUnit file. After **Re-run failed jobs**, the merge takes the earlier merged file and replaces the codeunits of the re-run shard.
+- **Shard ranges.** A shard is a range of codeunit ids. `.github/ci-shards.json` holds the first id of each shard per BC major. The ranges are balanced by the wall time of each codeunit in a full master run. A new codeunit falls into the shard of its neighbours, so adding tests needs no edit there. When the shards' times drift apart (see the "Run AL tests" step of each shard), measure them again from the JUnit files of a green master run:
+
+  ```bash
+  gh run download <run id> -p 'junit-test-results-*' -D /tmp/junit
+  cp .github/ci-shards.json /tmp/used.json   # the shards that run used: the shards run at the same time
+  python3 .github/scripts/ci-shards.py measure --shards 3 --shards-for 27=4 --app tests/al-language \
+    --file .github/ci-shards.json --sharded-by /tmp/used.json --source 'master run <run id>' \
+    --junit 27=/tmp/junit/junit-test-results-27.5/junit-al-language.xml \
+    --junit 28=/tmp/junit/junit-test-results-28.5/junit-al-language.xml \
+    --junit 29=/tmp/junit/junit-test-results-29.0/junit-al-language.xml
+  ```
+
+- **How many.** Each shard compiles and publishes every app again, about 8 to 12 minutes before its first test. The organization can run 20 jobs at once for this repository and al-runtime-rs together. BC 27.5 runs in four shards (it has no TestRunnerHub, so its tests are the slowest), 28.5 and 29.0 in three. With the OnPrem and OnPrem DotNet legs that is 16 BC containers. The TestLibraries legs start when the OnPrem legs are done. Measured on run 41290024388 (three shards each): the shards took 23 to 35 minutes, of which 6 to 9 minutes publish and 15 to 24 minutes tests.
+- **Subset runs.** In a run with a test selection, a shard runs the selected codeunits of its range plus the app's sentinel. A shard with no selected codeunit does not start. On a pull request, a leg whose app has nothing affected (its selection is the sentinel only) starts no shard, and its check reports success. A dispatched run with `select_codeunits` (the CI batcher) still runs every leg.
+
+To see the shards of a run without CI:
+
+```bash
+python3 .github/scripts/select-tests.py --base origin/master --head HEAD --json /tmp/sel.json
+python3 .github/scripts/ci-shards.py plan --ci-yml .github/workflows/ci.yml --file .github/ci-shards.json \
+  --event pull_request --selection /tmp/sel.json --versions '{"include":[{"bc_version":"29.0"}]}'
+```
+
 ## Pull request checklist
 
 Before opening a PR, verify:
 
 - [ ] `Initialize()` is the first line of every `[Test]` procedure
 - [ ] `Initialize()` calls `DeleteAll()` on every table used in the codeunit
-- [ ] No per-test fixture definitions — only `_fixtures/` objects
+- [ ] The file is in `<area>/<topic>/` (no writer id, issue number or batch name in a folder name), and a new topic is in the area README
+- [ ] Shared fixtures used; each local object has a `// local object: <reason>` line
+- [ ] New tests are at the end of the topic's existing codeunit; no codeunit renumbered, no test or must-not-compile case renamed
+- [ ] A removed or merged test has a line in `tests/rename-map.tsv`
 - [ ] Test name uniquely identifies the claim without opening the body
 - [ ] Doc-link comment block is present at the top of the file
-- [ ] Out-of-scope tests are in `out-of-scope/` and confirm the error only
+- [ ] Out-of-scope tests are in the area of the feature and confirm the error only
 - [ ] Version-gated code uses `#if BC28PLUS` (or equivalent) with an explanatory comment
 - [ ] The test fails for the right reason (remove the assertion and confirm it passes; restore it and confirm it fails)
 - [ ] CI passes on your pull request (all required checks)

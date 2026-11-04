@@ -54,7 +54,7 @@ is only a reference.
 | 0014 | AL0296 | Cloud app names the Scope = OnPrem table `API Webhook Entity` |
 | 0015 | AL0385 | `IncludeCaption` on a report column whose source is an expression |
 | 0016 | AL0197 | two codeunits of the same name (one diagnostic per declaration) |
-| 0017, 0018 | AL0162 | `OnFindRecord` and `OnNextRecord` in a page extension (every other page trigger, 12 of them, compiles in an extension: see tests/al-language/pageext/POPageExtTriggers.al) |
+| 0017, 0018 | AL0162 | `OnFindRecord` and `OnNextRecord` in a page extension (every other page trigger, 12 of them, compiles in an extension: see tests/al-language/pages/extensions/POPageExtTriggers.al) |
 | 0019 | AL0132 | `ExecutionMode::Profile` does not exist |
 | 0020 to 0024 | AL0296 (and AL0433 for removed tables) | all 123 platform tables of System.app with Scope = OnPrem named from a Cloud app, 30 per case; symbols of BC 27.0 only (`@from 27`, `@until 27`) |
 | 0030 to 0033 | AL0118 | an unknown bare procedure name inside a table, a page, a report and a page extension |
@@ -71,7 +71,7 @@ is only a reference.
 | 0051 | AL0130 | a literal passed for a `var` parameter |
 | 0053 | AL0111 | a statement without its semicolon |
 | 0054, 0055 | AL0297, AL0305 | object id outside the `idRanges` of app.json / object name longer than 30 characters |
-| 2115 | AL0305 | a test codeunit name of 31 characters, one over the limit (30 compiles: tests/al-language/codeunit/TestScopeIsolationContracts.al) |
+| 2115 | AL0305 | a test codeunit name of 31 characters, one over the limit (30 compiles: tests/al-language/codeunits/TestScopeIsolationContracts.al) |
 | 0056 | AL0152 | an Option variable that repeats a member |
 | 0057 | AL0247 | a page extension of a page that does not exist |
 | 0058 | AL0345, AL0353 | a query column over a field the table lacks |
@@ -273,8 +273,8 @@ is only a reference.
 | 0950 | AL0161 | The Rec variable of the base request page is not accessible from a trigger of a request page extension (the base page's own triggers use it: report/lt-ab-request-page-triggers/ABRequestPageFixtures.al). |
 | 0951 | AL0477 | OnValidateUpgradePerCompany and OnValidateUpgradePerDatabase are valid only in a codeunit with Subtype = Upgrade (such a codeunit runs at publish, so the corpus holds none: .github/scripts/check-install-triggers.py). (two diagnostics). |
 | 0960 | AL0132 | Record.IsDirty() exists from BC 29 (AL 18); BC 27 and 28 reject it. Runtime tests for BC 29: tests/al-language/lt-ac. |
-| 0961 | AL0134 | The DataSourceContext type exists from BC 29. Runtime test for BC 29: tests/al-language/lt-ac/ACContexts.al. |
-| 0962 | AL0134 | The TestHandlerContext type exists from BC 29. Runtime test for BC 29: tests/al-language/lt-ac/ACContexts.al. |
+| 0961 | AL0134 | The DataSourceContext type exists from BC 29. Runtime test for BC 29: tests/al-language/permissions/ACContexts.al. |
+| 0962 | AL0134 | The TestHandlerContext type exists from BC 29. Runtime test for BC 29: tests/al-language/permissions/ACContexts.al. |
 | 0963 | AL0126 | IsolatedStorage.Get with an IsolationLevel exists from BC 29. Runtime tests for BC 29: tests/al-language/lt-ac. |
 | 0964 | AL0132 | ModuleInfo.ContextSensitiveHelpUrl, EULA, Help and PrivacyStatement exist from BC 29. Runtime tests for BC 29: tests/al-language/lt-ac. (4 diagnostics) |
 | 0965 | AL0133 | NavApp.GetResource, GetResourceAsText and GetResourceAsJson with an AppId exist from BC 29. Runtime tests for BC 29: tests/al-language/lt-ac. (4 diagnostics) |
@@ -288,24 +288,24 @@ is only a reference.
 | 0973 | AL0187, AL0296 | RunOnClient on a procedure: it is only valid on variables, and it has scope OnPrem. (2 diagnostics) |
 | 0974 | AL0187, AL0296 | SuppressDispose on a procedure: it is only valid on variables, and it has scope OnPrem. (2 diagnostics) |
 | 0975 | AL0187, AL0296 | WithEvents on a procedure: it is only valid on variables, and it has scope OnPrem. (2 diagnostics) |
-| 0976 | AL0187 | SecurityFiltering on a procedure (it belongs on a Record variable: tests/al-language/lt-ac/ACAttributes.al). |
+| 0976 | AL0187 | SecurityFiltering on a procedure (it belongs on a Record variable: tests/al-language/reports/runtime/ACAttributes.al). |
 | 0977 | AL0187 | InDataSet on a procedure. The attribute is deprecated (AL0667 warning) and valid only on variables. |
 | 0978 | AL0243 | The TestPermissions attribute on a procedure of a codeunit that is not a test codeunit. |
 | 0979 | AL0132 | TestPermissions has Disabled, Restrictive, NonRestrictive and InheritFromTestRunner; there is no Normal. |
-| 0980 | AL0619 | The Caption attribute on a procedure of a test codeunit (a plain codeunit accepts it). With ServiceEnabled it compiles: tests/al-language/lt-ac/ACAttributes.al. |
+| 0980 | AL0619 | The Caption attribute on a procedure of a test codeunit (a plain codeunit accepts it). With ServiceEnabled it compiles: tests/al-language/reports/runtime/ACAttributes.al. |
 | 0981 | AL0296 | A procedure with [Scope('OnPrem')] called from the same Cloud app. |
 | 0982 | AL0296 | A procedure with [Scope('Internal')] called from the same Cloud app. |
 | 0983 | AL0296 | The HttpClientHandler attribute in a Cloud app (it has scope OnPrem). |
 | 0984 | AL0241 | An HttpClientHandler procedure without parameters. |
-| 0985 | AL0241 | A ReportHandler procedure without the Report parameter. Runtime test: tests/al-language/lt-ac/ACAttributes.al. |
+| 0985 | AL0241 | A ReportHandler procedure without the Report parameter. Runtime test: tests/al-language/reports/runtime/ACAttributes.al. |
 | 0986 | AL0243 | The ReportHandler attribute in a codeunit that is not a test codeunit. |
 | 0987 | AL0112 | The TestDataSource attribute exists from BC 29. |
 | 0988 | AL0595 | On BC 29 the TestDataSource attribute names a codeunit that must implement ITestDataSource. |
 | 0989 | AL0175 | PageStyle is option-like: it supports = and <> but not an ordering operator. The same holds for HttpRequestType, AuditCategory, SecurityOperationResult and PageBackgroundTaskErrorLevel. |
 | 0990 | AL0132, AL0122 | HttpRequestType is option-like: no AsInteger, and an Integer cannot be assigned. The same holds for PageStyle, AuditCategory, SecurityOperationResult and PageBackgroundTaskErrorLevel. (2 diagnostics) |
-| 0991 | AL0132 | A page calls a procedure that the control add-in does not declare. Runtime test for the valid call: tests/al-language/lt-ac/ACControlAddIn.al. |
-| 0992 | AL0458 | WithEvents on a variable of a type that has no events (OnPrem app). Runtime test for a DotNet variable: tests/al-language-onprem-dotnet/lt-ac/AcDnAttributes.al. |
-| 0993 | AL0458 | RunOnClient on a Boolean variable (OnPrem app): the attribute is valid only on DotNet variables. Runtime test: tests/al-language-onprem-dotnet/lt-ac/AcDnAttributes.al. |
+| 0991 | AL0132 | A page calls a procedure that the control add-in does not declare. Runtime test for the valid call: tests/al-language/testpage/ACControlAddIn.al. |
+| 0992 | AL0458 | WithEvents on a variable of a type that has no events (OnPrem app). Runtime test for a DotNet variable: tests/al-language-onprem-dotnet/dotnet/ac/AcDnAttributes.al. |
+| 0993 | AL0458 | RunOnClient on a Boolean variable (OnPrem app): the attribute is valid only on DotNet variables. Runtime test: tests/al-language-onprem-dotnet/dotnet/ac/AcDnAttributes.al. |
 | 0994 | AL0895 | The Native attribute needs runtime 17.0; at that runtime a procedure with a body outside the platform symbols app is rejected (once for the object, once for the attribute). (2 diagnostics) |
 | 0995 | AL0666 | The DataSourceContext type needs runtime 18.0 (BC 29 and later). An app below that runtime gets AL0666 on every BC major (the AL 16 and 17 compilers' verdict for BC 27 and 28 is in cases 0961, 0962, 0971). |
 | 0996 | AL0666 | The TestHandlerContext type needs runtime 18.0 (BC 29 and later). An app below that runtime gets AL0666 on every BC major (the AL 16 and 17 compilers' verdict for BC 27 and 28 is in cases 0961, 0962, 0971). |
@@ -618,8 +618,17 @@ is only a reference.
 | 2167 to 2170 | AL0135 | Too few arguments through a codeunit variable, a record variable, `Rec.`/bare inside the table, and `this.` (writer SH). |
 | 2171 to 2173 | AL0126 | An overloaded procedure called with too few, no, or too many arguments: "No overload for method ... takes N arguments" with every candidate, not AL0135 (writer SH). |
 | 2174 to 2188 | AL0135 | The signature text of AL0135 for Record, var Record, var temporary Record, Code[20], Option, Enum, Decimal, Date, var Integer, other scalar and complex parameter types, many parameters, return values and no arguments (writer SH). |
+| 2214 | AL0157 | A variable of type TableFilter (writer SI, al-runner issue 5998). |
+| 2238 to 2240, 2244 | AL0196 | In one app, a page extension procedure (local, or internal) with the name of a protected, public or internal base page procedure compiles, but a bare call of it is ambiguous (writer TI, al-runner issue 6043). A cross-app extension is accepted: pageext/lt-ext-local-same-name. |
+| 2241 to 2243 | AL0440 | In one app, a protected or public page extension procedure with the name and parameters of a protected or public base page procedure (writer TI). A local base procedure never clashes. |
+| 2262 to 2267 | AL0132 | `X::Value` where the table has a field X (enum A) and an enum type X exists: a member only A has in a procedure of a TableNo codeunit, a member only type X has in its OnRun trigger, a member only type X has in the table, in a page on it, and with a global or local variable X (writer UB, issue 6129). |
+| 2300 | AL0223 | BC 29 and later: `TestHandlers` on a codeunit without `Subtype = Test` (the handler value itself is valid). |
+| 2301 | AL0383 | BC 29 and later: `TestHandlers` names an enum value that the system enum TestHandler does not have. |
+| 2302 | AL0189 | BC 29 and later: `[Test]` together with `[TestDataSource]` on one procedure. |
+| 2303 | AL0240 | BC 29 and later: a `[TestDataSource]` procedure whose parameter is an Integer instead of `Interface ITestContext`. |
+| 2305 | AL0261 | BC 29 and later: `TestHandlers` lists the same enum value twice (two different values are accepted: tests/al-language-testlibraries/test-framework/data-driven-tests-and-handlers/BiTestHandlerBehavior.al). |
 
-Accepted by the compiler, so not cases: an overload in a page extension (the name of a base procedure with other parameter types: tests/al-language/pageext/POPageExtOverload.al), and a bare `exit;` in a procedure with a return value. Also accepted (writer SH, AL 30 on BC 27, 28 and 29): enum, enum extension, enum value, interface and control add-in names longer than 30 characters, a permission set name of 20 characters, field, procedure and variable names of 31 to 120 characters (misc/lt-cv-odd-leads/CvEnumLongNames.al, `LongNamesThatCompile`), objects of different types with one id, an id that an app it does not depend on also uses, and `exit(value)` in the page triggers that return a value (OnQueryClosePage, OnFindRecord, OnNextRecord, OnInsertRecord, OnModifyRecord, OnDeleteRecord, a field OnLookup).
+Accepted by the compiler, so not cases: an overload in a page extension (the name of a base procedure with other parameter types: tests/al-language/pages/extensions/POPageExtOverload.al), and a bare `exit;` in a procedure with a return value. Also accepted (writer SH, AL 30 on BC 27, 28 and 29): enum, enum extension, enum value, interface and control add-in names longer than 30 characters, a permission set name of 20 characters, field, procedure and variable names of 31 to 120 characters (misc/lt-cv-odd-leads/CvEnumLongNames.al, `LongNamesThatCompile`), objects of different types with one id, an id that an app it does not depend on also uses, and `exit(value)` in the page triggers that return a value (OnQueryClosePage, OnFindRecord, OnNextRecord, OnInsertRecord, OnModifyRecord, OnDeleteRecord, a field OnLookup).
 
 ## CI
 
@@ -627,3 +636,59 @@ The reusable workflow compiles apps that must build, so it cannot run these. A j
 that major (`bc-linux/scripts/install-al-compiler.sh <bc_version>`), stage the symbols of that major (the step that fills `symbols/` in
 `bc-test-from-source.yml`), then run `check-must-not-compile.py --al AL --symbols symbols --bc-major <major> --al-major <AL major>`. The job needs no
 BC container. Run locally with the tools in `~/.al-tool-cache` it passes today with AL 16.2, 17.0.34, 18.0.43 and 30.0.42 on the 27.0 symbols.
+| 2260 | AL0416 | A control add-in procedure declares a return value (writer TZ). |
+| 2261 | AL0783 | A page extension calls a procedure of the base page's usercontrol (writer TZ). |
+| 2310 | AL1039 | app.json `"runtime": "14"` (writer Y10). |
+| 2311 | AL1039 | app.json `"runtime": 14` (writer Y10). |
+| 2312 | AL1039 | app.json `"runtime": 14.0` (writer Y10). |
+| 2313 | AL1039 | app.json `"runtime": "abc"` (writer Y10). |
+| 2314 | AL1039 | app.json `"runtime": "14.0.0"` (writer Y10). |
+| 2315 | AL1039 | app.json `"runtime": "15.0.0.0"` (writer Y10). |
+| 2316 | AL1039 | app.json `"runtime": "14."` (writer Y10). |
+| 2317 | AL1039 | app.json `"runtime": ".0"` (writer Y10). |
+| 2318 | AL1039 | app.json `"runtime": "-1.0"` (writer Y10). |
+| 2319 | AL1043 | app.json `"runtime": "0.0"` (writer Y10). |
+| 2320 | AL1043 | app.json `"runtime": "19.0"` (writer Y10). |
+| 2321 | AL1043 | app.json `"runtime": "99.0"` (writer Y10). |
+| 2330, 2331 | AL0301 | a Label declaration with a trailing comma after a property (`Locked = true,;`, `Comment = 'c',;`); a comma right after the text compiles: tests/al-language/text/textbuilder-bigtext/TxCLabel.al (writer Y12). |
+| 2332 | AL0107 | a Label declaration with two commas after the text (`'T',,;`) (writer Y12). |
+| 2333, 2334 | AL0305 | a permission set with `Assignable = false` / no `Assignable` and a 31-character name: "cannot exceed 30 characters" (21 to 30 compile: tests/al-language/permissions/permission-sets/Y12PermSetNames.al; `Assignable = true` is limited to 20, case 2131) (writer Y12). |
+| 2335 | AL0460 | a [RunOnClient] [WithEvents] DotNet variable in a codeunit (OnPrem app): client-side events are allowed only on pages and page extensions; the same declaration on a page compiles: tests/al-language-onprem-dotnet/dotnet/runonclient/Y16RunOnClientShapes.al (writer Y16). |
+| 2350 | AL0427 | an Enum lookup FlowField over an Option field (the Option lookup FlowField over an Enum field compiles: tests/al-language/record/flowfields/Y20FlowFieldLookupEnumIntoOption.al) (writer Y20). |
+| 2351 to 2354 | AL0270 | a page extension adds to area(FactBoxes) of a ListPart, CardPart, RoleCenter or HeadlinePart page that declares none; Card, List, Worksheet, Document, ListPlus, StandardDialog, ConfirmationDialog and NavigatePage pages accept it: tests/al-language/pages/extensions (writer Y20). |
+| 2355 | AL0791 | a DotNet variable named A.B.C is namespace + alias: a name with namespaces no app declares (OnPrem app) (writer Y20). |
+| 2356 | AL0161 | a table extension uses a plain `var` global of another extension of the same table in the same app; with `protected var` it compiles: tests/al-language/table-objects/extensions/Y20TableExtSiblingGlobals.al (writer Y20). |
+| 2357, 2358 | AL0185 | a DotNet variable naming the .NET full type name of a type the app declares under another alias, quoted / unquoted (OnPrem app); `DotNet System.DateTime` compiles because System Application declares alias DateTime in namespace System: tests/al-language-onprem-dotnet/dotnet/dotnet-fullname/Y20DotNetFullTypeName.al (writer Y20). |
+| 2359 | AL0275 | an app declares outside a namespace a dotnet alias with the name of a System Application alias (String): the bare alias is ambiguous (OnPrem app) (writer Y20). |
+| 2365 to 2372 | AL0129, AL0126, AL0135, AL0133 | the assignment form `X.M := v` of a method-like member where M has no single one-parameter overload: only a getter (`XmlDocument.NameTable`, `XmlElement.InnerText`), a compound assignment (`HttpClient.Timeout += 1`), two one-parameter overloads (`JsonObject.ReadFrom`, AL0126 "takes 0 arguments"), two parameters (`XmlNamespaceManager.AddNamespace`, AL0135), only optional parameters (`Record.LockTable`), no parameter (`XmlNamespaceManager.PushScope`), a right side of the wrong type (`XmlDocument.SetDeclaration`, AL0133). The forms that compile are tested in tests/al-language/record/ProbePropertyAssignmentForms.al and xml/XmlXPathNamespaces.al (writer Y29). |
+| 2500 | AL0133 | a table procedure `Insert(Integer; Text; Boolean)` and the call `Insert(true, true, true)`: the three-argument call is checked against the own procedure, not taken as the built-in. The same-arity calls that compile (`Get(1, 2)`, `Delete(true)`, `Validate(Field, Value)`, `Get(Code)`) are tested in tests/al-language/record/builtin-name-procedures/Y36BuiltinNameSameArity.al (writer Y36). |
+| 2501 to 2504 | AL0129, AL0135 | the assignment form on a RecordRef or FieldRef where the member has no single required parameter: `RecordRef.LockTable :=` (only optional parameters), `RecordRef.ReadConsistency :=` (a getter), `FieldRef.SetRange :=` (only optional parameters) AL0129; `FieldRef.SetFilter :=` (two parameters) AL0135. The forms that compile are tested in tests/al-language/record/ProbePropertyAssignmentForms.al (writer Y36). |
+| 2505 to 2509 | AL0161 | a bare call (no `CurrReport.`) in a report procedure of a member that only `CurrReport` reaches: `Preview()`, `Skip()`, `Quit()`, `PageNo()`, `TotalsCausedBy()`, `ShowOutput()`, `NewPage()`, `CreateTotals()` ("is inaccessible due to its protection level"). Bare `UseRequestPage()`, `ObjectId()`, `IsReadOnly()`, `Language()`, `FormatRegion()`, `PrintOnlyIfDetail()`, `SetTableView()` compile: tests/al-language/reports/bare-report-member/Y36BareReportMember.al (writer Y36). |
+| 2510 to 2512 | AL0186, AL0107, AL0104 | a SubPageLink `= field(filter(F))` naming a field the host table does not have (AL0186), with `const(A)` inside `filter()` (AL0107 + AL0104), and the nesting reversed `= filter(field(F))` (AL0104). The form that compiles is tested in tests/al-language/pages/link-filter/Y37LinkFilterTests.al (writer Y37). |
+| 2525 | AL0270 | a reportextension's `addlast(Content)` on the request page of a report in the same app whose request page declares an empty `layout { }` (no Content area); across apps it compiles (writer Y42) |
+| 2540 to 2542 | AL0294, AL0522 | InitValue of an Option field written single-quoted (`'G/L Account'`, `'Item'`: AL0294), and an Enum InitValue naming no member in the bare form (AL0522). An Enum field accepts the single-quoted form, also with a name that is no member: tests/al-language/record/crud/Y47EnumInitQuoted.al (writer Y47). |
+| 2543 to 2547 | AL0126, AL0118, AL0122 | a bare `Run(Page::X, Rec)` in a codeunit, report or xmlport (AL0126: their own `Run()`), in a table (AL0118), and its result used as a Boolean in a page (AL0122: it returns nothing). Inside a page it compiles and runs as Page.Run: tests/al-language/pages/run-modal/Y47UnqualifiedRun.al (writer Y47). |
+| 2548, 2549 | AL0193, AL0122 | a FieldRef passed as the value to `Rec.Validate(Field, ...)` and assigned to a record field. `FieldRef.Validate(<FieldRef>)` and `FieldRef.Value := <FieldRef>` compile: tests/al-language/recordref-fieldref/recordref/Y47ValidateFieldRef.al (writer Y47). |
+| - | - | app.json `"runtime"` values the AL 30.0.43 compiler accepts (no case possible here): `" 14.0"`, `"14.0 "`, `"16.01"`, `""` and `"30.0"` (writer Y10). |
+| 2400 to 2431 | AL0133, AL0777, AL0175, AL0174, AL0122 | one case per kind of rejected cell of the implicit conversion matrix (scripts/conversion-matrix/compile-matrix.csv, generator gen.py): var arguments of a wider or related type (Integer to var Decimal, Code[10] to var Text, Char to var Integer), a one-character literal or a Boolean to an Integer parameter, exit(Guid) as Text[10], `+=` on Text/Date/Boolean/Integer with the wrong right side, `=` Date/DateTime and Code/Integer, `<` on DateFormula, RecordId and Boolean/Integer, Date + Date, 'a' + Byte (ambiguous, AL0174), Text - Text, Guid - Guid, `in` Code[10]/[Guid], Date/[DateTime], Char/[Text], Text[10]/[Guid], case Char/Text label and Decimal/Enum label, conditional branches Code[10]/Guid, Integer/Text, Date/DateTime, Text[10]/Guid, Option and Duration into Text, Char into Guid. The accepted cells run in tests/al-language/types/operators-expressions/ (writer Y31). |
+| 2580 to 2584 | AL0161 | `CurrReport.RequestOptionsPage` outside the request page: OnInitReport, OnPreReport, OnPostReport, OnPreDataItem and OnAfterGetRecord of a data item (a report procedure is 2514). Inside the request page (control, action and request page triggers, a request page procedure) it compiles: tests/al-language/reports/request-page/RequestOptionsPageAccess.al. |
+| 2610 | AL0296 | a Cloud app calls GetAzureKeyVaultSecret and GetAzureKeyVaultCertificate of the System Application codeunit "Azure Key Vault" (every procedure has Scope OnPrem). The OnPrem behavior: tests/al-language-onprem-dotnet/dotnet/key-vault/Y58AzureKeyVault.al. |
+| 2620, 2621 | AL0124 | ObsoleteState, ObsoleteReason and ObsoleteTag on an XmlPort textelement, tableelement, fieldelement and fieldattribute, and on a query data item (al-runner 6652). Report data items, columns, request page elements, report extension elements, query columns and filters and XmlPort request page fields take them: tests/al-language/reports/Y64ObsoleteSub.al. |
+| 2622 to 2624 | AL0161, AL0196 | report extension: its request page calls a base local procedure it does not declare; a request page local procedure is not visible from the extension's data item and report triggers; an extension local procedure with the name of a public base procedure makes the call ambiguous (al-runner 6651). The compiling forms: tests/al-language/reports/extensions/Y64LocalProcNames.al. |
+| 2625 to 2627 | AL0271, AL0124 | page extension: Category_Category3 and Category_Category21 do not exist (4 to 20 do); an action without Promoted = true has no implicit <Action>_Promoted; modify() of the implicit <Action>_Promoted does not take Caption (al-runner 6646, 6647). The compiling forms: tests/al-language/pages/extensions/Y64PromotedImplicit.al. |
+| 2628, 2629 | AL0130, AL0126 | Clear of a Label, a TextConst, a literal, a procedure result and an expression; Clear(), Clear(a, b) and ClearAll(a) (al-runner 6656). Clear of every variable type: tests/al-language/types/clear/Y64ClearTypes.al. |
+| 2680 | AL0293 | an Option field's `InitValue = 0` is refused (the number names no member); `InitValue = 1` and `= 2` compile and run: tests/al-language/record/Y70Probes.al. |
+| 2681 | AL0193 | a Date as the value argument of Validate, SetRange or SetFilter for a DateTime field, and a Text as the value argument of SetRange or SetFilter for a DateFormula field. |
+| 2690 | AL0193, AL0122 | an Option or Enum value as the value argument of SetRange or SetFilter for a Code field, and assigned or validated into it (Record.Get accepts them): tests/al-language/types/operators-expressions/Y71ValueConversions.al. |
+| 2691 | AL0155 | a report global variable with the name of one of the report's data items. |
+| 2692 | AL0275 | `this.Gateway` in a table that has a global variable and a field of that name (the unqualified name and Rec.Gateway compile). |
+| 2710 | AL0129 | `this := 5` with a variable "this" declared: unquoted this is always the keyword. |
+| 2711 | AL0129 | `this := this`. |
+| 2712 | AL0175 | `"this" = "this"` on two Codeunit variables. |
+| 2713 | AL0161 | a global variable of a codeunit through a Codeunit variable named "this". |
+| 2714 | AL0133 | `BindSubscription(this)` in a table. |
+| 2715 | AL0133 | `BindSubscription(this)` in an xmlport. |
+| 2716 | AL0133 | `BindSubscription(this)` in a query. |
+| 2717 | AL0133 | `BindSubscription("this")` with an Integer variable named "this". |
+| 2718 | AL0130 | `Clear(this)` with a Codeunit variable "this" declared. |
+| 2719 | AL0132 | `this.Init()` in a codeunit with a Record variable named "this". |

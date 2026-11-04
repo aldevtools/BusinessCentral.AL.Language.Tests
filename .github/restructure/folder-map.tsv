@@ -1,0 +1,986 @@
+old_path	new_path	reason	al_files
+tests/al-language	tests/al-language	app root: report layouts stay or move to _fixtures/layouts with their LayoutFile references; delete the tracked build outputs (.app, bc-full-results.json)	0
+tests/al-language-internals-fixture	tests/al-language-internals-fixture	app root: files move into area folders like the main app	13
+tests/al-language-isolation-probe/src	tests/al-language-isolation-probe/src	helper or special-runner app: keep as is (ids, names, publishers and folder are fixed on purpose)	26
+tests/al-language-onprem-dotnet	tests/al-language-onprem-dotnet	app root: files move into area folders like the main app	1
+tests/al-language-onprem-dotnet/lt-ac	tests/al-language-onprem-dotnet/dotnet/ac	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-ae-dotnet	tests/al-language-onprem-dotnet/dotnet/dotnet	per-writer folder of a secondary app: same area names as the main app	3
+tests/al-language-onprem-dotnet/lt-af-dotnet	tests/al-language-onprem-dotnet/dotnet/dotnet	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-al-dotnet	tests/al-language-onprem-dotnet/dotnet/dotnet	per-writer folder of a secondary app: same area names as the main app	7
+tests/al-language-onprem-dotnet/lt-ar-dotnet	tests/al-language-onprem-dotnet/dotnet/dotnet	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-az-dotnet	tests/al-language-onprem-dotnet/dotnet/dotnet	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-bb-dotnet	tests/al-language-onprem-dotnet/dotnet/dotnet	per-writer folder of a secondary app: same area names as the main app	4
+tests/al-language-onprem-dotnet/lt-bg-runonclient	tests/al-language-onprem-dotnet/dotnet/runonclient	per-writer folder of a secondary app: same area names as the main app	3
+tests/al-language-onprem-dotnet/lt-bk-dotnet	tests/al-language-onprem-dotnet/dotnet/dotnet	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-dotnet-interop	tests/al-language-onprem-dotnet/dotnet/dotnet-interop	per-writer folder of a secondary app: same area names as the main app	27
+tests/al-language-onprem-dotnet/lt-o-dotnet	tests/al-language-onprem-dotnet/dotnet/dotnet	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-qx-dotnet	tests/al-language-onprem-dotnet/dotnet/dotnet	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-ra-dotnet	tests/al-language-onprem-dotnet/dotnet/dotnet	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-re-dotnet	tests/al-language-onprem-dotnet/dotnet/dotnet	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-sg-dotnet	tests/al-language-onprem-dotnet/dotnet/dotnet	per-writer folder of a secondary app: same area names as the main app	2
+tests/al-language-onprem-dotnet/lt-ty-dotnet	tests/al-language-onprem-dotnet/dotnet/dotnet	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-wd-dotnet	tests/al-language-onprem-dotnet/dotnet/dotnet	per-writer folder of a secondary app: same area names as the main app	4
+tests/al-language-onprem-dotnet/lt-y17-dotnet-dictionary	tests/al-language-onprem-dotnet/dotnet/dotnet-dictionary	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-y20-dotnet-fullname	tests/al-language-onprem-dotnet/dotnet/dotnet-fullname	per-writer folder of a secondary app: same area names as the main app	2
+tests/al-language-onprem-dotnet/lt-y35-platform-version	tests/al-language-onprem-dotnet/dotnet/platform-version	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-y44-zip-create	tests/al-language-onprem-dotnet/dotnet/zip-create	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-y51-blob-stream-position	tests/al-language-onprem-dotnet/dotnet/blob-stream-position	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-y51-dotnet-builtin-args	tests/al-language-onprem-dotnet/dotnet/dotnet-builtin-args	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-y51-dotnet-dictionary	tests/al-language-onprem-dotnet/dotnet/dotnet-dictionary	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-y51-dotnet-int64	tests/al-language-onprem-dotnet/dotnet/dotnet-int64	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-y58-graph-mock	tests/al-language-onprem-dotnet/dotnet/graph-mock	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-y58-key-vault	tests/al-language-onprem-dotnet/dotnet/key-vault	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-y58-page-providers	tests/al-language-onprem-dotnet/dotnet/page-providers	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-y58-server-helpers	tests/al-language-onprem-dotnet/dotnet/server-helpers	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-y71-client-capabilities	tests/al-language-onprem-dotnet/dotnet/client-capabilities	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-y76-dotnet	tests/al-language-onprem-dotnet/dotnet/dotnet	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem-dotnet/lt-y86-dotnet	tests/al-language-onprem-dotnet/dotnet/dotnet	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem/access-control	tests/al-language-onprem/permissions/access-control	small feature folder merged into its area	6
+tests/al-language-onprem/access-control/lt-av-user-delete	tests/al-language-onprem/permissions/access-control	topic folder; writer id dropped from the name	1
+tests/al-language-onprem/access-control/lt-av-user-insert	tests/al-language-onprem/permissions/access-control	topic folder; writer id dropped from the name	1
+tests/al-language-onprem/access-control/lt-y66-auth-email-local-part	tests/al-language-onprem/permissions/access-control	topic folder; writer id dropped from the name	1
+tests/al-language-onprem/coverage	tests/al-language-onprem/test-framework/code-coverage	small feature folder merged into its area	1
+tests/al-language-onprem/handlers	tests/al-language-onprem/SPLIT	mixed top-level folder: split by file (file-map.tsv)	3
+tests/al-language-onprem/json/lt-json-select-secrets	tests/al-language-onprem/json/json	topic folder	1
+tests/al-language-onprem/lt-ak-fulltext	tests/al-language-onprem/record/fulltext/fulltext	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem/lt-au-file-bytes	tests/al-language-onprem/streams/files/file-bytes	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem/lt-bg-file-windows	tests/al-language-onprem/streams/files/file-windows	per-writer folder of a secondary app: same area names as the main app	4
+tests/al-language-onprem/lt-debugger-type	tests/al-language-onprem/session-system/debugger	per-writer folder of a secondary app: same area names as the main app	18
+tests/al-language-onprem/lt-file-type	tests/al-language-onprem/streams/files/file-type	per-writer folder of a secondary app: same area names as the main app	17
+tests/al-language-onprem/lt-o-system-onprem	tests/al-language-onprem/session-system/database-and-blob-operations	per-writer folder of a secondary app: same area names as the main app	2
+tests/al-language-onprem/lt-system-database-onprem	tests/al-language-onprem/session-system/server-system-functions	per-writer folder of a secondary app: same area names as the main app	15
+tests/al-language-onprem/lt-y5	tests/al-language-onprem/session-system/authentication-type	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-onprem/media	tests/al-language-onprem/streams/media	small feature folder merged into its area	2
+tests/al-language-onprem/network	tests/al-language-onprem/http	area folder: files stay in the area	2
+tests/al-language-onprem/network/lt-ay-http-handler	tests/al-language-onprem/http/client	topic folder; writer id dropped from the name	3
+tests/al-language-onprem/network/lt-y76-http-relative	tests/al-language-onprem/http/client	topic folder; writer id dropped from the name	1
+tests/al-language-onprem/platform	tests/al-language-onprem/metadata	area folder: files stay in the area	3
+tests/al-language-onprem/platform/lt-aw-fresh-tenant	tests/al-language-onprem/metadata/platform-tables	topic folder; writer id dropped from the name	1
+tests/al-language-onprem/platform/lt-rh-agent-natives	tests/al-language-onprem/metadata/session-system	topic folder; writer id dropped from the name	1
+tests/al-language-onprem/platform/lt-y21-env-columns	tests/al-language-onprem/metadata/platform-tables	topic folder; writer id dropped from the name	2
+tests/al-language-onprem/platform/lt-y35-agent-direct	tests/al-language-onprem/metadata/session-system	topic folder; writer id dropped from the name	1
+tests/al-language-onprem/platform/lt-y35-stored-tables	tests/al-language-onprem/metadata/platform-tables	topic folder; writer id dropped from the name	1
+tests/al-language-onprem/platform/lt-y48-intelligent-cloud	tests/al-language-onprem/metadata/session-system	topic folder; writer id dropped from the name	1
+tests/al-language-onprem/platform/lt-y48-published-app	tests/al-language-onprem/metadata/session-system	topic folder; writer id dropped from the name	1
+tests/al-language-onprem/platform/lt-y59-tenant-profile-setting	tests/al-language-onprem/metadata/platform-tables	topic folder; writer id dropped from the name	1
+tests/al-language-onprem/profile	tests/al-language-onprem/profiles	area folder: files stay in the area	1
+tests/al-language-onprem/query	tests/al-language-onprem/queries	area folder: files stay in the area	1
+tests/al-language-onprem/record	tests/al-language-onprem/record	area folder: files stay in the area	3
+tests/al-language-onprem/report/lt-am-rdlc-saveas	tests/al-language-onprem/reports/layouts-saveas	topic folder; writer id dropped from the name	1
+tests/al-language-onprem/report/lt-aq	tests/al-language-onprem/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language-onprem/report/lt-qx-saveaspdf	tests/al-language-onprem/reports/layouts-saveas	topic folder; writer id dropped from the name	1
+tests/al-language-onprem/report/lt-t-saveas	tests/al-language-onprem/reports/layouts-saveas	topic folder; writer id dropped from the name	2
+tests/al-language-onprem/report/lt-y43-sp-saveasxml	tests/al-language-onprem/reports/layouts-saveas	topic folder; writer id dropped from the name	1
+tests/al-language-onprem/report/lt-y51-saveasxml-time	tests/al-language-onprem/reports/layouts-saveas	topic folder; writer id dropped from the name	1
+tests/al-language-onprem/report/lt-y60-reportext-saveasxml	tests/al-language-onprem/reports/layouts-saveas	topic folder; writer id dropped from the name	1
+tests/al-language-onprem/report/lt-y60-saveasxml-norow	tests/al-language-onprem/reports/layouts-saveas	topic folder; writer id dropped from the name	1
+tests/al-language-onprem/report/lt-y67-saveasxml-columns	tests/al-language-onprem/reports/dataset	topic folder; writer id dropped from the name	1
+tests/al-language-onprem/session	tests/al-language-onprem/session-system	area folder: files stay in the area	15
+tests/al-language-onprem/types	tests/al-language-onprem/types	area folder: files stay in the area	1
+tests/al-language-testlibraries/lt-bi-test-framework	tests/al-language-testlibraries/test-framework/data-driven-tests-and-handlers	per-writer folder of a secondary app: same area names as the main app	5
+tests/al-language-testlibraries/lt-bi-testpermissions	tests/al-language-testlibraries/test-framework/testpermissions	per-writer folder of a secondary app: same area names as the main app	12
+tests/al-language-testlibraries/lt-bi-trigger-setup	tests/al-language-testlibraries/test-framework/trigger-setup	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-testlibraries/lt-wb-6286	tests/al-language-testlibraries/test-framework/stale-delete-triggers	per-writer folder of a secondary app: same area names as the main app	3
+tests/al-language-testlibraries/lt-y24-runner-perms	tests/al-language-testlibraries/test-framework/runner-permissions	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-testlibraries/lt-y3-setup-order	tests/al-language-testlibraries/test-framework/setup-order	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-testlibraries/lt-y35-onrun-storage	tests/al-language-testlibraries/test-framework/onrun-storage	per-writer folder of a secondary app: same area names as the main app	1
+tests/al-language-xapp-a	tests/al-language-xapp-a	app root: files move into area folders like the main app	20
+tests/al-language-xapp-b	tests/al-language-xapp-b	app root: files move into area folders like the main app	15
+tests/al-language-xapp-c	tests/al-language-xapp-c	app root: files move into area folders like the main app	7
+tests/al-language-xapp-d	tests/al-language-xapp-d	app root: files move into area folders like the main app	7
+tests/al-language/_fixtures	tests/al-language/_fixtures	area folder: files stay in the area	28
+tests/al-language/_fixtures/enums	tests/al-language/_fixtures/enums	topic folder	3
+tests/al-language/_fixtures/events	tests/al-language/_fixtures/events	topic folder	25
+tests/al-language/_fixtures/interfaces	tests/al-language/_fixtures/interfaces	topic folder	1
+tests/al-language/_fixtures/pages	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	16
+tests/al-language/_fixtures/queries	tests/al-language/_fixtures/queries	topic folder	3
+tests/al-language/_fixtures/reports	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/_fixtures/tables	tests/al-language/_fixtures/tables	topic folder	35
+tests/al-language/_fixtures/xmlports	tests/al-language/_fixtures/xmlports	topic folder	10
+tests/al-language/access-control	tests/al-language/permissions/access-control	small feature folder merged into its area	5
+tests/al-language/appareas	tests/al-language/pages/application-area	small feature folder merged into its area	1
+tests/al-language/autoformat	tests/al-language/format-evaluate/autoformat	small feature folder merged into its area	7
+tests/al-language/bgtasks	tests/al-language/pages/background-tasks	small feature folder merged into its area	1
+tests/al-language/bgtasks/lt-bj-no-gui	tests/al-language/pages/background-tasks	topic folder; writer id dropped from the name	1
+tests/al-language/calcfields	tests/al-language/record/flowfields	small feature folder merged into its area	3
+tests/al-language/calcfields/lt-bm-flowfield-conversions	tests/al-language/record/flowfields	topic folder; writer id dropped from the name	2
+tests/al-language/calcfields/lt-calcformula-namespace	tests/al-language/record/flowfields	topic folder	2
+tests/al-language/calcfields/lt-upperlimit-error-code	tests/al-language/record/flowfields	topic folder	1
+tests/al-language/calcfields/lt-upperlimit-single-value	tests/al-language/record/flowfields	topic folder	1
+tests/al-language/codeunit	tests/al-language/codeunits	area folder: files stay in the area	96
+tests/al-language/codeunit/lt-call-depth-codeunit	tests/al-language/codeunits/call-depth	topic folder	1
+tests/al-language/codeunit/lt-call-depth-direct	tests/al-language/codeunits/call-depth	topic folder	1
+tests/al-language/codeunit/lt-call-depth-table	tests/al-language/codeunits/call-depth	topic folder	1
+tests/al-language/codeunit/lt-code-coverage-log	tests/al-language/codeunits/code-coverage	topic folder	1
+tests/al-language/codeunit/lt-code-coverage-method	tests/al-language/codeunits/code-coverage	topic folder	2
+tests/al-language/codeunit/lt-cw-interface-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/codeunit/lt-enums-interfaces	tests/al-language/codeunits/interfaces	topic folder	10
+tests/al-language/codeunit/lt-procedure-assignment	tests/al-language/codeunits/procedures	topic folder	1
+tests/al-language/codeunit/lt-qu-commit-isolation	tests/al-language/codeunits/run-onrun	topic folder; writer id dropped from the name	3
+tests/al-language/codeunit/lt-sc-overload-record-interface	tests/al-language/codeunits/interfaces	topic folder; writer id dropped from the name	1
+tests/al-language/codeunit/lt-seq-carry	tests/al-language/codeunits/run-onrun	topic folder	3
+tests/al-language/codeunit/lt-u-test-isolation	tests/al-language/codeunits/run-onrun	topic folder; writer id dropped from the name	1
+tests/al-language/codeunit/lt-var-global-alias	tests/al-language/codeunits/procedures	topic folder	1
+tests/al-language/codeunit/lt-wd	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/codeunit/lt-x-object-props	tests/al-language/codeunits/procedures	topic folder; writer id dropped from the name	1
+tests/al-language/collections	tests/al-language/collections	area folder: files stay in the area	24
+tests/al-language/collections/lt-array-rows	tests/al-language/collections/multi-dimension-array-rows	topic folder	1
+tests/al-language/collections/lt-cs-odd-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/collections/lt-y66-copyarray-fn-result	tests/al-language/collections/copyarray-procedure-result	topic folder; writer id dropped from the name	1
+tests/al-language/controls	tests/al-language/pages/controls	small feature folder merged into its area	3
+tests/al-language/coverage	tests/al-language/test-framework/code-coverage	small feature folder merged into its area	3
+tests/al-language/dateformulacontrol	tests/al-language/pages/controls	small feature folder merged into its area	3
+tests/al-language/enum/lt-cw-enum-ordinals	tests/al-language/types/enum	topic folder; writer id dropped from the name	1
+tests/al-language/enum/lt-enum-foreach-integer	tests/al-language/types/enum	topic folder	1
+tests/al-language/enum/lt-enum-fromint-variant	tests/al-language/types/enum	topic folder	1
+tests/al-language/error-handling	tests/al-language/errors	area folder: files stay in the area	11
+tests/al-language/error-handling/lt-bh-last-error-across-tests	tests/al-language/errors/last-error	topic folder; writer id dropped from the name	1
+tests/al-language/error-handling/lt-last-error-flag-no-error	tests/al-language/errors/last-error	topic folder	1
+tests/al-language/error-handling/lt-last-error-text-exclude	tests/al-language/errors/last-error	topic folder	1
+tests/al-language/error-handling/lt-last-error-text-forms	tests/al-language/errors/last-error	topic folder	8
+tests/al-language/error-handling/lt-wd	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/errorinfo	tests/al-language/errors/errorinfo	small feature folder merged into its area	4
+tests/al-language/errorinfo/lt-bc-errorinfo-systemid	tests/al-language/errors/errorinfo	topic folder; writer id dropped from the name	1
+tests/al-language/errorinfo/lt-errnotif	tests/al-language/errors/errorinfo	topic folder	5
+tests/al-language/errorinfo/lt-errorinfo-callstack	tests/al-language/errors/errorinfo	topic folder	1
+tests/al-language/errorinfo/lt-notification-guid	tests/al-language/errors/errorinfo	topic folder	1
+tests/al-language/errors	tests/al-language/errors	area folder: files stay in the area	2
+tests/al-language/errors/lt-az-error-texts	tests/al-language/errors/error-texts	topic folder; writer id dropped from the name	1
+tests/al-language/errors/lt-emit-version	tests/al-language/errors/last-error	topic folder	1
+tests/al-language/errors/lt-error-handling	tests/al-language/errors/error-texts	topic folder	11
+tests/al-language/errors/lt-last-error-and-events	tests/al-language/errors/last-error	topic folder	6
+tests/al-language/errors/lt-ms-refusals-128	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	14
+tests/al-language/errors/lt-ms-refusals-129	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	18
+tests/al-language/errors/lt-ms-refusals-130	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	12
+tests/al-language/errors/lt-ms-refusals-131	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	11
+tests/al-language/errors/lt-ms-refusals-132	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	10
+tests/al-language/errors/lt-ms-refusals-133	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	7
+tests/al-language/errors/lt-ms-refusals-134	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	4
+tests/al-language/errors/lt-ms-refusals-135	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	8
+tests/al-language/errors/lt-ms-refusals-136	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	6
+tests/al-language/errors/lt-ms-refusals-137	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	7
+tests/al-language/errors/lt-ms-refusals-138	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	6
+tests/al-language/events	tests/al-language/events	area folder: files stay in the area	4
+tests/al-language/events/lt-ab-page-events	tests/al-language/events/page-events	topic folder; writer id dropped from the name	2
+tests/al-language/events/lt-az-events	tests/al-language/events/binding-senders	topic folder; writer id dropped from the name	2
+tests/al-language/events/lt-bd-filter-events	tests/al-language/events/table-events	topic folder; writer id dropped from the name	1
+tests/al-language/events/lt-bf-company-open	tests/al-language/events/platform-triggers	topic folder; writer id dropped from the name	2
+tests/al-language/events/lt-bw-subscriber-order	tests/al-language/events/subscriber-order	topic folder; writer id dropped from the name	4
+tests/al-language/events/lt-bw-subscriber-order/a-order	tests/al-language/events/subscriber-order/a-order	topic folder; writer id dropped from the name; nested sub-app folders kept (fixed order probe)	2
+tests/al-language/events/lt-bw-subscriber-order/b-order	tests/al-language/events/subscriber-order/b-order	topic folder; writer id dropped from the name; nested sub-app folders kept (fixed order probe)	1
+tests/al-language/events/lt-bw-subscriber-order/c-order	tests/al-language/events/subscriber-order/c-order	topic folder; writer id dropped from the name; nested sub-app folders kept (fixed order probe)	1
+tests/al-language/events/lt-ck-event-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/events/lt-cl-event-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/events/lt-cm-trigger-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/events/lt-db-events	tests/al-language/events/binding-senders	topic folder; writer id dropped from the name	3
+tests/al-language/events/lt-event-subscription-trigger-rows	tests/al-language/events/platform-triggers	topic folder	3
+tests/al-language/events/lt-event-var-through-sender	tests/al-language/events/binding-senders	topic folder	1
+tests/al-language/events/lt-global-triggers-statements	tests/al-language/events/platform-triggers	topic folder	4
+tests/al-language/events/lt-notification-by-value	tests/al-language/events/binding-senders	topic folder	1
+tests/al-language/events/lt-page-action-subscriber-errors	tests/al-language/events/page-events	topic folder	1
+tests/al-language/events/lt-page-event-numbers	tests/al-language/events/page-events	topic folder	1
+tests/al-language/events/lt-platform-events-v	tests/al-language/events/platform-triggers	topic folder	2
+tests/al-language/events/lt-platform-triggers	tests/al-language/events/platform-triggers	topic folder	3
+tests/al-language/events/lt-system-events-upgrade-subs	tests/al-language/events/platform-triggers	topic folder	5
+tests/al-language/events/lt-table-trigger-setup-calls	tests/al-language/events/platform-triggers	topic folder	1
+tests/al-language/events/lt-trigger-pins	tests/al-language/events/platform-triggers	topic folder	3
+tests/al-language/events/lt-uf-failed-insert-sysid	tests/al-language/events/table-events	topic folder; writer id dropped from the name	1
+tests/al-language/events/lt-wd	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/events/lt-with-statement-scopes	tests/al-language/events/binding-senders	topic folder	3
+tests/al-language/events/lt-y3-setup-order	tests/al-language/events/platform-triggers	topic folder; writer id dropped from the name	2
+tests/al-language/extensionevents	tests/al-language/events/extension-events	small feature folder merged into its area	2
+tests/al-language/extensionevents/lt-reportext-sender	tests/al-language/events/extension-events	topic folder	1
+tests/al-language/fieldref	tests/al-language/recordref-fieldref/fieldref	small feature folder merged into its area	14
+tests/al-language/fieldref/lt-fieldref-length-kinds	tests/al-language/recordref-fieldref/fieldref	topic folder	1
+tests/al-language/fieldref/lt-fieldref-testfield-types	tests/al-language/recordref-fieldref/fieldref	topic folder	13
+tests/al-language/fieldref/lt-range-min-max-types	tests/al-language/recordref-fieldref/fieldref	topic folder	1
+tests/al-language/fieldref/lt-testfield-value-types	tests/al-language/recordref-fieldref/fieldref	topic folder	4
+tests/al-language/fieldref/lt-y66-fieldref-length-types	tests/al-language/recordref-fieldref/fieldref	topic folder; writer id dropped from the name	1
+tests/al-language/fieldref/lt-y67-fieldref-validate-variant	tests/al-language/recordref-fieldref/fieldref	topic folder; writer id dropped from the name	1
+tests/al-language/fieldref/lt-y67-system-field-relation	tests/al-language/recordref-fieldref/fieldref	topic folder; writer id dropped from the name	1
+tests/al-language/fieldref/lt-y80-user-name-fields	tests/al-language/recordref-fieldref/fieldref	topic folder; writer id dropped from the name	1
+tests/al-language/filterpage	tests/al-language/pages/filterpagebuilder	small feature folder merged into its area	2
+tests/al-language/filters	tests/al-language/record/filters	small feature folder merged into its area	1
+tests/al-language/filters/lt-date-text-forms	tests/al-language/record/filters	topic folder	1
+tests/al-language/filters/lt-filter-empty-dateformula	tests/al-language/record/filters	topic folder	1
+tests/al-language/filters/lt-uc-quoted-values	tests/al-language/record/filters	topic folder; writer id dropped from the name	1
+tests/al-language/filters/lt-wc	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/filters/lt-y62-date-filter-short	tests/al-language/record/filters	topic folder; writer id dropped from the name	1
+tests/al-language/fixtures	tests/al-language/_fixtures	area folder: files stay in the area	1
+tests/al-language/handlers	tests/al-language/SPLIT	mixed top-level folder: split by file (file-map.tsv)	514
+tests/al-language/handlers/lt-az-handlers	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/handlers/lt-ui-handler-modes	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/install	tests/al-language/install-upgrade	area folder: files stay in the area	20
+tests/al-language/install/lt-av-install-order	tests/al-language/install-upgrade/install-order	topic folder; writer id dropped from the name	1
+tests/al-language/install/lt-bf-install-probes	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/install/lt-cm-install-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/install/lt-install-order-subscribers	tests/al-language/install-upgrade/install-order	topic folder	1
+tests/al-language/install/lt-outside-install-ui	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/install/lt-ug-install-trigger-setup	tests/al-language/install-upgrade/install-triggers	topic folder; writer id dropped from the name	2
+tests/al-language/install/lt-um-install-order	tests/al-language/install-upgrade/install-order	topic folder; writer id dropped from the name	1
+tests/al-language/install/lt-ur-block-order	tests/al-language/install-upgrade/install-order	topic folder; writer id dropped from the name	2
+tests/al-language/install/lt-x3-first-install	tests/al-language/install-upgrade/install-order	topic folder; writer id dropped from the name	1
+tests/al-language/install/lt-y64-install-subscribers	tests/al-language/install-upgrade/install-triggers	topic folder; writer id dropped from the name	1
+tests/al-language/install/lt-y66-retention-allowed-table	tests/al-language/install-upgrade/install-triggers	topic folder; writer id dropped from the name	1
+tests/al-language/install/lt-y69-install-trigger-setup	tests/al-language/install-upgrade/install-triggers	topic folder; writer id dropped from the name	1
+tests/al-language/install/lt-y79-install-unrelated	tests/al-language/install-upgrade/install-triggers	topic folder; writer id dropped from the name	1
+tests/al-language/install/lt-y8-install-order	tests/al-language/install-upgrade/install-order	topic folder; writer id dropped from the name	1
+tests/al-language/install/lt-y85-package-data	tests/al-language/install-upgrade/install-triggers	topic folder; writer id dropped from the name	1
+tests/al-language/install/lt-y88-package-data	tests/al-language/install-upgrade/install-triggers	topic folder; writer id dropped from the name	1
+tests/al-language/json	tests/al-language/json	area folder: files stay in the area	20
+tests/al-language/json/lt-ay-json	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/json/lt-db-json-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/json/lt-dc-json-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/json/lt-json-overloads	tests/al-language/json/json	topic folder	14
+tests/al-language/json/lt-json-read-from	tests/al-language/json/json	topic folder	1
+tests/al-language/json/lt-json-selecttokens	tests/al-language/json/json	topic folder	1
+tests/al-language/json/lt-json-token-value	tests/al-language/json/json	topic folder	1
+tests/al-language/json/lt-json-typed-overloads	tests/al-language/json/json	topic folder	11
+tests/al-language/json/lt-json-typed-readback	tests/al-language/json/json	topic folder	4
+tests/al-language/json/lt-y44-format-jsonvalue	tests/al-language/json/json	topic folder; writer id dropped from the name	1
+tests/al-language/localization/lt-ta-app-xliff	tests/al-language/localization/app-xliff	topic folder; writer id dropped from the name	1
+tests/al-language/lookups	tests/al-language/pages/lookups	small feature folder merged into its area	1
+tests/al-language/lt-ac	tests/al-language/SPLIT	mixed top-level folder: split by file (file-map.tsv)	16
+tests/al-language/lt-ak-fulltext	tests/al-language/SPLIT	mixed top-level folder: split by file (file-map.tsv)	1
+tests/al-language/lt-bb-probes	tests/al-language/SPLIT	mixed top-level folder: split by file (file-map.tsv)	2
+tests/al-language/lt-o-small-builtins	tests/al-language/SPLIT	mixed top-level folder: split by file (file-map.tsv)	1
+tests/al-language/lt-ss1030	tests/al-language/SPLIT	mixed top-level folder: split by file (file-map.tsv)	6
+tests/al-language/media	tests/al-language/streams/media	small feature folder merged into its area	4
+tests/al-language/media/lt-so-media-filter	tests/al-language/streams/media	topic folder; writer id dropped from the name	1
+tests/al-language/media/lt-variant-media	tests/al-language/streams/media	topic folder	1
+tests/al-language/media/lt-y48-find-orphans	tests/al-language/streams/media	topic folder; writer id dropped from the name	1
+tests/al-language/media/lt-y48-tenant-media	tests/al-language/streams/media	topic folder; writer id dropped from the name	1
+tests/al-language/metadata	tests/al-language/metadata	area folder: files stay in the area	5
+tests/al-language/metadata/lt-all-obj-namespace	tests/al-language/metadata/session-system	topic folder	1
+tests/al-language/metadata/lt-all-obj-ns	tests/al-language/metadata/session-system	topic folder	1
+tests/al-language/metadata/lt-custom-report-layout-columns	tests/al-language/metadata/platform-tables	topic folder	1
+tests/al-language/metadata/lt-cy-long-caption	tests/al-language/metadata/session-system	topic folder; writer id dropped from the name	1
+tests/al-language/metadata/lt-platform-metadata-columns	tests/al-language/metadata/platform-tables	topic folder	1
+tests/al-language/metadata/lt-report-metadata-columns	tests/al-language/metadata/platform-tables	topic folder	2
+tests/al-language/misc	tests/al-language/SPLIT	mixed top-level folder: split by file (file-map.tsv)	16
+tests/al-language/misc/lt-au-language-edges	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/misc/lt-bm-preprocessor-scope	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/misc/lt-bn3-array-procedure	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/misc/lt-bn3-identifiers	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/misc/lt-bn3-key-field-count	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/misc/lt-bo2-odd-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	6
+tests/al-language/misc/lt-cb-odd-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/misc/lt-chained-array-index	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/misc/lt-cm-upgrade-tag	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/misc/lt-cq-odd-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/misc/lt-ct-odd-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/misc/lt-cu-odd-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	6
+tests/al-language/misc/lt-cv-odd-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	7
+tests/al-language/misc/lt-cx-odd-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/misc/lt-dh-obsolete-props	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/misc/lt-expressions-statements	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/misc/lt-inferred-behaviors	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	10
+tests/al-language/misc/lt-np4-probes	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	5
+tests/al-language/misc/lt-object-properties-runtime-effect	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	7
+tests/al-language/misc/lt-open-overloads-collections-isolated	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	8
+tests/al-language/misc/lt-outside-format-json-list	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/misc/lt-probe-requests-140	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	4
+tests/al-language/misc/lt-probes-needed-1	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	35
+tests/al-language/misc/lt-probes-needed-2	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	6
+tests/al-language/misc/lt-probes-needed-3	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	25
+tests/al-language/misc/lt-probes-needed-4	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	13
+tests/al-language/misc/lt-probes-needed-5	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	15
+tests/al-language/misc/lt-probes-needed-6	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	30
+tests/al-language/misc/lt-probes-needed-7	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	23
+tests/al-language/misc/lt-probes-needed-8	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	9
+tests/al-language/misc/lt-protected-var-abs-query-views	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	9
+tests/al-language/misc/lt-qk-setup-rows	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/misc/lt-sa-unit-amount-subst	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/misc/lt-system-functions	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	7
+tests/al-language/misc/lt-u-entitlements	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/misc/lt-u-obsolete-pending	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/misc/lt-uf-nbsp	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/misc/lt-y12-file-account	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/misc/lt-y13-triage	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	4
+tests/al-language/misc/lt-y14-triage	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	5
+tests/al-language/misc/lt-y58-password	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/misc/lt-y64-obsolete-subelements	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/misc/lt-y68-small-probes	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/misc/lt-y70-assumptions	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/misc/lt-y76-assumptions	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/network	tests/al-language/http	area folder: files stay in the area	3
+tests/al-language/network/lt-ay-http	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/network/lt-cz-http-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/network/lt-db-http-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/network/lt-http	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	6
+tests/al-language/network/lt-http-cookies	tests/al-language/http/headers	topic folder	1
+tests/al-language/network/lt-http-header-names-cache-control	tests/al-language/http/headers	topic folder	9
+tests/al-language/network/lt-http-header-rules	tests/al-language/http/headers	topic folder	7
+tests/al-language/network/lt-http-relative-request	tests/al-language/http/client	topic folder	1
+tests/al-language/network/lt-http-send-failure	tests/al-language/http/client	topic folder	1
+tests/al-language/network/lt-httpclient-config-certificates	tests/al-language/http/client	topic folder	3
+tests/al-language/network/lt-httpclient-property-assign	tests/al-language/http/client	topic folder	2
+tests/al-language/network/lt-httpclient-server-certificate	tests/al-language/http/client	topic folder	1
+tests/al-language/network/lt-se-header-values	tests/al-language/http/headers	topic folder; writer id dropped from the name	2
+tests/al-language/network/lt-uf-http-clear	tests/al-language/http/client	topic folder; writer id dropped from the name	1
+tests/al-language/network/lt-y62-content-headers	tests/al-language/http/headers	topic folder; writer id dropped from the name	1
+tests/al-language/network/lt-y71-secret-values-statement	tests/al-language/http/client	topic folder; writer id dropped from the name	1
+tests/al-language/pageapplicationarea	tests/al-language/pages/application-area	small feature folder merged into its area	12
+tests/al-language/pageext	tests/al-language/pages/extensions	small feature folder merged into its area	4
+tests/al-language/pageext/lt-bc-implicit-areas	tests/al-language/pages/extensions	topic folder; writer id dropped from the name	4
+tests/al-language/pageext/lt-bd-page-ext-twice	tests/al-language/pages/extensions	topic folder; writer id dropped from the name	1
+tests/al-language/pageext/lt-bl-implicit-creation	tests/al-language/pages/extensions	topic folder; writer id dropped from the name	3
+tests/al-language/pageext/lt-cy-clearall-extensions	tests/al-language/pages/extensions	topic folder; writer id dropped from the name	1
+tests/al-language/pageext/lt-ext-local-same-name	tests/al-language/pages/extensions	topic folder	1
+tests/al-language/pageext/lt-page-ext-properties	tests/al-language/pages/extensions	topic folder	23
+tests/al-language/pageext/lt-pageext-ondeleterecord	tests/al-language/pages/extensions	topic folder	1
+tests/al-language/pageext/lt-u-page-props	tests/al-language/pages/extensions	topic folder; writer id dropped from the name	2
+tests/al-language/pageext/lt-ue-pageext-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	6
+tests/al-language/pageext/lt-wd	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/pageext/lt-y20-moves	tests/al-language/pages/extensions	topic folder; writer id dropped from the name	1
+tests/al-language/pageext/lt-z-modify-controls	tests/al-language/pages/extensions	topic folder; writer id dropped from the name	1
+tests/al-language/pageext/lt-z-page-ext-props	tests/al-language/pages/extensions	topic folder; writer id dropped from the name	1
+tests/al-language/pageextensioncontrol	tests/al-language/pages/extensions	small feature folder merged into its area	10
+tests/al-language/pageextensionpart	tests/al-language/pages/extensions	small feature folder merged into its area	1
+tests/al-language/pageextensiontrigger	tests/al-language/pages/extensions	small feature folder merged into its area	13
+tests/al-language/pagefindrecord	tests/al-language/pages/triggers	small feature folder merged into its area	7
+tests/al-language/pages	tests/al-language/pages	area folder: files stay in the area	10
+tests/al-language/pages/lt-ab-action-addin	tests/al-language/pages/actions	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-ab-group-properties	tests/al-language/pages/properties	topic folder; writer id dropped from the name	5
+tests/al-language/pages/lt-ab-tests	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/pages/lt-ah-pages	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/pages/lt-ai-list-order	tests/al-language/pages/list-order  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	5
+tests/al-language/pages/lt-an-testpage-640	tests/al-language/pages/testpage	topic folder; writer id dropped from the name	3
+tests/al-language/pages/lt-ao-testpage	tests/al-language/pages/testpage	topic folder; writer id dropped from the name	2
+tests/al-language/pages/lt-ap-testpage-642	tests/al-language/pages/testpage	topic folder; writer id dropped from the name	2
+tests/al-language/pages/lt-bare-control-local	tests/al-language/pages/controls	topic folder	3
+tests/al-language/pages/lt-be-card-onfindrecord	tests/al-language/pages/triggers	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-be-enum-setvalue-blank	tests/al-language/pages/enum-setvalue-blank  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	2
+tests/al-language/pages/lt-be-part-editable-expr	tests/al-language/pages/parts	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-be-runmodal-onlookup	tests/al-language/pages/triggers	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-bg-client-features	tests/al-language/pages/client-features  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-bg-part-line-all-versions	tests/al-language/pages/parts	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-bl-unopened-currpage	tests/al-language/pages/currpage	topic folder; writer id dropped from the name	2
+tests/al-language/pages/lt-ca-odd-667	tests/al-language/pages/odd-667  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	3
+tests/al-language/pages/lt-caption-assigned-before-run	tests/al-language/pages/run-modal	topic folder	1
+tests/al-language/pages/lt-caption-before-run	tests/al-language/pages/run-modal	topic folder	3
+tests/al-language/pages/lt-cc-page-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/pages/lt-cd-testpage-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	4
+tests/al-language/pages/lt-ce-page-run	tests/al-language/pages/run-modal	topic folder; writer id dropped from the name	3
+tests/al-language/pages/lt-cf-page-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/pages/lt-changed-by-other	tests/al-language/pages/changed-by-other  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder	3
+tests/al-language/pages/lt-closed-page-variable-currpage	tests/al-language/pages/currpage	topic folder	2
+tests/al-language/pages/lt-f3-pages	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	8
+tests/al-language/pages/lt-filter-change-new-line	tests/al-language/pages/triggers	topic folder	1
+tests/al-language/pages/lt-hidden-part-currpage	tests/al-language/pages/parts	topic folder	7
+tests/al-language/pages/lt-hidden-part-link	tests/al-language/pages/parts	topic folder	1
+tests/al-language/pages/lt-hidden-part-selection-filter	tests/al-language/pages/parts	topic folder	1
+tests/al-language/pages/lt-modal-handler-typed-page	tests/al-language/pages/run-modal	topic folder	2
+tests/al-language/pages/lt-modal-list-new-row	tests/al-language/pages/triggers	topic folder	1
+tests/al-language/pages/lt-modal-list-new-row-more	tests/al-language/pages/triggers	topic folder	5
+tests/al-language/pages/lt-modal-query-close-veto	tests/al-language/pages/triggers	topic folder	1
+tests/al-language/pages/lt-new-line-stamps-filters	tests/al-language/pages/triggers	topic folder	1
+tests/al-language/pages/lt-obsolete-layout-parts	tests/al-language/pages/parts	topic folder	4
+tests/al-language/pages/lt-oninsertrecord-false	tests/al-language/pages/triggers	topic folder	1
+tests/al-language/pages/lt-opennew-findrecord	tests/al-language/pages/opennew-findrecord  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder	1
+tests/al-language/pages/lt-outside-worksheet	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	5
+tests/al-language/pages/lt-outside-worksheet-2	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	4
+tests/al-language/pages/lt-page-array-path	tests/al-language/pages/page-array-path  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder	1
+tests/al-language/pages/lt-page-autoformat-lookups	tests/al-language/pages/run-modal	topic folder	4
+tests/al-language/pages/lt-page-controls-aa	tests/al-language/pages/controls	topic folder	5
+tests/al-language/pages/lt-page-decimal-bounds	tests/al-language/pages/controls	topic folder	1
+tests/al-language/pages/lt-page-editability-width-lookups	tests/al-language/pages/controls	topic folder	5
+tests/al-language/pages/lt-page-enum-control	tests/al-language/pages/controls	topic folder	1
+tests/al-language/pages/lt-page-event-sender	tests/al-language/pages/triggers	topic folder	2
+tests/al-language/pages/lt-page-ext-promoted	tests/al-language/pages/extensions	topic folder	1
+tests/al-language/pages/lt-page-field-editable-source	tests/al-language/pages/properties	topic folder	1
+tests/al-language/pages/lt-page-filtergroup-assumptions	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	6
+tests/al-language/pages/lt-page-metadata-api	tests/al-language/pages/properties	topic folder	1
+tests/al-language/pages/lt-page-metadata-types	tests/al-language/pages/properties	topic folder	1
+tests/al-language/pages/lt-page-presentation-properties	tests/al-language/pages/properties	topic folder	26
+tests/al-language/pages/lt-page-report-events	tests/al-language/pages/triggers	topic folder	7
+tests/al-language/pages/lt-page-run-overloads-testpart	tests/al-language/pages/parts	topic folder	8
+tests/al-language/pages/lt-page-runmodal-rec	tests/al-language/pages/run-modal	topic folder	1
+tests/al-language/pages/lt-page-runtime	tests/al-language/pages/run-modal	topic folder	10
+tests/al-language/pages/lt-page-set-value	tests/al-language/pages/controls	topic folder	1
+tests/al-language/pages/lt-page-setrecord-settableview	tests/al-language/pages/currpage	topic folder	1
+tests/al-language/pages/lt-page-sourceview-current-row	tests/al-language/pages/currpage	topic folder	2
+tests/al-language/pages/lt-page-types-empty-table	tests/al-language/pages/properties	topic folder	1
+tests/al-language/pages/lt-page-variable-lifecycle	tests/al-language/pages/lifecycle	topic folder	1
+tests/al-language/pages/lt-pageext-action-after	tests/al-language/pages/extensions	topic folder	1
+tests/al-language/pages/lt-pages-xmlport-upload-members	tests/al-language/pages/pages-xmlport-upload-members  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder	7
+tests/al-language/pages/lt-part-line-before-host-key	tests/al-language/pages/parts	topic folder	1
+tests/al-language/pages/lt-part-link-unsaved-host	tests/al-language/pages/parts	topic folder	2
+tests/al-language/pages/lt-part-never-ran	tests/al-language/pages/parts	topic folder	5
+tests/al-language/pages/lt-part-reads	tests/al-language/pages/parts	topic folder	2
+tests/al-language/pages/lt-part-subpageview-filter	tests/al-language/pages/parts	topic folder	1
+tests/al-language/pages/lt-px-controls	tests/al-language/pages/controls	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-qi-empty-error	tests/al-language/pages/empty-error  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	2
+tests/al-language/pages/lt-qi-row-page-var	tests/al-language/pages/row-page-var  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-qj-part-propagation	tests/al-language/pages/parts	topic folder; writer id dropped from the name	2
+tests/al-language/pages/lt-qq-procedure-bound-action	tests/al-language/pages/actions	topic folder; writer id dropped from the name	2
+tests/al-language/pages/lt-qr-onopenpage-moves-rec	tests/al-language/pages/onopenpage-moves-rec  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	7
+tests/al-language/pages/lt-query-close-page-result	tests/al-language/pages/triggers	topic folder	3
+tests/al-language/pages/lt-r6806-lookup-parts	tests/al-language/pages/parts	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-report-page-properties	tests/al-language/pages/properties	topic folder	35
+tests/al-language/pages/lt-rz-outside-page-moves	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	6
+tests/al-language/pages/lt-sa-other-record-control	tests/al-language/pages/controls	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-sc-outside-pages	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/pages/lt-sc-update-empty-row	tests/al-language/pages/currpage	topic folder; writer id dropped from the name	2
+tests/al-language/pages/lt-selection-filter-no-row	tests/al-language/pages/currpage	topic folder	1
+tests/al-language/pages/lt-sg-list-key-moves	tests/al-language/pages/list-key-moves  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	2
+tests/al-language/pages/lt-sn-assistedit-refresh	tests/al-language/pages/assistedit-refresh  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-subpagelink-empty-term	tests/al-language/pages/subpagelink-empty-term  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder	1
+tests/al-language/pages/lt-table-globals-page	tests/al-language/pages/table-globals-page  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder	1
+tests/al-language/pages/lt-tc-bare-page-methods	tests/al-language/pages/bare-page-methods  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	2
+tests/al-language/pages/lt-test-field-lookup	tests/al-language/pages/run-modal	topic folder	1
+tests/al-language/pages/lt-testpage-assertequals-option	tests/al-language/pages/testpage	topic folder	1
+tests/al-language/pages/lt-testpage-list-rows	tests/al-language/pages/testpage	topic folder	7
+tests/al-language/pages/lt-th-part-update-cursor	tests/al-language/pages/parts	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-uf-unqualified-runmodal	tests/al-language/pages/run-modal	topic folder; writer id dropped from the name	2
+tests/al-language/pages/lt-uj-outside-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/pages/lt-up-page-ext	tests/al-language/pages/extensions	topic folder; writer id dropped from the name	3
+tests/al-language/pages/lt-update-on-find	tests/al-language/pages/currpage	topic folder	1
+tests/al-language/pages/lt-wb-6283	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/pages/lt-wb-6290	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/pages/lt-wb-6291	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	5
+tests/al-language/pages/lt-wb-6292	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/pages/lt-wb-6320	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/pages/lt-wd	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	4
+tests/al-language/pages/lt-x-obsolete-pending	tests/al-language/pages/obsolete-pending  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-xrec-table-procedure	tests/al-language/pages/xrec-table-procedure  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder	1
+tests/al-language/pages/lt-y1-6288	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/pages/lt-y1-6289	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/pages/lt-y1-6292	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/pages/lt-y15	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	5
+tests/al-language/pages/lt-y17-activate-new-host	tests/al-language/pages/activate-new-host  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y17-expr-refresh	tests/al-language/pages/expr-refresh  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y17-journal-batch	tests/al-language/pages/journal-batch  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y17-page-handler-record	tests/al-language/pages/page-handler-record  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y17-refill-key	tests/al-language/pages/refill-key  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y17-save-row-gone	tests/al-language/pages/save-row-gone  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y37-link-filter	tests/al-language/pages/link-filter  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	2
+tests/al-language/pages/lt-y37-list-caption	tests/al-language/pages/properties	topic folder; writer id dropped from the name	2
+tests/al-language/pages/lt-y37-long-list-open	tests/al-language/pages/long-list-open  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	2
+tests/al-language/pages/lt-y37-part-after-close	tests/al-language/pages/parts	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y37-values-allowed	tests/al-language/pages/values-allowed  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y41-page-probes	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	6
+tests/al-language/pages/lt-y42-captionclass-refill	tests/al-language/pages/properties	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y42-link-quoted-member	tests/al-language/pages/link-quoted-member  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y42-repeater-new-line	tests/al-language/pages/triggers	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y45-list-caption-relation	tests/al-language/pages/properties	topic folder; writer id dropped from the name	2
+tests/al-language/pages/lt-y45-save-before-action	tests/al-language/pages/actions	topic folder; writer id dropped from the name	4
+tests/al-language/pages/lt-y5	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	5
+tests/al-language/pages/lt-y50-list-caption-expr	tests/al-language/pages/properties	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y50-or-group-page-rec	tests/al-language/pages/or-group-page-rec  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y50-temp-list-key-desc	tests/al-language/pages/temp-list-key-desc  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y50-tree-expand-leaf	tests/al-language/pages/tree-expand-leaf  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y50-update-from-new-line	tests/al-language/pages/triggers	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y50-update-never-run	tests/al-language/pages/currpage	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y58-page-summary	tests/al-language/pages/page-summary  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y61-page-probes	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	8
+tests/al-language/pages/lt-y65-code-change-next-field	tests/al-language/pages/extensions	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y65-cue-visible	tests/al-language/pages/cue-visible  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y65-gotorecord-action-insert	tests/al-language/pages/actions	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y65-readonly-repeater	tests/al-language/pages/readonly-repeater  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y65-values-allowed-table-field	tests/al-language/pages/values-allowed-table-field  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y66-temp-list-gone-row	tests/al-language/pages/temp-list-gone-row  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y68-lookup-getrecord	tests/al-language/pages/run-modal	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y72-page-probes	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	7
+tests/al-language/pages/lt-y74-fqn-run	tests/al-language/pages/run-modal	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y76-view-filters	tests/al-language/pages/view-filters  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	2
+tests/al-language/pages/lt-y80-captionclass-empty	tests/al-language/pages/properties	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y80-gone-rows	tests/al-language/pages/gone-rows  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y80-lookup-holds-value	tests/al-language/pages/run-modal	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y80-modify-denied	tests/al-language/pages/modify-denied  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y80-new-host-key	tests/al-language/pages/new-host-key  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y80-setvalue-types	tests/al-language/pages/properties	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y80-subpageview	tests/al-language/pages/subpageview  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	2
+tests/al-language/pages/lt-y86-testpage-values	tests/al-language/pages/testpage	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-y87-probes	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/pages/lt-y88-page-probes	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/pages/lt-z-page-customization	tests/al-language/pages/page-customization  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/pages/lt-z-page-props	tests/al-language/pages/page-props  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	2
+tests/al-language/pagesave	tests/al-language/pages/record-save	small feature folder merged into its area	3
+tests/al-language/pageupdate	tests/al-language/pages/currpage	small feature folder merged into its area	20
+tests/al-language/permissions	tests/al-language/permissions	area folder: files stay in the area	11
+tests/al-language/permissions/lt-av-permission-filter	tests/al-language/permissions/permission-sets	topic folder; writer id dropped from the name	1
+tests/al-language/permissions/lt-ba-testpermissions	tests/al-language/permissions/testpermissions	topic folder; writer id dropped from the name	11
+tests/al-language/permissions/lt-co-permission-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/permissions/lt-cp-permission-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/permissions/lt-permissions-mock-indirect	tests/al-language/permissions/permission-sets	topic folder	10
+tests/al-language/permissions/lt-qc-runner-sets	tests/al-language/permissions/testpermissions	topic folder; writer id dropped from the name	1
+tests/al-language/permissions/lt-y12-permset-name-length	tests/al-language/permissions/permission-sets	topic folder; writer id dropped from the name	1
+tests/al-language/permissions/lt-y19-perm-probes	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	11
+tests/al-language/permissions/lt-y48-security-filter	tests/al-language/permissions/permission-sets	topic folder; writer id dropped from the name	1
+tests/al-language/permissions/lt-y59-metadata-permission	tests/al-language/permissions/permission-sets	topic folder; writer id dropped from the name	2
+tests/al-language/permissions/lt-y67-perm-compose	tests/al-language/permissions/permission-sets	topic folder; writer id dropped from the name	1
+tests/al-language/permissions/lt-y69-moved-system	tests/al-language/permissions/permission-sets	topic folder; writer id dropped from the name	6
+tests/al-language/permissions/lt-y75-license	tests/al-language/permissions/permission-sets	topic folder; writer id dropped from the name	1
+tests/al-language/permissions/lt-y84-perm-shapes	tests/al-language/permissions/permission-sets	topic folder; writer id dropped from the name	4
+tests/al-language/platform	tests/al-language/metadata	area folder: files stay in the area	2
+tests/al-language/platform/lt-ag-contoso	tests/al-language/metadata/platform-tables	topic folder; writer id dropped from the name	4
+tests/al-language/platform/lt-av-code-coverage	tests/al-language/metadata/code-coverage	topic folder; writer id dropped from the name	1
+tests/al-language/platform/lt-aw-fresh-tenant	tests/al-language/metadata/platform-tables	topic folder; writer id dropped from the name	2
+tests/al-language/platform/lt-ba-columns	tests/al-language/metadata/platform-tables	topic folder; writer id dropped from the name	3
+tests/al-language/platform/lt-code-coverage-refresh	tests/al-language/metadata/code-coverage	topic folder	1
+tests/al-language/platform/lt-field-row-systemid	tests/al-language/metadata/platform-tables	topic folder	1
+tests/al-language/platform/lt-license-permission	tests/al-language/metadata/platform-tables	topic folder	2
+tests/al-language/platform/lt-outside-platform	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/platform/lt-platform-members	tests/al-language/metadata/platform-tables	topic folder	11
+tests/al-language/platform/lt-platform-rows-fresh	tests/al-language/metadata/platform-tables	topic folder	5
+tests/al-language/platform/lt-platform-tables	tests/al-language/metadata/platform-tables	topic folder	3
+tests/al-language/platform/lt-rh-agent-session	tests/al-language/metadata/session-system	topic folder; writer id dropped from the name	1
+tests/al-language/platform/lt-ri-aoai	tests/al-language/metadata/session-system	topic folder; writer id dropped from the name	1
+tests/al-language/platform/lt-system-database-members	tests/al-language/metadata/platform-tables	topic folder	32
+tests/al-language/platform/lt-t-geturl	tests/al-language/metadata/session-system	topic folder; writer id dropped from the name	1
+tests/al-language/platform/lt-ty-app-key-vault	tests/al-language/metadata/session-system	topic folder; writer id dropped from the name	1
+tests/al-language/platform/lt-ug-report-layout-list	tests/al-language/metadata/platform-tables	topic folder; writer id dropped from the name	1
+tests/al-language/platform/lt-wc	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/platform/lt-wd	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/platform/lt-xmlport-session-navapp-cookie	tests/al-language/metadata/session-system	topic folder	10
+tests/al-language/platform/lt-y21-env-columns	tests/al-language/metadata/platform-tables	topic folder; writer id dropped from the name	2
+tests/al-language/platform/lt-y35-agent-api	tests/al-language/metadata/session-system	topic folder; writer id dropped from the name	1
+tests/al-language/platform/lt-y35-privacy-approval	tests/al-language/metadata/platform-tables	topic folder; writer id dropped from the name	1
+tests/al-language/platform/lt-y35-username-field-rows	tests/al-language/metadata/platform-tables	topic folder; writer id dropped from the name	1
+tests/al-language/platform/lt-y43-task-after-commit	tests/al-language/metadata/session-system	topic folder; writer id dropped from the name	1
+tests/al-language/platform/lt-y59-page-metadata	tests/al-language/metadata/platform-tables	topic folder; writer id dropped from the name	1
+tests/al-language/platform/lt-y59-page-personalization	tests/al-language/metadata/platform-tables	topic folder; writer id dropped from the name	1
+tests/al-language/platform/lt-y71-mcp-config-card	tests/al-language/metadata/session-system	topic folder; writer id dropped from the name	1
+tests/al-language/profile	tests/al-language/profiles	area folder: files stay in the area	9
+tests/al-language/query	tests/al-language/queries	area folder: files stay in the area	91
+tests/al-language/query/lt-az-query	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/query/lt-cf-query-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/query/lt-cg-query-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/query/lt-ch-query-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/query/lt-outer-joins	tests/al-language/queries/joins-links	topic folder	15
+tests/al-language/query/lt-query-closed-after-last-row	tests/al-language/queries/read-lifecycle	topic folder	1
+tests/al-language/query/lt-query-flowfield-methods	tests/al-language/queries/flowfields-filters	topic folder	2
+tests/al-language/query/lt-query-links-relations-httpstream	tests/al-language/queries/joins-links	topic folder	6
+tests/al-language/query/lt-query-live-write	tests/al-language/queries/read-lifecycle	topic folder	1
+tests/al-language/query/lt-query-read-to-end	tests/al-language/queries/read-lifecycle	topic folder	1
+tests/al-language/query/lt-query-recordid-column	tests/al-language/queries/read-lifecycle	topic folder	1
+tests/al-language/query/lt-query-save-as	tests/al-language/queries/read-lifecycle	topic folder	1
+tests/al-language/query/lt-query-setrange-after-read	tests/al-language/queries/flowfields-filters	topic folder	1
+tests/al-language/query/lt-query-ties	tests/al-language/queries/read-lifecycle	topic folder	1
+tests/al-language/query/lt-y62-flowfield-filter-join	tests/al-language/queries/joins-links	topic folder; writer id dropped from the name	1
+tests/al-language/query/lt-y67-query-flowfield-filter	tests/al-language/queries/flowfields-filters	topic folder; writer id dropped from the name	1
+tests/al-language/query/lt-y78-outer-aggregate-filter	tests/al-language/queries/flowfields-filters	topic folder; writer id dropped from the name	1
+tests/al-language/record	tests/al-language/record	area folder: files stay in the area	218
+tests/al-language/record/lt-af-record-events	tests/al-language/record/events	topic folder; writer id dropped from the name	2
+tests/al-language/record/lt-ar-records	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/record/lt-are-fields-loaded-unfetched	tests/al-language/record/load-fields	topic folder	1
+tests/al-language/record/lt-arefieldsloaded-default	tests/al-language/record/load-fields	topic folder	1
+tests/al-language/record/lt-as-records	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	17
+tests/al-language/record/lt-at-partner-gaps	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/record/lt-bl-invalid-decimal-filter	tests/al-language/record/filters	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-bl-wildcard-getfilter	tests/al-language/record/filters	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-blank-enum-relation-filter	tests/al-language/record/filters	topic folder	1
+tests/al-language/record/lt-blob-autocalc	tests/al-language/record/flowfields	topic folder	1
+tests/al-language/record/lt-blob-calcfields-length	tests/al-language/record/flowfields	topic folder	1
+tests/al-language/record/lt-bm-builtin-name-procedures	tests/al-language/record/builtin-name-procedures  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	2
+tests/al-language/record/lt-bm-long-field-names	tests/al-language/record/table-properties	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-bq-odd-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/record/lt-br-record-size	tests/al-language/record/crud	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-calcformula-date-literal	tests/al-language/record/flowfields	topic folder	1
+tests/al-language/record/lt-calcsums-duration	tests/al-language/record/flowfields	topic folder	1
+tests/al-language/record/lt-calcsums-flowfield-filter	tests/al-language/record/flowfields	topic folder	1
+tests/al-language/record/lt-chained-array-index	tests/al-language/record/chained-array-index  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder	1
+tests/al-language/record/lt-cn-transferfields-modify	tests/al-language/record/crud	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-curr-field-no	tests/al-language/record/curr-field-no  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder	1
+tests/al-language/record/lt-date-filter-letters-workdates	tests/al-language/record/filters	topic folder	1
+tests/al-language/record/lt-delete-all-deleted-meanwhile	tests/al-language/record/crud	topic folder	1
+tests/al-language/record/lt-duplicate-insert-trigger	tests/al-language/record/crud	topic folder	1
+tests/al-language/record/lt-enum-filter-caption	tests/al-language/record/filters	topic folder	1
+tests/al-language/record/lt-filter-placeholder-in	tests/al-language/record/filters	topic folder	1
+tests/al-language/record/lt-filters-keys-finds	tests/al-language/record/filters	topic folder	10
+tests/al-language/record/lt-find-empty-table	tests/al-language/record/crud	topic folder	1
+tests/al-language/record/lt-flowfield-lookup-enum	tests/al-language/record/flowfields	topic folder	2
+tests/al-language/record/lt-flowfield-write	tests/al-language/record/flowfields	topic folder	2
+tests/al-language/record/lt-get-range-filter	tests/al-language/record/filters	topic folder	1
+tests/al-language/record/lt-get-text-argument	tests/al-language/record/crud	topic folder	1
+tests/al-language/record/lt-key-case-trailing-blank	tests/al-language/record/keys-sorting	topic folder	1
+tests/al-language/record/lt-load-fields-fetched	tests/al-language/record/load-fields	topic folder	1
+tests/al-language/record/lt-loadfields-pagesource-validate	tests/al-language/record/load-fields	topic folder	6
+tests/al-language/record/lt-media-length-find-empty	tests/al-language/record/crud	topic folder	1
+tests/al-language/record/lt-modify-field-two	tests/al-language/record/crud	topic folder	1
+tests/al-language/record/lt-modify-without-change	tests/al-language/record/crud	topic folder	1
+tests/al-language/record/lt-outside-records	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/record/lt-priority-assumptions	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/record/lt-qd-captionclass-areas	tests/al-language/record/captions	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-qd-temp-param	tests/al-language/record/temporary	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-qr-systemid-insert-events	tests/al-language/record/system-fields	topic folder; writer id dropped from the name	3
+tests/al-language/record/lt-qr-temp-sqltimestamp	tests/al-language/record/temporary	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-r6795-loadfields-flow	tests/al-language/record/load-fields	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-r6807-view-find	tests/al-language/record/views	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-record-conversion-assumptions	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	16
+tests/al-language/record/lt-record-id-in	tests/al-language/record/filters	topic folder	1
+tests/al-language/record/lt-record-read	tests/al-language/record/crud	topic folder	7
+tests/al-language/record/lt-record-sort-ascending	tests/al-language/record/keys-sorting	topic folder	1
+tests/al-language/record/lt-record-write	tests/al-language/record/crud	topic folder	8
+tests/al-language/record/lt-relation-where-empty-term	tests/al-language/record/table-relation	topic folder	1
+tests/al-language/record/lt-relation-where-flowfilter	tests/al-language/record/filters	topic folder	1
+tests/al-language/record/lt-relation-where-multi	tests/al-language/record/table-relation	topic folder	1
+tests/al-language/record/lt-relation-where-validated	tests/al-language/record/table-relation	topic folder	1
+tests/al-language/record/lt-ru-deferred-dup	tests/al-language/record/crud	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-sb-stale-own-modify	tests/al-language/record/crud	topic folder; writer id dropped from the name	6
+tests/al-language/record/lt-sc-enum-const-relation	tests/al-language/record/table-relation	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-set-ascending-edges	tests/al-language/record/keys-sorting	topic folder	1
+tests/al-language/record/lt-set-current-key	tests/al-language/record/keys-sorting	topic folder	4
+tests/al-language/record/lt-setascending-ties	tests/al-language/record/keys-sorting	topic folder	1
+tests/al-language/record/lt-setview-caption	tests/al-language/record/views	topic folder	1
+tests/al-language/record/lt-setview-caption-form	tests/al-language/record/views	topic folder	1
+tests/al-language/record/lt-setview-sorting-nonkey	tests/al-language/record/keys-sorting	topic folder	1
+tests/al-language/record/lt-sx-captionclass-count	tests/al-language/record/captions	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-system-stamp-order	tests/al-language/record/system-fields	topic folder	1
+tests/al-language/record/lt-table-connection-duplicate	tests/al-language/record/crud	topic folder	1
+tests/al-language/record/lt-table-globals-record	tests/al-language/record/table-globals-record  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder	1
+tests/al-language/record/lt-table-relation-arms	tests/al-language/record/table-relation	topic folder	1
+tests/al-language/record/lt-table-relation-quotes	tests/al-language/record/table-relation	topic folder	1
+tests/al-language/record/lt-tablerelation-blank-option	tests/al-language/record/table-relation	topic folder	1
+tests/al-language/record/lt-temp-record-by-value	tests/al-language/record/temporary	topic folder	1
+tests/al-language/record/lt-temporary-array-elements	tests/al-language/record/temporary	topic folder	1
+tests/al-language/record/lt-temporary-blob	tests/al-language/record/temporary	topic folder	1
+tests/al-language/record/lt-testfield-blob-decimal	tests/al-language/record/testfield	topic folder	1
+tests/al-language/record/lt-testfield-fielderror-typed	tests/al-language/record/testfield	topic folder	9
+tests/al-language/record/lt-testfield-typed-values	tests/al-language/record/testfield	topic folder	14
+tests/al-language/record/lt-testfield-value-types	tests/al-language/record/testfield	topic folder	3
+tests/al-language/record/lt-truncate-guards	tests/al-language/record/crud	topic folder	1
+tests/al-language/record/lt-u-table-field-props	tests/al-language/record/table-properties	topic folder; writer id dropped from the name	3
+tests/al-language/record/lt-uv-time-zone-table	tests/al-language/record/table-properties	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-wb-6284	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/record/lt-wb-6287	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/record/lt-wc	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/record/lt-x-table-props	tests/al-language/record/table-properties	topic folder; writer id dropped from the name	4
+tests/al-language/record/lt-x3-6368	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/record/lt-y11-windows-language	tests/al-language/record/table-properties	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-y12-published-as	tests/al-language/record/table-properties	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-y17-sum-where-flowfield	tests/al-language/record/flowfields	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-y38-dupkey-after-event	tests/al-language/record/keys-sorting	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-y38-transfer-xapp	tests/al-language/record/transfer-xapp  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	2
+tests/al-language/record/lt-y39-windows-language-table	tests/al-language/record/table-properties	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-y47-initvalue-quoted	tests/al-language/record/crud	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-y48-feature-key-writes	tests/al-language/record/keys-sorting	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-y51-recordref-copy-temp	tests/al-language/record/temporary	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-y51-setview-shapes	tests/al-language/record/views	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-y65-rename-const-relation	tests/al-language/record/table-relation	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-y67-addloadfields-flow	tests/al-language/record/load-fields	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-y71-failed-insert-modify	tests/al-language/record/crud	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-y71-setview-datetime	tests/al-language/record/views	topic folder; writer id dropped from the name	1
+tests/al-language/record/lt-y77-guid-filter	tests/al-language/record/filters	topic folder; writer id dropped from the name	2
+tests/al-language/record/lt-y81-values	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/record/lt-y82-sqldatatype-code	tests/al-language/record/system-fields	topic folder; writer id dropped from the name	4
+tests/al-language/record/lt-y87-loadfields-ref	tests/al-language/record/load-fields	topic folder; writer id dropped from the name	1
+tests/al-language/recordref	tests/al-language/recordref-fieldref/recordref	small feature folder merged into its area	23
+tests/al-language/recordref/lt-fieldref-calcsum-filters	tests/al-language/recordref-fieldref/recordref	topic folder	1
+tests/al-language/recordref/lt-fieldref-calcsum-types	tests/al-language/recordref-fieldref/recordref	topic folder	1
+tests/al-language/recordref/lt-recordref-fieldref-members	tests/al-language/recordref-fieldref/recordref	topic folder	13
+tests/al-language/recordref/lt-recordref-get-recordid	tests/al-language/recordref-fieldref/recordref	topic folder	1
+tests/al-language/recordref/lt-recordref-get-unopened-stmt	tests/al-language/recordref-fieldref/recordref	topic folder	1
+tests/al-language/recordref/lt-recordref-isdirty-edges	tests/al-language/recordref-fieldref/recordref	topic folder	1
+tests/al-language/recordref/lt-recordref-open-system-tables	tests/al-language/recordref-fieldref/recordref	topic folder	1
+tests/al-language/recordref/lt-recordref-variant-record	tests/al-language/recordref-fieldref/recordref	topic folder	1
+tests/al-language/recordref/lt-refs	tests/al-language/recordref-fieldref/recordref	topic folder	8
+tests/al-language/recordref/lt-settable-temporary	tests/al-language/recordref-fieldref/recordref	topic folder	1
+tests/al-language/recordref/lt-t-recordref-links	tests/al-language/recordref-fieldref/recordref	topic folder; writer id dropped from the name	1
+tests/al-language/recordref/lt-uf-recordid-chain	tests/al-language/recordref-fieldref/recordref	topic folder; writer id dropped from the name	1
+tests/al-language/recordref/lt-wc	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/recordref/lt-y12-keyref-format	tests/al-language/recordref-fieldref/recordref	topic folder; writer id dropped from the name	1
+tests/al-language/recordref/lt-y23-variant-view	tests/al-language/recordref-fieldref/recordref	topic folder; writer id dropped from the name	1
+tests/al-language/recordref/lt-y47-validate-fieldref	tests/al-language/recordref-fieldref/recordref	topic folder; writer id dropped from the name	1
+tests/al-language/recordref/lt-y49-blob-compare	tests/al-language/recordref-fieldref/recordref	topic folder; writer id dropped from the name	1
+tests/al-language/recordref/lt-y71-loadfields	tests/al-language/recordref-fieldref/recordref	topic folder; writer id dropped from the name	1
+tests/al-language/records	tests/al-language/record	area folder: files stay in the area	3
+tests/al-language/report	tests/al-language/reports	area folder: files stay in the area	17
+tests/al-language/report/lt-ab-report-ext-prerendering	tests/al-language/reports/layouts-saveas	topic folder; writer id dropped from the name	1
+tests/al-language/report/lt-ab-request-page-triggers	tests/al-language/reports/request-page	topic folder; writer id dropped from the name	3
+tests/al-language/report/lt-ae-reporthandler	tests/al-language/reports/reporthandler  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	6
+tests/al-language/report/lt-ah-dataset-header	tests/al-language/reports/dataset	topic folder; writer id dropped from the name	1
+tests/al-language/report/lt-am-rdlc-output	tests/al-language/reports/layouts-saveas	topic folder; writer id dropped from the name	1
+tests/al-language/report/lt-am-report-output	tests/al-language/reports/layouts-saveas	topic folder; writer id dropped from the name	2
+tests/al-language/report/lt-aq	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/report/lt-bc-xml-blob	tests/al-language/reports/layouts-saveas	topic folder; writer id dropped from the name	2
+tests/al-language/report/lt-bd-data-item-id	tests/al-language/reports/dataset	topic folder; writer id dropped from the name	1
+tests/al-language/report/lt-bd-format-region	tests/al-language/reports/runtime	topic folder; writer id dropped from the name	3
+tests/al-language/report/lt-bj-fqn-page-run	tests/al-language/reports/runtime	topic folder; writer id dropped from the name	1
+tests/al-language/report/lt-bj-request-drilldown	tests/al-language/reports/request-page	topic folder; writer id dropped from the name	2
+tests/al-language/report/lt-bv-report-char-arg	tests/al-language/reports/runtime	topic folder; writer id dropped from the name	1
+tests/al-language/report/lt-ch-report-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/report/lt-ci-report-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/report/lt-cj-report-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	5
+tests/al-language/report/lt-clearall-report	tests/al-language/reports/runtime	topic folder	4
+tests/al-language/report/lt-dataitem-view	tests/al-language/reports/dataset	topic folder	1
+tests/al-language/report/lt-f3-reports	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/report/lt-maxiteration-zero	tests/al-language/reports/dataset	topic folder	3
+tests/al-language/report/lt-qw-ternary-columns	tests/al-language/reports/dataset	topic folder; writer id dropped from the name	1
+tests/al-language/report/lt-report-dataset-header	tests/al-language/reports/dataset	topic folder	1
+tests/al-language/report/lt-report-dataset-names	tests/al-language/reports/dataset	topic folder	1
+tests/al-language/report/lt-report-layout-merger	tests/al-language/reports/layouts-saveas	topic folder	10
+tests/al-language/report/lt-report-members-testrequestpage	tests/al-language/reports/request-page	topic folder	6
+tests/al-language/report/lt-report-pre-rendering	tests/al-language/reports/layouts-saveas	topic folder	3
+tests/al-language/report/lt-report-processing-only	tests/al-language/reports/runtime	topic folder	1
+tests/al-language/report/lt-report-request-page	tests/al-language/reports/request-page	topic folder	1
+tests/al-language/report/lt-report-requestpage	tests/al-language/reports/request-page	topic folder	9
+tests/al-language/report/lt-report-requestpage-query-members	tests/al-language/reports/request-page	topic folder	22
+tests/al-language/report/lt-report-run-system-printer	tests/al-language/reports/layouts-saveas	topic folder	2
+tests/al-language/report/lt-report-save-as	tests/al-language/reports/layouts-saveas	topic folder	1
+tests/al-language/report/lt-report-saveas-dataitems	tests/al-language/reports/dataset	topic folder	1
+tests/al-language/report/lt-report-set-table	tests/al-language/reports/dataset	topic folder	1
+tests/al-language/report/lt-report-this-passed-on	tests/al-language/reports/runtime	topic folder	5
+tests/al-language/report/lt-reportext-layout-relations	tests/al-language/reports/layouts-saveas	topic folder	2
+tests/al-language/report/lt-reportext-rendering	tests/al-language/reports/layouts-saveas	topic folder	2
+tests/al-language/report/lt-request-options-page-access	tests/al-language/reports/request-page	topic folder	1
+tests/al-language/report/lt-request-page-oninit	tests/al-language/reports/request-page	topic folder	1
+tests/al-language/report/lt-request-page-record-triggers	tests/al-language/reports/request-page	topic folder	2
+tests/al-language/report/lt-requestpage-savevalues-date-text-setvalue	tests/al-language/reports/request-page	topic folder	12
+tests/al-language/report/lt-sc-report-metadata-views	tests/al-language/reports/runtime	topic folder; writer id dropped from the name	2
+tests/al-language/report/lt-t-fqn-run	tests/al-language/reports/runtime	topic folder; writer id dropped from the name	1
+tests/al-language/report/lt-t-validate-layout	tests/al-language/reports/layouts-saveas	topic folder; writer id dropped from the name	1
+tests/al-language/report/lt-tk-showprintstatus	tests/al-language/reports/runtime	topic folder; writer id dropped from the name	1
+tests/al-language/report/lt-tn-savevalues-body-filters	tests/al-language/reports/layouts-saveas	topic folder; writer id dropped from the name	1
+tests/al-language/report/lt-u-report-props	tests/al-language/reports/runtime	topic folder; writer id dropped from the name	2
+tests/al-language/report/lt-wd	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/report/lt-y-report-props	tests/al-language/reports/runtime	topic folder; writer id dropped from the name	5
+tests/al-language/report/lt-y-request-page	tests/al-language/reports/request-page	topic folder; writer id dropped from the name	3
+tests/al-language/report/lt-y17-ext-settableview	tests/al-language/reports/ext-settableview  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	2
+tests/al-language/report/lt-y17-layout-export	tests/al-language/reports/layouts-saveas	topic folder; writer id dropped from the name	2
+tests/al-language/report/lt-y36-bare-report-member	tests/al-language/reports/bare-report-member  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/report/lt-y40-bare-report-run	tests/al-language/reports/runtime	topic folder; writer id dropped from the name	1
+tests/al-language/report/lt-y42-reportext-request-page	tests/al-language/reports/request-page	topic folder; writer id dropped from the name	1
+tests/al-language/report/lt-y42-request-left-open	tests/al-language/reports/request-page	topic folder; writer id dropped from the name	1
+tests/al-language/report/lt-y67-layout-ext	tests/al-language/reports/layouts-saveas	topic folder; writer id dropped from the name	1
+tests/al-language/report/lt-y68-selfclosing-params	tests/al-language/reports/runtime	topic folder; writer id dropped from the name	1
+tests/al-language/report/lt-y80-reportext-request-page	tests/al-language/reports/request-page	topic folder; writer id dropped from the name	1
+tests/al-language/report/lt-y86-request-page	tests/al-language/reports/request-page	topic folder; writer id dropped from the name	3
+tests/al-language/reportext	tests/al-language/reports/extensions	small feature folder merged into its area	2
+tests/al-language/reportext/lt-y64-local-proc-names	tests/al-language/reports/extensions	topic folder; writer id dropped from the name	1
+tests/al-language/reportext/lt-y64-xapp-run-order	tests/al-language/reports/extensions	topic folder; writer id dropped from the name	1
+tests/al-language/reportextensiontrigger	tests/al-language/reports/extensions	small feature folder merged into its area	5
+tests/al-language/runner	tests/al-language/test-framework	area folder: files stay in the area	1
+tests/al-language/session	tests/al-language/session-system	area folder: files stay in the area	69
+tests/al-language/session/lt-av-decrypt-key-delete	tests/al-language/session-system/isolated-storage	topic folder; writer id dropped from the name	1
+tests/al-language/session/lt-av-request-session-update	tests/al-language/session-system/session	topic folder; writer id dropped from the name	1
+tests/al-language/session/lt-bl-sql-counters	tests/al-language/session-system/session	topic folder; writer id dropped from the name	2
+tests/al-language/session/lt-cn-session-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/session/lt-company-information	tests/al-language/session-system/company	topic folder	1
+tests/al-language/session/lt-company-property	tests/al-language/session-system/company	topic folder	1
+tests/al-language/session/lt-company-record	tests/al-language/session-system/company	topic folder	1
+tests/al-language/session/lt-company-setup-rows	tests/al-language/session-system/company	topic folder	1
+tests/al-language/session/lt-cy-sleep	tests/al-language/session-system/session	topic folder; writer id dropped from the name	1
+tests/al-language/session/lt-encryption-key	tests/al-language/session-system/isolated-storage	topic folder	1
+tests/al-language/session/lt-encryption-key-delete	tests/al-language/session-system/isolated-storage	topic folder	1
+tests/al-language/session/lt-geturl-shape	tests/al-language/session-system/session	topic folder	1
+tests/al-language/session/lt-isolated-storage-failed	tests/al-language/session-system/isolated-storage	topic folder	1
+tests/al-language/session/lt-isolated-storage-guid	tests/al-language/session-system/isolated-storage	topic folder	2
+tests/al-language/session/lt-isolated-storage-guid-case	tests/al-language/session-system/isolated-storage	topic folder	1
+tests/al-language/session/lt-isolated-storage-variant-key	tests/al-language/session-system/isolated-storage	topic folder	1
+tests/al-language/session/lt-outside-workdate	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/session/lt-save-values-across-codeunits	tests/al-language/session-system/session	topic folder	1
+tests/al-language/session/lt-session-settings-fresh	tests/al-language/session-system/session	topic folder	1
+tests/al-language/session/lt-tableconnection-type-register	tests/al-language/session-system/session	topic folder	1
+tests/al-language/session/lt-y22-copy-company	tests/al-language/session-system/company	topic folder; writer id dropped from the name	2
+tests/al-language/session/lt-y5	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/session/lt-y71-geolocation-module	tests/al-language/session-system/session	topic folder; writer id dropped from the name	1
+tests/al-language/session/lt-y71-session-user	tests/al-language/session-system/session	topic folder; writer id dropped from the name	1
+tests/al-language/streams	tests/al-language/streams	area folder: files stay in the area	18
+tests/al-language/streams/lt-bg-download	tests/al-language/streams/blob-tempblob	topic folder; writer id dropped from the name	1
+tests/al-language/streams/lt-bigtext-write	tests/al-language/streams/instream-outstream	topic folder	1
+tests/al-language/streams/lt-blob-length-integer	tests/al-language/streams/blob-tempblob	topic folder	1
+tests/al-language/streams/lt-dc-stream-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/streams/lt-dd-stream-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/streams/lt-de-stream-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	3
+tests/al-language/streams/lt-gzip-short	tests/al-language/streams/blob-tempblob	topic folder	1
+tests/al-language/streams/lt-stream-length	tests/al-language/streams/instream-outstream	topic folder	2
+tests/al-language/streams/lt-stream-non-ascii	tests/al-language/streams/instream-outstream	topic folder	2
+tests/al-language/streams/lt-stream-read-short	tests/al-language/streams/instream-outstream	topic folder	1
+tests/al-language/streams/lt-stream-read-write-media	tests/al-language/streams/media	topic folder	8
+tests/al-language/streams/lt-stream-utf8-chars	tests/al-language/streams/instream-outstream	topic folder	1
+tests/al-language/streams/lt-stream-value-types	tests/al-language/streams/instream-outstream	topic folder	5
+tests/al-language/streams/lt-tf-stream-read	tests/al-language/streams/instream-outstream	topic folder; writer id dropped from the name	1
+tests/al-language/streams/lt-y38-utf8-write	tests/al-language/streams/instream-outstream	topic folder; writer id dropped from the name	1
+tests/al-language/streams/lt-y44-media-export	tests/al-language/streams/media	topic folder; writer id dropped from the name	1
+tests/al-language/streams/lt-y62-gone-instream	tests/al-language/streams/instream-outstream	topic folder; writer id dropped from the name	1
+tests/al-language/streams/lt-y71-two-instreams	tests/al-language/streams/instream-outstream	topic folder; writer id dropped from the name	1
+tests/al-language/system-fields	tests/al-language/record/system-fields	small feature folder merged into its area	1
+tests/al-language/system-fields/lt-y64-username-filters	tests/al-language/record/system-fields	topic folder; writer id dropped from the name	1
+tests/al-language/tableextension	tests/al-language/table-objects/extensions	small feature folder merged into its area	8
+tests/al-language/tableextension/lt-bs-tableext-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/tableextension/lt-bw-cross-app	tests/al-language/table-objects/extensions	topic folder; writer id dropped from the name	4
+tests/al-language/tableextension/lt-pyd-relation	tests/al-language/table-objects/extensions	topic folder	1
+tests/al-language/tableextension/lt-y20-sibling-globals	tests/al-language/table-objects/extensions	topic folder; writer id dropped from the name	1
+tests/al-language/tableextension/lt-y5	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/tableextensiontrigger	tests/al-language/table-objects/extensions	small feature folder merged into its area	9
+tests/al-language/tableglobals	tests/al-language/table-objects/globals	small feature folder merged into its area	3
+tests/al-language/testfilter	tests/al-language/testpage/filters	small feature folder merged into its area	7
+tests/al-language/testpageclose	tests/al-language/testpage/lifecycle	small feature folder merged into its area	3
+tests/al-language/testpageclose/lt-y65-close-page-types	tests/al-language/testpage/lifecycle	topic folder; writer id dropped from the name	1
+tests/al-language/testpageclose/lt-y67-close-save-error	tests/al-language/testpage/lifecycle	topic folder; writer id dropped from the name	1
+tests/al-language/testpageteardown	tests/al-language/testpage/lifecycle	small feature folder merged into its area	1
+tests/al-language/testpart	tests/al-language/testpage/parts	small feature folder merged into its area	45
+tests/al-language/testpart/lt-bh-part-confirm	tests/al-language/testpage/parts	topic folder; writer id dropped from the name	1
+tests/al-language/text	tests/al-language/text	area folder: files stay in the area	11
+tests/al-language/text/lt-bigtext-copies	tests/al-language/text/textbuilder-bigtext	topic folder	1
+tests/al-language/text/lt-bu-multiline-crlf	tests/al-language/text/text-methods	topic folder; writer id dropped from the name	1
+tests/al-language/text/lt-cr-text-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/text/lt-foreach-text	tests/al-language/text/text-methods	topic folder	1
+tests/al-language/text/lt-label-textbuilder	tests/al-language/text/textbuilder-bigtext	topic folder	3
+tests/al-language/text/lt-t-textconst-methods	tests/al-language/text/textconst-label	topic folder; writer id dropped from the name	1
+tests/al-language/text/lt-text-edges-205	tests/al-language/text/text-methods	topic folder	1
+tests/al-language/text/lt-text-functions	tests/al-language/text/text-methods	topic folder	16
+tests/al-language/text/lt-text-instance	tests/al-language/text/text-methods	topic folder	5
+tests/al-language/text/lt-textbuilder-field-direct	tests/al-language/text/textbuilder-bigtext	topic folder	1
+tests/al-language/text/lt-textbuilder-variant	tests/al-language/text/textbuilder-bigtext	topic folder	1
+tests/al-language/text/lt-textconst-direct-calls	tests/al-language/text/textconst-label	topic folder	3
+tests/al-language/text/lt-textconst-label-methods	tests/al-language/text/textconst-label	topic folder	6
+tests/al-language/text/lt-y49-fieldref-into-text	tests/al-language/text/text-methods	topic folder; writer id dropped from the name	1
+tests/al-language/text/lt-y49-textbuilder-guid	tests/al-language/text/textbuilder-bigtext	topic folder; writer id dropped from the name	1
+tests/al-language/types	tests/al-language/types	area folder: files stay in the area	113
+tests/al-language/types/lt-af-char-literal	tests/al-language/types/text-code-char	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-ah-operators-evaluate	tests/al-language/types/format-evaluate	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-aj-probes	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/types/lt-array-index-option	tests/al-language/types/enum-option	topic folder	1
+tests/al-language/types/lt-at-partner-gaps	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/types/lt-auto-format-currency	tests/al-language/types/format-evaluate	topic folder	3
+tests/al-language/types/lt-ax-text-format-dates	tests/al-language/types/format-evaluate	topic folder; writer id dropped from the name	6
+tests/al-language/types/lt-bc-date-methods	tests/al-language/types/date-time	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-bc-enum-variant	tests/al-language/types/variant	topic folder; writer id dropped from the name	2
+tests/al-language/types/lt-bc-round-duration	tests/al-language/types/duration	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-bigint-enum-option	tests/al-language/types/enum-option	topic folder	1
+tests/al-language/types/lt-bl-evaluate-lists	tests/al-language/types/format-evaluate	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-bu-property-conversions	tests/al-language/types/operators-expressions	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-byte-char-high	tests/al-language/types/text-code-char	topic folder	1
+tests/al-language/types/lt-clear-array-row	tests/al-language/types/arrays	topic folder	1
+tests/al-language/types/lt-code-digits-compare-more	tests/al-language/types/text-code-char	topic folder	1
+tests/al-language/types/lt-code-digits-page-run-view	tests/al-language/types/text-code-char	topic folder	7
+tests/al-language/types/lt-conversions-hidden-parts-doctype	tests/al-language/types/operators-expressions	topic folder	5
+tests/al-language/types/lt-cw-variant-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/types/lt-date-formula-edges	tests/al-language/types/date-time	topic folder	2
+tests/al-language/types/lt-date-formula-signed-wd	tests/al-language/types/date-time	topic folder	1
+tests/al-language/types/lt-date-formula-spaces	tests/al-language/types/date-time	topic folder	1
+tests/al-language/types/lt-datetime	tests/al-language/types/date-time	topic folder	6
+tests/al-language/types/lt-datetime-date-time-methods	tests/al-language/types/date-time	topic folder	1
+tests/al-language/types/lt-decimal-digits	tests/al-language/types/decimal-integer	topic folder	2
+tests/al-language/types/lt-duration-arithmetic	tests/al-language/types/duration	topic folder	1
+tests/al-language/types/lt-duration-div-mod	tests/al-language/types/duration	topic folder	4
+tests/al-language/types/lt-duration-integer-arithmetic	tests/al-language/types/duration	topic folder	3
+tests/al-language/types/lt-duration-sum-typed	tests/al-language/types/duration	topic folder	1
+tests/al-language/types/lt-enum-ext-field-variant	tests/al-language/types/variant	topic folder	1
+tests/al-language/types/lt-enum-option-conversions	tests/al-language/types/enum-option	topic folder	8
+tests/al-language/types/lt-enum-to-text-fieldref	tests/al-language/types/enum-option	topic folder	2
+tests/al-language/types/lt-enum-type-before-rec-field	tests/al-language/types/enum-option	topic folder	1
+tests/al-language/types/lt-evaluate-date-3digit-year	tests/al-language/types/format-evaluate	topic folder	1
+tests/al-language/types/lt-evaluate-decimal	tests/al-language/types/format-evaluate	topic folder	1
+tests/al-language/types/lt-evaluate-decimal-text	tests/al-language/types/format-evaluate	topic folder	2
+tests/al-language/types/lt-evaluate-format-lasterror-setview	tests/al-language/types/format-evaluate	topic folder	7
+tests/al-language/types/lt-evaluate-mixed-text	tests/al-language/types/format-evaluate	topic folder	2
+tests/al-language/types/lt-evaluate-recordid	tests/al-language/types/format-evaluate	topic folder	1
+tests/al-language/types/lt-evaluate-text-decimal	tests/al-language/types/format-evaluate	topic folder	1
+tests/al-language/types/lt-evaluate-wide-decimal	tests/al-language/types/format-evaluate	topic folder	1
+tests/al-language/types/lt-expression-operators-literals	tests/al-language/types/operators-expressions	topic folder	7
+tests/al-language/types/lt-filter-enum-relation-duration-guid	tests/al-language/types/duration	topic folder	5
+tests/al-language/types/lt-for-option-time-decimal	tests/al-language/types/date-time	topic folder	3
+tests/al-language/types/lt-format-codes-textbuilder-pagerun-labels	tests/al-language/types/format-evaluate	topic folder	6
+tests/al-language/types/lt-format-comma-format-string	tests/al-language/types/format-evaluate	topic folder	1
+tests/al-language/types/lt-format-comma-more	tests/al-language/types/format-evaluate	topic folder	1
+tests/al-language/types/lt-format-currency-prefix	tests/al-language/types/format-evaluate	topic folder	1
+tests/al-language/types/lt-format-option-field	tests/al-language/types/format-evaluate	topic folder	1
+tests/al-language/types/lt-format-precision-standard	tests/al-language/types/format-evaluate	topic folder	3
+tests/al-language/types/lt-format-precision-standard-more	tests/al-language/types/format-evaluate	topic folder	2
+tests/al-language/types/lt-format-week-code	tests/al-language/types/format-evaluate	topic folder	1
+tests/al-language/types/lt-guid-as-text-argument	tests/al-language/types/guid	topic folder	1
+tests/al-language/types/lt-guid-create-format	tests/al-language/types/format-evaluate	topic folder	1
+tests/al-language/types/lt-implicit-conversions	tests/al-language/types/operators-expressions	topic folder	7
+tests/al-language/types/lt-in-precedence-date-guid-filters	tests/al-language/types/date-time	topic folder; writer id dropped from the name	69
+tests/al-language/types/lt-notification-id-text	tests/al-language/types/text-code-char	topic folder	1
+tests/al-language/types/lt-number-to-text	tests/al-language/types/format-evaluate	topic folder	1
+tests/al-language/types/lt-option-evaluate-captions	tests/al-language/types/format-evaluate	topic folder	1
+tests/al-language/types/lt-page-style	tests/al-language/types/page-style  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder	1
+tests/al-language/types/lt-quarter-duration	tests/al-language/types/date-time	topic folder	1
+tests/al-language/types/lt-qw-ternary	tests/al-language/types/operators-expressions	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-qx-ternary-sized	tests/al-language/types/operators-expressions	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-sc-eval-decimal-whitespace	tests/al-language/types/decimal-integer	topic folder; writer id dropped from the name	2
+tests/al-language/types/lt-scalars	tests/al-language/types/decimal-integer	topic folder	14
+tests/al-language/types/lt-secret-text-from-text	tests/al-language/types/text-code-char	topic folder	1
+tests/al-language/types/lt-text-char-index	tests/al-language/types/text-code-char	topic folder	1
+tests/al-language/types/lt-time-big-integer	tests/al-language/types/date-time	topic folder	1
+tests/al-language/types/lt-time-decimal-arithmetic	tests/al-language/types/date-time	topic folder	1
+tests/al-language/types/lt-totext-bigtext-codeunit-run	tests/al-language/types/format-evaluate	topic folder	6
+tests/al-language/types/lt-uf-enum-arithmetic	tests/al-language/types/enum-option	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-uf-evaluate-json-rfc1123	tests/al-language/types/format-evaluate	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-uf-ternary-guid-label	tests/al-language/types/guid	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-up-ternary	tests/al-language/types/operators-expressions	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-up-this-field	tests/al-language/types/operators-expressions	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-variant	tests/al-language/types/variant	topic folder	7
+tests/al-language/types/lt-variant-is-text-streams	tests/al-language/types/variant	topic folder	16
+tests/al-language/types/lt-variant-parameter-write	tests/al-language/types/variant	topic folder	1
+tests/al-language/types/lt-variant-record-reassign	tests/al-language/types/variant	topic folder	1
+tests/al-language/types/lt-variant-time-enum	tests/al-language/types/date-time	topic folder	1
+tests/al-language/types/lt-variant-to-text-fields	tests/al-language/types/variant	topic folder	5
+tests/al-language/types/lt-variant-unassigned	tests/al-language/types/variant	topic folder	1
+tests/al-language/types/lt-variant-unsupported-kinds	tests/al-language/types/variant	topic folder	1
+tests/al-language/types/lt-wc	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/types/lt-y20-case-code-label	tests/al-language/types/text-code-char	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-y31-conversion-matrix	tests/al-language/types/operators-expressions	topic folder; writer id dropped from the name	7
+tests/al-language/types/lt-y43-auto-format-11	tests/al-language/types/format-evaluate	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-y49-datetime-9999	tests/al-language/types/date-time	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-y49-evaluate-date-blanks	tests/al-language/types/format-evaluate	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-y49-recordid-format10	tests/al-language/types/format-evaluate	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-y62-dateformula-format	tests/al-language/types/format-evaluate	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-y62-undefined-date	tests/al-language/types/date-time	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-y64-clear-types	tests/al-language/types/clear	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-y65-undefined-arith	tests/al-language/types/decimal-integer	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-y66-bigint-into-int	tests/al-language/types/decimal-integer	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-y66-ternary-label	tests/al-language/types/text-code-char	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-y67-variant-numeric	tests/al-language/types/variant	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-y71-caption-class-events	tests/al-language/types/caption-class-events  (REVIEW: no topic rule matched; choose a topic in the area PR)	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-y71-evaluate-dmy2date	tests/al-language/types/format-evaluate	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-y71-value-conversions	tests/al-language/types/operators-expressions	topic folder; writer id dropped from the name	1
+tests/al-language/types/lt-y73-quoted-this	tests/al-language/types/operators-expressions	topic folder; writer id dropped from the name	2
+tests/al-language/types/lt-y81-values	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/xml	tests/al-language/xml	area folder: files stay in the area	17
+tests/al-language/xml/lt-ay-xml	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	4
+tests/al-language/xml/lt-de-xml-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/xml/lt-tf-xml-ns	tests/al-language/xml/xml	topic folder; writer id dropped from the name	1
+tests/al-language/xml/lt-ul-clear-ref	tests/al-language/xml/xml	topic folder; writer id dropped from the name	1
+tests/al-language/xml/lt-wd	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/xml/lt-word-xml-part	tests/al-language/xml/xml	topic folder	1
+tests/al-language/xml/lt-xml-attr-doc-http-members	tests/al-language/xml/xml	topic folder	17
+tests/al-language/xml/lt-xml-cdata-comment-pi-text	tests/al-language/xml/xml	topic folder	9
+tests/al-language/xml/lt-xml-doctype-declaration	tests/al-language/xml/xml	topic folder	8
+tests/al-language/xml/lt-xml-port-flow	tests/al-language/xml/xml	topic folder	1
+tests/al-language/xml/lt-xml-port-table	tests/al-language/xml/xml	topic folder	1
+tests/al-language/xml/lt-xml-remaining-node-methods	tests/al-language/xml/xml	topic folder	31
+tests/al-language/xml/lt-xmlport-run-export	tests/al-language/xml/xml	topic folder	1
+tests/al-language/xml/lt-xpath-conjunction	tests/al-language/xml/xml	topic folder	1
+tests/al-language/xml/lt-xpath-filter	tests/al-language/xml/xml	topic folder	1
+tests/al-language/xml/lt-y44-fresh-nodelist	tests/al-language/xml/xml	topic folder; writer id dropped from the name	1
+tests/al-language/xmlport	tests/al-language/xmlports	area folder: files stay in the area	14
+tests/al-language/xmlport/lt-af-xmlport	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	2
+tests/al-language/xmlport/lt-ah-xmlport	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	1
+tests/al-language/xmlport/lt-aj-xmlport	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	2
+tests/al-language/xmlport/lt-at-partner-gaps	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/xmlport/lt-ay-xmlport	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	4
+tests/al-language/xmlport/lt-bd-xmlport	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	1
+tests/al-language/xmlport/lt-bj-xmlport-default-validation	tests/al-language/xmlports/import	topic folder; writer id dropped from the name	1
+tests/al-language/xmlport/lt-df-xmlport-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	1
+tests/al-language/xmlport/lt-dg-xmlport-leads	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/xmlport/lt-qr-xmlport-container-occurs	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	9
+tests/al-language/xmlport/lt-ra-xmlport	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	1
+tests/al-language/xmlport/lt-sg-xmlport-occurs	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	3
+tests/al-language/xmlport/lt-xmlport-bigtext	tests/al-language/xmlports/shapes-properties	topic folder	1
+tests/al-language/xmlport/lt-xmlport-flowfield-element	tests/al-language/xmlports/shapes-properties	topic folder	2
+tests/al-language/xmlport/lt-xmlport-flowfield-sum-count	tests/al-language/xmlports/shapes-properties	topic folder	1
+tests/al-language/xmlport/lt-xmlport-linktable	tests/al-language/xmlports/import	topic folder	1
+tests/al-language/xmlport/lt-xmlport-query-datatransfer	tests/al-language/xmlports/import	topic folder	18
+tests/al-language/xmlport/lt-xmlport-trigger-flow	tests/al-language/xmlports/shapes-properties	topic folder	2
+tests/al-language/xmlport/lt-y-xmlport-props	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	1
+tests/al-language/xmlport/lt-y17-xmlport-ns	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	2
+tests/al-language/xmlport/lt-y40-xmlport-request-page	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	1
+tests/al-language/xmlport/lt-y60-xmlport-container-skip	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	1
+tests/al-language/xmlport/lt-y60-xmlport-text-in-table	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	1
+tests/al-language/xmlport/lt-y60-xmlport-unbound-text	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	1
+tests/al-language/xmlport/lt-y66-xmlport-var-members	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	1
+tests/al-language/xmlport/lt-y67-xmlport-separators	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	1
+tests/al-language/xmlport/lt-y67-xmlport-tablefilter	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	1
+tests/al-language/xmlport/lt-y67-xmlport-textattr-skip	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	1
+tests/al-language/xmlport/lt-y67-xmlport-wrapper-in-table	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	1
+tests/al-language/xmlport/lt-y68-xmlport-shapes	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	1
+tests/al-language/xmlport/lt-y72-xmlport-probes	tests/al-language/SPLIT	grab-bag folder (writer batch, leads, triage or many topics): every file goes to the area its content is about (file-map.tsv)	2
+tests/al-language/xmlport/lt-y83-xmlport-shapes	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	5
+tests/al-language/xmlport/lt-y88-xmlport	tests/al-language/xmlports/shapes-properties	topic folder; writer id dropped from the name	1
+tests/must-not-compile/cases	tests/must-not-compile/cases	keep flat: the runner and check-must-not-compile.py read cases/ with a flat listing and key cases by file stem; record each case's area in tests/must-not-compile/areas.tsv instead (no case file edits)	1199

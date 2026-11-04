@@ -1,0 +1,7 @@
+# Rename map of the corpus restructure (append-only).
+# One line per test or must-not-compile case that was removed or merged: old_key<TAB>new_key.
+# A key is <app folder>/<codeunit id>/<test name> (for example al-language/60192/Format_Zero), or mnc/<case file stem>.
+# The old test's asserted facts must be held by its new key (.github/scripts/facts.py diff checks this in CI).
+# Several lines with the same old_key: the facts must be held by the union of the new keys.
+# Never edit or remove a line: the runner and later bumps read the whole file.
+old_key	new_key
