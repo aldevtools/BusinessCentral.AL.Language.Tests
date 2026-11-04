@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-minoccurs-property
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160), table 50002 "ALT Shape 02" (as temporary table elements), System Application codeunit
-//   "Temp Blob"; own xmlports 95494-95497 (their MinOccurs properties are under test) and the runner codeunit 95484
+//   "Temp Blob"; own xmlports 95494-95499 (their MinOccurs and MaxOccurs properties are under test) and the runner codeunit 95484
 // Probe: observed on the corpus CI (BC on Linux, legs 27.5, 28.5 and 29.0); every literal asserted below is what BC produced.
 // Topic: MinOccurs = Zero on the root text element of an xmlport, with Format = Xml and Format = VariableText, Direction = Both, and
 //   MinOccurs on the elements below it (container text element, leaf text elements, table element, field elements with Once and Zero).
@@ -20,6 +20,10 @@
 //   95496 "XP Root Min Zero Children": root Cfg (MinOccurs = Zero, MaxOccurs = Once) > leaf text element Head (MinOccurs = Once) > leaf
 //     text element Opt (MinOccurs = Zero) > table element Item (MinOccurs = Zero) > field element Code (MinOccurs = Once) and Url (Zero).
 //   95497 "XP Root Min Zero VarText": VariableText, root Cfg (MinOccurs = Zero) > table element Item (MinOccurs = Zero) > two fields.
+//   95498 "XP Field Max Unbounded": root Cfg > table element Item (MinOccurs = Zero) > field element Code (MinOccurs = Once, MaxOccurs = Once)
+//     and field element Url (MinOccurs = Zero, MaxOccurs = Unbounded) (AL Runner issue 7032).
+//   95499 "XP Text Leaf Max Unbounded": root Cfg > leaf text element Note (MinOccurs = Zero, MaxOccurs = Unbounded) > table element Item >
+//     field elements Code and Url (MinOccurs = Zero, MaxOccurs = Unbounded).
 // BC versions: 27.5, 28.5, 29.0
 
 xmlport 95494 "XP Root Min Zero Issue"
@@ -253,9 +257,131 @@ xmlport 95497 "XP Root Min Zero VarText"
     end;
 }
 
+xmlport 95498 "XP Field Max Unbounded"
+{
+    // local object: its MinOccurs and MaxOccurs properties are under test
+    Direction = Both;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Cfg)
+        {
+            tableelement(Item; "ALT Shape 02")
+            {
+                MinOccurs = Zero;
+                UseTemporary = true;
+                fieldelement(Code; Item."No.") { MinOccurs = Once; MaxOccurs = Once; }
+                fieldelement(Url; Item.Descr)
+                {
+                    MinOccurs = Zero;
+                    MaxOccurs = Unbounded;
+
+                    trigger OnAfterAssignField()
+                    begin
+                        Log += 'url ' + Item.Descr + ';';
+                    end;
+                }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    Log += 'insert ' + Item."No." + ';';
+                end;
+            }
+        }
+    }
+
+    var
+        Log: Text;
+
+    procedure AddRow(NewNo: Code[20]; NewDescr: Text)
+    begin
+        Item."No." := NewNo;
+        Item.Descr := NewDescr;
+        Item.Insert();
+    end;
+
+    procedure Rows(): Text
+    var
+        Result: Text;
+    begin
+        if Item.FindSet() then
+            repeat
+                Result += Item."No." + '=[' + Item.Descr + '];';
+            until Item.Next() = 0;
+        exit(Result + ' log=' + Log);
+    end;
+}
+
+xmlport 95499 "XP Text Leaf Max Unbounded"
+{
+    // local object: its MinOccurs and MaxOccurs properties are under test
+    Direction = Both;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Cfg)
+        {
+            textelement(Note)
+            {
+                MinOccurs = Zero;
+                MaxOccurs = Unbounded;
+
+                trigger OnBeforePassVariable()
+                begin
+                    Note := 'N';
+                end;
+
+                trigger OnAfterAssignVariable()
+                begin
+                    Log += 'note ' + Note + ';';
+                end;
+            }
+            tableelement(Item; "ALT Shape 02")
+            {
+                MinOccurs = Zero;
+                UseTemporary = true;
+                fieldelement(Code; Item."No.") { }
+                fieldelement(Url; Item.Descr) { MinOccurs = Zero; MaxOccurs = Unbounded; }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    Log += 'insert ' + Item."No." + ';';
+                end;
+            }
+        }
+    }
+
+    var
+        Log: Text;
+
+    procedure AddRow(NewNo: Code[20]; NewDescr: Text)
+    begin
+        Item."No." := NewNo;
+        Item.Descr := NewDescr;
+        Item.Insert();
+    end;
+
+    procedure Rows(): Text
+    var
+        Result: Text;
+    begin
+        if Item.FindSet() then
+            repeat
+                Result += Item."No." + '=[' + Item.Descr + '];';
+            until Item.Next() = 0;
+        exit(Result + ' log=' + Log);
+    end;
+}
+
 codeunit 95484 "XP Root Min Zero Runner"
 {
-    // Imports Input into one of the xmlports 95494-95497 (Mode is its id) inside Codeunit.Run, so a failed import does not end the test.
+    // Imports Input into one of the xmlports 95494-95497 (Mode is its id; 95498 and 95499 too) inside Codeunit.Run, so a failed import does not end the test.
     var
         Input: Text;
         Mode: Integer;
@@ -268,6 +394,8 @@ codeunit 95484 "XP Root Min Zero Runner"
         Table: XmlPort "XP Root Min Zero Table";
         Children: XmlPort "XP Root Min Zero Children";
         VarText: XmlPort "XP Root Min Zero VarText";
+        FieldMax: XmlPort "XP Field Max Unbounded";
+        TextMax: XmlPort "XP Text Leaf Max Unbounded";
         OutS: OutStream;
         InS: InStream;
     begin
@@ -298,6 +426,18 @@ codeunit 95484 "XP Root Min Zero Runner"
                     VarText.SetSource(InS);
                     VarText.Import();
                     Outcome := VarText.Rows();
+                end;
+            95498:
+                begin
+                    FieldMax.SetSource(InS);
+                    FieldMax.Import();
+                    Outcome := FieldMax.Rows();
+                end;
+            95499:
+                begin
+                    TextMax.SetSource(InS);
+                    TextMax.Import();
+                    Outcome := TextMax.Rows();
                 end;
         end;
     end;
@@ -562,5 +702,80 @@ codeunit 95483 "XP Root Min Zero"
         Observer.Expect('empty document|text', 'Cannot import the specified XML document because the file is empty.');
         Observer.Expect('empty document|code', 'XmlPortData');
         Observer.Verify();
+    end;
+
+    // MaxOccurs = Unbounded on a field element and on a leaf text element (AL Runner issue 7032), export and import.
+    [Test]
+    procedure ElementOccurs_FieldMaxUnbounded_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Filled: XmlPort "XP Field Max Unbounded";
+        TempBlob: Codeunit "Temp Blob";
+        OutS: OutStream;
+    begin
+        Filled.AddRow('A', 'urn:a');
+        Filled.AddRow('B', '');
+        TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
+        Filled.SetDestination(OutS);
+        Filled.Export();
+        Observer.Observe('two rows, the second with a blank Url', ReadLines(TempBlob));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ElementOccurs_FieldMaxUnbounded_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Import(Observer, 'url once', 95498, XmlDecl() + '<Cfg><Item><Code>A</Code><Url>u1</Url></Item></Cfg>');
+        Import(Observer, 'url twice', 95498, XmlDecl() + '<Cfg><Item><Code>A</Code><Url>u1</Url><Url>u2</Url></Item></Cfg>');
+        Import(Observer, 'url three times', 95498, XmlDecl() + '<Cfg><Item><Code>A</Code><Url>u1</Url><Url>u2</Url><Url>u3</Url></Item></Cfg>');
+        Import(Observer, 'no url', 95498, XmlDecl() + '<Cfg><Item><Code>A</Code></Item></Cfg>');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ElementOccurs_FieldMaxUnbounded_Import2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Import(Observer, 'code twice', 95498, XmlDecl() + '<Cfg><Item><Code>A</Code><Code>B</Code></Item></Cfg>');
+        Import(Observer, 'no code', 95498, XmlDecl() + '<Cfg><Item><Url>u1</Url></Item></Cfg>');
+        Import(Observer, 'url before code', 95498, XmlDecl() + '<Cfg><Item><Url>u1</Url><Code>A</Code></Item></Cfg>');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ElementOccurs_TextMaxUnbounded_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Empty: XmlPort "XP Text Leaf Max Unbounded";
+        Filled: XmlPort "XP Text Leaf Max Unbounded";
+        TempBlob: Codeunit "Temp Blob";
+        OutS: OutStream;
+    begin
+        TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
+        Empty.SetDestination(OutS);
+        Empty.Export();
+        Observer.Observe('no rows', ReadLines(TempBlob));
+        Clear(TempBlob);
+        Filled.AddRow('A', 'urn:a');
+        TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
+        Filled.SetDestination(OutS);
+        Filled.Export();
+        Observer.Observe('one row', ReadLines(TempBlob));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ElementOccurs_TextMaxUnbounded_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Import(Observer, 'no note', 95499, XmlDecl() + '<Cfg><Item><Code>A</Code></Item></Cfg>');
+        Import(Observer, 'note once', 95499, XmlDecl() + '<Cfg><Note>n1</Note><Item><Code>A</Code></Item></Cfg>');
+        Import(Observer, 'note twice', 95499, XmlDecl() + '<Cfg><Note>n1</Note><Note>n2</Note><Item><Code>A</Code><Url>u1</Url><Url>u2</Url></Item></Cfg>');
+        Import(Observer, 'note after item', 95499, XmlDecl() + '<Cfg><Item><Code>A</Code></Item><Note>n1</Note></Cfg>');
+        Observer.Finish();
     end;
 }
