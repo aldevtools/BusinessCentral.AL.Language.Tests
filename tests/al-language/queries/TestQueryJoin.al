@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/query/query-data-type
 //   dev-itpro/developer/devenv-query-object
 // Scope: in-scope
-// Fixtures used: QJ Customer (60861), QJ Order (60862), QJ Cust Orders Inner (60863), QJ Cust Orders Left (60864), QJ Cust Orders Sum (60903); shared Assert (60021)
+// Fixtures used: "ALT Shape 04" (50004), QJ Order (60862), QJ Cust Orders Inner (60863), QJ Cust Orders Left (60864), QJ Cust Orders Sum (60903); shared Assert (60021)
 //
 // Migrated from AL Runner tests/runner-extras/query-join (src/QueryJoinTests.al).
 // The suite's own "QJ Assert" helper (source codeunit 60390) mapped 1:1 onto the shared
@@ -43,7 +43,7 @@ codeunit 60865 "QJ Query Join Tests"
 
     local procedure Initialize()
     var
-        Cust: Record "QJ Customer";
+        Cust: Record "ALT Shape 04";
         Ord: Record "QJ Order";
     begin
         Cust.DeleteAll();
@@ -58,7 +58,7 @@ codeunit 60865 "QJ Query Join Tests"
         InsertOrder(Ord, 3, 'C2', 300);
     end;
 
-    local procedure InsertCust(var Cust: Record "QJ Customer"; No: Code[20]; Name: Text[50])
+    local procedure InsertCust(var Cust: Record "ALT Shape 04"; No: Code[20]; Name: Text[50])
     begin
         Cust.Init();
         Cust."No." := No;
@@ -219,7 +219,7 @@ codeunit 60865 "QJ Query Join Tests"
     [Test]
     procedure InnerJoin_NoChildRows_ClosesResultSet()
     var
-        Cust: Record "QJ Customer";
+        Cust: Record "ALT Shape 04";
         Ord: Record "QJ Order";
         Q: Query "QJ Cust Orders Inner";
     begin

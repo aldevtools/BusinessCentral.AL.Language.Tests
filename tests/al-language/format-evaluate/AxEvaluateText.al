@@ -6,22 +6,6 @@
 //   a Variant holding a Date assigned to a Text; a Boolean assigned to a Text and a Code; Get(true) on a table with a Code[10] key.
 // BC versions: 27.5+
 
-table 80401 "LT AX Code Key"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; KeyCode; Code[10]) { }
-        field(2; Info; Text[30]) { }
-    }
-
-    keys
-    {
-        key(PK; KeyCode) { Clustered = true; }
-    }
-}
-
 codeunit 80421 "LT AX Evaluate Text"
 {
     Subtype = Test;
@@ -327,20 +311,20 @@ codeunit 80421 "LT AX Evaluate Text"
 
     local procedure GetTrue(): Text
     var
-        R: Record "LT AX Code Key";
+        R: Record "ALT Shape 20";
     begin
         if R.Get(true) then
-            exit('found ' + R.KeyCode);
+            exit('found ' + R.Code);
         exit('not found');
     end;
 
     local procedure Seed(K: Code[10])
     var
-        R: Record "LT AX Code Key";
+        R: Record "ALT Shape 20";
     begin
         R.Init();
-        R.KeyCode := K;
-        R.Info := K;
+        R.Code := K;
+        R.Name := K;
         R.Insert();
     end;
 
@@ -348,7 +332,7 @@ codeunit 80421 "LT AX Evaluate Text"
     procedure GetTrue_CodeKey_Yes()
     var
         Observer: Codeunit "Probe Observer";
-        R: Record "LT AX Code Key";
+        R: Record "ALT Shape 20";
     begin
         R.DeleteAll();
         Seed('Yes');

@@ -1,24 +1,11 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/query/query-data-type
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); own table 73582, query 73583, test codeunit 73584
+// Fixtures used: Probe Observer (69160); shared table 50015 "ALT Shape 15", query 73583, test codeunit 73584
 // Probe: written against BC on CI (no local container); every literal asserted below is what the CI tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: a query opened and read until Read returns false. Then SetRange on a column followed by Open and Read again; Open again without a new filter;
 //   Open twice after the last row; SetRange after the last row without Open. For contrast: Open twice while rows are left, and SetRange while rows are left.
 //   Each step records whether it raised (and the error text) and the rows read.
 // BC versions: 27, 28, 29 by CI
-
-table 73582 "LT QL Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Grp; Code[10]) { }
-    }
-
-    keys { key(PK; Id) { Clustered = true; } }
-}
 
 query 73583 "LT QL Rows"
 {
@@ -26,7 +13,7 @@ query 73583 "LT QL Rows"
 
     elements
     {
-        dataitem(Row; "LT QL Row")
+        dataitem(Row; "ALT Shape 15")
         {
             column(Id; Id) { }
             column(Grp; Grp) { }
@@ -46,7 +33,7 @@ codeunit 73584 "LT Query Closed After Last Row"
 
     local procedure Seed()
     var
-        R: Record "LT QL Row";
+        R: Record "ALT Shape 15";
     begin
         R.DeleteAll();
         R.Id := 1; R.Grp := 'A'; R.Insert();

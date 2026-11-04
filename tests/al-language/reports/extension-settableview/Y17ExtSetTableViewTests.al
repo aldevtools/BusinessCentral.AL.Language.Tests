@@ -16,7 +16,7 @@ codeunit 91849 "LT Y17 Ext SetTableView Tests"
 
     local procedure Seed()
     var
-        H: Record "LT Y17 Ext H";
+        H: Record "ALT Shape 05";
         PH: Record "LT Y17 Ext PH";
         PL: Record "LT Y17 Ext PL";
         BL: Record "LT Y17 Ext BL";
@@ -40,7 +40,7 @@ codeunit 91849 "LT Y17 Ext SetTableView Tests"
 
     local procedure AddH(No: Code[20])
     var
-        H: Record "LT Y17 Ext H";
+        H: Record "ALT Shape 05";
     begin
         H."No." := No;
         H.Insert();
