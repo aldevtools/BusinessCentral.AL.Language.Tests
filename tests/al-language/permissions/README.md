@@ -4,9 +4,9 @@ Permission sets, entitlements, access control, inherent permissions and TestPerm
 
 ## Topics
 
-- (area folder itself): 28 AL files that are about the area as a whole or were not given a topic yet.
+- (area folder itself): 27 AL files that are about the area as a whole or were not given a topic yet.
 - `access-control/`: access control (5 AL files).
-- `permission-sets/`: permission sets and entitlements (38 AL files).
+- `permission-sets/`: permission sets and entitlements (39 AL files).
 - `testpermissions/`: TestPermissions and the runner permission sets (13 AL files).
 - `wildcard-scope/`: wildcard object scope in permission sets (3 AL files).
 

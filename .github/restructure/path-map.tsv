@@ -2593,6 +2593,7 @@ tests/al-language/permissions/lt-y19-perm-probes/Y19PermSuper.al	tests/al-langua
 tests/al-language/permissions/lt-y19-perm-probes/Y19PermSystemTables.al	tests/al-language/metadata/Y19PermSystemTables.al	map
 tests/al-language/permissions/lt-y19-perm-probes/Y19PermWrites.al	tests/al-language/record/Y19PermWrites.al	map
 tests/al-language/permissions/lt-y19-perm-probes/Y24PermExecute.al	tests/al-language/permissions/permission-sets/Y24PermExecute.al	map (reviewed)
+tests/al-language/permissions/lt-y19-perm-probes/Y24PermExecuteObjects.al	tests/al-language/permissions/permission-sets/Y24PermExecuteObjects.al	map (reviewed: next to Y24PermExecute.al)
 tests/al-language/permissions/lt-y19-perm-probes/Y24PermObjectReads.al	tests/al-language/reports/Y24PermObjectReads.al	map
 tests/al-language/permissions/lt-y19-perm-probes/Y24PermObjects.al	tests/al-language/testpage/Y24PermObjects.al	map
 tests/al-language/permissions/lt-y19-perm-probes/Y24PermReads.al	tests/al-language/record/Y24PermReads.al	map
