@@ -1,23 +1,8 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-app-area
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); self-contained: table 74550, SingleInstance log 74551 (used only by test codeunit 74558), part pages 74552-74554, host pages 74555-74557
+// Fixtures used: Probe Observer (codeunit 69160); shared table 50000 "ALT Shape 00"; self-contained: SingleInstance log 74551 (used only by test codeunit 74558), part pages 74552-74554, host pages 74555-74557
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // BC versions: 29 (27 and 28 by CI)
-
-table 74550 "LT P142 Host Row"
-{
-    DataClassification = CustomerContent;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 codeunit 74551 "LT P142 Part Log"
 {
@@ -53,7 +38,7 @@ codeunit 74551 "LT P142 Part Log"
 page 74552 "LT P142 Part A"
 {
     PageType = ListPart;
-    SourceTable = "LT P142 Host Row";
+    SourceTable = "ALT Shape 00";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -94,7 +79,7 @@ page 74552 "LT P142 Part A"
 page 74553 "LT P142 Part B"
 {
     PageType = ListPart;
-    SourceTable = "LT P142 Host Row";
+    SourceTable = "ALT Shape 00";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -135,7 +120,7 @@ page 74553 "LT P142 Part B"
 page 74554 "LT P142 Part C"
 {
     PageType = ListPart;
-    SourceTable = "LT P142 Host Row";
+    SourceTable = "ALT Shape 00";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -176,7 +161,7 @@ page 74554 "LT P142 Part C"
 page 74555 "LT P142 Host A"
 {
     PageType = Card;
-    SourceTable = "LT P142 Host Row";
+    SourceTable = "ALT Shape 00";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -206,7 +191,7 @@ page 74555 "LT P142 Host A"
 page 74556 "LT P142 Host B"
 {
     PageType = Card;
-    SourceTable = "LT P142 Host Row";
+    SourceTable = "ALT Shape 00";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -236,7 +221,7 @@ page 74556 "LT P142 Host B"
 page 74557 "LT P142 Host C"
 {
     PageType = Card;
-    SourceTable = "LT P142 Host Row";
+    SourceTable = "ALT Shape 00";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -270,7 +255,7 @@ codeunit 74558 "LT P142 Hidden Part Tests"
 
     local procedure Seed()
     var
-        R: Record "LT P142 Host Row";
+        R: Record "ALT Shape 00";
         Log: Codeunit "LT P142 Part Log";
     begin
         R.DeleteAll();
