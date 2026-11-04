@@ -551,6 +551,17 @@ def app_of(p):
     return '/'.join(p.split('/')[:2])
 
 
+# not moved: a test asserts this path. Compiler-generated layouts (not committed) whose app-relative path a test reads back
+# inside a longer expected value (Observer.Expect('layouts', '[./report/... RDLC ...]')), so QUOTED cannot see the assertion.
+# apply() leaves these property values alone; the file is generated at the old path.
+KEEP_GENERATED = {
+    ('tests/al-language', 'report/lt-aq/ltaqexcellegacy.xlsx'),
+    ('tests/al-language', 'report/lt-y-report-props/ltyextrdlc.rdlc'),
+    ('tests/al-language', 'report/lt-y-report-props/ltyextword.docx'),
+    ('tests/al-language', 'report/lt-y-report-props/ltyextexcel.xlsx'),
+}
+
+
 SPLIT_AT = 'recordref-fieldref'
 
 
@@ -607,7 +618,7 @@ def apply(root, part=None):
             s = m.group(1)
             dot = s.startswith('./')
             key = (app_of(f), (s[2:] if dot else s).replace('\\', '/').lower())
-            if key in pinned:
+            if key in pinned or key in KEEP_GENERATED:
                 return m.group(0)
             if key in rel_moves:
                 return "'" + ('./' if dot else '') + rel_moves[key] + "'"
@@ -805,7 +816,7 @@ def cmd_check(root, base):
         if k == 'R100':
             kinds['R100'] += 1
             pure.add(path)
-        elif k == 'A' and re.match(r'^tests/al-language/[^/]+/README\.md$', path):
+        elif k in ('A', 'M') and re.match(r'^tests/al-language/[^/]+/README\.md$', path):
             kinds['README'] += 1
         elif k == 'D' and BUILD_OUTPUT.match(path):
             kinds['build output removed'] += 1
