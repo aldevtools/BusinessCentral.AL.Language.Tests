@@ -2,12 +2,12 @@
 page 69039 "TPG Empty Lines"
 {
     PageType = ListPart;
-    SourceTable = "TPG Empty Line";
+    SourceTable = "ALT Child";
     DelayedInsert = true;
     AutoSplitKey = true;
-    layout { area(Content) { repeater(Lines) { field(Description; Rec.Description) { ApplicationArea = All; } } } }
+    layout { area(Content) { repeater(Lines) { field(Description; Rec.Code) { ApplicationArea = All; } } } }
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        Rec.Description := 'New-line marker';
+        Rec.Code := 'New-line marker';
     end;
 }

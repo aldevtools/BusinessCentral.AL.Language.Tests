@@ -2,7 +2,7 @@
 page 69017 "PAG Layout List"
 {
     PageType = List;
-    SourceTable = "PAG Layout Row";
+    SourceTable = "ALT Universal";
     ApplicationArea = All;
     layout
     {
@@ -10,8 +10,8 @@ page 69017 "PAG Layout List"
         {
             repeater(General)
             {
-                field(Code; Rec.Code) { ApplicationArea = All; }
-                field(Description; Rec.Description) { ApplicationArea = All; }
+                field(Code; Rec."Code Field") { ApplicationArea = All; }
+                field(Description; Rec."Text Field") { ApplicationArea = All; }
             }
         }
     }

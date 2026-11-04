@@ -1,7 +1,8 @@
+// BC versions: 27.5, 28.5, 29.0.
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-excel-buffer
 // Claim: a workbook created in a stream can be read back with the original non-empty cell value.
 // Uses public Excel Buffer and Temp Blob APIs; contains no Microsoft implementation or workbook data.
-// BC versions: 27.5, 28.5, 29.0. Requires the optional .NET helper and matching BC OpenXML dependencies.
+// Scope: Cloud-compatible public Excel Buffer API. BC versions: 27.5, 28.5, 29.0.
 codeunit 69048 "STR Excel Stream Test"
 {
     Subtype = Test;

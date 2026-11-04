@@ -1,7 +1,9 @@
+// BC versions: 27.5, 28.5, 29.0.
+// Scope: Cloud-compatible public API.
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-page-ext-object
 // Claim: a page carrying this layout modification can open and expose a seeded, non-default value.
 // This is not a visual-order assertion. Real-BC execution status is recorded separately.
-// Fixtures: shared RG Layout pages, table and extensions. BC versions: 27.5, 28.5, 29.0.
+// Fixtures: ALT Universal; local page and extension definitions. BC versions: 27.5, 28.5, 29.0.
 codeunit 69007 "PAG Content Move Test"
 {
     Subtype = Test;
@@ -10,7 +12,7 @@ codeunit 69007 "PAG Content Move Test"
     var
         FixtureCleanup: Codeunit ALTFixtureCleanup;
     [Test]
-    procedure LayoutMove_OpenPage_ReadsSeededValue()
+    procedure PageExtension_MoveLastContent_ReadsSeededValue()
     var
         View: TestPage "PAG Content Card";
     begin
@@ -21,12 +23,12 @@ codeunit 69007 "PAG Content Move Test"
     end;
     local procedure Initialize()
     var
-        Row: Record "PAG Layout Row";
+        Row: Record "ALT Universal";
     begin
         FixtureCleanup.Initialize();
-        Row.DeleteAll();
-        Row.Code := 'ROW1';
-        Row.Description := 'Non-default layout value';
+        Row."Entry No." := 42;
+        Row."Code Field" := 'ROW1';
+        Row."Text Field" := 'Non-default layout value';
         Row.Insert();
     end;
 }

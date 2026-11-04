@@ -2,6 +2,6 @@
 page 69014 "PAG Layout Factbox"
 {
     PageType = CardPart;
-    SourceTable = "PAG Layout Row";
-    layout { area(Content) { group(Data) { field(Description; Rec.Description) { ApplicationArea = All; } } } }
+    SourceTable = "ALT Universal";
+    layout { area(Content) { group(Data) { field(Description; Rec."Text Field") { ApplicationArea = All; } } } }
 }

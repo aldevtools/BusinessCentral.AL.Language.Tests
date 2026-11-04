@@ -1,7 +1,9 @@
+// BC versions: 27.5, 28.5, 29.0.
+// Scope: Cloud-compatible public API.
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testpage/testpage-openview-method
 // Uses the two public Microsoft pages seen in the original refusal, without copying their implementation.
 // Run only in a disposable company with no allocation accounts or bank reconciliation headers.
-// No Microsoft records are deleted or inserted by these tests.
+// Disposable corpus company: Initialize clears the two source tables to pin the empty-host path.
 codeunit 69027 "TPG Standard Empty Pages"
 {
     Subtype = Test;

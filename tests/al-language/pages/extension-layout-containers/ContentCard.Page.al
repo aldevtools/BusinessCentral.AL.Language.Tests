@@ -2,6 +2,6 @@
 page 69013 "PAG Content Card"
 {
     PageType = Card;
-    SourceTable = "PAG Layout Row";
-    layout { area(Content) { group(Data) { field(Code; Rec.Code) { ApplicationArea = All; } field(Description; Rec.Description) { ApplicationArea = All; } } } }
+    SourceTable = "ALT Universal";
+    layout { area(Content) { group(Data) { field(Code; Rec."Code Field") { ApplicationArea = All; } field(Description; Rec."Text Field") { ApplicationArea = All; } } } }
 }
