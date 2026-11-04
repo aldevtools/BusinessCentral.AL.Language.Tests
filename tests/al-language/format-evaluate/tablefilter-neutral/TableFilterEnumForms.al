@@ -12,6 +12,14 @@
 // after setting the fields of a new record of the page's temporary source table, on a List page with AutoSplitKey and
 // DelayedInsert (the shape of "Table Filter", whose SetSourceTable fills its lines this way): which rows the source table then
 // holds, with which "Line No.", and which page and table triggers run.
+// Seen on BC 29 (Linux CI): an Enum condition is stored with the member's caption, whether the text gives the name (any casing),
+// the caption or the ordinal; a list (`Item|Variant`, names or captions), `<>X` and `X..Y` are stored with captions too, and a
+// bad member, also inside a list, gives "'Nope' is not an option. The existing options are: <captions>". An Option field
+// takes lists, `<>` and ranges the same way. Format, Format(.., 0, 9), a round trip and a stored row give the same text. The
+// "Table Filter" page lists one line per condition with the field number and the stored filter text (`2=Setting Cap`), and its
+// lines applied to a RecordRef give the filter back (`<>XYZ`). CurrPage.Update(true) and Update() of the never-run page variable
+// insert the new record: OnInsertRecord (BelowxRec No for the first, Yes for the next) and the table's OnInsert run, and
+// AutoSplitKey numbers the lines 10000, 20000. Update(false) and no Update insert nothing.
 // BC versions: 27+
 
 enum 95450 "LT R6951 Cost Kind"
@@ -227,9 +235,18 @@ codeunit 95454 "LT R6951 Tests"
         if not TryEval(Row, Value, Ok) then
             Result := 'throws:' + GetLastErrorText() + '|' + GetLastErrorCode()
         else
-            Result := Format(Ok) + '|[' + Format(Row.Flt) + ']|' + GetLastErrorText();
+            Result := Format(Ok) + '|[' + Format(Row.Flt) + ']|' + ErrorHead(GetLastErrorText());
         ClearLastError();
         exit(Result);
+    end;
+
+    // The error text up to its first backslash: the "For more information" link after it is not asserted (as in
+    // record/W4PlatformAndMeta.al ErrorHead).
+    local procedure ErrorHead(Value: Text): Text
+    begin
+        if StrPos(Value, '\') > 0 then
+            Value := CopyStr(Value, 1, StrPos(Value, '\') - 1);
+        exit(DelChr(Value, '>', ' '));
     end;
 
     [Test]
@@ -245,7 +262,15 @@ codeunit 95454 "LT R6951 Tests"
         Observer.Observe('bad_member', Eval('LT R6951 Target: Cost Type=Nope'));
         Observer.Observe('no_caption_enum', Eval('LT R6951 Target: Config Type=Variant'));
         Observer.Observe('filter_wrapper', Eval('LT R6951 Target: Cost Type=FILTER(Setting)'));
-        Observer.Finish();
+        Observer.Expect('name', 'Yes|[LT R6951 Target: Cost Type Cap=Setting Cap]|');
+        Observer.Expect('name_lower', 'Yes|[LT R6951 Target: Cost Type Cap=Setting Cap]|');
+        Observer.Expect('caption', 'Yes|[LT R6951 Target: Cost Type Cap=Setting Cap]|');
+        Observer.Expect('ordinal', 'Yes|[LT R6951 Target: Cost Type Cap=Travel Cap]|');
+        Observer.Expect('first_member', 'Yes|[LT R6951 Target: Cost Type Cap=Labor Cap]|');
+        Observer.Expect('bad_member', 'No|[]|The value "LT R6951 Target: Cost Type=Nope" can''t be evaluated into type TableFilter. ''Nope'' is not an option. The existing options are: Labor Cap,Setting Cap,Travel Cap');
+        Observer.Expect('no_caption_enum', 'Yes|[LT R6951 Target: Config Type=Variant]|');
+        Observer.Expect('filter_wrapper', 'No|[]|The value "LT R6951 Target: Cost Type=FILTER(Setting)" can''t be evaluated into type TableFilter. An error occurred while interpreting the filter: Did not expect ''(''.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -261,7 +286,15 @@ codeunit 95454 "LT R6951 Tests"
         Observer.Observe('range', Eval('LT R6951 Target: Config Type=Item..Variant'));
         Observer.Observe('list_with_bad', Eval('LT R6951 Target: Config Type=Item|Nope'));
         Observer.Observe('two_fields', Eval('LT R6951 Target: Code=A,Config Type=Item|Variant'));
-        Observer.Finish();
+        Observer.Expect('list_names', 'Yes|[LT R6951 Target: Config Type=Item|Variant]|');
+        Observer.Expect('list_three', 'Yes|[LT R6951 Target: Config Type=Item|Variant|Service]|');
+        Observer.Expect('list_captions', 'Yes|[LT R6951 Target: Cost Type Cap=Labor Cap|Travel Cap]|');
+        Observer.Expect('list_names_with_captions', 'Yes|[LT R6951 Target: Cost Type Cap=Labor Cap|Travel Cap]|');
+        Observer.Expect('not_equal', 'Yes|[LT R6951 Target: Cost Type Cap=<>Setting Cap]|');
+        Observer.Expect('range', 'Yes|[LT R6951 Target: Config Type=Item..Variant]|');
+        Observer.Expect('list_with_bad', 'No|[]|The value "LT R6951 Target: Config Type=Item|Nope" can''t be evaluated into type TableFilter. ''Nope'' is not an option. The existing options are: Item,Variant,Service');
+        Observer.Expect('two_fields', 'Yes|[LT R6951 Target: Code=A,Config Type=Item|Variant]|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -273,7 +306,11 @@ codeunit 95454 "LT R6951 Tests"
         Observer.Observe('list_captions', Eval('LT R6951 Target: Status=Open Cap|Closed Cap'));
         Observer.Observe('not_equal', Eval('LT R6951 Target: Status=<>Closed'));
         Observer.Observe('range', Eval('LT R6951 Target: Status=Open..Released'));
-        Observer.Finish();
+        Observer.Expect('list_names', 'Yes|[LT R6951 Target: Status=Open Cap|Released Cap]|');
+        Observer.Expect('list_captions', 'Yes|[LT R6951 Target: Status=Open Cap|Closed Cap]|');
+        Observer.Expect('not_equal', 'Yes|[LT R6951 Target: Status=<>Closed Cap]|');
+        Observer.Expect('range', 'Yes|[LT R6951 Target: Status=Open Cap..Released Cap]|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -292,7 +329,11 @@ codeunit 95454 "LT R6951 Tests"
         Copy.Get(1);
         Observer.Observe('stored', Format(Copy.Flt));
         Row.Delete();
-        Observer.Finish();
+        Observer.Expect('format', 'LT R6951 Target: Config Type=Item|Variant');
+        Observer.Expect('format_9', 'LT R6951 Target: Config Type=Item|Variant');
+        Observer.Expect('roundtrip', 'Yes|[LT R6951 Target: Config Type=Item|Variant]');
+        Observer.Expect('stored', 'LT R6951 Target: Config Type=Item|Variant');
+        Observer.Verify();
     end;
 
     // The Base Application page "Table Filter", used without opening it, as code that edits a TableFilter field does.
@@ -323,7 +364,11 @@ codeunit 95454 "LT R6951 Tests"
         Observer.Observe('enum_member', FilterFields('LT R6951 Target: Cost Type=Setting'));
         Observer.Observe('enum_list', FilterFields('LT R6951 Target: Config Type=Item|Variant'));
         Observer.Observe('two_fields', FilterFields('LT R6951 Target: Code=A..B,Employee No.=<>XYZ'));
-        Observer.Finish();
+        Observer.Expect('code_not_equal', '[4=<>XYZ;]');
+        Observer.Expect('enum_member', '[2=Setting Cap;]');
+        Observer.Expect('enum_list', '[3=Item|Variant;]');
+        Observer.Expect('two_fields', '[1=A..B;4=<>XYZ;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -350,7 +395,9 @@ codeunit 95454 "LT R6951 Tests"
         Observer.Observe('employee_filter', TargetField.GetFilter());
         Observer.Observe('getfilters', TargetRef.GetFilters());
         TargetRef.Close();
-        Observer.Finish();
+        Observer.Expect('employee_filter', '<>XYZ');
+        Observer.Expect('getfilters', 'Employee No.: <>XYZ');
+        Observer.Verify();
     end;
 
     local procedure UpdateNeverRun(Mode: Text; Lines: Integer; var Observer: Codeunit "Probe Observer")
@@ -374,7 +421,10 @@ codeunit 95454 "LT R6951 Tests"
         Observer: Codeunit "Probe Observer";
     begin
         UpdateNeverRun('true', 2, Observer);
-        Observer.Finish();
+        Observer.Expect('true_first_log', '[P.OnInsertRecord:10000/1 below=No | T.OnInsert:10000/1]');
+        Observer.Expect('true_second_log', '[P.OnInsertRecord:20000/4 below=Yes | T.OnInsert:20000/4]');
+        Observer.Expect('true_rows', '[10000:1=A..B;20000:4=<>XYZ;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -383,7 +433,10 @@ codeunit 95454 "LT R6951 Tests"
         Observer: Codeunit "Probe Observer";
     begin
         UpdateNeverRun('false', 2, Observer);
-        Observer.Finish();
+        Observer.Expect('false_first_log', '[]');
+        Observer.Expect('false_second_log', '[]');
+        Observer.Expect('false_rows', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -392,7 +445,10 @@ codeunit 95454 "LT R6951 Tests"
         Observer: Codeunit "Probe Observer";
     begin
         UpdateNeverRun('none', 2, Observer);
-        Observer.Finish();
+        Observer.Expect('none_first_log', '[P.OnInsertRecord:10000/1 below=No | T.OnInsert:10000/1]');
+        Observer.Expect('none_second_log', '[P.OnInsertRecord:20000/4 below=Yes | T.OnInsert:20000/4]');
+        Observer.Expect('none_rows', '[10000:1=A..B;20000:4=<>XYZ;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -401,6 +457,8 @@ codeunit 95454 "LT R6951 Tests"
         Observer: Codeunit "Probe Observer";
     begin
         UpdateNeverRun('skip', 1, Observer);
-        Observer.Finish();
+        Observer.Expect('skip_first_log', '[]');
+        Observer.Expect('skip_rows', '[]');
+        Observer.Verify();
     end;
 }
