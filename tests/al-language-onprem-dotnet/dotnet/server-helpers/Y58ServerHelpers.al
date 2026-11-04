@@ -381,6 +381,17 @@ codeunit 61461 "LT Y58 ALSearch"
         Result := Env.NewLine();
     end;
 
+    // The code of the last character of NewLine: 10 whether the host writes LF or CR LF.
+    local procedure P6924_LastCode(Value: Text): Text
+    var
+        Code: Integer;
+    begin
+        if StrLen(Value) = 0 then
+            exit('none');
+        Code := Value[StrLen(Value)];
+        exit(Format(Code));
+    end;
+
     local procedure P6924_Codes(Value: Text) Result: Text
     var
         I: Integer;
@@ -408,13 +419,22 @@ codeunit 61461 "LT Y58 ALSearch"
             Observer.ObserveError('new');
         Observer.Observe('null_after', Format(IsNull(Env)));
         ClearLastError();
-        if P6924_TryNewLine(Env, Result) then
-            Observer.Observe('newline', P6924_Codes(Result))
-        else
+        if P6924_TryNewLine(Env, Result) then begin
+            Observer.Observe('newline', P6924_Codes(Result));
+            Observer.Observe('newline_last_code', P6924_LastCode(Result));
+        end else
             Observer.ObserveError('newline');
         Observer.Observe('to_string', Env.ToString());
         Observer.Observe('format', Format(Env));
-        Observer.Finish();
+        Observer.Expect('null_before', 'Yes');
+        Observer.Expect('new', 'ok');
+        Observer.Expect('null_after', 'No');
+        // NewLine is the host's line break: LF (1: 10) on the Linux CI containers, expected CR LF on Windows. Observed, not asserted.
+        Observer.Ignore('newline');
+        Observer.Expect('newline_last_code', '10');
+        Observer.Expect('to_string', 'Microsoft.Dynamics.Nav.SystemEnvironment.SystemEnvironment');
+        Observer.Expect('format', 'Microsoft.Dynamics.Nav.SystemEnvironment.SystemEnvironment');
+        Observer.Verify();
     end;
 
     [Test]
@@ -425,11 +445,20 @@ codeunit 61461 "LT Y58 ALSearch"
         Result: Text;
     begin
         ClearLastError();
-        if P6924_TryNewLine(Env, Result) then
-            Observer.Observe('newline', P6924_Codes(Result))
-        else
+        if P6924_TryNewLine(Env, Result) then begin
+            Observer.Observe('newline', P6924_Codes(Result));
+            Observer.Observe('newline_last_code', P6924_LastCode(Result));
+        end else
             Observer.ObserveError('newline');
-        Observer.Finish();
+#if BC29PLUS // BC 29.0 reads NewLine of a variable that was never constructed; BC 27.5 and 28.5 raise DotNetVariableNotCreated
+        // NewLine is the host's line break: LF (1: 10) on the Linux CI containers, expected CR LF on Windows. Observed, not asserted.
+        Observer.Ignore('newline');
+        Observer.Expect('newline_last_code', '10');
+#else
+        Observer.Expect('newline|text', 'A DotNet variable has not been instantiated. Attempting to call Microsoft.Dynamics.Nav.SystemEnvironment.SystemEnvironment.NewLine in CodeUnit LT Y58 ALSearch: P6924_TryNewLine');
+        Observer.Expect('newline|code', 'DotNetVariableNotCreated');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -443,7 +472,9 @@ codeunit 61461 "LT Y58 ALSearch"
         Second := Second.SystemEnvironment();
         Observer.Observe('same_newline', Format(First.NewLine() = Second.NewLine()));
         Observer.Observe('equals', Format(First.Equals(Second)));
-        Observer.Finish();
+        Observer.Expect('same_newline', 'Yes');
+        Observer.Expect('equals', 'No');
+        Observer.Verify();
     end;
 }
 

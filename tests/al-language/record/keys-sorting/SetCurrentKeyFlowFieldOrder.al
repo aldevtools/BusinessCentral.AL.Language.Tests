@@ -453,7 +453,12 @@ codeunit 74319 "LT P166 Key Flow Order"
         Observer.Observe('grp_cnt_id', P6924_Outcome(3, false));
         Observer.Observe('grp_max', P6924_Outcome(10, false));
         Observer.Observe('id_cnt', P6924_Outcome(11, false));
-        Observer.Finish();
+        Observer.Expect('grp_cnt', 'key=Grp,Cnt order=5 3 1 4 2 back=2 4 1 3 5 ');
+        Observer.Expect('grp_total', 'key=Grp,Total order=5 1 3 4 2 back=2 4 3 1 5 ');
+        Observer.Expect('grp_cnt_id', 'key=Grp,Cnt,Id order=5 3 1 4 2 back=2 4 1 3 5 ');
+        Observer.Expect('grp_max', 'key=Grp,MaxAmt order=5 1 3 4 2 back=2 4 3 1 5 ');
+        Observer.Expect('id_cnt', 'key=Id,Cnt order=1 2 3 4 5 back=5 4 3 2 1 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -464,7 +469,9 @@ codeunit 74319 "LT P166 Key Flow Order"
         P6924_Seed();
         Observer.Observe('grp_cnt_desc', P6924_Outcome(1, true));
         Observer.Observe('grp_total_desc', P6924_Outcome(2, true));
-        Observer.Finish();
+        Observer.Expect('grp_cnt_desc', 'key=Grp,Cnt order=2 4 1 3 5 back=5 3 1 4 2 ');
+        Observer.Expect('grp_total_desc', 'key=Grp,Total order=2 4 3 1 5 back=5 1 3 4 2 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -484,7 +491,13 @@ codeunit 74319 "LT P166 Key Flow Order"
         Owner.SetAscending(Grp, false);
         Observer.Observe('ok_grp_desc', Format(P6924_TryOrder(Owner, Order)));
         Observer.Observe('order_grp_desc', Order);
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('order|text', '');
+        Observer.Expect('order|code', '');
+        Observer.Expect('order', '3 1 5 2 4 ');
+        Observer.Expect('ok_grp_desc', 'Yes');
+        Observer.Expect('order_grp_desc', '4 2 5 1 3 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -496,7 +509,10 @@ codeunit 74319 "LT P166 Key Flow Order"
         Observer.Observe('cnt_total', P6924_Outcome(4, false));
         Observer.Observe('total_cnt', P6924_Outcome(12, false));
         Observer.Observe('cnt_total_desc', P6924_Outcome(4, true));
-        Observer.Finish();
+        Observer.Expect('cnt_total', 'key=Cnt,Total order=4 5 2 3 1 back=1 3 2 5 4 ');
+        Observer.Expect('total_cnt', 'key=Total,Cnt order=4 5 1 3 2 back=2 3 1 5 4 ');
+        Observer.Expect('cnt_total_desc', 'key=Cnt,Total order=1 3 2 5 4 back=4 5 2 3 1 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -510,7 +526,12 @@ codeunit 74319 "LT P166 Key Flow Order"
         Observer.Observe('average', P6924_Outcome(7, false));
         Observer.Observe('exist', P6924_Outcome(8, false));
         Observer.Observe('lookup', P6924_Outcome(9, false));
-        Observer.Finish();
+        Observer.Expect('max', 'key=MaxAmt order=4 5 1 3 2 back=2 3 1 5 4 ');
+        Observer.Expect('min', 'key=MinAmt order=4 3 5 1 2 back=2 1 5 3 4 ');
+        Observer.Expect('average', 'key=AvgAmt order=4 5 1 3 2 back=2 3 1 5 4 ');
+        Observer.Expect('exist', 'key=HasLine order=4 1 2 3 5 back=5 3 2 1 4 ');
+        Observer.Expect('lookup', 'key=FirstAmt order=4 3 5 1 2 back=2 1 5 3 4 ');
+        Observer.Verify();
     end;
 }
 

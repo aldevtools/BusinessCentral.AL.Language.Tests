@@ -223,7 +223,25 @@ codeunit 67605 "LT N582 Eval FieldRef"
         P6924_Eval(Observer, 'guid bad', 2, 'abc', 0);
         P6924_Eval(Observer, 'guid empty', 2, '', 0);
         P6924_Eval(Observer, 'guid null', 2, '{00000000-0000-0000-0000-000000000000}', 0);
-        Observer.Finish();
+        Observer.Expect('guid braces', 'no error');
+        Observer.Expect('guid braces|value', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('guid no braces', 'no error');
+        Observer.Expect('guid no braces|value', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('guid digits only', 'no error');
+        Observer.Expect('guid digits only|value', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('guid parentheses', 'no error');
+        Observer.Expect('guid parentheses|value', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('guid blanks', 'no error');
+        Observer.Expect('guid blanks|value', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('guid bad|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('guid bad|code', 'InvalidGuidFormat');
+        Observer.Expect('guid bad|value', '{11111111-2222-3333-4444-555555555555}');
+        Observer.Expect('guid empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('guid empty|code', 'InvalidGuidFormat');
+        Observer.Expect('guid empty|value', '{11111111-2222-3333-4444-555555555555}');
+        Observer.Expect('guid null', 'no error');
+        Observer.Expect('guid null|value', '{00000000-0000-0000-0000-000000000000}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -238,7 +256,45 @@ codeunit 67605 "LT N582 Eval FieldRef"
         P6924_Eval(Observer, 'nine braces', 2, '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}', 9);
         P6924_Eval(Observer, 'nine no braces', 2, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', 9);
         P6924_Eval(Observer, 'nine bad', 2, 'abc', 9);
-        Observer.Finish();
+        Observer.Expect('used braces', 'returned Yes');
+        Observer.Expect('used braces|text', '');
+        Observer.Expect('used braces|code', '');
+        Observer.Expect('used braces|value', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('used bad', 'returned No');
+#if BC28PLUS // BC 28.5 and 29.0 clear the last error when Evaluate into a Guid FieldRef answers false; BC 27.5 keeps it
+        Observer.Expect('used bad|text', '');
+        Observer.Expect('used bad|code', '');
+#else
+        Observer.Expect('used bad|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('used bad|code', 'InvalidGuidFormat');
+#endif
+        Observer.Expect('used bad|value', '{11111111-2222-3333-4444-555555555555}');
+        Observer.Expect('used empty', 'returned No');
+#if BC28PLUS // BC 28.5 and 29.0 clear the last error when Evaluate into a Guid FieldRef answers false; BC 27.5 keeps it
+        Observer.Expect('used empty|text', '');
+        Observer.Expect('used empty|code', '');
+#else
+        Observer.Expect('used empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('used empty|code', 'InvalidGuidFormat');
+#endif
+        Observer.Expect('used empty|value', '{11111111-2222-3333-4444-555555555555}');
+        Observer.Expect('used too short', 'returned No');
+#if BC28PLUS // BC 28.5 and 29.0 clear the last error when Evaluate into a Guid FieldRef answers false; BC 27.5 keeps it
+        Observer.Expect('used too short|text', '');
+        Observer.Expect('used too short|code', '');
+#else
+        Observer.Expect('used too short|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('used too short|code', 'InvalidGuidFormat');
+#endif
+        Observer.Expect('used too short|value', '{11111111-2222-3333-4444-555555555555}');
+        Observer.Expect('nine braces', 'no error');
+        Observer.Expect('nine braces|value', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('nine no braces', 'no error');
+        Observer.Expect('nine no braces|value', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('nine bad|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('nine bad|code', 'InvalidGuidFormat');
+        Observer.Expect('nine bad|value', '{11111111-2222-3333-4444-555555555555}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -253,7 +309,26 @@ codeunit 67605 "LT N582 Eval FieldRef"
         P6924_Eval(Observer, 'dateformula abc', 6, 'abc', 0);
         P6924_Eval(Observer, 'dateformula ok', 6, '<2W>', 0);
         P6924_Eval(Observer, 'duration abc', 7, 'abc', 0);
-        Observer.Finish();
+        Observer.Expect('biginteger abc|text', 'The value "abc" can''t be evaluated into type BigInteger.');
+        Observer.Expect('biginteger abc|code', 'Evaluate');
+        Observer.Expect('biginteger abc|value', '9');
+        Observer.Expect('biginteger ok', 'no error');
+        Observer.Expect('biginteger ok|value', '12345678901');
+        Observer.Expect('time abc|text', 'The value "abc" can''t be evaluated into type Time.');
+        Observer.Expect('time abc|code', 'Evaluate');
+        Observer.Expect('time abc|value', '10:10:10 AM');
+        Observer.Expect('datetime abc|text', 'The value "abc" can''t be evaluated into type DateTime.');
+        Observer.Expect('datetime abc|code', 'Evaluate');
+        Observer.Expect('datetime abc|value', '01/01/24 10:10 AM');
+        Observer.Expect('dateformula abc|text', 'The date formula ''ABC'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.');
+        Observer.Expect('dateformula abc|code', 'Evaluate');
+        Observer.Expect('dateformula abc|value', '1D');
+        Observer.Expect('dateformula ok', 'no error');
+        Observer.Expect('dateformula ok|value', '2W');
+        Observer.Expect('duration abc|text', 'The value "abc" can''t be evaluated into type Duration.');
+        Observer.Expect('duration abc|code', 'Evaluate');
+        Observer.Expect('duration abc|value', '1 second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -268,7 +343,23 @@ codeunit 67605 "LT N582 Eval FieldRef"
         P6924_Eval(Observer, 'enum by name', 9, 'Vendor', 0);
         P6924_Eval(Observer, 'enum by caption', 9, 'Vendor Cap', 0);
         P6924_Eval(Observer, 'enum empty', 9, '', 0);
-        Observer.Finish();
+        Observer.Expect('option caption Nope|text', '''Nope'' is not an option. The existing options are: Zero Cap,One Cap,Two Cap');
+        Observer.Expect('option caption Nope|code', 'InvalidOptionString');
+        Observer.Expect('option caption Nope|value', 'One Cap');
+        Observer.Expect('option caption by caption', 'no error');
+        Observer.Expect('option caption by caption|value', 'Two Cap');
+        Observer.Expect('option caption by name', 'no error');
+        Observer.Expect('option caption by name|value', 'Two Cap');
+        Observer.Expect('enum Nope|text', '''Nope'' is not an option. The existing options are:  ,Customer Cap,Vendor Cap,Sales Order Cap');
+        Observer.Expect('enum Nope|code', 'InvalidOptionString');
+        Observer.Expect('enum Nope|value', 'Customer Cap');
+        Observer.Expect('enum by name', 'no error');
+        Observer.Expect('enum by name|value', 'Vendor Cap');
+        Observer.Expect('enum by caption', 'no error');
+        Observer.Expect('enum by caption|value', 'Vendor Cap');
+        Observer.Expect('enum empty', 'no error');
+        Observer.Expect('enum empty|value', ' ');
+        Observer.Verify();
     end;
 }
 

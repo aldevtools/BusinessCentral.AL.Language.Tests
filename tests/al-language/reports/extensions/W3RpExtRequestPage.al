@@ -356,7 +356,8 @@ codeunit 67708 "W3 RpExt Probe"
         BindSeed();
         Report.Run(Report::"RPT ExtBind Base");
         Observer.Observe('log', ExtLog.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'open: base=[0] ext=[0] row=[] own=[0];ext=4: base=[0] ext=[0] row=[] own=[0];base OnClosePage base=0 row=;base PreReport base=0 row=;ext PreReport base=0 own=0 row=;base PreDataItem name=;base Row 1 first;base Row 2 second;');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -378,7 +379,8 @@ codeunit 67708 "W3 RpExt Probe"
         BindSeed();
         Report.Run(Report::"RPT ExtBind Base");
         Observer.Observe('log', ExtLog.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'ext=4: base=[0] ext=[0] row=[] own=[0];base=8: base=[8] ext=[8] row=[] own=[0];base OnClosePage base=8 row=;base PreReport base=8 row=;ext PreReport base=8 own=0 row=;base PreDataItem name=;base Row 1 first;base Row 2 second;');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -401,7 +403,8 @@ codeunit 67708 "W3 RpExt Probe"
         BindSeed();
         Report.Run(Report::"RPT ExtBind Base");
         Observer.Observe('log', ExtLog.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'base=8: base=[8] ext=[8] row=[] own=[0];ext=4: base=[8] ext=[8] row=[] own=[0];base OnClosePage base=8 row=;base PreReport base=8 row=;ext PreReport base=8 own=0 row=;base PreDataItem name=;base Row 1 first;base Row 2 second;');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -424,7 +427,8 @@ codeunit 67708 "W3 RpExt Probe"
         BindSeed();
         Report.Run(Report::"RPT ExtBind Base");
         Observer.Observe('log', ExtLog.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'row=typed: base=[0] ext=[0] row=[typed] own=[0];base OnClosePage base=0 row=typed;base PreReport base=0 row=typed;ext PreReport base=0 own=0 row=typed;base PreDataItem name=typed;base Row 1 first;base Row 2 second;');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -445,7 +449,8 @@ codeunit 67708 "W3 RpExt Probe"
         BindSeed();
         Report.Run(Report::"RPT ExtBind Base");
         Observer.Observe('log', ExtLog.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'own=7: base=[0] ext=[0] row=[] own=[7];base OnClosePage base=0 row=;base PreReport base=0 row=;ext PreReport base=0 own=7 row=;base PreDataItem name=;base Row 1 first;base Row 2 second;');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -469,7 +474,10 @@ codeunit 67708 "W3 RpExt Probe"
         Observer.Observe('options', Dataset.Between(Parameters, '<Options>', '</Options>'));
         Observer.Observe('dataitems', Dataset.Between(Parameters, '<DataItems>', '</DataItems>'));
         Observer.Observe('log', ExtLog.Take());
-        Observer.Finish();
+        Observer.Expect('options', '<Field name="BaseVal">0</Field><Field name="BindRow.Name">typed</Field><Field name="OwnVal">7</Field>');
+        Observer.Expect('dataitems', '<DataItem name="BindRow">VERSION(1) SORTING(Field1)</DataItem>');
+        Observer.Expect('log', 'all set: base=[0] ext=[0] row=[typed] own=[7];base OnClosePage base=0 row=typed;');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]

@@ -695,7 +695,19 @@ codeunit 71016 "LT TxC TB Text Interop"
         P6924_Fmt(Observer, 'std9', TB, 4);
         P6924_Fmt(Observer, 'std10', TB, 11);
         Observer.Observe('unchanged', TB.ToText());
-        Observer.Finish();
+        Observer.Expect('plain', '[abc def]');
+        Observer.Expect('std0', '[abc def]');
+        Observer.Expect('std1', '[abc def]');
+        Observer.Expect('std2', '[abc def]');
+        Observer.Expect('std3', 'raised');
+        Observer.Expect('std3|text', 'Standard format number 3 does not exist for the type ''TextBuilder''.');
+        Observer.Expect('std3|code', 'InvalidStandardFormat');
+        Observer.Expect('std9', '[abc def]');
+        Observer.Expect('std10', 'raised');
+        Observer.Expect('std10|text', 'Standard format number 10 does not exist for the type ''TextBuilder''.');
+        Observer.Expect('std10|code', 'InvalidStandardFormat');
+        Observer.Expect('unchanged', 'abc def');
+        Observer.Verify();
     end;
 
     [Test]
@@ -711,7 +723,12 @@ codeunit 71016 "LT TxC TB Text Interop"
         P6924_Fmt(Observer, 'text_string', TB, 7);
         P6924_Fmt(Observer, 'length8_text_string', TB, 8);
         P6924_Fmt(Observer, 'strsubstno', TB, 9);
-        Observer.Finish();
+        Observer.Expect('length2', '[ab]');
+        Observer.Expect('length8', '[abc def ]');
+        Observer.Expect('text_string', '[abc def]');
+        Observer.Expect('length8_text_string', '[abc def ]');
+        Observer.Expect('strsubstno', '[<abc def>]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -731,6 +748,11 @@ codeunit 71016 "LT TxC TB Text Interop"
         Cleared.Append('gone');
         Cleared.Clear();
         P6924_Fmt(Observer, 'cleared', Cleared, 0);
-        Observer.Finish();
+        Observer.Expect('empty', '[]');
+        Observer.Expect('empty_std9', '[]');
+        Observer.Expect('lines', '[one\r\ntwo]');
+        Observer.Expect('lines_std9', '[one\r\ntwo]');
+        Observer.Expect('cleared', '[]');
+        Observer.Verify();
     end;
 }

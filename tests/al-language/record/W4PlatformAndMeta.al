@@ -971,7 +971,16 @@ codeunit 68056 "W4 Platform Tests"
         Observer.Observe('enum_const', EvalTfForm('REC TF Source: Source Type=CONST(Customer)'));
         Observer.Observe('enum_filter', EvalTfForm('REC TF Source: Source Type=FILTER(Customer)'));
         Observer.Observe('enum_bad', EvalTfForm('REC TF Source: Source Type=Nobody'));
-        Observer.Finish();
+        Observer.Expect('enum_name', 'Yes|[REC TF Source: Source Type Cap=Customer Cap]|');
+        Observer.Expect('enum_caption', 'Yes|[REC TF Source: Source Type Cap=Customer Cap]|');
+        Observer.Expect('enum_ordinal', 'Yes|[REC TF Source: Source Type Cap=Vendor Cap]|');
+        Observer.Expect('enum_index', 'Yes|[REC TF Source: Source Type Cap=Customer Cap]|');
+        Observer.Expect('enum_lower', 'Yes|[REC TF Source: Source Type Cap=Customer Cap]|');
+        Observer.Expect('enum_name_blank', 'Yes|[REC TF Source: Source Type Cap=Sales Order Cap]|');
+        Observer.Expect('enum_const', 'No|[]|The value "REC TF Source: Source Type=CONST(Customer)" can''t be evaluated into type TableFilter. An error occurred while interpreting the filter: Did not expect ''(''.');
+        Observer.Expect('enum_filter', 'No|[]|The value "REC TF Source: Source Type=FILTER(Customer)" can''t be evaluated into type TableFilter. An error occurred while interpreting the filter: Did not expect ''(''.');
+        Observer.Expect('enum_bad', 'No|[]|The value "REC TF Source: Source Type=Nobody" can''t be evaluated into type TableFilter. ''Nobody'' is not an option. The existing options are:  ,Customer Cap,Vendor Cap,Sales Order Cap');
+        Observer.Verify();
     end;
 
     [Test]
@@ -988,7 +997,16 @@ codeunit 68056 "W4 Platform Tests"
         Observer.Observe('enum_and_code', EvalTfForm('REC TF Source: No.=A1,Source Type=Vendor'));
         Observer.Observe('enum_caption_field', EvalTfForm('REC TF Source: Source Type Cap=Vendor'));
         Observer.Observe('enum_format_9', EvalTf9('REC TF Source: Source Type=Vendor'));
-        Observer.Finish();
+        Observer.Expect('enum_or', 'Yes|[REC TF Source: Source Type Cap=Customer Cap|Vendor Cap]|');
+        Observer.Expect('enum_not', 'Yes|[REC TF Source: Source Type Cap=<>Customer Cap]|');
+        Observer.Expect('enum_range', 'Yes|[REC TF Source: Source Type Cap=Customer Cap..Vendor Cap]|');
+        Observer.Expect('enum_quoted', 'Yes|[REC TF Source: Source Type Cap=Customer Cap]|');
+        Observer.Expect('enum_empty', 'Yes|[REC TF Source: Source Type Cap=]|');
+        Observer.Expect('enum_blank_member', 'Yes|[REC TF Source: Source Type Cap=]|');
+        Observer.Expect('enum_and_code', 'Yes|[REC TF Source: No. Cap=A1,Source Type Cap=Vendor Cap]|');
+        Observer.Expect('enum_caption_field', 'Yes|[REC TF Source: Source Type Cap=Vendor Cap]|');
+        Observer.Expect('enum_format_9', 'Yes|[REC TF Source: Source Type Cap=Vendor Cap]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1002,7 +1020,13 @@ codeunit 68056 "W4 Platform Tests"
         Observer.Observe('ile_ordinal', EvalTfForm('Item Ledger Entry: Source Type=1'));
         Observer.Observe('ile_bare_const', EvalTfBare('Item Ledger Entry: Source Type=CONST(Customer)'));
         Observer.Observe('ile_bare_name', EvalTfBare('Item Ledger Entry: Source Type=Vendor'));
-        Observer.Finish();
+        Observer.Expect('ile_name', 'Yes|[Item Ledger Entry: Source Type=Customer]|');
+        Observer.Expect('ile_const', 'No|[]|The value "Item Ledger Entry: Source Type=CONST(Customer)" can''t be evaluated into type TableFilter. An error occurred while interpreting the filter: Did not expect ''(''.');
+        Observer.Expect('ile_or', 'Yes|[Item Ledger Entry: Source Type=Customer|Vendor]|');
+        Observer.Expect('ile_ordinal', 'Yes|[Item Ledger Entry: Source Type=Customer]|');
+        Observer.Expect('ile_bare_const', 'error:The value "Item Ledger Entry: Source Type=CONST(Customer)" can''t be evaluated into type TableFilter. An error occurred while interpreting the filter: Did not expect ''(''.|Evaluate:InvalidFilterExpression');
+        Observer.Expect('ile_bare_name', 'ok:[Item Ledger Entry: Source Type=Vendor]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1014,7 +1038,11 @@ codeunit 68056 "W4 Platform Tests"
         Observer.Observe('bare_enum_const', EvalTfBare('REC TF Source: Source Type=CONST(Customer)'));
         Observer.Observe('bare_enum_or', EvalTfBare('REC TF Source: Source Type=Customer|Vendor'));
         Observer.Observe('bare_enum_name', EvalTfBare('REC TF Source: Source Type=Customer'));
-        Observer.Finish();
+        Observer.Expect('bare_enum_bad', 'error:The value "REC TF Source: Source Type=Nobody" can''t be evaluated into type TableFilter. ''Nobody'' is not an option. The existing options are:  ,Customer Cap,Vendor Cap,Sales Order Cap|Evaluate:InvalidFilterExpression');
+        Observer.Expect('bare_enum_const', 'error:The value "REC TF Source: Source Type=CONST(Customer)" can''t be evaluated into type TableFilter. An error occurred while interpreting the filter: Did not expect ''(''.|Evaluate:InvalidFilterExpression');
+        Observer.Expect('bare_enum_or', 'ok:[REC TF Source: Source Type Cap=Customer Cap|Vendor Cap]');
+        Observer.Expect('bare_enum_name', 'ok:[REC TF Source: Source Type Cap=Customer Cap]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1028,7 +1056,13 @@ codeunit 68056 "W4 Platform Tests"
         Observer.Observe('option_quoted', EvalTfForm('REC TF Source: Kind=''Open'''));
         Observer.Observe('option_empty', EvalTfForm('REC TF Source: Kind='));
         Observer.Observe('option_blank_member', EvalTfForm('REC TF Source: Kind=0'));
-        Observer.Finish();
+        Observer.Expect('option_or', 'Yes|[REC TF Source: Kind Cap=Open Cap|Closed Cap]|');
+        Observer.Expect('option_not', 'Yes|[REC TF Source: Kind Cap=<>Open Cap]|');
+        Observer.Expect('option_range', 'Yes|[REC TF Source: Kind Cap=Open Cap..Closed Cap]|');
+        Observer.Expect('option_quoted', 'Yes|[REC TF Source: Kind Cap=Open Cap]|');
+        Observer.Expect('option_empty', 'Yes|[REC TF Source: Kind Cap=]|');
+        Observer.Expect('option_blank_member', 'Yes|[REC TF Source: Kind Cap='' '']|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1045,7 +1079,16 @@ codeunit 68056 "W4 Platform Tests"
         Observer.Observe('decimal_greater', EvalTfForm('REC TF Source: Amount=>0'));
         Observer.Observe('date_value', EvalTfForm('REC TF Source: Posting Date=01-31-2026'));
         Observer.Observe('date_range', EvalTfForm('REC TF Source: Posting Date=01-01-2026..01-31-2026'));
-        Observer.Finish();
+        Observer.Expect('bool_yes', 'Yes|[REC TF Source: Flag Cap=Yes]|');
+        Observer.Expect('bool_true', 'Yes|[REC TF Source: Flag Cap=Yes]|');
+        Observer.Expect('bool_one', 'Yes|[REC TF Source: Flag Cap=Yes]|');
+        Observer.Expect('bool_bad', 'No|[]|The value "REC TF Source: Flag=maybe" can''t be evaluated into type TableFilter. The value "maybe" can''t be evaluated into type Boolean.');
+        Observer.Expect('decimal_value', 'Yes|[REC TF Source: Amount Cap=1.5]|');
+        Observer.Expect('decimal_range', 'Yes|[REC TF Source: Amount Cap=1..2]|');
+        Observer.Expect('decimal_greater', 'Yes|[REC TF Source: Amount Cap=>0]|');
+        Observer.Expect('date_value', 'Yes|[REC TF Source: Posting Date Cap=01/31/26]|');
+        Observer.Expect('date_range', 'Yes|[REC TF Source: Posting Date Cap=01/01/26..01/31/26]|');
+        Observer.Verify();
     end;
 }
 
