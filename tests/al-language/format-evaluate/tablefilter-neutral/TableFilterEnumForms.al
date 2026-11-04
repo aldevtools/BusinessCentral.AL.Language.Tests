@@ -192,7 +192,7 @@ page 95455 "LT R6951 Lines"
         end;
     end;
 
-    procedure Rows(): Text
+    procedure RowsText(): Text
     var
         Result: Text;
     begin
@@ -365,7 +365,7 @@ codeunit 95454 "LT R6951 Tests"
             P.AddLine(4, '<>XYZ', Mode);
             Observer.Observe(Mode + '_second_log', Log.Take());
         end;
-        Observer.Observe(Mode + '_rows', P.Rows());
+        Observer.Observe(Mode + '_rows', P.RowsText());
     end;
 
     [Test]
