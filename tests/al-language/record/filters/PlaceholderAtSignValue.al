@@ -116,7 +116,15 @@ codeunit 95584 "LT R6 Placeholder At Sign"
         Probe(Observer, 'ne at value lower case', false, '<>%1', '@no print');
         Probe(Observer, 'ne at value and literal', false, '<>%1&<>ABC', '@NO PRINT');
         Probe(Observer, 'at value or literal', false, '%1|ABC', '@NO PRINT');
-        Observer.Finish();
+        Observer.Expect('literal ne at', 'ok filter=Printer: <>@NO PRINT rows=34');
+        Observer.Expect('ne at value', 'ok filter=Printer: <>@NO PRINT rows=34');
+        Observer.Expect('ne plain value', 'ok filter=Printer: <>NO PRINT rows=234');
+        Observer.Expect('at value alone', 'ok filter=Printer: @NO PRINT rows=12');
+        Observer.Expect('ne at value with wildcard', 'ok filter=Printer: <>@no* rows=34');
+        Observer.Expect('ne at value lower case', 'ok filter=Printer: <>@no print rows=34');
+        Observer.Expect('ne at value and literal', 'ok filter=Printer: <>@NO PRINT&<>ABC rows=3');
+        Observer.Expect('at value or literal', 'ok filter=Printer: @NO PRINT|ABC rows=124');
+        Observer.Verify();
     end;
 
     [Test]
@@ -129,6 +137,10 @@ codeunit 95584 "LT R6 Placeholder At Sign"
         Probe(Observer, 'ne at value', true, '<>%1', '@NO PRINT');
         Probe(Observer, 'at value alone', true, '%1', '@NO PRINT');
         Probe(Observer, 'ne at value lower case', true, '<>%1', '@no print');
-        Observer.Finish();
+        Observer.Expect('literal ne at', 'ok filter=Code: <>@NO PRINT rows=234');
+        Observer.Expect('ne at value', 'ok filter=Code: <>@NO PRINT rows=234');
+        Observer.Expect('at value alone', 'ok filter=Code: @NO PRINT rows=1');
+        Observer.Expect('ne at value lower case', 'ok filter=Code: <>@NO PRINT rows=234');
+        Observer.Verify();
     end;
 }
