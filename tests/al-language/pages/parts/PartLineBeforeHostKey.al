@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-page-object
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); own tables 67573 and 67576, pages 67577 and 67578, log codeunit 67579, test codeunit 67582; pages 85183-85190 (writer PY-B); pages 86760-86766 and codeunit 86767 (writer QH)
+// Fixtures used: Probe Observer (69160); own tables 67573 and 67576, pages 67577 and 67578, log codeunit 67579, test codeunit 67582; pages 85183-85190 (writer PY-B); pages 86760-86766 and codeunit 86767 (writer QH); pages 95160-95166 (writer r6920)
 // Probe: a document page (header "No." is the key) with a lines ListPart linked by SourceTableLink. A line is entered while the header key is still blank, then the key is typed. Which table triggers run (header and line: OnInsert, OnValidate), in which order, which page triggers run, what the card and the part show afterwards and what is stored. The same with the key typed first, for comparison (issue 581 item 2).
 // BC versions: 27+ (the key-typed-after-a-line test: 28+; BC 27 raises an uncatchable NullReferenceException there)
 
@@ -723,6 +723,225 @@ page 86766 "LT QH DL Doc SetName"
         Log.Add('SH.OnInsertRecord:' + Rec."No." + '|' + Rec.Name);
         exit(true);
     end;
+}
+
+// Writer r6920 (2026-11-04, issue 6920 of the runner): Visible(), Editable() and a field read of a part whose host is a new, unsaved record,
+// with and without rows of the blank link key, on OpenNew and OpenEdit of an empty header table. The part's Visible and Editable are a
+// constant false, or a page variable set to true in OnAfterGetRecord or in OnOpenPage, on a Document and on a Card host; page 95166 is the
+// issue's shape (variable set to false in OnNewRecord and to true in OnAfterGetCurrRecord once the key is not blank). Used by test
+// codeunit 67582 only; the header table's OnInsert logs into "LT DL Log".
+// Seen on BC 29 (Linux CI): on OpenNew the first Visible() or Editable() of the part inserts the host (H.OnInsert), as a first field
+// read does, with or without rows of the blank key; nothing later inserts again. Visible() gives the variable as the page code left it
+// (OnAfterGetRecord does not run on the new record, nor after the insert); Editable() gives Yes although the part's Editable is the
+// same variable. On OpenEdit of an empty header table nothing is inserted, the part shows no row although rows of the blank key exist,
+// and it runs OnNewRecord two times or more without validating the link field. A part whose Visible is the constant false is not on
+// the page: Visible(), Editable() and a field read fail with TestPartNotFound (asserterror rolls the test's writes back, so these
+// tests observe no stored rows).
+page 95160 "LT R6920 DocConst"
+{
+    PageType = Document;
+    SourceTable = "LT DL Header";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field("No."; Rec."No.") { ApplicationArea = All; }
+            part(Lines; "LT DL Lines")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Document No." = field("No.");
+                Visible = false;
+                Editable = false;
+            }
+        }
+    }
+}
+
+page 95161 "LT R6920 DocAfterGet"
+{
+    PageType = Document;
+    SourceTable = "LT DL Header";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field("No."; Rec."No.") { ApplicationArea = All; }
+            part(Lines; "LT DL Lines")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Document No." = field("No.");
+                Visible = PartVisible;
+                Editable = PartVisible;
+            }
+        }
+    }
+
+    trigger OnAfterGetRecord()
+    begin
+        PartVisible := true;
+    end;
+
+    var
+        PartVisible: Boolean;
+}
+
+page 95162 "LT R6920 DocOpenPage"
+{
+    PageType = Document;
+    SourceTable = "LT DL Header";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field("No."; Rec."No.") { ApplicationArea = All; }
+            part(Lines; "LT DL Lines")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Document No." = field("No.");
+                Visible = PartVisible;
+                Editable = PartVisible;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        PartVisible := true;
+    end;
+
+    var
+        PartVisible: Boolean;
+}
+
+page 95163 "LT R6920 CardConst"
+{
+    PageType = Card;
+    SourceTable = "LT DL Header";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field("No."; Rec."No.") { ApplicationArea = All; }
+            part(Lines; "LT DL Lines")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Document No." = field("No.");
+                Visible = false;
+                Editable = false;
+            }
+        }
+    }
+}
+
+page 95164 "LT R6920 CardAfterGet"
+{
+    PageType = Card;
+    SourceTable = "LT DL Header";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field("No."; Rec."No.") { ApplicationArea = All; }
+            part(Lines; "LT DL Lines")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Document No." = field("No.");
+                Visible = PartVisible;
+                Editable = PartVisible;
+            }
+        }
+    }
+
+    trigger OnAfterGetRecord()
+    begin
+        PartVisible := true;
+    end;
+
+    var
+        PartVisible: Boolean;
+}
+
+page 95165 "LT R6920 CardOpenPage"
+{
+    PageType = Card;
+    SourceTable = "LT DL Header";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field("No."; Rec."No.") { ApplicationArea = All; }
+            part(Lines; "LT DL Lines")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Document No." = field("No.");
+                Visible = PartVisible;
+                Editable = PartVisible;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        PartVisible := true;
+    end;
+
+    var
+        PartVisible: Boolean;
+}
+
+page 95166 "LT R6920 CardIssue"
+{
+    PageType = Card;
+    SourceTable = "LT DL Header";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field("No."; Rec."No.") { ApplicationArea = All; }
+            part(Lines; "LT DL Lines")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Document No." = field("No.");
+                Visible = PartVisible;
+                Editable = PartVisible;
+            }
+        }
+    }
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        PartVisible := false;
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        if Rec."No." <> '' then
+            PartVisible := true;
+    end;
+
+    var
+        PartVisible: Boolean;
 }
 
 codeunit 86767 "LT QH DL Validate Events"
@@ -2229,6 +2448,1465 @@ codeunit 67582 "LT DL Tests"
         Observer.Expect('after_close_header_rows', '[|]');
         Observer.Expect('after_close_lines', '1');
         Observer.Expect('after_close_line_rows', '[|10000|seeded|0]');
+        Observer.Verify();
+    end;
+
+    // Writer r6920 (2026-11-04): Visible(), Editable() and a field read of the part of a new, unsaved host (pages 95160-95166).
+    // A part whose Visible is the constant false is not on the page: every call on it fails.
+
+    local procedure R6920Stored(var Observer: Codeunit "Probe Observer"; Name: Text)
+    var
+        Header: Record "LT DL Header";
+        Line: Record "LT DL Line";
+    begin
+        Observer.Observe(Name, Format(Header.Count()) + ' headers, ' + Format(Line.Count()) + ' lines');
+    end;
+
+    local procedure R6920RunDocConst(var Observer: Codeunit "Probe Observer"; NewHost: Boolean; VisibleFirst: Boolean)
+    var
+        Host: TestPage "LT R6920 DocConst";
+        Shown: Boolean;
+        Value: Text;
+    begin
+        if NewHost then
+            Host.OpenNew()
+        else
+            Host.OpenEdit();
+        TakeLog(Observer, 'open');
+        if VisibleFirst then begin
+            asserterror Shown := Host.Lines.Visible();
+            Observer.ObserveError('visible');
+        end else begin
+            asserterror Shown := Host.Lines.Editable();
+            Observer.ObserveError('editable');
+        end;
+        TakeLog(Observer, 'first_log');
+        asserterror Value := Host.Lines.Description.Value();
+        Observer.ObserveError('description');
+        TakeLog(Observer, 'read_log');
+        Host.Close();
+        TakeLog(Observer, 'close_log');
+    end;
+
+    [Test]
+    procedure R6920_DocConst_BlankRows_OpenNew_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunDocConst(Observer, true, true);
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('visible|code', 'TestPartNotFound');
+        Observer.Expect('first_log', '[]');
+        Observer.Expect('description|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('description|code', 'TestPartNotFound');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('close_log', '[]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocConst_BlankRows_OpenNew_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunDocConst(Observer, true, false);
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('editable|code', 'TestPartNotFound');
+        Observer.Expect('first_log', '[]');
+        Observer.Expect('description|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('description|code', 'TestPartNotFound');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('close_log', '[]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocConst_BlankRows_OpenEdit_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunDocConst(Observer, false, true);
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('visible|code', 'TestPartNotFound');
+        Observer.Expect('first_log', '[]');
+        Observer.Expect('description|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('description|code', 'TestPartNotFound');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('close_log', '[]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocConst_BlankRows_OpenEdit_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunDocConst(Observer, false, false);
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('editable|code', 'TestPartNotFound');
+        Observer.Expect('first_log', '[]');
+        Observer.Expect('description|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('description|code', 'TestPartNotFound');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('close_log', '[]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocConst_NoRows_OpenNew_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunDocConst(Observer, true, true);
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('visible|code', 'TestPartNotFound');
+        Observer.Expect('first_log', '[]');
+        Observer.Expect('description|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('description|code', 'TestPartNotFound');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('close_log', '[]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocConst_NoRows_OpenNew_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunDocConst(Observer, true, false);
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('editable|code', 'TestPartNotFound');
+        Observer.Expect('first_log', '[]');
+        Observer.Expect('description|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('description|code', 'TestPartNotFound');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('close_log', '[]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocConst_NoRows_OpenEdit_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunDocConst(Observer, false, true);
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('visible|code', 'TestPartNotFound');
+        Observer.Expect('first_log', '[]');
+        Observer.Expect('description|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('description|code', 'TestPartNotFound');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('close_log', '[]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocConst_NoRows_OpenEdit_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunDocConst(Observer, false, false);
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('editable|code', 'TestPartNotFound');
+        Observer.Expect('first_log', '[]');
+        Observer.Expect('description|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('description|code', 'TestPartNotFound');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('close_log', '[]');
+        Observer.Verify();
+    end;
+
+    local procedure R6920RunDocAfterGet(var Observer: Codeunit "Probe Observer"; NewHost: Boolean; VisibleFirst: Boolean)
+    var
+        Host: TestPage "LT R6920 DocAfterGet";
+    begin
+        if NewHost then
+            Host.OpenNew()
+        else
+            Host.OpenEdit();
+        TakeLog(Observer, 'open');
+        if VisibleFirst then begin
+            Observer.Observe('visible', Format(Host.Lines.Visible()));
+            TakeLog(Observer, 'visible_log');
+            R6920Stored(Observer, 'after_visible');
+            Observer.Observe('editable', Format(Host.Lines.Editable()));
+            TakeLog(Observer, 'editable_log');
+        end else begin
+            Observer.Observe('editable', Format(Host.Lines.Editable()));
+            TakeLog(Observer, 'editable_log');
+            R6920Stored(Observer, 'after_editable');
+            Observer.Observe('visible', Format(Host.Lines.Visible()));
+            TakeLog(Observer, 'visible_log');
+        end;
+        Observer.Observe('description', '[' + Host.Lines.Description.Value() + ']');
+        TakeLog(Observer, 'read_log');
+        R6920Stored(Observer, 'after_read');
+        Observer.Observe('visible_after_read', Format(Host.Lines.Visible()));
+        Observer.Observe('editable_after_read', Format(Host.Lines.Editable()));
+        Host.Close();
+        TakeLog(Observer, 'close_log');
+        R6920Stored(Observer, 'after_close');
+    end;
+
+    [Test]
+    procedure R6920_DocAfterGet_BlankRows_OpenNew_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunDocAfterGet(Observer, true, true);
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[H.OnInsert:]');
+        Observer.Expect('after_visible', '1 headers, 1 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('description', '[seeded]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '1 headers, 1 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 headers, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocAfterGet_BlankRows_OpenNew_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunDocAfterGet(Observer, true, false);
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[H.OnInsert:]');
+        Observer.Expect('after_editable', '1 headers, 1 lines');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('description', '[seeded]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '1 headers, 1 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 headers, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocAfterGet_BlankRows_OpenEdit_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunDocAfterGet(Observer, false, true);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('after_visible', '0 headers, 1 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '0 headers, 1 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 headers, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocAfterGet_BlankRows_OpenEdit_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunDocAfterGet(Observer, false, false);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('after_editable', '0 headers, 1 lines');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '0 headers, 1 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 headers, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocAfterGet_NoRows_OpenNew_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunDocAfterGet(Observer, true, true);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord, L.OnValidate(Document No.)');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[H.OnInsert:] fired at least once: LP.OnNewRecord, L.OnValidate(Document No.)');
+        Observer.Expect('after_visible', '1 headers, 0 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '1 headers, 0 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 headers, 0 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocAfterGet_NoRows_OpenNew_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunDocAfterGet(Observer, true, false);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord, L.OnValidate(Document No.)');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[H.OnInsert:] fired at least once: LP.OnNewRecord, L.OnValidate(Document No.)');
+        Observer.Expect('after_editable', '1 headers, 0 lines');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '1 headers, 0 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 headers, 0 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocAfterGet_NoRows_OpenEdit_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunDocAfterGet(Observer, false, true);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('after_visible', '0 headers, 0 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '0 headers, 0 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 headers, 0 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocAfterGet_NoRows_OpenEdit_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunDocAfterGet(Observer, false, false);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('after_editable', '0 headers, 0 lines');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '0 headers, 0 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 headers, 0 lines');
+        Observer.Verify();
+    end;
+
+    local procedure R6920RunDocOpenPage(var Observer: Codeunit "Probe Observer"; NewHost: Boolean; VisibleFirst: Boolean)
+    var
+        Host: TestPage "LT R6920 DocOpenPage";
+    begin
+        if NewHost then
+            Host.OpenNew()
+        else
+            Host.OpenEdit();
+        TakeLog(Observer, 'open');
+        if VisibleFirst then begin
+            Observer.Observe('visible', Format(Host.Lines.Visible()));
+            TakeLog(Observer, 'visible_log');
+            R6920Stored(Observer, 'after_visible');
+            Observer.Observe('editable', Format(Host.Lines.Editable()));
+            TakeLog(Observer, 'editable_log');
+        end else begin
+            Observer.Observe('editable', Format(Host.Lines.Editable()));
+            TakeLog(Observer, 'editable_log');
+            R6920Stored(Observer, 'after_editable');
+            Observer.Observe('visible', Format(Host.Lines.Visible()));
+            TakeLog(Observer, 'visible_log');
+        end;
+        Observer.Observe('description', '[' + Host.Lines.Description.Value() + ']');
+        TakeLog(Observer, 'read_log');
+        R6920Stored(Observer, 'after_read');
+        Observer.Observe('visible_after_read', Format(Host.Lines.Visible()));
+        Observer.Observe('editable_after_read', Format(Host.Lines.Editable()));
+        Host.Close();
+        TakeLog(Observer, 'close_log');
+        R6920Stored(Observer, 'after_close');
+    end;
+
+    [Test]
+    procedure R6920_DocOpenPage_BlankRows_OpenNew_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunDocOpenPage(Observer, true, true);
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[H.OnInsert:]');
+        Observer.Expect('after_visible', '1 headers, 1 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('description', '[seeded]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '1 headers, 1 lines');
+        Observer.Expect('visible_after_read', 'Yes');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 headers, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocOpenPage_BlankRows_OpenNew_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunDocOpenPage(Observer, true, false);
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[H.OnInsert:]');
+        Observer.Expect('after_editable', '1 headers, 1 lines');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('description', '[seeded]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '1 headers, 1 lines');
+        Observer.Expect('visible_after_read', 'Yes');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 headers, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocOpenPage_BlankRows_OpenEdit_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunDocOpenPage(Observer, false, true);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('after_visible', '0 headers, 1 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '0 headers, 1 lines');
+        Observer.Expect('visible_after_read', 'Yes');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 headers, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocOpenPage_BlankRows_OpenEdit_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunDocOpenPage(Observer, false, false);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('after_editable', '0 headers, 1 lines');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '0 headers, 1 lines');
+        Observer.Expect('visible_after_read', 'Yes');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 headers, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocOpenPage_NoRows_OpenNew_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunDocOpenPage(Observer, true, true);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord, L.OnValidate(Document No.)');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[H.OnInsert:] fired at least once: LP.OnNewRecord, L.OnValidate(Document No.)');
+        Observer.Expect('after_visible', '1 headers, 0 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '1 headers, 0 lines');
+        Observer.Expect('visible_after_read', 'Yes');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 headers, 0 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocOpenPage_NoRows_OpenNew_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunDocOpenPage(Observer, true, false);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord, L.OnValidate(Document No.)');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[H.OnInsert:] fired at least once: LP.OnNewRecord, L.OnValidate(Document No.)');
+        Observer.Expect('after_editable', '1 headers, 0 lines');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '1 headers, 0 lines');
+        Observer.Expect('visible_after_read', 'Yes');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 headers, 0 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocOpenPage_NoRows_OpenEdit_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunDocOpenPage(Observer, false, true);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('after_visible', '0 headers, 0 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '0 headers, 0 lines');
+        Observer.Expect('visible_after_read', 'Yes');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 headers, 0 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_DocOpenPage_NoRows_OpenEdit_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunDocOpenPage(Observer, false, false);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('after_editable', '0 headers, 0 lines');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '0 headers, 0 lines');
+        Observer.Expect('visible_after_read', 'Yes');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 headers, 0 lines');
+        Observer.Verify();
+    end;
+
+    local procedure R6920RunCardConst(var Observer: Codeunit "Probe Observer"; NewHost: Boolean; VisibleFirst: Boolean)
+    var
+        Host: TestPage "LT R6920 CardConst";
+        Shown: Boolean;
+        Value: Text;
+    begin
+        if NewHost then
+            Host.OpenNew()
+        else
+            Host.OpenEdit();
+        TakeLog(Observer, 'open');
+        if VisibleFirst then begin
+            asserterror Shown := Host.Lines.Visible();
+            Observer.ObserveError('visible');
+        end else begin
+            asserterror Shown := Host.Lines.Editable();
+            Observer.ObserveError('editable');
+        end;
+        TakeLog(Observer, 'first_log');
+        asserterror Value := Host.Lines.Description.Value();
+        Observer.ObserveError('description');
+        TakeLog(Observer, 'read_log');
+        Host.Close();
+        TakeLog(Observer, 'close_log');
+    end;
+
+    [Test]
+    procedure R6920_CardConst_BlankRows_OpenNew_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunCardConst(Observer, true, true);
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('visible|code', 'TestPartNotFound');
+        Observer.Expect('first_log', '[]');
+        Observer.Expect('description|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('description|code', 'TestPartNotFound');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('close_log', '[]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardConst_BlankRows_OpenNew_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunCardConst(Observer, true, false);
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('editable|code', 'TestPartNotFound');
+        Observer.Expect('first_log', '[]');
+        Observer.Expect('description|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('description|code', 'TestPartNotFound');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('close_log', '[]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardConst_BlankRows_OpenEdit_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunCardConst(Observer, false, true);
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('visible|code', 'TestPartNotFound');
+        Observer.Expect('first_log', '[]');
+        Observer.Expect('description|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('description|code', 'TestPartNotFound');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('close_log', '[]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardConst_BlankRows_OpenEdit_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunCardConst(Observer, false, false);
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('editable|code', 'TestPartNotFound');
+        Observer.Expect('first_log', '[]');
+        Observer.Expect('description|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('description|code', 'TestPartNotFound');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('close_log', '[]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardConst_NoRows_OpenNew_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunCardConst(Observer, true, true);
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('visible|code', 'TestPartNotFound');
+        Observer.Expect('first_log', '[]');
+        Observer.Expect('description|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('description|code', 'TestPartNotFound');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('close_log', '[]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardConst_NoRows_OpenNew_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunCardConst(Observer, true, false);
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('editable|code', 'TestPartNotFound');
+        Observer.Expect('first_log', '[]');
+        Observer.Expect('description|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('description|code', 'TestPartNotFound');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('close_log', '[]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardConst_NoRows_OpenEdit_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunCardConst(Observer, false, true);
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('visible|code', 'TestPartNotFound');
+        Observer.Expect('first_log', '[]');
+        Observer.Expect('description|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('description|code', 'TestPartNotFound');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('close_log', '[]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardConst_NoRows_OpenEdit_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunCardConst(Observer, false, false);
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('editable|code', 'TestPartNotFound');
+        Observer.Expect('first_log', '[]');
+        Observer.Expect('description|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('description|code', 'TestPartNotFound');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('close_log', '[]');
+        Observer.Verify();
+    end;
+
+    local procedure R6920RunCardAfterGet(var Observer: Codeunit "Probe Observer"; NewHost: Boolean; VisibleFirst: Boolean)
+    var
+        Host: TestPage "LT R6920 CardAfterGet";
+    begin
+        if NewHost then
+            Host.OpenNew()
+        else
+            Host.OpenEdit();
+        TakeLog(Observer, 'open');
+        if VisibleFirst then begin
+            Observer.Observe('visible', Format(Host.Lines.Visible()));
+            TakeLog(Observer, 'visible_log');
+            R6920Stored(Observer, 'after_visible');
+            Observer.Observe('editable', Format(Host.Lines.Editable()));
+            TakeLog(Observer, 'editable_log');
+        end else begin
+            Observer.Observe('editable', Format(Host.Lines.Editable()));
+            TakeLog(Observer, 'editable_log');
+            R6920Stored(Observer, 'after_editable');
+            Observer.Observe('visible', Format(Host.Lines.Visible()));
+            TakeLog(Observer, 'visible_log');
+        end;
+        Observer.Observe('description', '[' + Host.Lines.Description.Value() + ']');
+        TakeLog(Observer, 'read_log');
+        R6920Stored(Observer, 'after_read');
+        Observer.Observe('visible_after_read', Format(Host.Lines.Visible()));
+        Observer.Observe('editable_after_read', Format(Host.Lines.Editable()));
+        Host.Close();
+        TakeLog(Observer, 'close_log');
+        R6920Stored(Observer, 'after_close');
+    end;
+
+    [Test]
+    procedure R6920_CardAfterGet_BlankRows_OpenNew_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunCardAfterGet(Observer, true, true);
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[H.OnInsert:]');
+        Observer.Expect('after_visible', '1 headers, 1 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('description', '[seeded]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '1 headers, 1 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 headers, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardAfterGet_BlankRows_OpenNew_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunCardAfterGet(Observer, true, false);
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[H.OnInsert:]');
+        Observer.Expect('after_editable', '1 headers, 1 lines');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('description', '[seeded]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '1 headers, 1 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 headers, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardAfterGet_BlankRows_OpenEdit_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunCardAfterGet(Observer, false, true);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('after_visible', '0 headers, 1 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '0 headers, 1 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 headers, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardAfterGet_BlankRows_OpenEdit_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunCardAfterGet(Observer, false, false);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('after_editable', '0 headers, 1 lines');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '0 headers, 1 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 headers, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardAfterGet_NoRows_OpenNew_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunCardAfterGet(Observer, true, true);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord, L.OnValidate(Document No.)');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[H.OnInsert:] fired at least once: LP.OnNewRecord, L.OnValidate(Document No.)');
+        Observer.Expect('after_visible', '1 headers, 0 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '1 headers, 0 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 headers, 0 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardAfterGet_NoRows_OpenNew_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunCardAfterGet(Observer, true, false);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord, L.OnValidate(Document No.)');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[H.OnInsert:] fired at least once: LP.OnNewRecord, L.OnValidate(Document No.)');
+        Observer.Expect('after_editable', '1 headers, 0 lines');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '1 headers, 0 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 headers, 0 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardAfterGet_NoRows_OpenEdit_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunCardAfterGet(Observer, false, true);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('after_visible', '0 headers, 0 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '0 headers, 0 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 headers, 0 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardAfterGet_NoRows_OpenEdit_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunCardAfterGet(Observer, false, false);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('after_editable', '0 headers, 0 lines');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '0 headers, 0 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 headers, 0 lines');
+        Observer.Verify();
+    end;
+
+    local procedure R6920RunCardOpenPage(var Observer: Codeunit "Probe Observer"; NewHost: Boolean; VisibleFirst: Boolean)
+    var
+        Host: TestPage "LT R6920 CardOpenPage";
+    begin
+        if NewHost then
+            Host.OpenNew()
+        else
+            Host.OpenEdit();
+        TakeLog(Observer, 'open');
+        if VisibleFirst then begin
+            Observer.Observe('visible', Format(Host.Lines.Visible()));
+            TakeLog(Observer, 'visible_log');
+            R6920Stored(Observer, 'after_visible');
+            Observer.Observe('editable', Format(Host.Lines.Editable()));
+            TakeLog(Observer, 'editable_log');
+        end else begin
+            Observer.Observe('editable', Format(Host.Lines.Editable()));
+            TakeLog(Observer, 'editable_log');
+            R6920Stored(Observer, 'after_editable');
+            Observer.Observe('visible', Format(Host.Lines.Visible()));
+            TakeLog(Observer, 'visible_log');
+        end;
+        Observer.Observe('description', '[' + Host.Lines.Description.Value() + ']');
+        TakeLog(Observer, 'read_log');
+        R6920Stored(Observer, 'after_read');
+        Observer.Observe('visible_after_read', Format(Host.Lines.Visible()));
+        Observer.Observe('editable_after_read', Format(Host.Lines.Editable()));
+        Host.Close();
+        TakeLog(Observer, 'close_log');
+        R6920Stored(Observer, 'after_close');
+    end;
+
+    [Test]
+    procedure R6920_CardOpenPage_BlankRows_OpenNew_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunCardOpenPage(Observer, true, true);
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[H.OnInsert:]');
+        Observer.Expect('after_visible', '1 headers, 1 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('description', '[seeded]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '1 headers, 1 lines');
+        Observer.Expect('visible_after_read', 'Yes');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 headers, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardOpenPage_BlankRows_OpenNew_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunCardOpenPage(Observer, true, false);
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[H.OnInsert:]');
+        Observer.Expect('after_editable', '1 headers, 1 lines');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('description', '[seeded]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '1 headers, 1 lines');
+        Observer.Expect('visible_after_read', 'Yes');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 headers, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardOpenPage_BlankRows_OpenEdit_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunCardOpenPage(Observer, false, true);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('after_visible', '0 headers, 1 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '0 headers, 1 lines');
+        Observer.Expect('visible_after_read', 'Yes');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 headers, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardOpenPage_BlankRows_OpenEdit_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunCardOpenPage(Observer, false, false);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('after_editable', '0 headers, 1 lines');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '0 headers, 1 lines');
+        Observer.Expect('visible_after_read', 'Yes');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 headers, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardOpenPage_NoRows_OpenNew_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunCardOpenPage(Observer, true, true);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord, L.OnValidate(Document No.)');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[H.OnInsert:] fired at least once: LP.OnNewRecord, L.OnValidate(Document No.)');
+        Observer.Expect('after_visible', '1 headers, 0 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '1 headers, 0 lines');
+        Observer.Expect('visible_after_read', 'Yes');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 headers, 0 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardOpenPage_NoRows_OpenNew_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunCardOpenPage(Observer, true, false);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord, L.OnValidate(Document No.)');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[H.OnInsert:] fired at least once: LP.OnNewRecord, L.OnValidate(Document No.)');
+        Observer.Expect('after_editable', '1 headers, 0 lines');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '1 headers, 0 lines');
+        Observer.Expect('visible_after_read', 'Yes');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 headers, 0 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardOpenPage_NoRows_OpenEdit_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunCardOpenPage(Observer, false, true);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('after_visible', '0 headers, 0 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '0 headers, 0 lines');
+        Observer.Expect('visible_after_read', 'Yes');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 headers, 0 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardOpenPage_NoRows_OpenEdit_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunCardOpenPage(Observer, false, false);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('after_editable', '0 headers, 0 lines');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '0 headers, 0 lines');
+        Observer.Expect('visible_after_read', 'Yes');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 headers, 0 lines');
+        Observer.Verify();
+    end;
+
+    local procedure R6920RunCardIssue(var Observer: Codeunit "Probe Observer"; NewHost: Boolean; VisibleFirst: Boolean)
+    var
+        Host: TestPage "LT R6920 CardIssue";
+    begin
+        if NewHost then
+            Host.OpenNew()
+        else
+            Host.OpenEdit();
+        TakeLog(Observer, 'open');
+        if VisibleFirst then begin
+            Observer.Observe('visible', Format(Host.Lines.Visible()));
+            TakeLog(Observer, 'visible_log');
+            R6920Stored(Observer, 'after_visible');
+            Observer.Observe('editable', Format(Host.Lines.Editable()));
+            TakeLog(Observer, 'editable_log');
+        end else begin
+            Observer.Observe('editable', Format(Host.Lines.Editable()));
+            TakeLog(Observer, 'editable_log');
+            R6920Stored(Observer, 'after_editable');
+            Observer.Observe('visible', Format(Host.Lines.Visible()));
+            TakeLog(Observer, 'visible_log');
+        end;
+        Observer.Observe('description', '[' + Host.Lines.Description.Value() + ']');
+        TakeLog(Observer, 'read_log');
+        R6920Stored(Observer, 'after_read');
+        Observer.Observe('visible_after_read', Format(Host.Lines.Visible()));
+        Observer.Observe('editable_after_read', Format(Host.Lines.Editable()));
+        Host.Close();
+        TakeLog(Observer, 'close_log');
+        R6920Stored(Observer, 'after_close');
+    end;
+
+    [Test]
+    procedure R6920_CardIssue_BlankRows_OpenNew_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunCardIssue(Observer, true, true);
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[H.OnInsert:]');
+        Observer.Expect('after_visible', '1 headers, 1 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('description', '[seeded]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '1 headers, 1 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 headers, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardIssue_BlankRows_OpenNew_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunCardIssue(Observer, true, false);
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[H.OnInsert:]');
+        Observer.Expect('after_editable', '1 headers, 1 lines');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('description', '[seeded]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '1 headers, 1 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 headers, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardIssue_BlankRows_OpenEdit_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunCardIssue(Observer, false, true);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('after_visible', '0 headers, 1 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '0 headers, 1 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 headers, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardIssue_BlankRows_OpenEdit_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        SeedLine('', 10000);
+        R6920RunCardIssue(Observer, false, false);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('after_editable', '0 headers, 1 lines');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '0 headers, 1 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 headers, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardIssue_NoRows_OpenNew_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunCardIssue(Observer, true, true);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord, L.OnValidate(Document No.)');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[H.OnInsert:] fired at least once: LP.OnNewRecord, L.OnValidate(Document No.)');
+        Observer.Expect('after_visible', '1 headers, 0 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '1 headers, 0 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 headers, 0 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardIssue_NoRows_OpenNew_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunCardIssue(Observer, true, false);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord, L.OnValidate(Document No.)');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[H.OnInsert:] fired at least once: LP.OnNewRecord, L.OnValidate(Document No.)');
+        Observer.Expect('after_editable', '1 headers, 0 lines');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '1 headers, 0 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 headers, 0 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardIssue_NoRows_OpenEdit_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunCardIssue(Observer, false, true);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('after_visible', '0 headers, 0 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '0 headers, 0 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 headers, 0 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R6920_CardIssue_NoRows_OpenEdit_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        R6920RunCardIssue(Observer, false, false);
+        Observer.Expect('open', '[] fired at least once: LP.OnNewRecord');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('after_editable', '0 headers, 0 lines');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('after_read', '0 headers, 0 lines');
+        Observer.Expect('visible_after_read', 'No');
+        Observer.Expect('editable_after_read', 'Yes');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 headers, 0 lines');
         Observer.Verify();
     end;
 }
