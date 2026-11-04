@@ -3,6 +3,7 @@
 // Fixtures used: Probe Observer (69160); Y94AbpObjects.al (95100-95139); Permissions Mock (131006) from the dependency.
 // Probe: al-runtime-rs ADR-062 probe P21, stage 4 gate: a cue part (CardPart) opened directly. Cue fields and an action of the cuegroup carry the property.
 //   Legend: Y visible, F Visible false, N no such control on the TestPage.
+//   Observed text: one letter per control, in this order: CuePlain, CueGuardA, CueGuardB, CueAct, CuePlainAct.
 // BC versions: 27, 28, 29
 
 codeunit 95122 "LT Y94 Abp Cue"
@@ -52,9 +53,9 @@ codeunit 95122 "LT Y94 Abp Cue"
         end;
         Keys.AddRange('CuePlain,CueGuardA,CueGuardB,CueAct,CuePlainAct'.Split(','));
         foreach KeyName in Keys do
-            Line += KeyName + '=' + Vis(Facts, KeyName) + ' ';
+            Line += Vis(Facts, KeyName);
         Facts.Close();
-        Observer.Observe(Tag, Line.TrimEnd());
+        Observer.Observe(Tag, Line);
     end;
 
     local procedure Vis(var Facts: TestPage "LT Y94 Cue Part"; KeyName: Text): Text

@@ -429,7 +429,88 @@ permissionset 95112 "LT Y94 Ref tbl"
         table "LT Y94 Guard A" = X;
 }
 
-permissionset 95113 "LT Y94 List none"
+permissionset 95113 "LT Y94 Ref wtdr"
+{
+    Assignable = true;
+    Permissions =
+        tabledata "LT Y94 Row" = RIMD,
+        page "LT Y94 Ref Card" = X,
+        tabledata * = R;
+}
+
+permissionset 95114 "LT Y94 Ref wtdi"
+{
+    Assignable = true;
+    Permissions =
+        tabledata "LT Y94 Row" = RIMD,
+        page "LT Y94 Ref Card" = X,
+        tabledata * = I;
+}
+
+permissionset 95115 "LT Y94 Ref wcu"
+{
+    Assignable = true;
+    Permissions =
+        tabledata "LT Y94 Row" = RIMD,
+        page "LT Y94 Ref Card" = X,
+        codeunit * = X;
+}
+
+permissionset 95116 "LT Y94 Ref wpg"
+{
+    Assignable = true;
+    Permissions =
+        tabledata "LT Y94 Row" = RIMD,
+        page "LT Y94 Ref Card" = X,
+        page * = X;
+}
+
+permissionset 95117 "LT Y94 Ref wrep"
+{
+    Assignable = true;
+    Permissions =
+        tabledata "LT Y94 Row" = RIMD,
+        page "LT Y94 Ref Card" = X,
+        report * = X;
+}
+
+permissionset 95118 "LT Y94 Ref wqry"
+{
+    Assignable = true;
+    Permissions =
+        tabledata "LT Y94 Row" = RIMD,
+        page "LT Y94 Ref Card" = X,
+        query * = X;
+}
+
+permissionset 95119 "LT Y94 Ref wxml"
+{
+    Assignable = true;
+    Permissions =
+        tabledata "LT Y94 Row" = RIMD,
+        page "LT Y94 Ref Card" = X,
+        xmlport * = X;
+}
+
+permissionset 95120 "LT Y94 Ref wtbl"
+{
+    Assignable = true;
+    Permissions =
+        tabledata "LT Y94 Row" = RIMD,
+        page "LT Y94 Ref Card" = X,
+        table * = X;
+}
+
+permissionset 95121 "LT Y94 Ref wsys"
+{
+    Assignable = true;
+    Permissions =
+        tabledata "LT Y94 Row" = RIMD,
+        page "LT Y94 Ref Card" = X,
+        system * = X;
+}
+
+permissionset 95122 "LT Y94 List none"
 {
     Assignable = true;
     Permissions =
@@ -437,7 +518,7 @@ permissionset 95113 "LT Y94 List none"
         page "LT Y94 List" = X;
 }
 
-permissionset 95114 "LT Y94 List ar"
+permissionset 95123 "LT Y94 List ar"
 {
     Assignable = true;
     Permissions =
@@ -446,7 +527,7 @@ permissionset 95114 "LT Y94 List ar"
         tabledata "LT Y94 Guard A" = R;
 }
 
-permissionset 95115 "LT Y94 List br"
+permissionset 95124 "LT Y94 List br"
 {
     Assignable = true;
     Permissions =
@@ -455,7 +536,7 @@ permissionset 95115 "LT Y94 List br"
         tabledata "LT Y94 Guard B" = R;
 }
 
-permissionset 95116 "LT Y94 List abr"
+permissionset 95125 "LT Y94 List abr"
 {
     Assignable = true;
     Permissions =
@@ -465,7 +546,7 @@ permissionset 95116 "LT Y94 List abr"
         tabledata "LT Y94 Guard B" = R;
 }
 
-permissionset 95117 "LT Y94 Cue none"
+permissionset 95126 "LT Y94 Cue none"
 {
     Assignable = true;
     Permissions =
@@ -473,7 +554,7 @@ permissionset 95117 "LT Y94 Cue none"
         page "LT Y94 Cue Part" = X;
 }
 
-permissionset 95118 "LT Y94 Cue ar"
+permissionset 95127 "LT Y94 Cue ar"
 {
     Assignable = true;
     Permissions =
@@ -482,7 +563,7 @@ permissionset 95118 "LT Y94 Cue ar"
         tabledata "LT Y94 Guard A" = R;
 }
 
-permissionset 95119 "LT Y94 Cue br"
+permissionset 95128 "LT Y94 Cue br"
 {
     Assignable = true;
     Permissions =
@@ -491,7 +572,7 @@ permissionset 95119 "LT Y94 Cue br"
         tabledata "LT Y94 Guard B" = R;
 }
 
-permissionset 95120 "LT Y94 Cue abr"
+permissionset 95129 "LT Y94 Cue abr"
 {
     Assignable = true;
     Permissions =
@@ -501,7 +582,7 @@ permissionset 95120 "LT Y94 Cue abr"
         tabledata "LT Y94 Guard B" = R;
 }
 
-permissionset 95121 "LT Y94 Conf none"
+permissionset 95130 "LT Y94 Conf none"
 {
     Assignable = true;
     Permissions =
@@ -509,7 +590,7 @@ permissionset 95121 "LT Y94 Conf none"
         page "LT Y94 Conflict" = X;
 }
 
-permissionset 95122 "LT Y94 Conf ar"
+permissionset 95131 "LT Y94 Conf ar"
 {
     Assignable = true;
     Permissions =
@@ -518,7 +599,7 @@ permissionset 95122 "LT Y94 Conf ar"
         tabledata "LT Y94 Guard A" = R;
 }
 
-permissionset 95123 "LT Y94 Conf br"
+permissionset 95132 "LT Y94 Conf br"
 {
     Assignable = true;
     Permissions =
@@ -527,7 +608,7 @@ permissionset 95123 "LT Y94 Conf br"
         tabledata "LT Y94 Guard B" = R;
 }
 
-permissionset 95124 "LT Y94 Conf abr"
+permissionset 95133 "LT Y94 Conf abr"
 {
     Assignable = true;
     Permissions =
@@ -537,7 +618,7 @@ permissionset 95124 "LT Y94 Conf abr"
         tabledata "LT Y94 Guard B" = R;
 }
 
-permissionset 95125 "LT Y94 Lvl none"
+permissionset 95134 "LT Y94 Lvl none"
 {
     Assignable = true;
     Permissions =
@@ -545,7 +626,7 @@ permissionset 95125 "LT Y94 Lvl none"
         page "LT Y94 Page Level" = X;
 }
 
-permissionset 95126 "LT Y94 Lvl ar"
+permissionset 95135 "LT Y94 Lvl ar"
 {
     Assignable = true;
     Permissions =
@@ -554,7 +635,7 @@ permissionset 95126 "LT Y94 Lvl ar"
         tabledata "LT Y94 Guard A" = R;
 }
 
-permissionset 95127 "LT Y94 Lvl br"
+permissionset 95136 "LT Y94 Lvl br"
 {
     Assignable = true;
     Permissions =

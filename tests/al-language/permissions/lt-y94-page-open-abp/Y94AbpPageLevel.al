@@ -3,6 +3,7 @@
 // Fixtures used: Probe Observer (69160); Y94AbpObjects.al (95100-95139); Permissions Mock (131006) from the dependency.
 // Probe: al-runtime-rs ADR-062 probe P21, stage 4 gate: a page that carries AccessByPermission itself (tabledata A = R), together with a guarded field (B) and a
 //   promoted guarded action (A). Y84PermAbp.al Y84_Abp_PageAndReportLevel pins the page alone (opens whatever the sets are). Legend: Y visible, F Visible false, N no such control.
+//   Observed text: one letter per control, in this order: IdCtl, LvlGuardB, LvlPlainAct, LvlGuardAct.
 // BC versions: 27, 28, 29
 
 codeunit 95124 "LT Y94 Abp Page Level"
@@ -51,9 +52,9 @@ codeunit 95124 "LT Y94 Abp Page Level"
         end;
         Keys.AddRange('IdCtl,LvlGuardB,LvlPlainAct,LvlGuardAct'.Split(','));
         foreach KeyName in Keys do
-            Line += KeyName + '=' + Vis(Facts, KeyName) + ' ';
+            Line += Vis(Facts, KeyName);
         Facts.Close();
-        Observer.Observe(Tag, Line.TrimEnd());
+        Observer.Observe(Tag, Line);
     end;
 
     local procedure Vis(var Facts: TestPage "LT Y94 Page Level"; KeyName: Text): Text

@@ -3,6 +3,7 @@
 // Fixtures used: Probe Observer (69160); Y94AbpObjects.al (95100-95139); Permissions Mock (131006) from the dependency.
 // Probe: al-runtime-rs ADR-062 probe P21, stage 4 gate: a list page. Guarded fields in a repeater and in a group, guarded actions promoted by actionref
 //   directly under Promoted and in a group, and in a group of the Processing area. Legend: Y visible, F Visible false, N no such control on the TestPage.
+//   Observed text: one letter per control, in this order: RPlain, RGuardA, RGuardB, GPlain, GGuardA, LPlainAct, LGuardAAct, LGuardBAct, LInnerAct.
 // BC versions: 27, 28, 29
 
 codeunit 95121 "LT Y94 Abp List"
@@ -52,9 +53,9 @@ codeunit 95121 "LT Y94 Abp List"
         end;
         Keys.AddRange('RPlain,RGuardA,RGuardB,GPlain,GGuardA,LPlainAct,LGuardAAct,LGuardBAct,LInnerAct'.Split(','));
         foreach KeyName in Keys do
-            Line += KeyName + '=' + Vis(Facts, KeyName) + ' ';
+            Line += Vis(Facts, KeyName);
         Facts.Close();
-        Observer.Observe(Tag, Line.TrimEnd());
+        Observer.Observe(Tag, Line);
     end;
 
     local procedure Vis(var Facts: TestPage "LT Y94 List"; KeyName: Text): Text
