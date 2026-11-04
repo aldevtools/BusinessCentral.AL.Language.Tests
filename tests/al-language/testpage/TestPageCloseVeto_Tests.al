@@ -270,7 +270,7 @@ codeunit 60419 "QCV Close Veto Tests"
     procedure RP_PlainVeto_LastErrorPerOpenMode()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT RP Veto Row";
+        Row: Record "ALT Shape 01";
         Card: TestPage "QCV Veto Card";
         TableCard: TestPage "LT RP QCV Table Card";
     begin
@@ -373,7 +373,7 @@ codeunit 60419 "QCV Close Veto Tests"
     procedure RP_PlainVeto_TableCard_LastErrorInTryFunction()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT RP Veto Row";
+        Row: Record "ALT Shape 01";
         Card: TestPage "LT RP QCV Table Card";
     begin
         Initialize(Probe.ModeVeto());
@@ -398,7 +398,7 @@ codeunit 60419 "QCV Close Veto Tests"
 page 88398 "LT RP QCV Table Card"
 {
     PageType = Card;
-    SourceTable = "LT RP Veto Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
 

@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/page/page-update-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own table 91306, log codeunit 91307, page 91308 and test codeunit 91309
+// Fixtures used: Probe Observer (codeunit 69160); shared table 50001 "ALT Shape 01", log codeunit 91307, page 91308 and test codeunit 91309
 // Probe: written against BC 29 and checked on the corpus CI matrix (27, 28, 29); every literal asserted below is what BC produced.
 // Facts: an action on a list page opened with OpenView whose current record is the draft row of TestPage.New(), and the draft is left untouched:
 //   CurrPage.Update(true), an action that calls no Update at all, and CurrPage.Update(false) when New() was called while the second or the last row
@@ -8,19 +8,6 @@
 //   seen) and the key of Rec before and after the action body; the rows of the table are read after the page is closed.
 //   ScUpdateEmptyRow.al pins Update(false) on a draft row started on the first row.
 // BC versions: 27, 28, 29
-table 91306 "LT Y6 Upd Row"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 codeunit 91307 "LT Y6 Upd Log"
 {
     SingleInstance = true;
@@ -55,7 +42,7 @@ codeunit 91307 "LT Y6 Upd Log"
 page 91308 "LT Y6 Upd List"
 {
     PageType = List;
-    SourceTable = "LT Y6 Upd Row";
+    SourceTable = "ALT Shape 01";
     UsageCategory = None;
 
     layout
@@ -129,7 +116,7 @@ codeunit 91309 "LT Y6 Update Draft Row"
 
     local procedure Seed(RowCount: Integer)
     var
-        Row: Record "LT Y6 Upd Row";
+        Row: Record "ALT Shape 01";
         Log: Codeunit "LT Y6 Upd Log";
         i: Integer;
     begin
@@ -144,7 +131,7 @@ codeunit 91309 "LT Y6 Update Draft Row"
 
     local procedure Rows(): Text
     var
-        Row: Record "LT Y6 Upd Row";
+        Row: Record "ALT Shape 01";
         Result: Text;
     begin
         if Row.FindSet() then

@@ -1,21 +1,9 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-page-trigger-overview
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), own table 72892, page 72893, log codeunit 72894 (used by codeunit 72895 only)
+// Fixtures used: Probe Observer (codeunit 69160), shared table 50000 "ALT Shape 00", page 72893, log codeunit 72894 (used by codeunit 72895 only)
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: the OnInit/OnOpenPage log of Page.Run twice on one variable, of Clear then Run, of a method call before Run; Clear of a TestPage before opening, while open, and the reopen afterwards
 // BC versions: 29 (27 and 28 by CI)
-
-table 72892 "LT PgVar Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-
-    keys { key(PK; Id) { Clustered = true; } }
-}
 
 codeunit 72894 "LT PgVar Log"
 {
@@ -43,7 +31,7 @@ codeunit 72894 "LT PgVar Log"
 page 72893 "LT PgVar Card"
 {
     PageType = Card;
-    SourceTable = "LT PgVar Row";
+    SourceTable = "ALT Shape 00";
     ApplicationArea = All;
 
     layout
@@ -94,7 +82,7 @@ codeunit 72895 "LT PgVar Tests"
 
     local procedure Seed()
     var
-        Row: Record "LT PgVar Row";
+        Row: Record "ALT Shape 00";
     begin
         Row.DeleteAll();
         Row.Id := 1;
@@ -113,7 +101,7 @@ codeunit 72895 "LT PgVar Tests"
         Observer: Codeunit "Probe Observer";
         L: Codeunit "LT PgVar Log";
         P: Page "LT PgVar Card";
-        Row: Record "LT PgVar Row";
+        Row: Record "ALT Shape 00";
     begin
         Seed();
         L.Reset();
@@ -140,7 +128,7 @@ codeunit 72895 "LT PgVar Tests"
         Observer: Codeunit "Probe Observer";
         L: Codeunit "LT PgVar Log";
         P: Page "LT PgVar Card";
-        Row: Record "LT PgVar Row";
+        Row: Record "ALT Shape 00";
     begin
         Seed();
         L.Reset();

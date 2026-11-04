@@ -192,7 +192,7 @@ page 71277 "LT PartView ConstTen"
 page 71278 "LT PartView Host"
 {
     PageType = Document;
-    SourceTable = "LT PartReads Head";
+    SourceTable = "ALT Shape 08";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -235,7 +235,7 @@ codeunit 71279 "LT PartView Filter"
 
     local procedure Seed()
     var
-        Head: Record "LT PartReads Head";
+        Head: Record "ALT Shape 08";
         Line: Record "LT PartView Line";
         Log: Codeunit "LT PartView Log";
         i: Integer;

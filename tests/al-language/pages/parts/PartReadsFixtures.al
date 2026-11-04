@@ -5,22 +5,6 @@
 // Facts: shared fixtures of the six-part host probes: tables, SingleInstance log, six distinct part pages, the host
 // BC versions: 29 (27 and 28 by CI)
 
-table 71255 "LT PartReads Head"
-{
-    DataClassification = CustomerContent;
-
-    fields
-    {
-        field(1; "Code"; Code[20]) { }
-        field(2; Descr; Text[50]) { }
-    }
-
-    keys
-    {
-        key(PK; "Code") { Clustered = true; }
-    }
-}
-
 table 71256 "LT PartReads Line"
 {
     DataClassification = CustomerContent;
@@ -321,7 +305,7 @@ page 71263 "LT PartReads Filtered"
 page 71264 "LT PartReads Host"
 {
     PageType = Document;
-    SourceTable = "LT PartReads Head";
+    SourceTable = "ALT Shape 08";
     ApplicationArea = All;
     UsageCategory = None;
 

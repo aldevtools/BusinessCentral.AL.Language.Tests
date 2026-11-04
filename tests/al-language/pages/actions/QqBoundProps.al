@@ -17,7 +17,7 @@ codeunit 87203 "LT QQ Bound Props"
 
     local procedure Setup()
     var
-        Row: Record "LT QQ Bound Row";
+        Row: Record "ALT Shape 12";
     begin
         Row.DeleteAll();
         Row.Id := 1;

@@ -1,31 +1,15 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-modalpagehandler-attribute
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); table 74111, pages 74112 74113 74114, log codeunit 74115, tests 74116 (P134)
+// Fixtures used: Probe Observer (codeunit 69160); shared table 50006 "ALT Shape 06", pages 74112 74113 74114, log codeunit 74115, tests 74116 (P134)
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: two [ModalPageHandler] functions in one [HandlerFunctions] list, each for another page (both typed as Page, both typed as TestPage, one of each): which handler runs for which page, in what order, and what happens when one modal page opens the other
 // BC versions: 29 (27 and 28 by CI)
-
-table 74111 "LT P134 Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[20]) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 page 74112 "LT P134 ListA"
 {
     PageType = List;
     ApplicationArea = All;
-    SourceTable = "LT P134 Row";
+    SourceTable = "ALT Shape 06";
 
     layout
     {
@@ -44,7 +28,7 @@ page 74113 "LT P134 ListB"
 {
     PageType = List;
     ApplicationArea = All;
-    SourceTable = "LT P134 Row";
+    SourceTable = "ALT Shape 06";
 
     layout
     {
@@ -63,7 +47,7 @@ page 74114 "LT P134 CardC"
 {
     PageType = Card;
     ApplicationArea = All;
-    SourceTable = "LT P134 Row";
+    SourceTable = "ALT Shape 06";
 
     layout
     {
@@ -128,7 +112,7 @@ codeunit 74116 "LT P134 Modal Pair"
 
     local procedure Seed()
     var
-        Row: Record "LT P134 Row";
+        Row: Record "ALT Shape 06";
     begin
         Row.DeleteAll();
         Row.Id := 1;
@@ -143,7 +127,7 @@ codeunit 74116 "LT P134 Modal Pair"
     [ModalPageHandler]
     procedure TypedA(var P: Page "LT P134 ListA"; var Response: Action)
     var
-        Row: Record "LT P134 Row";
+        Row: Record "ALT Shape 06";
     begin
         P.GetRecord(Row);
         Log.Add('typedA rec=' + Format(Row.Id));
@@ -153,7 +137,7 @@ codeunit 74116 "LT P134 Modal Pair"
     [ModalPageHandler]
     procedure TypedB(var P: Page "LT P134 ListB"; var Response: Action)
     var
-        Row: Record "LT P134 Row";
+        Row: Record "ALT Shape 06";
     begin
         P.GetRecord(Row);
         Log.Add('typedB rec=' + Format(Row.Id));
@@ -248,7 +232,7 @@ codeunit 74116 "LT P134 Modal Pair"
     procedure P134_TwoTypedHandlers_WithRecordArgument()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT P134 Row";
+        Row: Record "ALT Shape 06";
         RA: Action;
         RB: Action;
     begin
@@ -351,7 +335,7 @@ codeunit 74116 "LT P134 Modal Pair"
     procedure P134_ModalPageOpensAnotherModalPage()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT P134 Row";
+        Row: Record "ALT Shape 06";
         RC: Action;
     begin
         Seed();

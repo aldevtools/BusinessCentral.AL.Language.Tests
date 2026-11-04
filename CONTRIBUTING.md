@@ -183,6 +183,7 @@ All tests share a single fixture library in `_fixtures/`. Define a local object 
 | ALT Blob | 60008 | InStream / OutStream, Blob.HasValue |
 | IALTCompute / ALTDouble / ALTSquare | — / 60011 / 60012 | Interface injection, codeunit-as-variable |
 | ALT Event Publisher | 60014 | Published events, bind / unbind |
+| ALT Shape 00 .. ALT Shape 29 | 50000-50029 | A plain table of one exact field shape (list in `tests/al-language/_fixtures/README.md`, "Shape tables") |
 
 ---
 

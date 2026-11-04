@@ -11,7 +11,7 @@ page 87158 "LT QP AI Empty Nav"
 {
     PageType = List;
     ApplicationArea = All;
-    SourceTable = "LT AI Row";
+    SourceTable = "ALT Shape 26";
     UsageCategory = None;
 
     layout
@@ -106,7 +106,7 @@ page 87159 "LT QP AI Empty Plain"
 {
     PageType = List;
     ApplicationArea = All;
-    SourceTable = "LT AI Row";
+    SourceTable = "ALT Shape 26";
     UsageCategory = None;
 
     layout

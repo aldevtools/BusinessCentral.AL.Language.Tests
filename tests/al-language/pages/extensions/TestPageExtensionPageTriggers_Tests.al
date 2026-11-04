@@ -15,7 +15,7 @@ codeunit 60658 "PXT Page Trigger Tests"
 
     local procedure Initialize()
     var
-        Row: Record "PXT Row";
+        Row: Record "ALT Shape 02";
         LogRec: Record "PXT Log";
     begin
         Row.DeleteAll();

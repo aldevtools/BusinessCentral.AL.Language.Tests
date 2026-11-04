@@ -1,25 +1,9 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/currpage/currpage-class
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own table 81850, pages 81851-81853 (UnopenedFixtures.al)
+// Fixtures used: Probe Observer (codeunit 69160); shared table 50001 "ALT Shape 01", pages 81851-81853 (UnopenedFixtures.al)
 // Probe: corpus issue 673 item 1 (al-runtime-rs #292). Every literal asserted below is what BC 27.5, 28.5 and 29.0 produced in the corpus CI.
 // Facts (fixtures): CurrPage methods (Update(false/true), SaveRecord, Activate, Caption, Editable, SetSelectionFilter, Rec) run by a procedure of a Page variable that was never opened: ListPart with a temporary Integer source, List and Card with a table; called directly and through a TryFunction; with SetRecord/SetTableView before; RunModal of the same variable afterwards.
 // BC versions: 27+
-
-table 81850 "LT BL Unopened Row"
-{
-    DataClassification = CustomerContent;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 page 81851 "LT BL Unopened Part"
 {
@@ -85,7 +69,7 @@ page 81851 "LT BL Unopened Part"
 page 81852 "LT BL Unopened List"
 {
     PageType = List;
-    SourceTable = "LT BL Unopened Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -102,7 +86,7 @@ page 81852 "LT BL Unopened List"
 
     procedure Act(Op: Text) Log: Text
     var
-        Sel: Record "LT BL Unopened Row";
+        Sel: Record "ALT Shape 01";
     begin
         Log := 'start';
         case Op of
@@ -145,7 +129,7 @@ page 81852 "LT BL Unopened List"
 page 81853 "LT BL Unopened Card"
 {
     PageType = Card;
-    SourceTable = "LT BL Unopened Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -162,7 +146,7 @@ page 81853 "LT BL Unopened Card"
 
     procedure Act(Op: Text) Log: Text
     var
-        Sel: Record "LT BL Unopened Row";
+        Sel: Record "ALT Shape 01";
     begin
         Log := 'start';
         case Op of

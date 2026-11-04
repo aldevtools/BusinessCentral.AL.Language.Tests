@@ -9,7 +9,7 @@
 page 60656 "PXT List"
 {
     PageType = List;
-    SourceTable = "PXT Row";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
     UsageCategory = Lists;
 

@@ -1,20 +1,9 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/page/page-runmodal-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); table 71300, page 71301, log 71302
+// Fixtures used: Probe Observer (codeunit 69160); shared table 50001 "ALT Shape 01", page 71301, log 71302
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // BC versions: 29 (27 and 28 by CI)
 // Facts: a ModalPageHandler typed as the page (var P: Page X) that calls a procedure of the page: which page triggers run before/after the handler, and whether the handler's change to a page global survives to OnQueryClosePage and OnClosePage (observed through a log).
-
-table 71300 "LT HandlerPage Row"
-{
-    DataClassification = SystemMetadata;
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-    keys { key(PK; Id) { Clustered = true; } }
-}
 
 codeunit 71302 "LT HandlerPage Log"
 {
@@ -42,7 +31,7 @@ page 71301 "LT HandlerPage List"
 {
     PageType = List;
     ApplicationArea = All;
-    SourceTable = "LT HandlerPage Row";
+    SourceTable = "ALT Shape 01";
 
     layout
     {
@@ -123,7 +112,7 @@ codeunit 71303 "LT HandlerPage Proc"
 
     local procedure Seed()
     var
-        Row: Record "LT HandlerPage Row";
+        Row: Record "ALT Shape 01";
     begin
         Row.DeleteAll();
         Row.Id := 1;
@@ -216,7 +205,7 @@ codeunit 71303 "LT HandlerPage Proc"
     var
         Observer: Codeunit "Probe Observer";
         P: Page "LT HandlerPage List";
-        Row: Record "LT HandlerPage Row";
+        Row: Record "ALT Shape 01";
         Result: Action;
     begin
         Seed();

@@ -5,44 +5,12 @@
 // Log format: F:<Which> = OnFindRecord, N:<Steps>=<moved> = OnNextRecord, R:<no> = OnAfterGetRecord, C:<no> = OnAfterGetCurrRecord, A:<name> = an action step.
 // BC versions: 27.0+
 
-table 78850 "LT AI Row"
-{
-    DataClassification = CustomerContent;
-
-    fields
-    {
-        field(1; "No."; Code[20]) { }
-        field(2; Qty; Integer) { }
-    }
-
-    keys
-    {
-        key(PK; "No.") { Clustered = true; }
-    }
-}
-
-table 78851 "LT AI Log"
-{
-    DataClassification = CustomerContent;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Txt; Text[100]) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 codeunit 78852 "LT AI Log Mgt"
 {
     // The start key of the Pos list lives in the row with Id = -1 of the log table (no SingleInstance state).
     procedure SetStartKey(NewKey: Code[20])
     var
-        Log: Record "LT AI Log";
+        Log: Record "ALT Shape 13";
     begin
         if Log.Get(-1) then
             Log.Delete();
@@ -56,7 +24,7 @@ codeunit 78852 "LT AI Log Mgt"
 
     procedure GetStartKey(): Code[20]
     var
-        Log: Record "LT AI Log";
+        Log: Record "ALT Shape 13";
     begin
         if Log.Get(-1) then
             exit(CopyStr(Log.Txt, 1, 20));
@@ -64,7 +32,7 @@ codeunit 78852 "LT AI Log Mgt"
 
     procedure Clear()
     var
-        Log: Record "LT AI Log";
+        Log: Record "ALT Shape 13";
     begin
         Log.SetFilter(Id, '>0');
         Log.DeleteAll();
@@ -72,7 +40,7 @@ codeunit 78852 "LT AI Log Mgt"
 
     procedure Add(Value: Text)
     var
-        Log: Record "LT AI Log";
+        Log: Record "ALT Shape 13";
         NextId: Integer;
     begin
         if Log.FindLast() then
@@ -85,7 +53,7 @@ codeunit 78852 "LT AI Log Mgt"
 
     procedure Dump(): Text
     var
-        Log: Record "LT AI Log";
+        Log: Record "ALT Shape 13";
         Result: Text;
     begin
         Log.SetFilter(Id, '>0');
@@ -100,7 +68,7 @@ codeunit 78852 "LT AI Log Mgt"
 
     procedure Seed(Count: Integer)
     var
-        Row: Record "LT AI Row";
+        Row: Record "ALT Shape 26";
         i: Integer;
     begin
         Row.DeleteAll();
@@ -117,7 +85,7 @@ page 78853 "LT AI List"
 {
     PageType = List;
     ApplicationArea = All;
-    SourceTable = "LT AI Row";
+    SourceTable = "ALT Shape 26";
 
     layout
     {
@@ -221,7 +189,7 @@ page 78854 "LT AI List Curr"
 {
     PageType = List;
     ApplicationArea = All;
-    SourceTable = "LT AI Row";
+    SourceTable = "ALT Shape 26";
 
     layout
     {
@@ -332,7 +300,7 @@ page 78855 "LT AI List FindOnly"
 {
     PageType = List;
     ApplicationArea = All;
-    SourceTable = "LT AI Row";
+    SourceTable = "ALT Shape 26";
 
     layout
     {
@@ -426,7 +394,7 @@ page 78856 "LT AI List Plain"
 {
     PageType = List;
     ApplicationArea = All;
-    SourceTable = "LT AI Row";
+    SourceTable = "ALT Shape 26";
 
     layout
     {
@@ -510,7 +478,7 @@ page 78857 "LT AI List PlainCurr"
 {
     PageType = List;
     ApplicationArea = All;
-    SourceTable = "LT AI Row";
+    SourceTable = "ALT Shape 26";
 
     layout
     {
@@ -601,7 +569,7 @@ page 78858 "LT AI List Pos"
 {
     PageType = List;
     ApplicationArea = All;
-    SourceTable = "LT AI Row";
+    SourceTable = "ALT Shape 26";
 
     layout
     {

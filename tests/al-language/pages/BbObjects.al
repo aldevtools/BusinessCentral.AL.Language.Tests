@@ -6,23 +6,11 @@
 //   EntityName and EntitySetName, whose field sets FileUploadAction and which sets HelpLink to a URL (all compile; the refused forms are
 //   must-not-compile cases 1249, 1252 to 1264 and 0848).
 // BC versions: 27, 28, 29
-table 80850 "LT BB Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Txt; Text[30]) { }
-    }
-    keys { key(PK; Id) { Clustered = true; } }
-}
-
 report 80851 "LT BB Base Report"
 {
     ProcessingOnly = true;
 
-    dataset { dataitem(Row; "LT BB Row") { } }
+    dataset { dataitem(Row; "ALT Shape 11") { } }
 
     procedure Bump(A: Integer): Text
     begin
@@ -56,7 +44,7 @@ enum 80854 "LT BB Enum B"
 page 80855 "LT BB Controls"
 {
     PageType = List;
-    SourceTable = "LT BB Row";
+    SourceTable = "ALT Shape 11";
     ApplicationArea = All;
     UsageCategory = None;
     HelpLink = 'https://example.com/help/lt-bb-controls';

@@ -173,6 +173,7 @@ line: `// local object: <reason>`.
 | ALT Trigger Log (60003) | Assert which triggers fired |
 | ALT Parent / ALT Child (60004/60005) | FlowFields, Sum/Count/Lookup |
 | ALT Keyed (60006) | SetCurrentKey, secondary key ordering |
+| ALT Shape 00..29 (50000-50029) | A plain table of one exact field shape (`_fixtures/README.md`, "Shape tables") |
 | ALT Blob (60008) | InStream/OutStream, Blob.HasValue |
 | IALTCompute / ALTDouble (60011) / ALTSquare (60012) | Interface injection, codeunit-as-variable |
 | ALT Event Publisher (60014) | Published events, bind/unbind |

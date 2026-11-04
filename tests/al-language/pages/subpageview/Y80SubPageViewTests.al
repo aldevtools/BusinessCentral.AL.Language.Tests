@@ -15,7 +15,7 @@ codeunit 94214 "LT Y80 SV Tests"
 
     local procedure Seed()
     var
-        Head: Record "LT Y80 SV Head";
+        Head: Record "ALT Shape 08";
         Line: Record "LT Y80 SV Line";
     begin
         Head.DeleteAll();
@@ -33,7 +33,7 @@ codeunit 94214 "LT Y80 SV Tests"
 
     local procedure InsertHead(HeadCode: Code[20])
     var
-        Head: Record "LT Y80 SV Head";
+        Head: Record "ALT Shape 08";
     begin
         Head."Code" := HeadCode;
         Head.Insert();

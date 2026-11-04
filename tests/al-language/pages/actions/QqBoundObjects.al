@@ -2,22 +2,6 @@
 // The compiler accepts this on an action with warning AL0573 ("Procedure calls is not valid for client expressions"); on a field control it is
 // error AL0322 (must-not-compile case 2000). Every procedure the page names writes to the log codeunit, so a test can see whether it ran.
 
-table 87200 "LT QQ Bound Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Flag; Boolean) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 // The log of the procedures and triggers that ran. SingleInstance: used by the test codeunit "LT QQ Bound Props" only.
 codeunit 87201 "LT QQ Bound Log"
 {
@@ -47,7 +31,7 @@ codeunit 87201 "LT QQ Bound Log"
 page 87202 "LT QQ Bound Card"
 {
     PageType = Card;
-    SourceTable = "LT QQ Bound Row";
+    SourceTable = "ALT Shape 12";
     ApplicationArea = All;
     UsageCategory = None;
 

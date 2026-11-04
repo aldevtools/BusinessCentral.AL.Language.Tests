@@ -102,7 +102,7 @@ codeunit 80860 "LT BB Probes"
     [Test]
     procedure Page_FieldFileUploadAction_SystemPartEntityName_HelpLink()
     var
-        Row: Record "LT BB Row";
+        Row: Record "ALT Shape 11";
         TP: TestPage "LT BB Controls";
     begin
         Row.DeleteAll();
