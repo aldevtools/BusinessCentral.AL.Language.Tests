@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/currpage/currpage-update-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); LT TH Doc/Line/Log fixtures of ThPartUpdateCursor.al (same folder); own objects 95000-95019 (LT R6877 *)
+// Fixtures used: Probe Observer (codeunit 69160); LT TH Doc/Line fixtures of ThPartUpdateCursor.al (same folder); own objects 95000-95019 (LT R6877 *)
 // Probe: from al-runner issue 6877 (follow-up of 6038): a ListPart (SubPageLink, UpdatePropagation = Both) over three lines on a Document,
 //   a Card and a ListPlus host. A part control's OnValidate calls CurrPage.Update(false). Part on line 2 (Next), on line 3 (Next and a part
 //   action that runs Rec.Next()) and on line 2 by the action from line 1; with a control that only updates (Note) and with one that first
@@ -48,7 +48,7 @@ page 95001 "LT R6877 Lines"
 
                     trigger OnValidate()
                     var
-                        Log: Codeunit "LT TH Log";
+                        Log: Codeunit "LT R6877 Log";
                     begin
                         Log.Add('N.V');
                         CurrPage.Update(false);
@@ -62,7 +62,7 @@ page 95001 "LT R6877 Lines"
                     trigger OnValidate()
                     var
                         Head: Record "LT R6877 Doc";
-                        Log: Codeunit "LT TH Log";
+                        Log: Codeunit "LT R6877 Log";
                     begin
                         Log.Add('Q.V');
                         Head.Get(Rec."Document No.");
@@ -87,7 +87,7 @@ page 95001 "LT R6877 Lines"
 
                 trigger OnAction()
                 var
-                    Log: Codeunit "LT TH Log";
+                    Log: Codeunit "LT R6877 Log";
                 begin
                     Log.Add('ACT');
                     Rec.Next();
@@ -98,14 +98,14 @@ page 95001 "LT R6877 Lines"
 
     trigger OnAfterGetRecord()
     var
-        Log: Codeunit "LT TH Log";
+        Log: Codeunit "LT R6877 Log";
     begin
         Log.Add('R' + Format(Rec."Line No." div 10000));
     end;
 
     trigger OnAfterGetCurrRecord()
     var
-        Log: Codeunit "LT TH Log";
+        Log: Codeunit "LT R6877 Log";
     begin
         Log.Add('C' + Format(Rec."Line No." div 10000));
     end;
@@ -134,14 +134,14 @@ page 95002 "LT R6877 Doc"
 
     trigger OnAfterGetRecord()
     var
-        Log: Codeunit "LT TH Log";
+        Log: Codeunit "LT R6877 Log";
     begin
         Log.Add('HR');
     end;
 
     trigger OnAfterGetCurrRecord()
     var
-        Log: Codeunit "LT TH Log";
+        Log: Codeunit "LT R6877 Log";
     begin
         Log.Add('HC');
     end;
@@ -170,14 +170,14 @@ page 95003 "LT R6877 Card"
 
     trigger OnAfterGetRecord()
     var
-        Log: Codeunit "LT TH Log";
+        Log: Codeunit "LT R6877 Log";
     begin
         Log.Add('HR');
     end;
 
     trigger OnAfterGetCurrRecord()
     var
-        Log: Codeunit "LT TH Log";
+        Log: Codeunit "LT R6877 Log";
     begin
         Log.Add('HC');
     end;
@@ -206,14 +206,14 @@ page 95004 "LT R6877 Plus"
 
     trigger OnAfterGetRecord()
     var
-        Log: Codeunit "LT TH Log";
+        Log: Codeunit "LT R6877 Log";
     begin
         Log.Add('HR');
     end;
 
     trigger OnAfterGetCurrRecord()
     var
-        Log: Codeunit "LT TH Log";
+        Log: Codeunit "LT R6877 Log";
     begin
         Log.Add('HC');
     end;
@@ -228,7 +228,7 @@ codeunit 95005 "LT R6877 Probe"
     var
         Head: Record "LT R6877 Doc";
         Line: Record "LT TH Line";
-        Log: Codeunit "LT TH Log";
+        Log: Codeunit "LT R6877 Log";
     begin
         Line.DeleteAll();
         Head.DeleteAll();
@@ -269,7 +269,7 @@ codeunit 95005 "LT R6877 Probe"
     local procedure RunDoc(var Observer: Codeunit "Probe Observer"; Nav: Integer; Ctl: Integer)
     var
         P: TestPage "LT R6877 Doc";
-        Log: Codeunit "LT TH Log";
+        Log: Codeunit "LT R6877 Log";
     begin
         Seed();
         P.OpenEdit();
@@ -304,7 +304,7 @@ codeunit 95005 "LT R6877 Probe"
     local procedure RunCard(var Observer: Codeunit "Probe Observer"; Nav: Integer; Ctl: Integer)
     var
         P: TestPage "LT R6877 Card";
-        Log: Codeunit "LT TH Log";
+        Log: Codeunit "LT R6877 Log";
     begin
         Seed();
         P.OpenEdit();
@@ -339,7 +339,7 @@ codeunit 95005 "LT R6877 Probe"
     local procedure RunPlus(var Observer: Codeunit "Probe Observer"; Nav: Integer; Ctl: Integer)
     var
         P: TestPage "LT R6877 Plus";
-        Log: Codeunit "LT TH Log";
+        Log: Codeunit "LT R6877 Log";
     begin
         Seed();
         P.OpenEdit();
@@ -657,5 +657,28 @@ codeunit 95005 "LT R6877 Probe"
         Observer.Expect('log bin', '');
         Observer.Expect('stored', 'changed 1:/0/ 2:/0/Z 3:/0/ ');
         Observer.Verify();
+    end;
+}
+
+codeunit 95006 "LT R6877 Log"
+{
+    SingleInstance = true;
+
+    var
+        Entries: Text;
+
+    procedure Reset()
+    begin
+        Entries := '';
+    end;
+
+    procedure Add(Entry: Text)
+    begin
+        Entries += Entry + ' ';
+    end;
+
+    procedure Get(): Text
+    begin
+        exit(Entries);
     end;
 }
