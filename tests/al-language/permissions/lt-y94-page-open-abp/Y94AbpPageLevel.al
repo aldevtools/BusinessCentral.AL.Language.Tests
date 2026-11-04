@@ -27,7 +27,15 @@ codeunit 95124 "LT Y94 Abp Page Level"
         ObserveExact('LT Y94 Lvl ar', 'ar');
         ObserveExact('LT Y94 Lvl br', 'br');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('noset',
+            'YYYY');
+        Observer.Expect('none',
+            'YNYN');
+        Observer.Expect('ar',
+            'YNYY');
+        Observer.Expect('br',
+            'YYYN');
+        Observer.Verify();
     end;
 
     local procedure ObserveExact(SetName: Code[30]; Tag: Text)

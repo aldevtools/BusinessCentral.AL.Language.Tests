@@ -40,7 +40,35 @@ codeunit 95120 "LT Y94 Abp Action Ref"
         ObserveExact('LT Y94 Ref xml', 'xml');
         ObserveExact('LT Y94 Ref tbl', 'tbl');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('noset',
+            'YYYYYYYYYYYYYYYY');
+        Observer.Expect('none',
+            'YNNNNNNNNNNNNYNN');
+        Observer.Expect('ar',
+            'YYNYNNNNNNNYYYYY');
+        Observer.Expect('ai',
+            'YNYYNNNNNNNNNYNN');
+        Observer.Expect('arimd',
+            'YYYYNNNNNNNYYYYY');
+        Observer.Expect('indr',
+            'YNNNNNNNNNNNNYNN');
+        Observer.Expect('br',
+            'YNNNNNNNNNYNNYNN');
+        Observer.Expect('abr',
+            'YYNYNNNNNNYYYYYY');
+        Observer.Expect('cu',
+            'YNNNNNNNNYNNNYNN');
+        Observer.Expect('pg',
+            'YNNNYNNNNNNNNYNN');
+        Observer.Expect('rep',
+            'YNNNNYNNNNNNNYNN');
+        Observer.Expect('qry',
+            'YNNNNNYNNNNNNYNN');
+        Observer.Expect('xml',
+            'YNNNNNNYNNNNNYNN');
+        Observer.Expect('tbl',
+            'YNNNNNNNYNNNNYNN');
+        Observer.Verify();
     end;
 
     [Test]
@@ -64,7 +92,31 @@ codeunit 95120 "LT Y94 Abp Action Ref"
         ObserveExact('D365 BASIC', 'exact d365 basic');
         ObserveExact('D365 FULL ACCESS', 'exact d365 full access');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('wtdr',
+            'YYNYNNNNNNYYYYYY');
+        Observer.Expect('wtdi',
+            'YNYYNNNNNNNNNYNN');
+        Observer.Expect('wcu',
+            'YNNNNNNNNYNNNYNN');
+        Observer.Expect('wpg',
+            'YNNNYNNNNNNNNYNN');
+        Observer.Expect('wrep',
+            'YNNNNYNNNNNNNYNN');
+        Observer.Expect('wqry',
+            'YNNNNNYNNNNNNYNN');
+        Observer.Expect('wxml',
+            'YNNNNNNYNNNNNYNN');
+        Observer.Expect('wtbl',
+            'YNNNNNNNYNNNNYNN');
+        Observer.Expect('wsys',
+            'YNNNNNNNNNNNNYNN');
+        Observer.Expect('set d365 basic',
+            'YNNNYYYYYYNNNYNN');
+        Observer.Expect('exact d365 basic',
+            'YNNNYYYYYYNNNYNN');
+        Observer.Expect('exact d365 full access',
+            'YNNNYYYYYYNNNYNN');
+        Observer.Verify();
     end;
 
     [Test]
@@ -77,7 +129,13 @@ codeunit 95120 "LT Y94 Abp Action Ref"
         Mock.SetExactPermissionSet('LT Y94 Ref none');
         ObserveMethods('TblRAct.Enabled,TblRAct.Invoke,CuAct.Invoke');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('TblRAct.Enabled',
+            'The action with ID = n is not found on the page. | TestActionNotFound');
+        Observer.Expect('TblRAct.Invoke',
+            'The action with ID = n is not found on the page. | TestActionNotFound');
+        Observer.Expect('CuAct.Invoke',
+            'The action with ID = n is not found on the page. | TestActionNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -90,7 +148,13 @@ codeunit 95120 "LT Y94 Abp Action Ref"
         Mock.SetExactPermissionSet('LT Y94 Ref none');
         ObserveMethods('ExtAct.Invoke,NoRefAct.Invoke,FldA.Value');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('ExtAct.Invoke',
+            'The action with ID = n is not found on the page. | TestActionNotFound');
+        Observer.Expect('NoRefAct.Invoke',
+            'The action with ID = n is not found on the page. | TestActionNotFound');
+        Observer.Expect('FldA.Value',
+            'The field with ID = n is not found on the page. | TestFieldNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -103,7 +167,13 @@ codeunit 95120 "LT Y94 Abp Action Ref"
         Mock.SetExactPermissionSet('LT Y94 Ref ar');
         ObserveMethods('TblRAct.Enabled,TblRAct.Invoke,CuAct.Invoke');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('TblRAct.Enabled',
+            'Yes');
+        Observer.Expect('TblRAct.Invoke',
+            'ok');
+        Observer.Expect('CuAct.Invoke',
+            'The action with ID = n is not found on the page. | TestActionNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -116,7 +186,13 @@ codeunit 95120 "LT Y94 Abp Action Ref"
         Mock.SetExactPermissionSet('LT Y94 Ref ar');
         ObserveMethods('ExtAct.Invoke,NoRefAct.Invoke,FldA.Value');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('ExtAct.Invoke',
+            'ok');
+        Observer.Expect('NoRefAct.Invoke',
+            'ok');
+        Observer.Expect('FldA.Value',
+            '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -129,7 +205,13 @@ codeunit 95120 "LT Y94 Abp Action Ref"
         Mock.SetExactPermissionSet('LT Y94 Ref cu');
         ObserveMethods('TblRAct.Enabled,TblRAct.Invoke,CuAct.Invoke');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('TblRAct.Enabled',
+            'The action with ID = n is not found on the page. | TestActionNotFound');
+        Observer.Expect('TblRAct.Invoke',
+            'The action with ID = n is not found on the page. | TestActionNotFound');
+        Observer.Expect('CuAct.Invoke',
+            'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -142,7 +224,13 @@ codeunit 95120 "LT Y94 Abp Action Ref"
         Mock.SetExactPermissionSet('LT Y94 Ref cu');
         ObserveMethods('ExtAct.Invoke,NoRefAct.Invoke,FldA.Value');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('ExtAct.Invoke',
+            'The action with ID = n is not found on the page. | TestActionNotFound');
+        Observer.Expect('NoRefAct.Invoke',
+            'The action with ID = n is not found on the page. | TestActionNotFound');
+        Observer.Expect('FldA.Value',
+            'The field with ID = n is not found on the page. | TestFieldNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -164,7 +252,15 @@ codeunit 95120 "LT Y94 Abp Action Ref"
         Mock.SetExactPermissionSet('LT Y94 Ref ar');
         ObserveMode('new', 'ar new');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('none edit',
+            'YNNNNNNNNNNNNYNN');
+        Observer.Expect('none new',
+            'YNNNNNNNNNNNNYNN');
+        Observer.Expect('ar edit',
+            'YYNYNNNNNNNYYYYY');
+        Observer.Expect('ar new',
+            'YYNYNNNNNNNYYYYY');
+        Observer.Verify();
     end;
 
     local procedure ObserveExact(SetName: Code[30]; Tag: Text)

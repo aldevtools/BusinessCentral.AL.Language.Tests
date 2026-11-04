@@ -30,7 +30,17 @@ codeunit 95123 "LT Y94 Abp Conflict"
         ObserveExact('LT Y94 Conf br', 'br');
         ObserveExact('LT Y94 Conf abr', 'abr');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('noset',
+            'YYYYYY');
+        Observer.Expect('none',
+            'YNNNNN');
+        Observer.Expect('ar',
+            'YYYNNN');
+        Observer.Expect('br',
+            'YNNYYY');
+        Observer.Expect('abr',
+            'YYYYYY');
+        Observer.Verify();
     end;
 
     local procedure ObserveExact(SetName: Code[30]; Tag: Text)

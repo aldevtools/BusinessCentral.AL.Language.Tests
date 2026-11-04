@@ -28,7 +28,17 @@ codeunit 95122 "LT Y94 Abp Cue"
         ObserveExact('LT Y94 Cue br', 'br');
         ObserveExact('LT Y94 Cue abr', 'abr');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('noset',
+            'YYYYY');
+        Observer.Expect('none',
+            'YNNNY');
+        Observer.Expect('ar',
+            'YYNYY');
+        Observer.Expect('br',
+            'YNYNY');
+        Observer.Expect('abr',
+            'YYYYY');
+        Observer.Verify();
     end;
 
     local procedure ObserveExact(SetName: Code[30]; Tag: Text)
