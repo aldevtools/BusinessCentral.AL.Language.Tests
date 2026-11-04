@@ -462,6 +462,10 @@ codeunit 74975 "LT GetUrl Shape"
         Observer.Observe('default page', GuPort(GetUrl(ClientType::Default, '', ObjectType::Page, 21)));
         Observer.Observe('windows', GuPort(GetUrl(ClientType::Windows)));
         Observer.Observe('windows page', GuPort(GetUrl(ClientType::Windows, '', ObjectType::Page, 21)));
-        Observer.Finish();
+        Observer.Expect('default', 'dynamicsnav|host same=Yes|port=7085|path=/BC//|query=');
+        Observer.Expect('default page', 'dynamicsnav|host same=Yes|port=7085|path=/BC//runpage|query=?page=21');
+        Observer.Expect('windows', 'dynamicsnav|host same=Yes|port=7085|path=/BC//|query=');
+        Observer.Expect('windows page', 'dynamicsnav|host same=Yes|port=7085|path=/BC//runpage|query=?page=21');
+        Observer.Verify();
     end;
 }

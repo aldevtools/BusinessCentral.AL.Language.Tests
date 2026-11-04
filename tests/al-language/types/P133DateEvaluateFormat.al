@@ -660,20 +660,23 @@ codeunit 74046 "LT P133 Date Eval Format"
         exit(Format(Date2DMY(D, 1)) + '.' + Format(Date2DMY(D, 2)) + '.' + Format(Date2DMY(D, 3)));
     end;
 
-    // Year 0: a direct DMY2Date(1, 1, 0) raises the parameter 3 error (round 2 of the observation), while the same call made inside the
-    // TryFunction TryDayMonthYear returned 0001-01-02 (P133_DMY2Date_ThreeArgs_OutOfRange). The tests below separate literal and variable
-    // arguments, the direct call and the TryFunction.
+    // Year 0: DMY2Date(1, 1, 0) does not raise, with literal or variable arguments and inside a TryFunction: it gives a date whose Date2DMY
+    // parts are 1, 1 and 0 and that Format(D, 0, 9) writes as 0001-01-02 (DMY2Date(1, 1, 1) is 0D). Any other day and month in year 0
+    // (15.6.0, 31.2.0) raises the parameter 3 error.
     [Test]
     procedure P133_DMY2Date_YearZero_LiteralArgs_AssertError()
     var
         Observer: Codeunit "Probe Observer";
         D: Date;
     begin
-        asserterror D := DMY2Date(1, 1, 0);
-        Observer.ObserveError('1.1.0 literal');
+        D := DMY2Date(1, 1, 0);
+        Observer.Observe('1.1.0 literal', P133Parts(D) + '|' + Format(D, 0, 9));
         asserterror D := DMY2Date(15, 6, 0);
         Observer.ObserveError('15.6.0 literal');
-        Observer.Finish();
+        Observer.Expect('1.1.0 literal', '1.1.0|0001-01-02');
+        Observer.Expect('15.6.0 literal|text', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.');
+        Observer.Expect('15.6.0 literal|code', 'OutsidePermittedRange');
+        Observer.Verify();
     end;
 
     [Test]
@@ -690,7 +693,8 @@ codeunit 74046 "LT P133 Date Eval Format"
         Year := 0;
         D := DMY2Date(Day, Month, Year);
         Observer.Observe('1.1.0 variables', P133Parts(D) + '|' + Format(D, 0, 9));
-        Observer.Finish();
+        Observer.Expect('1.1.0 variables', '1.1.0|0001-01-02');
+        Observer.Verify();
     end;
 
     [Test]
@@ -707,7 +711,9 @@ codeunit 74046 "LT P133 Date Eval Format"
         Ok := TryDayMonthYear(15, 6, 0, D);
         Observer.Observe('try 15.6.0', Format(Ok) + '|' + P133Parts(D) + '|' + GetLastErrorText());
         ClearLastError();
-        Observer.Finish();
+        Observer.Expect('try 1.1.0', 'Yes|1.1.0|');
+        Observer.Expect('try 15.6.0', 'No|1.1.0|The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -722,6 +728,10 @@ codeunit 74046 "LT P133 Date Eval Format"
         Observer.Observe('1.1.1 format', Format(D, 0, 9));
         D := DMY2Date(2, 1, 1);
         Observer.Observe('2.1.1 format', Format(D, 0, 9));
-        Observer.Finish();
+        Observer.Expect('1.1.1 parts', '0D');
+        Observer.Expect('1.1.1 is 0D', 'Yes');
+        Observer.Expect('1.1.1 format', '');
+        Observer.Expect('2.1.1 format', '0001-01-02');
+        Observer.Verify();
     end;
 }
