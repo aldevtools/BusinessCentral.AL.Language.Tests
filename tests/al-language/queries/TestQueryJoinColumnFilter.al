@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-columnfilter-property
 //   dev-itpro/developer/methods-auto/query/query-data-type
 // Scope: in-scope
-// Fixtures used: QJ Customer (60861), QJ Order (60862), QJ Cust Orders Sum Filtered (60780),
+// Fixtures used: "ALT Shape 04" (50004), QJ Order (60862), QJ Cust Orders Sum Filtered (60780),
 //   QJ Cust Orders Filtered (60781); shared Assert (60021)
 //
 // TestQueryColumnFilter.al proved a query column's static ColumnFilter property on a
@@ -22,7 +22,7 @@ codeunit 60782 "QJ Join ColumnFilter Tests"
 
     local procedure Initialize()
     var
-        Cust: Record "QJ Customer";
+        Cust: Record "ALT Shape 04";
         Ord: Record "QJ Order";
     begin
         Cust.DeleteAll();
@@ -31,7 +31,7 @@ codeunit 60782 "QJ Join ColumnFilter Tests"
 
     local procedure InsertCust(No: Code[20])
     var
-        Cust: Record "QJ Customer";
+        Cust: Record "ALT Shape 04";
     begin
         Cust.Init();
         Cust."No." := No;

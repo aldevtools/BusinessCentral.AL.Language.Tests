@@ -1,25 +1,9 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testfield/testfield-setvalue-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); own table 70255, page 70256, test codeunit 70257 (log is a SingleInstance codeunit 70258 declared above its single user)
+// Fixtures used: Probe Observer (69160); shared table 50016 "ALT Shape 16", page 70256, test codeunit 70257 (log is a SingleInstance codeunit 70258 declared above its single user)
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // If it compiles, observe whether the value is set and whether the field's OnValidate ran. The method-call form is in P147SetValueCall.al for comparison.
 // BC versions: 29 (27 and 28 by CI)
-
-table 70255 "LT P147 SetValue Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Amount; Integer) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 codeunit 70258 "LT P147 SetValue Log"
 {
@@ -47,7 +31,7 @@ codeunit 70258 "LT P147 SetValue Log"
 page 70256 "LT P147 SetValue Card"
 {
     PageType = Card;
-    SourceTable = "LT P147 SetValue Row";
+    SourceTable = "ALT Shape 16";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -80,7 +64,7 @@ codeunit 70257 "LT P147 SetValue Assign"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT P147 SetValue Log";
-        Row: Record "LT P147 SetValue Row";
+        Row: Record "ALT Shape 16";
         Card: TestPage "LT P147 SetValue Card";
     begin
         Row.DeleteAll();

@@ -1,16 +1,9 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-tablerelation-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), own tables 70780 to 70783, test codeunit 70784
+// Fixtures used: Probe Observer (codeunit 69160), own tables 70780 to 70783, test codeunit 70784 (table 70780 is now shared table 50007 "ALT Shape 07")
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: conditional TableRelation arms not covered by types/lt-filter-enum-relation-duration-guid/C_TableRelation.al: arms keyed on an Option (const), arms with filter('A') / filter('B') where a third value matches neither, KindPlace and ZoneArms-style fields, the blank-or-nonblank pair with a different second target, and the error when neither arm applies
 // BC versions: 29 (27 and 28 by CI)
-
-table 70780 "LT P100 Loc"
-{
-    DataClassification = SystemMetadata;
-    fields { field(1; Code; Code[10]) { } }
-    keys { key(PK; Code) { Clustered = true; } }
-}
 
 table 70781 "LT P100 Bin"
 {
@@ -36,22 +29,22 @@ table 70783 "LT P100 Arm"
         field(3; Kind; Option) { OptionMembers = A,B,C; }
         field(4; Place; Code[10])
         {
-            TableRelation = if (Zone = filter('')) "LT P100 Loc".Code
+            TableRelation = if (Zone = filter('')) "ALT Shape 07".Code
             else if (Zone = filter(<> '')) "LT P100 Bin".Code;
         }
         field(5; KindPlace; Code[10])
         {
-            TableRelation = if (Kind = const(A)) "LT P100 Loc".Code
+            TableRelation = if (Kind = const(A)) "ALT Shape 07".Code
             else if (Kind = const(B)) "LT P100 Bin".Code;
         }
         field(6; ZonePlace; Code[10])
         {
-            TableRelation = if (Zone = filter('A|B')) "LT P100 Loc".Code
+            TableRelation = if (Zone = filter('A|B')) "ALT Shape 07".Code
             else if (Zone = filter('C')) "LT P100 Cust".Code;
         }
         field(7; ThreeArms; Code[10])
         {
-            TableRelation = if (Kind = const(A)) "LT P100 Loc".Code
+            TableRelation = if (Kind = const(A)) "ALT Shape 07".Code
             else if (Kind = const(B)) "LT P100 Bin".Code
             else if (Kind = const(C)) "LT P100 Cust".Code;
         }
@@ -71,7 +64,7 @@ codeunit 70784 "LT P100 Relation Arms"
 
     local procedure Seed()
     var
-        Loc: Record "LT P100 Loc";
+        Loc: Record "ALT Shape 07";
         Bin: Record "LT P100 Bin";
         Cust: Record "LT P100 Cust";
     begin

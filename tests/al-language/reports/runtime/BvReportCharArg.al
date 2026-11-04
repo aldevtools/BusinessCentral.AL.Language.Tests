@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/char/char-data-type
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); self-contained table 83756, reports 83757 and 83759, report extension 83758, codeunits 83760 and 83761
+// Fixtures used: Probe Observer (69160); shared table 50000 "ALT Shape 00", reports 83757 and 83759, report extension 83758, codeunits 83760 and 83761
 // Probe: writer BV (2026-10-19, Windows check 3 item BB, from writer BB's probe of corpus issue 653 item 2). The report values were measured on Windows BC 27.5
 // and 29.0 (official containers) and on the Linux tiers; every literal asserted below is what those tiers produced.
 // Facts: a Char VARIABLE passed to a report procedure Bump(A: Integer) fails with 'Unable to convert from System.Char to System.Int32.' (code Conversion),
@@ -9,27 +9,12 @@
 // the calling codeunit is the control.
 // BC versions: 27, 28, 29
 
-table 83756 "LT BV Char Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 report 83757 "LT BV Char Base Report"
 {
     ProcessingOnly = true;
     UsageCategory = None;
 
-    dataset { dataitem(Row; "LT BV Char Row") { } }
+    dataset { dataitem(Row; "ALT Shape 00") { } }
 
     procedure Bump(A: Integer): Text
     begin
@@ -50,7 +35,7 @@ report 83759 "LT BV Char Plain Report"
     ProcessingOnly = true;
     UsageCategory = None;
 
-    dataset { dataitem(Row; "LT BV Char Row") { } }
+    dataset { dataitem(Row; "ALT Shape 00") { } }
 
     procedure Bump(A: Integer): Text
     begin
@@ -385,7 +370,7 @@ report 85206 "LT PYC Char Report"
 {
     ProcessingOnly = true;
     UsageCategory = None;
-    dataset { dataitem(Row; "LT BV Char Row") { } }
+    dataset { dataitem(Row; "ALT Shape 00") { } }
 
     procedure BumpBig(A: BigInteger): Text
     begin
@@ -411,7 +396,7 @@ report 85206 "LT PYC Char Report"
 page 85207 "LT PYC Char Page"
 {
     PageType = Card;
-    SourceTable = "LT BV Char Row";
+    SourceTable = "ALT Shape 00";
     UsageCategory = None;
 
     procedure Bump(A: Integer): Text
@@ -426,7 +411,7 @@ query 85208 "LT PYC Char Query"
 
     elements
     {
-        dataitem(Row; "LT BV Char Row")
+        dataitem(Row; "ALT Shape 00")
         {
             column(Id; Id) { }
         }
