@@ -9,6 +9,7 @@ The TestPage and TestPart API: opening, navigating, fields and actions, filters,
 - `lifecycle/`: opening, closing and page variables (6 AL files).
 - `notifications-and-control-values/`: notification handlers, control values read as decimal or text, role center TestPage (3 AL files).
 - `parts/`: page parts and subpages (46 AL files).
+- `no-source-controls/`: SetValue and Value on controls of a page with no source table bound to global record fields (1 AL file).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 
