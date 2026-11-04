@@ -26,7 +26,7 @@ report 77090 "LT AB Render Report"
         layout(RdlcLayout)
         {
             Type = RDLC;
-            LayoutFile = './FixtureLayout_12.rdlc';
+            LayoutFile = './_fixtures/layouts/FixtureLayout_12.rdlc';
         }
     }
 
@@ -77,7 +77,7 @@ report 77093 "LT AB Render Plain Report"
         layout(RdlcLayout)
         {
             Type = RDLC;
-            LayoutFile = './FixtureLayout_13.rdlc';
+            LayoutFile = './_fixtures/layouts/FixtureLayout_13.rdlc';
         }
     }
 

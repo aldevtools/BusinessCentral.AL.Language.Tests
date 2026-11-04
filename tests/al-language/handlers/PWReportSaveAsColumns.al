@@ -47,7 +47,7 @@ report 69762 "PW Col Undefined Report"
         layout(Rdlc)
         {
             Type = RDLC;
-            LayoutFile = './ProbeColTypesLayout.rdl';
+            LayoutFile = './_fixtures/layouts/ProbeColTypesLayout.rdl';
         }
     }
 }
@@ -76,7 +76,7 @@ report 69763 "PW Col Decimal Places Report"
         layout(Rdlc)
         {
             Type = RDLC;
-            LayoutFile = './ProbeColTypesLayout_2.rdl';
+            LayoutFile = './_fixtures/layouts/ProbeColTypesLayout_2.rdl';
         }
     }
 }
@@ -100,7 +100,7 @@ report 69764 "PW Col Labels Report"
         layout(Rdlc)
         {
             Type = RDLC;
-            LayoutFile = './ProbeColTypesLayout_3.rdl';
+            LayoutFile = './_fixtures/layouts/ProbeColTypesLayout_3.rdl';
         }
     }
 }

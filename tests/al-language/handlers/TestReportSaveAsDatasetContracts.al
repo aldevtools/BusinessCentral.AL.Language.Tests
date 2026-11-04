@@ -102,7 +102,7 @@ report 68302 "Probe SaveAs Report"
         layout(Rdlc)
         {
             Type = RDLC;
-            LayoutFile = './ProbeSaveAsDatasetLayout.rdl';
+            LayoutFile = './_fixtures/layouts/ProbeSaveAsDatasetLayout.rdl';
             Caption = 'Probe layout';
         }
     }

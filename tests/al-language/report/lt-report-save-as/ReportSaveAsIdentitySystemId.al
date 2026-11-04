@@ -62,7 +62,7 @@ report 73765 "LT P165 SaveAs Identity"
         layout(Rdlc)
         {
             Type = RDLC;
-            LayoutFile = './ProbeSaveAsDatasetLayout_3.rdl';
+            LayoutFile = './_fixtures/layouts/ProbeSaveAsDatasetLayout_3.rdl';
             Caption = 'LT P165 layout';
         }
     }

@@ -33,7 +33,7 @@ report 60578 "SaveAs RecordRef Document"
         layout(SaveAsRecordRefLayout)
         {
             Type = RDLC;
-            LayoutFile = './TestReportSaveAsRecordRefFilterReport.rdl';
+            LayoutFile = './_fixtures/layouts/TestReportSaveAsRecordRefFilterReport.rdl';
             Caption = 'SaveAs RecordRef layout';
         }
     }

@@ -22,7 +22,7 @@ report 60872 "RSS Fixture Report"
         layout(RdlcFixture)
         {
             Type = RDLC;
-            LayoutFile = './FixtureLayout.rdlc';
+            LayoutFile = './_fixtures/layouts/FixtureLayout.rdlc';
         }
     }
 }

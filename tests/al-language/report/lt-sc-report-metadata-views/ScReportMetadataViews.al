@@ -46,7 +46,7 @@ report 91230 "LT SC Meta Report"
         layout(MetaRdlc)
         {
             Type = RDLC;
-            LayoutFile = './FixtureLayout_19.rdlc';
+            LayoutFile = './_fixtures/layouts/FixtureLayout_19.rdlc';
             Caption = 'Metadata views layout';
         }
     }

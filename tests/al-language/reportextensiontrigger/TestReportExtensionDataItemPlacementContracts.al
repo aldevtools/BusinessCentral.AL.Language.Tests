@@ -113,7 +113,7 @@ report 68812 "Probe Place Base"
         layout(Rdlc)
         {
             Type = RDLC;
-            LayoutFile = './ProbePlaceLayout.rdl';
+            LayoutFile = './_fixtures/layouts/ProbePlaceLayout.rdl';
             Caption = 'Probe layout';
         }
     }

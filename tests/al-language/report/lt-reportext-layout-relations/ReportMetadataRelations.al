@@ -100,13 +100,13 @@ report 71711 "LT Meta Rel Two Layouts"
         layout(FirstRdlc)
         {
             Type = RDLC;
-            LayoutFile = './FixtureLayout_6.rdlc';
+            LayoutFile = './_fixtures/layouts/FixtureLayout_6.rdlc';
             Caption = 'Meta rel first';
         }
         layout(SecondRdlc)
         {
             Type = RDLC;
-            LayoutFile = './ProbeSaveAsDatasetLayout_5.rdl';
+            LayoutFile = './_fixtures/layouts/ProbeSaveAsDatasetLayout_5.rdl';
             Caption = 'Meta rel second';
         }
     }

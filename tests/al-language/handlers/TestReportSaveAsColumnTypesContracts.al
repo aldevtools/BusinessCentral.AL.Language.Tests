@@ -100,7 +100,7 @@ report 68372 "Probe Col Types Report"
         layout(Rdlc)
         {
             Type = RDLC;
-            LayoutFile = './ProbeColTypesLayout_4.rdl';
+            LayoutFile = './_fixtures/layouts/ProbeColTypesLayout_4.rdl';
             Caption = 'Probe layout';
         }
     }
@@ -157,7 +157,7 @@ report 68374 "Probe Col Error Report"
         layout(Rdlc)
         {
             Type = RDLC;
-            LayoutFile = './ProbeColErrorLayout.rdl';
+            LayoutFile = './_fixtures/layouts/ProbeColErrorLayout.rdl';
             Caption = 'Probe error layout';
         }
     }

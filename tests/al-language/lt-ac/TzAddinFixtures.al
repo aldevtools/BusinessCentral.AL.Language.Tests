@@ -10,7 +10,7 @@ controladdin "LT TZ Addin"
 {
     RequestedHeight = 50;
     RequestedWidth = 50;
-    Scripts = 'addin/lt-p121.js';
+    Scripts = 'controladdins/lt-p121.js';
 
     procedure Say(Message: Text);
     procedure Count(Value: Integer);

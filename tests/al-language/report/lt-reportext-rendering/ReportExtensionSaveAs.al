@@ -27,7 +27,7 @@ report 91213 "LT SC Ext Base"
         layout(BaseRdlc)
         {
             Type = RDLC;
-            LayoutFile = './FixtureLayout_15.rdlc';
+            LayoutFile = './_fixtures/layouts/FixtureLayout_15.rdlc';
             Caption = 'SaveAs base layout';
         }
     }
@@ -55,13 +55,13 @@ reportextension 91214 "LT SC Ext Rendering" extends "LT SC Ext Base"
         layout(ExtRdlcA)
         {
             Type = RDLC;
-            LayoutFile = './FixtureLayout_16.rdlc';
+            LayoutFile = './_fixtures/layouts/FixtureLayout_16.rdlc';
             Caption = 'SaveAs ext A';
         }
         layout(ExtRdlcB)
         {
             Type = RDLC;
-            LayoutFile = './FixtureLayout_17.rdlc';
+            LayoutFile = './_fixtures/layouts/FixtureLayout_17.rdlc';
             Caption = 'SaveAs ext B';
         }
     }
@@ -74,7 +74,7 @@ reportextension 91216 "LT SC Ext NoRender Ext" extends "LT SC Ext Base NoRender"
         layout(ExtOnly)
         {
             Type = RDLC;
-            LayoutFile = './FixtureLayout_18.rdlc';
+            LayoutFile = './_fixtures/layouts/FixtureLayout_18.rdlc';
             Caption = 'SaveAs ext only';
         }
     }
@@ -100,7 +100,7 @@ report 91212 "LT SC SaveAs Plain"
         layout(PlainRdlc)
         {
             Type = RDLC;
-            LayoutFile = './FixtureLayout_14.rdlc';
+            LayoutFile = './_fixtures/layouts/FixtureLayout_14.rdlc';
             Caption = 'SaveAs plain layout';
         }
     }

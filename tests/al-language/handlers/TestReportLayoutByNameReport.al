@@ -34,14 +34,14 @@ report 60531 "Report Layout ByName Fixture"
         layout(LayoutOne)
         {
             Type = RDLC;
-            LayoutFile = './TestReportLayoutByNameOne.rdlc';
+            LayoutFile = './_fixtures/layouts/TestReportLayoutByNameOne.rdlc';
             Caption = 'Layout one (RDLC default)';
             Summary = 'The report default rendering layout.';
         }
         layout(LayoutTwo)
         {
             Type = Custom;
-            LayoutFile = './TestReportLayoutByNameTwo.rlblayout';
+            LayoutFile = './_fixtures/layouts/TestReportLayoutByNameTwo.rlblayout';
             MimeType = 'application/x-rlb-layout';
             Caption = 'Layout two (custom, non-default)';
             Summary = 'Only reachable by selecting it by name.';

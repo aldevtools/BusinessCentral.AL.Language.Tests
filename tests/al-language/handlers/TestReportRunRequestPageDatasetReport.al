@@ -48,7 +48,7 @@ report 60544 "Test Rpt RunReqPage Dataset"
         layout(RunReqPageDatasetLayout)
         {
             Type = RDLC;
-            LayoutFile = './TestReportRunRequestPageDatasetReport.rdl';
+            LayoutFile = './_fixtures/layouts/TestReportRunRequestPageDatasetReport.rdl';
             Caption = 'Test Rpt RunReqPage Dataset layout';
         }
     }

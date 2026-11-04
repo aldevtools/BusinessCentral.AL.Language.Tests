@@ -38,7 +38,7 @@ report 70885 "LT RptMrg ReqPage Report"
         layout(CustomA)
         {
             Type = Custom;
-            LayoutFile = './ReportMergerLayoutA.rlblayout';
+            LayoutFile = './_fixtures/layouts/ReportMergerLayoutA.rlblayout';
             MimeType = 'application/x-lmc-layout';
             Caption = 'Merger layout A';
         }
