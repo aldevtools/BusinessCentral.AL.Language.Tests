@@ -1021,7 +1021,14 @@ codeunit 69811 "PA Event Contracts"
         O.Observe('hits after unbind first', Pub.Ping());
         O.Observe('unbind second', Format(UnbindSubscription(B)));
         O.Observe('hits after both', Pub.Ping());
-        O.Finish();
+        O.Expect('bind first', 'ok');
+        O.Expect('bind second instance', 'ok');
+        O.Expect('hits', 'AM1M2');
+        O.Expect('unbind first', 'Yes');
+        O.Expect('hits after unbind first', 'AM2');
+        O.Expect('unbind second', 'Yes');
+        O.Expect('hits after both', 'A');
+        O.Verify();
     end;
 
     [Test]
@@ -1040,7 +1047,15 @@ codeunit 69811 "PA Event Contracts"
         O.Observe('bind third time', BskResult(BskTryBind(A)));
         O.Observe('unbind again', Format(UnbindSubscription(A)));
         O.Observe('hits end', Pub.Ping());
-        O.Finish();
+        O.Expect('bind', 'ok');
+        O.Expect('unbind', 'Yes');
+        O.Expect('hits unbound', 'A');
+        O.Expect('bind again', 'ok');
+        O.Expect('hits rebound', 'AM1');
+        O.Expect('bind third time', 'The binding of codeunit 95393 was unsuccessful. The codeunit has already been bound.|EventBinding');
+        O.Expect('unbind again', 'Yes');
+        O.Expect('hits end', 'A');
+        O.Verify();
     end;
 
     [Test]
@@ -1069,7 +1084,20 @@ codeunit 69811 "PA Event Contracts"
         O.Observe('hits after unbind copy', Pub.Ping());
         O.Observe('unbind original', Format(UnbindSubscription(A)));
         O.Observe('hits end', Pub.Ping());
-        O.Finish();
+        O.Expect('bind', 'ok');
+        O.Expect('hits after clear', 'A');
+        O.Expect('bind after clear', 'ok');
+        O.Expect('hits after rebind', 'AMC');
+        O.Expect('unbind after clear', 'Yes');
+        O.Expect('hits after unbind', 'A');
+        O.Expect('bind original', 'ok');
+        O.Expect('bind copy', 'The binding of codeunit 95393 was unsuccessful. The codeunit has already been bound.|EventBinding');
+        O.Expect('hits copy', 'AM3');
+        O.Expect('unbind copy', 'Yes');
+        O.Expect('hits after unbind copy', 'A');
+        O.Expect('unbind original', 'Yes');
+        O.Expect('hits end', 'A');
+        O.Verify();
     end;
 
     [Test]
@@ -1087,7 +1115,14 @@ codeunit 69811 "PA Event Contracts"
         O.Observe('hits after unbind second', Pub.Ping());
         O.Observe('unbind first', Format(UnbindSubscription(A)));
         O.Observe('hits end', Pub.Ping());
-        O.Finish();
+        O.Expect('bind first', 'ok');
+        O.Expect('bind second variable', 'The binding of codeunit 95391 was unsuccessful. The codeunit has already been bound.|EventBinding');
+        O.Expect('hits', 'SA');
+        O.Expect('unbind second variable', 'Yes');
+        O.Expect('hits after unbind second', 'A');
+        O.Expect('unbind first', 'Yes');
+        O.Expect('hits end', 'A');
+        O.Verify();
     end;
 
     [Test]
@@ -1102,6 +1137,11 @@ codeunit 69811 "PA Event Contracts"
         O.Observe('return value form', Format(BindSubscription(S)));
         O.Observe('unbind', Format(UnbindSubscription(S)));
         O.Observe('hits end', Pub.Ping());
-        O.Finish();
+        O.Expect('hits unbound', 'A');
+        O.Expect('bind', 'The binding of codeunit 95392 was unsuccessful. The codeunit does not use manual binding|EventBinding');
+        O.Expect('return value form', 'No');
+        O.Expect('unbind', 'No');
+        O.Expect('hits end', 'A');
+        O.Verify();
     end;
 }

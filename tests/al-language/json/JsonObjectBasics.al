@@ -482,6 +482,12 @@ codeunit 72500 "LT JsT Object Basics"
         O.Add('code1', C1);
         O.WriteTo(Txt);
         Observer.Observe('direct', Txt);
-        Observer.Finish();
+        Observer.Expect('branch literal comma', 'text');
+        Observer.Expect('branch text var', 'text');
+        Observer.Expect('branch char var', 'char');
+        Observer.Expect('branch code1 var', 'text');
+        Observer.Expect('through variant', '{"lit":",","txt":"x","chr":44,"code1":"."}');
+        Observer.Expect('direct', '{"chr":44,"txt":"x","lit":",","code1":"."}');
+        Observer.Verify();
     end;
 }

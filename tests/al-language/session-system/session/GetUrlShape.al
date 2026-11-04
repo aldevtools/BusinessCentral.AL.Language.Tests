@@ -371,7 +371,13 @@ codeunit 74975 "LT GetUrl Shape"
         Observer.Observe('odatav4', GuRelative(GetUrl(ClientType::ODataV4)));
         Observer.Observe('api', GuRelative(GetUrl(ClientType::Api)));
         Observer.Observe('default', GuRelative(GetUrl(ClientType::Default)));
-        Observer.Finish();
+        Observer.Expect('web', 'scheme=http|scheme same=Yes|host same=Yes|port=same|path=/BC|query=');
+        Observer.Expect('soap', 'scheme=http|scheme same=Yes|host same=Yes|port=7047|path=/BC/WS/Services|query=');
+        Observer.Expect('odata', 'scheme=http|scheme same=Yes|host same=Yes|port=7048|path=/BC/ODataV4|query=');
+        Observer.Expect('odatav4', 'scheme=http|scheme same=Yes|host same=Yes|port=7048|path=/BC/ODataV4|query=');
+        Observer.Expect('api', 'scheme=http|scheme same=Yes|host same=Yes|port=7048|path=/BC/api/|query=');
+        Observer.Expect('default', 'scheme=dynamicsnav|scheme same=No|host same=Yes|port=<other>|path=/BC//|query=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -388,7 +394,16 @@ codeunit 74975 "LT GetUrl Shape"
         Observer.Observe('api page', GuRelative(GetUrl(ClientType::Api, '', ObjectType::Page, 21)));
         Observer.Observe('soap company', GuRelative(GetUrl(ClientType::SOAP, 'My Company')));
         Observer.Observe('odatav4 company', GuRelative(GetUrl(ClientType::ODataV4, 'My Company')));
-        Observer.Finish();
+        Observer.Expect('web page', 'scheme=http|scheme same=Yes|host same=Yes|port=same|path=/BC/|query=?page=21');
+        Observer.Expect('soap codeunit', '<empty>');
+        Observer.Expect('soap page', '<empty>');
+        Observer.Expect('odata page', '<empty>');
+        Observer.Expect('odatav4 page', '<empty>');
+        Observer.Expect('odatav4 query', '<empty>');
+        Observer.Expect('api page', '<empty>');
+        Observer.Expect('soap company', 'scheme=http|scheme same=Yes|host same=Yes|port=7047|path=/BC/WS/My%20Company/Services|query=');
+        Observer.Expect('odatav4 company', 'scheme=http|scheme same=Yes|host same=Yes|port=7048|path=/BC/ODataV4/Company(''My%20Company'')|query=');
+        Observer.Verify();
     end;
 
     // ClientType::Current is the client type of the session; the test runner session differs between BC versions, so only the relation to the
@@ -406,6 +421,12 @@ codeunit 74975 "LT GetUrl Shape"
         Observer.Observe('current equals odatav4', Format(Current = GetUrl(ClientType::ODataV4)));
         Observer.Observe('current empty', Format(Current = ''));
         Observer.Observe('current page equals web page', Format(GetUrl(ClientType::Current, '', ObjectType::Page, 21) = GetUrl(ClientType::Web, '', ObjectType::Page, 21)));
-        Observer.Finish();
+        Observer.Expect('current equals web', 'Yes');
+        Observer.Expect('current equals default', 'No');
+        Observer.Expect('current equals soap', 'No');
+        Observer.Expect('current equals odatav4', 'No');
+        Observer.Expect('current empty', 'No');
+        Observer.Expect('current page equals web page', 'Yes');
+        Observer.Verify();
     end;
 }

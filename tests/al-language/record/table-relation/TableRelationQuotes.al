@@ -1184,7 +1184,11 @@ codeunit 74068 "LT Table Relation Quotes"
         Obs.Observe('type B', TrxLine(3, "LT TRX Type"::B));
         Obs.Observe('type B EMPTY text', TrxText(3, "LT TRX Type"::B, 'EMPTY'));
         Obs.Observe('type A FILLED text', TrxText(3, "LT TRX Type"::A, 'FILLED'));
-        Obs.Finish();
+        Obs.Expect('type A', 'FILLED:DB:PrimRecordNotFound EMPTY:DB:PrimRecordNotFound SPACE:DB:PrimRecordNotFound QUOTE:DB:PrimRecordNotFound XA:ok NOPE:DB:PrimRecordNotFound');
+        Obs.Expect('type B', 'FILLED:ok EMPTY:DB:NothingInsideFilter SPACE:ok QUOTE:ok XA:DB:NothingInsideFilter NOPE:DB:NothingInsideFilter');
+        Obs.Expect('type B EMPTY text', 'The field Source No. of table LT TRX Src contains a value (EMPTY) that cannot be found in the related table (LT TRX Y).');
+        Obs.Expect('type A FILLED text', 'The field Source No. of table LT TRX Src contains a value (FILLED) that cannot be found in the related table (LT TRX X).');
+        Obs.Verify();
     end;
 
     [Test]
@@ -1196,7 +1200,12 @@ codeunit 74068 "LT Table Relation Quotes"
         Obs.Observe('ext not empty quoted EMPTY text', TrxText(4, "LT TRX Type"::A, 'EMPTY'));
         Obs.Observe('own not empty bare', TrxLine(12, "LT TRX Type"::A));
         Obs.Observe('ext not empty bare', TrxLine(8, "LT TRX Type"::A));
-        Obs.Finish();
+        Obs.Expect('ext not empty quoted', 'FILLED:ok EMPTY:DB:NothingInsideFilter SPACE:ok QUOTE:ok XA:DB:NothingInsideFilter NOPE:DB:NothingInsideFilter');
+        Obs.Expect('own not empty quoted', 'FILLED:ok EMPTY:DB:NothingInsideFilter SPACE:ok QUOTE:ok XA:DB:NothingInsideFilter NOPE:DB:NothingInsideFilter');
+        Obs.Expect('ext not empty quoted EMPTY text', 'The field ExtNotEmptyQuoted of table LT TRX Src contains a value (EMPTY) that cannot be found in the related table (LT TRX Y).');
+        Obs.Expect('own not empty bare', 'FILLED:ok EMPTY:DB:NothingInsideFilter SPACE:ok QUOTE:ok XA:DB:NothingInsideFilter NOPE:DB:NothingInsideFilter');
+        Obs.Expect('ext not empty bare', 'FILLED:ok EMPTY:DB:NothingInsideFilter SPACE:ok QUOTE:ok XA:DB:NothingInsideFilter NOPE:DB:NothingInsideFilter');
+        Obs.Verify();
     end;
 
     [Test]
@@ -1209,6 +1218,22 @@ codeunit 74068 "LT Table Relation Quotes"
         Obs.Observe('ext space const', TrxLine(10, "LT TRX Type"::A));
         Obs.Observe('ext empty quoted', TrxLine(11, "LT TRX Type"::A));
         Obs.Observe('ext const empty FILLED text', TrxText(7, "LT TRX Type"::A, 'FILLED'));
+        Obs.Expect('ext not quote', 'FILLED:InvalidFilterExpression EMPTY:InvalidFilterExpression SPACE:InvalidFilterExpression QUOTE:InvalidFilterExpression XA:InvalidFilterExpression NOPE:InvalidFilterExpression');
+        Obs.Expect('ext const empty', 'FILLED:DB:NothingInsideFilter EMPTY:ok SPACE:DB:NothingInsideFilter QUOTE:DB:NothingInsideFilter XA:DB:NothingInsideFilter NOPE:DB:NothingInsideFilter');
+        Obs.Expect('ext space filter', 'FILLED:DB:NothingInsideFilter EMPTY:DB:NothingInsideFilter SPACE:ok QUOTE:DB:NothingInsideFilter XA:DB:NothingInsideFilter NOPE:DB:NothingInsideFilter');
+        Obs.Expect('ext space const', 'FILLED:DB:NothingInsideFilter EMPTY:DB:NothingInsideFilter SPACE:ok QUOTE:DB:NothingInsideFilter XA:DB:NothingInsideFilter NOPE:DB:NothingInsideFilter');
+        Obs.Expect('ext empty quoted', 'FILLED:DB:NothingInsideFilter EMPTY:ok SPACE:DB:NothingInsideFilter QUOTE:DB:NothingInsideFilter XA:DB:NothingInsideFilter NOPE:DB:NothingInsideFilter');
+        Obs.Expect('ext const empty FILLED text', 'The field ExtConstEmpty of table LT TRX Src contains a value (FILLED) that cannot be found in the related table (LT TRX Y).');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TRX_Plain_ExtNotQuote_ErrorText()
+    begin
+        TrxSeed();
+        Obs.Observe('ext not quote FILLED text', TrxText(6, "LT TRX Type"::A, 'FILLED'));
+        Obs.Observe('ext not quote empty value text', TrxText(6, "LT TRX Type"::A, ''));
+        Obs.Observe('ext not empty quoted empty value', TrxText(4, "LT TRX Type"::A, ''));
         Obs.Finish();
     end;
 }

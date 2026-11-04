@@ -595,7 +595,13 @@ codeunit 74046 "LT P133 Date Eval Format"
         Observer.Observe('0.1.2024', P133Dmy(0, 1, 2024));
         Observer.Observe('1.13.2024', P133Dmy(1, 13, 2024));
         Observer.Observe('1.1.0', P133Dmy(1, 1, 0));
-        Observer.Finish();
+        Observer.Expect('57.52.2076', 'The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: 52. The permitted range is: from 1 to 12.|OutsidePermittedRange');
+        Observer.Expect('31.2.2024', 'The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 31. The permitted range is: from 1 to 29.|OutsidePermittedRange');
+        Observer.Expect('29.2.2024', 'ok|2024-02-29');
+        Observer.Expect('0.1.2024', 'The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 31.|OutsidePermittedRange');
+        Observer.Expect('1.13.2024', 'The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: 13. The permitted range is: from 1 to 12.|OutsidePermittedRange');
+        Observer.Expect('1.1.0', 'ok|0001-01-02');
+        Observer.Verify();
     end;
 
     [Test]
@@ -611,6 +617,56 @@ codeunit 74046 "LT P133 Date Eval Format"
         Observer.Observe('1.1.-1', P133Dmy(1, 1, -1));
         Observer.Observe('31.12.9999', P133Dmy(31, 12, 9999));
         Observer.Observe('1.1.1', P133Dmy(1, 1, 1));
+        Observer.Expect('32.13.2024', 'The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: 13. The permitted range is: from 1 to 12.|OutsidePermittedRange');
+        Observer.Expect('0.0.2024', 'The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 12.|OutsidePermittedRange');
+        Observer.Expect('57.52.0', 'The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: 52. The permitted range is: from 1 to 12.|OutsidePermittedRange');
+        Observer.Expect('31.2.0', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.|OutsidePermittedRange');
+        Observer.Expect('1.1.10000', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 10000. The permitted range is: from 1 to 9999.|OutsidePermittedRange');
+        Observer.Expect('1.1.-1', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: -1. The permitted range is: from 1 to 9999.|OutsidePermittedRange');
+        Observer.Expect('31.12.9999', 'ok|9999-12-31');
+        Observer.Expect('1.1.1', 'ok|');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure P133_DMY2Date_ThreeArgs_AssertError()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: Date;
+    begin
+        asserterror D := DMY2Date(57, 52, 2076);
+        Observer.ObserveError('57.52.2076');
+        asserterror D := DMY2Date(31, 2, 2024);
+        Observer.ObserveError('31.2.2024');
+        asserterror D := DMY2Date(0, 1, 2024);
+        Observer.ObserveError('0.1.2024');
+        asserterror D := DMY2Date(1, 13, 2024);
+        Observer.ObserveError('1.13.2024');
+        Observer.Finish();
+    end;
+
+    local procedure P133Parts(D: Date): Text
+    begin
+        if D = 0D then
+            exit('0D');
+        exit(Format(Date2DMY(D, 1)) + '.' + Format(Date2DMY(D, 2)) + '.' + Format(Date2DMY(D, 3)));
+    end;
+
+    [Test]
+    procedure P133_DMY2Date_YearZeroAndOne()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: Date;
+    begin
+        D := DMY2Date(1, 1, 0);
+        Observer.Observe('1.1.0 parts', P133Parts(D));
+        Observer.Observe('1.1.0 is 0D', Format(D = 0D));
+        D := DMY2Date(1, 1, 1);
+        Observer.Observe('1.1.1 parts', P133Parts(D));
+        Observer.Observe('1.1.1 is 0D', Format(D = 0D));
+        Observer.Observe('1.1.1 format', Format(D));
+        D := DMY2Date(15, 6, 0);
+        Observer.Observe('15.6.0 format 9', Format(D, 0, 9));
         Observer.Finish();
     end;
 }

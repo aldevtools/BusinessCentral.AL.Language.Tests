@@ -176,7 +176,14 @@ codeunit 71031 "LT VaT Is Scalars"
         Observer.Observe('code1_var_param', Helper.Flags(C1));
         V := ',';
         Observer.Observe('literal_comma_assigned', Helper.Flags(V));
-        Observer.Finish();
+        Observer.Expect('literal_comma_param', 'Text,');
+        Observer.Expect('literal_x_param', 'Text,');
+        Observer.Expect('literal_two_chars_param', 'Text,');
+        Observer.Expect('text_var_param', 'Text,');
+        Observer.Expect('char_var_param', 'Char,');
+        Observer.Expect('code1_var_param', 'Code,');
+        Observer.Expect('literal_comma_assigned', 'Char,');
+        Observer.Verify();
     end;
 }
 
