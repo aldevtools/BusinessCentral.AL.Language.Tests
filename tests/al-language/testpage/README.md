@@ -32,21 +32,6 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 - Same area in other apps (only what cannot compile in the Cloud app): none.
 - Must-not-compile cases (11, in `tests/must-not-compile/cases/`, listed by `tests/must-not-compile/areas.tsv`): `0561-testpage-prev`, `0562-testpart-prev`, `1120-testrequestpage-dataitem-setrange`, `1211-modalpagehandler-testpage-with-response`, `1212-testpage-delete-action`, `1601-testpage-ok-cancel-unused`, `1602-testpage-delete`, `1632-testpage-pageext-procedure`, `1864-testpage-cannot-reach-pending-special-controls`, `2570-testpage-getrecord`, `2571-testpart-getrecord`.
 
-## Line-sensitive files
-
-These files assert line numbers or call stacks. Only append at the end of the codeunit; never add or remove lines above existing code (standing rule 5).
-
-- `P129CallstackPageControls.al`
-- `P135CallstackPage.al`
-- `PnGPartRows.al`
-- `PnGPartTriggers.al`
-- `RmReadOnlyBlob.al`
-- `TestPageAutoSplitKey_Tests.al`
-- `TestPageSubpagePart.al`
-- `parts/TestPartProvider.al`
-- `parts/TestPartProviderMove.al`
-- `parts/TestTestPart.al`
-
 ## Adding a test
 
 1. Search this area for a test that already pins the behavior. If one does, cite it and write nothing.

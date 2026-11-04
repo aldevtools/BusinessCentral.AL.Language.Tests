@@ -32,18 +32,6 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 - Same area in other apps (only what cannot compile in the Cloud app): `tests/al-language-onprem/session-system/`.
 - Must-not-compile cases (12, in `tests/must-not-compile/cases/`, listed by `tests/must-not-compile/areas.tsv`): `0560-navapp-getcallstackmoduleinfos`, `0565-session-aitokensused-is-onprem`, `0567-database-changeuserpassword-is-onprem`, `0568-database-setuserpassword-is-onprem`, `0569-database-exportdata-is-onprem`, `0570-database-importdata-is-onprem`, `0575-session-logsecurityaudit-is-onprem`, `0963-isolatedstorage-get-isolationlevel`, `0965-navapp-resources-appid`, `2791-loadpackagedata-no-argument`, `2792-loadpackagedata-two-arguments`, `2793-loadpackagedata-used-as-value`.
 
-## Line-sensitive files
-
-These files assert line numbers or call stacks. Only append at the end of the codeunit; never add or remove lines above existing code (standing rule 5).
-
-- `TestSessionCallstackSourcesContracts.al`
-- `TestSessionInformationCallstackContracts.al`
-- `callstack/P128Callstack.al`
-- `callstack/P129CallstackQuery.al`
-- `callstack/P135CallstackTable.al`
-- `callstack/P136CsBase.al`
-- `callstack/PnD09_CallstackSources.al`
-
 ## Adding a test
 
 1. Search this area for a test that already pins the behavior. If one does, cite it and write nothing.

@@ -11,7 +11,7 @@ The Record type: insert, modify, delete, get and find; filters; keys and sorting
 - `curr-field-no/`: CurrFieldNo passed on (1 AL file).
 - `events/`: record and table events seen from the record (2 AL files).
 - `filters/`: SetRange, SetFilter, filter syntax and GetFilter(s) (31 AL files).
-- `flowfields/`: FlowFields, CalcFields, CalcSums, CalcFormula and AutoCalcFields (19 AL files).
+- `flowfields/`: FlowFields, CalcFields, CalcSums, CalcFormula and AutoCalcFields (20 AL files).
 - `keys-sorting/`: keys, SetCurrentKey, SetAscending and sort order (11 AL files).
 - `load-fields/`: SetLoadFields, AddLoadFields and AreFieldsLoaded (12 AL files).
 - `stale-find/`: Find on stale record buffers (1 AL file).
@@ -28,7 +28,7 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 
 ## Shared fixtures used here
 
-- codeunit 69160 "Probe Observer": 256 files
+- codeunit 69160 "Probe Observer": 257 files
 - table 60000 "ALT Universal": 51 files
 - table 60003 "ALT Trigger Log": 19 files
 - table 60002 "ALT Triggered": 15 files

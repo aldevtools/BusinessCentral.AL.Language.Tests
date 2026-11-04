@@ -26,10 +26,7 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 
 These files assert line numbers or call stacks. Only append at the end of the codeunit; never add or remove lines above existing code (standing rule 5).
 
-- `P129CallstackXmlPort.al`
-- `P129StreamWriteText.al`
 - `StTMedia.al`
-- `Y72XpEInvoiceShapes.al`
 
 ## Adding a test
 

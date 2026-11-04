@@ -29,14 +29,6 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 - Same area in other apps (only what cannot compile in the Cloud app): none.
 - Must-not-compile cases (44, in `tests/must-not-compile/cases/`, listed by `tests/must-not-compile/areas.tsv`): `0105-xmlport-textencoding-on-xml-format`, `0106-xmlport-encoding-msdos`, `0210-unknown-variable-xmlport-trigger`, `0218-xmlport-unknown-table`, `0321-onprexmlport-in-report`, `0704-xmlport-fieldelement-tablerelation`, `0816-xmlport-requestfilterheading-and-ml`, `0819-xmlport-fieldelement-xmlname-invalid`, `0820-xmlport-fieldelement-xmlname-empty`, `0821-xmlport-fieldattribute-width-out-of-range`, `0822-xmlport-tableelement-width-out-of-range`, `0823-xmlport-textattribute-width-out-of-range`, `0824-xmlport-textelement-width-out-of-range`, `0825-xmlport-xmlversionno-invalid`, `0826-xmlport-tableelement-autocalcfield`, `1050-xmlport-fieldelement-occurrence`, `1051-xmlport-textelement-occurrence`, `1052-xmlport-tableelement-occurrence`, `1053-xmlport-fieldattribute-occurrence-invalid-value`, `1063-xmlport-linkfields-without-linktable`, `1247-unknown-bare-call-reportext-tableext-query-xmlport`, `1440-xmlport-fieldvalidate-true-false`, `1717-accessbypermission-report-query-xmlport`, `1856-xmlport-namespaces-empty-prefix`, `1857-xmlport-namespaces-string-form`, `2111-xmlport-requestpage-rec-without-sourcetable`, `2112-xmlport-trigger-rec-without-requestpage`, `2114-xmlport-requestpage-currpage`, `2126-xmlport-name-31-characters`, `2139-two-xmlports-same-id`, `2159-exit-value-in-xmlport-trigger`, `2160-exit-value-in-xmlport-procedure`, `2253-xmlport-attribute-after-child-element`, `2513-testrequestpage-typed-on-xmlport`, `2546-bare-run-page-in-xmlport`, `2620-obsolete-on-xmlport-schema-elements`, `2642-xmlport-variable-break-quit-skip`, `2643-xmlport-variable-userequestpage`, `2650-xmlport-separator-assigned-integer`, `2651-xmlport-textencoding-assigned-integer`, `2652-xmlport-separator-read-into-char`, `2715-bindsubscription-this-in-xmlport`, `2780-xmlport-defaultnamespace-variabletext`, `2781-xmlport-usedefaultnamespace-variabletext`.
 
-## Line-sensitive files
-
-These files assert line numbers or call stacks. Only append at the end of the codeunit; never add or remove lines above existing code (standing rule 5).
-
-- `P135CallstackXmlportEtc.al`
-- `import/XpTImportBasic.al`
-- `shapes-properties/QrXpContainerOccurs.al`
-
 ## Adding a test
 
 1. Search this area for a test that already pins the behavior. If one does, cite it and write nothing.

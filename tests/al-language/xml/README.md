@@ -22,11 +22,6 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 
 These files assert line numbers or call stacks. Only append at the end of the codeunit; never add or remove lines above existing code (standing rule 5).
 
-- `AyXmlReadFromStream.al`
-- `AyXmlRemoveNsAttribute.al`
-- `DeXmlWriteLeads.al`
-- `PnAXmlDoctype.al`
-- `PnAXmlReadInvalid.al`
 - `TestProbeXmlContracts.al`
 - `TestXmlRuntimeContracts.al`
 - `XmlAttributes.al`
@@ -34,14 +29,6 @@ These files assert line numbers or call stacks. Only append at the end of the co
 - `XmlElement.al`
 - `XmlEntitiesMisc.al`
 - `XmlNodes.al`
-- `xml/DocTypeErrors.al`
-- `xml/DocTypeRead.al`
-- `xml/DocTypeSetters.al`
-- `xml/P104AttrCollection.al`
-- `xml/P104Element.al`
-- `xml/P90PIRead.al`
-- `xml/P97DocQuery.al`
-- `xml/XmlNsPrefixes.al`
 
 ## Adding a test
 
