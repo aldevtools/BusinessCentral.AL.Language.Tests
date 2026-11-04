@@ -805,7 +805,7 @@ def cmd_check(root, base):
         if k == 'R100':
             kinds['R100'] += 1
             pure.add(path)
-        elif k == 'A' and re.match(r'^tests/al-language/[^/]+/README\.md$', path):
+        elif k in ('A', 'M') and re.match(r'^tests/al-language/[^/]+/README\.md$', path):
             kinds['README'] += 1
         elif k == 'D' and BUILD_OUTPUT.match(path):
             kinds['build output removed'] += 1
