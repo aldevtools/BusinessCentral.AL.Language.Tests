@@ -266,4 +266,22 @@ codeunit 72307 "LT P123 CaptionClass Tests"
         Observer.Verify();
     end;
 
+
+    // A bounded base result must not be imposed on the selected unbounded local declaration.
+    [Test]
+    procedure TableExt_CrossApp_BoundedBase_LongLocalResultStaysUnbounded()
+    var
+        T: Record "TBL Lexical Owner Base";
+        Observer: Codeunit "Probe Observer";
+        Actual: Text;
+    begin
+        Initialize();
+        T.Get(1);
+        Actual := T.ExtensionLong();
+        Observer.Observe('result', Actual);
+        Observer.Observe('length', Format(StrLen(Actual)));
+        Observer.Expect('result', '3,LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL');
+        Observer.Expect('length', '102');
+        Observer.Verify();
+    end;
 }

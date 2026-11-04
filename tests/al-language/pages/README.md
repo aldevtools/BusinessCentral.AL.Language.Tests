@@ -91,3 +91,5 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 `extensions/TableExtCaptionClass.al` also probes cross-app public-base/local-extension procedure collisions in ordinary calls and table-field CaptionClass expressions. The dedicated dependency fixture leaves existing fixture definitions unchanged.
 
 The same lexical-owner probe separately covers unparenthesized zero-argument calls and CaptionClass expressions, with explicit qualified public-base access as a control.
+
+The cross-app lexical-owner fixture also covers a public base returning Text[80] and a local extension returning unbounded Text, matching original dependency signatures. A separate result longer than 80 characters checks that the base return width is not imposed on the selected local method.

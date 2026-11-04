@@ -22,9 +22,11 @@ tableextension 97890 "TBL Lexical Owner Ext" extends "TBL Lexical Owner Base"
         }
     }
 
-    local procedure GetCaptionClass(FieldNumber: Integer): Text
+    local procedure GetCaptionClass(FieldNo: Integer): Text
     begin
-        exit('3,Extension ' + Format(FieldNumber));
+        if FieldNo = 900 then
+            exit('3,' + PadStr('', 100, 'L'));
+        exit('3,Extension ' + Format(FieldNo));
     end;
 
     local procedure UniqueCaptionClass(FieldNumber: Integer): Text
@@ -45,5 +47,10 @@ tableextension 97890 "TBL Lexical Owner Ext" extends "TBL Lexical Owner Base"
     procedure ExtensionZeroBare(): Text
     begin
         exit(GetZeroCaption);
+    end;
+
+    procedure ExtensionLong(): Text
+    begin
+        exit(GetCaptionClass(900));
     end;
 }

@@ -10,7 +10,7 @@ table 61179 "TBL Lexical Owner Base"
     }
     keys { key(PK; Id) { Clustered = true; } }
 
-    procedure GetCaptionClass(FieldNumber: Integer): Text
+    procedure GetCaptionClass(FieldNumber: Integer): Text[80]
     begin
         exit('3,Base ' + Format(FieldNumber));
     end;
@@ -20,7 +20,7 @@ table 61179 "TBL Lexical Owner Base"
         exit(GetCaptionClass(17));
     end;
 
-    procedure GetZeroCaption(): Text
+    procedure GetZeroCaption(): Text[80]
     begin
         exit('3,Base zero');
     end;
