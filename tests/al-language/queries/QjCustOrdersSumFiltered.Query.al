@@ -1,7 +1,7 @@
 // A multi-dataitem JOIN query whose AGGREGATED (Method = Sum) column also carries a static
 // ColumnFilter — a HAVING-style filter, evaluated after the implicit GROUP BY the join
 // performs over its aggregated column, dropping whole groups rather than raw rows. Reuses the
-// "QJ Customer"/"QJ Order" tables already established by TestQueryJoin.al.
+// "ALT Shape 04"/"QJ Order" tables already established by TestQueryJoin.al.
 query 60780 "QJ Cust Orders Sum Filtered"
 {
     QueryType = Normal;
@@ -9,7 +9,7 @@ query 60780 "QJ Cust Orders Sum Filtered"
 
     elements
     {
-        dataitem(Customer; "QJ Customer")
+        dataitem(Customer; "ALT Shape 04")
         {
             column(CustNo; "No.") { }
 

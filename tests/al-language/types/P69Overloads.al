@@ -1,23 +1,11 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-procedure-overloading
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), self-contained table 71158, codeunit 71159
+// Fixtures used: Probe Observer (codeunit 69160), shared table 50000 "ALT Shape 00", codeunit 71159
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Settles GitHub issue #69 (Inferred behaviors waiting for a pin): overload choice, exact type versus Variant
 // Facts: which overload runs for a RecordRef, Integer, Text, Record, Decimal, BigInteger argument, observed through a returned tag
 // BC versions: 29 (27 and 28 by CI)
 // Added by writer BN3 (corpus #664 item 74): enums 83869, 83870 and BN3_Overload_DifferOnlyByEnumType; an Integer argument is ambiguous (must-not-compile 1560).
-
-table 71158 "LT P69 Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-
-    keys { key(PK; Id) { Clustered = true; } }
-}
 
 codeunit 71159 "LT P69 Overloads"
 {
@@ -54,7 +42,7 @@ codeunit 71159 "LT P69 Overloads"
         exit('variant');
     end;
 
-    local procedure Rec(R: Record "LT P69 Row"): Text
+    local procedure Rec(R: Record "ALT Shape 00"): Text
     begin
         exit('record');
     end;
@@ -104,11 +92,11 @@ codeunit 71159 "LT P69 Overloads"
     var
         Observer: Codeunit "Probe Observer";
         RecRef: RecordRef;
-        Row: Record "LT P69 Row";
+        Row: Record "ALT Shape 00";
         V: Variant;
         R: Integer;
     begin
-        RecRef.Open(Database::"LT P69 Row");
+        RecRef.Open(Database::"ALT Shape 00");
         Observer.Observe('recordref_var', Tag(RecRef));
         V := RecRef;
         Observer.Observe('variant_holding_recordref', Tag(V));
@@ -205,7 +193,7 @@ codeunit 71159 "LT P69 Overloads"
     procedure Overload_RecordVsVariant()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT P69 Row";
+        Row: Record "ALT Shape 00";
         V: Variant;
     begin
         Observer.Observe('record_var', Rec(Row));

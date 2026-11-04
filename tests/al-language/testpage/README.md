@@ -9,6 +9,7 @@ The TestPage and TestPart API: opening, navigating, fields and actions, filters,
 - `lifecycle/`: opening, closing and page variables (6 AL files).
 - `notifications-and-control-values/`: notification handlers, control values read as decimal or text, role center TestPage (3 AL files).
 - `parts/`: page parts and subpages (46 AL files).
+- `no-source-controls/`: SetValue and Value on controls of a page with no source table bound to global record fields (1 AL file).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 
@@ -39,3 +40,5 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 3. Use the shared fixtures. A local object needs a `// local object: <reason>` line.
 4. Name the folder after the topic, never after a writer, an issue or a batch.
 5. Never renumber a codeunit or rename a test. Read the standing rules in `CONTRIBUTING.md` first.
+
+- `empty-standard-host/`: neutral public-API and page contracts reproduced from AL Runner reports.

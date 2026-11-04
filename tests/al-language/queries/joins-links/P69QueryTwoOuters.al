@@ -1,23 +1,10 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-query-object
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), self-contained tables 71178, 71179 and 71180, queries 71181 and 71182, codeunit 71183
+// Fixtures used: Probe Observer (codeunit 69160), self-contained tables 71178, 71179 and 71180, queries 71181 and 71182, codeunit 71183 (table 71178 is now shared table 50015 "ALT Shape 15")
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Settles GitHub issue #69 (Inferred behaviors waiting for a pin): Query DataItemLink whose pairs name two different outer items
 // Facts: a nested dataitem whose DataItemLink pairs refer to two different outer dataitems; inner and left outer join; pair order swapped
 // BC versions: 29 (27 and 28 by CI)
-
-table 71178 "LT P69 QA"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Grp; Code[10]) { }
-    }
-
-    keys { key(PK; Id) { Clustered = true; } }
-}
 
 table 71179 "LT P69 QB"
 {
@@ -54,7 +41,7 @@ query 71181 "LT P69 Q Two Outers"
 
     elements
     {
-        dataitem(A; "LT P69 QA")
+        dataitem(A; "ALT Shape 15")
         {
             column(AId; Id) { }
             dataitem(B; "LT P69 QB")
@@ -78,7 +65,7 @@ query 71182 "LT P69 Q Two Outers Left"
 
     elements
     {
-        dataitem(A; "LT P69 QA")
+        dataitem(A; "ALT Shape 15")
         {
             column(AId; Id) { }
             dataitem(B; "LT P69 QB")
@@ -105,7 +92,7 @@ codeunit 71183 "LT P69 Query Two Outers"
 
     local procedure Seed()
     var
-        A: Record "LT P69 QA";
+        A: Record "ALT Shape 15";
         B: Record "LT P69 QB";
         C: Record "LT P69 QC";
     begin
