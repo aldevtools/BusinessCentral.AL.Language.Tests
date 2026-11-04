@@ -567,4 +567,50 @@ codeunit 74046 "LT P133 Date Eval Format"
         Observer.Expect('not_open_default', '');
         Observer.Verify();
     end;
+
+    // al-runner issue 6924: DMY2Date with all three arguments where one or more parts are out of range (a day and a month out of range together,
+    // the 31st of February in a leap year, day 0, month 13, year 0, and a valid day and month in year 0). Result: ok and the date, or the error text and code.
+    local procedure P133Dmy(Day: Integer; Month: Integer; Year: Integer): Text
+    var
+        D: Date;
+        R: Text;
+    begin
+        ClearLastError();
+        if TryDayMonthYear(Day, Month, Year, D) then
+            R := 'ok|' + Format(D, 0, 9)
+        else
+            R := GetLastErrorText() + '|' + GetLastErrorCode();
+        ClearLastError();
+        exit(R);
+    end;
+
+    [Test]
+    procedure P133_DMY2Date_ThreeArgs_OutOfRange()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('57.52.2076', P133Dmy(57, 52, 2076));
+        Observer.Observe('31.2.2024', P133Dmy(31, 2, 2024));
+        Observer.Observe('29.2.2024', P133Dmy(29, 2, 2024));
+        Observer.Observe('0.1.2024', P133Dmy(0, 1, 2024));
+        Observer.Observe('1.13.2024', P133Dmy(1, 13, 2024));
+        Observer.Observe('1.1.0', P133Dmy(1, 1, 0));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure P133_DMY2Date_ThreeArgs_SeveralPartsOutOfRange()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('32.13.2024', P133Dmy(32, 13, 2024));
+        Observer.Observe('0.0.2024', P133Dmy(0, 0, 2024));
+        Observer.Observe('57.52.0', P133Dmy(57, 52, 0));
+        Observer.Observe('31.2.0', P133Dmy(31, 2, 0));
+        Observer.Observe('1.1.10000', P133Dmy(1, 1, 10000));
+        Observer.Observe('1.1.-1', P133Dmy(1, 1, -1));
+        Observer.Observe('31.12.9999', P133Dmy(31, 12, 9999));
+        Observer.Observe('1.1.1', P133Dmy(1, 1, 1));
+        Observer.Finish();
+    end;
 }

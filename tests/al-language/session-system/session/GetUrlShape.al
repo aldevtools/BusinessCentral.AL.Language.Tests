@@ -289,4 +289,123 @@ codeunit 74975 "LT GetUrl Shape"
         Observer.Expect('default alone', 'dynamicsnav|<host>|lower=Yes|port=<port>|path=/BC//|query=');
         Observer.Verify();
     end;
+
+    // ---- al-runner issue 6924, assumption geturl-web-base-address: does every GetUrl form share the scheme, the host name and the port of
+    // GetUrl(ClientType::Web)? The host itself is never shown. Each result is: scheme same as Web | host same as Web | port same as Web (or the
+    // port when it differs: 7047 and 7048 shown, any other as <other>) | the path | the query. An empty result is shown as <empty>. ----
+    local procedure GuSplit(Url: Text; var Scheme: Text; var HostName: Text; var Port: Text; var PathPart: Text; var Query: Text): Boolean
+    var
+        Rest: Text;
+        HostPort: Text;
+        At: Integer;
+    begin
+        Scheme := '';
+        HostName := '';
+        Port := '';
+        PathPart := '';
+        Query := '';
+        At := StrPos(Url, '://');
+        if At = 0 then
+            exit(false);
+        Scheme := CopyStr(Url, 1, At - 1);
+        Rest := CopyStr(Url, At + 3);
+        At := StrPos(Rest, '?');
+        if At > 0 then begin
+            Query := CopyStr(Rest, At);
+            Rest := CopyStr(Rest, 1, At - 1);
+        end;
+        At := StrPos(Rest, '/');
+        if At > 0 then begin
+            HostPort := CopyStr(Rest, 1, At - 1);
+            PathPart := CopyStr(Rest, At);
+        end else
+            HostPort := Rest;
+        At := StrPos(HostPort, ':');
+        if At > 0 then begin
+            HostName := CopyStr(HostPort, 1, At - 1);
+            Port := CopyStr(HostPort, At + 1);
+        end else
+            HostName := HostPort;
+        exit(true);
+    end;
+
+    local procedure GuRelative(Url: Text): Text
+    var
+        WScheme: Text;
+        WHost: Text;
+        WPort: Text;
+        WPath: Text;
+        WQuery: Text;
+        Scheme: Text;
+        HostName: Text;
+        Port: Text;
+        PathPart: Text;
+        Query: Text;
+        PortShown: Text;
+    begin
+        if Url = '' then
+            exit('<empty>');
+        GuSplit(GetUrl(ClientType::Web), WScheme, WHost, WPort, WPath, WQuery);
+        if not GuSplit(Url, Scheme, HostName, Port, PathPart, Query) then
+            exit('no scheme');
+        case true of
+            Port = WPort:
+                PortShown := 'same';
+            Port in ['7047', '7048', '']:
+                PortShown := Port;
+            else
+                PortShown := '<other>';
+        end;
+        exit('scheme=' + Scheme + '|scheme same=' + Format(Scheme = WScheme) + '|host same=' + Format(LowerCase(HostName) = LowerCase(WHost)) +
+            '|port=' + PortShown + '|path=' + PathPart + '|query=' + Query);
+    end;
+
+    [Test]
+    procedure GU6924_ServiceForms_ShareWebHost()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('web', GuRelative(GetUrl(ClientType::Web)));
+        Observer.Observe('soap', GuRelative(GetUrl(ClientType::SOAP)));
+        Observer.Observe('odata', GuRelative(GetUrl(ClientType::OData)));
+        Observer.Observe('odatav4', GuRelative(GetUrl(ClientType::ODataV4)));
+        Observer.Observe('api', GuRelative(GetUrl(ClientType::Api)));
+        Observer.Observe('default', GuRelative(GetUrl(ClientType::Default)));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure GU6924_ServiceForms_WithObject_ShareWebHost()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('web page', GuRelative(GetUrl(ClientType::Web, '', ObjectType::Page, 21)));
+        Observer.Observe('soap codeunit', GuRelative(GetUrl(ClientType::SOAP, '', ObjectType::Codeunit, 69366)));
+        Observer.Observe('soap page', GuRelative(GetUrl(ClientType::SOAP, '', ObjectType::Page, 21)));
+        Observer.Observe('odata page', GuRelative(GetUrl(ClientType::OData, '', ObjectType::Page, 21)));
+        Observer.Observe('odatav4 page', GuRelative(GetUrl(ClientType::ODataV4, '', ObjectType::Page, 21)));
+        Observer.Observe('odatav4 query', GuRelative(GetUrl(ClientType::ODataV4, '', ObjectType::Query, 69376)));
+        Observer.Observe('api page', GuRelative(GetUrl(ClientType::Api, '', ObjectType::Page, 21)));
+        Observer.Observe('soap company', GuRelative(GetUrl(ClientType::SOAP, 'My Company')));
+        Observer.Observe('odatav4 company', GuRelative(GetUrl(ClientType::ODataV4, 'My Company')));
+        Observer.Finish();
+    end;
+
+    // ClientType::Current is the client type of the session; the test runner session differs between BC versions, so only the relation to the
+    // other forms is observed.
+    [Test]
+    procedure GU6924_Current_EqualsWhichForm()
+    var
+        Observer: Codeunit "Probe Observer";
+        Current: Text;
+    begin
+        Current := GetUrl(ClientType::Current);
+        Observer.Observe('current equals web', Format(Current = GetUrl(ClientType::Web)));
+        Observer.Observe('current equals default', Format(Current = GetUrl(ClientType::Default)));
+        Observer.Observe('current equals soap', Format(Current = GetUrl(ClientType::SOAP)));
+        Observer.Observe('current equals odatav4', Format(Current = GetUrl(ClientType::ODataV4)));
+        Observer.Observe('current empty', Format(Current = ''));
+        Observer.Observe('current page equals web page', Format(GetUrl(ClientType::Current, '', ObjectType::Page, 21) = GetUrl(ClientType::Web, '', ObjectType::Page, 21)));
+        Observer.Finish();
+    end;
 }
