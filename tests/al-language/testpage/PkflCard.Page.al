@@ -10,7 +10,7 @@
 page 60647 "PKFL Card"
 {
     PageType = Card;
-    SourceTable = "PKFL Header";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
     UsageCategory = Administration;
 

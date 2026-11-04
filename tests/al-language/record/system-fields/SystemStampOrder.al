@@ -6,19 +6,6 @@
 // RISKY: none; only relations are observed (>=, <=), never a clock value. Whether two stamps of rapid writes are EQUAL is host-dependent and is observed as the ordering text only.
 // BC versions: 29 (27 and 28 by CI)
 
-table 71694 "LT P159 Stamp Row"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Qty; Integer) { }
-    }
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 codeunit 71695 "LT P159 System Stamp Order"
 {
     Subtype = Test;
@@ -37,7 +24,7 @@ codeunit 71695 "LT P159 System Stamp Order"
     procedure P159_BackToBackInserts_StampsNeverGoBack()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT P159 Stamp Row";
+        Row: Record "ALT Shape 16";
         Previous: DateTime;
         i: Integer;
         NeverEarlier: Boolean;

@@ -17,26 +17,10 @@
 // Every OnAction stamps a row of TPAR Row under its own key, so "the trigger ran" is
 // observable from the test without a handler and without reading page state.
 
-table 60581 "TPAR Row"
-{
-    DataClassification = CustomerContent;
-
-    fields
-    {
-        field(1; "No."; Code[20]) { }
-        field(2; Descr; Text[50]) { }
-    }
-
-    keys
-    {
-        key(PK; "No.") { Clustered = true; }
-    }
-}
-
 page 60582 "TPAR Host"
 {
     PageType = List;
-    SourceTable = "TPAR Row";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
     UsageCategory = Lists;
 
@@ -149,7 +133,7 @@ page 60582 "TPAR Host"
 
     local procedure Stamp(StampKey: Code[20])
     var
-        Row: Record "TPAR Row";
+        Row: Record "ALT Shape 02";
     begin
         if Row.Get(StampKey) then
             exit;

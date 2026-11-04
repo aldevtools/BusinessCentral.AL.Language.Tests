@@ -37,25 +37,9 @@ table 73240 "LT P163 TG MediaSet"
     }
 }
 
-table 73241 "LT P163 TG Plain"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Txt; Text[20]) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 codeunit 73326 "LT P163 TG Run"
 {
-    TableNo = "LT P163 TG Plain";
+    TableNo = "ALT Shape 06";
 
     trigger OnRun()
     begin
@@ -73,7 +57,7 @@ codeunit 73242 "LT P163 Truncate Guards"
     var
         TempMedia: Record "LT P163 TG Media" temporary;
         TempMediaSet: Record "LT P163 TG MediaSet" temporary;
-        TempPlain: Record "LT P163 TG Plain" temporary;
+        TempPlain: Record "ALT Shape 06" temporary;
         Observer: Codeunit "Probe Observer";
     begin
         TempMedia.Id := 1;
@@ -105,7 +89,7 @@ codeunit 73242 "LT P163 Truncate Guards"
     procedure P163_Truncate_MediaSetTable_AndFilters()
     var
         MediaSetRec: Record "LT P163 TG MediaSet";
-        Plain: Record "LT P163 TG Plain";
+        Plain: Record "ALT Shape 06";
         Observer: Codeunit "Probe Observer";
     begin
         MediaSetRec.DeleteAll();
@@ -134,7 +118,7 @@ codeunit 73242 "LT P163 Truncate Guards"
         Observer.Verify();
     end;
 
-    local procedure CountAll(var Plain: Record "LT P163 TG Plain"): Integer
+    local procedure CountAll(var Plain: Record "ALT Shape 06"): Integer
     begin
         Plain.Reset();
         exit(Plain.Count());
@@ -143,8 +127,8 @@ codeunit 73242 "LT P163 Truncate Guards"
     [Test]
     procedure P163_Truncate_TableOtherRecordsRead()
     var
-        Plain: Record "LT P163 TG Plain";
-        Reader: Record "LT P163 TG Plain";
+        Plain: Record "ALT Shape 06";
+        Reader: Record "ALT Shape 06";
         Observer: Codeunit "Probe Observer";
     begin
         Plain.DeleteAll();
@@ -174,7 +158,7 @@ codeunit 73242 "LT P163 Truncate Guards"
     // (Truncate refuses to run in one) and no asserterror: each case is a test of its own, and its value or its error is the result.
     local procedure BqSeedPlain()
     var
-        P: Record "LT P163 TG Plain";
+        P: Record "ALT Shape 06";
     begin
         P.DeleteAll();
         P.Id := 1;
@@ -186,7 +170,7 @@ codeunit 73242 "LT P163 Truncate Guards"
     [Test]
     procedure P163_Truncate_Temporary_ReturnValueUsed_BQ()
     var
-        TempPlain: Record "LT P163 TG Plain" temporary;
+        TempPlain: Record "ALT Shape 06" temporary;
         Observer: Codeunit "Probe Observer";
         Ok: Boolean;
     begin
@@ -205,7 +189,7 @@ codeunit 73242 "LT P163 Truncate Guards"
     [Test]
     procedure P163_Truncate_ResetAutoIncrement_WithoutAutoIncrement_BQ()
     var
-        Plain: Record "LT P163 TG Plain";
+        Plain: Record "ALT Shape 06";
         Observer: Codeunit "Probe Observer";
         Ok: Boolean;
     begin
@@ -239,7 +223,7 @@ codeunit 73242 "LT P163 Truncate Guards"
     [Test]
     procedure P163_Truncate_SecurityFiltered_BQ()
     var
-        Plain: Record "LT P163 TG Plain";
+        Plain: Record "ALT Shape 06";
         Observer: Codeunit "Probe Observer";
         Ok: Boolean;
     begin

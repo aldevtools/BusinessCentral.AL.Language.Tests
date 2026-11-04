@@ -35,14 +35,14 @@ codeunit 60743 "Test Page New Row Line Tests"
 
     local procedure Initialize()
     var
-        Row: Record "Test Page New Row Line Row";
+        Row: Record "ALT Shape 02";
     begin
         Row.DeleteAll();
     end;
 
     local procedure SeedOneRow()
     var
-        Row: Record "Test Page New Row Line Row";
+        Row: Record "ALT Shape 02";
     begin
         Row.Init();
         Row."No." := 'ALPHA';
@@ -52,7 +52,7 @@ codeunit 60743 "Test Page New Row Line Tests"
 
     local procedure SeedTwoRows()
     var
-        Row: Record "Test Page New Row Line Row";
+        Row: Record "ALT Shape 02";
     begin
         SeedOneRow();
         Row.Init();
@@ -117,7 +117,7 @@ codeunit 60743 "Test Page New Row Line Tests"
     [Test]
     procedure NewRowLine_LeftUntouched_InsertsNothing()
     var
-        Row: Record "Test Page New Row Line Row";
+        Row: Record "ALT Shape 02";
         TP: TestPage "Test Page New Row Line List";
     begin
         Initialize();
@@ -212,7 +212,7 @@ codeunit 60743 "Test Page New Row Line Tests"
     [Test]
     procedure EmptyEditableList_SetValueWithoutNewOrFirst_InsertsARow()
     var
-        Row: Record "Test Page New Row Line Row";
+        Row: Record "ALT Shape 02";
         TP: TestPage "Test Page New Row Line List";
     begin
         Initialize();

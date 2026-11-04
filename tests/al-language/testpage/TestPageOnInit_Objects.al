@@ -17,22 +17,6 @@
 // Next advances Step and recomputes both globals, Back steps back, and both stamp a row of
 // POI Row, so "the trigger ran" is observable without a handler.
 
-table 60486 "POI Row"
-{
-    DataClassification = CustomerContent;
-
-    fields
-    {
-        field(1; "No."; Code[20]) { }
-        field(2; Hits; Integer) { }
-    }
-
-    keys
-    {
-        key(PK; "No.") { Clustered = true; }
-    }
-}
-
 page 60487 "POI Wizard"
 {
     PageType = NavigatePage;
@@ -124,14 +108,14 @@ page 60487 "POI Wizard"
 
     local procedure Stamp(No: Code[20])
     var
-        Row: Record "POI Row";
+        Row: Record "ALT Shape 26";
     begin
         if not Row.Get(No) then begin
             Row.Init();
             Row."No." := No;
             Row.Insert();
         end;
-        Row.Hits += 1;
+        Row.Qty += 1;
         Row.Modify();
     end;
 

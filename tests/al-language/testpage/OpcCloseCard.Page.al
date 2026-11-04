@@ -6,7 +6,7 @@
 page 60423 "Opc Close Card"
 {
     PageType = Card;
-    SourceTable = "Opc Head";
+    SourceTable = "ALT Shape 27";
     ApplicationArea = All;
     UsageCategory = None;
 

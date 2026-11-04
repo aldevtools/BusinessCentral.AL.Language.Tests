@@ -28,14 +28,14 @@ codeunit 60767 "Test Page Promoted Actionref"
 
     local procedure Initialize()
     var
-        Row: Record "TPR Row";
+        Row: Record "ALT Shape 02";
     begin
         Row.DeleteAll();
     end;
 
     local procedure SeedRows()
     var
-        Row: Record "TPR Row";
+        Row: Record "ALT Shape 02";
     begin
         Row.Init();
         Row."No." := 'A';
@@ -53,7 +53,7 @@ codeunit 60767 "Test Page Promoted Actionref"
     [Test]
     procedure DirectInvokeOfTheTargetRunsItsTrigger()
     var
-        Row: Record "TPR Row";
+        Row: Record "ALT Shape 02";
         TprList: TestPage "TPR List";
     begin
         Initialize();
@@ -72,7 +72,7 @@ codeunit 60767 "Test Page Promoted Actionref"
     [Test]
     procedure PromotedActionrefInvokeRunsItsTargetsTrigger()
     var
-        Row: Record "TPR Row";
+        Row: Record "ALT Shape 02";
         TprList: TestPage "TPR List";
     begin
         Initialize();
@@ -93,7 +93,7 @@ codeunit 60767 "Test Page Promoted Actionref"
     [Test]
     procedure PromotedActionrefRunsItsTargetAgainstThePagesCurrentRow()
     var
-        Row: Record "TPR Row";
+        Row: Record "ALT Shape 02";
         TprList: TestPage "TPR List";
     begin
         Initialize();
@@ -115,7 +115,7 @@ codeunit 60767 "Test Page Promoted Actionref"
     [Test]
     procedure PromotedActionrefInsideAGroupRunsItsTargetsTrigger()
     var
-        Row: Record "TPR Row";
+        Row: Record "ALT Shape 02";
         TprList: TestPage "TPR List";
     begin
         Initialize();
@@ -136,7 +136,7 @@ codeunit 60767 "Test Page Promoted Actionref"
     [Test]
     procedure PromotedActionrefRunsOnlyItsOwnTargetsTrigger()
     var
-        Row: Record "TPR Row";
+        Row: Record "ALT Shape 02";
         TprList: TestPage "TPR List";
     begin
         Initialize();
@@ -174,7 +174,7 @@ codeunit 60767 "Test Page Promoted Actionref"
     [Test]
     procedure PageExtensionPromotedActionrefRunsItsOwnExtensionActionsTrigger()
     var
-        Row: Record "TPR Row";
+        Row: Record "ALT Shape 02";
         TprList: TestPage "TPR List";
     begin
         Initialize();
@@ -194,7 +194,7 @@ codeunit 60767 "Test Page Promoted Actionref"
     [Test]
     procedure PageExtensionPromotedActionrefRunsABasePageActionsTrigger()
     var
-        Row: Record "TPR Row";
+        Row: Record "ALT Shape 02";
         TprList: TestPage "TPR List";
     begin
         Initialize();

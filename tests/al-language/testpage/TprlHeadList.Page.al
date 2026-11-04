@@ -5,7 +5,7 @@
 page 60467 "TPRL Head List"
 {
     PageType = List;
-    SourceTable = "TPRL Head";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
     UsageCategory = Lists;
     Editable = false;

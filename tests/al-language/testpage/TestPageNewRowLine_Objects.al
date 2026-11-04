@@ -9,27 +9,11 @@
 // modal card). That is deliberate: the suite's whole value is the CONTRAST between them,
 // so every other property must be identical or the arms stop being comparable.
 
-table 60737 "Test Page New Row Line Row"
-{
-    DataClassification = CustomerContent;
-
-    fields
-    {
-        field(1; "No."; Code[20]) { }
-        field(2; Descr; Text[50]) { }
-    }
-
-    keys
-    {
-        key(PK; "No.") { Clustered = true; }
-    }
-}
-
 // Editable and insert-allowed, both by AL default. This is the page the new-row line exists on.
 page 60738 "Test Page New Row Line List"
 {
     PageType = List;
-    SourceTable = "Test Page New Row Line Row";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
     UsageCategory = Lists;
 
@@ -50,7 +34,7 @@ page 60738 "Test Page New Row Line List"
 page 60739 "Test Page New Row Line RO"
 {
     PageType = List;
-    SourceTable = "Test Page New Row Line Row";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
     UsageCategory = Lists;
     Editable = false;
@@ -73,7 +57,7 @@ page 60739 "Test Page New Row Line RO"
 page 60740 "Test Page New Row Line NoIns"
 {
     PageType = List;
-    SourceTable = "Test Page New Row Line Row";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
     UsageCategory = Lists;
     InsertAllowed = false;
@@ -94,7 +78,7 @@ page 60740 "Test Page New Row Line NoIns"
 page 60741 "Test Page New Row Line Part"
 {
     PageType = ListPart;
-    SourceTable = "Test Page New Row Line Row";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
 
     layout

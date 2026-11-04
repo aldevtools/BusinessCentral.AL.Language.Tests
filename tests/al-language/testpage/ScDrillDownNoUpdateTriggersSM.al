@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-markedonly-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); table 89010 "LT SC Operation" of ScDrillDownMarkedOnly.al; own pages 89245, 89246, test codeunit 89247
+// Fixtures used: Probe Observer (69160); table 89010 "ALT Shape 07" of ScDrillDownMarkedOnly.al; own pages 89245, 89246, test codeunit 89247
 // Facts: the neighbour ScDrillDownMarkedOnly.al does not cover: a field's OnDrillDown does Rec.ClearMarks(), marks row 10 and Rec.MarkedOnly(true) WITHOUT
 //   CurrPage.Update on a Worksheet page that has row triggers (OnAfterGetRecord and OnAfterGetCurrRecord; only OnAfterGetRecord). After TestField.Drilldown():
 //   the rows First/Next lists, GoToRecord on row 20, and the same after a later Next/Previous move.
@@ -11,7 +11,7 @@
 page 89245 "LT SM SC Ops NoUpd Both"
 {
     PageType = Worksheet;
-    SourceTable = "LT SC Operation";
+    SourceTable = "ALT Shape 07";
     ApplicationArea = All;
     UsageCategory = None;
     InsertAllowed = false;
@@ -40,7 +40,7 @@ page 89245 "LT SM SC Ops NoUpd Both"
             }
             repeater(Lines)
             {
-                field("Operation No."; Rec."Operation No.") { ApplicationArea = All; }
+                field("Operation No."; Rec.Code) { ApplicationArea = All; }
             }
         }
     }
@@ -60,7 +60,7 @@ page 89245 "LT SM SC Ops NoUpd Both"
 page 89246 "LT SM SC Ops NoUpd AGR"
 {
     PageType = Worksheet;
-    SourceTable = "LT SC Operation";
+    SourceTable = "ALT Shape 07";
     ApplicationArea = All;
     UsageCategory = None;
     InsertAllowed = false;
@@ -89,7 +89,7 @@ page 89246 "LT SM SC Ops NoUpd AGR"
             }
             repeater(Lines)
             {
-                field("Operation No."; Rec."Operation No.") { ApplicationArea = All; }
+                field("Operation No."; Rec.Code) { ApplicationArea = All; }
             }
         }
     }
@@ -109,12 +109,12 @@ codeunit 89247 "LT SM SC DrillDown NoUpdate"
 
     local procedure Setup()
     var
-        Operation: Record "LT SC Operation";
+        Operation: Record "ALT Shape 07";
     begin
         Operation.DeleteAll();
-        Operation."Operation No." := '10';
+        Operation.Code := '10';
         Operation.Insert();
-        Operation."Operation No." := '20';
+        Operation.Code := '20';
         Operation.Insert();
     end;
 
@@ -122,7 +122,7 @@ codeunit 89247 "LT SM SC DrillDown NoUpdate"
     procedure BothTriggers_DrilldownWithoutUpdate_ListAndGoTo()
     var
         Observer: Codeunit "Probe Observer";
-        Operation20: Record "LT SC Operation";
+        Operation20: Record "ALT Shape 07";
         Operations: TestPage "LT SM SC Ops NoUpd Both";
         Listed: Text;
     begin
@@ -157,7 +157,7 @@ codeunit 89247 "LT SM SC DrillDown NoUpdate"
     procedure OnAfterGetRecordOnly_DrilldownWithoutUpdate_ListAndGoTo()
     var
         Observer: Codeunit "Probe Observer";
-        Operation20: Record "LT SC Operation";
+        Operation20: Record "ALT Shape 07";
         Operations: TestPage "LT SM SC Ops NoUpd AGR";
         Listed: Text;
     begin

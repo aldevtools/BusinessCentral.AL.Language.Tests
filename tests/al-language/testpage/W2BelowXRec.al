@@ -1,22 +1,6 @@
 // Probe: BelowxRec passed to OnNewRecord and OnInsertRecord of a list when the new row is not added at the end.
 // Settles: md:377 (row added in the middle; the end case is pinned by handlers/TestPageRuntimeContracts.al:208).
 
-table 68722 "W2 Below Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 codeunit 68723 "W2 Below Log"
 {
     SingleInstance = true;
@@ -43,7 +27,7 @@ page 68724 "W2 Below List"
 {
     PageType = List;
     ApplicationArea = All;
-    SourceTable = "W2 Below Row";
+    SourceTable = "ALT Shape 01";
     UsageCategory = None;
 
     layout
@@ -81,7 +65,7 @@ codeunit 68725 "W2 Below Tests"
 
     local procedure Seed()
     var
-        Row: Record "W2 Below Row";
+        Row: Record "ALT Shape 01";
         Log: Codeunit "W2 Below Log";
     begin
         Row.DeleteAll();
@@ -96,7 +80,7 @@ codeunit 68725 "W2 Below Tests"
 
     local procedure Order(): Text
     var
-        Row: Record "W2 Below Row";
+        Row: Record "ALT Shape 01";
         Result: Text;
     begin
         if Row.FindSet() then

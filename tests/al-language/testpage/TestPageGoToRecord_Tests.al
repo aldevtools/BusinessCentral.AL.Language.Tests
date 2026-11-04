@@ -14,14 +14,14 @@ codeunit 60697 "Test Page GoToRecord Tests"
 
     local procedure Initialize()
     var
-        Row: Record "Test Page GoToRecord Row";
+        Row: Record "ALT Shape 02";
     begin
         Row.DeleteAll();
     end;
 
     local procedure SeedRows()
     var
-        Row: Record "Test Page GoToRecord Row";
+        Row: Record "ALT Shape 02";
     begin
         Row.Init();
         Row."No." := 'A';
@@ -45,7 +45,7 @@ codeunit 60697 "Test Page GoToRecord Tests"
     [Test]
     procedure GoToRecord_PositionsPageOnRequestedRow()
     var
-        Row: Record "Test Page GoToRecord Row";
+        Row: Record "ALT Shape 02";
         TgrList: TestPage "Test Page GoToRecord List";
     begin
         Initialize();
@@ -66,7 +66,7 @@ codeunit 60697 "Test Page GoToRecord Tests"
     [Test]
     procedure GoToRecord_MovesBetweenRows()
     var
-        Row: Record "Test Page GoToRecord Row";
+        Row: Record "ALT Shape 02";
         TgrList: TestPage "Test Page GoToRecord List";
     begin
         Initialize();
@@ -90,7 +90,7 @@ codeunit 60697 "Test Page GoToRecord Tests"
     [Test]
     procedure GoToRecord_ReturnsFalseForRowNotOnPage()
     var
-        Row: Record "Test Page GoToRecord Row";
+        Row: Record "ALT Shape 02";
         TgrList: TestPage "Test Page GoToRecord List";
     begin
         Initialize();

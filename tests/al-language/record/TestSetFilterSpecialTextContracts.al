@@ -13,22 +13,6 @@
 //  - an apostrophe, @ and plain text are not quoted: a'b, John@Example.com, axb, @axb.
 // BC versions: 27.5
 
-table 68980 "Probe SetFilter Table"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Mail; Text[50]) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 codeunit 68981 "Probe SetFilter Special Text"
 {
     Subtype = Test;
@@ -39,7 +23,7 @@ codeunit 68981 "Probe SetFilter Special Text"
 
     local procedure Seed()
     var
-        SfRec: Record "Probe SetFilter Table";
+        SfRec: Record "ALT Shape 18";
         Values: List of [Text];
         Value: Text;
         Index: Integer;
@@ -58,18 +42,18 @@ codeunit 68981 "Probe SetFilter Special Text"
         foreach Value in Values do begin
             Index += 1;
             SfRec.Id := Index;
-            SfRec.Mail := CopyStr(Value, 1, MaxStrLen(SfRec.Mail));
+            SfRec.Name := CopyStr(Value, 1, MaxStrLen(SfRec.Name));
             SfRec.Insert();
         end;
     end;
 
     local procedure Matches(Value: Text; ExpectedCount: Integer; ExpectedFilter: Text)
     var
-        SfRec: Record "Probe SetFilter Table";
+        SfRec: Record "ALT Shape 18";
     begin
-        SfRec.SetFilter(Mail, '%1', Value);
+        SfRec.SetFilter(Name, '%1', Value);
         Assert.AreEqual(ExpectedCount, SfRec.Count(), 'count of ' + Value);
-        Assert.AreEqual(ExpectedFilter, SfRec.GetFilter(Mail), 'GetFilter of ' + Value);
+        Assert.AreEqual(ExpectedFilter, SfRec.GetFilter(Name), 'GetFilter of ' + Value);
     end;
 
     [Test]

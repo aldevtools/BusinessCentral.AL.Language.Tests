@@ -15,7 +15,7 @@ codeunit 73664 "LT P131 Hdl Two"
     var
         Calls: Text;
 
-    local procedure Seed(var Rec: Record "LT P131 HRow")
+    local procedure Seed(var Rec: Record "ALT Shape 06")
     begin
         Rec.DeleteAll();
         Rec.Id := 1;
@@ -29,7 +29,7 @@ codeunit 73664 "LT P131 Hdl Two"
     [ModalPageHandler]
     procedure CardHandler(var CardPage: Page "LT P131 Card"; var Response: Action)
     var
-        Rec: Record "LT P131 HRow";
+        Rec: Record "ALT Shape 06";
     begin
         Calls += 'card;';
         CardPage.GetRecord(Rec);
@@ -41,7 +41,7 @@ codeunit 73664 "LT P131 Hdl Two"
     [ModalPageHandler]
     procedure ListHandler(var ListPage: Page "LT P131 List"; var Response: Action)
     var
-        Rec: Record "LT P131 HRow";
+        Rec: Record "ALT Shape 06";
     begin
         Calls += 'list;';
         ListPage.GetRecord(Rec);
@@ -55,7 +55,7 @@ codeunit 73664 "LT P131 Hdl Two"
     procedure P131_TwoModalHandlers_PageParameters()
     var
         Observer: Codeunit "Probe Observer";
-        Rec: Record "LT P131 HRow";
+        Rec: Record "ALT Shape 06";
         Card: Page "LT P131 Card";
         List: Page "LT P131 List";
         A1: Action;
@@ -92,7 +92,7 @@ codeunit 73664 "LT P131 Hdl Two"
     procedure P131_TwoModalHandlers_OpenedInTheOtherOrder_AndByStaticRun()
     var
         Observer: Codeunit "Probe Observer";
-        Rec: Record "LT P131 HRow";
+        Rec: Record "ALT Shape 06";
         A1: Action;
         A2: Action;
     begin

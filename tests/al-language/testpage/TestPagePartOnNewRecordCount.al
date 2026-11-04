@@ -93,7 +93,7 @@ codeunit 60358 "ONRC Tests"
 
     local procedure Initialize()
     var
-        Header: Record "ONRC Header";
+        Header: Record "ALT Shape 02";
         Line: Record "ONRC Line";
         Log: Record "ONRC Log";
     begin
@@ -107,7 +107,7 @@ codeunit 60358 "ONRC Tests"
 
     local procedure AddHeader(No: Code[20]; Descr: Text[50])
     var
-        Header: Record "ONRC Header";
+        Header: Record "ALT Shape 02";
     begin
         Header.Init();
         Header."No." := No;
@@ -130,7 +130,7 @@ codeunit 60358 "ONRC Tests"
 
     local procedure OpenCardOn(HeaderNo: Code[20]; var Card: TestPage "ONRC Card")
     var
-        Header: Record "ONRC Header";
+        Header: Record "ALT Shape 02";
     begin
         Header.Get(HeaderNo);
         Card.OpenEdit();
