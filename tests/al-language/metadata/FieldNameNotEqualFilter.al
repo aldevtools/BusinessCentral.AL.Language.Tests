@@ -6,7 +6,7 @@
 // Facts: the rows of the Field table of an own table (three fields, the system fields and the timestamp row) under a filter on FieldName
 //   that is not an equality: `<>A&<>B&<>C&<>D` with the four audit field names, with and without the Class, Enabled and ObsoleteState
 //   filters of the issue; a single `<>x` with a placeholder and as a literal; `<>timestamp`; `<>''`; `>x`; a range. Each row prints as
-//   `No.:FieldName`, in the order FindSet reads them; whether the timestamp row (No. 0) is among them is the question of the issue.
+//   `No.:FieldName`, in the order FindSet reads them (rows from 2000000005 on, which BC 29 adds, are left out); whether the timestamp row (No. 0) is among them is the question of the issue.
 // BC versions: 27, 28, 29
 
 table 95573 "LT R6 Field Probe"
@@ -37,9 +37,12 @@ codeunit 95574 "LT R6 Field Name Filter"
         if not Fld.FindSet() then
             exit('none');
         repeat
-            if Result <> '' then
-                Result += ' ';
-            Result += Format(Fld."No.") + ':' + Fld.FieldName;
+            // The rows from 2000000005 on (SystemCreatedByUserName and the like) exist from BC 29 on: left out here.
+            if Fld."No." < 2000000005 then begin
+                if Result <> '' then
+                    Result += ' ';
+                Result += Format(Fld."No.") + ':' + Fld.FieldName;
+            end;
         until Fld.Next() = 0;
         exit(Result);
     end;
@@ -60,15 +63,13 @@ codeunit 95574 "LT R6 Field Name Filter"
         Observer.Observe('all rows', Rows(Fld));
         Fld.SetFilter(FieldName, '<>%1&<>%2&<>%3&<>%4', 'SystemCreatedAt', 'SystemModifiedAt', 'SystemCreatedBy', 'SystemModifiedBy');
         Observer.Observe('four audit names', Rows(Fld));
-        Observer.Observe('four audit names count', Format(Fld.Count()));
         Fld.SetRange(Class, Fld.Class::Normal);
         Fld.SetRange(Enabled, true);
         Fld.SetRange(ObsoleteState, Fld.ObsoleteState::No);
         Observer.Observe('four audit names, Class Enabled ObsoleteState', Rows(Fld));
         Observer.Observe('four audit names, Class Enabled ObsoleteState count', Format(Fld.Count()));
-        Observer.Expect('all rows', '1:Code 2:Name 3:Amount 2000000000:$systemId 2000000001:SystemCreatedAt 2000000002:SystemCreatedBy 2000000003:SystemModifiedAt 2000000004:SystemModifiedBy 2000000005:SystemCreatedByUserName 2000000006:SystemCreatedByFullName 2000000007:SystemModifiedByUserName 2000000008:SystemModifiedByFullName');
-        Observer.Expect('four audit names', '1:Code 2:Name 3:Amount 2000000000:$systemId 2000000005:SystemCreatedByUserName 2000000006:SystemCreatedByFullName 2000000007:SystemModifiedByUserName 2000000008:SystemModifiedByFullName');
-        Observer.Expect('four audit names count', '8');
+        Observer.Expect('all rows', '1:Code 2:Name 3:Amount 2000000000:$systemId 2000000001:SystemCreatedAt 2000000002:SystemCreatedBy 2000000003:SystemModifiedAt 2000000004:SystemModifiedBy');
+        Observer.Expect('four audit names', '1:Code 2:Name 3:Amount 2000000000:$systemId');
         Observer.Expect('four audit names, Class Enabled ObsoleteState', '1:Code 2:Name 3:Amount 2000000000:$systemId');
         Observer.Expect('four audit names, Class Enabled ObsoleteState count', '4');
         Observer.Verify();
@@ -91,11 +92,11 @@ codeunit 95574 "LT R6 Field Name Filter"
         Observer.Observe('Code and timestamp', Rows(Fld));
         Fld.SetFilter(FieldName, '<>%1', '');
         Observer.Observe('not blank', Rows(Fld));
-        Observer.Expect('placeholder Name', '1:Code 3:Amount 2000000000:$systemId 2000000001:SystemCreatedAt 2000000002:SystemCreatedBy 2000000003:SystemModifiedAt 2000000004:SystemModifiedBy 2000000005:SystemCreatedByUserName 2000000006:SystemCreatedByFullName 2000000007:SystemModifiedByUserName 2000000008:SystemModifiedByFullName');
-        Observer.Expect('literal Name', '1:Code 3:Amount 2000000000:$systemId 2000000001:SystemCreatedAt 2000000002:SystemCreatedBy 2000000003:SystemModifiedAt 2000000004:SystemModifiedBy 2000000005:SystemCreatedByUserName 2000000006:SystemCreatedByFullName 2000000007:SystemModifiedByUserName 2000000008:SystemModifiedByFullName');
-        Observer.Expect('placeholder timestamp', '1:Code 2:Name 3:Amount 2000000000:$systemId 2000000001:SystemCreatedAt 2000000002:SystemCreatedBy 2000000003:SystemModifiedAt 2000000004:SystemModifiedBy 2000000005:SystemCreatedByUserName 2000000006:SystemCreatedByFullName 2000000007:SystemModifiedByUserName 2000000008:SystemModifiedByFullName');
-        Observer.Expect('Code and timestamp', '2:Name 3:Amount 2000000000:$systemId 2000000001:SystemCreatedAt 2000000002:SystemCreatedBy 2000000003:SystemModifiedAt 2000000004:SystemModifiedBy 2000000005:SystemCreatedByUserName 2000000006:SystemCreatedByFullName 2000000007:SystemModifiedByUserName 2000000008:SystemModifiedByFullName');
-        Observer.Expect('not blank', '1:Code 2:Name 3:Amount 2000000000:$systemId 2000000001:SystemCreatedAt 2000000002:SystemCreatedBy 2000000003:SystemModifiedAt 2000000004:SystemModifiedBy 2000000005:SystemCreatedByUserName 2000000006:SystemCreatedByFullName 2000000007:SystemModifiedByUserName 2000000008:SystemModifiedByFullName');
+        Observer.Expect('placeholder Name', '1:Code 3:Amount 2000000000:$systemId 2000000001:SystemCreatedAt 2000000002:SystemCreatedBy 2000000003:SystemModifiedAt 2000000004:SystemModifiedBy');
+        Observer.Expect('literal Name', '1:Code 3:Amount 2000000000:$systemId 2000000001:SystemCreatedAt 2000000002:SystemCreatedBy 2000000003:SystemModifiedAt 2000000004:SystemModifiedBy');
+        Observer.Expect('placeholder timestamp', '1:Code 2:Name 3:Amount 2000000000:$systemId 2000000001:SystemCreatedAt 2000000002:SystemCreatedBy 2000000003:SystemModifiedAt 2000000004:SystemModifiedBy');
+        Observer.Expect('Code and timestamp', '2:Name 3:Amount 2000000000:$systemId 2000000001:SystemCreatedAt 2000000002:SystemCreatedBy 2000000003:SystemModifiedAt 2000000004:SystemModifiedBy');
+        Observer.Expect('not blank', '1:Code 2:Name 3:Amount 2000000000:$systemId 2000000001:SystemCreatedAt 2000000002:SystemCreatedBy 2000000003:SystemModifiedAt 2000000004:SystemModifiedBy');
         Observer.Verify();
     end;
 
@@ -112,9 +113,9 @@ codeunit 95574 "LT R6 Field Name Filter"
         Observer.Observe('less than Name', Rows(Fld));
         Fld.SetFilter(FieldName, '%1..%2', 'A', 'z');
         Observer.Observe('range A..z', Rows(Fld));
-        Observer.Expect('greater than Name', '2000000001:SystemCreatedAt 2000000002:SystemCreatedBy 2000000003:SystemModifiedAt 2000000004:SystemModifiedBy 2000000005:SystemCreatedByUserName 2000000006:SystemCreatedByFullName 2000000007:SystemModifiedByUserName 2000000008:SystemModifiedByFullName');
+        Observer.Expect('greater than Name', '2000000001:SystemCreatedAt 2000000002:SystemCreatedBy 2000000003:SystemModifiedAt 2000000004:SystemModifiedBy');
         Observer.Expect('less than Name', '1:Code 3:Amount 2000000000:$systemId');
-        Observer.Expect('range A..z', '1:Code 2:Name 3:Amount 2000000001:SystemCreatedAt 2000000002:SystemCreatedBy 2000000003:SystemModifiedAt 2000000004:SystemModifiedBy 2000000005:SystemCreatedByUserName 2000000006:SystemCreatedByFullName 2000000007:SystemModifiedByUserName 2000000008:SystemModifiedByFullName');
+        Observer.Expect('range A..z', '1:Code 2:Name 3:Amount 2000000001:SystemCreatedAt 2000000002:SystemCreatedBy 2000000003:SystemModifiedAt 2000000004:SystemModifiedBy');
         Observer.Verify();
     end;
 }
