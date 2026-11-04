@@ -11,6 +11,8 @@
 //   without padding, <Year4> with four digits (0005, 0999, 2016, 9999), <Year> with two digits for 2016 and four for 5, 999 and 9999. With a
 //   width N of 1 to 6 that number is padded with zeros on the left to N characters, or is N stars when it has more characters than N
 //   (<Year4,2> is **, <Year,3> of 2016 is 016, <Day,1> of 14 is *). Date and DateTime alike; <year4,4> is read as <Year4,4>.
+//   <Year> has two digits for the years 1950 to 2049 and four for the others (1900, 1949, 2050, 2065, 2100), on a Date and a DateTime;
+//   its widths follow the same rule (<Year,4> of 1965 is 0065, <Year,2> of 2050 is **).
 // BC versions: 27.5, 28.5, 29.0
 
 codeunit 95480 "DT Format Date Code Width"
@@ -449,7 +451,31 @@ codeunit 95480 "DT Format Date Code Width"
         ObserveYearWindow(Observer, 1949);
         ObserveYearWindow(Observer, 1950);
         ObserveYearWindow(Observer, 1965);
-        Observer.Finish();
+        Observer.Expect('1900 <Year>', '1900');
+        Observer.Expect('1900 <Year,2>', '**');
+        Observer.Expect('1900 <Year,3>', '***');
+        Observer.Expect('1900 <Year,4>', '1900');
+        Observer.Expect('1900 DT <Year>', '1900');
+        Observer.Expect('1900 DT <Year,2>', '**');
+        Observer.Expect('1949 <Year>', '1949');
+        Observer.Expect('1949 <Year,2>', '**');
+        Observer.Expect('1949 <Year,3>', '***');
+        Observer.Expect('1949 <Year,4>', '1949');
+        Observer.Expect('1949 DT <Year>', '1949');
+        Observer.Expect('1949 DT <Year,2>', '**');
+        Observer.Expect('1950 <Year>', '50');
+        Observer.Expect('1950 <Year,2>', '50');
+        Observer.Expect('1950 <Year,3>', '050');
+        Observer.Expect('1950 <Year,4>', '0050');
+        Observer.Expect('1950 DT <Year>', '50');
+        Observer.Expect('1950 DT <Year,2>', '50');
+        Observer.Expect('1965 <Year>', '65');
+        Observer.Expect('1965 <Year,2>', '65');
+        Observer.Expect('1965 <Year,3>', '065');
+        Observer.Expect('1965 <Year,4>', '0065');
+        Observer.Expect('1965 DT <Year>', '65');
+        Observer.Expect('1965 DT <Year,2>', '65');
+        Observer.Verify();
     end;
 
     [Test]
@@ -461,7 +487,31 @@ codeunit 95480 "DT Format Date Code Width"
         ObserveYearWindow(Observer, 2000);
         ObserveYearWindow(Observer, 2001);
         ObserveYearWindow(Observer, 2032);
-        Observer.Finish();
+        Observer.Expect('1997 <Year>', '97');
+        Observer.Expect('1997 <Year,2>', '97');
+        Observer.Expect('1997 <Year,3>', '097');
+        Observer.Expect('1997 <Year,4>', '0097');
+        Observer.Expect('1997 DT <Year>', '97');
+        Observer.Expect('1997 DT <Year,2>', '97');
+        Observer.Expect('2000 <Year>', '00');
+        Observer.Expect('2000 <Year,2>', '00');
+        Observer.Expect('2000 <Year,3>', '000');
+        Observer.Expect('2000 <Year,4>', '0000');
+        Observer.Expect('2000 DT <Year>', '00');
+        Observer.Expect('2000 DT <Year,2>', '00');
+        Observer.Expect('2001 <Year>', '01');
+        Observer.Expect('2001 <Year,2>', '01');
+        Observer.Expect('2001 <Year,3>', '001');
+        Observer.Expect('2001 <Year,4>', '0001');
+        Observer.Expect('2001 DT <Year>', '01');
+        Observer.Expect('2001 DT <Year,2>', '01');
+        Observer.Expect('2032 <Year>', '32');
+        Observer.Expect('2032 <Year,2>', '32');
+        Observer.Expect('2032 <Year,3>', '032');
+        Observer.Expect('2032 <Year,4>', '0032');
+        Observer.Expect('2032 DT <Year>', '32');
+        Observer.Expect('2032 DT <Year,2>', '32');
+        Observer.Verify();
     end;
 
     [Test]
@@ -473,7 +523,31 @@ codeunit 95480 "DT Format Date Code Width"
         ObserveYearWindow(Observer, 2050);
         ObserveYearWindow(Observer, 2065);
         ObserveYearWindow(Observer, 2100);
-        Observer.Finish();
+        Observer.Expect('2049 <Year>', '49');
+        Observer.Expect('2049 <Year,2>', '49');
+        Observer.Expect('2049 <Year,3>', '049');
+        Observer.Expect('2049 <Year,4>', '0049');
+        Observer.Expect('2049 DT <Year>', '49');
+        Observer.Expect('2049 DT <Year,2>', '49');
+        Observer.Expect('2050 <Year>', '2050');
+        Observer.Expect('2050 <Year,2>', '**');
+        Observer.Expect('2050 <Year,3>', '***');
+        Observer.Expect('2050 <Year,4>', '2050');
+        Observer.Expect('2050 DT <Year>', '2050');
+        Observer.Expect('2050 DT <Year,2>', '**');
+        Observer.Expect('2065 <Year>', '2065');
+        Observer.Expect('2065 <Year,2>', '**');
+        Observer.Expect('2065 <Year,3>', '***');
+        Observer.Expect('2065 <Year,4>', '2065');
+        Observer.Expect('2065 DT <Year>', '2065');
+        Observer.Expect('2065 DT <Year,2>', '**');
+        Observer.Expect('2100 <Year>', '2100');
+        Observer.Expect('2100 <Year,2>', '**');
+        Observer.Expect('2100 <Year,3>', '***');
+        Observer.Expect('2100 <Year,4>', '2100');
+        Observer.Expect('2100 DT <Year>', '2100');
+        Observer.Expect('2100 DT <Year,2>', '**');
+        Observer.Verify();
     end;
 
     [Test]
@@ -482,6 +556,7 @@ codeunit 95480 "DT Format Date Code Width"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('<Month,2>/<Day,2>/<Year>', TryFormat(DMY2Date(1, 1, 1965), '<Month,2>/<Day,2>/<Year>'));
-        Observer.Finish();
+        Observer.Expect('<Month,2>/<Day,2>/<Year>', '01/01/65');
+        Observer.Verify();
     end;
 }

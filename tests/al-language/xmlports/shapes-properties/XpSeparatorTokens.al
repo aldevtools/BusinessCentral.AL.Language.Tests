@@ -12,6 +12,7 @@
 //   the <> around it reads the value. Tokens are case-sensitive: <tab> and <none> are written as these five and six characters. <TAB>, <LF>,
 //   <CR>, <CR/LF> (CR LF), <NewLine> (CR LF), <None> (nothing), ;<TAB> and <TAB><TAB> are written as their characters. Export writes the
 //   UTF-8 byte order mark first and no record separator after the last row.
+//   A line that holds no separator goes to the first field whole; the evaluate error then shows its TAB as a space ("1 Alpha", code Evaluate).
 // BC versions: 27.5, 28.5, 29.0
 
 xmlport 95480 "XP Sep Delim Empty Sep Tab"
@@ -466,7 +467,9 @@ codeunit 95482 "XP Separator Tokens"
         // FieldDelimiter = '<>', FieldSeparator = '<TAB>'
         asserterror ImportRows(95480, '"1"' + Tab + '"Hauptstrasse"' + Cr + Lf);
         Observer.ObserveError('import');
-        Observer.Finish();
+        Observer.Expect('import|text', 'The value ""1"" can''t be evaluated into type Integer.');
+        Observer.Expect('import|code', 'Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -532,7 +535,9 @@ codeunit 95482 "XP Separator Tokens"
         // FieldDelimiter = '<None>', FieldSeparator = '<>'
         asserterror ImportRows(95483, '1Alpha' + Cr + Lf);
         Observer.ObserveError('import');
-        Observer.Finish();
+        Observer.Expect('import|text', 'The value "1Alpha" can''t be evaluated into type Integer.');
+        Observer.Expect('import|code', 'Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -598,7 +603,9 @@ codeunit 95482 "XP Separator Tokens"
         // FieldDelimiter = '<None>', FieldSeparator = '<tab>'
         asserterror ImportRows(95488, '1' + Tab + 'Alpha' + Cr + Lf + '2' + Tab + 'Be ta' + Cr + Lf);
         Observer.ObserveError('import');
-        Observer.Finish();
+        Observer.Expect('import|text', 'The value "1 Alpha" can''t be evaluated into type Integer.');
+        Observer.Expect('import|code', 'Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
