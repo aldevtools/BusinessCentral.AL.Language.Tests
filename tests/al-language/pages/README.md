@@ -13,7 +13,7 @@ The page object: page triggers, parts, controls, actions, CurrPage, Run and RunM
 - `background-tasks/`: page background tasks (2 AL files).
 - `bare-page-methods/`: page methods called without CurrPage (2 AL files).
 - `client-features/`: client-only features seen in a test session (role centers, camera) (1 AL file).
-- `controls/`: page controls and their properties (25 AL files).
+- `controls/`: page controls and their properties (26 AL files).
 - `cue-visible/`: visibility of cues (1 AL file).
 - `currpage/`: CurrPage, Update, SetRecord, SetTableView, SetSelectionFilter (33 AL files).
 - `deleted-rows/`: a page that is open when its rows are deleted (1 AL file).
