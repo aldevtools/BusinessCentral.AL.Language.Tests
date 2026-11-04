@@ -7,6 +7,10 @@
 // variable template, Label template, a Variant holding the record, a #n field of StrSubstNo), side by side with Format of the same
 // record: records with a composite key, a key on the last field, no keys section, two text fields, Option, Date and Enum fields,
 // each filled and empty; a temporary record and a filtered record.
+// Measured on BC 29.0: in every form the record is written exactly as Format(Rec) writes it (a RecordRef too; a FieldRef as
+// the field's Format): the primary key fields first, in key order, then the other fields in field number order, joined by a
+// TAB (a key on the last field: `7<TAB>Last<TAB>3`); a table with no keys section has its first field as key; a temporary and
+// a filtered record format the same; in a #n field of StrSubstNo a text longer than the field gives stars. Error code Dialog.
 // BC versions: 27.5, 28.5, 29.0 (corpus CI)
 
 table 95200 "FMT RecArg Line"
@@ -179,7 +183,17 @@ codeunit 95204 "FMT Record Subst Arg"
     begin
         FillLine(Line);
         ObserveLine(Observer, 'filled', Line);
-        Observer.Finish();
+        Observer.Expect('filled format', '[INV1\t10\tGear\t12.5\tYes]');
+        Observer.Expect('filled strsubstno', '[INV1\t10\tGear\t12.5\tYes]');
+        Observer.Expect('filled strsubstno label', 'Line INV1\t10\tGear\t12.5\tYes is wrong');
+        Observer.Expect('filled message', '[INV1\t10\tGear\t12.5\tYes]');
+        Observer.Expect('filled error|text', '[INV1\t10\tGear\t12.5\tYes]');
+        Observer.Expect('filled error|code', 'Dialog');
+        Observer.Expect('filled error text template|text', '[INV1\t10\tGear\t12.5\tYes]');
+        Observer.Expect('filled error text template|code', 'Dialog');
+        Observer.Expect('filled message text template', '[INV1\t10\tGear\t12.5\tYes]');
+        Observer.Expect('filled strsubstno variant', '[INV1\t10\tGear\t12.5\tYes]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -190,7 +204,17 @@ codeunit 95204 "FMT Record Subst Arg"
         Line: Record "FMT RecArg Line";
     begin
         ObserveLine(Observer, 'empty', Line);
-        Observer.Finish();
+        Observer.Expect('empty format', '[\t0\t\t0\tNo]');
+        Observer.Expect('empty strsubstno', '[\t0\t\t0\tNo]');
+        Observer.Expect('empty strsubstno label', 'Line \t0\t\t0\tNo is wrong');
+        Observer.Expect('empty message', '[\t0\t\t0\tNo]');
+        Observer.Expect('empty error|text', '[\t0\t\t0\tNo]');
+        Observer.Expect('empty error|code', 'Dialog');
+        Observer.Expect('empty error text template|text', '[\t0\t\t0\tNo]');
+        Observer.Expect('empty error text template|code', 'Dialog');
+        Observer.Expect('empty message text template', '[\t0\t\t0\tNo]');
+        Observer.Expect('empty strsubstno variant', '[\t0\t\t0\tNo]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -204,7 +228,17 @@ codeunit 95204 "FMT Record Subst Arg"
         Other.Code := 'C1';
         Other.Name := 'Name one';
         ObserveOther(Observer, 'filled', Other);
-        Observer.Finish();
+        Observer.Expect('empty format', '[\t]');
+        Observer.Expect('empty strsubstno', '[\t]');
+        Observer.Expect('empty message', '[\t]');
+        Observer.Expect('empty error|text', '[\t]');
+        Observer.Expect('empty error|code', 'Dialog');
+        Observer.Expect('filled format', '[C1\tName one]');
+        Observer.Expect('filled strsubstno', '[C1\tName one]');
+        Observer.Expect('filled message', '[C1\tName one]');
+        Observer.Expect('filled error|text', '[C1\tName one]');
+        Observer.Expect('filled error|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -219,7 +253,17 @@ codeunit 95204 "FMT Record Subst Arg"
         Rec.Qty := 3;
         Rec.Id := 7;
         ObserveKeyLast(Observer, 'filled', Rec);
-        Observer.Finish();
+        Observer.Expect('empty format', '[0\t\t0]');
+        Observer.Expect('empty strsubstno', '[0\t\t0]');
+        Observer.Expect('empty message', '[0\t\t0]');
+        Observer.Expect('empty error|text', '[0\t\t0]');
+        Observer.Expect('empty error|code', 'Dialog');
+        Observer.Expect('filled format', '[7\tLast\t3]');
+        Observer.Expect('filled strsubstno', '[7\tLast\t3]');
+        Observer.Expect('filled message', '[7\tLast\t3]');
+        Observer.Expect('filled error|text', '[7\tLast\t3]');
+        Observer.Expect('filled error|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -233,7 +277,17 @@ codeunit 95204 "FMT Record Subst Arg"
         Rec.Txt := 'Free';
         Rec.Num := -4;
         ObserveNoKey(Observer, 'filled', Rec);
-        Observer.Finish();
+        Observer.Expect('empty format', '[\t0]');
+        Observer.Expect('empty strsubstno', '[\t0]');
+        Observer.Expect('empty message', '[\t0]');
+        Observer.Expect('empty error|text', '[\t0]');
+        Observer.Expect('empty error|code', 'Dialog');
+        Observer.Expect('filled format', '[Free\t-4]');
+        Observer.Expect('filled strsubstno', '[Free\t-4]');
+        Observer.Expect('filled message', '[Free\t-4]');
+        Observer.Expect('filled error|text', '[Free\t-4]');
+        Observer.Expect('filled error|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -250,7 +304,17 @@ codeunit 95204 "FMT Record Subst Arg"
         Rec.Status := "ALT Status"::Active;
         Rec.Big := 1234567890123L;
         ObserveKinds(Observer, 'filled', Rec);
-        Observer.Finish();
+        Observer.Expect('empty format', '[0\t \t\t \t0]');
+        Observer.Expect('empty strsubstno', '[0\t \t\t \t0]');
+        Observer.Expect('empty message', '[0\t \t\t \t0]');
+        Observer.Expect('empty error|text', '[0\t \t\t \t0]');
+        Observer.Expect('empty error|code', 'Dialog');
+        Observer.Expect('filled format', '[1\tBeta cap\t03/15/26\tActive\t1234567890123]');
+        Observer.Expect('filled strsubstno', '[1\tBeta cap\t03/15/26\tActive\t1234567890123]');
+        Observer.Expect('filled message', '[1\tBeta cap\t03/15/26\tActive\t1234567890123]');
+        Observer.Expect('filled error|text', '[1\tBeta cap\t03/15/26\tActive\t1234567890123]');
+        Observer.Expect('filled error|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -276,7 +340,16 @@ codeunit 95204 "FMT Record Subst Arg"
         Observer.Observe('fieldref strsubstno', StrSubstNo('[%1]', FldRef));
         asserterror Error('[%1]', FldRef);
         Observer.ObserveError('fieldref error');
-        Observer.Finish();
+        Observer.Expect('recref format', '[INV1\t10\tGear\t12.5\tYes]');
+        Observer.Expect('recref strsubstno', '[INV1\t10\tGear\t12.5\tYes]');
+        Observer.Expect('recref message', '[INV1\t10\tGear\t12.5\tYes]');
+        Observer.Expect('recref error|text', '[INV1\t10\tGear\t12.5\tYes]');
+        Observer.Expect('recref error|code', 'Dialog');
+        Observer.Expect('fieldref format', '[Gear]');
+        Observer.Expect('fieldref strsubstno', '[Gear]');
+        Observer.Expect('fieldref error|text', '[Gear]');
+        Observer.Expect('fieldref error|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -298,7 +371,14 @@ codeunit 95204 "FMT Record Subst Arg"
         Observer.Observe('message second', MessageText);
         asserterror Error('%1 and %2', Other, Line);
         Observer.ObserveError('error two records');
-        Observer.Finish();
+        Observer.Expect('two records', 'INV1\t10\tGear\t12.5\tYes|C1\t');
+        Observer.Expect('record and number', '5 / INV1\t10\tGear\t12.5\tYes');
+        Observer.Expect('hash field long', '[************]');
+        Observer.Expect('hash field short', '[C1\t         ]');
+        Observer.Expect('message second', 'C1\t then INV1\t10\tGear\t12.5\tYes');
+        Observer.Expect('error two records|text', 'C1\t and INV1\t10\tGear\t12.5\tYes');
+        Observer.Expect('error two records|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -321,6 +401,11 @@ codeunit 95204 "FMT Record Subst Arg"
         Line.FindFirst();
         Observer.Observe('filtered format', '[' + Format(Line) + ']');
         Observer.Observe('filtered strsubstno', StrSubstNo('[%1]', Line));
-        Observer.Finish();
+        Observer.Expect('temporary strsubstno', '[INV1\t10\tGear\t12.5\tYes]');
+        Observer.Expect('temporary error|text', '[INV1\t10\tGear\t12.5\tYes]');
+        Observer.Expect('temporary error|code', 'Dialog');
+        Observer.Expect('filtered format', '[INV1\t10\tGear\t12.5\tYes]');
+        Observer.Expect('filtered strsubstno', '[INV1\t10\tGear\t12.5\tYes]');
+        Observer.Verify();
     end;
 }

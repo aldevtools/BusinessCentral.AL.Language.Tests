@@ -123,7 +123,7 @@ codeunit 95183 "TP NoSource GlobalRec SetValue"
                     Card.ctlDec.SetValue('12.5');
                     Card.ctlFlag.SetValue('Yes');
                     Card.ctlDt.SetValue(DMY2Date(15, 3, 2026));
-                    Card.ctlOpt.SetValue('Beta cap');
+                    Card.ctlOpt.SetValue('Beta');
                     Card.ctlBig.SetValue('1234567890123');
                     Card.ctlTm.SetValue(103000T);
                     Card.ctlVal.SetValue('v1');
@@ -189,7 +189,7 @@ codeunit 95183 "TP NoSource GlobalRec SetValue"
         Observer.Observe('flag', Card.ctlFlag.Value());
         Card.ctlDt.SetValue('03/15/2026');
         Observer.Observe('dt', Card.ctlDt.Value());
-        Card.ctlOpt.SetValue('Alpha cap');
+        Card.ctlOpt.SetValue('Alpha');
         Observer.Observe('opt', Card.ctlOpt.Value());
         Card.ctlBig.SetValue('1234567890123');
         Observer.Observe('big', Card.ctlBig.Value());
@@ -268,6 +268,11 @@ codeunit 95183 "TP NoSource GlobalRec SetValue"
             Error('no error');
         end;
         Observer.ObserveError('opt gamma');
+        asserterror begin
+            Card.ctlOpt.SetValue('Alpha cap');
+            Error('no error');
+        end;
+        Observer.ObserveError('opt caption');
         Card.Close();
         Observer.Finish();
     end;

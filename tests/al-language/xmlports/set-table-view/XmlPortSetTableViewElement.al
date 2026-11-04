@@ -6,6 +6,10 @@
 // Facts: XmlPort.SetTableView with a record whose table is not the table of the first table element: the record of a later
 // sibling element (the first element is a temporary table of another table), of a nested child element, of a table no element
 // uses, and on a port whose two table elements use the same table; which element the view filters in the export.
+// Measured on BC 29.0: the view goes to the first table element (in schema order, nested ones included) whose table is the
+// record's table, and filters that element only (a second element of the same table exports all rows; a nested child keeps its
+// link and gets the filter too); a record of a table no element uses raises XmlPortNodeNotFound: "The <port> XmlPort does not
+// have a XmlItem that uses the table (Table <id> <name>) specified in the function SetTableView."
 // BC versions: 27.5, 28.5, 29.0 (corpus CI)
 
 xmlport 95190 "XP STV Siblings"
@@ -137,7 +141,8 @@ codeunit 95193 "XP SetTableView Element"
         Port.SetDestination(OutStr);
         Port.Export();
         Observer.Observe('export', ReadAll(TempBlob));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <receivers>|    <Id>0</Id>|  </receivers>|  <transport>|    <Code>T1</Code>|    <Name>S1</Name>|  </transport>|</Root>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -156,7 +161,8 @@ codeunit 95193 "XP SetTableView Element"
         Port.SetDestination(OutStr);
         Port.Export();
         Observer.Observe('export', ReadAll(TempBlob));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <receivers>|    <Id>0</Id>|  </receivers>|  <transport>|    <Code>T2</Code>|    <Name>S2</Name>|  </transport>|</Root>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -172,7 +178,8 @@ codeunit 95193 "XP SetTableView Element"
         Port.SetDestination(OutStr);
         Port.Export();
         Observer.Observe('export', ReadAll(TempBlob));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <receivers>|    <Id>0</Id>|  </receivers>|  <transport>|    <Code>T1</Code>|    <Name>S1</Name>|  </transport>|  <transport>|    <Code>T2</Code>|    <Name>S2</Name>|  </transport>|</Root>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -191,7 +198,8 @@ codeunit 95193 "XP SetTableView Element"
         Port.SetDestination(OutStr);
         Port.Export();
         Observer.Observe('export', ReadAll(TempBlob));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <header Code="T1">|    <line Id="1" />|  </header>|  <header Code="T2">|    <line Id="2" />|  </header>|</Root>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -210,7 +218,8 @@ codeunit 95193 "XP SetTableView Element"
         Port.SetDestination(OutStr);
         Port.Export();
         Observer.Observe('export', ReadAll(TempBlob));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <header Code="T2">|    <line Id="2" />|  </header>|</Root>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -230,7 +239,9 @@ codeunit 95193 "XP SetTableView Element"
             Error('no error');
         end;
         Observer.ObserveError('settableview');
-        Observer.Finish();
+        Observer.Expect('settableview|text', 'The XP STV Siblings XmlPort does not have a XmlItem that uses the table (Table 50000 ALT Shape 00) specified in the function SetTableView.');
+        Observer.Expect('settableview|code', 'XmlPortNodeNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -249,6 +260,7 @@ codeunit 95193 "XP SetTableView Element"
         Port.SetDestination(OutStr);
         Port.Export();
         Observer.Observe('export', ReadAll(TempBlob));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <First Code="T2" />|  <Second Code="T1" />|  <Second Code="T2" />|</Root>|');
+        Observer.Verify();
     end;
 }

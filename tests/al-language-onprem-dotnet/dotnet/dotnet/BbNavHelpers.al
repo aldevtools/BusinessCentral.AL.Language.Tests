@@ -205,6 +205,27 @@ codeunit 99221 "LT BB Nav Helpers"
         ObserveTenantSettingShape('DisplayName');
         ObserveTenantSettingShape('');
         Observer.Observe('DatabaseServer spellings equal', Format((TenantSettingValue('DatabaseServer') = TenantSettingValue('DATABASESERVER')) and (TenantSettingValue('DatabaseServer') = TenantSettingValue('databaseserver'))));
-        Observer.Finish();
+        Observer.Expect('shape DatabaseServer', 'No|empty');
+        Observer.Expect('shape DATABASESERVER', 'No|empty');
+        Observer.Expect('shape databaseserver', 'No|empty');
+        Observer.Expect('shape DatabaseName', 'No|empty');
+        Observer.Expect('shape DatabaseInstance', 'No|empty');
+        Observer.Expect('shape DefaultCompany', 'No|empty');
+        Observer.Expect('shape DefaultTimeZone', 'No|empty');
+        Observer.Expect('shape AlternateId', 'No|empty');
+        Observer.Expect('shape AllowAppDatabaseWrite', 'No|empty');
+        Observer.Expect('shape NasServicesEnabled', 'No|empty');
+        Observer.Expect('shape EnvironmentName', 'No|empty');
+        Observer.Expect('shape EnvironmentType', 'No|empty');
+        Observer.Expect('shape ApplicationFamily', 'No|empty');
+        Observer.Expect('shape ApplicationVersion', 'No|empty');
+        Observer.Expect('shape TenantType', 'No|empty');
+        Observer.Expect('shape State', 'No|empty');
+        Observer.Expect('shape AadTenantId', 'Yes|non-empty');
+        Observer.Expect('shape TenantId', 'Yes|non-empty');
+        Observer.Expect('shape DisplayName', 'Yes|empty');
+        Observer.Expect('shape ', 'No|empty');
+        Observer.Expect('DatabaseServer spellings equal', 'Yes');
+        Observer.Verify();
     end;
 }
