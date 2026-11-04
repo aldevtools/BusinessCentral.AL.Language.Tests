@@ -35,3 +35,5 @@ These files assert line numbers or call stacks. Only append at the end of the co
 3. Use the shared fixtures. A local object needs a `// local object: <reason>` line.
 4. Name the folder after the topic, never after a writer, an issue or a batch.
 5. Never renumber a codeunit or rename a test. Read the standing rules in `CONTRIBUTING.md` first.
+
+- `excel-buffer-roundtrip/`: neutral public-API and page contracts reproduced from AL Runner reports.
