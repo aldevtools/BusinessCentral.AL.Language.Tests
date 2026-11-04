@@ -9,6 +9,11 @@
 //   the value names; next to them the same kinds of field of Rec in the repeater. The Value text of each control with one row, with two rows
 //   after Next, and with no row in the list.
 //   Neighbours: pages/controls/SaOtherRecordControl.al (the same controls on a Worksheet whose record variable is read from the table).
+// Result (CI legs 27.5, 28.5 and 29.0, Linux): the Option control of the other record shows the member name (`Short`) on 27.5 and 28.5
+//   (BC29PLUS guards) and the OptionCaption (`Short Lines`) on 29.0; the reporter's Windows BC 28.5 OnPrem run shows `Short` too, so
+//   28.5 is confirmed on Windows; 27.5 is measured on Linux only. The Enum control shows the value caption and the Option field without
+//   OptionCaption the member name on every version. With no row in the list every control reads blank: the controls of the other
+//   record in the group and in the repeater (whatever the record holds) and those of Rec.
 // BC versions: 27, 28, 29
 
 table 95425 "PAG OtherRecOpt Setup"
@@ -146,7 +151,22 @@ codeunit 95439 "PAG OtherRecOpt Tests"
         P.OpenView();
         Shows(P, 'one');
         P.Close();
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('one var opt', '[Short Lines]');
+#else
+        Observer.Expect('one var opt', '[Short]');
+#endif
+        Observer.Expect('one var plain', '[B]');
+        Observer.Expect('one var kind', '[Second Kind]');
+        Observer.Expect('one rec opt', '[Covered Lines]');
+        Observer.Expect('one rec kind', '[First Kind]');
+#if BC29PLUS
+        Observer.Expect('one row var opt', '[Short Lines]');
+#else
+        Observer.Expect('one row var opt', '[Short]');
+#endif
+        Observer.Expect('one row var kind', '[Second Kind]');
+        Observer.Verify();
     end;
 
     // No row in the list.
@@ -159,7 +179,14 @@ codeunit 95439 "PAG OtherRecOpt Tests"
         P.OpenView();
         Shows(P, 'none');
         P.Close();
-        Observer.Finish();
+        Observer.Expect('none var opt', '[]');
+        Observer.Expect('none var plain', '[]');
+        Observer.Expect('none var kind', '[]');
+        Observer.Expect('none rec opt', '[]');
+        Observer.Expect('none rec kind', '[]');
+        Observer.Expect('none row var opt', '[]');
+        Observer.Expect('none row var kind', '[]');
+        Observer.Verify();
     end;
 
     // Two rows, after Next; the page opened for edit.
@@ -173,6 +200,21 @@ codeunit 95439 "PAG OtherRecOpt Tests"
         P.Next();
         Shows(P, 'next');
         P.Close();
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('next var opt', '[Short Lines]');
+#else
+        Observer.Expect('next var opt', '[Short]');
+#endif
+        Observer.Expect('next var plain', '[B]');
+        Observer.Expect('next var kind', '[Second Kind]');
+        Observer.Expect('next rec opt', '[Covered Lines]');
+        Observer.Expect('next rec kind', '[First Kind]');
+#if BC29PLUS
+        Observer.Expect('next row var opt', '[Short Lines]');
+#else
+        Observer.Expect('next row var opt', '[Short]');
+#endif
+        Observer.Expect('next row var kind', '[Second Kind]');
+        Observer.Verify();
     end;
 }
