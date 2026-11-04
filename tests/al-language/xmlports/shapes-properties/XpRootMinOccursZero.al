@@ -14,6 +14,9 @@
 //   starts at a child element or two roots fail as for a root with the default occurs (texts and codes below). Below the root, MinOccurs = Once
 //   on a leaf text element or a field element makes import fail the schema when the element is missing; MinOccurs = Zero lets it be missing.
 //   Export writes an empty element for a blank value either way; a table element with the default occurs and no rows is written once, blank.
+//   MaxOccurs = Unbounded on a field element: export writes the element once per row (as without it); import takes it absent (MinOccurs =
+//   Zero), once or several times, OnAfterAssignField runs for each and the last value stays. On a leaf text element the same: export writes it
+//   once, import runs OnAfterAssignVariable for each. Elements out of schema order fail the schema check (texts below).
 //   95494 "XP Root Min Zero Issue": the port of the issue: root Cfg (MaxOccurs = Once, MinOccurs = Zero) > Namespaces (the same) > table
 //     element Item (MinOccurs = Zero) > field elements Code and Url (MinOccurs = Zero).
 //   95495 "XP Root Min Zero Table": root Cfg (MinOccurs = Zero) > table element Item with the default occurs > two field elements.
@@ -719,7 +722,8 @@ codeunit 95483 "XP Root Min Zero"
         Filled.SetDestination(OutS);
         Filled.Export();
         Observer.Observe('two rows, the second with a blank Url', ReadLines(TempBlob));
-        Observer.Finish();
+        Observer.Expect('two rows, the second with a blank Url', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Cfg>|  <Item>|    <Code>A</Code>|    <Url>urn:a</Url>|  </Item>|  <Item>|    <Code>B</Code>|    <Url />|  </Item>|</Cfg>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -731,7 +735,11 @@ codeunit 95483 "XP Root Min Zero"
         Import(Observer, 'url twice', 95498, XmlDecl() + '<Cfg><Item><Code>A</Code><Url>u1</Url><Url>u2</Url></Item></Cfg>');
         Import(Observer, 'url three times', 95498, XmlDecl() + '<Cfg><Item><Code>A</Code><Url>u1</Url><Url>u2</Url><Url>u3</Url></Item></Cfg>');
         Import(Observer, 'no url', 95498, XmlDecl() + '<Cfg><Item><Code>A</Code></Item></Cfg>');
-        Observer.Finish();
+        Observer.Expect('url once', 'ok A=[u1]; log=url u1;insert A;');
+        Observer.Expect('url twice', 'ok A=[u2]; log=url u1;url u2;insert A;');
+        Observer.Expect('url three times', 'ok A=[u3]; log=url u1;url u2;url u3;insert A;');
+        Observer.Expect('no url', 'ok A=[]; log=insert A;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -742,7 +750,13 @@ codeunit 95483 "XP Root Min Zero"
         Import(Observer, 'code twice', 95498, XmlDecl() + '<Cfg><Item><Code>A</Code><Code>B</Code></Item></Cfg>');
         Import(Observer, 'no code', 95498, XmlDecl() + '<Cfg><Item><Url>u1</Url></Item></Cfg>');
         Import(Observer, 'url before code', 95498, XmlDecl() + '<Cfg><Item><Url>u1</Url><Code>A</Code></Item></Cfg>');
-        Observer.Finish();
+        Observer.Expect('code twice|text', 'Imported XML cannot validate with the schema: The element ''Item'' has invalid child element ''Code''. List of possible elements expected: ''Url''.');
+        Observer.Expect('code twice|code', 'XmlPortInvalidXml');
+        Observer.Expect('no code|text', 'Imported XML cannot validate with the schema: The element ''Item'' has invalid child element ''Url''. List of possible elements expected: ''Code''.');
+        Observer.Expect('no code|code', 'XmlPortInvalidXml');
+        Observer.Expect('url before code|text', 'Imported XML cannot validate with the schema: The element ''Item'' has invalid child element ''Url''. List of possible elements expected: ''Code''.');
+        Observer.Expect('url before code|code', 'XmlPortInvalidXml');
+        Observer.Verify();
     end;
 
     [Test]
@@ -764,7 +778,9 @@ codeunit 95483 "XP Root Min Zero"
         Filled.SetDestination(OutS);
         Filled.Export();
         Observer.Observe('one row', ReadLines(TempBlob));
-        Observer.Finish();
+        Observer.Expect('no rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Cfg>|  <Note>N</Note>|</Cfg>|');
+        Observer.Expect('one row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Cfg>|  <Note>N</Note>|  <Item>|    <Code>A</Code>|    <Url>urn:a</Url>|  </Item>|</Cfg>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -776,6 +792,11 @@ codeunit 95483 "XP Root Min Zero"
         Import(Observer, 'note once', 95499, XmlDecl() + '<Cfg><Note>n1</Note><Item><Code>A</Code></Item></Cfg>');
         Import(Observer, 'note twice', 95499, XmlDecl() + '<Cfg><Note>n1</Note><Note>n2</Note><Item><Code>A</Code><Url>u1</Url><Url>u2</Url></Item></Cfg>');
         Import(Observer, 'note after item', 95499, XmlDecl() + '<Cfg><Item><Code>A</Code></Item><Note>n1</Note></Cfg>');
-        Observer.Finish();
+        Observer.Expect('no note', 'ok A=[]; log=insert A;');
+        Observer.Expect('note once', 'ok A=[]; log=note n1;insert A;');
+        Observer.Expect('note twice', 'ok A=[u2]; log=note n1;note n2;insert A;');
+        Observer.Expect('note after item|text', 'Imported XML cannot validate with the schema: The element ''Cfg'' has invalid child element ''Note''. List of possible elements expected: ''Item''.');
+        Observer.Expect('note after item|code', 'XmlPortInvalidXml');
+        Observer.Verify();
     end;
 }
