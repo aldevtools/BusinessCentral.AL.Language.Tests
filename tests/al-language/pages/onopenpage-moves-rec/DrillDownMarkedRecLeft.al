@@ -12,6 +12,13 @@
 //   Rows: Id 1 A, 2 B late, 3 C late, 4 D (the order is the same in both keys).
 //   Log: d<Id> / u<Id> = the drilldown before / after its CurrPage.Update, R<Id> = OnAfterGetRecord, C<Id> = OnAfterGetCurrRecord.
 //   A step observes <answer>[<Id shown>]:<log>.
+// Result (27.5, 28.5, 29.0 alike): the drilldown itself reads nothing; the next call refills the list from the row Rec was left on.
+//   With Rec left on the unmarked row 4 the client settles on the nearest marked row before it (row 3): in the key ByName it first
+//   reads row 4 once more, then row 3, the rows above it (row 2) and row 3 three times with OnAfterGetCurrRecord; in the primary key
+//   row 3, row 2, then row 3 twice with OnAfterGetCurrRecord (as when Rec is left on row 3 itself). GoToRecord answers true for that
+//   row only; for any other row (marked row 2 included) it walks the marked rows from the first and answers false on row 3.
+//   First after the drilldown lands on row 3, Next answers false. With MarkedOnly off the refill reads every row and GoToRecord of
+//   row 3 answers false.
 // BC versions: 27, 28, 29
 
 table 95433 "PAG DdMark Op"
@@ -411,7 +418,12 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         Observer.Observe('part', P.Details.Id.Value());
         GoTo(P, 4);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u4');
+        Observer.Expect('goto 3', 'Yes[3]:R4;R3;R2;R3;R3;R3;C3');
+        Observer.Expect('part', '3');
+        Observer.Expect('goto 4', 'No[3]:R2;R2;R2;C2;R3;R3;R3;C3');
+        Observer.Verify();
     end;
 
     // the key ByName: Rec left on row 4 (unmarked); GoToRecord of 2, the first marked row.
@@ -428,7 +440,11 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         GoTo(P, 2);
         GoTo(P, 3);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u4');
+        Observer.Expect('goto 2', 'No[3]:R4;R3;R2;R3;R3;R3;C3;R2;R2;R2;C2;R3;R3;R3;C3');
+        Observer.Expect('goto 3', 'Yes[3]:R2;R2;R2;C2;R3;R3;R3;C3');
+        Observer.Verify();
     end;
 
     // the key ByName: Rec left on row 4 (unmarked); GoToRecord of 4 first, then of 1.
@@ -445,7 +461,11 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         GoTo(P, 4);
         GoTo(P, 1);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u4');
+        Observer.Expect('goto 4', 'No[3]:R4;R3;R2;R3;R3;R3;C3;R2;R2;R2;C2;R3;R3;R3;C3');
+        Observer.Expect('goto 1', 'No[3]:R2;R2;R2;C2;R3;R3;R3;C3');
+        Observer.Verify();
     end;
 
     // the key ByName: Rec left on row 4 (unmarked); First, Next, Next.
@@ -461,7 +481,12 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         Observer.Observe('drilldown', Shows(P));
         Walk(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u4');
+        Observer.Expect('first', 'Yes[3]:R4;R3;R2;R3;R3;R3;C3');
+        Observer.Expect('next', 'No[3]:');
+        Observer.Expect('next 2', 'No[3]:');
+        Observer.Verify();
     end;
 
     // the key ByName: Rec left on row 3 (the last marked row); GoToRecord of 2, then of 4.
@@ -478,7 +503,11 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         GoTo(P, 2);
         GoTo(P, 4);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u3');
+        Observer.Expect('goto 2', 'No[3]:R3;R3;R2;R3;R3;R3;C3;R2;R2;R2;C2;R3;R3;R3;C3');
+        Observer.Expect('goto 4', 'No[3]:R2;R2;R2;C2;R3;R3;R3;C3');
+        Observer.Verify();
     end;
 
     // the key ByName: Rec left on row 3 (the last marked row); First, Next, Next.
@@ -494,7 +523,12 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         Observer.Observe('drilldown', Shows(P));
         Walk(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u3');
+        Observer.Expect('first', 'Yes[3]:R3;R3;R2;R3;R3;R3;C3');
+        Observer.Expect('next', 'No[3]:');
+        Observer.Expect('next 2', 'No[3]:');
+        Observer.Verify();
     end;
 
     // the key ByName: Rec left on row 2 (the first marked row, row 3 marked after it); GoToRecord of 2, 3, then 4.
@@ -512,7 +546,12 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         GoTo(P, 3);
         GoTo(P, 4);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u2');
+        Observer.Expect('goto 2', 'Yes[2]:R2;R2;R3;R2;R2;R2;C2');
+        Observer.Expect('goto 3', 'Yes[3]:R3;R3;R3;C3');
+        Observer.Expect('goto 4', 'No[3]:R2;R2;R2;C2;R3;R3;R3;C3');
+        Observer.Verify();
     end;
 
     // the key ByName: Rec left on row 2 (the first marked row); First, Next, Next.
@@ -528,7 +567,12 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         Observer.Observe('drilldown', Shows(P));
         Walk(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u2');
+        Observer.Expect('first', 'Yes[2]:R2;R2;R3;R2;R2;R2;C2');
+        Observer.Expect('next', 'Yes[3]:R3;R3;R3;C3');
+        Observer.Expect('next 2', 'No[3]:');
+        Observer.Verify();
     end;
 
     // the key ByName: the drilldown marks rows 2 and 3 but leaves MarkedOnly off, Rec on row 4; GoToRecord of 3, then of 1.
@@ -545,7 +589,11 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         GoTo(P, 3);
         GoTo(P, 1);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u4');
+        Observer.Expect('goto 3', 'No[1]:R4;R4;R3;R2;R1;R4;R4;R4;C4;R1;R1;R1;C1');
+        Observer.Expect('goto 1', 'Yes[1]:');
+        Observer.Verify();
     end;
 
     // the key ByName: marks without MarkedOnly, Rec on row 4; First, Next, Next.
@@ -561,7 +609,12 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         Observer.Observe('drilldown', Shows(P));
         Walk(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u4');
+        Observer.Expect('first', 'Yes[4]:R4;R4;R3;R2;R1;R4;R4;R4;C4');
+        Observer.Expect('next', 'No[4]:');
+        Observer.Expect('next 2', 'No[4]:');
+        Observer.Verify();
     end;
 
     // the key ByName: Rec left on row 4 with MarkedOnly on, then a second drilldown turns MarkedOnly off; GoToRecord of 4, then of 1.
@@ -580,7 +633,12 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         GoTo(P, 4);
         GoTo(P, 1);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u4');
+        Observer.Expect('show all', '[3]:R4;R3;R2;R3;R3;R3;C3;d3;u3');
+        Observer.Expect('goto 4', 'Yes[4]:R2;R2;R2;C2;R2;R2;R3;R4;R2;R1;R2;R2;R2;C2;R3;R3;R3;C3;R4;R4;R4;C4');
+        Observer.Expect('goto 1', 'Yes[1]:R1;R1;R1;C1');
+        Observer.Verify();
     end;
 
     // the primary key: the reporter's shape, Rec left on row 4 (unmarked); GoToRecord of 3, then of 4.
@@ -598,7 +656,12 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         Observer.Observe('part', P.Details.Id.Value());
         GoTo(P, 4);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u4');
+        Observer.Expect('goto 3', 'Yes[3]:R3;R2;R3;R3;C3');
+        Observer.Expect('part', '3');
+        Observer.Expect('goto 4', 'No[3]:R2;R2;C2;R3;R3;C3');
+        Observer.Verify();
     end;
 
     // the primary key: Rec left on row 4 (unmarked); GoToRecord of 2, the first marked row.
@@ -615,7 +678,11 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         GoTo(P, 2);
         GoTo(P, 3);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u4');
+        Observer.Expect('goto 2', 'No[3]:R3;R2;R3;R3;C3;R2;R2;C2;R3;R3;C3');
+        Observer.Expect('goto 3', 'Yes[3]:R2;R2;C2;R3;R3;C3');
+        Observer.Verify();
     end;
 
     // the primary key: Rec left on row 4 (unmarked); GoToRecord of 4 first, then of 1.
@@ -632,7 +699,11 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         GoTo(P, 4);
         GoTo(P, 1);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u4');
+        Observer.Expect('goto 4', 'No[3]:R3;R2;R3;R3;C3;R2;R2;C2;R3;R3;C3');
+        Observer.Expect('goto 1', 'No[3]:R2;R2;C2;R3;R3;C3');
+        Observer.Verify();
     end;
 
     // the primary key: Rec left on row 4 (unmarked); First, Next, Next.
@@ -648,7 +719,12 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         Observer.Observe('drilldown', Shows(P));
         Walk(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u4');
+        Observer.Expect('first', 'Yes[3]:R3;R2;R3;R3;C3');
+        Observer.Expect('next', 'No[3]:');
+        Observer.Expect('next 2', 'No[3]:');
+        Observer.Verify();
     end;
 
     // the primary key: Rec left on row 3 (the last marked row); GoToRecord of 2, then of 4.
@@ -665,7 +741,11 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         GoTo(P, 2);
         GoTo(P, 4);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u3');
+        Observer.Expect('goto 2', 'No[3]:R3;R2;R3;R3;C3;R2;R2;C2;R3;R3;C3');
+        Observer.Expect('goto 4', 'No[3]:R2;R2;C2;R3;R3;C3');
+        Observer.Verify();
     end;
 
     // the primary key: Rec left on row 3 (the last marked row); First, Next, Next.
@@ -681,7 +761,12 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         Observer.Observe('drilldown', Shows(P));
         Walk(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u3');
+        Observer.Expect('first', 'Yes[3]:R3;R2;R3;R3;C3');
+        Observer.Expect('next', 'No[3]:');
+        Observer.Expect('next 2', 'No[3]:');
+        Observer.Verify();
     end;
 
     // the primary key: Rec left on row 2 (the first marked row, row 3 marked after it); GoToRecord of 2, 3, then 4.
@@ -699,7 +784,12 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         GoTo(P, 3);
         GoTo(P, 4);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u2');
+        Observer.Expect('goto 2', 'Yes[2]:R2;R3;R2;R2;C2');
+        Observer.Expect('goto 3', 'Yes[3]:R3;R3;C3');
+        Observer.Expect('goto 4', 'No[3]:R2;R2;C2;R3;R3;C3');
+        Observer.Verify();
     end;
 
     // the primary key: Rec left on row 2 (the first marked row); First, Next, Next.
@@ -715,7 +805,12 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         Observer.Observe('drilldown', Shows(P));
         Walk(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u2');
+        Observer.Expect('first', 'Yes[2]:R2;R3;R2;R2;C2');
+        Observer.Expect('next', 'Yes[3]:R3;R3;C3');
+        Observer.Expect('next 2', 'No[3]:');
+        Observer.Verify();
     end;
 
     // the primary key: the drilldown marks rows 2 and 3 but leaves MarkedOnly off, Rec on row 4; GoToRecord of 3, then of 1.
@@ -732,7 +827,11 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         GoTo(P, 3);
         GoTo(P, 1);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u4');
+        Observer.Expect('goto 3', 'No[1]:R4;R3;R2;R1;R4;R4;C4;R1;R1;C1');
+        Observer.Expect('goto 1', 'Yes[1]:');
+        Observer.Verify();
     end;
 
     // the primary key: marks without MarkedOnly, Rec on row 4; First, Next, Next.
@@ -748,7 +847,12 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         Observer.Observe('drilldown', Shows(P));
         Walk(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u4');
+        Observer.Expect('first', 'Yes[4]:R4;R3;R2;R1;R4;R4;C4');
+        Observer.Expect('next', 'No[4]:');
+        Observer.Expect('next 2', 'No[4]:');
+        Observer.Verify();
     end;
 
     // the primary key: Rec left on row 4 with MarkedOnly on, then a second drilldown turns MarkedOnly off; GoToRecord of 4, then of 1.
@@ -767,6 +871,11 @@ codeunit 95438 "PAG DdMark Rec Left Tests"
         GoTo(P, 4);
         GoTo(P, 1);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '[1]:R1;R2;R3;R4;R1;R1;C1');
+        Observer.Expect('drilldown', '[1]:d1;u4');
+        Observer.Expect('show all', '[3]:R3;R2;R3;R3;C3;d3;u3');
+        Observer.Expect('goto 4', 'Yes[4]:R2;R2;C2;R2;R3;R4;R2;R1;R2;R2;C2;R3;R3;C3;R4;R4;C4');
+        Observer.Expect('goto 1', 'Yes[1]:R1;R1;C1');
+        Observer.Verify();
     end;
 }

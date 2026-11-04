@@ -9,6 +9,12 @@
 //   action: the log, the row shown (Id and the page variable Shown that OnAfterGetRecord sets), and First / Next / Last / Previous /
 //   GoToRecord / GoToKey with their answers. Rows: Id 1, 2, 3, 4, none included.
 //   Log: a<Id> / u<Id> = the action before / after its CurrPage.Update, R<Id> = OnAfterGetRecord, C<Id> = OnAfterGetCurrRecord.
+// Result (27.5, 28.5, 29.0): a filter that leaves no row shows a blank row (Id and Shown blank) with Update(false) and Update(true)
+//   alike; no OnAfterGetCurrRecord runs. After CurrPage.Update, OnAfterGetRecord runs for rows outside the new view: on 27.5 and 29.0
+//   once, for the row before the current one (the row after it when there is none); on 28.5 for every other row, from the row before
+//   the current one up to the first, then the rows after it. First, Next, Last, Previous, GoToRecord and GoToKey then answer false and
+//   the row stays blank. An action invoked on the blank row sees a blank Rec (a0); clearing the filters there shows the rows again
+//   from the first one, read as at open. A filter that keeps rows behaves as the pinned cases (pages/list-order/AiListOrderTests.al).
 // BC versions: 27, 28, 29
 
 table 95427 "PAG ActEmpty Row"
@@ -226,7 +232,18 @@ codeunit 95430 "PAG ActEmpty Tests"
         Observer.Observe('action', Shows(P));
         Moves(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('on', '[1|1]:R1;R2;R3;R4;R1;R1;C1');
+#if BC28PLUS and not BC29PLUS
+        Observer.Expect('action', '[|]:R1;a1;u1;R2;R3;R4');
+#else
+        Observer.Expect('action', '[|]:R1;a1;u1;R2');
+#endif
+        Observer.Expect('next', 'No[|]:');
+        Observer.Expect('first', 'No[|]:');
+        Observer.Expect('next 2', 'No[|]:');
+        Observer.Expect('last', 'No[|]:');
+        Observer.Expect('previous', 'No[|]:');
+        Observer.Verify();
     end;
 
     // The same with Update(true).
@@ -240,7 +257,18 @@ codeunit 95430 "PAG ActEmpty Tests"
         Observer.Observe('action', Shows(P));
         Moves(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('on', '[1|1]:R1;R2;R3;R4;R1;R1;C1');
+#if BC28PLUS and not BC29PLUS
+        Observer.Expect('action', '[|]:R1;a1;u1;R2;R3;R4');
+#else
+        Observer.Expect('action', '[|]:R1;a1;u1;R2');
+#endif
+        Observer.Expect('next', 'No[|]:');
+        Observer.Expect('first', 'No[|]:');
+        Observer.Expect('next 2', 'No[|]:');
+        Observer.Expect('last', 'No[|]:');
+        Observer.Expect('previous', 'No[|]:');
+        Observer.Verify();
     end;
 
     // No row left, Update(false): GoToRecord and GoToKey of a row outside the view.
@@ -255,7 +283,15 @@ codeunit 95430 "PAG ActEmpty Tests"
         GoTo(P, 2);
         Observer.Observe('gotokey 3', Format(P.GoToKey(3)) + Shows(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('on', '[1|1]:R1;R2;R3;R4;R1;R1;C1');
+#if BC28PLUS and not BC29PLUS
+        Observer.Expect('action', '[|]:R1;a1;u1;R2;R3;R4');
+#else
+        Observer.Expect('action', '[|]:R1;a1;u1;R2');
+#endif
+        Observer.Expect('goto 2', 'No[|]:');
+        Observer.Expect('gotokey 3', 'No[|]:');
+        Observer.Verify();
     end;
 
     // No row left, Update(true): GoToRecord and GoToKey of a row outside the view.
@@ -270,7 +306,15 @@ codeunit 95430 "PAG ActEmpty Tests"
         GoTo(P, 2);
         Observer.Observe('gotokey 3', Format(P.GoToKey(3)) + Shows(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('on', '[1|1]:R1;R2;R3;R4;R1;R1;C1');
+#if BC28PLUS and not BC29PLUS
+        Observer.Expect('action', '[|]:R1;a1;u1;R2;R3;R4');
+#else
+        Observer.Expect('action', '[|]:R1;a1;u1;R2');
+#endif
+        Observer.Expect('goto 2', 'No[|]:');
+        Observer.Expect('gotokey 3', 'No[|]:');
+        Observer.Verify();
     end;
 
     // From row 3 (not the first row), no row left, Update(false).
@@ -284,7 +328,14 @@ codeunit 95430 "PAG ActEmpty Tests"
         Observer.Observe('action', Shows(P));
         Observer.Observe('first', Format(P.First()) + Shows(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('on', '[3|3]:R1;R2;R3;R4;R1;R1;C1;R2;R2;C2;R3;R3;C3');
+#if BC28PLUS and not BC29PLUS
+        Observer.Expect('action', '[|]:R3;a3;u3;R2;R1;R4');
+#else
+        Observer.Expect('action', '[|]:R3;a3;u3;R2');
+#endif
+        Observer.Expect('first', 'No[|]:');
+        Observer.Verify();
     end;
 
     // From row 3, no row left, Update(true).
@@ -298,7 +349,14 @@ codeunit 95430 "PAG ActEmpty Tests"
         Observer.Observe('action', Shows(P));
         Observer.Observe('first', Format(P.First()) + Shows(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('on', '[3|3]:R1;R2;R3;R4;R1;R1;C1;R2;R2;C2;R3;R3;C3');
+#if BC28PLUS and not BC29PLUS
+        Observer.Expect('action', '[|]:R3;a3;u3;R2;R1;R4');
+#else
+        Observer.Expect('action', '[|]:R3;a3;u3;R2');
+#endif
+        Observer.Expect('first', 'No[|]:');
+        Observer.Verify();
     end;
 
     // No row left, then an action clears the filters again (Update(false) both times): the page shows rows again.
@@ -314,7 +372,19 @@ codeunit 95430 "PAG ActEmpty Tests"
         Observer.Observe('cleared', Shows(P));
         Moves(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('on', '[2|2]:R1;R2;R3;R4;R1;R1;C1;R2;R2;C2');
+#if BC28PLUS and not BC29PLUS
+        Observer.Expect('action', '[|]:R2;a2;u2;R1;R3;R4');
+#else
+        Observer.Expect('action', '[|]:R2;a2;u2;R1');
+#endif
+        Observer.Expect('cleared', '[1|1]:a0;u0;R1;R2;R3;R4;R1;R1;C1');
+        Observer.Expect('next', 'Yes[2|2]:R2;R2;C2');
+        Observer.Expect('first', 'Yes[1|1]:R1;R1;C1');
+        Observer.Expect('next 2', 'Yes[2|2]:R2;R2;C2');
+        Observer.Expect('last', 'Yes[4|4]:R4;R4;C4');
+        Observer.Expect('previous', 'Yes[3|3]:R3;R3;C3');
+        Observer.Verify();
     end;
 
     // The same with Update(true) both times.
@@ -330,7 +400,19 @@ codeunit 95430 "PAG ActEmpty Tests"
         Observer.Observe('cleared', Shows(P));
         Moves(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('on', '[2|2]:R1;R2;R3;R4;R1;R1;C1;R2;R2;C2');
+#if BC28PLUS and not BC29PLUS
+        Observer.Expect('action', '[|]:R2;a2;u2;R1;R3;R4');
+#else
+        Observer.Expect('action', '[|]:R2;a2;u2;R1');
+#endif
+        Observer.Expect('cleared', '[1|1]:a0;u0;R1;R2;R3;R4;R1;R1;C1');
+        Observer.Expect('next', 'Yes[2|2]:R2;R2;C2');
+        Observer.Expect('first', 'Yes[1|1]:R1;R1;C1');
+        Observer.Expect('next 2', 'Yes[2|2]:R2;R2;C2');
+        Observer.Expect('last', 'Yes[4|4]:R4;R4;C4');
+        Observer.Expect('previous', 'Yes[3|3]:R3;R3;C3');
+        Observer.Verify();
     end;
 
     // On row 1, the action leaves rows 3 and 4 (the current row drops out, rows follow), Update(false).
@@ -345,7 +427,15 @@ codeunit 95430 "PAG ActEmpty Tests"
         Moves(P);
         GoTo(P, 1);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('on', '[1|1]:R1;R2;R3;R4;R1;R1;C1');
+        Observer.Expect('action', '[3|3]:R1;a1;u1;R3;R3;R4;R3;R3;C3');
+        Observer.Expect('next', 'Yes[4|4]:R4;R4;C4');
+        Observer.Expect('first', 'Yes[3|3]:R3;R3;C3');
+        Observer.Expect('next 2', 'Yes[4|4]:R4;R4;C4');
+        Observer.Expect('last', 'Yes[4|4]:');
+        Observer.Expect('previous', 'Yes[3|3]:R3;R3;C3');
+        Observer.Expect('goto 1', 'No[3|3]:R4;R4;C4;R3;R3;C3');
+        Observer.Verify();
     end;
 
     // The same with Update(true).
@@ -360,7 +450,15 @@ codeunit 95430 "PAG ActEmpty Tests"
         Moves(P);
         GoTo(P, 1);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('on', '[1|1]:R1;R2;R3;R4;R1;R1;C1');
+        Observer.Expect('action', '[3|3]:R1;a1;u1;R3;R3;R4;R3;R3;C3');
+        Observer.Expect('next', 'Yes[4|4]:R4;R4;C4');
+        Observer.Expect('first', 'Yes[3|3]:R3;R3;C3');
+        Observer.Expect('next 2', 'Yes[4|4]:R4;R4;C4');
+        Observer.Expect('last', 'Yes[4|4]:');
+        Observer.Expect('previous', 'Yes[3|3]:R3;R3;C3');
+        Observer.Expect('goto 1', 'No[3|3]:R4;R4;C4;R3;R3;C3');
+        Observer.Verify();
     end;
 
     // On row 3, the action leaves rows 3 and 4 (the current row stays), Update(false).
@@ -375,7 +473,15 @@ codeunit 95430 "PAG ActEmpty Tests"
         Moves(P);
         GoTo(P, 4);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('on', '[3|3]:R1;R2;R3;R4;R1;R1;C1;R2;R2;C2;R3;R3;C3');
+        Observer.Expect('action', '[3|3]:R3;a3;u3;R3;R3;R4;R3;R3;C3');
+        Observer.Expect('next', 'Yes[4|4]:R4;R4;C4');
+        Observer.Expect('first', 'Yes[3|3]:R3;R3;C3');
+        Observer.Expect('next 2', 'Yes[4|4]:R4;R4;C4');
+        Observer.Expect('last', 'Yes[4|4]:');
+        Observer.Expect('previous', 'Yes[3|3]:R3;R3;C3');
+        Observer.Expect('goto 4', 'Yes[4|4]:R4;R4;C4');
+        Observer.Verify();
     end;
 
     // The same with Update(true).
@@ -390,6 +496,14 @@ codeunit 95430 "PAG ActEmpty Tests"
         Moves(P);
         GoTo(P, 4);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('on', '[3|3]:R1;R2;R3;R4;R1;R1;C1;R2;R2;C2;R3;R3;C3');
+        Observer.Expect('action', '[3|3]:R3;a3;u3;R3;R3;R4;R3;R3;C3');
+        Observer.Expect('next', 'Yes[4|4]:R4;R4;C4');
+        Observer.Expect('first', 'Yes[3|3]:R3;R3;C3');
+        Observer.Expect('next 2', 'Yes[4|4]:R4;R4;C4');
+        Observer.Expect('last', 'Yes[4|4]:');
+        Observer.Expect('previous', 'Yes[3|3]:R3;R3;C3');
+        Observer.Expect('goto 4', 'Yes[4|4]:R4;R4;C4');
+        Observer.Verify();
     end;
 }

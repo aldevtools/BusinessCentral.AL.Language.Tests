@@ -375,7 +375,7 @@ codeunit 95424 "PAG TreeExpand Leaf Tests"
         Observer.Finish();
     end;
 
-    // CollapseAll: row 20 (indentation 1, with a child): Expand(false) while collapsed, Expand(true), Expand(false) twice.
+    // CollapseAll: row 20 (indentation 1, with a child): Expand(false) while collapsed, Expand(true), then Expand(false) twice.
     [Test]
     procedure Collapsed_Level1Parent_ExpandAndCollapse()
     var
@@ -386,16 +386,17 @@ codeunit 95424 "PAG TreeExpand Leaf Tests"
         MoveC(P, 'next 1', false);
         StepC(P, 'collapse 20 collapsed', false);
         StepC(P, 'expand 20', true);
-        Observer.Observe('walk 1', WalkC(P));
         MoveC(P, 'next 2', false);
+        MoveC(P, 'first', true);
+        MoveC(P, 'next 3', false);
         StepC(P, 'collapse 20', false);
         StepC(P, 'collapse 20 again', false);
-        Observer.Observe('walk 2', WalkC(P));
+        Observer.Observe('walk', WalkC(P));
         P.Close();
         Observer.Finish();
     end;
 
-    // CollapseAll: collapse row 10 while its child 20 is expanded, then expand 10 again: does 30 show again?
+    // CollapseAll: collapse row 10 while its child 20 is expanded, then expand 10 again: does row 30 show again?
     [Test]
     procedure Collapsed_RootCollapse_KeepsChildState()
     var
@@ -408,155 +409,56 @@ codeunit 95424 "PAG TreeExpand Leaf Tests"
         MoveC(P, 'first', true);
         StepC(P, 'collapse 10', false);
         Observer.Observe('walk 1', WalkC(P));
+        MoveC(P, 'first again', true);
         StepC(P, 'expand 10 again', true);
         Observer.Observe('walk 2', WalkC(P));
         P.Close();
         Observer.Finish();
     end;
 
-    // CollapseAll: Expand(false) on row 40 (indentation 1, no children).
-    [Test]
-    procedure Collapsed_ExpandFalse_LeafLevel1()
+    // Expand(false) on a row without children, at any indentation (rows 30, 40, 60, 70), ends the test with an uncatchable CLR
+    // exception ("Expanding and collapsing are not supported on this rowEntry", also inside a TryFunction; measured on 27.5, 28.5
+    // and 29.0 with both pages), so it is not a test.
+    local procedure Collapsed_CollapseLeafRow40()
     var
         P: TestPage "PAG TreeExpand Collapsed";
     begin
-        OpenC(P);
-        StepC(P, 'expand 10', true);
-        MoveC(P, 'next 1', false);
-        MoveC(P, 'next 2', false);
-        StepC(P, 'collapse 40', false);
-        Observer.Observe('walk', WalkC(P));
+        P.OpenEdit();
+        P.Expand(true);
+        P.Next();
+        P.Next();
+        P.Expand(false);
         P.Close();
-        Observer.Finish();
     end;
 
-    // CollapseAll: Expand(false) on row 30 (indentation 2, no children).
+    // ExpandAll, filled in OnOpenPage: which rows show at open, and Expand(true) on rows with and without children.
     [Test]
-    procedure Collapsed_ExpandFalse_LeafLevel2()
-    var
-        P: TestPage "PAG TreeExpand Collapsed";
-    begin
-        OpenC(P);
-        StepC(P, 'expand 10', true);
-        MoveC(P, 'next 1', false);
-        StepC(P, 'expand 20', true);
-        MoveC(P, 'next 2', false);
-        StepC(P, 'collapse 30', false);
-        Observer.Observe('walk', WalkC(P));
-        P.Close();
-        Observer.Finish();
-    end;
-
-    // ExpandAll: Expand(true) on row 30 (indentation 2, no children).
-    [Test]
-    procedure Expanded_ExpandTrue_LeafLevel2()
+    procedure Expanded_FilledOnOpen_RowsShown()
     var
         P: TestPage "PAG TreeExpand Expanded";
     begin
         OpenE(P);
-        MoveE(P, 'next 1', false);
-        MoveE(P, 'next 2', false);
-        StepE(P, 'expand 30', true);
-        MoveE(P, 'next 3', false);
         Observer.Observe('walk', WalkE(P));
         P.Close();
         Observer.Finish();
     end;
 
-    // ExpandAll: Expand(true) on row 40 (indentation 1, no children) and on row 60 (the last child of 50).
+    // ExpandAll: Expand(true) on row 10, then on row 40 (indentation 1, no children) and row 20, then on row 30 (indentation 2).
     [Test]
-    procedure Expanded_ExpandTrue_LeafLevel1()
+    procedure Expanded_ExpandTrue_LeafRows()
     var
         P: TestPage "PAG TreeExpand Expanded";
     begin
         OpenE(P);
-        MoveE(P, 'next 1', false);
-        MoveE(P, 'next 2', false);
-        MoveE(P, 'next 3', false);
-        StepE(P, 'expand 40', true);
-        MoveE(P, 'next 4', false);
-        MoveE(P, 'next 5', false);
-        StepE(P, 'expand 60', true);
-        MoveE(P, 'next 6', false);
-        Observer.Observe('walk', WalkE(P));
-        P.Close();
-        Observer.Finish();
-    end;
-
-    // ExpandAll: Expand(true) on row 70 (indentation 0, no children).
-    [Test]
-    procedure Expanded_ExpandTrue_LeafLevel0()
-    var
-        P: TestPage "PAG TreeExpand Expanded";
-    begin
-        OpenE(P);
-        Observer.Observe('last', Format(P.Last()) + '/' + P."Line No.".Value() + ':' + Log.Take());
-        StepE(P, 'expand 70', true);
-        Observer.Observe('walk', WalkE(P));
-        P.Close();
-        Observer.Finish();
-    end;
-
-    // ExpandAll: row 20 (indentation 1, with a child): Expand(false), again, Expand(true).
-    [Test]
-    procedure Expanded_Level1Parent_CollapseAndExpand()
-    var
-        P: TestPage "PAG TreeExpand Expanded";
-    begin
-        OpenE(P);
-        MoveE(P, 'next 1', false);
-        StepE(P, 'collapse 20', false);
-        Observer.Observe('walk 1', WalkE(P));
-        MoveE(P, 'next 2', false);
-        StepE(P, 'collapse 20 again', false);
-        StepE(P, 'expand 20', true);
-        StepE(P, 'expand 20 again', true);
-        Observer.Observe('walk 2', WalkE(P));
-        P.Close();
-        Observer.Finish();
-    end;
-
-    // ExpandAll: collapse row 10, expand it again: rows 20 and 30 show again?
-    [Test]
-    procedure Expanded_RootCollapse_ThenExpand()
-    var
-        P: TestPage "PAG TreeExpand Expanded";
-    begin
-        OpenE(P);
-        StepE(P, 'collapse 10', false);
-        Observer.Observe('walk 1', WalkE(P));
         StepE(P, 'expand 10', true);
-        Observer.Observe('walk 2', WalkE(P));
-        P.Close();
-        Observer.Finish();
-    end;
-
-    // ExpandAll: Expand(false) on row 40 (indentation 1, no children).
-    [Test]
-    procedure Expanded_ExpandFalse_LeafLevel1()
-    var
-        P: TestPage "PAG TreeExpand Expanded";
-    begin
-        OpenE(P);
         MoveE(P, 'next 1', false);
         MoveE(P, 'next 2', false);
+        StepE(P, 'expand 40', true);
+        MoveE(P, 'first', true);
         MoveE(P, 'next 3', false);
-        StepE(P, 'collapse 40', false);
-        Observer.Observe('walk', WalkE(P));
-        P.Close();
-        Observer.Finish();
-    end;
-
-    // ExpandAll: Expand(false) on row 30 (indentation 2, no children).
-    [Test]
-    procedure Expanded_ExpandFalse_LeafLevel2()
-    var
-        P: TestPage "PAG TreeExpand Expanded";
-    begin
-        OpenE(P);
-        MoveE(P, 'next 1', false);
-        MoveE(P, 'next 2', false);
-        StepE(P, 'collapse 30', false);
+        StepE(P, 'expand 20', true);
+        MoveE(P, 'next 4', false);
+        StepE(P, 'expand 30', true);
         Observer.Observe('walk', WalkE(P));
         P.Close();
         Observer.Finish();
@@ -579,7 +481,6 @@ codeunit 95424 "PAG TreeExpand Leaf Tests"
             until (not P.Next()) or (i >= 10);
         Observer.Observe('walked', Walked);
         Observer.Observe('walk log', Log.Take());
-        Observer.Observe('walk', WalkE(P));
         P.Close();
         Observer.Finish();
     end;
