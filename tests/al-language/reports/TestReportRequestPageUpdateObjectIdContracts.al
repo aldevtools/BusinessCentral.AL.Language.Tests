@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/report/report-objectid-method
 //   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/requestpage/requestpage-update-method
 // Scope: in-scope
-// Fixtures used: shared Assert (60021); self-contained table 69120, codeunit 69121 (log), report 69122, codeunit 69123 (tests)
+// Fixtures used: shared Assert (60021); shared table 50000 "ALT Shape 00", codeunit 69121 (log), report 69122, codeunit 69123 (tests)
 // Probe: written against a real BC 27.5 service tier; every literal below is what that tier
 // produced. Other BC versions were not measured.
 //
@@ -12,21 +12,6 @@
 //    'Q1 caption'; the name when there is no caption was not measured).
 //  - CurrReport.Preview() is false in a report run by Report.Run (with and without the request page) and RunModal.
 // BC versions: 27.5
-
-table 69120 "Probe RPU Table"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 codeunit 69121 "Probe RPU Log"
 {
@@ -58,7 +43,7 @@ report 69122 "Probe RPU Report"
 
     dataset
     {
-        dataitem(T; "Probe RPU Table") { }
+        dataitem(T; "ALT Shape 00") { }
     }
 
     requestpage

@@ -1,25 +1,9 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-columnfilter-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); tables 74125 74126, queries 74127 74128 74129 74130, test codeunit 74131 (P134)
+// Fixtures used: Probe Observer (codeunit 69160); tables 74125 74126, queries 74127 74128 74129 74130, test codeunit 74131 (P134) (table 74125 is now shared table 50014 "ALT Shape 14")
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: a static ColumnFilter (and a DataItemTableFilter plus ColumnFilter) on a column of a LeftOuterJoin data item: whether the unmatched parent rows survive (filter in the join condition) or vanish (filter in the WHERE clause), compared with the same filter on an InnerJoin
 // BC versions: 29 (27 and 28 by CI)
-
-table 74125 "LT P134 Par"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; "Code"; Code[10]) { }
-        field(2; Name; Text[20]) { }
-    }
-
-    keys
-    {
-        key(PK; "Code") { Clustered = true; }
-    }
-}
 
 table 74126 "LT P134 Chi"
 {
@@ -46,7 +30,7 @@ query 74127 "LT P134 Q Left ColKind"
 
     elements
     {
-        dataitem(P; "LT P134 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -72,7 +56,7 @@ query 74128 "LT P134 Q Left ColQty"
 
     elements
     {
-        dataitem(P; "LT P134 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -98,7 +82,7 @@ query 74129 "LT P134 Q Left TblAndCol"
 
     elements
     {
-        dataitem(P; "LT P134 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -125,7 +109,7 @@ query 74130 "LT P134 Q Inner ColKind"
 
     elements
     {
-        dataitem(P; "LT P134 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -151,7 +135,7 @@ codeunit 74131 "LT P134 Query Col Tests"
 
     local procedure Seed()
     var
-        Par: Record "LT P134 Par";
+        Par: Record "ALT Shape 14";
         Chi: Record "LT P134 Chi";
     begin
         Par.DeleteAll();
@@ -168,7 +152,7 @@ codeunit 74131 "LT P134 Query Col Tests"
 
     local procedure AddPar(NewCode: Code[10]; NewName: Text[20])
     var
-        Par: Record "LT P134 Par";
+        Par: Record "ALT Shape 14";
     begin
         Par."Code" := NewCode;
         Par.Name := NewName;

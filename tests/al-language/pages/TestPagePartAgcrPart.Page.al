@@ -7,7 +7,7 @@
 page 60813 "Test Page Part Agcr Part"
 {
     PageType = CardPart;
-    SourceTable = "Test Page Part Agcr Row";
+    SourceTable = "ALT Shape 04";
     ApplicationArea = All;
 
     layout

@@ -1,27 +1,11 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/application/system-application/codeunit/system.utilities.temp-blob
 // Scope: in-scope
-// Fixtures used: codeunit 69160 "Probe Observer", table 85900 "LT DE Blob Row" (this file), System Application codeunit "Temp Blob"
+// Fixtures used: codeunit 69160 "Probe Observer", shared table 50003 "ALT Shape 03", System Application codeunit "Temp Blob"
 // Probe: written against a local BC 29.0 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // BC versions: 29 (27 and 28 by CI)
 // Lead: corpus issue 671, item "TempBlob.ToRecordRef into a Blob field" (microsoft/AL#7397: the field had no value after Modify on BC 22).
 // Pins, after TempBlob.ToRecordRef(RecRef, FieldNo) and RecRef.Modify(), what a fresh Get of the row sees (HasValue before and after
 // CalcFields, Length, the text), and what it sees when Modify is left out.
-
-table 85900 "LT DE Blob Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Data; Blob) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 codeunit 85902 "LT DE Blob ToRecordRef"
 {
@@ -30,7 +14,7 @@ codeunit 85902 "LT DE Blob ToRecordRef"
 
     local procedure Fresh()
     var
-        Row: Record "LT DE Blob Row";
+        Row: Record "ALT Shape 03";
     begin
         Row.DeleteAll();
         Row.Init();
@@ -40,7 +24,7 @@ codeunit 85902 "LT DE Blob ToRecordRef"
 
     local procedure ObserveRow(var Observer: Codeunit "Probe Observer"; Prefix: Text)
     var
-        Row: Record "LT DE Blob Row";
+        Row: Record "ALT Shape 03";
         InS: InStream;
         T: Text;
     begin
@@ -66,7 +50,7 @@ codeunit 85902 "LT DE Blob ToRecordRef"
         Fresh();
         TempBlob.CreateOutStream(OutS);
         OutS.WriteText('into field');
-        RecRef.Open(Database::"LT DE Blob Row");
+        RecRef.Open(Database::"ALT Shape 03");
         RecRef.FindFirst();
         TempBlob.ToRecordRef(RecRef, 2);
         Observer.Observe('modify', Format(RecRef.Modify()));
@@ -91,7 +75,7 @@ codeunit 85902 "LT DE Blob ToRecordRef"
         Fresh();
         TempBlob.CreateOutStream(OutS);
         OutS.WriteText('into field');
-        RecRef.Open(Database::"LT DE Blob Row");
+        RecRef.Open(Database::"ALT Shape 03");
         RecRef.FindFirst();
         TempBlob.ToRecordRef(RecRef, 2);
         ObserveRow(Observer, 'not modified');

@@ -1,26 +1,10 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/system/system-getcollectederrors-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), self-contained objects codeunit 72044, table 72045
+// Fixtures used: Probe Observer (codeunit 69160), self-contained objects codeunit 72044, shared table 50001 "ALT Shape 01"
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Settles docs/probes-needed.md row: Builtins refused until a probe pins them: Record.FieldError(Field, ErrorInfo) and FieldRef.FieldError(ErrorInfo) - Probe wanted: GetCollectedErrors(true) followed by HasCollectedErrors
 // Facts: HasCollectedErrors and the list size around GetCollectedErrors(true) and GetCollectedErrors(false) and ClearCollectedErrors in an ErrorBehavior::Collect scope, with Error(ErrorInfo) and Record.FieldError(ErrorInfo) as sources; what the scope does with errors still collected at its end
 // BC versions: 29 (27 and 28 by CI)
-
-table 72045 "LT PnD Collect Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 codeunit 72044 "LT PnD Collected Errors"
 {
@@ -100,7 +84,7 @@ codeunit 72044 "LT PnD Collected Errors"
     [TryFunction]
     local procedure ScopeFieldError(var Log: Text)
     var
-        Row: Record "LT PnD Collect Row";
+        Row: Record "ALT Shape 01";
         Errs: List of [ErrorInfo];
         Info: ErrorInfo;
     begin
