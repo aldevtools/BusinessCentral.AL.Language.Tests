@@ -246,3 +246,5 @@ has an event subscriber, sits in a namespace, or when one test codeunit would ne
 3. Use the shared fixtures. A local object needs a `// local object: <reason>` line.
 4. Name the folder after the topic, never after a writer, an issue or a batch.
 5. Never renumber a codeunit or rename a test. Read the standing rules in `CONTRIBUTING.md` first.
+
+- `PagTriggerCloseParts.al`: temporary parent/part lifecycle observation fixtures; the dedicated log is used by the existing parts-after-close topic codeunit. Bootstrap observations are unqualified until complete native capture and stable assertions.
