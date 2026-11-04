@@ -10,6 +10,9 @@
 //   trigger nests; this file covers a Validate nested by an event subscriber and by a codeunit that OnValidate calls.
 //   A subscriber that guards with `if Rec.F = xRec.F then exit` and validates again is the shape that must end; the log
 //   codeunit stops every nesting at depth 3 so the probe ends either way.
+// Result (BC 27.5 service tier, observed by the corpus CI): a Validate that an event subscriber or a codeunit nests runs the
+//   before event, OnValidate and the after event again, and each of them sees as xRec the record as it was when that inner
+//   Validate started (not the outer before-image), so the xRec guard ends the nesting.
 // BC versions: 27-29
 
 table 95242 "LT VS Row"
@@ -187,7 +190,10 @@ codeunit 95246 "LT VS Validate In Subscriber"
         Observer: Codeunit "Probe Observer";
     begin
         Run(1, Observer);
-        Observer.Finish();
+        Observer.Expect('log', 'B(rec=BLUE,x=RED,cur=0);T(rec=BLUE,x=RED,cur=0);A(rec=BLUE,x=RED,cur=0);B(rec=BLUE,x=BLUE,cur=0);T(rec=BLUE,x=BLUE,cur=0);A(rec=BLUE,x=BLUE,cur=0);stop;');
+        Observer.Expect('rec after', 'BLUE');
+        Observer.Expect('stored', 'BLUE');
+        Observer.Verify();
     end;
 
     [Test]
@@ -196,7 +202,10 @@ codeunit 95246 "LT VS Validate In Subscriber"
         Observer: Codeunit "Probe Observer";
     begin
         Run(2, Observer);
-        Observer.Finish();
+        Observer.Expect('log', 'B(rec=BLUE,x=RED,cur=0);T(rec=BLUE,x=RED,cur=0);A(rec=BLUE,x=RED,cur=0);B(rec=INNER,x=BLUE,cur=0);T(rec=INNER,x=BLUE,cur=0);A(rec=INNER,x=BLUE,cur=0);');
+        Observer.Expect('rec after', 'INNER');
+        Observer.Expect('stored', 'INNER');
+        Observer.Verify();
     end;
 
     [Test]
@@ -205,7 +214,10 @@ codeunit 95246 "LT VS Validate In Subscriber"
         Observer: Codeunit "Probe Observer";
     begin
         Run(3, Observer);
-        Observer.Finish();
+        Observer.Expect('log', 'B(rec=BLUE,x=RED,cur=0);T(rec=BLUE,x=RED,cur=0);A(rec=BLUE,x=RED,cur=0);B(rec=BLUE,x=BLUE,cur=0);T(rec=BLUE,x=BLUE,cur=0);A(rec=BLUE,x=BLUE,cur=0);guard exit;');
+        Observer.Expect('rec after', 'BLUE');
+        Observer.Expect('stored', 'BLUE');
+        Observer.Verify();
     end;
 
     [Test]
@@ -214,7 +226,10 @@ codeunit 95246 "LT VS Validate In Subscriber"
         Observer: Codeunit "Probe Observer";
     begin
         Run(5, Observer);
-        Observer.Finish();
+        Observer.Expect('log', 'B(rec=BLUE,x=RED,cur=0);T(rec=BLUE,x=RED,cur=0);A(rec=BLUE,x=RED,cur=0);B(rec=BLUE,x=BLUE,cur=0);T(rec=BLUE,x=BLUE,cur=0);A(rec=BLUE,x=BLUE,cur=0);guard exit;');
+        Observer.Expect('rec after', 'BLUE');
+        Observer.Expect('stored', 'BLUE');
+        Observer.Verify();
     end;
 
     [Test]
@@ -223,6 +238,9 @@ codeunit 95246 "LT VS Validate In Subscriber"
         Observer: Codeunit "Probe Observer";
     begin
         Run(4, Observer);
-        Observer.Finish();
+        Observer.Expect('log', 'B(rec=BLUE,x=RED,cur=0);T(rec=BLUE,x=RED,cur=0);B(rec=INNER,x=BLUE,cur=0);T(rec=INNER,x=BLUE,cur=0);B(rec=INNER,x=INNER,cur=0);T(rec=INNER,x=INNER,cur=0);B(rec=INNER,x=INNER,cur=0);T(rec=INNER,x=INNER,cur=0);stop;A(rec=INNER,x=INNER,cur=0);A(rec=INNER,x=INNER,cur=0);A(rec=INNER,x=BLUE,cur=0);A(rec=INNER,x=RED,cur=0);');
+        Observer.Expect('rec after', 'INNER');
+        Observer.Expect('stored', 'INNER');
+        Observer.Verify();
     end;
 }

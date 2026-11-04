@@ -9,6 +9,9 @@
 //   for a second variable with the Id of a sent notification, and without a handler. The handlers are optional
 //   (HandlerIsOptional = true, pinned by testpage/notifications-and-control-values/CaNotificationTests.al) so a handler
 //   that does not run is an observation, not a failure.
+// Result (BC 27.5 service tier, observed by the corpus CI): a notification given an Id answers true at every Recall, sent
+//   or not, and runs the bound recall handler each time with that variable's notification; with no Id and never sent it
+//   answers false and the handler does not run.
 // BC versions: 27-29
 
 codeunit 95240 "LT RN Recall Never Sent"
@@ -47,7 +50,11 @@ codeunit 95240 "LT RN Recall Never Sent"
         Observer.Observe('log', HandlerLog);
         Observer.Observe('second recall', Format(Notif.Recall()));
         Observer.Observe('log after second', HandlerLog);
-        Observer.Finish();
+        Observer.Expect('recall', 'Yes');
+        Observer.Expect('log', 'recall msg=never sent idnull=No;');
+        Observer.Expect('second recall', 'Yes');
+        Observer.Expect('log after second', 'recall msg=never sent idnull=No;recall msg=never sent idnull=No;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -61,7 +68,9 @@ codeunit 95240 "LT RN Recall Never Sent"
         Notif.Id := '{3F1A2B7C-6924-4C33-9A01-000000000002}';
         Observer.Observe('recall', Format(Notif.Recall()));
         Observer.Observe('log', HandlerLog);
-        Observer.Finish();
+        Observer.Expect('recall', 'Yes');
+        Observer.Expect('log', 'recall msg= idnull=No;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -75,7 +84,9 @@ codeunit 95240 "LT RN Recall Never Sent"
         Notif.Message('no id');
         Observer.Observe('recall', Format(Notif.Recall()));
         Observer.Observe('log', HandlerLog);
-        Observer.Finish();
+        Observer.Expect('recall', 'No');
+        Observer.Expect('log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -87,7 +98,8 @@ codeunit 95240 "LT RN Recall Never Sent"
         Notif.Id := '{3F1A2B7C-6924-4C33-9A01-000000000003}';
         Notif.Message('never sent');
         Observer.Observe('recall', Format(Notif.Recall()));
-        Observer.Finish();
+        Observer.Expect('recall', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -108,7 +120,11 @@ codeunit 95240 "LT RN Recall Never Sent"
         Observer.Observe('log', HandlerLog);
         Observer.Observe('recall sent', Format(Sent.Recall()));
         Observer.Observe('log after sent', HandlerLog);
-        Observer.Finish();
+        Observer.Expect('recall other', 'Yes');
+        Observer.Expect('log', 'send msg=sent;recall msg=other idnull=No;');
+        Observer.Expect('recall sent', 'Yes');
+        Observer.Expect('log after sent', 'send msg=sent;recall msg=other idnull=No;recall msg=sent idnull=No;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -123,6 +139,7 @@ codeunit 95240 "LT RN Recall Never Sent"
         Sent.Send();
         Other.Id := '{3F1A2B7C-6924-4C33-9A01-000000000005}';
         Observer.Observe('recall other', Format(Other.Recall()));
-        Observer.Finish();
+        Observer.Expect('recall other', 'Yes');
+        Observer.Verify();
     end;
 }
