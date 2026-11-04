@@ -8,6 +8,11 @@
 //   and on a temporary record. A Code value cannot start or end with a space, so the space is only placed inside for Code; the Text key
 //   also has it at the start. The order is printed with a broken bar between the values. Then the values of the issue
 //   (TTS.001, TTS-HD.001, TTSA, TTS-A, A-B, AB, A.B) ascending, descending and under range, compare and wildcard filters.
+//   Asserted: the normal record (SQL Server order: a hyphen and an apostrophe do not count first, and the text with one follows the
+//   text without, an apostrophe before a hyphen; every other punctuation character sorts before the digits in the order shown).
+//   NOT asserted: the temporary record. On the Linux tiers of the corpus CI it sorts in another order (the hyphen counts, `TTS-HD.001`
+//   before `TTS.001`), while the issue reports `TTS.001` first on Windows BC 29. The Linux values are kept as comments until a
+//   Windows tier has been measured.
 // BC versions: 27, 28, 29
 
 table 95570 "LT R6 Code Key"
@@ -191,7 +196,13 @@ codeunit 95572 "LT R6 Key Punctuation"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveShape(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('code normal', '!B¦"B¦#B¦$B¦%B¦&B¦(B¦)B¦*B¦,B¦.B¦/B¦:B¦;B¦?B¦@B¦[B¦\B¦]B¦^B¦_B¦`B¦{B¦|B¦}B¦~B¦+B¦<B¦=B¦>B¦0¦9¦A¦B¦''B¦-B¦BB¦C');
+        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): '_B¦-B¦,B¦;B¦:B¦!B¦?B¦.B¦''B¦"B¦(B¦)B¦[B¦]B¦{B¦}B¦@B¦*B¦/B¦\B¦&B¦#B¦%B¦`B¦^B¦+B¦<B¦=B¦>B¦|B¦~B¦$B¦0¦9¦A¦B¦BB¦C'
+        Observer.Ignore('code temporary');
+        Observer.Expect('text normal', ' B¦!B¦"B¦#B¦$B¦%B¦&B¦(B¦)B¦*B¦,B¦.B¦/B¦:B¦;B¦?B¦@B¦[B¦\B¦]B¦^B¦_B¦`B¦{B¦|B¦}B¦~B¦+B¦<B¦=B¦>B¦0¦9¦A¦B¦''B¦-B¦BB¦C');
+        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): ' B¦_B¦-B¦,B¦;B¦:B¦!B¦?B¦.B¦''B¦"B¦(B¦)B¦[B¦]B¦{B¦}B¦@B¦*B¦/B¦\B¦&B¦#B¦%B¦`B¦^B¦+B¦<B¦=B¦>B¦|B¦~B¦$B¦0¦9¦A¦B¦BB¦C'
+        Observer.Ignore('text temporary');
+        Observer.Verify();
     end;
 
     [Test]
@@ -200,7 +211,13 @@ codeunit 95572 "LT R6 Key Punctuation"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveShape(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('code normal', 'A¦A B¦A!B¦A"B¦A#B¦A$B¦A%B¦A&B¦A(B¦A)B¦A*B¦A,B¦A.B¦A/B¦A:B¦A;B¦A?B¦A@B¦A[B¦A\B¦A]B¦A^B¦A_B¦A`B¦A{B¦A|B¦A}B¦A~B¦A+B¦A<B¦A=B¦A>B¦A0B¦A9B¦AA¦AAB¦AB¦A''B¦A-B¦ABB¦AC¦B');
+        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'A¦A B¦A_B¦A-B¦A,B¦A;B¦A:B¦A!B¦A?B¦A.B¦A''B¦A"B¦A(B¦A)B¦A[B¦A]B¦A{B¦A}B¦A@B¦A*B¦A/B¦A\B¦A&B¦A#B¦A%B¦A`B¦A^B¦A+B¦A<B¦A=B¦A>B¦A|B¦A~B¦A$B¦A0B¦A9B¦AA¦AAB¦AB¦ABB¦AC¦B'
+        Observer.Ignore('code temporary');
+        Observer.Expect('text normal', 'A¦A B¦A!B¦A"B¦A#B¦A$B¦A%B¦A&B¦A(B¦A)B¦A*B¦A,B¦A.B¦A/B¦A:B¦A;B¦A?B¦A@B¦A[B¦A\B¦A]B¦A^B¦A_B¦A`B¦A{B¦A|B¦A}B¦A~B¦A+B¦A<B¦A=B¦A>B¦A0B¦A9B¦AA¦AAB¦AB¦A''B¦A-B¦ABB¦AC¦B');
+        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'A¦A B¦A_B¦A-B¦A,B¦A;B¦A:B¦A!B¦A?B¦A.B¦A''B¦A"B¦A(B¦A)B¦A[B¦A]B¦A{B¦A}B¦A@B¦A*B¦A/B¦A\B¦A&B¦A#B¦A%B¦A`B¦A^B¦A+B¦A<B¦A=B¦A>B¦A|B¦A~B¦A$B¦A0B¦A9B¦AA¦AAB¦AB¦ABB¦AC¦B'
+        Observer.Ignore('text temporary');
+        Observer.Verify();
     end;
 
     [Test]
@@ -209,7 +226,13 @@ codeunit 95572 "LT R6 Key Punctuation"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveShape(Observer, 3);
-        Observer.Finish();
+        Observer.Expect('code normal', 'A¦A''¦A-¦A!¦A"¦A#¦A$¦A%¦A&¦A(¦A)¦A*¦A,¦A.¦A/¦A:¦A;¦A?¦A@¦A[¦A\¦A]¦A^¦A_¦A`¦A{¦A|¦A}¦A~¦A+¦A<¦A=¦A>¦A0¦A9¦AA¦B');
+        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'A¦A_¦A-¦A,¦A;¦A:¦A!¦A?¦A.¦A''¦A"¦A(¦A)¦A[¦A]¦A{¦A}¦A@¦A*¦A/¦A\¦A&¦A#¦A%¦A`¦A^¦A+¦A<¦A=¦A>¦A|¦A~¦A$¦A0¦A9¦AA¦B'
+        Observer.Ignore('code temporary');
+        Observer.Expect('text normal', 'A¦A''¦A-¦A!¦A"¦A#¦A$¦A%¦A&¦A(¦A)¦A*¦A,¦A.¦A/¦A:¦A;¦A?¦A@¦A[¦A\¦A]¦A^¦A_¦A`¦A{¦A|¦A}¦A~¦A+¦A<¦A=¦A>¦A0¦A9¦AA¦B');
+        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'A¦A_¦A-¦A,¦A;¦A:¦A!¦A?¦A.¦A''¦A"¦A(¦A)¦A[¦A]¦A{¦A}¦A@¦A*¦A/¦A\¦A&¦A#¦A%¦A`¦A^¦A+¦A<¦A=¦A>¦A|¦A~¦A$¦A0¦A9¦AA¦B'
+        Observer.Ignore('text temporary');
+        Observer.Verify();
     end;
 
     [Test]
@@ -218,7 +241,13 @@ codeunit 95572 "LT R6 Key Punctuation"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveShape(Observer, 4);
-        Observer.Finish();
+        Observer.Expect('code normal', 'A.B¦AB¦A-B¦TTS.001¦TTSA¦TTS-A¦TTS-HD.001');
+        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'A-B¦A.B¦AB¦TTS-A¦TTS-HD.001¦TTS.001¦TTSA'
+        Observer.Ignore('code temporary');
+        Observer.Expect('text normal', 'A.B¦AB¦A-B¦TTS.001¦TTSA¦TTS-A¦TTS-HD.001');
+        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'A-B¦A.B¦AB¦TTS-A¦TTS-HD.001¦TTS.001¦TTSA'
+        Observer.Ignore('text temporary');
+        Observer.Verify();
     end;
 
     local procedure ObserveIssueFilters(var Observer: Codeunit "Probe Observer"; var K: Record "LT R6 Code Key"; Prefix: Text)
@@ -253,6 +282,30 @@ codeunit 95572 "LT R6 Key Punctuation"
     begin
         ObserveIssueFilters(Observer, C, 'normal');
         ObserveIssueFilters(Observer, TempC, 'temporary');
-        Observer.Finish();
+        Observer.Expect('normal desc', 'TTS-HD.001¦TTS-A¦TTSA¦TTS.001¦A-B¦AB¦A.B');
+        Observer.Expect('normal range TTS.001..TTSA', 'TTS.001¦TTSA');
+        Observer.Expect('normal range TTS-A..TTS.001', '');
+        Observer.Expect('normal gt TTS.001', 'TTSA¦TTS-A¦TTS-HD.001');
+        Observer.Expect('normal lt TTS-HD.001', 'A.B¦AB¦A-B¦TTS.001¦TTSA¦TTS-A');
+        Observer.Expect('normal lt AB', 'A.B');
+        Observer.Expect('normal gt A-B', 'TTS.001¦TTSA¦TTS-A¦TTS-HD.001');
+        Observer.Expect('normal wildcard hyphen', 'A-B¦TTS-A¦TTS-HD.001');
+        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'TTSA¦TTS.001¦TTS-HD.001¦TTS-A¦AB¦A.B¦A-B'
+        Observer.Ignore('temporary desc');
+        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'TTS.001¦TTSA'
+        Observer.Ignore('temporary range TTS.001..TTSA');
+        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'TTS-A¦TTS-HD.001¦TTS.001'
+        Observer.Ignore('temporary range TTS-A..TTS.001');
+        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'TTSA'
+        Observer.Ignore('temporary gt TTS.001');
+        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'A-B¦A.B¦AB¦TTS-A'
+        Observer.Ignore('temporary lt TTS-HD.001');
+        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'A-B¦A.B'
+        Observer.Ignore('temporary lt AB');
+        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'A.B¦AB¦TTS-A¦TTS-HD.001¦TTS.001¦TTSA'
+        Observer.Ignore('temporary gt A-B');
+        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'A-B¦TTS-A¦TTS-HD.001'
+        Observer.Ignore('temporary wildcard hyphen');
+        Observer.Verify();
     end;
 }

@@ -138,7 +138,13 @@ codeunit 95582 "LT R6 Rel Qualified Const"
         Probe(Observer, L, 'field form, matching', 3, 'OPEN-HEAD');
         Probe(Observer, L, 'field form, other status', 3, 'CERT-LINE');
         Probe(Observer, L, 'field form, blank', 3, '');
-        Observer.Finish();
+        Observer.Expect('table form, matching', 'ok');
+        Observer.Expect('table form, other status', 'error:The field Tmpl of table LT R6 Rel Line contains a value (OPEN-HEAD) that cannot be found in the related table (LT R6 Rel Header).|DB:NothingInsideFilter');
+        Observer.Expect('table form, no row', 'error:The field Tmpl of table LT R6 Rel Line contains a value (NONE) that cannot be found in the related table (LT R6 Rel Header).|DB:NothingInsideFilter');
+        Observer.Expect('field form, matching', 'ok');
+        Observer.Expect('field form, other status', 'error:The field DocNo of table LT R6 Rel Line contains a value (CERT-LINE) that cannot be found in the related table (LT R6 Rel Header).|DB:NothingInsideFilter');
+        Observer.Expect('field form, blank', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -153,7 +159,12 @@ codeunit 95582 "LT R6 Rel Qualified Const"
         Probe(Observer, L, 'filter, first table', 5, 'CERT-LINE');
         Probe(Observer, L, 'filter, second table', 5, 'OPEN-HEAD');
         Probe(Observer, L, 'filter, neither table', 5, 'CLOSED-OTHER');
-        Observer.Finish();
+        Observer.Expect('const, matching', 'ok');
+        Observer.Expect('const, other table', 'error:The field TabConst of table LT R6 Rel Line contains a value (OPEN-HEAD) that cannot be found in the related table (LT R6 Rel Header).|DB:NothingInsideFilter');
+        Observer.Expect('filter, first table', 'ok');
+        Observer.Expect('filter, second table', 'ok');
+        Observer.Expect('filter, neither table', 'error:The field TabFilter of table LT R6 Rel Line contains a value (CLOSED-OTHER) that cannot be found in the related table (LT R6 Rel Header).|DB:NothingInsideFilter');
+        Observer.Verify();
     end;
 
     [Test]
@@ -171,6 +182,11 @@ codeunit 95582 "LT R6 Rel Qualified Const"
         Probe(Observer, L, 'decimal arm, neither table', 7, 'CLOSED-OTHER');
         L.Typ := L.Typ::Other;
         Probe(Observer, L, 'no arm applies', 7, 'ANYTHING');
-        Observer.Finish();
+        Observer.Expect('option arm, matching', 'ok');
+        Observer.Expect('option arm, other table', 'error:The field Feature of table LT R6 Rel Line contains a value (OPEN-HEAD) that cannot be found in the related table (LT R6 Rel Header).|DB:NothingInsideFilter');
+        Observer.Expect('decimal arm, second table', 'ok');
+        Observer.Expect('decimal arm, neither table', 'error:The field Feature of table LT R6 Rel Line contains a value (CLOSED-OTHER) that cannot be found in the related table (LT R6 Rel Header).|DB:NothingInsideFilter');
+        Observer.Expect('no arm applies', 'ok');
+        Observer.Verify();
     end;
 }

@@ -104,8 +104,12 @@ codeunit 95578 "LT R6 Date Formula Filter"
         Probe(Observer, 'ge date', '>=' + Format(D1));
         Probe(Observer, 'eq date', '=' + Format(D1));
         Probe(Observer, 'date alone', Format(D1));
-        Probe(Observer, 'le date by StrSubstNo', StrSubstNo('<=%1', Format(D1)));
-        Observer.Finish();
+        Observer.Expect('le date', 'error:The filter "<=11/04/24" is not valid for the DF field on the LT R6 Date Formula Row table. The date formula ''11/04/24'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.|Filter:CSide');
+        Observer.Expect('lt date', 'error:The filter "<11/04/24" is not valid for the DF field on the LT R6 Date Formula Row table. The date formula ''11/04/24'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.|Filter:CSide');
+        Observer.Expect('ge date', 'error:The filter ">=11/04/24" is not valid for the DF field on the LT R6 Date Formula Row table. The date formula ''11/04/24'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.|Filter:CSide');
+        Observer.Expect('eq date', 'error:The filter "=11/04/24" is not valid for the DF field on the LT R6 Date Formula Row table. The date formula ''11/04/24'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.|Filter:CSide');
+        Observer.Expect('date alone', 'error:The filter "11/04/24" is not valid for the DF field on the LT R6 Date Formula Row table. The date formula ''11/04/24'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.|Filter:CSide');
+        Observer.Verify();
     end;
 
     [Test]
@@ -120,7 +124,13 @@ codeunit 95578 "LT R6 Date Formula Filter"
         Probe(Observer, 'le formula without brackets', '<=1M');
         Probe(Observer, 'ne bracketed formula', '<><1M>');
         Probe(Observer, 'ne formula without brackets', '<>1M');
-        Observer.Finish();
+        Observer.Expect('bracketed formula', 'error:The filter "<1M>" is not valid for the DF field on the LT R6 Date Formula Row table. An error occurred while interpreting the filter: Did not expect ''>''.\\For more information, see https://go.microsoft.com/fwlink/?linkid=2158058.|Filter:CSide');
+        Observer.Expect('formula without brackets', 'ok filter=1M rows=3');
+        Observer.Expect('le bracketed formula', 'error:The filter "<=<1M>" is not valid for the DF field on the LT R6 Date Formula Row table. A value is expected after the ''<=''.|Filter:CSide');
+        Observer.Expect('le formula without brackets', 'ok filter=<=1M rows=1234');
+        Observer.Expect('ne bracketed formula', 'error:The filter "<><1M>" is not valid for the DF field on the LT R6 Date Formula Row table. A value is expected after the ''<>''.|Filter:CSide');
+        Observer.Expect('ne formula without brackets', 'ok filter=<>1M rows=124');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -163,6 +173,11 @@ codeunit 95578 "LT R6 Date Formula Filter"
             Observer.Observe('calcdate', 'ok ' + Format(Result, 0, 9))
         else
             Observer.Observe('calcdate', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
-        Observer.Finish();
+        Observer.Expect('evaluate returns', 'No');
+        Observer.Expect('evaluate returns, formula after', '');
+        Observer.Expect('evaluate without return', 'error:The date formula ''<=11/04/24'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.|Evaluate');
+        Observer.Expect('evaluate date alone', 'error:The date formula ''11/04/24'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.|Evaluate');
+        Observer.Expect('calcdate', 'error:The date formula ''<=11/04/24'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.|Evaluate');
+        Observer.Verify();
     end;
 }

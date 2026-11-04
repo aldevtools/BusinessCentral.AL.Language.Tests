@@ -5,6 +5,7 @@
 //   (al-runner issue 6997: `SetFilter("No.", '<>%1')` with no value argument). record/crud/RcAFilters.al:446 pins the error on an Integer field.
 // Facts: SetFilter with a placeholder (%1, %2) and no value argument for it, on a Code, a Text, a Decimal and a Date field: whether it raises
 //   (text and code of the error) or which filter it sets (GetFilter) and which rows it selects. The rows hold the values blank, A and %1.
+//   On a Date field the placeholder reads back as a date of the session (not asserted here: it depends on the run date).
 // BC versions: 27, 28, 29
 
 table 95575 "LT R6 Placeholder Row"
@@ -102,7 +103,13 @@ codeunit 95576 "LT R6 Placeholder No Arg"
         Probe(Observer, 'range', 2, '%1..%2');
         Probe(Observer, 'ne and ne literal', 2, '<>%1&<>A');
         Probe(Observer, 'second', 2, '%2');
-        Observer.Finish();
+        Observer.Expect('ne', 'ok filter=No.: <>%1 rows=12');
+        Observer.Expect('eq', 'ok filter=No.: %1 rows=3');
+        Observer.Expect('gt', 'ok filter=No.: >%1 rows=2');
+        Observer.Expect('range', 'ok filter=No.: %1..%2 rows=3');
+        Observer.Expect('ne and ne literal', 'ok filter=No.: <>%1&<>A rows=1');
+        Observer.Expect('second', 'ok filter=No.: %2 rows=none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -116,20 +123,25 @@ codeunit 95576 "LT R6 Placeholder No Arg"
         Probe(Observer, 'gt', 3, '>%1');
         Probe(Observer, 'range', 3, '%1..%2');
         Probe(Observer, 'ne and ne literal', 3, '<>%1&<>A');
-        Observer.Finish();
+        Observer.Expect('ne', 'ok filter=Name: <>%1 rows=12');
+        Observer.Expect('eq', 'ok filter=Name: %1 rows=3');
+        Observer.Expect('gt', 'ok filter=Name: >%1 rows=2');
+        Observer.Expect('range', 'ok filter=Name: %1..%2 rows=3');
+        Observer.Expect('ne and ne literal', 'ok filter=Name: <>%1&<>A rows=1');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure DecimalAndDate_NoArgument()
+    procedure Decimal_NoArgument()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Seed();
         Probe(Observer, 'decimal ne', 4, '<>%1');
         Probe(Observer, 'decimal eq', 4, '%1');
-        Probe(Observer, 'date ne', 5, '<>%1');
-        Probe(Observer, 'date eq', 5, '%1');
-        Observer.Finish();
+        Observer.Expect('decimal ne', 'error:The filter "<>%1" is not valid for the Qty field on the LT R6 Placeholder Row table. The variable "%1" was not understood.|Filter:CSide');
+        Observer.Expect('decimal eq', 'error:The filter "%1" is not valid for the Qty field on the LT R6 Placeholder Row table. The variable "%1" was not understood.|Filter:CSide');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -151,7 +163,8 @@ codeunit 95576 "LT R6 Placeholder No Arg"
             Observer.Observe('literal ne', 'ok filter=' + R.GetFilters() + ' rows=' + Ids(R))
         else
             Observer.Observe('literal ne', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
-        Observer.Finish();
+        Observer.Expect('literal ne', 'ok filter=No.: <>%1 rows=12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -163,6 +176,7 @@ codeunit 95576 "LT R6 Placeholder No Arg"
         Seed();
         R.SetFilter("No.", '<>%1', '');
         Observer.Observe('ne blank argument', 'filter=' + R.GetFilters() + ' rows=' + Ids(R));
-        Observer.Finish();
+        Observer.Expect('ne blank argument', 'filter=No.: <>'''' rows=23');
+        Observer.Verify();
     end;
 }
