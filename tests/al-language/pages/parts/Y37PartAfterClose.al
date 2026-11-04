@@ -490,4 +490,291 @@ codeunit 92648 "LT Y37 PC Tests"
         Observer.Expect('host update false closed', 'Yes');
         Observer.Verify();
     end;
+
+    // Observe-only native bootstrap. Finish() deliberately fails with complete OBSERVE pairs.
+    // TryFunction cases measure the catch context. Direct cases separately record native test-boundary follow-up.
+    var
+        ClpParent: TestPage "PAG Trigger Close Parent";
+        ClpLog: Codeunit "PAG Trigger Close Log";
+        ClpPreserveTrace: Boolean;
+        ClpBoundaryTrace: Text;
+        ClpBoundaryCase: Text;
+        ClpBoundaryQueries: Integer;
+        ClpBoundaryFlag: Boolean;
+
+    local procedure Initialize()
+    var
+        Cleanup: Codeunit ALTFixtureCleanup;
+    begin
+        // Snapshot continuation metadata before any reset, even if the codeunit flag was lost.
+        ClpBoundaryTrace := ClpLog.ReadTrace();
+        ClpBoundaryCase := ClpLog.ReadCase();
+        ClpBoundaryQueries := ClpLog.QueryCount();
+        ClpBoundaryFlag := ClpPreserveTrace;
+        ClpPreserveTrace := false;
+        Clear(ClpParent);
+        ClpLog.Reset();
+        Observer.Discard();
+        Cleanup.Initialize();
+    end;
+
+    local procedure ClpFlag(Value: Boolean): Text
+    begin
+        if Value then
+            exit('T');
+        exit('F');
+    end;
+
+    [TryFunction]
+    local procedure ClpTryOpen()
+    begin
+        ClpParent.OpenView();
+    end;
+
+    [TryFunction]
+    local procedure ClpTryAction()
+    begin
+        ClpParent.ProbeAction.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure ClpTryParent(var Id: Integer)
+    begin
+        Id := ClpParent.ProbeId.AsInteger();
+    end;
+
+    [TryFunction]
+    local procedure ClpTryPart(var Id: Integer)
+    begin
+        Id := ClpParent.PartBody.ProbeId.AsInteger();
+    end;
+
+    [TryFunction]
+    local procedure ClpTryClose()
+    begin
+        ClpParent.Close();
+    end;
+
+    local procedure ClpCapture(UseAction: Boolean; RequestClose: Boolean; PermitClose: Boolean)
+    var
+        Opened: Boolean;
+        ActionSucceeded: Boolean;
+        ParentRead: Boolean;
+        PartRead: Boolean;
+        Closed: Boolean;
+        ParentId: Integer;
+        PartId: Integer;
+        OpenCode: Text;
+        OpenText: Text;
+        ActionCode: Text;
+        ActionText: Text;
+        ParentCode: Text;
+        ParentText: Text;
+        PartCode: Text;
+        PartText: Text;
+        CloseCode: Text;
+        CloseText: Text;
+        OperationTrace: Text;
+        OperationQueries: Integer;
+    begin
+        ClpLog.Configure(UseAction, RequestClose, PermitClose);
+        ClearLastError();
+        Opened := ClpTryOpen();
+        if not Opened then begin
+            OpenCode := GetLastErrorCode();
+            OpenText := GetLastErrorText();
+        end;
+        if UseAction and Opened then begin
+            ClearLastError();
+            ActionSucceeded := ClpTryAction();
+            if not ActionSucceeded then begin
+                ActionCode := GetLastErrorCode();
+                ActionText := GetLastErrorText();
+            end;
+        end;
+        OperationTrace := ClpLog.ReadTrace();
+        OperationQueries := ClpLog.QueryCount();
+        ParentId := -777;
+        PartId := -777;
+        ClearLastError();
+        ParentRead := ClpTryParent(ParentId);
+        if not ParentRead then begin
+            ParentCode := GetLastErrorCode();
+            ParentText := GetLastErrorText();
+        end;
+        ClearLastError();
+        PartRead := ClpTryPart(PartId);
+        if not PartRead then begin
+            PartCode := GetLastErrorCode();
+            PartText := GetLastErrorText();
+        end;
+        ClearLastError();
+        Closed := ClpTryClose();
+        if not Closed then begin
+            CloseCode := GetLastErrorCode();
+            CloseText := GetLastErrorText();
+        end;
+        Observer.Observe('open.ok', ClpFlag(Opened));
+        Observer.Observe('open.error.code', OpenCode);
+        Observer.Observe('open.error.text', OpenText);
+        Observer.Observe('action.requested', ClpFlag(UseAction));
+        Observer.Observe('action.ok', ClpFlag(ActionSucceeded));
+        Observer.Observe('action.error.code', ActionCode);
+        Observer.Observe('action.error.text', ActionText);
+        Observer.Observe('operation.trace', OperationTrace);
+        Observer.Observe('operation.queries', Format(OperationQueries));
+        Observer.Observe('follow.parent.ok', ClpFlag(ParentRead));
+        Observer.Observe('follow.parent.id', Format(ParentId));
+        Observer.Observe('follow.parent.error.code', ParentCode);
+        Observer.Observe('follow.parent.error.text', ParentText);
+        Observer.Observe('follow.part.ok', ClpFlag(PartRead));
+        Observer.Observe('follow.part.id', Format(PartId));
+        Observer.Observe('follow.part.error.code', PartCode);
+        Observer.Observe('follow.part.error.text', PartText);
+        Observer.Observe('follow.close.ok', ClpFlag(Closed));
+        Observer.Observe('follow.close.error.code', CloseCode);
+        Observer.Observe('follow.close.error.text', CloseText);
+        Observer.Observe('follow.trace', ClpLog.ReadTrace());
+        Observer.Observe('follow.queries', Format(ClpLog.QueryCount()));
+        Observer.Observe('capture.end', 'COMPLETE');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure CLP_AGCR_NoClose_PartAccess_Observe()
+    begin
+        Initialize();
+        ClpCapture(false, false, true);
+    end;
+
+    [Test]
+    procedure CLP_AGCR_CloseAllowed_PartAccess_Observe()
+    begin
+        Initialize();
+        ClpCapture(false, true, true);
+    end;
+
+    [Test]
+    procedure CLP_AGCR_CloseVeto_PartAccess_Observe()
+    begin
+        Initialize();
+        ClpCapture(false, true, false);
+    end;
+
+    [Test]
+    procedure CLP_Action_CloseAllowed_PartAccess_Observe()
+    begin
+        Initialize();
+        ClpCapture(true, true, true);
+    end;
+
+    [Test]
+    procedure CLP_Action_CloseVeto_PartAccess_Observe()
+    begin
+        Initialize();
+        ClpCapture(true, true, false);
+    end;
+
+    local procedure ClpDirect(UseAction: Boolean; RequestClose: Boolean; PermitClose: Boolean; Identity: Text)
+    begin
+        ClpLog.Configure(UseAction, RequestClose, PermitClose);
+        ClpLog.SetCase(Identity);
+        ClpPreserveTrace := true;
+        ClpLog.Mark('TEST.BEFORE.OPEN');
+        ClpParent.OpenView();
+        ClpLog.Mark('TEST.AFTER.OPEN');
+        if UseAction then begin
+            ClpParent.ProbeAction.Invoke();
+            ClpLog.Mark('TEST.AFTER.ACTION');
+        end;
+        Observer.Observe('direct.case', ClpLog.ReadCase());
+        Observer.Observe('direct.returned', 'T');
+        Observer.Observe('direct.trace', ClpLog.ReadTrace());
+        Observer.Observe('direct.queries', Format(ClpLog.QueryCount()));
+        Observer.Observe('capture.end', 'COMPLETE');
+        Observer.Finish();
+    end;
+
+    local procedure ClpDirectBoundaryTrace(ExpectedIdentity: Text)
+    begin
+        // This includes any native test-runner cleanup after the previous test, not just the operation body.
+        Observer.Observe('boundary.expected.case', ExpectedIdentity);
+        Observer.Observe('boundary.actual.case', ClpBoundaryCase);
+        Observer.Observe('boundary.paired', ClpFlag(ClpBoundaryCase = ExpectedIdentity));
+        Observer.Observe('boundary.preserve.flag', ClpFlag(ClpBoundaryFlag));
+        Observer.Observe('direct.post-test-boundary.trace', ClpBoundaryTrace);
+        Observer.Observe('direct.post-test-boundary.queries', Format(ClpBoundaryQueries));
+        Observer.Observe('capture.end', 'COMPLETE');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure CLP_Direct_AGCR_NoClose_Observe()
+    begin
+        Initialize();
+        ClpDirect(false, false, true, 'AGCR_NoClose');
+    end;
+
+    [Test]
+    procedure CLP_Direct_AGCR_NoClose_BoundaryTrace()
+    begin
+        Initialize();
+        ClpDirectBoundaryTrace('AGCR_NoClose');
+    end;
+
+    [Test]
+    procedure CLP_Direct_AGCR_CloseAllowed_Observe()
+    begin
+        Initialize();
+        ClpDirect(false, true, true, 'AGCR_CloseAllowed');
+    end;
+
+    [Test]
+    procedure CLP_Direct_AGCR_CloseAllowed_BoundaryTrace()
+    begin
+        Initialize();
+        ClpDirectBoundaryTrace('AGCR_CloseAllowed');
+    end;
+
+    [Test]
+    procedure CLP_Direct_AGCR_CloseVeto_Observe()
+    begin
+        Initialize();
+        ClpDirect(false, true, false, 'AGCR_CloseVeto');
+    end;
+
+    [Test]
+    procedure CLP_Direct_AGCR_CloseVeto_BoundaryTrace()
+    begin
+        Initialize();
+        ClpDirectBoundaryTrace('AGCR_CloseVeto');
+    end;
+
+    [Test]
+    procedure CLP_Direct_Action_CloseAllowed_Observe()
+    begin
+        Initialize();
+        ClpDirect(true, true, true, 'Action_CloseAllowed');
+    end;
+
+    [Test]
+    procedure CLP_Direct_Action_CloseAllowed_BoundaryTrace()
+    begin
+        Initialize();
+        ClpDirectBoundaryTrace('Action_CloseAllowed');
+    end;
+
+    [Test]
+    procedure CLP_Direct_Action_CloseVeto_Observe()
+    begin
+        Initialize();
+        ClpDirect(true, true, false, 'Action_CloseVeto');
+    end;
+
+    [Test]
+    procedure CLP_Direct_Action_CloseVeto_BoundaryTrace()
+    begin
+        Initialize();
+        ClpDirectBoundaryTrace('Action_CloseVeto');
+    end;
 }
