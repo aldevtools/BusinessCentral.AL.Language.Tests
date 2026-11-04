@@ -9,6 +9,12 @@
 //   Opened with OpenEdit. Rows (Line No. / indentation): 10/0, 20/1, 30/2, 40/1, 50/0, 60/1, 70/0: 10 holds 20 and 40, 20 holds 30, 50
 //   holds 60; 30, 40, 60 and 70 have no children. Log: R<line> = OnAfterGetRecord, C<line> = OnAfterGetCurrRecord.
 //   Each step observes <Expand ok>/<IsExpanded>/<line shown>:<log>; a walk is First/Next over the rows that show.
+// Result (27.5, 28.5, 29.0 alike): Expand(true) on a row without children, at indentation 0, 1 or 2, raises nothing, runs no row trigger,
+//   leaves IsExpanded No, the cursor on the row and the rows shown as they were; a walk that calls Expand(true) on every row reaches
+//   every row. Expand(false) on a collapsed row with children raises nothing either. Collapsing row 10 and expanding it again shows
+//   row 30 again (row 20 stays expanded). Expand(false) on a row without children, at any indentation, ends the test with an
+//   uncatchable CLR exception ("Expanding and collapsing are not supported on this rowEntry", also inside a TryFunction), so it is kept
+//   as the non-test procedure Collapsed_CollapseLeafRow40. The ExpandAll page, filled in OnOpenPage, opens collapsed (rows 10, 50, 70).
 // BC versions: 27, 28, 29
 
 table 95420 "PAG TreeExpand Row"
@@ -299,7 +305,16 @@ codeunit 95424 "PAG TreeExpand Leaf Tests"
         MoveC(P, 'next 3', false);
         Observer.Observe('walk', WalkC(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'No/10:R10;R20;R30;R40;R50;R60;R70;R10;R10;C10');
+        Observer.Expect('first', 'Yes/10:');
+        Observer.Expect('expand 10', 'Yes/Yes/10:');
+        Observer.Expect('next 1', 'Yes/20:R20;R20;C20');
+        Observer.Expect('next 2', 'Yes/40:R40;R40;C40');
+        Observer.Expect('expand 40', 'Yes/No/40:');
+        Observer.Expect('expand 40 again', 'Yes/No/40:');
+        Observer.Expect('next 3', 'Yes/50:R50;R50;C50');
+        Observer.Expect('walk', '10,20,40,50,70,:R10;R10;C10;R20;R20;C20;R40;R40;C40;R50;R50;C50;R70;R70;C70');
+        Observer.Verify();
     end;
 
     // CollapseAll: Expand(true) on row 30, a row at indentation 2 without children, under row 20.
@@ -317,7 +332,15 @@ codeunit 95424 "PAG TreeExpand Leaf Tests"
         MoveC(P, 'next 3', false);
         Observer.Observe('walk', WalkC(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'No/10:R10;R20;R30;R40;R50;R60;R70;R10;R10;C10');
+        Observer.Expect('expand 10', 'Yes/Yes/10:');
+        Observer.Expect('next 1', 'Yes/20:R20;R20;C20');
+        Observer.Expect('expand 20', 'Yes/Yes/20:');
+        Observer.Expect('next 2', 'Yes/30:R30;R30;C30');
+        Observer.Expect('expand 30', 'Yes/No/30:');
+        Observer.Expect('next 3', 'Yes/40:R40;R40;C40');
+        Observer.Expect('walk', '10,20,30,40,50,70,:R10;R10;C10;R20;R20;C20;R30;R30;C30;R40;R40;C40;R50;R50;C50;R70;R70;C70');
+        Observer.Verify();
     end;
 
     // CollapseAll: Expand(true) on row 60, the last child of row 50, with a row at indentation 0 after it.
@@ -334,7 +357,14 @@ codeunit 95424 "PAG TreeExpand Leaf Tests"
         MoveC(P, 'next 3', false);
         Observer.Observe('walk', WalkC(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'No/10:R10;R20;R30;R40;R50;R60;R70;R10;R10;C10');
+        Observer.Expect('next 1', 'Yes/50:R50;R50;C50');
+        Observer.Expect('expand 50', 'Yes/Yes/50:');
+        Observer.Expect('next 2', 'Yes/60:R60;R60;C60');
+        Observer.Expect('expand 60', 'Yes/No/60:');
+        Observer.Expect('next 3', 'Yes/70:R70;R70;C70');
+        Observer.Expect('walk', '10,50,60,70,:R10;R10;C10;R50;R50;C50;R60;R60;C60;R70;R70;C70');
+        Observer.Verify();
     end;
 
     // CollapseAll: Expand(true) on row 70, a row at indentation 0 without children, the last row.
@@ -350,7 +380,13 @@ codeunit 95424 "PAG TreeExpand Leaf Tests"
         MoveC(P, 'next 3', false);
         Observer.Observe('walk', WalkC(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'No/10:R10;R20;R30;R40;R50;R60;R70;R10;R10;C10');
+        Observer.Expect('next 1', 'Yes/50:R50;R50;C50');
+        Observer.Expect('next 2', 'Yes/70:R70;R70;C70');
+        Observer.Expect('expand 70', 'Yes/No/70:');
+        Observer.Expect('next 3', 'No/70:');
+        Observer.Expect('walk', '10,50,70,:R10;R10;C10;R50;R50;C50;R70;R70;C70');
+        Observer.Verify();
     end;
 
     // CollapseAll, the reporter's walk: First and Next over the rows, Expand(true) on each row the walk stands on.
@@ -372,7 +408,11 @@ codeunit 95424 "PAG TreeExpand Leaf Tests"
         Observer.Observe('walk log', Log.Take());
         Observer.Observe('walk', WalkC(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'No/10:R10;R20;R30;R40;R50;R60;R70;R10;R10;C10');
+        Observer.Expect('walked', '10,20,30,40,50,60,70,');
+        Observer.Expect('walk log', 'R20;R20;C20;R30;R30;C30;R40;R40;C40;R50;R50;C50;R60;R60;C60;R70;R70;C70');
+        Observer.Expect('walk', '10,20,30,40,50,60,70,:R10;R10;C10;R20;R20;C20;R30;R30;C30;R40;R40;C40;R50;R50;C50;R60;R60;C60;R70;R70;C70');
+        Observer.Verify();
     end;
 
     // CollapseAll: row 20 (indentation 1, with a child): Expand(false) while collapsed, Expand(true), then Expand(false) twice.
@@ -393,7 +433,18 @@ codeunit 95424 "PAG TreeExpand Leaf Tests"
         StepC(P, 'collapse 20 again', false);
         Observer.Observe('walk', WalkC(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'No/10:R10;R20;R30;R40;R50;R60;R70;R10;R10;C10');
+        Observer.Expect('expand 10', 'Yes/Yes/10:');
+        Observer.Expect('next 1', 'Yes/20:R20;R20;C20');
+        Observer.Expect('collapse 20 collapsed', 'Yes/No/20:');
+        Observer.Expect('expand 20', 'Yes/Yes/20:');
+        Observer.Expect('next 2', 'Yes/30:R30;R30;C30');
+        Observer.Expect('first', 'Yes/10:R10;R10;C10');
+        Observer.Expect('next 3', 'Yes/20:R20;R20;C20');
+        Observer.Expect('collapse 20', 'Yes/No/20:');
+        Observer.Expect('collapse 20 again', 'Yes/No/20:');
+        Observer.Expect('walk', '10,20,40,50,70,:R10;R10;C10;R20;R20;C20;R40;R40;C40;R50;R50;C50;R70;R70;C70');
+        Observer.Verify();
     end;
 
     // CollapseAll: collapse row 10 while its child 20 is expanded, then expand 10 again: does row 30 show again?
@@ -413,7 +464,17 @@ codeunit 95424 "PAG TreeExpand Leaf Tests"
         StepC(P, 'expand 10 again', true);
         Observer.Observe('walk 2', WalkC(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'No/10:R10;R20;R30;R40;R50;R60;R70;R10;R10;C10');
+        Observer.Expect('expand 10', 'Yes/Yes/10:');
+        Observer.Expect('next 1', 'Yes/20:R20;R20;C20');
+        Observer.Expect('expand 20', 'Yes/Yes/20:');
+        Observer.Expect('first', 'Yes/10:R10;R10;C10');
+        Observer.Expect('collapse 10', 'Yes/No/10:');
+        Observer.Expect('walk 1', '10,50,70,:R50;R50;C50;R70;R70;C70');
+        Observer.Expect('first again', 'Yes/10:R10;R10;C10');
+        Observer.Expect('expand 10 again', 'Yes/Yes/10:');
+        Observer.Expect('walk 2', '10,20,30,40,50,70,:R20;R20;C20;R30;R30;C30;R40;R40;C40;R50;R50;C50;R70;R70;C70');
+        Observer.Verify();
     end;
 
     // Expand(false) on a row without children, at any indentation (rows 30, 40, 60, 70), ends the test with an uncatchable CLR
@@ -440,7 +501,9 @@ codeunit 95424 "PAG TreeExpand Leaf Tests"
         OpenE(P);
         Observer.Observe('walk', WalkE(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'No/10:R10;R20;R30;R40;R50;R60;R70;R10;R10;C10');
+        Observer.Expect('walk', '10,50,70,:R50;R50;C50;R70;R70;C70');
+        Observer.Verify();
     end;
 
     // ExpandAll: Expand(true) on row 10, then on row 40 (indentation 1, no children) and row 20, then on row 30 (indentation 2).
@@ -461,7 +524,18 @@ codeunit 95424 "PAG TreeExpand Leaf Tests"
         StepE(P, 'expand 30', true);
         Observer.Observe('walk', WalkE(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'No/10:R10;R20;R30;R40;R50;R60;R70;R10;R10;C10');
+        Observer.Expect('expand 10', 'Yes/Yes/10:');
+        Observer.Expect('next 1', 'Yes/20:R20;R20;C20');
+        Observer.Expect('next 2', 'Yes/40:R40;R40;C40');
+        Observer.Expect('expand 40', 'Yes/No/40:');
+        Observer.Expect('first', 'Yes/10:R10;R10;C10');
+        Observer.Expect('next 3', 'Yes/20:R20;R20;C20');
+        Observer.Expect('expand 20', 'Yes/Yes/20:');
+        Observer.Expect('next 4', 'Yes/30:R30;R30;C30');
+        Observer.Expect('expand 30', 'Yes/No/30:');
+        Observer.Expect('walk', '10,20,30,40,50,70,:R10;R10;C10;R20;R20;C20;R30;R30;C30;R40;R40;C40;R50;R50;C50;R70;R70;C70');
+        Observer.Verify();
     end;
 
     // ExpandAll: the walk with Expand(true) on every row.
@@ -482,6 +556,9 @@ codeunit 95424 "PAG TreeExpand Leaf Tests"
         Observer.Observe('walked', Walked);
         Observer.Observe('walk log', Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'No/10:R10;R20;R30;R40;R50;R60;R70;R10;R10;C10');
+        Observer.Expect('walked', '10,20,30,40,50,60,70,');
+        Observer.Expect('walk log', 'R20;R20;C20;R30;R30;C30;R40;R40;C40;R50;R50;C50;R60;R60;C60;R70;R70;C70');
+        Observer.Verify();
     end;
 }
