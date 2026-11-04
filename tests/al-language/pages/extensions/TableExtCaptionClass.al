@@ -141,55 +141,65 @@ codeunit 72307 "LT P123 CaptionClass Tests"
     procedure TableExt_CrossApp_BareCallSelectsLocal()
     var
         T: Record "TBL Lexical Owner Base";
-        Assert: Codeunit "Library Assert";
+        Observer: Codeunit "Probe Observer";
     begin
         Initialize();
         T.Get(1);
-        Assert.AreEqual('3,Extension 19', T.ExtensionBare(), 'Lexical declaration owner must select the expected body');
+        Observer.Observe('result', T.ExtensionBare());
+        Observer.Expect('result', '3,Extension 19');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TableExt_CrossApp_BaseCallKeepsBase()
     var
         T: Record "TBL Lexical Owner Base";
-        Assert: Codeunit "Library Assert";
+        Observer: Codeunit "Probe Observer";
     begin
         Initialize();
         T.Get(1);
-        Assert.AreEqual('3,Base 17', T.BaseCall(), 'Lexical declaration owner must select the expected body');
+        Observer.Observe('result', T.BaseCall());
+        Observer.Expect('result', '3,Base 17');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TableExt_CrossApp_AddedCaptionSelectsLocal()
     var
         T: Record "TBL Lexical Owner Base";
-        Assert: Codeunit "Library Assert";
+        Observer: Codeunit "Probe Observer";
     begin
         Initialize();
         T.Get(1);
-        Assert.AreEqual('Extension 97890', T.FieldCaption(CollisionCaption), 'Lexical declaration owner must select the expected body');
+        Observer.Observe('result', T.FieldCaption(CollisionCaption));
+        Observer.Expect('result', 'Extension 97890');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TableExt_CrossApp_ModifiedCaptionSelectsLocal()
     var
         T: Record "TBL Lexical Owner Base";
-        Assert: Codeunit "Library Assert";
+        Observer: Codeunit "Probe Observer";
     begin
         Initialize();
         T.Get(1);
-        Assert.AreEqual('Extension 2', T.FieldCaption(BaseLabel), 'Lexical declaration owner must select the expected body');
+        Observer.Observe('result', T.FieldCaption(BaseLabel));
+        Observer.Expect('result', 'Extension 2');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TableExt_CrossApp_UniqueCaptionControl()
     var
         T: Record "TBL Lexical Owner Base";
-        Assert: Codeunit "Library Assert";
+        Observer: Codeunit "Probe Observer";
     begin
         Initialize();
         T.Get(1);
-        Assert.AreEqual('Unique 97891', T.FieldCaption(UniqueCaption), 'Lexical declaration owner must select the expected body');
+        Observer.Observe('result', T.FieldCaption(UniqueCaption));
+        Observer.Expect('result', 'Unique 97891');
+        Observer.Verify();
     end;
 
     local procedure Initialize()
