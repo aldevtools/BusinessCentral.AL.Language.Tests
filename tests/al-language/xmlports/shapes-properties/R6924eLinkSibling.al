@@ -7,6 +7,12 @@
 //   (all, those of the last header, none); which "Doc No." an import gives the lines, with all headers first and with headers and
 //   lines interleaved. Log: agr <element> <key> = OnAfterGetRecord, ins <element> <key> = OnBeforeInsertRecord with the header
 //   element's current "No." after the bar.
+// Facts (BC 29.0 on the corpus CI, then checked on the matrix): it compiles. Export: the header rows are written first; the line element
+//   then writes only the lines linked to the header element's record as the header loop left it (the last header, H2); with no header
+//   row no line is read (no OnAfterGetRecord) and the root is written empty. Import (headers first): the link does not fill the line's
+//   "Doc No." (it stays blank) and the header element's "No." reads blank in the line's OnBeforeInsertRecord; a line whose own "Doc No."
+//   is not blank raises "The data conflicts with the LinkTable and LinkFields setup of Table TransportLine."; a header after a line is
+//   rejected by the schema check (the sequence is Header*, Line*).
 // Neighbours: xmlports/import/XmlPortLinkTableNoLinkFields.al (LinkTable without LinkFields), streams/Y14XmlPortLink.al (a nested link).
 // BC versions: all (CI)
 
@@ -225,7 +231,9 @@ codeunit 95354 "LT R6924e Link Sibling Tests"
         AddLine('H2', 1);
         AddLine('X9', 1);
         Export('two headers');
-        Observer.Finish();
+        Observer.Expect('two headers xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|<TransportHeader No="H1" Name="nH1" />|<TransportHeader No="H2" Name="nH2" />|<TransportLine Doc="H2" LineNo="1" Item="iH21" />|</Root>|');
+        Observer.Expect('two headers log', 'agr hdr H1;agr hdr H2;agr line H2-1|H2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -234,7 +242,9 @@ codeunit 95354 "LT R6924e Link Sibling Tests"
         Start();
         AddLine('H1', 1);
         Export('no header');
-        Observer.Finish();
+        Observer.Expect('no header xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root />|');
+        Observer.Expect('no header log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -242,22 +252,28 @@ codeunit 95354 "LT R6924e Link Sibling Tests"
     begin
         Start();
         Import('headers first', '<Root><TransportHeader No="H1" /><TransportHeader No="H2" /><TransportLine LineNo="1" Item="a" /><TransportLine LineNo="2" Item="b" /></Root>');
-        Observer.Finish();
+        Observer.Expect('headers first rows', 'H H1;H H2;L -1 a;L -2 b;');
+        Observer.Expect('headers first log', 'ins hdr H1;ins hdr H2;ins line -1|;ins line -2|;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure LinkSibling_Import_LineWithDoc()
     begin
         Start();
-        Import('line with doc', '<Root><TransportHeader No="H1" /><TransportLine Doc="Z1" LineNo="1" Item="a" /></Root>');
-        Observer.Finish();
+        asserterror Import('line with doc', '<Root><TransportHeader No="H1" /><TransportLine Doc="Z1" LineNo="1" Item="a" /></Root>');
+        Observer.Observe('line with doc error', GetLastErrorText());
+        Observer.Expect('line with doc error', 'The data conflicts with the LinkTable and LinkFields setup of Table TransportLine.');
+        Observer.Verify();
     end;
 
     [Test]
     procedure LinkSibling_Import_Interleaved()
     begin
         Start();
-        Import('interleaved', '<Root><TransportHeader No="H1" /><TransportLine LineNo="1" Item="a" /><TransportHeader No="H2" /><TransportLine LineNo="2" Item="b" /></Root>');
-        Observer.Finish();
+        asserterror Import('interleaved', '<Root><TransportHeader No="H1" /><TransportLine LineNo="1" Item="a" /><TransportHeader No="H2" /><TransportLine LineNo="2" Item="b" /></Root>');
+        Observer.Observe('interleaved error', GetLastErrorText());
+        Observer.Expect('interleaved error', 'Imported XML cannot validate with the schema: The element ''Root'' has invalid child element ''TransportHeader''. List of possible elements expected: ''TransportLine''.');
+        Observer.Verify();
     end;
 }

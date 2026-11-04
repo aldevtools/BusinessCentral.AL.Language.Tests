@@ -7,6 +7,10 @@
 //   TaxTotal container, and the TaxCategory of an AllowanceCharge (Percent skips when empty) right below a table element under the
 //   root. Also: an empty leaf of the inner TaxScheme, and the container's own text set by a trigger. Exported lines are trimmed and
 //   joined with |. Log: agr <element> <n> = OnAfterGetRecord, <leaf>[value] = the leaf's OnBeforePassVariable.
+// Facts (BC 29.0 on the corpus CI, then checked on the matrix): the container is written as any container, its leaves in schema order;
+//   each leaf's OnBeforePassVariable runs before the leaf, after the row's OnAfterGetRecord; Skip there leaves out only that leaf; an
+//   empty leaf of the inner TaxScheme is written as <cbc:ID />; the container's own text, set by OnAfterGetRecord, is written after its
+//   last child element, before its end tag (</cac:TaxScheme>own</cac:TaxCategory>).
 // Neighbours: streams/Y72XpEInvoiceShapes.al (TaxCategory of leaves only, containers with triggers),
 //   xmlports/shapes-properties/Y60XpContainerSkip.al (a container two levels below a table element).
 // BC versions: all (CI)
@@ -280,27 +284,35 @@ codeunit 95342 "LT R6924e Tree In Table"
     procedure TreeInTable_AllFilled()
     begin
         Export('all filled', 1);
-        Observer.Finish();
+        Observer.Expect('all filled xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|<cbc:ID>INV1</cbc:ID>|<cac:AllowanceCharge>|<cbc:Amount>5</cbc:Amount>|<cac:TaxCategory>|<cbc:ID>S</cbc:ID>|<cbc:Percent>21</cbc:Percent>|<cac:TaxScheme>|<cbc:ID>VAT</cbc:ID>|</cac:TaxScheme>|</cac:TaxCategory>|</cac:AllowanceCharge>|<cac:TaxTotal>|<cbc:TaxAmount>30</cbc:TaxAmount>|<cac:TaxSubtotal>|<cbc:TaxableAmount>101</cbc:TaxableAmount>|<cac:TaxCategory>|<cbc:ID>S1</cbc:ID>|<cbc:Percent>25</cbc:Percent>|<cac:TaxScheme>|<cbc:ID>VAT</cbc:ID>|</cac:TaxScheme>|</cac:TaxCategory>|</cac:TaxSubtotal>|<cac:TaxSubtotal>|<cbc:TaxableAmount>102</cbc:TaxableAmount>|<cac:TaxCategory>|<cbc:ID>S2</cbc:ID>|<cbc:Percent>25</cbc:Percent>|<cbc:TaxExemptionReason>exempt</cbc:TaxExemptionReason>|<cac:TaxScheme>|<cbc:ID>VAT</cbc:ID>|</cac:TaxScheme>|</cac:TaxCategory>|</cac:TaxSubtotal>|</cac:TaxTotal>|<cbc:After>t</cbc:After>|</Invoice>|');
+        Observer.Expect('all filled log', 'agr hdr;agr charge 1;chargepct[21];agr charge 2;taxtotal;agr subloop 1;reason[];agr subloop 2;reason[exempt];agr subloop 3;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TreeInTable_LeavesSkipped()
     begin
         Export('leaves skipped', 2);
-        Observer.Finish();
+        Observer.Expect('leaves skipped xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|<cbc:ID>INV1</cbc:ID>|<cac:AllowanceCharge>|<cbc:Amount>5</cbc:Amount>|<cac:TaxCategory>|<cbc:ID>S</cbc:ID>|<cac:TaxScheme>|<cbc:ID>VAT</cbc:ID>|</cac:TaxScheme>|</cac:TaxCategory>|</cac:AllowanceCharge>|<cac:TaxTotal>|<cbc:TaxAmount>30</cbc:TaxAmount>|<cac:TaxSubtotal>|<cbc:TaxableAmount>101</cbc:TaxableAmount>|<cac:TaxCategory>|<cbc:ID>S1</cbc:ID>|<cbc:Percent>25</cbc:Percent>|<cac:TaxScheme>|<cbc:ID>VAT</cbc:ID>|</cac:TaxScheme>|</cac:TaxCategory>|</cac:TaxSubtotal>|</cac:TaxTotal>|<cbc:After>t</cbc:After>|</Invoice>|');
+        Observer.Expect('leaves skipped log', 'agr hdr;agr charge 1;chargepct[];agr charge 2;taxtotal;agr subloop 1;reason[];agr subloop 2;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TreeInTable_InnerLeafEmpty()
     begin
         Export('inner leaf empty', 3);
-        Observer.Finish();
+        Observer.Expect('inner leaf empty xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|<cbc:ID>INV1</cbc:ID>|<cac:AllowanceCharge>|<cbc:Amount>5</cbc:Amount>|<cac:TaxCategory>|<cbc:ID>S</cbc:ID>|<cbc:Percent>21</cbc:Percent>|<cac:TaxScheme>|<cbc:ID />|</cac:TaxScheme>|</cac:TaxCategory>|</cac:AllowanceCharge>|<cac:TaxTotal>|<cbc:TaxAmount>30</cbc:TaxAmount>|<cac:TaxSubtotal>|<cbc:TaxableAmount>101</cbc:TaxableAmount>|<cac:TaxCategory>|<cbc:ID>S1</cbc:ID>|<cbc:Percent>25</cbc:Percent>|<cac:TaxScheme>|<cbc:ID />|</cac:TaxScheme>|</cac:TaxCategory>|</cac:TaxSubtotal>|<cac:TaxSubtotal>|<cbc:TaxableAmount>102</cbc:TaxableAmount>|<cac:TaxCategory>|<cbc:ID>S2</cbc:ID>|<cbc:Percent>25</cbc:Percent>|<cbc:TaxExemptionReason>exempt</cbc:TaxExemptionReason>|<cac:TaxScheme>|<cbc:ID />|</cac:TaxScheme>|</cac:TaxCategory>|</cac:TaxSubtotal>|</cac:TaxTotal>|<cbc:After>t</cbc:After>|</Invoice>|');
+        Observer.Expect('inner leaf empty log', 'agr hdr;agr charge 1;chargepct[21];agr charge 2;taxtotal;agr subloop 1;reason[];agr subloop 2;reason[exempt];agr subloop 3;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TreeInTable_ContainerOwnText()
     begin
         Export('own text', 4);
-        Observer.Finish();
+        Observer.Expect('own text xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|<cbc:ID>INV1</cbc:ID>|<cac:AllowanceCharge>|<cbc:Amount>5</cbc:Amount>|<cac:TaxCategory>|<cbc:ID>S</cbc:ID>|<cbc:Percent>21</cbc:Percent>|<cac:TaxScheme>|<cbc:ID>VAT</cbc:ID>|</cac:TaxScheme>own</cac:TaxCategory>|</cac:AllowanceCharge>|<cac:TaxTotal>|<cbc:TaxAmount>30</cbc:TaxAmount>|<cac:TaxSubtotal>|<cbc:TaxableAmount>101</cbc:TaxableAmount>|<cac:TaxCategory>|<cbc:ID>S1</cbc:ID>|<cbc:Percent>25</cbc:Percent>|<cac:TaxScheme>|<cbc:ID>VAT</cbc:ID>|</cac:TaxScheme>own</cac:TaxCategory>|</cac:TaxSubtotal>|<cac:TaxSubtotal>|<cbc:TaxableAmount>102</cbc:TaxableAmount>|<cac:TaxCategory>|<cbc:ID>S2</cbc:ID>|<cbc:Percent>25</cbc:Percent>|<cbc:TaxExemptionReason>exempt</cbc:TaxExemptionReason>|<cac:TaxScheme>|<cbc:ID>VAT</cbc:ID>|</cac:TaxScheme>own</cac:TaxCategory>|</cac:TaxSubtotal>|</cac:TaxTotal>|<cbc:After>t</cbc:After>|</Invoice>|');
+        Observer.Expect('own text log', 'agr hdr;agr charge 1;chargepct[21];agr charge 2;taxtotal;agr subloop 1;reason[];agr subloop 2;reason[exempt];agr subloop 3;');
+        Observer.Verify();
     end;
 }
