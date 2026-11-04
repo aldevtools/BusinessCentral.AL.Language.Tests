@@ -6,6 +6,8 @@
 //   stored row. Logged by the handler: GetRecord into a temporary record, the Count, the current row and IsTemporary of the page's Rec.
 //   Then the caller's temporary record (row, count) and the stored rows.
 // local object: the page's source table and its methods are under test
+// Seen on BC 29 (Linux CI): the page's Rec becomes temporary and shares the caller's rows, filters and current row (stored rows stay
+//   out); the caller keeps its row and count; RunModal answers LookupOK.
 // BC versions: 27-29
 
 table 95670 "LT THS Row"
@@ -107,7 +109,11 @@ codeunit 95672 "LT THS Tests"
         Temp.FindFirst();
         Page.Run(Page::"LT THS List", Temp);
         ObserveAfter(Observer, Temp);
-        Observer.Finish();
+        Observer.Expect('handler', 'got=2/b pagecount=2 cur=2 temp=Yes');
+        Observer.Expect('caller id', '2');
+        Observer.Expect('caller count', '2');
+        Observer.Expect('stored count', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -121,7 +127,11 @@ codeunit 95672 "LT THS Tests"
         Temp.Get(2);
         Page.Run(Page::"LT THS List", Temp);
         ObserveAfter(Observer, Temp);
-        Observer.Finish();
+        Observer.Expect('handler', 'got=2/b pagecount=3 cur=2 temp=Yes');
+        Observer.Expect('caller id', '2');
+        Observer.Expect('caller count', '3');
+        Observer.Expect('stored count', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -138,7 +148,11 @@ codeunit 95672 "LT THS Tests"
         Seen := '';
         Page.Run(Page::"LT THS List", Temp);
         ObserveAfter(Observer, Temp);
-        Observer.Finish();
+        Observer.Expect('handler', 'got=0/ pagecount=0 cur=0 temp=Yes');
+        Observer.Expect('caller id', '0');
+        Observer.Expect('caller count', '0');
+        Observer.Expect('stored count', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -152,7 +166,12 @@ codeunit 95672 "LT THS Tests"
         Temp.Get(2);
         Observer.Observe('action', Format(Page.RunModal(Page::"LT THS List", Temp)));
         ObserveAfter(Observer, Temp);
-        Observer.Finish();
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('handler', 'got=2/b pagecount=3 cur=2 temp=Yes');
+        Observer.Expect('caller id', '2');
+        Observer.Expect('caller count', '3');
+        Observer.Expect('stored count', '1');
+        Observer.Verify();
     end;
 
     local procedure Describe(var Pg: Page "LT THS List"): Text

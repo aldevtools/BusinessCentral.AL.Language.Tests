@@ -8,6 +8,8 @@
 //   area(Promoted) but not Category_New; page 95652 promotes the legacy way (Promoted, PromotedCategory = Process and Report); page 95653 has no
 //   actions section. The TestPage opens; the actions and actionrefs of the page are read (Visible, Enabled) and invoked.
 // local object: the pages and page extensions are under test (their promoted groups); the log must be owned by one test codeunit
+// Seen on BC 29 (Linux CI): every form compiles, the TestPage opens and the page's actions, actionrefs and the extension's action are
+//   visible, enabled and run; the modified groups change nothing a TestPage sees.
 // BC versions: 27-29
 
 table 95650 "LT SCM Row"
@@ -291,7 +293,13 @@ codeunit 95655 "LT SCM Tests"
         Observer.Observe('log', Log.Dump());
         Observer.Observe('id', P.IdCtl.Value());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('process visible', 'Yes');
+        Observer.Expect('process enabled', 'Yes');
+        Observer.Expect('report visible', 'Yes');
+        Observer.Expect('plain visible', 'Yes');
+        Observer.Expect('log', 'process;report;plain');
+        Observer.Expect('id', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -310,7 +318,12 @@ codeunit 95655 "LT SCM Tests"
         Observer.Observe('log', Log.Dump());
         Observer.Observe('id', P.IdCtl.Value());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('process visible', 'Yes');
+        Observer.Expect('process enabled', 'Yes');
+        Observer.Expect('report visible', 'Yes');
+        Observer.Expect('log', 'legacy process;legacy report');
+        Observer.Expect('id', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -327,6 +340,10 @@ codeunit 95655 "LT SCM Tests"
         Observer.Observe('log', Log.Dump());
         Observer.Observe('id', P.IdCtl.Value());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('ext visible', 'Yes');
+        Observer.Expect('ext enabled', 'Yes');
+        Observer.Expect('log', 'ext');
+        Observer.Expect('id', '1');
+        Observer.Verify();
     end;
 }

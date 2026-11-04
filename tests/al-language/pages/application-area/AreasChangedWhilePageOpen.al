@@ -7,6 +7,8 @@
 //   ApplicationArea = All, one with Basic, one with Suite (a read that fails is logged with its error text). ApplicationArea() is read
 //   back after each set. For comparison the page is closed and opened again.
 // local object: the page's ApplicationArea properties are under test
+// Seen on BC 29 (Linux CI): ApplicationArea() reads back the text as set (no reordering). An open TestPage keeps the controls it had
+//   when it opened: a field the new areas remove stays readable, one they add stays not found, until the page is closed and opened again.
 // BC versions: 27-29
 
 table 95666 "LT ACW Row"
@@ -160,7 +162,10 @@ codeunit 95668 "LT ACW Tests"
         Observer.Observe('after', Reads(P));
         P.Close();
         Restore();
-        Observer.Finish();
+        Observer.Expect('before', 'a;b;s;');
+        Observer.Expect('areas', '#Basic,#Suite');
+        Observer.Expect('after', 'a;b;s;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -176,7 +181,9 @@ codeunit 95668 "LT ACW Tests"
         Observer.Observe('after', Reads(P));
         P.Close();
         Restore();
-        Observer.Finish();
+        Observer.Expect('areas', '#Suite,#Basic');
+        Observer.Expect('after', 'a;b;s;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -197,7 +204,11 @@ codeunit 95668 "LT ACW Tests"
         Observer.Observe('reopened', Reads(P));
         P.Close();
         Restore();
-        Observer.Finish();
+        Observer.Expect('areas', '#Basic');
+        Observer.Expect('after', 'a;b;s;');
+        Observer.Expect('after action', 'a;b;s;');
+        Observer.Expect('reopened', 'a;b;ERR(The field with ID = n is not found on the page.);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -217,7 +228,11 @@ codeunit 95668 "LT ACW Tests"
         Observer.Observe('reopened', Reads(P));
         P.Close();
         Restore();
-        Observer.Finish();
+        Observer.Expect('before', 'a;b;ERR(The field with ID = n is not found on the page.);');
+        Observer.Expect('areas', '#Suite');
+        Observer.Expect('after', 'a;b;ERR(The field with ID = n is not found on the page.);');
+        Observer.Expect('reopened', 'a;ERR(The field with ID = n is not found on the page.);s;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -234,7 +249,10 @@ codeunit 95668 "LT ACW Tests"
         Observer.Observe('after', Reads(P));
         P.Close();
         Restore();
-        Observer.Finish();
+        Observer.Expect('before', 'a;b;s;');
+        Observer.Expect('areas', '#Basic');
+        Observer.Expect('after', 'a;b;s;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -250,6 +268,8 @@ codeunit 95668 "LT ACW Tests"
         Observer.Observe('after', Reads(P));
         P.Close();
         Restore();
-        Observer.Finish();
+        Observer.Expect('areas', '#Basic');
+        Observer.Expect('after', 'a;b;s;');
+        Observer.Verify();
     end;
 }

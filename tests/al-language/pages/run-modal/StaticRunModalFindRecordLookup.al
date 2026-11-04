@@ -8,6 +8,9 @@
 //   result of each OnFindRecord (F:), the Steps of each OnNextRecord (N:), each OnAfterGetRecord (R:), the handler (H:); then the action
 //   RunModal returns and the record's row afterwards.
 // local object: the list page's OnFindRecord trigger is under test; the log must be owned by one test codeunit
+// Seen on BC 29 (Linux CI): the static RunModal opens the list in lookup mode and asks OnFindRecord `=>` (as LookupMode(true) of a Page
+//   variable), positioned or not, with 0 and with the page id; OK returns LookupOK with the handler's row. Cancel returns LookupCancel after
+//   one more `=` find, and the record is left on the row the page stood on.
 // BC versions: 27-29
 
 table 95662 "LT SRF Row"
@@ -143,7 +146,10 @@ codeunit 95665 "LT SRF Tests"
         Observer.Observe('action', Format(Page.RunModal(0, Row)));
         Observer.Observe('log', Log.Dump());
         Observer.Observe('selected', Row.Code);
-        Observer.Finish();
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('log', 'F:=>=Yes;R:V2;N:1=1;R:V3;N:1=1;R:V4;N:1=0;R:V2;N:-1=0;H:opened=V2;H:first=V2;H:ok;');
+        Observer.Expect('selected', 'V2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -158,7 +164,10 @@ codeunit 95665 "LT SRF Tests"
         Observer.Observe('action', Format(Page.RunModal(Page::"LT SRF List", Row)));
         Observer.Observe('log', Log.Dump());
         Observer.Observe('selected', Row.Code);
-        Observer.Finish();
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('log', 'F:=>=Yes;R:V2;N:1=1;R:V3;N:1=1;R:V4;N:1=0;R:V2;N:-1=0;H:opened=V2;H:first=V2;H:ok;');
+        Observer.Expect('selected', 'V2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -174,7 +183,10 @@ codeunit 95665 "LT SRF Tests"
         Observer.Observe('action', Format(Page.RunModal(0, Row)));
         Observer.Observe('log', Log.Dump());
         Observer.Observe('selected', Row.Code);
-        Observer.Finish();
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('log', 'F:=>=Yes;R:V3;N:1=1;R:V4;N:1=0;R:V3;N:-1=-1;R:V2;N:-1=0;H:opened=V3;H:first=V2;H:ok;');
+        Observer.Expect('selected', 'V2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -188,7 +200,10 @@ codeunit 95665 "LT SRF Tests"
         Observer.Observe('action', Format(Page.RunModal(0, Row)));
         Observer.Observe('log', Log.Dump());
         Observer.Observe('selected', Row.Code);
-        Observer.Finish();
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('log', 'F:=>=Yes;R:V1;N:1=1;R:V2;N:1=1;R:V3;N:1=1;R:V4;N:1=0;R:V1;N:-1=0;H:opened=V1;H:first=V1;H:ok;');
+        Observer.Expect('selected', 'V1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -203,7 +218,10 @@ codeunit 95665 "LT SRF Tests"
         Observer.Observe('action', Format(Page.RunModal(0, Row)));
         Observer.Observe('log', Log.Dump());
         Observer.Observe('selected', Row.Code);
-        Observer.Finish();
+        Observer.Expect('action', 'LookupCancel');
+        Observer.Expect('log', 'F:=>=Yes;R:V2;N:1=1;R:V3;N:1=1;R:V4;N:1=0;R:V2;N:-1=0;H:opened=V2;F:==Yes;R:V2;H:cancel;');
+        Observer.Expect('selected', 'V2');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]

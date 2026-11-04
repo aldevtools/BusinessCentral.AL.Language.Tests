@@ -6,6 +6,8 @@
 //   Application's "Doc. Attachment List Factbox"). Logged per call: the count and filters of a separate record that receives the selection,
 //   and the key of the part's Rec. For comparison: the same part when the document has one row, and when the table is empty.
 // local object: the part's SubPageLink and trigger are under test; the log must be owned by one test codeunit
+// Seen on BC 29 (Linux CI): on no row the part's Rec holds the linked fields (`95656/A/0`) and the selection is that record: count 0,
+//   filters `Table ID: 95656, No.: A, Line No.: 0`, whether the table has rows of other documents or none. On a row: that row, count 1.
 // BC versions: 27-29
 
 table 95656 "LT SFL Head"
@@ -160,7 +162,9 @@ codeunit 95661 "LT SFL Tests"
         Observer.Observe('log', Log.Dump());
         Observer.Observe('part line', Card.Attachments.LineNoCtl.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('log', 'rec=95656/A/0 count=0 filters=Table ID: 95656, No.: A, Line No.: 0');
+        Observer.Expect('part line', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -173,7 +177,8 @@ codeunit 95661 "LT SFL Tests"
         Card.OpenView();
         Observer.Observe('log', Log.Dump());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('log', 'rec=95656/A/0 count=0 filters=Table ID: 95656, No.: A, Line No.: 0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -189,6 +194,8 @@ codeunit 95661 "LT SFL Tests"
         Observer.Observe('log', Log.Dump());
         Observer.Observe('part line', Card.Attachments.LineNoCtl.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('log', 'rec=95656/A/7 count=1 filters=Table ID: 95656, No.: A, Line No.: 7');
+        Observer.Expect('part line', '7');
+        Observer.Verify();
     end;
 }
