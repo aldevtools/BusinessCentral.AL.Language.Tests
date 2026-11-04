@@ -68,17 +68,17 @@ report 75523 "LT Y Ext Base Filter"
 
 reportextension 75524 "LT Y Ext Rdlc" extends "LT Y Ext Base Rdlc"
 {
-    RDLCLayout = './reports/runtime/LtYExtRdlc.rdlc';
+    RDLCLayout = './report/lt-y-report-props/LtYExtRdlc.rdlc';
 }
 
 reportextension 75525 "LT Y Ext Word" extends "LT Y Ext Base Word"
 {
-    WordLayout = './reports/runtime/LtYExtWord.docx';
+    WordLayout = './report/lt-y-report-props/LtYExtWord.docx';
 }
 
 reportextension 75526 "LT Y Ext Excel" extends "LT Y Ext Base Excel"
 {
-    ExcelLayout = './reports/runtime/LtYExtExcel.xlsx';
+    ExcelLayout = './report/lt-y-report-props/LtYExtExcel.xlsx';
 }
 
 reportextension 75527 "LT Y Ext Filter" extends "LT Y Ext Base Filter"

@@ -503,7 +503,7 @@ report 79722 "LT AQ Excel Legacy"
 {
     UsageCategory = None;
     UseRequestPage = false;
-    ExcelLayout = './reports/LtAqExcelLegacy.xlsx';
+    ExcelLayout = './report/lt-aq/LtAqExcelLegacy.xlsx';
 
     dataset
     {

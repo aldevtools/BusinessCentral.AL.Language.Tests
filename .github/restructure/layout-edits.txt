@@ -52,7 +52,6 @@ tests/al-language/reports/runtime/BdRegionReports.al
 tests/al-language/reports/runtime/LtTkShowPrintStatus.al
 tests/al-language/reports/runtime/ScReportMetadataViews.al
 tests/al-language/reports/runtime/UReportObjects.al
-tests/al-language/reports/runtime/YReportExt.al
 tests/al-language/reports/runtime/YReportParts.al
 tests/al-language/reports/runtime/YReports.al
 tests/al-language/session-system/PWPlatformTables.al
