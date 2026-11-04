@@ -1,33 +1,18 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-event-publisher-subscriber
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), self-contained table 73750, page 73751, codeunits 73752 (manual subscriber) and 73753 (tests)
+// Fixtures used: Probe Observer (codeunit 69160), shared table 50007 "ALT Shape 07", page 73751, codeunits 73752 (manual subscriber) and 73753 (tests)
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: a page publishes [IntegrationEvent(true, false)]; a manual subscriber with (var Sender: Page X) calls a procedure of the sender, reads a page variable of it and changes it.
 //   Raised from a procedure of a Page variable (the subscriber's change must be visible on that same variable) and from OnOpenPage of a page opened by TestPage.OpenView
 //   (the change shows in a field of the opened page). The event arguments after the sender arrive as well.
 // BC versions: 29 (27 and 28 by CI)
 
-table 73750 "LT PgSender Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; "Code"; Code[10]) { }
-    }
-
-    keys
-    {
-        key(PK; "Code") { Clustered = true; }
-    }
-}
-
 page 73751 "LT PgSender Card"
 {
     PageType = Card;
     ApplicationArea = All;
     UsageCategory = None;
-    SourceTable = "LT PgSender Row";
+    SourceTable = "ALT Shape 07";
     Caption = 'LT PgSender Card';
 
     layout
@@ -233,7 +218,7 @@ codeunit 73753 "LT PgSender Tests"
     var
         Observer: Codeunit "Probe Observer";
         Sub: Codeunit "LT PgSender Subscriber";
-        Row: Record "LT PgSender Row";
+        Row: Record "ALT Shape 07";
         Card: TestPage "LT PgSender Card";
     begin
         Row.DeleteAll();

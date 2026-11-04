@@ -31,21 +31,6 @@ table 84340 "LT CE Row"
 }
 
 // No LookupPageId and no DrillDownPageId.
-table 84341 "LT CE Plain Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 page 84344 "LT CE List"
 {
     PageType = List;

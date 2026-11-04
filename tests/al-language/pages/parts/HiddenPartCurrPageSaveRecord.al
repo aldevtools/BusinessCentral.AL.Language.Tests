@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/currpage/currpage-class
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); HiddenPartFixture.al (table 71354, log codeunit 71355), self-contained pages and test codeunit 71367
+// Fixtures used: Probe Observer (codeunit 69160); shared table 50000 "ALT Shape 00", log codeunit 71355, self-contained pages and test codeunit 71367
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // BC versions: 29 (27 and 28 by CI)
 // Facts: CurrPage.SaveRecord run by a procedure of a part page (Visible = false literal, and Visible = a Boolean variable that is false at open) that the host card calls from OnAfterGetCurrRecord: error text and code, and which part triggers run.
@@ -9,7 +9,7 @@
 page 71364 "LT HP SaveRecord Part"
 {
     PageType = ListPart;
-    SourceTable = "LT HiddenPart Row";
+    SourceTable = "ALT Shape 00";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -51,7 +51,7 @@ page 71364 "LT HP SaveRecord Part"
 page 71365 "LT HP SaveRecord Literal"
 {
     PageType = Card;
-    SourceTable = "LT HiddenPart Row";
+    SourceTable = "ALT Shape 00";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -81,7 +81,7 @@ page 71365 "LT HP SaveRecord Literal"
 page 71366 "LT HP SaveRecord Expr"
 {
     PageType = Card;
-    SourceTable = "LT HiddenPart Row";
+    SourceTable = "ALT Shape 00";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -118,7 +118,7 @@ codeunit 71367 "LT HP SaveRecord Tests"
 
     local procedure Seed()
     var
-        Row: Record "LT HiddenPart Row";
+        Row: Record "ALT Shape 00";
         Log: Codeunit "LT HiddenPart Log 3";
     begin
         Row.DeleteAll();

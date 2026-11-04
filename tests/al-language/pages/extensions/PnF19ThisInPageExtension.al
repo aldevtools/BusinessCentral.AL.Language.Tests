@@ -1,23 +1,11 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-this-keyword
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), self-contained table 73905, codeunit 73906 (log), page 73907, page extension 73908, codeunit 73909
+// Fixtures used: Probe Observer (codeunit 69160), shared table 50000 "ALT Shape 00", codeunit 73906 (log), page 73907, page extension 73908, codeunit 73909
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Settles probes-needed row: "this.Member of the base report in a reportextension trigger" (Page extension overload of a base page procedure; the pageextension half) and
 //   "this.Member in a report, page, xmlport or query" (a procedure of the base object called through this from an extension)
 // Facts: in a page extension trigger and action: this.BaseProc() (protected and public), this.BaseVar (protected variable), this.ExtProc() and this.ExtVar, with a base procedure of the same name as an extension one
 // BC versions: 29 (27 and 28 by CI)
-
-table 73905 "LT PnF TP Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-
-    keys { key(PK; Id) { Clustered = true; } }
-}
 
 codeunit 73906 "LT PnF TP Log"
 {
@@ -46,7 +34,7 @@ page 73907 "LT PnF TP Card"
     PageType = Card;
     ApplicationArea = All;
     UsageCategory = None;
-    SourceTable = "LT PnF TP Row";
+    SourceTable = "ALT Shape 00";
 
     layout
     {
@@ -145,7 +133,7 @@ codeunit 73909 "LT PnF This In PageExt"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT PnF TP Log";
-        Row: Record "LT PnF TP Row";
+        Row: Record "ALT Shape 00";
         P: TestPage "LT PnF TP Card";
     begin
         Row.DeleteAll();

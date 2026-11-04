@@ -9,18 +9,6 @@
 //   Next, Last, Previous, First and GoToKey, and read the rows each part shows.
 // BC versions: 27, 28, 29
 
-table 94202 "LT Y80 SV Head"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; "Code"; Code[20]) { }
-        field(2; Descr; Text[50]) { }
-    }
-    keys { key(PK; "Code") { Clustered = true; } }
-}
-
 table 94203 "LT Y80 SV Line"
 {
     DataClassification = SystemMetadata;
@@ -231,7 +219,7 @@ page 94208 "LT Y80 SV Part F4"
 page 94209 "LT Y80 SV Host F1"
 {
     PageType = Document;
-    SourceTable = "LT Y80 SV Head";
+    SourceTable = "ALT Shape 08";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -260,7 +248,7 @@ page 94209 "LT Y80 SV Host F1"
 page 94210 "LT Y80 SV Host F2"
 {
     PageType = Document;
-    SourceTable = "LT Y80 SV Head";
+    SourceTable = "ALT Shape 08";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -289,7 +277,7 @@ page 94210 "LT Y80 SV Host F2"
 page 94211 "LT Y80 SV Host F3"
 {
     PageType = Document;
-    SourceTable = "LT Y80 SV Head";
+    SourceTable = "ALT Shape 08";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -318,7 +306,7 @@ page 94211 "LT Y80 SV Host F3"
 page 94212 "LT Y80 SV Host F4"
 {
     PageType = Document;
-    SourceTable = "LT Y80 SV Head";
+    SourceTable = "ALT Shape 08";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -347,7 +335,7 @@ page 94212 "LT Y80 SV Host F4"
 page 94213 "LT Y80 SV Host All"
 {
     PageType = Document;
-    SourceTable = "LT Y80 SV Head";
+    SourceTable = "ALT Shape 08";
     ApplicationArea = All;
     UsageCategory = None;
 

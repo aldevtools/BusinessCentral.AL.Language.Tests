@@ -35,7 +35,7 @@ page 90503 "LT UP Prom Seven After"
     PageType = List;
     ApplicationArea = All;
     UsageCategory = None;
-    SourceTable = "LT UP Page Row";
+    SourceTable = "ALT Shape 05";
 
     layout
     {
@@ -112,7 +112,7 @@ page 90505 "LT UP Prom Seven Last"
     PageType = List;
     ApplicationArea = All;
     UsageCategory = None;
-    SourceTable = "LT UP Page Row";
+    SourceTable = "ALT Shape 05";
 
     layout
     {
@@ -185,7 +185,7 @@ page 90506 "LT UP Prom Twelve After"
     PageType = List;
     ApplicationArea = All;
     UsageCategory = None;
-    SourceTable = "LT UP Page Row";
+    SourceTable = "ALT Shape 05";
 
     layout
     {
@@ -262,7 +262,7 @@ page 90507 "LT UP Prom New Last"
     PageType = List;
     ApplicationArea = All;
     UsageCategory = None;
-    SourceTable = "LT UP Page Row";
+    SourceTable = "ALT Shape 05";
 
     layout
     {
@@ -335,7 +335,7 @@ page 90508 "LT UP Prom New After"
     PageType = List;
     ApplicationArea = All;
     UsageCategory = None;
-    SourceTable = "LT UP Page Row";
+    SourceTable = "ALT Shape 05";
 
     layout
     {
@@ -412,7 +412,7 @@ page 90509 "LT UP Prom Declared After"
     PageType = List;
     ApplicationArea = All;
     UsageCategory = None;
-    SourceTable = "LT UP Page Row";
+    SourceTable = "ALT Shape 05";
 
     layout
     {
@@ -491,7 +491,7 @@ codeunit 90509 "LT UP Promoted Tests"
 
     local procedure SeedRow()
     var
-        Row: Record "LT UP Page Row";
+        Row: Record "ALT Shape 05";
     begin
         Row.DeleteAll();
         Row."No." := 'A';

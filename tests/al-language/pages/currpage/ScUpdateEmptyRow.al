@@ -1,25 +1,12 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/page/page-update-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own table 91251, pages 91252 / 91254, log codeunit 91253 and test codeunit 91255
+// Fixtures used: Probe Observer (codeunit 69160); shared table 50001 "ALT Shape 01", pages 91252 / 91254, log codeunit 91253 and test codeunit 91255
 // Probe: written against BC 29 and checked on the corpus CI matrix (27, 28, 29); every literal asserted below is what BC produced.
 // Facts: CurrPage.Update(false) and CurrPage.Update(true) called by an action on a list page whose current record is not a stored row: a list opened with
 //   OpenView while its table has rows, the draft row after New(), and a list whose view shows no row at all (the page filters every row out in OnOpenPage)
 //   while the table has rows. The log records every OnAfterGetCurrRecord (key of Rec and the row count seen), the key of Rec before and after Update,
 //   and whether the call raised an error.
 // BC versions: 27, 28, 29
-table 91251 "LT SC Upd Row"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 codeunit 91253 "LT SC Upd Log"
 {
     SingleInstance = true;
@@ -54,7 +41,7 @@ codeunit 91253 "LT SC Upd Log"
 page 91252 "LT SC Upd List"
 {
     PageType = List;
-    SourceTable = "LT SC Upd Row";
+    SourceTable = "ALT Shape 01";
     UsageCategory = None;
 
     layout
@@ -113,7 +100,7 @@ page 91252 "LT SC Upd List"
 page 91254 "LT SC Upd Empty View List"
 {
     PageType = List;
-    SourceTable = "LT SC Upd Row";
+    SourceTable = "ALT Shape 01";
     UsageCategory = None;
 
     layout
@@ -167,7 +154,7 @@ codeunit 91255 "LT SC Update Empty Row"
 
     local procedure Seed()
     var
-        Row: Record "LT SC Upd Row";
+        Row: Record "ALT Shape 01";
         Log: Codeunit "LT SC Upd Log";
     begin
         Row.DeleteAll();
@@ -228,7 +215,7 @@ codeunit 91255 "LT SC Update Empty Row"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT SC Upd Log";
-        Row: Record "LT SC Upd Row";
+        Row: Record "ALT Shape 01";
     begin
         Seed();
         Observer.Observe('completed', Format(TryNewThenInvoke()));
@@ -255,7 +242,7 @@ codeunit 91255 "LT SC Update Empty Row"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT SC Upd Log";
-        Row: Record "LT SC Upd Row";
+        Row: Record "ALT Shape 01";
     begin
         Seed();
         Observer.Observe('completed', Format(TryEmptyViewInvoke()));

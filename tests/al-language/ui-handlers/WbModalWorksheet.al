@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/page/page-onqueryclosepage-trigger
 // Scope: in-scope
 // Fixtures used: none
-// Facts: al-runner issue 6291 (reporter's repro, passed on real BC): a ModalPageHandler that raises an error on a Worksheet with a ListPart. The platform calls the ListPart OnQueryClosePage with Action::None, then the Worksheet with Action::LookupCancel, and RunModal raises the handler error. Objects for WbModalHandlerCloseTests.al; WbModalPart.al, WbModalRow.al and WbCloseTrace.al belong to it.
+// Facts: al-runner issue 6291 (reporter's repro, passed on real BC): a ModalPageHandler that raises an error on a Worksheet with a ListPart. The platform calls the ListPart OnQueryClosePage with Action::None, then the Worksheet with Action::LookupCancel, and RunModal raises the handler error. Objects for WbModalHandlerCloseTests.al; WbModalPart.al and WbCloseTrace.al belong to it (rows: shared table "ALT Shape 28").
 
 page 90604 "LT WB Modal Worksheet"
 {

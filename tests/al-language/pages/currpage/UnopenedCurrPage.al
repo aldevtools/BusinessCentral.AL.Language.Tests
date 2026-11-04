@@ -15,7 +15,7 @@ codeunit 81855 "LT BL Unopened CurrPage"
 
     local procedure Seed()
     var
-        Row: Record "LT BL Unopened Row";
+        Row: Record "ALT Shape 01";
     begin
         Row.DeleteAll();
         Row.Id := 1;
@@ -214,7 +214,7 @@ codeunit 81855 "LT BL Unopened CurrPage"
     procedure SetRecord_Then_Update_List()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BL Unopened Row";
+        Row: Record "ALT Shape 01";
         P: Page "LT BL Unopened List";
     begin
         Seed();
@@ -233,7 +233,7 @@ codeunit 81855 "LT BL Unopened CurrPage"
     procedure SetTableView_Then_Update_Card()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BL Unopened Row";
+        Row: Record "ALT Shape 01";
         P: Page "LT BL Unopened Card";
     begin
         Seed();
@@ -273,7 +273,7 @@ codeunit 81855 "LT BL Unopened CurrPage"
     procedure Update_Then_RunModal_Card_HandlerCloses()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BL Unopened Row";
+        Row: Record "ALT Shape 01";
         P: Page "LT BL Unopened Card";
     begin
         Seed();
@@ -299,7 +299,7 @@ codeunit 81855 "LT BL Unopened CurrPage"
     procedure Update_Then_RunModal_Card_HandlerReads()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BL Unopened Row";
+        Row: Record "ALT Shape 01";
         P: Page "LT BL Unopened Card";
         Result: Action;
     begin

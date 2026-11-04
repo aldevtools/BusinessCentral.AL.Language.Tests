@@ -12,7 +12,7 @@ codeunit 71290 "LT PartReads Open"
 
     local procedure Seed()
     var
-        Head: Record "LT PartReads Head";
+        Head: Record "ALT Shape 08";
         Line: Record "LT PartReads Line";
         Log: Codeunit "LT PartReads Log";
     begin
@@ -517,7 +517,7 @@ page 89440 "LT SH FR Host"
 page 89441 "LT SH FR Part"
 {
     PageType = ListPart;
-    SourceTable = "LT PartReads Head";
+    SourceTable = "ALT Shape 08";
     SourceTableTemporary = true;
     ApplicationArea = All;
     UsageCategory = None;

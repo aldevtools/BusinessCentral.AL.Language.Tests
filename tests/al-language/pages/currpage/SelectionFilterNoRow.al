@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/currpage/currpage-setselectionfilter-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); table 74870, page 74871, store 74791, test codeunit 74892
+// Fixtures used: Probe Observer (codeunit 69160); shared table 50006 "ALT Shape 06", page 74871, store 74791, test codeunit 74892
 // Probe: written against BC on the corpus CI matrix; every literal asserted below is what that tier produced.
 // Facts: CurrPage.SetSelectionFilter(Sel) from a procedure of a list page, called by a typed modal handler, in these states:
 //   (1) no current row: the page view is filtered to nothing while the table has rows; (2) called in OnOpenPage, before a row is current;
@@ -8,32 +8,19 @@
 //   (6) a mark on the selected row, (7) a mark on another row with MarkedOnly(true). After each: row count, GetFilters, MarkedOnly, the Id of the page's current row.
 // BC versions: all (CI)
 
-table 74870 "LT SSN Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[20]) { }
-    }
-
-    keys { key(PK; Id) { Clustered = true; } }
-}
-
 codeunit 74791 "LT SSN Store"
 {
     SingleInstance = true;
 
     var
-        Kept: Record "LT SSN Row";
+        Kept: Record "ALT Shape 06";
 
-    procedure Keep(var Sel: Record "LT SSN Row")
+    procedure Keep(var Sel: Record "ALT Shape 06")
     begin
         Kept.Copy(Sel);
     end;
 
-    procedure Get(var Sel: Record "LT SSN Row")
+    procedure Get(var Sel: Record "ALT Shape 06")
     begin
         Sel.Copy(Kept);
     end;
@@ -42,7 +29,7 @@ codeunit 74791 "LT SSN Store"
 page 74871 "LT SSN List"
 {
     PageType = List;
-    SourceTable = "LT SSN Row";
+    SourceTable = "ALT Shape 06";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -69,7 +56,7 @@ page 74871 "LT SSN List"
                 trigger OnAction()
                 var
                     Store: Codeunit "LT SSN Store";
-                    LocalSel: Record "LT SSN Row";
+                    LocalSel: Record "ALT Shape 06";
                 begin
                     CurrPage.SetSelectionFilter(LocalSel);
                     Store.Keep(LocalSel);
@@ -80,19 +67,19 @@ page 74871 "LT SSN List"
 
     var
         CaptureOnOpen: Boolean;
-        OpenSel: Record "LT SSN Row";
+        OpenSel: Record "ALT Shape 06";
 
     procedure SetCaptureOnOpen(NewValue: Boolean)
     begin
         CaptureOnOpen := NewValue;
     end;
 
-    procedure Capture(var Sel: Record "LT SSN Row")
+    procedure Capture(var Sel: Record "ALT Shape 06")
     begin
         CurrPage.SetSelectionFilter(Sel);
     end;
 
-    procedure GetOpenSel(var Sel: Record "LT SSN Row")
+    procedure GetOpenSel(var Sel: Record "ALT Shape 06")
     begin
         Sel.Copy(OpenSel);
     end;
@@ -115,13 +102,13 @@ codeunit 74892 "LT SSN Tests"
     TestPermissions = Disabled;
 
     var
-        Sel: Record "LT SSN Row";
+        Sel: Record "ALT Shape 06";
         Obs: Codeunit "Probe Observer";
         Current: Integer;
 
     local procedure Seed()
     var
-        Row: Record "LT SSN Row";
+        Row: Record "ALT Shape 06";
         i: Integer;
     begin
         Row.DeleteAll();
@@ -134,7 +121,7 @@ codeunit 74892 "LT SSN Tests"
         Sel.ClearMarks();
     end;
 
-    local procedure Describe(Prefix: Text; var Rec2: Record "LT SSN Row")
+    local procedure Describe(Prefix: Text; var Rec2: Record "ALT Shape 06")
     begin
         Obs.Observe(Prefix + 'Count', Format(Rec2.Count()));
         Obs.Observe(Prefix + 'Filters', Rec2.GetFilters());
@@ -173,7 +160,7 @@ codeunit 74892 "LT SSN Tests"
     [HandlerFunctions('CaptureHandler')]
     procedure NoCurrentRow_FilteredToNothing()
     var
-        View: Record "LT SSN Row";
+        View: Record "ALT Shape 06";
         P: Page "LT SSN List";
     begin
         Seed();
@@ -194,8 +181,8 @@ codeunit 74892 "LT SSN Tests"
     [HandlerFunctions('PlainHandler')]
     procedure CalledInOnOpenPage()
     var
-        View: Record "LT SSN Row";
-        OpenResult: Record "LT SSN Row";
+        View: Record "ALT Shape 06";
+        OpenResult: Record "ALT Shape 06";
         P: Page "LT SSN List";
     begin
         Seed();
@@ -318,7 +305,7 @@ codeunit 74892 "LT SSN Tests"
     procedure TestPage_RowSelected()
     var
         Store: Codeunit "LT SSN Store";
-        Captured: Record "LT SSN Row";
+        Captured: Record "ALT Shape 06";
         TP: TestPage "LT SSN List";
     begin
         Seed();
@@ -338,7 +325,7 @@ codeunit 74892 "LT SSN Tests"
     procedure TestPage_FilteredToNothing()
     var
         Store: Codeunit "LT SSN Store";
-        Captured: Record "LT SSN Row";
+        Captured: Record "ALT Shape 06";
         TP: TestPage "LT SSN List";
     begin
         Seed();

@@ -15,7 +15,7 @@ page 86700 "LT QG GoToKey Plain"
     PageType = List;
     ApplicationArea = All;
     UsageCategory = None;
-    SourceTable = "LT AI Row";
+    SourceTable = "ALT Shape 26";
 
     layout
     {
@@ -76,7 +76,7 @@ page 86701 "LT QG GoToKey Nav"
     PageType = List;
     ApplicationArea = All;
     UsageCategory = None;
-    SourceTable = "LT AI Row";
+    SourceTable = "ALT Shape 26";
 
     layout
     {
@@ -406,7 +406,7 @@ codeunit 86703 "LT QG GoToKey Next Call"
     procedure Plain_LookupHandler_GoToKey_ThenOK()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT AI Row";
+        Row: Record "ALT Shape 26";
         P: Page "LT QG GoToKey Plain";
     begin
         Start();
@@ -426,7 +426,7 @@ codeunit 86703 "LT QG GoToKey Next Call"
     procedure Plain_LookupHandler_GoToKey_ValueRead_ThenOK()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT AI Row";
+        Row: Record "ALT Shape 26";
         P: Page "LT QG GoToKey Plain";
     begin
         Start();
@@ -629,7 +629,7 @@ codeunit 86703 "LT QG GoToKey Next Call"
     procedure Nav_LookupHandler_GoToKey_ThenOK()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT AI Row";
+        Row: Record "ALT Shape 26";
         P: Page "LT QG GoToKey Nav";
     begin
         Start();

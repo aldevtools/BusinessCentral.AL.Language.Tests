@@ -11,7 +11,7 @@ Shared objects only: tables, pages, reports, xmlports, queries, codeunits, event
 - `pages/`: shared page fixtures (16 AL files).
 - `queries/`: shared query fixtures (3 AL files).
 - `reports/`: shared report fixtures (3 AL files).
-- `tables/`: shared table fixtures (35 AL files).
+- `tables/`: shared table fixtures (36 AL files; `ALTShapeTables.al` holds the 30 shape tables).
 - `xmlports/`: shared xmlport fixtures (10 AL files).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
@@ -92,6 +92,36 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 - report 60018 "ALT Simple Report"
 - report 60412 "ALT Run Tx None Rep Inserter"
 - report 60978 "ALT Manual ReportEvent Pub"
+- table 50000 "ALT Shape 00"
+- table 50001 "ALT Shape 01"
+- table 50002 "ALT Shape 02"
+- table 50003 "ALT Shape 03"
+- table 50004 "ALT Shape 04"
+- table 50005 "ALT Shape 05"
+- table 50006 "ALT Shape 06"
+- table 50007 "ALT Shape 07"
+- table 50008 "ALT Shape 08"
+- table 50009 "ALT Shape 09"
+- table 50010 "ALT Shape 10"
+- table 50011 "ALT Shape 11"
+- table 50012 "ALT Shape 12"
+- table 50013 "ALT Shape 13"
+- table 50014 "ALT Shape 14"
+- table 50015 "ALT Shape 15"
+- table 50016 "ALT Shape 16"
+- table 50017 "ALT Shape 17"
+- table 50018 "ALT Shape 18"
+- table 50019 "ALT Shape 19"
+- table 50020 "ALT Shape 20"
+- table 50021 "ALT Shape 21"
+- table 50022 "ALT Shape 22"
+- table 50023 "ALT Shape 23"
+- table 50024 "ALT Shape 24"
+- table 50025 "ALT Shape 25"
+- table 50026 "ALT Shape 26"
+- table 50027 "ALT Shape 27"
+- table 50028 "ALT Shape 28"
+- table 50029 "ALT Shape 29"
 - table 60000 "ALT Universal"
 - table 60001 "ALT Composite"
 - table 60002 "ALT Triggered"
@@ -162,6 +192,48 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 - xmlport 67451 "ALT XPM Probe"
 
 Shared fixtures are frozen once merged: never change their fields, keys or triggers. Add a new one instead (ids 50000..50999), with a line here.
+
+## Shape tables
+
+`tables/ALTShapeTables.al` holds 30 plain tables, `ALT Shape 00` to `ALT Shape 29` (50000-50029). Each has one exact field
+shape: field types, lengths and names in field-number order, the primary key `PK` on field 1, no triggers, no other keys and
+no properties besides DataClassification. A test whose own table has exactly this shape and nothing else uses the shape table
+(standing rule 2). Codeunit isolation gives each test codeunit an empty table; `ALTFixtureCleanup.Initialize` clears them too.
+Keep a local table when the test can see its name, id or caption (error texts, RecordId, TableCaption), when it is extended,
+has an event subscriber, sits in a namespace, or when one test codeunit would need two tables of the same shape.
+
+| table | id | fields |
+|---|---:|---|
+| ALT Shape 00 | 50000 | Integer Id |
+| ALT Shape 01 | 50001 | Integer Id; Text[30] Name |
+| ALT Shape 02 | 50002 | Code[20] No.; Text[50] Descr |
+| ALT Shape 03 | 50003 | Integer Id; Blob Data |
+| ALT Shape 04 | 50004 | Code[20] No.; Text[50] Name |
+| ALT Shape 05 | 50005 | Code[20] No. |
+| ALT Shape 06 | 50006 | Integer Id; Text[20] Name |
+| ALT Shape 07 | 50007 | Code[10] Code |
+| ALT Shape 08 | 50008 | Code[20] Code; Text[50] Descr |
+| ALT Shape 09 | 50009 | Code[20] Code |
+| ALT Shape 10 | 50010 | Integer Id; Text[20] Info |
+| ALT Shape 11 | 50011 | Integer Id; Text[30] Txt |
+| ALT Shape 12 | 50012 | Integer Id; Boolean Flag |
+| ALT Shape 13 | 50013 | Integer Id; Text[100] Txt |
+| ALT Shape 14 | 50014 | Code[10] Code; Text[20] Name |
+| ALT Shape 15 | 50015 | Integer Id; Code[10] Grp |
+| ALT Shape 16 | 50016 | Integer Id; Integer Amount |
+| ALT Shape 17 | 50017 | Integer Id; Text[250] Txt |
+| ALT Shape 18 | 50018 | Integer Id; Text[50] Name |
+| ALT Shape 19 | 50019 | Integer Entry No.; Code[20] Header No.; Decimal Amount; Date Posting Date |
+| ALT Shape 20 | 50020 | Code[10] Code; Text[30] Name |
+| ALT Shape 21 | 50021 | Integer Entry No.; Text[50] Name |
+| ALT Shape 22 | 50022 | Code[20] No.; Decimal Amount |
+| ALT Shape 23 | 50023 | Integer Id; Integer ParentId |
+| ALT Shape 24 | 50024 | Integer Id; Text[30] Note |
+| ALT Shape 25 | 50025 | Integer Id; Text[50] Note |
+| ALT Shape 26 | 50026 | Code[20] No.; Integer Qty |
+| ALT Shape 27 | 50027 | Code[20] No.; Text[30] Name |
+| ALT Shape 28 | 50028 | Integer Entry No. |
+| ALT Shape 29 | 50029 | Integer Entry No.; Text[50] Trigger Name |
 
 ## Other apps
 

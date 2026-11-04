@@ -4,7 +4,7 @@
 page 90603 "LT WB Modal Part"
 {
     PageType = ListPart;
-    SourceTable = "LT WB Modal Row";
+    SourceTable = "ALT Shape 28";
     SourceTableTemporary = true;
 
     layout

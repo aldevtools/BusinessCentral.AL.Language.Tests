@@ -53,7 +53,7 @@ codeunit 84362 "LT CE Page Run Tests"
     local procedure Seed()
     var
         Row: Record "LT CE Row";
-        Plain: Record "LT CE Plain Row";
+        Plain: Record "ALT Shape 00";
     begin
         Row.DeleteAll();
         Plain.DeleteAll();
@@ -211,7 +211,7 @@ codeunit 84362 "LT CE Page Run Tests"
     procedure PageRun_Zero_TableWithoutLookupPage()
     var
         Observer: Codeunit "Probe Observer";
-        Plain: Record "LT CE Plain Row";
+        Plain: Record "ALT Shape 00";
     begin
         Seed();
         Plain.FindFirst();
@@ -255,7 +255,7 @@ codeunit 84362 "LT CE Page Run Tests"
     end;
 
     [TryFunction]
-    local procedure TryRunZero(var Plain: Record "LT CE Plain Row"; Modal: Boolean)
+    local procedure TryRunZero(var Plain: Record "ALT Shape 00"; Modal: Boolean)
     begin
         if Modal then
             Page.RunModal(0, Plain)

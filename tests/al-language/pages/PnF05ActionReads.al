@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/triggers-auto/page/devenv-onaftergetrecord-page-trigger
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), self-contained codeunit 73864 (log), table 73865, pages 73866 and 73867, codeunit 73868
+// Fixtures used: Probe Observer (codeunit 69160), self-contained codeunit 73864 (log), shared table 50001 "ALT Shape 01", pages 73866 and 73867, codeunit 73868
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Settles probes-needed row: "Action" (Page reads after an action, and a list that ends inside its window, corpus bump 7)
 // Facts: log of OnAfterGetRecord (R), OnAfterGetCurrRecord (C) and the action body (A) around an action of a card and of a list, with the cursor on the first or a later row,
@@ -29,25 +29,12 @@ codeunit 73864 "LT PnF AR Log"
     end;
 }
 
-table 73865 "LT PnF AR Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-
-    keys { key(PK; Id) { Clustered = true; } }
-}
-
 page 73866 "LT PnF AR List"
 {
     PageType = List;
     ApplicationArea = All;
     UsageCategory = None;
-    SourceTable = "LT PnF AR Row";
+    SourceTable = "ALT Shape 01";
 
     layout
     {
@@ -120,7 +107,7 @@ page 73867 "LT PnF AR Card"
     PageType = Card;
     ApplicationArea = All;
     UsageCategory = None;
-    SourceTable = "LT PnF AR Row";
+    SourceTable = "ALT Shape 01";
 
     layout
     {
@@ -192,7 +179,7 @@ codeunit 73868 "LT PnF Action Reads"
 
     local procedure Seed(Rows: Integer)
     var
-        Row: Record "LT PnF AR Row";
+        Row: Record "ALT Shape 01";
         i: Integer;
     begin
         Row.DeleteAll();

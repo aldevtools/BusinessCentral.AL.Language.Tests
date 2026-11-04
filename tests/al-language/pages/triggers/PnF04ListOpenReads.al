@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/triggers-auto/page/devenv-onaftergetrecord-page-trigger
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), self-contained codeunit 73860 (log), table 73861, page 73862, codeunit 73863
+// Fixtures used: Probe Observer (codeunit 69160), self-contained codeunit 73860 (log), shared table 50001 "ALT Shape 01", page 73862, codeunit 73863
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Settles probes-needed row: "List open" (Page reads after an action, and a list that ends inside its window, corpus bump 7)
 // Facts: log of OnAfterGetRecord (R) and OnAfterGetCurrRecord (C) when a list page is opened through a TestPage over 0, 1, 2, 3, 4, 5, 10, 19, 20, 21 and 40 rows
@@ -28,25 +28,12 @@ codeunit 73860 "LT PnF LO Log"
     end;
 }
 
-table 73861 "LT PnF LO Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-
-    keys { key(PK; Id) { Clustered = true; } }
-}
-
 page 73862 "LT PnF LO List"
 {
     PageType = List;
     ApplicationArea = All;
     UsageCategory = None;
-    SourceTable = "LT PnF LO Row";
+    SourceTable = "ALT Shape 01";
 
     layout
     {
@@ -82,7 +69,7 @@ codeunit 73863 "LT PnF List Open"
 
     local procedure Seed(Rows: Integer)
     var
-        Row: Record "LT PnF LO Row";
+        Row: Record "ALT Shape 01";
         i: Integer;
     begin
         Row.DeleteAll();

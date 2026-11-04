@@ -1,27 +1,11 @@
 // Probe: FindFirstField / FindNextField / FindPreviousField misses, a bare control name next to a local variable of the same name, and TestPage field .Value assignment.
 // Settles: md:403 (miss with the result unused), md:473 (which wins: local variable or control), md:472 (.Value := compared with SetValue).
 
-table 68668 "W2 Find Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 page 68667 "W2 Find List"
 {
     PageType = List;
     ApplicationArea = All;
-    SourceTable = "W2 Find Row";
+    SourceTable = "ALT Shape 01";
     UsageCategory = None;
 
     layout
@@ -44,7 +28,7 @@ codeunit 68669 "W2 Find Tests"
 
     local procedure Seed()
     var
-        Row: Record "W2 Find Row";
+        Row: Record "ALT Shape 01";
     begin
         Row.DeleteAll();
         AddRow(1, 'Alpha');
@@ -54,7 +38,7 @@ codeunit 68669 "W2 Find Tests"
 
     local procedure AddRow(Id: Integer; Name: Text[30])
     var
-        Row: Record "W2 Find Row";
+        Row: Record "ALT Shape 01";
     begin
         Row.Id := Id;
         Row.Name := Name;
@@ -327,7 +311,7 @@ page 68672 "W2 Assign Card"
 {
     PageType = Card;
     ApplicationArea = All;
-    SourceTable = "W2 Find Row";
+    SourceTable = "ALT Shape 01";
     SourceTableTemporary = true;
     UsageCategory = None;
 

@@ -26,21 +26,6 @@ table 86860 "LT QI RV Row"
     }
 }
 
-table 86865 "LT QI RV Host"
-{
-    DataClassification = CustomerContent;
-
-    fields
-    {
-        field(1; "Code"; Code[10]) { }
-    }
-
-    keys
-    {
-        key(PK; "Code") { Clustered = true; }
-    }
-}
-
 page 86861 "LT QI RV List"
 {
     PageType = List;
@@ -164,7 +149,7 @@ page 86862 "LT QI RV Part"
 page 86863 "LT QI RV Host Card"
 {
     PageType = Card;
-    SourceTable = "LT QI RV Host";
+    SourceTable = "ALT Shape 07";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -193,7 +178,7 @@ codeunit 86864 "LT QI RV Tests"
     local procedure Seed()
     var
         Row: Record "LT QI RV Row";
-        Host: Record "LT QI RV Host";
+        Host: Record "ALT Shape 07";
         i: Integer;
     begin
         Row.DeleteAll();

@@ -14,18 +14,6 @@
 //   actionref (pageext/lt-u-page-props/UPageObjects.al:348).
 // BC versions: 27-29
 
-table 93321 "LT Y64 PI Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-
-    keys { key(PK; Id) { Clustered = true; } }
-}
-
 codeunit 93325 "LT Y64 PI Log"
 {
     SingleInstance = true;
@@ -51,7 +39,7 @@ codeunit 93325 "LT Y64 PI Log"
 page 93322 "LT Y64 PI Card"
 {
     PageType = Card;
-    SourceTable = "LT Y64 PI Row";
+    SourceTable = "ALT Shape 00";
     UsageCategory = None;
 
     layout
@@ -174,7 +162,7 @@ pageextension 93322 "LT Y64 PI Card Ext" extends "LT Y64 PI Card"
 page 93323 "LT Y64 PI Plain Card"
 {
     PageType = Card;
-    SourceTable = "LT Y64 PI Row";
+    SourceTable = "ALT Shape 00";
     UsageCategory = None;
 
     layout
@@ -224,7 +212,7 @@ codeunit 93324 "LT Y64 PI Tests"
 
     local procedure Seed()
     var
-        Row: Record "LT Y64 PI Row";
+        Row: Record "ALT Shape 00";
     begin
         Row.DeleteAll();
         Row.Id := 1;

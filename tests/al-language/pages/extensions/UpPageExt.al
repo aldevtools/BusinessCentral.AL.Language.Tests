@@ -1,30 +1,18 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-page-ext-object
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own table 90498, pages 90499 and 90501, page extensions 90500 and 90502, codeunit 90506
+// Fixtures used: Probe Observer (codeunit 69160); shared table 50005 "ALT Shape 05", pages 90499 and 90501, page extensions 90500 and 90502, codeunit 90506
 // Probe (writer UP):
 //   1. al-runner issue 6219: a page extension reads the base page's protected var through CurrPage.<var> and assigns it by its plain name; the value the
 //      base page sees (a TestPage action's Enabled). ASSIGNING through CurrPage.<var> compiles with alc but BC 29 fails to build the extension's C# (CS0131, see the hand-off), so it is not asserted.
 //   The promoted category half (al-runner issue 6217) is in UpPromotedCategories.al next to this file.
 // BC versions: 27-29
 
-table 90498 "LT UP Page Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; "No."; Code[20]) { }
-    }
-
-    keys { key(PK; "No.") { Clustered = true; } }
-}
-
 page 90499 "LT UP Protected Var List"
 {
     PageType = List;
     ApplicationArea = All;
     UsageCategory = None;
-    SourceTable = "LT UP Page Row";
+    SourceTable = "ALT Shape 05";
 
     layout
     {
@@ -80,7 +68,7 @@ page 90501 "LT UP Unqualified Var List"
     PageType = List;
     ApplicationArea = All;
     UsageCategory = None;
-    SourceTable = "LT UP Page Row";
+    SourceTable = "ALT Shape 05";
 
     layout
     {
@@ -132,7 +120,7 @@ codeunit 90506 "LT UP Page Ext Tests"
 
     local procedure SeedRow()
     var
-        Row: Record "LT UP Page Row";
+        Row: Record "ALT Shape 05";
     begin
         Row.DeleteAll();
         Row."No." := 'A';

@@ -719,7 +719,7 @@ codeunit 78861 "LT AI List Navigation Order"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT AI Log Mgt";
-        Row: Record "LT AI Row";
+        Row: Record "ALT Shape 26";
         P: TestPage "LT AI List";
     begin
         Log.Seed(6);
@@ -749,7 +749,7 @@ codeunit 78861 "LT AI List Navigation Order"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT AI Log Mgt";
-        Row: Record "LT AI Row";
+        Row: Record "ALT Shape 26";
         P: TestPage "LT AI List Curr";
     begin
         Log.Seed(6);
@@ -914,7 +914,7 @@ codeunit 78862 "LT AI List Paging Order"
     procedure PageRun_RecordOnFifthRow()
     var
         Log: Codeunit "LT AI Log Mgt";
-        Row: Record "LT AI Row";
+        Row: Record "ALT Shape 26";
     begin
         Log.Seed(12);
         Log.Clear();
@@ -933,7 +933,7 @@ codeunit 78862 "LT AI List Paging Order"
     procedure PageRun_RecordWithFilterOnFifthRow()
     var
         Log: Codeunit "LT AI Log Mgt";
-        Row: Record "LT AI Row";
+        Row: Record "ALT Shape 26";
     begin
         Log.Seed(12);
         Log.Clear();
@@ -1132,7 +1132,7 @@ codeunit 78862 "LT AI List Paging Order"
     procedure PageRun_RecordOnTenthOfForty_Nav()
     var
         Log: Codeunit "LT AI Log Mgt";
-        Row: Record "LT AI Row";
+        Row: Record "ALT Shape 26";
     begin
         Log.Seed(40);
         Log.Clear();
@@ -1151,7 +1151,7 @@ codeunit 78862 "LT AI List Paging Order"
     procedure PageRun_RecordOnTenthOfForty_NavCurr()
     var
         Log: Codeunit "LT AI Log Mgt";
-        Row: Record "LT AI Row";
+        Row: Record "ALT Shape 26";
     begin
         Log.Seed(40);
         Log.Clear();
@@ -1197,7 +1197,7 @@ codeunit 78862 "LT AI List Paging Order"
     procedure PageRun_RecordOnThirtiethOfSixty_Nav()
     var
         Log: Codeunit "LT AI Log Mgt";
-        Row: Record "LT AI Row";
+        Row: Record "ALT Shape 26";
     begin
         Log.Seed(60);
         Log.Clear();

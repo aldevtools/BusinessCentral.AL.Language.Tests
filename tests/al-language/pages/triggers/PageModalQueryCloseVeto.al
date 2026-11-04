@@ -417,7 +417,7 @@ codeunit 70867 "LT Modal Close Veto"
 
     local procedure RpRun(Name: Text; Which: Integer; HostVeto: Boolean; PartVeto: Boolean; HandlerMode: Integer; var Observer: Codeunit "Probe Observer")
     var
-        Row: Record "LT RP Veto Row";
+        Row: Record "ALT Shape 01";
         RpLog: Codeunit "LT RP Veto Log";
         Result: Text;
         HostCount: Integer;
@@ -588,22 +588,6 @@ codeunit 70867 "LT Modal Close Veto"
 }
 
 // Writer RP (al-runner issue 5762): pages with parts whose OnQueryClosePage refuses the close. Used only by codeunit 70867.
-table 88391 "LT RP Veto Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 codeunit 88396 "LT RP Veto Log"
 {
     SingleInstance = true;
@@ -648,7 +632,7 @@ codeunit 88396 "LT RP Veto Log"
 page 88392 "LT RP Veto FactBox"
 {
     PageType = CardPart;
-    SourceTable = "LT RP Veto Row";
+    SourceTable = "ALT Shape 01";
     UsageCategory = None;
 
     layout
@@ -684,7 +668,7 @@ page 88392 "LT RP Veto FactBox"
 page 88393 "LT RP Veto List"
 {
     PageType = List;
-    SourceTable = "LT RP Veto Row";
+    SourceTable = "ALT Shape 01";
     Editable = false;
     UsageCategory = None;
 
@@ -741,7 +725,7 @@ page 88393 "LT RP Veto List"
 page 88394 "LT RP Veto Lines"
 {
     PageType = ListPart;
-    SourceTable = "LT RP Veto Row";
+    SourceTable = "ALT Shape 01";
     UsageCategory = None;
 
     layout
@@ -773,7 +757,7 @@ page 88394 "LT RP Veto Lines"
 page 88395 "LT RP Veto Part Card"
 {
     PageType = Card;
-    SourceTable = "LT RP Veto Row";
+    SourceTable = "ALT Shape 01";
     UsageCategory = None;
 
     layout
@@ -815,7 +799,7 @@ page 88395 "LT RP Veto Part Card"
 page 88397 "LT RP Veto By Part"
 {
     PageType = List;
-    SourceTable = "LT RP Veto Row";
+    SourceTable = "ALT Shape 01";
     Editable = false;
     UsageCategory = None;
 
