@@ -1,12 +1,17 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/system/system-evaluate-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); own enums 95450 and 95451, tables 95452 and 95453, test codeunit 95454; Base Application
+// Fixtures used: Probe Observer (69160); own enums 95450 and 95451, tables 95452, 95453 and 95456, test codeunit 95454, page 95455,
+// log codeunit 95457; Base Application
 // page "Table Filter" and table "Table Filter"
 // Probe: (al-runner issue 6951) Evaluate of a text into a TableFilter field whose condition is on an Enum field (names, captions,
 // ordinals, lists, ranges, <>, a bad member) and on an Option field (lists, ranges, <>), with what Format of the field gives back.
 // Then the Base Application page "Table Filter" fed with Format of such a field (SetSourceTable, GetFilterFieldsList): which
 // fields and filter texts it lists, for a Code `<>` condition, an Enum condition and two conditions. The single Option member
 // forms are pinned in record/W4PlatformAndMeta.al (TableFilterEvaluate_*).
+// Also: what CurrPage.Update(true), Update(false) and Update() do when a procedure of a Page variable that was never run calls them
+// after setting the fields of a new record of the page's temporary source table, on a List page with AutoSplitKey and
+// DelayedInsert (the shape of "Table Filter", whose SetSourceTable fills its lines this way): which rows the source table then
+// holds, with which "Line No.", and which page and table triggers run.
 // BC versions: 27+
 
 enum 95450 "LT R6951 Cost Kind"
@@ -66,6 +71,138 @@ table 95453 "LT R6951 Holder"
     {
         key(PK; Id) { Clustered = true; }
     }
+}
+
+table 95456 "LT R6951 Line"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Table Number"; Integer) { DataClassification = SystemMetadata; }
+        field(2; "Line No."; Integer) { DataClassification = SystemMetadata; }
+        field(3; "Field Number"; Integer) { DataClassification = SystemMetadata; }
+        field(4; "Field Filter"; Text[250]) { DataClassification = SystemMetadata; }
+    }
+
+    keys
+    {
+        key(PK; "Table Number", "Line No.") { Clustered = true; }
+    }
+
+    trigger OnInsert()
+    var
+        Log: Codeunit "LT R6951 Log";
+    begin
+        Log.Add('T.OnInsert:' + Format("Line No.") + '/' + Format("Field Number"));
+    end;
+
+    trigger OnModify()
+    var
+        Log: Codeunit "LT R6951 Log";
+    begin
+        Log.Add('T.OnModify:' + Format("Line No.") + '/' + Format("Field Number"));
+    end;
+}
+
+codeunit 95457 "LT R6951 Log"
+{
+    SingleInstance = true;
+
+    var
+        Lines: Text;
+
+    procedure Add(Line: Text)
+    begin
+        if Lines <> '' then
+            Lines += ' | ';
+        Lines += Line;
+    end;
+
+    procedure Take(): Text
+    var
+        Result: Text;
+    begin
+        Result := '[' + Lines + ']';
+        Lines := '';
+        exit(Result);
+    end;
+}
+
+page 95455 "LT R6951 Lines"
+{
+    PageType = List;
+    SourceTable = "LT R6951 Line";
+    SourceTableTemporary = true;
+    AutoSplitKey = true;
+    DelayedInsert = true;
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field("Field Number"; Rec."Field Number") { ApplicationArea = All; }
+                field("Field Filter"; Rec."Field Filter") { ApplicationArea = All; }
+            }
+        }
+    }
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    var
+        Log: Codeunit "LT R6951 Log";
+    begin
+        Log.Add('P.OnNewRecord');
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    var
+        Log: Codeunit "LT R6951 Log";
+    begin
+        Log.Add('P.OnInsertRecord:' + Format(Rec."Line No.") + '/' + Format(Rec."Field Number") + ' below=' + Format(BelowxRec));
+    end;
+
+    trigger OnModifyRecord(): Boolean
+    var
+        Log: Codeunit "LT R6951 Log";
+    begin
+        Log.Add('P.OnModifyRecord:' + Format(Rec."Line No.") + '/' + Format(Rec."Field Number"));
+    end;
+
+    // As "Table Filter" does it: a new record of the source table, its fields set, then CurrPage.Update. Mode: 'true', 'false',
+    // 'none' (Update without an argument) or 'skip' (no Update).
+    procedure AddLine(FieldNumber: Integer; FieldFilter: Text; Mode: Text)
+    begin
+        Rec.SetRange("Field Number");
+        Rec.Init();
+        Rec."Table Number" := 95452;
+        Rec."Field Number" := FieldNumber;
+        Rec."Line No." := 0;
+        Rec."Field Filter" := CopyStr(FieldFilter, 1, 250);
+        case Mode of
+            'true':
+                CurrPage.Update(true);
+            'false':
+                CurrPage.Update(false);
+            'none':
+                CurrPage.Update();
+        end;
+    end;
+
+    procedure Rows(): Text
+    var
+        Result: Text;
+    begin
+        Rec.Reset();
+        if Rec.FindSet() then
+            repeat
+                Result += Format(Rec."Line No.") + ':' + Format(Rec."Field Number") + '=' + Rec."Field Filter" + ';';
+            until Rec.Next() = 0;
+        exit('[' + Result + ']');
+    end;
 }
 
 codeunit 95454 "LT R6951 Tests"
@@ -213,6 +350,57 @@ codeunit 95454 "LT R6951 Tests"
         Observer.Observe('employee_filter', TargetField.GetFilter());
         Observer.Observe('getfilters', TargetRef.GetFilters());
         TargetRef.Close();
+        Observer.Finish();
+    end;
+
+    local procedure UpdateNeverRun(Mode: Text; Lines: Integer; var Observer: Codeunit "Probe Observer")
+    var
+        Log: Codeunit "LT R6951 Log";
+        P: Page "LT R6951 Lines";
+    begin
+        Log.Take();
+        P.AddLine(1, 'A..B', Mode);
+        Observer.Observe(Mode + '_first_log', Log.Take());
+        if Lines > 1 then begin
+            P.AddLine(4, '<>XYZ', Mode);
+            Observer.Observe(Mode + '_second_log', Log.Take());
+        end;
+        Observer.Observe(Mode + '_rows', P.Rows());
+    end;
+
+    [Test]
+    procedure UpdateNeverRunPage_NewRecord_UpdateTrue()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UpdateNeverRun('true', 2, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UpdateNeverRunPage_NewRecord_UpdateFalse()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UpdateNeverRun('false', 2, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UpdateNeverRunPage_NewRecord_UpdateNoArgument()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UpdateNeverRun('none', 2, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UpdateNeverRunPage_NewRecord_NoUpdate()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UpdateNeverRun('skip', 1, Observer);
         Observer.Finish();
     end;
 }
