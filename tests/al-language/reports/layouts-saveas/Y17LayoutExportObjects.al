@@ -8,24 +8,13 @@
 // build (a plain `al compile`, no flag), so a mismatched file cannot reach the app; the .app package then holds the rewritten bytes.
 // BC versions: 27-29
 
-table 91850 "LT Y17 Lay Row"
-{
-    DataClassification = SystemMetadata;
-    fields
-    {
-        field(1; "No."; Code[20]) { }
-        field(2; Name; Text[50]) { }
-    }
-    keys { key(PK; "No.") { Clustered = true; } }
-}
-
 report 91851 "LT Y17 Lay R1"
 {
     DefaultRenderingLayout = Rdl1;
 
     dataset
     {
-        dataitem(D; "LT Y17 Lay Row")
+        dataitem(D; "ALT Shape 04")
         {
             column(No_; "No.") { }
             column(Name_; Name) { }
@@ -54,7 +43,7 @@ report 91852 "LT Y17 Lay R2"
 
     dataset
     {
-        dataitem(D; "LT Y17 Lay Row")
+        dataitem(D; "ALT Shape 04")
         {
             column(No_; "No.") { }
             column(Name_; Name) { }
@@ -68,7 +57,7 @@ report 91854 "LT Y17 Lay R4"
 
     dataset
     {
-        dataitem(D; "LT Y17 Lay Row")
+        dataitem(D; "ALT Shape 04")
         {
             column(No_; "No.") { }
             column(Name_; Name) { }

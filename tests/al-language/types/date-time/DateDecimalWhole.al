@@ -5,15 +5,6 @@
 // Date + Decimal and Date - Decimal with whole values, and Record.Next(Steps) with whole steps.
 // BC versions: 29 (27 and 28 by CI)
 
-table 70342 "LT P98 NextRow"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-    keys { key(PK; Id) { Clustered = true; } }
-}
-
 codeunit 70341 "LT P98 DateDecimal"
 {
     Subtype = Test;
@@ -100,7 +91,7 @@ codeunit 70341 "LT P98 DateDecimal"
     procedure P98_Next_WholeSteps()
     var
         Observer: Codeunit "Probe Observer";
-        R: Record "LT P98 NextRow";
+        R: Record "ALT Shape 00";
         I: Integer;
     begin
         R.DeleteAll();

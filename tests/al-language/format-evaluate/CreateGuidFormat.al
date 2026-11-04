@@ -1,23 +1,11 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/system/createguid-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own table 74184, test codeunit 74185
+// Fixtures used: Probe Observer (codeunit 69160); shared table 50000 "ALT Shape 00", test codeunit 74185
 // Probe: written against BC; every literal asserted below is what BC produced (BC 27, 28 and 29 by the corpus CI matrix).
 // Settles GitHub issue 216 item 4 (NP Retail blockers): the shape of the Guids that CreateGuid() and the SystemId of an inserted row produce, over 50 calls:
 // length with and without braces, upper case hex digits only, the version character (the 15th character of the form without braces) and the variant
 // character (the 20th), and the number of distinct values. No generated Guid is asserted, only counts.
 // BC versions: 27, 28, 29
-
-table 74184 "LT CGF Row"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 codeunit 74185 "LT CGF CreateGuid Format"
 {
@@ -88,7 +76,7 @@ codeunit 74185 "LT CGF CreateGuid Format"
     procedure SystemId_ShapeOver50InsertedRows()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT CGF Row";
+        Row: Record "ALT Shape 00";
         Guids: List of [Guid];
         i: Integer;
     begin
@@ -113,9 +101,9 @@ codeunit 74185 "LT CGF CreateGuid Format"
     procedure SystemId_AssignedBeforeInsertIsKept()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT CGF Row";
+        Row: Record "ALT Shape 00";
         Own: Guid;
-        Back: Record "LT CGF Row";
+        Back: Record "ALT Shape 00";
     begin
         Row.DeleteAll();
         Row.Id := 1;

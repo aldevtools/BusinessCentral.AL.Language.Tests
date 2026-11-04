@@ -4,22 +4,6 @@
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // BC versions: 29 (27 and 28 by CI)
 
-table 74561 "LT P167 Var Rec"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Txt; Text[30]) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 codeunit 74562 "LT P167 Variant Write"
 {
     Subtype = Test;
@@ -27,7 +11,7 @@ codeunit 74562 "LT P167 Variant Write"
 
     local procedure InsertThroughValue(V: Variant; Id: Integer)
     var
-        R: Record "LT P167 Var Rec";
+        R: Record "ALT Shape 11";
     begin
         if V.IsRecord() then begin
             R := V;
@@ -39,7 +23,7 @@ codeunit 74562 "LT P167 Variant Write"
 
     local procedure InsertThroughVar(var V: Variant; Id: Integer)
     var
-        R: Record "LT P167 Var Rec";
+        R: Record "ALT Shape 11";
     begin
         R := V;
         R.Id := Id;
@@ -67,8 +51,8 @@ codeunit 74562 "LT P167 Variant Write"
     [Test]
     procedure TempRecord_InsertInCalleeThroughValueVariant()
     var
-        Tmp: Record "LT P167 Var Rec" temporary;
-        Perm: Record "LT P167 Var Rec";
+        Tmp: Record "ALT Shape 11" temporary;
+        Perm: Record "ALT Shape 11";
         Observer: Codeunit "Probe Observer";
     begin
         Perm.DeleteAll();
@@ -83,7 +67,7 @@ codeunit 74562 "LT P167 Variant Write"
     [Test]
     procedure PermanentRecord_InsertInCalleeThroughValueVariant()
     var
-        Rec: Record "LT P167 Var Rec";
+        Rec: Record "ALT Shape 11";
         Observer: Codeunit "Probe Observer";
     begin
         Rec.DeleteAll();
@@ -96,9 +80,9 @@ codeunit 74562 "LT P167 Variant Write"
     [Test]
     procedure TempRecord_InsertInCalleeThroughVarVariant()
     var
-        Tmp: Record "LT P167 Var Rec" temporary;
+        Tmp: Record "ALT Shape 11" temporary;
         V: Variant;
-        Perm: Record "LT P167 Var Rec";
+        Perm: Record "ALT Shape 11";
         Observer: Codeunit "Probe Observer";
     begin
         Perm.DeleteAll();
@@ -116,8 +100,8 @@ codeunit 74562 "LT P167 Variant Write"
     [Test]
     procedure TempRecord_InsertThroughRecordRefOfVariantParameter()
     var
-        Tmp: Record "LT P167 Var Rec" temporary;
-        Perm: Record "LT P167 Var Rec";
+        Tmp: Record "ALT Shape 11" temporary;
+        Perm: Record "ALT Shape 11";
         Ok: Boolean;
         Observer: Codeunit "Probe Observer";
     begin
@@ -137,9 +121,9 @@ codeunit 74562 "LT P167 Variant Write"
     [Test]
     procedure PermanentRecord_AssignedToVariant_CallerSeesLaterInsert()
     var
-        Rec: Record "LT P167 Var Rec";
+        Rec: Record "ALT Shape 11";
         V: Variant;
-        Copy: Record "LT P167 Var Rec";
+        Copy: Record "ALT Shape 11";
         Observer: Codeunit "Probe Observer";
     begin
         Rec.DeleteAll();

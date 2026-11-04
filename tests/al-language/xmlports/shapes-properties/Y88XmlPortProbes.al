@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-xmlport-object
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); table 94706, xmlports 94702-94705, codeunit 94701 (writer Y88); table 93547 "LT Y67 TF Row" and
+// Fixtures used: Probe Observer (codeunit 69160); shared table 50000 "ALT Shape 00", xmlports 94702-94705, codeunit 94701 (writer Y88); table 93547 "LT Y67 TF Row" and
 //   xmlport 93548 of tests/al-language/xmlport/lt-y67-xmlport-tablefilter/Y67XpTableFilter.al
 // Probe: (1) the whole text of the error that Evaluate into a TableFilter field raises for a text without a table name (records/W4PlatformAndMeta.al:598 and
 //   Y67XpTableFilter.al:153 pin the head and the sentence "The metadata object Table -1 was not found"), with every control character and backslash
@@ -8,20 +8,6 @@
 //   TableSeparator of a VariableText xmlport return for separators declared as properties ('<CR/LF>', '<LF>', '<CR>', '<TAB>', '<None>', '<NewLine>', a
 //   literal), as text, length and character codes.
 // BC versions: 27 - 29
-
-table 94706 "LT Y88 XP Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 xmlport 94702 "LT Y88 Sep A"
 {
@@ -37,7 +23,7 @@ xmlport 94702 "LT Y88 Sep A"
     {
         textelement(Root)
         {
-            tableelement(R; "LT Y88 XP Row")
+            tableelement(R; "ALT Shape 00")
             {
                 fieldelement(Id; R.Id) { }
             }
@@ -72,7 +58,7 @@ xmlport 94703 "LT Y88 Sep B"
     {
         textelement(Root)
         {
-            tableelement(R; "LT Y88 XP Row")
+            tableelement(R; "ALT Shape 00")
             {
                 fieldelement(Id; R.Id) { }
             }
@@ -107,7 +93,7 @@ xmlport 94704 "LT Y88 Sep C"
     {
         textelement(Root)
         {
-            tableelement(R; "LT Y88 XP Row")
+            tableelement(R; "ALT Shape 00")
             {
                 fieldelement(Id; R.Id) { }
             }
@@ -138,7 +124,7 @@ xmlport 94705 "LT Y88 Sep D"
     {
         textelement(Root)
         {
-            tableelement(R; "LT Y88 XP Row")
+            tableelement(R; "ALT Shape 00")
             {
                 fieldelement(Id; R.Id) { }
             }
