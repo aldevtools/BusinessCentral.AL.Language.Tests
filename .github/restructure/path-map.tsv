@@ -5710,3 +5710,4 @@ tests/must-not-compile/cases/2820-inherentpermissions-base-table.al	tests/must-n
 tests/must-not-compile/cases/2830-permissions-property-wildcard-tabledata.al	tests/must-not-compile/cases/2830-permissions-property-wildcard-tabledata.al	rule: folder already mapped
 tests/must-not-compile/cases/2831-permissions-property-codeunit.al	tests/must-not-compile/cases/2831-permissions-property-codeunit.al	rule: folder already mapped
 tests/rename-map.tsv	tests/rename-map.tsv	rule: file of tests/ itself
+tests/al-language/record/lt-blob-calcfields-length/BlobStoredSizeSign.al	tests/al-language/record/flowfields/BlobStoredSizeSign.al	map
