@@ -28,7 +28,7 @@ table 92370 "LT Y36 SameArity"
         key(PK; Id) { Clustered = true; }
     }
 
-    procedure Get(A: Record "LT Y36 SameArity Ref"; B: Record "LT Y36 SameArity Ref"): Boolean
+    procedure Get(A: Record "ALT Shape 00"; B: Record "ALT Shape 00"): Boolean
     begin
         Note := 'own Get(rec,rec)';
         exit(false);
@@ -61,21 +61,6 @@ table 92370 "LT Y36 SameArity"
         Found := Get(GetId);
         exit(Format(Found) + ' ' + Note);
     end;
-}
-
-table 92371 "LT Y36 SameArity Ref"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
 }
 
 table 92372 "LT Y36 CodeKey"

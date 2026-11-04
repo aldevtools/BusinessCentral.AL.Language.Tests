@@ -5,19 +5,6 @@
 // Facts: reads at open of a 5-row and a 30-row list with neither OnAfterGetRecord nor OnAfterGetCurrRecord; the second page logs OnFindRecord and OnNextRecord to make the reads visible
 // BC versions: 29 (27 and 28 by CI)
 
-table 72738 "LT ListRows OpenNone Row"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 // SingleInstance log of this file; entries are a kind (G = OnAfterGetRecord, C = OnAfterGetCurrRecord, F = OnFindRecord, N = OnNextRecord, A = action) and the row id.
 codeunit 72739 "LT ListRows OpenNone Log"
 {
@@ -133,7 +120,7 @@ codeunit 72739 "LT ListRows OpenNone Log"
 page 72740 "LT ListRows OpenNone Bare"
 {
     PageType = List;
-    SourceTable = "LT ListRows OpenNone Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -156,7 +143,7 @@ page 72740 "LT ListRows OpenNone Bare"
 page 72741 "LT ListRows OpenNone Find"
 {
     PageType = List;
-    SourceTable = "LT ListRows OpenNone Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -198,7 +185,7 @@ codeunit 72742 "LT ListRows OpenNone"
 
     local procedure Seed(Rows: Integer)
     var
-        Row: Record "LT ListRows OpenNone Row";
+        Row: Record "ALT Shape 01";
         Log: Codeunit "LT ListRows OpenNone Log";
         i: Integer;
     begin

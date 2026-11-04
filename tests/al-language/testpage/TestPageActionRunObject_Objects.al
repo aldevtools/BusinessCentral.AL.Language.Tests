@@ -16,44 +16,12 @@
 // platform opens the target modally: a StandardDialog is shown as a dialog, an ordinary Card
 // is not. Two targets are needed to state that as a testable claim instead of an assumption.
 
-table 60450 "TPARO Row"
-{
-    DataClassification = CustomerContent;
-
-    fields
-    {
-        field(1; "No."; Code[20]) { }
-        field(2; Descr; Text[50]) { }
-    }
-
-    keys
-    {
-        key(PK; "No.") { Clustered = true; }
-    }
-}
-
-// Separate from "TPARO Row" on purpose: a handler runs WHILE the host page is open, and
+// Separate from "ALT Shape 02" on purpose: a handler runs WHILE the host page is open, and
 // writing into the host's own source table mid-invoke would move the host's rowset under it.
-table 60454 "TPARO Log"
-{
-    DataClassification = CustomerContent;
-
-    fields
-    {
-        field(1; "Entry"; Code[20]) { }
-        field(2; Detail; Text[50]) { }
-    }
-
-    keys
-    {
-        key(PK; "Entry") { Clustered = true; }
-    }
-}
-
 page 60451 "TPARO Card Target"
 {
     PageType = Card;
-    SourceTable = "TPARO Row";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
 
     layout
@@ -75,7 +43,7 @@ page 60451 "TPARO Card Target"
 page 60452 "TPARO Dialog Target"
 {
     PageType = StandardDialog;
-    SourceTable = "TPARO Row";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
 
     layout
@@ -97,7 +65,7 @@ page 60452 "TPARO Dialog Target"
 page 60453 "TPARO Host"
 {
     PageType = List;
-    SourceTable = "TPARO Row";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
     UsageCategory = Lists;
 
@@ -146,11 +114,11 @@ page 60453 "TPARO Host"
 
                 trigger OnAction()
                 var
-                    Log: Record "TPARO Log";
+                    Log: Record "ALT Shape 04";
                 begin
                     Log.Init();
-                    Log.Entry := 'TRIGGER';
-                    Log.Detail := Rec."No.";
+                    Log."No." := 'TRIGGER';
+                    Log.Name := Rec."No.";
                     if not Log.Insert() then
                         Log.Modify();
                 end;
@@ -178,7 +146,7 @@ page 60453 "TPARO Host"
 page 60456 "TPARO Card Host"
 {
     PageType = Card;
-    SourceTable = "TPARO Row";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
 
     layout

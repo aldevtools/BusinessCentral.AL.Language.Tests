@@ -53,14 +53,14 @@ codeunit 60757 "Test Page Last New Row Line"
 
     local procedure Initialize()
     var
-        Row: Record "Test Page New Row Line Row";
+        Row: Record "ALT Shape 02";
     begin
         Row.DeleteAll();
     end;
 
     local procedure SeedThreeRows()
     var
-        Row: Record "Test Page New Row Line Row";
+        Row: Record "ALT Shape 02";
     begin
         Row.Init();
         Row."No." := 'ALPHA';
@@ -139,7 +139,7 @@ codeunit 60757 "Test Page Last New Row Line"
     [Test]
     procedure EmptyEditableList_LastReturnsFalse()
     var
-        Row: Record "Test Page New Row Line Row";
+        Row: Record "ALT Shape 02";
         TP: TestPage "Test Page New Row Line List";
     begin
         Initialize();
@@ -165,7 +165,7 @@ codeunit 60757 "Test Page Last New Row Line"
     [Test]
     procedure EmptyEditableList_SetValueAfterLast_InsertsARow()
     var
-        Row: Record "Test Page New Row Line Row";
+        Row: Record "ALT Shape 02";
         TP: TestPage "Test Page New Row Line List";
     begin
         Initialize();
@@ -190,7 +190,7 @@ codeunit 60757 "Test Page Last New Row Line"
     [Test]
     procedure EmptyEditableList_LastLeftUntouched_InsertsNothing()
     var
-        Row: Record "Test Page New Row Line Row";
+        Row: Record "ALT Shape 02";
         TP: TestPage "Test Page New Row Line List";
     begin
         Initialize();
@@ -296,7 +296,7 @@ codeunit 60757 "Test Page Last New Row Line"
     [HandlerFunctions('EmptyHostModalHandler')]
     procedure ModalHostPart_EmptyPart_SetValueAfterLast_InsertsARow()
     var
-        Row: Record "Test Page New Row Line Row";
+        Row: Record "ALT Shape 02";
         HostPage: Page "Test Page New Row Line Host";
     begin
         Initialize();

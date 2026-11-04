@@ -10,7 +10,7 @@
 page 60652 "NRB Card"
 {
     PageType = Card;
-    SourceTable = "NRB Header";
+    SourceTable = "ALT Shape 05";
     ApplicationArea = All;
     UsageCategory = Administration;
 

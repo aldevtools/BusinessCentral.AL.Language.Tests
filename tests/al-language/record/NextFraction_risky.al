@@ -5,15 +5,6 @@
 // RISKY: Record.Next with a fractional Decimal steps value (1.5, -1.5).
 // BC versions: 29 (27 and 28 by CI)
 
-table 70344 "LT P98 NextFracRow"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-    keys { key(PK; Id) { Clustered = true; } }
-}
-
 codeunit 70345 "LT P98 NextFraction"
 {
     Subtype = Test;
@@ -21,7 +12,7 @@ codeunit 70345 "LT P98 NextFraction"
 
     local procedure Fill()
     var
-        R: Record "LT P98 NextFracRow";
+        R: Record "ALT Shape 00";
         I: Integer;
     begin
         R.DeleteAll();
@@ -35,7 +26,7 @@ codeunit 70345 "LT P98 NextFraction"
     procedure P98_Next_FractionLiteral()
     var
         Observer: Codeunit "Probe Observer";
-        R: Record "LT P98 NextFracRow";
+        R: Record "ALT Shape 00";
     begin
         Fill();
         R.FindFirst();
@@ -59,7 +50,7 @@ codeunit 70345 "LT P98 NextFraction"
     procedure P98_Next_FractionVariable()
     var
         Observer: Codeunit "Probe Observer";
-        R: Record "LT P98 NextFracRow";
+        R: Record "ALT Shape 00";
         Dec: Decimal;
     begin
         Fill();

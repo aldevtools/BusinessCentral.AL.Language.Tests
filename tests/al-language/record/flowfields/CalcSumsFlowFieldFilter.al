@@ -15,25 +15,12 @@ table 70392 "LT CSFF Row"
         field(4; "Entry Count"; Integer)
         {
             FieldClass = FlowField;
-            CalcFormula = count("LT CSFF Entry" where("Row No." = field("No.")));
+            CalcFormula = count("ALT Shape 15" where(Grp = field("No.")));
         }
     }
     keys
     {
         key(PK; "No.") { Clustered = true; }
-    }
-}
-
-table 70393 "LT CSFF Entry"
-{
-    fields
-    {
-        field(1; "Entry No."; Integer) { }
-        field(2; "Row No."; Code[10]) { }
-    }
-    keys
-    {
-        key(PK; "Entry No.") { Clustered = true; }
     }
 }
 
@@ -45,7 +32,7 @@ codeunit 70394 "LT CSFF CalcSums"
     local procedure Seed()
     var
         Row: Record "LT CSFF Row";
-        Entry: Record "LT CSFF Entry";
+        Entry: Record "ALT Shape 15";
     begin
         Row.DeleteAll();
         Entry.DeleteAll();
@@ -73,10 +60,10 @@ codeunit 70394 "LT CSFF CalcSums"
 
     local procedure AddEntry(No: Integer; RowNo: Code[10])
     var
-        Entry: Record "LT CSFF Entry";
+        Entry: Record "ALT Shape 15";
     begin
-        Entry."Entry No." := No;
-        Entry."Row No." := RowNo;
+        Entry.Id := No;
+        Entry.Grp := RowNo;
         Entry.Insert();
     end;
 

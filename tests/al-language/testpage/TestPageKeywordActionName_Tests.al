@@ -33,14 +33,14 @@ codeunit 60269 "Keyword Action Name Tests"
 
     local procedure Initialize()
     var
-        Row: Record "Keyword Action Row";
+        Row: Record "ALT Shape 02";
     begin
         Row.DeleteAll();
     end;
 
     local procedure SeedRow()
     var
-        Row: Record "Keyword Action Row";
+        Row: Record "ALT Shape 02";
     begin
         Row.Init();
         Row."No." := 'A';
@@ -53,7 +53,7 @@ codeunit 60269 "Keyword Action Name Tests"
     [Test]
     procedure NonKeywordActionDeleteInvokeRunsItsTrigger()
     var
-        Row: Record "Keyword Action Row";
+        Row: Record "ALT Shape 02";
         KeywordList: TestPage "Keyword Action List";
     begin
         Initialize();
@@ -73,7 +73,7 @@ codeunit 60269 "Keyword Action Name Tests"
     [Test]
     procedure NonKeywordActionSetupInvokeRunsItsTrigger()
     var
-        Row: Record "Keyword Action Row";
+        Row: Record "ALT Shape 02";
         KeywordList: TestPage "Keyword Action List";
     begin
         Initialize();
@@ -94,7 +94,7 @@ codeunit 60269 "Keyword Action Name Tests"
     [Test]
     procedure KeywordActionNewInvokeRunsItsTrigger()
     var
-        Row: Record "Keyword Action Row";
+        Row: Record "ALT Shape 02";
         KeywordList: TestPage "Keyword Action List";
     begin
         Initialize();
@@ -116,7 +116,7 @@ codeunit 60269 "Keyword Action Name Tests"
     [Test]
     procedure KeywordActionDelegateInvokeRunsItsTrigger()
     var
-        Row: Record "Keyword Action Row";
+        Row: Record "ALT Shape 02";
         KeywordList: TestPage "Keyword Action List";
     begin
         Initialize();
@@ -135,7 +135,7 @@ codeunit 60269 "Keyword Action Name Tests"
     [Test]
     procedure ReservedMemberNameActionFinalizeInvokeRunsItsTrigger()
     var
-        Row: Record "Keyword Action Row";
+        Row: Record "ALT Shape 02";
         KeywordList: TestPage "Keyword Action List";
     begin
         Initialize();
@@ -155,7 +155,7 @@ codeunit 60269 "Keyword Action Name Tests"
     [Test]
     procedure PromotedActionRefToKeywordActionInvokeRunsTheTarget()
     var
-        Row: Record "Keyword Action Row";
+        Row: Record "ALT Shape 02";
         KeywordList: TestPage "Keyword Action List";
     begin
         Initialize();

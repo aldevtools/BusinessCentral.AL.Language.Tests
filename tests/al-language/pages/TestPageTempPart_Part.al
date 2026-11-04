@@ -13,7 +13,7 @@
 page 60805 "TP SrcTemp Part"
 {
     PageType = ListPart;
-    SourceTable = "TP SrcTemp Part Row";
+    SourceTable = "ALT Shape 21";
     SourceTableTemporary = true;
     ApplicationArea = All;
 
@@ -51,7 +51,7 @@ page 60805 "TP SrcTemp Part"
 
     // The in-page access path the host's own AL uses (CurrPage.Lines.Page.SetRows): replace
     // the part's temporary rowset with the caller's rows.
-    internal procedure SetRows(var TempRow: Record "TP SrcTemp Part Row" temporary)
+    internal procedure SetRows(var TempRow: Record "ALT Shape 21" temporary)
     begin
         Rec.DeleteAll();
         if TempRow.FindSet() then

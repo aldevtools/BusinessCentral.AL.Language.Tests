@@ -34,14 +34,14 @@ codeunit 60438 "Opc Close Part Flush Tests"
     local procedure Initialize()
     var
         Result: Record "Opc Result";
-        Head: Record "Opc Head";
+        Head: Record "ALT Shape 27";
     begin
         Result.DeleteAll();
         Head.DeleteAll();
 
         Head.Init();
         Head."No." := 'H1';
-        Head.Descr := 'Host';
+        Head.Name := 'Host';
         Head.Insert();
     end;
 

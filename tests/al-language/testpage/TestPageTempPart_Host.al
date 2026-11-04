@@ -24,7 +24,7 @@ page 60806 "TP SrcTemp Host"
 
     trigger OnOpenPage()
     var
-        TempRow: Record "TP SrcTemp Part Row" temporary;
+        TempRow: Record "ALT Shape 21" temporary;
     begin
         TempRow."Entry No." := 1;
         TempRow.Name := 'A';

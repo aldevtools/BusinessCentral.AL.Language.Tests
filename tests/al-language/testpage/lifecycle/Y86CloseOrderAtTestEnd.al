@@ -6,18 +6,6 @@
 // one page. Each "left open" test is followed by a test that reads the SingleInstance log (tests of one codeunit run in declaration order).
 // BC versions: 27, 28, 29
 
-table 94596 "LT Y86 CO Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; "Code"; Code[10]) { }
-    }
-
-    keys { key(PK; "Code") { Clustered = true; } }
-}
-
 codeunit 94599 "LT Y86 CO Log"
 {
     SingleInstance = true;
@@ -43,7 +31,7 @@ codeunit 94599 "LT Y86 CO Log"
 page 94597 "LT Y86 CO Card A"
 {
     PageType = Card;
-    SourceTable = "LT Y86 CO Row";
+    SourceTable = "ALT Shape 07";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -73,7 +61,7 @@ page 94597 "LT Y86 CO Card A"
 page 94598 "LT Y86 CO Card B"
 {
     PageType = Card;
-    SourceTable = "LT Y86 CO Row";
+    SourceTable = "ALT Shape 07";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -110,7 +98,7 @@ codeunit 94600 "LT Y86 Close Order"
 
     local procedure Seed()
     var
-        Row: Record "LT Y86 CO Row";
+        Row: Record "ALT Shape 07";
     begin
         Row.DeleteAll();
         Row."Code" := 'R1';
@@ -121,7 +109,7 @@ codeunit 94600 "LT Y86 Close Order"
         Row.Insert();
     end;
 
-    local procedure GoTo(var Row: Record "LT Y86 CO Row"; RowCode: Code[10])
+    local procedure GoTo(var Row: Record "ALT Shape 07"; RowCode: Code[10])
     begin
         Row.Get(RowCode);
     end;
@@ -129,7 +117,7 @@ codeunit 94600 "LT Y86 Close Order"
     [Test]
     procedure Y86_T01_DeclaredAThenB_OpenedBThenA()
     var
-        Row: Record "LT Y86 CO Row";
+        Row: Record "ALT Shape 07";
         PageA: TestPage "LT Y86 CO Card A";
         PageB: TestPage "LT Y86 CO Card B";
         Log: Codeunit "LT Y86 CO Log";
@@ -159,7 +147,7 @@ codeunit 94600 "LT Y86 Close Order"
     [Test]
     procedure Y86_T03_DeclaredBThenA_OpenedBThenA()
     var
-        Row: Record "LT Y86 CO Row";
+        Row: Record "ALT Shape 07";
         PageB: TestPage "LT Y86 CO Card B";
         PageA: TestPage "LT Y86 CO Card A";
         Log: Codeunit "LT Y86 CO Log";
@@ -189,7 +177,7 @@ codeunit 94600 "LT Y86 Close Order"
     [Test]
     procedure Y86_T05_SamePageTwice_OpenedSecondFirst()
     var
-        Row: Record "LT Y86 CO Row";
+        Row: Record "ALT Shape 07";
         First: TestPage "LT Y86 CO Card A";
         Second: TestPage "LT Y86 CO Card A";
         Log: Codeunit "LT Y86 CO Log";
@@ -219,7 +207,7 @@ codeunit 94600 "LT Y86 Close Order"
     [Test]
     procedure Y86_T07_GlobalAndLocal_LocalOpenedFirst()
     var
-        Row: Record "LT Y86 CO Row";
+        Row: Record "ALT Shape 07";
         PageB: TestPage "LT Y86 CO Card B";
         Log: Codeunit "LT Y86 CO Log";
     begin

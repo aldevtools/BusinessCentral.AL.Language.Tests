@@ -79,7 +79,7 @@ codeunit 60648 "PKFL Tests"
 
     local procedure Initialize()
     var
-        Header: Record "PKFL Header";
+        Header: Record "ALT Shape 02";
         Line: Record "PKFL Line";
         KeyedLine: Record "PKFL Keyed Line";
     begin
@@ -109,7 +109,7 @@ codeunit 60648 "PKFL Tests"
 
     local procedure OpenCardOn(HeaderNo: Code[20]; var Card: TestPage "PKFL Card")
     var
-        Header: Record "PKFL Header";
+        Header: Record "ALT Shape 02";
     begin
         Header.Get(HeaderNo);
         Card.OpenEdit();

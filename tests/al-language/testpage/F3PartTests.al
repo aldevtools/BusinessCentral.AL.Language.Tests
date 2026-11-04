@@ -234,7 +234,7 @@ codeunit 67094 "LT F3 Part Of Closed Page"
     procedure PageVariableRanModalAndClosed_PartRead()
     var
         Host: Page "LT F3 Host Filter";
-        Head: Record "LT F3 Head";
+        Head: Record "ALT Shape 08";
         Data: Codeunit "LT F3 Part Data";
         Result: Action;
     begin

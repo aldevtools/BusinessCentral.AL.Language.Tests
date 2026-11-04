@@ -32,7 +32,7 @@ page 68734 "W2 Find Update List"
 {
     PageType = List;
     ApplicationArea = All;
-    SourceTable = "W2 Below Row";
+    SourceTable = "ALT Shape 01";
     UsageCategory = None;
 
     layout
@@ -85,7 +85,7 @@ page 68734 "W2 Find Update List"
                 trigger OnAction()
                 var
                     Log: Codeunit "W2 Update Log";
-                    Other: Record "W2 Below Row";
+                    Other: Record "ALT Shape 01";
                 begin
                     Log.Add('ActionBegin');
                     Other.Get(Rec.Id);
@@ -151,7 +151,7 @@ page 68736 "W2 One Row List"
 {
     PageType = List;
     ApplicationArea = All;
-    SourceTable = "W2 Below Row";
+    SourceTable = "ALT Shape 01";
     UsageCategory = None;
 
     layout
@@ -224,7 +224,7 @@ codeunit 68735 "W2 Update Tests"
 
     local procedure Seed()
     var
-        Row: Record "W2 Below Row";
+        Row: Record "ALT Shape 01";
         Log: Codeunit "W2 Update Log";
     begin
         Row.DeleteAll();
@@ -339,7 +339,7 @@ codeunit 68735 "W2 Update Tests"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "W2 Update Log";
-        Row: Record "W2 Below Row";
+        Row: Record "ALT Shape 01";
         Pg: TestPage "W2 Find Update List";
         Trace: Text;
     begin
@@ -451,7 +451,7 @@ codeunit 68735 "W2 Update Tests"
 
     local procedure SfSeed(Count: Integer)
     var
-        Row: Record "W2 Below Row";
+        Row: Record "ALT Shape 01";
         Log: Codeunit "W2 Update Log";
         Index: Integer;
     begin
@@ -757,7 +757,7 @@ page 89060 "LT SF Find Only List"
 {
     PageType = List;
     ApplicationArea = All;
-    SourceTable = "W2 Below Row";
+    SourceTable = "ALT Shape 01";
     UsageCategory = None;
 
     layout
@@ -820,7 +820,7 @@ page 89061 "LT SF Find Part"
 {
     PageType = ListPart;
     ApplicationArea = All;
-    SourceTable = "W2 Below Row";
+    SourceTable = "ALT Shape 01";
     UsageCategory = None;
 
     layout
@@ -893,7 +893,7 @@ page 89062 "LT SF Find Host"
 {
     PageType = Card;
     ApplicationArea = All;
-    SourceTable = "W2 Below Row";
+    SourceTable = "ALT Shape 01";
     UsageCategory = None;
 
     layout

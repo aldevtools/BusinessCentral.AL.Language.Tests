@@ -5,19 +5,6 @@
 // Facts: a list with a new row (TestPage OpenEdit + New, key and name set, row not left) then an action (with and without CurrPage.Update(false)): reads logged, row stored or not
 // BC versions: 29 (27 and 28 by CI)
 
-table 72747 "LT ListRows ActionNew Row"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 // SingleInstance log of this file; entries are a kind (G = OnAfterGetRecord, C = OnAfterGetCurrRecord, F = OnFindRecord, N = OnNextRecord, A = action) and the row id.
 codeunit 72748 "LT ListRows ActionNew Log"
 {
@@ -133,7 +120,7 @@ codeunit 72748 "LT ListRows ActionNew Log"
 page 72749 "LT ListRows ActionNew List"
 {
     PageType = List;
-    SourceTable = "LT ListRows ActionNew Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -194,7 +181,7 @@ codeunit 72750 "LT ListRows ActionNew"
 
     local procedure Seed(Rows: Integer)
     var
-        Row: Record "LT ListRows ActionNew Row";
+        Row: Record "ALT Shape 01";
         Log: Codeunit "LT ListRows ActionNew Log";
         i: Integer;
     begin
@@ -239,7 +226,7 @@ codeunit 72750 "LT ListRows ActionNew"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT ListRows ActionNew Log";
-        Row: Record "LT ListRows ActionNew Row";
+        Row: Record "ALT Shape 01";
         List: TestPage "LT ListRows ActionNew List";
     begin
         Seed(5);
@@ -292,7 +279,7 @@ codeunit 72750 "LT ListRows ActionNew"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT ListRows ActionNew Log";
-        Row: Record "LT ListRows ActionNew Row";
+        Row: Record "ALT Shape 01";
         List: TestPage "LT ListRows ActionNew List";
     begin
         Seed(5);
@@ -345,7 +332,7 @@ codeunit 72750 "LT ListRows ActionNew"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT ListRows ActionNew Log";
-        Row: Record "LT ListRows ActionNew Row";
+        Row: Record "ALT Shape 01";
         List: TestPage "LT ListRows ActionNew List";
     begin
         Seed(30);
@@ -398,7 +385,7 @@ codeunit 72750 "LT ListRows ActionNew"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT ListRows ActionNew Log";
-        Row: Record "LT ListRows ActionNew Row";
+        Row: Record "ALT Shape 01";
         List: TestPage "LT ListRows ActionNew List";
     begin
         Seed(30);

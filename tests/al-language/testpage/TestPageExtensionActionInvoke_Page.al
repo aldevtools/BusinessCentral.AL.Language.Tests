@@ -10,7 +10,7 @@
 page 60722 "TPX List"
 {
     PageType = List;
-    SourceTable = "TPX Row";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
     UsageCategory = Lists;
 
@@ -43,7 +43,7 @@ page 60722 "TPX List"
 
                 trigger OnAction()
                 var
-                    Stamp: Record "TPX Row";
+                    Stamp: Record "ALT Shape 02";
                 begin
                     if not Stamp.Get('STAMP') then begin
                         Stamp.Init();
@@ -69,7 +69,7 @@ pageextension 60723 "TPX List Ext" extends "TPX List"
 
                 trigger OnAction()
                 var
-                    Stamp: Record "TPX Row";
+                    Stamp: Record "ALT Shape 02";
                 begin
                     if not Stamp.Get('STAMPEXT') then begin
                         Stamp.Init();

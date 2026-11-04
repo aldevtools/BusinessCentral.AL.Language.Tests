@@ -51,7 +51,7 @@ codeunit 79850 "LT AR Record Probes"
     [TryFunction]
     local procedure TryAddOther(var FPB: FilterPageBuilder; Name: Text)
     var
-        Other: Record "LT AR Other";
+        Other: Record "ALT Shape 07";
     begin
         FPB.AddRecord(Name, Other);
     end;
@@ -71,7 +71,7 @@ codeunit 79850 "LT AR Record Probes"
         Observer: Codeunit "Probe Observer";
         FPB: FilterPageBuilder;
         Row: Record "LT AR Row";
-        Other: Record "LT AR Other";
+        Other: Record "ALT Shape 07";
     begin
         FPB.AddRecord('Rows', Row);
         Observer.Observe('try', Format(TryAddOther(FPB, 'Rows')));
@@ -398,7 +398,7 @@ codeunit 79850 "LT AR Record Probes"
 
     local procedure SeedOther()
     var
-        Other: Record "LT AR Other";
+        Other: Record "ALT Shape 07";
     begin
         Other.DeleteAll();
         Other.Init();
@@ -417,7 +417,7 @@ codeunit 79850 "LT AR Record Probes"
     begin
         Seed();
         SeedOther();
-        RR.Open(Database::"LT AR Other");
+        RR.Open(Database::"ALT Shape 07");
         RR.FindFirst();
         V := RR;
         Row.Get(2);

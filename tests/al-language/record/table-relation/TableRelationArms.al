@@ -110,22 +110,6 @@ table 67176 "LT TR Where Child"
 
 // Writer Y76 (al-runtime-rs assumptions rename-follows-filter-condition-arms and table-relation-several-where-non-key): more filter forms in the
 // condition of an arm, and a relation with where() conditions on key and non-key fields of the target. Object ids 94050 - 94055.
-table 94050 "LT Y76 Rel Parent"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Code; Code[10]) { }
-        field(2; Name; Text[30]) { }
-    }
-
-    keys
-    {
-        key(PK; Code) { Clustered = true; }
-    }
-}
-
 table 94051 "LT Y76 Rel Child"
 {
     DataClassification = SystemMetadata;
@@ -136,13 +120,13 @@ table 94051 "LT Y76 Rel Child"
         field(2; Qty; Integer) { }
         field(3; Kind; Option) { OptionMembers = A,B,C,D; }
         field(4; Amt; Decimal) { }
-        field(10; RefNegative; Code[10]) { TableRelation = if (Qty = filter(< 0)) "LT Y76 Rel Parent".Code; }
-        field(11; RefNotBAndC; Code[10]) { TableRelation = if (Kind = filter(<> B & <> C)) "LT Y76 Rel Parent".Code; }
-        field(12; RefRange; Code[10]) { TableRelation = if (Qty = filter(1..3)) "LT Y76 Rel Parent".Code; }
-        field(13; RefOr; Code[10]) { TableRelation = if (Kind = filter(A | C)) "LT Y76 Rel Parent".Code; }
-        field(14; RefDecimal; Code[10]) { TableRelation = if (Amt = filter(>=0.5 & <3)) "LT Y76 Rel Parent".Code; }
-        field(15; RefAtLeast; Code[10]) { TableRelation = if (Qty = filter(>= 5)) "LT Y76 Rel Parent".Code; }
-        field(16; RefElse; Code[10]) { TableRelation = if (Qty = filter(< 0)) "LT Y76 Rel Parent".Code else "LT Y76 Rel Parent".Code where(Name = const('')); }
+        field(10; RefNegative; Code[10]) { TableRelation = if (Qty = filter(< 0)) "ALT Shape 20".Code; }
+        field(11; RefNotBAndC; Code[10]) { TableRelation = if (Kind = filter(<> B & <> C)) "ALT Shape 20".Code; }
+        field(12; RefRange; Code[10]) { TableRelation = if (Qty = filter(1..3)) "ALT Shape 20".Code; }
+        field(13; RefOr; Code[10]) { TableRelation = if (Kind = filter(A | C)) "ALT Shape 20".Code; }
+        field(14; RefDecimal; Code[10]) { TableRelation = if (Amt = filter(>=0.5 & <3)) "ALT Shape 20".Code; }
+        field(15; RefAtLeast; Code[10]) { TableRelation = if (Qty = filter(>= 5)) "ALT Shape 20".Code; }
+        field(16; RefElse; Code[10]) { TableRelation = if (Qty = filter(< 0)) "ALT Shape 20".Code else "ALT Shape 20".Code where(Name = const('')); }
     }
 
     keys
@@ -379,7 +363,7 @@ codeunit 67177 "LT TR Arms"
     [Test]
     procedure Y76_Rename_FollowsFilterArms()
     var
-        Parent: Record "LT Y76 Rel Parent";
+        Parent: Record "ALT Shape 20";
         Child: Record "LT Y76 Rel Child";
         Observer: Codeunit "Probe Observer";
     begin

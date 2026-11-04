@@ -5,23 +5,10 @@
 // Facts: none (three small pages with a source table, a public SetResult / GetResult pair and an OnOpenPage flag)
 // BC versions: 29 (27 and 28 by CI)
 
-table 73660 "LT P131 HRow"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[20]) { }
-    }
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 page 73661 "LT P131 Card"
 {
     PageType = Card;
-    SourceTable = "LT P131 HRow";
+    SourceTable = "ALT Shape 06";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -64,7 +51,7 @@ page 73661 "LT P131 Card"
 page 73662 "LT P131 List"
 {
     PageType = List;
-    SourceTable = "LT P131 HRow";
+    SourceTable = "ALT Shape 06";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -110,7 +97,7 @@ page 73662 "LT P131 List"
 page 73663 "LT P131 Nav"
 {
     PageType = Card;
-    SourceTable = "LT P131 HRow";
+    SourceTable = "ALT Shape 06";
     ApplicationArea = All;
     UsageCategory = None;
 

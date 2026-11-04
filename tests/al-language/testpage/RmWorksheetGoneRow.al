@@ -15,26 +15,10 @@
 // Source: al-runner issue 5752 (a partner app posts a Production Journal from a ModalPageHandler).
 // BC versions: 27, 28, 29
 
-table 88260 "LT RM Ws Line"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; "Line No."; Integer) { }
-        field(2; Description; Text[50]) { }
-    }
-
-    keys
-    {
-        key(PK; "Line No.") { Clustered = true; }
-    }
-}
-
 page 88261 "LT RM Ws NoNew"
 {
     PageType = Worksheet;
-    SourceTable = "LT RM Ws Line";
+    SourceTable = "ALT Shape 18";
     InsertAllowed = false;
     ApplicationArea = All;
     UsageCategory = None;
@@ -45,8 +29,8 @@ page 88261 "LT RM Ws NoNew"
         {
             repeater(Lines)
             {
-                field(LineNoCtl; Rec."Line No.") { }
-                field(DescriptionCtl; Rec.Description) { }
+                field(LineNoCtl; Rec.Id) { }
+                field(DescriptionCtl; Rec.Name) { }
             }
         }
     }
@@ -61,7 +45,7 @@ page 88261 "LT RM Ws NoNew"
 
                 trigger OnAction()
                 var
-                    Line: Record "LT RM Ws Line";
+                    Line: Record "ALT Shape 18";
                 begin
                     Line.DeleteAll();
                     CurrPage.Update(false);
@@ -73,7 +57,7 @@ page 88261 "LT RM Ws NoNew"
 
                 trigger OnAction()
                 var
-                    Line: Record "LT RM Ws Line";
+                    Line: Record "ALT Shape 18";
                 begin
                     Line.DeleteAll();
                 end;
@@ -83,17 +67,17 @@ page 88261 "LT RM Ws NoNew"
 
     trigger OnAfterGetRecord()
     begin
-        Log.Add('R:' + Format(Rec."Line No."));
+        Log.Add('R:' + Format(Rec.Id));
     end;
 
     trigger OnAfterGetCurrRecord()
     begin
-        Log.Add('C:' + Format(Rec."Line No."));
+        Log.Add('C:' + Format(Rec.Id));
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        Log.Add('N:' + Format(Rec."Line No."));
+        Log.Add('N:' + Format(Rec.Id));
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -114,7 +98,7 @@ page 88261 "LT RM Ws NoNew"
 page 88262 "LT RM List NoNew"
 {
     PageType = List;
-    SourceTable = "LT RM Ws Line";
+    SourceTable = "ALT Shape 18";
     InsertAllowed = false;
     ApplicationArea = All;
     UsageCategory = None;
@@ -125,8 +109,8 @@ page 88262 "LT RM List NoNew"
         {
             repeater(Lines)
             {
-                field(LineNoCtl; Rec."Line No.") { }
-                field(DescriptionCtl; Rec.Description) { }
+                field(LineNoCtl; Rec.Id) { }
+                field(DescriptionCtl; Rec.Name) { }
             }
         }
     }
@@ -141,7 +125,7 @@ page 88262 "LT RM List NoNew"
 
                 trigger OnAction()
                 var
-                    Line: Record "LT RM Ws Line";
+                    Line: Record "ALT Shape 18";
                 begin
                     Line.DeleteAll();
                     CurrPage.Update(false);
@@ -152,17 +136,17 @@ page 88262 "LT RM List NoNew"
 
     trigger OnAfterGetRecord()
     begin
-        Log.Add('R:' + Format(Rec."Line No."));
+        Log.Add('R:' + Format(Rec.Id));
     end;
 
     trigger OnAfterGetCurrRecord()
     begin
-        Log.Add('C:' + Format(Rec."Line No."));
+        Log.Add('C:' + Format(Rec.Id));
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        Log.Add('N:' + Format(Rec."Line No."));
+        Log.Add('N:' + Format(Rec.Id));
     end;
 
     trigger OnClosePage()
@@ -177,7 +161,7 @@ page 88262 "LT RM List NoNew"
 page 88263 "LT RM Ws WithNew"
 {
     PageType = Worksheet;
-    SourceTable = "LT RM Ws Line";
+    SourceTable = "ALT Shape 18";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -187,8 +171,8 @@ page 88263 "LT RM Ws WithNew"
         {
             repeater(Lines)
             {
-                field(LineNoCtl; Rec."Line No.") { }
-                field(DescriptionCtl; Rec.Description) { }
+                field(LineNoCtl; Rec.Id) { }
+                field(DescriptionCtl; Rec.Name) { }
             }
         }
     }
@@ -203,7 +187,7 @@ page 88263 "LT RM Ws WithNew"
 
                 trigger OnAction()
                 var
-                    Line: Record "LT RM Ws Line";
+                    Line: Record "ALT Shape 18";
                 begin
                     Line.DeleteAll();
                     CurrPage.Update(false);
@@ -214,17 +198,17 @@ page 88263 "LT RM Ws WithNew"
 
     trigger OnAfterGetRecord()
     begin
-        Log.Add('R:' + Format(Rec."Line No."));
+        Log.Add('R:' + Format(Rec.Id));
     end;
 
     trigger OnAfterGetCurrRecord()
     begin
-        Log.Add('C:' + Format(Rec."Line No."));
+        Log.Add('C:' + Format(Rec.Id));
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        Log.Add('N:' + Format(Rec."Line No."));
+        Log.Add('N:' + Format(Rec.Id));
     end;
 
     trigger OnClosePage()
@@ -271,18 +255,18 @@ codeunit 88265 "LT RM Ws Gone Row Tests"
 
     local procedure InsertOneLine()
     var
-        Line: Record "LT RM Ws Line";
+        Line: Record "ALT Shape 18";
     begin
         Line.DeleteAll();
-        Line."Line No." := 10000;
-        Line.Description := 'Only line';
+        Line.Id := 10000;
+        Line.Name := 'Only line';
         Line.Insert();
         Log.Reset();
     end;
 
     local procedure LineCount(): Text
     var
-        Line: Record "LT RM Ws Line";
+        Line: Record "ALT Shape 18";
     begin
         exit(Format(Line.Count()));
     end;
@@ -556,7 +540,7 @@ codeunit 88265 "LT RM Ws Gone Row Tests"
 
     local procedure ShOpenEmptyFilled(var Ws: TestPage "LT SH Ws Filled By Action")
     var
-        Line: Record "LT RM Ws Line";
+        Line: Record "ALT Shape 18";
     begin
         Line.DeleteAll();
         Log.Reset();
@@ -627,7 +611,7 @@ codeunit 88265 "LT RM Ws Gone Row Tests"
 page 89439 "LT SH Ws Filled By Action"
 {
     PageType = Worksheet;
-    SourceTable = "LT RM Ws Line";
+    SourceTable = "ALT Shape 18";
     AutoSplitKey = true;
     DelayedInsert = true;
     ApplicationArea = All;
@@ -639,8 +623,8 @@ page 89439 "LT SH Ws Filled By Action"
         {
             repeater(Lines)
             {
-                field(LineNoCtl; Rec."Line No.") { }
-                field(DescriptionCtl; Rec.Description) { }
+                field(LineNoCtl; Rec.Id) { }
+                field(DescriptionCtl; Rec.Name) { }
             }
         }
     }
@@ -655,13 +639,13 @@ page 89439 "LT SH Ws Filled By Action"
 
                 trigger OnAction()
                 var
-                    Line: Record "LT RM Ws Line";
+                    Line: Record "ALT Shape 18";
                 begin
-                    Line."Line No." := 10000;
-                    Line.Description := 'First';
+                    Line.Id := 10000;
+                    Line.Name := 'First';
                     Line.Insert();
-                    Line."Line No." := 20000;
-                    Line.Description := 'Second';
+                    Line.Id := 20000;
+                    Line.Name := 'Second';
                     Line.Insert();
                 end;
             }
@@ -671,7 +655,7 @@ page 89439 "LT SH Ws Filled By Action"
 
                 trigger OnAction()
                 var
-                    Line: Record "LT RM Ws Line";
+                    Line: Record "ALT Shape 18";
                 begin
                     Line.DeleteAll();
                     CurrPage.Update(false);
@@ -682,17 +666,17 @@ page 89439 "LT SH Ws Filled By Action"
 
     trigger OnAfterGetRecord()
     begin
-        Log.Add('R:' + Format(Rec."Line No."));
+        Log.Add('R:' + Format(Rec.Id));
     end;
 
     trigger OnAfterGetCurrRecord()
     begin
-        Log.Add('C:' + Format(Rec."Line No."));
+        Log.Add('C:' + Format(Rec.Id));
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        Log.Add('N:' + Format(Rec."Line No."));
+        Log.Add('N:' + Format(Rec.Id));
     end;
 
     trigger OnClosePage()
@@ -707,7 +691,7 @@ page 89439 "LT SH Ws Filled By Action"
 page 89431 "LT SH List View NoNew"
 {
     PageType = List;
-    SourceTable = "LT RM Ws Line";
+    SourceTable = "ALT Shape 18";
     ApplicationArea = All;
     UsageCategory = None;
     Editable = false;
@@ -721,8 +705,8 @@ page 89431 "LT SH List View NoNew"
         {
             repeater(Lines)
             {
-                field(LineNoCtl; Rec."Line No.") { }
-                field(DescriptionCtl; Rec.Description) { }
+                field(LineNoCtl; Rec.Id) { }
+                field(DescriptionCtl; Rec.Name) { }
             }
         }
     }
@@ -737,9 +721,9 @@ page 89431 "LT SH List View NoNew"
 
                 trigger OnAction()
                 var
-                    Line: Record "LT RM Ws Line";
+                    Line: Record "ALT Shape 18";
                 begin
-                    Line.Get(Rec."Line No.");
+                    Line.Get(Rec.Id);
                     Line.Delete();
                     CurrPage.Update(false);
                 end;
@@ -749,17 +733,17 @@ page 89431 "LT SH List View NoNew"
 
     trigger OnAfterGetRecord()
     begin
-        Log.Add('R:' + Format(Rec."Line No."));
+        Log.Add('R:' + Format(Rec.Id));
     end;
 
     trigger OnAfterGetCurrRecord()
     begin
-        Log.Add('C:' + Format(Rec."Line No."));
+        Log.Add('C:' + Format(Rec.Id));
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        Log.Add('N:' + Format(Rec."Line No."));
+        Log.Add('N:' + Format(Rec.Id));
     end;
 
     trigger OnClosePage()

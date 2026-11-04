@@ -44,8 +44,8 @@ codeunit 60455 "TPARO Tests"
 
     local procedure Initialize()
     var
-        Row: Record "TPARO Row";
-        Log: Record "TPARO Log";
+        Row: Record "ALT Shape 02";
+        Log: Record "ALT Shape 04";
     begin
         Row.DeleteAll();
         Log.DeleteAll();
@@ -69,7 +69,7 @@ codeunit 60455 "TPARO Tests"
     [HandlerFunctions('CardTargetPageHandler')]
     procedure RunObjectActionOpensTheTargetOnTheHostsCurrentRow()
     var
-        Log: Record "TPARO Log";
+        Log: Record "ALT Shape 04";
         Host: TestPage "TPARO Host";
     begin
         Initialize();
@@ -81,7 +81,7 @@ codeunit 60455 "TPARO Tests"
         Host.Close();
 
         Assert.IsTrue(Log.Get('CARD'), 'the RunObject action must have opened its target page');
-        Assert.AreEqual('Bravo', Log.Detail,
+        Assert.AreEqual('Bravo', Log.Name,
             'RunPageOnRec = true must open the target on the host page''s current row');
     end;
 
@@ -94,7 +94,7 @@ codeunit 60455 "TPARO Tests"
     [HandlerFunctions('DialogTargetModalHandler')]
     procedure RunObjectActionToAStandardDialogTargetIsAnsweredByTheModalHandler()
     var
-        Log: Record "TPARO Log";
+        Log: Record "ALT Shape 04";
         Host: TestPage "TPARO Host";
     begin
         Initialize();
@@ -107,7 +107,7 @@ codeunit 60455 "TPARO Tests"
 
         Assert.IsTrue(Log.Get('DIALOG'),
             'a StandardDialog RunObject target must be answered by the [ModalPageHandler]');
-        Assert.AreEqual('Bravo', Log.Detail,
+        Assert.AreEqual('Bravo', Log.Name,
             'RunPageOnRec = true must open the dialog target on the host page''s current row');
     end;
 
@@ -119,7 +119,7 @@ codeunit 60455 "TPARO Tests"
     [HandlerFunctions('CardTargetPageHandler')]
     procedure ActionrefToARunObjectActionOpensTheSameTarget()
     var
-        Log: Record "TPARO Log";
+        Log: Record "ALT Shape 04";
         Host: TestPage "TPARO Host";
     begin
         Initialize();
@@ -132,7 +132,7 @@ codeunit 60455 "TPARO Tests"
 
         Assert.IsTrue(Log.Get('CARD'),
             'invoking the promoted actionref must open the target its action names');
-        Assert.AreEqual('Bravo', Log.Detail,
+        Assert.AreEqual('Bravo', Log.Name,
             'the actionref must carry the same RunPageOnRec behaviour as its target action');
     end;
 
@@ -143,7 +143,7 @@ codeunit 60455 "TPARO Tests"
     [Test]
     procedure AnActionWithATriggerStillRunsItsTriggerAndOpensNothing()
     var
-        Log: Record "TPARO Log";
+        Log: Record "ALT Shape 04";
         Host: TestPage "TPARO Host";
     begin
         Initialize();
@@ -155,7 +155,7 @@ codeunit 60455 "TPARO Tests"
         Host.Close();
 
         Assert.IsTrue(Log.Get('TRIGGER'), 'an action with an OnAction trigger must run it');
-        Assert.AreEqual('B', Log.Detail,
+        Assert.AreEqual('B', Log.Name,
             'the trigger must have run against the host page''s current row');
         Assert.IsFalse(Log.Get('CARD'),
             'an action with a trigger must not open any RunObject target');
@@ -171,8 +171,8 @@ codeunit 60455 "TPARO Tests"
     [HandlerFunctions('CardTargetPageHandler')]
     procedure ControlPageRunReachesTheSameHandler()
     var
-        Row: Record "TPARO Row";
-        Log: Record "TPARO Log";
+        Row: Record "ALT Shape 02";
+        Log: Record "ALT Shape 04";
     begin
         Initialize();
 
@@ -180,7 +180,7 @@ codeunit 60455 "TPARO Tests"
         Page.Run(Page::"TPARO Card Target", Row);
 
         Assert.IsTrue(Log.Get('CARD'), 'a plain Page.Run must reach the [PageHandler]');
-        Assert.AreEqual('Bravo', Log.Detail,
+        Assert.AreEqual('Bravo', Log.Name,
             'the [PageHandler] must be handed the record Page.Run was given');
     end;
 
@@ -193,8 +193,8 @@ codeunit 60455 "TPARO Tests"
     [HandlerFunctions('CardTargetPageHandler')]
     procedure RunObjectFromACardHostProcessingArea()
     var
-        Row: Record "TPARO Row";
-        Log: Record "TPARO Log";
+        Row: Record "ALT Shape 02";
+        Log: Record "ALT Shape 04";
         Host: TestPage "TPARO Card Host";
     begin
         Initialize();
@@ -207,7 +207,7 @@ codeunit 60455 "TPARO Tests"
 
         Assert.IsTrue(Log.Get('CARD'),
             'a RunObject action on a Card host, in area(Processing), must open its target');
-        Assert.AreEqual('Bravo', Log.Detail,
+        Assert.AreEqual('Bravo', Log.Name,
             'RunPageOnRec = true must open the target on the host page''s current row');
     end;
 
@@ -215,8 +215,8 @@ codeunit 60455 "TPARO Tests"
     [HandlerFunctions('CardTargetPageHandler')]
     procedure RunObjectFromACardHostNavigationGroup()
     var
-        Row: Record "TPARO Row";
-        Log: Record "TPARO Log";
+        Row: Record "ALT Shape 02";
+        Log: Record "ALT Shape 04";
         Host: TestPage "TPARO Card Host";
     begin
         Initialize();
@@ -229,18 +229,18 @@ codeunit 60455 "TPARO Tests"
 
         Assert.IsTrue(Log.Get('CARD'),
             'a RunObject action in a group under area(Navigation) -- Microsoft''s own shape -- must open its target');
-        Assert.AreEqual('Bravo', Log.Detail,
+        Assert.AreEqual('Bravo', Log.Name,
             'RunPageOnRec = true must open the target on the host page''s current row');
     end;
 
     [PageHandler]
     procedure CardTargetPageHandler(var Target: TestPage "TPARO Card Target")
     var
-        Log: Record "TPARO Log";
+        Log: Record "ALT Shape 04";
     begin
         Log.Init();
-        Log.Entry := 'CARD';
-        Log.Detail := CopyStr(Target.Descr.Value(), 1, MaxStrLen(Log.Detail));
+        Log."No." := 'CARD';
+        Log.Name := CopyStr(Target.Descr.Value(), 1, MaxStrLen(Log.Name));
         if not Log.Insert() then
             Log.Modify();
     end;
@@ -248,11 +248,11 @@ codeunit 60455 "TPARO Tests"
     [ModalPageHandler]
     procedure DialogTargetModalHandler(var Target: TestPage "TPARO Dialog Target")
     var
-        Log: Record "TPARO Log";
+        Log: Record "ALT Shape 04";
     begin
         Log.Init();
-        Log.Entry := 'DIALOG';
-        Log.Detail := CopyStr(Target.Descr.Value(), 1, MaxStrLen(Log.Detail));
+        Log."No." := 'DIALOG';
+        Log.Name := CopyStr(Target.Descr.Value(), 1, MaxStrLen(Log.Name));
         if not Log.Insert() then
             Log.Modify();
     end;

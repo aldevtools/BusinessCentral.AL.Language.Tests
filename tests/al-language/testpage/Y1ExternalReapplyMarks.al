@@ -15,22 +15,6 @@
 // Source: al-runner issue 6288 (the reporter's repro passed on a real BC 29 container).
 // BC versions: 27, 28, 29
 
-table 90920 "LT Y1 Reapply Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Flag; Boolean) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 table 90921 "LT Y1 Reapply Detail"
 {
     DataClassification = SystemMetadata;
@@ -72,7 +56,7 @@ page 90924 "LT Y1 Reapply Part"
 page 90925 "LT Y1 Reapply List"
 {
     PageType = Worksheet;
-    SourceTable = "LT Y1 Reapply Row";
+    SourceTable = "ALT Shape 12";
     InsertAllowed = false;
     DeleteAllowed = false;
     ApplicationArea = All;
@@ -132,9 +116,9 @@ page 90925 "LT Y1 Reapply List"
 
 codeunit 90922 "LT Y1 Reapply Marks"
 {
-    procedure MarkFlagged(var Row: Record "LT Y1 Reapply Row")
+    procedure MarkFlagged(var Row: Record "ALT Shape 12")
     var
-        RowsInView: Record "LT Y1 Reapply Row";
+        RowsInView: Record "ALT Shape 12";
     begin
         Row.MarkedOnly(false);
         Row.ClearMarks();
@@ -156,7 +140,7 @@ codeunit 90923 "LT Y1 External Refresh"
 
     procedure InvokeRefresh()
     var
-        Row: Record "LT Y1 Reapply Row";
+        Row: Record "ALT Shape 12";
     begin
         Row.Get(2);
         Row.Flag := false;
@@ -192,7 +176,7 @@ codeunit 90926 "LT Y1 Reapply Tests"
 
     local procedure SeedRows()
     var
-        Row: Record "LT Y1 Reapply Row";
+        Row: Record "ALT Shape 12";
         Detail: Record "LT Y1 Reapply Detail";
     begin
         ExternalRefresh.Reset();
@@ -205,7 +189,7 @@ codeunit 90926 "LT Y1 Reapply Tests"
 
     local procedure AddRow(Id: Integer; Flag: Boolean)
     var
-        Row: Record "LT Y1 Reapply Row";
+        Row: Record "ALT Shape 12";
         Detail: Record "LT Y1 Reapply Detail";
     begin
         Row.Init();
@@ -222,7 +206,7 @@ codeunit 90926 "LT Y1 Reapply Tests"
     [Test]
     procedure Y1_Reapply_FirstAfterExternalRefresh()
     var
-        Row: Record "LT Y1 Reapply Row";
+        Row: Record "ALT Shape 12";
         ReapplyPage: TestPage "LT Y1 Reapply List";
     begin
         SeedRows();
@@ -253,7 +237,7 @@ codeunit 90926 "LT Y1 Reapply Tests"
     [Test]
     procedure Y1_Reapply_FirstWithoutRefresh()
     var
-        Row: Record "LT Y1 Reapply Row";
+        Row: Record "ALT Shape 12";
         ReapplyPage: TestPage "LT Y1 Reapply List";
     begin
         SeedRows();
@@ -277,7 +261,7 @@ codeunit 90926 "LT Y1 Reapply Tests"
     [Test]
     procedure Y1_Reapply_GoToRecordAfterRefreshWithoutFirst()
     var
-        Row: Record "LT Y1 Reapply Row";
+        Row: Record "ALT Shape 12";
         ReapplyPage: TestPage "LT Y1 Reapply List";
     begin
         SeedRows();

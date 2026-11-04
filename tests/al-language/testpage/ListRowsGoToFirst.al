@@ -5,19 +5,6 @@
 // Facts: GoToKey onto the first row while already standing on it (and onto the current row when it is not the first): reads and trigger runs, with OnAfterGetRecord and OnAfterGetCurrRecord, and with only OnAfterGetCurrRecord
 // BC versions: 29 (27 and 28 by CI)
 
-table 72751 "LT ListRows GoToFirst Row"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 // SingleInstance log of this file; entries are a kind (G = OnAfterGetRecord, C = OnAfterGetCurrRecord, F = OnFindRecord, N = OnNextRecord, A = action) and the row id.
 codeunit 72752 "LT ListRows GoToFirst Log"
 {
@@ -133,7 +120,7 @@ codeunit 72752 "LT ListRows GoToFirst Log"
 page 72753 "LT ListRows GoToFirst Both"
 {
     PageType = List;
-    SourceTable = "LT ListRows GoToFirst Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -166,7 +153,7 @@ page 72753 "LT ListRows GoToFirst Both"
 page 72754 "LT ListRows GoToFirst Curr"
 {
     PageType = List;
-    SourceTable = "LT ListRows GoToFirst Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -198,7 +185,7 @@ codeunit 72755 "LT ListRows GoToFirst"
 
     local procedure Seed(Rows: Integer)
     var
-        Row: Record "LT ListRows GoToFirst Row";
+        Row: Record "ALT Shape 01";
         Log: Codeunit "LT ListRows GoToFirst Log";
         i: Integer;
     begin

@@ -200,7 +200,7 @@ codeunit 88922 "LT RZ RunPageLink View"
 
     local procedure Setup()
     var
-        StockItem: Record "LT RZ Stock Item";
+        StockItem: Record "ALT Shape 09";
         StockEntry: Record "LT RZ Stock Entry";
     begin
         StockEntry.DeleteAll();

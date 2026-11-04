@@ -10,35 +10,10 @@
 // is that the caller never sees the difference. New_Promoted covers the promoted-actionref
 // route to a keyword-named target, mirroring TestPageSpacedActionName for the spaced case.
 
-table 60267 "Keyword Action Row"
-{
-    DataClassification = CustomerContent;
-
-    fields
-    {
-        field(1; "No."; Code[20])
-        {
-            DataClassification = CustomerContent;
-        }
-        field(2; Descr; Text[50])
-        {
-            DataClassification = CustomerContent;
-        }
-    }
-
-    keys
-    {
-        key(PK; "No.")
-        {
-            Clustered = true;
-        }
-    }
-}
-
 page 60268 "Keyword Action List"
 {
     PageType = List;
-    SourceTable = "Keyword Action Row";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
     UsageCategory = Lists;
 
@@ -140,7 +115,7 @@ page 60268 "Keyword Action List"
 
     local procedure Stamp(No: Code[20])
     var
-        Row: Record "Keyword Action Row";
+        Row: Record "ALT Shape 02";
     begin
         Row.Init();
         Row."No." := No;

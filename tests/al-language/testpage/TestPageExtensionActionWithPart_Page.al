@@ -11,7 +11,7 @@
 page 60726 "TPXP List"
 {
     PageType = List;
-    SourceTable = "TPXP Row";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
     UsageCategory = Lists;
 
@@ -47,7 +47,7 @@ page 60726 "TPXP List"
 
                 trigger OnAction()
                 var
-                    Stamp: Record "TPXP Row";
+                    Stamp: Record "ALT Shape 02";
                 begin
                     if not Stamp.Get('STAMP') then begin
                         Stamp.Init();
@@ -63,7 +63,7 @@ page 60726 "TPXP List"
 page 60727 "TPXP FactBox"
 {
     PageType = CardPart;
-    SourceTable = "TPXP Row";
+    SourceTable = "ALT Shape 02";
     Caption = 'TPXP FactBox';
 
     layout
@@ -103,7 +103,7 @@ pageextension 60728 "TPXP List Ext" extends "TPXP List"
 
                 trigger OnAction()
                 var
-                    Stamp: Record "TPXP Row";
+                    Stamp: Record "ALT Shape 02";
                 begin
                     if not Stamp.Get('STAMPEXTPART') then begin
                         Stamp.Init();
@@ -124,7 +124,7 @@ pageextension 60728 "TPXP List Ext" extends "TPXP List"
 
                 trigger OnAction()
                 var
-                    Stamp: Record "TPXP Row";
+                    Stamp: Record "ALT Shape 02";
                 begin
                     if not Stamp.Get('STAMPEXTPARTSPACED') then begin
                         Stamp.Init();
