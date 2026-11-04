@@ -39,12 +39,6 @@ codeunit 95120 "LT Y94 Abp Action Ref"
         ObserveExact('LT Y94 Ref qry', 'qry');
         ObserveExact('LT Y94 Ref xml', 'xml');
         ObserveExact('LT Y94 Ref tbl', 'tbl');
-        ObserveExact('LT Y94 Ref wtdr', 'wtdr');
-        ObserveExact('LT Y94 Ref wtdi', 'wtdi');
-        ObserveExact('LT Y94 Ref wcu', 'wcu');
-        ObserveExact('LT Y94 Ref wpg', 'wpg');
-        ObserveExact('LT Y94 Ref wrep', 'wrep');
-        ObserveExact('LT Y94 Ref wqry', 'wqry');
         RestoreMock(WasStarted);
         Observer.Finish();
     end;
@@ -55,6 +49,12 @@ codeunit 95120 "LT Y94 Abp Action Ref"
         WasStarted: Boolean;
     begin
         WasStarted := StartMock();
+        ObserveExact('LT Y94 Ref wtdr', 'wtdr');
+        ObserveExact('LT Y94 Ref wtdi', 'wtdi');
+        ObserveExact('LT Y94 Ref wcu', 'wcu');
+        ObserveExact('LT Y94 Ref wpg', 'wpg');
+        ObserveExact('LT Y94 Ref wrep', 'wrep');
+        ObserveExact('LT Y94 Ref wqry', 'wqry');
         ObserveExact('LT Y94 Ref wxml', 'wxml');
         ObserveExact('LT Y94 Ref wtbl', 'wtbl');
         ObserveExact('LT Y94 Ref wsys', 'wsys');
@@ -68,40 +68,101 @@ codeunit 95120 "LT Y94 Abp Action Ref"
     end;
 
     [Test]
-    procedure Y94_Ref_Methods_none()
+    procedure Y94_Ref_Methods_none_1()
     var
         WasStarted: Boolean;
     begin
         WasStarted := StartMock();
         Mock.ClearAssignments();
         Mock.SetExactPermissionSet('LT Y94 Ref none');
-        ObserveMethods('none');
+        ObserveMethods('TblRAct.Enabled,TblRAct.Invoke,CuAct.Invoke');
         RestoreMock(WasStarted);
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y94_Ref_Methods_ar()
+    procedure Y94_Ref_Methods_none_2()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
+        Mock.ClearAssignments();
+        Mock.SetExactPermissionSet('LT Y94 Ref none');
+        ObserveMethods('ExtAct.Invoke,NoRefAct.Invoke,FldA.Value');
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y94_Ref_Methods_ar_1()
     var
         WasStarted: Boolean;
     begin
         WasStarted := StartMock();
         Mock.ClearAssignments();
         Mock.SetExactPermissionSet('LT Y94 Ref ar');
-        ObserveMethods('ar');
+        ObserveMethods('TblRAct.Enabled,TblRAct.Invoke,CuAct.Invoke');
         RestoreMock(WasStarted);
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y94_Ref_Methods_cu()
+    procedure Y94_Ref_Methods_ar_2()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
+        Mock.ClearAssignments();
+        Mock.SetExactPermissionSet('LT Y94 Ref ar');
+        ObserveMethods('ExtAct.Invoke,NoRefAct.Invoke,FldA.Value');
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y94_Ref_Methods_cu_1()
     var
         WasStarted: Boolean;
     begin
         WasStarted := StartMock();
         Mock.ClearAssignments();
         Mock.SetExactPermissionSet('LT Y94 Ref cu');
-        ObserveMethods('cu');
+        ObserveMethods('TblRAct.Enabled,TblRAct.Invoke,CuAct.Invoke');
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y94_Ref_Methods_cu_2()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
+        Mock.ClearAssignments();
+        Mock.SetExactPermissionSet('LT Y94 Ref cu');
+        ObserveMethods('ExtAct.Invoke,NoRefAct.Invoke,FldA.Value');
+        RestoreMock(WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y94_Ref_OpenModes()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := StartMock();
+        Mock.ClearAssignments();
+        Mock.SetExactPermissionSet('LT Y94 Ref none');
+        ObserveMode('edit', 'none edit');
+        Mock.ClearAssignments();
+        Mock.SetExactPermissionSet('LT Y94 Ref none');
+        ObserveMode('new', 'none new');
+        Mock.ClearAssignments();
+        Mock.SetExactPermissionSet('LT Y94 Ref ar');
+        ObserveMode('edit', 'ar edit');
+        Mock.ClearAssignments();
+        Mock.SetExactPermissionSet('LT Y94 Ref ar');
+        ObserveMode('new', 'ar new');
         RestoreMock(WasStarted);
         Observer.Finish();
     end;
@@ -192,24 +253,53 @@ codeunit 95120 "LT Y94 Abp Action Ref"
         end;
     end;
 
-    local procedure ObserveMethods(Tag: Text)
+    local procedure ObserveMethods(Methods: Text)
     var
         Facts: TestPage "LT Y94 Ref Card";
         Method: Text;
         Outcome: Text;
     begin
         Facts.OpenView();
-        foreach Method in 'TblRAct.Enabled,TblRAct.Invoke,CuAct.Invoke,ExtAct.Invoke,NoRefAct.Invoke,FldA.Value'.Split(',') do begin
+        foreach Method in Methods.Split(',') do begin
             ClearLastError();
             Outcome := '';
             if TryMethod(Facts, Method, Outcome) then
-                Observer.Observe(Tag + '|' + Method, Outcome)
+                Observer.Observe(Method, Outcome)
             else begin
-                Observer.Observe(Tag + '|' + Method, GetLastErrorText() + ' | ' + GetLastErrorCode());
+                Observer.Observe(Method, GetLastErrorText() + ' | ' + GetLastErrorCode());
                 ClearLastError();
             end;
         end;
         Facts.Close();
+    end;
+
+    local procedure ObserveMode(Mode: Text; Tag: Text)
+    var
+        Facts: TestPage "LT Y94 Ref Card";
+        Line: Text;
+        Keys: List of [Text];
+        KeyName: Text;
+    begin
+        ClearLastError();
+        if not TryOpenMode(Facts, Mode) then begin
+            Observer.Observe(Tag, 'open error: ' + GetLastErrorText() + ' | ' + GetLastErrorCode());
+            ClearLastError();
+            exit;
+        end;
+        Keys.AddRange('PlainAct,TblRAct,TblIAct,TblRimdAct,PgAct,RepAct,QryAct,XmlAct,TblObjAct,CuAct,BAct,NoRefAct,ExtAct,ExtPlainAct,FldA,FldExt'.Split(','));
+        foreach KeyName in Keys do
+            Line += Vis(Facts, KeyName);
+        Facts.Close();
+        Observer.Observe(Tag, Line);
+    end;
+
+    [TryFunction]
+    local procedure TryOpenMode(var Facts: TestPage "LT Y94 Ref Card"; Mode: Text)
+    begin
+        if Mode = 'edit' then
+            Facts.OpenEdit()
+        else
+            Facts.OpenNew();
     end;
 
     [TryFunction]
