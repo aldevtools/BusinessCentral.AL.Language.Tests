@@ -631,4 +631,106 @@ codeunit 71016 "LT TxC TB Text Interop"
         Observer.Expect('copy', 'ababababababababababababababab');
         Observer.Verify();
     end;
+
+    // Al-runner issue 6924 item 2.16: Format of a TextBuilder itself (not of its ToText), with every standard format, a length, a
+    // format string, and StrSubstNo with the builder as the argument. Each call is observed as '[<text>]' or 'raised' with the error.
+    [TryFunction]
+    local procedure P6924_TryFormat(var TB: TextBuilder; Which: Integer; var Result: Text)
+    begin
+        case Which of
+            0:
+                Result := Format(TB);
+            1:
+                Result := Format(TB, 0, 0);
+            2:
+                Result := Format(TB, 0, 1);
+            3:
+                Result := Format(TB, 0, 2);
+            4:
+                Result := Format(TB, 0, 9);
+            5:
+                Result := Format(TB, 2);
+            6:
+                Result := Format(TB, 8);
+            7:
+                Result := Format(TB, 0, '<Text>');
+            8:
+                Result := Format(TB, 8, '<Text>');
+            9:
+                Result := StrSubstNo('<%1>', TB);
+            10:
+                Result := Format(TB, 0, 3);
+            11:
+                Result := Format(TB, 0, 10);
+        end;
+    end;
+
+    local procedure P6924_Fmt(var Observer: Codeunit "Probe Observer"; Name: Text; var TB: TextBuilder; Which: Integer)
+    var
+        Result: Text;
+    begin
+        ClearLastError();
+        if P6924_TryFormat(TB, Which, Result) then
+            Observer.Observe(Name, '[' + Result + ']')
+        else begin
+            Observer.Observe(Name, 'raised');
+            Observer.ObserveError(Name);
+        end;
+        ClearLastError();
+    end;
+
+    [Test]
+    procedure Format_TextBuilder_StandardFormats()
+    var
+        Observer: Codeunit "Probe Observer";
+        TB: TextBuilder;
+    begin
+        TB.Append('abc');
+        TB.Append(' def');
+        P6924_Fmt(Observer, 'plain', TB, 0);
+        P6924_Fmt(Observer, 'std0', TB, 1);
+        P6924_Fmt(Observer, 'std1', TB, 2);
+        P6924_Fmt(Observer, 'std2', TB, 3);
+        P6924_Fmt(Observer, 'std3', TB, 10);
+        P6924_Fmt(Observer, 'std9', TB, 4);
+        P6924_Fmt(Observer, 'std10', TB, 11);
+        Observer.Observe('unchanged', TB.ToText());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_TextBuilder_LengthAndFormatString()
+    var
+        Observer: Codeunit "Probe Observer";
+        TB: TextBuilder;
+    begin
+        TB.Append('abc');
+        TB.Append(' def');
+        P6924_Fmt(Observer, 'length2', TB, 5);
+        P6924_Fmt(Observer, 'length8', TB, 6);
+        P6924_Fmt(Observer, 'text_string', TB, 7);
+        P6924_Fmt(Observer, 'length8_text_string', TB, 8);
+        P6924_Fmt(Observer, 'strsubstno', TB, 9);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_TextBuilder_EmptyAndLineBreaks()
+    var
+        Observer: Codeunit "Probe Observer";
+        Empty: TextBuilder;
+        Lines: TextBuilder;
+        Cleared: TextBuilder;
+    begin
+        P6924_Fmt(Observer, 'empty', Empty, 0);
+        P6924_Fmt(Observer, 'empty_std9', Empty, 4);
+        Lines.AppendLine('one');
+        Lines.Append('two');
+        P6924_Fmt(Observer, 'lines', Lines, 0);
+        P6924_Fmt(Observer, 'lines_std9', Lines, 4);
+        Cleared.Append('gone');
+        Cleared.Clear();
+        P6924_Fmt(Observer, 'cleared', Cleared, 0);
+        Observer.Finish();
+    end;
 }

@@ -364,4 +364,93 @@ codeunit 61461 "LT Y58 ALSearch"
             Observer.ObserveError('find items');
         Observer.Finish();
     end;
+
+    // Al-runner issue 6924 item 2.4: Microsoft.Dynamics.Nav.SystemEnvironment.SystemEnvironment, the server class behind
+    // "Type Helper".NewLine and XML DOM Management (alias SystemEnvironment in the System Application). Its public members are the
+    // constructor and the NewLine property. Observed: the constructor, NewLine as character codes, NewLine on a variable that was never
+    // constructed, ToString and Format of the instance, IsNull before and after the constructor.
+    [TryFunction]
+    local procedure P6924_TryNew(var Env: DotNet LtP6924SystemEnvironment)
+    begin
+        Env := Env.SystemEnvironment();
+    end;
+
+    [TryFunction]
+    local procedure P6924_TryNewLine(var Env: DotNet LtP6924SystemEnvironment; var Result: Text)
+    begin
+        Result := Env.NewLine();
+    end;
+
+    local procedure P6924_Codes(Value: Text) Result: Text
+    var
+        I: Integer;
+        Code: Integer;
+    begin
+        for I := 1 to StrLen(Value) do begin
+            Code := Value[I];
+            Result += Format(Code) + ' ';
+        end;
+        Result := Format(StrLen(Value)) + ': ' + Result;
+    end;
+
+    [Test]
+    procedure SystemEnvironment_New_NewLine()
+    var
+        Observer: Codeunit "Probe Observer";
+        Env: DotNet LtP6924SystemEnvironment;
+        Result: Text;
+    begin
+        Observer.Observe('null_before', Format(IsNull(Env)));
+        ClearLastError();
+        if P6924_TryNew(Env) then
+            Observer.Observe('new', 'ok')
+        else
+            Observer.ObserveError('new');
+        Observer.Observe('null_after', Format(IsNull(Env)));
+        ClearLastError();
+        if P6924_TryNewLine(Env, Result) then
+            Observer.Observe('newline', P6924_Codes(Result))
+        else
+            Observer.ObserveError('newline');
+        Observer.Observe('to_string', Env.ToString());
+        Observer.Observe('format', Format(Env));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SystemEnvironment_NewLine_WithoutConstructor()
+    var
+        Observer: Codeunit "Probe Observer";
+        Env: DotNet LtP6924SystemEnvironment;
+        Result: Text;
+    begin
+        ClearLastError();
+        if P6924_TryNewLine(Env, Result) then
+            Observer.Observe('newline', P6924_Codes(Result))
+        else
+            Observer.ObserveError('newline');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SystemEnvironment_TwoInstances_SameNewLine()
+    var
+        Observer: Codeunit "Probe Observer";
+        First: DotNet LtP6924SystemEnvironment;
+        Second: DotNet LtP6924SystemEnvironment;
+    begin
+        First := First.SystemEnvironment();
+        Second := Second.SystemEnvironment();
+        Observer.Observe('same_newline', Format(First.NewLine() = Second.NewLine()));
+        Observer.Observe('equals', Format(First.Equals(Second)));
+        Observer.Finish();
+    end;
+}
+
+dotnet
+{
+    assembly("Microsoft.Dynamics.Nav.SystemEnvironment")
+    {
+        type("Microsoft.Dynamics.Nav.SystemEnvironment.SystemEnvironment"; LtP6924SystemEnvironment) { }
+    }
 }

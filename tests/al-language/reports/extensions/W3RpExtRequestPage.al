@@ -322,4 +322,257 @@ codeunit 67708 "W3 RpExt Probe"
         ExtLog.Add('handler view=[' + RP.Row.GetFilter(Id) + ']');
         RP.OK().Invoke();
     end;
+
+    // Al-runner issue 6924 item 2.15: a reportextension that changes the run (it has OnPreReport) adds request page fields bound to a
+    // protected variable of the base (ExtBaseCtl on BaseVal, next to the base's own BaseCtl), to a field of the base's data item
+    // (ExtRowCtl on BindRow.Name) and to its own variable (ExtOwnCtl on OwnVal). Objects: report 95360, reportextension 95361 below.
+    local procedure BindSeed()
+    var
+        Row: Record "W3 Row";
+    begin
+        Row.DeleteAll();
+        Row.Id := 1;
+        Row.Name := 'first';
+        Row.Insert();
+        Row.Id := 2;
+        Row.Name := 'second';
+        Row.Insert();
+        Commit();
+        ExtLog.Take();
+    end;
+
+    local procedure BindControls(var RP: TestRequestPage "RPT ExtBind Base"; Step: Text)
+    begin
+        ExtLog.Add(Step + ': base=[' + RP.BaseCtl.Value() + '] ext=[' + RP.ExtBaseCtl.Value() + '] row=[' + RP.ExtRowCtl.Value() + '] own=[' + RP.ExtOwnCtl.Value() + ']');
+    end;
+
+    // (a) Only the extension's control on the base variable is set.
+    [Test]
+    [HandlerFunctions('BindExtOnlyHandler')]
+    procedure Bind_ExtControlOnBaseVariable_SetAlone_ReachesTheRun()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        BindSeed();
+        Report.Run(Report::"RPT ExtBind Base");
+        Observer.Observe('log', ExtLog.Take());
+        Observer.Finish();
+    end;
+
+    [RequestPageHandler]
+    procedure BindExtOnlyHandler(var RP: TestRequestPage "RPT ExtBind Base")
+    begin
+        BindControls(RP, 'open');
+        RP.ExtBaseCtl.SetValue(4);
+        BindControls(RP, 'ext=4');
+        RP.OK().Invoke();
+    end;
+
+    // (b) The extension's control first, then the base's own control on the same variable.
+    [Test]
+    [HandlerFunctions('BindExtThenBaseHandler')]
+    procedure Bind_ExtControlThenBaseControl_SameVariable_ReachesTheRun()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        BindSeed();
+        Report.Run(Report::"RPT ExtBind Base");
+        Observer.Observe('log', ExtLog.Take());
+        Observer.Finish();
+    end;
+
+    [RequestPageHandler]
+    procedure BindExtThenBaseHandler(var RP: TestRequestPage "RPT ExtBind Base")
+    begin
+        RP.ExtBaseCtl.SetValue(4);
+        BindControls(RP, 'ext=4');
+        RP.BaseCtl.SetValue(8);
+        BindControls(RP, 'base=8');
+        RP.OK().Invoke();
+    end;
+
+    // (b, reversed) The base's own control first, then the extension's control on the same variable.
+    [Test]
+    [HandlerFunctions('BindBaseThenExtHandler')]
+    procedure Bind_BaseControlThenExtControl_SameVariable_ReachesTheRun()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        BindSeed();
+        Report.Run(Report::"RPT ExtBind Base");
+        Observer.Observe('log', ExtLog.Take());
+        Observer.Finish();
+    end;
+
+    [RequestPageHandler]
+    procedure BindBaseThenExtHandler(var RP: TestRequestPage "RPT ExtBind Base")
+    begin
+        RP.BaseCtl.SetValue(8);
+        BindControls(RP, 'base=8');
+        RP.ExtBaseCtl.SetValue(4);
+        BindControls(RP, 'ext=4');
+        RP.OK().Invoke();
+    end;
+
+    // (c) The extension's control on a field of the base's data item.
+    [Test]
+    [HandlerFunctions('BindRowFieldHandler')]
+    procedure Bind_ExtControlOnDataItemField_ReachesTheRun()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        BindSeed();
+        Report.Run(Report::"RPT ExtBind Base");
+        Observer.Observe('log', ExtLog.Take());
+        Observer.Finish();
+    end;
+
+    [RequestPageHandler]
+    procedure BindRowFieldHandler(var RP: TestRequestPage "RPT ExtBind Base")
+    begin
+        RP.ExtRowCtl.SetValue('typed');
+        BindControls(RP, 'row=typed');
+        RP.OK().Invoke();
+    end;
+
+    // (d) The extension's control on its own variable.
+    [Test]
+    [HandlerFunctions('BindOwnHandler')]
+    procedure Bind_ExtControlOnOwnVariable_ReachesTheRun()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        BindSeed();
+        Report.Run(Report::"RPT ExtBind Base");
+        Observer.Observe('log', ExtLog.Take());
+        Observer.Finish();
+    end;
+
+    [RequestPageHandler]
+    procedure BindOwnHandler(var RP: TestRequestPage "RPT ExtBind Base")
+    begin
+        RP.ExtOwnCtl.SetValue(7);
+        BindControls(RP, 'own=7');
+        RP.OK().Invoke();
+    end;
+
+    // All four controls set, read back as the parameters text of RunRequestPage: which names the values are stored under.
+    [Test]
+    [HandlerFunctions('BindAllHandler')]
+    procedure Bind_RunRequestPage_ParametersText_AllBindings()
+    var
+        Observer: Codeunit "Probe Observer";
+        Parameters: Text;
+    begin
+        BindSeed();
+        Parameters := Report.RunRequestPage(Report::"RPT ExtBind Base");
+        Observer.Observe('options', Dataset.Between(Parameters, '<Options>', '</Options>'));
+        Observer.Observe('dataitems', Dataset.Between(Parameters, '<DataItems>', '</DataItems>'));
+        Observer.Observe('log', ExtLog.Take());
+        Observer.Finish();
+    end;
+
+    [RequestPageHandler]
+    procedure BindAllHandler(var RP: TestRequestPage "RPT ExtBind Base")
+    begin
+        RP.ExtBaseCtl.SetValue(4);
+        RP.ExtRowCtl.SetValue('typed');
+        RP.ExtOwnCtl.SetValue(7);
+        BindControls(RP, 'all set');
+        RP.OK().Invoke();
+    end;
+}
+
+// local object: the request page of a reportextension that changes the run is what the tests above check (al-runner issue 6924 item 2.15).
+report 95360 "RPT ExtBind Base"
+{
+    ProcessingOnly = true;
+
+    dataset
+    {
+        dataitem(BindRow; "W3 Row")
+        {
+            trigger OnPreDataItem()
+            begin
+                ExtLog.Add('base PreDataItem name=' + BindRow.Name);
+            end;
+
+            trigger OnAfterGetRecord()
+            begin
+                ExtLog.Add('base Row ' + Format(BindRow.Id) + ' ' + BindRow.Name);
+            end;
+        }
+    }
+
+    requestpage
+    {
+        layout
+        {
+            area(Content)
+            {
+                group(Opts)
+                {
+                    field(BaseCtl; BaseVal)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Base control';
+                    }
+                }
+            }
+        }
+
+        trigger OnClosePage()
+        begin
+            ExtLog.Add('base OnClosePage base=' + Format(BaseVal) + ' row=' + BindRow.Name);
+        end;
+    }
+
+    protected var
+        BaseVal: Integer;
+
+    var
+        ExtLog: Codeunit "W3 RpExt Log";
+
+    trigger OnPreReport()
+    begin
+        ExtLog.Add('base PreReport base=' + Format(BaseVal) + ' row=' + BindRow.Name);
+    end;
+}
+
+// local object: see report 95360.
+reportextension 95361 "RPT ExtBind Ext" extends "RPT ExtBind Base"
+{
+    requestpage
+    {
+        layout
+        {
+            addlast(Opts)
+            {
+                field(ExtBaseCtl; BaseVal)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Ext on base variable';
+                }
+                field(ExtRowCtl; BindRow.Name)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Ext on data item field';
+                }
+                field(ExtOwnCtl; OwnVal)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Ext on own variable';
+                }
+            }
+        }
+    }
+
+    var
+        OwnVal: Integer;
+        ExtLog: Codeunit "W3 RpExt Log";
+
+    trigger OnPreReport()
+    begin
+        ExtLog.Add('ext PreReport base=' + Format(BaseVal) + ' own=' + Format(OwnVal) + ' row=' + BindRow.Name);
+    end;
 }

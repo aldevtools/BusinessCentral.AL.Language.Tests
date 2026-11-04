@@ -421,4 +421,216 @@ codeunit 85723 "LT DB JPath Leads"
         Observer.Verify();
     end;
 #endif
+
+    // Al-runner issue 6924 item 2.5: the path forms of SelectToken that no test above or in JsonObjectBasics.al pins: wildcard names,
+    // empty names (a trailing or a doubled dot), `..` with zero or several matches, quoted names with blanks, dots, quotes or nothing,
+    // slices with an open end or a step, odd indexers, names on arrays and values, and the same paths as a statement (result unused).
+    // Observed like Sel above; the statement form as P6924_SelStmt below ('raised', or 'done [<token>]', and the last error).
+    [TryFunction]
+    local procedure P6924_TrySelStmt(O: JsonObject; Path: Text; var T: JsonToken)
+    begin
+        O.SelectToken(Path, T);
+    end;
+
+    [TryFunction]
+    local procedure P6924_TryWrite(T: JsonToken; var Written: Text)
+    begin
+        T.WriteTo(Written);
+    end;
+
+    local procedure P6924_SelStmt(var Observer: Codeunit "Probe Observer"; Name: Text; O: JsonObject; Path: Text)
+    var
+        T: JsonToken;
+        Written: Text;
+    begin
+        ClearLastError();
+        if not P6924_TrySelStmt(O, Path, T) then begin
+            Observer.Observe(Name, 'raised');
+            Observer.ObserveError(Name);
+            exit;
+        end;
+        if not P6924_TryWrite(T, Written) then
+            Written := '<no token>';
+        ClearLastError();
+        Observer.Observe(Name, 'done [' + Written + ']');
+        Observer.ObserveError(Name);
+    end;
+
+    local procedure P6924_Doc() O: JsonObject
+    begin
+        O.ReadFrom('{"a":{"b":1,"c":[10,20,30],"d e":2,"x.y":3,"it''s":4,"":5,"n":null},"arr":[{"k":1},{"k":2}],"one":[{"k":7}],"empty":[],"s":"txt"}');
+    end;
+
+    [Test]
+    procedure P6924_SelectToken_WildcardAndEmptyNames()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Sel(Observer, 'name_star', P6924_Doc(), 'a.*');
+        Sel(Observer, 'root_star', P6924_Doc(), '$.*');
+        Sel(Observer, 'bare_star', P6924_Doc(), '*');
+        Sel(Observer, 'one_star', P6924_Doc(), 'one.*');
+        Sel(Observer, 'trailing_dot', P6924_Doc(), 'a.');
+        Sel(Observer, 'root_dot', P6924_Doc(), '$.');
+        Sel(Observer, 'leading_dot', P6924_Doc(), '.a.b');
+        Sel(Observer, 'at_sign', P6924_Doc(), '@.a');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure P6924_SelectToken_RecursiveDescent()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Sel(Observer, 'inner_descent', P6924_Doc(), 'a..b');
+        Sel(Observer, 'descent_many', P6924_Doc(), '$..k');
+        Sel(Observer, 'descent_none', P6924_Doc(), '$..zzz');
+        Sel(Observer, 'descent_one', P6924_Doc(), '$..b');
+        Sel(Observer, 'descent_index', P6924_Doc(), '$..[0]');
+        Sel(Observer, 'descent_then_index', P6924_Doc(), '$..c[1]');
+        Sel(Observer, 'descent_star', P6924_Doc(), '$..*');
+        Sel(Observer, 'descent_one_then_key', P6924_Doc(), '$..one[0].k');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure P6924_SelectToken_QuotedNames()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Sel(Observer, 'quoted_blank', P6924_Doc(), 'a[''d e'']');
+        Sel(Observer, 'dotted_blank', P6924_Doc(), 'a.d e');
+        Sel(Observer, 'quoted_dot', P6924_Doc(), 'a[''x.y'']');
+        Sel(Observer, 'dotted_dot', P6924_Doc(), 'a.x.y');
+        Sel(Observer, 'quoted_escaped_quote', P6924_Doc(), 'a[''it\''s'']');
+        Sel(Observer, 'quoted_empty', P6924_Doc(), 'a['''']');
+        Sel(Observer, 'root_quoted_chain', P6924_Doc(), '$[''a''][''b'']');
+        Sel(Observer, 'quoted_null', P6924_Doc(), '$.a[''n'']');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure P6924_SelectToken_Slices()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Sel(Observer, 'slice_open_start', P6924_Doc(), 'a.c[:1]');
+        Sel(Observer, 'slice_open_end', P6924_Doc(), 'a.c[2:]');
+        Sel(Observer, 'slice_step', P6924_Doc(), 'a.c[0:3:2]');
+        Sel(Observer, 'slice_step_only', P6924_Doc(), 'a.c[::3]');
+        Sel(Observer, 'slice_one', P6924_Doc(), 'a.c[1:2]');
+        Sel(Observer, 'slice_two', P6924_Doc(), 'a.c[0:2]');
+        Sel(Observer, 'slice_none', P6924_Doc(), 'a.c[5:9]');
+        Sel(Observer, 'slice_then_key', P6924_Doc(), 'arr[1:2].k');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure P6924_SelectToken_WildcardIndexers()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Sel(Observer, 'wild_single', P6924_Doc(), 'one[*]');
+        Sel(Observer, 'wild_single_key', P6924_Doc(), 'one[*].k');
+        Sel(Observer, 'wild_empty', P6924_Doc(), 'empty[*]');
+        Sel(Observer, 'wild_many_key', P6924_Doc(), 'arr[*].k');
+        Sel(Observer, 'wild_on_object', P6924_Doc(), 'a[*]');
+        Sel(Observer, 'quoted_star', P6924_Doc(), '$[''*'']');
+        Sel(Observer, 'wild_then_index', P6924_Doc(), '$.a.c[*]');
+        Sel(Observer, 'root_wild', P6924_Doc(), '$[*]');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure P6924_SelectToken_IndexerForms()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Sel(Observer, 'index_blanks', P6924_Doc(), 'a.c[ 1 ]');
+        Sel(Observer, 'index_plus', P6924_Doc(), 'a.c[+1]');
+        Sel(Observer, 'index_leading_zero', P6924_Doc(), 'a.c[01]');
+        Sel(Observer, 'index_decimal', P6924_Doc(), 'a.c[1.0]');
+        Sel(Observer, 'index_letters_used', P6924_Doc(), 'a.c[x]');
+        Sel(Observer, 'index_quoted_number', P6924_Doc(), 'a.c[''1'']');
+        Sel(Observer, 'index_on_object', P6924_Doc(), 'a[0]');
+        Sel(Observer, 'index_chain', P6924_Doc(), 'arr[0][0]');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure P6924_SelectToken_NamesOnArraysAndValues()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Sel(Observer, 'name_on_array', P6924_Doc(), 'arr.k');
+        Sel(Observer, 'name_on_text', P6924_Doc(), 's.x');
+        Sel(Observer, 'name_on_null', P6924_Doc(), 'a.n.x');
+        Sel(Observer, 'null_value', P6924_Doc(), 'a.n');
+        Sel(Observer, 'name_on_number', P6924_Doc(), 'a.b.c');
+        Sel(Observer, 'case_differs', P6924_Doc(), 'A.B');
+        Sel(Observer, 'blank_around_dot', P6924_Doc(), 'a. b');
+        Sel(Observer, 'dollar_inside', P6924_Doc(), 'a.$');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure P6924_SelectToken_Statement_NoOrManyMatches()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        P6924_SelStmt(Observer, 'stmt_missing', P6924_Doc(), 'nope');
+        P6924_SelStmt(Observer, 'stmt_missing_inner', P6924_Doc(), 'a.zzz');
+        P6924_SelStmt(Observer, 'stmt_index_past_end', P6924_Doc(), 'a.c[9]');
+        P6924_SelStmt(Observer, 'stmt_wild_empty', P6924_Doc(), 'empty[*]');
+        P6924_SelStmt(Observer, 'stmt_wild_single', P6924_Doc(), 'one[*]');
+        P6924_SelStmt(Observer, 'stmt_descent_none', P6924_Doc(), '$..zzz');
+        P6924_SelStmt(Observer, 'stmt_descent_many', P6924_Doc(), '$..k');
+        P6924_SelStmt(Observer, 'stmt_descent_one', P6924_Doc(), '$..b');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure P6924_SelectToken_Statement_OtherForms()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        P6924_SelStmt(Observer, 'stmt_slice_two', P6924_Doc(), 'a.c[0:2]');
+        P6924_SelStmt(Observer, 'stmt_slice_one', P6924_Doc(), 'a.c[1:2]');
+        P6924_SelStmt(Observer, 'stmt_name_star', P6924_Doc(), 'a.*');
+        P6924_SelStmt(Observer, 'stmt_trailing_dot', P6924_Doc(), 'a.');
+        P6924_SelStmt(Observer, 'stmt_quoted_blank', P6924_Doc(), 'a[''d e'']');
+        P6924_SelStmt(Observer, 'stmt_double_quoted', P6924_Doc(), 'a["b"]');
+        P6924_SelStmt(Observer, 'stmt_name_on_array', P6924_Doc(), 'arr.k');
+        P6924_SelStmt(Observer, 'stmt_wild_many_key', P6924_Doc(), 'arr[*].k');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure P6924_SelectToken_OtherReceivers()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: JsonArray;
+        V: JsonValue;
+        Tok: JsonToken;
+        T: JsonToken;
+        Ret: Boolean;
+        Written: Text;
+    begin
+        A.ReadFrom('[{"k":1},[2,3],"x"]');
+        Y47_SelArr(Observer, 'array_index_key', A, '[0].k');
+        Y47_SelArr(Observer, 'array_dollar_index', A, '$[1][0]');
+        Y47_SelArr(Observer, 'array_name', A, 'k');
+        Y47_SelArr(Observer, 'array_descent', A, '$..k');
+        V.SetValue(5);
+        Tok := V.AsToken();
+        Y47_SelTok(Observer, 'value_token_root', Tok, '$');
+        Y47_SelTok(Observer, 'value_token_name', Tok, 'x');
+        ClearLastError();
+        Ret := V.SelectToken('', T);
+        if Ret then
+            T.WriteTo(Written);
+        Observer.Observe('value_empty_path', Format(Ret) + ' [' + Written + ']');
+        Observer.ObserveError('value_empty_path');
+        Observer.Finish();
+    end;
 }

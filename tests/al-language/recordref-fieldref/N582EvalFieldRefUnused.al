@@ -148,4 +148,145 @@ codeunit 67605 "LT N582 Eval FieldRef"
         Observer.Expect('integer overflow|value', '9');
         Observer.Verify();
     end;
+
+    // Al-runner issue 6924 item 2.17: the same statement form on a Guid field (and the other field types the tests above leave out:
+    // BigInteger, Time, DateTime, DateFormula, Duration, an Option with an OptionCaption and an Enum), next to the form with the result
+    // used and Evaluate with format 9. Table 95366 below; every field starts with a value, so a kept value shows.
+    [TryFunction]
+    local procedure P6924_TryEvalUsed(FldRef: FieldRef; Txt: Text; var Ok: Boolean)
+    begin
+        Ok := Evaluate(FldRef, Txt);
+    end;
+
+    [TryFunction]
+    local procedure P6924_TryEval9(FldRef: FieldRef; Txt: Text)
+    begin
+        Evaluate(FldRef, Txt, 9);
+    end;
+
+    local procedure P6924_Field(FieldNo: Integer; var RecRef: RecordRef; var FldRef: FieldRef)
+    var
+        Row: Record "REC Eval Guid Row";
+    begin
+        Row.Id := 1;
+        Row.G := '{11111111-2222-3333-4444-555555555555}';
+        Row.Big := 9;
+        Row.Tm := 101010T;
+        Row.Dtm := CreateDateTime(20240101D, 101010T);
+        Evaluate(Row.DF, '<1D>');
+        Row.Dur := 1000;
+        Row.OptCap := Row.OptCap::One;
+        Row.Kind := Row.Kind::Customer;
+        RecRef.GetTable(Row);
+        FldRef := RecRef.Field(FieldNo);
+    end;
+
+    // Mode 0: statement; 1: result used; 9: statement with format 9.
+    local procedure P6924_Eval(var Observer: Codeunit "Probe Observer"; Name: Text; FieldNo: Integer; Txt: Text; Mode: Integer)
+    var
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+        Ok: Boolean;
+        Done: Boolean;
+    begin
+        P6924_Field(FieldNo, RecRef, FldRef);
+        ClearLastError();
+        case Mode of
+            0:
+                Done := TryEval(FldRef, Txt);
+            1:
+                Done := P6924_TryEvalUsed(FldRef, Txt, Ok);
+            9:
+                Done := P6924_TryEval9(FldRef, Txt);
+        end;
+        if not Done then
+            Observer.ObserveError(Name)
+        else
+            if Mode = 1 then begin
+                Observer.Observe(Name, 'returned ' + Format(Ok));
+                Observer.ObserveError(Name);
+            end else
+                Observer.Observe(Name, 'no error');
+        Observer.Observe(Name + '|value', Format(FldRef.Value));
+    end;
+
+    [Test]
+    procedure N582_Evaluate_FieldRef_Guid_Statement()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        P6924_Eval(Observer, 'guid braces', 2, '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}', 0);
+        P6924_Eval(Observer, 'guid no braces', 2, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', 0);
+        P6924_Eval(Observer, 'guid digits only', 2, 'AAAAAAAABBBBCCCCDDDDEEEEEEEEEEEE', 0);
+        P6924_Eval(Observer, 'guid parentheses', 2, '(AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE)', 0);
+        P6924_Eval(Observer, 'guid blanks', 2, ' {AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE} ', 0);
+        P6924_Eval(Observer, 'guid bad', 2, 'abc', 0);
+        P6924_Eval(Observer, 'guid empty', 2, '', 0);
+        P6924_Eval(Observer, 'guid null', 2, '{00000000-0000-0000-0000-000000000000}', 0);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure N582_Evaluate_FieldRef_Guid_ResultUsedAndFormat9()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        P6924_Eval(Observer, 'used braces', 2, '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}', 1);
+        P6924_Eval(Observer, 'used bad', 2, 'abc', 1);
+        P6924_Eval(Observer, 'used empty', 2, '', 1);
+        P6924_Eval(Observer, 'used too short', 2, '{AAAAAAAA-BBBB-CCCC-DDDD}', 1);
+        P6924_Eval(Observer, 'nine braces', 2, '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}', 9);
+        P6924_Eval(Observer, 'nine no braces', 2, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', 9);
+        P6924_Eval(Observer, 'nine bad', 2, 'abc', 9);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure N582_Evaluate_FieldRef_Statement_BadText_MoreTypes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        P6924_Eval(Observer, 'biginteger abc', 3, 'abc', 0);
+        P6924_Eval(Observer, 'biginteger ok', 3, '12345678901', 0);
+        P6924_Eval(Observer, 'time abc', 4, 'abc', 0);
+        P6924_Eval(Observer, 'datetime abc', 5, 'abc', 0);
+        P6924_Eval(Observer, 'dateformula abc', 6, 'abc', 0);
+        P6924_Eval(Observer, 'dateformula ok', 6, '<2W>', 0);
+        P6924_Eval(Observer, 'duration abc', 7, 'abc', 0);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure N582_Evaluate_FieldRef_Statement_BadText_OptionCaptionAndEnum()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        P6924_Eval(Observer, 'option caption Nope', 8, 'Nope', 0);
+        P6924_Eval(Observer, 'option caption by caption', 8, 'Two Cap', 0);
+        P6924_Eval(Observer, 'option caption by name', 8, 'Two', 0);
+        P6924_Eval(Observer, 'enum Nope', 9, 'Nope', 0);
+        P6924_Eval(Observer, 'enum by name', 9, 'Vendor', 0);
+        P6924_Eval(Observer, 'enum by caption', 9, 'Vendor Cap', 0);
+        P6924_Eval(Observer, 'enum empty', 9, '', 0);
+        Observer.Finish();
+    end;
+}
+
+// local object: the field types are what the tests above check (al-runner issue 6924 item 2.17).
+table 95366 "REC Eval Guid Row"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; G; Guid) { }
+        field(3; Big; BigInteger) { }
+        field(4; Tm; Time) { }
+        field(5; Dtm; DateTime) { }
+        field(6; DF; DateFormula) { }
+        field(7; Dur; Duration) { }
+        field(8; OptCap; Option) { OptionMembers = Zero,One,Two; OptionCaption = 'Zero Cap,One Cap,Two Cap'; }
+        field(9; Kind; Enum "REC TF Source Kind") { }
+    }
+    keys { key(PK; Id) { Clustered = true; } }
 }
