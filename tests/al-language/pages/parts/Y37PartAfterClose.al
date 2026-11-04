@@ -637,13 +637,14 @@ codeunit 92648 "LT Y37 PC Tests"
         Observer.Observe('follow.trace', ClpLog.ReadTrace());
         Observer.Observe('follow.queries', Format(ClpLog.QueryCount()));
         Observer.Observe('capture.end', 'COMPLETE');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
     procedure CLP_AGCR_NoClose_PartAccess_Observe()
     begin
         Initialize();
+        ClpExpect('CLP_AGCR_NoClose_PartAccess_Observe');
         ClpCapture(false, false, true);
     end;
 
@@ -651,6 +652,7 @@ codeunit 92648 "LT Y37 PC Tests"
     procedure CLP_AGCR_CloseAllowed_PartAccess_Observe()
     begin
         Initialize();
+        ClpExpect('CLP_AGCR_CloseAllowed_PartAccess_Observe');
         ClpCapture(false, true, true);
     end;
 
@@ -658,6 +660,7 @@ codeunit 92648 "LT Y37 PC Tests"
     procedure CLP_AGCR_CloseVeto_PartAccess_Observe()
     begin
         Initialize();
+        ClpExpect('CLP_AGCR_CloseVeto_PartAccess_Observe');
         ClpCapture(false, true, false);
     end;
 
@@ -665,6 +668,7 @@ codeunit 92648 "LT Y37 PC Tests"
     procedure CLP_Action_CloseAllowed_PartAccess_Observe()
     begin
         Initialize();
+        ClpExpect('CLP_Action_CloseAllowed_PartAccess_Observe');
         ClpCapture(true, true, true);
     end;
 
@@ -672,6 +676,7 @@ codeunit 92648 "LT Y37 PC Tests"
     procedure CLP_Action_CloseVeto_PartAccess_Observe()
     begin
         Initialize();
+        ClpExpect('CLP_Action_CloseVeto_PartAccess_Observe');
         ClpCapture(true, true, false);
     end;
 
@@ -692,7 +697,7 @@ codeunit 92648 "LT Y37 PC Tests"
         Observer.Observe('direct.trace', ClpLog.ReadTrace());
         Observer.Observe('direct.queries', Format(ClpLog.QueryCount()));
         Observer.Observe('capture.end', 'COMPLETE');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     local procedure ClpDirectBoundaryTrace(ExpectedIdentity: Text)
@@ -705,13 +710,14 @@ codeunit 92648 "LT Y37 PC Tests"
         Observer.Observe('direct.post-test-boundary.trace', ClpBoundaryTrace);
         Observer.Observe('direct.post-test-boundary.queries', Format(ClpBoundaryQueries));
         Observer.Observe('capture.end', 'COMPLETE');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
     procedure CLP_Direct_AGCR_NoClose_Observe()
     begin
         Initialize();
+        ClpExpect('CLP_Direct_AGCR_NoClose_Observe');
         ClpDirect(false, false, true, 'AGCR_NoClose');
     end;
 
@@ -719,6 +725,7 @@ codeunit 92648 "LT Y37 PC Tests"
     procedure CLP_Direct_AGCR_NoClose_BoundaryTrace()
     begin
         Initialize();
+        ClpExpect('CLP_Direct_AGCR_NoClose_BoundaryTrace');
         ClpDirectBoundaryTrace('AGCR_NoClose');
     end;
 
@@ -726,6 +733,7 @@ codeunit 92648 "LT Y37 PC Tests"
     procedure CLP_Direct_AGCR_CloseAllowed_Observe()
     begin
         Initialize();
+        ClpExpect('CLP_Direct_AGCR_CloseAllowed_Observe');
         ClpDirect(false, true, true, 'AGCR_CloseAllowed');
     end;
 
@@ -733,6 +741,7 @@ codeunit 92648 "LT Y37 PC Tests"
     procedure CLP_Direct_AGCR_CloseAllowed_BoundaryTrace()
     begin
         Initialize();
+        ClpExpect('CLP_Direct_AGCR_CloseAllowed_BoundaryTrace');
         ClpDirectBoundaryTrace('AGCR_CloseAllowed');
     end;
 
@@ -740,6 +749,7 @@ codeunit 92648 "LT Y37 PC Tests"
     procedure CLP_Direct_AGCR_CloseVeto_Observe()
     begin
         Initialize();
+        ClpExpect('CLP_Direct_AGCR_CloseVeto_Observe');
         ClpDirect(false, true, false, 'AGCR_CloseVeto');
     end;
 
@@ -747,6 +757,7 @@ codeunit 92648 "LT Y37 PC Tests"
     procedure CLP_Direct_AGCR_CloseVeto_BoundaryTrace()
     begin
         Initialize();
+        ClpExpect('CLP_Direct_AGCR_CloseVeto_BoundaryTrace');
         ClpDirectBoundaryTrace('AGCR_CloseVeto');
     end;
 
@@ -754,6 +765,7 @@ codeunit 92648 "LT Y37 PC Tests"
     procedure CLP_Direct_Action_CloseAllowed_Observe()
     begin
         Initialize();
+        ClpExpect('CLP_Direct_Action_CloseAllowed_Observe');
         ClpDirect(true, true, true, 'Action_CloseAllowed');
     end;
 
@@ -761,6 +773,7 @@ codeunit 92648 "LT Y37 PC Tests"
     procedure CLP_Direct_Action_CloseAllowed_BoundaryTrace()
     begin
         Initialize();
+        ClpExpect('CLP_Direct_Action_CloseAllowed_BoundaryTrace');
         ClpDirectBoundaryTrace('Action_CloseAllowed');
     end;
 
@@ -768,6 +781,7 @@ codeunit 92648 "LT Y37 PC Tests"
     procedure CLP_Direct_Action_CloseVeto_Observe()
     begin
         Initialize();
+        ClpExpect('CLP_Direct_Action_CloseVeto_Observe');
         ClpDirect(true, true, false, 'Action_CloseVeto');
     end;
 
@@ -775,6 +789,236 @@ codeunit 92648 "LT Y37 PC Tests"
     procedure CLP_Direct_Action_CloseVeto_BoundaryTrace()
     begin
         Initialize();
+        ClpExpect('CLP_Direct_Action_CloseVeto_BoundaryTrace');
         ClpDirectBoundaryTrace('Action_CloseVeto');
+    end;
+
+    // Exact native BC27.5 bootstrap pairs: run 41897699021, original JUnit retained.
+    local procedure ClpExpect(ObservationCase: Text)
+    begin
+        case ObservationCase of
+            'CLP_AGCR_NoClose_PartAccess_Observe':
+                begin
+                    Observer.Expect('open.ok', 'T');
+                    Observer.Expect('open.error.code', '');
+                    Observer.Expect('open.error.text', '');
+                    Observer.Expect('action.requested', 'F');
+                    Observer.Expect('action.ok', 'F');
+                    Observer.Expect('action.error.code', '');
+                    Observer.Expect('action.error.text', '');
+                    Observer.Expect('operation.trace', 'PART.INIT;PARENT.OPEN;PART.OPEN;PARENT.AGCR;NO.CLOSE;BEFORE.PART;PART.TOUCH:42:1;AFTER.PART:42:1;');
+                    Observer.Expect('operation.queries', '0');
+                    Observer.Expect('follow.parent.ok', 'T');
+                    Observer.Expect('follow.parent.id', '1');
+                    Observer.Expect('follow.parent.error.code', '');
+                    Observer.Expect('follow.parent.error.text', '');
+                    Observer.Expect('follow.part.ok', 'T');
+                    Observer.Expect('follow.part.id', '1');
+                    Observer.Expect('follow.part.error.code', '');
+                    Observer.Expect('follow.part.error.text', '');
+                    Observer.Expect('follow.close.ok', 'T');
+                    Observer.Expect('follow.close.error.code', '');
+                    Observer.Expect('follow.close.error.text', '');
+                    Observer.Expect('follow.trace', 'PART.INIT;PARENT.OPEN;PART.OPEN;PARENT.AGCR;NO.CLOSE;BEFORE.PART;PART.TOUCH:42:1;AFTER.PART:42:1;PARENT.QUERY:OK;PART.CLOSE;PARENT.CLOSE;');
+                    Observer.Expect('follow.queries', '1');
+                    Observer.Expect('capture.end', 'COMPLETE');
+                end;
+            'CLP_AGCR_CloseAllowed_PartAccess_Observe':
+                begin
+                    Observer.Expect('open.ok', 'T');
+                    Observer.Expect('open.error.code', '');
+                    Observer.Expect('open.error.text', '');
+                    Observer.Expect('action.requested', 'F');
+                    Observer.Expect('action.ok', 'F');
+                    Observer.Expect('action.error.code', '');
+                    Observer.Expect('action.error.text', '');
+                    Observer.Expect('operation.trace', 'PART.INIT;PARENT.OPEN;PART.OPEN;PARENT.AGCR;BEFORE.CLOSE;PARENT.QUERY:OK;PART.CLOSE;PARENT.CLOSE;AFTER.CLOSE;BEFORE.PART;PART.TOUCH:1042:1;AFTER.PART:1042:1;');
+                    Observer.Expect('operation.queries', '1');
+                    Observer.Expect('follow.parent.ok', 'F');
+                    Observer.Expect('follow.parent.id', '-777');
+                    Observer.Expect('follow.parent.error.code', 'TestPageNotOpened');
+                    Observer.Expect('follow.parent.error.text', 'The TestPage is not open.');
+                    Observer.Expect('follow.part.ok', 'F');
+                    Observer.Expect('follow.part.id', '-777');
+                    Observer.Expect('follow.part.error.code', 'TestPageNotOpened');
+                    Observer.Expect('follow.part.error.text', 'The TestPage is not open.');
+                    Observer.Expect('follow.close.ok', 'F');
+                    Observer.Expect('follow.close.error.code', 'TestPageNotOpened');
+                    Observer.Expect('follow.close.error.text', 'The TestPage is not open.');
+                    Observer.Expect('follow.trace', 'PART.INIT;PARENT.OPEN;PART.OPEN;PARENT.AGCR;BEFORE.CLOSE;PARENT.QUERY:OK;PART.CLOSE;PARENT.CLOSE;AFTER.CLOSE;BEFORE.PART;PART.TOUCH:1042:1;AFTER.PART:1042:1;');
+                    Observer.Expect('follow.queries', '1');
+                    Observer.Expect('capture.end', 'COMPLETE');
+                end;
+            'CLP_AGCR_CloseVeto_PartAccess_Observe':
+                begin
+                    Observer.Expect('open.ok', 'T');
+                    Observer.Expect('open.error.code', '');
+                    Observer.Expect('open.error.text', '');
+                    Observer.Expect('action.requested', 'F');
+                    Observer.Expect('action.ok', 'F');
+                    Observer.Expect('action.error.code', '');
+                    Observer.Expect('action.error.text', '');
+                    Observer.Expect('operation.trace', 'PART.INIT;PARENT.OPEN;PART.OPEN;PARENT.AGCR;BEFORE.CLOSE;PARENT.QUERY:OK;AFTER.CLOSE;BEFORE.PART;PART.TOUCH:42:1;AFTER.PART:42:1;PARENT.QUERY:OK;');
+                    Observer.Expect('operation.queries', '2');
+                    Observer.Expect('follow.parent.ok', 'T');
+                    Observer.Expect('follow.parent.id', '0');
+                    Observer.Expect('follow.parent.error.code', '');
+                    Observer.Expect('follow.parent.error.text', '');
+                    Observer.Expect('follow.part.ok', 'T');
+                    Observer.Expect('follow.part.id', '1');
+                    Observer.Expect('follow.part.error.code', '');
+                    Observer.Expect('follow.part.error.text', '');
+                    Observer.Expect('follow.close.ok', 'T');
+                    Observer.Expect('follow.close.error.code', '');
+                    Observer.Expect('follow.close.error.text', '');
+                    Observer.Expect('follow.trace', 'PART.INIT;PARENT.OPEN;PART.OPEN;PARENT.AGCR;BEFORE.CLOSE;PARENT.QUERY:OK;AFTER.CLOSE;BEFORE.PART;PART.TOUCH:42:1;AFTER.PART:42:1;PARENT.QUERY:OK;PARENT.QUERY:OK;');
+                    Observer.Expect('follow.queries', '3');
+                    Observer.Expect('capture.end', 'COMPLETE');
+                end;
+            'CLP_Action_CloseAllowed_PartAccess_Observe':
+                begin
+                    Observer.Expect('open.ok', 'T');
+                    Observer.Expect('open.error.code', '');
+                    Observer.Expect('open.error.text', '');
+                    Observer.Expect('action.requested', 'T');
+                    Observer.Expect('action.ok', 'T');
+                    Observer.Expect('action.error.code', '');
+                    Observer.Expect('action.error.text', '');
+                    Observer.Expect('operation.trace', 'PART.INIT;PARENT.OPEN;PART.OPEN;PARENT.ACTION;BEFORE.CLOSE;PARENT.QUERY:OK;PART.CLOSE;PARENT.CLOSE;AFTER.CLOSE;BEFORE.PART;PART.TOUCH:1042:1;AFTER.PART:1042:1;');
+                    Observer.Expect('operation.queries', '1');
+                    Observer.Expect('follow.parent.ok', 'F');
+                    Observer.Expect('follow.parent.id', '-777');
+                    Observer.Expect('follow.parent.error.code', 'TestPageNotOpened');
+                    Observer.Expect('follow.parent.error.text', 'The TestPage is not open.');
+                    Observer.Expect('follow.part.ok', 'F');
+                    Observer.Expect('follow.part.id', '-777');
+                    Observer.Expect('follow.part.error.code', 'TestPageNotOpened');
+                    Observer.Expect('follow.part.error.text', 'The TestPage is not open.');
+                    Observer.Expect('follow.close.ok', 'F');
+                    Observer.Expect('follow.close.error.code', 'TestPageNotOpened');
+                    Observer.Expect('follow.close.error.text', 'The TestPage is not open.');
+                    Observer.Expect('follow.trace', 'PART.INIT;PARENT.OPEN;PART.OPEN;PARENT.ACTION;BEFORE.CLOSE;PARENT.QUERY:OK;PART.CLOSE;PARENT.CLOSE;AFTER.CLOSE;BEFORE.PART;PART.TOUCH:1042:1;AFTER.PART:1042:1;');
+                    Observer.Expect('follow.queries', '1');
+                    Observer.Expect('capture.end', 'COMPLETE');
+                end;
+            'CLP_Action_CloseVeto_PartAccess_Observe':
+                begin
+                    Observer.Expect('open.ok', 'T');
+                    Observer.Expect('open.error.code', '');
+                    Observer.Expect('open.error.text', '');
+                    Observer.Expect('action.requested', 'T');
+                    Observer.Expect('action.ok', 'T');
+                    Observer.Expect('action.error.code', '');
+                    Observer.Expect('action.error.text', '');
+                    Observer.Expect('operation.trace', 'PART.INIT;PARENT.OPEN;PART.OPEN;PARENT.ACTION;BEFORE.CLOSE;PARENT.QUERY:OK;AFTER.CLOSE;BEFORE.PART;PART.TOUCH:42:1;AFTER.PART:42:1;PARENT.QUERY:OK;');
+                    Observer.Expect('operation.queries', '2');
+                    Observer.Expect('follow.parent.ok', 'T');
+                    Observer.Expect('follow.parent.id', '1');
+                    Observer.Expect('follow.parent.error.code', '');
+                    Observer.Expect('follow.parent.error.text', '');
+                    Observer.Expect('follow.part.ok', 'T');
+                    Observer.Expect('follow.part.id', '1');
+                    Observer.Expect('follow.part.error.code', '');
+                    Observer.Expect('follow.part.error.text', '');
+                    Observer.Expect('follow.close.ok', 'T');
+                    Observer.Expect('follow.close.error.code', '');
+                    Observer.Expect('follow.close.error.text', '');
+                    Observer.Expect('follow.trace', 'PART.INIT;PARENT.OPEN;PART.OPEN;PARENT.ACTION;BEFORE.CLOSE;PARENT.QUERY:OK;AFTER.CLOSE;BEFORE.PART;PART.TOUCH:42:1;AFTER.PART:42:1;PARENT.QUERY:OK;PARENT.QUERY:OK;');
+                    Observer.Expect('follow.queries', '3');
+                    Observer.Expect('capture.end', 'COMPLETE');
+                end;
+            'CLP_Direct_AGCR_NoClose_Observe':
+                begin
+                    Observer.Expect('direct.case', 'AGCR_NoClose');
+                    Observer.Expect('direct.returned', 'T');
+                    Observer.Expect('direct.trace', 'TEST.BEFORE.OPEN;PART.INIT;PARENT.OPEN;PART.OPEN;PARENT.AGCR;NO.CLOSE;BEFORE.PART;PART.TOUCH:42:1;AFTER.PART:42:1;TEST.AFTER.OPEN;');
+                    Observer.Expect('direct.queries', '0');
+                    Observer.Expect('capture.end', 'COMPLETE');
+                end;
+            'CLP_Direct_AGCR_NoClose_BoundaryTrace':
+                begin
+                    Observer.Expect('boundary.expected.case', 'AGCR_NoClose');
+                    Observer.Expect('boundary.actual.case', 'AGCR_NoClose');
+                    Observer.Expect('boundary.paired', 'T');
+                    Observer.Expect('boundary.preserve.flag', 'T');
+                    Observer.Expect('direct.post-test-boundary.trace', 'TEST.BEFORE.OPEN;PART.INIT;PARENT.OPEN;PART.OPEN;PARENT.AGCR;NO.CLOSE;BEFORE.PART;PART.TOUCH:42:1;AFTER.PART:42:1;TEST.AFTER.OPEN;');
+                    Observer.Expect('direct.post-test-boundary.queries', '0');
+                    Observer.Expect('capture.end', 'COMPLETE');
+                end;
+            'CLP_Direct_AGCR_CloseAllowed_Observe':
+                begin
+                    Observer.Expect('direct.case', 'AGCR_CloseAllowed');
+                    Observer.Expect('direct.returned', 'T');
+                    Observer.Expect('direct.trace', 'TEST.BEFORE.OPEN;PART.INIT;PARENT.OPEN;PART.OPEN;PARENT.AGCR;BEFORE.CLOSE;PARENT.QUERY:OK;PART.CLOSE;PARENT.CLOSE;AFTER.CLOSE;BEFORE.PART;PART.TOUCH:1042:1;AFTER.PART:1042:1;TEST.AFTER.OPEN;');
+                    Observer.Expect('direct.queries', '1');
+                    Observer.Expect('capture.end', 'COMPLETE');
+                end;
+            'CLP_Direct_AGCR_CloseAllowed_BoundaryTrace':
+                begin
+                    Observer.Expect('boundary.expected.case', 'AGCR_CloseAllowed');
+                    Observer.Expect('boundary.actual.case', 'AGCR_CloseAllowed');
+                    Observer.Expect('boundary.paired', 'T');
+                    Observer.Expect('boundary.preserve.flag', 'T');
+                    Observer.Expect('direct.post-test-boundary.trace', 'TEST.BEFORE.OPEN;PART.INIT;PARENT.OPEN;PART.OPEN;PARENT.AGCR;BEFORE.CLOSE;PARENT.QUERY:OK;PART.CLOSE;PARENT.CLOSE;AFTER.CLOSE;BEFORE.PART;PART.TOUCH:1042:1;AFTER.PART:1042:1;TEST.AFTER.OPEN;');
+                    Observer.Expect('direct.post-test-boundary.queries', '1');
+                    Observer.Expect('capture.end', 'COMPLETE');
+                end;
+            'CLP_Direct_AGCR_CloseVeto_Observe':
+                begin
+                    Observer.Expect('direct.case', 'AGCR_CloseVeto');
+                    Observer.Expect('direct.returned', 'T');
+                    Observer.Expect('direct.trace', 'TEST.BEFORE.OPEN;PART.INIT;PARENT.OPEN;PART.OPEN;PARENT.AGCR;BEFORE.CLOSE;PARENT.QUERY:OK;AFTER.CLOSE;BEFORE.PART;PART.TOUCH:42:1;AFTER.PART:42:1;PARENT.QUERY:OK;TEST.AFTER.OPEN;');
+                    Observer.Expect('direct.queries', '2');
+                    Observer.Expect('capture.end', 'COMPLETE');
+                end;
+            'CLP_Direct_AGCR_CloseVeto_BoundaryTrace':
+                begin
+                    Observer.Expect('boundary.expected.case', 'AGCR_CloseVeto');
+                    Observer.Expect('boundary.actual.case', 'AGCR_CloseVeto');
+                    Observer.Expect('boundary.paired', 'T');
+                    Observer.Expect('boundary.preserve.flag', 'T');
+                    Observer.Expect('direct.post-test-boundary.trace', 'TEST.BEFORE.OPEN;PART.INIT;PARENT.OPEN;PART.OPEN;PARENT.AGCR;BEFORE.CLOSE;PARENT.QUERY:OK;AFTER.CLOSE;BEFORE.PART;PART.TOUCH:42:1;AFTER.PART:42:1;PARENT.QUERY:OK;TEST.AFTER.OPEN;');
+                    Observer.Expect('direct.post-test-boundary.queries', '2');
+                    Observer.Expect('capture.end', 'COMPLETE');
+                end;
+            'CLP_Direct_Action_CloseAllowed_Observe':
+                begin
+                    Observer.Expect('direct.case', 'Action_CloseAllowed');
+                    Observer.Expect('direct.returned', 'T');
+                    Observer.Expect('direct.trace', 'TEST.BEFORE.OPEN;PART.INIT;PARENT.OPEN;PART.OPEN;TEST.AFTER.OPEN;PARENT.ACTION;BEFORE.CLOSE;PARENT.QUERY:OK;PART.CLOSE;PARENT.CLOSE;AFTER.CLOSE;BEFORE.PART;PART.TOUCH:1042:1;AFTER.PART:1042:1;TEST.AFTER.ACTION;');
+                    Observer.Expect('direct.queries', '1');
+                    Observer.Expect('capture.end', 'COMPLETE');
+                end;
+            'CLP_Direct_Action_CloseAllowed_BoundaryTrace':
+                begin
+                    Observer.Expect('boundary.expected.case', 'Action_CloseAllowed');
+                    Observer.Expect('boundary.actual.case', 'Action_CloseAllowed');
+                    Observer.Expect('boundary.paired', 'T');
+                    Observer.Expect('boundary.preserve.flag', 'T');
+                    Observer.Expect('direct.post-test-boundary.trace', 'TEST.BEFORE.OPEN;PART.INIT;PARENT.OPEN;PART.OPEN;TEST.AFTER.OPEN;PARENT.ACTION;BEFORE.CLOSE;PARENT.QUERY:OK;PART.CLOSE;PARENT.CLOSE;AFTER.CLOSE;BEFORE.PART;PART.TOUCH:1042:1;AFTER.PART:1042:1;TEST.AFTER.ACTION;');
+                    Observer.Expect('direct.post-test-boundary.queries', '1');
+                    Observer.Expect('capture.end', 'COMPLETE');
+                end;
+            'CLP_Direct_Action_CloseVeto_Observe':
+                begin
+                    Observer.Expect('direct.case', 'Action_CloseVeto');
+                    Observer.Expect('direct.returned', 'T');
+                    Observer.Expect('direct.trace', 'TEST.BEFORE.OPEN;PART.INIT;PARENT.OPEN;PART.OPEN;TEST.AFTER.OPEN;PARENT.ACTION;BEFORE.CLOSE;PARENT.QUERY:OK;AFTER.CLOSE;BEFORE.PART;PART.TOUCH:42:1;AFTER.PART:42:1;PARENT.QUERY:OK;TEST.AFTER.ACTION;');
+                    Observer.Expect('direct.queries', '2');
+                    Observer.Expect('capture.end', 'COMPLETE');
+                end;
+            'CLP_Direct_Action_CloseVeto_BoundaryTrace':
+                begin
+                    Observer.Expect('boundary.expected.case', 'Action_CloseVeto');
+                    Observer.Expect('boundary.actual.case', 'Action_CloseVeto');
+                    Observer.Expect('boundary.paired', 'T');
+                    Observer.Expect('boundary.preserve.flag', 'T');
+                    Observer.Expect('direct.post-test-boundary.trace', 'TEST.BEFORE.OPEN;PART.INIT;PARENT.OPEN;PART.OPEN;TEST.AFTER.OPEN;PARENT.ACTION;BEFORE.CLOSE;PARENT.QUERY:OK;AFTER.CLOSE;BEFORE.PART;PART.TOUCH:42:1;AFTER.PART:42:1;PARENT.QUERY:OK;TEST.AFTER.ACTION;');
+                    Observer.Expect('direct.post-test-boundary.queries', '2');
+                    Observer.Expect('capture.end', 'COMPLETE');
+                end;
+            else
+                Error('Unknown close/part observation case: %1', ObservationCase);
+        end;
     end;
 }
