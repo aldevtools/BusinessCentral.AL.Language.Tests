@@ -134,4 +134,72 @@ codeunit 72307 "LT P123 CaptionClass Tests"
         Observer.Expect('new field page caption', 'Stand in 82554');
         Observer.Verify();
     end;
+
+    // Cross-app ownership: public dependency procedure versus local tableextension procedure.
+    // Expected branch markers are a probe hypothesis until genuine native CI adjudicates them.
+    [Test]
+    procedure TableExt_CrossApp_BareCallSelectsLocal()
+    var
+        T: Record "TBL Lexical Owner Base";
+        Assert: Codeunit "Library Assert";
+    begin
+        Initialize();
+        T.Get(1);
+        Assert.AreEqual('3,Extension 19', T.ExtensionBare(), 'Lexical declaration owner must select the expected body');
+    end;
+
+    [Test]
+    procedure TableExt_CrossApp_BaseCallKeepsBase()
+    var
+        T: Record "TBL Lexical Owner Base";
+        Assert: Codeunit "Library Assert";
+    begin
+        Initialize();
+        T.Get(1);
+        Assert.AreEqual('3,Base 17', T.BaseCall(), 'Lexical declaration owner must select the expected body');
+    end;
+
+    [Test]
+    procedure TableExt_CrossApp_AddedCaptionSelectsLocal()
+    var
+        T: Record "TBL Lexical Owner Base";
+        Assert: Codeunit "Library Assert";
+    begin
+        Initialize();
+        T.Get(1);
+        Assert.AreEqual('Extension 97890', T.FieldCaption(CollisionCaption), 'Lexical declaration owner must select the expected body');
+    end;
+
+    [Test]
+    procedure TableExt_CrossApp_ModifiedCaptionSelectsLocal()
+    var
+        T: Record "TBL Lexical Owner Base";
+        Assert: Codeunit "Library Assert";
+    begin
+        Initialize();
+        T.Get(1);
+        Assert.AreEqual('Extension 2', T.FieldCaption(BaseLabel), 'Lexical declaration owner must select the expected body');
+    end;
+
+    [Test]
+    procedure TableExt_CrossApp_UniqueCaptionControl()
+    var
+        T: Record "TBL Lexical Owner Base";
+        Assert: Codeunit "Library Assert";
+    begin
+        Initialize();
+        T.Get(1);
+        Assert.AreEqual('Unique 97891', T.FieldCaption(UniqueCaption), 'Lexical declaration owner must select the expected body');
+    end;
+
+    local procedure Initialize()
+    var
+        Cleanup: Codeunit ALTFixtureCleanup;
+        T: Record "TBL Lexical Owner Base";
+    begin
+        Cleanup.Initialize();
+        T.Init();
+        T.Id := 1;
+        T.Insert(false);
+    end;
 }
