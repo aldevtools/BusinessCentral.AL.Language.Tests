@@ -5,6 +5,10 @@
 //   whose OnValidate reads and writes fields that were not loaded, and Insert(true). With and without SetLoadFields() before Init, with the
 //   key kept, a direct read of a not-loaded field after Init, AreFieldsLoaded after Init, and a plain Insert after Init.
 //   Facts: the field values after Init, what the OnValidate and OnInsert triggers read, the rows stored afterwards.
+// Result (BC 29.0, corpus CI): after Init, the fields that the SetLoadFields fetch did not load hold their initial values (InitValue or
+//   blank), never the fetched row's: with or without SetLoadFields() before Init, with the key kept or changed, read directly or in
+//   OnValidate and OnInsert. AreFieldsLoaded after Init: No for a not-loaded field (also after reading it), Yes for the key. Insert stores
+//   the new row with those values; the fetched rows stay unchanged.
 // BC versions: 27, 28, 29
 
 table 95628 "LT R7000 Line"
@@ -180,7 +184,12 @@ codeunit 95631 "LT R7000 Init After LoadFields"
         Line.Insert(true);
         Observer.Observe('log', Log.Dump());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('after init', 'Order/D1/20000 Type=  No= Descr= Qty=1 Amount=0 Note=');
+        Observer.Expect('after key', 'Order/D1/30000 Type=  No= Descr= Qty=1 Amount=0 Note=');
+        Observer.Expect('after validate', 'Order/D1/30000 Type=Item No=I1 Descr=Item I1 Qty=1 Amount=10 Note=');
+        Observer.Expect('log', 'Type validate: No= Descr= Qty=1 Note=;No validate: Descr= Qty=1 Amount=0 Note=;insert: Order/D1/30000 Type=Item No=I1 Descr=Item I1 Qty=1 Amount=10 Note=;');
+        Observer.Expect('rows', 'Order/D1/10000 Type=Resource No=R1 Descr=old10 Qty=5 Amount=50 Note=n10;Order/D1/20000 Type=Resource No=R1 Descr=old20 Qty=7 Amount=70 Note=n20;Order/D1/30000 Type=Item No=I1 Descr=Item I1 Qty=1 Amount=10 Note=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -202,7 +211,10 @@ codeunit 95631 "LT R7000 Init After LoadFields"
         Line.Insert(true);
         Observer.Observe('log', Log.Dump());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('after init', 'Order/D1/20000 Type=  No= Descr= Qty=1 Amount=0 Note=');
+        Observer.Expect('log', 'Type validate: No= Descr= Qty=1 Note=;No validate: Descr= Qty=1 Amount=0 Note=;insert: Order/D1/30000 Type=Item No=I1 Descr=Item I1 Qty=1 Amount=10 Note=;');
+        Observer.Expect('rows', 'Order/D1/10000 Type=Resource No=R1 Descr=old10 Qty=5 Amount=50 Note=n10;Order/D1/20000 Type=Resource No=R1 Descr=old20 Qty=7 Amount=70 Note=n20;Order/D1/30000 Type=Item No=I1 Descr=Item I1 Qty=1 Amount=10 Note=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -219,7 +231,12 @@ codeunit 95631 "LT R7000 Init After LoadFields"
         Observer.Observe('after init', Line.Dump());
         Observer.Observe('note loaded after read', Format(Line.AreFieldsLoaded(Note)));
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('note loaded after init', 'No');
+        Observer.Expect('line no loaded after init', 'Yes');
+        Observer.Expect('after init', 'Order/D1/20000 Type=  No= Descr= Qty=1 Amount=0 Note=');
+        Observer.Expect('note loaded after read', 'No');
+        Observer.Expect('rows', 'Order/D1/10000 Type=Resource No=R1 Descr=old10 Qty=5 Amount=50 Note=n10;Order/D1/20000 Type=Resource No=R1 Descr=old20 Qty=7 Amount=70 Note=n20;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -235,7 +252,10 @@ codeunit 95631 "LT R7000 Init After LoadFields"
         Observer.Observe('note', Line.Note);
         Observer.Observe('qty', Format(Line.Quantity));
         Observer.Observe('descr', Line.Description);
-        Observer.Finish();
+        Observer.Expect('note', '');
+        Observer.Expect('qty', '1');
+        Observer.Expect('descr', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -252,7 +272,9 @@ codeunit 95631 "LT R7000 Init After LoadFields"
         Line.Insert();
         Observer.Observe('log', Log.Dump());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('log', '');
+        Observer.Expect('rows', 'Order/D1/10000 Type=Resource No=R1 Descr=old10 Qty=5 Amount=50 Note=n10;Order/D1/20000 Type=Resource No=R1 Descr=old20 Qty=7 Amount=70 Note=n20;Order/D1/30000 Type=  No= Descr= Qty=1 Amount=0 Note=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -272,6 +294,8 @@ codeunit 95631 "LT R7000 Init After LoadFields"
         Line.Insert(true);
         Observer.Observe('log', Log.Dump());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('log', 'No validate: Descr= Qty=1 Amount=0 Note=new;insert: Order/D1/30000 Type=  No=I2 Descr=Item I2 Qty=1 Amount=10 Note=new;');
+        Observer.Expect('rows', 'Order/D1/10000 Type=Resource No=R1 Descr=old10 Qty=5 Amount=50 Note=n10;Order/D1/20000 Type=Resource No=R1 Descr=old20 Qty=7 Amount=70 Note=n20;Order/D1/30000 Type=  No=I2 Descr=Item I2 Qty=1 Amount=10 Note=new;');
+        Observer.Verify();
     end;
 }

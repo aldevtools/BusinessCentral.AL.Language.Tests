@@ -6,6 +6,10 @@
 //   form, a dot inside a value (a range `10..20`, a decimal `1.5`, a text `x.y`), a dot followed by a space, three conditions, a trailing dot,
 //   a field named with a dot ("No."), RecordRef.SetView, and GetView(false) of a record filtered on two fields. Each SetView runs in a
 //   TryFunction; the result is GetFilters and GetView(false), or the error.
+// Result (BC 29.0, corpus CI): SetView refuses every view whose WHERE conditions are joined by a dot, in the numeric and the named form,
+//   with or without a space, with a trailing or a double dot: "Invalid expression of type: table view." and the view after a backslash,
+//   code DB:Ok (also RecordRef.SetView). The record keeps its filters. A field named with a dot ("No.") joined by a comma is accepted.
+//   GetView(false) writes a comma between the conditions.
 // BC versions: 27, 28, 29
 
 table 95625 "LT R6969 View Head"
@@ -85,7 +89,11 @@ codeunit 95626 "LT R6969 SetView Dot"
         Observer.Observe('dot', Apply('VERSION(1) SORTING(Field1,Field3) WHERE(Field1=1(2).Field120=1(0))'));
         Observer.Observe('dot const', Apply('VERSION(1) SORTING(Field1,Field3) WHERE(Field1=0(2).Field120=0(0))'));
         Observer.Observe('dot no version', Apply('SORTING(Field1,Field3) WHERE(Field1=1(2).Field120=1(1))'));
-        Observer.Finish();
+        Observer.Expect('comma', 'filters=[Document Type: Invoice, Status: Open] count=1 view=[VERSION(1) SORTING(Field1,Field3) WHERE(Field1=1(2),Field120=1(0))]');
+        Observer.Expect('dot', 'error=Invalid expression of type: table view.\VERSION(1) SORTING(Field1,Field3) WHERE(Field1=1(2).Field120=1(0)) code=DB:Ok');
+        Observer.Expect('dot const', 'error=Invalid expression of type: table view.\VERSION(1) SORTING(Field1,Field3) WHERE(Field1=0(2).Field120=0(0)) code=DB:Ok');
+        Observer.Expect('dot no version', 'error=Invalid expression of type: table view.\SORTING(Field1,Field3) WHERE(Field1=1(2).Field120=1(1)) code=DB:Ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -98,7 +106,11 @@ codeunit 95626 "LT R6969 SetView Dot"
         Observer.Observe('decimal', Apply('VERSION(1) SORTING(Field1,Field3) WHERE(Field130=1(1.5).Field120=1(0))'));
         Observer.Observe('text', Apply('VERSION(1) SORTING(Field1,Field3) WHERE(Field140=1(x.y).Field120=1(0))'));
         Observer.Observe('range last', Apply('VERSION(1) SORTING(Field1,Field3) WHERE(Field120=1(1).Field130=1(10..20))'));
-        Observer.Finish();
+        Observer.Expect('range', 'error=Invalid expression of type: table view.\VERSION(1) SORTING(Field1,Field3) WHERE(Field130=1(10..20).Field120=1(1)) code=DB:Ok');
+        Observer.Expect('decimal', 'error=Invalid expression of type: table view.\VERSION(1) SORTING(Field1,Field3) WHERE(Field130=1(1.5).Field120=1(0)) code=DB:Ok');
+        Observer.Expect('text', 'error=Invalid expression of type: table view.\VERSION(1) SORTING(Field1,Field3) WHERE(Field140=1(x.y).Field120=1(0)) code=DB:Ok');
+        Observer.Expect('range last', 'error=Invalid expression of type: table view.\VERSION(1) SORTING(Field1,Field3) WHERE(Field120=1(1).Field130=1(10..20)) code=DB:Ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -113,7 +125,13 @@ codeunit 95626 "LT R6969 SetView Dot"
         Observer.Observe('space dot', Apply('VERSION(1) SORTING(Field1,Field3) WHERE(Field1=1(2) .Field120=1(1))'));
         Observer.Observe('trailing dot', Apply('VERSION(1) SORTING(Field1,Field3) WHERE(Field1=1(2).)'));
         Observer.Observe('two dots', Apply('VERSION(1) SORTING(Field1,Field3) WHERE(Field1=1(2)..Field120=1(1))'));
-        Observer.Finish();
+        Observer.Expect('three dots', 'error=Invalid expression of type: table view.\VERSION(1) SORTING(Field1,Field3) WHERE(Field1=1(2).Field120=1(1).Field3=1(A*)) code=DB:Ok');
+        Observer.Expect('dot and comma', 'error=Invalid expression of type: table view.\VERSION(1) SORTING(Field1,Field3) WHERE(Field1=1(2).Field120=1(1),Field3=1(A*)) code=DB:Ok');
+        Observer.Expect('dot space', 'error=Invalid expression of type: table view.\VERSION(1) SORTING(Field1,Field3) WHERE(Field1=1(2). Field120=1(1)) code=DB:Ok');
+        Observer.Expect('space dot', 'error=Invalid expression of type: table view.\VERSION(1) SORTING(Field1,Field3) WHERE(Field1=1(2) .Field120=1(1)) code=DB:Ok');
+        Observer.Expect('trailing dot', 'error=Invalid expression of type: table view.\VERSION(1) SORTING(Field1,Field3) WHERE(Field1=1(2).) code=DB:Ok');
+        Observer.Expect('two dots', 'error=Invalid expression of type: table view.\VERSION(1) SORTING(Field1,Field3) WHERE(Field1=1(2)..Field120=1(1)) code=DB:Ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -127,7 +145,12 @@ codeunit 95626 "LT R6969 SetView Dot"
         Observer.Observe('named field with dot first', Apply('SORTING(Document Type,No.) WHERE(No.=FILTER(A*).Status=FILTER(Open))'));
         Observer.Observe('named field with dot second', Apply('SORTING(Document Type,No.) WHERE(Status=FILTER(Open).No.=FILTER(A*))'));
         Observer.Observe('named field with dot comma', Apply('SORTING(Document Type,No.) WHERE(Status=FILTER(Open),No.=FILTER(A*))'));
-        Observer.Finish();
+        Observer.Expect('named dot', 'error=Invalid expression of type: table view.\SORTING(Document Type,No.) WHERE(Document Type=FILTER(Invoice).Status=FILTER(Released)) code=DB:Ok');
+        Observer.Expect('named const dot', 'error=Invalid expression of type: table view.\SORTING(Document Type,No.) WHERE(Document Type=CONST(Invoice).Status=CONST(Released)) code=DB:Ok');
+        Observer.Expect('named field with dot first', 'error=Invalid expression of type: table view.\SORTING(Document Type,No.) WHERE(No.=FILTER(A*).Status=FILTER(Open)) code=DB:Ok');
+        Observer.Expect('named field with dot second', 'error=Invalid expression of type: table view.\SORTING(Document Type,No.) WHERE(Status=FILTER(Open).No.=FILTER(A*)) code=DB:Ok');
+        Observer.Expect('named field with dot comma', 'filters=[No.: A*, Status: Open] count=2 view=[VERSION(1) SORTING(Field1,Field3) WHERE(Field3=1(A*),Field120=1(0))]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -138,12 +161,14 @@ codeunit 95626 "LT R6969 SetView Dot"
     begin
         Seed();
         RecRef.Open(Database::"LT R6969 View Head");
-        RecRef.SetView('VERSION(1) SORTING(Field1,Field3) WHERE(Field1=1(2).Field120=1(0))');
-        Observer.Observe('filters', RecRef.GetFilters());
-        Observer.Observe('count', Format(RecRef.Count()));
-        Observer.Observe('view', RecRef.GetView(false));
+        asserterror RecRef.SetView('VERSION(1) SORTING(Field1,Field3) WHERE(Field1=1(2).Field120=1(0))');
+        Observer.ObserveError('setview');
+        Observer.Observe('filters after', RecRef.GetFilters());
         RecRef.Close();
-        Observer.Finish();
+        Observer.Expect('setview|text', 'Invalid expression of type: table view.\VERSION(1) SORTING(Field1,Field3) WHERE(Field1=1(2).Field120=1(0))');
+        Observer.Expect('setview|code', 'DB:Ok');
+        Observer.Expect('filters after', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -160,6 +185,9 @@ codeunit 95626 "LT R6969 SetView Dot"
         Observer.Observe('view true', Head.GetView(true));
         Again.SetView(Head.GetView(false));
         Observer.Observe('round trip filters', Again.GetFilters());
-        Observer.Finish();
+        Observer.Expect('view false', 'VERSION(1) SORTING(Field1,Field3) WHERE(Field1=1(2),Field120=1(0))');
+        Observer.Expect('view true', 'VERSION(1) SORTING(Document Type,No.) WHERE(Document Type=FILTER(Invoice),Status=FILTER(Open))');
+        Observer.Expect('round trip filters', 'Document Type: Invoice, Status: Open');
+        Observer.Verify();
     end;
 }

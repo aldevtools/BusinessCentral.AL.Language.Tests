@@ -5,6 +5,11 @@
 //   a Count, a Lookup and an Exist over the same table (a head whose parent head exists). Which rows go, does OnDelete run per row, and are
 //   the rows chosen before the first delete (the self-referencing Exist: deleting a parent would make its child match the filter).
 //   Also a temporary record (its FlowFields are calculated from the real tables) and RecordRef.DeleteAll.
+// Result (BC 29.0, corpus CI): a FlowField filter is applied to DeleteAll as to FindSet (Exist, Sum with a FlowFilter, Count, Lookup with
+//   '<>' matching a blank lookup). DeleteAll() runs no OnDelete and takes the rows chosen before the first delete (the self-referencing
+//   Exist deletes heads 1 and 5 only). DeleteAll(true) runs OnDelete per row in the key order (descending with Ascending(false)) and
+//   tests each row against the filters when it reaches it, after the earlier deletes: the self-referencing Exist = false deletes the whole
+//   chain 1..5; Exist = true deletes 2 and 4 (head 3 lost its parent when head 2 went). A temporary record calculates from the real tables.
 // BC versions: 27, 28, 29
 
 table 95620 "LT R6961 Head"
@@ -217,7 +222,12 @@ codeunit 95623 "LT R6961 DeleteAll FlowFilter"
         Observer.Observe('lines', LineCount());
         Observer.Observe('log', Log.Dump());
         Observer.Observe('filters after', Head.GetFilters());
-        Observer.Finish();
+        Observer.Expect('count before', '2');
+        Observer.Expect('heads', '1,3,');
+        Observer.Expect('lines', '3');
+        Observer.Expect('log', '');
+        Observer.Expect('filters after', 'HasLines: No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -232,7 +242,9 @@ codeunit 95623 "LT R6961 DeleteAll FlowFilter"
         Head.DeleteAll(true);
         Observer.Observe('heads', Heads());
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('heads', '1,3,');
+        Observer.Expect('log', 'del 2;del 4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -249,7 +261,10 @@ codeunit 95623 "LT R6961 DeleteAll FlowFilter"
         Observer.Observe('heads', Heads());
         Observer.Observe('lines', LineCount());
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('heads', '2,4,');
+        Observer.Expect('lines', '3');
+        Observer.Expect('log', 'del 3;del 1;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -264,7 +279,9 @@ codeunit 95623 "LT R6961 DeleteAll FlowFilter"
         Head.DeleteAll(true);
         Observer.Observe('heads', Heads());
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('heads', '1,2,4,');
+        Observer.Expect('log', 'del 3;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -281,7 +298,9 @@ codeunit 95623 "LT R6961 DeleteAll FlowFilter"
         Head.DeleteAll();
         Observer.Observe('heads', Heads());
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('heads', '2,3,4,');
+        Observer.Expect('log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -298,7 +317,9 @@ codeunit 95623 "LT R6961 DeleteAll FlowFilter"
         Head.DeleteAll(true);
         Observer.Observe('heads', Heads());
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('heads', '1,2,4,');
+        Observer.Expect('log', 'del 3;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -314,7 +335,9 @@ codeunit 95623 "LT R6961 DeleteAll FlowFilter"
         Head.DeleteAll(true);
         Observer.Observe('heads', Heads());
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('heads', '3,');
+        Observer.Expect('log', 'del 1;del 2;del 4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -329,7 +352,9 @@ codeunit 95623 "LT R6961 DeleteAll FlowFilter"
         Head.DeleteAll(true);
         Observer.Observe('heads', Heads());
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('heads', '1,2,3,4,');
+        Observer.Expect('log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -346,7 +371,10 @@ codeunit 95623 "LT R6961 DeleteAll FlowFilter"
         Head.DeleteAll();
         Observer.Observe('heads', Heads());
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('count before', '2');
+        Observer.Expect('heads', '2,3,4,');
+        Observer.Expect('log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -361,23 +389,27 @@ codeunit 95623 "LT R6961 DeleteAll FlowFilter"
         Head.DeleteAll(true);
         Observer.Observe('heads', Heads());
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('heads', '');
+        Observer.Expect('log', 'del 1;del 2;del 3;del 4;del 5;');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure DeleteAll_SelfReferenceExistTrue_Descending_RunTrigger()
+    procedure DeleteAll_SelfReferenceExistTrue_RunTrigger()
     var
         Observer: Codeunit "Probe Observer";
         Head: Record "LT R6961 Head";
         Log: Record "LT R6961 Log";
     begin
         SeedChain();
-        // Heads 2, 3 and 4 have a parent row. Descending, head 4 goes first; ascending, deleting head 2 would make head 3 lose its parent.
+        // Heads 2, 3 and 4 have a parent row. Deleting head 2 first leaves head 3 without its parent.
         Head.SetRange(ParentExists, true);
         Head.DeleteAll(true);
         Observer.Observe('heads', Heads());
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('heads', '1,3,5,');
+        Observer.Expect('log', 'del 2;del 4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -405,7 +437,10 @@ codeunit 95623 "LT R6961 DeleteAll FlowFilter"
         Observer.Observe('temp heads', Result);
         Observer.Observe('real heads', Heads());
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('temp heads', '1,3,');
+        Observer.Expect('real heads', '1,2,3,4,');
+        Observer.Expect('log', 'del 2;del 4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -424,6 +459,8 @@ codeunit 95623 "LT R6961 DeleteAll FlowFilter"
         RecRef.Close();
         Observer.Observe('heads', Heads());
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('heads', '1,3,');
+        Observer.Expect('log', 'del 2;del 4;');
+        Observer.Verify();
     end;
 }

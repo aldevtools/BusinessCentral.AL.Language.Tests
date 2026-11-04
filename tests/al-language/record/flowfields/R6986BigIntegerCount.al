@@ -4,6 +4,8 @@
 // Probe (al-runner issue 6986): a FlowField of type BigInteger with CalcFormula = count(...), next to the Integer count (a Decimal one
 //   does not compile: AL0202, must-not-compile case 2970). Does it publish, what does CalcFields give (value, and the type a Variant reports), with a const filter, a FlowFilter, no rows,
 //   SetAutoCalcFields, a filter on the BigInteger FlowField itself, and through FieldRef.CalcField. Each CalcFields runs in a TryFunction.
+// Result (BC 29.0, corpus CI): a BigInteger count FlowField publishes and CalcFields gives the number of rows as a BigInteger (Variant
+//   IsBigInteger, FieldRef.Type BigInteger), with a const filter, a FlowFilter, no row (0), SetAutoCalcFields and a filter on the FlowField.
 // BC versions: 27, 28, 29
 
 table 95633 "LT R6986 Doc Type"
@@ -153,7 +155,10 @@ codeunit 95635 "LT R6986 BigInteger Count"
         Observer.Observe('T1', Calc('T1'));
         Observer.Observe('T2', Calc('T2'));
         Observer.Observe('T3', Calc('T3'));
-        Observer.Finish();
+        Observer.Expect('T1', 'ToArchive=2 AllBig=3 AllInt=3');
+        Observer.Expect('T2', 'ToArchive=0 AllBig=0 AllInt=0');
+        Observer.Expect('T3', 'ToArchive=2 AllBig=2 AllInt=2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -168,7 +173,10 @@ codeunit 95635 "LT R6986 BigInteger Count"
         Observer.Observe('ToArchive', TypeOf(DocType.ToArchive));
         Observer.Observe('AllBig', TypeOf(DocType.AllBig));
         Observer.Observe('AllInt', TypeOf(DocType.AllInt));
-        Observer.Finish();
+        Observer.Expect('ToArchive', 'BigInteger');
+        Observer.Expect('AllBig', 'BigInteger');
+        Observer.Expect('AllInt', 'Integer');
+        Observer.Verify();
     end;
 
     [Test]
@@ -186,7 +194,10 @@ codeunit 95635 "LT R6986 BigInteger Count"
         DocType.SetRange(CreatedFilter);
         Observer.Observe('no filter', Format(TryCalcByFilter(DocType)) + ' ' + Format(DocType.ByFilterBig));
         ClearLastError();
-        Observer.Finish();
+        Observer.Expect('created', 'Yes 1');
+        Observer.Expect('not created', 'Yes 2');
+        Observer.Expect('no filter', 'Yes 3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -203,7 +214,8 @@ codeunit 95635 "LT R6986 BigInteger Count"
                 Result += DocType."No." + '=' + Format(DocType.ToArchive) + '/' + Format(DocType.AllBig) + ';';
             until DocType.Next() = 0;
         Observer.Observe('rows', Result);
-        Observer.Finish();
+        Observer.Expect('rows', 'T1=2/3;T2=0/0;T3=2/2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -223,7 +235,10 @@ codeunit 95635 "LT R6986 BigInteger Count"
         Observer.Observe('rows', Result);
         DocType.SetRange(ToArchive, 0);
         Observer.Observe('zero count', Format(DocType.Count()));
-        Observer.Finish();
+        Observer.Expect('count', '2');
+        Observer.Expect('rows', 'T1;T3;');
+        Observer.Expect('zero count', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -242,6 +257,9 @@ codeunit 95635 "LT R6986 BigInteger Count"
         Observer.Observe('type', Format(FldRef.Type));
         Observer.Observe('class', Format(FldRef.Class));
         Observer.Observe('value', Format(FldRef.Value));
-        Observer.Finish();
+        Observer.Expect('type', 'BigInteger');
+        Observer.Expect('class', 'FlowField');
+        Observer.Expect('value', '2');
+        Observer.Verify();
     end;
 }
