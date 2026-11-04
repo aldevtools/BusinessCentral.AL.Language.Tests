@@ -5,19 +5,6 @@
 // Facts: GoToKey to the last row and back to row 2 on a list of exactly 41, 60 and 61 rows: reads per trigger (counts, run-length forms of the rows read, first and last 12 entries); page A has only OnAfterGetCurrRecord, page B has OnAfterGetRecord and OnAfterGetCurrRecord
 // BC versions: 29 (27 and 28 by CI)
 
-table 72727 "LT ListRows Window Row"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 // SingleInstance log of this file; entries are a kind (G = OnAfterGetRecord, C = OnAfterGetCurrRecord, F = OnFindRecord, N = OnNextRecord, A = action) and the row id.
 codeunit 72728 "LT ListRows Window Log"
 {
@@ -133,7 +120,7 @@ codeunit 72728 "LT ListRows Window Log"
 page 72729 "LT ListRows Window A"
 {
     PageType = List;
-    SourceTable = "LT ListRows Window Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -161,7 +148,7 @@ page 72729 "LT ListRows Window A"
 page 72730 "LT ListRows Window B"
 {
     PageType = List;
-    SourceTable = "LT ListRows Window Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -198,7 +185,7 @@ codeunit 72731 "LT ListRows Window"
 
     local procedure Seed(Rows: Integer)
     var
-        Row: Record "LT ListRows Window Row";
+        Row: Record "ALT Shape 01";
         Log: Codeunit "LT ListRows Window Log";
         i: Integer;
     begin

@@ -11,7 +11,7 @@
 page 60466 "TPRL Head Card"
 {
     PageType = Card;
-    SourceTable = "TPRL Head";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
     UsageCategory = Administration;
 

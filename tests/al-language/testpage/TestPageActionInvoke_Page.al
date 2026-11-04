@@ -8,7 +8,7 @@
 page 60683 "Test Page Action List"
 {
     PageType = List;
-    SourceTable = "Test Page Action Row";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
     UsageCategory = Lists;
 
@@ -41,7 +41,7 @@ page 60683 "Test Page Action List"
 
                 trigger OnAction()
                 var
-                    Stamp: Record "Test Page Action Row";
+                    Stamp: Record "ALT Shape 02";
                 begin
                     if not Stamp.Get('STAMP') then begin
                         Stamp.Init();
@@ -62,7 +62,7 @@ page 60683 "Test Page Action List"
 
                 trigger OnAction()
                 var
-                    Stamp: Record "Test Page Action Row";
+                    Stamp: Record "ALT Shape 02";
                 begin
                     Stamp.Init();
                     Stamp."No." := 'OTHER';

@@ -12,7 +12,7 @@
 page 60418 "TPMF Card"
 {
     PageType = Card;
-    SourceTable = "TPMF Head";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
     Caption = 'TPMF Card';
 

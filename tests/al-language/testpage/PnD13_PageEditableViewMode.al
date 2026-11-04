@@ -6,22 +6,6 @@
 // Facts: Editable of the TestPage and of its field for a page with the property Editable = false given Editable(true) before RunModal, the same page not touched, an editable page given Editable(false), and CurrPage.Editable read in OnInit and OnOpenPage of each
 // BC versions: 29 (27 and 28 by CI)
 
-table 72061 "LT PnD Ed Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 codeunit 72059 "LT PnD Ed Holder"
 {
     SingleInstance = true;
@@ -53,7 +37,7 @@ codeunit 72059 "LT PnD Ed Holder"
 page 72062 "LT PnD Ed ReadOnly"
 {
     PageType = Card;
-    SourceTable = "LT PnD Ed Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
     Editable = false;
@@ -87,7 +71,7 @@ page 72062 "LT PnD Ed ReadOnly"
 page 72063 "LT PnD Ed Editable"
 {
     PageType = Card;
-    SourceTable = "LT PnD Ed Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -122,7 +106,7 @@ codeunit 72064 "LT PnD Page Editable"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    local procedure Seed(var Row: Record "LT PnD Ed Row")
+    local procedure Seed(var Row: Record "ALT Shape 01")
     begin
         Row.DeleteAll();
         Row.Id := 1;
@@ -154,7 +138,7 @@ codeunit 72064 "LT PnD Page Editable"
     var
         Observer: Codeunit "Probe Observer";
         Holder: Codeunit "LT PnD Ed Holder";
-        Row: Record "LT PnD Ed Row";
+        Row: Record "ALT Shape 01";
         Pg: Page "LT PnD Ed ReadOnly";
     begin
         Seed(Row);
@@ -180,7 +164,7 @@ codeunit 72064 "LT PnD Page Editable"
     var
         Observer: Codeunit "Probe Observer";
         Holder: Codeunit "LT PnD Ed Holder";
-        Row: Record "LT PnD Ed Row";
+        Row: Record "ALT Shape 01";
         Pg: Page "LT PnD Ed ReadOnly";
     begin
         Seed(Row);
@@ -207,7 +191,7 @@ codeunit 72064 "LT PnD Page Editable"
     var
         Observer: Codeunit "Probe Observer";
         Holder: Codeunit "LT PnD Ed Holder";
-        Row: Record "LT PnD Ed Row";
+        Row: Record "ALT Shape 01";
         Pg: Page "LT PnD Ed Editable";
     begin
         Seed(Row);
@@ -233,7 +217,7 @@ codeunit 72064 "LT PnD Page Editable"
     var
         Observer: Codeunit "Probe Observer";
         Holder: Codeunit "LT PnD Ed Holder";
-        Row: Record "LT PnD Ed Row";
+        Row: Record "ALT Shape 01";
         Pg: Page "LT PnD Ed Editable";
     begin
         Seed(Row);
@@ -258,7 +242,7 @@ codeunit 72064 "LT PnD Page Editable"
     var
         Observer: Codeunit "Probe Observer";
         Holder: Codeunit "LT PnD Ed Holder";
-        Row: Record "LT PnD Ed Row";
+        Row: Record "ALT Shape 01";
         Pg: Page "LT PnD Ed ReadOnly";
     begin
         Seed(Row);

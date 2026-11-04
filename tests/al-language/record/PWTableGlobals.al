@@ -46,10 +46,10 @@ table 69700 "PW TG Row"
 
     procedure LogLine(T: Text)
     var
-        LogRec: Record "PW TG Log";
+        LogRec: Record "ALT Shape 17";
     begin
         LogRec.Init();
-        LogRec.Line := CopyStr(T, 1, MaxStrLen(LogRec.Line));
+        LogRec.Txt := CopyStr(T, 1, MaxStrLen(LogRec.Txt));
         LogRec.Insert();
     end;
 
@@ -85,22 +85,6 @@ table 69700 "PW TG Row"
     begin
         xRec.SetCounter(N);
     end;
-}
-
-table 69701 "PW TG Log"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { AutoIncrement = true; }
-        field(2; Line; Text[250]) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
 }
 
 page 69702 "PW TG Card"
@@ -156,7 +140,7 @@ codeunit 69703 "PW Table Globals Probe"
     local procedure Initialize()
     var
         Row: Record "PW TG Row";
-        LogRec: Record "PW TG Log";
+        LogRec: Record "ALT Shape 17";
     begin
         Row.DeleteAll(false);
         LogRec.DeleteAll(false);
@@ -164,19 +148,19 @@ codeunit 69703 "PW Table Globals Probe"
 
     local procedure ClearLog()
     var
-        LogRec: Record "PW TG Log";
+        LogRec: Record "ALT Shape 17";
     begin
         LogRec.DeleteAll(false);
     end;
 
     local procedure LogText(): Text
     var
-        LogRec: Record "PW TG Log";
+        LogRec: Record "ALT Shape 17";
         Result: Text;
     begin
         if LogRec.FindSet() then
             repeat
-                Result += LogRec.Line + ' ; ';
+                Result += LogRec.Txt + ' ; ';
             until LogRec.Next() = 0;
         exit(Result);
     end;

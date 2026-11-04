@@ -50,7 +50,7 @@
 //     the answer precise. Two rows are typed: the first is committed when New() moves off it,
 //     the second is still being edited when Cancel is pressed. 2 means Cancel saves everything,
 //     1 that it drops only what is pending, 0 that it rolls the part back. BC answers 2.
-//     The handler also records what it saw right after the second New(), in "PCN Probe" (60536),
+//     The handler also records what it saw right after the second New(), in "ALT Shape 26" (60536),
 //     because a 0 would have had a second cause -- New() never committed the first row either --
 //     which the count alone cannot separate from a rollback. That probe assertion passed on all
 //     eight legs, so the 2 is "Cancel kept both" and not "nothing was ever committed".
@@ -76,7 +76,7 @@ codeunit 60535 "PCN Tests"
     local procedure Initialize(var Header: Record "PCN Header")
     var
         Line: Record "PCN Line";
-        Probe: Record "PCN Probe";
+        Probe: Record "ALT Shape 26";
     begin
         Line.DeleteAll();
         Header.DeleteAll();
@@ -107,7 +107,7 @@ codeunit 60535 "PCN Tests"
 
     local procedure RecordProbe(HeaderCode: Code[20])
     var
-        Probe: Record "PCN Probe";
+        Probe: Record "ALT Shape 26";
         Line: Record "PCN Line";
     begin
         Line.SetRange("Header Code", HeaderCode);
@@ -117,7 +117,7 @@ codeunit 60535 "PCN Tests"
             Probe."No." := 'AFTER-SECOND-NEW';
             Probe.Insert();
         end;
-        Probe."Line Count" := Line.Count();
+        Probe.Qty := Line.Count();
         Probe.Modify();
     end;
 
@@ -240,7 +240,7 @@ codeunit 60535 "PCN Tests"
     procedure CancelInvoke_OnAStandardDialog_KeepsBothTheCommittedAndThePendingPartRow()
     var
         Header: Record "PCN Header";
-        Probe: Record "PCN Probe";
+        Probe: Record "ALT Shape 26";
         Dialog: Page "PCN Dialog";
     begin
         Initialize(Header);
@@ -250,7 +250,7 @@ codeunit 60535 "PCN Tests"
 
         Assert.IsTrue(Probe.Get('AFTER-SECOND-NEW'),
             'The handler must have recorded what it saw after the second New().');
-        Assert.AreEqual(1, Probe."Line Count",
+        Assert.AreEqual(1, Probe.Qty,
             'Moving to a second row with New() must have committed the first one, so a count below is a statement about Cancel and not about a row that was never written.');
         Assert.AreEqual(2, CountLines('H1'),
             'Cancel keeps the part row New() had committed AND writes the one still being edited: it saves everything.');

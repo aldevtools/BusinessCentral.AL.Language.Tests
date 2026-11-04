@@ -20,19 +20,6 @@ table 70113 "LT PnA SF P"
     }
 }
 
-table 70114 "LT PnA SF C"
-{
-    fields
-    {
-        field(1; Entry; Integer) { }
-        field(2; PRef; Code[10]) { TableRelation = "LT PnA SF P".Code; }
-    }
-    keys
-    {
-        key(PK; Entry) { Clustered = true; }
-    }
-}
-
 codeunit 70115 "LT PnA SF Tests"
 {
     Subtype = Test;
@@ -173,7 +160,7 @@ codeunit 70115 "LT PnA SF Tests"
     var
         Observer: Codeunit "Probe Observer";
         P: Record "LT PnA SF P";
-        C: Record "LT PnA SF C";
+        C: Record "ALT Shape 15";
         PAt: DateTime;
         CAt: DateTime;
         CCreated: DateTime;
@@ -183,11 +170,11 @@ codeunit 70115 "LT PnA SF Tests"
         C.DeleteAll();
         P.Code := 'A';
         P.Insert();
-        C.Entry := 1;
-        C.PRef := 'A';
+        C.Id := 1;
+        C.Grp := 'A';
         C.Insert();
-        C.Entry := 2;
-        C.PRef := 'Z';
+        C.Id := 2;
+        C.Grp := 'Z';
         C.Insert();
         P.Get('A');
         PAt := P.SystemModifiedAt;
@@ -201,11 +188,11 @@ codeunit 70115 "LT PnA SF Tests"
         Observer.Observe('renamed-row-systemid-same', Format(P.SystemId = PId));
         Observer.Observe('renamed-row-restamped', Format(P.SystemModifiedAt > PAt));
         C.Get(1);
-        Observer.Observe('child-propagated', C.PRef);
+        Observer.Observe('child-propagated', C.Grp);
         Observer.Observe('child-restamped', Format(C.SystemModifiedAt > CAt));
         Observer.Observe('child-createdat-same', Format(C.SystemCreatedAt = CCreated));
         C.Get(2);
-        Observer.Observe('unrelated-child-untouched', C.PRef);
+        Observer.Observe('unrelated-child-untouched', C.Grp);
         Observer.Observe('unrelated-child-stamp-untouched', Format(C.SystemModifiedAt = C.SystemCreatedAt));
         P.DeleteAll();
         C.DeleteAll();

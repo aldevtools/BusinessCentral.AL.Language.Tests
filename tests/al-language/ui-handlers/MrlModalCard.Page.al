@@ -7,7 +7,7 @@
 page 60402 "MRL Modal Card"
 {
     PageType = Card;
-    SourceTable = "MRL Row";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
 
     layout

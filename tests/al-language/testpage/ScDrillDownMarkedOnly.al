@@ -14,24 +14,10 @@
 //   area the page also lists only row 10 after the drilldown, and GoToRecord on row 20 returns false.
 // BC versions: all (CI)
 
-table 89010 "LT SC Operation"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; "Operation No."; Code[10]) { }
-    }
-    keys
-    {
-        key(PK; "Operation No.") { }
-    }
-}
-
 page 89011 "LT SC Operations Both"
 {
     PageType = Worksheet;
-    SourceTable = "LT SC Operation";
+    SourceTable = "ALT Shape 07";
     ApplicationArea = All;
     UsageCategory = None;
     InsertAllowed = false;
@@ -61,7 +47,7 @@ page 89011 "LT SC Operations Both"
             }
             repeater(Lines)
             {
-                field("Operation No."; Rec."Operation No.") { ApplicationArea = All; }
+                field("Operation No."; Rec.Code) { ApplicationArea = All; }
             }
         }
     }
@@ -81,7 +67,7 @@ page 89011 "LT SC Operations Both"
 page 89012 "LT SC Operations None"
 {
     PageType = Worksheet;
-    SourceTable = "LT SC Operation";
+    SourceTable = "ALT Shape 07";
     ApplicationArea = All;
     UsageCategory = None;
     InsertAllowed = false;
@@ -111,7 +97,7 @@ page 89012 "LT SC Operations None"
             }
             repeater(Lines)
             {
-                field("Operation No."; Rec."Operation No.") { ApplicationArea = All; }
+                field("Operation No."; Rec.Code) { ApplicationArea = All; }
             }
         }
     }
@@ -123,7 +109,7 @@ page 89012 "LT SC Operations None"
 page 89013 "LT SC Operations AGR"
 {
     PageType = Worksheet;
-    SourceTable = "LT SC Operation";
+    SourceTable = "ALT Shape 07";
     ApplicationArea = All;
     UsageCategory = None;
     InsertAllowed = false;
@@ -153,7 +139,7 @@ page 89013 "LT SC Operations AGR"
             }
             repeater(Lines)
             {
-                field("Operation No."; Rec."Operation No.") { ApplicationArea = All; }
+                field("Operation No."; Rec.Code) { ApplicationArea = All; }
             }
         }
     }
@@ -169,7 +155,7 @@ page 89013 "LT SC Operations AGR"
 page 89014 "LT SC Operations AGCR"
 {
     PageType = Worksheet;
-    SourceTable = "LT SC Operation";
+    SourceTable = "ALT Shape 07";
     ApplicationArea = All;
     UsageCategory = None;
     InsertAllowed = false;
@@ -199,7 +185,7 @@ page 89014 "LT SC Operations AGCR"
             }
             repeater(Lines)
             {
-                field("Operation No."; Rec."Operation No.") { ApplicationArea = All; }
+                field("Operation No."; Rec.Code) { ApplicationArea = All; }
             }
         }
     }
@@ -215,7 +201,7 @@ page 89014 "LT SC Operations AGCR"
 page 89015 "LT SC Operations No Update"
 {
     PageType = Worksheet;
-    SourceTable = "LT SC Operation";
+    SourceTable = "ALT Shape 07";
     ApplicationArea = All;
     UsageCategory = None;
     InsertAllowed = false;
@@ -244,7 +230,7 @@ page 89015 "LT SC Operations No Update"
             }
             repeater(Lines)
             {
-                field("Operation No."; Rec."Operation No.") { ApplicationArea = All; }
+                field("Operation No."; Rec.Code) { ApplicationArea = All; }
             }
         }
     }
@@ -266,7 +252,7 @@ codeunit 89016 "LT SC Marked DrillDown Tests"
     [Test]
     procedure GoToRecordAfterDrilldownMissesTheUnmarkedRow()
     var
-        Operation20: Record "LT SC Operation";
+        Operation20: Record "ALT Shape 07";
         Operations: TestPage "LT SC Operations Both";
     begin
         Setup();
@@ -301,7 +287,7 @@ codeunit 89016 "LT SC Marked DrillDown Tests"
     [Test]
     procedure ControlWithoutTriggersShowsOnlyTheMarkedRow()
     var
-        Operation20: Record "LT SC Operation";
+        Operation20: Record "ALT Shape 07";
         Operations: TestPage "LT SC Operations None";
         Listed: Text;
     begin
@@ -343,7 +329,7 @@ codeunit 89016 "LT SC Marked DrillDown Tests"
     [Test]
     procedure BothTriggersListAndGoTo()
     var
-        Operation20: Record "LT SC Operation";
+        Operation20: Record "ALT Shape 07";
         Operations: TestPage "LT SC Operations Both";
         Listed: Text;
     begin
@@ -363,7 +349,7 @@ codeunit 89016 "LT SC Marked DrillDown Tests"
     [Test]
     procedure NoTriggersListAndGoTo()
     var
-        Operation20: Record "LT SC Operation";
+        Operation20: Record "ALT Shape 07";
         Operations: TestPage "LT SC Operations None";
         Listed: Text;
     begin
@@ -383,7 +369,7 @@ codeunit 89016 "LT SC Marked DrillDown Tests"
     [Test]
     procedure OnAfterGetRecordOnlyListAndGoTo()
     var
-        Operation20: Record "LT SC Operation";
+        Operation20: Record "ALT Shape 07";
         Operations: TestPage "LT SC Operations AGR";
         Listed: Text;
     begin
@@ -403,7 +389,7 @@ codeunit 89016 "LT SC Marked DrillDown Tests"
     [Test]
     procedure OnAfterGetCurrRecordOnlyListAndGoTo()
     var
-        Operation20: Record "LT SC Operation";
+        Operation20: Record "ALT Shape 07";
         Operations: TestPage "LT SC Operations AGCR";
         Listed: Text;
     begin
@@ -424,7 +410,7 @@ codeunit 89016 "LT SC Marked DrillDown Tests"
     procedure DrilldownWithoutUpdateListAndGoTo()
     // BC: without CurrPage.Update the page keeps listing both rows after MarkedOnly(true) in OnDrillDown.
     var
-        Operation20: Record "LT SC Operation";
+        Operation20: Record "ALT Shape 07";
         Operations: TestPage "LT SC Operations No Update";
         Listed: Text;
     begin
@@ -443,12 +429,12 @@ codeunit 89016 "LT SC Marked DrillDown Tests"
 
     local procedure Setup()
     var
-        Operation: Record "LT SC Operation";
+        Operation: Record "ALT Shape 07";
     begin
         Operation.DeleteAll();
-        Operation."Operation No." := '10';
+        Operation.Code := '10';
         Operation.Insert();
-        Operation."Operation No." := '20';
+        Operation.Code := '20';
         Operation.Insert();
     end;
 

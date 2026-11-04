@@ -25,21 +25,6 @@ table 69353 "PZ Find Row"
     }
 }
 
-table 69354 "PZ Find Empty"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 codeunit 69353 "PZ Find Directions"
 {
     Subtype = Test;
@@ -48,7 +33,7 @@ codeunit 69353 "PZ Find Directions"
     local procedure Seed()
     var
         Row: Record "PZ Find Row";
-        Empty: Record "PZ Find Empty";
+        Empty: Record "ALT Shape 00";
         i: Integer;
     begin
         Row.DeleteAll();
@@ -64,7 +49,7 @@ codeunit 69353 "PZ Find Directions"
     local procedure TryRecordFind(Direction: Text; StartId: Integer; var Found: Boolean; var AfterId: Integer; Empty: Boolean)
     var
         Row: Record "PZ Find Row";
-        EmptyRow: Record "PZ Find Empty";
+        EmptyRow: Record "ALT Shape 00";
     begin
         if Empty then begin
             EmptyRow.Id := StartId;
@@ -83,7 +68,7 @@ codeunit 69353 "PZ Find Directions"
         RecRef: RecordRef;
     begin
         if Empty then
-            RecRef.Open(Database::"PZ Find Empty")
+            RecRef.Open(Database::"ALT Shape 00")
         else
             RecRef.Open(Database::"PZ Find Row");
         RecRef.Field(1).Value := StartId;

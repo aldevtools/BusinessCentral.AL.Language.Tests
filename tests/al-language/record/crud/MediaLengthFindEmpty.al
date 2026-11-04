@@ -34,19 +34,6 @@ table 78102 "LT AD Code Key"
     keys { key(PK; "Code") { Clustered = true; } }
 }
 
-table 78103 "LT AD Int Key"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Note; Text[20]) { }
-    }
-
-    keys { key(PK; Id) { Clustered = true; } }
-}
-
 codeunit 78104 "LT AD Media Find Empty"
 {
     Subtype = Test;
@@ -82,7 +69,7 @@ codeunit 78104 "LT AD Media Find Empty"
     end;
 
     [TryFunction]
-    local procedure TryFindInt(var Rec: Record "LT AD Int Key"; Mode: Text; var Found: Boolean)
+    local procedure TryFindInt(var Rec: Record "ALT Shape 06"; Mode: Text; var Found: Boolean)
     begin
         if Mode = '' then Found := Rec.Find() else Found := Rec.Find(Mode);
     end;
@@ -103,7 +90,7 @@ codeunit 78104 "LT AD Media Find Empty"
 
     local procedure IntCase(var Observer: Codeunit "Probe Observer"; Mode: Text; KeyValue: Integer)
     var
-        Rec: Record "LT AD Int Key";
+        Rec: Record "ALT Shape 06";
         Found: Boolean;
     begin
         Rec.DeleteAll();

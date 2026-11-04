@@ -36,7 +36,7 @@ codeunit 60468 "TPRL Tests"
 
     local procedure Initialize()
     var
-        Head: Record "TPRL Head";
+        Head: Record "ALT Shape 02";
         Line: Record "TPRL Line";
         Log: Record "TPRL Log";
     begin
@@ -59,7 +59,7 @@ codeunit 60468 "TPRL Tests"
 
     local procedure InsertHead(No: Code[20]; Descr: Text[50])
     var
-        Head: Record "TPRL Head";
+        Head: Record "ALT Shape 02";
     begin
         Head.Init();
         Head."No." := No;
@@ -80,7 +80,7 @@ codeunit 60468 "TPRL Tests"
 
     local procedure OpenHeadCardOn(No: Code[20]; var Host: TestPage "TPRL Head Card")
     var
-        Head: Record "TPRL Head";
+        Head: Record "ALT Shape 02";
     begin
         Head.Get(No);
         Host.OpenEdit();

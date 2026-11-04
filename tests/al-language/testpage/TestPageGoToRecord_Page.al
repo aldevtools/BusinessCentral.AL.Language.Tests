@@ -2,13 +2,13 @@
 // Scope: in-scope
 // Fixtures used: Test Page GoToRecord Row (60695), Test Page GoToRecord List (60696)
 //
-// The TestPage under test. A plain list page over "Test Page GoToRecord Row" — GoToRecord's
+// The TestPage under test. A plain list page over "ALT Shape 02" — GoToRecord's
 // job is to move the page's cursor onto the row identified by the record's primary key.
 
 page 60696 "Test Page GoToRecord List"
 {
     PageType = List;
-    SourceTable = "Test Page GoToRecord Row";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
     UsageCategory = Lists;
 

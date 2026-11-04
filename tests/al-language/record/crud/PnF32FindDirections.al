@@ -6,33 +6,20 @@
 // Facts: Find('=<>'), Find('<>='), Find('=><'), Find('><='), Find('<=>') and Find('>=<') on the same record position, with a row only on one side, on the position itself, and on neither side
 // BC versions: 29 (27 and 28 by CI)
 
-table 73936 "LT PnF FD Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-
-    keys { key(PK; Id) { Clustered = true; } }
-}
-
 codeunit 73937 "LT PnF Find Directions"
 {
     Subtype = Test;
     TestPermissions = Disabled;
 
     [TryFunction]
-    local procedure TryFind(var Row: Record "LT PnF FD Row"; Which: Text; var Found: Boolean)
+    local procedure TryFind(var Row: Record "ALT Shape 01"; Which: Text; var Found: Boolean)
     begin
         Found := Row.Find(Which);
     end;
 
     local procedure Probe(Name: Text; KeyValue: Integer; Which: Text; var Observer: Codeunit "Probe Observer")
     var
-        Row: Record "LT PnF FD Row";
+        Row: Record "ALT Shape 01";
         Found: Boolean;
     begin
         Row.Id := KeyValue;
@@ -44,7 +31,7 @@ codeunit 73937 "LT PnF Find Directions"
 
     local procedure SeedGaps()
     var
-        Row: Record "LT PnF FD Row";
+        Row: Record "ALT Shape 01";
     begin
         Row.DeleteAll();
         Row.Id := 10;
@@ -135,7 +122,7 @@ codeunit 73937 "LT PnF Find Directions"
     procedure Find_NoRows()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT PnF FD Row";
+        Row: Record "ALT Shape 01";
     begin
         Row.DeleteAll();
         Probe('eq_gt_lt', 20, '=><', Observer);

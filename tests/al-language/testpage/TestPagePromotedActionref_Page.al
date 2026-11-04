@@ -14,7 +14,7 @@
 page 60765 "TPR List"
 {
     PageType = List;
-    SourceTable = "TPR Row";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
     UsageCategory = Lists;
 
@@ -47,7 +47,7 @@ page 60765 "TPR List"
 
                 trigger OnAction()
                 var
-                    Stamp: Record "TPR Row";
+                    Stamp: Record "ALT Shape 02";
                 begin
                     Stamp.Init();
                     Stamp."No." := 'FLAT';
@@ -67,7 +67,7 @@ page 60765 "TPR List"
 
                     trigger OnAction()
                     var
-                        Stamp: Record "TPR Row";
+                        Stamp: Record "ALT Shape 02";
                     begin
                         Stamp.Init();
                         Stamp."No." := 'GROUPED';
@@ -83,7 +83,7 @@ page 60765 "TPR List"
 
                 trigger OnAction()
                 var
-                    Stamp: Record "TPR Row";
+                    Stamp: Record "ALT Shape 02";
                 begin
                     Stamp.Init();
                     Stamp."No." := 'BASE-VIA-EXT';
@@ -140,7 +140,7 @@ pageextension 60766 "TPR List Ext" extends "TPR List"
 
                 trigger OnAction()
                 var
-                    Stamp: Record "TPR Row";
+                    Stamp: Record "ALT Shape 02";
                 begin
                     Stamp.Init();
                     Stamp."No." := 'EXT';

@@ -5,22 +5,6 @@
 // Both compile. What a TestPage sees: the action still runs, the field still reads and writes, and AssistEdit fails on that field as on a plain one. A TestPage cannot reach a file upload action
 // (AL0132, must-not-compile case 1864). Object ids 86100-86104.
 
-table 86100 "LT DH PgAct Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 codeunit 86101 "LT DH PgAct Log"
 {
     SingleInstance = true;
@@ -46,7 +30,7 @@ codeunit 86101 "LT DH PgAct Log"
 page 86102 "LT DH PgAct Card"
 {
     PageType = Card;
-    SourceTable = "LT DH PgAct Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -114,7 +98,7 @@ codeunit 86104 "LT DH PgAct Tests"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT DH PgAct Log";
-        Row: Record "LT DH PgAct Row";
+        Row: Record "ALT Shape 01";
         Pg: TestPage "LT DH PgAct Card";
     begin
         Row.DeleteAll();
@@ -138,7 +122,7 @@ codeunit 86104 "LT DH PgAct Tests"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT DH PgAct Log";
-        Row: Record "LT DH PgAct Row";
+        Row: Record "ALT Shape 01";
         Pg: TestPage "LT DH PgAct Card";
     begin
         Row.DeleteAll();
@@ -168,7 +152,7 @@ codeunit 86104 "LT DH PgAct Tests"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT DH PgAct Log";
-        Row: Record "LT DH PgAct Row";
+        Row: Record "ALT Shape 01";
         Pg: TestPage "LT DH PgAct Card";
     begin
         Row.DeleteAll();
