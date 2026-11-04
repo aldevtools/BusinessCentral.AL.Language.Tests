@@ -35,7 +35,7 @@ codeunit 60403 "Test Modal Row Load"
 
     local procedure Initialize()
     var
-        Row: Record "MRL Row";
+        Row: Record "ALT Shape 02";
         Probe: Record "MRL Probe";
     begin
         Probe.DeleteAll();
@@ -56,7 +56,7 @@ codeunit 60403 "Test Modal Row Load"
     [HandlerFunctions('MrlModalHandler')]
     procedure ModalPageOnACallerPositionedRow_RaisesOnAfterGetRecordForThatRow()
     var
-        Row: Record "MRL Row";
+        Row: Record "ALT Shape 02";
         Probe: Record "MRL Probe";
     begin
         Initialize();

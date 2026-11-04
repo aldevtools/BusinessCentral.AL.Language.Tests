@@ -17,7 +17,7 @@ codeunit 73667 "LT P131 Hdl PageHandler"
     [PageHandler]
     procedure NavHandler(var NavPage: Page "LT P131 Nav")
     var
-        Rec: Record "LT P131 HRow";
+        Rec: Record "ALT Shape 06";
     begin
         Calls += 'nav;';
         NavPage.GetRecord(Rec);
@@ -30,7 +30,7 @@ codeunit 73667 "LT P131 Hdl PageHandler"
     procedure P131_PageHandler_PageParam_InstanceRun()
     var
         Observer: Codeunit "Probe Observer";
-        Rec: Record "LT P131 HRow";
+        Rec: Record "ALT Shape 06";
         Nav: Page "LT P131 Nav";
     begin
         Rec.DeleteAll();
@@ -53,7 +53,7 @@ codeunit 73667 "LT P131 Hdl PageHandler"
     procedure P131_PageHandler_PageParam_StaticRun()
     var
         Observer: Codeunit "Probe Observer";
-        Rec: Record "LT P131 HRow";
+        Rec: Record "ALT Shape 06";
     begin
         Rec.DeleteAll();
         Rec.Id := 2;

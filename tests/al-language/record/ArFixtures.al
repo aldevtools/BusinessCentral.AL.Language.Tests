@@ -34,21 +34,6 @@ table 79800 "LT AR Row"
     end;
 }
 
-table 79801 "LT AR Other"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Code; Code[10]) { }
-    }
-
-    keys
-    {
-        key(PK; Code) { Clustered = true; }
-    }
-}
-
 // FlowFilter FltA is declared before the FlowField Cnt, FlowFilter FltB after it, and the FlowField Total after FltB.
 table 79802 "LT AR Fmt"
 {

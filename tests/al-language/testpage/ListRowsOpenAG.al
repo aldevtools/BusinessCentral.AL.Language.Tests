@@ -5,19 +5,6 @@
 // Facts: reads at open of a 5-row and a 30-row list by trigger: only OnAfterGetRecord, only OnAfterGetCurrRecord, both (counts, run-length forms, first and last 12 entries, current row after open)
 // BC versions: 29 (27 and 28 by CI)
 
-table 72732 "LT ListRows OpenAG Row"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 // SingleInstance log of this file; entries are a kind (G = OnAfterGetRecord, C = OnAfterGetCurrRecord, F = OnFindRecord, N = OnNextRecord, A = action) and the row id.
 codeunit 72733 "LT ListRows OpenAG Log"
 {
@@ -133,7 +120,7 @@ codeunit 72733 "LT ListRows OpenAG Log"
 page 72734 "LT ListRows OpenAG Rec"
 {
     PageType = List;
-    SourceTable = "LT ListRows OpenAG Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -161,7 +148,7 @@ page 72734 "LT ListRows OpenAG Rec"
 page 72735 "LT ListRows OpenAG Curr"
 {
     PageType = List;
-    SourceTable = "LT ListRows OpenAG Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -189,7 +176,7 @@ page 72735 "LT ListRows OpenAG Curr"
 page 72736 "LT ListRows OpenAG Both"
 {
     PageType = List;
-    SourceTable = "LT ListRows OpenAG Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -226,7 +213,7 @@ codeunit 72737 "LT ListRows OpenAG"
 
     local procedure Seed(Rows: Integer)
     var
-        Row: Record "LT ListRows OpenAG Row";
+        Row: Record "ALT Shape 01";
         Log: Codeunit "LT ListRows OpenAG Log";
         i: Integer;
     begin

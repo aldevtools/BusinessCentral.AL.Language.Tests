@@ -18,14 +18,14 @@ codeunit 60729 "TPXP Action Invoke Tests"
 
     local procedure Initialize()
     var
-        Row: Record "TPXP Row";
+        Row: Record "ALT Shape 02";
     begin
         Row.DeleteAll();
     end;
 
     local procedure SeedRows()
     var
-        Row: Record "TPXP Row";
+        Row: Record "ALT Shape 02";
     begin
         Row.Init();
         Row."No." := 'A';
@@ -43,7 +43,7 @@ codeunit 60729 "TPXP Action Invoke Tests"
     [Test]
     procedure ExtActionWithPartInvokeRunsTheOnActionTrigger()
     var
-        Row: Record "TPXP Row";
+        Row: Record "ALT Shape 02";
         TpxpList: TestPage "TPXP List";
     begin
         Initialize();
@@ -63,7 +63,7 @@ codeunit 60729 "TPXP Action Invoke Tests"
     [Test]
     procedure ExtActionWithPartInvokeRunsTheSpacedActionTrigger()
     var
-        Row: Record "TPXP Row";
+        Row: Record "ALT Shape 02";
         TpxpList: TestPage "TPXP List";
     begin
         Initialize();
@@ -83,7 +83,7 @@ codeunit 60729 "TPXP Action Invoke Tests"
     [Test]
     procedure ExtActionWithPartInvokeRunsAgainstThePagesCurrentRow()
     var
-        Row: Record "TPXP Row";
+        Row: Record "ALT Shape 02";
         TpxpList: TestPage "TPXP List";
     begin
         Initialize();
@@ -105,7 +105,7 @@ codeunit 60729 "TPXP Action Invoke Tests"
     [Test]
     procedure ExtActionWithPartInvokeRunsOnlyItsOwnTrigger()
     var
-        Row: Record "TPXP Row";
+        Row: Record "ALT Shape 02";
         TpxpList: TestPage "TPXP List";
     begin
         Initialize();

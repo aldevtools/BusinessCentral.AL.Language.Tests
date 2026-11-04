@@ -33,7 +33,7 @@ codeunit 60488 "POI Tests"
 
     local procedure Initialize()
     var
-        Row: Record "POI Row";
+        Row: Record "ALT Shape 26";
     begin
         Row.DeleteAll();
         SeenTrace := '?';
@@ -44,10 +44,10 @@ codeunit 60488 "POI Tests"
 
     local procedure HitsOf(No: Code[20]): Integer
     var
-        Row: Record "POI Row";
+        Row: Record "ALT Shape 26";
     begin
         if Row.Get(No) then
-            exit(Row.Hits);
+            exit(Row.Qty);
         exit(0);
     end;
 

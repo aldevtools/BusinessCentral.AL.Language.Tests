@@ -30,37 +30,6 @@
 /// Create-mode open). The corpus read BelowxRec nowhere.
 /// </summary>
 
-table 67030 "ARPX Row"
-{
-    DataClassification = CustomerContent;
-
-    fields
-    {
-        field(1; "No."; Code[20]) { }
-        field(2; Name; Text[50]) { }
-    }
-
-    keys
-    {
-        key(PK; "No.") { Clustered = true; }
-    }
-}
-
-table 67031 "ARPX Host Row"
-{
-    DataClassification = CustomerContent;
-
-    fields
-    {
-        field(1; Code; Code[20]) { }
-    }
-
-    keys
-    {
-        key(PK; Code) { Clustered = true; }
-    }
-}
-
 codeunit 67032 "ARPX Probe"
 {
     SingleInstance = true;
@@ -94,7 +63,7 @@ codeunit 67032 "ARPX Probe"
 page 67033 "ARPX Card"
 {
     PageType = Card;
-    SourceTable = "ARPX Row";
+    SourceTable = "ALT Shape 04";
     ApplicationArea = All;
     Caption = 'ARPX Card';
 
@@ -125,7 +94,7 @@ page 67033 "ARPX Card"
 page 67034 "ARPX Dialog"
 {
     PageType = StandardDialog;
-    SourceTable = "ARPX Row";
+    SourceTable = "ALT Shape 04";
     ApplicationArea = All;
     Caption = 'ARPX Dialog';
 
@@ -156,7 +125,7 @@ page 67034 "ARPX Dialog"
 page 67035 "ARPX Host"
 {
     PageType = Card;
-    SourceTable = "ARPX Host Row";
+    SourceTable = "ALT Shape 09";
     ApplicationArea = All;
     Caption = 'ARPX Host';
 
@@ -201,8 +170,8 @@ codeunit 67036 "ARPX Tests"
 
     local procedure Seed(WithRows: Boolean)
     var
-        Row: Record "ARPX Row";
-        HostRow: Record "ARPX Host Row";
+        Row: Record "ALT Shape 04";
+        HostRow: Record "ALT Shape 09";
         Probe: Codeunit "ARPX Probe";
     begin
         Probe.Reset();
@@ -218,7 +187,7 @@ codeunit 67036 "ARPX Tests"
 
     local procedure AddRow(No: Code[20]; NewName: Text[50])
     var
-        Row: Record "ARPX Row";
+        Row: Record "ALT Shape 04";
     begin
         Row.Init();
         Row."No." := No;

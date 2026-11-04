@@ -25,14 +25,14 @@ codeunit 60684 "Test Page Action Invoke Tests"
 
     local procedure Initialize()
     var
-        Row: Record "Test Page Action Row";
+        Row: Record "ALT Shape 02";
     begin
         Row.DeleteAll();
     end;
 
     local procedure SeedRows()
     var
-        Row: Record "Test Page Action Row";
+        Row: Record "ALT Shape 02";
     begin
         Row.Init();
         Row."No." := 'A';
@@ -49,7 +49,7 @@ codeunit 60684 "Test Page Action Invoke Tests"
     [Test]
     procedure ActionInvokeRunsTheOnActionTrigger()
     var
-        Row: Record "Test Page Action Row";
+        Row: Record "ALT Shape 02";
         TpaList: TestPage "Test Page Action List";
     begin
         Initialize();
@@ -69,7 +69,7 @@ codeunit 60684 "Test Page Action Invoke Tests"
     [Test]
     procedure ActionInvokeRunsAgainstThePagesCurrentRow()
     var
-        Row: Record "Test Page Action Row";
+        Row: Record "ALT Shape 02";
         TpaList: TestPage "Test Page Action List";
     begin
         Initialize();
@@ -106,7 +106,7 @@ codeunit 60684 "Test Page Action Invoke Tests"
     [Test]
     procedure ActionInvokeRunsOnlyTheInvokedActionsTrigger()
     var
-        Row: Record "Test Page Action Row";
+        Row: Record "ALT Shape 02";
         TpaList: TestPage "Test Page Action List";
     begin
         Initialize();

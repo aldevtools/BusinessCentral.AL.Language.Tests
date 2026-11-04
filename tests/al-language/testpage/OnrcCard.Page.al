@@ -3,7 +3,7 @@
 page 60357 "ONRC Card"
 {
     PageType = Card;
-    SourceTable = "ONRC Header";
+    SourceTable = "ALT Shape 02";
     ApplicationArea = All;
     UsageCategory = Administration;
 

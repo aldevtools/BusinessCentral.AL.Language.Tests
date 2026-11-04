@@ -22,28 +22,12 @@ table 88900 "LT RZ Line"
     }
 }
 
-table 88901 "LT RZ Log"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Txt; Text[100]) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 codeunit 88902 "LT RZ Log Mgt"
 {
     // The mode of the demand worksheet lives in the row with Id = -1 (a TestPage cannot call a page procedure before it opens).
     procedure SetMode(NewMode: Integer)
     var
-        Log: Record "LT RZ Log";
+        Log: Record "ALT Shape 13";
     begin
         if Log.Get(-1) then
             Log.Delete();
@@ -55,7 +39,7 @@ codeunit 88902 "LT RZ Log Mgt"
 
     procedure GetMode() Mode: Integer
     var
-        Log: Record "LT RZ Log";
+        Log: Record "ALT Shape 13";
     begin
         if Log.Get(-1) then
             Evaluate(Mode, Log.Txt);
@@ -63,7 +47,7 @@ codeunit 88902 "LT RZ Log Mgt"
 
     procedure Clear()
     var
-        Log: Record "LT RZ Log";
+        Log: Record "ALT Shape 13";
     begin
         Log.SetFilter(Id, '>0');
         Log.DeleteAll();
@@ -71,7 +55,7 @@ codeunit 88902 "LT RZ Log Mgt"
 
     procedure Add(Value: Text)
     var
-        Log: Record "LT RZ Log";
+        Log: Record "ALT Shape 13";
         NextId: Integer;
     begin
         if Log.FindLast() then
@@ -87,7 +71,7 @@ codeunit 88902 "LT RZ Log Mgt"
     // The log so far, then cleared.
     procedure Take() Result: Text
     var
-        Log: Record "LT RZ Log";
+        Log: Record "ALT Shape 13";
     begin
         Log.SetFilter(Id, '>0');
         if Log.FindSet() then
@@ -494,21 +478,6 @@ codeunit 88908 "LT RZ Demand Runner"
     end;
 }
 
-table 88909 "LT RZ Stock Item"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; "Code"; Code[20]) { }
-    }
-
-    keys
-    {
-        key(PK; "Code") { Clustered = true; }
-    }
-}
-
 table 88910 "LT RZ Stock Entry"
 {
     DataClassification = SystemMetadata;
@@ -531,7 +500,7 @@ table 88910 "LT RZ Stock Entry"
 page 88911 "LT RZ Stock Items"
 {
     PageType = List;
-    SourceTable = "LT RZ Stock Item";
+    SourceTable = "ALT Shape 09";
     ApplicationArea = All;
     UsageCategory = None;
 

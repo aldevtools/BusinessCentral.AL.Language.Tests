@@ -58,7 +58,7 @@ codeunit 60420 "TPMF Tests"
     local procedure Initialize()
     var
         Line: Record "TPMF Line";
-        Head: Record "TPMF Head";
+        Head: Record "ALT Shape 02";
     begin
         Line.DeleteAll();
         Head.DeleteAll();
@@ -66,7 +66,7 @@ codeunit 60420 "TPMF Tests"
 
     local procedure SeedHead(): Code[20]
     var
-        Head: Record "TPMF Head";
+        Head: Record "ALT Shape 02";
     begin
         Head.Init();
         Head."No." := 'H1';
@@ -198,7 +198,7 @@ codeunit 60420 "TPMF Tests"
     [HandlerFunctions('WriteHostThenOkHandler')]
     procedure ModalPartFlush_RunModalHandlerOk_PersistsTheHostRow()
     var
-        Head: Record "TPMF Head";
+        Head: Record "ALT Shape 02";
         Card: Page "TPMF Card";
     begin
         Initialize();

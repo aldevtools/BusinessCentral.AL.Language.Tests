@@ -61,7 +61,7 @@ codeunit 60653 "NRB Tests"
 
     local procedure Initialize()
     var
-        Header: Record "NRB Header";
+        Header: Record "ALT Shape 05";
         Line: Record "NRB Line";
     begin
         Header.DeleteAll();
@@ -74,7 +74,7 @@ codeunit 60653 "NRB Tests"
 
     local procedure OpenCardOn(HeaderNo: Code[20]; var Card: TestPage "NRB Card")
     var
-        Header: Record "NRB Header";
+        Header: Record "ALT Shape 05";
     begin
         Header.Get(HeaderNo);
         Card.OpenEdit();

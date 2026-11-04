@@ -6,25 +6,10 @@
 //        and the "are all subscribers of my codeunit active?" read: filter on Subscriber Codeunit ID and Active = false.
 // BC versions: 27, 28, 29
 
-table 90700 "LT WD Action Item"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; "No."; Code[20]) { }
-    }
-
-    keys
-    {
-        key(PK; "No.") { Clustered = true; }
-    }
-}
-
 page 90701 "LT WD Action Card"
 {
     PageType = Card;
-    SourceTable = "LT WD Action Item";
+    SourceTable = "ALT Shape 05";
     ApplicationArea = All;
     UsageCategory = Administration;
 
@@ -53,7 +38,7 @@ page 90701 "LT WD Action Card"
 codeunit 90702 "LT WD Action Subscribers"
 {
     [EventSubscriber(ObjectType::Page, Page::"LT WD Action Card", OnBeforeActionEvent, 'SendIt', true, true)]
-    local procedure OnBeforeSendIt(var Rec: Record "LT WD Action Item")
+    local procedure OnBeforeSendIt(var Rec: Record "ALT Shape 05")
     begin
     end;
 }

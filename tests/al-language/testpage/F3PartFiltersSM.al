@@ -65,7 +65,7 @@ page 89250 "LT SM F3 Filter Part"
 page 89251 "LT SM F3 Host Filter"
 {
     PageType = Card;
-    SourceTable = "LT F3 Head";
+    SourceTable = "ALT Shape 08";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -87,7 +87,7 @@ page 89251 "LT SM F3 Host Filter"
 page 89252 "LT SM F3 Host NotEqual"
 {
     PageType = Card;
-    SourceTable = "LT F3 Head";
+    SourceTable = "ALT Shape 08";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -109,7 +109,7 @@ page 89252 "LT SM F3 Host NotEqual"
 page 89253 "LT SM F3 Host Const"
 {
     PageType = Card;
-    SourceTable = "LT F3 Head";
+    SourceTable = "ALT Shape 08";
     ApplicationArea = All;
     UsageCategory = None;
 

@@ -32,7 +32,7 @@ codeunit 73666 "LT P131 Hdl Mixed"
     procedure P131_ModalHandlers_TestPageAndPageParameter()
     var
         Observer: Codeunit "Probe Observer";
-        Rec: Record "LT P131 HRow";
+        Rec: Record "ALT Shape 06";
         Card: Page "LT P131 Card";
         List: Page "LT P131 List";
         A1: Action;

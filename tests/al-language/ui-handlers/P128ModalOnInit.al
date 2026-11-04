@@ -7,22 +7,6 @@
 // and the same for a TestPage-typed handler on the same page, and for Page.RunModal with a record.
 // BC versions: 29 (27 and 28 by CI)
 
-table 73148 "LT P128 Modal Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[20]) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 codeunit 73150 "LT P128 Modal Log"
 {
     SingleInstance = true;
@@ -49,7 +33,7 @@ codeunit 73150 "LT P128 Modal Log"
 page 73149 "LT P128 Modal List"
 {
     PageType = List;
-    SourceTable = "LT P128 Modal Row";
+    SourceTable = "ALT Shape 06";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -131,7 +115,7 @@ codeunit 73151 "LT P128 Modal Tests"
 
     local procedure Seed()
     var
-        Row: Record "LT P128 Modal Row";
+        Row: Record "ALT Shape 06";
         Log: Codeunit "LT P128 Modal Log";
     begin
         Row.DeleteAll();
@@ -148,7 +132,7 @@ codeunit 73151 "LT P128 Modal Tests"
     procedure TypedHandler(var P: Page "LT P128 Modal List"; var Response: Action)
     var
         Log: Codeunit "LT P128 Modal Log";
-        Row: Record "LT P128 Modal Row";
+        Row: Record "ALT Shape 06";
     begin
         P.GetRecord(Row);
         Log.Add('typed handler: init=' + Format(P.InitFlag()) + ' open=' + Format(P.OpenFlag()) + ' rec=' + Format(Row.Id) + ' lookup=' + Format(P.LookupMode()));
@@ -179,7 +163,7 @@ codeunit 73151 "LT P128 Modal Tests"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT P128 Modal Log";
-        Row: Record "LT P128 Modal Row";
+        Row: Record "ALT Shape 06";
         Answer: Action;
     begin
         Seed();

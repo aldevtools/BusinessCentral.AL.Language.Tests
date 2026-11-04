@@ -58,14 +58,14 @@ codeunit 60583 "TPAR Tests"
 
     local procedure Initialize()
     var
-        Row: Record "TPAR Row";
+        Row: Record "ALT Shape 02";
     begin
         Row.DeleteAll();
     end;
 
     local procedure SeedOneRow()
     var
-        Row: Record "TPAR Row";
+        Row: Record "ALT Shape 02";
     begin
         Row.Init();
         Row."No." := 'A';
@@ -79,7 +79,7 @@ codeunit 60583 "TPAR Tests"
     [Test]
     procedure TPAR_PlainAction_IsPresentAnswersTrueAndItsTriggerRuns()
     var
-        Row: Record "TPAR Row";
+        Row: Record "ALT Shape 02";
         Host: TestPage "TPAR Host";
     begin
         Initialize();
@@ -102,7 +102,7 @@ codeunit 60583 "TPAR Tests"
     [Test]
     procedure TPAR_ActionDeclaredVisibleFalse_IsHiddenButStillInvokable()
     var
-        Row: Record "TPAR Row";
+        Row: Record "ALT Shape 02";
         Host: TestPage "TPAR Host";
     begin
         Initialize();
@@ -129,7 +129,7 @@ codeunit 60583 "TPAR Tests"
     [Test]
     procedure TPAR_ActionInsideAGroupDeclaredVisibleFalse_IsHiddenButStillInvokable()
     var
-        Row: Record "TPAR Row";
+        Row: Record "ALT Shape 02";
         Host: TestPage "TPAR Host";
     begin
         Initialize();
@@ -154,7 +154,7 @@ codeunit 60583 "TPAR Tests"
     [Test]
     procedure TPAR_ActionWithVisibleBoundToAFalseExpression_IsHiddenButStillInvokable()
     var
-        Row: Record "TPAR Row";
+        Row: Record "ALT Shape 02";
         Host: TestPage "TPAR Host";
     begin
         Initialize();
@@ -177,7 +177,7 @@ codeunit 60583 "TPAR Tests"
     [Test]
     procedure TPAR_InvokingAHiddenAction_LeavesThePageUsable()
     var
-        Row: Record "TPAR Row";
+        Row: Record "ALT Shape 02";
         Host: TestPage "TPAR Host";
     begin
         Initialize();
@@ -220,7 +220,7 @@ codeunit 60583 "TPAR Tests"
     [Test]
     procedure TPAR_ActionDeclaredEnabledFalse_InvokeIsASilentNoOp()
     var
-        Row: Record "TPAR Row";
+        Row: Record "ALT Shape 02";
         Host: TestPage "TPAR Host";
     begin
         Initialize();
@@ -243,7 +243,7 @@ codeunit 60583 "TPAR Tests"
     [Test]
     procedure TPAR_ActionWithEnabledBoundToAFalseExpression_InvokeIsASilentNoOp()
     var
-        Row: Record "TPAR Row";
+        Row: Record "ALT Shape 02";
         Host: TestPage "TPAR Host";
     begin
         Initialize();

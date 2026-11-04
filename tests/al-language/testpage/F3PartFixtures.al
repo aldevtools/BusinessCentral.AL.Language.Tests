@@ -4,22 +4,6 @@
 // Probe: shared fixtures of the part probes: header and line tables, one list part that logs every read and every cursor trigger, and four host cards whose part differs only in its SubPageView
 // BC versions: 27.0+
 
-table 67083 "LT F3 Head"
-{
-    DataClassification = CustomerContent;
-
-    fields
-    {
-        field(1; "Code"; Code[20]) { }
-        field(2; Descr; Text[50]) { }
-    }
-
-    keys
-    {
-        key(PK; "Code") { Clustered = true; }
-    }
-}
-
 table 67084 "LT F3 Line"
 {
     DataClassification = CustomerContent;
@@ -42,14 +26,14 @@ codeunit 67085 "LT F3 Part Log"
 {
     procedure Reset()
     var
-        Log: Record "LT F3 Log";
+        Log: Record "ALT Shape 17";
     begin
         Log.DeleteAll();
     end;
 
     procedure Add(Entry: Text)
     var
-        Log: Record "LT F3 Log";
+        Log: Record "ALT Shape 17";
         NextId: Integer;
     begin
         if Log.FindLast() then
@@ -62,7 +46,7 @@ codeunit 67085 "LT F3 Part Log"
 
     procedure Dump(): Text
     var
-        Log: Record "LT F3 Log";
+        Log: Record "ALT Shape 17";
         Result: Text;
     begin
         if Log.FindSet() then
@@ -80,7 +64,7 @@ codeunit 67128 "LT F3 Part Data"
     procedure Seed(Heads: Integer)
     var
         PartLog: Codeunit "LT F3 Part Log";
-        Head: Record "LT F3 Head";
+        Head: Record "ALT Shape 08";
         Line: Record "LT F3 Line";
         i: Integer;
         j: Integer;
@@ -166,7 +150,7 @@ page 67086 "LT F3 Part"
 page 67087 "LT F3 Host Filter"
 {
     PageType = Card;
-    SourceTable = "LT F3 Head";
+    SourceTable = "ALT Shape 08";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -200,7 +184,7 @@ page 67087 "LT F3 Host Filter"
 page 67089 "LT F3 Host NotEqual"
 {
     PageType = Card;
-    SourceTable = "LT F3 Head";
+    SourceTable = "ALT Shape 08";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -229,7 +213,7 @@ page 67089 "LT F3 Host NotEqual"
 page 67090 "LT F3 Host Same"
 {
     PageType = Card;
-    SourceTable = "LT F3 Head";
+    SourceTable = "ALT Shape 08";
     ApplicationArea = All;
     UsageCategory = None;
 

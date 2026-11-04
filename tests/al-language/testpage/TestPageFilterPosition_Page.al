@@ -5,7 +5,7 @@
 page 60693 "Test Page Filter Position List"
 {
     PageType = List;
-    SourceTable = "Test Page Filter Position Row";
+    SourceTable = "ALT Shape 04";
     ApplicationArea = All;
     UsageCategory = Lists;
 

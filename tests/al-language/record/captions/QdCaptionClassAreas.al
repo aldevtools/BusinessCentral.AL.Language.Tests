@@ -792,7 +792,7 @@ codeunit 86504 "LT QD CaptionClass Areas"
     procedure QF_ListPart_OnCard()
     var
         Observer: Codeunit "Probe Observer";
-        Host: Record "LT QF Cap Host Row";
+        Host: Record "ALT Shape 00";
         H: TestPage "LT QF Cap Host";
     begin
         Host.DeleteAll();
@@ -2037,18 +2037,6 @@ page 87093 "LT QO Cap Lines"
     }
 }
 
-table 86643 "LT QF Cap Host Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-
-    keys { key(PK; Id) { Clustered = true; } }
-}
-
 page 86640 "LT QF Cap List"
 {
     PageType = List;
@@ -2097,7 +2085,7 @@ page 86642 "LT QF Cap Host"
     PageType = Card;
     ApplicationArea = All;
     UsageCategory = None;
-    SourceTable = "LT QF Cap Host Row";
+    SourceTable = "ALT Shape 00";
 
     layout
     {

@@ -16,7 +16,7 @@ codeunit 60694 "Test Page Filter Position"
 
     local procedure Initialize()
     var
-        Row: Record "Test Page Filter Position Row";
+        Row: Record "ALT Shape 04";
     begin
         Row.DeleteAll();
     end;
@@ -30,7 +30,7 @@ codeunit 60694 "Test Page Filter Position"
 
     local procedure Insert1(No: Code[20]; Name: Text[50])
     var
-        Row: Record "Test Page Filter Position Row";
+        Row: Record "ALT Shape 04";
     begin
         Row.Init();
         Row."No." := No;
