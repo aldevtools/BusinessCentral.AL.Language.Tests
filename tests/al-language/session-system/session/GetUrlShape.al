@@ -429,4 +429,39 @@ codeunit 74975 "LT GetUrl Shape"
         Observer.Expect('current page equals web page', 'Yes');
         Observer.Verify();
     end;
+
+    // The port number of the Default (dynamicsnav://) form and of ClientType::Windows (the runner assumes 7046). The host stays masked: each result
+    // is scheme | host same as Web | port number | path | query, or <empty>.
+    local procedure GuPort(Url: Text): Text
+    var
+        WScheme: Text;
+        WHost: Text;
+        WPort: Text;
+        WPath: Text;
+        WQuery: Text;
+        Scheme: Text;
+        HostName: Text;
+        Port: Text;
+        PathPart: Text;
+        Query: Text;
+    begin
+        if Url = '' then
+            exit('<empty>');
+        GuSplit(GetUrl(ClientType::Web), WScheme, WHost, WPort, WPath, WQuery);
+        if not GuSplit(Url, Scheme, HostName, Port, PathPart, Query) then
+            exit('no scheme');
+        exit(Scheme + '|host same=' + Format(LowerCase(HostName) = LowerCase(WHost)) + '|port=' + Port + '|path=' + PathPart + '|query=' + Query);
+    end;
+
+    [Test]
+    procedure GU6924_DefaultAndWindows_PortNumber()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('default', GuPort(GetUrl(ClientType::Default)));
+        Observer.Observe('default page', GuPort(GetUrl(ClientType::Default, '', ObjectType::Page, 21)));
+        Observer.Observe('windows', GuPort(GetUrl(ClientType::Windows)));
+        Observer.Observe('windows page', GuPort(GetUrl(ClientType::Windows, '', ObjectType::Page, 21)));
+        Observer.Finish();
+    end;
 }

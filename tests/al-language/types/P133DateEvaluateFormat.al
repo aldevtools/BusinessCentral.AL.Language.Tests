@@ -642,7 +642,15 @@ codeunit 74046 "LT P133 Date Eval Format"
         Observer.ObserveError('0.1.2024');
         asserterror D := DMY2Date(1, 13, 2024);
         Observer.ObserveError('1.13.2024');
-        Observer.Finish();
+        Observer.Expect('57.52.2076|text', 'The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: 52. The permitted range is: from 1 to 12.');
+        Observer.Expect('57.52.2076|code', 'OutsidePermittedRange');
+        Observer.Expect('31.2.2024|text', 'The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 31. The permitted range is: from 1 to 29.');
+        Observer.Expect('31.2.2024|code', 'OutsidePermittedRange');
+        Observer.Expect('0.1.2024|text', 'The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 31.');
+        Observer.Expect('0.1.2024|code', 'OutsidePermittedRange');
+        Observer.Expect('1.13.2024|text', 'The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: 13. The permitted range is: from 1 to 12.');
+        Observer.Expect('1.13.2024|code', 'OutsidePermittedRange');
+        Observer.Verify();
     end;
 
     local procedure P133Parts(D: Date): Text
@@ -652,21 +660,68 @@ codeunit 74046 "LT P133 Date Eval Format"
         exit(Format(Date2DMY(D, 1)) + '.' + Format(Date2DMY(D, 2)) + '.' + Format(Date2DMY(D, 3)));
     end;
 
+    // Year 0: a direct DMY2Date(1, 1, 0) raises the parameter 3 error (round 2 of the observation), while the same call made inside the
+    // TryFunction TryDayMonthYear returned 0001-01-02 (P133_DMY2Date_ThreeArgs_OutOfRange). The tests below separate literal and variable
+    // arguments, the direct call and the TryFunction.
     [Test]
-    procedure P133_DMY2Date_YearZeroAndOne()
+    procedure P133_DMY2Date_YearZero_LiteralArgs_AssertError()
     var
         Observer: Codeunit "Probe Observer";
         D: Date;
     begin
-        D := DMY2Date(1, 1, 0);
-        Observer.Observe('1.1.0 parts', P133Parts(D));
-        Observer.Observe('1.1.0 is 0D', Format(D = 0D));
+        asserterror D := DMY2Date(1, 1, 0);
+        Observer.ObserveError('1.1.0 literal');
+        asserterror D := DMY2Date(15, 6, 0);
+        Observer.ObserveError('15.6.0 literal');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure P133_DMY2Date_YearZero_VariableArgs_Direct()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: Date;
+        Day: Integer;
+        Month: Integer;
+        Year: Integer;
+    begin
+        Day := 1;
+        Month := 1;
+        Year := 0;
+        D := DMY2Date(Day, Month, Year);
+        Observer.Observe('1.1.0 variables', P133Parts(D) + '|' + Format(D, 0, 9));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure P133_DMY2Date_YearZero_TryFunction()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: Date;
+        Ok: Boolean;
+    begin
+        ClearLastError();
+        Ok := TryDayMonthYear(1, 1, 0, D);
+        Observer.Observe('try 1.1.0', Format(Ok) + '|' + P133Parts(D) + '|' + GetLastErrorText());
+        ClearLastError();
+        Ok := TryDayMonthYear(15, 6, 0, D);
+        Observer.Observe('try 15.6.0', Format(Ok) + '|' + P133Parts(D) + '|' + GetLastErrorText());
+        ClearLastError();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure P133_DMY2Date_YearOne()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: Date;
+    begin
         D := DMY2Date(1, 1, 1);
         Observer.Observe('1.1.1 parts', P133Parts(D));
         Observer.Observe('1.1.1 is 0D', Format(D = 0D));
-        Observer.Observe('1.1.1 format', Format(D));
-        D := DMY2Date(15, 6, 0);
-        Observer.Observe('15.6.0 format 9', Format(D, 0, 9));
+        Observer.Observe('1.1.1 format', Format(D, 0, 9));
+        D := DMY2Date(2, 1, 1);
+        Observer.Observe('2.1.1 format', Format(D, 0, 9));
         Observer.Finish();
     end;
 }

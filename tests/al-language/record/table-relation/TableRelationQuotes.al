@@ -1234,6 +1234,9 @@ codeunit 74068 "LT Table Relation Quotes"
         Obs.Observe('ext not quote FILLED text', TrxText(6, "LT TRX Type"::A, 'FILLED'));
         Obs.Observe('ext not quote empty value text', TrxText(6, "LT TRX Type"::A, ''));
         Obs.Observe('ext not empty quoted empty value', TrxText(4, "LT TRX Type"::A, ''));
-        Obs.Finish();
+        Obs.Expect('ext not quote FILLED text', 'An single quote ('') is missing.');
+        Obs.Expect('ext not quote empty value text', 'ok');
+        Obs.Expect('ext not empty quoted empty value', 'ok');
+        Obs.Verify();
     end;
 }
