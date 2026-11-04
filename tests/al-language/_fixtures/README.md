@@ -246,3 +246,5 @@ has an event subscriber, sits in a namespace, or when one test codeunit would ne
 3. Use the shared fixtures. A local object needs a `// local object: <reason>` line.
 4. Name the folder after the topic, never after a writer, an issue or a batch.
 5. Never renumber a codeunit or rename a test. Read the standing rules in `CONTRIBUTING.md` first.
+
+- `TblLexicalOwner.al`: extension-side lexical binding fixture over the dedicated `TBL Lexical Owner Base` dependency table; reset by `ALTFixtureCleanup.Initialize()`.

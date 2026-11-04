@@ -56,7 +56,9 @@ codeunit 60019 ALTFixtureCleanup
         ALTShape27: Record "ALT Shape 27";
         ALTShape28: Record "ALT Shape 28";
         ALTShape29: Record "ALT Shape 29";
+        TBLLexicalOwner: Record "TBL Lexical Owner Base";
     begin
+        TBLLexicalOwner.DeleteAll(false);
         ALTUniversal.DeleteAll(false);
         ALTComposite.DeleteAll(false);
         ALTTriggered.DeleteAll(false);
