@@ -1,8 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-table-ext-object
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); cross-app fixtures A (table 95520, tableextension 95521, page 95522, report 95523) and B
-//   (tableextension 95524); tables "LT Y20 Sib Center" (92112, Y20TableExtSiblingGlobals.al) and "LT P146 Base" (74990,
-//   record/P146TableExtProtected.al); Base Application table "Sales Line" (no row is written); own extensions below.
+//   (tableextension 95524); Base Application table "Sales Line" (no row is written); own objects below.
 // Probe (al-runner issues 6983 and 6984): the full surface of `protected var` across apps and through another record variable.
 // Facts:
 //   - An extension of a table in app B (depends on app A) reads and writes a protected variable that app A's extension of the same table
@@ -10,8 +9,11 @@
 //     the extensions and the table (issue 6983).
 //   - A third app (this one, depends on A and B) reads and writes the protected variables of both.
 //   - The member form `Other.ProtVar` on another record variable of the same table compiles in a table extension, for a protected
-//     variable of the table and of another extension (same app and other app); it reads and writes Other's variable, not Rec's. Microsoft's
-//     "Sales Line" protected variable StatusCheckSuspended works the same way (issue 6984).
+//     variable of the table and of another extension in another app; it reads and writes Other's variable, not Rec's. Microsoft's
+//     "Sales Line" protected variable StatusCheckSuspended works the same way (issue 6984). In the same app the member form is read
+//     only here: writing it (a variable of the table or of another extension in the same app) compiles with alc, but real BC 29
+//     fails to compile the extension's C# (CS0131) and every use of the table raises "C# compilation has failed" (tables 95533,
+//     95535).
 //   - A page extension and a report extension in another app read and write a protected variable of their base page and report.
 //   - Not compiling (must-not-compile): an app that does not depend on app B naming B's protected variable (2952); a codeunit naming a
 //     protected variable of a table through a record variable (2953).
@@ -51,29 +53,61 @@ tableextension 95526 "TBL ProtVar Main Ext" extends "TBL ProtVar XA Table"
     end;
 }
 
-tableextension 95527 "TBL ProtVar Y20 Ext" extends "LT Y20 Sib Center"
+// Same app, base table: a protected variable of the table, only read through another record variable. Written that way
+// (`Other.Marker := Value`), real BC 29 fails to compile the extension's C# (CS0131, first run of corpus PR 1126), as for a
+// sibling extension's variable below.
+table 95533 "TBL ProtVar Same Table"
 {
-    procedure ProtSetOtherCounter(var Other: Record "LT Y20 Sib Center"; Value: Integer)
-    begin
-        Other.Counter := Value;
-    end;
+    DataClassification = SystemMetadata;
 
-    procedure ProtGetOtherCounter(var Other: Record "LT Y20 Sib Center"): Integer
+    fields { field(1; "Code"; Code[20]) { } }
+    keys { key(PK; "Code") { Clustered = true; } }
+
+    protected var
+        Marker: Text;
+
+    procedure SetMarker(Value: Text)
     begin
-        exit(Other.Counter);
+        Marker := Value;
     end;
 }
 
-tableextension 95528 "TBL ProtVar P146 Ext" extends "LT P146 Base"
+tableextension 95534 "TBL ProtVar Same Table Ext" extends "TBL ProtVar Same Table"
 {
-    procedure ProtSetOtherMarker(var Other: Record "LT P146 Base"; Value: Text)
-    begin
-        Other.Marker := Value;
-    end;
-
-    procedure ProtGetOtherMarker(var Other: Record "LT P146 Base"): Text
+    procedure ProtGetOtherMarker(var Other: Record "TBL ProtVar Same Table"): Text
     begin
         exit(Other.Marker);
+    end;
+}
+
+// Same app, sibling extension: a protected variable of another extension of the same table in this app, only read through
+// another record variable. Written that way (`Other.Counter := Value`), real BC 29 fails to compile the extension's C# (CS0131,
+// "The left-hand side of an assignment must be a variable", first run of corpus PR 1126) and every use of the table raises
+// "C# compilation has failed"; that form is therefore not in the corpus app.
+table 95535 "TBL ProtVar Same Sib"
+{
+    DataClassification = SystemMetadata;
+
+    fields { field(1; "Code"; Code[20]) { } }
+    keys { key(PK; "Code") { Clustered = true; } }
+}
+
+tableextension 95536 "TBL ProtVar Same Sib Decl" extends "TBL ProtVar Same Sib"
+{
+    protected var
+        Counter: Integer;
+
+    procedure SetCounter(Value: Integer)
+    begin
+        Counter := Value;
+    end;
+}
+
+tableextension 95537 "TBL ProtVar Same Sib Use" extends "TBL ProtVar Same Sib"
+{
+    procedure ProtGetOtherCounter(var Other: Record "TBL ProtVar Same Sib"): Integer
+    begin
+        exit(Other.Counter);
     end;
 }
 
@@ -262,32 +296,35 @@ codeunit 95531 "TBL ProtVar Cross App"
         Observer.Verify();
     end;
 
-    // Member form in the same app: a protected variable of a sibling extension (LT Y20 Sib Center B.Counter) and of the table
-    // (LT P146 Base.Marker).
+    // Member form in the same app, on a protected variable of the table, read only: Other's, not Rec's.
     [Test]
-    procedure ProtVar_OtherRecordVariable_MemberForm_SameApp()
+    procedure ProtVar_OtherRecordVariable_MemberFormRead_SameAppTable()
     var
         Observer: Codeunit "Probe Observer";
-        C: Record "LT Y20 Sib Center";
-        OtherC: Record "LT Y20 Sib Center";
-        B: Record "LT P146 Base";
-        OtherB: Record "LT P146 Base";
+        R: Record "TBL ProtVar Same Table";
+        Other: Record "TBL ProtVar Same Table";
     begin
-        C.ProtSetOtherCounter(OtherC, 3);
-        Observer.Observe('sibling_other', Format(OtherC.Y20ReadCounter()));
-        Observer.Observe('sibling_rec', Format(C.Y20ReadCounter()));
-        OtherC.Y20SetCounterFromB(8);
-        Observer.Observe('sibling_read_other', Format(C.ProtGetOtherCounter(OtherC)));
-        B.ProtSetOtherMarker(OtherB, 'm');
-        Observer.Observe('base_other', OtherB.BaseMarker());
-        Observer.Observe('base_rec', B.BaseMarker());
-        Observer.Observe('base_read_other', B.ProtGetOtherMarker(OtherB));
-        Observer.Expect('sibling_other', '3');
-        Observer.Expect('sibling_rec', '0');
-        Observer.Expect('sibling_read_other', '8');
-        Observer.Expect('base_other', 'm');
-        Observer.Expect('base_rec', '');
-        Observer.Expect('base_read_other', 'm');
+        Other.SetMarker('m');
+        Observer.Observe('read_other', R.ProtGetOtherMarker(Other));
+        Observer.Observe('read_rec', R.ProtGetOtherMarker(R));
+        Observer.Expect('read_other', 'm');
+        Observer.Expect('read_rec', '');
+        Observer.Verify();
+    end;
+
+    // Member form in the same app, on a protected variable of another extension of the table, read only.
+    [Test]
+    procedure ProtVar_OtherRecordVariable_MemberFormRead_SameAppSibling()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "TBL ProtVar Same Sib";
+        Other: Record "TBL ProtVar Same Sib";
+    begin
+        Other.SetCounter(8);
+        Observer.Observe('read_other', Format(R.ProtGetOtherCounter(Other)));
+        Observer.Observe('read_rec', Format(R.ProtGetOtherCounter(R)));
+        Observer.Expect('read_other', '8');
+        Observer.Expect('read_rec', '0');
         Observer.Verify();
     end;
 
