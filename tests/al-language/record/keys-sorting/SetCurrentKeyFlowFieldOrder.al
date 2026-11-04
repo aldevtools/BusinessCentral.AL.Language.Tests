@@ -317,4 +317,252 @@ codeunit 74319 "LT P166 Key Flow Order"
         Observer.Expect('stored', 'order=1: 3:alpha 2:beta ');
         Observer.Verify();
     end;
+
+    // Al-runner issue 6924 item 2.13: the order of FindSet under SetCurrentKey with a FlowField that is not the first field of the
+    // key, with two FlowFields, and with FlowFields of the kinds max, min, average, exist and lookup first. Tables 95364 and 95365 below.
+    // Owners (Id Grp: line amounts): 1 A: 5 5 5; 2 B: 30; 3 A: 1 20; 4 B: none; 5 A: 2.
+    local procedure P6924_Seed()
+    var
+        Owner: Record "REC FlowKey Owner";
+        Line: Record "REC FlowKey Line";
+    begin
+        Owner.DeleteAll();
+        Line.DeleteAll();
+        P6924_Owner(1, 'A');
+        P6924_Owner(2, 'B');
+        P6924_Owner(3, 'A');
+        P6924_Owner(4, 'B');
+        P6924_Owner(5, 'A');
+        P6924_Line(1, 1, 5);
+        P6924_Line(2, 1, 5);
+        P6924_Line(3, 1, 5);
+        P6924_Line(4, 2, 30);
+        P6924_Line(5, 3, 1);
+        P6924_Line(6, 3, 20);
+        P6924_Line(7, 5, 2);
+    end;
+
+    local procedure P6924_Owner(Id: Integer; Grp: Code[10])
+    var
+        Owner: Record "REC FlowKey Owner";
+    begin
+        Owner.Id := Id;
+        Owner.Grp := Grp;
+        Owner.Insert();
+    end;
+
+    local procedure P6924_Line(Id: Integer; OwnerId: Integer; Amount: Decimal)
+    var
+        Line: Record "REC FlowKey Line";
+    begin
+        Line.Id := Id;
+        Line.OwnerId := OwnerId;
+        Line.Amount := Amount;
+        Line.Insert();
+    end;
+
+    [TryFunction]
+    local procedure P6924_TryKey(var Owner: Record "REC FlowKey Owner"; Which: Integer)
+    begin
+        case Which of
+            1:
+                Owner.SetCurrentKey(Grp, Cnt);
+            2:
+                Owner.SetCurrentKey(Grp, Total);
+            3:
+                Owner.SetCurrentKey(Grp, Cnt, Id);
+            4:
+                Owner.SetCurrentKey(Cnt, Total);
+            5:
+                Owner.SetCurrentKey(MaxAmt);
+            6:
+                Owner.SetCurrentKey(MinAmt);
+            7:
+                Owner.SetCurrentKey(AvgAmt);
+            8:
+                Owner.SetCurrentKey(HasLine);
+            9:
+                Owner.SetCurrentKey(FirstAmt);
+            10:
+                Owner.SetCurrentKey(Grp, MaxAmt);
+            11:
+                Owner.SetCurrentKey(Id, Cnt);
+            12:
+                Owner.SetCurrentKey(Total, Cnt);
+        end;
+    end;
+
+    [TryFunction]
+    local procedure P6924_TryOrder(var Owner: Record "REC FlowKey Owner"; var Order: Text)
+    begin
+        Order := '';
+        if Owner.FindSet() then
+            repeat
+                Owner.CalcFields(Cnt, Total);
+                Order += Format(Owner.Id) + ' ';
+            until Owner.Next() = 0;
+    end;
+
+    [TryFunction]
+    local procedure P6924_TryLast(var Owner: Record "REC FlowKey Owner"; var Order: Text)
+    begin
+        Order := '';
+        if Owner.FindLast() then
+            repeat
+                Order += Format(Owner.Id) + ' ';
+            until Owner.Next(-1) = 0;
+    end;
+
+    // 'key=<CurrentKey> order=<ids of FindSet> back=<ids from FindLast with Next(-1)>', or the error of the step that raised.
+    local procedure P6924_Outcome(Which: Integer; Descending: Boolean): Text
+    var
+        Owner: Record "REC FlowKey Owner";
+        Order: Text;
+        Result: Text;
+    begin
+        ClearLastError();
+        if not P6924_TryKey(Owner, Which) then begin
+            Result := 'key error:' + GetLastErrorText() + '|' + GetLastErrorCode();
+            ClearLastError();
+            exit(Result);
+        end;
+        if Descending then
+            Owner.Ascending(false);
+        Result := 'key=' + Owner.CurrentKey();
+        if P6924_TryOrder(Owner, Order) then
+            Result += ' order=' + Order
+        else
+            Result += ' order error:' + GetLastErrorText() + '|' + GetLastErrorCode();
+        ClearLastError();
+        if P6924_TryLast(Owner, Order) then
+            Result += 'back=' + Order
+        else
+            Result += ' back error:' + GetLastErrorText() + '|' + GetLastErrorCode();
+        ClearLastError();
+        exit(Result);
+    end;
+
+    [Test]
+    procedure SetCurrentKey_FlowFieldAfterStoredField_FindSetOrder()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        P6924_Seed();
+        Observer.Observe('grp_cnt', P6924_Outcome(1, false));
+        Observer.Observe('grp_total', P6924_Outcome(2, false));
+        Observer.Observe('grp_cnt_id', P6924_Outcome(3, false));
+        Observer.Observe('grp_max', P6924_Outcome(10, false));
+        Observer.Observe('id_cnt', P6924_Outcome(11, false));
+        Observer.Expect('grp_cnt', 'key=Grp,Cnt order=5 3 1 4 2 back=2 4 1 3 5 ');
+        Observer.Expect('grp_total', 'key=Grp,Total order=5 1 3 4 2 back=2 4 3 1 5 ');
+        Observer.Expect('grp_cnt_id', 'key=Grp,Cnt,Id order=5 3 1 4 2 back=2 4 1 3 5 ');
+        Observer.Expect('grp_max', 'key=Grp,MaxAmt order=5 1 3 4 2 back=2 4 3 1 5 ');
+        Observer.Expect('id_cnt', 'key=Id,Cnt order=1 2 3 4 5 back=5 4 3 2 1 ');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SetCurrentKey_FlowFieldAfterStoredField_Descending()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        P6924_Seed();
+        Observer.Observe('grp_cnt_desc', P6924_Outcome(1, true));
+        Observer.Observe('grp_total_desc', P6924_Outcome(2, true));
+        Observer.Expect('grp_cnt_desc', 'key=Grp,Cnt order=2 4 1 3 5 back=5 3 1 4 2 ');
+        Observer.Expect('grp_total_desc', 'key=Grp,Total order=2 4 3 1 5 back=5 1 3 4 2 ');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SetCurrentKey_FlowFieldAfterStoredField_SetAscendingOnFlowField()
+    var
+        Observer: Codeunit "Probe Observer";
+        Owner: Record "REC FlowKey Owner";
+        Order: Text;
+    begin
+        P6924_Seed();
+        Owner.SetCurrentKey(Grp, Total);
+        Owner.SetAscending(Total, false);
+        Observer.Observe('ok', Format(P6924_TryOrder(Owner, Order)));
+        Observer.ObserveError('order');
+        Observer.Observe('order', Order);
+        Owner.SetAscending(Total, true);
+        Owner.SetAscending(Grp, false);
+        Observer.Observe('ok_grp_desc', Format(P6924_TryOrder(Owner, Order)));
+        Observer.Observe('order_grp_desc', Order);
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('order|text', '');
+        Observer.Expect('order|code', '');
+        Observer.Expect('order', '3 1 5 2 4 ');
+        Observer.Expect('ok_grp_desc', 'Yes');
+        Observer.Expect('order_grp_desc', '4 2 5 1 3 ');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SetCurrentKey_TwoFlowFields_FindSetOrder()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        P6924_Seed();
+        Observer.Observe('cnt_total', P6924_Outcome(4, false));
+        Observer.Observe('total_cnt', P6924_Outcome(12, false));
+        Observer.Observe('cnt_total_desc', P6924_Outcome(4, true));
+        Observer.Expect('cnt_total', 'key=Cnt,Total order=4 5 2 3 1 back=1 3 2 5 4 ');
+        Observer.Expect('total_cnt', 'key=Total,Cnt order=4 5 1 3 2 back=2 3 1 5 4 ');
+        Observer.Expect('cnt_total_desc', 'key=Cnt,Total order=1 3 2 5 4 back=4 5 2 3 1 ');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SetCurrentKey_OtherFlowFieldKinds_FindSetOrder()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        P6924_Seed();
+        Observer.Observe('max', P6924_Outcome(5, false));
+        Observer.Observe('min', P6924_Outcome(6, false));
+        Observer.Observe('average', P6924_Outcome(7, false));
+        Observer.Observe('exist', P6924_Outcome(8, false));
+        Observer.Observe('lookup', P6924_Outcome(9, false));
+        Observer.Expect('max', 'key=MaxAmt order=4 5 1 3 2 back=2 3 1 5 4 ');
+        Observer.Expect('min', 'key=MinAmt order=4 3 5 1 2 back=2 1 5 3 4 ');
+        Observer.Expect('average', 'key=AvgAmt order=4 5 1 3 2 back=2 3 1 5 4 ');
+        Observer.Expect('exist', 'key=HasLine order=4 1 2 3 5 back=5 3 2 1 4 ');
+        Observer.Expect('lookup', 'key=FirstAmt order=4 3 5 1 2 back=2 1 5 3 4 ');
+        Observer.Verify();
+    end;
+}
+
+// local object: the FlowFields of this table are the key fields under test (al-runner issue 6924 item 2.13).
+table 95364 "REC FlowKey Owner"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Grp; Code[10]) { }
+        field(3; Cnt; Integer) { FieldClass = FlowField; CalcFormula = count("REC FlowKey Line" where(OwnerId = field(Id))); }
+        field(4; Total; Decimal) { FieldClass = FlowField; CalcFormula = sum("REC FlowKey Line".Amount where(OwnerId = field(Id))); }
+        field(5; MaxAmt; Decimal) { FieldClass = FlowField; CalcFormula = max("REC FlowKey Line".Amount where(OwnerId = field(Id))); }
+        field(6; MinAmt; Decimal) { FieldClass = FlowField; CalcFormula = min("REC FlowKey Line".Amount where(OwnerId = field(Id))); }
+        field(7; AvgAmt; Decimal) { FieldClass = FlowField; CalcFormula = average("REC FlowKey Line".Amount where(OwnerId = field(Id))); }
+        field(8; HasLine; Boolean) { FieldClass = FlowField; CalcFormula = exist("REC FlowKey Line" where(OwnerId = field(Id))); }
+        field(9; FirstAmt; Decimal) { FieldClass = FlowField; CalcFormula = lookup("REC FlowKey Line".Amount where(OwnerId = field(Id))); }
+    }
+    keys { key(PK; Id) { Clustered = true; } }
+}
+
+// local object: see table 95364.
+table 95365 "REC FlowKey Line"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; OwnerId; Integer) { }
+        field(3; Amount; Decimal) { }
+    }
+    keys { key(PK; Id) { Clustered = true; } }
 }
