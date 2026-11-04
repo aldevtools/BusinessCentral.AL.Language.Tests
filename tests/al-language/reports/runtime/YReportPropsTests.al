@@ -301,4 +301,22 @@ codeunit 75510 "LT Y Report Props Tests"
         Observer.Expect('layouts', 'PlainLayout=Plain summary;SumLayout=English summary;');
         Observer.Verify();
     end;
+
+    // Writer P6924 (al-runtime-rs triage of issue 6924, row 2.18): EnableExternalImages = true and Report.SaveAs Xml. Reports 95270 (set)
+    // and 95271 (not set) have the same dataset (ExternalImagesReports.al). The DataItems part of the SaveAs Xml text is compared.
+    [Test]
+    procedure EnableExternalImages_SaveAsXml_SameAsWithout()
+    var
+        Observer: Codeunit "Probe Observer";
+        WithImages: Text;
+        Without: Text;
+    begin
+        WithImages := Helper.DataItemsXml(Report::"REP ExtImages On");
+        Without := Helper.DataItemsXml(Report::"REP ExtImages Off");
+        Observer.Observe('flag on', Helper.Facts(2000000139, 1, Report::"REP ExtImages On", 'EnableExternalImages'));
+        Observer.Observe('flag off', Helper.Facts(2000000139, 1, Report::"REP ExtImages Off", 'EnableExternalImages'));
+        Observer.Observe('same xml', Format(WithImages = Without));
+        Observer.Observe('xml with the property', Helper.AsciiOnly(WithImages));
+        Observer.Finish();
+    end;
 }

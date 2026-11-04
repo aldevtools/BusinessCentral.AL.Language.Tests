@@ -153,4 +153,54 @@ codeunit 67054 "W5 DataTransfer Tests"
     begin
         DT.UpdateAuditFields := false;
     end;
+
+    // Writer P6924 (al-runtime-rs triage of issue 6924, row 1f): what Clear of a DataTransfer variable resets, outside install code.
+    // A call after SetTables answers "only usable during upgrade and installation code"; a call before SetTables answers "SetTables
+    // must first be called" (codeunit 60992). So the text of the next call shows whether Clear dropped the tables of SetTables.
+    [Test]
+    procedure P6924_Clear_AfterSetTables_NextCallText()
+    var
+        Observer: Codeunit "Probe Observer";
+        DT: DataTransfer;
+        Ok: Boolean;
+    begin
+        DT.SetTables(Database::"W5 Tx Row", Database::"W5 SeqGuid Row");
+        Clear(DT);
+        ClearLastError();
+        Ok := TryAddFieldValue(DT, 1, 1);
+        Observer.Observe('add_field_value_after_clear_ok', Format(Ok));
+        Observer.ObserveError('add_field_value_after_clear');
+        Ok := TryCopyRows(DT);
+        Observer.Observe('copy_rows_after_clear_ok', Format(Ok));
+        Observer.ObserveError('copy_rows_after_clear');
+        Ok := TrySetTablesOn(DT, Database::"W5 SeqGuid Row", Database::"W5 Tx Row");
+        Observer.Observe('set_tables_after_clear_ok', Format(Ok));
+        Observer.ObserveError('set_tables_after_clear');
+        Ok := TryAddFieldValue(DT, 1, 1);
+        Observer.Observe('add_field_value_after_new_set_tables_ok', Format(Ok));
+        Observer.ObserveError('add_field_value_after_new_set_tables');
+        Observer.Finish();
+    end;
+
+    // Clear of a DataTransfer variable that was never used, then SetTables and a call: Clear raises nothing.
+    [Test]
+    procedure P6924_Clear_Unused_ThenSetTables()
+    var
+        Observer: Codeunit "Probe Observer";
+        DT: DataTransfer;
+        Ok: Boolean;
+    begin
+        Clear(DT);
+        ClearLastError();
+        Ok := TryCopyFields(DT);
+        Observer.Observe('copy_fields_after_clear_ok', Format(Ok));
+        Observer.ObserveError('copy_fields_after_clear');
+        Ok := TrySetTablesOn(DT, Database::"W5 Tx Row", Database::"W5 SeqGuid Row");
+        Observer.Observe('set_tables_ok', Format(Ok));
+        Observer.ObserveError('set_tables');
+        Ok := TryCopyFields(DT);
+        Observer.Observe('copy_fields_ok', Format(Ok));
+        Observer.ObserveError('copy_fields');
+        Observer.Finish();
+    end;
 }
