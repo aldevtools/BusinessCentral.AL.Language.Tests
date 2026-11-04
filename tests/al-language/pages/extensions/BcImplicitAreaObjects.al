@@ -2,26 +2,10 @@
 // that declares only area(Content), and to area(Content) and area(FactBoxes) of a card that declares no layout at all.
 // The pages use a small table of their own (not Integer: a test page over Integer did not finish within the CI time limit).
 
-table 80973 "BC Implicit Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Number; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-
-    keys
-    {
-        key(PK; Number) { Clustered = true; }
-    }
-}
-
 page 80965 "BC Implicit FB Card"
 {
     PageType = Card;
-    SourceTable = "BC Implicit Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -31,7 +15,7 @@ page 80965 "BC Implicit FB Card"
         {
             group(General)
             {
-                field(Number; Rec.Number) { ApplicationArea = All; }
+                field(Number; Rec.Id) { ApplicationArea = All; }
             }
         }
     }
@@ -40,7 +24,7 @@ page 80965 "BC Implicit FB Card"
 page 80968 "BC Implicit FB Part"
 {
     PageType = ListPart;
-    SourceTable = "BC Implicit Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     Editable = false;
 
@@ -50,7 +34,7 @@ page 80968 "BC Implicit FB Part"
         {
             repeater(Rows)
             {
-                field(PartNumber; Rec.Number) { ApplicationArea = All; }
+                field(PartNumber; Rec.Id) { ApplicationArea = All; }
             }
         }
     }
@@ -76,7 +60,7 @@ pageextension 80967 "BC Implicit FB Part Ext" extends "BC Implicit FB Card"
             part(BCPart; "BC Implicit FB Part")
             {
                 ApplicationArea = All;
-                SubPageLink = Number = field(Number);
+                SubPageLink = Id = field(Id);
             }
         }
     }
@@ -91,7 +75,7 @@ pageextension 80971 "BC Implicit FB After Ext" extends "BC Implicit FB Card"
             part(BCPartAfter; "BC Implicit FB Part")
             {
                 ApplicationArea = All;
-                SubPageLink = Number = field(Number);
+                SubPageLink = Id = field(Id);
             }
         }
     }
@@ -100,7 +84,7 @@ pageextension 80971 "BC Implicit FB After Ext" extends "BC Implicit FB Card"
 page 80969 "BC No Layout Card"
 {
     PageType = Card;
-    SourceTable = "BC Implicit Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
 }
@@ -111,14 +95,14 @@ pageextension 80970 "BC No Layout Ext" extends "BC No Layout Card"
     {
         addfirst(Content)
         {
-            field(BCNumber; Rec.Number) { ApplicationArea = All; }
+            field(BCNumber; Rec.Id) { ApplicationArea = All; }
         }
         addlast(FactBoxes)
         {
             part(BCNoLayoutPart; "BC Implicit FB Part")
             {
                 ApplicationArea = All;
-                SubPageLink = Number = field(Number);
+                SubPageLink = Id = field(Id);
             }
         }
     }
@@ -129,7 +113,7 @@ pageextension 80970 "BC No Layout Ext" extends "BC No Layout Card"
 page 87466 "LT QV Implicit FB List"
 {
     PageType = List;
-    SourceTable = "BC Implicit Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
     Editable = false;
@@ -140,7 +124,7 @@ page 87466 "LT QV Implicit FB List"
         {
             repeater(Rows)
             {
-                field(Number; Rec.Number) { ApplicationArea = All; }
+                field(Number; Rec.Id) { ApplicationArea = All; }
             }
         }
     }
@@ -166,7 +150,7 @@ pageextension 87468 "LT QV Implicit FB List Part" extends "LT QV Implicit FB Lis
             part(QVPart; "BC Implicit FB Part")
             {
                 ApplicationArea = All;
-                SubPageLink = Number = field(Number);
+                SubPageLink = Id = field(Id);
             }
         }
     }

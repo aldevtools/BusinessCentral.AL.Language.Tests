@@ -1,23 +1,10 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-arrays
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), self-contained table 73256 and codeunit 73257
+// Fixtures used: Probe Observer (codeunit 69160), shared table 50006 "ALT Shape 06" and codeunit 73257
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: reading and writing an AL array element with an index below 1 or above the size (one and two dimensional arrays of Integer, Text, Decimal, Boolean, Code and Record, the index in a variable),
 // as a function argument and by reference: whether it raises, the error text and the error code, and that the neighbouring elements are untouched.
 // BC versions: 29 (27 and 28 by CI)
-
-table 73256 "LT P129 Arr Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[20]) { }
-    }
-
-    keys { key(PK; Id) { Clustered = true; } }
-}
 
 codeunit 73257 "LT P129 Array Index"
 {
@@ -88,7 +75,7 @@ codeunit 73257 "LT P129 Array Index"
     [TryFunction]
     local procedure ReadRecord(I: Integer)
     var
-        A: array[2] of Record "LT P129 Arr Row";
+        A: array[2] of Record "ALT Shape 06";
         V: Integer;
     begin
         V := A[I].Id;
@@ -97,7 +84,7 @@ codeunit 73257 "LT P129 Array Index"
     [TryFunction]
     local procedure WriteRecord(I: Integer)
     var
-        A: array[2] of Record "LT P129 Arr Row";
+        A: array[2] of Record "ALT Shape 06";
     begin
         A[I].Id := 5;
     end;
