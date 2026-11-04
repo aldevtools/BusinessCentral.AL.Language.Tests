@@ -10,6 +10,11 @@
 // in the text; reports/request-page/Y42RequestLeftOpen.al pins a handler that reads, or sets and returns, on other report shapes.
 // Bindings on the request page of "R6960 Bind": a plain Code variable, a field of a global record variable, a field of the first
 // and second element of an array of records, an element of a plain Text array, and a field of the data item's record.
+// Facts (BC 29.0, CI): every one of these fields is in the Options of the parameters text, in control order, named by its
+// source expression as written (`Buf.Name`, `BufArr[1].Name`, `TxtArr[2]`, `D.Name`), an empty value as `<Field name="..." />`.
+// Report.Execute and Report.RunRequestPage(Id, Parameters) with that text set each of them again. A handler that does nothing,
+// or only reads, closes the page with Cancel (OnQueryClosePage(Cancel), OnClosePage): RunRequestPage returns '' and Report.Run
+// does not run the report; Report.Execute with that '' runs the report on the defaults without opening the request page.
 
 table 95540 "R6960 Row"
 {
@@ -192,7 +197,12 @@ codeunit 95544 "R6960 Param Bindings"
         Seed();
         HMode := 0;
         Observer.Observe('rrp result', Exec(Observer, 'rrp', 0, ''));
-        Observer.Finish();
+        Observer.Expect('rrp ok', 'Yes');
+        Observer.Expect('rrp error|text', '');
+        Observer.Expect('rrp error|code', '');
+        Observer.Expect('rrp log', 'open;qc OK;close;');
+        Observer.Expect('rrp result', '<?xml version="1.0" standalone="yes"?><ReportParameters name="R6960 Bind" id="95542"><Options><Field name="PlainVal">P1</Field><Field name="Buf.Name">R1</Field><Field name="BufArr[1].Name">A1</Field><Field name="BufArr[2].Name">A2</Field><Field name="TxtArr[2]">T2</Field><Field name="D.Name">I1</Field></Options><DataItems><DataItem name="D">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -204,7 +214,12 @@ codeunit 95544 "R6960 Param Bindings"
         Seed();
         HMode := 2;
         Observer.Observe('rrp result', Exec(Observer, 'rrp', 0, ''));
-        Observer.Finish();
+        Observer.Expect('rrp ok', 'Yes');
+        Observer.Expect('rrp error|text', '');
+        Observer.Expect('rrp error|code', '');
+        Observer.Expect('rrp log', 'open;qc OK;close;');
+        Observer.Expect('rrp result', '<?xml version="1.0" standalone="yes"?><ReportParameters name="R6960 Bind" id="95542"><Options><Field name="PlainVal" /><Field name="Buf.Name" /><Field name="BufArr[1].Name" /><Field name="BufArr[2].Name" /><Field name="TxtArr[2]" /><Field name="D.Name" /></Options><DataItems><DataItem name="D">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -218,7 +233,15 @@ codeunit 95544 "R6960 Param Bindings"
         HMode := 0;
         Params := Exec(Observer, 'rrp', 0, '');
         Exec(Observer, 'execute', 2, Params);
-        Observer.Finish();
+        Observer.Expect('rrp ok', 'Yes');
+        Observer.Expect('rrp error|text', '');
+        Observer.Expect('rrp error|code', '');
+        Observer.Expect('rrp log', 'open;qc OK;close;');
+        Observer.Expect('execute ok', 'Yes');
+        Observer.Expect('execute error|text', '');
+        Observer.Expect('execute error|code', '');
+        Observer.Expect('execute log', 'open;close;pre plain=P1 rec=R1 arr1=A1 arr2=A2 txt2=T2 item=I1;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -233,7 +256,15 @@ codeunit 95544 "R6960 Param Bindings"
         Params := Exec(Observer, 'rrp', 0, '');
         HMode := 1;
         Exec(Observer, 'seeded', 1, Params);
-        Observer.Finish();
+        Observer.Expect('rrp ok', 'Yes');
+        Observer.Expect('rrp error|text', '');
+        Observer.Expect('rrp error|code', '');
+        Observer.Expect('rrp log', 'open;qc OK;close;');
+        Observer.Expect('seeded ok', 'Yes');
+        Observer.Expect('seeded error|text', '');
+        Observer.Expect('seeded error|code', '');
+        Observer.Expect('seeded log', 'open;h plain=P1 rec=R1 arr1=A1 arr2=A2 txt2=T2 item=I1;qc OK;close;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -245,7 +276,12 @@ codeunit 95544 "R6960 Param Bindings"
         Seed();
         HMode := 3;
         Observer.Observe('rrp result', Exec(Observer, 'rrp', 0, ''));
-        Observer.Finish();
+        Observer.Expect('rrp ok', 'Yes');
+        Observer.Expect('rrp error|text', '');
+        Observer.Expect('rrp error|code', '');
+        Observer.Expect('rrp log', 'open;qc Cancel;close;');
+        Observer.Expect('rrp result', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -257,7 +293,12 @@ codeunit 95544 "R6960 Param Bindings"
         Seed();
         HMode := 4;
         Observer.Observe('rrp result', Exec(Observer, 'rrp', 0, ''));
-        Observer.Finish();
+        Observer.Expect('rrp ok', 'Yes');
+        Observer.Expect('rrp error|text', '');
+        Observer.Expect('rrp error|code', '');
+        Observer.Expect('rrp log', 'open;h plain=;qc Cancel;close;');
+        Observer.Expect('rrp result', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -268,7 +309,12 @@ codeunit 95544 "R6960 Param Bindings"
     begin
         Seed();
         Observer.Observe('rrp result', Exec(Observer, 'rrp', 0, ''));
-        Observer.Finish();
+        Observer.Expect('rrp ok', 'Yes');
+        Observer.Expect('rrp error|text', '');
+        Observer.Expect('rrp error|code', '');
+        Observer.Expect('rrp log', 'open;qc Cancel;close;');
+        Observer.Expect('rrp result', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -281,7 +327,15 @@ codeunit 95544 "R6960 Param Bindings"
         Seed();
         Params := Exec(Observer, 'rrp', 0, '');
         Exec(Observer, 'execute', 2, Params);
-        Observer.Finish();
+        Observer.Expect('rrp ok', 'Yes');
+        Observer.Expect('rrp error|text', '');
+        Observer.Expect('rrp error|code', '');
+        Observer.Expect('rrp log', 'open;qc Cancel;close;');
+        Observer.Expect('execute ok', 'Yes');
+        Observer.Expect('execute error|text', '');
+        Observer.Expect('execute error|code', '');
+        Observer.Expect('execute log', 'pre plain= rec= arr1= arr2= txt2= item=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -292,7 +346,11 @@ codeunit 95544 "R6960 Param Bindings"
     begin
         Seed();
         Exec(Observer, 'run', 3, '');
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('run error|text', '');
+        Observer.Expect('run error|code', '');
+        Observer.Expect('run log', 'open;qc Cancel;close;');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
