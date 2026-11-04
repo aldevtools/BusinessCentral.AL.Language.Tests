@@ -6,6 +6,10 @@
 // (and of a global temporary record): Code, Text, Integer, Decimal, Boolean, Date, Option, BigInteger and Time fields, with a text
 // and with a typed value; the value the control reads back; the value the page's record holds after OK in a ModalPageHandler;
 // the errors of a text that does not fit the field; a field with a table OnValidate trigger.
+// Measured on BC 29.0: every kind takes a text and a typed value and the page's record keeps it after OK; a Code value is stored in
+// upper case; an Option control shows and takes the member name, not the OptionCaption (a caption is not an acceptable value); a
+// text that does not evaluate or is too long is a TestValidation error and the field keeps its value; the table field's
+// OnValidate does not run.
 // BC versions: 27.5, 28.5, 29.0 (corpus CI)
 
 table 95180 "TP NSRec Row"
@@ -151,7 +155,9 @@ codeunit 95183 "TP NoSource GlobalRec SetValue"
         Card.GetRow(Row);
         Observer.Observe('railcar', Row.Railcar);
         Observer.Observe('row', RowText(Row));
-        Observer.Finish();
+        Observer.Expect('railcar', 'RC-001');
+        Observer.Expect('row', 'RC-001||0|0|No||0|0|||');
+        Observer.Verify();
     end;
 
     [Test]
@@ -166,7 +172,8 @@ codeunit 95183 "TP NoSource GlobalRec SetValue"
         Card.RunModal();
         Card.GetRow(Row);
         Observer.Observe('row', RowText(Row));
-        Observer.Finish();
+        Observer.Expect('row', 'RC-002|Hello|42|12.5|Yes|2026-03-15|2|1234567890123|10:30:00|V1|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -196,7 +203,17 @@ codeunit 95183 "TP NoSource GlobalRec SetValue"
         Card.ctlTm.SetValue('10:30:00');
         Observer.Observe('tm', Card.ctlTm.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('initial', '|0|0.00|No|| |0|');
+        Observer.Expect('railcar', 'RC-003');
+        Observer.Expect('txt', 'Some text');
+        Observer.Expect('int', '42');
+        Observer.Expect('dec', '1,234.50');
+        Observer.Expect('flag', 'Yes');
+        Observer.Expect('dt', '3/15/2026');
+        Observer.Expect('opt', 'Alpha');
+        Observer.Expect('big', '1234567890123');
+        Observer.Expect('tm', '10:30:00 AM');
+        Observer.Verify();
     end;
 
     [Test]
@@ -225,7 +242,16 @@ codeunit 95183 "TP NoSource GlobalRec SetValue"
         Card.ctlTm.SetValue(103000T);
         Observer.Observe('tm', Card.ctlTm.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('railcar integer', '123');
+        Observer.Expect('txt decimal', '7.25');
+        Observer.Expect('int', '42');
+        Observer.Expect('dec', '12.50');
+        Observer.Expect('flag', 'Yes');
+        Observer.Expect('dt', '3/15/2026');
+        Observer.Expect('opt', 'Beta');
+        Observer.Expect('big', '1234567890123');
+        Observer.Expect('tm', '10:30:00 AM');
+        Observer.Verify();
     end;
 
     [Test]
@@ -274,7 +300,23 @@ codeunit 95183 "TP NoSource GlobalRec SetValue"
         end;
         Observer.ObserveError('opt caption');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('int abc|text', 'Validation error for Field: ctlInt,  Message = ''Your entry of ''abc'' is not an acceptable value for ''ctlInt''. The value "abc" can''t be evaluated into type Integer.''');
+        Observer.Expect('int abc|code', 'TestValidation');
+        Observer.Expect('int after', '5');
+        Observer.Expect('flag maybe|text', 'Validation error for Field: ctlFlag,  Message = ''Your entry of ''maybe'' is not an acceptable value for ''ctlFlag''.''');
+        Observer.Expect('flag maybe|code', 'TestValidation');
+        Observer.Expect('dt notadate|text', 'Validation error for Field: ctlDt,  Message = ''Your entry of ''notadate'' is not an acceptable value for ''ctlDt''. The format of the Date ''notadate'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.''');
+        Observer.Expect('dt notadate|code', 'TestValidation');
+        Observer.Expect('railcar 21 chars|text', 'Validation error for Field: ctlRailcar,  Message = ''The length of the string is 21, but it must be less than or equal to 20 characters. Value: ABCDEFGHIJKLMNOPQRSTU''');
+        Observer.Expect('railcar 21 chars|code', 'TestValidation');
+        Observer.Expect('railcar after', '');
+        Observer.Expect('txt 31 chars|text', 'Validation error for Field: ctlTxt,  Message = ''The length of the string is 31, but it must be less than or equal to 30 characters. Value: 1234567890123456789012345678901''');
+        Observer.Expect('txt 31 chars|code', 'TestValidation');
+        Observer.Expect('opt gamma|text', 'Validation error for Field: ctlOpt,  Message = ''Your entry of ''Gamma'' is not an acceptable value for ''ctlOpt''.''');
+        Observer.Expect('opt gamma|code', 'TestValidation');
+        Observer.Expect('opt caption|text', 'Validation error for Field: ctlOpt,  Message = ''Your entry of ''Alpha cap'' is not an acceptable value for ''ctlOpt''.''');
+        Observer.Expect('opt caption|code', 'TestValidation');
+        Observer.Verify();
     end;
 
     [Test]
@@ -288,7 +330,9 @@ codeunit 95183 "TP NoSource GlobalRec SetValue"
         Observer.Observe('val', Card.ctlVal.Value());
         Observer.Observe('note', Card.ctlNote.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('val', 'V1');
+        Observer.Expect('note', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -305,6 +349,9 @@ codeunit 95183 "TP NoSource GlobalRec SetValue"
         Card.ctlFlag.SetValue(true);
         Observer.Observe('flag', Card.ctlFlag.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('railcar', 'TMP-1');
+        Observer.Expect('int', '-8');
+        Observer.Expect('flag', 'Yes');
+        Observer.Verify();
     end;
 }
