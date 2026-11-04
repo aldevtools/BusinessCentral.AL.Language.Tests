@@ -7,6 +7,11 @@
 // which order, what the host key and the part field read, which triggers run at Close and what is stored. Three hosts: the part
 // directly in the content area, the part hidden (Visible = false), and the part inside a group. The same question is pinned
 // for Document and Card hosts in PartLineBeforeHostKey.al (QH_OpenView_NoRow_*).
+// Seen on BC 29 (Linux CI): as on a Document or Card host, the host runs OnOpenPage only; the visible part runs OnNewRecord
+// once (blank link value, BelowxRec Yes) and then OnAfterGetCurrRecord once on the blank row, which already holds what
+// OnNewRecord wrote. Afterwards the host key and the part field read blank, the part's First answers No and runs no trigger,
+// Close runs the host's OnClosePage only, and nothing is stored. A part inside a group behaves the same. A hidden part
+// (Visible = false) runs neither trigger.
 // BC versions: 27+
 
 table 95440 "LT R6953 Head"
@@ -280,7 +285,15 @@ codeunit 95449 "LT R6953 Tests"
         Host.Close();
         Observer.Observe('close', Log.Take());
         Stored(Observer);
-        Observer.Finish();
+        Observer.Expect('open_view', '[H.OnOpenPage | LP.OnNewRecord: below=Yes | LP.OnAfterGetCurrRecord:/0 New-line marker]');
+        Observer.Expect('host_no', '[]');
+        Observer.Expect('part_description', '[]');
+        Observer.Expect('read_log', '[]');
+        Observer.Expect('caption', 'LT R6953 Host');
+        Observer.Expect('close', '[H.OnClosePage]');
+        Observer.Expect('stored_heads', '0');
+        Observer.Expect('stored_lines', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -298,7 +311,12 @@ codeunit 95449 "LT R6953 Tests"
         Host.Close();
         Observer.Observe('close', Log.Take());
         Stored(Observer);
-        Observer.Finish();
+        Observer.Expect('part_first', 'No');
+        Observer.Expect('first_log', '[]');
+        Observer.Expect('close', '[H.OnClosePage]');
+        Observer.Expect('stored_heads', '0');
+        Observer.Expect('stored_lines', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -315,7 +333,12 @@ codeunit 95449 "LT R6953 Tests"
         Host.Close();
         Observer.Observe('close', Log.Take());
         Stored(Observer);
-        Observer.Finish();
+        Observer.Expect('open_view', '[H.OnOpenPage]');
+        Observer.Expect('caption', 'LT R6953 Host Hidden');
+        Observer.Expect('close', '[]');
+        Observer.Expect('stored_heads', '0');
+        Observer.Expect('stored_lines', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -332,6 +355,11 @@ codeunit 95449 "LT R6953 Tests"
         Host.Close();
         Observer.Observe('close', Log.Take());
         Stored(Observer);
-        Observer.Finish();
+        Observer.Expect('open_view', '[H.OnOpenPage | LP.OnNewRecord: below=Yes | LP.OnAfterGetCurrRecord:/0 New-line marker]');
+        Observer.Expect('part_description', '[]');
+        Observer.Expect('close', '[]');
+        Observer.Expect('stored_heads', '0');
+        Observer.Expect('stored_lines', '0');
+        Observer.Verify();
     end;
 }
