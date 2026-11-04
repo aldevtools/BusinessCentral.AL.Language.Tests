@@ -15,6 +15,11 @@ tableextension 97890 "TBL Lexical Owner Ext" extends "TBL Lexical Owner Base"
             DataClassification = SystemMetadata;
             CaptionClass = UniqueCaptionClass(97891);
         }
+        field(97892; ZeroCaption; Text[30])
+        {
+            DataClassification = SystemMetadata;
+            CaptionClass = GetZeroCaption;
+        }
     }
 
     local procedure GetCaptionClass(FieldNumber: Integer): Text
@@ -30,5 +35,15 @@ tableextension 97890 "TBL Lexical Owner Ext" extends "TBL Lexical Owner Base"
     procedure ExtensionBare(): Text
     begin
         exit(GetCaptionClass(19));
+    end;
+
+    local procedure GetZeroCaption(): Text
+    begin
+        exit('3,Extension zero');
+    end;
+
+    procedure ExtensionZeroBare(): Text
+    begin
+        exit(GetZeroCaption);
     end;
 }

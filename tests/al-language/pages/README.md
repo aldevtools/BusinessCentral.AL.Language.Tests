@@ -89,3 +89,5 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 5. Never renumber a codeunit or rename a test. Read the standing rules in `CONTRIBUTING.md` first.
 
 `extensions/TableExtCaptionClass.al` also probes cross-app public-base/local-extension procedure collisions in ordinary calls and table-field CaptionClass expressions. The dedicated dependency fixture leaves existing fixture definitions unchanged.
+
+The same lexical-owner probe separately covers unparenthesized zero-argument calls and CaptionClass expressions, with explicit qualified public-base access as a control.

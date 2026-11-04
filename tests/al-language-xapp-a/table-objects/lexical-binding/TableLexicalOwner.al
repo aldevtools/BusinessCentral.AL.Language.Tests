@@ -19,4 +19,14 @@ table 61179 "TBL Lexical Owner Base"
     begin
         exit(GetCaptionClass(17));
     end;
+
+    procedure GetZeroCaption(): Text
+    begin
+        exit('3,Base zero');
+    end;
+
+    procedure BaseZeroCall(): Text
+    begin
+        exit(GetZeroCaption);
+    end;
 }

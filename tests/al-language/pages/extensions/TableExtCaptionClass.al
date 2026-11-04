@@ -212,4 +212,58 @@ codeunit 72307 "LT P123 CaptionClass Tests"
         T.Id := 1;
         T.Insert(false);
     end;
+
+    // Unparenthesized lookup and explicitly qualified access are separate observed boundaries.
+    [Test]
+    procedure TableExt_CrossApp_NoParenCallSelectsLocal()
+    var
+        T: Record "TBL Lexical Owner Base";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        T.Get(1);
+        Observer.Observe('result', T.ExtensionZeroBare());
+        Observer.Expect('result', '3,Extension zero');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TableExt_CrossApp_NoParenBaseKeepsBase()
+    var
+        T: Record "TBL Lexical Owner Base";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        T.Get(1);
+        Observer.Observe('result', T.BaseZeroCall());
+        Observer.Expect('result', '3,Base zero');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TableExt_CrossApp_NoParenCaptionSelectsLocal()
+    var
+        T: Record "TBL Lexical Owner Base";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        T.Get(1);
+        Observer.Observe('result', T.FieldCaption(ZeroCaption));
+        Observer.Expect('result', 'Extension zero');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TableExt_CrossApp_QualifiedCallKeepsBase()
+    var
+        T: Record "TBL Lexical Owner Base";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        T.Get(1);
+        Observer.Observe('result', T.GetCaptionClass(23));
+        Observer.Expect('result', '3,Base 23');
+        Observer.Verify();
+    end;
+
 }
