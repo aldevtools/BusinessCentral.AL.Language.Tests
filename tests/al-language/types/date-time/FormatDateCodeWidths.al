@@ -5,7 +5,8 @@
 // Topic: the width of the date codes <Day>, <Month>, <Year> and <Year4> in a custom format string, on a Date and on a DateTime.
 //   Each code without a width and with the widths 0 to 6, on dates in the years 5, 999, 2016 and 9999 (Date) and in 2016 (DateTime).
 //   A format string BC refuses is observed as err:<error code> (the whole text of the widths 0 and 6 in Date_Format_ErrorText).
-//   (AL Runner issue 6966: <Year4,4><Month,2><Day,2> of an ISV's import.)
+//   (AL Runner issue 6966: <Year4,4><Month,2><Day,2> of an ISV's import.) <Year>, <Year,2>, <Year,3> and <Year,4> of the years 1900,
+//   1949, 1950, 1965, 1997, 2000, 2001, 2032, 2049, 2050, 2065 and 2100 on a Date and a DateTime (AL Runner issue 7019: <Year> of 1965).
 // Facts (29.0): no format string here is refused. Without a width and with width 0 each code gives its number as is: <Day> and <Month>
 //   without padding, <Year4> with four digits (0005, 0999, 2016, 9999), <Year> with two digits for 2016 and four for 5, 999 and 9999. With a
 //   width N of 1 to 6 that number is padded with zeros on the left to N characters, or is N stars when it has more characters than N
@@ -421,5 +422,66 @@ codeunit 95480 "DT Format Date Code Width"
         Observer.Expect('<Day,0>', '14');
         Observer.Expect('<Day,6>', '000014');
         Observer.Verify();
+    end;
+
+    // <Year> and its widths across the century boundaries (AL Runner issue 7019: <Year> of a date in 1965), on a Date and on a DateTime.
+    local procedure ObserveYearWindow(var Observer: Codeunit "Probe Observer"; Year: Integer)
+    var
+        D: Date;
+        DT: DateTime;
+    begin
+        D := DMY2Date(1, 1, Year);
+        DT := CreateDateTime(DMY2Date(1, 7, Year), 120000T);
+        Observer.Observe(Format(Year) + ' <Year>', TryFormat(D, '<Year>'));
+        Observer.Observe(Format(Year) + ' <Year,2>', TryFormat(D, '<Year,2>'));
+        Observer.Observe(Format(Year) + ' <Year,3>', TryFormat(D, '<Year,3>'));
+        Observer.Observe(Format(Year) + ' <Year,4>', TryFormat(D, '<Year,4>'));
+        Observer.Observe(Format(Year) + ' DT <Year>', TryFormat(DT, '<Year>'));
+        Observer.Observe(Format(Year) + ' DT <Year,2>', TryFormat(DT, '<Year,2>'));
+    end;
+
+    [Test]
+    procedure Date_Format_YearWindow_1900To1950()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveYearWindow(Observer, 1900);
+        ObserveYearWindow(Observer, 1949);
+        ObserveYearWindow(Observer, 1950);
+        ObserveYearWindow(Observer, 1965);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Date_Format_YearWindow_1997To2032()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveYearWindow(Observer, 1997);
+        ObserveYearWindow(Observer, 2000);
+        ObserveYearWindow(Observer, 2001);
+        ObserveYearWindow(Observer, 2032);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Date_Format_YearWindow_2049To2100()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveYearWindow(Observer, 2049);
+        ObserveYearWindow(Observer, 2050);
+        ObserveYearWindow(Observer, 2065);
+        ObserveYearWindow(Observer, 2100);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Date_Format_YearWindow_IssueString()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('<Month,2>/<Day,2>/<Year>', TryFormat(DMY2Date(1, 1, 1965), '<Month,2>/<Day,2>/<Year>'));
+        Observer.Finish();
     end;
 }
