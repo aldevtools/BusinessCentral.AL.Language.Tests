@@ -969,4 +969,179 @@ codeunit 69811 "PA Event Contracts"
         else
             Res := 'not found id=' + Format(R.Id);
     end;
+
+    // ---- BSK (al-runner issue 6924): BindSubscription on two instances of one codeunit, after UnbindSubscription, after Clear, on a copy of the
+    // variable, on two variables of a SingleInstance manual codeunit, and on a codeunit with EventSubscriberInstance = StaticAutomatic written out.
+    // Objects in BindSubscriptionKinds.Objects.al. Every result is ok or the error text and code. ----
+
+    [TryFunction]
+    local procedure BskTryBind(var C: Codeunit "LT BSK Manual")
+    begin
+        BindSubscription(C);
+    end;
+
+    [TryFunction]
+    local procedure BskTryBindSI(var C: Codeunit "LT BSK Manual SI")
+    begin
+        BindSubscription(C);
+    end;
+
+    [TryFunction]
+    local procedure BskTryBindStatic(var C: Codeunit "LT BSK Static Explicit")
+    begin
+        BindSubscription(C);
+    end;
+
+    local procedure BskResult(Ok: Boolean): Text
+    var
+        R: Text;
+    begin
+        if Ok then
+            R := 'ok'
+        else
+            R := GetLastErrorText() + '|' + GetLastErrorCode();
+        ClearLastError();
+        exit(R);
+    end;
+
+    [Test]
+    procedure BSK_Bind_TwoInstancesOfOneCodeunit()
+    var
+        O: Codeunit "Probe Observer";
+        Pub: Codeunit "LT BSK Pub";
+        A: Codeunit "LT BSK Manual";
+        B: Codeunit "LT BSK Manual";
+    begin
+        A.SetTag('1');
+        B.SetTag('2');
+        O.Observe('bind first', BskResult(BskTryBind(A)));
+        O.Observe('bind second instance', BskResult(BskTryBind(B)));
+        O.Observe('hits', Pub.Ping());
+        O.Observe('unbind first', Format(UnbindSubscription(A)));
+        O.Observe('hits after unbind first', Pub.Ping());
+        O.Observe('unbind second', Format(UnbindSubscription(B)));
+        O.Observe('hits after both', Pub.Ping());
+        O.Expect('bind first', 'ok');
+        O.Expect('bind second instance', 'ok');
+        O.Expect('hits', 'AM1M2');
+        O.Expect('unbind first', 'Yes');
+        O.Expect('hits after unbind first', 'AM2');
+        O.Expect('unbind second', 'Yes');
+        O.Expect('hits after both', 'A');
+        O.Verify();
+    end;
+
+    [Test]
+    procedure BSK_Bind_AfterUnbind_SameInstance()
+    var
+        O: Codeunit "Probe Observer";
+        Pub: Codeunit "LT BSK Pub";
+        A: Codeunit "LT BSK Manual";
+    begin
+        A.SetTag('1');
+        O.Observe('bind', BskResult(BskTryBind(A)));
+        O.Observe('unbind', Format(UnbindSubscription(A)));
+        O.Observe('hits unbound', Pub.Ping());
+        O.Observe('bind again', BskResult(BskTryBind(A)));
+        O.Observe('hits rebound', Pub.Ping());
+        O.Observe('bind third time', BskResult(BskTryBind(A)));
+        O.Observe('unbind again', Format(UnbindSubscription(A)));
+        O.Observe('hits end', Pub.Ping());
+        O.Expect('bind', 'ok');
+        O.Expect('unbind', 'Yes');
+        O.Expect('hits unbound', 'A');
+        O.Expect('bind again', 'ok');
+        O.Expect('hits rebound', 'AM1');
+        O.Expect('bind third time', 'The binding of codeunit 95393 was unsuccessful. The codeunit has already been bound.|EventBinding');
+        O.Expect('unbind again', 'Yes');
+        O.Expect('hits end', 'A');
+        O.Verify();
+    end;
+
+    [Test]
+    procedure BSK_Bind_AfterClear_And_OnCopy()
+    var
+        O: Codeunit "Probe Observer";
+        Pub: Codeunit "LT BSK Pub";
+        A: Codeunit "LT BSK Manual";
+        B: Codeunit "LT BSK Manual";
+    begin
+        A.SetTag('1');
+        O.Observe('bind', BskResult(BskTryBind(A)));
+        Clear(A);
+        A.SetTag('C');
+        O.Observe('hits after clear', Pub.Ping());
+        O.Observe('bind after clear', BskResult(BskTryBind(A)));
+        O.Observe('hits after rebind', Pub.Ping());
+        O.Observe('unbind after clear', Format(UnbindSubscription(A)));
+        O.Observe('hits after unbind', Pub.Ping());
+        A.SetTag('3');
+        O.Observe('bind original', BskResult(BskTryBind(A)));
+        B := A;
+        O.Observe('bind copy', BskResult(BskTryBind(B)));
+        O.Observe('hits copy', Pub.Ping());
+        O.Observe('unbind copy', Format(UnbindSubscription(B)));
+        O.Observe('hits after unbind copy', Pub.Ping());
+        O.Observe('unbind original', Format(UnbindSubscription(A)));
+        O.Observe('hits end', Pub.Ping());
+        O.Expect('bind', 'ok');
+        O.Expect('hits after clear', 'A');
+        O.Expect('bind after clear', 'ok');
+        O.Expect('hits after rebind', 'AMC');
+        O.Expect('unbind after clear', 'Yes');
+        O.Expect('hits after unbind', 'A');
+        O.Expect('bind original', 'ok');
+        O.Expect('bind copy', 'The binding of codeunit 95393 was unsuccessful. The codeunit has already been bound.|EventBinding');
+        O.Expect('hits copy', 'AM3');
+        O.Expect('unbind copy', 'Yes');
+        O.Expect('hits after unbind copy', 'A');
+        O.Expect('unbind original', 'Yes');
+        O.Expect('hits end', 'A');
+        O.Verify();
+    end;
+
+    [Test]
+    procedure BSK_Bind_SingleInstanceManual_TwoVariables()
+    var
+        O: Codeunit "Probe Observer";
+        Pub: Codeunit "LT BSK Pub";
+        A: Codeunit "LT BSK Manual SI";
+        B: Codeunit "LT BSK Manual SI";
+    begin
+        O.Observe('bind first', BskResult(BskTryBindSI(A)));
+        O.Observe('bind second variable', BskResult(BskTryBindSI(B)));
+        O.Observe('hits', Pub.Ping());
+        O.Observe('unbind second variable', Format(UnbindSubscription(B)));
+        O.Observe('hits after unbind second', Pub.Ping());
+        O.Observe('unbind first', Format(UnbindSubscription(A)));
+        O.Observe('hits end', Pub.Ping());
+        O.Expect('bind first', 'ok');
+        O.Expect('bind second variable', 'The binding of codeunit 95391 was unsuccessful. The codeunit has already been bound.|EventBinding');
+        O.Expect('hits', 'SA');
+        O.Expect('unbind second variable', 'Yes');
+        O.Expect('hits after unbind second', 'A');
+        O.Expect('unbind first', 'Yes');
+        O.Expect('hits end', 'A');
+        O.Verify();
+    end;
+
+    [Test]
+    procedure BSK_Bind_StaticAutomaticExplicit()
+    var
+        O: Codeunit "Probe Observer";
+        Pub: Codeunit "LT BSK Pub";
+        S: Codeunit "LT BSK Static Explicit";
+    begin
+        O.Observe('hits unbound', Pub.Ping());
+        O.Observe('bind', BskResult(BskTryBindStatic(S)));
+        O.Observe('return value form', Format(BindSubscription(S)));
+        O.Observe('unbind', Format(UnbindSubscription(S)));
+        O.Observe('hits end', Pub.Ping());
+        O.Expect('hits unbound', 'A');
+        O.Expect('bind', 'The binding of codeunit 95392 was unsuccessful. The codeunit does not use manual binding|EventBinding');
+        O.Expect('return value form', 'No');
+        O.Expect('unbind', 'No');
+        O.Expect('hits end', 'A');
+        O.Verify();
+    end;
 }
