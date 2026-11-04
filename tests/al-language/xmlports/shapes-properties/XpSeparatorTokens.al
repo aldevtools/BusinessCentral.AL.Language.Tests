@@ -8,6 +8,10 @@
 //   <tab>, <LF>, <CR>, <CR/LF>, <NewLine>, a token after a literal (;<TAB>) and two tokens (<TAB><TAB>). Export of two rows (the bytes, with
 //   CR, LF and TAB shown as \r, \n and \t and bytes above 127 as \xNN), and import of lines with and without the delimiter (the rows made).
 //   (AL Runner issue 6965: an ISV's import declares FieldDelimiter = '<>' with FieldSeparator = '<TAB>'.)
+// Facts (29.0): <> is not a token: export writes the two characters <> as the delimiter (or separator); import of a value with or without
+//   the <> around it reads the value. Tokens are case-sensitive: <tab> and <none> are written as these five and six characters. <TAB>, <LF>,
+//   <CR>, <CR/LF> (CR LF), <NewLine> (CR LF), <None> (nothing), ;<TAB> and <TAB><TAB> are written as their characters. Export writes the
+//   UTF-8 byte order mark first and no record separator after the last row.
 // BC versions: 27.5, 28.5, 29.0
 
 xmlport 95480 "XP Sep Delim Empty Sep Tab"
@@ -428,7 +432,8 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<>', FieldSeparator = '<TAB>'
         Observer.Observe('export', ExportRows(95480));
-        Observer.Finish();
+        Observer.Expect('export', '\xEF\xBB\xBF<>1<>\t<>Alpha<>\r\n<>2<>\t<>Be ta<>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -438,7 +443,8 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<>', FieldSeparator = '<TAB>'
         Observer.Observe('rows', ImportRows(95480, '1' + Tab + 'Hauptstrasse' + Cr + Lf + '2' + Tab + 'Süd' + Cr + Lf));
-        Observer.Finish();
+        Observer.Expect('rows', '1=[Hauptstrasse];2=[Süd];');
+        Observer.Verify();
     end;
 
     [Test]
@@ -448,7 +454,8 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<>', FieldSeparator = '<TAB>'
         Observer.Observe('rows', ImportRows(95480, '<>1<>' + Tab + '<>Hauptstrasse<>' + Cr + Lf + '<>2<>' + Tab + '<>Süd<>' + Cr + Lf));
-        Observer.Finish();
+        Observer.Expect('rows', '1=[Hauptstrasse];2=[Süd];');
+        Observer.Verify();
     end;
 
     [Test]
@@ -457,7 +464,8 @@ codeunit 95482 "XP Separator Tokens"
         Observer: Codeunit "Probe Observer";
     begin
         // FieldDelimiter = '<>', FieldSeparator = '<TAB>'
-        Observer.Observe('rows', ImportRows(95480, '"1"' + Tab + '"Hauptstrasse"' + Cr + Lf));
+        asserterror ImportRows(95480, '"1"' + Tab + '"Hauptstrasse"' + Cr + Lf);
+        Observer.ObserveError('import');
         Observer.Finish();
     end;
 
@@ -468,7 +476,8 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<>', FieldSeparator = '(default)'
         Observer.Observe('export', ExportRows(95481));
-        Observer.Finish();
+        Observer.Expect('export', '\xEF\xBB\xBF<>1<>,<>Alpha<>\r\n<>2<>,<>Be ta<>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -478,7 +487,8 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<>', FieldSeparator = '(default)'
         Observer.Observe('rows', ImportRows(95481, '1,Alpha' + Cr + Lf + '2,Be ta' + Cr + Lf));
-        Observer.Finish();
+        Observer.Expect('rows', '1=[Alpha];2=[Be ta];');
+        Observer.Verify();
     end;
 
     [Test]
@@ -488,7 +498,8 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<TAB>', FieldSeparator = ';'
         Observer.Observe('export', ExportRows(95482));
-        Observer.Finish();
+        Observer.Expect('export', '\xEF\xBB\xBF\t1\t;\tAlpha\t\r\n\t2\t;\tBe ta\t');
+        Observer.Verify();
     end;
 
     [Test]
@@ -498,7 +509,8 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<TAB>', FieldSeparator = ';'
         Observer.Observe('rows', ImportRows(95482, Tab + '1' + Tab + ';' + Tab + 'Alpha' + Tab + Cr + Lf + Tab + '2' + Tab + ';' + Tab + 'Be;ta' + Tab + Cr + Lf));
-        Observer.Finish();
+        Observer.Expect('rows', '1=[Alpha];2=[Be;ta];');
+        Observer.Verify();
     end;
 
     [Test]
@@ -508,7 +520,8 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<None>', FieldSeparator = '<>'
         Observer.Observe('export', ExportRows(95483));
-        Observer.Finish();
+        Observer.Expect('export', '\xEF\xBB\xBF1<>Alpha\r\n2<>Be ta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -517,7 +530,8 @@ codeunit 95482 "XP Separator Tokens"
         Observer: Codeunit "Probe Observer";
     begin
         // FieldDelimiter = '<None>', FieldSeparator = '<>'
-        Observer.Observe('rows', ImportRows(95483, '1Alpha' + Cr + Lf));
+        asserterror ImportRows(95483, '1Alpha' + Cr + Lf);
+        Observer.ObserveError('import');
         Observer.Finish();
     end;
 
@@ -528,7 +542,8 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<None>', FieldSeparator = '<LF>'
         Observer.Observe('export', ExportRows(95484));
-        Observer.Finish();
+        Observer.Expect('export', '\xEF\xBB\xBF1\nAlpha\r\n2\nBe ta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -538,7 +553,8 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<None>', FieldSeparator = '<CR>'
         Observer.Observe('export', ExportRows(95485));
-        Observer.Finish();
+        Observer.Expect('export', '\xEF\xBB\xBF1\rAlpha\r\n2\rBe ta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -548,7 +564,8 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<None>', FieldSeparator = '<CR/LF>'
         Observer.Observe('export', ExportRows(95486));
-        Observer.Finish();
+        Observer.Expect('export', '\xEF\xBB\xBF1\r\nAlpha\r\n2\r\nBe ta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -558,7 +575,8 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<None>', FieldSeparator = '<NewLine>'
         Observer.Observe('export', ExportRows(95487));
-        Observer.Finish();
+        Observer.Expect('export', '\xEF\xBB\xBF1\r\nAlpha\r\n2\r\nBe ta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -568,7 +586,8 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<None>', FieldSeparator = '<tab>'
         Observer.Observe('export', ExportRows(95488));
-        Observer.Finish();
+        Observer.Expect('export', '\xEF\xBB\xBF1<tab>Alpha\r\n2<tab>Be ta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -577,7 +596,8 @@ codeunit 95482 "XP Separator Tokens"
         Observer: Codeunit "Probe Observer";
     begin
         // FieldDelimiter = '<None>', FieldSeparator = '<tab>'
-        Observer.Observe('rows', ImportRows(95488, '1' + Tab + 'Alpha' + Cr + Lf + '2' + Tab + 'Be ta' + Cr + Lf));
+        asserterror ImportRows(95488, '1' + Tab + 'Alpha' + Cr + Lf + '2' + Tab + 'Be ta' + Cr + Lf);
+        Observer.ObserveError('import');
         Observer.Finish();
     end;
 
@@ -588,7 +608,8 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<None>', FieldSeparator = ';<TAB>'
         Observer.Observe('export', ExportRows(95489));
-        Observer.Finish();
+        Observer.Expect('export', '\xEF\xBB\xBF1;\tAlpha\r\n2;\tBe ta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -598,7 +619,8 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<None>', FieldSeparator = ';<TAB>'
         Observer.Observe('rows', ImportRows(95489, '1;' + Tab + 'Alpha' + Cr + Lf + '2;' + Tab + 'Be ta' + Cr + Lf));
-        Observer.Finish();
+        Observer.Expect('rows', '1=[Alpha];2=[Be ta];');
+        Observer.Verify();
     end;
 
     [Test]
@@ -608,7 +630,8 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<None>', FieldSeparator = '<TAB><TAB>'
         Observer.Observe('export', ExportRows(95490));
-        Observer.Finish();
+        Observer.Expect('export', '\xEF\xBB\xBF1\t\tAlpha\r\n2\t\tBe ta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -618,7 +641,8 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<None>', FieldSeparator = '<TAB><TAB>'
         Observer.Observe('rows', ImportRows(95490, '1' + Tab + Tab + 'Alpha' + Cr + Lf + '2' + Tab + Tab + 'Be ta' + Cr + Lf));
-        Observer.Finish();
+        Observer.Expect('rows', '1=[Alpha];2=[Be ta];');
+        Observer.Verify();
     end;
 
     [Test]
@@ -628,7 +652,8 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<None>', FieldSeparator = '<None>'
         Observer.Observe('export', ExportRows(95491));
-        Observer.Finish();
+        Observer.Expect('export', '\xEF\xBB\xBF1Alpha\r\n2Be ta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -638,7 +663,8 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<>', FieldSeparator = '<None>'
         Observer.Observe('export', ExportRows(95492));
-        Observer.Finish();
+        Observer.Expect('export', '\xEF\xBB\xBF<>1<><>Alpha<>\r\n<>2<><>Be ta<>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -648,7 +674,8 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<none>', FieldSeparator = '<TAB>'
         Observer.Observe('export', ExportRows(95493));
-        Observer.Finish();
+        Observer.Expect('export', '\xEF\xBB\xBF<none>1<none>\t<none>Alpha<none>\r\n<none>2<none>\t<none>Be ta<none>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -658,6 +685,7 @@ codeunit 95482 "XP Separator Tokens"
     begin
         // FieldDelimiter = '<none>', FieldSeparator = '<TAB>'
         Observer.Observe('rows', ImportRows(95493, '1' + Tab + 'Alpha' + Cr + Lf));
-        Observer.Finish();
+        Observer.Expect('rows', '1=[Alpha];');
+        Observer.Verify();
     end;
 }

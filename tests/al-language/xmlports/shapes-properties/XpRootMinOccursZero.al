@@ -9,6 +9,11 @@
 //   document, of another root and of a document that starts at a child element (the rows and the trigger log the import made, or the
 //   error text and code; the import runs inside Codeunit.Run so a failed import does not end the test).
 //   (AL Runner issue 6963: a dependency app's configuration port has MinOccurs = Zero on its root.)
+// Facts (29.0): MinOccurs = Zero on the root changes nothing that is seen here: export writes the root (and every container) also without
+//   rows; import takes the root with or without content, and an empty file, a document without a root element, another root, a document that
+//   starts at a child element or two roots fail as for a root with the default occurs (texts and codes below). Below the root, MinOccurs = Once
+//   on a leaf text element or a field element makes import fail the schema when the element is missing; MinOccurs = Zero lets it be missing.
+//   Export writes an empty element for a blank value either way; a table element with the default occurs and no rows is written once, blank.
 //   95494 "XP Root Min Zero Issue": the port of the issue: root Cfg (MaxOccurs = Once, MinOccurs = Zero) > Namespaces (the same) > table
 //     element Item (MinOccurs = Zero) > field elements Code and Url (MinOccurs = Zero).
 //   95495 "XP Root Min Zero Table": root Cfg (MinOccurs = Zero) > table element Item with the default occurs > two field elements.
@@ -375,7 +380,9 @@ codeunit 95483 "XP Root Min Zero"
         Filled.SetDestination(OutS);
         Filled.Export();
         Observer.Observe('two rows, the second with a blank Url', ReadLines(TempBlob));
-        Observer.Finish();
+        Observer.Expect('no rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Cfg>|  <Namespaces />|</Cfg>|');
+        Observer.Expect('two rows, the second with a blank Url', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Cfg>|  <Namespaces>|    <Item>|      <Code>A</Code>|      <Url>urn:a</Url>|    </Item>|    <Item>|      <Code>B</Code>|      <Url />|    </Item>|  </Namespaces>|</Cfg>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -398,7 +405,9 @@ codeunit 95483 "XP Root Min Zero"
         Filled.SetDestination(OutS);
         Filled.Export();
         Observer.Observe('two rows, the second with a blank Url', ReadLines(TempBlob));
-        Observer.Finish();
+        Observer.Expect('no rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Cfg>|  <Item>|    <Code />|    <Url />|  </Item>|</Cfg>|');
+        Observer.Expect('two rows, the second with a blank Url', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Cfg>|  <Item>|    <Code>A</Code>|    <Url>urn:a</Url>|  </Item>|  <Item>|    <Code>B</Code>|    <Url />|  </Item>|</Cfg>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -421,7 +430,9 @@ codeunit 95483 "XP Root Min Zero"
         Filled.SetDestination(OutS);
         Filled.Export();
         Observer.Observe('two rows, the second with a blank Url', ReadLines(TempBlob));
-        Observer.Finish();
+        Observer.Expect('no rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Cfg>|  <Head>H</Head>|  <Opt />|</Cfg>|');
+        Observer.Expect('two rows, the second with a blank Url', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Cfg>|  <Head>H</Head>|  <Opt />|  <Item>|    <Code>A</Code>|    <Url>urn:a</Url>|  </Item>|  <Item>|    <Code>B</Code>|    <Url />|  </Item>|</Cfg>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -444,7 +455,9 @@ codeunit 95483 "XP Root Min Zero"
         Filled.SetDestination(OutS);
         Filled.Export();
         Observer.Observe('two rows, the second with a blank Url', ReadLines(TempBlob));
-        Observer.Finish();
+        Observer.Expect('no rows', '|');
+        Observer.Expect('two rows, the second with a blank Url', '"A","urn:a"|"B",""|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -457,7 +470,14 @@ codeunit 95483 "XP Root Min Zero"
         Import(Observer, 'root and empty container', 95494, XmlDecl() + '<Cfg><Namespaces /></Cfg>');
         Import(Observer, 'empty document', 95494, '');
         Import(Observer, 'declaration only', 95494, XmlDecl());
-        Observer.Finish();
+        Observer.Expect('issue document', 'ok A=[urn:a];B=[]; log=insert A;insert B;');
+        Observer.Expect('root alone', 'ok  log=');
+        Observer.Expect('root and empty container', 'ok  log=');
+        Observer.Expect('empty document|text', 'Cannot import the specified XML document because the file is empty.');
+        Observer.Expect('empty document|code', 'XmlPortData');
+        Observer.Expect('declaration only|text', 'Root element is missing.');
+        Observer.Expect('declaration only|code', 'XmlPortImport:Xml');
+        Observer.Verify();
     end;
 
     [Test]
@@ -469,7 +489,15 @@ codeunit 95483 "XP Root Min Zero"
         Import(Observer, 'starts at the container', 95494, XmlDecl() + '<Namespaces><Item><Code>A</Code></Item></Namespaces>');
         Import(Observer, 'starts at the table element', 95494, XmlDecl() + '<Item><Code>A</Code></Item>');
         Import(Observer, 'two roots', 95494, XmlDecl() + '<Cfg /><Cfg />');
-        Observer.Finish();
+        Observer.Expect('other root|text', 'Imported XML cannot validate with the schema: The ''Other'' element is not declared.');
+        Observer.Expect('other root|code', 'XmlPortInvalidXml');
+        Observer.Expect('starts at the container|text', 'Imported XML cannot validate with the schema: The ''Namespaces'' element is not declared.');
+        Observer.Expect('starts at the container|code', 'XmlPortInvalidXml');
+        Observer.Expect('starts at the table element|text', 'Imported XML cannot validate with the schema: The ''Item'' element is not declared.');
+        Observer.Expect('starts at the table element|code', 'XmlPortInvalidXml');
+        Observer.Expect('two roots|text', 'There are multiple root elements. Line 1, position 47.');
+        Observer.Expect('two roots|code', 'XmlPortImport:Xml');
+        Observer.Verify();
     end;
 
     [Test]
@@ -481,7 +509,14 @@ codeunit 95483 "XP Root Min Zero"
         Import(Observer, 'root alone', 95495, XmlDecl() + '<Cfg />');
         Import(Observer, 'empty document', 95495, '');
         Import(Observer, 'starts at the table element', 95495, XmlDecl() + '<Item><Code>A</Code><Url>urn:a</Url></Item>');
-        Observer.Finish();
+        Observer.Expect('two rows', 'ok A=[urn:a];B=[]; log=insert A;insert B;');
+        Observer.Expect('root alone|text', 'Imported XML cannot validate with the schema: The element ''Cfg'' has incomplete content. List of possible elements expected: ''Item''.');
+        Observer.Expect('root alone|code', 'XmlPortInvalidXml');
+        Observer.Expect('empty document|text', 'Cannot import the specified XML document because the file is empty.');
+        Observer.Expect('empty document|code', 'XmlPortData');
+        Observer.Expect('starts at the table element|text', 'Imported XML cannot validate with the schema: The ''Item'' element is not declared.');
+        Observer.Expect('starts at the table element|code', 'XmlPortInvalidXml');
+        Observer.Verify();
     end;
 
     [Test]
@@ -494,7 +529,15 @@ codeunit 95483 "XP Root Min Zero"
         Import(Observer, 'no Head', 95496, XmlDecl() + '<Cfg><Opt>o</Opt><Item><Code>A</Code></Item></Cfg>');
         Import(Observer, 'no Code', 95496, XmlDecl() + '<Cfg><Head>h</Head><Item><Url>urn:a</Url></Item></Cfg>');
         Import(Observer, 'root alone', 95496, XmlDecl() + '<Cfg />');
-        Observer.Finish();
+        Observer.Expect('full', 'ok A=[urn:a]; log=head h;opt o;insert A;');
+        Observer.Expect('no Opt', 'ok A=[]; log=head h;insert A;');
+        Observer.Expect('no Head|text', 'Imported XML cannot validate with the schema: The element ''Cfg'' has invalid child element ''Opt''. List of possible elements expected: ''Head''.');
+        Observer.Expect('no Head|code', 'XmlPortInvalidXml');
+        Observer.Expect('no Code|text', 'Imported XML cannot validate with the schema: The element ''Item'' has invalid child element ''Url''. List of possible elements expected: ''Code''.');
+        Observer.Expect('no Code|code', 'XmlPortInvalidXml');
+        Observer.Expect('root alone|text', 'Imported XML cannot validate with the schema: The element ''Cfg'' has incomplete content. List of possible elements expected: ''Head''.');
+        Observer.Expect('root alone|code', 'XmlPortInvalidXml');
+        Observer.Verify();
     end;
 
     [Test]
@@ -503,7 +546,9 @@ codeunit 95483 "XP Root Min Zero"
         Observer: Codeunit "Probe Observer";
     begin
         Import(Observer, 'empty document', 95496, '');
-        Observer.Finish();
+        Observer.Expect('empty document|text', 'Cannot import the specified XML document because the file is empty.');
+        Observer.Expect('empty document|code', 'XmlPortData');
+        Observer.Verify();
     end;
 
     [Test]
@@ -513,6 +558,9 @@ codeunit 95483 "XP Root Min Zero"
     begin
         Import(Observer, 'two lines', 95497, 'A,urn:a' + CrLf() + 'B,' + CrLf());
         Import(Observer, 'empty document', 95497, '');
-        Observer.Finish();
+        Observer.Expect('two lines', 'ok A=[urn:a];B=[]; log=insert A;insert B;');
+        Observer.Expect('empty document|text', 'Cannot import the specified XML document because the file is empty.');
+        Observer.Expect('empty document|code', 'XmlPortData');
+        Observer.Verify();
     end;
 }

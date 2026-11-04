@@ -6,6 +6,9 @@
 //   InStream.ReadText and BigText.Read of 32 bytes at a time, observed as the character codes. The UTF-8 bytes of a character
 //   (C3 BC, 'ü') read without an encoding, between ASCII text.
 //   (AL Runner issue 6968: a dependency app reads a UTF-8 XSD from a Blob without an encoding and searches each line.)
+// Facts (29.0): no read is refused. ReadText without an encoding, ReadText with TextEncoding::MSDos and BigText.Read give the same character
+//   for every byte; the full table of the 128 bytes is asserted below (for example 80 is 199, 9E is 15, B1 is 8364, C3 is 8220, FF is 160).
+//   C3 BC between ASCII text reads as 8220 338 and the line still contains 'urn:'.
 // BC versions: 27.5, 28.5, 29.0
 
 codeunit 95481 "STR ReadText MsDos High Bytes"
@@ -68,7 +71,10 @@ codeunit 95481 "STR ReadText MsDos High Bytes"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveRange(Observer, 128, 159);
-        Observer.Finish();
+        Observer.Expect('ReadText no encoding', '199 252 233 226 228 224 229 231 234 235 232 239 238 236 196 197 201 230 198 244 246 242 251 249 255 214 220 162 163 165 15 402');
+        Observer.Expect('ReadText MSDos', '199 252 233 226 228 224 229 231 234 235 232 239 238 236 196 197 201 230 198 244 246 242 251 249 255 214 220 162 163 165 15 402');
+        Observer.Expect('BigText.Read no encoding', '199 252 233 226 228 224 229 231 234 235 232 239 238 236 196 197 201 230 198 244 246 242 251 249 255 214 220 162 163 165 15 402');
+        Observer.Verify();
     end;
 
     [Test]
@@ -77,7 +83,10 @@ codeunit 95481 "STR ReadText MsDos High Bytes"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveRange(Observer, 160, 191);
-        Observer.Finish();
+        Observer.Expect('ReadText no encoding', '225 237 243 250 241 209 170 186 191 20 172 189 188 161 171 187 21 8364 129 8218 8222 8230 8224 8225 710 8240 352 8249 338 141 381 143');
+        Observer.Expect('ReadText MSDos', '225 237 243 250 241 209 170 186 191 20 172 189 188 161 171 187 21 8364 129 8218 8222 8230 8224 8225 710 8240 352 8249 338 141 381 143');
+        Observer.Expect('BigText.Read no encoding', '225 237 243 250 241 209 170 186 191 20 172 189 188 161 171 187 21 8364 129 8218 8222 8230 8224 8225 710 8240 352 8249 338 141 381 143');
+        Observer.Verify();
     end;
 
     [Test]
@@ -86,7 +95,10 @@ codeunit 95481 "STR ReadText MsDos High Bytes"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveRange(Observer, 192, 223);
-        Observer.Finish();
+        Observer.Expect('ReadText no encoding', '144 8216 8217 8220 8221 8226 8211 8212 732 8482 353 8250 339 157 382 376 168 169 173 174 175 179 180 184 185 190 192 193 194 166 195 200');
+        Observer.Expect('ReadText MSDos', '144 8216 8217 8220 8221 8226 8211 8212 732 8482 353 8250 339 157 382 376 168 169 173 174 175 179 180 184 185 190 192 193 194 166 195 200');
+        Observer.Expect('BigText.Read no encoding', '144 8216 8217 8220 8221 8226 8211 8212 732 8482 353 8250 339 157 382 376 168 169 173 174 175 179 180 184 185 190 192 193 194 166 195 200');
+        Observer.Verify();
     end;
 
     [Test]
@@ -95,7 +107,10 @@ codeunit 95481 "STR ReadText MsDos High Bytes"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveRange(Observer, 224, 255);
-        Observer.Finish();
+        Observer.Expect('ReadText no encoding', '202 223 203 204 205 206 181 207 208 210 211 212 213 215 216 217 218 177 219 221 222 227 247 240 176 245 183 248 253 178 254 160');
+        Observer.Expect('ReadText MSDos', '202 223 203 204 205 206 181 207 208 210 211 212 213 215 216 217 218 177 219 221 222 227 247 240 176 245 183 248 253 178 254 160');
+        Observer.Expect('BigText.Read no encoding', '202 223 203 204 205 206 181 207 208 210 211 212 213 215 216 217 218 177 219 221 222 227 247 240 176 245 183 248 253 178 254 160');
+        Observer.Verify();
     end;
 
     [Test]
@@ -124,6 +139,10 @@ codeunit 95481 "STR ReadText MsDos High Bytes"
             Observer.Observe('line ' + Format(LineNo), Codes(Line));
             Observer.Observe('line ' + Format(LineNo) + ' contains urn:', Format(Line.Contains('urn:')));
         end;
-        Observer.Finish();
+        Observer.Expect('line 1', '117 114 110 58 97');
+        Observer.Expect('line 1 contains urn:', 'Yes');
+        Observer.Expect('line 2', '8220 338 32 117 114 110 58 98');
+        Observer.Expect('line 2 contains urn:', 'Yes');
+        Observer.Verify();
     end;
 }
