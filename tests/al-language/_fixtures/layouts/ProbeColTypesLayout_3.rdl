@@ -32,6 +32,15 @@
       </DefaultValue>
       <Prompt>IdCCaption</Prompt>
     </ReportParameter>
+    <ReportParameter Name="TxtCCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>TxtCCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>TxtCCaption</Prompt>
+    </ReportParameter>
   </ReportParameters>
   <Code>Public Function BlankZero(ByVal Value As Decimal)
     if Value = 0 then
@@ -80,66 +89,6 @@ End Function
         </Field>
         <Field Name="TxtC">
           <DataField>TxtC</DataField>
-        </Field>
-        <Field Name="CodC">
-          <DataField>CodC</DataField>
-        </Field>
-        <Field Name="DecC">
-          <DataField>DecC</DataField>
-        </Field>
-        <Field Name="DecCFormat">
-          <DataField>DecCFormat</DataField>
-        </Field>
-        <Field Name="DtC">
-          <DataField>DtC</DataField>
-        </Field>
-        <Field Name="TmC">
-          <DataField>TmC</DataField>
-        </Field>
-        <Field Name="DtmC">
-          <DataField>DtmC</DataField>
-        </Field>
-        <Field Name="BlC">
-          <DataField>BlC</DataField>
-        </Field>
-        <Field Name="OptC">
-          <DataField>OptC</DataField>
-        </Field>
-        <Field Name="EnC">
-          <DataField>EnC</DataField>
-        </Field>
-        <Field Name="BigC">
-          <DataField>BigC</DataField>
-        </Field>
-        <Field Name="DurC">
-          <DataField>DurC</DataField>
-        </Field>
-        <Field Name="GdC">
-          <DataField>GdC</DataField>
-        </Field>
-        <Field Name="Dec3C">
-          <DataField>Dec3C</DataField>
-        </Field>
-        <Field Name="Dec3CFormat">
-          <DataField>Dec3CFormat</DataField>
-        </Field>
-        <Field Name="Expr">
-          <DataField>Expr</DataField>
-        </Field>
-        <Field Name="ExprDec">
-          <DataField>ExprDec</DataField>
-        </Field>
-        <Field Name="ExprDecFormat">
-          <DataField>ExprDecFormat</DataField>
-        </Field>
-        <Field Name="TxtAgain">
-          <DataField>TxtAgain</DataField>
-        </Field>
-        <Field Name="OptTxt">
-          <DataField>OptTxt</DataField>
-        </Field>
-        <Field Name="CIName">
-          <DataField>CIName</DataField>
         </Field>
       </Fields>
       <Query>

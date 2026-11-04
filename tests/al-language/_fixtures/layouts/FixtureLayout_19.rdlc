@@ -63,20 +63,7 @@ End Function
   <rd:ReportID>0eeb6585-38ae-40f1-885b-8d50088d51b4</rd:ReportID>
   <DataSets>
     <DataSet Name="DataSet_Result">
-      <Fields>
-        <Field Name="EntryNo">
-          <DataField>EntryNo</DataField>
-        </Field>
-        <Field Name="Description">
-          <DataField>Description</DataField>
-        </Field>
-        <Field Name="Amount">
-          <DataField>Amount</DataField>
-        </Field>
-        <Field Name="AmountFormat">
-          <DataField>AmountFormat</DataField>
-        </Field>
-      </Fields>
+      <Fields />
       <Query>
         <DataSourceName>DataSource</DataSourceName>
         <CommandText />

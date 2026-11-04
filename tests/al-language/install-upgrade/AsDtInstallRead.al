@@ -170,7 +170,12 @@ codeunit 79939 "LT AS DT Install Read"
         Observer.Observe('outcome', ObsText('C1'));
         Observer.Observe('first target rows', DumpRows(Database::"INS DT Clear First"));
         Observer.Observe('second target rows', DumpRows(Database::"INS DT Clear Second"));
-        Observer.Finish();
+        // Observed on BC 27.5, 28.5 and 29.0: Clear drops the source filter, the field mappings and the constant staged before it; only the
+        // calls after the second SetTables count (all four source rows, Amount and Note not copied). Nothing goes to the first target.
+        Observer.Expect('outcome', 'ok');
+        Observer.Expect('first target rows', '');
+        Observer.Expect('second target rows', 'A|0|alpha|;B|0|beta|;C|0|gamma|;D|0|delta|;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -181,7 +186,12 @@ codeunit 79939 "LT AS DT Install Read"
         Observer.Observe('outcome', ObsText('C2'));
         Observer.Observe('first target rows', DumpRows(Database::"INS DT Twice First"));
         Observer.Observe('second target rows', DumpRows(Database::"INS DT Twice Second"));
-        Observer.Finish();
+        // Observed on BC 27.5, 28.5 and 29.0: without Clear, a second SetTables keeps the field mappings of the first one: mapping Code
+        // again raises (the text is BC's, with its spelling), and nothing is copied.
+        Observer.Expect('outcome', 'Not possible to add the same field as destionation field twice.|DB:Ok');
+        Observer.Expect('first target rows', '');
+        Observer.Expect('second target rows', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -191,6 +201,9 @@ codeunit 79939 "LT AS DT Install Read"
     begin
         Observer.Observe('outcome', ObsText('C3'));
         Observer.Observe('target rows', DumpRows(Database::"INS DT Clear Only"));
-        Observer.Finish();
+        // Observed on BC 27.5, 28.5 and 29.0: after Clear, CopyRows asks for SetTables, also in install code.
+        Observer.Expect('outcome', 'SetTables must first be called before calling other methods on DataTransfer.|DB:Ok');
+        Observer.Expect('target rows', '');
+        Observer.Verify();
     end;
 }

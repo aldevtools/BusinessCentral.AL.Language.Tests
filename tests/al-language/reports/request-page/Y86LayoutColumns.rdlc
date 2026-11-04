@@ -64,17 +64,11 @@ End Function
   <DataSets>
     <DataSet Name="DataSet_Result">
       <Fields>
-        <Field Name="EntryNo">
-          <DataField>EntryNo</DataField>
+        <Field Name="NumberCol">
+          <DataField>NumberCol</DataField>
         </Field>
-        <Field Name="Description">
-          <DataField>Description</DataField>
-        </Field>
-        <Field Name="Amount">
-          <DataField>Amount</DataField>
-        </Field>
-        <Field Name="AmountFormat">
-          <DataField>AmountFormat</DataField>
+        <Field Name="TextCol">
+          <DataField>TextCol</DataField>
         </Field>
       </Fields>
       <Query>

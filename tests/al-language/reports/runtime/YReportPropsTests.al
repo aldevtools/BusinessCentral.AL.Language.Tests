@@ -317,6 +317,11 @@ codeunit 75510 "LT Y Report Props Tests"
         Observer.Observe('flag off', Helper.Facts(2000000139, 1, Report::"REP ExtImages Off", 'EnableExternalImages'));
         Observer.Observe('same xml', Format(WithImages = Without));
         Observer.Observe('xml with the property', Helper.AsciiOnly(WithImages));
-        Observer.Finish();
+        // Observed on BC 27.5, 28.5 and 29.0: the property is in Report Metadata, and the SaveAs Xml dataset is the same with and without it.
+        Observer.Expect('flag on', 'EnableExternalImages=Yes;');
+        Observer.Expect('flag off', 'EnableExternalImages=No;');
+        Observer.Expect('same xml', 'Yes');
+        Observer.Expect('xml with the property', '<DataItems>|    <DataItem language="en-US" formatRegion="en-US" name="Row">|      <Columns>|        <Column name="NumCol">1</Column>|        <Column name="ImageUrl">https://example.com/images/1.png</Column>|        <Column name="AmtCol" decimalformatter="#,##0.00">1.5</Column>|        <Column name="DayCol">1/31/2025</Column>|      </Columns>|    </DataItem>|    <DataItem language="en-US" formatRegion="en-US" name="Row">|      <Columns>|        <Column name="NumCol">2</Column>|        <Column name="ImageUrl">https://example.com/images/2.png</Column>|        <Column name="AmtCol" decimalformatter="#,##0.00">3.0</Column>|        <Column name="DayCol">1/31/2025</Column>|      </Columns>|    </DataItem>|  </DataItems>|</ReportDataSet>|');
+        Observer.Verify();
     end;
 }
