@@ -52,13 +52,19 @@ codeunit 95811 "REC TFX Field Apps Tests"
         RecRef: RecordRef;
         FldRef: FieldRef;
         i: Integer;
+        No: Integer;
         Result: Text;
     begin
+        // Fields by number (1, then 95830 to 95835), not by index: the order of the extension fields is not under test.
         RecRef.GetTable(RecVariant);
-        for i := 1 to RecRef.FieldCount() do begin
-            FldRef := RecRef.FieldIndex(i);
-            if FldRef.Number() < 2000000000 then
-                Result += Format(FldRef.Number()) + '=' + Format(FldRef.Value(), 0, 9) + ';';
+        for i := 95829 to 95835 do begin
+            No := i;
+            if i = 95829 then
+                No := 1;
+            if RecRef.FieldExist(No) then begin
+                FldRef := RecRef.Field(No);
+                Result += Format(No) + '=' + Format(FldRef.Value(), 0, 9) + ';';
+            end;
         end;
         exit(Result);
     end;
@@ -134,7 +140,13 @@ codeunit 95811 "REC TFX Field Apps Tests"
         Observer.Observe('mode 3', Forward(3, false));
         Observer.Observe('mode 1 long text', Forward(1, true));
         Observer.Observe('mode 3 long text', Forward(3, true));
-        Observer.Finish();
+        Observer.Expect('target before', 'ok: 1=T1;95830=KEEPD;95831=KEEPC;95832=5;95833=false;95834=KEEPD2;95835=KEEPA;');
+        Observer.Expect('mode 1', 'ok: 1=S1;95830=KEEPD;95831=KEEPC;95832=7;95833=false;95834=SRC TEXT;95835=KEEPA;');
+        Observer.Expect('mode 2', 'ok: 1=T1;95830=KEEPD;95831=KEEPC;95832=7;95833=false;95834=SRC TEXT;95835=KEEPA;');
+        Observer.Expect('mode 3', 'ok: 1=S1;95830=KEEPD;95831=KEEPC;95832=7;95833=false;95834=SRC TEXT;95835=KEEPA;');
+        Observer.Expect('mode 1 long text', 'ok: 1=S1;95830=KEEPD;95831=KEEPC;95832=7;95833=false;95834=KEEPD2;95835=KEEPA;');
+        Observer.Expect('mode 3 long text', 'ok: 1=S1;95830=KEEPD;95831=KEEPC;95832=7;95833=false;95834=KEEPD2;95835=KEEPA;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -145,7 +157,10 @@ codeunit 95811 "REC TFX Field Apps Tests"
         Observer.Observe('mode 1', Backward(1));
         Observer.Observe('mode 2', Backward(2));
         Observer.Observe('mode 3', Backward(3));
-        Observer.Finish();
+        Observer.Expect('mode 1', 'ok: 1=T1;95830=true;95831=true;95832=5;95833=SRCCODE;95834=KEEPD2;95835=true;');
+        Observer.Expect('mode 2', 'ok: 1=S1;95830=true;95831=true;95832=5;95833=SRCCODE;95834=KEEPD2;95835=true;');
+        Observer.Expect('mode 3', 'ok: 1=T1;95830=true;95831=true;95832=5;95833=SRCCODE;95834=KEEPD2;95835=true;');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -186,6 +201,9 @@ codeunit 95811 "REC TFX Field Apps Tests"
         Observer.Observe('mode 1', SameApp(1));
         Observer.Observe('mode 2', SameApp(2));
         Observer.Observe('mode 3', SameApp(3));
-        Observer.Finish();
+        Observer.Expect('mode 1', 'error: The following fields must have the same type:\\Field: XB Same Code <-- XB Same Flag\Table: REC TFX Target 2 <-- REC TFX Source 2\Type: Code <-- Boolean | DB:TypeMisMatch | 1=S2;95830=KEEPB;');
+        Observer.Expect('mode 2', 'error: The following fields must have the same type:\\Field: XB Same Code <-- XB Same Flag\Table: REC TFX Target 2 <-- REC TFX Source 2\Type: Code <-- Boolean | DB:TypeMisMatch | 1=T2;95830=KEEPB;');
+        Observer.Expect('mode 3', 'ok: 1=S2;95830=KEEPB;');
+        Observer.Verify();
     end;
 }

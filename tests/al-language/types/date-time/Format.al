@@ -1297,7 +1297,24 @@ codeunit 73804 "LT DtT Format"
         Y64ObserveDateTime(Observer, '0DT_', 0DT);
         Observer.Observe('0DT len 5', TuFormatDateTime(0DT, 5, '<Second dec.>'));
         Observer.Observe('0DT thousands', TuFormatDateTime(0DT, 0, '<Thousands>'));
-        Observer.Finish();
+        Observer.Expect('0DT_1', '[]');
+        Observer.Expect('0DT_2', '[]');
+        Observer.Expect('0DT_3', '[]');
+        Observer.Expect('0DT_4', '[]');
+        Observer.Expect('0DT_5', '[]');
+        Observer.Expect('0DT_6', '[]');
+        Observer.Expect('0DT_7', '[]');
+        Observer.Expect('0DT_8', '[]');
+        Observer.Expect('0DT_9', '[]');
+        Observer.Expect('0DT_10', '[]');
+        Observer.Expect('0DT_11', '[]');
+        Observer.Expect('0DT_12', '[]');
+        Observer.Expect('0DT_13', '[]');
+        Observer.Expect('0DT_14', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Second dec..> | InvalidFormatString');
+        Observer.Expect('0DT_15', '[]');
+        Observer.Expect('0DT len 5', '[     ]');
+        Observer.Expect('0DT thousands', '[]');
+        Observer.Verify();
     end;
 
     local procedure IsoDateTime(DT: DateTime) Result: Text[50]
@@ -1315,7 +1332,9 @@ codeunit 73804 "LT DtT Format"
     begin
         Observer.Observe('ms', '[' + IsoDateTime(CreateDateTime(20240305D, 134506.078T)) + ']');
         Observer.Observe('no ms', '[' + IsoDateTime(CreateDateTime(20240305D, 090507T)) + ']');
-        Observer.Finish();
+        Observer.Expect('ms', '[2024-03-05T13:45:06.078]');
+        Observer.Expect('no ms', '[2024-03-05T09:05:07.]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1324,6 +1343,7 @@ codeunit 73804 "LT DtT Format"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('undefined', '[' + IsoDateTime(0DT) + ']');
-        Observer.Finish();
+        Observer.Expect('undefined', '[.]');
+        Observer.Verify();
     end;
 }

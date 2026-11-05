@@ -110,7 +110,21 @@ codeunit 95810 "REC Time Filter Empty Tests"
         Row.SetRange("Time Field", 0T);
         Observer.Observe('setrange 0T', Format(Row.Count()) + ' | ' + Row.GetFilters());
         Row.Reset();
-        Observer.Finish();
+        Observer.Expect('ne empty', '[1 | Time Field: <>'''']');
+        Observer.Expect('empty', '[2 | Time Field: '''']');
+        Observer.Expect('eq empty', '[2 | Time Field: '''']');
+        Observer.Expect('lt empty', '[0 | Time Field: <'''']');
+        Observer.Expect('gt empty', '[1 | Time Field: >'''']');
+        Observer.Expect('le empty', '[2 | Time Field: <='''']');
+        Observer.Expect('ge empty', '[3 | Time Field: >='''']');
+        Observer.Expect('range from empty', '[3 | Time Field: ''''..]');
+        Observer.Expect('range to empty', '[2 | Time Field: ..'''']');
+        Observer.Expect('empty or arg', '[2 | Time Field: ''''|'''']');
+        Observer.Expect('ne arg', '[1 | Time Field: <>'''']');
+        Observer.Expect('ne alone', 'error: The filter "<>" is not valid for the Time Field field on the ALT Universal table. A value is expected after the ''<>''. | Filter:CSide');
+        Observer.Expect('ne empty and ne arg', '[1 | Time Field: <>''''&<>'''']');
+        Observer.Expect('setrange 0T', '2 | Time Field: ''''');
+        Observer.Verify();
     end;
 
     [Test]
@@ -120,7 +134,20 @@ codeunit 95810 "REC Time Filter Empty Tests"
     begin
         Initialize();
         ObserveAll(8, Observer);
-        Observer.Finish();
+        Observer.Expect('ne empty', '[1 | Date Field: <>'''']');
+        Observer.Expect('empty', '[2 | Date Field: '''']');
+        Observer.Expect('eq empty', '[2 | Date Field: '''']');
+        Observer.Expect('lt empty', '[0 | Date Field: <'''']');
+        Observer.Expect('gt empty', '[1 | Date Field: >'''']');
+        Observer.Expect('le empty', '[2 | Date Field: <='''']');
+        Observer.Expect('ge empty', '[3 | Date Field: >='''']');
+        Observer.Expect('range from empty', '[3 | Date Field: ''''..]');
+        Observer.Expect('range to empty', '[2 | Date Field: ..'''']');
+        Observer.Expect('empty or arg', '[2 | Date Field: ''''|'''']');
+        Observer.Expect('ne arg', '[1 | Date Field: <>'''']');
+        Observer.Expect('ne alone', 'error: The filter "<>" is not valid for the Date Field field on the ALT Universal table. A value is expected after the ''<>''. | Filter:CSide');
+        Observer.Expect('ne empty and ne arg', '[1 | Date Field: <>''''&<>'''']');
+        Observer.Verify();
     end;
 
     [Test]
@@ -130,6 +157,19 @@ codeunit 95810 "REC Time Filter Empty Tests"
     begin
         Initialize();
         ObserveAll(10, Observer);
-        Observer.Finish();
+        Observer.Expect('ne empty', '[1 | DateTime Field: <>'''']');
+        Observer.Expect('empty', '[2 | DateTime Field: ''''..'''']');
+        Observer.Expect('eq empty', '[2 | DateTime Field: '''']');
+        Observer.Expect('lt empty', '[0 | DateTime Field: <'''']');
+        Observer.Expect('gt empty', '[1 | DateTime Field: >'''']');
+        Observer.Expect('le empty', '[2 | DateTime Field: <='''']');
+        Observer.Expect('ge empty', '[3 | DateTime Field: >='''']');
+        Observer.Expect('range from empty', '[3 | DateTime Field: ''''..]');
+        Observer.Expect('range to empty', '[2 | DateTime Field: ..'''']');
+        Observer.Expect('empty or arg', '[2 | DateTime Field: ''''..''''|'''']');
+        Observer.Expect('ne arg', '[1 | DateTime Field: <>'''']');
+        Observer.Expect('ne alone', 'error: The filter "<>" is not valid for the DateTime Field field on the ALT Universal table. A value is expected after the ''<>''. | Filter:CSide');
+        Observer.Expect('ne empty and ne arg', '[1 | DateTime Field: <>''''&<>'''']');
+        Observer.Verify();
     end;
 }
