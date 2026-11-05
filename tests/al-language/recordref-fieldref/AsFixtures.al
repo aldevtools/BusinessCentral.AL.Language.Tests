@@ -118,20 +118,6 @@ table 79904 "LT AS Other"
     }
 }
 
-table 79905 "LT AS Code Key"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; "Code"; Code[20]) { }
-    }
-    keys
-    {
-        key(PK; "Code") { Clustered = true; }
-    }
-}
-
 table 79906 "LT AS TF Row"
 {
     DataClassification = SystemMetadata;

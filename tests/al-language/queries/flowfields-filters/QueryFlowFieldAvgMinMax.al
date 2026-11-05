@@ -1,22 +1,9 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-query-object
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); tables 71314 71315, queries 71316 71317 71318, codeunit 71319
+// Fixtures used: Probe Observer (codeunit 69160); tables 71314 71315, queries 71316 71317 71318, codeunit 71319 (table 71314 is now shared table 50019 "ALT Shape 19")
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // BC versions: 29 (27 and 28 by CI)
 // Facts: Query column with Method = Average / Min / Max over a FlowField column of the dataitem table, grouped by another column, with and without a flow filter filter-element. RISKY: own file; one query per method so a compile failure is visible per query.
-
-table 71314 "LT QFlowB Line"
-{
-    DataClassification = SystemMetadata;
-    fields
-    {
-        field(1; "Entry No."; Integer) { }
-        field(2; "Header No."; Code[20]) { }
-        field(3; Amount; Decimal) { }
-        field(4; "Posting Date"; Date) { }
-    }
-    keys { key(PK; "Entry No.") { Clustered = true; } }
-}
 
 table 71315 "LT QFlowB Header"
 {
@@ -29,7 +16,7 @@ table 71315 "LT QFlowB Header"
         field(4; Total; Decimal)
         {
             FieldClass = FlowField;
-            CalcFormula = sum("LT QFlowB Line".Amount where("Header No." = field("No."), "Posting Date" = field("Date Filter")));
+            CalcFormula = sum("ALT Shape 19".Amount where("Header No." = field("No."), "Posting Date" = field("Date Filter")));
         }
     }
     keys { key(PK; "No.") { Clustered = true; } }
@@ -85,7 +72,7 @@ codeunit 71319 "LT QFlowB AvgMinMax Test"
     local procedure Seed()
     var
         H: Record "LT QFlowB Header";
-        L: Record "LT QFlowB Line";
+        L: Record "ALT Shape 19";
     begin
         H.DeleteAll();
         L.DeleteAll();
@@ -111,7 +98,7 @@ codeunit 71319 "LT QFlowB AvgMinMax Test"
 
     local procedure AddLine(EntryNo: Integer; HeaderNo: Code[20]; Amt: Decimal; PostingDate: Date)
     var
-        L: Record "LT QFlowB Line";
+        L: Record "ALT Shape 19";
     begin
         L."Entry No." := EntryNo;
         L."Header No." := HeaderNo;

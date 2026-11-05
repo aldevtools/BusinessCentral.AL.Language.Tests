@@ -1,25 +1,10 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-this-keyword
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), self-contained table 71544, log 71545, publisher 71546, report 71547, reportextension 71548, subscriber 71549, test 71550
+// Fixtures used: Probe Observer (codeunit 69160), shared table 50000 "ALT Shape 00", log 71545, publisher 71546, report 71547, reportextension 71548, subscriber 71549, test 71550
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: a reportextension adds global variables and public procedures to the report; the subscriber calls the extension's procedures on the received base report parameter and reads the added global; `this` passed from OnPreReport, OnAfterGetRecord, OnPostReport. RISKY: calling extension procedures on a base report variable may not compile
 // Known compile facts (not written): `this` to a var parameter gives AL0130; a Page parameter receiving `this` from a page gives AL0133.
 // BC versions: 29 (27 and 28 by CI)
-
-table 71544 "LT P141 X Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 codeunit 71545 "LT P141 X Log"
 {
@@ -67,7 +52,7 @@ report 71547 "LT P141 X Rpt"
 
     dataset
     {
-        dataitem(Row; "LT P141 X Row")
+        dataitem(Row; "ALT Shape 00")
         {
             DataItemTableView = sorting(Id);
 
@@ -167,7 +152,7 @@ codeunit 71550 "LT P141 X Tests"
 
     local procedure Seed(Count: Integer)
     var
-        Row: Record "LT P141 X Row";
+        Row: Record "ALT Shape 00";
         Log: Codeunit "LT P141 X Log";
         i: Integer;
     begin

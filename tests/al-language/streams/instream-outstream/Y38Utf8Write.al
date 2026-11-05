@@ -1,26 +1,10 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/outstream/outstream-write-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); self-contained table 92587.
+// Fixtures used: Probe Observer (69160); shared table 50003 "ALT Shape 03".
 // Writer Y38 (gap cycle 3, C3-18): OutStream.Write(Text) of Cyrillic text on a UTF-8 stream of a table Blob (the Email message body shape:
 // CreateOutStream(Out, TextEncoding::UTF8), Write, Insert, then CalcFields, CreateInStream(Ins, TextEncoding::UTF8) and Read(Text)), the
 // same text on the other encodings, and the return value of Read(Text) on a UTF-8 stream of two zero-terminated texts. Neighbour of
 // errors/lt-ms-refusals-132/P132OutStreamUnicode.al (Temp Blob, Japanese per encoding).
-
-table 92587 "LT Y38 UW Blob"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Data; Blob) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 codeunit 92588 "LT Y38 UW Tests"
 {
@@ -77,7 +61,7 @@ codeunit 92588 "LT Y38 UW Tests"
     [Test]
     procedure UW_Write_Utf8_Cyrillic_TableBlob()
     var
-        B: Record "LT Y38 UW Blob";
+        B: Record "ALT Shape 03";
         Observer: Codeunit "Probe Observer";
         Out: OutStream;
         Ins: InStream;
@@ -111,7 +95,7 @@ codeunit 92588 "LT Y38 UW Tests"
     [Test]
     procedure UW_Read_Utf8_Cyrillic_TableBlob_Statement()
     var
-        B: Record "LT Y38 UW Blob";
+        B: Record "ALT Shape 03";
         Observer: Codeunit "Probe Observer";
         Out: OutStream;
         Ins: InStream;
