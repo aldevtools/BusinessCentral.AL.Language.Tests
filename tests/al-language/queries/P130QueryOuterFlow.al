@@ -1,23 +1,11 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-query-object
 // Scope: in-scope
-// Fixtures used: own tables 73572-73574, queries 73575 and 73576, codeunit 73577, Probe Observer 69160
+// Fixtures used: own tables 73572-73574, queries 73575 and 73576, codeunit 73577, Probe Observer 69160 (table 73572 is now shared table 50000 "ALT Shape 00")
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: a query column that reads a FlowField (Sum and Count) of the OUTER-joined (LeftOuterJoin) data item, for parents with a child that has detail rows, a child without detail rows
 //   and a parent without a child; the same query with an inner join as the control
 // Settles issue 130 reason 34 (Query: column Cost_of_Open_Production_Orders reads a FlowField of an outer-joined dataitem)
 // BC versions: 29 (27 and 28 by CI)
-
-table 73572 "LT P130 Q Parent"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 table 73573 "LT P130 Q Child"
 {
@@ -65,7 +53,7 @@ query 73575 "LT P130 Outer Flow"
 
     elements
     {
-        dataitem(Parent; "LT P130 Q Parent")
+        dataitem(Parent; "ALT Shape 00")
         {
             column(PId; Id) { }
 
@@ -88,7 +76,7 @@ query 73576 "LT P130 Inner Flow"
 
     elements
     {
-        dataitem(Parent; "LT P130 Q Parent")
+        dataitem(Parent; "ALT Shape 00")
         {
             column(PId; Id) { }
 
@@ -111,7 +99,7 @@ codeunit 73577 "LT P130 Query Outer Flow"
 
     local procedure Seed()
     var
-        Parent: Record "LT P130 Q Parent";
+        Parent: Record "ALT Shape 00";
         Child: Record "LT P130 Q Child";
         Detail: Record "LT P130 Q Detail";
     begin

@@ -1,24 +1,8 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testfield/testfield-setvalue-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); own table 70259, page 70260, test codeunit 70261, log codeunit 70262
+// Fixtures used: Probe Observer (69160); shared table 50016 "ALT Shape 16", page 70260, test codeunit 70261, log codeunit 70262
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // BC versions: 29 (27 and 28 by CI)
-
-table 70259 "LT P147 SetValue Row2"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Amount; Integer) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 codeunit 70262 "LT P147 SetValue Log2"
 {
@@ -46,7 +30,7 @@ codeunit 70262 "LT P147 SetValue Log2"
 page 70260 "LT P147 SetValue Card2"
 {
     PageType = Card;
-    SourceTable = "LT P147 SetValue Row2";
+    SourceTable = "ALT Shape 16";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -79,7 +63,7 @@ codeunit 70261 "LT P147 SetValue Call"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT P147 SetValue Log2";
-        Row: Record "LT P147 SetValue Row2";
+        Row: Record "ALT Shape 16";
         Card: TestPage "LT P147 SetValue Card2";
     begin
         Row.DeleteAll();

@@ -6,13 +6,6 @@
 // Serv. Get Source Documents shape). A top-level added item does not compile (AL0680): tests/must-not-compile/cases/2340.
 // BC versions: 27-29
 
-table 91840 "LT Y17 Ext H"
-{
-    DataClassification = SystemMetadata;
-    fields { field(1; "No."; Code[20]) { } }
-    keys { key(PK; "No.") { Clustered = true; } }
-}
-
 table 91841 "LT Y17 Ext PH"
 {
     DataClassification = SystemMetadata;
@@ -82,7 +75,7 @@ report 91845 "LT Y17 Ext RB"
 
     dataset
     {
-        dataitem(Req; "LT Y17 Ext H")
+        dataitem(Req; "ALT Shape 05")
         {
             dataitem(Base; "LT Y17 Ext BL")
             {
