@@ -9,6 +9,8 @@ codeunit 61333 "LT RP Runner Logic"
     // OnRun of the runner. Most test codeunits run as Microsoft's "Test Runner - Mgt".RunTests
     // runs them: `Codeunit.Run(id)` without using the return value. The exceptions:
     //   P5 (61340, 61341): `Ok := Codeunit.Run(id)`, recorded as "RUN Yes/No" with the last error.
+    //   P5b (61347): `asserterror Codeunit.Run(id)` with no return value, recorded as "ASSERT" with
+    //   the last error text and code, then "X runner continued".
     //   P6 (61342): run twice in a row.
     //   P7 (61343): runs 61343 and then 61344 in this one runner invocation.
     procedure RunTestCodeunit(RunnerId: Integer; CodeunitId: Integer)
@@ -26,6 +28,16 @@ codeunit 61333 "LT RP Runner Logic"
                     Ok := Codeunit.Run(CodeunitId);
                     Log.ArmOnRunError(false);
                     Log.Add(CodeunitId, '', 'RUN ' + Format(Ok), GetLastErrorText());
+                end;
+            Codeunit::"LT RP P5b OnRun Raises":
+                begin
+                    Log.ArmOnRunError(true);
+                    Commit();
+                    ClearLastError();
+                    asserterror Codeunit.Run(CodeunitId);
+                    Log.ArmOnRunError(false);
+                    Log.Add(CodeunitId, '', 'ASSERT', GetLastErrorText() + ' code=' + GetLastErrorCode());
+                    Log.Add(CodeunitId, '', 'X runner continued', '');
                 end;
             Codeunit::"LT RP P6 Twice":
                 begin
