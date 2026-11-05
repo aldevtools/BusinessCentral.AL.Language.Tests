@@ -251,4 +251,209 @@ codeunit 67357 "LT FCM Tests"
         Observer.Expect('d_999999999999999.99', 'ok:999999999999999.99');
         Observer.Verify();
     end;
+
+    // ---- <Standard Format,N> with a <Comma,x> element (al-runner issue 6792): the reporter's values under en-US (GlobalLanguage 1033)
+    // and de-DE (1031), with and without a leading <Precision,A:B>, other Standard Format numbers, another character, <Comma> without one,
+    // the element first, a Length, and an Integer value.
+    local procedure StdComma(Prefix: Text; Fmt: Text; Lang: Integer; Length: Integer; var Observer: Codeunit "Probe Observer")
+    var
+        Inputs: List of [Text];
+        Input: Text;
+        Value: Decimal;
+        Saved: Integer;
+        Result: Text;
+    begin
+        Inputs.AddRange('0', '0.04', '-0.04', '0.05', '-1.45', '6.38', '999.94', '999.95', '1234.5', '1234567.89');
+        Saved := GlobalLanguage();
+        GlobalLanguage(Lang);
+        foreach Input in Inputs do begin
+            Evaluate(Value, Input, 9);
+            if Length = 0 then
+                Run(Prefix + Input, Value, Fmt, Observer)
+            else begin
+                ClearLastError();
+                Result := '';
+                if TryFormatLength(Value, Length, Fmt, Result) then
+                    Observer.Observe(Prefix + Input, 'ok:[' + Result + ']')
+                else begin
+                    Observer.Observe(Prefix + Input, 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+                    ClearLastError();
+                end;
+            end;
+        end;
+        GlobalLanguage(Saved);
+    end;
+
+    [TryFunction]
+    local procedure TryFormatLength(Value: Decimal; Length: Integer; Fmt: Text; var Result: Text)
+    begin
+        Result := Format(Value, Length, Fmt);
+    end;
+
+    [Test]
+    procedure Format_Prec11Std0CommaComma_En()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        StdComma('v_', '<Precision,1:1><Standard Format,0><Comma,,>', 1033, 0, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_Std0CommaComma_En()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        StdComma('v_', '<Standard Format,0><Comma,,>', 1033, 0, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_Prec11Std0CommaComma_De()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        StdComma('v_', '<Precision,1:1><Standard Format,0><Comma,,>', 1031, 0, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_Std0CommaComma_De()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        StdComma('v_', '<Standard Format,0><Comma,,>', 1031, 0, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_Prec11Std0CommaDot_En()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        StdComma('v_', '<Precision,1:1><Standard Format,0><Comma,.>', 1033, 0, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_Std0CommaDot_De()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        StdComma('v_', '<Standard Format,0><Comma,.>', 1031, 0, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_Prec22Std0CommaComma_En()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        StdComma('v_', '<Precision,2:2><Standard Format,0><Comma,,>', 1033, 0, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_Prec02Std0CommaComma_En()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        StdComma('v_', '<Precision,0:2><Standard Format,0><Comma,,>', 1033, 0, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_Prec11Std1CommaComma_En()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        StdComma('v_', '<Precision,1:1><Standard Format,1><Comma,,>', 1033, 0, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_Prec11Std2CommaComma_En()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        StdComma('v_', '<Precision,1:1><Standard Format,2><Comma,,>', 1033, 0, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_Prec11Std3CommaComma_En()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        StdComma('v_', '<Precision,1:1><Standard Format,3><Comma,,>', 1033, 0, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_Prec11Std4CommaComma_En()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        StdComma('v_', '<Precision,1:1><Standard Format,4><Comma,,>', 1033, 0, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_Std9CommaComma_En()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        StdComma('v_', '<Standard Format,9><Comma,,>', 1033, 0, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_Prec11Std0CommaOther_En()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        StdComma('semi_', '<Precision,1:1><Standard Format,0><Comma,;>', 1033, 0, Observer);
+        StdComma('bare_', '<Precision,1:1><Standard Format,0><Comma>', 1033, 0, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_CommaFirstPrec11Std0_En()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        StdComma('first_', '<Comma,,><Precision,1:1><Standard Format,0>', 1033, 0, Observer);
+        StdComma('mid_', '<Precision,1:1><Comma,,><Standard Format,0>', 1033, 0, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_Prec11Std0CommaComma_Length12_En()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        StdComma('len_', '<Precision,1:1><Standard Format,0><Comma,,>', 1033, 12, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_Std0CommaComma_OtherTypes_En()
+    var
+        Observer: Codeunit "Probe Observer";
+        IntValue: Integer;
+        BigValue: BigInteger;
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        IntValue := 1234;
+        BigValue := 1234567;
+        Run('int_prec', IntValue, '<Precision,1:1><Standard Format,0><Comma,,>', Observer);
+        Run('int', IntValue, '<Standard Format,0><Comma,,>', Observer);
+        Run('int_zero', 0, '<Precision,1:1><Standard Format,0><Comma,,>', Observer);
+        Run('big_prec', BigValue, '<Precision,1:1><Standard Format,0><Comma,,>', Observer);
+        Run('big', BigValue, '<Standard Format,0><Comma,,>', Observer);
+        GlobalLanguage(Saved);
+        Observer.Finish();
+    end;
 }
