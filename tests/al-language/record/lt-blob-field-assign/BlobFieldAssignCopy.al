@@ -151,6 +151,30 @@ codeunit 95951 "LT BFA Blob Assign Copy"
         Observer.Observe(P + '-importer-reuse-other', ReadOther(Line));
     end;
 
+    local procedure ExpectAll(var Observer: Codeunit "Probe Observer"; P: Text)
+    begin
+        Observer.Expect(P + '-assign-target', 'src');
+        Observer.Expect(P + '-clear-source-target', 'src');
+        Observer.Expect(P + '-clear-source-source', '<no value>');
+        Observer.Expect(P + '-rewrite-source-target', 'src');
+        Observer.Expect(P + '-rewrite-source-source', 'new');
+        Observer.Expect(P + '-write-target-source', 'src');
+        Observer.Expect(P + '-write-target-target', 'dst');
+        Observer.Expect(P + '-clear-target-source', 'src');
+        Observer.Expect(P + '-clear-target-target', '<no value>');
+        Observer.Expect(P + '-byvalue-clear-source-target', 'src');
+        Observer.Expect(P + '-byvar-clear-source-target', 'src');
+        Observer.Expect(P + '-variant-clear-source-target', 'src');
+        Observer.Expect(P + '-recassign-clear-source-target', 'src');
+        Observer.Expect(P + '-recassign-clear-source-source', '<no value>');
+        Observer.Expect(P + '-recassign-write-target-source', 'src');
+        Observer.Expect(P + '-importer-body', 'first');
+        Observer.Expect(P + '-importer-other', '<no value>');
+        Observer.Expect(P + '-importer-buffer', '<no value>');
+        Observer.Expect(P + '-importer-reuse-body', 'first');
+        Observer.Expect(P + '-importer-reuse-other', 'second');
+    end;
+
     [Test]
     procedure Temporary_Tables()
     var
@@ -162,7 +186,8 @@ codeunit 95951 "LT BFA Blob Assign Copy"
     begin
         RunCase(Observer, Src, Dst, 'tmp');
         Importer(Observer, Buf, Line, 'tmp');
-        Observer.Finish();
+        ExpectAll(Observer, 'tmp');
+        Observer.Verify();
     end;
 
     [Test]
@@ -176,6 +201,7 @@ codeunit 95951 "LT BFA Blob Assign Copy"
     begin
         RunCase(Observer, Src, Dst, 'db');
         Importer(Observer, Buf, Line, 'db');
-        Observer.Finish();
+        ExpectAll(Observer, 'db');
+        Observer.Verify();
     end;
 }
