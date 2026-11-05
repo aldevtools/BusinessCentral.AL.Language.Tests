@@ -16,13 +16,13 @@ codeunit 92126 "LT Y20 Implicit FactBoxes"
 
     local procedure Setup()
     var
-        R: Record "LT Y20 FB Row";
+        R: Record "ALT Shape 20";
     begin
         R.DeleteAll();
-        R.K := 'A';
+        R.Code := 'A';
         R.Name := 'Row A';
         R.Insert();
-        R.K := 'B';
+        R.Code := 'B';
         R.Name := 'Row B';
         R.Insert();
     end;

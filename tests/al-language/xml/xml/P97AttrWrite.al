@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/xmlattribute/xmlattribute-data-type
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), table 74800
+// Fixtures used: Probe Observer (codeunit 69160), shared table 50003 "ALT Shape 03"
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: XmlAttribute WriteTo(Text), WriteTo(WriteOptions, Text), WriteTo(OutStream), WriteTo(WriteOptions, OutStream) for plain, escaped, namespaced, empty and unicode values
 // BC versions: 29 (27 and 28 by CI)
@@ -51,7 +51,7 @@ codeunit 74805 "LT P97 Attr WriteTo"
         exit(XmlAttribute.Create('a', 'l1' + Lf + 'l2' + Tb + 'l3'));
     end;
 
-    local procedure ReadBack(var Rec: Record "LT P97 Blob"; var Observer: Codeunit "Probe Observer"; Name: Text)
+    local procedure ReadBack(var Rec: Record "ALT Shape 03"; var Observer: Codeunit "Probe Observer"; Name: Text)
     var
         InS: InStream;
         T: Text;
@@ -153,7 +153,7 @@ codeunit 74805 "LT P97 Attr WriteTo"
     procedure WriteTo_OutStream()
     var
         Observer: Codeunit "Probe Observer";
-        Rec: Record "LT P97 Blob";
+        Rec: Record "ALT Shape 03";
         A: XmlAttribute;
         OutS: OutStream;
         Kind: Integer;
@@ -200,7 +200,7 @@ codeunit 74805 "LT P97 Attr WriteTo"
     procedure WriteTo_OutStreamOptions()
     var
         Observer: Codeunit "Probe Observer";
-        Rec: Record "LT P97 Blob";
+        Rec: Record "ALT Shape 03";
         A: XmlAttribute;
         Opt: XmlWriteOptions;
         OutS: OutStream;
@@ -236,7 +236,7 @@ codeunit 74805 "LT P97 Attr WriteTo"
     procedure WriteTo_OutStream_AppendsToStream()
     var
         Observer: Codeunit "Probe Observer";
-        Rec: Record "LT P97 Blob";
+        Rec: Record "ALT Shape 03";
         A: XmlAttribute;
         B: XmlAttribute;
         OutS: OutStream;

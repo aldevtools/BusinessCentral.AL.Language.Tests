@@ -5,19 +5,6 @@
 // Facts: A part with Visible = false and a SubPageLink: does it follow the host row (assumption hidden-part-follows-link); the visible twin part as the comparison. Risky: reading a hidden part from a TestPage may raise.
 // BC versions: 29 (27 and 28 by CI)
 
-table 70386 "LT HPart Host"
-{
-    fields
-    {
-        field(1; "Key"; Code[10]) { }
-        field(2; "Name"; Text[30]) { }
-    }
-    keys
-    {
-        key(PK; "Key") { Clustered = true; }
-    }
-}
-
 table 70387 "LT HPart Line"
 {
     fields
@@ -54,7 +41,7 @@ page 70388 "LT HPart Lines"
 page 70389 "LT HPart Host List"
 {
     PageType = List;
-    SourceTable = "LT HPart Host";
+    SourceTable = "ALT Shape 20";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -64,7 +51,7 @@ page 70389 "LT HPart Host List"
         {
             repeater(Rows)
             {
-                field("Key"; Rec."Key") { ApplicationArea = All; }
+                field("Key"; Rec.Code) { ApplicationArea = All; }
                 field("Name"; Rec."Name") { ApplicationArea = All; }
             }
         }
@@ -73,13 +60,13 @@ page 70389 "LT HPart Host List"
             part(Hidden; "LT HPart Lines")
             {
                 ApplicationArea = All;
-                SubPageLink = "Key" = field("Key");
+                SubPageLink = "Key" = field(Code);
                 Visible = ShowHidden;
             }
             part(Shown; "LT HPart Lines")
             {
                 ApplicationArea = All;
-                SubPageLink = "Key" = field("Key");
+                SubPageLink = "Key" = field(Code);
                 Visible = ShowShown;
             }
         }
@@ -103,7 +90,7 @@ codeunit 70390 "LT HPart Follows Link"
 
     local procedure Seed()
     var
-        Host: Record "LT HPart Host";
+        Host: Record "ALT Shape 20";
         Line: Record "LT HPart Line";
     begin
         Host.DeleteAll();
@@ -118,9 +105,9 @@ codeunit 70390 "LT HPart Follows Link"
 
     local procedure AddHost(K: Code[10])
     var
-        Host: Record "LT HPart Host";
+        Host: Record "ALT Shape 20";
     begin
-        Host."Key" := K;
+        Host.Code := K;
         Host.Name := 'Host ' + K;
         Host.Insert();
     end;
