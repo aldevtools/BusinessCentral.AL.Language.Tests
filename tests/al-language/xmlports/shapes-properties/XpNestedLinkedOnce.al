@@ -8,6 +8,13 @@
 //   MaxOccurs = Once). Neighbours: the same with a parent of MaxOccurs = Unbounded (three parents with 0, 1 and 2 children), a real child
 //   table with LinkFields, a real child table with LinkTable and no LinkFields, and the import of the real-table shape (zero, one and
 //   two child elements). After an export the test also reads the row the child record holds and its filters.
+// Result (BC 29.0, corpus CI run 42020533240): no MinOccurs on the nested linked element is MinOccurs = Once. Export, temporary or real
+//   child with LinkFields: the first linked row of each pass; a pass without rows writes the element once with the record as it stands
+//   (blank before any row, else the row the record holds); after two rows the record holds the second. The temporary child filled by
+//   the parent's OnAfterGetRecord (DeleteAll, then inserts) follows the same rule: a pass whose trigger inserts none writes the row the
+//   record held before the DeleteAll. A parent with MaxOccurs = Once writes only its first row. Without LinkFields the child is not
+//   filtered: every pass writes the first child row of the table, and after three rows the record holds the second. Import: one child
+//   element per parent imports; none fails the schema ("has incomplete content"), two fail it ("has invalid child element").
 // BC versions: 27, 28, 29
 
 table 95880 "LT XOM Parent"
@@ -255,7 +262,9 @@ codeunit 95887 "LT XOM Nested Once Tests"
         Port.Export();
         Observer.Observe('export', ReadText(TempBlob));
         Observer.Observe('held', Port.HeldChild());
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Transport no="P1">|    <MainInfo>|      <Name />|    </MainInfo>|  </Transport>|</Root>|');
+        Observer.Expect('held', '/0/|filters=|count=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -271,7 +280,9 @@ codeunit 95887 "LT XOM Nested Once Tests"
         Port.Export();
         Observer.Observe('export', ReadText(TempBlob));
         Observer.Observe('held', Port.HeldChild());
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Transport no="P1">|    <MainInfo>|      <Name>CHILD-P1-1</Name>|    </MainInfo>|  </Transport>|</Root>|');
+        Observer.Expect('held', 'P1/1/CHILD-P1-1|filters=|count=1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -287,7 +298,9 @@ codeunit 95887 "LT XOM Nested Once Tests"
         Port.Export();
         Observer.Observe('export', ReadText(TempBlob));
         Observer.Observe('held', Port.HeldChild());
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Transport no="P1">|    <MainInfo>|      <Name>CHILD-P1-1</Name>|    </MainInfo>|  </Transport>|</Root>|');
+        Observer.Expect('held', 'P1/2/CHILD-P1-2|filters=|count=2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -303,7 +316,9 @@ codeunit 95887 "LT XOM Nested Once Tests"
         Port.Export();
         Observer.Observe('export', ReadText(TempBlob));
         Observer.Observe('held', Port.HeldChild());
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Transport no="P1">|    <MainInfo>|      <Name>CHILD-P1-1</Name>|    </MainInfo>|  </Transport>|</Root>|');
+        Observer.Expect('held', 'P1/1/CHILD-P1-1|filters=|count=1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -319,7 +334,9 @@ codeunit 95887 "LT XOM Nested Once Tests"
         Port.Export();
         Observer.Observe('export', ReadText(TempBlob));
         Observer.Observe('held', Port.HeldChild());
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Transport no="P1">|    <MainInfo>|      <Name />|    </MainInfo>|  </Transport>|  <Transport no="P2">|    <MainInfo>|      <Name>CHILD-P2-1</Name>|    </MainInfo>|  </Transport>|  <Transport no="P3">|    <MainInfo>|      <Name>CHILD-P3-1</Name>|    </MainInfo>|  </Transport>|</Root>|');
+        Observer.Expect('held', 'P3/2/CHILD-P3-2|filters=|count=2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -335,7 +352,9 @@ codeunit 95887 "LT XOM Nested Once Tests"
         Port.Export();
         Observer.Observe('export', ReadText(TempBlob));
         Observer.Observe('held', Port.HeldChild());
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Transport no="P1">|    <MainInfo>|      <Name>CHILD-P1-1</Name>|    </MainInfo>|  </Transport>|  <Transport no="P2">|    <MainInfo>|      <Name>CHILD-P2-1</Name>|    </MainInfo>|  </Transport>|  <Transport no="P3">|    <MainInfo>|      <Name>CHILD-P2-1</Name>|    </MainInfo>|  </Transport>|</Root>|');
+        Observer.Expect('held', 'P2/1/CHILD-P2-1|filters=|count=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -352,7 +371,9 @@ codeunit 95887 "LT XOM Nested Once Tests"
         Port.Export();
         Observer.Observe('export', ReadText(TempBlob));
         Observer.Observe('held', Port.HeldChild());
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Transport no="P1">|    <MainInfo line="0">|      <Name />|    </MainInfo>|  </Transport>|  <Transport no="P2">|    <MainInfo line="1">|      <Name>R-P2-1</Name>|    </MainInfo>|  </Transport>|  <Transport no="P3">|    <MainInfo line="1">|      <Name>R-P3-1</Name>|    </MainInfo>|  </Transport>|</Root>|');
+        Observer.Expect('held', 'P3/2/R-P3-2|filters=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -369,7 +390,9 @@ codeunit 95887 "LT XOM Nested Once Tests"
         Port.Export();
         Observer.Observe('export', ReadText(TempBlob));
         Observer.Observe('held', Port.HeldChild());
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Transport no="P1">|    <MainInfo line="1">|      <Name>R-P1-1</Name>|    </MainInfo>|  </Transport>|  <Transport no="P2">|    <MainInfo line="1">|      <Name>R-P2-1</Name>|    </MainInfo>|  </Transport>|  <Transport no="P3">|    <MainInfo line="1">|      <Name>R-P2-1</Name>|    </MainInfo>|  </Transport>|</Root>|');
+        Observer.Expect('held', 'P2/1/R-P2-1|filters=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -386,7 +409,9 @@ codeunit 95887 "LT XOM Nested Once Tests"
         Port.Export();
         Observer.Observe('export', ReadText(TempBlob));
         Observer.Observe('held', Port.HeldChild());
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Transport no="P1">|    <MainInfo line="1">|      <Name>R-P2-1</Name>|    </MainInfo>|  </Transport>|  <Transport no="P2">|    <MainInfo line="1">|      <Name>R-P2-1</Name>|    </MainInfo>|  </Transport>|  <Transport no="P3">|    <MainInfo line="1">|      <Name>R-P2-1</Name>|    </MainInfo>|  </Transport>|</Root>|');
+        Observer.Expect('held', 'P3/1/R-P3-1|filters=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -394,7 +419,9 @@ codeunit 95887 "LT XOM Nested Once Tests"
     begin
         Observer.Observe('import', TryImport('<Root><Transport no="P1"><MainInfo line="1"><Name>a</Name></MainInfo></Transport></Root>'));
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('import', 'ok');
+        Observer.Expect('rows', 'P:P1;C:P1/1/a;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -402,7 +429,9 @@ codeunit 95887 "LT XOM Nested Once Tests"
     begin
         Observer.Observe('import', TryImport('<Root><Transport no="P1"></Transport><Transport no="P2"><MainInfo line="1"><Name>b</Name></MainInfo></Transport></Root>'));
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('import', 'error:Imported XML cannot validate with the schema: The element ''Transport'' has incomplete content. List of possible elements expected: ''MainInfo''.|XmlPortInvalidXml');
+        Observer.Expect('rows', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -410,7 +439,9 @@ codeunit 95887 "LT XOM Nested Once Tests"
     begin
         Observer.Observe('import', TryImport('<Root><Transport no="P1"><MainInfo line="1"><Name>a</Name></MainInfo><MainInfo line="2"><Name>b</Name></MainInfo></Transport></Root>'));
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('import', 'error:Imported XML cannot validate with the schema: The element ''Transport'' has invalid child element ''MainInfo''.|XmlPortInvalidXml');
+        Observer.Expect('rows', '');
+        Observer.Verify();
     end;
 
     // Parents P1, P2, P3 (a negative count leaves the parent out) with that many children each.

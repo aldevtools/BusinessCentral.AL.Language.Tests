@@ -12,6 +12,13 @@
 //   lists (TestPage.Trap, First/Next).
 //   Work orders: 1 Inbound/T1 MINE, 2 Inbound/T2 OTHER-T, 3 Outbound/T1 OTHER-O, 4 Inbound/T1 HIDDEN. The host H1 has transport T1.
 // Log codeunit 95872 is SingleInstance and used only by codeunit 95876.
+// Result (BC 29.0, corpus CI run 42020533240): before any SetView, Rec in OnOpenPage holds the link in filter group 0, a RunPageView
+//   where filter in group 3 and the target's SourceTableView where filter in group 2; GetFilters and GetView read group 0 only, Count
+//   counts the rows of every group; the linked fields are filled (rec=0/Inbound/T1/); a RunPageView sorting does not change the key, the
+//   target's SourceTableView sorting stays (key=ID), with and without RunPageView. SetView replaces the view of group 0, the link
+//   included: a SetView of the view Rec has (from Rec or from a RecordRef copy) changes nothing, another filter or an empty or
+//   sorting-only view drops the link, a filter on the linked field with another value replaces it. Groups 2 and 3 stay. The linked field
+//   values stay in Rec. The page then lists the rows of the new view in its order.
 // BC versions: 27, 28, 29
 
 table 95870 "LT RSV Host"
@@ -295,7 +302,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenList('LinkAndView', 'none', false));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'MINE,HIDDEN,');
+        Observer.Expect('log', 'before filters=RelationType: Inbound, Transport: T1 view=VERSION(1) SORTING(ID) WHERE(RelationType=FILTER(Inbound),Transport=FILTER(T1)) count=2 key=ID asc=Yes rec=0/Inbound/T1/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -303,7 +312,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenList('LinkAndView', 'none', true));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'MINE,HIDDEN,');
+        Observer.Expect('log', 'groups before=0:RelationType: Inbound, Transport: T1|;before filters=RelationType: Inbound, Transport: T1 view=VERSION(1) SORTING(ID) WHERE(RelationType=FILTER(Inbound),Transport=FILTER(T1)) count=2 key=ID asc=Yes rec=0/Inbound/T1/;groups after=0:RelationType: Inbound, Transport: T1|;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -311,7 +322,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenList('LinkAndView', 'same', false));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'MINE,HIDDEN,');
+        Observer.Expect('log', 'after filters=RelationType: Inbound, Transport: T1 view=VERSION(1) SORTING(ID) WHERE(RelationType=FILTER(Inbound),Transport=FILTER(T1)) count=2 key=ID asc=Yes rec=0/Inbound/T1/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -319,7 +332,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenList('LinkAndView', 'same', true));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'MINE,HIDDEN,');
+        Observer.Expect('log', 'groups before=0:RelationType: Inbound, Transport: T1|;after filters=RelationType: Inbound, Transport: T1 view=VERSION(1) SORTING(ID) WHERE(RelationType=FILTER(Inbound),Transport=FILTER(T1)) count=2 key=ID asc=Yes rec=0/Inbound/T1/;groups after=0:RelationType: Inbound, Transport: T1|;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -327,7 +342,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenList('LinkAndView', 'sameref', false));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'MINE,HIDDEN,');
+        Observer.Expect('log', 'after filters=RelationType: Inbound, Transport: T1 view=VERSION(1) SORTING(ID) WHERE(RelationType=FILTER(Inbound),Transport=FILTER(T1)) count=2 key=ID asc=Yes rec=0/Inbound/T1/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -335,7 +352,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenList('LinkAndView', 'extra', false));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'MINE,OTHER-T,');
+        Observer.Expect('log', 'after filters=Information: MINE|OTHER-T view=VERSION(1) SORTING(ID) WHERE(Information=FILTER(MINE|OTHER-T)) count=2 key=ID asc=Yes rec=0/Inbound/T1/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -343,7 +362,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenList('LinkAndView', 'extra', true));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'MINE,OTHER-T,');
+        Observer.Expect('log', 'groups before=0:RelationType: Inbound, Transport: T1|;after filters=Information: MINE|OTHER-T view=VERSION(1) SORTING(ID) WHERE(Information=FILTER(MINE|OTHER-T)) count=2 key=ID asc=Yes rec=0/Inbound/T1/;groups after=0:Information: MINE|OTHER-T|;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -351,7 +372,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenList('LinkAndView', 'empty', false));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'MINE,OTHER-T,OTHER-O,HIDDEN,');
+        Observer.Expect('log', 'after filters= view=VERSION(1) SORTING(ID) count=4 key=ID asc=Yes rec=0/Inbound/T1/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -359,7 +382,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenList('LinkAndView', 'empty', true));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'MINE,OTHER-T,OTHER-O,HIDDEN,');
+        Observer.Expect('log', 'groups before=0:RelationType: Inbound, Transport: T1|;after filters= view=VERSION(1) SORTING(ID) count=4 key=ID asc=Yes rec=0/Inbound/T1/;groups after=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -367,7 +392,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenList('LinkAndView', 'sortonly', false));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'HIDDEN,OTHER-O,OTHER-T,MINE,');
+        Observer.Expect('log', 'after filters= view=VERSION(1) SORTING(ID) ORDER(Descending) count=4 key=ID asc=No rec=0/Inbound/T1/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -375,7 +402,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenList('LinkAndView', 'linkother', false));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'OTHER-T,');
+        Observer.Expect('log', 'after filters=Transport: T2 view=VERSION(1) SORTING(ID) WHERE(Transport=FILTER(T2)) count=1 key=ID asc=Yes rec=0/Inbound/T1/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -383,7 +412,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenList('LinkAndView', 'saved', false));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'MINE,OTHER-T,OTHER-O,HIDDEN,');
+        Observer.Expect('log', 'after filters=ID: >0 view=VERSION(1) SORTING(ID) WHERE(ID=FILTER(>0)) count=4 key=ID asc=Yes rec=0/Inbound/T1/;');
+        Observer.Verify();
     end;
 
     // RunPageLink without RunPageView.
@@ -393,7 +424,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenList('LinkOnly', 'none', true));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'MINE,HIDDEN,');
+        Observer.Expect('log', 'groups before=0:RelationType: Inbound, Transport: T1|;before filters=RelationType: Inbound, Transport: T1 view=VERSION(1) SORTING(ID) WHERE(RelationType=FILTER(Inbound),Transport=FILTER(T1)) count=2 key=ID asc=Yes rec=0/Inbound/T1/;groups after=0:RelationType: Inbound, Transport: T1|;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -401,7 +434,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenList('LinkOnly', 'same', false));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'MINE,HIDDEN,');
+        Observer.Expect('log', 'after filters=RelationType: Inbound, Transport: T1 view=VERSION(1) SORTING(ID) WHERE(RelationType=FILTER(Inbound),Transport=FILTER(T1)) count=2 key=ID asc=Yes rec=0/Inbound/T1/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -409,7 +444,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenList('LinkOnly', 'extra', false));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'MINE,OTHER-T,');
+        Observer.Expect('log', 'after filters=Information: MINE|OTHER-T view=VERSION(1) SORTING(ID) WHERE(Information=FILTER(MINE|OTHER-T)) count=2 key=ID asc=Yes rec=0/Inbound/T1/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -417,7 +454,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenList('LinkOnly', 'empty', true));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'MINE,OTHER-T,OTHER-O,HIDDEN,');
+        Observer.Expect('log', 'groups before=0:RelationType: Inbound, Transport: T1|;after filters= view=VERSION(1) SORTING(ID) count=4 key=ID asc=Yes rec=0/Inbound/T1/;groups after=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -425,7 +464,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenList('LinkOnly', 'sortonly', false));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'HIDDEN,OTHER-O,OTHER-T,MINE,');
+        Observer.Expect('log', 'after filters= view=VERSION(1) SORTING(ID) ORDER(Descending) count=4 key=ID asc=No rec=0/Inbound/T1/;');
+        Observer.Verify();
     end;
 
     // RunPageLink and a RunPageView with a where filter.
@@ -435,7 +476,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenList('LinkAndWhereView', 'none', true));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'MINE,');
+        Observer.Expect('log', 'groups before=0:RelationType: Inbound, Transport: T1|3:Information: <>HIDDEN|;before filters=RelationType: Inbound, Transport: T1 view=VERSION(1) SORTING(ID) WHERE(RelationType=FILTER(Inbound),Transport=FILTER(T1)) count=1 key=ID asc=Yes rec=0/Inbound/T1/;groups after=0:RelationType: Inbound, Transport: T1|3:Information: <>HIDDEN|;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -443,7 +486,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenList('LinkAndWhereView', 'same', true));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'MINE,');
+        Observer.Expect('log', 'groups before=0:RelationType: Inbound, Transport: T1|3:Information: <>HIDDEN|;after filters=RelationType: Inbound, Transport: T1 view=VERSION(1) SORTING(ID) WHERE(RelationType=FILTER(Inbound),Transport=FILTER(T1)) count=1 key=ID asc=Yes rec=0/Inbound/T1/;groups after=0:RelationType: Inbound, Transport: T1|3:Information: <>HIDDEN|;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -451,7 +496,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenList('LinkAndWhereView', 'empty', true));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'MINE,OTHER-T,OTHER-O,');
+        Observer.Expect('log', 'groups before=0:RelationType: Inbound, Transport: T1|3:Information: <>HIDDEN|;after filters= view=VERSION(1) SORTING(ID) count=3 key=ID asc=Yes rec=0/Inbound/T1/;groups after=3:Information: <>HIDDEN|;');
+        Observer.Verify();
     end;
 
     // RunPageLink to a target whose SourceTableView holds a where filter.
@@ -461,7 +508,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenWhereList('none', true));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'MINE,');
+        Observer.Expect('log', 'groups before=0:RelationType: Inbound, Transport: T1|2:Information: <>HIDDEN|;before filters=RelationType: Inbound, Transport: T1 view=VERSION(1) SORTING(ID) WHERE(RelationType=FILTER(Inbound),Transport=FILTER(T1)) count=1 key=ID asc=Yes rec=0/Inbound/T1/;groups after=0:RelationType: Inbound, Transport: T1|2:Information: <>HIDDEN|;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -469,7 +518,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenWhereList('same', true));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'MINE,');
+        Observer.Expect('log', 'groups before=0:RelationType: Inbound, Transport: T1|2:Information: <>HIDDEN|;after filters=RelationType: Inbound, Transport: T1 view=VERSION(1) SORTING(ID) WHERE(RelationType=FILTER(Inbound),Transport=FILTER(T1)) count=1 key=ID asc=Yes rec=0/Inbound/T1/;groups after=0:RelationType: Inbound, Transport: T1|2:Information: <>HIDDEN|;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -477,7 +528,9 @@ codeunit 95876 "LT RSV RunPageLink SetView"
     begin
         Observer.Observe('rows', OpenWhereList('empty', true));
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('rows', 'MINE,OTHER-T,OTHER-O,');
+        Observer.Expect('log', 'groups before=0:RelationType: Inbound, Transport: T1|2:Information: <>HIDDEN|;after filters= view=VERSION(1) SORTING(ID) count=3 key=ID asc=Yes rec=0/Inbound/T1/;groups after=2:Information: <>HIDDEN|;');
+        Observer.Verify();
     end;
 
     local procedure OpenList(ActionName: Text; Mode: Text; Groups: Boolean) Rows: Text

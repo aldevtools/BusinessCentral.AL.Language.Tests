@@ -8,6 +8,12 @@
 //   the root only, and a prefix on the table element. Each port: the exact text the export writes (two items, 1 one and 2 "  two  "), and
 //   imports of three documents: the root without a prefix and xmlns set to the uri of the root's prefix (the reporter's BC export), every
 //   element with its prefix, and no namespaces at all; the rows after each import.
+// Result (BC 29.0, corpus CI run 42020533240): the export writes the root without its prefix and declares xmlns as the uri of the root's
+//   prefix (the first or the second namespace alike) after the named namespaces; a root without a prefix gets BC's namespace of the port
+//   (urn:microsoft-dynamics-nav/xmlports/x<id>). Elements with a prefix keep it. An element without a prefix is in the port's namespace:
+//   where the namespace in scope differs it declares xmlns="urn:microsoft-dynamics-nav/xmlports/x<id>" itself (its children inherit it).
+//   UTF-16 writes the same text. Every import of these ports fails with "The prefix  is not defined in the Namespaces property of the
+//   XMLPort." (XmlPortNodeProcess), whatever the document, and the rows stay.
 // BC versions: 27, 28, 29
 
 // The reporter's shape: the root is a table element (MaxOccurs = Once) with the prefix of the first namespace.
@@ -223,7 +229,8 @@ codeunit 95897 "LT XUD Namespace Tests"
     begin
         Helper.Seed();
         Observer.Observe('export', Helper.TryExportRaw(95890, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <soap:Body>\r\n    <tem:Id>1</tem:Id>\r\n    <Name xmlns="urn:microsoft-dynamics-nav/xmlports/x95890">one</Name>\r\n  </soap:Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -239,7 +246,13 @@ codeunit 95897 "LT XUD Namespace Tests"
         Observer.Observe('import plain', Helper.TryImport(95890, '<Envelope><Body><Id>9</Id><Name>n9</Name></Body></Envelope>', false));
         Observer.Observe('rows after plain', Helper.Rows());
         Helper.Seed();
-        Observer.Finish();
+        Observer.Expect('import default', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after default', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('import prefixed', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after prefixed', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('import plain', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after plain', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -247,7 +260,8 @@ codeunit 95897 "LT XUD Namespace Tests"
     begin
         Helper.Seed();
         Observer.Observe('export', Helper.TryExportRaw(95891, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <soap:Body>\r\n    <Item xmlns="urn:microsoft-dynamics-nav/xmlports/x95891">\r\n      <tem:Id>1</tem:Id>\r\n      <Name>one</Name>\r\n    </Item>\r\n    <Item xmlns="urn:microsoft-dynamics-nav/xmlports/x95891">\r\n      <tem:Id>2</tem:Id>\r\n      <Name>  two  </Name>\r\n    </Item>\r\n  </soap:Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -263,7 +277,13 @@ codeunit 95897 "LT XUD Namespace Tests"
         Observer.Observe('import plain', Helper.TryImport(95891, '<Envelope><Body><Item><Id>9</Id><Name>n9</Name></Item></Body></Envelope>', false));
         Observer.Observe('rows after plain', Helper.Rows());
         Helper.Seed();
-        Observer.Finish();
+        Observer.Expect('import default', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after default', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('import prefixed', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after prefixed', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('import plain', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after plain', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -271,7 +291,8 @@ codeunit 95897 "LT XUD Namespace Tests"
     begin
         Helper.Seed();
         Observer.Observe('export', Helper.TryExportRaw(95892, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://tempuri.org/">\r\n  <soap:Body>\r\n    <Item xmlns="urn:microsoft-dynamics-nav/xmlports/x95892">\r\n      <tem:Id>1</tem:Id>\r\n      <Name>one</Name>\r\n    </Item>\r\n    <Item xmlns="urn:microsoft-dynamics-nav/xmlports/x95892">\r\n      <tem:Id>2</tem:Id>\r\n      <Name>  two  </Name>\r\n    </Item>\r\n  </soap:Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -287,7 +308,13 @@ codeunit 95897 "LT XUD Namespace Tests"
         Observer.Observe('import plain', Helper.TryImport(95892, '<Envelope><Body><Item><Id>9</Id><Name>n9</Name></Item></Body></Envelope>', false));
         Observer.Observe('rows after plain', Helper.Rows());
         Helper.Seed();
-        Observer.Finish();
+        Observer.Expect('import default', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after default', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('import prefixed', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after prefixed', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('import plain', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after plain', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -295,7 +322,8 @@ codeunit 95897 "LT XUD Namespace Tests"
     begin
         Helper.Seed();
         Observer.Observe('export', Helper.TryExportRaw(95893, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="urn:microsoft-dynamics-nav/xmlports/x95893">\r\n  <soap:Body>\r\n    <Item>\r\n      <tem:Id>1</tem:Id>\r\n      <Name>one</Name>\r\n    </Item>\r\n    <Item>\r\n      <tem:Id>2</tem:Id>\r\n      <Name>  two  </Name>\r\n    </Item>\r\n  </soap:Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -311,7 +339,13 @@ codeunit 95897 "LT XUD Namespace Tests"
         Observer.Observe('import plain', Helper.TryImport(95893, '<Envelope><Body><Item><Id>9</Id><Name>n9</Name></Item></Body></Envelope>', false));
         Observer.Observe('rows after plain', Helper.Rows());
         Helper.Seed();
-        Observer.Finish();
+        Observer.Expect('import default', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after default', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('import prefixed', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after prefixed', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('import plain', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after plain', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -319,7 +353,8 @@ codeunit 95897 "LT XUD Namespace Tests"
     begin
         Helper.Seed();
         Observer.Observe('export', Helper.TryExportRaw(95894, TextEncoding::UTF16));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <soap:Body>\r\n    <Item xmlns="urn:microsoft-dynamics-nav/xmlports/x95894">\r\n      <tem:Id>1</tem:Id>\r\n      <Name>one</Name>\r\n    </Item>\r\n    <Item xmlns="urn:microsoft-dynamics-nav/xmlports/x95894">\r\n      <tem:Id>2</tem:Id>\r\n      <Name>  two  </Name>\r\n    </Item>\r\n  </soap:Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -335,7 +370,13 @@ codeunit 95897 "LT XUD Namespace Tests"
         Observer.Observe('import plain', Helper.TryImport(95894, '<Envelope><Body><Item><Id>9</Id><Name>n9</Name></Item></Body></Envelope>', true));
         Observer.Observe('rows after plain', Helper.Rows());
         Helper.Seed();
-        Observer.Finish();
+        Observer.Expect('import default', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after default', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('import prefixed', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after prefixed', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('import plain', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after plain', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -343,7 +384,8 @@ codeunit 95897 "LT XUD Namespace Tests"
     begin
         Helper.Seed();
         Observer.Observe('export', Helper.TryExportRaw(95895, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <Body xmlns="urn:microsoft-dynamics-nav/xmlports/x95895">\r\n    <Item>\r\n      <Id>1</Id>\r\n      <Name>one</Name>\r\n    </Item>\r\n    <Item>\r\n      <Id>2</Id>\r\n      <Name>  two  </Name>\r\n    </Item>\r\n  </Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -359,7 +401,13 @@ codeunit 95897 "LT XUD Namespace Tests"
         Observer.Observe('import plain', Helper.TryImport(95895, '<Envelope><Body><Item><Id>9</Id><Name>n9</Name></Item></Body></Envelope>', false));
         Observer.Observe('rows after plain', Helper.Rows());
         Helper.Seed();
-        Observer.Finish();
+        Observer.Expect('import default', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after default', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('import prefixed', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after prefixed', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('import plain', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after plain', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -367,7 +415,8 @@ codeunit 95897 "LT XUD Namespace Tests"
     begin
         Helper.Seed();
         Observer.Observe('export', Helper.TryExportRaw(95896, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <soap:Body>\r\n    <tem:Item>\r\n      <Id xmlns="urn:microsoft-dynamics-nav/xmlports/x95896">1</Id>\r\n      <Name xmlns="urn:microsoft-dynamics-nav/xmlports/x95896">one</Name>\r\n    </tem:Item>\r\n    <tem:Item>\r\n      <Id xmlns="urn:microsoft-dynamics-nav/xmlports/x95896">2</Id>\r\n      <Name xmlns="urn:microsoft-dynamics-nav/xmlports/x95896">  two  </Name>\r\n    </tem:Item>\r\n  </soap:Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -383,6 +432,12 @@ codeunit 95897 "LT XUD Namespace Tests"
         Observer.Observe('import plain', Helper.TryImport(95896, '<Envelope><Body><Item><Id>9</Id><Name>n9</Name></Item></Body></Envelope>', false));
         Observer.Observe('rows after plain', Helper.Rows());
         Helper.Seed();
-        Observer.Finish();
+        Observer.Expect('import default', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after default', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('import prefixed', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after prefixed', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('import plain', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after plain', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Verify();
     end;
 }
