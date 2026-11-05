@@ -10,7 +10,14 @@
 //   filters a trigger sees).
 //   Log: pre h<head> f=<GetFilters> n=<Count> k=<CurrentKey> a=<Ascending> = OnPreXmlItem of the inner element, before its own code;
 //   get <entry> = OnAfterGetRecord; ins ... = OnBeforeInsertRecord.
-// Facts: observed on BC (corpus CI), see the assertions.
+// Facts (BC 29.0 on the corpus CI): export: every pass of the inner element starts from its SourceTableView alone, whatever OnPreXmlItem of
+//   an earlier pass did: GetFilters is empty (the view's filter does not show) but Count counts only Qty > 0, the key is the view's (Kind),
+//   ascending. A filter set at every pass, or only at the first, a SetCurrentKey, Ascending(false) or a Reset at the first pass, all hold for
+//   that pass only (after Reset that pass reads every row in primary key order, Qty 0 included). Over Integer with
+//   where(Number = filter(1 ..)), SetRange(Number, 1, 1) or SetRange(Number, 1, <head>) in OnPreXmlItem gives each pass its own rows; a Skip
+//   in OnAfterGetRecord leaves the head element empty. Import: the view filters nothing (rows with Qty 0 and -1 are stored), the rows below a
+//   head are stored before the head, GetFilters is empty in OnBeforeInsertRecord, and CurrentKey there is the view's key (Kind) for the
+//   first row of the import and the primary key (Entry) for every later row.
 // Neighbours: xmlports/shapes-properties/QrXpContainerOccurs.al TU_* (the same without a SourceTableView), streams/Y72XpEInvoiceShapes.al
 //   (an Integer element with this view passed once), xmlports/shapes-properties/TsXpObjects.al (a view on a second export).
 // BC versions: all (CI)
@@ -295,7 +302,9 @@ codeunit 95765 "LT R6924x Nested View Tests"
         Start();
         Seed();
         ExportNested(Observer, '');
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|<Head No="1">|<Part Entry="2" Kind="A" Qty="2" />|<Part Entry="1" Kind="B" Qty="1" />|<Part Entry="5" Kind="B" Qty="3" />|<Part Entry="4" Kind="C" Qty="5" />|</Head>|<Head No="2">|<Part Entry="2" Kind="A" Qty="2" />|<Part Entry="1" Kind="B" Qty="1" />|<Part Entry="5" Kind="B" Qty="3" />|<Part Entry="4" Kind="C" Qty="5" />|</Head>|<Head No="3">|<Part Entry="2" Kind="A" Qty="2" />|<Part Entry="1" Kind="B" Qty="1" />|<Part Entry="5" Kind="B" Qty="3" />|<Part Entry="4" Kind="C" Qty="5" />|</Head>|</Root>|');
+        Observer.Expect('log', 'pre h1 f= n=4 k=Kind a=Yes;get 2;get 1;get 5;get 4;pre h2 f= n=4 k=Kind a=Yes;get 2;get 1;get 5;get 4;pre h3 f= n=4 k=Kind a=Yes;get 2;get 1;get 5;get 4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -306,7 +315,9 @@ codeunit 95765 "LT R6924x Nested View Tests"
         Start();
         Seed();
         ExportNested(Observer, 'each');
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|<Head No="1">|<Part Entry="2" Kind="A" Qty="2" />|</Head>|<Head No="2">|<Part Entry="1" Kind="B" Qty="1" />|<Part Entry="5" Kind="B" Qty="3" />|</Head>|<Head No="3">|<Part Entry="2" Kind="A" Qty="2" />|<Part Entry="1" Kind="B" Qty="1" />|<Part Entry="5" Kind="B" Qty="3" />|<Part Entry="4" Kind="C" Qty="5" />|</Head>|</Root>|');
+        Observer.Expect('log', 'pre h1 f= n=4 k=Kind a=Yes;get 2;pre h2 f= n=4 k=Kind a=Yes;get 1;get 5;pre h3 f= n=4 k=Kind a=Yes;get 2;get 1;get 5;get 4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -317,7 +328,9 @@ codeunit 95765 "LT R6924x Nested View Tests"
         Start();
         Seed();
         ExportNested(Observer, 'first');
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|<Head No="1">|<Part Entry="2" Kind="A" Qty="2" />|</Head>|<Head No="2">|<Part Entry="2" Kind="A" Qty="2" />|<Part Entry="1" Kind="B" Qty="1" />|<Part Entry="5" Kind="B" Qty="3" />|<Part Entry="4" Kind="C" Qty="5" />|</Head>|<Head No="3">|<Part Entry="2" Kind="A" Qty="2" />|<Part Entry="1" Kind="B" Qty="1" />|<Part Entry="5" Kind="B" Qty="3" />|<Part Entry="4" Kind="C" Qty="5" />|</Head>|</Root>|');
+        Observer.Expect('log', 'pre h1 f= n=4 k=Kind a=Yes;get 2;pre h2 f= n=4 k=Kind a=Yes;get 2;get 1;get 5;get 4;pre h3 f= n=4 k=Kind a=Yes;get 2;get 1;get 5;get 4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -328,7 +341,9 @@ codeunit 95765 "LT R6924x Nested View Tests"
         Start();
         Seed();
         ExportNested(Observer, 'key');
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|<Head No="1">|<Part Entry="1" Kind="B" Qty="1" />|<Part Entry="2" Kind="A" Qty="2" />|<Part Entry="4" Kind="C" Qty="5" />|<Part Entry="5" Kind="B" Qty="3" />|</Head>|<Head No="2">|<Part Entry="2" Kind="A" Qty="2" />|<Part Entry="1" Kind="B" Qty="1" />|<Part Entry="5" Kind="B" Qty="3" />|<Part Entry="4" Kind="C" Qty="5" />|</Head>|<Head No="3">|<Part Entry="2" Kind="A" Qty="2" />|<Part Entry="1" Kind="B" Qty="1" />|<Part Entry="5" Kind="B" Qty="3" />|<Part Entry="4" Kind="C" Qty="5" />|</Head>|</Root>|');
+        Observer.Expect('log', 'pre h1 f= n=4 k=Kind a=Yes;get 1;get 2;get 4;get 5;pre h2 f= n=4 k=Kind a=Yes;get 2;get 1;get 5;get 4;pre h3 f= n=4 k=Kind a=Yes;get 2;get 1;get 5;get 4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -339,7 +354,9 @@ codeunit 95765 "LT R6924x Nested View Tests"
         Start();
         Seed();
         ExportNested(Observer, 'desc');
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|<Head No="1">|<Part Entry="4" Kind="C" Qty="5" />|<Part Entry="5" Kind="B" Qty="3" />|<Part Entry="1" Kind="B" Qty="1" />|<Part Entry="2" Kind="A" Qty="2" />|</Head>|<Head No="2">|<Part Entry="2" Kind="A" Qty="2" />|<Part Entry="1" Kind="B" Qty="1" />|<Part Entry="5" Kind="B" Qty="3" />|<Part Entry="4" Kind="C" Qty="5" />|</Head>|<Head No="3">|<Part Entry="2" Kind="A" Qty="2" />|<Part Entry="1" Kind="B" Qty="1" />|<Part Entry="5" Kind="B" Qty="3" />|<Part Entry="4" Kind="C" Qty="5" />|</Head>|</Root>|');
+        Observer.Expect('log', 'pre h1 f= n=4 k=Kind a=Yes;get 4;get 5;get 1;get 2;pre h2 f= n=4 k=Kind a=Yes;get 2;get 1;get 5;get 4;pre h3 f= n=4 k=Kind a=Yes;get 2;get 1;get 5;get 4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -350,7 +367,9 @@ codeunit 95765 "LT R6924x Nested View Tests"
         Start();
         Seed();
         ExportNested(Observer, 'reset');
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|<Head No="1">|<Part Entry="1" Kind="B" Qty="1" />|<Part Entry="2" Kind="A" Qty="2" />|<Part Entry="3" Kind="A" Qty="0" />|<Part Entry="4" Kind="C" Qty="5" />|<Part Entry="5" Kind="B" Qty="3" />|</Head>|<Head No="2">|<Part Entry="2" Kind="A" Qty="2" />|<Part Entry="1" Kind="B" Qty="1" />|<Part Entry="5" Kind="B" Qty="3" />|<Part Entry="4" Kind="C" Qty="5" />|</Head>|<Head No="3">|<Part Entry="2" Kind="A" Qty="2" />|<Part Entry="1" Kind="B" Qty="1" />|<Part Entry="5" Kind="B" Qty="3" />|<Part Entry="4" Kind="C" Qty="5" />|</Head>|</Root>|');
+        Observer.Expect('log', 'pre h1 f= n=4 k=Kind a=Yes;get 1;get 2;get 3;get 4;get 5;pre h2 f= n=4 k=Kind a=Yes;get 2;get 1;get 5;get 4;pre h3 f= n=4 k=Kind a=Yes;get 2;get 1;get 5;get 4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -361,7 +380,9 @@ codeunit 95765 "LT R6924x Nested View Tests"
         Start();
         Seed();
         ExportInteger(Observer, false);
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|<Head No="1">|<Charge N="1" />|</Head>|<Head No="2" />|<Head No="3">|<Charge N="1" />|</Head>|</Root>|');
+        Observer.Expect('log', 'pre h1 f=;get h1 n1;pre h2 f=;get h2 n1;pre h3 f=;get h3 n1;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -372,7 +393,9 @@ codeunit 95765 "LT R6924x Nested View Tests"
         Start();
         Seed();
         ExportInteger(Observer, true);
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|<Head No="1">|<Charge N="1" />|</Head>|<Head No="2" />|<Head No="3">|<Charge N="1" />|<Charge N="2" />|<Charge N="3" />|</Head>|</Root>|');
+        Observer.Expect('log', 'pre h1 f=;get h1 n1;pre h2 f=;get h2 n1;get h2 n2;pre h3 f=;get h3 n1;get h3 n2;get h3 n3;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -403,6 +426,8 @@ codeunit 95765 "LT R6924x Nested View Tests"
             until Part.Next() = 0;
         Observer.Observe('rows', Rows);
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('rows', 'H1;H2;P1 B 1;P2 A 2;P3 A 0;P4 C -1;');
+        Observer.Expect('log', 'ins p1 f= k=Kind;ins p3 f= k=Entry;ins h1;ins p2 f= k=Entry;ins p4 f= k=Entry;ins h2;');
+        Observer.Verify();
     end;
 }
