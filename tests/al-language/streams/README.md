@@ -37,3 +37,5 @@ These files assert line numbers or call stacks. Only append at the end of the co
 5. Never renumber a codeunit or rename a test. Read the standing rules in `CONTRIBUTING.md` first.
 
 - `excel-buffer-roundtrip/`: neutral public-API and page contracts reproduced from AL Runner reports.
+
+- `excel-buffer-roundtrip/`: worksheet selection followed by reading the same or a fresh stream, with a persisted Blob control.

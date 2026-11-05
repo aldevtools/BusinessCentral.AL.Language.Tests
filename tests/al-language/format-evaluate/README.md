@@ -30,3 +30,5 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 5. Never renumber a codeunit or rename a test. Read the standing rules in `CONTRIBUTING.md` first.
 
 - `tablefilter-neutral/`: neutral public-API and page contracts reproduced from AL Runner reports.
+
+- `tablefilter-neutral/`: quoted blank enum-member filters and non-empty Code predicates select the intended row.
