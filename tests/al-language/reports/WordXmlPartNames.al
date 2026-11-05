@@ -8,7 +8,8 @@
 // - labels and IncludeCaption columns, sibling data items and columns not in alphabetical order, names whose order differs
 //   between an ordinal and a case-insensitive comparison;
 // - a report changed by one report extension and a report changed by two (added columns and added data items);
-// - the content of the BCReportInformation element (the Probe Observer replaces it by x, so it is observed with < written as [).
+// - the content of the BCReportInformation element, the same with and without the flag (the Probe Observer replaces it by x, so
+//   it is observed with < written as [): every element's text is its display name; BC 29 adds ReportCaption and CompanyMetadata.
 // BC versions: 27-29
 
 table 95740 "LT WXP Row"
@@ -643,7 +644,12 @@ codeunit 95759 "LT WXP Tests"
     begin
         Part := Report.WordXmlPart(Report::"LT WXP One Ext Base").Replace('<', '[');
         Observer.Observe('head', CopyStr(Part, 1, Part.IndexOf('[/ReportRequest>') - 1));
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('head', '[?xml version="1.0" encoding="utf-16"?>\r\n[NavWordReportXmlPart xmlns="urn:microsoft-dynamics-nav/reports/LT_WXP_One_Ext_Base/95748/">\r\n  [BCReportInformation>\r\n    [ReportMetadata>\r\n      [ExtensionId>Extension ID[/ExtensionId>\r\n      [ExtensionName>Extension Name[/ExtensionName>\r\n      [ExtensionPublisher>Extension Publisher[/ExtensionPublisher>\r\n      [ExtensionVersion>Extension Version[/ExtensionVersion>\r\n      [ReportId>Report ID[/ReportId>\r\n      [ReportName>Report Name[/ReportName>\r\n      [ReportCaption>Report Caption[/ReportCaption>\r\n      [AboutThisReportTitle>About This Report Title[/AboutThisReportTitle>\r\n      [AboutThisReportText>About This Report Text[/AboutThisReportText>\r\n      [ReportHelpLink>Report Help Link[/ReportHelpLink>\r\n    [/ReportMetadata>\r\n    [ReportRequest>\r\n      [TenantEntraId>Tenant Entra Id[/TenantEntraId>\r\n      [EnvironmentName>Environment Name[/EnvironmentName>\r\n      [EnvironmentType>Environment Type[/EnvironmentType>\r\n      [CompanyName>Company Name[/CompanyName>\r\n      [CompanyDisplayName>Company Display Name[/CompanyDisplayName>\r\n      [CompanyId>Company ID[/CompanyId>\r\n      [UserName>User Name[/UserName>\r\n      [DateAndTime>Date and Time[/DateAndTime>\r\n      [Language>Language[/Language>\r\n      [FormatRegion>Format Region[/FormatRegion>\r\n      [DateTimeValues>\r\n        [Year>Year[/Year>\r\n        [MonthNumber>Month Number[/MonthNumber>\r\n        [DayNumber>Day Number[/DayNumber>\r\n        [Hour>Hour[/Hour>\r\n        [Minute>Minute[/Minute>\r\n      [/DateTimeValues>\r\n    ');
+#else
+        Observer.Expect('head', '[?xml version="1.0" encoding="utf-16"?>\r\n[NavWordReportXmlPart xmlns="urn:microsoft-dynamics-nav/reports/LT_WXP_One_Ext_Base/95748/">\r\n  [BCReportInformation>\r\n    [ReportMetadata>\r\n      [ExtensionId>Extension ID[/ExtensionId>\r\n      [ExtensionName>Extension Name[/ExtensionName>\r\n      [ExtensionPublisher>Extension Publisher[/ExtensionPublisher>\r\n      [ExtensionVersion>Extension Version[/ExtensionVersion>\r\n      [ReportId>Report ID[/ReportId>\r\n      [ReportName>Report Name[/ReportName>\r\n      [AboutThisReportTitle>About This Report Title[/AboutThisReportTitle>\r\n      [AboutThisReportText>About This Report Text[/AboutThisReportText>\r\n      [ReportHelpLink>Report Help Link[/ReportHelpLink>\r\n    [/ReportMetadata>\r\n    [ReportRequest>\r\n      [TenantEntraId>Tenant Entra Id[/TenantEntraId>\r\n      [EnvironmentName>Environment Name[/EnvironmentName>\r\n      [EnvironmentType>Environment Type[/EnvironmentType>\r\n      [CompanyName>Company Name[/CompanyName>\r\n      [CompanyDisplayName>Company Display Name[/CompanyDisplayName>\r\n      [CompanyId>Company ID[/CompanyId>\r\n      [UserName>User Name[/UserName>\r\n      [DateAndTime>Date and Time[/DateAndTime>\r\n      [Language>Language[/Language>\r\n      [FormatRegion>Format Region[/FormatRegion>\r\n      [DateTimeValues>\r\n        [Year>Year[/Year>\r\n        [MonthNumber>Month Number[/MonthNumber>\r\n        [DayNumber>Day Number[/DayNumber>\r\n        [Hour>Hour[/Hour>\r\n        [Minute>Minute[/Minute>\r\n      [/DateTimeValues>\r\n    ');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -654,7 +660,12 @@ codeunit 95759 "LT WXP Tests"
     begin
         Part := Report.WordXmlPart(Report::"LT WXP One Ext Base").Replace('<', '[');
         Observer.Observe('tail', CopyStr(Part, Part.IndexOf('[/ReportRequest>'), 1400));
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('tail', '[/ReportRequest>\r\n    [CompanyMetadata>\r\n      [CompanyName>Company Name[/CompanyName>\r\n      [CompanyDisplayName>Company Display Name[/CompanyDisplayName>\r\n      [CompanyAddressLines>\r\n        [CompanyAddressLine1>Company Address Line 1[/CompanyAddressLine1>\r\n        [CompanyAddressLine2>Company Address Line 2[/CompanyAddressLine2>\r\n        [CompanyAddressLine3>Company Address Line 3[/CompanyAddressLine3>\r\n        [CompanyAddressLine4>Company Address Line 4[/CompanyAddressLine4>\r\n        [CompanyAddressLine5>Company Address Line 5[/CompanyAddressLine5>\r\n        [CompanyAddressLine6>Company Address Line 6[/CompanyAddressLine6>\r\n        [CompanyAddressLine7>Company Address Line 7[/CompanyAddressLine7>\r\n        [CompanyAddressLine8>Company Address Line 8[/CompanyAddressLine8>\r\n      [/CompanyAddressLines>\r\n      [CompanyPhone>Company Phone[/CompanyPhone>\r\n      [CompanyPhoneCaption>Company Phone Caption[/CompanyPhoneCaption>\r\n      [CompanyFaxNo>Company Fax No.[/CompanyFaxNo>\r\n      [CompanyFaxNoCaption>Company Fax No. Caption[/CompanyFaxNoCaption>\r\n      [CompanyEmail>Company Email[/CompanyEmail>\r\n      [CompanyEmailCaption>Company Email Caption[/CompanyEmailCaption>\r\n      [CompanyHomePage>Company Home Page[/CompanyHomePage>\r\n      [CompanyHomePageCaption>Company Home Page Caption[/CompanyHomePageCaption>\r\n      [CompanyLogo>Company Logo[/CompanyLogo>\r\n      [CompanyVATRegistra');
+#else
+        Observer.Expect('tail', '[/ReportRequest>\r\n  [/BCReportInformation>\r\n  [Base>\r\n    [AName>AName[/AName>\r\n    [BCode>BCode[/BCode>\r\n    [ELines>\r\n      [ELineQty>ELineQty[/ELineQty>\r\n    [/ELines>\r\n  [/Base>\r\n[/NavWordReportXmlPart>');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -665,7 +676,12 @@ codeunit 95759 "LT WXP Tests"
     begin
         Part := Report.WordXmlPart(Report::"LT WXP One Ext Base").Replace('<', '[');
         Observer.Observe('tail2', CopyStr(Part, Part.IndexOf('[/ReportRequest>') + 1400, 1400));
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('tail2', 'tionNo>Company VAT Registration No.[/CompanyVATRegistrationNo>\r\n      [CompanyVATRegistrationNoCaption>Company VAT Registration No. Caption[/CompanyVATRegistrationNoCaption>\r\n      [CompanyRegistrationNo>Company Registration No.[/CompanyRegistrationNo>\r\n      [CompanyRegistrationNoCaption>Company Registration No. Caption[/CompanyRegistrationNoCaption>\r\n      [CompanyBankName>Company Bank Name[/CompanyBankName>\r\n      [CompanyBankNameCaption>Company Bank Name Caption[/CompanyBankNameCaption>\r\n      [CompanyBankAccountNo>Company Bank Account No.[/CompanyBankAccountNo>\r\n      [CompanyBankAccountNoCaption>Company Bank Account No. Caption[/CompanyBankAccountNoCaption>\r\n      [CompanyBankBranchNo>Company Bank Branch No.[/CompanyBankBranchNo>\r\n      [CompanyBankBranchNoCaption>Company Bank Branch No. Caption[/CompanyBankBranchNoCaption>\r\n      [CompanyIBAN>Company IBAN[/CompanyIBAN>\r\n      [CompanyIBANCaption>Company IBAN Caption[/CompanyIBANCaption>\r\n      [CompanyBankSWIFT>Company Bank SWIFT[/CompanyBankSWIFT>\r\n      [CompanyBankSWIFTCaption>Company Bank SWIFT Caption[/CompanyBankSWIFTCaption>\r\n      [CompanyGiroNo>Company Giro No.[/CompanyGiroNo>\r\n      [CompanyGiroNoCaption>Company Giro No. Caption[/CompanyGiroNoCaption>\r\n    [/CompanyMetadata>\r\n  [/BCReportInformation>\r\n  [Base>\r\n    [AName>AName[/AName>\r\n    [BCode>BCode[/BCode>\r\n    [ELines>\r\n      [ELineQty>ELineQty[/ELineQty>');
+#else
+        Observer.Expect('tail2', '');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -681,6 +697,8 @@ codeunit 95759 "LT WXP Tests"
         Extended := CopyStr(Extended, Extended.IndexOf('<BCReportInformation>'), Extended.IndexOf('</BCReportInformation>') - Extended.IndexOf('<BCReportInformation>'));
         Observer.Observe('same', Format(Plain = Extended));
         Observer.Observe('length', Format(StrLen(Plain) > 100));
-        Observer.Finish();
+        Observer.Expect('same', 'Yes');
+        Observer.Expect('length', 'Yes');
+        Observer.Verify();
     end;
 }
