@@ -375,6 +375,50 @@ codeunit 60240 "Test Event Manual Binding"
             'A subscriber held by a GLOBAL of a controller codeunit that was a LOCAL of a returned procedure must no longer fire');
     end;
 
+    [Test]
+    procedure ManualSubscriber_Test11i_PageGlobalBinding_TestPageLeftOpenAtTestEnd()
+    var
+        Publisher: Codeunit "ALT Event Publisher";
+        BindPage: TestPage "EVT Bind Page";
+    begin
+        // The local TestPage stays open when the test method returns (the page has no close trigger).
+        Initialize();
+        BindPage.OpenView();
+        Assert.IsTrue(
+            Publisher.TriggerBeforeAndReturnHandled(1109),
+            'The subscriber bound from OnOpenPage must fire while the TestPage is open');
+    end;
+
+    [Test]
+    procedure ManualSubscriber_Test11j_PageGlobalBinding_GoneAfterTestPageLeftOpen()
+    var
+        Publisher: Codeunit "ALT Event Publisher";
+    begin
+        Initialize();
+        Assert.IsFalse(
+            Publisher.TriggerBeforeAndReturnHandled(1110),
+            'A binding held by the page of a LOCAL TestPage the previous test left open must not fire here');
+    end;
+
+    [Test]
+    procedure ManualSubscriber_Test11k_PageGlobalBinding_GoneAfterHelperLeftTestPageOpen()
+    var
+        Publisher: Codeunit "ALT Event Publisher";
+    begin
+        Initialize();
+        OpenBindPageAndLeaveItOpen();
+        Assert.IsFalse(
+            Publisher.TriggerBeforeAndReturnHandled(1111),
+            'After a procedure returned whose LOCAL TestPage was still open, the binding made by that page must no longer fire');
+    end;
+
+    local procedure OpenBindPageAndLeaveItOpen()
+    var
+        BindPage: TestPage "EVT Bind Page";
+    begin
+        BindPage.OpenView();
+    end;
+
     local procedure BindThroughLocalController()
     var
         Controller: Codeunit "EVT Bind Controller";
