@@ -8,7 +8,7 @@
 // - labels and IncludeCaption columns, sibling data items and columns not in alphabetical order, names whose order differs
 //   between an ordinal and a case-insensitive comparison;
 // - a report changed by one report extension and a report changed by two (added columns and added data items);
-// - the content of the BCReportInformation element (the Probe Observer replaces it by x, so it is observed with the tag renamed).
+// - the content of the BCReportInformation element (the Probe Observer replaces it by x, so it is observed with < written as [).
 // BC versions: 27-29
 
 table 95740 "LT WXP Row"
@@ -633,15 +633,15 @@ codeunit 95759 "LT WXP Tests"
         Observer.Verify();
     end;
 
-    // The Probe Observer replaces the content of <BCReportInformation> by x; renaming the tag shows it.
+    // The Probe Observer replaces the content of <BCReportInformation> and of some of its elements by x; writing < as [ shows them.
     [Test]
     procedure WordXmlPart_ReportInformation_Plain()
     var
         Observer: Codeunit "Probe Observer";
         Part: Text;
     begin
-        Part := Report.WordXmlPart(Report::"LT WXP One Ext Base").Replace('BCReportInformation', 'BCRI');
-        Observer.Observe('head', Part.Substring(1, Part.IndexOf('<CompanyMetadata>') - 1));
+        Part := Report.WordXmlPart(Report::"LT WXP One Ext Base").Replace('<', '[');
+        Observer.Observe('head', Part.Substring(1, Part.IndexOf('[CompanyMetadata]') - 1));
         Observer.Finish();
     end;
 
@@ -651,8 +651,8 @@ codeunit 95759 "LT WXP Tests"
         Observer: Codeunit "Probe Observer";
         Part: Text;
     begin
-        Part := Report.WordXmlPart(Report::"LT WXP One Ext Base", true).Replace('BCReportInformation', 'BCRI');
-        Observer.Observe('head', Part.Substring(1, Part.IndexOf('<CompanyMetadata>') - 1));
+        Part := Report.WordXmlPart(Report::"LT WXP One Ext Base", true).Replace('<', '[');
+        Observer.Observe('head', Part.Substring(1, Part.IndexOf('[CompanyMetadata]') - 1));
         Observer.Finish();
     end;
 
@@ -681,8 +681,8 @@ codeunit 95759 "LT WXP Tests"
         Observer: Codeunit "Probe Observer";
         Part: Text;
     begin
-        Part := Report.WordXmlPart(Report::"LT WXP One Ext Base").Replace('BCReportInformation', 'BCRI');
-        Observer.Observe('tail', Part.Substring(Part.IndexOf('<CompanyMetadata>')));
+        Part := Report.WordXmlPart(Report::"LT WXP One Ext Base").Replace('<', '[');
+        Observer.Observe('tail', Part.Substring(Part.IndexOf('[CompanyMetadata]')));
         Observer.Finish();
     end;
 
@@ -692,8 +692,8 @@ codeunit 95759 "LT WXP Tests"
         Observer: Codeunit "Probe Observer";
         Part: Text;
     begin
-        Part := Report.WordXmlPart(Report::"LT WXP One Ext Base", true).Replace('BCReportInformation', 'BCRI');
-        Observer.Observe('tail', Part.Substring(Part.IndexOf('<CompanyMetadata>')));
+        Part := Report.WordXmlPart(Report::"LT WXP One Ext Base", true).Replace('<', '[');
+        Observer.Observe('tail', Part.Substring(Part.IndexOf('[CompanyMetadata]')));
         Observer.Finish();
     end;
 }
