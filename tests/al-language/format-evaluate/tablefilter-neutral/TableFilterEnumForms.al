@@ -548,14 +548,18 @@ codeunit 95454 "LT R6951 Tests"
     end;
 
     [Test]
-    procedure TableFilter_Evaluate_ResolvedCaptionClass_SelectsPricedRow()
+    procedure TableFilter_Evaluate_ResolvedCaptionClass_RejectsUnknownField()
     var
         Resolver: Codeunit "FMT Filter Caption Resolver";
+        Holder: Record "ALT TableFilter Holder";
+        Assert: Codeunit Assert;
     begin
         Initialize();
         BindSubscription(Resolver);
         SeedCaptionFilterRows();
-        CheckCaptionTableFilter('Displayed Price=>=40', 'PRICE42');
+        // Measured on native BC: FieldCaption resolves this text, but TableFilter lookup rejects it.
+        asserterror Evaluate(Holder."Filter Value", 'FMT Caption Filter Row: Displayed Price=>=40');
+        Assert.ExpectedError('The supplied field number ''Displayed Price'' cannot be found');
         UnbindSubscription(Resolver);
     end;
 
