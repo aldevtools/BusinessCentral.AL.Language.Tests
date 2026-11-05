@@ -159,7 +159,9 @@ codeunit 68241 "Probe Validate Rollback Tests"
     end;
 
     // Tests below (al-runner issue 6978): an error raised by the OnBeforeValidate or OnAfterValidate trigger a table extension adds to a
-    // field (table 95780 and tableextension 95781 at the end of this file). Observed with the Probe Observer.
+    // field (table 95780 and tableextension 95781 at the end of this file). Measured on BC 29.0 (corpus CI): the whole record goes back to its
+    // values from before the Validate, as for an error in the field's own OnValidate (the validated field, the fields the triggers set,
+    // and the changes the base field's OnValidate made before an extension OnAfterValidate raised).
 
     [Test]
     procedure ExtOnBeforeValidate_Raises_RecordAfterwards()
@@ -175,7 +177,11 @@ codeunit 68241 "Probe Validate Rollback Tests"
         asserterror Rec.Validate(Qty, 4);
         Observer.ObserveError('err');
         Observer.Observe('after error', StateOf(Rec));
-        Observer.Finish();
+        Observer.Expect('after ok', 'qty=5 amount=0 code= note=set-by-before hits=1 mark=');
+        Observer.Expect('err|text', 'Qty 4 is not a step of 5');
+        Observer.Expect('err|code', 'Dialog');
+        Observer.Expect('after error', 'qty=5 amount=0 code= note=orig hits=10 mark=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -192,7 +198,11 @@ codeunit 68241 "Probe Validate Rollback Tests"
         asserterror Rec.Validate(Amount, 500);
         Observer.ObserveError('err');
         Observer.Observe('after error', StateOf(Rec));
-        Observer.Finish();
+        Observer.Expect('after ok', 'qty=0 amount=50 code= note=set-by-after hits=101 mark=base-ran');
+        Observer.Expect('err|text', 'Amount 500 is too big');
+        Observer.Expect('err|code', 'Dialog');
+        Observer.Expect('after error', 'qty=0 amount=50 code= note=orig hits=10 mark=base-ran');
+        Observer.Verify();
     end;
 
     [Test]
@@ -209,7 +219,11 @@ codeunit 68241 "Probe Validate Rollback Tests"
         asserterror Rec.Validate(ExtCode, 'BAD');
         Observer.ObserveError('err');
         Observer.Observe('after error', StateOf(Rec));
-        Observer.Finish();
+        Observer.Expect('after ok', 'qty=0 amount=0 code=GOOD note=set-by-ext-field hits=1 mark=');
+        Observer.Expect('err|text', 'ExtCode BAD rejected');
+        Observer.Expect('err|code', 'Dialog');
+        Observer.Expect('after error', 'qty=0 amount=0 code=GOOD note=orig hits=10 mark=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -228,7 +242,11 @@ codeunit 68241 "Probe Validate Rollback Tests"
         Observer.ObserveError('err');
         Observer.Observe('rec', StateOf(Rec));
         Observer.Observe('xrec qty', Format(Rec.GetXRecQty()));
-        Observer.Finish();
+        Observer.Expect('err|text', 'Qty 7 is not a step of 5');
+        Observer.Expect('err|code', 'Dialog');
+        Observer.Expect('rec', 'qty=10 amount=0 code= note=unsaved hits=1 mark=');
+        Observer.Expect('xrec qty', '10');
+        Observer.Verify();
     end;
 
     [Test]
@@ -246,7 +264,13 @@ codeunit 68241 "Probe Validate Rollback Tests"
         Observer.Observe('note', Rec.Note);
         Observer.Observe('hits', Format(Rec.Hits));
         Observer.Observe('base trigger mark', Rec.Mark);
-        Observer.Finish();
+        Observer.Expect('err|text', 'Amount 101 is too big');
+        Observer.Expect('err|code', 'Dialog');
+        Observer.Expect('amount', '0');
+        Observer.Expect('note', 'orig');
+        Observer.Expect('hits', '1');
+        Observer.Expect('base trigger mark', '');
+        Observer.Verify();
     end;
 
     local procedure StateOf(var Rec: Record "REC ExtValidate Row"): Text

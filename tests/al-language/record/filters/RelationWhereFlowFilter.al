@@ -175,6 +175,8 @@ codeunit 72433 "LT RelFF Where Flowfilter"
     // contrast. Tables 95783-95785 at the end of this file. Districts: AA (group G1, Own Group true, weight 10, Active), BB (group
     // G2, Own Group false, weight 1), CC (no group), DD (a group code with no group row). Each cell validates one code into one field
     // and records the value or the error text and code.
+    // Measured on BC 29.0 (corpus CI): the condition compares the FlowField calculated for each related row (a lookup with no row
+    // reads false, a count with no row 0); a blank value is accepted; a rejected value raises DB:NothingInsideFilter.
 
     [Test]
     procedure RelationOnRelatedFlowField_OwnTrue()
@@ -183,7 +185,13 @@ codeunit 72433 "LT RelFF Where Flowfilter"
     begin
         SeedRelatedFlowField();
         RelatedFlowFieldCells(Observer, 2, false, '');
-        Observer.Finish();
+        Observer.Expect('[AA]', 'ok=AA');
+        Observer.Expect('[BB]', 'The field Own True of table REC RelFF Document contains a value (BB) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('[CC]', 'The field Own True of table REC RelFF Document contains a value (CC) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('[DD]', 'The field Own True of table REC RelFF Document contains a value (DD) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('[ZZ]', 'The field Own True of table REC RelFF Document contains a value (ZZ) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('[]', 'ok=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -193,7 +201,13 @@ codeunit 72433 "LT RelFF Where Flowfilter"
     begin
         SeedRelatedFlowField();
         RelatedFlowFieldCells(Observer, 3, false, '');
-        Observer.Finish();
+        Observer.Expect('[AA]', 'The field Own False of table REC RelFF Document contains a value (AA) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('[BB]', 'ok=BB');
+        Observer.Expect('[CC]', 'ok=CC');
+        Observer.Expect('[DD]', 'ok=DD');
+        Observer.Expect('[ZZ]', 'The field Own False of table REC RelFF Document contains a value (ZZ) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('[]', 'ok=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -203,7 +217,13 @@ codeunit 72433 "LT RelFF Where Flowfilter"
     begin
         SeedRelatedFlowField();
         RelatedFlowFieldCells(Observer, 4, false, '');
-        Observer.Finish();
+        Observer.Expect('[AA]', 'ok=AA');
+        Observer.Expect('[BB]', 'ok=BB');
+        Observer.Expect('[CC]', 'The field Has Group of table REC RelFF Document contains a value (CC) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('[DD]', 'The field Has Group of table REC RelFF Document contains a value (DD) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('[ZZ]', 'The field Has Group of table REC RelFF Document contains a value (ZZ) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('[]', 'ok=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -213,7 +233,13 @@ codeunit 72433 "LT RelFF Where Flowfilter"
     begin
         SeedRelatedFlowField();
         RelatedFlowFieldCells(Observer, 5, false, '');
-        Observer.Finish();
+        Observer.Expect('[AA]', 'ok=AA');
+        Observer.Expect('[BB]', 'ok=BB');
+        Observer.Expect('[CC]', 'The field Count One of table REC RelFF Document contains a value (CC) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('[DD]', 'The field Count One of table REC RelFF Document contains a value (DD) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('[ZZ]', 'The field Count One of table REC RelFF Document contains a value (ZZ) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('[]', 'ok=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -223,7 +249,13 @@ codeunit 72433 "LT RelFF Where Flowfilter"
     begin
         SeedRelatedFlowField();
         RelatedFlowFieldCells(Observer, 6, false, '');
-        Observer.Finish();
+        Observer.Expect('[AA]', 'ok=AA');
+        Observer.Expect('[BB]', 'The field Weight Over Five of table REC RelFF Document contains a value (BB) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('[CC]', 'The field Weight Over Five of table REC RelFF Document contains a value (CC) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('[DD]', 'The field Weight Over Five of table REC RelFF Document contains a value (DD) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('[ZZ]', 'The field Weight Over Five of table REC RelFF Document contains a value (ZZ) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('[]', 'ok=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -233,7 +265,13 @@ codeunit 72433 "LT RelFF Where Flowfilter"
     begin
         SeedRelatedFlowField();
         RelatedFlowFieldCells(Observer, 7, false, '');
-        Observer.Finish();
+        Observer.Expect('[AA]', 'ok=AA');
+        Observer.Expect('[BB]', 'The field Active True of table REC RelFF Document contains a value (BB) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('[CC]', 'The field Active True of table REC RelFF Document contains a value (CC) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('[DD]', 'The field Active True of table REC RelFF Document contains a value (DD) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('[ZZ]', 'The field Active True of table REC RelFF Document contains a value (ZZ) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('[]', 'ok=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -244,7 +282,19 @@ codeunit 72433 "LT RelFF Where Flowfilter"
         SeedRelatedFlowField();
         RelatedFlowFieldCells(Observer, 8, true, 'want true ');
         RelatedFlowFieldCells(Observer, 8, false, 'want false ');
-        Observer.Finish();
+        Observer.Expect('want true [AA]', 'ok=AA');
+        Observer.Expect('want true [BB]', 'The field Own Equals Want of table REC RelFF Document contains a value (BB) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('want true [CC]', 'The field Own Equals Want of table REC RelFF Document contains a value (CC) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('want true [DD]', 'The field Own Equals Want of table REC RelFF Document contains a value (DD) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('want true [ZZ]', 'The field Own Equals Want of table REC RelFF Document contains a value (ZZ) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('want true []', 'ok=');
+        Observer.Expect('want false [AA]', 'The field Own Equals Want of table REC RelFF Document contains a value (AA) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('want false [BB]', 'ok=BB');
+        Observer.Expect('want false [CC]', 'ok=CC');
+        Observer.Expect('want false [DD]', 'ok=DD');
+        Observer.Expect('want false [ZZ]', 'The field Own Equals Want of table REC RelFF Document contains a value (ZZ) that cannot be found in the related table (REC RelFF District).|DB:NothingInsideFilter');
+        Observer.Expect('want false []', 'ok=');
+        Observer.Verify();
     end;
 
     local procedure SeedRelatedFlowField()

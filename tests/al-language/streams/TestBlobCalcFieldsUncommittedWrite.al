@@ -156,6 +156,8 @@ codeunit 60915 "Test Blob CalcFields Uncomm"
     // TableType = Temporary (table 95782 at the end of this file); with and without Clear(Blob) before CreateOutStream; with and
     // without a Get between the write and CalcFields; with and without HasValue before CalcFields. Each observation:
     // hv=<HasValue before CalcFields, or -> read=<text read back> after=<HasValue after CalcFields>.
+    // Measured on BC 29.0 (corpus CI): a temporary record (variable or TableType = Temporary) reads the text back in every cell,
+    // also after Clear and after a Get; a database row reads it back without a Get (with or without Clear) and reads nothing after a Get.
 
     [Test]
     procedure BlobRoundTrip_DatabaseRow_Matrix()
@@ -166,7 +168,15 @@ codeunit 60915 "Test Blob CalcFields Uncomm"
         Initialize();
         for i := 0 to 7 do
             Observer.Observe(CellName(i), DbCell(i));
-        Observer.Finish();
+        Observer.Expect('noclear+noget+nohasvalue', 'hv=- read=ROUNDTRIP after=Yes');
+        Observer.Expect('clear+noget+nohasvalue', 'hv=- read=ROUNDTRIP after=Yes');
+        Observer.Expect('noclear+get+nohasvalue', 'hv=- read= after=No');
+        Observer.Expect('clear+get+nohasvalue', 'hv=- read= after=No');
+        Observer.Expect('noclear+noget+hasvalue', 'hv=Yes read=ROUNDTRIP after=Yes');
+        Observer.Expect('clear+noget+hasvalue', 'hv=Yes read=ROUNDTRIP after=Yes');
+        Observer.Expect('noclear+get+hasvalue', 'hv=No read= after=No');
+        Observer.Expect('clear+get+hasvalue', 'hv=No read= after=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -178,7 +188,15 @@ codeunit 60915 "Test Blob CalcFields Uncomm"
         Initialize();
         for i := 0 to 7 do
             Observer.Observe(CellName(i), TempVarCell(i));
-        Observer.Finish();
+        Observer.Expect('noclear+noget+nohasvalue', 'hv=- read=ROUNDTRIP after=Yes');
+        Observer.Expect('clear+noget+nohasvalue', 'hv=- read=ROUNDTRIP after=Yes');
+        Observer.Expect('noclear+get+nohasvalue', 'hv=- read=ROUNDTRIP after=Yes');
+        Observer.Expect('clear+get+nohasvalue', 'hv=- read=ROUNDTRIP after=Yes');
+        Observer.Expect('noclear+noget+hasvalue', 'hv=Yes read=ROUNDTRIP after=Yes');
+        Observer.Expect('clear+noget+hasvalue', 'hv=Yes read=ROUNDTRIP after=Yes');
+        Observer.Expect('noclear+get+hasvalue', 'hv=Yes read=ROUNDTRIP after=Yes');
+        Observer.Expect('clear+get+hasvalue', 'hv=Yes read=ROUNDTRIP after=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -190,7 +208,15 @@ codeunit 60915 "Test Blob CalcFields Uncomm"
         Initialize();
         for i := 0 to 7 do
             Observer.Observe(CellName(i), TempTableCell(i));
-        Observer.Finish();
+        Observer.Expect('noclear+noget+nohasvalue', 'hv=- read=ROUNDTRIP after=Yes');
+        Observer.Expect('clear+noget+nohasvalue', 'hv=- read=ROUNDTRIP after=Yes');
+        Observer.Expect('noclear+get+nohasvalue', 'hv=- read=ROUNDTRIP after=Yes');
+        Observer.Expect('clear+get+nohasvalue', 'hv=- read=ROUNDTRIP after=Yes');
+        Observer.Expect('noclear+noget+hasvalue', 'hv=Yes read=ROUNDTRIP after=Yes');
+        Observer.Expect('clear+noget+hasvalue', 'hv=Yes read=ROUNDTRIP after=Yes');
+        Observer.Expect('noclear+get+hasvalue', 'hv=Yes read=ROUNDTRIP after=Yes');
+        Observer.Expect('clear+get+hasvalue', 'hv=Yes read=ROUNDTRIP after=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -206,7 +232,8 @@ codeunit 60915 "Test Blob CalcFields Uncomm"
         TempTable.Insert(false);
         TempTable.SetContent('ROUNDTRIP');
         Observer.Observe('temporary table', TempTable.GetContent());
-        Observer.Finish();
+        Observer.Expect('temporary table', 'ROUNDTRIP');
+        Observer.Verify();
     end;
 
     local procedure CellName(i: Integer): Text
