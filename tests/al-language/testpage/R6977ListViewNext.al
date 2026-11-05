@@ -6,6 +6,9 @@
 //   H2), opened by Page.Run with a filtered record and handled by a PageHandler: View().Invoke(), then a First/Next walk (the rows it visits
 //   and the count). Contrasts: the same without View(); the same list opened by TestPage.OpenEdit with a filter and then View(); opened by
 //   TestPage.OpenView; and a second list with InsertAllowed = false.
+// Result (BC 27.5, 28.5 and 29.0 alike): after View().Invoke() the walk visits the 3 rows and Next on the last answers false, on a list
+//   opened by Page.Run (also with InsertAllowed = false) and on one opened by OpenEdit; OpenView the same. Without View the walk of the list
+//   opened by Page.Run also visits the blank new row (`0/`, 4 steps). Nothing is inserted (4 rows stored).
 // BC versions: 27, 28, 29
 
 table 95986 "TP R6977 Line"
@@ -143,7 +146,9 @@ codeunit 95989 "TP R6977 Probe"
         Page.Run(Page::"TP R6977 Lines", Line);
         Observer.Observe('visited', Visited);
         Observer.Observe('stored', StoredCount());
-        Observer.Finish();
+        Observer.Expect('visited', '10000/a;20000/b;30000/c; n=3');
+        Observer.Expect('stored', '4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -159,7 +164,9 @@ codeunit 95989 "TP R6977 Probe"
         Page.Run(Page::"TP R6977 Lines", Line);
         Observer.Observe('visited', Visited);
         Observer.Observe('stored', StoredCount());
-        Observer.Finish();
+        Observer.Expect('visited', '10000/a;20000/b;30000/c;0/; n=4');
+        Observer.Expect('stored', '4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -175,7 +182,9 @@ codeunit 95989 "TP R6977 Probe"
         Page.Run(Page::"TP R6977 Lines No Insert", Line);
         Observer.Observe('visited', Visited);
         Observer.Observe('stored', StoredCount());
-        Observer.Finish();
+        Observer.Expect('visited', '10000/a;20000/b;30000/c; n=3');
+        Observer.Expect('stored', '4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -192,7 +201,9 @@ codeunit 95989 "TP R6977 Probe"
         Lines.Close();
         Observer.Observe('visited', Visited);
         Observer.Observe('stored', StoredCount());
-        Observer.Finish();
+        Observer.Expect('visited', '10000/a;20000/b;30000/c; n=3');
+        Observer.Expect('stored', '4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -208,7 +219,9 @@ codeunit 95989 "TP R6977 Probe"
         Lines.Close();
         Observer.Observe('visited', Visited);
         Observer.Observe('stored', StoredCount());
-        Observer.Finish();
+        Observer.Expect('visited', '10000/a;20000/b;30000/c; n=3');
+        Observer.Expect('stored', '4');
+        Observer.Verify();
     end;
 
     [PageHandler]

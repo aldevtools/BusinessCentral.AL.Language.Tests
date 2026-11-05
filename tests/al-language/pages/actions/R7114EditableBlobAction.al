@@ -7,6 +7,10 @@
 //   variable, sets Status and Doc No. and runs Modify(true), without and with a Commit after it; the action never touches Rec. Contrast: an
 //   action that writes the Blob of Rec through a stream. Observed: the stored row after the action and after Close, and the log of the
 //   page's OnModifyRecord (P.MODR) and the table's OnModify (T.MOD).
+// Result (BC 27.5, 28.5 and 29.0 alike): an action that changes the row through its own record variable leaves Rec as no change for
+//   the page: the page runs no OnModifyRecord and no Modify, after the action or at Close, with and without a Commit in the action, on the
+//   List and the Card; the stored row keeps what the action stored, and the page shows it after the action. An action that writes the
+//   Blob of Rec through a stream is saved right after the action (P.MODR;T.MOD), and nothing more at Close.
 // BC versions: 27+ (tested by the corpus CI matrix)
 
 table 95960 "PG R7114 File"
@@ -271,7 +275,12 @@ codeunit 95964 "PG R7114 Probe"
     begin
         Initialize();
         RunList(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('stored after action', 'Imported/DOC1/blob=No');
+        Observer.Expect('log action', 'T.MOD(Imported/DOC1)');
+        Observer.Expect('shown after action', 'Imported/DOC1');
+        Observer.Expect('stored after close', 'Imported/DOC1/blob=No');
+        Observer.Expect('log close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -281,7 +290,12 @@ codeunit 95964 "PG R7114 Probe"
     begin
         Initialize();
         RunList(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('stored after action', 'Imported/DOC1/blob=No');
+        Observer.Expect('log action', 'T.MOD(Imported/DOC1)');
+        Observer.Expect('shown after action', 'Imported/DOC1');
+        Observer.Expect('stored after close', 'Imported/DOC1/blob=No');
+        Observer.Expect('log close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -291,7 +305,12 @@ codeunit 95964 "PG R7114 Probe"
     begin
         Initialize();
         RunList(Observer, 3);
-        Observer.Finish();
+        Observer.Expect('stored after action', 'Open//blob=Yes');
+        Observer.Expect('log action', 'P.MODR(Open/);T.MOD(Open/)');
+        Observer.Expect('shown after action', 'Open/');
+        Observer.Expect('stored after close', 'Open//blob=Yes');
+        Observer.Expect('log close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -301,7 +320,12 @@ codeunit 95964 "PG R7114 Probe"
     begin
         Initialize();
         RunCard(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('stored after action', 'Imported/DOC1/blob=No');
+        Observer.Expect('log action', 'T.MOD(Imported/DOC1)');
+        Observer.Expect('shown after action', 'Imported/DOC1');
+        Observer.Expect('stored after close', 'Imported/DOC1/blob=No');
+        Observer.Expect('log close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -311,7 +335,12 @@ codeunit 95964 "PG R7114 Probe"
     begin
         Initialize();
         RunCard(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('stored after action', 'Imported/DOC1/blob=No');
+        Observer.Expect('log action', 'T.MOD(Imported/DOC1)');
+        Observer.Expect('shown after action', 'Imported/DOC1');
+        Observer.Expect('stored after close', 'Imported/DOC1/blob=No');
+        Observer.Expect('log close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -321,7 +350,12 @@ codeunit 95964 "PG R7114 Probe"
     begin
         Initialize();
         RunCard(Observer, 3);
-        Observer.Finish();
+        Observer.Expect('stored after action', 'Open//blob=Yes');
+        Observer.Expect('log action', 'P.MODR(Open/);T.MOD(Open/)');
+        Observer.Expect('shown after action', 'Open/');
+        Observer.Expect('stored after close', 'Open//blob=Yes');
+        Observer.Expect('log close', '');
+        Observer.Verify();
     end;
 }
 

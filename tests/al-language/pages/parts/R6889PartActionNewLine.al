@@ -9,6 +9,10 @@
 //   again by Previous() and Next(). Then SetValue on Type (its OnValidate runs CurrPage.Update(false)) and on No. (its OnValidate logs the
 //   Type it sees). Observed: the part's Line No. and Type after each SetValue, the trigger log (T.MOD, NoV(Type) of the table; R/C of the
 //   part; HR/HC of the host) and the stored lines after Close.
+// Result (BC 27.5, 28.5 and 29.0 alike): in this shape the typed Type is dropped on the line the action inserted and moved Rec to, as
+//   on an existing line: after the SetValue the part shows Type Item on the same line, No.'s OnValidate sees Item, and the line is stored
+//   with Type Item at Close. With Both the host reads first (HR;HC), then the part reads from its row back to the first and the row
+//   twice; without Both the host is not read. After the action the part reads from the new row in the same way.
 // BC versions: 27+ (tested by the corpus CI matrix)
 
 table 95974 "PG R6889 Line"
@@ -344,7 +348,15 @@ codeunit 95978 "PG R6889 Probe"
     begin
         Initialize();
         RunBoth(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('line after action', '30000');
+        Observer.Expect('log action', 'R20;ACT;R30;R30;R20;R10;R30;R30;C30');
+        Observer.Expect('after type', '30000 Item');
+        Observer.Expect('log type', 'TY.V;TY.V.end;HR;HC;R30;R20;R10;R30;R30;C30');
+        Observer.Expect('after no', '30000 Item');
+        Observer.Expect('log no', 'NoV(Item)');
+        Observer.Expect('log close', 'T.MOD(30:Item/R1)');
+        Observer.Expect('stored', '10000:Item/ 20000:Item/ 30000:Item/R1 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -354,7 +366,15 @@ codeunit 95978 "PG R6889 Probe"
     begin
         Initialize();
         RunBoth(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('line after action', '5000');
+        Observer.Expect('log action', 'R10;ACT;R5;R5;R10;R20;R5;R5;C5');
+        Observer.Expect('after type', '5000 Item');
+        Observer.Expect('log type', 'TY.V;TY.V.end;HR;HC;R5;R10;R20;R5;R5;C5');
+        Observer.Expect('after no', '5000 Item');
+        Observer.Expect('log no', 'NoV(Item)');
+        Observer.Expect('log close', 'T.MOD(5:Item/R1)');
+        Observer.Expect('stored', '5000:Item/R1 10000:Item/ 20000:Item/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -364,7 +384,15 @@ codeunit 95978 "PG R6889 Probe"
     begin
         Initialize();
         RunBoth(Observer, 3);
-        Observer.Finish();
+        Observer.Expect('line after action', '20000');
+        Observer.Expect('log action', 'R10;ACT;R20;R20;R10;R20;R20;C20');
+        Observer.Expect('after type', '20000 Item');
+        Observer.Expect('log type', 'TY.V;TY.V.end;HR;HC;R20;R10;R20;R20;C20');
+        Observer.Expect('after no', '20000 Item');
+        Observer.Expect('log no', 'NoV(Item)');
+        Observer.Expect('log close', 'T.MOD(20:Item/R1)');
+        Observer.Expect('stored', '10000:Item/ 20000:Item/R1 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -374,7 +402,16 @@ codeunit 95978 "PG R6889 Probe"
     begin
         Initialize();
         RunBoth(Observer, 4);
-        Observer.Finish();
+        Observer.Expect('line after action', '30000');
+        Observer.Expect('log action', 'R20;ACT;R30;R30;R20;R10;R30;R30;C30');
+        Observer.Expect('line after prev next', '30000');
+        Observer.Expect('after type', '30000 Item');
+        Observer.Expect('log type', 'TY.V;TY.V.end;HR;HC;R30;R20;R10;R30;R30;C30');
+        Observer.Expect('after no', '30000 Item');
+        Observer.Expect('log no', 'NoV(Item)');
+        Observer.Expect('log close', 'T.MOD(30:Item/R1)');
+        Observer.Expect('stored', '10000:Item/ 20000:Item/ 30000:Item/R1 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -384,7 +421,15 @@ codeunit 95978 "PG R6889 Probe"
     begin
         Initialize();
         RunPlain(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('line after action', '30000');
+        Observer.Expect('log action', 'R20;ACT;R30;R30;R20;R10;R30;R30;C30');
+        Observer.Expect('after type', '30000 Item');
+        Observer.Expect('log type', 'TY.V;TY.V.end;R30;R20;R10;R30;R30;C30');
+        Observer.Expect('after no', '30000 Item');
+        Observer.Expect('log no', 'NoV(Item)');
+        Observer.Expect('log close', 'T.MOD(30:Item/R1)');
+        Observer.Expect('stored', '10000:Item/ 20000:Item/ 30000:Item/R1 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -394,7 +439,15 @@ codeunit 95978 "PG R6889 Probe"
     begin
         Initialize();
         RunPlain(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('line after action', '5000');
+        Observer.Expect('log action', 'R10;ACT;R5;R5;R10;R20;R5;R5;C5');
+        Observer.Expect('after type', '5000 Item');
+        Observer.Expect('log type', 'TY.V;TY.V.end;R5;R10;R20;R5;R5;C5');
+        Observer.Expect('after no', '5000 Item');
+        Observer.Expect('log no', 'NoV(Item)');
+        Observer.Expect('log close', 'T.MOD(5:Item/R1)');
+        Observer.Expect('stored', '5000:Item/R1 10000:Item/ 20000:Item/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -404,7 +457,15 @@ codeunit 95978 "PG R6889 Probe"
     begin
         Initialize();
         RunPlain(Observer, 3);
-        Observer.Finish();
+        Observer.Expect('line after action', '20000');
+        Observer.Expect('log action', 'R10;ACT;R20;R20;R10;R20;R20;C20');
+        Observer.Expect('after type', '20000 Item');
+        Observer.Expect('log type', 'TY.V;TY.V.end;R20;R10;R20;R20;C20');
+        Observer.Expect('after no', '20000 Item');
+        Observer.Expect('log no', 'NoV(Item)');
+        Observer.Expect('log close', 'T.MOD(20:Item/R1)');
+        Observer.Expect('stored', '10000:Item/ 20000:Item/R1 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -414,7 +475,16 @@ codeunit 95978 "PG R6889 Probe"
     begin
         Initialize();
         RunPlain(Observer, 4);
-        Observer.Finish();
+        Observer.Expect('line after action', '30000');
+        Observer.Expect('log action', 'R20;ACT;R30;R30;R20;R10;R30;R30;C30');
+        Observer.Expect('line after prev next', '30000');
+        Observer.Expect('after type', '30000 Item');
+        Observer.Expect('log type', 'TY.V;TY.V.end;R30;R20;R10;R30;R30;C30');
+        Observer.Expect('after no', '30000 Item');
+        Observer.Expect('log no', 'NoV(Item)');
+        Observer.Expect('log close', 'T.MOD(30:Item/R1)');
+        Observer.Expect('stored', '10000:Item/ 20000:Item/ 30000:Item/R1 ');
+        Observer.Verify();
     end;
 }
 

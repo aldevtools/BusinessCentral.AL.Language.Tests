@@ -9,6 +9,10 @@
 //   that only runs CurrPage.Update(false) (Note) and one that first changes the host's stored row (Qty. to Ship). Observed: the part's
 //   Line No. after the SetValue, the trigger log (F(Which), R/C of the part, HR/HC of the host), where the next SetValue (Bin Code) lands,
 //   and the stored rows.
+// Result (BC 27.5, 28.5 and 29.0 alike): the part stays on its row on every host, as without OnFindRecord (R6877PartBothLaterRow.al),
+//   and the next SetValue lands there. The reads are those of the part without OnFindRecord, with OnFindRecord('=>') before the first
+//   read of the part and OnFindRecord('=') before its last OnAfterGetRecord: `HR;HC;F(=>);R2;R3;R2;R1;R2;F(=);R2;C2` on line 2,
+//   `HR;HC;F(=>);R3;R2;R1;R3;F(=);R3;C3` on line 3. A change of a page global in the trigger changes nothing.
 // BC versions: 27+ (tested by the corpus CI matrix)
 
 page 95966 "PG R7099 Find Part"
@@ -471,7 +475,14 @@ codeunit 95972 "PG R7099 Probe"
     begin
         Initialize();
         RunDoc(Observer, 1, 1);
-        Observer.Finish();
+        Observer.Expect('line before', '20000');
+        Observer.Expect('line after', '20000');
+        Observer.Expect('log', 'N.V;N.V.end;HR;HC;F(=>);R2;R3;R2;R1;R2;F(=);R2;C2');
+        Observer.Expect('info shown', '');
+        Observer.Expect('line after bin', '20000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', ' 1:/0/ 2:/0/Z 3:/0/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -481,7 +492,14 @@ codeunit 95972 "PG R7099 Probe"
     begin
         Initialize();
         RunDoc(Observer, 1, 2);
-        Observer.Finish();
+        Observer.Expect('line before', '20000');
+        Observer.Expect('line after', '20000');
+        Observer.Expect('log', 'Q.V;Q.V.end;HR;HC;F(=>);R2;R3;R2;R1;R2;F(=);R2;C2');
+        Observer.Expect('info shown', 'changed');
+        Observer.Expect('line after bin', '20000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', 'changed 1:/0/ 2:/0/Z 3:/0/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -491,7 +509,14 @@ codeunit 95972 "PG R7099 Probe"
     begin
         Initialize();
         RunDoc(Observer, 2, 1);
-        Observer.Finish();
+        Observer.Expect('line before', '30000');
+        Observer.Expect('line after', '30000');
+        Observer.Expect('log', 'N.V;N.V.end;HR;HC;F(=>);R3;R2;R1;R3;F(=);R3;C3');
+        Observer.Expect('info shown', '');
+        Observer.Expect('line after bin', '30000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', ' 1:/0/ 2:/0/ 3:/0/Z ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -501,7 +526,14 @@ codeunit 95972 "PG R7099 Probe"
     begin
         Initialize();
         RunDoc(Observer, 2, 2);
-        Observer.Finish();
+        Observer.Expect('line before', '30000');
+        Observer.Expect('line after', '30000');
+        Observer.Expect('log', 'Q.V;Q.V.end;HR;HC;F(=>);R3;R2;R1;R3;F(=);R3;C3');
+        Observer.Expect('info shown', 'changed');
+        Observer.Expect('line after bin', '30000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', 'changed 1:/0/ 2:/0/ 3:/0/Z ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -511,7 +543,14 @@ codeunit 95972 "PG R7099 Probe"
     begin
         Initialize();
         RunPlus(Observer, 1, 1);
-        Observer.Finish();
+        Observer.Expect('line before', '20000');
+        Observer.Expect('line after', '20000');
+        Observer.Expect('log', 'N.V;N.V.end;HR;HC;F(=>);R2;R3;R2;R1;R2;F(=);R2;C2');
+        Observer.Expect('info shown', '');
+        Observer.Expect('line after bin', '20000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', ' 1:/0/ 2:/0/Z 3:/0/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -521,7 +560,14 @@ codeunit 95972 "PG R7099 Probe"
     begin
         Initialize();
         RunPlus(Observer, 2, 2);
-        Observer.Finish();
+        Observer.Expect('line before', '30000');
+        Observer.Expect('line after', '30000');
+        Observer.Expect('log', 'Q.V;Q.V.end;HR;HC;F(=>);R3;R2;R1;R3;F(=);R3;C3');
+        Observer.Expect('info shown', 'changed');
+        Observer.Expect('line after bin', '30000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', 'changed 1:/0/ 2:/0/ 3:/0/Z ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -531,7 +577,14 @@ codeunit 95972 "PG R7099 Probe"
     begin
         Initialize();
         RunCard(Observer, 1, 1);
-        Observer.Finish();
+        Observer.Expect('line before', '20000');
+        Observer.Expect('line after', '20000');
+        Observer.Expect('log', 'N.V;N.V.end;HR;HC;F(=>);R2;R3;R2;R1;R2;F(=);R2;C2');
+        Observer.Expect('info shown', '');
+        Observer.Expect('line after bin', '20000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', ' 1:/0/ 2:/0/Z 3:/0/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -541,7 +594,14 @@ codeunit 95972 "PG R7099 Probe"
     begin
         Initialize();
         RunCard(Observer, 2, 2);
-        Observer.Finish();
+        Observer.Expect('line before', '30000');
+        Observer.Expect('line after', '30000');
+        Observer.Expect('log', 'Q.V;Q.V.end;HR;HC;F(=>);R3;R2;R1;R3;F(=);R3;C3');
+        Observer.Expect('info shown', 'changed');
+        Observer.Expect('line after bin', '30000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', 'changed 1:/0/ 2:/0/ 3:/0/Z ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -551,7 +611,14 @@ codeunit 95972 "PG R7099 Probe"
     begin
         Initialize();
         RunDocG(Observer, 1, 1);
-        Observer.Finish();
+        Observer.Expect('line before', '20000');
+        Observer.Expect('line after', '20000');
+        Observer.Expect('log', 'N.V;N.V.end;HR;HC;F(=>);R2;R3;R2;R1;R2;F(=);R2;C2');
+        Observer.Expect('info shown', '');
+        Observer.Expect('line after bin', '20000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', ' 1:/0/ 2:/0/Z 3:/0/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -561,7 +628,14 @@ codeunit 95972 "PG R7099 Probe"
     begin
         Initialize();
         RunDocG(Observer, 2, 2);
-        Observer.Finish();
+        Observer.Expect('line before', '30000');
+        Observer.Expect('line after', '30000');
+        Observer.Expect('log', 'Q.V;Q.V.end;HR;HC;F(=>);R3;R2;R1;R3;F(=);R3;C3');
+        Observer.Expect('info shown', 'changed');
+        Observer.Expect('line after bin', '30000');
+        Observer.Expect('log bin', '');
+        Observer.Expect('stored', 'changed 1:/0/ 2:/0/ 3:/0/Z ');
+        Observer.Verify();
     end;
 }
 

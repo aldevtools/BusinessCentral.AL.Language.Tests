@@ -10,6 +10,10 @@
 //   RecordId of a row outside the link; and through a procedure that takes Rec by value: its filters, Get of the current and of an
 //   outside row. Orders: O1, O2 of P1; O3, O4 of P2; the card stands on P2. Handlers: one that walks the list with First/Next, one that
 //   reads the shown row only.
+// Result (BC 27.5, 28.5 and 29.0 alike): OnOpenPage sees the link filter (Count 2) and an empty Rec. OnAfterGetCurrRecord runs once
+//   when the page opens, before the handler; First on that first row runs it not again, Next runs it on the next row. A RecordRef.GetTable
+//   copy of Rec (through a Variant) carries the link filter (Count 2); a by-value Record copy carries none (Count 4). Get, on both, finds
+//   the current row and also a row outside the link (O1).
 // BC versions: 27, 28, 29
 
 table 95980 "TP R7138 Project"
@@ -210,7 +214,9 @@ codeunit 95984 "TP R7138 Probe"
         Initialize();
         Walk := true;
         Run(Observer);
-        Observer.Finish();
+        Observer.Expect('listed', 'O3;O4;');
+        Observer.Expect('log', 'open[Project Code: P2] n=2 rec=;agcr O3;rr[Project Code: P2] n=2;rr.get own O3;rr.get O1 O1;copy[] n=4;copy.get own O3;copy.get O1 O1;handler;agcr O4;rr[Project Code: P2] n=2;rr.get own O4;rr.get O1 O1;copy[] n=4;copy.get own O4;copy.get O1 O1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -222,7 +228,9 @@ codeunit 95984 "TP R7138 Probe"
         Initialize();
         Walk := false;
         Run(Observer);
-        Observer.Finish();
+        Observer.Expect('listed', 'O3;');
+        Observer.Expect('log', 'open[Project Code: P2] n=2 rec=;agcr O3;rr[Project Code: P2] n=2;rr.get own O3;rr.get O1 O1;copy[] n=4;copy.get own O3;copy.get O1 O1;handler');
+        Observer.Verify();
     end;
 
     [PageHandler]
