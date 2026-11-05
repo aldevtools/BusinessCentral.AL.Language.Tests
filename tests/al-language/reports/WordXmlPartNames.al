@@ -641,7 +641,7 @@ codeunit 95759 "LT WXP Tests"
         Part: Text;
     begin
         Part := Report.WordXmlPart(Report::"LT WXP One Ext Base").Replace('<', '[');
-        Observer.Observe('head', Part.Substring(1, Part.IndexOf('[CompanyMetadata]') - 1));
+        Observer.Observe('head', Part.Substring(1, Part.IndexOf('[CompanyMetadata>') - 1));
         Observer.Finish();
     end;
 
@@ -652,7 +652,7 @@ codeunit 95759 "LT WXP Tests"
         Part: Text;
     begin
         Part := Report.WordXmlPart(Report::"LT WXP One Ext Base", true).Replace('<', '[');
-        Observer.Observe('head', Part.Substring(1, Part.IndexOf('[CompanyMetadata]') - 1));
+        Observer.Observe('head', Part.Substring(1, Part.IndexOf('[CompanyMetadata>') - 1));
         Observer.Finish();
     end;
 
@@ -662,7 +662,8 @@ codeunit 95759 "LT WXP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Order"));
-        Observer.Finish();
+        Observer.Expect('part', '<?xml version="1.0" encoding="utf-16"?>\r\n<NavWordReportXmlPart xmlns="urn:microsoft-dynamics-nav/reports/LT_WXP_Order/95753/">\r\n  <BCReportInformation>x</BCReportInformation>\r\n  <Labels>\r\n    <A_Label>A_Label</A_Label>\r\n    <bLow>bLow</bLow>\r\n    <Bz>Bz</Bz>\r\n    <zed2Caption>zed2Caption</zed2Caption>\r\n  </Labels>\r\n  <Zulu>\r\n    <A_B>A_B</A_B>\r\n    <AB>AB</AB>\r\n    <Alpha>Alpha</Alpha>\r\n    <beta>beta</beta>\r\n    <Zed>Zed</Zed>\r\n    <zed2>zed2</zed2>\r\n    <Yank>\r\n      <YQty>YQty</YQty>\r\n    </Yank>\r\n    <Bravo>\r\n      <BQty>BQty</BQty>\r\n    </Bravo>\r\n  </Zulu>\r\n  <Alpha2>\r\n    <A2Line>A2Line</A2Line>\r\n  </Alpha2>\r\n</NavWordReportXmlPart>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -671,7 +672,8 @@ codeunit 95759 "LT WXP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Types C", true));
-        Observer.Finish();
+        Observer.Expect('part', '<?xml version="1.0" encoding="utf-16"?>\r\n<NavWordReportXmlPart xmlns="urn:microsoft-dynamics-businesscentral/internal/extended/reports/LT_WXP_Types_C/95754/">\r\n  <BCReportInformation>x</BCReportInformation>\r\n  <Tooltips />\r\n  <Rows ElementType="DataItem" ElementId="578941028">\r\n    <BoolVar ElementType="Column" ElementId="2070022482" DataType="Boolean">BoolVar</BoolVar>\r\n    <CodeVar ElementType="Column" ElementId="1141779971" DataType="Code">CodeVar</CodeVar>\r\n    <DateVar ElementType="Column" ElementId="1460740492" DataType="Date">DateVar</DateVar>\r\n    <FmtCol ElementType="Column" ElementId="381582870" DataType="String">FmtCol</FmtCol>\r\n    <IntLit ElementType="Column" ElementId="801097753" DataType="Integer">IntLit</IntLit>\r\n    <IntVar ElementType="Column" ElementId="1327515661" DataType="Integer">IntVar</IntVar>\r\n    <LblCol ElementType="Column" ElementId="247840991" DataType="TextConst">LblCol</LblCol>\r\n    <ProcCol ElementType="Column" ElementId="1140424675" DataType="Text">ProcCol</ProcCol>\r\n    <QualCol ElementType="Column" ElementId="1134337924" DataType="Decimal">QualCol</QualCol>\r\n    <RefCol ElementType="Column" ElementId="1898675948" DataType="RecordID">RefCol</RefCol>\r\n    <TextVar ElementType="Column" ElementId="315596261" DataType="Text">TextVar</TextVar>\r\n  </Rows>\r\n</NavWordReportXmlPart>');
+        Observer.Verify();
     end;
 
     // The rest of the report information, from CompanyMetadata on (the first part is in WordXmlPart_ReportInformation_*).
@@ -682,7 +684,7 @@ codeunit 95759 "LT WXP Tests"
         Part: Text;
     begin
         Part := Report.WordXmlPart(Report::"LT WXP One Ext Base").Replace('<', '[');
-        Observer.Observe('tail', Part.Substring(Part.IndexOf('[CompanyMetadata]')));
+        Observer.Observe('tail', Part.Substring(Part.IndexOf('[CompanyMetadata>')));
         Observer.Finish();
     end;
 
@@ -693,7 +695,7 @@ codeunit 95759 "LT WXP Tests"
         Part: Text;
     begin
         Part := Report.WordXmlPart(Report::"LT WXP One Ext Base", true).Replace('<', '[');
-        Observer.Observe('tail', Part.Substring(Part.IndexOf('[CompanyMetadata]')));
+        Observer.Observe('tail', Part.Substring(Part.IndexOf('[CompanyMetadata>')));
         Observer.Finish();
     end;
 }
