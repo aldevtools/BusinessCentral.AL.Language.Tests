@@ -7,6 +7,11 @@
 // sees but does not claim ('R6985B,x', with and without a Caption property); an area where it sets Caption but leaves Resolved false; per read:
 // the caption, every event call (area, expression, whether Language is the session language), and whether a second read of the same field, or
 // CaptionClassTranslate of the same text afterwards, raises the event again. Also FieldCaption read in the field's OnValidate trigger.
+// Results: FieldCaption and FieldRef.Caption raise OnResolveCaptionClass once with the area, the rest after the first comma and the session
+// language, and return the caption the subscriber sets when it sets Resolved ('My 2,1,UOM'). An area nobody claims, also when the subscriber sets
+// Caption without Resolved, and also for a field with a Caption property, reads as the whole CaptionClass text ('R6985B,x'). The session keeps
+// the result: a second read of the same text (same or other record, FieldRef.Caption, CaptionClassTranslate of the same text) raises no event
+// and gives the same caption; another text raises it again. FieldName raises nothing. In OnValidate FieldCaption behaves the same.
 // BC versions: 29 (27 and 28 by CI)
 
 table 95690 "R6985 CC Row"
@@ -90,7 +95,11 @@ codeunit 95692 "R6985 FieldCaption Area"
         Observer.Observe('calls', Log.Take());
         Observer.Observe('field name', Row.FieldName(Weight));
         Observer.Observe('calls after field name', Log.Take());
-        Observer.Finish();
+        Observer.Expect('caption', 'My 2,1,UOM');
+        Observer.Expect('calls', 'R6985A(2,1,UOM)lang=Yes;');
+        Observer.Expect('field name', 'Weight');
+        Observer.Expect('calls after field name', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -107,7 +116,13 @@ codeunit 95692 "R6985 FieldCaption Area"
         Observer.Observe('second calls', Log.Take());
         Observer.Observe('other record', Other.FieldCaption(Second));
         Observer.Observe('other record calls', Log.Take());
-        Observer.Finish();
+        Observer.Expect('first', 'My second');
+        Observer.Expect('first calls', 'R6985A(second)lang=Yes;');
+        Observer.Expect('second', 'My second');
+        Observer.Expect('second calls', '');
+        Observer.Expect('other record', 'My second');
+        Observer.Expect('other record calls', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -123,7 +138,13 @@ codeunit 95692 "R6985 FieldCaption Area"
         Observer.Observe('caption property calls', Log.Take());
         Observer.Observe('caption set, not resolved', Row.FieldCaption(NotResolved));
         Observer.Observe('caption set, not resolved calls', Log.Take());
-        Observer.Finish();
+        Observer.Expect('no caption property', 'R6985B,x');
+        Observer.Expect('no caption property calls', 'R6985B(x)lang=Yes;');
+        Observer.Expect('caption property', 'R6985B,y');
+        Observer.Expect('caption property calls', 'R6985B(y)lang=Yes;');
+        Observer.Expect('caption set, not resolved', 'R6985N,z');
+        Observer.Expect('caption set, not resolved calls', 'R6985N(z)lang=Yes;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -141,7 +162,11 @@ codeunit 95692 "R6985 FieldCaption Area"
         Observer.Observe('again', FldRef.Caption());
         Observer.Observe('again calls', Log.Take());
         RecRef.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'My ref');
+        Observer.Expect('calls', 'R6985A(ref)lang=Yes;');
+        Observer.Expect('again', 'My ref');
+        Observer.Expect('again calls', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -159,7 +184,15 @@ codeunit 95692 "R6985 FieldCaption Area"
         Observer.Observe('translate other calls', Log.Take());
         Observer.Observe('field caption after', Row.FieldCaption(Translated));
         Observer.Observe('field caption after calls', Log.Take());
-        Observer.Finish();
+        Observer.Expect('field caption', 'My tr');
+        Observer.Expect('field caption calls', 'R6985A(tr)lang=Yes;');
+        Observer.Expect('translate', 'My tr');
+        Observer.Expect('translate calls', '');
+        Observer.Expect('translate other', 'My tr2');
+        Observer.Expect('translate other calls', 'R6985A(tr2)lang=Yes;');
+        Observer.Expect('field caption after', 'My tr');
+        Observer.Expect('field caption after calls', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -172,6 +205,8 @@ codeunit 95692 "R6985 FieldCaption Area"
         Row.Validate(Validated, 1);
         Observer.Observe('seen', Row.SeenCaption);
         Observer.Observe('calls', Log.Take());
-        Observer.Finish();
+        Observer.Expect('seen', 'My val');
+        Observer.Expect('calls', 'R6985A(val)lang=Yes;');
+        Observer.Verify();
     end;
 }
