@@ -41,22 +41,6 @@ table 93411 "LT NP4 XP Head"
     }
 }
 
-table 93412 "LT NP4 XP Blob"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Data; Blob) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 xmlport 93413 "LT NP4 XP Ws NsPreserve"
 {
     Direction = Export;
@@ -248,7 +232,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    local procedure ToText(var Buffer: Record "LT NP4 XP Blob" temporary): Text
+    local procedure ToText(var Buffer: Record "ALT Shape 03" temporary): Text
     var
         InS: InStream;
         Line: Text;
@@ -273,7 +257,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
         Txt := ' a' + Lf + '  b  ' + Lf;
     end;
 
-    local procedure Dest(var Buffer: Record "LT NP4 XP Blob" temporary; var OutS: OutStream)
+    local procedure Dest(var Buffer: Record "ALT Shape 03" temporary; var OutS: OutStream)
     begin
         Buffer.Id := 1;
         Buffer.Insert();
@@ -284,7 +268,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
     procedure NP4_XmlPort_PreserveWhiteSpace_WithNamespace()
     var
         Observer: Codeunit "Probe Observer";
-        Buffer: Record "LT NP4 XP Blob" temporary;
+        Buffer: Record "ALT Shape 03" temporary;
         Port: XmlPort "LT NP4 XP Ws NsPreserve";
         OutS: OutStream;
         Note: Text;
@@ -304,7 +288,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
     procedure NP4_XmlPort_DefaultWhiteSpace_WithNamespace()
     var
         Observer: Codeunit "Probe Observer";
-        Buffer: Record "LT NP4 XP Blob" temporary;
+        Buffer: Record "ALT Shape 03" temporary;
         Port: XmlPort "LT NP4 XP Ws NsDefault";
         OutS: OutStream;
         Note: Text;
@@ -324,7 +308,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
     procedure NP4_XmlPort_PreserveWhiteSpace_NoNamespace()
     var
         Observer: Codeunit "Probe Observer";
-        Buffer: Record "LT NP4 XP Blob" temporary;
+        Buffer: Record "ALT Shape 03" temporary;
         Port: XmlPort "LT NP4 XP Ws NoNsPreserve";
         OutS: OutStream;
         Note: Text;
@@ -368,7 +352,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
     procedure NP4_XmlPort_OnceOnce_ZeroAndOneRows()
     var
         Observer: Codeunit "Probe Observer";
-        Buffer: Record "LT NP4 XP Blob" temporary;
+        Buffer: Record "ALT Shape 03" temporary;
         Port: XmlPort "LT NP4 XP Once Once";
         OutS: OutStream;
     begin
@@ -385,7 +369,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
     procedure NP4_XmlPort_OnceOnce_TwoRows()
     var
         Observer: Codeunit "Probe Observer";
-        Buffer: Record "LT NP4 XP Blob" temporary;
+        Buffer: Record "ALT Shape 03" temporary;
         Port: XmlPort "LT NP4 XP Once Once";
         OutS: OutStream;
     begin
@@ -402,7 +386,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
     procedure NP4_XmlPort_ZeroOnce_ZeroOneAndTwoRows()
     var
         Observer: Codeunit "Probe Observer";
-        Buffer: Record "LT NP4 XP Blob" temporary;
+        Buffer: Record "ALT Shape 03" temporary;
         Port: XmlPort "LT NP4 XP Zero Once";
         OutS: OutStream;
     begin
@@ -417,7 +401,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
 
     // ---- Writer Y9 (NP lane 1030e, 2026-10-30) ----
 
-    local procedure Y9DestRaw(var Buffer: Record "LT NP4 XP Blob" temporary; var OutS: OutStream)
+    local procedure Y9DestRaw(var Buffer: Record "ALT Shape 03" temporary; var OutS: OutStream)
     begin
         Buffer.Id := 1;
         Buffer.Insert();
@@ -425,7 +409,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
     end;
 
     // The exported bytes: a byte order mark is named, UTF-16 is decoded by pairs, other bytes are shown as characters (line ends as \r and \n).
-    local procedure Y9Bytes(var Buffer: Record "LT NP4 XP Blob" temporary): Text
+    local procedure Y9Bytes(var Buffer: Record "ALT Shape 03" temporary): Text
     var
         InS: InStream;
         B: Byte;
@@ -484,7 +468,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
 
     local procedure Y9SeedLinked(Counts: List of [Integer]; WithOtherKind: List of [Boolean])
     var
-        Head: Record "LT Y9 XP Head";
+        Head: Record "ALT Shape 00";
         Line: Record "LT Y9 XP Line";
         h: Integer;
         i: Integer;
@@ -515,7 +499,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
     procedure Y9_XmlPort_LinkedOnceOnce_ZeroOneTwoRows()
     var
         Observer: Codeunit "Probe Observer";
-        Buffer: Record "LT NP4 XP Blob" temporary;
+        Buffer: Record "ALT Shape 03" temporary;
         Port: XmlPort "LT Y9 XP Linked Once";
         OutS: OutStream;
     begin
@@ -535,7 +519,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
     procedure Y9_XmlPort_LinkedOnceOnce_TwoRowsThenNone()
     var
         Observer: Codeunit "Probe Observer";
-        Buffer: Record "LT NP4 XP Blob" temporary;
+        Buffer: Record "ALT Shape 03" temporary;
         Port: XmlPort "LT Y9 XP Linked Once";
         OutS: OutStream;
     begin
@@ -555,7 +539,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
     procedure Y9_XmlPort_LinkedOnceOnce_OneRowThenNone()
     var
         Observer: Codeunit "Probe Observer";
-        Buffer: Record "LT NP4 XP Blob" temporary;
+        Buffer: Record "ALT Shape 03" temporary;
         Port: XmlPort "LT Y9 XP Linked Once";
         OutS: OutStream;
     begin
@@ -604,7 +588,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
             '</Root>' + Lf);
     end;
 
-    local procedure Y9Source(var Buffer: Record "LT NP4 XP Blob" temporary; Xml: Text; var InS: InStream)
+    local procedure Y9Source(var Buffer: Record "ALT Shape 03" temporary; Xml: Text; var InS: InStream)
     var
         OutS: OutStream;
     begin
@@ -621,7 +605,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
     procedure Y9_XmlPort_Import_PreserveWhiteSpace_WithNamespace()
     var
         Observer: Codeunit "Probe Observer";
-        Buffer: Record "LT NP4 XP Blob" temporary;
+        Buffer: Record "ALT Shape 03" temporary;
         Port: XmlPort "LT Y9 XP Imp NsPreserve";
         InS: InStream;
     begin
@@ -637,7 +621,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
     procedure Y9_XmlPort_Import_DefaultWhiteSpace_WithNamespace()
     var
         Observer: Codeunit "Probe Observer";
-        Buffer: Record "LT NP4 XP Blob" temporary;
+        Buffer: Record "ALT Shape 03" temporary;
         Port: XmlPort "LT Y9 XP Imp NsDefault";
         InS: InStream;
     begin
@@ -653,7 +637,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
     procedure Y9_XmlPort_Import_PreserveWhiteSpace_NoNamespace()
     var
         Observer: Codeunit "Probe Observer";
-        Buffer: Record "LT NP4 XP Blob" temporary;
+        Buffer: Record "ALT Shape 03" temporary;
         Port: XmlPort "LT Y9 XP Imp NoNsPreserve";
         InS: InStream;
     begin
@@ -669,7 +653,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
     procedure Y9_XmlPort_Import_DefaultWhiteSpace_NoNamespace()
     var
         Observer: Codeunit "Probe Observer";
-        Buffer: Record "LT NP4 XP Blob" temporary;
+        Buffer: Record "ALT Shape 03" temporary;
         Port: XmlPort "LT Y9 XP Imp Plain";
         InS: InStream;
     begin
@@ -696,7 +680,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
     procedure Y9_XmlPort_Export_LineFeed_Plain()
     var
         Observer: Codeunit "Probe Observer";
-        Buffer: Record "LT NP4 XP Blob" temporary;
+        Buffer: Record "ALT Shape 03" temporary;
         Port: XmlPort "LT Y9 XP Lf Plain";
         OutS: OutStream;
         Note: Text;
@@ -716,7 +700,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
     procedure Y9_XmlPort_Export_LineFeed_Utf16_RawStream()
     var
         Observer: Codeunit "Probe Observer";
-        Buffer: Record "LT NP4 XP Blob" temporary;
+        Buffer: Record "ALT Shape 03" temporary;
         Port: XmlPort "LT Y9 XP Lf Utf16";
         OutS: OutStream;
         Note: Text;
@@ -736,7 +720,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
     procedure Y9_XmlPort_Export_LineFeed_Utf16_Utf16Stream()
     var
         Observer: Codeunit "Probe Observer";
-        Buffer: Record "LT NP4 XP Blob" temporary;
+        Buffer: Record "ALT Shape 03" temporary;
         Port: XmlPort "LT Y9 XP Lf Utf16";
         OutS: OutStream;
         Note: Text;
@@ -758,7 +742,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
     procedure Y9_XmlPort_OnceOnce_ThreeRowsThenNone()
     var
         Observer: Codeunit "Probe Observer";
-        Buffer: Record "LT NP4 XP Blob" temporary;
+        Buffer: Record "ALT Shape 03" temporary;
         Port: XmlPort "LT NP4 XP Once Once";
         OutS: OutStream;
     begin
@@ -771,21 +755,6 @@ codeunit 93418 "LT NP4 XmlPort Tests"
         Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Head id="1">|    <Child cid="11">|      <Txt>c11</Txt>|    </Child>|  </Head>|  <Head id="2">|    <Child cid="12">|      <Txt>c12</Txt>|    </Child>|  </Head>|</Root>|len=243');
         Observer.Verify();
     end;
-}
-
-table 91450 "LT Y9 XP Head"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
 }
 
 table 91451 "LT Y9 XP Line"
@@ -818,7 +787,7 @@ xmlport 91452 "LT Y9 XP Linked Once"
     {
         textelement(Root)
         {
-            tableelement(Head; "LT Y9 XP Head")
+            tableelement(Head; "ALT Shape 00")
             {
                 MinOccurs = Zero;
                 MaxOccurs = Unbounded;
