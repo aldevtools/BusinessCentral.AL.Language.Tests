@@ -22,6 +22,7 @@ The Record type: insert, modify, delete, get and find; filters; keys and sorting
 - `temporary/`: temporary records and tables (6 AL files).
 - `testfield/`: TestField and FieldError (29 AL files).
 - `transferfields-cross-app/`: TransferFields between tables of different apps (2 AL files).
+- `validate/`: Validate of a field with values of other types, through a Variant (1 AL file).
 - `views/`: SetView and GetView (5 AL files).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
