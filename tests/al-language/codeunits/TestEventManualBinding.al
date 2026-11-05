@@ -263,4 +263,169 @@ codeunit 60240 "Test Event Manual Binding"
     begin
         Cleanup.Initialize();
     end;
+
+    // ── Contract 11: A Binding Held By A Page's Global Codeunit ─────────────────────────
+    //
+    // The shape of AL Runner issue #6924: a page's OnOpenPage calls a procedure of a codeunit
+    // held in a GLOBAL of the page ("EVT Bind Controller"), and that codeunit binds a manual
+    // subscriber held in a GLOBAL of its own. Nothing unbinds it. Contracts 9 and 10 pin a
+    // binder that is a global or a local of the test codeunit; these pin how long a binding
+    // lives when the page instance (and through it the controller instance) is what holds
+    // the bound subscriber.
+
+    [Test]
+    procedure ManualSubscriber_Test11a_PageGlobalBinding_LiveWhileTestPageOpen()
+    var
+        Publisher: Codeunit "ALT Event Publisher";
+        BindPage: TestPage "EVT Bind Page";
+    begin
+        Initialize();
+        BindPage.OpenView();
+        Assert.IsTrue(
+            Publisher.TriggerBeforeAndReturnHandled(1101),
+            'The subscriber bound from OnOpenPage through the page''s global controller must fire while the TestPage is open');
+        BindPage.Close();
+    end;
+
+    [Test]
+    procedure ManualSubscriber_Test11b_PageGlobalBinding_GoneInNextTest()
+    var
+        Publisher: Codeunit "ALT Event Publisher";
+    begin
+        Initialize();
+        Assert.IsFalse(
+            Publisher.TriggerBeforeAndReturnHandled(1102),
+            'A binding held by the global of a page that a LOCAL TestPage of the previous test opened must not fire here');
+    end;
+
+    [Test]
+    procedure ManualSubscriber_Test11c_PageGlobalBinding_GoneAfterTestPageClose()
+    var
+        Publisher: Codeunit "ALT Event Publisher";
+        BindPage: TestPage "EVT Bind Page";
+    begin
+        Initialize();
+        BindPage.OpenView();
+        BindPage.Close();
+        Assert.IsFalse(
+            Publisher.TriggerBeforeAndReturnHandled(1103),
+            'After TestPage.Close() (the TestPage variable still in scope) the page''s binding must no longer fire');
+    end;
+
+    [Test]
+    [HandlerFunctions('EvtBindPageModalOk')]
+    procedure ManualSubscriber_Test11d_PageGlobalBinding_GoneAfterRunModalById()
+    var
+        Publisher: Codeunit "ALT Event Publisher";
+    begin
+        Initialize();
+        Page.RunModal(Page::"EVT Bind Page");
+        Assert.IsFalse(
+            Publisher.TriggerBeforeAndReturnHandled(1104),
+            'After Page.RunModal(Page::X) returned, the binding made by that page''s OnOpenPage must no longer fire');
+    end;
+
+    [Test]
+    [HandlerFunctions('EvtBindPageModalOk')]
+    procedure ManualSubscriber_Test11e_PageGlobalBinding_LiveAfterRunModalOfPageVariable()
+    var
+        Publisher: Codeunit "ALT Event Publisher";
+        BindPageVar: Page "EVT Bind Page";
+    begin
+        Initialize();
+        BindPageVar.RunModal();
+        Assert.IsTrue(
+            Publisher.TriggerBeforeAndReturnHandled(1105),
+            'After RunModal of a LOCAL Page variable still in scope, the binding made by its OnOpenPage must still fire');
+    end;
+
+    [Test]
+    procedure ManualSubscriber_Test11f_PageGlobalBinding_PageVariableGoneInNextTest()
+    var
+        Publisher: Codeunit "ALT Event Publisher";
+    begin
+        Initialize();
+        Assert.IsFalse(
+            Publisher.TriggerBeforeAndReturnHandled(1106),
+            'A binding held by a LOCAL Page variable of the previous test must not fire here');
+    end;
+
+    [Test]
+    [HandlerFunctions('EvtBindPageHandler')]
+    procedure ManualSubscriber_Test11g_PageGlobalBinding_GoneAfterPageRunById()
+    var
+        Publisher: Codeunit "ALT Event Publisher";
+    begin
+        Initialize();
+        Page.Run(Page::"EVT Bind Page");
+        Assert.IsFalse(
+            Publisher.TriggerBeforeAndReturnHandled(1107),
+            'After Page.Run(Page::X) under a PageHandler returned, the binding made by that page''s OnOpenPage must no longer fire');
+    end;
+
+    [Test]
+    procedure ManualSubscriber_Test11h_LocalControllerGlobalBinding_GoneAfterHelperReturns()
+    var
+        Publisher: Codeunit "ALT Event Publisher";
+    begin
+        Initialize();
+        BindThroughLocalController();
+        Assert.IsFalse(
+            Publisher.TriggerBeforeAndReturnHandled(1108),
+            'A subscriber held by a GLOBAL of a controller codeunit that was a LOCAL of a returned procedure must no longer fire');
+    end;
+
+    local procedure BindThroughLocalController()
+    var
+        Controller: Codeunit "EVT Bind Controller";
+    begin
+        Controller.BindManualSub();
+    end;
+
+    [ModalPageHandler]
+    procedure EvtBindPageModalOk(var BindPage: TestPage "EVT Bind Page")
+    begin
+        BindPage.OK().Invoke();
+    end;
+
+    [PageHandler]
+    procedure EvtBindPageHandler(var BindPage: TestPage "EVT Bind Page")
+    begin
+        BindPage.OK().Invoke();
+    end;
+}
+
+page 95920 "EVT Bind Page"
+{
+    // local object: the page's own global holds the binding under test (Contract 11)
+    PageType = Card;
+    UsageCategory = None;
+    Caption = 'EVT Bind Page';
+
+    layout
+    {
+        area(Content)
+        {
+        }
+    }
+
+    var
+        Controller: Codeunit "EVT Bind Controller";
+
+    trigger OnOpenPage()
+    begin
+        Controller.BindManualSub();
+    end;
+}
+
+codeunit 95921 "EVT Bind Controller"
+{
+    // local object: its global holds the bound subscriber, the way a license controller does (Contract 11)
+    var
+        ManualSub: Codeunit "ALT Manual Event Sub";
+
+    procedure BindManualSub()
+    begin
+        BindSubscription(ManualSub);
+    end;
 }
