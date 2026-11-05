@@ -29,20 +29,22 @@ codeunit 69058 "PAG Statistics Compat Tests"
     Subtype = Test;
     TestPermissions = Disabled;
     [Test]
-    procedure TestPage_StatisticsAction_VersionedName_ExposesCaption()
+    procedure TestPage_StatisticsAction_VersionedName_IsEnabledForSeededDocument()
     var
         View: TestPage "Sales Invoice";
-        CaptionText: Text;
+        Header: Record "Sales Header";
     begin
         Initialize();
+        Header.Get(Header."Document Type"::Invoice, 'NEUTRAL42');
         View.OpenView();
+        if not View.GoToRecord(Header) then
+            Error('Expected the seeded invoice.');
 #if BC29PLUS // The replacement is the public SalesStatistics action on BC29.
-        CaptionText := View.SalesStatistics.Caption();
+        if not View.SalesStatistics.Enabled() then
 #else
-        CaptionText := View.Statistics.Caption();
+        if not View.Statistics.Enabled() then
 #endif
-        if StrPos(CaptionText, 'Statistics') = 0 then
-            Error('Expected the Statistics caption, actual %1.', CaptionText);
+            Error('Expected the Statistics action enabled for NEUTRAL42.');
         View.Close();
     end;
 #if not BC29PLUS // The legacy extension anchor is only exercised where it exists.
@@ -64,7 +66,12 @@ codeunit 69058 "PAG Statistics Compat Tests"
     local procedure Initialize()
     var
         Cleanup: Codeunit ALTFixtureCleanup;
+        Header: Record "Sales Header";
     begin
         Cleanup.Initialize();
+        Header.DeleteAll(false);
+        Header."Document Type" := Header."Document Type"::Invoice;
+        Header."No." := 'NEUTRAL42';
+        Header.Insert(false);
     end;
 }
