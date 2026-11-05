@@ -502,7 +502,7 @@ codeunit 95454 "LT R6951 Tests"
         Cleanup: Codeunit ALTFixtureCleanup;
         Row: Record "FMT Blank Filter Row";
     begin
-        Cleanup.Initialize();
+        Cleanup.Initialize(); InitializeCaptionCodeRows();
         Row.DeleteAll(false);
     end;
 
@@ -527,6 +527,144 @@ codeunit 95454 "LT R6951 Tests"
         if not Ref.FindFirst() then
             Error('Expected the selected row.');
         Fld := Ref.Field(Row.FieldNo(Code));
+        if Format(Fld.Value()) <> ExpectedCode then
+            Error('Expected selected code %1, actual %2.', ExpectedCode, Format(Fld.Value()));
+        Ref.Close();
+    end;
+
+
+    // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/system/system-evaluate-method
+    // Fixtures: ALT TableFilter Holder, FMT Caption Filter Row, FMT Blank Service Row; BC 27.5+.
+    [Test]
+    procedure TableFilter_Evaluate_CaptionClassFieldName_SelectsPricedRow()
+    var
+        Resolver: Codeunit "FMT Filter Caption Resolver";
+    begin
+        Initialize();
+        BindSubscription(Resolver);
+        SeedCaptionFilterRows();
+        CheckCaptionTableFilter('Nominal Price=>=40', 'PRICE42');
+        UnbindSubscription(Resolver);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_ResolvedCaptionClass_SelectsPricedRow()
+    var
+        Resolver: Codeunit "FMT Filter Caption Resolver";
+    begin
+        Initialize();
+        BindSubscription(Resolver);
+        SeedCaptionFilterRows();
+        CheckCaptionTableFilter('Displayed Price=>=40', 'PRICE42');
+        UnbindSubscription(Resolver);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_CodeBesideCaptionClass_SelectsNamedRow()
+    var
+        Resolver: Codeunit "FMT Filter Caption Resolver";
+    begin
+        Initialize();
+        BindSubscription(Resolver);
+        SeedCaptionFilterRows();
+        CheckCaptionTableFilter('Code=PRICE42', 'PRICE42');
+        UnbindSubscription(Resolver);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_QuotedBlankCode10_SelectsBlankService()
+    begin
+        Initialize();
+        SeedBlankServiceRows();
+        CheckServiceTableFilter('Service Type=''''', 'BLANK42', 2);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_CompoundQuotedBlankCode10_SelectsBlankService()
+    begin
+        Initialize();
+        SeedBlankServiceRows();
+        CheckServiceTableFilter('Batch=KEEP,Service Type=''''', 'BLANK42', 1);
+    end;
+
+    local procedure InitializeCaptionCodeRows()
+    var
+        CaptionRows: Record "FMT Caption Filter Row";
+        ServiceRows: Record "FMT Blank Service Row";
+    begin
+        CaptionRows.DeleteAll(false);
+        ServiceRows.DeleteAll(false);
+    end;
+
+    local procedure SeedCaptionFilterRows()
+    var
+        Row: Record "FMT Caption Filter Row";
+    begin
+        // Precondition: the public caption API resolves the test's manually bound area.
+        if Row.FieldCaption("Nominal Price") <> 'Displayed Price' then
+            Error('Expected the manually resolved Displayed Price caption.');
+        Row.Code := 'PRICE42';
+        Row."Nominal Price" := 42.5;
+        Row.Insert(false);
+        Row.Code := 'PRICE17';
+        Row."Nominal Price" := 17.5;
+        Row.Insert(false);
+    end;
+
+    local procedure SeedBlankServiceRows()
+    var
+        Row: Record "FMT Blank Service Row";
+    begin
+        Row.Code := 'BLANK42';
+        Row.Batch := 'KEEP';
+        Row.Insert(false);
+        Row.Code := 'FILLED42';
+        Row."Service Type" := 'REPAIR';
+        Row.Insert(false);
+        Row.Code := 'OTHER42';
+        Row."Service Type" := '';
+        Row.Batch := 'DROP';
+        Row.Insert(false);
+    end;
+
+    local procedure CheckCaptionTableFilter(Condition: Text; ExpectedCode: Code[20])
+    var
+        Holder: Record "ALT TableFilter Holder";
+        Row: Record "FMT Caption Filter Row";
+    begin
+        Evaluate(Holder."Filter Value", 'FMT Caption Filter Row: ' + Condition);
+        CheckSelectedTableFilter(Format(Holder."Filter Value"), Database::"FMT Caption Filter Row", Row.TableCaption(), ExpectedCode, 1);
+    end;
+
+    local procedure CheckServiceTableFilter(Condition: Text; ExpectedCode: Code[20]; ExpectedCount: Integer)
+    var
+        Holder: Record "ALT TableFilter Holder";
+        Row: Record "FMT Blank Service Row";
+    begin
+        Evaluate(Holder."Filter Value", 'FMT Blank Service Row: ' + Condition);
+        CheckSelectedTableFilter(Format(Holder."Filter Value"), Database::"FMT Blank Service Row", Row.TableCaption(), ExpectedCode, ExpectedCount);
+    end;
+
+    local procedure CheckSelectedTableFilter(Value: Text; TableNo: Integer; TableCaption: Text; ExpectedCode: Code[20]; ExpectedCount: Integer)
+    var
+        Fields: Record "Table Filter" temporary;
+        FilterPage: Page "Table Filter";
+        Ref: RecordRef;
+        Fld: FieldRef;
+    begin
+        FilterPage.SetSourceTable(Value, TableNo, TableCaption);
+        FilterPage.GetFilterFieldsList(Fields);
+        Ref.Open(TableNo);
+        if Fields.FindSet() then
+            repeat
+                Fld := Ref.Field(Fields."Field Number");
+                Fld.SetFilter(Fields."Field Filter");
+            until Fields.Next() = 0;
+        if Ref.Count() <> ExpectedCount then
+            Error('Expected %1 selected rows, actual %2.', ExpectedCount, Ref.Count());
+        if not Ref.FindFirst() then
+            Error('Expected the selected row.');
+        Fld := Ref.Field(1);
         if Format(Fld.Value()) <> ExpectedCode then
             Error('Expected selected code %1, actual %2.', ExpectedCode, Format(Fld.Value()));
         Ref.Close();
