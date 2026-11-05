@@ -5,7 +5,7 @@ The page object: page triggers, parts, controls, actions, CurrPage, Run and RunM
 ## Topics
 
 - (area folder itself): 56 AL files that are about the area as a whole or were not given a topic yet.
-- `actions/`: actions and promoted actions (9 AL files).
+- `actions/`: actions and promoted actions (10 AL files).
 - `activate-field-blank-host-rows/`: activating fields of a host page that has blank rows (1 AL file).
 - `application-area/`: ApplicationArea (13 AL files).
 - `array-element-fields/`: page fields that are array elements (1 AL file).
@@ -43,7 +43,7 @@ The page object: page triggers, parts, controls, actions, CurrPage, Run and RunM
 - `page-property-metadata/`: page properties read as metadata (search terms, captions, prompt modes) (2 AL files).
 - `page-summary/`: page summary (1 AL file).
 - `pages-xmlports-upload-members/`: members of pages, xmlports, reports and Upload (7 AL files).
-- `parts/`: page parts and subpages (41 AL files).
+- `parts/`: page parts and subpages (45 AL files).
 - `properties/`: page properties (80 AL files).
 - `readonly-repeater/`: read-only repeaters (1 AL file).
 - `record-changed-by-other-user/`: the error when another user changed the record (asserterror on save and edit) (3 AL files).
