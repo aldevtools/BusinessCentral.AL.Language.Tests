@@ -2,7 +2,7 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own tables 95710-95713, queries 95714-95717, test codeunit 95724
 // local object: the FlowField kinds (Sum, negative Sum, Count, Exist, Min, Max, Average, Lookup) and the FlowFilter of a joined table are the subject of the probe; no shared fixture has them
-// Probe: written for al-runner issues 6988 and 6989 (follow-ups to 6174); every literal asserted below is what BC produced in the corpus CI.
+// Probe: written for al-runner issues 6988 and 6989 (follow-ups to 6174); every literal asserted below is what BC 29.0 produced in corpus CI run 41943930008; 27.5 and 28.5 are checked by the CI matrix.
 // Facts: a plain query column over a FlowField of the JOINED data item, for every FlowField kind (Sum, negative Sum, Count, Exist, Min,
 //   Max, Average, Lookup), with a LeftOuterJoin and with an InnerJoin as the control; rows for a parent with two children, a parent
 //   without a child, a child without detail rows and a child whose Lookup finds no row. A negative-Sum column of a left-outer-joined
@@ -10,6 +10,7 @@
 //   filter() element of the grandchild (the shape of issue 6988).
 //   Rows: parents 1 (children 10, 11), 2 (no child), 3 (child 30 without details), 4 (child 40); child 50 has no parent.
 //   Details: 10 -> 5 (day 1), 7.25 (day 2); 11 -> 1 (day 1); 40 -> -3 (day 2), 4 (day 1).
+//   Measured: every kind is calculated per joined row; a parent without a child gives the field's default (0, false, blank).
 // BC versions: 27, 28, 29 (by CI)
 
 table 95710 "QOF Parent"
@@ -412,7 +413,9 @@ codeunit 95724 "QOF Outer Flow Kinds"
             Observer.Observe('parent 2..3', Rows)
         else
             Observer.Observe('parent 2..3', Err());
-        Observer.Finish();
+        Observer.Expect('rows', '1:10=12.25/-12.25/2 1:11=1/-1/1 2:0=0/0/0 3:30=0/0/0 4:40=1/-1/2 ');
+        Observer.Expect('parent 2..3', '2:0=0/0/0 3:30=0/0/0 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -428,7 +431,8 @@ codeunit 95724 "QOF Outer Flow Kinds"
             Observer.Observe('rows', Rows)
         else
             Observer.Observe('rows', Err());
-        Observer.Finish();
+        Observer.Expect('rows', '1:10=true/5/7.25/6.125 1:11=true/1/1/1 2:0=false/0/0/0 3:30=false/0/0/0 4:40=true/-3/4/0.5 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -444,7 +448,8 @@ codeunit 95724 "QOF Outer Flow Kinds"
             Observer.Observe('rows', Rows)
         else
             Observer.Observe('rows', Err());
-        Observer.Finish();
+        Observer.Expect('rows', '1:10=[P-One]/[Ref One] 1:11=[P-One]/[] 2:0=[]/[] 3:30=[P-Three]/[Ref Two] 4:40=[P-Four]/[] ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -460,7 +465,8 @@ codeunit 95724 "QOF Outer Flow Kinds"
             Observer.Observe('rows', Rows)
         else
             Observer.Observe('rows', Err());
-        Observer.Finish();
+        Observer.Expect('rows', '1:10=12.25/-12.25/2/true/5/7.25/6.125/[P-One]/[Ref One] 1:11=1/-1/1/true/1/1/1/[P-One]/[] 3:30=0/0/0/false/0/0/0/[P-Three]/[Ref Two] 4:40=1/-1/2/true/-3/4/0.5/[P-Four]/[] ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -482,7 +488,9 @@ codeunit 95724 "QOF Outer Flow Kinds"
             Observer.Observe('grandchild day 1', Rows)
         else
             Observer.Observe('grandchild day 1', Err());
-        Observer.Finish();
+        Observer.Expect('rows', '1:10:100=A/-12.25 1:10:101=A/-12.25 3:30:0=A/0 4:40:103=A/-1 4:40:104=A/-1 ');
+        Observer.Expect('grandchild day 1', '1:10:100=A/-12.25 4:40:104=A/-1 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -510,6 +518,9 @@ codeunit 95724 "QOF Outer Flow Kinds"
             Observer.Observe('grandchild day 2', Rows)
         else
             Observer.Observe('grandchild day 2', Err());
-        Observer.Finish();
+        Observer.Expect('rows', '1:10:100=A/-12.25 1:10:101=A/-12.25 1:11:102=B/-1 2:0:0=/0 3:30:0=A/0 4:40:103=A/-1 4:40:104=A/-1 ');
+        Observer.Expect('child kind A', '1:10:100=A/-12.25 1:10:101=A/-12.25 3:30:0=A/0 4:40:103=A/-1 4:40:104=A/-1 ');
+        Observer.Expect('grandchild day 2', '1:10:101=A/-12.25 4:40:103=A/-1 ');
+        Observer.Verify();
     end;
 }
