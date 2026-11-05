@@ -4,8 +4,11 @@
 // Probe (al-runner issue 7142, writer r7142): columns 9 to 15 of platform table "NAV App Installed App" (2000000153) for an installed app:
 //   "Compatibility Major/Minor/Build/Revision" (9-12), "Content Hash" (13), "Hash Algorithm" (14) and "Extension Type" (15).
 //   Read for this app, for the fixture app it depends on, and for Microsoft's System Application and Base Application.
-//   A compatibility part is reported as 'version' when it equals the same part of the app's own version (columns 5-8), else as its value,
-//   so no app or platform version is asserted. "Content Hash" is reported only as blank or not blank.
+//   "Content Hash" is reported only as blank or not blank, and the version only as whether its build part is 0.
+// Facts (27.5, 28.5 and 29.0 CI containers, the same on each): the four compatibility parts are 0 for every one of these apps, also for
+//   System Application and Base Application, whose version parts are not 0: they do not follow the version. "Content Hash" is not blank,
+//   "Hash Algorithm" is 1 and "Extension Type" is 2 for all four. The reporter's version text Major.Minor.CompatibilityBuild.CompatibilityRevision
+//   therefore ends in .0.0.
 // BC versions: 27.0+
 
 codeunit 95990 "LT R7142 Installed Compat"
@@ -26,7 +29,8 @@ codeunit 95990 "LT R7142 Installed Compat"
     begin
         NavApp.GetCurrentModuleInfo(ThisModule);
         ObserveApp(Observer, ThisModule.Id());
-        Observer.Finish();
+        ExpectApp(Observer, false);
+        Observer.Verify();
     end;
 
     [Test]
@@ -35,7 +39,8 @@ codeunit 95990 "LT R7142 Installed Compat"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveApp(Observer, AppId(FixtureAppIdTok));
-        Observer.Finish();
+        ExpectApp(Observer, false);
+        Observer.Verify();
     end;
 
     [Test]
@@ -44,7 +49,8 @@ codeunit 95990 "LT R7142 Installed Compat"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveApp(Observer, AppId(SystemAppIdTok));
-        Observer.Finish();
+        ExpectApp(Observer, true);
+        Observer.Verify();
     end;
 
     [Test]
@@ -53,7 +59,8 @@ codeunit 95990 "LT R7142 Installed Compat"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveApp(Observer, AppId(BaseAppIdTok));
-        Observer.Finish();
+        ExpectApp(Observer, true);
+        Observer.Verify();
     end;
 
     [Test]
@@ -71,7 +78,8 @@ codeunit 95990 "LT R7142 Installed Compat"
         Built := StrSubstNo('%1.%2.%3.%4', Installed."Version Major", Installed."Version Minor", Installed."Compatibility Build", Installed."Compatibility Revision");
         FromVersion := StrSubstNo('%1.%2.%3.%4', Installed."Version Major", Installed."Version Minor", Installed."Version Build", Installed."Version Revision");
         Observer.Observe('built text equals the four version parts', Format(Built = FromVersion));
-        Observer.Finish();
+        Observer.Expect('built text equals the four version parts', 'Yes');
+        Observer.Verify();
     end;
 
     local procedure AppId(IdText: Text): Guid
@@ -91,6 +99,7 @@ codeunit 95990 "LT R7142 Installed Compat"
         Observer.Observe('compatibility minor', Part(Installed."Compatibility Minor", Installed."Version Minor"));
         Observer.Observe('compatibility build', Part(Installed."Compatibility Build", Installed."Version Build"));
         Observer.Observe('compatibility revision', Part(Installed."Compatibility Revision", Installed."Version Revision"));
+        Observer.Observe('version build is zero', Format(Installed."Version Build" = 0));
         Observer.Observe('content hash blank', Format(Installed."Content Hash" = ''));
         Observer.Observe('hash algorithm', Format(Installed."Hash Algorithm"));
         Observer.Observe('extension type', Format(Installed."Extension Type"));
@@ -98,8 +107,19 @@ codeunit 95990 "LT R7142 Installed Compat"
 
     local procedure Part(Compatibility: Integer; Version: Integer): Text
     begin
-        if Compatibility = Version then
-            exit('version');
         exit(Format(Compatibility));
+    end;
+
+    local procedure ExpectApp(var Observer: Codeunit "Probe Observer"; Microsoft: Boolean)
+    begin
+        Observer.Expect('found', 'Yes');
+        Observer.Expect('compatibility major', '0');
+        Observer.Expect('compatibility minor', '0');
+        Observer.Expect('compatibility build', '0');
+        Observer.Expect('compatibility revision', '0');
+        Observer.Expect('version build is zero', Format(not Microsoft));
+        Observer.Expect('content hash blank', 'No');
+        Observer.Expect('hash algorithm', '1');
+        Observer.Expect('extension type', '2');
     end;
 }

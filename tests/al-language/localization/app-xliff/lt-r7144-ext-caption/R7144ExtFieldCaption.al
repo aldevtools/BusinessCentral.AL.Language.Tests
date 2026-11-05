@@ -6,6 +6,10 @@
 //   an nl-NL translation file with a TableExtension unit for it), read with FieldCaption and with FieldRef.Caption; for an extension of the app's
 //   own table and of a Base Application table. Controls: a field of the app's own table with a unit, an extension field without a unit, the same
 //   reads under 1031 (no de-DE file) and 1033.
+// Facts (27.5, 28.5 and 29.0 CI containers, the same on each): under 1043 the field of the Base Application table extension reads
+//   'Betalings-ID' through FieldCaption and FieldRef.Caption, from its TableExtension unit; the field of the app's own table reads its Table
+//   unit ('Rijnummer'). A field an extension of the app's OWN table adds keeps its source caption, although a TableExtension unit of the same
+//   shape exists for it. Under 1031 and 1033 every field keeps its source caption.
 // BC versions: 27.0+
 
 table 95994 "LT R7144 Row"
@@ -75,7 +79,11 @@ codeunit 95997 "LT R7144 Ext Field Caption"
         Observer.Observe('own table extension field without unit', Row.FieldCaption("R7144 Ext Plain"));
         Observer.Observe('base app table extension field', SalesInvoiceHeader.FieldCaption("R7144 SIH Payment ID"));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('own table field', 'Rijnummer');
+        Observer.Expect('own table extension field with unit', 'Extension code');
+        Observer.Expect('own table extension field without unit', 'Plain caption');
+        Observer.Expect('base app table extension field', 'Betalings-ID');
+        Observer.Verify();
     end;
 
     [Test]
@@ -91,7 +99,11 @@ codeunit 95997 "LT R7144 Ext Field Caption"
         Observer.Observe('own table extension field without unit', RefCaption(Database::"LT R7144 Row", 95996));
         Observer.Observe('base app table extension field', RefCaption(Database::"Sales Invoice Header", 95997));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('own table field', 'Rijnummer');
+        Observer.Expect('own table extension field with unit', 'Extension code');
+        Observer.Expect('own table extension field without unit', 'Plain caption');
+        Observer.Expect('base app table extension field', 'Betalings-ID');
+        Observer.Verify();
     end;
 
     [Test]
@@ -108,7 +120,10 @@ codeunit 95997 "LT R7144 Ext Field Caption"
         Observer.Observe('base app table extension field', SalesInvoiceHeader.FieldCaption("R7144 SIH Payment ID"));
         Observer.Observe('base app table extension field ref', RefCaption(Database::"Sales Invoice Header", 95997));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('own table extension field', 'Extension code');
+        Observer.Expect('base app table extension field', 'Payment ID');
+        Observer.Expect('base app table extension field ref', 'Payment ID');
+        Observer.Verify();
     end;
 
     [Test]
@@ -125,7 +140,10 @@ codeunit 95997 "LT R7144 Ext Field Caption"
         Observer.Observe('base app table extension field', SalesInvoiceHeader.FieldCaption("R7144 SIH Payment ID"));
         Observer.Observe('base app table extension field ref', RefCaption(Database::"Sales Invoice Header", 95997));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('own table extension field', 'Extension code');
+        Observer.Expect('base app table extension field', 'Payment ID');
+        Observer.Expect('base app table extension field ref', 'Payment ID');
+        Observer.Verify();
     end;
 
     local procedure RefCaption(TableNo: Integer; FieldNo: Integer): Text

@@ -6,6 +6,10 @@
 //   and Rename. Each test calls a procedure that returns the TryFunction's result (`exit(TryX())`, the reporter's shape) under asserterror and
 //   records the error text (the scope name masked as <scope>), the error code, the value the call returned and the rows afterwards.
 //   Insert, Modify and Commit are pinned in errors/CuTryTests.al and errors/Y68Small.al.
+// Facts (27.5, 28.5 and 29.0 CI containers, the same on each): each of the four raises TryFunctionWrite 'Call to the function '<NAME>' is not
+//   allowed inside the call to '<scope>' when it is used as a TryFunction.' with the names DELETE, DELETEALL, MODIFYALL and RENAME; the call
+//   returns no value (Ok stays No) and no row changes. DeleteAll raises on an empty table too.
+//   With the setting off (BC online) these writes are allowed; that mode is not measured here (al-runner issue 7143).
 // BC versions: 27.0+
 
 table 95991 "LT R7143 Row"
@@ -96,7 +100,11 @@ codeunit 95992 "LT R7143 Try Write Deny"
         Initialize(true);
         asserterror Ok := Writer.DeleteOne();
         ObserveOutcome(Observer, Ok);
-        Observer.Finish();
+        Observer.Expect('text', 'Call to the function ''DELETE'' is not allowed inside the call to ''<scope>'' when it is used as a TryFunction.');
+        Observer.Expect('code', 'TryFunctionWrite');
+        Observer.Expect('ok', 'No');
+        Observer.Expect('rows after', '1=one;2=two;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -109,7 +117,11 @@ codeunit 95992 "LT R7143 Try Write Deny"
         Initialize(true);
         asserterror Ok := Writer.DeleteAllRows();
         ObserveOutcome(Observer, Ok);
-        Observer.Finish();
+        Observer.Expect('text', 'Call to the function ''DELETEALL'' is not allowed inside the call to ''<scope>'' when it is used as a TryFunction.');
+        Observer.Expect('code', 'TryFunctionWrite');
+        Observer.Expect('ok', 'No');
+        Observer.Expect('rows after', '1=one;2=two;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -122,7 +134,11 @@ codeunit 95992 "LT R7143 Try Write Deny"
         Initialize(false);
         asserterror Ok := Writer.DeleteAllRows();
         ObserveOutcome(Observer, Ok);
-        Observer.Finish();
+        Observer.Expect('text', 'Call to the function ''DELETEALL'' is not allowed inside the call to ''<scope>'' when it is used as a TryFunction.');
+        Observer.Expect('code', 'TryFunctionWrite');
+        Observer.Expect('ok', 'No');
+        Observer.Expect('rows after', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -135,7 +151,11 @@ codeunit 95992 "LT R7143 Try Write Deny"
         Initialize(true);
         asserterror Ok := Writer.ModifyAllRows();
         ObserveOutcome(Observer, Ok);
-        Observer.Finish();
+        Observer.Expect('text', 'Call to the function ''MODIFYALL'' is not allowed inside the call to ''<scope>'' when it is used as a TryFunction.');
+        Observer.Expect('code', 'TryFunctionWrite');
+        Observer.Expect('ok', 'No');
+        Observer.Expect('rows after', '1=one;2=two;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -148,7 +168,11 @@ codeunit 95992 "LT R7143 Try Write Deny"
         Initialize(true);
         asserterror Ok := Writer.RenameOne();
         ObserveOutcome(Observer, Ok);
-        Observer.Finish();
+        Observer.Expect('text', 'Call to the function ''RENAME'' is not allowed inside the call to ''<scope>'' when it is used as a TryFunction.');
+        Observer.Expect('code', 'TryFunctionWrite');
+        Observer.Expect('ok', 'No');
+        Observer.Expect('rows after', '1=one;2=two;');
+        Observer.Verify();
     end;
 
     local procedure Initialize(WithRows: Boolean)
