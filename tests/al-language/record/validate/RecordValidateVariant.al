@@ -253,11 +253,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 2, 1, 4);
+#if BC28PLUS
         Observer.Expect('integer 42', 'validate=42 hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavText value.|TypeConversion');
         Observer.Expect('integer -3', 'validate=-3 hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavText value.|TypeConversion');
         Observer.Expect('decimal 2.5', 'validate=2.5 hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavText value.|TypeConversion');
         Observer.Expect('biginteger', 'validate=5000000000 hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavText value.|TypeConversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -266,11 +270,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 2, 5, 8);
+#if BC28PLUS
         Observer.Expect('boolean true', 'validate=Yes hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavText value.|TypeConversion');
         Observer.Expect('date 20260115D', 'validate=01/15/26 hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavText value.|TypeConversion');
         Observer.Expect('time 120000T', 'validate=12:00:00 PM hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavText value.|TypeConversion');
         Observer.Expect('datetime', 'validate=01/15/26 12:00 PM hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavText value.|TypeConversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -279,11 +287,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 2, 9, 12);
+#if BC28PLUS
         Observer.Expect('text 42', 'validate=42 hits=1 ; assign=42 hits=0');
         Observer.Expect('text abc', 'validate=abc hits=1 ; assign=abc hits=0');
         Observer.Expect('code C1', 'validate=C1 hits=1 ; assign=C1 hits=0');
         Observer.Expect('option 1', 'validate=Beta hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavText value.|TypeConversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -292,11 +304,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 2, 13, 16);
+#if BC28PLUS
         Observer.Expect('enum Two', 'validate=Two hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavText value.|TypeConversion');
         Observer.Expect('guid', 'validate error:The length of the string is 38, but it must be less than or equal to 30 characters. Value: {12345678-1234-1234-1234-123456789012}|StringLengthExceeded ; assign error:The length of the string is 38, but it must be less than or equal to 30 characters. Value: {12345678-1234-1234-1234-123456789012}|StringLengthExceeded');
         Observer.Expect('duration 1500', 'validate=1 second 500 milliseconds hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavText value.|TypeConversion');
         Observer.Expect('text empty', 'validate= hits=1 ; assign= hits=0');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -305,11 +321,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 3, 1, 4);
+#if BC28PLUS
         Observer.Expect('integer 42', 'validate=42 hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavCode value.|TypeConversion');
         Observer.Expect('integer -3', 'validate=-3 hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavCode value.|TypeConversion');
         Observer.Expect('decimal 2.5', 'validate=2.5 hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavCode value.|TypeConversion');
         Observer.Expect('biginteger', 'validate=5000000000 hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavCode value.|TypeConversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -318,11 +338,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 3, 5, 8);
+#if BC28PLUS
         Observer.Expect('boolean true', 'validate=YES hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavCode value.|TypeConversion');
         Observer.Expect('date 20260115D', 'validate=01/15/26 hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavCode value.|TypeConversion');
         Observer.Expect('time 120000T', 'validate=12:00:00 PM hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavCode value.|TypeConversion');
         Observer.Expect('datetime', 'validate=01/15/26 12:00 PM hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavCode value.|TypeConversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -331,11 +355,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 3, 9, 12);
+#if BC28PLUS
         Observer.Expect('text 42', 'validate=42 hits=1 ; assign=42 hits=0');
         Observer.Expect('text abc', 'validate=ABC hits=1 ; assign=ABC hits=0');
         Observer.Expect('code C1', 'validate=C1 hits=1 ; assign=C1 hits=0');
         Observer.Expect('option 1', 'validate=BETA hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavCode value.|TypeConversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -344,11 +372,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 3, 13, 16);
+#if BC28PLUS
         Observer.Expect('enum Two', 'validate=TWO hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavCode value.|TypeConversion');
         Observer.Expect('guid', 'validate error:The length of the string is 38, but it must be less than or equal to 20 characters. Value: {12345678-1234-1234-1234-123456789012}|StringLengthExceeded ; assign error:The length of the string is 38, but it must be less than or equal to 20 characters. Value: {12345678-1234-1234-1234-123456789012}|StringLengthExceeded');
         Observer.Expect('duration 1500', 'validate error:The length of the string is 25, but it must be less than or equal to 20 characters. Value: 1 second 500 milliseconds|StringLengthExceeded ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavCode value.|TypeConversion');
         Observer.Expect('text empty', 'validate= hits=1 ; assign= hits=0');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -357,11 +389,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 4, 1, 4);
+#if BC28PLUS
         Observer.Expect('integer 42', 'validate=42 hits=1 ; assign=42 hits=0');
         Observer.Expect('integer -3', 'validate=-3 hits=1 ; assign=-3 hits=0');
         Observer.Expect('decimal 2.5', 'validate error:Overflow under conversion of <ns>Decimal18 value 2.5 to System.Int32.|ConversionCast ; assign error:Overflow under conversion of <ns>Decimal18 value 2.5 to System.Int32.|ConversionCast');
         Observer.Expect('biginteger', 'validate error:Arithmetic operation resulted in an overflow.|AL:Overflow ; assign error:The expression Variant cannot be type-converted to a Integer value.|TypeConversion:Overflow');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -370,11 +406,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 4, 5, 8);
+#if BC28PLUS
         Observer.Expect('boolean true', 'validate=1 hits=1 ; assign=1 hits=0');
         Observer.Expect('date 20260115D', 'validate=1479993 hits=1 ; assign=1479993 hits=0');
         Observer.Expect('time 120000T', 'validate=43200001 hits=1 ; assign=43200001 hits=0');
         Observer.Expect('datetime', 'validate error:The value "01/15/26 12:00 PM" can''t be evaluated into type Integer.|Evaluate:Conversion ; assign error:Unable to convert from <ns>NavDateTime to System.Int32.|Conversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -383,11 +423,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 4, 9, 12);
+#if BC28PLUS
         Observer.Expect('text 42', 'validate=42 hits=1 ; assign=42 hits=0');
         Observer.Expect('text abc', 'validate error:The value "abc" can''t be evaluated into type Integer.|Evaluate:Format ; assign error:The expression Variant cannot be type-converted to a Integer value.|TypeConversion:Format');
         Observer.Expect('code C1', 'validate error:The value "C1" can''t be evaluated into type Integer.|Evaluate:Format ; assign error:The expression Variant cannot be type-converted to a Integer value.|TypeConversion:Format');
         Observer.Expect('option 1', 'validate=1 hits=1 ; assign=1 hits=0');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -396,11 +440,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 4, 13, 16);
+#if BC28PLUS
         Observer.Expect('enum Two', 'validate=1 hits=1 ; assign=1 hits=0');
         Observer.Expect('guid', 'validate error:The value "{12345678-1234-1234-1234-123456789012}" can''t be evaluated into type Integer.|Evaluate:Conversion ; assign error:Unable to convert from <ns>NavGuid to System.Int32.|Conversion');
         Observer.Expect('duration 1500', 'validate=1500 hits=1 ; assign=1500 hits=0');
         Observer.Expect('text empty', 'validate error:The value "" can''t be evaluated into type Integer.|Evaluate:Format ; assign error:The expression Variant cannot be type-converted to a Integer value.|TypeConversion:Format');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -409,11 +457,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 5, 1, 4);
+#if BC28PLUS
         Observer.Expect('integer 42', 'validate=42 hits=1 ; assign=42 hits=0');
         Observer.Expect('integer -3', 'validate=-3 hits=1 ; assign=-3 hits=0');
         Observer.Expect('decimal 2.5', 'validate=2.5 hits=1 ; assign=2.5 hits=0');
         Observer.Expect('biginteger', 'validate=5000000000 hits=1 ; assign=5000000000 hits=0');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -422,11 +474,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 5, 5, 8);
+#if BC28PLUS
         Observer.Expect('boolean true', 'validate=1 hits=1 ; assign=1 hits=0');
         Observer.Expect('date 20260115D', 'validate=1479993 hits=1 ; assign=1479993 hits=0');
         Observer.Expect('time 120000T', 'validate=43200001 hits=1 ; assign=43200001 hits=0');
         Observer.Expect('datetime', 'validate=63935697600001 hits=1 ; assign=63935697600001 hits=0');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -435,11 +491,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 5, 9, 12);
+#if BC28PLUS
         Observer.Expect('text 42', 'validate=42 hits=1 ; assign=42 hits=0');
         Observer.Expect('text abc', 'validate error:The value "abc" can''t be evaluated into type Decimal.|Evaluate:Format ; assign error:The expression Variant cannot be type-converted to a Decimal value.|TypeConversion:Format');
         Observer.Expect('code C1', 'validate error:The value "C1" can''t be evaluated into type Decimal.|Evaluate:Format ; assign error:The expression Variant cannot be type-converted to a Decimal value.|TypeConversion:Format');
         Observer.Expect('option 1', 'validate=1 hits=1 ; assign=1 hits=0');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -448,11 +508,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 5, 13, 16);
+#if BC28PLUS
         Observer.Expect('enum Two', 'validate=1 hits=1 ; assign=1 hits=0');
         Observer.Expect('guid', 'validate error:The value "{12345678-1234-1234-1234-123456789012}" can''t be evaluated into type Decimal.|Evaluate:Conversion ; assign error:Unable to convert from <ns>NavGuid to System.Int32.|Conversion');
         Observer.Expect('duration 1500', 'validate=1500 hits=1 ; assign=1500 hits=0');
         Observer.Expect('text empty', 'validate error:The value "" can''t be evaluated into type Decimal.|Evaluate:Format ; assign error:The expression Variant cannot be type-converted to a Decimal value.|TypeConversion:Format');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -461,11 +525,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 6, 1, 4);
+#if BC28PLUS
         Observer.Expect('integer 42', 'validate=42 hits=1 ; assign=42 hits=0');
         Observer.Expect('integer -3', 'validate=-3 hits=1 ; assign=-3 hits=0');
         Observer.Expect('decimal 2.5', 'validate error:Overflow under conversion of <ns>Decimal18 value 2.5 to System.Int64.|ConversionCast ; assign error:Overflow under conversion of <ns>Decimal18 value 2.5 to System.Int64.|ConversionCast');
         Observer.Expect('biginteger', 'validate=5000000000 hits=1 ; assign=5000000000 hits=0');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -474,11 +542,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 6, 5, 8);
+#if BC28PLUS
         Observer.Expect('boolean true', 'validate=1 hits=1 ; assign=1 hits=0');
         Observer.Expect('date 20260115D', 'validate=1479993 hits=1 ; assign=1479993 hits=0');
         Observer.Expect('time 120000T', 'validate=43200001 hits=1 ; assign=43200001 hits=0');
         Observer.Expect('datetime', 'validate=63935697600001 hits=1 ; assign=63935697600001 hits=0');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -487,11 +559,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 6, 9, 12);
+#if BC28PLUS
         Observer.Expect('text 42', 'validate=42 hits=1 ; assign=42 hits=0');
         Observer.Expect('text abc', 'validate error:The value "abc" can''t be evaluated into type BigInteger.|Evaluate:Format ; assign error:The expression Variant cannot be type-converted to a BigInteger value.|TypeConversion:Format');
         Observer.Expect('code C1', 'validate error:The value "C1" can''t be evaluated into type BigInteger.|Evaluate:Format ; assign error:The expression Variant cannot be type-converted to a BigInteger value.|TypeConversion:Format');
         Observer.Expect('option 1', 'validate=1 hits=1 ; assign=1 hits=0');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -500,11 +576,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 6, 13, 16);
+#if BC28PLUS
         Observer.Expect('enum Two', 'validate=1 hits=1 ; assign=1 hits=0');
         Observer.Expect('guid', 'validate error:The value "{12345678-1234-1234-1234-123456789012}" can''t be evaluated into type BigInteger.|Evaluate:Conversion ; assign error:Unable to convert from <ns>NavGuid to System.Int32.|Conversion');
         Observer.Expect('duration 1500', 'validate=1500 hits=1 ; assign=1500 hits=0');
         Observer.Expect('text empty', 'validate error:The value "" can''t be evaluated into type BigInteger.|Evaluate:Format ; assign error:The expression Variant cannot be type-converted to a BigInteger value.|TypeConversion:Format');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -513,11 +593,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 7, 1, 4);
+#if BC28PLUS
         Observer.Expect('integer 42', 'validate=true hits=1 ; assign=true hits=0');
         Observer.Expect('integer -3', 'validate=true hits=1 ; assign=true hits=0');
         Observer.Expect('decimal 2.5', 'validate error:Overflow under conversion of <ns>Decimal18 value 2.5 to System.Int32.|ConversionCast ; assign error:Overflow under conversion of <ns>Decimal18 value 2.5 to System.Int32.|ConversionCast');
         Observer.Expect('biginteger', 'validate error:Arithmetic operation resulted in an overflow.|AL:Overflow ; assign error:The expression Variant cannot be type-converted to a Boolean value.|TypeConversion:Overflow');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -526,11 +610,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 7, 5, 8);
+#if BC28PLUS
         Observer.Expect('boolean true', 'validate=true hits=1 ; assign=true hits=0');
         Observer.Expect('date 20260115D', 'validate=true hits=1 ; assign=true hits=0');
         Observer.Expect('time 120000T', 'validate=true hits=1 ; assign=true hits=0');
         Observer.Expect('datetime', 'validate error:The value "01/15/26 12:00 PM" can''t be evaluated into type Boolean.|Evaluate:Conversion ; assign error:Unable to convert from <ns>NavDateTime to System.Int32.|Conversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -539,11 +627,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 7, 9, 12);
+#if BC28PLUS
         Observer.Expect('text 42', 'validate=true hits=1 ; assign=true hits=0');
         Observer.Expect('text abc', 'validate error:The value "abc" can''t be evaluated into type Boolean.|Evaluate:Format ; assign error:The expression Variant cannot be type-converted to a Boolean value.|TypeConversion:Format');
         Observer.Expect('code C1', 'validate error:The value "C1" can''t be evaluated into type Boolean.|Evaluate:Format ; assign error:The expression Variant cannot be type-converted to a Boolean value.|TypeConversion:Format');
         Observer.Expect('option 1', 'validate=true hits=1 ; assign=true hits=0');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -552,11 +644,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 7, 13, 16);
+#if BC28PLUS
         Observer.Expect('enum Two', 'validate=true hits=1 ; assign=true hits=0');
         Observer.Expect('guid', 'validate error:The value "{12345678-1234-1234-1234-123456789012}" can''t be evaluated into type Boolean.|Evaluate:Conversion ; assign error:Unable to convert from <ns>NavGuid to System.Int32.|Conversion');
         Observer.Expect('duration 1500', 'validate=true hits=1 ; assign=true hits=0');
         Observer.Expect('text empty', 'validate error:The value "" can''t be evaluated into type Boolean.|Evaluate:Format ; assign error:The expression Variant cannot be type-converted to a Boolean value.|TypeConversion:Format');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -565,11 +661,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 8, 1, 4);
+#if BC28PLUS
         Observer.Expect('integer 42', 'validate error:The format of the Date ''42'' does not match your device''s date settings.\\<datehelp>|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDate value.|TypeConversion');
         Observer.Expect('integer -3', 'validate error:The format of the Date ''-3'' does not match your device''s date settings.\\<datehelp>|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDate value.|TypeConversion');
         Observer.Expect('decimal 2.5', 'validate error:The format of the Date ''2.5'' does not match your device''s date settings.\\<datehelp>|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDate value.|TypeConversion');
         Observer.Expect('biginteger', 'validate error:The format of the Date ''5000000000'' does not match your device''s date settings.\\<datehelp>|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDate value.|TypeConversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -578,11 +678,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 8, 5, 8);
+#if BC28PLUS
         Observer.Expect('boolean true', 'validate error:The format of the Date ''Yes'' does not match your device''s date settings.\\<datehelp>|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDate value.|TypeConversion');
         Observer.Expect('date 20260115D', 'validate=2026-01-15 hits=1 ; assign=2026-01-15 hits=0');
         Observer.Expect('time 120000T', 'validate error:The date is not valid.|DateInvalid ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDate value.|TypeConversion');
         Observer.Expect('datetime', 'validate error:The date is not valid.|DateInvalid ; assign=2026-01-15 hits=0');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -591,11 +695,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 8, 9, 12);
+#if BC28PLUS
         Observer.Expect('text 42', 'validate error:The format of the Date ''42'' does not match your device''s date settings.\\<datehelp>|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDate value.|TypeConversion');
         Observer.Expect('text abc', 'validate error:The format of the Date ''abc'' does not match your device''s date settings.\\<datehelp>|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDate value.|TypeConversion');
         Observer.Expect('code C1', 'validate error:The format of the Date ''C1'' does not match your device''s date settings.\\<datehelp>|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDate value.|TypeConversion');
         Observer.Expect('option 1', 'validate error:The format of the Date ''Beta'' does not match your device''s date settings.\\<datehelp>|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDate value.|TypeConversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -604,11 +712,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 8, 13, 16);
+#if BC28PLUS
         Observer.Expect('enum Two', 'validate error:The format of the Date ''Two'' does not match your device''s date settings.\\<datehelp>|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDate value.|TypeConversion');
         Observer.Expect('guid', 'validate error:The format of the Date ''{12345678-1234-1234-1234-123456789012}'' does not match your device''s date settings.\\<datehelp>|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDate value.|TypeConversion');
         Observer.Expect('duration 1500', 'validate error:The format of the Date ''1 second 500 milliseconds'' does not match your device''s date settings.\\<datehelp>|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDate value.|TypeConversion');
         Observer.Expect('text empty', 'validate error:The format of the Date '''' does not match your device''s date settings.\\<datehelp>|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDate value.|TypeConversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -617,11 +729,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 9, 1, 4);
+#if BC28PLUS
         Observer.Expect('integer 42', 'validate error:The value "42" can''t be evaluated into type Time.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavTime value.|TypeConversion');
         Observer.Expect('integer -3', 'validate error:The value "-3" can''t be evaluated into type Time.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavTime value.|TypeConversion');
         Observer.Expect('decimal 2.5', 'validate error:The value "2.5" can''t be evaluated into type Time.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavTime value.|TypeConversion');
         Observer.Expect('biginteger', 'validate error:The value "5000000000" can''t be evaluated into type Time.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavTime value.|TypeConversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -630,11 +746,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 9, 5, 8);
+#if BC28PLUS
         Observer.Expect('boolean true', 'validate error:The value "Yes" can''t be evaluated into type Time.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavTime value.|TypeConversion');
         Observer.Expect('date 20260115D', 'validate error:The time is not valid.|InvalidTime ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavTime value.|TypeConversion');
         Observer.Expect('time 120000T', 'validate=12:00:00 hits=1 ; assign=12:00:00 hits=0');
         Observer.Expect('datetime', 'validate error:The time is not valid.|InvalidTime ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavTime value.|TypeConversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -643,11 +763,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 9, 9, 12);
+#if BC28PLUS
         Observer.Expect('text 42', 'validate error:The value "42" can''t be evaluated into type Time.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavTime value.|TypeConversion');
         Observer.Expect('text abc', 'validate error:The value "abc" can''t be evaluated into type Time.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavTime value.|TypeConversion');
         Observer.Expect('code C1', 'validate error:The value "C1" can''t be evaluated into type Time.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavTime value.|TypeConversion');
         Observer.Expect('option 1', 'validate error:The value "Beta" can''t be evaluated into type Time.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavTime value.|TypeConversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -656,11 +780,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 9, 13, 16);
+#if BC28PLUS
         Observer.Expect('enum Two', 'validate error:The value "Two" can''t be evaluated into type Time.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavTime value.|TypeConversion');
         Observer.Expect('guid', 'validate error:The value "{12345678-1234-1234-1234-123456789012}" can''t be evaluated into type Time.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavTime value.|TypeConversion');
         Observer.Expect('duration 1500', 'validate error:The value "1 second 500 milliseconds" can''t be evaluated into type Time.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavTime value.|TypeConversion');
         Observer.Expect('text empty', 'validate error:The value "" can''t be evaluated into type Time.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavTime value.|TypeConversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -669,11 +797,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 10, 1, 4);
+#if BC28PLUS
         Observer.Expect('integer 42', 'validate error:The value "42" can''t be evaluated into type DateTime.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDateTime value.|TypeConversion');
         Observer.Expect('integer -3', 'validate error:The value "-3" can''t be evaluated into type DateTime.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDateTime value.|TypeConversion');
         Observer.Expect('decimal 2.5', 'validate error:The value "2.5" can''t be evaluated into type DateTime.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDateTime value.|TypeConversion');
         Observer.Expect('biginteger', 'validate error:The value "5000000000" can''t be evaluated into type DateTime.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDateTime value.|TypeConversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -682,11 +814,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 10, 5, 8);
+#if BC28PLUS
         Observer.Expect('boolean true', 'validate error:The value "Yes" can''t be evaluated into type DateTime.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDateTime value.|TypeConversion');
         Observer.Expect('date 20260115D', 'validate=2026-01-15T00:00:00Z hits=1 ; assign=2026-01-15T00:00:00Z hits=0');
         Observer.Expect('time 120000T', 'validate=0001-01-02T12:00:00Z hits=1 ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDateTime value.|TypeConversion');
         Observer.Expect('datetime', 'validate=2026-01-15T12:00:00Z hits=1 ; assign=2026-01-15T12:00:00Z hits=0');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -695,11 +831,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 10, 9, 12);
+#if BC28PLUS
         Observer.Expect('text 42', 'validate error:The value "42" can''t be evaluated into type DateTime.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDateTime value.|TypeConversion');
         Observer.Expect('text abc', 'validate error:The value "abc" can''t be evaluated into type DateTime.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDateTime value.|TypeConversion');
         Observer.Expect('code C1', 'validate error:The value "C1" can''t be evaluated into type DateTime.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDateTime value.|TypeConversion');
         Observer.Expect('option 1', 'validate error:The value "Beta" can''t be evaluated into type DateTime.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDateTime value.|TypeConversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -708,11 +848,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 10, 13, 16);
+#if BC28PLUS
         Observer.Expect('enum Two', 'validate error:The value "Two" can''t be evaluated into type DateTime.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDateTime value.|TypeConversion');
         Observer.Expect('guid', 'validate error:The value "{12345678-1234-1234-1234-123456789012}" can''t be evaluated into type DateTime.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDateTime value.|TypeConversion');
         Observer.Expect('duration 1500', 'validate error:The value "1 second 500 milliseconds" can''t be evaluated into type DateTime.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDateTime value.|TypeConversion');
         Observer.Expect('text empty', 'validate error:The value "" can''t be evaluated into type DateTime.|Evaluate:Conversion ; assign error:The expression <ns>NavIndirectValue cannot be type-converted to a <ns>NavDateTime value.|TypeConversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -721,11 +865,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 11, 1, 4);
+#if BC28PLUS
         Observer.Expect('integer 42', 'validate=42 hits=1 ; assign=42 hits=0');
         Observer.Expect('integer -3', 'validate=-3 hits=1 ; assign=-3 hits=0');
         Observer.Expect('decimal 2.5', 'validate error:Overflow under conversion of <ns>Decimal18 value 2.5 to System.Int32.|ConversionCast ; assign error:Overflow under conversion of <ns>Decimal18 value 2.5 to System.Int32.|ConversionCast');
         Observer.Expect('biginteger', 'validate error:Arithmetic operation resulted in an overflow.|AL:Overflow ; assign error:The expression Variant cannot be type-converted to a Integer value.|TypeConversion:Overflow');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -734,11 +882,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 11, 5, 8);
+#if BC28PLUS
         Observer.Expect('boolean true', 'validate=1 hits=1 ; assign=1 hits=0');
         Observer.Expect('date 20260115D', 'validate=1479993 hits=1 ; assign=1479993 hits=0');
         Observer.Expect('time 120000T', 'validate=43200001 hits=1 ; assign=43200001 hits=0');
         Observer.Expect('datetime', 'validate error:The value "01/15/26 12:00 PM" can''t be evaluated into type Option.|Evaluate:Conversion ; assign error:Unable to convert from <ns>NavDateTime to System.Int32.|Conversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -747,11 +899,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 11, 9, 12);
+#if BC28PLUS
         Observer.Expect('text 42', 'validate=42 hits=1 ; assign=42 hits=0');
         Observer.Expect('text abc', 'validate error:The value "abc" can''t be evaluated into type Option.|Evaluate:Format ; assign error:The expression Variant cannot be type-converted to a Integer value.|TypeConversion:Format');
         Observer.Expect('code C1', 'validate error:The value "C1" can''t be evaluated into type Option.|Evaluate:Format ; assign error:The expression Variant cannot be type-converted to a Integer value.|TypeConversion:Format');
         Observer.Expect('option 1', 'validate=1 hits=1 ; assign=1 hits=0');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -760,11 +916,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 11, 13, 16);
+#if BC28PLUS
         Observer.Expect('enum Two', 'validate=1 hits=1 ; assign=1 hits=0');
         Observer.Expect('guid', 'validate error:The value "{12345678-1234-1234-1234-123456789012}" can''t be evaluated into type Option.|Evaluate:Conversion ; assign error:Unable to convert from <ns>NavGuid to System.Int32.|Conversion');
         Observer.Expect('duration 1500', 'validate=1500 hits=1 ; assign=1500 hits=0');
         Observer.Expect('text empty', 'validate error:The value "" can''t be evaluated into type Option.|Evaluate:Format ; assign error:The expression Variant cannot be type-converted to a Integer value.|TypeConversion:Format');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -773,11 +933,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 13, 1, 4);
+#if BC28PLUS
         Observer.Expect('integer 42', 'validate error:The value "42" can''t be evaluated into type GUID.|Evaluate:Argument ; assign error:The expression Variant cannot be type-converted to a GUID value.|TypeConversion');
         Observer.Expect('integer -3', 'validate error:The value "-3" can''t be evaluated into type GUID.|Evaluate:Argument ; assign error:The expression Variant cannot be type-converted to a GUID value.|TypeConversion');
         Observer.Expect('decimal 2.5', 'validate error:The value "2.5" can''t be evaluated into type GUID.|Evaluate:Argument ; assign error:The expression Variant cannot be type-converted to a GUID value.|TypeConversion');
         Observer.Expect('biginteger', 'validate error:The value "5000000000" can''t be evaluated into type GUID.|Evaluate:Argument ; assign error:The expression Variant cannot be type-converted to a GUID value.|TypeConversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -786,11 +950,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 13, 5, 8);
+#if BC28PLUS
         Observer.Expect('boolean true', 'validate error:The value "Yes" can''t be evaluated into type GUID.|Evaluate:Argument ; assign error:The expression Variant cannot be type-converted to a GUID value.|TypeConversion');
         Observer.Expect('date 20260115D', 'validate error:The value "01/15/26" can''t be evaluated into type GUID.|Evaluate:Argument ; assign error:The expression Variant cannot be type-converted to a GUID value.|TypeConversion');
         Observer.Expect('time 120000T', 'validate error:The value "12:00:00 PM" can''t be evaluated into type GUID.|Evaluate:Argument ; assign error:The expression Variant cannot be type-converted to a GUID value.|TypeConversion');
         Observer.Expect('datetime', 'validate error:The value "01/15/26 12:00 PM" can''t be evaluated into type GUID.|Evaluate:Argument ; assign error:The expression Variant cannot be type-converted to a GUID value.|TypeConversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -799,11 +967,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 13, 9, 12);
+#if BC28PLUS
         Observer.Expect('text 42', 'validate error:The value "42" can''t be evaluated into type GUID.|Evaluate:Argument ; assign error:Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.|InvalidGuidFormat');
         Observer.Expect('text abc', 'validate error:The value "abc" can''t be evaluated into type GUID.|Evaluate:Argument ; assign error:Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.|InvalidGuidFormat');
         Observer.Expect('code C1', 'validate error:The value "C1" can''t be evaluated into type GUID.|Evaluate:Argument ; assign error:Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.|InvalidGuidFormat');
         Observer.Expect('option 1', 'validate error:The value "Beta" can''t be evaluated into type GUID.|Evaluate:Argument ; assign error:The expression Variant cannot be type-converted to a GUID value.|TypeConversion');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -812,11 +984,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 13, 13, 16);
+#if BC28PLUS
         Observer.Expect('enum Two', 'validate error:The value "Two" can''t be evaluated into type GUID.|Evaluate:Argument ; assign error:The expression Variant cannot be type-converted to a GUID value.|TypeConversion');
         Observer.Expect('guid', 'validate={12345678-1234-1234-1234-123456789012} hits=1 ; assign={12345678-1234-1234-1234-123456789012} hits=0');
         Observer.Expect('duration 1500', 'validate error:The value "1 second 500 milliseconds" can''t be evaluated into type GUID.|Evaluate:Argument ; assign error:The expression Variant cannot be type-converted to a GUID value.|TypeConversion');
         Observer.Expect('text empty', 'validate error:The value "" can''t be evaluated into type GUID.|Evaluate:Argument ; assign error:Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.|InvalidGuidFormat');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -825,11 +1001,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 14, 1, 4);
+#if BC28PLUS
         Observer.Expect('integer 42', 'validate=P0DT0H0M0.042S hits=1 ; assign=P0DT0H0M0.042S hits=0');
         Observer.Expect('integer -3', 'validate=-P0DT0H0M0.003S hits=1 ; assign=-P0DT0H0M0.003S hits=0');
         Observer.Expect('decimal 2.5', 'validate error:Overflow under conversion of <ns>Decimal18 value 2.5 to System.Int64.|ConversionCast ; assign error:Overflow under conversion of <ns>Decimal18 value 2.5 to System.Int64.|ConversionCast');
         Observer.Expect('biginteger', 'validate=P57DT20H53M20.0S hits=1 ; assign=P57DT20H53M20.0S hits=0');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -838,11 +1018,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 14, 5, 8);
+#if BC28PLUS
         Observer.Expect('boolean true', 'validate=P0DT0H0M0.001S hits=1 ; assign=P0DT0H0M0.001S hits=0');
         Observer.Expect('date 20260115D', 'validate=P0DT0H24M39.993S hits=1 ; assign=P0DT0H24M39.993S hits=0');
         Observer.Expect('time 120000T', 'validate=P0DT12H0M0.001S hits=1 ; assign=P0DT12H0M0.001S hits=0');
         Observer.Expect('datetime', 'validate=P739996DT12H0M0.001S hits=1 ; assign=P739996DT12H0M0.001S hits=0');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -851,11 +1035,15 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 14, 9, 12);
+#if BC28PLUS
         Observer.Expect('text 42', 'validate=P0DT0H0M0.042S hits=1 ; assign=P0DT0H0M0.042S hits=0');
         Observer.Expect('text abc', 'validate error:The value "abc" can''t be evaluated into type Duration.|Evaluate:Format ; assign error:The input string ''abc'' was not in a correct format.|AL:Format');
         Observer.Expect('code C1', 'validate error:The value "C1" can''t be evaluated into type Duration.|Evaluate:Format ; assign error:The input string ''C1'' was not in a correct format.|AL:Format');
         Observer.Expect('option 1', 'validate=P0DT0H0M0.001S hits=1 ; assign=P0DT0H0M0.001S hits=0');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 
     [Test]
@@ -864,10 +1052,14 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 14, 13, 16);
+#if BC28PLUS
         Observer.Expect('enum Two', 'validate=P0DT0H0M0.001S hits=1 ; assign=P0DT0H0M0.001S hits=0');
         Observer.Expect('guid', 'validate error:The value "{12345678-1234-1234-1234-123456789012}" can''t be evaluated into type Duration.|Evaluate:Conversion ; assign error:Unable to convert from <ns>NavGuid to System.Int32.|Conversion');
         Observer.Expect('duration 1500', 'validate=P0DT0H0M1.5S hits=1 ; assign=P0DT0H0M1.5S hits=0');
         Observer.Expect('text empty', 'validate error:The value "" can''t be evaluated into type Duration.|Evaluate:Format ; assign error:The input string '''' was not in a correct format.|AL:Format');
         Observer.Verify();
+#else
+        Observer.Finish();
+#endif
     end;
 }
