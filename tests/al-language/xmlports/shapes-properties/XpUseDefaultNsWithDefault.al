@@ -9,7 +9,12 @@
 //   a root with the prefix of the second namespace, a table element root (MaxOccurs = Once), and the default encoding (UTF-16). Each
 //   port: the exact text the export writes (two items, 1 one and 2 "  two  "); for three ports the imports of three documents (as the
 //   export writes it, every element with its prefix, no namespaces) and the rows after each import.
-// Result: observed, see the assertions.
+// Result (BC 27.5, 28.5 and 29.0 alike; corpus CI runs 42111762161, 42111802269, 42111843665): as without DefaultNamespace
+//   (XpUseDefaultNsPrefixes.al) with the DefaultNamespace in place of BC's namespace of the port. The root loses its prefix and declares
+//   xmlns as the uri of that prefix after the named namespaces (the DefaultNamespace for a root without a prefix); an element without a
+//   prefix declares xmlns="<DefaultNamespace>" where the namespace in scope differs, its children inherit it; prefixed elements keep
+//   their prefix. UTF-16 writes the same text. Every import fails with "The prefix  is not defined in the Namespaces property of the
+//   XMLPort." (XmlPortNodeProcess), whatever the document, and the rows stay.
 // BC versions: 27, 28, 29
 
 // The reporter's shape.
@@ -224,7 +229,8 @@ codeunit 96036 "LT XDN Namespace Tests"
     begin
         Helper.Seed();
         Observer.Observe('export', Helper.TryExportRaw(96030, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <soap:Body>\r\n    <tem:ReceiveMessage>\r\n      <InputMsg xmlns="urn:lt:xdn:input">\r\n        <Value>V1</Value>\r\n      </InputMsg>\r\n    </tem:ReceiveMessage>\r\n  </soap:Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -234,7 +240,10 @@ codeunit 96036 "LT XDN Namespace Tests"
         Observer.Observe('import default', Helper.TryImport(96030, '<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><tem:ReceiveMessage><InputMsg xmlns="urn:lt:xdn:input"><Value>V7</Value></InputMsg></tem:ReceiveMessage></soap:Body></Envelope>', false));
         Observer.Observe('import prefixed', Helper.TryImport(96030, '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="urn:lt:xdn:input"><soap:Body><tem:ReceiveMessage><InputMsg><Value>V8</Value></InputMsg></tem:ReceiveMessage></soap:Body></soap:Envelope>', false));
         Observer.Observe('import plain', Helper.TryImport(96030, '<Envelope><Body><ReceiveMessage><InputMsg><Value>V9</Value></InputMsg></ReceiveMessage></Body></Envelope>', false));
-        Observer.Finish();
+        Observer.Expect('import default', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('import prefixed', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('import plain', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Verify();
     end;
 
     [Test]
@@ -242,7 +251,8 @@ codeunit 96036 "LT XDN Namespace Tests"
     begin
         Helper.Seed();
         Observer.Observe('export', Helper.TryExportRaw(96031, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <soap:Body>\r\n    <tem:ReceiveMessage>\r\n      <InputMsg xmlns="urn:lt:xdn:input">\r\n        <Item>\r\n          <tem:Id>1</tem:Id>\r\n          <Name>one</Name>\r\n        </Item>\r\n        <Item>\r\n          <tem:Id>2</tem:Id>\r\n          <Name>  two  </Name>\r\n        </Item>\r\n      </InputMsg>\r\n    </tem:ReceiveMessage>\r\n  </soap:Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -258,7 +268,13 @@ codeunit 96036 "LT XDN Namespace Tests"
         Observer.Observe('import plain', Helper.TryImport(96031, '<Envelope><Body><ReceiveMessage><InputMsg><Item><Id>9</Id><Name>n9</Name></Item></InputMsg></ReceiveMessage></Body></Envelope>', false));
         Observer.Observe('rows after plain', Helper.Rows());
         Helper.Seed();
-        Observer.Finish();
+        Observer.Expect('import default', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after default', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('import prefixed', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after prefixed', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('import plain', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after plain', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -266,7 +282,8 @@ codeunit 96036 "LT XDN Namespace Tests"
     begin
         Helper.Seed();
         Observer.Observe('export', Helper.TryExportRaw(96032, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="urn:lt:xdn:input">\r\n  <soap:Body>\r\n    <Item>\r\n      <tem:Id>1</tem:Id>\r\n      <Name>one</Name>\r\n    </Item>\r\n    <Item>\r\n      <tem:Id>2</tem:Id>\r\n      <Name>  two  </Name>\r\n    </Item>\r\n  </soap:Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -274,7 +291,8 @@ codeunit 96036 "LT XDN Namespace Tests"
     begin
         Helper.Seed();
         Observer.Observe('export', Helper.TryExportRaw(96033, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://tempuri.org/">\r\n  <soap:Body>\r\n    <Item xmlns="urn:lt:xdn:input">\r\n      <tem:Id>1</tem:Id>\r\n      <Name>one</Name>\r\n    </Item>\r\n    <Item xmlns="urn:lt:xdn:input">\r\n      <tem:Id>2</tem:Id>\r\n      <Name>  two  </Name>\r\n    </Item>\r\n  </soap:Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -282,7 +300,8 @@ codeunit 96036 "LT XDN Namespace Tests"
     begin
         Helper.Seed();
         Observer.Observe('export', Helper.TryExportRaw(96034, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <soap:Body>\r\n    <tem:Id>1</tem:Id>\r\n    <Name xmlns="urn:lt:xdn:input">one</Name>\r\n  </soap:Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -298,7 +317,13 @@ codeunit 96036 "LT XDN Namespace Tests"
         Observer.Observe('import plain', Helper.TryImport(96034, '<Envelope><Body><Id>9</Id><Name>n9</Name></Body></Envelope>', false));
         Observer.Observe('rows after plain', Helper.Rows());
         Helper.Seed();
-        Observer.Finish();
+        Observer.Expect('import default', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after default', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('import prefixed', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after prefixed', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('import plain', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after plain', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -306,6 +331,7 @@ codeunit 96036 "LT XDN Namespace Tests"
     begin
         Helper.Seed();
         Observer.Observe('export', Helper.TryExportRaw(96035, TextEncoding::UTF16));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <soap:Body>\r\n    <tem:ReceiveMessage>\r\n      <InputMsg xmlns="urn:lt:xdn:input">\r\n        <Item>\r\n          <tem:Id>1</tem:Id>\r\n          <Name>one</Name>\r\n        </Item>\r\n        <Item>\r\n          <tem:Id>2</tem:Id>\r\n          <Name>  two  </Name>\r\n        </Item>\r\n      </InputMsg>\r\n    </tem:ReceiveMessage>\r\n  </soap:Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 }

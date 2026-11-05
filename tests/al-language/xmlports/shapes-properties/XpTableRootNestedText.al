@@ -9,7 +9,13 @@
 //   a root table element without MaxOccurs (two rows), and with Namespaces and UseDefaultNamespace = true (prefixes on the elements).
 //   Each port: the exact text the export writes with the seeded rows; some with an empty field value, no root rows or no inner rows;
 //   the imports of the shapes without namespaces and the rows after them.
-// Result: observed, see the assertions.
+// Result (BC 27.5, 28.5 and 29.0 alike; corpus CI runs 42111762161, 42111802269, 42111843665): BC writes the plain nested tree. A text
+//   element below the root table element is written once per root, around its content, in schema order; an empty leaf text element
+//   is `<Header />`, an empty field `<Name />`. With no root row the root is written once with the record as it stands (`<Id>0</Id>`,
+//   `<Name />`); an inner table element without rows is written once the same way. Without MaxOccurs the root is written once per row,
+//   one root after the other. With Namespaces and UseDefaultNamespace = true the rules of XpUseDefaultNsPrefixes.al hold below the text
+//   elements: prefixed elements keep their prefix, an element without a prefix declares the port's namespace. Import (no namespaces):
+//   ok; the root table element inserts its row (a root without fields of its own inserts a blank row 0), inner table rows are inserted.
 // BC versions: 27, 28, 29
 
 // A text element below the root table element holds field elements.
@@ -285,7 +291,10 @@ codeunit 96028 "LT XNT Table Root Tests"
         Observer.Observe('export empty name', Helper.TryExportRaw(96020, TextEncoding::UTF8));
         NoItems();
         Observer.Observe('export no rows', Helper.TryExportRaw(96020, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <Body>\r\n    <Id>1</Id>\r\n    <Name>one</Name>\r\n  </Body>\r\n</Envelope>');
+        Observer.Expect('export empty name', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <Body>\r\n    <Id>1</Id>\r\n    <Name />\r\n  </Body>\r\n</Envelope>');
+        Observer.Expect('export no rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <Body>\r\n    <Id>0</Id>\r\n    <Name />\r\n  </Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -294,7 +303,9 @@ codeunit 96028 "LT XNT Table Root Tests"
         Helper.Seed();
         Observer.Observe('import', Helper.TryImport(96020, '<Envelope><Body><Id>7</Id><Name>n7</Name></Body></Envelope>', false));
         Observer.Observe('rows after import', Helper.Rows());
-        Observer.Finish();
+        Observer.Expect('import', 'ok');
+        Observer.Expect('rows after import', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;7/n7/0/false//0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -306,7 +317,10 @@ codeunit 96028 "LT XNT Table Root Tests"
         Observer.Observe('export no lines', Helper.TryExportRaw(96021, TextEncoding::UTF8));
         NoItems();
         Observer.Observe('export no rows', Helper.TryExportRaw(96021, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <Body>\r\n    <Line>\r\n      <Id>1</Id>\r\n      <Txt>c1a</Txt>\r\n    </Line>\r\n    <Line>\r\n      <Id>2</Id>\r\n      <Txt>c1b</Txt>\r\n    </Line>\r\n    <Line>\r\n      <Id>3</Id>\r\n      <Txt>c2a</Txt>\r\n    </Line>\r\n  </Body>\r\n</Envelope>');
+        Observer.Expect('export no lines', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <Body>\r\n    <Line>\r\n      <Id>0</Id>\r\n      <Txt />\r\n    </Line>\r\n  </Body>\r\n</Envelope>');
+        Observer.Expect('export no rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <Body>\r\n    <Line>\r\n      <Id>0</Id>\r\n      <Txt />\r\n    </Line>\r\n  </Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -316,7 +330,10 @@ codeunit 96028 "LT XNT Table Root Tests"
         Observer.Observe('import', Helper.TryImport(96021, '<Envelope><Body><Line><Id>7</Id><Txt>t7</Txt></Line><Line><Id>8</Id><Txt>t8</Txt></Line></Body></Envelope>', false));
         Observer.Observe('rows after import', Helper.Rows());
         Observer.Observe('children after import', Helper.ChildRows());
-        Observer.Finish();
+        Observer.Expect('import', 'ok');
+        Observer.Expect('rows after import', '0//0/false//0;1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('children after import', '1/1/c1a;2/1/c1b;3/2/c2a;7/0/t7;8/0/t8;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -326,7 +343,9 @@ codeunit 96028 "LT XNT Table Root Tests"
         Observer.Observe('export', Helper.TryExportRaw(96022, TextEncoding::UTF8));
         EmptyName();
         Observer.Observe('export empty name', Helper.TryExportRaw(96022, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <Body>\r\n    <Inner>\r\n      <Id>1</Id>\r\n      <Name>one</Name>\r\n    </Inner>\r\n  </Body>\r\n</Envelope>');
+        Observer.Expect('export empty name', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <Body>\r\n    <Inner>\r\n      <Id>1</Id>\r\n      <Name />\r\n    </Inner>\r\n  </Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -335,7 +354,9 @@ codeunit 96028 "LT XNT Table Root Tests"
         Helper.Seed();
         Observer.Observe('import', Helper.TryImport(96022, '<Envelope><Body><Inner><Id>7</Id><Name>n7</Name></Inner></Body></Envelope>', false));
         Observer.Observe('rows after import', Helper.Rows());
-        Observer.Finish();
+        Observer.Expect('import', 'ok');
+        Observer.Expect('rows after import', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;7/n7/0/false//0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -347,7 +368,10 @@ codeunit 96028 "LT XNT Table Root Tests"
         Observer.Observe('export no lines', Helper.TryExportRaw(96023, TextEncoding::UTF8));
         NoItems();
         Observer.Observe('export no rows', Helper.TryExportRaw(96023, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <Header />\r\n  <Body>\r\n    <Msg>\r\n      <Refs>\r\n        <Line>\r\n          <Id>1</Id>\r\n          <Txt>c1a</Txt>\r\n        </Line>\r\n        <Line>\r\n          <Id>2</Id>\r\n          <Txt>c1b</Txt>\r\n        </Line>\r\n        <Line>\r\n          <Id>3</Id>\r\n          <Txt>c2a</Txt>\r\n        </Line>\r\n      </Refs>\r\n    </Msg>\r\n  </Body>\r\n</Envelope>');
+        Observer.Expect('export no lines', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <Header />\r\n  <Body>\r\n    <Msg>\r\n      <Refs>\r\n        <Line>\r\n          <Id>0</Id>\r\n          <Txt />\r\n        </Line>\r\n      </Refs>\r\n    </Msg>\r\n  </Body>\r\n</Envelope>');
+        Observer.Expect('export no rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <Header />\r\n  <Body>\r\n    <Msg>\r\n      <Refs>\r\n        <Line>\r\n          <Id>0</Id>\r\n          <Txt />\r\n        </Line>\r\n      </Refs>\r\n    </Msg>\r\n  </Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -357,7 +381,10 @@ codeunit 96028 "LT XNT Table Root Tests"
         Observer.Observe('import', Helper.TryImport(96023, '<Envelope><Header /><Body><Msg><Refs><Line><Id>7</Id><Txt>t7</Txt></Line></Refs></Msg></Body></Envelope>', false));
         Observer.Observe('rows after import', Helper.Rows());
         Observer.Observe('children after import', Helper.ChildRows());
-        Observer.Finish();
+        Observer.Expect('import', 'ok');
+        Observer.Expect('rows after import', '0//0/false//0;1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('children after import', '1/1/c1a;2/1/c1b;3/2/c2a;7/0/t7;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -365,7 +392,8 @@ codeunit 96028 "LT XNT Table Root Tests"
     begin
         Helper.Seed();
         Observer.Observe('export', Helper.TryExportRaw(96024, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <Id>1</Id>\r\n  <Body>\r\n    <Inner>\r\n      <Name>one</Name>\r\n    </Inner>\r\n  </Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -375,7 +403,9 @@ codeunit 96028 "LT XNT Table Root Tests"
         Observer.Observe('export', Helper.TryExportRaw(96025, TextEncoding::UTF8));
         NoItems();
         Observer.Observe('export no rows', Helper.TryExportRaw(96025, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <Body>\r\n    <Inner>\r\n      <Id>1</Id>\r\n      <Name>one</Name>\r\n    </Inner>\r\n  </Body>\r\n</Envelope>\r\n<Envelope>\r\n  <Body>\r\n    <Inner>\r\n      <Id>2</Id>\r\n      <Name>  two  </Name>\r\n    </Inner>\r\n  </Body>\r\n</Envelope>');
+        Observer.Expect('export no rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <Body>\r\n    <Inner>\r\n      <Id>0</Id>\r\n      <Name />\r\n    </Inner>\r\n  </Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -385,7 +415,9 @@ codeunit 96028 "LT XNT Table Root Tests"
         Observer.Observe('export', Helper.TryExportRaw(96026, TextEncoding::UTF8));
         EmptyName();
         Observer.Observe('export empty name', Helper.TryExportRaw(96026, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns:msg="urn:lt:xnt:msg" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <soap:Body>\r\n    <tem:ReceiveMessage>\r\n      <msg:Id>1</msg:Id>\r\n      <Name xmlns="urn:microsoft-dynamics-nav/xmlports/x96026">one</Name>\r\n    </tem:ReceiveMessage>\r\n  </soap:Body>\r\n</Envelope>');
+        Observer.Expect('export empty name', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns:msg="urn:lt:xnt:msg" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <soap:Body>\r\n    <tem:ReceiveMessage>\r\n      <msg:Id>1</msg:Id>\r\n      <Name xmlns="urn:microsoft-dynamics-nav/xmlports/x96026" />\r\n    </tem:ReceiveMessage>\r\n  </soap:Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -395,6 +427,8 @@ codeunit 96028 "LT XNT Table Root Tests"
         Observer.Observe('export', Helper.TryExportRaw(96027, TextEncoding::UTF8));
         NoChildren();
         Observer.Observe('export no lines', Helper.TryExportRaw(96027, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns:msg="urn:lt:xnt:msg" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <soap:Header />\r\n  <soap:Body>\r\n    <tem:ReceiveMessage>\r\n      <tem:Line>\r\n        <msg:Id>1</msg:Id>\r\n        <Txt xmlns="urn:microsoft-dynamics-nav/xmlports/x96027">c1a</Txt>\r\n      </tem:Line>\r\n      <tem:Line>\r\n        <msg:Id>2</msg:Id>\r\n        <Txt xmlns="urn:microsoft-dynamics-nav/xmlports/x96027">c1b</Txt>\r\n      </tem:Line>\r\n      <tem:Line>\r\n        <msg:Id>3</msg:Id>\r\n        <Txt xmlns="urn:microsoft-dynamics-nav/xmlports/x96027">c2a</Txt>\r\n      </tem:Line>\r\n    </tem:ReceiveMessage>\r\n  </soap:Body>\r\n</Envelope>');
+        Observer.Expect('export no lines', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns:msg="urn:lt:xnt:msg" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <soap:Header />\r\n  <soap:Body>\r\n    <tem:ReceiveMessage>\r\n      <tem:Line>\r\n        <msg:Id>0</msg:Id>\r\n        <Txt xmlns="urn:microsoft-dynamics-nav/xmlports/x96027" />\r\n      </tem:Line>\r\n    </tem:ReceiveMessage>\r\n  </soap:Body>\r\n</Envelope>');
+        Observer.Verify();
     end;
 }
