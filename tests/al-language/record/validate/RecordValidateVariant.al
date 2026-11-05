@@ -4,7 +4,8 @@
 //   recordref-fieldref/fieldref/Y67FieldRefValidateVariant.al (one field of each type, each OnValidate counts Hits)
 // Probe: Record.Validate(Field, V) and Rec.Field := V with a Variant V that holds an Integer, a Decimal, a BigInteger, a Boolean, a Date,
 //   a Time, a DateTime, a Text (a number, other text, empty), a Code, an Option, an Enum, a Guid or a Duration, into a field of each type
-//   (Text, Code, Integer, Decimal, BigInteger, Boolean, Date, Time, DateTime, Option, Enum, Guid, Duration). The same matrix as the
+//   (Text, Code, Integer, Decimal, BigInteger, Boolean, Date, Time, DateTime, Option, Guid, Duration). An Enum field
+//   is left out: Record.Validate(EnumField, Variant) and EnumField := Variant do not compile (AL0193, AL0122). The same matrix as the
 //   FieldRef one in Y67FieldRefValidateVariant.al, through the record. Per cell: the value of the field (Format(.., 0, 9)) and how many
 //   times its OnValidate ran after Validate, and the value after the assignment; or the error text and code.
 //   Asked by al-runner issue 6975 (Validate of a Text field with a Variant that holds an Enum).
@@ -39,8 +40,6 @@ codeunit 95786 "REC Validate Variant Tests"
                 Row.Validate(DT, V);
             11:
                 Row.Validate(Opt, V);
-            12:
-                Row.Validate(En, V);
             13:
                 Row.Validate(G, V);
             14:
@@ -72,8 +71,6 @@ codeunit 95786 "REC Validate Variant Tests"
                 Row.DT := V;
             11:
                 Row.Opt := V;
-            12:
-                Row.En := V;
             13:
                 Row.G := V;
             14:
@@ -104,8 +101,6 @@ codeunit 95786 "REC Validate Variant Tests"
                 exit(Format(Row.DT, 0, 9));
             11:
                 exit(Format(Row.Opt, 0, 9));
-            12:
-                exit(Format(Row.En, 0, 9));
             13:
                 exit(Format(Row.G, 0, 9));
             14:
@@ -606,42 +601,6 @@ codeunit 95786 "REC Validate Variant Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 11, 13, 16);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure RecordValidate_Into_En_1()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Into(Observer, 12, 1, 4);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure RecordValidate_Into_En_2()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Into(Observer, 12, 5, 8);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure RecordValidate_Into_En_3()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Into(Observer, 12, 9, 12);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure RecordValidate_Into_En_4()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Into(Observer, 12, 13, 16);
         Observer.Finish();
     end;
 
