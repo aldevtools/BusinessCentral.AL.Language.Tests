@@ -89,3 +89,6 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 5. Never renumber a codeunit or rename a test. Read the standing rules in `CONTRIBUTING.md` first.
 
 - `extension-layout-containers/`: neutral public-API and page contracts reproduced from AL Runner reports.
+
+- `record-method-controls/`: extension controls bound to zero-argument record methods, with and without parentheses.
+- `statistics-compatibility/`: legacy Statistics anchors and versioned public action captions.

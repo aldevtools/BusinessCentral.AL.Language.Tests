@@ -461,4 +461,75 @@ codeunit 95454 "LT R6951 Tests"
         Observer.Expect('skip_rows', '[]');
         Observer.Verify();
     end;
+
+    // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/system/system-evaluate-method
+    // Fixtures: shared ALT TableFilter Holder and own FMT Blank Filter Row; BC 27.5+.
+    [Test]
+    procedure TableFilter_Evaluate_QuotedBlankEnum_SelectsBlankMember()
+    var
+        Holder: Record "ALT TableFilter Holder";
+        Row: Record "FMT Blank Filter Row";
+    begin
+        Initialize();
+        Row.Code := 'BLANK42';
+        Row.Insert(false);
+        Row.Init();
+        Row.Code := 'MARKED42';
+        Row.Choice := Row.Choice::Marked;
+        Row.Insert(false);
+        Evaluate(Holder."Filter Value", 'FMT Blank Filter Row: Choice=''''');
+        AssertFilteredRow(Format(Holder."Filter Value"), 'BLANK42');
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_NotEqualQuotedBlankCode_SelectsNonemptyCode()
+    var
+        Holder: Record "ALT TableFilter Holder";
+        Row: Record "FMT Blank Filter Row";
+    begin
+        Initialize();
+        Row.Code := '';
+        Row.Insert(false);
+        Row.Init();
+        Row.Code := 'NEUTRAL42';
+        Row.Insert(false);
+        Evaluate(Holder."Filter Value", 'FMT Blank Filter Row: Code=<>''''');
+        AssertFilteredRow(Format(Holder."Filter Value"), 'NEUTRAL42');
+    end;
+
+    local procedure Initialize()
+    var
+        Cleanup: Codeunit ALTFixtureCleanup;
+        Row: Record "FMT Blank Filter Row";
+    begin
+        Cleanup.Initialize();
+        Row.DeleteAll(false);
+    end;
+
+    local procedure AssertFilteredRow(Value: Text; ExpectedCode: Code[20])
+    var
+        Row: Record "FMT Blank Filter Row";
+        Fields: Record "Table Filter" temporary;
+        FilterPage: Page "Table Filter";
+        Ref: RecordRef;
+        Fld: FieldRef;
+    begin
+        FilterPage.SetSourceTable(Format(Value), Database::"FMT Blank Filter Row", Row.TableCaption());
+        FilterPage.GetFilterFieldsList(Fields);
+        Ref.Open(Database::"FMT Blank Filter Row");
+        if Fields.FindSet() then
+            repeat
+                Fld := Ref.Field(Fields."Field Number");
+                Fld.SetFilter(Fields."Field Filter");
+            until Fields.Next() = 0;
+        if Ref.Count() <> 1 then
+            Error('Expected exactly one filtered row; actual %1; filter %2.', Ref.Count(), Format(Value));
+        if not Ref.FindFirst() then
+            Error('Expected the selected row.');
+        Fld := Ref.Field(Row.FieldNo(Code));
+        if Format(Fld.Value()) <> ExpectedCode then
+            Error('Expected selected code %1, actual %2.', ExpectedCode, Format(Fld.Value()));
+        Ref.Close();
+    end;
+
 }
