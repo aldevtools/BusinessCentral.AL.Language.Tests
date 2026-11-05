@@ -8,7 +8,7 @@
 //   the root only, and a prefix on the table element. Each port: the exact text the export writes (two items, 1 one and 2 "  two  "), and
 //   imports of three documents: the root without a prefix and xmlns set to the uri of the root's prefix (the reporter's BC export), every
 //   element with its prefix, and no namespaces at all; the rows after each import.
-// Result (BC 29.0, corpus CI run 42020533240): the export writes the root without its prefix and declares xmlns as the uri of the root's
+// Result (BC 27.5, 28.5 and 29.0 alike; corpus CI runs 42026852726, 42026909098, 42026971340): the export writes the root without its prefix and declares xmlns as the uri of the root's
 //   prefix (the first or the second namespace alike) after the named namespaces; a root without a prefix gets BC's namespace of the port
 //   (urn:microsoft-dynamics-nav/xmlports/x<id>). Elements with a prefix keep it. An element without a prefix is in the port's namespace:
 //   where the namespace in scope differs it declares xmlns="urn:microsoft-dynamics-nav/xmlports/x<id>" itself (its children inherit it).

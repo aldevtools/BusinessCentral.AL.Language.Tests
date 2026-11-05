@@ -8,7 +8,7 @@
 //   MaxOccurs = Once). Neighbours: the same with a parent of MaxOccurs = Unbounded (three parents with 0, 1 and 2 children), a real child
 //   table with LinkFields, a real child table with LinkTable and no LinkFields, and the import of the real-table shape (zero, one and
 //   two child elements). After an export the test also reads the row the child record holds and its filters.
-// Result (BC 29.0, corpus CI run 42020533240): no MinOccurs on the nested linked element is MinOccurs = Once. Export, temporary or real
+// Result (BC 27.5, 28.5 and 29.0 alike; corpus CI runs 42026852726, 42026909098, 42026971340): no MinOccurs on the nested linked element is MinOccurs = Once. Export, temporary or real
 //   child with LinkFields: the first linked row of each pass; a pass without rows writes the element once with the record as it stands
 //   (blank before any row, else the row the record holds); after two rows the record holds the second. The temporary child filled by
 //   the parent's OnAfterGetRecord (DeleteAll, then inserts) follows the same rule: a pass whose trigger inserts none writes the row the

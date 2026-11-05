@@ -12,7 +12,7 @@
 //   lists (TestPage.Trap, First/Next).
 //   Work orders: 1 Inbound/T1 MINE, 2 Inbound/T2 OTHER-T, 3 Outbound/T1 OTHER-O, 4 Inbound/T1 HIDDEN. The host H1 has transport T1.
 // Log codeunit 95872 is SingleInstance and used only by codeunit 95876.
-// Result (BC 29.0, corpus CI run 42020533240): before any SetView, Rec in OnOpenPage holds the link in filter group 0, a RunPageView
+// Result (BC 27.5, 28.5 and 29.0 alike; corpus CI runs 42026852726, 42026909098, 42026971340): before any SetView, Rec in OnOpenPage holds the link in filter group 0, a RunPageView
 //   where filter in group 3 and the target's SourceTableView where filter in group 2; GetFilters and GetView read group 0 only, Count
 //   counts the rows of every group; the linked fields are filled (rec=0/Inbound/T1/); a RunPageView sorting does not change the key, the
 //   target's SourceTableView sorting stays (key=ID), with and without RunPageView. SetView replaces the view of group 0, the link
