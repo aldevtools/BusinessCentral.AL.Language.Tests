@@ -17,9 +17,16 @@ directly instead.
 How
 ---
 For each pull request, the ids it CLAIMS are the ids in its head tree minus the
-ids already on `master`. An id both PRs merely inherit from `master` is not a
-collision -- only ids each one introduces count. Two PRs collide when those two
-claimed sets intersect.
+ids in its MERGE BASE with `master` -- the same base `git diff master...<head>`
+uses. So a claim is an id the PR itself adds (a new object, or an object it
+renumbers). An id the PR merely inherits is not a claim, and neither is an id
+that was on `master` when the PR branched and that `master` has since
+renumbered or removed. Two PRs collide when those two claimed sets intersect.
+
+Comparing against `master`'s TIP instead was wrong: a PR branched before master
+renumbered table 60369 still has `table 60369` in its tree, master's tip does
+not, so the PR was reported as claiming 60369 although it never touched that
+table, and every other open PR failed against it.
 
 The comparison runs in whichever PR's CI fires, so the collision is reported on
 the PR itself within seconds of opening, on both PRs, and neither can merge
@@ -42,8 +49,6 @@ Limitations, stated rather than hidden
   sit open long enough to collide.
 * An abandoned-but-open PR blocks new PRs from reusing its ids. That is the
   intended direction of the tradeoff -- close the PR and the block lifts.
-* A PR head that is behind `master` may show an id as "claimed" if `master` has
-  since REMOVED that id. Rare, and it fails loud rather than silently passing.
 * Preprocessor branches are not interpreted, same as the sibling script.
 
 What this does NOT close
@@ -161,6 +166,21 @@ def decls_at(rev):
     return found
 
 
+_base_cache = {}
+
+
+def base_decls(base, ref):
+    """Set of (kind, id) declared at the merge base of `base` and `ref`."""
+    p = run("git", "merge-base", base, ref, check=False)
+    mb = p.stdout.strip()
+    if p.returncode != 0 or not mb:
+        sys.exit(f"::error::no merge base between {base} and {ref} — the checkout "
+                 f"needs fetch-depth: 0")
+    if mb not in _base_cache:
+        _base_cache[mb] = set(decls_at(mb))
+    return _base_cache[mb]
+
+
 def fetch_pr(repo_unused, number, sha):
     ref = f"refs/remotes/xpr/{number}"
     run("git", "fetch", "--no-tags", "--quiet", "origin",
@@ -182,9 +202,7 @@ def main() -> int:
         sys.exit(f"::error::base revision {base!r} is not present — the checkout "
                  f"needs fetch-depth: 0")
 
-    master_ids = set(decls_at(base))
-    print(f"{base} @ {run('git','rev-parse','--short',base).stdout.strip()} "
-          f"declares {len(master_ids)} id-bearing objects.")
+    print(f"{base} @ {run('git','rev-parse','--short',base).stdout.strip()}")
 
     prs = open_prs(repo)
     if not prs:
@@ -198,13 +216,15 @@ def main() -> int:
               f"closed?) — cross-checking every open PR pairwise instead")
         self_num = None
 
-    # Ids each PR introduces on top of master. Ids merely inherited from master
-    # are shared by every PR and are not collisions.
+    # Ids each PR introduces on top of its merge base with master. Ids inherited
+    # from the base -- including ones master renumbered after the PR branched --
+    # are not claims.
     claimed = {}
     for pr in prs:
         ref = fetch_pr(repo, pr["number"], pr["sha"])
+        base_ids = base_decls(base, ref)
         ids = decls_at(ref)
-        claimed[pr["number"]] = {k: v for k, v in ids.items() if k not in master_ids}
+        claimed[pr["number"]] = {k: v for k, v in ids.items() if k not in base_ids}
         flag = " (draft)" if pr["draft"] else ""
         print(f"  PR #{pr['number']}{flag} [{pr['author']}] claims "
               f"{len(claimed[pr['number']])} new id(s)  — {pr['title'][:64]}")
