@@ -28,6 +28,10 @@ ALLOWED = {
     # al-runner issue 6367 (writer X3): first-install DataVersion seen by the app's own code and by a dependency; writes only `if Insert() then;`
     # into a DataPerCompany = false log, and the dependency helper it calls neither writes nor raises. (X3XbFirstInstall.al)
     'tests/al-language-xapp-b codeunit 61141',  # "LT X3 XB Install"
+    # al-runner issue 7143 (writer r7143): the reporter's install shape, a write through a TryFunction in OnInstallAppPerDatabase, into a
+    # DataPerCompany = false log. The app is not built by ci.yml (the CI containers deny writes inside a TryFunction); it is published only to a
+    # BC SaaS sandbox, where the server setting DisableWriteInsideTryFunctions is off. (R7143aTryWriteAllowed.al)
+    'tests/al-language-trywrite-allowed codeunit 96003',  # "LT R7143A Install"
     # al-runtime-rs install-order probes (writer Y8): each install code logs what it sees and writes one row, only `if Insert(..) then;` into
     # DataPerCompany = false tables; the only trigger on those inserts (fixture B's table extension) appends text.
     # (Y8XaInstallOrder.al, Y8XdInstallOrder.al, Y8XbInstallOrder.al)

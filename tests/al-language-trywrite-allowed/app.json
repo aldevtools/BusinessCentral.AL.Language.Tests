@@ -1,0 +1,25 @@
+{
+  "id": "966283ab-c0a0-4235-94a9-d478e8a7a01a",
+  "name": "AL Language TryWrite Allowed",
+  "publisher": "AL Language",
+  "version": "1.0.0.0",
+  "brief": "Writes inside a TryFunction on a server where DisableWriteInsideTryFunctions is off (BC online).",
+  "description": "Measured on a BC SaaS sandbox, where the server setting DisableWriteInsideTryFunctions is off. The CI containers keep the setting at its default (writes denied), so ci.yml does not build this app; the denied case is pinned in tests/al-language/errors/lt-r7143-try-write/. Holds an install codeunit with the shape of al-runner issue 7143 (OnInstallAppPerDatabase writes through a TryFunction).",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "dependencies": [],
+  "platform": "27.0.0.0",
+  "screenshots": [],
+  "idRanges": [
+    {
+      "from": 96000,
+      "to": 96019
+    }
+  ],
+  "features": [],
+  "runtime": "16.0",
+  "target": "Cloud"
+}
