@@ -91,4 +91,4 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 - `extension-layout-containers/`: neutral public-API and page contracts reproduced from AL Runner reports.
 
 - `record-method-controls/`: extension controls bound to zero-argument record methods, with and without parentheses.
-- `statistics-compatibility/`: legacy Statistics anchors and versioned public action captions.
+- `statistics-compatibility/`: versioned Statistics extension anchors and non-default marker action results; BC29 legacy-member compile negatives are in must-not-compile cases 2971–2972.
