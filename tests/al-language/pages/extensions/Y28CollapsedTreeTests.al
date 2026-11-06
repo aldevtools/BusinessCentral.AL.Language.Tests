@@ -314,6 +314,55 @@ codeunit 92279 "LT Y28 Collapsed Tree Tests"
         Observer.Verify();
     end;
 
+    [Test]
+    procedure R7168_ActionGetChildWithoutRefresh()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT R7168 Tree Board";
+    begin
+        Log.Take();
+        P.OpenEdit();
+        Observer.Observe('open-log', Log.Take());
+        Observer.Observe('first', Format(P.First()) + '/' + P.NoCtl.Value());
+        Log.Take();
+        P.GetChild.Invoke();
+        Observer.Observe('action-log', Log.Take());
+        Observer.Observe('current', P.NoCtl.Value());
+        Observer.Observe('current-cell', P.CellCtl.Value());
+        Observer.Observe('current-expanded', Format(P.IsExpanded()));
+        Observer.Observe('walk', WalkBoard(P));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure R7168_ActionGetChildAndRefresh()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT R7168 Tree Board";
+    begin
+        Log.Take();
+        P.OpenEdit();
+        Observer.Observe('open-log', Log.Take());
+        Observer.Observe('first', Format(P.First()) + '/' + P.NoCtl.Value());
+        Log.Take();
+        P.GetChildAndRefresh.Invoke();
+        Observer.Observe('action-log', Log.Take());
+        Observer.Observe('current', P.NoCtl.Value());
+        Observer.Observe('current-cell', P.CellCtl.Value());
+        Observer.Observe('current-expanded', Format(P.IsExpanded()));
+        Observer.Observe('walk', WalkBoard(P));
+        Observer.Finish();
+    end;
+
+    local procedure WalkBoard(var P: TestPage "LT R7168 Tree Board") Result: Text
+    begin
+        if P.First() then
+            repeat
+                Result += P.NoCtl.Value() + ' ';
+            until not P.Next();
+        Result := Result.TrimEnd();
+    end;
+
     local procedure Start(Mode: Text)
     var
         Row: Record "LT Y28 Tree Row";
