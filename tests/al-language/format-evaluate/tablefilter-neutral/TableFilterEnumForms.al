@@ -502,7 +502,7 @@ codeunit 95454 "LT R6951 Tests"
         Cleanup: Codeunit ALTFixtureCleanup;
         Row: Record "FMT Blank Filter Row";
     begin
-        Cleanup.Initialize(); InitializeCaptionCodeRows();
+        Cleanup.Initialize(); InitializeCaptionCodeRows(); InitializeOrdinalRows();
         Row.DeleteAll(false);
     end;
 
@@ -671,6 +671,263 @@ codeunit 95454 "LT R6951 Tests"
         Fld := Ref.Field(1);
         if Format(Fld.Value()) <> ExpectedCode then
             Error('Expected selected code %1, actual %2.', ExpectedCode, Format(Fld.Value()));
+        Ref.Close();
+    end;
+
+
+    // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/system/system-evaluate-method
+    // Fixtures: shared ALT Universal, ALT TableFilter Holder and ALTFixtureCleanup; BC 27.5+; en-US numeric syntax.
+    [Test]
+    procedure TableFilter_Evaluate_PlainDecimalThreshold_SelectsBoundaryRows()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Decimal Field=>=100000', 2, 202, 303);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_QuotedDecimalThreshold_SelectsBoundaryRows()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Decimal Field=">=100000"', 2, 202, 303);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_QuotedGroupedDecimal_SelectsBoundaryRows()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Decimal Field=">=100,000"', 2, 202, 303);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_CompoundQuotedGroupedDecimal_SelectsBoundaryRow()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Decimal Field=">=100,000",Entry No.=303', 1, 303, 303);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_QuotedTextComma_SelectsLiteralCommaRow()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Text Field="A,B"', 1, 202, 202);
+    end;
+
+    local procedure CheckCommaTableFilter(Condition: Text; ExpectedCount: Integer; ExpectedFirst: Integer; ExpectedLast: Integer)
+    var
+        Row: Record "ALT Universal";
+        Holder: Record "ALT TableFilter Holder";
+        Fields: Record "Table Filter" temporary;
+        FilterPage: Page "Table Filter";
+        Ref: RecordRef;
+        Fld: FieldRef;
+        PreviousLanguage: Integer;
+    begin
+        PreviousLanguage := GlobalLanguage();
+        GlobalLanguage(1033);
+        Row."Entry No." := 101;
+        Row."Decimal Field" := 99999;
+        if Condition = 'Decimal Field=<>0' then
+            Row."Decimal Field" := 0;
+        Row."Code Field" := 'OTHER';
+        Row."Boolean Field" := false;
+        Row."Text Field" := '';
+        Row.Insert(false);
+        Row."Entry No." := 202;
+        Row."Decimal Field" := 100000;
+        Row."Code Field" := 'CORP01';
+        Row."Boolean Field" := true;
+        Row."Text Field" := 'A,B';
+        Row.Insert(false);
+        Row."Entry No." := 303;
+        Row."Decimal Field" := 100001;
+        Row."Code Field" := 'CORP02';
+        Row."Boolean Field" := true;
+        Row."Text Field" := 'HIGH';
+        Row.Insert(false);
+        Evaluate(Holder."Filter Value", 'ALT Universal: ' + Condition);
+        FilterPage.SetSourceTable(Format(Holder."Filter Value"), Database::"ALT Universal", Row.TableCaption());
+        FilterPage.GetFilterFieldsList(Fields);
+        Ref.Open(Database::"ALT Universal");
+        if Fields.FindSet() then
+            repeat
+                Fld := Ref.Field(Fields."Field Number");
+                Fld.SetFilter(Fields."Field Filter");
+            until Fields.Next() = 0;
+        if Ref.Count() <> ExpectedCount then
+            Error('Expected %1 rows; actual %2.', ExpectedCount, Ref.Count());
+        if not Ref.FindFirst() then
+            Error('Expected the first selected row.');
+        Fld := Ref.Field(Row.FieldNo("Entry No."));
+        if Format(Fld.Value()) <> Format(ExpectedFirst) then
+            Error('Expected first key %1; actual %2.', ExpectedFirst, Fld.Value());
+        Ref.FindLast();
+        Fld := Ref.Field(Row.FieldNo("Entry No."));
+        if Format(Fld.Value()) <> Format(ExpectedLast) then
+            Error('Expected last key %1; actual %2.', ExpectedLast, Fld.Value());
+        Ref.Close();
+        GlobalLanguage(PreviousLanguage);
+    end;
+
+
+    [Test]
+    procedure TableFilter_Evaluate_NotEqualQuotedBlankText_SelectsNonemptyRows()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Text Field=<>''''', 2, 202, 303);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_BareNotEqualText_RejectsMissingOperand()
+    var
+        Holder: Record "ALT TableFilter Holder";
+        Assert: Codeunit Assert;
+    begin
+        Initialize();
+        asserterror Evaluate(Holder."Filter Value", 'ALT Universal: Text Field=<>');
+        Assert.ExpectedError('A value is expected after the ''<>''.');
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_QuotedBlankText_SelectsEmptyRow()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Text Field=''''', 1, 101, 101);
+    end;
+
+
+    [Test]
+    procedure TableFilter_Evaluate_UndeclaredEnumOrdinal_PreservesNumericFilter()
+    begin
+        Initialize();
+        CheckOrdinalTableFilter('10', 0, '');
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_DeclaredEnumOrdinal_SelectsMatchingRow()
+    begin
+        Initialize();
+        CheckOrdinalTableFilter('1', 1, 'VAR42');
+    end;
+
+    local procedure InitializeOrdinalRows()
+    var
+        Row: Record "LT R6951 Target";
+    begin
+        Row.DeleteAll(false);
+    end;
+
+    local procedure CheckOrdinalTableFilter(OrdinalText: Text; ExpectedCount: Integer; ExpectedCode: Code[20])
+    var
+        Row: Record "LT R6951 Target";
+        Holder: Record "ALT TableFilter Holder";
+        Fields: Record "Table Filter" temporary;
+        FilterPage: Page "Table Filter";
+        Ref: RecordRef;
+        Fld: FieldRef;
+    begin
+        Row.Code := 'ITEM42';
+        Row."Config Type" := Row."Config Type"::Item;
+        Row.Insert(false);
+        Row.Code := 'VAR42';
+        Row."Config Type" := Row."Config Type"::Variant;
+        Row.Insert(false);
+        Evaluate(Holder."Filter Value", 'LT R6951 Target: Config Type=' + OrdinalText);
+        FilterPage.SetSourceTable(Format(Holder."Filter Value"), Database::"LT R6951 Target", Row.TableCaption());
+        FilterPage.GetFilterFieldsList(Fields);
+        if Fields.Count() <> 1 then
+            Error('Expected one enum condition; actual %1.', Fields.Count());
+        Fields.FindFirst();
+        if Fields."Field Number" <> Row.FieldNo("Config Type") then
+            Error('Expected the Config Type field.');
+        if (OrdinalText = '10') and (Fields."Field Filter" <> '10') then
+            Error('Expected preserved numeric condition 10; actual %1.', Fields."Field Filter");
+        Ref.Open(Database::"LT R6951 Target");
+        Fld := Ref.Field(Row.FieldNo("Config Type"));
+        Fld.SetFilter(Fields."Field Filter");
+        if Ref.Count() <> ExpectedCount then
+            Error('Expected %1 enum-selected rows; actual %2.', ExpectedCount, Ref.Count());
+        if ExpectedCount > 0 then begin
+            Ref.FindFirst();
+            Fld := Ref.Field(Row.FieldNo(Code));
+            if Format(Fld.Value()) <> ExpectedCode then
+                Error('Expected enum-selected key %1; actual %2.', ExpectedCode, Fld.Value());
+        end;
+        Ref.Close();
+    end;
+
+
+    [Test]
+    procedure TableFilter_Evaluate_CodeWildcard_SelectsMatchingRows()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Code Field=CORP*', 2, 202, 303);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_CodeNotWildcard_ExcludesMatchingRows()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Code Field=<>CORP*', 1, 101, 101);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_BooleanYes_SelectsTrueRows()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Boolean Field=Yes', 2, 202, 303);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_DecimalNotZero_ExcludesZeroRow()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Decimal Field=<>0', 2, 202, 303);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_TextWildcard_SelectsNonemptyRows()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Text Field=?*', 2, 202, 303);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_FlowFieldNotZero_SelectsNonzeroSum()
+    var
+        Parent: Record "ALT Parent";
+        Child: Record "ALT Child";
+        Holder: Record "ALT TableFilter Holder";
+        Fields: Record "Table Filter" temporary;
+        FilterPage: Page "Table Filter";
+        Ref: RecordRef;
+        Fld: FieldRef;
+    begin
+        Initialize();
+        Parent."Entry No." := 101;
+        Parent.Insert(false);
+        Parent."Entry No." := 202;
+        Parent.Insert(false);
+        Child."Entry No." := 1;
+        Child."Parent Entry No." := 202;
+        Child.Amount := 42.5;
+        Child.Insert(false);
+        Evaluate(Holder."Filter Value", 'ALT Parent: Child Amount=<>0');
+        FilterPage.SetSourceTable(Format(Holder."Filter Value"), Database::"ALT Parent", Parent.TableCaption());
+        FilterPage.GetFilterFieldsList(Fields);
+        if Fields.Count() <> 1 then
+            Error('Expected exactly one FlowField condition.');
+        Fields.FindFirst();
+        if Fields."Field Number" <> Parent.FieldNo("Child Amount") then
+            Error('Expected the Child Amount FlowField.');
+        Ref.Open(Database::"ALT Parent");
+        Fld := Ref.Field(Fields."Field Number");
+        Fld.SetFilter(Fields."Field Filter");
+        if Ref.Count() <> 1 then
+            Error('Expected one nonzero-sum parent; actual %1.', Ref.Count());
+        Ref.FindFirst();
+        Fld := Ref.Field(Parent.FieldNo("Entry No."));
+        if Format(Fld.Value()) <> '202' then
+            Error('Expected parent 202; actual %1.', Fld.Value());
         Ref.Close();
     end;
 
