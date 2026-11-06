@@ -7,7 +7,18 @@
 //   - an enum extension of DefaultTestHandler: which test codeunits it reaches, its order against TestHandlers, and the callbacks
 //     around OnRun, plain tests and the cases of a data-driven procedure;
 //   - whether a handler codeunit keeps its variables between callbacks, and what a handler can change that a test sees.
-// Probe: observed values (Probe Observer Finish).
+// Probe: observed values; every literal asserted below is what BC 29 produced (corpus CI job test-testlibraries, run 42213567249).
+// Facts (log entry D.x = default handler, O.x = TestHandlers handler; bCU/aCU/bP/aP/bC/aC = callbacks; n = that handler instance's call count):
+//  1. A test codeunit with only [TestDataSource] procedures (no [Test]) is found and runs; Codeunit::"Name" and the numeric id name the
+//     same source; its procedures run in alphabetical order (Rows1 then Rows2), each case as Rows1[alpha] ... (BiDataDriven.al pins the rest).
+//  2. A DefaultTestHandler extension runs for every test codeunit, also one without TestHandlers and one that has only data-driven procedures.
+//  3. Order in one codeunit: bCU, OnRun, then per procedure bP, (bC, body, aC per case), aP. The test body runs between the Before and After
+//     callbacks; the Success context value is Yes in every After callback of a passing test.
+//  4. Default handlers run before the handlers of TestHandlers in every callback, After callbacks too (D.aP then O.aP, not reversed).
+//  5. A handler codeunit is one instance for the whole run of a test codeunit: its variables persist over all callbacks (n grows 1, 2, 3 ...);
+//     two handlers count separately, and a second test codeunit starts again at n=1.
+//  6. What a handler sets in a SingleInstance codeunit is visible to the test body; with two handlers the later handler's value wins.
+//  7. The test result list shows OnRun as an entry (hub), but no entry for the callbacks.
 // BC versions: 29
 #if BC29PLUS
 codeunit 81690 "LT BI DH Log Only"
@@ -272,7 +283,9 @@ codeunit 81624 "LT BI DD Only"
         if CaseData.CaseText() = 'gamma' then begin
             Observer.Observe('log', Log.Take());
             Observer.Observe('marker', Log.GetMarker());
-            Observer.Finish();
+            Observer.Expect('log', 'D.bCU(||n=1);D.bP(Rows1||n=2);D.bC(Rows1|alpha|n=3);run1(alpha);D.aC(Rows1|alpha|n=4|Yes);D.bC(Rows1|beta|n=5);run1(beta);D.aC(Rows1|beta|n=6|Yes);D.bC(Rows1|gamma|n=7);run1(gamma);D.aC(Rows1|gamma|n=8|Yes);D.aP(Rows1||n=9|Yes);D.bP(Rows2||n=10);D.bC(Rows2|alpha|n=11);run2(alpha);D.aC(Rows2|alpha|n=12|Yes);D.bC(Rows2|beta|n=13);run2(beta);D.aC(Rows2|beta|n=14|Yes);D.bC(Rows2|gamma|n=15);run2(gamma);␞marker␟set by D in bP of Rows2');
+            Observer.Expect('marker', 'set by D in bP of Rows2');
+            Observer.Verify();
         end;
     end;
 }
@@ -313,7 +326,8 @@ codeunit 81644 "LT BI DH Default Only"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'D.bCU(||n=1);OnRun;D.bP(BiDh_A_Plain||n=2);body A marker=set by D in bP of BiDh_A_Plain;D.aP(BiDh_A_Plain||n=3|Yes);D.bP(BiDh_B_Plain||n=4);body B marker=set by D in bP of BiDh_B_Plain;D.aP(BiDh_B_Plain||n=5|Yes);D.bP(BiDh_Z_Observe||n=6);');
+        Observer.Verify();
     end;
 }
 
@@ -350,7 +364,8 @@ codeunit 81645 "LT BI DH Combo"
         Log.Add('body ' + CaseData.CaseText() + ' marker=' + Log.GetMarker());
         if CaseData.CaseText() = 'gamma' then begin
             Observer.Observe('log', Log.Take());
-            Observer.Finish();
+            Observer.Expect('log', 'D.bCU(||n=1);O.bCU(||n=1);OnRun;D.bP(BiDh_A_Plain||n=2);O.bP(BiDh_A_Plain||n=2);body A marker=set by O in bP of BiDh_A_Plain;D.aP(BiDh_A_Plain||n=3|Yes);O.aP(BiDh_A_Plain||n=3|Yes);D.bP(ZRows||n=4);O.bP(ZRows||n=4);D.bC(ZRows|alpha|n=5);O.bC(ZRows|alpha|n=5);body alpha marker=set by O in bP of ZRows;D.aC(ZRows|alpha|n=6|Yes);O.aC(ZRows|alpha|n=6|Yes);D.bC(ZRows|beta|n=7);O.bC(ZRows|beta|n=7);body beta marker=set by O in bP of ZRows;D.aC(ZRows|beta|n=8|Yes);O.aC(ZRows|beta|n=8|Yes);D.bC(ZRows|gamma|n=9);O.bC(ZRows|gamma|n=9);body gamma marker=set by O in bP of ZRows;');
+            Observer.Verify();
         end;
     end;
 }
