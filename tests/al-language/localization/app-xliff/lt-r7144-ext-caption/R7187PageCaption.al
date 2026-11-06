@@ -1,0 +1,174 @@
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-work-with-translation-files
+// Scope: in-scope
+// Fixtures used: Probe Observer (codeunit 69160); table 95994 "LT R7144 Row" (field "No." with a nl-NL unit 'Rijnummer'); page 96164 and
+//   table extension 96163 of Base Application's "Sales Line"; translation units in Translations/AL Language Coverage Tests.nl-NL.xlf.
+// Probe (al-runner issues 7187 and 7184 follow-up, writer cw-7184): under GlobalLanguage 1043 (the app ships an nl-NL file), TestPage control
+//   Caption() of the app's own page for a control with its own Caption property and a unit, and for a field control whose caption comes
+//   from the table field; the error text of a SetValue that the control cannot take (it names the caption); and Sales Line."Inv. Discount
+//   Amount" (a Base Application field with a CaptionClass) while this app extends Sales Line without touching that field.
+// BC versions: 27.0+
+
+tableextension 96163 "LT R7187 Sales Line Ext" extends "Sales Line"
+{
+    fields
+    {
+        field(96163; "R7187 Ext Note"; Text[30])
+        {
+            Caption = 'R7187 note';
+            DataClassification = CustomerContent;
+        }
+    }
+}
+
+page 96164 "LT R7187 Row Card"
+{
+    PageType = Card;
+    SourceTable = "LT R7144 Row";
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field(RowIdCtl; Rec."No.")
+            {
+                ApplicationArea = All;
+                Caption = 'Row id';
+            }
+            field(PlainCtl; Rec."No.")
+            {
+                ApplicationArea = All;
+            }
+        }
+    }
+}
+
+codeunit 96165 "LT R7187 Page Caption"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    [Test]
+    procedure R7187_PageControlCaptions_Dutch()
+    var
+        Observer: Codeunit "Probe Observer";
+        Card: TestPage "LT R7187 Row Card";
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1043);
+        Card.OpenNew();
+        Observer.Observe('own control caption with unit', Card.RowIdCtl.Caption());
+        Observer.Observe('field control caption from the table field', Card.PlainCtl.Caption());
+        Card.Close();
+        GlobalLanguage(Saved);
+        Observer.Expect('own control caption with unit', 'Rij-id');
+        Observer.Expect('field control caption from the table field', 'Rijnummer');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7187_PageControlCaptions_English()
+    var
+        Observer: Codeunit "Probe Observer";
+        Card: TestPage "LT R7187 Row Card";
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        Card.OpenNew();
+        Observer.Observe('own control caption', Card.RowIdCtl.Caption());
+        Observer.Observe('field control caption', Card.PlainCtl.Caption());
+        Card.Close();
+        GlobalLanguage(Saved);
+        Observer.Expect('own control caption', 'Row id');
+        Observer.Expect('field control caption', 'Row number');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7187_SetValueError_Dutch()
+    var
+        Observer: Codeunit "Probe Observer";
+        Card: TestPage "LT R7187 Row Card";
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1043);
+        Card.OpenNew();
+        if not TrySet(Card.RowIdCtl, 'abc') then
+            Observer.ObserveError('SetValue abc on own control');
+        if not TrySet(Card.PlainCtl, 'abc') then
+            Observer.ObserveError('SetValue abc on field control');
+        Card.Close();
+        GlobalLanguage(Saved);
+        Observer.Expect('SetValue abc on own control|text', 'x');
+        Observer.Expect('SetValue abc on own control|code', 'x');
+        Observer.Expect('SetValue abc on field control|text', 'x');
+        Observer.Expect('SetValue abc on field control|code', 'x');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7187_SetValueError_English()
+    var
+        Observer: Codeunit "Probe Observer";
+        Card: TestPage "LT R7187 Row Card";
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        Card.OpenNew();
+        if not TrySet(Card.RowIdCtl, 'abc') then
+            Observer.ObserveError('SetValue abc on own control');
+        if not TrySet(Card.PlainCtl, 'abc') then
+            Observer.ObserveError('SetValue abc on field control');
+        Card.Close();
+        GlobalLanguage(Saved);
+        Observer.Expect('SetValue abc on own control|text', 'x');
+        Observer.Expect('SetValue abc on own control|code', 'x');
+        Observer.Expect('SetValue abc on field control|text', 'x');
+        Observer.Expect('SetValue abc on field control|code', 'x');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7187_SalesLineCaptionClassField_Dutch()
+    var
+        Observer: Codeunit "Probe Observer";
+        SalesLine: Record "Sales Line";
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1043);
+        Observer.Observe('SalesLine.FieldCaption Inv. Discount Amount', SalesLine.FieldCaption("Inv. Discount Amount"));
+        Observer.Observe('FieldRef.Caption 69', RefCaption(Database::"Sales Line", 69));
+        Observer.Observe('SalesLine.FieldCaption Description', SalesLine.FieldCaption(Description));
+        Observer.Observe('SalesLine.FieldCaption extension field', SalesLine.FieldCaption("R7187 Ext Note"));
+        GlobalLanguage(Saved);
+        Observer.Expect('SalesLine.FieldCaption Inv. Discount Amount', 'x');
+        Observer.Expect('FieldRef.Caption 69', 'x');
+        Observer.Expect('SalesLine.FieldCaption Description', 'Description');
+        Observer.Expect('SalesLine.FieldCaption extension field', 'R7187 note');
+        Observer.Verify();
+    end;
+
+    [TryFunction]
+    local procedure TrySet(var Control: TestField; Value: Text)
+    begin
+        Control.SetValue(Value);
+    end;
+
+    local procedure RefCaption(TableNo: Integer; FieldNo: Integer): Text
+    var
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+        Caption: Text;
+    begin
+        RecRef.Open(TableNo);
+        FldRef := RecRef.Field(FieldNo);
+        Caption := FldRef.Caption();
+        RecRef.Close();
+        exit(Caption);
+    end;
+}

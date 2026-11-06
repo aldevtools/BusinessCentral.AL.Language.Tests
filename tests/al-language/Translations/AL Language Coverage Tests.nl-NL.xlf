@@ -108,6 +108,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">original Item.Unit Price caption id; the extension also modifies the caption</note>
         </trans-unit>
+        <trans-unit id="Page 295463367 - Control 1584318288 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Row id</source>
+          <target>Rij-id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page LT R7187 Row Card - Control RowIdCtl - Property Caption</note>
+        </trans-unit>
       </group>
     </body>
   </file>
