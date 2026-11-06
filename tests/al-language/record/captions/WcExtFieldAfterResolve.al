@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-captionclass-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); own tables 96200 and 96206, table extensions 96201 and 96207, card pages 96202 and 96208, log 96203 (used only by test codeunit 96205),
+// Fixtures used: Probe Observer (69160); own tables 96200, 96206 and 96217, table extensions 96201, 96207 and 96218, card pages 96202, 96208 and 96219, log 96203 (used only by test codeunit 96205),
 //   subscriber codeunit 96204, test codeunit 96205.
 // Probe: writer rwcap (al-runner issue 6924, waldo): the caption of a TABLE EXTENSION field whose CaptionClass is in an area no
 //   OnResolveCaptionClass subscriber claims ('LTWC,27,1'), when a static subscriber of Caption Class.OnAfterCaptionClassResolve sets the
@@ -142,6 +142,66 @@ page 96208 "LT WC Cap Two Card"
     }
 }
 
+table 96217 "LT WC Cap Three"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+tableextension 96218 "LT WC Cap Three Ext" extends "LT WC Cap Three"
+{
+    fields
+    {
+        field(96209; "WC No Comma"; Text[100])
+        {
+            DataClassification = SystemMetadata;
+            Caption = 'WC No Comma Cap';
+            CaptionClass = 'WCNOCOMMA';
+        }
+        field(96210; "WC Empty Area"; Text[100])
+        {
+            DataClassification = SystemMetadata;
+            Caption = 'WC Empty Area Cap';
+            CaptionClass = ',WC empty area';
+        }
+        field(96211; "WC Three Alone"; Text[100])
+        {
+            DataClassification = SystemMetadata;
+            Caption = 'WC Three Alone Cap';
+            CaptionClass = '3,';
+        }
+    }
+}
+
+page 96219 "LT WC Cap Three Card"
+{
+    PageType = Card;
+    SourceTable = "LT WC Cap Three";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field(CtlThree; Rec.Id)
+            {
+                ApplicationArea = All;
+                CaptionClass = '3,WC ctl three';
+            }
+        }
+    }
+}
+
 codeunit 96203 "LT WC Cap Log"
 {
     SingleInstance = true;
@@ -189,13 +249,10 @@ codeunit 96204 "LT WC Cap Subs"
         Log: Codeunit "LT WC Cap Log";
         CsvValues: List of [Text];
     begin
-        CsvValues := CaptionExpression.Split(',');
-        if CsvValues.Get(1) <> 'LTWC' then begin
-            if CaptionExpression = '3,WC plain three' then
-                Log.Add(StrSubstNo('after expr=%1 in=%2 lang_is_session=%3', CaptionExpression, Caption, Language = GlobalLanguage()));
-            exit;
-        end;
         Log.Add(StrSubstNo('after expr=%1 in=%2 lang_is_session=%3', CaptionExpression, Caption, Language = GlobalLanguage()));
+        CsvValues := CaptionExpression.Split(',');
+        if CsvValues.Get(1) <> 'LTWC' then
+            exit;
         if CsvValues.Count() < 3 then
             Caption := 'WC short ' + CsvValues.Get(2)
         else
@@ -347,6 +404,70 @@ codeunit 96205 "LT WC Ext Caption Resolve"
         Observer.Observe('log-after-control', Log.Take());
         Observer.Observe('hidden-fieldcaption', T.FieldCaption("WC Two Hidden"));
         Observer.Observe('log-hidden', Log.Take());
+        Card.Close();
+        Log.Stop();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WcExtField_NoComma_FieldCaption()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT WC Cap Log";
+        T: Record "LT WC Cap Three";
+    begin
+        Log.Start();
+        Observer.Observe('fieldcaption', T.FieldCaption("WC No Comma"));
+        Observer.Observe('log', Log.Take());
+        Log.Stop();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WcExtField_EmptyArea_FieldCaption()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT WC Cap Log";
+        T: Record "LT WC Cap Three";
+    begin
+        Log.Start();
+        Observer.Observe('fieldcaption', T.FieldCaption("WC Empty Area"));
+        Observer.Observe('log', Log.Take());
+        Log.Stop();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WcExtField_ThreeAlone_FieldCaption()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT WC Cap Log";
+        T: Record "LT WC Cap Three";
+    begin
+        Log.Start();
+        Observer.Observe('fieldcaption', T.FieldCaption("WC Three Alone"));
+        Observer.Observe('log', Log.Take());
+        Log.Stop();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WcControl_OwnArea3_TestPageCaption()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT WC Cap Log";
+        T: Record "LT WC Cap Three";
+        Card: TestPage "LT WC Cap Three Card";
+    begin
+        T.DeleteAll();
+        T.Init();
+        T.Id := 1;
+        T.Insert();
+        Log.Start();
+        Card.OpenView();
+        Observer.Observe('log-open', Log.Take());
+        Observer.Observe('control-caption', Card.CtlThree.Caption());
+        Observer.Observe('log-after-control', Log.Take());
         Card.Close();
         Log.Stop();
         Observer.Finish();
