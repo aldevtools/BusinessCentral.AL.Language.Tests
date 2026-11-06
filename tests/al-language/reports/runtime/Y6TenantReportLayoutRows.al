@@ -107,16 +107,10 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
     local procedure W5Insert(var Observer: Codeunit "Probe Observer"; Tag: Text; var L: Record "Tenant Report Layout")
     var
         Reader: Record "Tenant Report Layout";
-        Runner: Codeunit "LT W5 Layout Insert";
     begin
         Reader.SetRange("Report ID", L."Report ID");
         Observer.Observe(Tag + ' rows before', Format(Reader.Count()));
-        ClearLastError();
-        if not Runner.Run(L) then begin
-            Observer.Observe(Tag + ' insert', 'raised ' + GetLastErrorCode() + ' | ' + GetLastErrorText());
-            ClearLastError();
-        end else
-            Observer.Observe(Tag + ' insert', 'ok');
+        Observer.Observe(Tag + ' insert', Format(L.Insert()));
         Observer.Observe(Tag + ' rows after', Format(Reader.Count()));
         Reader.SetRange(Name, L.Name);
         if Reader.FindFirst() then begin
@@ -170,29 +164,74 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
     end;
 
     [Test]
-    procedure W5_TenantReportLayout_MicrosoftReport_Variants()
+    procedure W5_TenantReportLayout_MicrosoftReport_CompanyNameSet()
     var
         Observer: Codeunit "Probe Observer";
         L: Record "Tenant Report Layout";
-        InS: InStream;
     begin
         W5WordRow(L, Report::"Standard Sales - Invoice", 'LT W5 Company');
         L."Company Name" := CopyStr(CompanyName(), 1, MaxStrLen(L."Company Name"));
         W5Insert(Observer, 'company set', L);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure W5_TenantReportLayout_MicrosoftReport_AppIdOfBaseApplication()
+    var
+        Observer: Codeunit "Probe Observer";
+        L: Record "Tenant Report Layout";
+    begin
         W5WordRow(L, Report::"Standard Sales - Invoice", 'LT W5 BaseApp Id');
         L."App ID" := '{437DBF0E-84FF-417A-965D-ED2BB9650972}';
         W5Insert(Observer, 'base app id', L);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure W5_TenantReportLayout_MicrosoftReport_AppIdOfCorpusApp()
+    var
+        Observer: Codeunit "Probe Observer";
+        L: Record "Tenant Report Layout";
+    begin
         W5WordRow(L, Report::"Standard Sales - Invoice", 'LT W5 Own Id');
         L."App ID" := '{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}';
         W5Insert(Observer, 'corpus app id', L);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure W5_TenantReportLayout_MicrosoftReport_DuplicateInsert()
+    var
+        Observer: Codeunit "Probe Observer";
+        L: Record "Tenant Report Layout";
+    begin
         W5WordRow(L, Report::"Standard Sales - Invoice", 'LT W5 Dup');
         W5Insert(Observer, 'dup first', L);
         W5Insert(Observer, 'dup second', L);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure W5_TenantReportLayout_MicrosoftReport_WordWithoutLayout()
+    var
+        Observer: Codeunit "Probe Observer";
+        L: Record "Tenant Report Layout";
+    begin
         L.Init();
         L."Report ID" := Report::"Standard Sales - Invoice";
         L.Name := 'LT W5 Empty Word';
         L."Layout Format" := L."Layout Format"::Word;
         W5Insert(Observer, 'word empty', L);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure W5_TenantReportLayout_MicrosoftReport_RdlcFormatWithWordBytes()
+    var
+        Observer: Codeunit "Probe Observer";
+        L: Record "Tenant Report Layout";
+        InS: InStream;
+    begin
         L.Init();
         L."Report ID" := Report::"Standard Sales - Invoice";
         L.Name := 'LT W5 Rdlc Format';
@@ -200,26 +239,71 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
         Report.WordLayout(Report::"Standard Sales - Invoice", InS);
         L.Layout.ImportStream(InS, 'word bytes as rdlc');
         W5Insert(Observer, 'rdlc format word bytes', L);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure W5_TenantReportLayout_MicrosoftReport_ExcelFormatWithWordBytes()
+    var
+        Observer: Codeunit "Probe Observer";
+        L: Record "Tenant Report Layout";
+    begin
         W5WordRow(L, Report::"Standard Sales - Invoice", 'LT W5 Excel Format');
         L."Layout Format" := L."Layout Format"::Excel;
         W5Insert(Observer, 'excel format word bytes', L);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure W5_TenantReportLayout_MicrosoftReport_EmptyName()
+    var
+        Observer: Codeunit "Probe Observer";
+        L: Record "Tenant Report Layout";
+    begin
         W5WordRow(L, Report::"Standard Sales - Invoice", '');
         W5Insert(Observer, 'empty name', L);
         Observer.Finish();
     end;
 
     [Test]
-    procedure W5_TenantReportLayout_DependencyAndUnknownReport()
+    procedure W5_TenantReportLayout_DependencyAppReport()
     var
         Observer: Codeunit "Probe Observer";
         L: Record "Tenant Report Layout";
     begin
         W5WordRow(L, 61352, 'LT W5 Dependency');
         W5Insert(Observer, 'xapp-a report', L);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure W5_TenantReportLayout_UnknownReportId()
+    var
+        Observer: Codeunit "Probe Observer";
+        L: Record "Tenant Report Layout";
+    begin
         W5WordRow(L, 99999999, 'LT W5 Unknown');
         W5Insert(Observer, 'unknown report', L);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure W5_TenantReportLayout_ReportIdZero()
+    var
+        Observer: Codeunit "Probe Observer";
+        L: Record "Tenant Report Layout";
+    begin
         W5WordRow(L, 0, 'LT W5 Zero');
         W5Insert(Observer, 'report zero', L);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure W5_TenantReportLayout_OwnReportWordLayout()
+    var
+        Observer: Codeunit "Probe Observer";
+        L: Record "Tenant Report Layout";
+    begin
         W5WordRow(L, Report::"Probe RL Report", 'LT W5 Own Probe');
         W5Insert(Observer, 'own report word', L);
         Observer.Finish();
@@ -253,16 +337,5 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
         RS.CalcFields("Email Body Layout Publisher", "Email Body Layout Caption");
         Observer.Observe('selection', RS."Email Body Layout Name" + '|' + Format(RS."Email Body Layout AppID") + '|' + Format(RS."Email Body Layout Type") + '|' + RS."Email Body Layout Publisher" + '|' + RS."Email Body Layout Caption" + '|' + Format(RS."Use for Email Body"));
         Observer.Finish();
-    end;
-}
-
-// local object: runs one Insert on a Tenant Report Layout row so that its error can be observed without ending the test (Insert is not allowed in a TryFunction)
-codeunit 96180 "LT W5 Layout Insert"
-{
-    TableNo = "Tenant Report Layout";
-
-    trigger OnRun()
-    begin
-        Rec.Insert();
     end;
 }

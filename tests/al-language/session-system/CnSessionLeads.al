@@ -144,15 +144,30 @@ codeunit 84895 "LT CN TypeHelper UTC"
         Observer: Codeunit "Probe Observer";
         TypeHelper: Codeunit "Type Helper";
         NL: Text;
+        Ch: Char;
+        Last: Integer;
     begin
         NL := TypeHelper.NewLine();
+        Ch := NL[StrLen(NL)];
+        Last := Ch;
         Observer.Observe('NewLine codes', W5Codes(NL));
         Observer.Observe('NewLine length', Format(StrLen(NL)));
         Observer.Observe('CRLFSeparator codes', W5Codes(TypeHelper.CRLFSeparator()));
         Observer.Observe('LFSeparator codes', W5Codes(TypeHelper.LFSeparator()));
         Observer.Observe('NewLine = CRLFSeparator', Format(NL = TypeHelper.CRLFSeparator()));
         Observer.Observe('NewLine = LFSeparator', Format(NL = TypeHelper.LFSeparator()));
-        Observer.Finish();
+        Observer.Observe('NewLine last code', Format(Last));
+        // Measured on the Linux corpus CI (27.5, 28.5, 29.0): NewLine codes 10 (length 1, = LFSeparator, <> CRLFSeparator). Windows BC is expected to
+        // return 13,10 (Microsoft's own TestNewLine in TypeHelperUnitTests asserts NewLine = CRLFSeparator): these observations are recorded, not
+        // asserted, until the Windows nightly has measured them (windows-queue.md). What holds on both: the text ends with LF.
+        Observer.Ignore('NewLine codes');
+        Observer.Ignore('NewLine length');
+        Observer.Ignore('NewLine = CRLFSeparator');
+        Observer.Ignore('NewLine = LFSeparator');
+        Observer.Expect('CRLFSeparator codes', '13,10');
+        Observer.Expect('LFSeparator codes', '10');
+        Observer.Expect('NewLine last code', '10');
+        Observer.Verify();
     end;
 }
 

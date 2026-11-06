@@ -489,7 +489,19 @@ codeunit 85723 "LT DB JPath Leads"
         W5Sel(Observer, W5Doc(), '$.a.[''b c'']');
         W5Sel(Observer, W5Doc(), '$.[''x''].y');
         W5Sel(Observer, W5Doc(), '$.[''n''].[''No.'']');
-        Observer.Finish();
+        Observer.Expect('$.[''No.'']', 'Yes ["N1"]  | ');
+        Observer.Expect('$.[''Due Date'']', 'Yes ["2026"]  | ');
+        Observer.Expect('$[''No.'']', 'Yes ["N1"]  | ');
+        Observer.Expect('[''No.'']', 'Yes ["N1"]  | ');
+        Observer.Expect('[''Due Date'']', 'Yes ["2026"]  | ');
+        Observer.Expect('$.[''a.b''].c', 'Yes [1]  | ');
+        Observer.Expect('$.[''a.b''][''c'']', 'Yes [1]  | ');
+        Observer.Expect('$[''x''][''y'']', 'Yes [2]  | ');
+        Observer.Expect('$.a[''b c'']', 'Yes [3]  | ');
+        Observer.Expect('$.a.[''b c'']', 'Yes [3]  | ');
+        Observer.Expect('$.[''x''].y', 'Yes [2]  | ');
+        Observer.Expect('$.[''n''].[''No.'']', 'Yes ["deep"]  | ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -510,7 +522,20 @@ codeunit 85723 "LT DB JPath Leads"
         W5Sel(Observer, W5Doc(), '$.["No."]');
         W5Sel(Observer, W5Doc(), '["No."]');
         W5Sel(Observer, W5Doc(), '$.[No.]');
-        Observer.Finish();
+        Observer.Expect('$.[''it''''s'']', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('[''it''''s'']', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('[''it\''s'']', 'Yes [5]  | ');
+        Observer.Expect('$.[''[0]'']', 'Yes [6]  | ');
+        Observer.Expect('[''[0]'']', 'Yes [6]  | ');
+        Observer.Expect('$.[''Nope'']', 'No []  | ');
+        Observer.Expect('$.[''No.'']x', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('$.[''No.''', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('$.[''''] ', 'Yes [9]  | ');
+        Observer.Expect('[''''] ', 'Yes [9]  | ');
+        Observer.Expect('$.["No."]', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('["No."]', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('$.[No.]', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -532,7 +557,21 @@ codeunit 85723 "LT DB JPath Leads"
         W5Sel(Observer, W5Doc(), '$.[''arr''][-1]');
         W5Sel(Observer, W5Doc(), '$.arr[1]');
         W5Sel(Observer, W5Doc(), '$.arr[-1]');
-        Observer.Finish();
+        Observer.Expect('No.', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('$.No.', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('k-v', 'Yes [7]  | ');
+        Observer.Expect('$.k-v', 'Yes [7]  | ');
+        Observer.Expect('k v', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('$.k v', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('x.y', 'Yes [2]  | ');
+        Observer.Expect('$.x.y', 'Yes [2]  | ');
+        Observer.Expect('x[''y'']', 'Yes [2]  | ');
+        Observer.Expect('x.[''y'']', 'Yes [2]  | ');
+        Observer.Expect('$.[''arr''][0]', 'Yes [10]  | ');
+        Observer.Expect('$.[''arr''][-1]', 'No [] ArgumentOutOfRange | An invalid argument was passed to a ''Json'' data type method.');
+        Observer.Expect('$.arr[1]', 'Yes [20]  | ');
+        Observer.Expect('$.arr[-1]', 'No [] ArgumentOutOfRange | An invalid argument was passed to a ''Json'' data type method.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -552,7 +591,19 @@ codeunit 85723 "LT DB JPath Leads"
         W5Sel(Observer, W5Doc(), '$.arr[0,2]');
         W5Sel(Observer, W5Doc(), '$.arr[1:]');
         W5Sel(Observer, W5Doc(), '$.arr[:2]');
-        Observer.Finish();
+        Observer.Expect('$.arr[*]', 'No []  | ');
+        Observer.Expect('$.[*]', 'No []  | ');
+        Observer.Expect('$.x[*]', 'No []  | ');
+        Observer.Expect('$..y', 'Yes [2]  | ');
+        Observer.Expect('$..[''y'']', 'Yes [2]  | ');
+        Observer.Expect('$..[''No.'']', 'No []  | ');
+        Observer.Expect('$..No.', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('$.[''No.'',''Due Date'']', 'No []  | ');
+        Observer.Expect('$.[''No.'',''Nope'']', 'Yes ["N1"]  | ');
+        Observer.Expect('$.arr[0,2]', 'No []  | ');
+        Observer.Expect('$.arr[1:]', 'No []  | ');
+        Observer.Expect('$.arr[:2]', 'No []  | ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -581,7 +632,12 @@ codeunit 85723 "LT DB JPath Leads"
             Observer.Observe('var [' + Name + ']', Format(Ret) + ' [' + Written + '] ' + GetLastErrorCode());
             ClearLastError();
         end;
-        Observer.Finish();
+        Observer.Expect('var [No.]', 'Yes ["N1"] ');
+        Observer.Expect('var [Due Date]', 'Yes ["2026"] ');
+        Observer.Expect('var [it''s]', 'No [] InvalidOperation');
+        Observer.Expect('var [Nope]', 'No [] ');
+        Observer.Expect('var []', 'Yes [9] ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -621,6 +677,10 @@ codeunit 85723 "LT DB JPath Leads"
             T.WriteTo(Written);
         Observer.Observe('token [No.]', Format(Ret) + ' [' + Written + '] ' + GetLastErrorCode());
         ClearLastError();
-        Observer.Finish();
+        Observer.Expect('array [0].[No.]', 'Yes ["N1"] ');
+        Observer.Expect('array $.[0][No.]', 'Yes ["N1"]  | ');
+        Observer.Expect('token $.[Due Date]', 'Yes ["2026"] ');
+        Observer.Expect('token [No.]', 'Yes ["N1"] ');
+        Observer.Verify();
     end;
 }
