@@ -242,7 +242,14 @@ codeunit 96214 "LT WC Lookup Empty Error"
         Card.Close();
         Observer.Observe('stored-name-after-close', StoredName());
         Observer.Observe('marks-after-close', Marks());
-        Observer.Finish();
+        Observer.Expect('went-on', 'yes');
+        Observer.Expect('after-lookup|text', '');
+        Observer.Expect('after-lookup|code', 'Dialog');
+        Observer.Expect('value-after', '');
+        Observer.Expect('marks', '1=before runmodal;');
+        Observer.Expect('stored-name-after-close', 'after lookup');
+        Observer.Expect('marks-after-close', '1=before runmodal;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -264,7 +271,14 @@ codeunit 96214 "LT WC Lookup Empty Error"
         Card.Close();
         Observer.Observe('stored-name-after-close', StoredName());
         Observer.Observe('marks-after-close', Marks());
-        Observer.Finish();
+        Observer.Expect('went-on', 'yes');
+        Observer.Expect('after-lookup|text', '');
+        Observer.Expect('after-lookup|code', 'Dialog');
+        Observer.Expect('value-after', '');
+        Observer.Expect('marks', '2=before runmodal;');
+        Observer.Expect('stored-name-after-close', 'after lookup');
+        Observer.Expect('marks-after-close', '2=before runmodal;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -283,7 +297,13 @@ codeunit 96214 "LT WC Lookup Empty Error"
         Observer.Observe('marks', Marks());
         Card.Close();
         Observer.Observe('marks-after-close', Marks());
-        Observer.Finish();
+        Observer.Expect('went-on', 'yes');
+        Observer.Expect('after-lookup|text', '');
+        Observer.Expect('after-lookup|code', 'Dialog');
+        Observer.Expect('value-after', '');
+        Observer.Expect('marks', '3=direct before error;');
+        Observer.Expect('marks-after-close', '3=direct before error;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -300,6 +320,10 @@ codeunit 96214 "LT WC Lookup Empty Error"
         Observer.Observe('marks', Marks());
         Observer.Observe('value-after', Card.TextVal.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('lookup|text', 'LT WC lookup cancelled');
+        Observer.Expect('lookup|code', 'TestWrapped:Dialog');
+        Observer.Expect('marks', '');
+        Observer.Expect('value-after', '');
+        Observer.Verify();
     end;
 }

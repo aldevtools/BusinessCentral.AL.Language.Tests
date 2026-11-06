@@ -5,7 +5,8 @@
 // Probe: writer rwcap (al-runner issue 6924, waldo): the caption of a TABLE EXTENSION field whose CaptionClass is in an area no
 //   OnResolveCaptionClass subscriber claims ('LTWC,27,1'), when a static subscriber of Caption Class.OnAfterCaptionClassResolve sets the
 //   caption. Read through FieldCaption, FieldRef.Caption, a TestPage control, CaptionClassTranslate; a base table field of the same kind; an
-//   area 3 field; a second read of the same field; an expression with only one comma. The log shows which OnAfterCaptionClassResolve calls
+//   area 3 field; a second read of the same field; an expression with only one comma. v2: the tests run in an order where the area 3, second-read, base and one-comma reads come first (v1 showed no
+//   OnAfterCaptionClassResolve for them after a TestPage read), and a never-read field after the TestPage test. The log shows which OnAfterCaptionClassResolve calls
 //   the read raised (the expression and the caption the subscriber got).
 // BC versions: 27, 28, 29
 
@@ -62,6 +63,12 @@ tableextension 96201 "LT WC Cap Ext" extends "LT WC Cap Base"
             DataClassification = SystemMetadata;
             Caption = 'WC Ext Short Cap';
             CaptionClass = 'LTWC,x';
+        }
+        field(96206; "WC Ext Late"; Text[100])
+        {
+            DataClassification = SystemMetadata;
+            Caption = 'WC Ext Late Cap';
+            CaptionClass = 'LTWC,27,6';
         }
         field(96205; "WC Ext Twice"; Text[100])
         {
@@ -156,55 +163,6 @@ codeunit 96205 "LT WC Ext Caption Resolve"
     TestPermissions = Disabled;
 
     [Test]
-    procedure WcExtField_FieldCaption_AfterResolveSets()
-    var
-        Observer: Codeunit "Probe Observer";
-        Log: Codeunit "LT WC Cap Log";
-        T: Record "LT WC Cap Base";
-    begin
-        Log.Start();
-        Observer.Observe('fieldcaption', T.FieldCaption("WC Ext FC"));
-        Observer.Observe('log', Log.Take());
-        Observer.Observe('fieldname', T.FieldName("WC Ext FC"));
-        Observer.Observe('log-after-fieldname', Log.Take());
-        Log.Stop();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure WcExtField_FieldRefCaption_AfterResolveSets()
-    var
-        Observer: Codeunit "Probe Observer";
-        Log: Codeunit "LT WC Cap Log";
-        RecRef: RecordRef;
-    begin
-        Log.Start();
-        RecRef.Open(Database::"LT WC Cap Base");
-        Observer.Observe('fieldref-caption', RecRef.Field(96201).Caption());
-        Observer.Observe('log', Log.Take());
-        RecRef.Close();
-        Log.Stop();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure WcExtField_TestPageCaption_AfterResolveSets()
-    var
-        Observer: Codeunit "Probe Observer";
-        T: Record "LT WC Cap Base";
-        Card: TestPage "LT WC Cap Card";
-    begin
-        T.DeleteAll();
-        T.Init();
-        T.Id := 1;
-        T.Insert();
-        Card.OpenView();
-        Observer.Observe('control-caption', Card.PageCtl.Caption());
-        Card.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
     procedure WcExtField_Area3_FieldCaption()
     var
         Observer: Codeunit "Probe Observer";
@@ -263,6 +221,38 @@ codeunit 96205 "LT WC Ext Caption Resolve"
     end;
 
     [Test]
+    procedure WcExtField_FieldCaption_AfterResolveSets()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT WC Cap Log";
+        T: Record "LT WC Cap Base";
+    begin
+        Log.Start();
+        Observer.Observe('fieldcaption', T.FieldCaption("WC Ext FC"));
+        Observer.Observe('log', Log.Take());
+        Observer.Observe('fieldname', T.FieldName("WC Ext FC"));
+        Observer.Observe('log-after-fieldname', Log.Take());
+        Log.Stop();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WcExtField_FieldRefCaption_AfterResolveSets()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT WC Cap Log";
+        RecRef: RecordRef;
+    begin
+        Log.Start();
+        RecRef.Open(Database::"LT WC Cap Base");
+        Observer.Observe('fieldref-caption', RecRef.Field(96201).Caption());
+        Observer.Observe('log', Log.Take());
+        RecRef.Close();
+        Log.Stop();
+        Observer.Finish();
+    end;
+
+    [Test]
     procedure WcCaptionClassTranslate_AfterResolveSets()
     var
         Observer: Codeunit "Probe Observer";
@@ -274,4 +264,35 @@ codeunit 96205 "LT WC Ext Caption Resolve"
         Log.Stop();
         Observer.Finish();
     end;
+    [Test]
+    procedure WcExtField_TestPageCaption_AfterResolveSets()
+    var
+        Observer: Codeunit "Probe Observer";
+        T: Record "LT WC Cap Base";
+        Card: TestPage "LT WC Cap Card";
+    begin
+        T.DeleteAll();
+        T.Init();
+        T.Id := 1;
+        T.Insert();
+        Card.OpenView();
+        Observer.Observe('control-caption', Card.PageCtl.Caption());
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WcExtField_AfterTestPage_NeverReadField()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT WC Cap Log";
+        T: Record "LT WC Cap Base";
+    begin
+        Log.Start();
+        Observer.Observe('fieldcaption', T.FieldCaption("WC Ext Late"));
+        Observer.Observe('log', Log.Take());
+        Log.Stop();
+        Observer.Finish();
+    end;
+
 }
