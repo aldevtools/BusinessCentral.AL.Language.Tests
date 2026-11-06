@@ -44,7 +44,7 @@ table 96241 "LT WF3 Doc Line"
     }
 }
 
-codeunit 96242 "LT WF3 Log"
+codeunit 96242 "LT WF3 Host Log"
 {
     SingleInstance = true;
 
@@ -106,14 +106,14 @@ page 96244 "LT WF3 Part"
 
     trigger OnOpenPage()
     var
-        Log: Codeunit "LT WF3 Log";
+        Log: Codeunit "LT WF3 Host Log";
     begin
         Log.Add('Part.OnOpenPage');
     end;
 
     trigger OnAfterGetRecord()
     var
-        Log: Codeunit "LT WF3 Log";
+        Log: Codeunit "LT WF3 Host Log";
     begin
         Log.Add('Part.AGR(' + Format(Rec."Line No." / 10000) + ')');
     end;
@@ -138,7 +138,7 @@ page 96245 "LT WF3 Doc Host"
                 trigger OnValidate()
                 var
                     Spread: Codeunit "LT WF3 Spread";
-                    Log: Codeunit "LT WF3 Log";
+                    Log: Codeunit "LT WF3 Host Log";
                 begin
                     Log.Add('Factor.V');
                     Spread.Spread(Rec."No.", Rec.Factor);
@@ -153,7 +153,7 @@ page 96245 "LT WF3 Doc Host"
                 trigger OnValidate()
                 var
                     Spread: Codeunit "LT WF3 Spread";
-                    Log: Codeunit "LT WF3 Log";
+                    Log: Codeunit "LT WF3 Host Log";
                 begin
                     Log.Add('FactorB.V');
                     Spread.Spread(Rec."No.", Rec.FactorB);
@@ -181,7 +181,7 @@ page 96245 "LT WF3 Doc Host"
                 trigger OnAction()
                 var
                     Spread: Codeunit "LT WF3 Spread";
-                    Log: Codeunit "LT WF3 Log";
+                    Log: Codeunit "LT WF3 Host Log";
                 begin
                     Log.Add('Double.A');
                     Spread.Spread(Rec."No.", 2);
@@ -194,14 +194,14 @@ page 96245 "LT WF3 Doc Host"
 
     trigger OnOpenPage()
     var
-        Log: Codeunit "LT WF3 Log";
+        Log: Codeunit "LT WF3 Host Log";
     begin
         Log.Add('Host.OnOpenPage');
     end;
 
     trigger OnAfterGetRecord()
     var
-        Log: Codeunit "LT WF3 Log";
+        Log: Codeunit "LT WF3 Host Log";
     begin
         Log.Add('Host.AGR');
     end;
@@ -226,7 +226,7 @@ page 96246 "LT WF3 Card Host"
                 trigger OnValidate()
                 var
                     Spread: Codeunit "LT WF3 Spread";
-                    Log: Codeunit "LT WF3 Log";
+                    Log: Codeunit "LT WF3 Host Log";
                 begin
                     Log.Add('Factor.V');
                     Spread.Spread(Rec."No.", Rec.Factor);
@@ -241,7 +241,7 @@ page 96246 "LT WF3 Card Host"
                 trigger OnValidate()
                 var
                     Spread: Codeunit "LT WF3 Spread";
-                    Log: Codeunit "LT WF3 Log";
+                    Log: Codeunit "LT WF3 Host Log";
                 begin
                     Log.Add('FactorB.V');
                     Spread.Spread(Rec."No.", Rec.FactorB);
@@ -269,7 +269,7 @@ page 96246 "LT WF3 Card Host"
                 trigger OnAction()
                 var
                     Spread: Codeunit "LT WF3 Spread";
-                    Log: Codeunit "LT WF3 Log";
+                    Log: Codeunit "LT WF3 Host Log";
                 begin
                     Log.Add('Double.A');
                     Spread.Spread(Rec."No.", 2);
@@ -282,14 +282,14 @@ page 96246 "LT WF3 Card Host"
 
     trigger OnOpenPage()
     var
-        Log: Codeunit "LT WF3 Log";
+        Log: Codeunit "LT WF3 Host Log";
     begin
         Log.Add('Host.OnOpenPage');
     end;
 
     trigger OnAfterGetRecord()
     var
-        Log: Codeunit "LT WF3 Log";
+        Log: Codeunit "LT WF3 Host Log";
     begin
         Log.Add('Host.AGR');
     end;
@@ -314,7 +314,7 @@ page 96247 "LT WF3 Plus Host"
                 trigger OnValidate()
                 var
                     Spread: Codeunit "LT WF3 Spread";
-                    Log: Codeunit "LT WF3 Log";
+                    Log: Codeunit "LT WF3 Host Log";
                 begin
                     Log.Add('Factor.V');
                     Spread.Spread(Rec."No.", Rec.Factor);
@@ -329,7 +329,7 @@ page 96247 "LT WF3 Plus Host"
                 trigger OnValidate()
                 var
                     Spread: Codeunit "LT WF3 Spread";
-                    Log: Codeunit "LT WF3 Log";
+                    Log: Codeunit "LT WF3 Host Log";
                 begin
                     Log.Add('FactorB.V');
                     Spread.Spread(Rec."No.", Rec.FactorB);
@@ -357,7 +357,7 @@ page 96247 "LT WF3 Plus Host"
                 trigger OnAction()
                 var
                     Spread: Codeunit "LT WF3 Spread";
-                    Log: Codeunit "LT WF3 Log";
+                    Log: Codeunit "LT WF3 Host Log";
                 begin
                     Log.Add('Double.A');
                     Spread.Spread(Rec."No.", 2);
@@ -370,14 +370,14 @@ page 96247 "LT WF3 Plus Host"
 
     trigger OnOpenPage()
     var
-        Log: Codeunit "LT WF3 Log";
+        Log: Codeunit "LT WF3 Host Log";
     begin
         Log.Add('Host.OnOpenPage');
     end;
 
     trigger OnAfterGetRecord()
     var
-        Log: Codeunit "LT WF3 Log";
+        Log: Codeunit "LT WF3 Host Log";
     begin
         Log.Add('Host.AGR');
     end;
@@ -402,7 +402,7 @@ page 96248 "LT WF3 Plus No Both"
                 trigger OnValidate()
                 var
                     Spread: Codeunit "LT WF3 Spread";
-                    Log: Codeunit "LT WF3 Log";
+                    Log: Codeunit "LT WF3 Host Log";
                 begin
                     Log.Add('Factor.V');
                     Spread.Spread(Rec."No.", Rec.Factor);
@@ -417,7 +417,7 @@ page 96248 "LT WF3 Plus No Both"
                 trigger OnValidate()
                 var
                     Spread: Codeunit "LT WF3 Spread";
-                    Log: Codeunit "LT WF3 Log";
+                    Log: Codeunit "LT WF3 Host Log";
                 begin
                     Log.Add('FactorB.V');
                     Spread.Spread(Rec."No.", Rec.FactorB);
@@ -444,7 +444,7 @@ page 96248 "LT WF3 Plus No Both"
                 trigger OnAction()
                 var
                     Spread: Codeunit "LT WF3 Spread";
-                    Log: Codeunit "LT WF3 Log";
+                    Log: Codeunit "LT WF3 Host Log";
                 begin
                     Log.Add('Double.A');
                     Spread.Spread(Rec."No.", 2);
@@ -457,14 +457,14 @@ page 96248 "LT WF3 Plus No Both"
 
     trigger OnOpenPage()
     var
-        Log: Codeunit "LT WF3 Log";
+        Log: Codeunit "LT WF3 Host Log";
     begin
         Log.Add('Host.OnOpenPage');
     end;
 
     trigger OnAfterGetRecord()
     var
-        Log: Codeunit "LT WF3 Log";
+        Log: Codeunit "LT WF3 Host Log";
     begin
         Log.Add('Host.AGR');
     end;
@@ -507,7 +507,7 @@ codeunit 96249 "LT WF3 Host Update"
 
     local procedure Show(var Observer: Codeunit "Probe Observer"; PartLine: Text; PartQty: Text)
     var
-        Log: Codeunit "LT WF3 Log";
+        Log: Codeunit "LT WF3 Host Log";
     begin
         Observer.Observe('part line', PartLine);
         Observer.Observe('part qty', PartQty);
@@ -518,7 +518,7 @@ codeunit 96249 "LT WF3 Host Update"
     local procedure RunDoc(var Observer: Codeunit "Probe Observer"; PartLine: Integer; Step: Integer)
     var
         P: TestPage "LT WF3 Doc Host";
-        Log: Codeunit "LT WF3 Log";
+        Log: Codeunit "LT WF3 Host Log";
     begin
         P.OpenEdit();
         P.GoToKey('D1');
@@ -548,7 +548,7 @@ codeunit 96249 "LT WF3 Host Update"
     local procedure RunCard(var Observer: Codeunit "Probe Observer"; PartLine: Integer; Step: Integer)
     var
         P: TestPage "LT WF3 Card Host";
-        Log: Codeunit "LT WF3 Log";
+        Log: Codeunit "LT WF3 Host Log";
     begin
         P.OpenEdit();
         P.GoToKey('D1');
@@ -578,7 +578,7 @@ codeunit 96249 "LT WF3 Host Update"
     local procedure RunPlus(var Observer: Codeunit "Probe Observer"; PartLine: Integer; Step: Integer)
     var
         P: TestPage "LT WF3 Plus Host";
-        Log: Codeunit "LT WF3 Log";
+        Log: Codeunit "LT WF3 Host Log";
     begin
         P.OpenEdit();
         P.GoToKey('D1');
@@ -608,7 +608,7 @@ codeunit 96249 "LT WF3 Host Update"
     local procedure RunPlusNoBoth(var Observer: Codeunit "Probe Observer"; PartLine: Integer; Step: Integer)
     var
         P: TestPage "LT WF3 Plus No Both";
-        Log: Codeunit "LT WF3 Log";
+        Log: Codeunit "LT WF3 Host Log";
     begin
         P.OpenEdit();
         P.GoToKey('D1');
