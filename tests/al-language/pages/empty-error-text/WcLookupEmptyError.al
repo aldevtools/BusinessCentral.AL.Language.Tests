@@ -194,6 +194,7 @@ codeunit 96214 "LT WC Lookup Empty Error"
         Row.Id := 1;
         Row.Name := 'seed';
         Row.Insert();
+        Commit();
     end;
 
     local procedure Marks(): Text
