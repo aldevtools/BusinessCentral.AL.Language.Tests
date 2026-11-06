@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-test-codeunits-and-test-methods#add-lifecycle-handlers-to-test-codeunits
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160), LT BI DD Source (81602) and LT BI DD Log (81600) from BiDataDriven.al; own objects 81624, 81644, 81645, 81650 - 81655
+// Fixtures used: Probe Observer (69160), LT BI DD Source (81602) and LT BI DD Case Data (81601) from BiDataDriven.al; own objects 81624, 81644, 81645, 81690 - 81695, enumextensions 81652, 81654
 // local object: the enum extension of DefaultTestHandler applies to every test codeunit of the app, so it needs its own objects
 // Corpus issues (al-runner 7179, 7180, 7181, runtime 18): measured on the corpus CI BC tiers.
 //   - [TestDataSource(Codeunit::"Name", 'set') and [TestDataSource(<id>, 'set')] in one test codeunit that has no [Test] procedure at all;
@@ -10,28 +10,22 @@
 // Probe: observed values (Probe Observer Finish).
 // BC versions: 29
 #if BC29PLUS
-codeunit 81650 "LT BI DH Log"
+codeunit 81690 "LT BI DH Log Only"
 {
     SingleInstance = true;
 
     var
-        Entries: Dictionary of [Integer, Text];
+        Entries: Text;
         Marker: Text;
 
-    procedure Add(CodeunitId: Integer; Entry: Text)
-    var
-        Text: Text;
+    procedure Add(Entry: Text)
     begin
-        if Entries.Get(CodeunitId, Text) then;
-        Entries.Set(CodeunitId, Text + Entry + ';');
+        Entries += Entry + ';';
     end;
 
-    procedure Take(CodeunitId: Integer): Text
-    var
-        Text: Text;
+    procedure Take(): Text
     begin
-        if Entries.Get(CodeunitId, Text) then;
-        exit(Text);
+        exit(Entries);
     end;
 
     procedure SetMarker(NewMarker: Text)
@@ -45,8 +39,65 @@ codeunit 81650 "LT BI DH Log"
     end;
 }
 
-// The handler instance keeps Counter between callbacks if it is one instance; n= shows it.
-codeunit 81651 "LT BI DH Default" implements ITestHandler
+codeunit 81691 "LT BI DH Log Default Only"
+{
+    SingleInstance = true;
+
+    var
+        Entries: Text;
+        Marker: Text;
+
+    procedure Add(Entry: Text)
+    begin
+        Entries += Entry + ';';
+    end;
+
+    procedure Take(): Text
+    begin
+        exit(Entries);
+    end;
+
+    procedure SetMarker(NewMarker: Text)
+    begin
+        Marker := NewMarker;
+    end;
+
+    procedure GetMarker(): Text
+    begin
+        exit(Marker);
+    end;
+}
+
+codeunit 81692 "LT BI DH Log Combo"
+{
+    SingleInstance = true;
+
+    var
+        Entries: Text;
+        Marker: Text;
+
+    procedure Add(Entry: Text)
+    begin
+        Entries += Entry + ';';
+    end;
+
+    procedure Take(): Text
+    begin
+        exit(Entries);
+    end;
+
+    procedure SetMarker(NewMarker: Text)
+    begin
+        Marker := NewMarker;
+    end;
+
+    procedure GetMarker(): Text
+    begin
+        exit(Marker);
+    end;
+}
+
+codeunit 81693 "LT BI DH Default" implements ITestHandler
 {
     var
         Counter: Integer;
@@ -62,11 +113,8 @@ codeunit 81651 "LT BI DH Default" implements ITestHandler
     end;
 
     procedure OnBeforeTestProcedureRun(Context: TestHandlerContext)
-    var
-        Log: Codeunit "LT BI DH Log";
     begin
         Handle('bP', Context, false);
-        Log.SetMarker('set by D in bP of ' + Context.ProcedureName());
     end;
 
     procedure OnAfterTestProcedureRun(Context: TestHandlerContext)
@@ -86,14 +134,14 @@ codeunit 81651 "LT BI DH Default" implements ITestHandler
 
     local procedure Handle(Callback: Text; Context: TestHandlerContext; WithSuccess: Boolean)
     var
-        Log: Codeunit "LT BI DH Log";
+        Common: Codeunit "LT BI DH Common";
         Entry: Text;
     begin
         Counter += 1;
         Entry := 'D.' + Callback + '(' + Context.ProcedureName() + '|' + Context.TestCaseName() + '|n=' + Format(Counter);
         if WithSuccess then
             Entry += '|' + Format(Context.Success());
-        Log.Add(Context.CodeunitId(), Entry + ')');
+        Common.Record(Context.CodeunitId(), Entry + ')', 'D', Callback, Context.ProcedureName());
     end;
 }
 
@@ -105,7 +153,7 @@ enumextension 81652 "LT BI DH Default" extends DefaultTestHandler
     }
 }
 
-codeunit 81653 "LT BI DH Own" implements ITestHandler
+codeunit 81694 "LT BI DH Own" implements ITestHandler
 {
     var
         Counter: Integer;
@@ -121,11 +169,8 @@ codeunit 81653 "LT BI DH Own" implements ITestHandler
     end;
 
     procedure OnBeforeTestProcedureRun(Context: TestHandlerContext)
-    var
-        Log: Codeunit "LT BI DH Log";
     begin
         Handle('bP', Context, false);
-        Log.SetMarker('set by O in bP of ' + Context.ProcedureName());
     end;
 
     procedure OnAfterTestProcedureRun(Context: TestHandlerContext)
@@ -145,14 +190,14 @@ codeunit 81653 "LT BI DH Own" implements ITestHandler
 
     local procedure Handle(Callback: Text; Context: TestHandlerContext; WithSuccess: Boolean)
     var
-        Log: Codeunit "LT BI DH Log";
+        Common: Codeunit "LT BI DH Common";
         Entry: Text;
     begin
         Counter += 1;
         Entry := 'O.' + Callback + '(' + Context.ProcedureName() + '|' + Context.TestCaseName() + '|n=' + Format(Counter);
         if WithSuccess then
             Entry += '|' + Format(Context.Success());
-        Log.Add(Context.CodeunitId(), Entry + ')');
+        Common.Record(Context.CodeunitId(), Entry + ')', 'O', Callback, Context.ProcedureName());
     end;
 }
 
@@ -162,6 +207,40 @@ enumextension 81654 "LT BI DH Own" extends TestHandler
     {
         Implementation = ITestHandler = "LT BI DH Own";
     }
+}
+
+codeunit 81695 "LT BI DH Common"
+{
+    // Each test codeunit has its own SingleInstance log (no log is shared between test codeunits).
+    procedure Record(CodeunitId: Integer; Entry: Text; Prefix: Text; Callback: Text; ProcName: Text)
+    var
+        LogOnly: Codeunit "LT BI DH Log Only";
+        LogDefaultOnly: Codeunit "LT BI DH Log Default Only";
+        LogCombo: Codeunit "LT BI DH Log Combo";
+        Marker: Text;
+    begin
+        Marker := 'set by ' + Prefix + ' in ' + Callback + ' of ' + ProcName;
+        case CodeunitId of
+            81624:
+                begin
+                    LogOnly.Add(Entry);
+                    if Callback = 'bP' then
+                        LogOnly.SetMarker(Marker);
+                end;
+            81644:
+                begin
+                    LogDefaultOnly.Add(Entry);
+                    if Callback = 'bP' then
+                        LogDefaultOnly.SetMarker(Marker);
+                end;
+            81645:
+                begin
+                    LogCombo.Add(Entry);
+                    if Callback = 'bP' then
+                        LogCombo.SetMarker(Marker);
+                end;
+        end;
+    end;
 }
 
 // Test codeunit with no [Test] procedure: both attribute forms (Codeunit::"Name" and the numeric id) in one codeunit.
@@ -174,7 +253,7 @@ codeunit 81624 "LT BI DD Only"
     [TestDataSource(Codeunit::"LT BI DD Source", 'Set1')]
     procedure Rows1(Context: Interface ITestContext)
     var
-        Log: Codeunit "LT BI DD Log";
+        Log: Codeunit "LT BI DH Log Only";
         CaseData: Interface "LT BI DD Case Data";
     begin
         CaseData := Context as "LT BI DD Case Data";
@@ -184,17 +263,15 @@ codeunit 81624 "LT BI DD Only"
     [TestDataSource(81602, 'Set1')]
     procedure Rows2(Context: Interface ITestContext)
     var
-        Log: Codeunit "LT BI DD Log";
-        HLog: Codeunit "LT BI DH Log";
+        Log: Codeunit "LT BI DH Log Only";
         Observer: Codeunit "Probe Observer";
         CaseData: Interface "LT BI DD Case Data";
     begin
         CaseData := Context as "LT BI DD Case Data";
         Log.Add('run2(' + CaseData.CaseText() + ')');
         if CaseData.CaseText() = 'gamma' then begin
-            Observer.Observe('ddlog', Log.Peek());
-            Observer.Observe('handlerlog', HLog.Take(81624));
-            Observer.Observe('marker', HLog.GetMarker());
+            Observer.Observe('log', Log.Take());
+            Observer.Observe('marker', Log.GetMarker());
             Observer.Finish();
         end;
     end;
@@ -208,34 +285,34 @@ codeunit 81644 "LT BI DH Default Only"
 
     trigger OnRun()
     var
-        Log: Codeunit "LT BI DH Log";
+        Log: Codeunit "LT BI DH Log Default Only";
     begin
-        Log.Add(81644, 'OnRun');
+        Log.Add('OnRun');
     end;
 
     [Test]
     procedure BiDh_A_Plain()
     var
-        Log: Codeunit "LT BI DH Log";
+        Log: Codeunit "LT BI DH Log Default Only";
     begin
-        Log.Add(81644, 'body A marker=' + Log.GetMarker());
+        Log.Add('body A marker=' + Log.GetMarker());
     end;
 
     [Test]
     procedure BiDh_B_Plain()
     var
-        Log: Codeunit "LT BI DH Log";
+        Log: Codeunit "LT BI DH Log Default Only";
     begin
-        Log.Add(81644, 'body B marker=' + Log.GetMarker());
+        Log.Add('body B marker=' + Log.GetMarker());
     end;
 
     [Test]
     procedure BiDh_Z_Observe()
     var
-        Log: Codeunit "LT BI DH Log";
+        Log: Codeunit "LT BI DH Log Default Only";
         Observer: Codeunit "Probe Observer";
     begin
-        Observer.Observe('log', Log.Take(81644));
+        Observer.Observe('log', Log.Take());
         Observer.Finish();
     end;
 }
@@ -249,30 +326,30 @@ codeunit 81645 "LT BI DH Combo"
 
     trigger OnRun()
     var
-        Log: Codeunit "LT BI DH Log";
+        Log: Codeunit "LT BI DH Log Combo";
     begin
-        Log.Add(81645, 'OnRun');
+        Log.Add('OnRun');
     end;
 
     [Test]
     procedure BiDh_A_Plain()
     var
-        Log: Codeunit "LT BI DH Log";
+        Log: Codeunit "LT BI DH Log Combo";
     begin
-        Log.Add(81645, 'body A marker=' + Log.GetMarker());
+        Log.Add('body A marker=' + Log.GetMarker());
     end;
 
     [TestDataSource(81602, 'Set1')]
     procedure ZRows(Context: Interface ITestContext)
     var
-        Log: Codeunit "LT BI DH Log";
+        Log: Codeunit "LT BI DH Log Combo";
         Observer: Codeunit "Probe Observer";
         CaseData: Interface "LT BI DD Case Data";
     begin
         CaseData := Context as "LT BI DD Case Data";
-        Log.Add(81645, 'body ' + CaseData.CaseText() + ' marker=' + Log.GetMarker());
+        Log.Add('body ' + CaseData.CaseText() + ' marker=' + Log.GetMarker());
         if CaseData.CaseText() = 'gamma' then begin
-            Observer.Observe('log', Log.Take(81645));
+            Observer.Observe('log', Log.Take());
             Observer.Finish();
         end;
     end;
