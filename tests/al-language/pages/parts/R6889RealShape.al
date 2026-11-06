@@ -19,7 +19,15 @@
 //           the Log codeunit flag, so steps 0 to 3 run the same trigger without the reset).
 //   Each step: SetValue on Type (Resource), then on No.; observed are the part's row after the action and after each SetValue, the trigger
 //   log (HR/HC host, R/C part, SE part SetEditable, T.INS/M/NoV/TV table, CU codeunit, ACT action) and the stored lines after Close.
-// Result: see the Expect lines.
+// Result (BC 27.5, 28.5 and 29.0 alike): the typed Type is KEPT on the line the part's action inserted only in steps 2, 3 and 4, and the
+//   single feature that makes the difference is ShowAsTree on the part's repeater (step 2b keeps it, 2a and 2c drop it). Step 0 (enum Type,
+//   host Both) and step 1 (+ host calls Part.SetEditable, which runs CurrPage.Update(false); the part logs SE after HC) drop it like the
+//   earlier probe: after SetValue Type the row still shows Item, No.'s OnValidate sees Item, and the line is stored with Item. Step 2a (Order
+//   key sort and renumbering, new line in the middle) and step 2c (AutoSplitKey, DeleteAllowed = false) drop it too. In steps 2, 2b, 3 and 4
+//   the row shows Resource, No.'s OnValidate sees Resource and Resource is stored; the Type SetValue then also writes the row (M<line>:Resource
+//   in the log, before the part re-reads). Step 3 (Rec as var to a codeunit, then Rec.Next()) and step 4 (empty part, no First(), filtered
+//   host, GoToRecord, Editable by Type, Type OnValidate reset flag) behave as step 2. Step 4: after the action the row is the root line 10000,
+//   not the child (Rec.Next() does not end on the child there); both Editable variables read Yes after Type is Resource.
 // BC versions: 27+ (tested by the corpus CI matrix)
 
 enum 96130 "PG R6889 RS Kind"
@@ -1323,7 +1331,15 @@ codeunit 96140 "PG R6889 RS Probe"
     begin
         Initialize();
         RunStep0(Observer);
-        Observer.Finish();
+        Observer.Expect('line after action', '30000');
+        Observer.Expect('log action', 'R20;ACT;T.INS(30);R30;R30;R20;R10;R30;R30;C30');
+        Observer.Expect('after type', '30000 Item');
+        Observer.Expect('log type', 'TV;TY.V;TY.V.end;HR;HC;R30;R20;R10;R30;R30;C30');
+        Observer.Expect('after no', '30000 Item');
+        Observer.Expect('log no', 'NoV(Item)');
+        Observer.Expect('log close', 'M30:Item/R1');
+        Observer.Expect('stored', 'D1/10000:O10000:L0:Item// D1/20000:O20000:L0:Item// D1/30000:O20000:L0:Item/R1/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1333,7 +1349,15 @@ codeunit 96140 "PG R6889 RS Probe"
     begin
         Initialize();
         RunStep1(Observer);
-        Observer.Finish();
+        Observer.Expect('line after action', '30000');
+        Observer.Expect('log action', 'R20;ACT;T.INS(30);R30;R30;R20;R10;R30;R30;C30');
+        Observer.Expect('after type', '30000 Item');
+        Observer.Expect('log type', 'TV;TY.V;TY.V.end;HR;HC;SE;R30;R20;R10;R30;R30;C30');
+        Observer.Expect('after no', '30000 Item');
+        Observer.Expect('log no', 'NoV(Item)');
+        Observer.Expect('log close', 'M30:Item/R1');
+        Observer.Expect('stored', 'D1/10000:O10000:L0:Item// D1/20000:O20000:L0:Item// D1/30000:O20000:L0:Item/R1/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1343,7 +1367,15 @@ codeunit 96140 "PG R6889 RS Probe"
     begin
         Initialize();
         RunStep23(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('line after action', '30000/O20000/L1');
+        Observer.Expect('log action', 'R10;ACT;T.INS(30);R30;R30;R30;R20;R30;R10;R30;R30;R30;C30');
+        Observer.Expect('after type', '30000 Resource');
+        Observer.Expect('log type', 'TV;TY.V;TY.V.end;HR;HC;SE;M30:Resource/N30;R30;R30;R20;R30;R10;R30;R30;R30;C30');
+        Observer.Expect('after no', '30000 Resource');
+        Observer.Expect('log no', 'NoV(Resource)');
+        Observer.Expect('log close', 'M30:Resource/R1');
+        Observer.Expect('stored', 'D1/10000:O10000:L0:Item// D1/20000:O30000:L0:Item// D1/30000:O20000:L1:Resource/R1/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1353,7 +1385,15 @@ codeunit 96140 "PG R6889 RS Probe"
     begin
         Initialize();
         RunStep23(Observer, 3);
-        Observer.Finish();
+        Observer.Expect('line after action', '30000/O20000/L1');
+        Observer.Expect('log action', 'R10;ACT;CU;M10:Item/;T.INS(30);R30;R30;R30;R20;R30;R10;R30;R30;R30;C30');
+        Observer.Expect('after type', '30000 Resource');
+        Observer.Expect('log type', 'TV;TY.V;TY.V.end;HR;HC;SE;M30:Resource/N30;R30;R30;R20;R30;R10;R30;R30;R30;C30');
+        Observer.Expect('after no', '30000 Resource');
+        Observer.Expect('log no', 'NoV(Resource)');
+        Observer.Expect('log close', 'M30:Resource/R1');
+        Observer.Expect('stored', 'D1/10000:O10000:L0:Item// D1/20000:O30000:L0:Item// D1/30000:O20000:L1:Resource/R1/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1363,7 +1403,17 @@ codeunit 96140 "PG R6889 RS Probe"
     begin
         Initialize();
         RunStep4(Observer);
-        Observer.Finish();
+        Observer.Expect('host no', 'D2');
+        Observer.Expect('line after action', '10000/O10000/L0');
+        Observer.Expect('log action', 'ACT;CU;T.INS(10);M10:Item/N10;T.INS(20);R20;R20;R20;R10;R20;R20;R20;C20;R10;R10;R10;C10');
+        Observer.Expect('after type', '10000 Resource');
+        Observer.Expect('log type', 'TV;TY.V;TY.V.end;HR;HC;SE;M10:Resource/N10;R10;R10;R20;R10;R10;R10;C10');
+        Observer.Expect('editable after type', 'Yes/Yes');
+        Observer.Expect('after no', '10000 Resource');
+        Observer.Expect('log no', 'NoV(Resource)');
+        Observer.Expect('log close', 'M10:Resource/R1');
+        Observer.Expect('stored', 'D1/10000:O10000:L0:Item// D1/20000:O20000:L0:Item// D2/10000:O10000:L0:Resource/R1/ D2/20000:O20000:L1:Item/N20/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1373,7 +1423,15 @@ codeunit 96140 "PG R6889 RS Probe"
     begin
         Initialize();
         RunStep2a(Observer);
-        Observer.Finish();
+        Observer.Expect('line after action', '30000/O20000');
+        Observer.Expect('log action', 'R10;ACT;T.INS(30);R30;R30;R30;R20;R30;R10;R30;R30;R30;C30');
+        Observer.Expect('after type', '30000 Item');
+        Observer.Expect('log type', 'TV;TY.V;TY.V.end;HR;HC;SE;R30;R30;R20;R30;R10;R30;R30;R30;C30');
+        Observer.Expect('after no', '30000 Item');
+        Observer.Expect('log no', 'NoV(Item)');
+        Observer.Expect('log close', 'M30:Item/R1');
+        Observer.Expect('stored', 'D1/10000:O10000:L0:Item// D1/20000:O30000:L0:Item// D1/30000:O20000:L1:Item/R1/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1383,7 +1441,15 @@ codeunit 96140 "PG R6889 RS Probe"
     begin
         Initialize();
         RunStep2b(Observer);
-        Observer.Finish();
+        Observer.Expect('line after action', '30000/O30000');
+        Observer.Expect('log action', 'R20;ACT;T.INS(30);R30;R30;R20;R10;R30;R30;C30');
+        Observer.Expect('after type', '30000 Resource');
+        Observer.Expect('log type', 'TV;TY.V;TY.V.end;HR;HC;SE;M30:Resource/N30;R30;R20;R10;R30;R30;C30');
+        Observer.Expect('after no', '30000 Resource');
+        Observer.Expect('log no', 'NoV(Resource)');
+        Observer.Expect('log close', 'M30:Resource/R1');
+        Observer.Expect('stored', 'D1/10000:O10000:L0:Item// D1/20000:O20000:L0:Item// D1/30000:O30000:L1:Resource/R1/ ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1393,7 +1459,15 @@ codeunit 96140 "PG R6889 RS Probe"
     begin
         Initialize();
         RunStep2c(Observer);
-        Observer.Finish();
+        Observer.Expect('line after action', '30000');
+        Observer.Expect('log action', 'R20;ACT;T.INS(30);R30;R30;R20;R10;R30;R30;C30');
+        Observer.Expect('after type', '30000 Item');
+        Observer.Expect('log type', 'TV;TY.V;TY.V.end;HR;HC;SE;R30;R20;R10;R30;R30;C30');
+        Observer.Expect('after no', '30000 Item');
+        Observer.Expect('log no', 'NoV(Item)');
+        Observer.Expect('log close', 'M30:Item/R1');
+        Observer.Expect('stored', 'D1/10000:O10000:L0:Item// D1/20000:O20000:L0:Item// D1/30000:O20000:L0:Item/R1/ ');
+        Observer.Verify();
     end;
 }
 
