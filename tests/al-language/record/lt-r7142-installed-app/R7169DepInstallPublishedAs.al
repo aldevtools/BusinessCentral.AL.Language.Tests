@@ -26,12 +26,12 @@ codeunit 96073 "LT R7169 Dep Published As"
                 Observer.Observe('install_' + Log.Entry, Log.Detail);
             until Log.Next() = 0;
         Observer.Expect('log_rows', '4');
-        // XApp A's own row does not exist yet while its install code runs; Base Application is Global; the fixture app (publisher
-        // AL Language, installed before A) is already Dev there.
-        Observer.Expect('install_own', 'no row');
+        // The log is read in key order. XApp A's own row does not exist yet while its install code runs ('own' = no row); Base Application
+        // is Global; the fixture app (publisher AL Language, installed before A) is already Dev there.
         Observer.Expect('install_base_application', 'Global|0');
         Observer.Expect('install_filter_publisher_al_language_dev_count', '1');
         Observer.Expect('install_filter_publisher_al_language_global_count', '0');
+        Observer.Expect('install_own', 'no row');
         Observer.Verify();
     end;
 
