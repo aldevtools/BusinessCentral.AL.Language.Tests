@@ -533,11 +533,14 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
         Observer.ObserveError('second insert');
         W5CleanLayouts();
         W5RestoreSelections(Saved);
-        Observer.Finish();
+        Observer.Expect('first insert', 'Yes');
+        Observer.Expect('second insert|text', 'An email body is already defined for Sales Invoice.');
+        Observer.Expect('second insert|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure W5_ReportSelection_EmailBodyLayout_NameOfTenantRow()
+    procedure W5_ReportSelection_EmailBodyLayout_ValidateNameOfTenantRow()
     var
         Saved: Record "Report Selections" temporary;
         Observer: Codeunit "Probe Observer";
@@ -554,11 +557,38 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
         Observer.ObserveError('validate unknown layout name');
         asserterror RS.Validate("Email Body Layout Name", 'LT W5 Custom Body');
         Observer.ObserveError('validate tenant layout name');
+        W5CleanLayouts();
+        W5RestoreSelections(Saved);
+        Observer.Expect('validate unknown layout name|text', 'The field Email Body Layout Name of table Report Selections contains a value (LT W5 No Such Layout) that cannot be found in the related table (Report Layout List).');
+        Observer.Expect('validate unknown layout name|code', 'DB:NothingInsideFilter');
+        Observer.Expect('validate tenant layout name|text', 'The field Email Body Layout Name of table Report Selections contains a value (LT W5 Custom Body) that cannot be found in the related table (Report Layout List).');
+        Observer.Expect('validate tenant layout name|code', 'DB:Nothing');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure W5_ReportSelection_EmailBodyLayout_AssignedNameOfTenantRow()
+    var
+        Saved: Record "Report Selections" temporary;
+        Observer: Codeunit "Probe Observer";
+        L: Record "Tenant Report Layout";
+        RS: Record "Report Selections";
+    begin
+        W5CleanLayouts();
+        W5SaveSelections(Saved);
+        W5WordRow(L, Report::"Standard Sales - Invoice", 'LT W5 Custom Body');
+        L.Insert();
+        W5SelectionRow(RS, '1');
+        RS.Insert(true);
         RS."Email Body Layout Name" := 'LT W5 Custom Body';
-        Observer.Observe('assigned name modify', Format(RS.Modify(true)));
+        Observer.Observe('modify', Format(RS.Modify(true)));
         RS.Get(RS.Usage::"S.Invoice", '1');
+        Observer.Observe('stored name', RS."Email Body Layout Name");
+        Observer.Observe('stored app id', Format(RS."Email Body Layout AppID"));
+        Observer.Observe('stored type', Format(RS."Email Body Layout Type"));
         RS.CalcFields("Email Body Layout Publisher", "Email Body Layout Caption");
-        Observer.Observe('selection', RS."Email Body Layout Name" + '|' + Format(RS."Email Body Layout AppID") + '|' + Format(RS."Email Body Layout Type") + '|' + RS."Email Body Layout Publisher" + '|' + RS."Email Body Layout Caption" + '|' + Format(RS."Use for Email Body"));
+        Observer.Observe('publisher', RS."Email Body Layout Publisher");
+        Observer.Observe('caption', RS."Email Body Layout Caption");
         W5CleanLayouts();
         W5RestoreSelections(Saved);
         Observer.Finish();
@@ -585,6 +615,10 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
         Observer.Observe('app id equals', Format(RS."Email Body Layout AppID" = List."Application ID"));
         W5CleanLayouts();
         W5RestoreSelections(Saved);
-        Observer.Finish();
+        Observer.Expect('validate built-in layout name', 'ok');
+        Observer.Expect('modify', 'Yes');
+        Observer.Expect('name equals', 'Yes');
+        Observer.Expect('app id equals', 'Yes');
+        Observer.Verify();
     end;
 }
