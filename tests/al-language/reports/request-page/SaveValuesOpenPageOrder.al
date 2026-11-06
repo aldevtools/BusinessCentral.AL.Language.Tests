@@ -9,6 +9,11 @@
 // The same without an OnOpenPage recompute. (2) GetFilters / GetView of data items declared with DataItemTableView = where(...), with and
 // without RequestFilterFields and a user filter from the request page, read in OnPreReport and in OnPreDataItem.
 // Related existing tests: P147SaveValuesText.al (caller value against stored value, no OnOpenPage), TestReportRequestPageSaveValues.al.
+// Facts (identical on 27.5, 28.5, 29.0): the saved values are restored BEFORE the request page's OnOpenPage runs (OnOpenPage sees the previous run's
+// confirmed values), and OnOpenPage then overwrites an Editable = false global, so OnPreReport of the second run sees the OnOpenPage value, not the saved
+// one; a control the handler did not touch keeps the saved value. Without an OnOpenPage the caller's procedure value wins over the saved one, and a run
+// without a procedure call shows the saved value. DataItemTableView where(...) is not part of GetFilters or GetView in OnPreReport or OnPreDataItem
+// (only its SORTING is); user request filters are, and they replace the where() of the view in GetView.
 // BC versions: 27-29
 
 table 96100 "LT SVO Row"
@@ -267,7 +272,10 @@ codeunit 96101 "LT SVO Tests"
         Observer.Observe('run2', TakeLog());
         RunWithOpenPage('', false);
         Observer.Observe('run3 no SetX', TakeLog());
-        Observer.Finish();
+        Observer.Expect('run1', 'open.before loc=[] other=[];open.after loc=[computed(A)];handler loc=[computed(A)] other=[];pre loc=[computed(A)] other=[o1] input=[A];');
+        Observer.Expect('run2', 'open.before loc=[computed(A)] other=[o1];open.after loc=[computed(B)];handler loc=[computed(B)] other=[o1];pre loc=[computed(B)] other=[o2] input=[B];');
+        Observer.Expect('run3 no SetX', 'open.before loc=[computed(B)] other=[o2];open.after loc=[computed()];handler loc=[computed()] other=[o2];pre loc=[computed()] other=[o3] input=[];');
+        Observer.Verify();
     end;
 
     [Test]
@@ -284,7 +292,10 @@ codeunit 96101 "LT SVO Tests"
         Observer.Observe('run2', TakeLog());
         RunWithoutOpenPage('', false);
         Observer.Observe('run3 no SetLoc', TakeLog());
-        Observer.Finish();
+        Observer.Expect('run1', 'handler loc=[first] other=[];pre loc=[first] other=[o1];');
+        Observer.Expect('run2', 'handler loc=[second] other=[o1];pre loc=[second] other=[o2];');
+        Observer.Expect('run3 no SetLoc', 'handler loc=[second] other=[o2];pre loc=[second] other=[o3];');
+        Observer.Verify();
     end;
 
     [Test]
@@ -302,7 +313,9 @@ codeunit 96101 "LT SVO Tests"
         UserFilterCode := 'A*';
         Rep2.RunModal();
         Observer.Observe('user filter Code A*', TakeLog());
-        Observer.Finish();
+        Observer.Expect('no user filter', 'pre DiView filters=[] view=[VERSION(1) SORTING(Code)] view(false)=[VERSION(1) SORTING(Field1)];pre DiBoth filters=[] view=[VERSION(1) SORTING(Name)] view(false)=[VERSION(1) SORTING(Field2)];pre DiPlain filters=[] view=[VERSION(1) SORTING(Code)] view(false)=[VERSION(1) SORTING(Field1)];preDi DiView filters=[] view=[VERSION(1) SORTING(Code)] view(false)=[VERSION(1) SORTING(Field1)];preDi DiBoth filters=[] view=[VERSION(1) SORTING(Name)] view(false)=[VERSION(1) SORTING(Field2)];preDi DiPlain filters=[] view=[VERSION(1) SORTING(Code)] view(false)=[VERSION(1) SORTING(Field1)];');
+        Observer.Expect('user filter Code A*', 'pre DiView filters=[] view=[VERSION(1) SORTING(Code)] view(false)=[VERSION(1) SORTING(Field1)];pre DiBoth filters=[Code: A*] view=[VERSION(1) SORTING(Name) WHERE(Code=FILTER(A*))] view(false)=[VERSION(1) SORTING(Field2) WHERE(Field1=1(A*))];pre DiPlain filters=[Code: A*] view=[VERSION(1) SORTING(Code) WHERE(Code=FILTER(A*))] view(false)=[VERSION(1) SORTING(Field1) WHERE(Field1=1(A*))];preDi DiView filters=[] view=[VERSION(1) SORTING(Code)] view(false)=[VERSION(1) SORTING(Field1)];preDi DiBoth filters=[Code: A*] view=[VERSION(1) SORTING(Name) WHERE(Code=FILTER(A*))] view(false)=[VERSION(1) SORTING(Field2) WHERE(Field1=1(A*))];preDi DiPlain filters=[Code: A*] view=[VERSION(1) SORTING(Code) WHERE(Code=FILTER(A*))] view(false)=[VERSION(1) SORTING(Field1) WHERE(Field1=1(A*))];');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]

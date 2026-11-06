@@ -11,7 +11,7 @@ The report object: running, dataset and data items, request pages, layouts and S
 - `extensions/`: extension objects of this object type (10 AL files).
 - `layouts-saveas/`: layouts, rendering and Report.SaveAs* (34 AL files).
 - `reporthandler/`: ReportHandler and processing-only request pages (6 AL files).
-- `request-page/`: request pages (70 AL files).
+- `request-page/`: request pages (71 AL files).
 - `runtime/`: running a report and its members (35 AL files).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
