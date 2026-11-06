@@ -96,9 +96,9 @@ codeunit 96165 "LT R7187 Page Caption"
         Saved := GlobalLanguage();
         GlobalLanguage(1043);
         Card.OpenNew();
-        if not TrySet(Card.RowIdCtl, 'abc') then
+        if not TrySetOwn(Card) then
             Observer.ObserveError('SetValue abc on own control');
-        if not TrySet(Card.PlainCtl, 'abc') then
+        if not TrySetPlain(Card) then
             Observer.ObserveError('SetValue abc on field control');
         Card.Close();
         GlobalLanguage(Saved);
@@ -119,9 +119,9 @@ codeunit 96165 "LT R7187 Page Caption"
         Saved := GlobalLanguage();
         GlobalLanguage(1033);
         Card.OpenNew();
-        if not TrySet(Card.RowIdCtl, 'abc') then
+        if not TrySetOwn(Card) then
             Observer.ObserveError('SetValue abc on own control');
-        if not TrySet(Card.PlainCtl, 'abc') then
+        if not TrySetPlain(Card) then
             Observer.ObserveError('SetValue abc on field control');
         Card.Close();
         GlobalLanguage(Saved);
@@ -154,9 +154,15 @@ codeunit 96165 "LT R7187 Page Caption"
     end;
 
     [TryFunction]
-    local procedure TrySet(var Control: TestField; Value: Text)
+    local procedure TrySetOwn(var Card: TestPage "LT R7187 Row Card")
     begin
-        Control.SetValue(Value);
+        Card.RowIdCtl.SetValue('abc');
+    end;
+
+    [TryFunction]
+    local procedure TrySetPlain(var Card: TestPage "LT R7187 Row Card")
+    begin
+        Card.PlainCtl.SetValue('abc');
     end;
 
     local procedure RefCaption(TableNo: Integer; FieldNo: Integer): Text
