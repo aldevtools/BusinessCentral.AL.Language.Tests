@@ -696,6 +696,75 @@ codeunit 88615 "LT RT Uf Tests"
         Observer.Verify();
     end;
 
+    // Writer wolf3, al-runner issue 7197: the same action with 4 lines shown before it.
+    [Test]
+    procedure TD_LeavesKey_Line1WithUpdate_FourLines()
+    begin
+        TdRunLeaves(4, false, 2);
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:20000;R:30000;R:40000;R:10000;R:10000;C:B1:10000;');
+#if BC29PLUS
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;N:B1:0;C:B1:0;');
+#elif BC28PLUS
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;');
+#else
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;N:B1:0;C:B1:0;');
+#endif
+        Observer.Expect('shown after action', '||');
+        Observer.Expect('B1 count', '0');
+        Observer.Expect('total count', '0');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('close log', '');
+        Observer.Verify();
+    end;
+
+    // Writer wolf3, al-runner issue 7197: the same action with 5 lines shown before it.
+    [Test]
+    procedure TD_LeavesKey_Line1WithUpdate_FiveLines()
+    begin
+        TdRunLeaves(5, false, 2);
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:20000;R:30000;R:40000;R:50000;R:10000;R:10000;C:B1:10000;');
+#if BC29PLUS
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;N:B1:0;C:B1:0;');
+#elif BC28PLUS
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;');
+#else
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;N:B1:0;C:B1:0;');
+#endif
+        Observer.Expect('shown after action', '||');
+        Observer.Expect('B1 count', '0');
+        Observer.Expect('total count', '0');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('close log', '');
+        Observer.Verify();
+    end;
+
+    // Writer wolf3, al-runner issue 7197: the same action with 6 lines shown before it.
+    [Test]
+    procedure TD_LeavesKey_Line1WithUpdate_SixLines()
+    begin
+        TdRunLeaves(6, false, 2);
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:20000;R:30000;R:40000;R:50000;R:60000;R:10000;R:10000;C:B1:10000;');
+#if BC29PLUS
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;N:B1:0;C:B1:0;');
+#elif BC28PLUS
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;');
+#else
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;N:B1:0;C:B1:0;');
+#endif
+        Observer.Expect('shown after action', '||');
+        Observer.Expect('B1 count', '0');
+        Observer.Expect('total count', '0');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('close log', '');
+        Observer.Verify();
+    end;
+
     [Test]
     procedure TD_LeavesKey_Line1WithUpdate_OtherBatchRowRemains()
     begin
