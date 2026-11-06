@@ -143,7 +143,7 @@ codeunit 96165 "LT R7187 Page Caption"
         Observer.Observe('field control text', GetLastErrorText());
         Card.Close();
         GlobalLanguage(Saved);
-        Observer.Expect('field control text', 'Validatiefout voor veld: PlainCtl, bericht = ''Your entry of ''abc'' is not an acceptable value for ''Rijnummer''. De waarde "abc" kan niet worden geëvalueerd tot type Integer.'''');
+        Observer.Expect('field control text', 'Validatiefout voor veld: PlainCtl, bericht = ''Your entry of ''abc'' is not an acceptable value for ''Rijnummer''. De waarde "abc" kan niet worden geëvalueerd tot type Integer.''');
         Observer.Verify();
     end;
 
@@ -181,7 +181,7 @@ codeunit 96165 "LT R7187 Page Caption"
         Observer.Observe('field control text', GetLastErrorText());
         Card.Close();
         GlobalLanguage(Saved);
-        Observer.Expect('field control text', 'Validation error for Field: PlainCtl,  Message = ''Your entry of ''abc'' is not an acceptable value for ''Row number''. The value "abc" can''t be evaluated into type Integer.'''');
+        Observer.Expect('field control text', 'Validation error for Field: PlainCtl,  Message = ''Your entry of ''abc'' is not an acceptable value for ''Row number''. The value "abc" can''t be evaluated into type Integer.''');
         Observer.Verify();
     end;
 
