@@ -777,10 +777,14 @@ codeunit 95454 "LT R6951 Tests"
     end;
 
     [Test]
-    procedure TableFilter_Evaluate_BareNotEqualText_SelectsNonemptyRows()
+    procedure TableFilter_Evaluate_BareNotEqualText_RejectsMissingOperand()
+    var
+        Holder: Record "ALT TableFilter Holder";
+        Assert: Codeunit Assert;
     begin
         Initialize();
-        CheckCommaTableFilter('Text Field=<>', 2, 202, 303);
+        asserterror Evaluate(Holder."Filter Value", 'ALT Universal: Text Field=<>');
+        Assert.ExpectedError('A value is expected after the ''<>''.');
     end;
 
     [Test]
