@@ -696,6 +696,30 @@ codeunit 88615 "LT RT Uf Tests"
         Observer.Verify();
     end;
 
+    // Writer wolf3, al-runner issue 7197: the same action with 4 lines shown before it.
+    [Test]
+    procedure TD_LeavesKey_Line1WithUpdate_FourLines()
+    begin
+        TdRunLeaves(4, false, 2);
+        Observer.Finish();
+    end;
+
+    // Writer wolf3, al-runner issue 7197: the same action with 5 lines shown before it.
+    [Test]
+    procedure TD_LeavesKey_Line1WithUpdate_FiveLines()
+    begin
+        TdRunLeaves(5, false, 2);
+        Observer.Finish();
+    end;
+
+    // Writer wolf3, al-runner issue 7197: the same action with 6 lines shown before it.
+    [Test]
+    procedure TD_LeavesKey_Line1WithUpdate_SixLines()
+    begin
+        TdRunLeaves(6, false, 2);
+        Observer.Finish();
+    end;
+
     [Test]
     procedure TD_LeavesKey_Line1WithUpdate_OtherBatchRowRemains()
     begin
