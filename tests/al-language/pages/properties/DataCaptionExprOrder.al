@@ -182,7 +182,36 @@ codeunit 96262 "LT DCE Tests"
         Row.OpenModal();
         Log.Add('after run');
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('log',
+            'OnInit(ctl=)' +
+            ' | OnOpenPage(ctl=)' +
+            ' | OnFindRecord(=)' +
+            ' | OnFindRecord(=><)' +
+            ' | OnAfterGetRecord(I1 ctl=)' +
+            ' | DC(filter=I1|I2 rec=I1)' +
+            ' | OnAfterGetCurrRecord(I1 ctl=)' +
+            ' | DC(filter=I1|I2 rec=I1)' +
+            ' | H open cap=LT DCE - Cap I1|I2 ctl=' +
+            ' | OnNextRecord(1)' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | OnAfterGetCurrRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | H next cap=LT DCE - Cap I1|I2 ctl=I1|I2 item=I2' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | OnAfterGetRecord( ctl=I1|I2)' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | OnFindRecord(=)' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | OnAfterGetCurrRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | H update cap=LT DCE - Cap I1|I2 ctl=I1|I2' +
+            ' | OnQueryClosePage' +
+            ' | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -197,7 +226,19 @@ codeunit 96262 "LT DCE Tests"
         Row.OpenModal();
         Log.Add('after run');
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('log',
+            'OnInit(ctl=)' +
+            ' | OnOpenPage(ctl=)' +
+            ' | OnFindRecord(=)' +
+            ' | OnFindRecord(=><)' +
+            ' | DC(filter=I9 rec=I9)' +
+            ' | OnAfterGetCurrRecord(I9 ctl=)' +
+            ' | DC(filter=I9 rec=I9)' +
+            ' | H open cap=LT DCE ctl=' +
+            ' | OnAfterGetRecord( ctl=I9)' +
+            ' | OnQueryClosePage' +
+            ' | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -211,7 +252,36 @@ codeunit 96262 "LT DCE Tests"
         Row.OpenModal();
         Log.Add('after run');
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('log',
+            'OnInit(ctl=)' +
+            ' | OnOpenPage(ctl=)' +
+            ' | OnFindRecord(=)' +
+            ' | OnFindRecord(=><)' +
+            ' | OnAfterGetRecord(I1 ctl=)' +
+            ' | DC(filter= rec=I1)' +
+            ' | OnAfterGetCurrRecord(I1 ctl=)' +
+            ' | DC(filter= rec=I1)' +
+            ' | H open cap=LT DCE - Cap ctl=' +
+            ' | OnNextRecord(1)' +
+            ' | OnAfterGetRecord(I2 ctl=)' +
+            ' | DC(filter= rec=I2)' +
+            ' | OnAfterGetCurrRecord(I2 ctl=)' +
+            ' | DC(filter= rec=I2)' +
+            ' | H next cap=LT DCE - Cap ctl= item=I2' +
+            ' | OnAfterGetRecord(I2 ctl=)' +
+            ' | OnAfterGetRecord(I2 ctl=)' +
+            ' | DC(filter= rec=I2)' +
+            ' | OnAfterGetRecord( ctl=)' +
+            ' | OnAfterGetRecord(I2 ctl=)' +
+            ' | OnFindRecord(=)' +
+            ' | OnAfterGetRecord(I2 ctl=)' +
+            ' | DC(filter= rec=I2)' +
+            ' | OnAfterGetCurrRecord(I2 ctl=)' +
+            ' | DC(filter= rec=I2)' +
+            ' | H update cap=LT DCE - Cap ctl=' +
+            ' | OnQueryClosePage' +
+            ' | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -226,7 +296,33 @@ codeunit 96262 "LT DCE Tests"
         Page.Run(Page::"LT DCE Page", Row);
         Log.Add('after run');
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('log',
+            'OnInit(ctl=)' +
+            ' | OnOpenPage(ctl=)' +
+            ' | OnFindRecord(=><)' +
+            ' | OnAfterGetRecord(I1 ctl=)' +
+            ' | DC(filter=I1|I2 rec=I1)' +
+            ' | OnAfterGetCurrRecord(I1 ctl=)' +
+            ' | DC(filter=I1|I2 rec=I1)' +
+            ' | H open cap=LT DCE - Cap I1|I2 ctl=' +
+            ' | OnNextRecord(1)' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | OnAfterGetCurrRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | H next cap=LT DCE - Cap I1|I2 ctl=I1|I2 item=I2' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | OnFindRecord(=)' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | OnAfterGetCurrRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | H update cap=LT DCE - Cap I1|I2 ctl=I1|I2' +
+            ' | OnQueryClosePage' +
+            ' | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -236,9 +332,10 @@ codeunit 96262 "LT DCE Tests"
     begin
         Seed(true);
         Log.Wipe();
-        Card.Filter.SetFilter("Item No.", 'I1|I2');
         Card.OpenView();
         Log.Add('H open cap=' + Card.Caption() + ' ctl=' + Card.ItemNoFilterCtl.Value);
+        Card.Filter.SetFilter("Item No.", 'I1|I2');
+        Log.Add('H filtered cap=' + Card.Caption() + ' ctl=' + Card.ItemNoFilterCtl.Value);
         if Card.Next() then
             Log.Add('H next cap=' + Card.Caption() + ' ctl=' + Card.ItemNoFilterCtl.Value + ' item=' + Card.ItemNoCtl.Value);
         Card.UpdateAct.Invoke();
@@ -256,9 +353,10 @@ codeunit 96262 "LT DCE Tests"
     begin
         Seed(true);
         Log.Wipe();
-        Card.Filter.SetFilter("Item No.", 'I1|I2');
         Card.OpenEdit();
         Log.Add('H open cap=' + Card.Caption() + ' ctl=' + Card.ItemNoFilterCtl.Value);
+        Card.Filter.SetFilter("Item No.", 'I1|I2');
+        Log.Add('H filtered cap=' + Card.Caption() + ' ctl=' + Card.ItemNoFilterCtl.Value);
         Card.Close();
         Log.Add('after close');
         Observer.Observe('log', Log.Joined());
@@ -272,9 +370,10 @@ codeunit 96262 "LT DCE Tests"
     begin
         Seed(false);
         Log.Wipe();
-        Card.Filter.SetFilter("Item No.", 'I9');
         Card.OpenView();
         Log.Add('H open cap=' + Card.Caption() + ' ctl=' + Card.ItemNoFilterCtl.Value);
+        Card.Filter.SetFilter("Item No.", 'I9');
+        Log.Add('H filtered cap=' + Card.Caption() + ' ctl=' + Card.ItemNoFilterCtl.Value);
         Card.Close();
         Log.Add('after close');
         Observer.Observe('log', Log.Joined());
