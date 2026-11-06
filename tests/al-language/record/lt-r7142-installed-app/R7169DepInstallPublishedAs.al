@@ -6,7 +6,7 @@
 //   published: the corpus CI publishes every app through the dev endpoint (ci.yml app_dirs), not as a Global or per-tenant extension.
 // BC versions: 27, 28, 29
 
-codeunit 96073 "LT R7169 Dep Install Published As"
+codeunit 96073 "LT R7169 Dep Published As"
 {
     Subtype = Test;
     TestPermissions = Disabled;
