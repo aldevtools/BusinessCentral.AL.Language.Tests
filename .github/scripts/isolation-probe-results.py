@@ -88,21 +88,20 @@ def main():
                     help="a run to render; repeat for each")
     ap.add_argument("--fixture", required=True, help="the fixture .al file whose [Test] procedures every run must report")
     ap.add_argument("--outdir", default="test-results")
+    ap.add_argument("--title", default="Isolation probe (AL Runner #4826)", help="the summary heading")
+    ap.add_argument("--note", default=None, help="the paragraph under the heading (default: the isolation fixture's)")
     args = ap.parse_args()
 
     parse_xunit = load_parser()
     expected = fixture_tests(args.fixture)
 
-    out = [
-        "## Isolation probe (AL Runner #4826)",
-        "",
+    note = args.note if args.note is not None else (
         "Not part of the headline above. Each fixture test asserts one reading -- the test "
         "codeunit instance is reused across its [Test] methods and Function isolation rolls "
         "the database back after each -- and a failure message carries what was observed. "
         "T5 is the instrument check: it must pass under the Function runner and fail under "
-        "the Codeunit control; otherwise the run did not measure Function isolation.",
-        "",
-    ]
+        "the Codeunit control; otherwise the run did not measure Function isolation.")
+    out = [f"## {args.title}", "", note, ""]
     all_ok = True
     for spec in args.run:
         if "=" not in spec:

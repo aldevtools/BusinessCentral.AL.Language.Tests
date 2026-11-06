@@ -7,7 +7,7 @@ query 60864 "QJ Cust Orders Left"
 
     elements
     {
-        dataitem(Customer; "QJ Customer")
+        dataitem(Customer; "ALT Shape 04")
         {
             column(CustNo; "No.") { }
             column(CustName; "Name") { }

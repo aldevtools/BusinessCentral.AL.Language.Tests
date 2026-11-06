@@ -2,7 +2,7 @@
 //   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/page/page-onaftergetcurrrecord-trigger
 //   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-subpagelink-property
 // Scope: in-scope
-// Fixtures used: Test Page Part Agcr Row (60812), Test Page Part Agcr Part (60813),
+// Fixtures used: "ALT Shape 04" (50004), Test Page Part Agcr Part (60813),
 //                Test Page Part Agcr Host (60814), Test Page Part Agcr Trace (60811),
 //                Assert (60021)
 //
@@ -48,7 +48,7 @@ codeunit 60815 "Test Page Part Agcr Tests"
 
     local procedure Initialize()
     var
-        Row: Record "Test Page Part Agcr Row";
+        Row: Record "ALT Shape 04";
         Trace: Codeunit "Test Page Part Agcr Trace";
     begin
         Row.DeleteAll();
@@ -57,7 +57,7 @@ codeunit 60815 "Test Page Part Agcr Tests"
 
     local procedure SeedRow(No: Code[20]; Name: Text[50])
     var
-        Row: Record "Test Page Part Agcr Row";
+        Row: Record "ALT Shape 04";
     begin
         Row.Init();
         Row."No." := No;
@@ -112,7 +112,7 @@ codeunit 60815 "Test Page Part Agcr Tests"
     [Test]
     procedure PartRefires_OnGoToRecord()
     var
-        Row2: Record "Test Page Part Agcr Row";
+        Row2: Record "ALT Shape 04";
         Host: TestPage "Test Page Part Agcr Host";
         Trace: Codeunit "Test Page Part Agcr Trace";
         PartNo: Code[20];

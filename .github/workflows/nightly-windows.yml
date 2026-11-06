@@ -972,15 +972,22 @@ jobs:
 
           $appJson = Get-Content (Join-Path $env:GITHUB_WORKSPACE "$folder/app.json") -Raw | ConvertFrom-Json
           # Function first: the SingleInstance mark T1 sets would otherwise already be there.
+          # Each run selects its test codeunits by id range, not by -extensionId: 61300..61329 are
+          # the isolation fixtures, 61330..61349 the runner-trigger probes of ADR-066 of
+          # al-runtime-rs (probes P1-P8; "LT RP Reader" 61346 and "LT RP Reader B" 61349 (P5b) assert what the runners 61330 and
+          # 61331 recorded). The range alone builds the suite, so the AL Test Tool's discovery
+          # runner (130452) runs only the OnRun triggers of the selected codeunits.
           $runs = @(
-            @{ runner = '61300'; out = 'xunit-isolation-function.xml' },
-            @{ runner = '61301'; out = 'xunit-isolation-codeunit.xml' }
+            @{ runner = '61300'; range = '61300..61329'; out = 'xunit-isolation-function.xml' },
+            @{ runner = '61301'; range = '61300..61329'; out = 'xunit-isolation-codeunit.xml' },
+            @{ runner = '61330'; range = '61330..61349'; out = 'xunit-runner-probe-codeunit.xml' },
+            @{ runner = '61331'; range = '61330..61349'; out = 'xunit-runner-probe-function.xml' }
           )
           foreach ($r in $runs) {
-            Write-Host "::group::isolation probe under runner $($r.runner)"
+            Write-Host "::group::isolation probe under runner $($r.runner), test codeunits $($r.range)"
             try {
               Run-TestsInBcContainer -containerName $c -credential $cred `
-                -extensionId $appJson.id -testRunnerCodeunitId $r.runner `
+                -testCodeunitRange $r.range -testRunnerCodeunitId $r.runner `
                 -culture $env:CULTURE -timezone $env:TIMEZONE `
                 -XUnitResultFileName (Join-Path $env:GITHUB_WORKSPACE $r.out) `
                 -AzureDevOps 'no' -GitHubActions 'no' `
@@ -1012,6 +1019,21 @@ jobs:
             --run "TestIsolation = Function (runner 61300)=xunit-isolation-function.xml" \
             --run "TestIsolation = Codeunit control (runner 61301)=xunit-isolation-codeunit.xml" \
             --outdir test-results
+
+      # The runner-trigger probes (ADR-066 of al-runtime-rs, P1-P8): every test of "LT RP Reader"
+      # (61346) under both probe runners. Each failure message carries the observed value.
+      - name: Runner-trigger probe -- per-test rows
+        if: always()
+        continue-on-error: true
+        shell: bash
+        run: |
+          python .github/scripts/isolation-probe-results.py \
+            --title "Runner-trigger probe (ADR-066 of al-runtime-rs, P1-P8)" \
+            --note "Not part of the headline above. Each test of LT RP Reader (61346) states the platform behavior ADR-066 assumes for a TestRunner codeunit's triggers; a failure message carries what was observed. P2_Fails and P5_Fails fail on purpose." \
+            --fixture tests/al-language-isolation-probe/src/RpReader.Codeunit.al \
+            --run "TestIsolation = Codeunit (runner 61330)=xunit-runner-probe-codeunit.xml" \
+            --run "TestIsolation = Function (runner 61331)=xunit-runner-probe-function.xml" \
+            --outdir test-results/runner-probe
 
       # Fails the job, loudly, when a test codeunit is silently missing: neither reported nor
       # recorded as a runner stop. It

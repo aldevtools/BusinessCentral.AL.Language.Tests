@@ -6,6 +6,7 @@ Format and Evaluate of every type, format strings and AutoFormat.
 
 - (area folder itself): 85 AL files that are about the area as a whole or were not given a topic yet.
 - `autoformat/`: AutoFormatType and AutoFormatExpression (7 AL files).
+- `record-format/`: Format of a Record, RecordRef and FieldRef, also as a %n argument of StrSubstNo, Message and Error (1 AL file).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 
@@ -27,3 +28,9 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 3. Use the shared fixtures. A local object needs a `// local object: <reason>` line.
 4. Name the folder after the topic, never after a writer, an issue or a batch.
 5. Never renumber a codeunit or rename a test. Read the standing rules in `CONTRIBUTING.md` first.
+
+- `tablefilter-neutral/`: neutral public-API and page contracts reproduced from AL Runner reports.
+
+- `tablefilter-neutral/`: quoted blank enum-member filters and non-empty Code predicates select the intended row.
+
+- `tablefilter-neutral/`: CaptionClass field-name/caption lookup and quoted blank Code[10] predicates, alone and in a compound filter.

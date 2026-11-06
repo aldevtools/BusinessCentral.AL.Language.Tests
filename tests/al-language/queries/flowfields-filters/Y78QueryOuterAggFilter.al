@@ -1,26 +1,10 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-columnfilter-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); tables 94130 94131, queries 94132 to 94149, test codeunit 94150 (writer Y78)
+// Fixtures used: Probe Observer (codeunit 69160); tables 94130 94131, queries 94132 to 94149, test codeunit 94150 (writer Y78) (table 94130 is now shared table 50014 "ALT Shape 14")
 // Probe: measured on Windows BC 27.5 and 28.5 containers and a BC 29 SaaS sandbox: identical on all three.
 // Facts: a static ColumnFilter and a runtime SetFilter / SetRange on an AGGREGATED column (Sum, Average, Min, Max, Count) of a query whose
 //   child data item is a LeftOuterJoin, RightOuterJoin or FullOuterJoin, with parents that have no child, a child that has no parent, and
 //   groups that total zero: which groups come back and with which aggregate values (AL Runner issue 6675, a Microsoft O365 Activities page).
-
-table 94130 "LT Y78 Par"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; "Code"; Code[10]) { }
-        field(2; Name; Text[20]) { }
-    }
-
-    keys
-    {
-        key(PK; "Code") { Clustered = true; }
-    }
-}
 
 table 94131 "LT Y78 Chi"
 {
@@ -46,7 +30,7 @@ query 94132 "LT Y78 Q Left All"
 
     elements
     {
-        dataitem(P; "LT Y78 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -86,7 +70,7 @@ query 94133 "LT Y78 Q Left Sum"
 
     elements
     {
-        dataitem(P; "LT Y78 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -127,7 +111,7 @@ query 94134 "LT Y78 Q Left Avg"
 
     elements
     {
-        dataitem(P; "LT Y78 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -168,7 +152,7 @@ query 94135 "LT Y78 Q Left Min"
 
     elements
     {
-        dataitem(P; "LT Y78 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -209,7 +193,7 @@ query 94136 "LT Y78 Q Left Max"
 
     elements
     {
-        dataitem(P; "LT Y78 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -250,7 +234,7 @@ query 94137 "LT Y78 Q Left Cnt"
 
     elements
     {
-        dataitem(P; "LT Y78 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -291,7 +275,7 @@ query 94138 "LT Y78 Q Right All"
 
     elements
     {
-        dataitem(P; "LT Y78 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -331,7 +315,7 @@ query 94139 "LT Y78 Q Right Sum"
 
     elements
     {
-        dataitem(P; "LT Y78 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -372,7 +356,7 @@ query 94140 "LT Y78 Q Right Avg"
 
     elements
     {
-        dataitem(P; "LT Y78 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -413,7 +397,7 @@ query 94141 "LT Y78 Q Right Min"
 
     elements
     {
-        dataitem(P; "LT Y78 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -454,7 +438,7 @@ query 94142 "LT Y78 Q Right Max"
 
     elements
     {
-        dataitem(P; "LT Y78 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -495,7 +479,7 @@ query 94143 "LT Y78 Q Right Cnt"
 
     elements
     {
-        dataitem(P; "LT Y78 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -536,7 +520,7 @@ query 94144 "LT Y78 Q Full All"
 
     elements
     {
-        dataitem(P; "LT Y78 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -576,7 +560,7 @@ query 94145 "LT Y78 Q Full Sum"
 
     elements
     {
-        dataitem(P; "LT Y78 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -617,7 +601,7 @@ query 94146 "LT Y78 Q Full Avg"
 
     elements
     {
-        dataitem(P; "LT Y78 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -658,7 +642,7 @@ query 94147 "LT Y78 Q Full Min"
 
     elements
     {
-        dataitem(P; "LT Y78 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -699,7 +683,7 @@ query 94148 "LT Y78 Q Full Max"
 
     elements
     {
-        dataitem(P; "LT Y78 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -740,7 +724,7 @@ query 94149 "LT Y78 Q Full Cnt"
 
     elements
     {
-        dataitem(P; "LT Y78 Par")
+        dataitem(P; "ALT Shape 14")
         {
             column(PCode; "Code") { }
 
@@ -781,7 +765,7 @@ codeunit 94150 "LT Y78 Query Agg Outer"
 
     local procedure Seed()
     var
-        Par: Record "LT Y78 Par";
+        Par: Record "ALT Shape 14";
         Chi: Record "LT Y78 Chi";
     begin
         Par.DeleteAll();
@@ -802,7 +786,7 @@ codeunit 94150 "LT Y78 Query Agg Outer"
 
     local procedure AddPar(NewCode: Code[10])
     var
-        Par: Record "LT Y78 Par";
+        Par: Record "ALT Shape 14";
     begin
         Par."Code" := NewCode;
         Par.Name := NewCode;

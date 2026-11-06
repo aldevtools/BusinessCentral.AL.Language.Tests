@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-sqljointype-property
 //   dev-itpro/developer/devenv-query-object
 // Scope: in-scope
-// Fixtures used: QJ Customer (60861), QJ Order (60862), QJ Cust Orders Implicit (60601),
+// Fixtures used: "ALT Shape 04" (50004), QJ Order (60862), QJ Cust Orders Implicit (60601),
 //   QJ Cust Orders Left (60864), QJ Cust Orders Inner (60863); shared Assert (60021)
 //
 // What SqlJoinType defaults to when a nested dataitem does not declare it.
@@ -30,7 +30,7 @@ codeunit 60603 "QJ Query Join Default Tests"
 
     local procedure Initialize()
     var
-        Cust: Record "QJ Customer";
+        Cust: Record "ALT Shape 04";
         Ord: Record "QJ Order";
     begin
         Cust.DeleteAll();
@@ -45,7 +45,7 @@ codeunit 60603 "QJ Query Join Default Tests"
         InsertOrder(Ord, 3, 'C2', 300);
     end;
 
-    local procedure InsertCust(var Cust: Record "QJ Customer"; No: Code[20]; Name: Text[50])
+    local procedure InsertCust(var Cust: Record "ALT Shape 04"; No: Code[20]; Name: Text[50])
     begin
         Cust.Init();
         Cust."No." := No;

@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/xmldocument/xmldocument-data-type
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), table 74800
+// Fixtures used: Probe Observer (codeunit 69160), shared table 50003 "ALT Shape 03"
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: XmlDocument WriteTo(Text), WriteTo(WriteOptions, Text), WriteTo(OutStream), WriteTo(WriteOptions, OutStream) for documents with and without declaration, root and whitespace, and uninitialised
 // BC versions: 29 (27 and 28 by CI)
@@ -60,7 +60,7 @@ codeunit 74808 "LT P97 Doc WriteTo"
     end;
 
     [TryFunction]
-    local procedure TryStream(var Doc: XmlDocument; var Rec: Record "LT P97 Blob")
+    local procedure TryStream(var Doc: XmlDocument; var Rec: Record "ALT Shape 03")
     var
         OutS: OutStream;
     begin
@@ -69,7 +69,7 @@ codeunit 74808 "LT P97 Doc WriteTo"
     end;
 
     [TryFunction]
-    local procedure TryStreamOpt(var Doc: XmlDocument; Preserve: Boolean; var Rec: Record "LT P97 Blob")
+    local procedure TryStreamOpt(var Doc: XmlDocument; Preserve: Boolean; var Rec: Record "ALT Shape 03")
     var
         OutS: OutStream;
         Opt: XmlWriteOptions;
@@ -79,7 +79,7 @@ codeunit 74808 "LT P97 Doc WriteTo"
         Doc.WriteTo(Opt, OutS);
     end;
 
-    local procedure ReadBack(var Rec: Record "LT P97 Blob"; var Observer: Codeunit "Probe Observer"; Name: Text)
+    local procedure ReadBack(var Rec: Record "ALT Shape 03"; var Observer: Codeunit "Probe Observer"; Name: Text)
     var
         InS: InStream;
         T: Text;
@@ -163,7 +163,7 @@ codeunit 74808 "LT P97 Doc WriteTo"
     procedure WriteTo_OutStream_Variants()
     var
         Observer: Codeunit "Probe Observer";
-        Rec: Record "LT P97 Blob";
+        Rec: Record "ALT Shape 03";
         Doc: XmlDocument;
         V: Integer;
     begin
@@ -198,7 +198,7 @@ codeunit 74808 "LT P97 Doc WriteTo"
     procedure WriteTo_OutStreamOptions_Variants()
     var
         Observer: Codeunit "Probe Observer";
-        Rec: Record "LT P97 Blob";
+        Rec: Record "ALT Shape 03";
         Doc: XmlDocument;
         V: Integer;
     begin
@@ -240,7 +240,7 @@ codeunit 74808 "LT P97 Doc WriteTo"
     procedure WriteTo_Uninitialised()
     var
         Observer: Codeunit "Probe Observer";
-        Rec: Record "LT P97 Blob";
+        Rec: Record "ALT Shape 03";
         Doc: XmlDocument;
         S: Text;
     begin

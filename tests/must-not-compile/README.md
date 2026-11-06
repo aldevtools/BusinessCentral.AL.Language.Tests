@@ -692,3 +692,7 @@ BC container. Run locally with the tools in `~/.al-tool-cache` it passes today w
 | 2717 | AL0133 | `BindSubscription("this")` with an Integer variable named "this". |
 | 2718 | AL0130 | `Clear(this)` with a Codeunit variable "this" declared. |
 | 2719 | AL0132 | `this.Init()` in a codeunit with a Record variable named "this". |
+| 2952 | AL0118 | a table extension names a protected variable of another app's extension of the same table without depending on that app; with the dependency it compiles: tests/al-language/table-objects/extensions/ProtectedVarCrossApp.al. |
+| 2953 | AL0161 | a codeunit names a protected variable of a table through a record variable; in an extension of the table the member form compiles (same file). |
+
+Legacy Statistics compatibility: cases 2971 (extension anchor, AL0271) and 2972 (TestPage member, AL0132) apply from BC29. The public replacements are SalesOrderStatistics and SalesStatistics.
