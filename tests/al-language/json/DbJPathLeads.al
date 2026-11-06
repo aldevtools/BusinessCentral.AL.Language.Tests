@@ -421,4 +421,206 @@ codeunit 85723 "LT DB JPath Leads"
         Observer.Verify();
     end;
 #endif
+
+    // ---- cw-waldo5 (al-runner 6924, waldo): SelectToken path forms with bracket-quoted keys, the full surface ----
+    // Compact observation: answer, token as text, last error code and text, in one value named by the path.
+    local procedure W5Doc() O: JsonObject
+    var
+        Inner: JsonObject;
+        Inner2: JsonObject;
+        Arr: JsonArray;
+    begin
+        O.Add('No.', 'N1');
+        O.Add('Due Date', '2026');
+        Inner.Add('c', 1);
+        O.Add('a.b', Inner);
+        Clear(Inner);
+        Inner.Add('y', 2);
+        O.Add('x', Inner);
+        Clear(Inner);
+        Inner.Add('b c', 3);
+        Inner.Add('b', 4);
+        O.Add('a', Inner);
+        O.Add('it''s', 5);
+        O.Add('[0]', 6);
+        Arr.Add(10);
+        Arr.Add(20);
+        Arr.Add(30);
+        O.Add('arr', Arr);
+        O.Add('k-v', 7);
+        O.Add('k v', 8);
+        O.Add('', 9);
+        Inner2.Add('No.', 'deep');
+        O.Add('n', Inner2);
+    end;
+
+    local procedure W5Sel(var Observer: Codeunit "Probe Observer"; O: JsonObject; Path: Text)
+    var
+        T: JsonToken;
+        Ret: Boolean;
+        Written: Text;
+    begin
+        ClearLastError();
+        if not TrySel(O, Path, T, Ret) then begin
+            Observer.Observe(Path, 'raised ' + GetLastErrorCode() + ' | ' + GetLastErrorText());
+            ClearLastError();
+            exit;
+        end;
+        if Ret then
+            T.WriteTo(Written);
+        Observer.Observe(Path, Format(Ret) + ' [' + Written + '] ' + GetLastErrorCode() + ' | ' + GetLastErrorText());
+        ClearLastError();
+    end;
+
+    [Test]
+    procedure W5_BracketKeys_DollarDotForm()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        W5Sel(Observer, W5Doc(), '$.[''No.'']');
+        W5Sel(Observer, W5Doc(), '$.[''Due Date'']');
+        W5Sel(Observer, W5Doc(), '$[''No.'']');
+        W5Sel(Observer, W5Doc(), '[''No.'']');
+        W5Sel(Observer, W5Doc(), '[''Due Date'']');
+        W5Sel(Observer, W5Doc(), '$.[''a.b''].c');
+        W5Sel(Observer, W5Doc(), '$.[''a.b''][''c'']');
+        W5Sel(Observer, W5Doc(), '$[''x''][''y'']');
+        W5Sel(Observer, W5Doc(), '$.a[''b c'']');
+        W5Sel(Observer, W5Doc(), '$.a.[''b c'']');
+        W5Sel(Observer, W5Doc(), '$.[''x''].y');
+        W5Sel(Observer, W5Doc(), '$.[''n''].[''No.'']');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure W5_BracketKeys_Escapes_Brackets_Missing()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        W5Sel(Observer, W5Doc(), '$.[''it''''s'']');
+        W5Sel(Observer, W5Doc(), '[''it''''s'']');
+        W5Sel(Observer, W5Doc(), '[''it\''s'']');
+        W5Sel(Observer, W5Doc(), '$.[''[0]'']');
+        W5Sel(Observer, W5Doc(), '[''[0]'']');
+        W5Sel(Observer, W5Doc(), '$.[''Nope'']');
+        W5Sel(Observer, W5Doc(), '$.[''No.'']x');
+        W5Sel(Observer, W5Doc(), '$.[''No.''');
+        W5Sel(Observer, W5Doc(), '$.[''''] ');
+        W5Sel(Observer, W5Doc(), '[''''] ');
+        W5Sel(Observer, W5Doc(), '$.["No."]');
+        W5Sel(Observer, W5Doc(), '["No."]');
+        W5Sel(Observer, W5Doc(), '$.[No.]');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure W5_DotNotation_SpecialCharacters_AndArrays()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        W5Sel(Observer, W5Doc(), 'No.');
+        W5Sel(Observer, W5Doc(), '$.No.');
+        W5Sel(Observer, W5Doc(), 'k-v');
+        W5Sel(Observer, W5Doc(), '$.k-v');
+        W5Sel(Observer, W5Doc(), 'k v');
+        W5Sel(Observer, W5Doc(), '$.k v');
+        W5Sel(Observer, W5Doc(), 'x.y');
+        W5Sel(Observer, W5Doc(), '$.x.y');
+        W5Sel(Observer, W5Doc(), 'x[''y'']');
+        W5Sel(Observer, W5Doc(), 'x.[''y'']');
+        W5Sel(Observer, W5Doc(), '$.[''arr''][0]');
+        W5Sel(Observer, W5Doc(), '$.[''arr''][-1]');
+        W5Sel(Observer, W5Doc(), '$.arr[1]');
+        W5Sel(Observer, W5Doc(), '$.arr[-1]');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure W5_Wildcard_Recursive_Union()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        W5Sel(Observer, W5Doc(), '$.arr[*]');
+        W5Sel(Observer, W5Doc(), '$.[*]');
+        W5Sel(Observer, W5Doc(), '$.x[*]');
+        W5Sel(Observer, W5Doc(), '$..y');
+        W5Sel(Observer, W5Doc(), '$..[''y'']');
+        W5Sel(Observer, W5Doc(), '$..[''No.'']');
+        W5Sel(Observer, W5Doc(), '$..No.');
+        W5Sel(Observer, W5Doc(), '$.[''No.'',''Due Date'']');
+        W5Sel(Observer, W5Doc(), '$.[''No.'',''Nope'']');
+        W5Sel(Observer, W5Doc(), '$.arr[0,2]');
+        W5Sel(Observer, W5Doc(), '$.arr[1:]');
+        W5Sel(Observer, W5Doc(), '$.arr[:2]');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure W5_VariableFieldName_AsInWaldoCase()
+    var
+        Observer: Codeunit "Probe Observer";
+        T: JsonToken;
+        O: JsonObject;
+        Names: List of [Text];
+        Name: Text;
+        Ret: Boolean;
+        Written: Text;
+    begin
+        O := W5Doc();
+        Names.Add('No.');
+        Names.Add('Due Date');
+        Names.Add('it''s');
+        Names.Add('Nope');
+        Names.Add('');
+        foreach Name in Names do begin
+            Clear(T);
+            Written := '';
+            Ret := O.SelectToken('$.[''' + Name + ''']', T);
+            if Ret then
+                T.WriteTo(Written);
+            Observer.Observe('var [' + Name + ']', Format(Ret) + ' [' + Written + '] ' + GetLastErrorCode());
+            ClearLastError();
+        end;
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure W5_ArrayAndTokenReceivers()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: JsonArray;
+        Obj: JsonObject;
+        Tok: JsonToken;
+        T: JsonToken;
+        Ret: Boolean;
+        Written: Text;
+    begin
+        A.Add(W5Doc());
+        Ret := A.SelectToken('[0].[''No.'']', T);
+        if Ret then
+            T.WriteTo(Written);
+        Observer.Observe('array [0].[No.]', Format(Ret) + ' [' + Written + '] ' + GetLastErrorCode());
+        ClearLastError();
+        Written := '';
+        Ret := A.SelectToken('$.[0][''No.'']', T);
+        if Ret then
+            T.WriteTo(Written);
+        Observer.Observe('array $.[0][No.]', Format(Ret) + ' [' + Written + '] ' + GetLastErrorCode() + ' | ' + GetLastErrorText());
+        ClearLastError();
+        Obj := W5Doc();
+        Tok := Obj.AsToken();
+        Written := '';
+        Ret := Tok.SelectToken('$.[''Due Date'']', T);
+        if Ret then
+            T.WriteTo(Written);
+        Observer.Observe('token $.[Due Date]', Format(Ret) + ' [' + Written + '] ' + GetLastErrorCode());
+        ClearLastError();
+        Written := '';
+        Ret := Tok.SelectToken('[''No.'']', T);
+        if Ret then
+            T.WriteTo(Written);
+        Observer.Observe('token [No.]', Format(Ret) + ' [' + Written + '] ' + GetLastErrorCode());
+        ClearLastError();
+        Observer.Finish();
+    end;
 }

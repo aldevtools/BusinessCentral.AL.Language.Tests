@@ -73,4 +73,186 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
         Observer.Expect('rows after delete', '0');
         Observer.Verify();
     end;
+
+    // ---- cw-waldo5 (al-runner 6924, waldo): Insert into Tenant Report Layout for a report of ANOTHER app (Base Application's report 1306
+    // "Standard Sales - Invoice", a dependency app's report), the way a test library adds a custom Word layout / e-mail body layout ----
+    local procedure W5Dump(var L: Record "Tenant Report Layout") Result: Text
+    var
+        RR: RecordRef;
+        FR: FieldRef;
+        i: Integer;
+    begin
+        RR.GetTable(L);
+        for i := 1 to RR.FieldCount() do begin
+            FR := RR.FieldIndex(i);
+            if not (FR.Type() in [FieldType::Media, FieldType::MediaSet, FieldType::Blob]) then
+                Result += Format(FR.Number()) + ' ' + FR.Name() + '=' + Format(FR.Value()) + '; ';
+        end;
+    end;
+
+    [TryFunction]
+    local procedure W5TryInsert(var L: Record "Tenant Report Layout"; var Ok: Boolean)
+    begin
+        Ok := L.Insert();
+    end;
+
+    local procedure W5WordRow(var L: Record "Tenant Report Layout"; ReportId: Integer; LayoutName: Text[250])
+    var
+        InS: InStream;
+    begin
+        L.Init();
+        L."Report ID" := ReportId;
+        L.Name := LayoutName;
+        L."Layout Format" := L."Layout Format"::Word;
+        L.Description := 'W5 custom body';
+        Report.WordLayout(Report::"Standard Sales - Invoice", InS);
+        L.Layout.ImportStream(InS, 'W5 word layout');
+    end;
+
+    local procedure W5Insert(var Observer: Codeunit "Probe Observer"; Tag: Text; var L: Record "Tenant Report Layout")
+    var
+        Reader: Record "Tenant Report Layout";
+        Ok: Boolean;
+    begin
+        Reader.SetRange("Report ID", L."Report ID");
+        Observer.Observe(Tag + ' rows before', Format(Reader.Count()));
+        ClearLastError();
+        if not W5TryInsert(L, Ok) then begin
+            Observer.Observe(Tag + ' insert', 'raised ' + GetLastErrorCode() + ' | ' + GetLastErrorText());
+            ClearLastError();
+        end else
+            Observer.Observe(Tag + ' insert', Format(Ok));
+        Observer.Observe(Tag + ' rows after', Format(Reader.Count()));
+        Reader.SetRange(Name, L.Name);
+        if Reader.FindFirst() then begin
+            Reader.CalcFields(Layout);
+            Observer.Observe(Tag + ' stored', W5Dump(Reader) + 'Layout.HasValue=' + Format(Reader.Layout.HasValue()));
+        end else
+            Observer.Observe(Tag + ' stored', 'no row');
+    end;
+
+    [Test]
+    procedure W5_TenantReportLayout_AllFields()
+    var
+        Observer: Codeunit "Probe Observer";
+        L: Record "Tenant Report Layout";
+        RR: RecordRef;
+        FR: FieldRef;
+        i: Integer;
+        Names: Text;
+    begin
+        RR.GetTable(L);
+        for i := 1 to RR.FieldCount() do begin
+            FR := RR.FieldIndex(i);
+            Names += Format(FR.Number()) + ':' + FR.Name() + ':' + Format(FR.Type()) + ',';
+        end;
+        Observer.Observe('table id', Format(RR.Number()));
+        Observer.Observe('fields', Names);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure W5_TenantReportLayout_MicrosoftReport_WordLayout()
+    var
+        Observer: Codeunit "Probe Observer";
+        L: Record "Tenant Report Layout";
+        List: Record "Report Layout List";
+    begin
+        List.SetRange("Report ID", Report::"Standard Sales - Invoice");
+        Observer.Observe('list rows before', Format(List.Count()));
+        W5WordRow(L, Report::"Standard Sales - Invoice", 'LT W5 Custom Body');
+        W5Insert(Observer, 'ms word', L);
+        List.SetRange(Name, 'LT W5 Custom Body');
+        Observer.Observe('list row found', Format(List.FindFirst()));
+        if List.FindFirst() then
+            Observer.Observe('list row', Format(List."Layout Format") + '|' + List.Caption + '|' + Format(List."User Defined") + '|' + List."Layout Publisher" + '|' + List."Report Name" + '|' + Format(List."Application ID") + '|' + Format(List.ReportIsInstalled));
+        List.SetRange(Name);
+        Observer.Observe('list rows after', Format(List.Count()));
+        L.SetRange("Report ID", Report::"Standard Sales - Invoice");
+        L.DeleteAll();
+        Observer.Observe('rows after delete', Format(L.Count()));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure W5_TenantReportLayout_MicrosoftReport_Variants()
+    var
+        Observer: Codeunit "Probe Observer";
+        L: Record "Tenant Report Layout";
+        InS: InStream;
+    begin
+        W5WordRow(L, Report::"Standard Sales - Invoice", 'LT W5 Company');
+        L."Company Name" := CopyStr(CompanyName(), 1, MaxStrLen(L."Company Name"));
+        W5Insert(Observer, 'company set', L);
+        W5WordRow(L, Report::"Standard Sales - Invoice", 'LT W5 BaseApp Id');
+        L."App ID" := '{437DBF0E-84FF-417A-965D-ED2BB9650972}';
+        W5Insert(Observer, 'base app id', L);
+        W5WordRow(L, Report::"Standard Sales - Invoice", 'LT W5 Own Id');
+        L."App ID" := '{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}';
+        W5Insert(Observer, 'corpus app id', L);
+        W5WordRow(L, Report::"Standard Sales - Invoice", 'LT W5 Dup');
+        W5Insert(Observer, 'dup first', L);
+        W5Insert(Observer, 'dup second', L);
+        L.Init();
+        L."Report ID" := Report::"Standard Sales - Invoice";
+        L.Name := 'LT W5 Empty Word';
+        L."Layout Format" := L."Layout Format"::Word;
+        W5Insert(Observer, 'word empty', L);
+        L.Init();
+        L."Report ID" := Report::"Standard Sales - Invoice";
+        L.Name := 'LT W5 Rdlc Format';
+        L."Layout Format" := L."Layout Format"::RDLC;
+        Report.WordLayout(Report::"Standard Sales - Invoice", InS);
+        L.Layout.ImportStream(InS, 'word bytes as rdlc');
+        W5Insert(Observer, 'rdlc format word bytes', L);
+        W5WordRow(L, Report::"Standard Sales - Invoice", 'LT W5 Excel Format');
+        L."Layout Format" := L."Layout Format"::Excel;
+        W5Insert(Observer, 'excel format word bytes', L);
+        W5WordRow(L, Report::"Standard Sales - Invoice", '');
+        W5Insert(Observer, 'empty name', L);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure W5_TenantReportLayout_DependencyAndUnknownReport()
+    var
+        Observer: Codeunit "Probe Observer";
+        L: Record "Tenant Report Layout";
+    begin
+        W5WordRow(L, 61352, 'LT W5 Dependency');
+        W5Insert(Observer, 'xapp-a report', L);
+        W5WordRow(L, 99999999, 'LT W5 Unknown');
+        W5Insert(Observer, 'unknown report', L);
+        W5WordRow(L, 0, 'LT W5 Zero');
+        W5Insert(Observer, 'report zero', L);
+        W5WordRow(L, Report::"Probe RL Report", 'LT W5 Own Probe');
+        W5Insert(Observer, 'own report word', L);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure W5_TenantReportLayout_ReportSelection_EmailBody()
+    var
+        Observer: Codeunit "Probe Observer";
+        L: Record "Tenant Report Layout";
+        RS: Record "Report Selections";
+    begin
+        RS.Init();
+        RS.Usage := RS.Usage::"S.Invoice";
+        RS.Sequence := 'W5';
+        RS."Report ID" := Report::"Standard Sales - Invoice";
+        RS."Use for Email Body" := true;
+        Observer.Observe('selection insert', Format(RS.Insert(true)));
+        asserterror RS.Validate("Email Body Layout Name", 'LT W5 Custom Body');
+        Observer.ObserveError('validate name before layout exists');
+        W5WordRow(L, Report::"Standard Sales - Invoice", 'LT W5 Custom Body');
+        W5Insert(Observer, 'ms word', L);
+        RS.Validate("Email Body Layout Name", 'LT W5 Custom Body');
+        Observer.Observe('validate name after layout exists', 'ok');
+        Observer.Observe('modify', Format(RS.Modify(true)));
+        RS.Get(RS.Usage::"S.Invoice", 'W5');
+        RS.CalcFields("Email Body Layout Publisher", "Email Body Layout Caption");
+        Observer.Observe('selection', RS."Email Body Layout Name" + '|' + Format(RS."Email Body Layout AppID") + '|' + Format(RS."Email Body Layout Type") + '|' + RS."Email Body Layout Publisher" + '|' + RS."Email Body Layout Caption" + '|' + Format(RS."Use for Email Body"));
+        Observer.Finish();
+    end;
 }

@@ -120,6 +120,40 @@ codeunit 84895 "LT CN TypeHelper UTC"
         Observer.Expect('dt2time', '12:00:00');
         Observer.Verify();
     end;
+
+    local procedure W5Codes(Value: Text) Codes: Text
+    var
+        Ch: Char;
+        Code: Integer;
+        i: Integer;
+    begin
+        for i := 1 to StrLen(Value) do begin
+            Ch := Value[i];
+            Code := Ch;
+            if Codes <> '' then
+                Codes += ',';
+            Codes += Format(Code);
+        end;
+    end;
+
+    // cw-waldo5 (al-runner 6924, waldo): Type Helper NewLine creates the platform class System.Environment (DotNet SystemEnvironment, see
+    // TypeHelper.Codeunit.al NewLine) and returns its NewLine. Windows BC returns CR LF; the Linux corpus CI may return LF only.
+    [Test]
+    procedure TypeHelper_NewLine_CharacterCodes()
+    var
+        Observer: Codeunit "Probe Observer";
+        TypeHelper: Codeunit "Type Helper";
+        NL: Text;
+    begin
+        NL := TypeHelper.NewLine();
+        Observer.Observe('NewLine codes', W5Codes(NL));
+        Observer.Observe('NewLine length', Format(StrLen(NL)));
+        Observer.Observe('CRLFSeparator codes', W5Codes(TypeHelper.CRLFSeparator()));
+        Observer.Observe('LFSeparator codes', W5Codes(TypeHelper.LFSeparator()));
+        Observer.Observe('NewLine = CRLFSeparator', Format(NL = TypeHelper.CRLFSeparator()));
+        Observer.Observe('NewLine = LFSeparator', Format(NL = TypeHelper.LFSeparator()));
+        Observer.Finish();
+    end;
 }
 
 codeunit 84896 "LT CN OData Edm"
