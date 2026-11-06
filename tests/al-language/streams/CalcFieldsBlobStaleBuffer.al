@@ -4,8 +4,21 @@
 // Fixtures used: ALT Blob (60008)
 // BC versions: 27.5+
 //
-// Probe: CalcFields(Blob) on a record variable whose Blob buffer is stale because
-// another variable changed the same row and called Modify().
+// Probe: written against real BC 27.5, 28.5 and 29.0 (identical results).
+// CalcFields(Blob) picks up a Blob value another variable stored for the same
+// row, even when the variable already holds a Blob buffer (empty, loaded
+// earlier, or an unsaved write):
+//  - Variable A holds an empty Blob, variable B changes the row and calls
+//    Modify(). Before CalcFields, A.Data.HasValue() is false and A reads empty.
+//    After A.CalcFields(Data), A reads B's text. Same when A called Modify()
+//    first, and when B was copied from A by assignment (B := A).
+//  - A has an unsaved write (no Modify) and B modifies the row: A keeps its own
+//    text until CalcFields, then CalcFields replaces it with B's text (the
+//    unsaved write is lost). A.Modify() afterwards stores B's text.
+//  - A loaded FIRST with CalcFields, B stores SECOND: A still reads FIRST until
+//    the next CalcFields, then reads SECOND.
+// Contrast: when no other variable changed the row, CalcFields keeps an unsaved
+// write (TestBlobCalcFieldsUncommittedWrite.al).
 
 codeunit 96340 "LT Blob CalcFields Stale"
 {
@@ -33,7 +46,7 @@ codeunit 96340 "LT Blob CalcFields Stale"
         Obs := 'beforeHasValue=' + Format(A.Data.HasValue()) + ';beforeRead=' + ReadBlob(A);
         A.CalcFields(Data);
         Obs += ';afterHasValue=' + Format(A.Data.HasValue()) + ';afterRead=' + ReadBlob(A);
-        Error(Obs);
+        Assert.AreEqual('beforeHasValue=No;beforeRead=;afterHasValue=Yes;afterRead=B-TEXT', Obs, 'Observed on real BC');
     end;
 
     [Test]
@@ -55,7 +68,7 @@ codeunit 96340 "LT Blob CalcFields Stale"
         Obs := 'beforeHasValue=' + Format(A.Data.HasValue()) + ';beforeRead=' + ReadBlob(A);
         A.CalcFields(Data);
         Obs += ';afterHasValue=' + Format(A.Data.HasValue()) + ';afterRead=' + ReadBlob(A);
-        Error(Obs);
+        Assert.AreEqual('beforeHasValue=No;beforeRead=;afterHasValue=Yes;afterRead=B-TEXT', Obs, 'Observed on real BC');
     end;
 
     [Test]
@@ -81,7 +94,7 @@ codeunit 96340 "LT Blob CalcFields Stale"
         C.Get('S3');
         C.CalcFields(Data);
         Obs += ';afterAModifyStored=' + ReadBlob(C);
-        Error(Obs);
+        Assert.AreEqual('beforeRead=A-UNSAVED;afterRead=B-TEXT;afterAModifyStored=B-TEXT', Obs, 'Observed on real BC');
     end;
 
     [Test]
@@ -101,7 +114,7 @@ codeunit 96340 "LT Blob CalcFields Stale"
         Obs := 'beforeHasValue=' + Format(A.Data.HasValue()) + ';beforeRead=' + ReadBlob(A);
         A.CalcFields(Data);
         Obs += ';afterHasValue=' + Format(A.Data.HasValue()) + ';afterRead=' + ReadBlob(A);
-        Error(Obs);
+        Assert.AreEqual('beforeHasValue=No;beforeRead=;afterHasValue=Yes;afterRead=B-TEXT', Obs, 'Observed on real BC');
     end;
 
     [Test]
@@ -125,7 +138,7 @@ codeunit 96340 "LT Blob CalcFields Stale"
         Obs += ';beforeSecondCalc=' + ReadBlob(A);
         A.CalcFields(Data);
         Obs += ';afterSecondCalc=' + ReadBlob(A);
-        Error(Obs);
+        Assert.AreEqual('loaded=FIRST;beforeSecondCalc=FIRST;afterSecondCalc=SECOND', Obs, 'Observed on real BC');
     end;
 
     local procedure WriteBlob(var Rec: Record "ALT Blob"; Value: Text)
