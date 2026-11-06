@@ -7,6 +7,8 @@
 // answers false and leaves a last error without raising, see json/lt-json-selecttokens/SelectTokensList.al); a path that raises is observed
 // as 'raised' with its error.
 // Facts: see the Expect lines of each test.
+//   cw-waldo5 (al-runner 6924): SelectToken path forms with bracket-quoted keys ('$.[''No.'']', '$[''x''][''y'']', keys with a dot, a space, brackets, an escaped
+//   quote), dot notation with special characters, wildcard, recursive descent, unions and slices on a JsonObject, a JsonArray and a JsonToken.
 // BC versions: 27, 28, 29
 
 codeunit 85723 "LT DB JPath Leads"

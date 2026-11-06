@@ -6,6 +6,10 @@
 //   companies and the current one), and Insert of a row for that report whose Layout holds the report's own RDLC layout (Report.RdlcLayout):
 //   the answer of Insert, the row count of the report after it, the stored fields read back by Get, and Delete. ScReportMetadataViews.al pins
 //   Insert of a blank row and of a row with an empty RDLC layout.
+//   cw-waldo5 (al-runner 6924): Insert of a Word layout row for Base Application's report 1306 (and the other forms: company, app id, duplicate,
+//   empty name, a processing-only dependency report, unknown ids), the field list per version, the Report Layout List row, and what Report Selections
+//   (S.Invoice, e-mail body) does with such a row. A Word or RDLC layout whose format does not match its bytes raises an uncatchable CLR exception
+//   (XmlException for RDLC, InvalidDataException for Excel) on 27, 28 and 29: no test can observe it, so none is written.
 // BC versions: 27, 28, 29
 codeunit 91312 "LT Y6 Tenant Report Layout"
 {
@@ -562,7 +566,7 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
         Observer.Expect('validate unknown layout name|text', 'The field Email Body Layout Name of table Report Selections contains a value (LT W5 No Such Layout) that cannot be found in the related table (Report Layout List).');
         Observer.Expect('validate unknown layout name|code', 'DB:NothingInsideFilter');
         Observer.Expect('validate tenant layout name|text', 'The field Email Body Layout Name of table Report Selections contains a value (LT W5 Custom Body) that cannot be found in the related table (Report Layout List).');
-        Observer.Expect('validate tenant layout name|code', 'DB:Nothing');
+        Observer.Expect('validate tenant layout name|code', 'DB:NothingInsideFilter');
         Observer.Verify();
     end;
 
@@ -591,7 +595,13 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
         Observer.Observe('caption', RS."Email Body Layout Caption");
         W5CleanLayouts();
         W5RestoreSelections(Saved);
-        Observer.Finish();
+        Observer.Expect('modify', 'Yes');
+        Observer.Expect('stored name', 'LT W5 Custom Body');
+        Observer.Expect('stored app id', '{00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('stored type', 'Custom Report Layout');
+        Observer.Expect('publisher', '');
+        Observer.Expect('caption', 'LT W5 Custom Body');
+        Observer.Verify();
     end;
 
     [Test]
