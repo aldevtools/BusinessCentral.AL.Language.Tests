@@ -16,6 +16,12 @@
 //   their prefix. UTF-16 writes the same text. Every import fails with "The prefix  is not defined in the Namespaces property of the
 //   XMLPort." (XmlPortNodeProcess), whatever the document, and the rows stay.
 // BC versions: 27, 28, 29
+// Follow-up (al-runner issues 7131, 7091 and 7192; xmlports 96042-96044, tests XDN_AttrDefault_Export to XDN_AttrPrefixed_Export; corpus CI
+//   run 42246543615 for BC 27.5, 28.5 and 29.0, all alike): a field attribute on a table element does not change the namespaces. The root
+//   loses its prefix and declares xmlns as the soap uri, InputMsg declares the DefaultNamespace (or the namespace of the port,
+//   urn:microsoft-dynamics-nav/xmlports/x96043, without one), the attribute is written as `Type="1"` without a namespace, and so are
+//   attributes written with NamespacePrefix = 'soap' or a text attribute (`Ver="v1"`). Every import of these ports is refused with
+//   "The prefix  is not defined in the Namespaces property of the XMLPort." (XmlPortNodeProcess), as for the ports without an attribute.
 
 // The reporter's shape.
 xmlport 96030 "LT XDN Text Leaf"
@@ -334,4 +340,343 @@ codeunit 96036 "LT XDN Namespace Tests"
         Observer.Expect('export', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <soap:Body>\r\n    <tem:ReceiveMessage>\r\n      <InputMsg xmlns="urn:lt:xdn:input">\r\n        <Item>\r\n          <tem:Id>1</tem:Id>\r\n          <Name>one</Name>\r\n        </Item>\r\n        <Item>\r\n          <tem:Id>2</tem:Id>\r\n          <Name>  two  </Name>\r\n        </Item>\r\n      </InputMsg>\r\n    </tem:ReceiveMessage>\r\n  </soap:Body>\r\n</Envelope>');
         Observer.Verify();
     end;
+
+    [Test]
+    procedure XDN_AttrDefault_Export()
+    begin
+        Helper.Seed();
+        Observer.Observe('export', Helper.TryExportRaw(96042, TextEncoding::UTF8));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure XDN_AttrDefault_Import()
+    begin
+        Helper.Seed();
+        Observer.Observe('import default', Helper.TryImport(96042, '<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><tem:ReceiveMessage><InputMsg xmlns="urn:lt:xdn:input"><Remark Type="7"><Text>n7</Text></Remark></InputMsg></tem:ReceiveMessage></soap:Body></Envelope>', false));
+        Observer.Observe('rows after default', Helper.Rows());
+        Helper.Seed();
+        Observer.Observe('import plain', Helper.TryImport(96042, '<Envelope><Body><ReceiveMessage><InputMsg><Remark Type="8"><Text>n8</Text></Remark></InputMsg></ReceiveMessage></Body></Envelope>', false));
+        Observer.Observe('rows after plain', Helper.Rows());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure XDN_AttrNoDefault_Export()
+    begin
+        Helper.Seed();
+        Observer.Observe('export', Helper.TryExportRaw(96043, TextEncoding::UTF8));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure XDN_AttrNoDefault_Import()
+    begin
+        Helper.Seed();
+        Observer.Observe('import default', Helper.TryImport(96043, '<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><tem:ReceiveMessage><InputMsg xmlns="urn:microsoft-dynamics-nav/xmlports/x96043"><Remark Type="7"><Text>n7</Text></Remark></InputMsg></tem:ReceiveMessage></soap:Body></Envelope>', false));
+        Observer.Observe('rows after default', Helper.Rows());
+        Helper.Seed();
+        Observer.Observe('import plain', Helper.TryImport(96043, '<Envelope><Body><ReceiveMessage><InputMsg><Remark Type="8"><Text>n8</Text></Remark></InputMsg></ReceiveMessage></Body></Envelope>', false));
+        Observer.Observe('rows after plain', Helper.Rows());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure XDN_AttrPrefixed_Export()
+    begin
+        Helper.Seed();
+        Observer.Observe('export', Helper.TryExportRaw(96044, TextEncoding::UTF8));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure XDN_AttrDefault_Export()
+    begin
+        Helper.Seed();
+        Observer.Observe('export', Helper.TryExportRaw(96042, TextEncoding::UTF8));
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <soap:Body>\r\n    <tem:ReceiveMessage>\r\n      <InputMsg xmlns="urn:lt:xdn:input">\r\n        <Remark Type="1">\r\n          <Text>one</Text>\r\n        </Remark>\r\n        <Remark Type="2">\r\n          <Text>  two  </Text>\r\n        </Remark>\r\n      </InputMsg>\r\n    </tem:ReceiveMessage>\r\n  </soap:Body>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure XDN_AttrDefault_Import()
+    begin
+        Helper.Seed();
+        Observer.Observe('import default', Helper.TryImport(96042, '<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><tem:ReceiveMessage><InputMsg xmlns="urn:lt:xdn:input"><Remark Type="7"><Text>n7</Text></Remark></InputMsg></tem:ReceiveMessage></soap:Body></Envelope>', false));
+        Observer.Observe('rows after default', Helper.Rows());
+        Helper.Seed();
+        Observer.Observe('import plain', Helper.TryImport(96042, '<Envelope><Body><ReceiveMessage><InputMsg><Remark Type="8"><Text>n8</Text></Remark></InputMsg></ReceiveMessage></Body></Envelope>', false));
+        Observer.Observe('rows after plain', Helper.Rows());
+        Observer.Expect('import default', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after default', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('import plain', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after plain', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure XDN_AttrNoDefault_Export()
+    begin
+        Helper.Seed();
+        Observer.Observe('export', Helper.TryExportRaw(96043, TextEncoding::UTF8));
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <soap:Body>\r\n    <tem:ReceiveMessage>\r\n      <InputMsg xmlns="urn:microsoft-dynamics-nav/xmlports/x96043">\r\n        <Remark Type="1">\r\n          <Text>one</Text>\r\n        </Remark>\r\n        <Remark Type="2">\r\n          <Text>  two  </Text>\r\n        </Remark>\r\n      </InputMsg>\r\n    </tem:ReceiveMessage>\r\n  </soap:Body>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure XDN_AttrNoDefault_Import()
+    begin
+        Helper.Seed();
+        Observer.Observe('import default', Helper.TryImport(96043, '<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><tem:ReceiveMessage><InputMsg xmlns="urn:microsoft-dynamics-nav/xmlports/x96043"><Remark Type="7"><Text>n7</Text></Remark></InputMsg></tem:ReceiveMessage></soap:Body></Envelope>', false));
+        Observer.Observe('rows after default', Helper.Rows());
+        Helper.Seed();
+        Observer.Observe('import plain', Helper.TryImport(96043, '<Envelope><Body><ReceiveMessage><InputMsg><Remark Type="8"><Text>n8</Text></Remark></InputMsg></ReceiveMessage></Body></Envelope>', false));
+        Observer.Observe('rows after plain', Helper.Rows());
+        Observer.Expect('import default', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after default', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Expect('import plain', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('rows after plain', '1/one/1.5/true/2024-03-05/5;2/  two  /2.005/false//6;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure XDN_AttrPrefixed_Export()
+    begin
+        Helper.Seed();
+        Observer.Observe('export', Helper.TryExportRaw(96044, TextEncoding::UTF8));
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <soap:Body>\r\n    <tem:InputMsg Ver="v1">\r\n      <Remark Type="1" xmlns="urn:lt:xdn:input">\r\n        <Text>one</Text>\r\n      </Remark>\r\n      <Remark Type="2" xmlns="urn:lt:xdn:input">\r\n        <Text>  two  </Text>\r\n      </Remark>\r\n    </tem:InputMsg>\r\n  </soap:Body>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+}
+
+// Follow-up to al-runner issue 7131 (and 7091): Namespaces and UseDefaultNamespace = true on a port with a fieldattribute.
+// The reporter's shape with a DefaultNamespace: Envelope (soap) > Body (soap) > ReceiveMessage (tem) > InputMsg (no prefix) > a table
+// element Remark with a fieldattribute and a field element.
+xmlport 96042 "LT XDN Attr Default"
+{
+    Direction = Both;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+    DefaultNamespace = 'urn:lt:xdn:input';
+    Namespaces = soap = 'http://schemas.xmlsoap.org/soap/envelope/', tem = 'http://tempuri.org/';
+    UseDefaultNamespace = true;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            NamespacePrefix = 'soap';
+            textelement(Body)
+            {
+                NamespacePrefix = 'soap';
+                textelement(ReceiveMessage)
+                {
+                    NamespacePrefix = 'tem';
+                    textelement(InputMsg)
+                    {
+                        tableelement(Rm; "LT Y83 Item")
+                        {
+                            XmlName = 'Remark';
+                            fieldattribute(Type; Rm.Id) { }
+                            fieldelement(Text; Rm.Name) { }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// The same without a DefaultNamespace (the shape of issue 7091): InputMsg takes the namespace of the port.
+xmlport 96043 "LT XDN Attr NoDefault"
+{
+    Direction = Both;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+    Namespaces = soap = 'http://schemas.xmlsoap.org/soap/envelope/', tem = 'http://tempuri.org/';
+    UseDefaultNamespace = true;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            NamespacePrefix = 'soap';
+            textelement(Body)
+            {
+                NamespacePrefix = 'soap';
+                textelement(ReceiveMessage)
+                {
+                    NamespacePrefix = 'tem';
+                    textelement(InputMsg)
+                    {
+                        tableelement(Rm; "LT Y83 Item")
+                        {
+                            XmlName = 'Remark';
+                            fieldattribute(Type; Rm.Id) { }
+                            fieldelement(Text; Rm.Name) { }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Neighbour: a text attribute on InputMsg, and a field attribute with a prefix, with a DefaultNamespace.
+xmlport 96044 "LT XDN Attr Prefixed"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+    DefaultNamespace = 'urn:lt:xdn:input';
+    Namespaces = soap = 'http://schemas.xmlsoap.org/soap/envelope/', tem = 'http://tempuri.org/';
+    UseDefaultNamespace = true;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            NamespacePrefix = 'soap';
+            textelement(Body)
+            {
+                NamespacePrefix = 'soap';
+                textelement(InputMsg)
+                {
+                    NamespacePrefix = 'tem';
+                    textattribute(Ver)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            Ver := 'v1';
+                        end;
+                    }
+                    tableelement(Rm; "LT Y83 Item")
+                    {
+                        XmlName = 'Remark';
+                        fieldattribute(Type; Rm.Id) { NamespacePrefix = 'soap'; }
+                        fieldelement(Text; Rm.Name) { }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Follow-up to al-runner issue 7131 (and 7091): Namespaces and UseDefaultNamespace = true on a port with a fieldattribute.
+// The reporter's shape with a DefaultNamespace: Envelope (soap) > Body (soap) > ReceiveMessage (tem) > InputMsg (no prefix) > a table
+// element Remark with a fieldattribute and a field element.
+xmlport 96042 "LT XDN Attr Default"
+{
+    Direction = Both;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+    DefaultNamespace = 'urn:lt:xdn:input';
+    Namespaces = soap = 'http://schemas.xmlsoap.org/soap/envelope/', tem = 'http://tempuri.org/';
+    UseDefaultNamespace = true;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            NamespacePrefix = 'soap';
+            textelement(Body)
+            {
+                NamespacePrefix = 'soap';
+                textelement(ReceiveMessage)
+                {
+                    NamespacePrefix = 'tem';
+                    textelement(InputMsg)
+                    {
+                        tableelement(Rm; "LT Y83 Item")
+                        {
+                            XmlName = 'Remark';
+                            fieldattribute(Type; Rm.Id) { }
+                            fieldelement(Text; Rm.Name) { }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// The same without a DefaultNamespace (the shape of issue 7091): InputMsg takes the namespace of the port.
+xmlport 96043 "LT XDN Attr NoDefault"
+{
+    Direction = Both;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+    Namespaces = soap = 'http://schemas.xmlsoap.org/soap/envelope/', tem = 'http://tempuri.org/';
+    UseDefaultNamespace = true;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            NamespacePrefix = 'soap';
+            textelement(Body)
+            {
+                NamespacePrefix = 'soap';
+                textelement(ReceiveMessage)
+                {
+                    NamespacePrefix = 'tem';
+                    textelement(InputMsg)
+                    {
+                        tableelement(Rm; "LT Y83 Item")
+                        {
+                            XmlName = 'Remark';
+                            fieldattribute(Type; Rm.Id) { }
+                            fieldelement(Text; Rm.Name) { }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Neighbour: a text attribute on InputMsg, and a field attribute with a prefix, with a DefaultNamespace.
+xmlport 96044 "LT XDN Attr Prefixed"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+    DefaultNamespace = 'urn:lt:xdn:input';
+    Namespaces = soap = 'http://schemas.xmlsoap.org/soap/envelope/', tem = 'http://tempuri.org/';
+    UseDefaultNamespace = true;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            NamespacePrefix = 'soap';
+            textelement(Body)
+            {
+                NamespacePrefix = 'soap';
+                textelement(InputMsg)
+                {
+                    NamespacePrefix = 'tem';
+                    textattribute(Ver)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            Ver := 'v1';
+                        end;
+                    }
+                    tableelement(Rm; "LT Y83 Item")
+                    {
+                        XmlName = 'Remark';
+                        fieldattribute(Type; Rm.Id) { NamespacePrefix = 'soap'; }
+                        fieldelement(Text; Rm.Name) { }
+                    }
+                }
+            }
+        }
+    }
 }
