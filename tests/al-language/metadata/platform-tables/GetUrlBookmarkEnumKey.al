@@ -169,4 +169,46 @@ codeunit 91264 "LT SC GetUrl Enum Key"
         Observer.Expect('fifth A1', '?company=My%20Company&page=91263&bookmark=21%3bfmQBAACLAgAAAAJ7%2f0EAMQ%3d%3d');
         Observer.Verify();
     end;
+
+    // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/system/system-geturl-method
+    [Test]
+    procedure GetUrl_PurchaseHeader_SevenDigits_UsesCompositeBookmark()
+    var
+        Row: Record "Purchase Header";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        Row.Init();
+        Row."Document Type" := Row."Document Type"::Order;
+        Row."No." := '1234567';
+        Observer.Observe('bookmark', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", Row, false)));
+        Observer.Expect('bookmark', '?company=My%20Company&page=50&bookmark=31%3bJgAAAACLAQAAAHsHMQAyADMANAA1ADYANw%3d%3d');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure GetUrl_PurchaseHeader_DigitThenLetter_UsesCompositeBookmark()
+    var
+        Row: Record "Purchase Header";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        Row.Init();
+        Row."Document Type" := Row."Document Type"::Order;
+        Row."No." := '1A';
+        Observer.Observe('bookmark', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", Row, false)));
+        Observer.Expect('bookmark', '?company=My%20Company&page=50&bookmark=21%3bJgAAAACLAQAAAHv%2fMQBB');
+        Observer.Verify();
+    end;
+
+    local procedure Initialize()
+    var
+        Cleanup: Codeunit ALTFixtureCleanup;
+        Row: Record "Purchase Header";
+    begin
+        Cleanup.Initialize();
+        // The API consumes uninserted buffers; clear the standard table to make that precondition explicit.
+        Row.DeleteAll(false);
+    end;
+
 }
