@@ -754,7 +754,7 @@ codeunit 96940 "LT PG Jit Load Gone"
         Seed();
         RecRef.Open(Database::"LT PG Code Row");
         RecRef.SetLoadFields(R.FieldNo("No."));
-        RecRef.SetRange(Name, 'one');
+        RecRef.Field(R.FieldNo(Name)).SetRange('one');
         RecRef.FindFirst();
         GoneCode('A1');
         Observer.Observe('raised', Format(not TryReadRefField(RecRef, R.FieldNo(Name))));
