@@ -5,6 +5,10 @@
 // Enum fields, and the rows each stored text selects when its lines are applied to a RecordRef through the page "Table Filter".
 // Facts per condition: the text of Evaluate into the field (or the error), Format of the field, the field number and filter text of each line of
 // the page, RecordRef.GetFilters after applying them, and the keys of the selected rows (or the error text).
+// Seen on BC 27.5, 28.5 and 29.0 (identical): Text '' , <>'' , ?* and x* are stored as typed. Decimal <>0 and <>5 are stored as typed; a
+// quoted or unquoted `>=100000` is stored as `">=100,000"` (grouped, quoted), the page line and GetFilters give `>=100,000`; an unquoted `>=100,000`
+// does not evaluate. Code CORP*, <>CORP* and corp* are stored upper case. Boolean Yes and true are stored as Yes, No, no and false as No. An
+// Enum ordinal that no member has (2, 7, 10) is stored as the number and selects no row; a member is stored by name.
 // BC versions: 27.5, 28.5, 29.0
 enum 96900 "LT TF Kind"
 {
@@ -47,7 +51,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Txt=''''');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Txt=''''');
+        Observer.Expect('c lines', '2=''''');
+        Observer.Expect('c filters', 'Txt: ''''');
+        Observer.Expect('c keys', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -57,7 +65,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Txt=<>''''');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Txt=<>''''');
+        Observer.Expect('c lines', '2=<>''''');
+        Observer.Expect('c filters', 'Txt: <>''''');
+        Observer.Expect('c keys', '2,3,4,5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -67,7 +79,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Txt=?*');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Txt=?*');
+        Observer.Expect('c lines', '2=?*');
+        Observer.Expect('c filters', 'Txt: ?*');
+        Observer.Expect('c keys', '2,3,4,5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -77,7 +93,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Txt=x*');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Txt=x*');
+        Observer.Expect('c lines', '2=x*');
+        Observer.Expect('c filters', 'Txt: x*');
+        Observer.Expect('c keys', '2,3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -87,7 +107,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Dec=<>0');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Dec=<>0');
+        Observer.Expect('c lines', '3=<>0');
+        Observer.Expect('c filters', 'Dec: <>0');
+        Observer.Expect('c keys', '2,3,4,5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -97,7 +121,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Dec=<>5');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Dec=<>5');
+        Observer.Expect('c lines', '3=<>5');
+        Observer.Expect('c filters', 'Dec: <>5');
+        Observer.Expect('c keys', '1,3,4,5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -107,7 +135,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Dec=">=100000"');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Dec=">=100,000"');
+        Observer.Expect('c lines', '3=>=100,000');
+        Observer.Expect('c filters', 'Dec: >=100,000');
+        Observer.Expect('c keys', '3,4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -117,7 +149,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Dec=>=100000');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Dec=">=100,000"');
+        Observer.Expect('c lines', '3=>=100,000');
+        Observer.Expect('c filters', 'Dec: >=100,000');
+        Observer.Expect('c keys', '3,4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -127,7 +163,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Dec=">=100,000"');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Dec=">=100,000"');
+        Observer.Expect('c lines', '3=>=100,000');
+        Observer.Expect('c filters', 'Dec: >=100,000');
+        Observer.Expect('c keys', '3,4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -137,7 +177,9 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Dec=>=100,000');
-        Observer.Finish();
+        Observer.Expect('c evaluate|text', 'The value "LT TF Filter Row: Dec=>=100,000" can''t be evaluated into type TableFilter.');
+        Observer.Expect('c evaluate|code', 'Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -147,7 +189,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Cod=CORP*');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Cod=CORP*');
+        Observer.Expect('c lines', '4=CORP*');
+        Observer.Expect('c filters', 'Cod: CORP*');
+        Observer.Expect('c keys', '2,3,4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -157,7 +203,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Cod=<>CORP*');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Cod=<>CORP*');
+        Observer.Expect('c lines', '4=<>CORP*');
+        Observer.Expect('c filters', 'Cod: <>CORP*');
+        Observer.Expect('c keys', '1,5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -167,7 +217,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Cod=corp*');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Cod=CORP*');
+        Observer.Expect('c lines', '4=CORP*');
+        Observer.Expect('c filters', 'Cod: CORP*');
+        Observer.Expect('c keys', '2,3,4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -177,7 +231,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Bool=Yes');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Bool=Yes');
+        Observer.Expect('c lines', '5=Yes');
+        Observer.Expect('c filters', 'Bool: Yes');
+        Observer.Expect('c keys', '2,3,5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -187,7 +245,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Bool=No');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Bool=No');
+        Observer.Expect('c lines', '5=No');
+        Observer.Expect('c filters', 'Bool: No');
+        Observer.Expect('c keys', '1,4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -197,7 +259,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Bool=no');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Bool=No');
+        Observer.Expect('c lines', '5=No');
+        Observer.Expect('c filters', 'Bool: No');
+        Observer.Expect('c keys', '1,4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -207,7 +273,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Bool=false');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Bool=No');
+        Observer.Expect('c lines', '5=No');
+        Observer.Expect('c filters', 'Bool: No');
+        Observer.Expect('c keys', '1,4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -217,7 +287,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Bool=true');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Bool=Yes');
+        Observer.Expect('c lines', '5=Yes');
+        Observer.Expect('c filters', 'Bool: Yes');
+        Observer.Expect('c keys', '2,3,5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -227,7 +301,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Kind=7');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Kind=7');
+        Observer.Expect('c lines', '6=7');
+        Observer.Expect('c filters', 'Kind: 7');
+        Observer.Expect('c keys', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -237,7 +315,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Kind=10');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Kind=10');
+        Observer.Expect('c lines', '6=10');
+        Observer.Expect('c filters', 'Kind: 10');
+        Observer.Expect('c keys', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -247,7 +329,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Kind=2');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Kind=2');
+        Observer.Expect('c lines', '6=2');
+        Observer.Expect('c filters', 'Kind: 2');
+        Observer.Expect('c keys', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -257,7 +343,11 @@ codeunit 96902 "LT TF Stored Test"
     begin
         Initialize();
         Probe(Observer, 'c', 'Kind=5');
-        Observer.Finish();
+        Observer.Expect('c stored', 'LT TF Filter Row: Kind=E');
+        Observer.Expect('c lines', '6=E');
+        Observer.Expect('c filters', 'Kind: E');
+        Observer.Expect('c keys', '3');
+        Observer.Verify();
     end;
 
     [TryFunction]

@@ -4,6 +4,8 @@
 // Probe: (al-runner issue 7189 follow-up) enum-qualified lists and ranges in `filter(...)` of CalcFormula and SourceTableView: `filter(E::A | E::B)` and `filter(E::A .. E::B)`.
 // Single `const(E::A)` and `filter(E::A)` are pinned in record/qualified-enum-filters/TestQualifiedEnumFilters.al.
 // Facts: the sums the FlowFields give and the entry numbers the two pages list, for rows with the status blank, Draft, Active and Closed.
+// Seen on BC 27.5, 28.5 and 29.0 (identical): the compiler accepts both forms in CalcFormula and SourceTableView. Draft | Active and Draft .. Active
+// sum 9.25 + 42.5 = 51.75, Active | Closed and Active .. Closed count 2; the list page shows Draft and Closed rows (202, 404), the range page Draft to Active (202, 303).
 // BC versions: 27.5, 28.5, 29.0
 table 96910 "LT EL Header"
 {
@@ -96,7 +98,11 @@ codeunit 96913 "LT EL Enum Lists Test"
         Observer.Observe('range total', Format(Header."Range Total"));
         Observer.Observe('list count', Format(Header."List Count"));
         Observer.Observe('range count', Format(Header."Range Count"));
-        Observer.Finish();
+        Observer.Expect('list total', '51.75');
+        Observer.Expect('range total', '51.75');
+        Observer.Expect('list count', '2');
+        Observer.Expect('range count', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -116,7 +122,8 @@ codeunit 96913 "LT EL Enum Lists Test"
             until not View.Next();
         View.Close();
         Observer.Observe('list keys', Keys);
-        Observer.Finish();
+        Observer.Expect('list keys', '202,404');
+        Observer.Verify();
     end;
 
     [Test]
@@ -136,7 +143,8 @@ codeunit 96913 "LT EL Enum Lists Test"
             until not View.Next();
         View.Close();
         Observer.Observe('range keys', Keys);
-        Observer.Finish();
+        Observer.Expect('range keys', '202,303');
+        Observer.Verify();
     end;
 
     local procedure Initialize()
