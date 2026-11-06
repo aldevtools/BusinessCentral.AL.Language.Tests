@@ -314,6 +314,9 @@ codeunit 92279 "LT Y28 Collapsed Tree Tests"
         Observer.Verify();
     end;
 
+    // Issue 7168: Rec.Get(2) in an action leaves Rec on MC1, a child row the collapsed page did not show. With and without
+    // CurrPage.Update(false) the page ends in the same state: the row triggers run in the same order (the page re-reads its rows after
+    // the action either way), it stands on MC1 and shows WC1, MC1, MC2, WC2 (WC1, the parent of MC1, is expanded).
     [Test]
     procedure R7168_ActionGetChildWithoutRefresh()
     var
@@ -331,7 +334,14 @@ codeunit 92279 "LT Y28 Collapsed Tree Tests"
         Observer.Observe('current-cell', P.CellCtl.Value());
         Observer.Observe('current-expanded', Format(P.IsExpanded()));
         Observer.Observe('walk', WalkBoard(P));
-        Observer.Finish();
+        Observer.Expect('open-log', 'open n=5 cur=WC1;agrWC1;agrMC1;agrMC2;agrWC2;agrMC3;agrWC1;agrWC1;agcrWC1;');
+        Observer.Expect('first', 'Yes/WC1');
+        Observer.Expect('action-log', 'agrWC1;act-get=Yes;agrMC1;agrMC1;agrMC2;agrWC2;agrMC3;agrMC1;agrWC1;agrMC1;agrMC1;agcrMC1;');
+        Observer.Expect('current', 'MC1');
+        Observer.Expect('current-cell', 'cell of MC1');
+        Observer.Expect('current-expanded', 'No');
+        Observer.Expect('walk', 'WC1 MC1 MC2 WC2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -351,7 +361,14 @@ codeunit 92279 "LT Y28 Collapsed Tree Tests"
         Observer.Observe('current-cell', P.CellCtl.Value());
         Observer.Observe('current-expanded', Format(P.IsExpanded()));
         Observer.Observe('walk', WalkBoard(P));
-        Observer.Finish();
+        Observer.Expect('open-log', 'open n=5 cur=WC1;agrWC1;agrMC1;agrMC2;agrWC2;agrMC3;agrWC1;agrWC1;agcrWC1;');
+        Observer.Expect('first', 'Yes/WC1');
+        Observer.Expect('action-log', 'agrWC1;act-get=Yes;agrMC1;agrMC1;agrMC2;agrWC2;agrMC3;agrMC1;agrWC1;agrMC1;agrMC1;agcrMC1;');
+        Observer.Expect('current', 'MC1');
+        Observer.Expect('current-cell', 'cell of MC1');
+        Observer.Expect('current-expanded', 'No');
+        Observer.Expect('walk', 'WC1 MC1 MC2 WC2');
+        Observer.Verify();
     end;
 
     local procedure WalkBoard(var P: TestPage "LT R7168 Tree Board") Result: Text

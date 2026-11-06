@@ -25,7 +25,14 @@ codeunit 96073 "LT R7169 Dep Published As"
             repeat
                 Observer.Observe('install_' + Log.Entry, Log.Detail);
             until Log.Next() = 0;
-        Observer.Finish();
+        Observer.Expect('log_rows', '4');
+        // XApp A's own row does not exist yet while its install code runs; Base Application is Global; the fixture app (publisher
+        // AL Language, installed before A) is already Dev there.
+        Observer.Expect('install_own', 'no row');
+        Observer.Expect('install_base_application', 'Global|0');
+        Observer.Expect('install_filter_publisher_al_language_dev_count', '1');
+        Observer.Expect('install_filter_publisher_al_language_global_count', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -48,6 +55,11 @@ codeunit 96073 "LT R7169 Dep Published As"
         Observer.Observe('al_language_dev_count', Format(Row.Count()));
         Row.SetRange("Published As", Row."Published As"::PTE);
         Observer.Observe('al_language_pte_count', Format(Row.Count()));
-        Observer.Finish();
+        // Dev: this app, XApp A and the fixture app, all published through the dev endpoint by the corpus CI.
+        Observer.Expect('xapp_a', 'AL Language| Dev|2');
+        Observer.Expect('al_language_global_count', '0');
+        Observer.Expect('al_language_dev_count', '3');
+        Observer.Expect('al_language_pte_count', '0');
+        Observer.Verify();
     end;
 }
