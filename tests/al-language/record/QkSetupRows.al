@@ -1,5 +1,5 @@
 // Scope: fixture
-// Fixtures used: none; used by test codeunits 78603, 70535, 67755, 84363 and 86504.
+// Fixtures used: none; used by test codeunits 78603, 70535, 67755, 84363, 73973 and 86504.
 // Writer QK (owner decision 2026-10-21: corpus tests must not depend on the demo rows of the corpus database). Writes the setup rows a test
 // reads with fixed values, and puts the rows back afterwards (the corpus runner does not promise a rollback between tests or codeunits).
 // Not SingleInstance: every test declares its own variable, so the saved rows live in that variable only.
