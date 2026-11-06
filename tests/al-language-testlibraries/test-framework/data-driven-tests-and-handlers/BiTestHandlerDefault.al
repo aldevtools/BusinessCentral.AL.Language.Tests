@@ -283,7 +283,7 @@ codeunit 81624 "LT BI DD Only"
         if CaseData.CaseText() = 'gamma' then begin
             Observer.Observe('log', Log.Take());
             Observer.Observe('marker', Log.GetMarker());
-            Observer.Expect('log', 'D.bCU(||n=1);D.bP(Rows1||n=2);D.bC(Rows1|alpha|n=3);run1(alpha);D.aC(Rows1|alpha|n=4|Yes);D.bC(Rows1|beta|n=5);run1(beta);D.aC(Rows1|beta|n=6|Yes);D.bC(Rows1|gamma|n=7);run1(gamma);D.aC(Rows1|gamma|n=8|Yes);D.aP(Rows1||n=9|Yes);D.bP(Rows2||n=10);D.bC(Rows2|alpha|n=11);run2(alpha);D.aC(Rows2|alpha|n=12|Yes);D.bC(Rows2|beta|n=13);run2(beta);D.aC(Rows2|beta|n=14|Yes);D.bC(Rows2|gamma|n=15);run2(gamma);␞marker␟set by D in bP of Rows2');
+            Observer.Expect('log', 'D.bCU(||n=1);D.bP(Rows1||n=2);D.bC(Rows1|alpha|n=3);run1(alpha);D.aC(Rows1|alpha|n=4|Yes);D.bC(Rows1|beta|n=5);run1(beta);D.aC(Rows1|beta|n=6|Yes);D.bC(Rows1|gamma|n=7);run1(gamma);D.aC(Rows1|gamma|n=8|Yes);D.aP(Rows1||n=9|Yes);D.bP(Rows2||n=10);D.bC(Rows2|alpha|n=11);run2(alpha);D.aC(Rows2|alpha|n=12|Yes);D.bC(Rows2|beta|n=13);run2(beta);D.aC(Rows2|beta|n=14|Yes);D.bC(Rows2|gamma|n=15);run2(gamma);');
             Observer.Expect('marker', 'set by D in bP of Rows2');
             Observer.Verify();
         end;
