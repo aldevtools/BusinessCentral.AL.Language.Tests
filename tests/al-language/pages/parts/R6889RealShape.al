@@ -639,6 +639,438 @@ page 96139 "PG R6889 RS Host4"
     end;
 }
 
+// step 2a: only the Order key sort and the inline renumbering of step 2 (no tree, no AutoSplitKey, no DeleteAllowed = false)
+page 96142 "PG R6889 RS Part2a"
+{
+    PageType = ListPart;
+    SourceTable = "PG R6889 RS Line";
+    SourceTableView = sorting("Header No.", "Order No.");
+    InsertAllowed = false;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+
+                field(Level; Rec.Level) { ApplicationArea = All; }
+                field("Line No."; Rec."Line No.") { ApplicationArea = All; }
+                field("Order No."; Rec."Order No.") { ApplicationArea = All; }
+                field(Type; Rec.Type)
+                {
+                    ApplicationArea = All;
+
+                    trigger OnValidate()
+                    var
+                        Log: Codeunit "PG R6889 RS Log";
+                    begin
+                        Log.Add('TY.V');
+                        CurrPage.Update(false);
+                        Log.Add('TY.V.end');
+                    end;
+                }
+                field("No."; Rec."No.") { ApplicationArea = All; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            // step 2: inline insert and renumber, then Rec.Next()
+            action(NewChildInline)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                var
+                    New: Record "PG R6889 RS Line";
+                    Lines: Codeunit "PG R6889 RS Lines";
+                    Log: Codeunit "PG R6889 RS Log";
+                begin
+                    Log.Add('ACT');
+                    New.Init();
+                    New."Header No." := Rec."Header No.";
+                    New."Line No." := Lines.LastLineNo(Rec."Header No.") + 10000;
+                    New."Order No." := Rec."Order No." + 1;
+                    New.Level := Rec.Level + 1;
+                    New.Insert(true);
+                    Lines.Renumber(Rec."Header No.");
+                    Rec.Next();
+                end;
+            }
+            // step 3: Rec as var to a codeunit, then Rec.Next()
+            action(NewChildCodeunit)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                var
+                    Lines: Codeunit "PG R6889 RS Lines";
+                    Log: Codeunit "PG R6889 RS Log";
+                begin
+                    Log.Add('ACT');
+                    Lines.NewChildLine(Rec);
+                    Rec.Next();
+                end;
+            }
+        }
+    }
+
+    trigger OnAfterGetRecord()
+    var
+        Log: Codeunit "PG R6889 RS Log";
+    begin
+        Log.Add('R' + Format(Rec."Line No." div 1000));
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    var
+        Log: Codeunit "PG R6889 RS Log";
+    begin
+        Log.Add('C' + Format(Rec."Line No." div 1000));
+    end;
+
+    procedure SetEditable(NewEditable: Boolean)
+    var
+        Log: Codeunit "PG R6889 RS Log";
+    begin
+        Log.Add('SE');
+        CurrPage.Update(false);
+    end;
+}
+
+// step 2b: only the tree (ShowAsTree, Level) of step 2; sorted by the primary key, so the inline action inserts at the end
+page 96144 "PG R6889 RS Part2b"
+{
+    PageType = ListPart;
+    SourceTable = "PG R6889 RS Line";
+    InsertAllowed = false;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                ShowAsTree = true;
+                IndentationColumn = Rec.Level;
+                TreeInitialState = ExpandAll;
+
+                field(Level; Rec.Level) { ApplicationArea = All; }
+                field("Line No."; Rec."Line No.") { ApplicationArea = All; }
+                field("Order No."; Rec."Order No.") { ApplicationArea = All; }
+                field(Type; Rec.Type)
+                {
+                    ApplicationArea = All;
+
+                    trigger OnValidate()
+                    var
+                        Log: Codeunit "PG R6889 RS Log";
+                    begin
+                        Log.Add('TY.V');
+                        CurrPage.Update(false);
+                        Log.Add('TY.V.end');
+                    end;
+                }
+                field("No."; Rec."No.") { ApplicationArea = All; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            // step 2: inline insert and renumber, then Rec.Next()
+            action(NewChildInline)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                var
+                    New: Record "PG R6889 RS Line";
+                    Lines: Codeunit "PG R6889 RS Lines";
+                    Log: Codeunit "PG R6889 RS Log";
+                begin
+                    Log.Add('ACT');
+                    New.Init();
+                    New."Header No." := Rec."Header No.";
+                    New."Line No." := Lines.LastLineNo(Rec."Header No.") + 10000;
+                    New."Order No." := Rec."Order No." + 1;
+                    New.Level := Rec.Level + 1;
+                    New.Insert(true);
+                    Lines.Renumber(Rec."Header No.");
+                    Rec.Next();
+                end;
+            }
+            // step 3: Rec as var to a codeunit, then Rec.Next()
+            action(NewChildCodeunit)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                var
+                    Lines: Codeunit "PG R6889 RS Lines";
+                    Log: Codeunit "PG R6889 RS Log";
+                begin
+                    Log.Add('ACT');
+                    Lines.NewChildLine(Rec);
+                    Rec.Next();
+                end;
+            }
+        }
+    }
+
+    trigger OnAfterGetRecord()
+    var
+        Log: Codeunit "PG R6889 RS Log";
+    begin
+        Log.Add('R' + Format(Rec."Line No." div 1000));
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    var
+        Log: Codeunit "PG R6889 RS Log";
+    begin
+        Log.Add('C' + Format(Rec."Line No." div 1000));
+    end;
+
+    procedure SetEditable(NewEditable: Boolean)
+    var
+        Log: Codeunit "PG R6889 RS Log";
+    begin
+        Log.Add('SE');
+        CurrPage.Update(false);
+    end;
+}
+
+// step 2c: only AutoSplitKey and DeleteAllowed = false of step 2 (action NewLineAfter of step 1)
+page 96146 "PG R6889 RS Part2c"
+{
+    PageType = ListPart;
+    SourceTable = "PG R6889 RS Line";
+    AutoSplitKey = true;
+    InsertAllowed = false;
+    DeleteAllowed = false;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field("Line No."; Rec."Line No.") { ApplicationArea = All; }
+                field(Type; Rec.Type)
+                {
+                    ApplicationArea = All;
+
+                    trigger OnValidate()
+                    var
+                        Log: Codeunit "PG R6889 RS Log";
+                    begin
+                        Log.Add('TY.V');
+                        CurrPage.Update(false);
+                        Log.Add('TY.V.end');
+                    end;
+                }
+                field("No."; Rec."No.") { ApplicationArea = All; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(NewLineAfter)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                var
+                    Line: Record "PG R6889 RS Line";
+                    Log: Codeunit "PG R6889 RS Log";
+                begin
+                    Log.Add('ACT');
+                    Line.SetRange("Header No.", Rec."Header No.");
+                    Line.FindLast();
+                    Line."Line No." += 10000;
+                    Line.Type := Line.Type::Item;
+                    Line."No." := '';
+                    Line.Insert(true);
+                    Rec.Next();
+                end;
+            }
+        }
+    }
+
+    trigger OnAfterGetRecord()
+    var
+        Log: Codeunit "PG R6889 RS Log";
+    begin
+        Log.Add('R' + Format(Rec."Line No." div 1000));
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    var
+        Log: Codeunit "PG R6889 RS Log";
+    begin
+        Log.Add('C' + Format(Rec."Line No." div 1000));
+    end;
+
+    procedure SetEditable(NewEditable: Boolean)
+    var
+        Log: Codeunit "PG R6889 RS Log";
+    begin
+        Log.Add('SE');
+        CurrPage.Update(false);
+    end;
+}
+
+// host of step 2a: as Host1
+page 96143 "PG R6889 RS Host2a"
+{
+    PageType = ListPlus;
+    SourceTable = "LT R6877 Doc";
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field("No."; Rec."No.") { ApplicationArea = All; }
+            part(Lines; "PG R6889 RS Part2a")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Header No." = field("No.");
+                UpdatePropagation = Both;
+                Editable = EditableG;
+            }
+        }
+    }
+
+    var
+        EditableG: Boolean;
+
+    trigger OnOpenPage()
+    begin
+        EditableG := true;
+    end;
+
+    trigger OnAfterGetRecord()
+    var
+        Log: Codeunit "PG R6889 RS Log";
+    begin
+        Log.Add('HR');
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    var
+        Log: Codeunit "PG R6889 RS Log";
+    begin
+        Log.Add('HC');
+        CurrPage.Lines.Page.SetEditable(true);
+    end;
+}
+
+// host of step 2b: as Host1
+page 96145 "PG R6889 RS Host2b"
+{
+    PageType = ListPlus;
+    SourceTable = "LT R6877 Doc";
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field("No."; Rec."No.") { ApplicationArea = All; }
+            part(Lines; "PG R6889 RS Part2b")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Header No." = field("No.");
+                UpdatePropagation = Both;
+                Editable = EditableG;
+            }
+        }
+    }
+
+    var
+        EditableG: Boolean;
+
+    trigger OnOpenPage()
+    begin
+        EditableG := true;
+    end;
+
+    trigger OnAfterGetRecord()
+    var
+        Log: Codeunit "PG R6889 RS Log";
+    begin
+        Log.Add('HR');
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    var
+        Log: Codeunit "PG R6889 RS Log";
+    begin
+        Log.Add('HC');
+        CurrPage.Lines.Page.SetEditable(true);
+    end;
+}
+
+// host of step 2c: as Host1
+page 96147 "PG R6889 RS Host2c"
+{
+    PageType = ListPlus;
+    SourceTable = "LT R6877 Doc";
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field("No."; Rec."No.") { ApplicationArea = All; }
+            part(Lines; "PG R6889 RS Part2c")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Header No." = field("No.");
+                UpdatePropagation = Both;
+                Editable = EditableG;
+            }
+        }
+    }
+
+    var
+        EditableG: Boolean;
+
+    trigger OnOpenPage()
+    begin
+        EditableG := true;
+    end;
+
+    trigger OnAfterGetRecord()
+    var
+        Log: Codeunit "PG R6889 RS Log";
+    begin
+        Log.Add('HR');
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    var
+        Log: Codeunit "PG R6889 RS Log";
+    begin
+        Log.Add('HC');
+        CurrPage.Lines.Page.SetEditable(true);
+    end;
+}
+
 codeunit 96140 "PG R6889 RS Probe"
 {
     Subtype = Test;
@@ -801,6 +1233,89 @@ codeunit 96140 "PG R6889 RS Probe"
         ObserveStored(Observer);
     end;
 
+    // Step2a: Host2a, action NewChildInline from the first line.
+    local procedure RunStep2a(var Observer: Codeunit "Probe Observer")
+    var
+        P: TestPage "PG R6889 RS Host2a";
+        Log: Codeunit "PG R6889 RS Log";
+    begin
+        P.OpenEdit();
+        P.GoToKey('D1');
+        P.Lines.First();
+        Log.Reset();
+        P.Lines.NewChildInline.Invoke();
+        Observer.Observe('line after action', P.Lines."Line No.".Value()+ '/O' + P.Lines."Order No.".Value());
+        Observer.Observe('log action', Log.Get());
+        Log.Reset();
+        P.Lines.Type.SetValue('Resource');
+        Observer.Observe('after type', P.Lines."Line No.".Value() + ' ' + P.Lines.Type.Value());
+        Observer.Observe('log type', Log.Get());
+        Log.Reset();
+        P.Lines."No.".SetValue('R1');
+        Observer.Observe('after no', P.Lines."Line No.".Value() + ' ' + P.Lines.Type.Value());
+        Observer.Observe('log no', Log.Get());
+        Log.Reset();
+        P.Close();
+        Observer.Observe('log close', Log.Get());
+        ObserveStored(Observer);
+    end;
+
+    // Step2b: Host2b, action NewChildInline from the second line.
+    local procedure RunStep2b(var Observer: Codeunit "Probe Observer")
+    var
+        P: TestPage "PG R6889 RS Host2b";
+        Log: Codeunit "PG R6889 RS Log";
+    begin
+        P.OpenEdit();
+        P.GoToKey('D1');
+        P.Lines.First();
+        P.Lines.Next();
+        Log.Reset();
+        P.Lines.NewChildInline.Invoke();
+        Observer.Observe('line after action', P.Lines."Line No.".Value()+ '/O' + P.Lines."Order No.".Value());
+        Observer.Observe('log action', Log.Get());
+        Log.Reset();
+        P.Lines.Type.SetValue('Resource');
+        Observer.Observe('after type', P.Lines."Line No.".Value() + ' ' + P.Lines.Type.Value());
+        Observer.Observe('log type', Log.Get());
+        Log.Reset();
+        P.Lines."No.".SetValue('R1');
+        Observer.Observe('after no', P.Lines."Line No.".Value() + ' ' + P.Lines.Type.Value());
+        Observer.Observe('log no', Log.Get());
+        Log.Reset();
+        P.Close();
+        Observer.Observe('log close', Log.Get());
+        ObserveStored(Observer);
+    end;
+
+    // Step2c: Host2c, action NewLineAfter from the second line.
+    local procedure RunStep2c(var Observer: Codeunit "Probe Observer")
+    var
+        P: TestPage "PG R6889 RS Host2c";
+        Log: Codeunit "PG R6889 RS Log";
+    begin
+        P.OpenEdit();
+        P.GoToKey('D1');
+        P.Lines.First();
+        P.Lines.Next();
+        Log.Reset();
+        P.Lines.NewLineAfter.Invoke();
+        Observer.Observe('line after action', P.Lines."Line No.".Value());
+        Observer.Observe('log action', Log.Get());
+        Log.Reset();
+        P.Lines.Type.SetValue('Resource');
+        Observer.Observe('after type', P.Lines."Line No.".Value() + ' ' + P.Lines.Type.Value());
+        Observer.Observe('log type', Log.Get());
+        Log.Reset();
+        P.Lines."No.".SetValue('R1');
+        Observer.Observe('after no', P.Lines."Line No.".Value() + ' ' + P.Lines.Type.Value());
+        Observer.Observe('log no', Log.Get());
+        Log.Reset();
+        P.Close();
+        Observer.Observe('log close', Log.Get());
+        ObserveStored(Observer);
+    end;
+
     [Test]
     procedure PG6889RS_Step0_EnumControl_BothNoHostCall()
     var
@@ -848,6 +1363,36 @@ codeunit 96140 "PG R6889 RS Probe"
     begin
         Initialize();
         RunStep4(Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure PG6889RS_Step2a_OrderKeySortOnly()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RunStep2a(Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure PG6889RS_Step2b_TreeOnly()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RunStep2b(Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure PG6889RS_Step2c_AutoSplitKeyOnly()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RunStep2c(Observer);
         Observer.Finish();
     end;
 }
