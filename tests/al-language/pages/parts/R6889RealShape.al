@@ -28,7 +28,7 @@ enum 96130 "PG R6889 RS Kind"
 
     value(0; Item) { }
     value(1; Resource) { }
-    value(2; Text) { }
+    value(2; Note) { }
 }
 
 table 96131 "PG R6889 RS Line"
