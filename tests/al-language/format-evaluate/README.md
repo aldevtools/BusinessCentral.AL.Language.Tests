@@ -34,3 +34,11 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 - `tablefilter-neutral/`: quoted blank enum-member filters and non-empty Code predicates select the intended row.
 
 - `tablefilter-neutral/`: CaptionClass field-name/caption lookup and quoted blank Code[10] predicates, alone and in a compound filter.
+
+- `tablefilter-neutral/`: quoted numeric grouping commas, quoted literal commas, and compound-condition boundaries (en-US), with plain/quoted controls.
+
+- `tablefilter-neutral/`: quoted blank Text equality/inequality and rejection of an incomplete bare inequality.
+
+- `tablefilter-neutral/`: declared and undeclared enum ordinal conditions, including preserving the numeric filter when no declared row matches.
+
+- `tablefilter-neutral/`: setup-grammar batch controls for Code wildcards, Boolean Yes, nonzero Decimal and sum FlowField predicates, and nonempty Text wildcards.

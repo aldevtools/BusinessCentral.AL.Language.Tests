@@ -169,4 +169,50 @@ codeunit 91264 "LT SC GetUrl Enum Key"
         Observer.Expect('fifth A1', '?company=My%20Company&page=91263&bookmark=21%3bfmQBAACLAgAAAAJ7%2f0EAMQ%3d%3d');
         Observer.Verify();
     end;
+
+    // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/system/system-geturl-method
+    [Test]
+    procedure GetUrl_PurchaseHeader_SevenDigits_UsesCompositeBookmark()
+    var
+        Row: Record "Purchase Header";
+        ActualUrl: Text;
+        ExpectedUrl: Text;
+    begin
+        Initialize();
+        Row.Init();
+        Row."Document Type" := Row."Document Type"::Order;
+        Row."No." := '1234567';
+        ActualUrl := Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", Row, false));
+        ExpectedUrl := '?company=My%20Company&page=50&bookmark=31%3bJgAAAACLAQAAAAJ7BzEAMgAzADQANQA2ADc%3d';
+        if ActualUrl <> ExpectedUrl then
+            Error('Expected native bookmark URL %1; actual %2.', ExpectedUrl, ActualUrl);
+    end;
+
+    [Test]
+    procedure GetUrl_PurchaseHeader_DigitThenLetter_UsesCompositeBookmark()
+    var
+        Row: Record "Purchase Header";
+        ActualUrl: Text;
+        ExpectedUrl: Text;
+    begin
+        Initialize();
+        Row.Init();
+        Row."Document Type" := Row."Document Type"::Order;
+        Row."No." := '1A';
+        ActualUrl := Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", Row, false));
+        ExpectedUrl := '?company=My%20Company&page=50&bookmark=21%3bJgAAAACLAQAAAAJ7%2fzEAQQ%3d%3d';
+        if ActualUrl <> ExpectedUrl then
+            Error('Expected native bookmark URL %1; actual %2.', ExpectedUrl, ActualUrl);
+    end;
+
+    local procedure Initialize()
+    var
+        Cleanup: Codeunit ALTFixtureCleanup;
+        Row: Record "Purchase Header";
+    begin
+        Cleanup.Initialize();
+        // The API consumes uninserted buffers; clear the standard table to make that precondition explicit.
+        Row.DeleteAll(false);
+    end;
+
 }
