@@ -274,4 +274,174 @@ codeunit 67080 "LT TF Xml Ns Prefixes"
         Observer.Expect('setattribute_ns', '<e p1:k="1" p2:k="2" p1:m="3" xmlns:p2="urn:y" xmlns:p1="urn:x" />');
         Observer.Verify();
     end;
+
+    // Issue 7208 (al-runner): serialization and read-back of an element that gets a prefixed namespace declaration.
+    local procedure DescribeEl(Tag: Text; E: XmlElement)
+    var
+        Txt: Text;
+        P: Text;
+        R: Boolean;
+        Kids: XmlNodeList;
+        Kid: XmlNode;
+        i: Integer;
+    begin
+        E.WriteTo(Txt);
+        Observer.Observe(Tag + '_txt', Txt);
+        Observer.Observe(Tag + '_name', E.Name());
+        Observer.Observe(Tag + '_local', E.LocalName());
+        Observer.Observe(Tag + '_uri', E.NamespaceUri());
+        P := 'unset';
+        R := E.GetPrefixOfNamespace(E.NamespaceUri(), P);
+        Observer.Observe(Tag + '_pfx', Format(R) + '[' + P + ']');
+        Kids := E.GetChildElements();
+        i := 0;
+        foreach Kid in Kids do begin
+            i += 1;
+            Observer.Observe(Tag + '_k' + Format(i), Kid.AsXmlElement().Name() + '|' + Kid.AsXmlElement().LocalName() + '|' + Kid.AsXmlElement().NamespaceUri());
+        end;
+    end;
+
+    local procedure DescribeDoc(Tag: Text; E: XmlElement)
+    var
+        Doc: XmlDocument;
+        Txt: Text;
+    begin
+        Doc := XmlDocument.Create();
+        Doc.Add(E);
+        Doc.WriteTo(Txt);
+        Observer.Observe(Tag + '_doc', Txt);
+    end;
+
+    local procedure RoundTrip(Tag: Text; E: XmlElement)
+    var
+        Txt: Text;
+        Doc: XmlDocument;
+        Root: XmlElement;
+        Again: Text;
+    begin
+        E.WriteTo(Txt);
+        XmlDocument.ReadFrom(Txt, Doc);
+        Doc.GetRoot(Root);
+        Root.WriteTo(Again);
+        Observer.Observe(Tag + '_again', Again);
+        Observer.Observe(Tag + '_rtname', Root.Name() + '|' + Root.LocalName() + '|' + Root.NamespaceUri());
+    end;
+
+    local procedure Decl(E: XmlElement; PrefixText: Text; Ns: Text)
+    begin
+        E.Add(XmlAttribute.CreateNamespaceDeclaration(PrefixText, Ns));
+    end;
+
+    [Test]
+    procedure Decl7208_SameNamespace()
+    var
+        E: XmlElement;
+    begin
+        E := XmlElement.Create('name', 'urn:x');
+        Decl(E, 'p', 'urn:x');
+        DescribeEl('same', E);
+        RoundTrip('same', E);
+        DescribeDoc('same', E);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Decl7208_OtherNamespace()
+    var
+        E: XmlElement;
+    begin
+        E := XmlElement.Create('name', 'urn:x');
+        Decl(E, 'p', 'urn:y');
+        DescribeEl('other', E);
+        RoundTrip('other', E);
+        DescribeDoc('other', E);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Decl7208_TwoPrefixes()
+    var
+        E: XmlElement;
+        F: XmlElement;
+    begin
+        E := XmlElement.Create('name', 'urn:x');
+        Decl(E, 'p', 'urn:x');
+        Decl(E, 'q', 'urn:x');
+        DescribeEl('pq', E);
+        RoundTrip('pq', E);
+        F := XmlElement.Create('name', 'urn:x');
+        Decl(F, 'q', 'urn:x');
+        Decl(F, 'p', 'urn:x');
+        DescribeEl('qp', F);
+        DescribeDoc('qp', F);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Decl7208_DeclarationBeforeChildren()
+    var
+        E: XmlElement;
+    begin
+        E := XmlElement.Create('name', 'urn:x');
+        Decl(E, 'p', 'urn:x');
+        E.Add(XmlElement.Create('same', 'urn:x'));
+        E.Add(XmlElement.Create('other', 'urn:y'));
+        E.Add(XmlElement.Create('none'));
+        DescribeEl('before', E);
+        RoundTrip('before', E);
+        DescribeDoc('before', E);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Decl7208_DeclarationAfterChildren()
+    var
+        E: XmlElement;
+    begin
+        E := XmlElement.Create('name', 'urn:x');
+        E.Add(XmlElement.Create('same', 'urn:x'));
+        E.Add(XmlElement.Create('other', 'urn:y'));
+        E.Add(XmlElement.Create('none'));
+        Decl(E, 'p', 'urn:x');
+        DescribeEl('after', E);
+        RoundTrip('after', E);
+        DescribeDoc('after', E);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Decl7208_ChildOfDeclaredOtherNamespace()
+    var
+        E: XmlElement;
+    begin
+        E := XmlElement.Create('name', 'urn:x');
+        Decl(E, 'p', 'urn:x');
+        Decl(E, 'y', 'urn:y');
+        E.Add(XmlElement.Create('c', 'urn:y'));
+        E.Add(XmlElement.Create('d', 'urn:x'));
+        DescribeEl('multi', E);
+        RoundTrip('multi', E);
+        DescribeDoc('multi', E);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Decl7208_AttributeInNamespace()
+    var
+        E: XmlElement;
+        F: XmlElement;
+    begin
+        E := XmlElement.Create('name', 'urn:x');
+        Decl(E, 'p', 'urn:x');
+        E.Add(XmlAttribute.Create('k', 'urn:x', 'v'));
+        DescribeEl('attrafter', E);
+        RoundTrip('attrafter', E);
+        F := XmlElement.Create('name', 'urn:x');
+        F.Add(XmlAttribute.Create('k', 'urn:x', 'v'));
+        Decl(F, 'p', 'urn:x');
+        DescribeEl('attrbefore', F);
+        RoundTrip('attrbefore', F);
+        DescribeDoc('attrbefore', F);
+        Observer.Finish();
+    end;
 }
