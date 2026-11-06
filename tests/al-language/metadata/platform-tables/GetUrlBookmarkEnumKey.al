@@ -205,6 +205,60 @@ codeunit 91264 "LT SC GetUrl Enum Key"
             Error('Expected native bookmark URL %1; actual %2.', ExpectedUrl, ActualUrl);
     end;
 
+    [Test]
+    procedure EnumAndCodeKey_OwnTable_NumericAndMixedCodes()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT SC Url Enum Row";
+    begin
+        Row.Init();
+        Row.Kind := "LT SC Url Kind"::Second;
+        Row.Code := '1';
+        Observer.Observe('code 1', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false)));
+        Row.Code := '12';
+        Observer.Observe('code 12', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false)));
+        Row.Code := '123';
+        Observer.Observe('code 123', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false)));
+        Row.Code := '1234';
+        Observer.Observe('code 1234', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false)));
+        Row.Code := '12345';
+        Observer.Observe('code 12345', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false)));
+        Row.Code := '12345678';
+        Observer.Observe('code 12345678', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false)));
+        Row.Code := '1A2';
+        Observer.Observe('code 1A2', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false)));
+        Row.Code := 'A1';
+        Observer.Observe('code A1', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false)));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure PurchaseHeaderOrder_NumericAndMixedNumbers()
+    var
+        Observer: Codeunit "Probe Observer";
+        PurchHeader: Record "Purchase Header";
+    begin
+        PurchHeader.Init();
+        PurchHeader."Document Type" := PurchHeader."Document Type"::Order;
+        PurchHeader."No." := '1';
+        Observer.Observe('no 1', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", PurchHeader, false)));
+        PurchHeader."No." := '12';
+        Observer.Observe('no 12', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", PurchHeader, false)));
+        PurchHeader."No." := '123';
+        Observer.Observe('no 123', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", PurchHeader, false)));
+        PurchHeader."No." := '1234';
+        Observer.Observe('no 1234', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", PurchHeader, false)));
+        PurchHeader."No." := '12345';
+        Observer.Observe('no 12345', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", PurchHeader, false)));
+        PurchHeader."No." := '12345678';
+        Observer.Observe('no 12345678', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", PurchHeader, false)));
+        PurchHeader."No." := '1A2';
+        Observer.Observe('no 1A2', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", PurchHeader, false)));
+        PurchHeader."No." := 'A1';
+        Observer.Observe('no A1', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", PurchHeader, false)));
+        Observer.Finish();
+    end;
+
     local procedure Initialize()
     var
         Cleanup: Codeunit ALTFixtureCleanup;
