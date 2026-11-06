@@ -1,26 +1,10 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/variant/variant-data-type
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), self-contained objects table 72032, codeunit 72033
+// Fixtures used: Probe Observer (codeunit 69160), shared table 50001 "ALT Shape 01", self-contained codeunit 72033
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Settles docs/probes-needed.md row: Temporary record and Variant - Probe wanted: what a Variant holds when a temporary record is assigned or passed
 // Facts: rows visible through a Variant holding a temporary record: assigned, passed by value, passed by var, converted back with a record variable, with RecordRef.GetTable, and a non-temporary record for comparison
 // BC versions: 29 (27 and 28 by CI)
-
-table 72032 "LT PnD Tmp Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 codeunit 72033 "LT PnD Temp Variant"
 {
@@ -37,7 +21,7 @@ codeunit 72033 "LT PnD Temp Variant"
 
     local procedure CountThroughRecord(V: Variant): Text
     var
-        Row: Record "LT PnD Tmp Row";
+        Row: Record "ALT Shape 01";
     begin
         Row := V;
         exit(Format(Row.Count()) + ' temp=' + Format(Row.IsTemporary()));
@@ -45,7 +29,7 @@ codeunit 72033 "LT PnD Temp Variant"
 
     local procedure AddThroughVar(var V: Variant)
     var
-        Row: Record "LT PnD Tmp Row" temporary;
+        Row: Record "ALT Shape 01" temporary;
     begin
         Row := V;
         Row.Id := 99;
@@ -58,7 +42,7 @@ codeunit 72033 "LT PnD Temp Variant"
         exit('isRecord=' + Format(V.IsRecord) + ' isRecordRef=' + Format(V.IsRecordRef));
     end;
 
-    local procedure Seed(var Tmp: Record "LT PnD Tmp Row" temporary)
+    local procedure Seed(var Tmp: Record "ALT Shape 01" temporary)
     begin
         Tmp.DeleteAll();
         Tmp.Id := 1;
@@ -73,8 +57,8 @@ codeunit 72033 "LT PnD Temp Variant"
     procedure TempRecord_AssignedToVariant_AndRead()
     var
         Observer: Codeunit "Probe Observer";
-        Tmp: Record "LT PnD Tmp Row" temporary;
-        Back: Record "LT PnD Tmp Row" temporary;
+        Tmp: Record "ALT Shape 01" temporary;
+        Back: Record "ALT Shape 01" temporary;
         V: Variant;
     begin
         Seed(Tmp);
@@ -99,7 +83,7 @@ codeunit 72033 "LT PnD Temp Variant"
     procedure TempRecord_PassedToVariantParameter()
     var
         Observer: Codeunit "Probe Observer";
-        Tmp: Record "LT PnD Tmp Row" temporary;
+        Tmp: Record "ALT Shape 01" temporary;
     begin
         Seed(Tmp);
         Observer.Observe('viaRecRef', CountThroughRecRef(Tmp));
@@ -113,7 +97,7 @@ codeunit 72033 "LT PnD Temp Variant"
     procedure TempRecord_EmptyPassedToVariantParameter()
     var
         Observer: Codeunit "Probe Observer";
-        Tmp: Record "LT PnD Tmp Row" temporary;
+        Tmp: Record "ALT Shape 01" temporary;
     begin
         Observer.Observe('viaRecRef', CountThroughRecRef(Tmp));
         Observer.Observe('viaRecord', CountThroughRecord(Tmp));
@@ -126,7 +110,7 @@ codeunit 72033 "LT PnD Temp Variant"
     procedure TempRecord_VariantPassedByVar_ModifiedByCallee()
     var
         Observer: Codeunit "Probe Observer";
-        Tmp: Record "LT PnD Tmp Row" temporary;
+        Tmp: Record "ALT Shape 01" temporary;
         V: Variant;
     begin
         Seed(Tmp);
@@ -143,7 +127,7 @@ codeunit 72033 "LT PnD Temp Variant"
     procedure TempRecord_ChangeSourceAfterAssignment()
     var
         Observer: Codeunit "Probe Observer";
-        Tmp: Record "LT PnD Tmp Row" temporary;
+        Tmp: Record "ALT Shape 01" temporary;
         V: Variant;
     begin
         Seed(Tmp);
@@ -161,8 +145,8 @@ codeunit 72033 "LT PnD Temp Variant"
     procedure TempRecord_FilterTravelsWithTheVariant()
     var
         Observer: Codeunit "Probe Observer";
-        Tmp: Record "LT PnD Tmp Row" temporary;
-        Back: Record "LT PnD Tmp Row" temporary;
+        Tmp: Record "ALT Shape 01" temporary;
+        Back: Record "ALT Shape 01" temporary;
         V: Variant;
     begin
         Seed(Tmp);
@@ -182,7 +166,7 @@ codeunit 72033 "LT PnD Temp Variant"
     procedure RealRecord_ToVariantForComparison()
     var
         Observer: Codeunit "Probe Observer";
-        Real: Record "LT PnD Tmp Row";
+        Real: Record "ALT Shape 01";
         V: Variant;
     begin
         Real.DeleteAll();
@@ -206,7 +190,7 @@ codeunit 72033 "LT PnD Temp Variant"
     procedure TempRecord_VariantToTempRecordRef_RowsVisibleToRecRefFind()
     var
         Observer: Codeunit "Probe Observer";
-        Tmp: Record "LT PnD Tmp Row" temporary;
+        Tmp: Record "ALT Shape 01" temporary;
         RecRef: RecordRef;
         V: Variant;
     begin

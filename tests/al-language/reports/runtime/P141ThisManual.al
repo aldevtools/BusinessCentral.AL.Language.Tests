@@ -1,25 +1,10 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-this-keyword
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), self-contained table 71533, log 71534, publisher 71535, report 71536, manual subscriber 71537, test 71538
+// Fixtures used: Probe Observer (codeunit 69160), shared table 50000 "ALT Shape 00", log 71534, publisher 71535, report 71536, manual subscriber 71537, test 71538
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: as P141ThisEvent.al but the subscriber codeunit is EventSubscriberInstance = Manual, bound with BindSubscription; without binding no subscriber runs
 // Known compile facts (not written): `this` to a var parameter gives AL0130; a Page parameter receiving `this` from a page gives AL0133.
 // BC versions: 29 (27 and 28 by CI)
-
-table 71533 "LT P141 M Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 codeunit 71534 "LT P141 M Log"
 {
@@ -67,7 +52,7 @@ report 71536 "LT P141 M Rpt"
 
     dataset
     {
-        dataitem(Row; "LT P141 M Row")
+        dataitem(Row; "ALT Shape 00")
         {
             DataItemTableView = sorting(Id);
 
@@ -138,7 +123,7 @@ codeunit 71538 "LT P141 M Tests"
 
     local procedure Seed(Count: Integer)
     var
-        Row: Record "LT P141 M Row";
+        Row: Record "ALT Shape 00";
         Log: Codeunit "LT P141 M Log";
         i: Integer;
     begin

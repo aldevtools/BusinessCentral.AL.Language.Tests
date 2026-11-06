@@ -491,13 +491,13 @@ codeunit 88615 "LT RT Uf Tests"
 
     local procedure ShInsertOnlyRelLine(WithBatch: Boolean)
     var
-        Batch: Record "LT SH Rel Batch";
+        Batch: Record "ALT Shape 07";
         Line: Record "LT SH Rel Line";
     begin
         Batch.DeleteAll();
         Line.DeleteAll();
         if WithBatch then begin
-            Batch.Name := 'B1';
+            Batch.Code := 'B1';
             Batch.Insert();
         end;
         Line."Batch Name" := 'B1';
@@ -846,28 +846,13 @@ codeunit 88615 "LT RT Uf Tests"
     end;
 }
 
-table 89434 "LT SH Rel Batch"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Name; Code[10]) { }
-    }
-
-    keys
-    {
-        key(PK; Name) { Clustered = true; }
-    }
-}
-
 table 89435 "LT SH Rel Line"
 {
     DataClassification = SystemMetadata;
 
     fields
     {
-        field(1; "Batch Name"; Code[10]) { TableRelation = "LT SH Rel Batch"; }
+        field(1; "Batch Name"; Code[10]) { TableRelation = "ALT Shape 07"; }
         field(2; "Line No."; Integer) { }
         field(3; Description; Text[50]) { }
     }

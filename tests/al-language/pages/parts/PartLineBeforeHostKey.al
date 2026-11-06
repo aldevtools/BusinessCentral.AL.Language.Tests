@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-page-object
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); own tables 67573 and 67576, pages 67577 and 67578, log codeunit 67579, test codeunit 67582; pages 85183-85190 (writer PY-B); pages 86760-86766 and codeunit 86767 (writer QH); pages 95160-95166 (writer r6920)
-// Probe: a document page (header "No." is the key) with a lines ListPart linked by SourceTableLink. A line is entered while the header key is still blank, then the key is typed. Which table triggers run (header and line: OnInsert, OnValidate), in which order, which page triggers run, what the card and the part show afterwards and what is stored. The same with the key typed first, for comparison (issue 581 item 2).
+// Fixtures used: Probe Observer (69160); own tables 67573 and 67576, pages 67577 and 67578, log codeunit 67579, test codeunit 67582; pages 85183-85190 (writer PY-B); pages 86760-86766 and codeunit 86767 (writer QH); pages 95160-95166 (writer r6920); tables 95600-95601, codeunit 95602, pages 95603-95606 (writer r7031)
+// Probe: a document page (header "No." is the key) with a lines ListPart linked by SourceTableLink. A line is entered while the header key is still blank, then the key is typed. Which table triggers run (header and line: OnInsert, OnValidate), in which order, which page triggers run, what the card and the part show afterwards and what is stored. The same with the key typed first, for comparison (issue 581 item 2). R7031 tests: what happens when the insert that the first Visible() or Editable() of a part makes on OpenNew fails (BC swallows the error, the host stays unsaved, nothing tries again).
 // BC versions: 27+ (the key-typed-after-a-line test: 28+; BC 27 raises an uncatchable NullReferenceException there)
 
 table 67573 "LT DL Header"
@@ -3909,4 +3909,730 @@ codeunit 67582 "LT DL Tests"
         Observer.Expect('after_close', '0 headers, 0 lines');
         Observer.Verify();
     end;
+
+    // Writer r7031 (2026-11-04, issue 7031 of the runner): the first Visible() or Editable() of a field-linked part on OpenNew inserts
+    // the host (pinned above by the r6920 tests). What happens when that insert fails: the host table's OnInsert raises (TableError),
+    // the page's OnInsertRecord raises (PageError), or both only log (LogOnly); the part's Visible is the constant true, a variable set
+    // to false in OnNewRecord (the issue's shape) or a variable set to true in OnOpenPage. A row of the blank link key exists, as in
+    // the issue. Pages 95604-95606, tables 95600 and 95601; "LT R7031 State" holds the mode, "LT DL Log" the trigger log.
+    // Seen on BC 27.5, 28.5 and 29.0 (Linux CI), the same on all three and for all three Visible shapes: the first Visible() or Editable()
+    // tries the insert once: the page's OnInsertRecord runs, then the table's OnInsert. When either raises, BC swallows the error: no
+    // error reaches the test, Visible() and Editable() still return their values, and the host is not stored (OnInsert raising leaves
+    // 0 hosts; OnInsertRecord raising stops before the table's OnInsert). Nothing tries again: the second call and Close() run no
+    // insert trigger, and the host stays unsaved after Close(). With triggers that only log, the host is inserted once and stays.
+
+    local procedure R7031Seed(Mode: Integer)
+    var
+        Host: Record "LT R7031 Host";
+        Line: Record "LT R7031 Line";
+        State: Codeunit "LT R7031 State";
+        Log: Codeunit "LT DL Log";
+    begin
+        Line.DeleteAll();
+        Host.DeleteAll();
+        Log.Reset();
+        State.SetMode(Mode);
+        Line."Document No." := '';
+        Line."Line No." := 10000;
+        Line.Description := 'blank key';
+        Line.Insert();
+    end;
+
+    local procedure R7031Stored(var Observer: Codeunit "Probe Observer"; Name: Text)
+    var
+        Host: Record "LT R7031 Host";
+        Line: Record "LT R7031 Line";
+    begin
+        Observer.Observe(Name, Format(Host.Count()) + ' hosts, ' + Format(Line.Count()) + ' lines');
+    end;
+
+    local procedure R7031Done()
+    var
+        State: Codeunit "LT R7031 State";
+    begin
+        State.SetMode(0);
+    end;
+
+    local procedure R7031RunConstTrue(var Observer: Codeunit "Probe Observer"; VisibleFirst: Boolean)
+    var
+        Card: TestPage "LT R7031 CardConstTrue";
+    begin
+        Card.OpenNew();
+        TakeLog(Observer, 'open');
+        if VisibleFirst then begin
+            Observer.Observe('visible', Format(Card.Lines.Visible()));
+            TakeLog(Observer, 'visible_log');
+            R7031Stored(Observer, 'after_visible');
+            Observer.Observe('editable', Format(Card.Lines.Editable()));
+            TakeLog(Observer, 'editable_log');
+        end else begin
+            Observer.Observe('editable', Format(Card.Lines.Editable()));
+            TakeLog(Observer, 'editable_log');
+            R7031Stored(Observer, 'after_editable');
+            Observer.Observe('visible', Format(Card.Lines.Visible()));
+            TakeLog(Observer, 'visible_log');
+        end;
+        R7031Stored(Observer, 'before_close');
+        Card.Close();
+        TakeLog(Observer, 'close_log');
+        R7031Stored(Observer, 'after_close');
+    end;
+
+    local procedure R7031RunVarFalse(var Observer: Codeunit "Probe Observer"; VisibleFirst: Boolean)
+    var
+        Card: TestPage "LT R7031 CardVarFalse";
+    begin
+        Card.OpenNew();
+        TakeLog(Observer, 'open');
+        if VisibleFirst then begin
+            Observer.Observe('visible', Format(Card.Lines.Visible()));
+            TakeLog(Observer, 'visible_log');
+            R7031Stored(Observer, 'after_visible');
+            Observer.Observe('editable', Format(Card.Lines.Editable()));
+            TakeLog(Observer, 'editable_log');
+        end else begin
+            Observer.Observe('editable', Format(Card.Lines.Editable()));
+            TakeLog(Observer, 'editable_log');
+            R7031Stored(Observer, 'after_editable');
+            Observer.Observe('visible', Format(Card.Lines.Visible()));
+            TakeLog(Observer, 'visible_log');
+        end;
+        R7031Stored(Observer, 'before_close');
+        Card.Close();
+        TakeLog(Observer, 'close_log');
+        R7031Stored(Observer, 'after_close');
+    end;
+
+    local procedure R7031RunVarTrue(var Observer: Codeunit "Probe Observer"; VisibleFirst: Boolean)
+    var
+        Card: TestPage "LT R7031 CardVarTrue";
+    begin
+        Card.OpenNew();
+        TakeLog(Observer, 'open');
+        if VisibleFirst then begin
+            Observer.Observe('visible', Format(Card.Lines.Visible()));
+            TakeLog(Observer, 'visible_log');
+            R7031Stored(Observer, 'after_visible');
+            Observer.Observe('editable', Format(Card.Lines.Editable()));
+            TakeLog(Observer, 'editable_log');
+        end else begin
+            Observer.Observe('editable', Format(Card.Lines.Editable()));
+            TakeLog(Observer, 'editable_log');
+            R7031Stored(Observer, 'after_editable');
+            Observer.Observe('visible', Format(Card.Lines.Visible()));
+            TakeLog(Observer, 'visible_log');
+        end;
+        R7031Stored(Observer, 'before_close');
+        Card.Close();
+        TakeLog(Observer, 'close_log');
+        R7031Stored(Observer, 'after_close');
+    end;
+
+    [Test]
+    procedure R7031_ConstTrue_TableError_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        R7031Seed(1);
+        R7031RunConstTrue(Observer, true);
+        R7031Done();
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[P.OnInsertRecord: | H.OnInsert:]');
+        Observer.Expect('after_visible', '0 hosts, 1 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('before_close', '0 hosts, 1 lines');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 hosts, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7031_ConstTrue_TableError_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        R7031Seed(1);
+        R7031RunConstTrue(Observer, false);
+        R7031Done();
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[P.OnInsertRecord: | H.OnInsert:]');
+        Observer.Expect('after_editable', '0 hosts, 1 lines');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('before_close', '0 hosts, 1 lines');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 hosts, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7031_ConstTrue_PageError_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        R7031Seed(2);
+        R7031RunConstTrue(Observer, true);
+        R7031Done();
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[P.OnInsertRecord:]');
+        Observer.Expect('after_visible', '0 hosts, 1 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('before_close', '0 hosts, 1 lines');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 hosts, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7031_ConstTrue_PageError_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        R7031Seed(2);
+        R7031RunConstTrue(Observer, false);
+        R7031Done();
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[P.OnInsertRecord:]');
+        Observer.Expect('after_editable', '0 hosts, 1 lines');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('before_close', '0 hosts, 1 lines');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 hosts, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7031_ConstTrue_LogOnly_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        R7031Seed(0);
+        R7031RunConstTrue(Observer, true);
+        R7031Done();
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[P.OnInsertRecord: | H.OnInsert:]');
+        Observer.Expect('after_visible', '1 hosts, 1 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('before_close', '1 hosts, 1 lines');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 hosts, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7031_ConstTrue_LogOnly_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        R7031Seed(0);
+        R7031RunConstTrue(Observer, false);
+        R7031Done();
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[P.OnInsertRecord: | H.OnInsert:]');
+        Observer.Expect('after_editable', '1 hosts, 1 lines');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('before_close', '1 hosts, 1 lines');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 hosts, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7031_VarFalse_TableError_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        R7031Seed(1);
+        R7031RunVarFalse(Observer, true);
+        R7031Done();
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[P.OnInsertRecord: | H.OnInsert:]');
+        Observer.Expect('after_visible', '0 hosts, 1 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('before_close', '0 hosts, 1 lines');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 hosts, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7031_VarFalse_TableError_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        R7031Seed(1);
+        R7031RunVarFalse(Observer, false);
+        R7031Done();
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[P.OnInsertRecord: | H.OnInsert:]');
+        Observer.Expect('after_editable', '0 hosts, 1 lines');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('before_close', '0 hosts, 1 lines');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 hosts, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7031_VarFalse_PageError_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        R7031Seed(2);
+        R7031RunVarFalse(Observer, true);
+        R7031Done();
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[P.OnInsertRecord:]');
+        Observer.Expect('after_visible', '0 hosts, 1 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('before_close', '0 hosts, 1 lines');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 hosts, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7031_VarFalse_PageError_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        R7031Seed(2);
+        R7031RunVarFalse(Observer, false);
+        R7031Done();
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[P.OnInsertRecord:]');
+        Observer.Expect('after_editable', '0 hosts, 1 lines');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('before_close', '0 hosts, 1 lines');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 hosts, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7031_VarFalse_LogOnly_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        R7031Seed(0);
+        R7031RunVarFalse(Observer, true);
+        R7031Done();
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[P.OnInsertRecord: | H.OnInsert:]');
+        Observer.Expect('after_visible', '1 hosts, 1 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('before_close', '1 hosts, 1 lines');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 hosts, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7031_VarFalse_LogOnly_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        R7031Seed(0);
+        R7031RunVarFalse(Observer, false);
+        R7031Done();
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[P.OnInsertRecord: | H.OnInsert:]');
+        Observer.Expect('after_editable', '1 hosts, 1 lines');
+        Observer.Expect('visible', 'No');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('before_close', '1 hosts, 1 lines');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 hosts, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7031_VarTrue_TableError_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        R7031Seed(1);
+        R7031RunVarTrue(Observer, true);
+        R7031Done();
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[P.OnInsertRecord: | H.OnInsert:]');
+        Observer.Expect('after_visible', '0 hosts, 1 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('before_close', '0 hosts, 1 lines');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 hosts, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7031_VarTrue_TableError_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        R7031Seed(1);
+        R7031RunVarTrue(Observer, false);
+        R7031Done();
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[P.OnInsertRecord: | H.OnInsert:]');
+        Observer.Expect('after_editable', '0 hosts, 1 lines');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('before_close', '0 hosts, 1 lines');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 hosts, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7031_VarTrue_PageError_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        R7031Seed(2);
+        R7031RunVarTrue(Observer, true);
+        R7031Done();
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[P.OnInsertRecord:]');
+        Observer.Expect('after_visible', '0 hosts, 1 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('before_close', '0 hosts, 1 lines');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 hosts, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7031_VarTrue_PageError_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        R7031Seed(2);
+        R7031RunVarTrue(Observer, false);
+        R7031Done();
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[P.OnInsertRecord:]');
+        Observer.Expect('after_editable', '0 hosts, 1 lines');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('before_close', '0 hosts, 1 lines');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '0 hosts, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7031_VarTrue_LogOnly_VisibleFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        R7031Seed(0);
+        R7031RunVarTrue(Observer, true);
+        R7031Done();
+        Observer.Expect('open', '[]');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[P.OnInsertRecord: | H.OnInsert:]');
+        Observer.Expect('after_visible', '1 hosts, 1 lines');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[]');
+        Observer.Expect('before_close', '1 hosts, 1 lines');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 hosts, 1 lines');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7031_VarTrue_LogOnly_EditableFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        R7031Seed(0);
+        R7031RunVarTrue(Observer, false);
+        R7031Done();
+        Observer.Expect('open', '[]');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('editable_log', '[P.OnInsertRecord: | H.OnInsert:]');
+        Observer.Expect('after_editable', '1 hosts, 1 lines');
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('visible_log', '[]');
+        Observer.Expect('before_close', '1 hosts, 1 lines');
+        Observer.Expect('close_log', '[]');
+        Observer.Expect('after_close', '1 hosts, 1 lines');
+        Observer.Verify();
+    end;
+
+    // The issue's test as written: OpenNew, Visible() of the part, Close, nothing else.
+    [Test]
+    procedure R7031_VarFalse_TableError_IssueSequence()
+    var
+        Observer: Codeunit "Probe Observer";
+        Card: TestPage "LT R7031 CardVarFalse";
+    begin
+        R7031Seed(1);
+        Card.OpenNew();
+        Observer.Observe('visible', Format(Card.Lines.Visible()));
+        Card.Close();
+        TakeLog(Observer, 'log');
+        R7031Stored(Observer, 'after_close');
+        R7031Done();
+        Observer.Expect('visible', 'No');
+        Observer.Expect('log', '[P.OnInsertRecord: | H.OnInsert:]');
+        Observer.Expect('after_close', '0 hosts, 1 lines');
+        Observer.Verify();
+    end;
+
+    // The issue's test as written: OpenNew, Visible() of the part, Close, nothing else.
+    [Test]
+    procedure R7031_VarFalse_PageError_IssueSequence()
+    var
+        Observer: Codeunit "Probe Observer";
+        Card: TestPage "LT R7031 CardVarFalse";
+    begin
+        R7031Seed(2);
+        Card.OpenNew();
+        Observer.Observe('visible', Format(Card.Lines.Visible()));
+        Card.Close();
+        TakeLog(Observer, 'log');
+        R7031Stored(Observer, 'after_close');
+        R7031Done();
+        Observer.Expect('visible', 'No');
+        Observer.Expect('log', '[P.OnInsertRecord:]');
+        Observer.Expect('after_close', '0 hosts, 1 lines');
+        Observer.Verify();
+    end;
+}
+
+// Writer r7031 (2026-11-04, issue 7031 of the runner): a host whose OnInsert can raise, and Card pages whose OnInsertRecord can raise,
+// for the R7031 tests of codeunit 67582. "LT R7031 State" (SingleInstance, used by codeunit 67582 only) holds the mode: 0 only logs,
+// 1 makes the host table's OnInsert raise (TestField(Customer)), 2 makes the page's OnInsertRecord raise (TestField(Customer)).
+// local object: the tests are about these objects' own insert triggers (one that raises, one that logs).
+table 95600 "LT R7031 Host"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { DataClassification = SystemMetadata; }
+        field(2; Customer; Code[10]) { DataClassification = SystemMetadata; }
+    }
+
+    keys
+    {
+        key(PK; "No.") { Clustered = true; }
+    }
+
+    trigger OnInsert()
+    var
+        Log: Codeunit "LT DL Log";
+        State: Codeunit "LT R7031 State";
+    begin
+        Log.Add('H.OnInsert:' + "No.");
+        if State.Mode() = 1 then
+            TestField(Customer);
+    end;
+}
+
+table 95601 "LT R7031 Line"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Document No."; Code[20]) { DataClassification = SystemMetadata; }
+        field(2; "Line No."; Integer) { DataClassification = SystemMetadata; }
+        field(3; Description; Text[30]) { DataClassification = SystemMetadata; }
+    }
+
+    keys
+    {
+        key(PK; "Document No.", "Line No.") { Clustered = true; }
+    }
+}
+
+codeunit 95602 "LT R7031 State"
+{
+    SingleInstance = true;
+
+    var
+        CurrentMode: Integer;
+
+    procedure SetMode(NewMode: Integer)
+    begin
+        CurrentMode := NewMode;
+    end;
+
+    procedure Mode(): Integer
+    begin
+        exit(CurrentMode);
+    end;
+}
+
+page 95603 "LT R7031 Lines"
+{
+    PageType = ListPart;
+    SourceTable = "LT R7031 Line";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(Description; Rec.Description) { ApplicationArea = All; }
+            }
+        }
+    }
+}
+
+page 95604 "LT R7031 CardConstTrue"
+{
+    PageType = Card;
+    SourceTable = "LT R7031 Host";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field("No."; Rec."No.") { ApplicationArea = All; }
+            field(Customer; Rec.Customer) { ApplicationArea = All; }
+            part(Lines; "LT R7031 Lines")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Document No." = field("No.");
+                Visible = true;
+            }
+        }
+    }
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    var
+        Log: Codeunit "LT DL Log";
+        State: Codeunit "LT R7031 State";
+    begin
+        Log.Add('P.OnInsertRecord:' + Rec."No.");
+        if State.Mode() = 2 then
+            Rec.TestField(Customer);
+        exit(true);
+    end;
+}
+
+page 95605 "LT R7031 CardVarFalse"
+{
+    PageType = Card;
+    SourceTable = "LT R7031 Host";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field("No."; Rec."No.") { ApplicationArea = All; }
+            field(Customer; Rec.Customer) { ApplicationArea = All; }
+            part(Lines; "LT R7031 Lines")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Document No." = field("No.");
+                Visible = PartVisible;
+            }
+        }
+    }
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        PartVisible := false;
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        if Rec."No." <> '' then
+            PartVisible := true;
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    var
+        Log: Codeunit "LT DL Log";
+        State: Codeunit "LT R7031 State";
+    begin
+        Log.Add('P.OnInsertRecord:' + Rec."No.");
+        if State.Mode() = 2 then
+            Rec.TestField(Customer);
+        exit(true);
+    end;
+
+    var
+        PartVisible: Boolean;
+}
+
+page 95606 "LT R7031 CardVarTrue"
+{
+    PageType = Card;
+    SourceTable = "LT R7031 Host";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field("No."; Rec."No.") { ApplicationArea = All; }
+            field(Customer; Rec.Customer) { ApplicationArea = All; }
+            part(Lines; "LT R7031 Lines")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Document No." = field("No.");
+                Visible = PartVisible;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        PartVisible := true;
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    var
+        Log: Codeunit "LT DL Log";
+        State: Codeunit "LT R7031 State";
+    begin
+        Log.Add('P.OnInsertRecord:' + Rec."No.");
+        if State.Mode() = 2 then
+            Rec.TestField(Customer);
+        exit(true);
+    end;
+
+    var
+        PartVisible: Boolean;
 }

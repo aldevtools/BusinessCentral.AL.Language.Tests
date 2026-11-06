@@ -81,7 +81,7 @@ on:
 # and `BC OnPrem DotNet <version> / test` legs for 27.5, 28.5 and 29.0, plus the object-id gate. Each
 # leg's check is the job `test` of bc-leg.yml, which runs with `if: always()` and fails unless every
 # shard succeeded, so a cancelled run reports it as failed or cancelled, never as skipped or green, and
-# a superseded run can never satisfy a required check. The one green without shards is a pull request
+# a superseded run can never satisfy a required check. The one green without shards is a subset-run
 # leg whose app has nothing affected (CONTRIBUTING.md, "Shards in CI"). ci.yml is the only workflow
 # registered here (the object-id gate is a job inside it), so this block covers everything.
 concurrency:
@@ -231,7 +231,7 @@ jobs:
       # codeunit_range. The job names and the required checks do not change; only the codeunits each leg runs.
       subset: ${{ steps.select.outputs.subset || '{}' }}
       # {bc_version: {test app dir: [{"n": "1 of 3", "range": ...}]}}: the shards each leg runs (.github/scripts/ci-shards.py,
-      # boundaries in .github/ci-shards.json). [] for a leg: nothing in its app is affected (pull requests only), the leg
+      # boundaries in .github/ci-shards.json). [] for a leg: nothing in its app is affected (any subset run), the leg
       # reports success without starting BC. {} (the step failed): each leg runs its codeunit_range as one shard.
       shards: ${{ steps.shards.outputs.shards || '{}' }}
     steps:
