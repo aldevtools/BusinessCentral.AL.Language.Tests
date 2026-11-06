@@ -73,20 +73,52 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
         Observer.Expect('rows after delete', '0');
         Observer.Verify();
     end;
-}
-
-// local object: a second test codeunit in this file because these tests insert and delete rows of Tenant Report Layout and Report Selections,
-// so rows roll back after each test (TestIsolation = Function), which codeunit 91312 above does not have.
-codeunit 96181 "LT W5 Tenant Layout"
-{
-    Subtype = Test;
-    TestPermissions = Disabled;
-    TestIsolation = Function;
 
     // ---- cw-waldo5 (al-runner 6924, waldo): Insert into Tenant Report Layout for a report of ANOTHER app (Base Application's report 1306
     // "Standard Sales - Invoice", a dependency app's report), the way a test library adds a custom Word layout / e-mail body layout.
     // The Word stream is that of the corpus report "LT Y67 Lay Base" (an empty document body, valid for any report); the report's own default
     // Word layout carries an attachedTemplate reference that BC 27 and 28 refuse and BC 29 accepts (W5_..._ItsOwnWordLayoutStream). ----
+    // Tests of a codeunit share one session and the rows they insert stay: every W5 test removes its own rows first and last, and the
+    // tests of Report Selections put the rows of Usage S.Invoice back (Insert without triggers) after they replaced them.
+    local procedure W5CleanLayouts()
+    var
+        L: Record "Tenant Report Layout";
+    begin
+        L.SetFilter(Name, 'LT W5*');
+        L.DeleteAll();
+        L.Reset();
+        L.SetRange("Report ID", Report::"Standard Sales - Invoice");
+        L.SetRange(Name, '');
+        L.DeleteAll();
+    end;
+
+    local procedure W5SaveSelections(var Saved: Record "Report Selections" temporary)
+    var
+        RS: Record "Report Selections";
+    begin
+        Saved.DeleteAll();
+        RS.SetRange(Usage, RS.Usage::"S.Invoice");
+        if RS.FindSet() then
+            repeat
+                Saved := RS;
+                Saved.Insert();
+            until RS.Next() = 0;
+        RS.DeleteAll();
+    end;
+
+    local procedure W5RestoreSelections(var Saved: Record "Report Selections" temporary)
+    var
+        RS: Record "Report Selections";
+    begin
+        RS.SetRange(Usage, RS.Usage::"S.Invoice");
+        RS.DeleteAll();
+        if Saved.FindSet() then
+            repeat
+                RS := Saved;
+                RS.Insert();
+            until Saved.Next() = 0;
+    end;
+
     local procedure W5Dump(var L: Record "Tenant Report Layout") Result: Text
     var
         RR: RecordRef;
@@ -229,6 +261,7 @@ codeunit 96181 "LT W5 Tenant Layout"
         L: Record "Tenant Report Layout";
         List: Record "Report Layout List";
     begin
+        W5CleanLayouts();
         List.SetRange("Report ID", Report::"Standard Sales - Invoice");
         Observer.Observe('list rows before', Format(List.Count()));
         W5WordRow(L, Report::"Standard Sales - Invoice", 'LT W5 Custom Body');
@@ -253,6 +286,7 @@ codeunit 96181 "LT W5 Tenant Layout"
         Observer.Expect('list row', 'Word|LT W5 Custom Body|Yes||Sales - Invoice|{00000000-0000-0000-0000-000000000000}|Yes');
         Observer.Expect('list rows after', '8');
         Observer.Expect('rows after delete', '0');
+        W5CleanLayouts();
         Observer.Verify();
     end;
 
@@ -263,6 +297,7 @@ codeunit 96181 "LT W5 Tenant Layout"
         L: Record "Tenant Report Layout";
         InS: InStream;
     begin
+        W5CleanLayouts();
         L.Init();
         L."Report ID" := Report::"Standard Sales - Invoice";
         L.Name := 'LT W5 Own Stream';
@@ -278,12 +313,14 @@ codeunit 96181 "LT W5 Tenant Layout"
         Observer.Expect('standard invoice own word layout stored', 'Report ID=1306; Name=LT W5 Own Stream; App ID={00000000-0000-0000-0000-000000000000}; Caption=; CaptionML=; Layout Format=Word; Custom Type={00000000-0000-0000-0000-000000000000}; MIME Type=; Description=; IsObsolete=No; ExcelLayoutMultipleDataSheets=Default; Layout.HasValue=Yes');
         Observer.Expect('standard invoice own word layout company is current', 'No');
         W5ExpectExtra(Observer, 'standard invoice own word layout');
+        W5CleanLayouts();
         Observer.Verify();
 #else
         W5Fails(Observer, 'standard invoice own word layout', L);
         Observer.Expect('standard invoice own word layout error', 'Errors were detected in the Word layout:');
         Observer.Expect('standard invoice own word layout code', 'ReportLayoutValidation:WordLayoutValidation');
         Observer.Expect('standard invoice own word layout rows after', '0');
+        W5CleanLayouts();
         Observer.Verify();
 #endif
     end;
@@ -294,6 +331,7 @@ codeunit 96181 "LT W5 Tenant Layout"
         Observer: Codeunit "Probe Observer";
         L: Record "Tenant Report Layout";
     begin
+        W5CleanLayouts();
         W5WordRow(L, Report::"Standard Sales - Invoice", 'LT W5 Company');
         L."Company Name" := CopyStr(CompanyName(), 1, MaxStrLen(L."Company Name"));
         W5Insert(Observer, 'company set', L);
@@ -303,6 +341,7 @@ codeunit 96181 "LT W5 Tenant Layout"
         Observer.Expect('company set stored', 'Report ID=1306; Name=LT W5 Company; App ID={00000000-0000-0000-0000-000000000000}; Caption=; CaptionML=; Layout Format=Word; Custom Type={00000000-0000-0000-0000-000000000000}; MIME Type=; Description=W5 custom body; IsObsolete=No; ExcelLayoutMultipleDataSheets=Default; Layout.HasValue=Yes');
         Observer.Expect('company set company is current', 'Yes');
         W5ExpectExtra(Observer, 'company set');
+        W5CleanLayouts();
         Observer.Verify();
     end;
 
@@ -312,6 +351,7 @@ codeunit 96181 "LT W5 Tenant Layout"
         Observer: Codeunit "Probe Observer";
         L: Record "Tenant Report Layout";
     begin
+        W5CleanLayouts();
         W5WordRow(L, Report::"Standard Sales - Invoice", 'LT W5 BaseApp Id');
         L."App ID" := '{437DBF0E-84FF-417A-965D-ED2BB9650972}';
         W5Insert(Observer, 'base app id', L);
@@ -321,6 +361,7 @@ codeunit 96181 "LT W5 Tenant Layout"
         Observer.Expect('base app id stored', 'Report ID=1306; Name=LT W5 BaseApp Id; App ID={437DBF0E-84FF-417A-965D-ED2BB9650972}; Caption=; CaptionML=; Layout Format=Word; Custom Type={00000000-0000-0000-0000-000000000000}; MIME Type=; Description=W5 custom body; IsObsolete=No; ExcelLayoutMultipleDataSheets=Default; Layout.HasValue=Yes');
         Observer.Expect('base app id company is current', 'No');
         W5ExpectExtra(Observer, 'base app id');
+        W5CleanLayouts();
         Observer.Verify();
     end;
 
@@ -330,6 +371,7 @@ codeunit 96181 "LT W5 Tenant Layout"
         Observer: Codeunit "Probe Observer";
         L: Record "Tenant Report Layout";
     begin
+        W5CleanLayouts();
         W5WordRow(L, Report::"Standard Sales - Invoice", 'LT W5 Own Id');
         L."App ID" := '{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}';
         W5Insert(Observer, 'corpus app id', L);
@@ -339,6 +381,7 @@ codeunit 96181 "LT W5 Tenant Layout"
         Observer.Expect('corpus app id stored', 'Report ID=1306; Name=LT W5 Own Id; App ID={A1B2C3D4-E5F6-7890-ABCD-EF1234567890}; Caption=; CaptionML=; Layout Format=Word; Custom Type={00000000-0000-0000-0000-000000000000}; MIME Type=; Description=W5 custom body; IsObsolete=No; ExcelLayoutMultipleDataSheets=Default; Layout.HasValue=Yes');
         Observer.Expect('corpus app id company is current', 'No');
         W5ExpectExtra(Observer, 'corpus app id');
+        W5CleanLayouts();
         Observer.Verify();
     end;
 
@@ -348,6 +391,7 @@ codeunit 96181 "LT W5 Tenant Layout"
         Observer: Codeunit "Probe Observer";
         L: Record "Tenant Report Layout";
     begin
+        W5CleanLayouts();
         W5WordRow(L, Report::"Standard Sales - Invoice", 'LT W5 Dup');
         W5Insert(Observer, 'dup first', L);
         W5Insert(Observer, 'dup second', L);
@@ -363,6 +407,7 @@ codeunit 96181 "LT W5 Tenant Layout"
         Observer.Expect('dup second stored', 'Report ID=1306; Name=LT W5 Dup; App ID={00000000-0000-0000-0000-000000000000}; Caption=; CaptionML=; Layout Format=Word; Custom Type={00000000-0000-0000-0000-000000000000}; MIME Type=; Description=W5 custom body; IsObsolete=No; ExcelLayoutMultipleDataSheets=Default; Layout.HasValue=Yes');
         Observer.Expect('dup second company is current', 'No');
         W5ExpectExtra(Observer, 'dup second');
+        W5CleanLayouts();
         Observer.Verify();
     end;
 
@@ -372,6 +417,7 @@ codeunit 96181 "LT W5 Tenant Layout"
         Observer: Codeunit "Probe Observer";
         L: Record "Tenant Report Layout";
     begin
+        W5CleanLayouts();
         W5WordRow(L, Report::"Standard Sales - Invoice", '');
         W5Insert(Observer, 'empty name', L);
         Observer.Expect('empty name rows before', '0');
@@ -380,6 +426,7 @@ codeunit 96181 "LT W5 Tenant Layout"
         Observer.Expect('empty name stored', 'Report ID=1306; Name=; App ID={00000000-0000-0000-0000-000000000000}; Caption=; CaptionML=; Layout Format=Word; Custom Type={00000000-0000-0000-0000-000000000000}; MIME Type=; Description=W5 custom body; IsObsolete=No; ExcelLayoutMultipleDataSheets=Default; Layout.HasValue=Yes');
         Observer.Expect('empty name company is current', 'No');
         W5ExpectExtra(Observer, 'empty name');
+        W5CleanLayouts();
         Observer.Verify();
     end;
 
@@ -389,6 +436,7 @@ codeunit 96181 "LT W5 Tenant Layout"
         Observer: Codeunit "Probe Observer";
         L: Record "Tenant Report Layout";
     begin
+        W5CleanLayouts();
         W5WordRow(L, Report::"Probe RL Report", 'LT W5 Own Probe');
         W5Insert(Observer, 'own report word', L);
         Observer.Expect('own report word rows before', '0');
@@ -397,6 +445,7 @@ codeunit 96181 "LT W5 Tenant Layout"
         Observer.Expect('own report word stored', 'Report ID=69083; Name=LT W5 Own Probe; App ID={00000000-0000-0000-0000-000000000000}; Caption=; CaptionML=; Layout Format=Word; Custom Type={00000000-0000-0000-0000-000000000000}; MIME Type=; Description=W5 custom body; IsObsolete=No; ExcelLayoutMultipleDataSheets=Default; Layout.HasValue=Yes');
         Observer.Expect('own report word company is current', 'No');
         W5ExpectExtra(Observer, 'own report word');
+        W5CleanLayouts();
         Observer.Verify();
     end;
 
@@ -468,37 +517,35 @@ codeunit 96181 "LT W5 Tenant Layout"
         RS."Use for Email Body" := true;
     end;
 
-    local procedure W5NoSelections()
-    var
-        RS: Record "Report Selections";
-    begin
-        RS.SetRange(Usage, RS.Usage::"S.Invoice");
-        RS.DeleteAll();
-    end;
-
     [Test]
     procedure W5_ReportSelection_SecondEmailBodyRow_Refused()
     var
+        Saved: Record "Report Selections" temporary;
         Observer: Codeunit "Probe Observer";
         RS: Record "Report Selections";
     begin
-        W5NoSelections();
+        W5CleanLayouts();
+        W5SaveSelections(Saved);
         W5SelectionRow(RS, '1');
         Observer.Observe('first insert', Format(RS.Insert(true)));
         W5SelectionRow(RS, '2');
         asserterror RS.Insert(true);
         Observer.ObserveError('second insert');
+        W5CleanLayouts();
+        W5RestoreSelections(Saved);
         Observer.Finish();
     end;
 
     [Test]
     procedure W5_ReportSelection_EmailBodyLayout_NameOfTenantRow()
     var
+        Saved: Record "Report Selections" temporary;
         Observer: Codeunit "Probe Observer";
         L: Record "Tenant Report Layout";
         RS: Record "Report Selections";
     begin
-        W5NoSelections();
+        W5CleanLayouts();
+        W5SaveSelections(Saved);
         W5WordRow(L, Report::"Standard Sales - Invoice", 'LT W5 Custom Body');
         L.Insert();
         W5SelectionRow(RS, '1');
@@ -512,17 +559,21 @@ codeunit 96181 "LT W5 Tenant Layout"
         RS.Get(RS.Usage::"S.Invoice", '1');
         RS.CalcFields("Email Body Layout Publisher", "Email Body Layout Caption");
         Observer.Observe('selection', RS."Email Body Layout Name" + '|' + Format(RS."Email Body Layout AppID") + '|' + Format(RS."Email Body Layout Type") + '|' + RS."Email Body Layout Publisher" + '|' + RS."Email Body Layout Caption" + '|' + Format(RS."Use for Email Body"));
+        W5CleanLayouts();
+        W5RestoreSelections(Saved);
         Observer.Finish();
     end;
 
     [Test]
     procedure W5_ReportSelection_EmailBodyLayout_NameOfBuiltInLayout()
     var
+        Saved: Record "Report Selections" temporary;
         Observer: Codeunit "Probe Observer";
         List: Record "Report Layout List";
         RS: Record "Report Selections";
     begin
-        W5NoSelections();
+        W5CleanLayouts();
+        W5SaveSelections(Saved);
         List.SetRange("Report ID", Report::"Standard Sales - Invoice");
         List.FindFirst();
         W5SelectionRow(RS, '1');
@@ -532,6 +583,8 @@ codeunit 96181 "LT W5 Tenant Layout"
         Observer.Observe('modify', Format(RS.Modify(true)));
         Observer.Observe('name equals', Format(RS."Email Body Layout Name" = List.Name));
         Observer.Observe('app id equals', Format(RS."Email Body Layout AppID" = List."Application ID"));
+        W5CleanLayouts();
+        W5RestoreSelections(Saved);
         Observer.Finish();
     end;
 }
