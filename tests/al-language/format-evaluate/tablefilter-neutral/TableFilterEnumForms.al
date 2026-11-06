@@ -726,14 +726,22 @@ codeunit 95454 "LT R6951 Tests"
         GlobalLanguage(1033);
         Row."Entry No." := 101;
         Row."Decimal Field" := 99999;
+        if Condition = 'Decimal Field=<>0' then
+            Row."Decimal Field" := 0;
+        Row."Code Field" := 'OTHER';
+        Row."Boolean Field" := false;
         Row."Text Field" := '';
         Row.Insert(false);
         Row."Entry No." := 202;
         Row."Decimal Field" := 100000;
+        Row."Code Field" := 'CORP01';
+        Row."Boolean Field" := true;
         Row."Text Field" := 'A,B';
         Row.Insert(false);
         Row."Entry No." := 303;
         Row."Decimal Field" := 100001;
+        Row."Code Field" := 'CORP02';
+        Row."Boolean Field" := true;
         Row."Text Field" := 'HIGH';
         Row.Insert(false);
         Evaluate(Holder."Filter Value", 'ALT Universal: ' + Condition);
@@ -840,6 +848,82 @@ codeunit 95454 "LT R6951 Tests"
             if Format(Fld.Value()) <> ExpectedCode then
                 Error('Expected enum-selected key %1; actual %2.', ExpectedCode, Fld.Value());
         end;
+        Ref.Close();
+    end;
+
+
+    [Test]
+    procedure TableFilter_Evaluate_CodeWildcard_SelectsMatchingRows()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Code Field=CORP*', 2, 202, 303);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_CodeNotWildcard_ExcludesMatchingRows()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Code Field=<>CORP*', 1, 101, 101);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_BooleanYes_SelectsTrueRows()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Boolean Field=Yes', 2, 202, 303);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_DecimalNotZero_ExcludesZeroRow()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Decimal Field=<>0', 2, 202, 303);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_TextWildcard_SelectsNonemptyRows()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Text Field=?*', 2, 202, 303);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_FlowFieldNotZero_SelectsNonzeroSum()
+    var
+        Parent: Record "ALT Parent";
+        Child: Record "ALT Child";
+        Holder: Record "ALT TableFilter Holder";
+        Fields: Record "Table Filter" temporary;
+        FilterPage: Page "Table Filter";
+        Ref: RecordRef;
+        Fld: FieldRef;
+    begin
+        Initialize();
+        Parent."Entry No." := 101;
+        Parent.Insert(false);
+        Parent."Entry No." := 202;
+        Parent.Insert(false);
+        Child."Entry No." := 1;
+        Child."Parent Entry No." := 202;
+        Child.Amount := 42.5;
+        Child.Insert(false);
+        Evaluate(Holder."Filter Value", 'ALT Parent: Child Amount=<>0');
+        FilterPage.SetSourceTable(Format(Holder."Filter Value"), Database::"ALT Parent", Parent.TableCaption());
+        FilterPage.GetFilterFieldsList(Fields);
+        if Fields.Count() <> 1 then
+            Error('Expected exactly one FlowField condition.');
+        Fields.FindFirst();
+        if Fields."Field Number" <> Parent.FieldNo("Child Amount") then
+            Error('Expected the Child Amount FlowField.');
+        Ref.Open(Database::"ALT Parent");
+        Fld := Ref.Field(Fields."Field Number");
+        Fld.SetFilter(Fields."Field Filter");
+        if Ref.Count() <> 1 then
+            Error('Expected one nonzero-sum parent; actual %1.', Ref.Count());
+        Ref.FindFirst();
+        Fld := Ref.Field(Parent.FieldNo("Entry No."));
+        if Format(Fld.Value()) <> '202' then
+            Error('Expected parent 202; actual %1.', Fld.Value());
         Ref.Close();
     end;
 
