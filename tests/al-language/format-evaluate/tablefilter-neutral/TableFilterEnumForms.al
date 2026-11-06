@@ -674,4 +674,112 @@ codeunit 95454 "LT R6951 Tests"
         Ref.Close();
     end;
 
+
+    // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/system/system-evaluate-method
+    // Fixtures: shared ALT Universal, ALT TableFilter Holder and ALTFixtureCleanup; BC 27.5+; en-US numeric syntax.
+    [Test]
+    procedure TableFilter_Evaluate_PlainDecimalThreshold_SelectsBoundaryRows()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Decimal Field=>=100000', 2, 202, 303);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_QuotedDecimalThreshold_SelectsBoundaryRows()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Decimal Field=">=100000"', 2, 202, 303);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_QuotedGroupedDecimal_SelectsBoundaryRows()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Decimal Field=">=100,000"', 2, 202, 303);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_CompoundQuotedGroupedDecimal_SelectsBoundaryRow()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Decimal Field=">=100,000",Entry No.=303', 1, 303, 303);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_QuotedTextComma_SelectsLiteralCommaRow()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Text Field="A,B"', 1, 202, 202);
+    end;
+
+    local procedure CheckCommaTableFilter(Condition: Text; ExpectedCount: Integer; ExpectedFirst: Integer; ExpectedLast: Integer)
+    var
+        Row: Record "ALT Universal";
+        Holder: Record "ALT TableFilter Holder";
+        Fields: Record "Table Filter" temporary;
+        FilterPage: Page "Table Filter";
+        Ref: RecordRef;
+        Fld: FieldRef;
+        PreviousLanguage: Integer;
+    begin
+        PreviousLanguage := GlobalLanguage();
+        GlobalLanguage(1033);
+        Row."Entry No." := 101;
+        Row."Decimal Field" := 99999;
+        Row."Text Field" := '';
+        Row.Insert(false);
+        Row."Entry No." := 202;
+        Row."Decimal Field" := 100000;
+        Row."Text Field" := 'A,B';
+        Row.Insert(false);
+        Row."Entry No." := 303;
+        Row."Decimal Field" := 100001;
+        Row."Text Field" := 'HIGH';
+        Row.Insert(false);
+        Evaluate(Holder."Filter Value", 'ALT Universal: ' + Condition);
+        FilterPage.SetSourceTable(Format(Holder."Filter Value"), Database::"ALT Universal", Row.TableCaption());
+        FilterPage.GetFilterFieldsList(Fields);
+        Ref.Open(Database::"ALT Universal");
+        if Fields.FindSet() then
+            repeat
+                Fld := Ref.Field(Fields."Field Number");
+                Fld.SetFilter(Fields."Field Filter");
+            until Fields.Next() = 0;
+        if Ref.Count() <> ExpectedCount then
+            Error('Expected %1 rows; actual %2.', ExpectedCount, Ref.Count());
+        if not Ref.FindFirst() then
+            Error('Expected the first selected row.');
+        Fld := Ref.Field(Row.FieldNo("Entry No."));
+        if Fld.Value() <> ExpectedFirst then
+            Error('Expected first key %1; actual %2.', ExpectedFirst, Fld.Value());
+        Ref.FindLast();
+        Fld := Ref.Field(Row.FieldNo("Entry No."));
+        if Fld.Value() <> ExpectedLast then
+            Error('Expected last key %1; actual %2.', ExpectedLast, Fld.Value());
+        Ref.Close();
+        GlobalLanguage(PreviousLanguage);
+    end;
+
+
+    [Test]
+    procedure TableFilter_Evaluate_NotEqualQuotedBlankText_SelectsNonemptyRows()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Text Field=<>''''', 2, 202, 303);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_BareNotEqualText_SelectsNonemptyRows()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Text Field=<>', 2, 202, 303);
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_QuotedBlankText_SelectsEmptyRow()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Text Field=''''', 1, 101, 101);
+    end;
+
 }
