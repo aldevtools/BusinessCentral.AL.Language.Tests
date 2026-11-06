@@ -781,7 +781,7 @@ codeunit 96140 "PG R6889 RS Probe"
         P.Filter.SetFilter("No.", 'D2|D3');
         Doc.Get('D2');
         P.GoToRecord(Doc);
-        Observer.Observe('host no', P.Filter.Value());
+        Observer.Observe('host no', P."No.".Value());
         Log.Reset();
         P.Lines.NewChildCodeunit.Invoke();
         Observer.Observe('line after action', P.Lines."Line No.".Value() + '/O' + P.Lines."Order No.".Value() + '/L' + P.Lines.Level.Value());
