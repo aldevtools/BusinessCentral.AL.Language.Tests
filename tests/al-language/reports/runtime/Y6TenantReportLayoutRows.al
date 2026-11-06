@@ -100,7 +100,7 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
         L.Name := LayoutName;
         L."Layout Format" := L."Layout Format"::Word;
         L.Description := 'W5 custom body';
-        Report.WordLayout(Report::"Standard Sales - Invoice", InS);
+        Report.WordLayout(Report::"LT Y67 Lay Base", InS);
         L.Layout.ImportStream(InS, 'W5 word layout');
     end;
 
@@ -114,7 +114,6 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
         Observer.Observe(Tag + ' rows after', Format(Reader.Count()));
         Reader.SetRange(Name, L.Name);
         if Reader.FindFirst() then begin
-            Reader.CalcFields(Layout);
             Observer.Observe(Tag + ' stored', W5Dump(Reader) + 'Layout.HasValue=' + Format(Reader.Layout.HasValue()));
         end else
             Observer.Observe(Tag + ' stored', 'no row');
@@ -160,6 +159,23 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
         L.SetRange("Report ID", Report::"Standard Sales - Invoice");
         L.DeleteAll();
         Observer.Observe('rows after delete', Format(L.Count()));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure W5_TenantReportLayout_MicrosoftReport_ItsOwnWordLayoutStream()
+    var
+        Observer: Codeunit "Probe Observer";
+        L: Record "Tenant Report Layout";
+        InS: InStream;
+    begin
+        L.Init();
+        L."Report ID" := Report::"Standard Sales - Invoice";
+        L.Name := 'LT W5 Own Stream';
+        L."Layout Format" := L."Layout Format"::Word;
+        Report.WordLayout(Report::"Standard Sales - Invoice", InS);
+        L.Layout.ImportStream(InS, 'the report''s own word layout');
+        W5Insert(Observer, 'standard invoice own word layout', L);
         Observer.Finish();
     end;
 
