@@ -7,7 +7,10 @@
 //   first stores new quantities on all lines through a codeunit (line n gets n * factor). The part stands on line 2 (First, Next) or line 3
 //   (Last) first. Observed: the part's Line No. and Qty after the host step, the trigger log of host and part, the stored Qty of every line, and
 //   which line a following part SetValue of Qty lands on.
-// Facts: see the assertions below.
+// Facts (BC 27.5, 28.5 and 29.0 alike): after the host's own CurrPage.Update (field with Update(true) or Update(false), or an action with Update()),
+//   on all four hosts and with or without UpdatePropagation = Both, the part stays on the row it stood on (line 2 or line 3) and shows that row's new
+//   quantity (5/10/15 after the field, 2/4/6 after the action). The log shows the part re-reading its rows around that row, which is what the
+//   assertions pin. A part SetValue(99) of Qty right after that is not stored yet (stored rows unchanged, no trigger), it waits for the row change.
 // BC versions: 27+ (tested by the corpus CI matrix)
 
 table 96240 "LT WF3 Doc"
@@ -642,7 +645,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunDoc(Observer, 2, 1);
-        Observer.Finish();
+        Observer.Expect('part line', '20000');
+        Observer.Expect('part qty', '10.00');
+        Observer.Expect('log', 'Factor.V;Factor.V.end;Host.AGR;Part.AGR(2);Part.AGR(2);Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '5,10,15,');
+        Observer.Expect('stored after part SetValue', '5,10,15,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -652,7 +661,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunDoc(Observer, 2, 2);
-        Observer.Finish();
+        Observer.Expect('part line', '20000');
+        Observer.Expect('part qty', '10.00');
+        Observer.Expect('log', 'FactorB.V;FactorB.V.end;Host.AGR;Part.AGR(2);Part.AGR(2);Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '5,10,15,');
+        Observer.Expect('stored after part SetValue', '5,10,15,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -662,7 +677,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunDoc(Observer, 2, 3);
-        Observer.Finish();
+        Observer.Expect('part line', '20000');
+        Observer.Expect('part qty', '4.00');
+        Observer.Expect('log', 'Part.AGR(2);Host.AGR;Double.A;Double.A.end;Host.AGR;Host.AGR;Part.AGR(2);Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '2,4,6,');
+        Observer.Expect('stored after part SetValue', '2,4,6,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -672,7 +693,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunDoc(Observer, 3, 1);
-        Observer.Finish();
+        Observer.Expect('part line', '30000');
+        Observer.Expect('part qty', '15.00');
+        Observer.Expect('log', 'Factor.V;Factor.V.end;Host.AGR;Part.AGR(3);Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '5,10,15,');
+        Observer.Expect('stored after part SetValue', '5,10,15,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -682,7 +709,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunDoc(Observer, 3, 2);
-        Observer.Finish();
+        Observer.Expect('part line', '30000');
+        Observer.Expect('part qty', '15.00');
+        Observer.Expect('log', 'FactorB.V;FactorB.V.end;Host.AGR;Part.AGR(3);Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '5,10,15,');
+        Observer.Expect('stored after part SetValue', '5,10,15,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -692,7 +725,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunDoc(Observer, 3, 3);
-        Observer.Finish();
+        Observer.Expect('part line', '30000');
+        Observer.Expect('part qty', '6.00');
+        Observer.Expect('log', 'Part.AGR(3);Host.AGR;Double.A;Double.A.end;Host.AGR;Host.AGR;Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '2,4,6,');
+        Observer.Expect('stored after part SetValue', '2,4,6,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -702,7 +741,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunCard(Observer, 2, 1);
-        Observer.Finish();
+        Observer.Expect('part line', '20000');
+        Observer.Expect('part qty', '10.00');
+        Observer.Expect('log', 'Factor.V;Factor.V.end;Host.AGR;Part.AGR(2);Part.AGR(2);Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '5,10,15,');
+        Observer.Expect('stored after part SetValue', '5,10,15,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -712,7 +757,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunCard(Observer, 2, 2);
-        Observer.Finish();
+        Observer.Expect('part line', '20000');
+        Observer.Expect('part qty', '10.00');
+        Observer.Expect('log', 'FactorB.V;FactorB.V.end;Host.AGR;Part.AGR(2);Part.AGR(2);Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '5,10,15,');
+        Observer.Expect('stored after part SetValue', '5,10,15,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -722,7 +773,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunCard(Observer, 2, 3);
-        Observer.Finish();
+        Observer.Expect('part line', '20000');
+        Observer.Expect('part qty', '4.00');
+        Observer.Expect('log', 'Part.AGR(2);Host.AGR;Double.A;Double.A.end;Host.AGR;Host.AGR;Part.AGR(2);Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '2,4,6,');
+        Observer.Expect('stored after part SetValue', '2,4,6,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -732,7 +789,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunCard(Observer, 3, 1);
-        Observer.Finish();
+        Observer.Expect('part line', '30000');
+        Observer.Expect('part qty', '15.00');
+        Observer.Expect('log', 'Factor.V;Factor.V.end;Host.AGR;Part.AGR(3);Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '5,10,15,');
+        Observer.Expect('stored after part SetValue', '5,10,15,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -742,7 +805,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunCard(Observer, 3, 2);
-        Observer.Finish();
+        Observer.Expect('part line', '30000');
+        Observer.Expect('part qty', '15.00');
+        Observer.Expect('log', 'FactorB.V;FactorB.V.end;Host.AGR;Part.AGR(3);Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '5,10,15,');
+        Observer.Expect('stored after part SetValue', '5,10,15,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -752,7 +821,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunCard(Observer, 3, 3);
-        Observer.Finish();
+        Observer.Expect('part line', '30000');
+        Observer.Expect('part qty', '6.00');
+        Observer.Expect('log', 'Part.AGR(3);Host.AGR;Double.A;Double.A.end;Host.AGR;Host.AGR;Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '2,4,6,');
+        Observer.Expect('stored after part SetValue', '2,4,6,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -762,7 +837,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunPlus(Observer, 2, 1);
-        Observer.Finish();
+        Observer.Expect('part line', '20000');
+        Observer.Expect('part qty', '10.00');
+        Observer.Expect('log', 'Factor.V;Factor.V.end;Host.AGR;Part.AGR(2);Part.AGR(2);Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '5,10,15,');
+        Observer.Expect('stored after part SetValue', '5,10,15,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -772,7 +853,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunPlus(Observer, 2, 2);
-        Observer.Finish();
+        Observer.Expect('part line', '20000');
+        Observer.Expect('part qty', '10.00');
+        Observer.Expect('log', 'FactorB.V;FactorB.V.end;Host.AGR;Part.AGR(2);Part.AGR(2);Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '5,10,15,');
+        Observer.Expect('stored after part SetValue', '5,10,15,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -782,7 +869,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunPlus(Observer, 2, 3);
-        Observer.Finish();
+        Observer.Expect('part line', '20000');
+        Observer.Expect('part qty', '4.00');
+        Observer.Expect('log', 'Part.AGR(2);Host.AGR;Double.A;Double.A.end;Host.AGR;Host.AGR;Part.AGR(2);Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '2,4,6,');
+        Observer.Expect('stored after part SetValue', '2,4,6,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -792,7 +885,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunPlus(Observer, 3, 1);
-        Observer.Finish();
+        Observer.Expect('part line', '30000');
+        Observer.Expect('part qty', '15.00');
+        Observer.Expect('log', 'Factor.V;Factor.V.end;Host.AGR;Part.AGR(3);Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '5,10,15,');
+        Observer.Expect('stored after part SetValue', '5,10,15,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -802,7 +901,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunPlus(Observer, 3, 2);
-        Observer.Finish();
+        Observer.Expect('part line', '30000');
+        Observer.Expect('part qty', '15.00');
+        Observer.Expect('log', 'FactorB.V;FactorB.V.end;Host.AGR;Part.AGR(3);Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '5,10,15,');
+        Observer.Expect('stored after part SetValue', '5,10,15,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -812,7 +917,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunPlus(Observer, 3, 3);
-        Observer.Finish();
+        Observer.Expect('part line', '30000');
+        Observer.Expect('part qty', '6.00');
+        Observer.Expect('log', 'Part.AGR(3);Host.AGR;Double.A;Double.A.end;Host.AGR;Host.AGR;Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '2,4,6,');
+        Observer.Expect('stored after part SetValue', '2,4,6,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -822,7 +933,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunPlusNoBoth(Observer, 2, 1);
-        Observer.Finish();
+        Observer.Expect('part line', '20000');
+        Observer.Expect('part qty', '10.00');
+        Observer.Expect('log', 'Factor.V;Factor.V.end;Host.AGR;Part.AGR(2);Part.AGR(2);Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '5,10,15,');
+        Observer.Expect('stored after part SetValue', '5,10,15,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -832,7 +949,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunPlusNoBoth(Observer, 2, 2);
-        Observer.Finish();
+        Observer.Expect('part line', '20000');
+        Observer.Expect('part qty', '10.00');
+        Observer.Expect('log', 'FactorB.V;FactorB.V.end;Host.AGR;Part.AGR(2);Part.AGR(2);Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '5,10,15,');
+        Observer.Expect('stored after part SetValue', '5,10,15,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -842,7 +965,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunPlusNoBoth(Observer, 2, 3);
-        Observer.Finish();
+        Observer.Expect('part line', '20000');
+        Observer.Expect('part qty', '4.00');
+        Observer.Expect('log', 'Part.AGR(2);Host.AGR;Double.A;Double.A.end;Host.AGR;Host.AGR;Part.AGR(2);Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '2,4,6,');
+        Observer.Expect('stored after part SetValue', '2,4,6,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -852,7 +981,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunPlusNoBoth(Observer, 3, 1);
-        Observer.Finish();
+        Observer.Expect('part line', '30000');
+        Observer.Expect('part qty', '15.00');
+        Observer.Expect('log', 'Factor.V;Factor.V.end;Host.AGR;Part.AGR(3);Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '5,10,15,');
+        Observer.Expect('stored after part SetValue', '5,10,15,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -862,7 +997,13 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunPlusNoBoth(Observer, 3, 2);
-        Observer.Finish();
+        Observer.Expect('part line', '30000');
+        Observer.Expect('part qty', '15.00');
+        Observer.Expect('log', 'FactorB.V;FactorB.V.end;Host.AGR;Part.AGR(3);Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '5,10,15,');
+        Observer.Expect('stored after part SetValue', '5,10,15,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -872,6 +1013,12 @@ codeunit 96249 "LT WF3 Host Update"
     begin
         Initialize();
         RunPlusNoBoth(Observer, 3, 3);
-        Observer.Finish();
+        Observer.Expect('part line', '30000');
+        Observer.Expect('part qty', '6.00');
+        Observer.Expect('log', 'Part.AGR(3);Host.AGR;Double.A;Double.A.end;Host.AGR;Host.AGR;Part.AGR(3);Part.AGR(2);Part.AGR(1)');
+        Observer.Expect('stored', '2,4,6,');
+        Observer.Expect('stored after part SetValue', '2,4,6,');
+        Observer.Expect('log of part SetValue', '');
+        Observer.Verify();
     end;
 }

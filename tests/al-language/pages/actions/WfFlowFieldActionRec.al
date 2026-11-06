@@ -7,7 +7,10 @@
 //   a codeunit that Gets the same row into its own record variable, sets Link Code and runs Modify(true), without and with a Commit; contrast: the
 //   same action without the CalcFields. Observed: the stored Link Code after the action and after Close, the log of the page's OnModifyRecord
 //   (P.MODR) and the table's OnModify (T.MOD), and what the page shows after the action.
-// Facts: see the assertions below.
+// Facts (BC 27.5, 28.5 and 29.0 alike): an action that runs Rec.CalcFields on a lookup FlowField, or sets a FlowFilter on Rec, and then changes the
+//   row through its own record variable leaves Rec as no change for the page, on the List and the Card, with and without a Commit: the stored Link
+//   Code stays L1, the log holds only the table's OnModify (T.MOD(L1)), the page runs no OnModifyRecord and saves nothing after the action or at
+//   Close, and it shows Link Code L1 with Head Status Certified after the action. The same action without CalcFields behaves the same.
 // BC versions: 27+ (tested by the corpus CI matrix)
 
 table 96232 "LT WF3 Head"
@@ -382,7 +385,12 @@ codeunit 96238 "LT WF3 Flowfield Action"
     begin
         Initialize();
         RunList(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('stored after action', 'L1');
+        Observer.Expect('log action', 'T.MOD(L1)');
+        Observer.Expect('shown after action', 'L1/Certified');
+        Observer.Expect('stored after close', 'L1');
+        Observer.Expect('log close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -392,7 +400,12 @@ codeunit 96238 "LT WF3 Flowfield Action"
     begin
         Initialize();
         RunList(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('stored after action', 'L1');
+        Observer.Expect('log action', 'T.MOD(L1)');
+        Observer.Expect('shown after action', 'L1/Certified');
+        Observer.Expect('stored after close', 'L1');
+        Observer.Expect('log close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -402,7 +415,12 @@ codeunit 96238 "LT WF3 Flowfield Action"
     begin
         Initialize();
         RunList(Observer, 3);
-        Observer.Finish();
+        Observer.Expect('stored after action', 'L1');
+        Observer.Expect('log action', 'T.MOD(L1)');
+        Observer.Expect('shown after action', 'L1/Certified');
+        Observer.Expect('stored after close', 'L1');
+        Observer.Expect('log close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -412,7 +430,12 @@ codeunit 96238 "LT WF3 Flowfield Action"
     begin
         Initialize();
         RunList(Observer, 4);
-        Observer.Finish();
+        Observer.Expect('stored after action', 'L1');
+        Observer.Expect('log action', 'T.MOD(L1)');
+        Observer.Expect('shown after action', 'L1/Certified');
+        Observer.Expect('stored after close', 'L1');
+        Observer.Expect('log close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -422,7 +445,12 @@ codeunit 96238 "LT WF3 Flowfield Action"
     begin
         Initialize();
         RunList(Observer, 5);
-        Observer.Finish();
+        Observer.Expect('stored after action', 'L1');
+        Observer.Expect('log action', 'T.MOD(L1)');
+        Observer.Expect('shown after action', 'L1/Certified');
+        Observer.Expect('stored after close', 'L1');
+        Observer.Expect('log close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -432,7 +460,12 @@ codeunit 96238 "LT WF3 Flowfield Action"
     begin
         Initialize();
         RunCard(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('stored after action', 'L1');
+        Observer.Expect('log action', 'T.MOD(L1)');
+        Observer.Expect('shown after action', 'L1/Certified');
+        Observer.Expect('stored after close', 'L1');
+        Observer.Expect('log close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -442,7 +475,12 @@ codeunit 96238 "LT WF3 Flowfield Action"
     begin
         Initialize();
         RunCard(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('stored after action', 'L1');
+        Observer.Expect('log action', 'T.MOD(L1)');
+        Observer.Expect('shown after action', 'L1/Certified');
+        Observer.Expect('stored after close', 'L1');
+        Observer.Expect('log close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -452,7 +490,12 @@ codeunit 96238 "LT WF3 Flowfield Action"
     begin
         Initialize();
         RunCard(Observer, 3);
-        Observer.Finish();
+        Observer.Expect('stored after action', 'L1');
+        Observer.Expect('log action', 'T.MOD(L1)');
+        Observer.Expect('shown after action', 'L1/Certified');
+        Observer.Expect('stored after close', 'L1');
+        Observer.Expect('log close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -462,7 +505,12 @@ codeunit 96238 "LT WF3 Flowfield Action"
     begin
         Initialize();
         RunCard(Observer, 4);
-        Observer.Finish();
+        Observer.Expect('stored after action', 'L1');
+        Observer.Expect('log action', 'T.MOD(L1)');
+        Observer.Expect('shown after action', 'L1/Certified');
+        Observer.Expect('stored after close', 'L1');
+        Observer.Expect('log close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -472,6 +520,11 @@ codeunit 96238 "LT WF3 Flowfield Action"
     begin
         Initialize();
         RunCard(Observer, 5);
-        Observer.Finish();
+        Observer.Expect('stored after action', 'L1');
+        Observer.Expect('log action', 'T.MOD(L1)');
+        Observer.Expect('shown after action', 'L1/Certified');
+        Observer.Expect('stored after close', 'L1');
+        Observer.Expect('log close', '');
+        Observer.Verify();
     end;
 }
