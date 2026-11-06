@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/currpage/currpage-update-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); LT R6877 Doc (pages/lt-th-part-update-cursor/R6877PartBothLaterRow.al); own objects
-//   96130-96141 (PG R6889 RS *)
+//   96130-96147 (PG R6889 RS *)
 // local object: the part's action, the host's OnAfterGetCurrRecord and the table triggers are what the test checks
 // Probe: from al-runner issue 6889, second round (follow-up of R6889PartActionNewLine.al, where the typed Type is dropped on the line the
 //   part's own action inserted). The reporter's real pages keep the value on BC 28. His differences are added one at a time, cumulatively:
