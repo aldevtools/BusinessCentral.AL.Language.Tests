@@ -87,7 +87,7 @@ codeunit 96165 "LT R7187 Page Caption"
     end;
 
     [Test]
-    procedure R7187_SetValueError_Dutch()
+    procedure R7187_SetValueError_OwnControl_Dutch()
     var
         Observer: Codeunit "Probe Observer";
         Card: TestPage "LT R7187 Row Card";
@@ -96,21 +96,19 @@ codeunit 96165 "LT R7187 Page Caption"
         Saved := GlobalLanguage();
         GlobalLanguage(1043);
         Card.OpenNew();
-        if not TrySetOwn(Card) then
-            Observer.ObserveError('SetValue abc on own control');
-        if not TrySetPlain(Card) then
-            Observer.ObserveError('SetValue abc on field control');
+        if TrySetOwn(Card) then
+            Error('SetValue did not fail');
+        Observer.Observe('own control text', GetLastErrorText());
+        Observer.Observe('own control code', GetLastErrorCode());
         Card.Close();
         GlobalLanguage(Saved);
-        Observer.Expect('SetValue abc on own control|text', 'x');
-        Observer.Expect('SetValue abc on own control|code', 'x');
-        Observer.Expect('SetValue abc on field control|text', 'x');
-        Observer.Expect('SetValue abc on field control|code', 'x');
+        Observer.Expect('own control text', 'Validatiefout voor veld: RowIdCtl, bericht = ''Your entry of ''abc'' is not an acceptable value for ''Rij-id''. De waarde "abc" kan niet worden geëvalueerd tot type Integer.');
+        Observer.Expect('own control code', 'x');
         Observer.Verify();
     end;
 
     [Test]
-    procedure R7187_SetValueError_English()
+    procedure R7187_SetValueError_OwnControl_English()
     var
         Observer: Codeunit "Probe Observer";
         Card: TestPage "LT R7187 Row Card";
@@ -119,16 +117,90 @@ codeunit 96165 "LT R7187 Page Caption"
         Saved := GlobalLanguage();
         GlobalLanguage(1033);
         Card.OpenNew();
-        if not TrySetOwn(Card) then
-            Observer.ObserveError('SetValue abc on own control');
-        if not TrySetPlain(Card) then
-            Observer.ObserveError('SetValue abc on field control');
+        if TrySetOwn(Card) then
+            Error('SetValue did not fail');
+        Observer.Observe('own control text', GetLastErrorText());
+        Observer.Observe('own control code', GetLastErrorCode());
         Card.Close();
         GlobalLanguage(Saved);
-        Observer.Expect('SetValue abc on own control|text', 'x');
-        Observer.Expect('SetValue abc on own control|code', 'x');
-        Observer.Expect('SetValue abc on field control|text', 'x');
-        Observer.Expect('SetValue abc on field control|code', 'x');
+        Observer.Expect('own control text', 'Validation error for Field: RowIdCtl,  Message = ''Your entry of ''abc'' is not an acceptable value for ''Row id''. The value "abc" can''t be evaluated into type Integer.');
+        Observer.Expect('own control code', 'x');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7187_SetValueError_FieldControlText_Dutch()
+    var
+        Observer: Codeunit "Probe Observer";
+        Card: TestPage "LT R7187 Row Card";
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1043);
+        Card.OpenNew();
+        if TrySetPlain(Card) then
+            Error('SetValue did not fail');
+        Observer.Observe('field control text', GetLastErrorText());
+        Card.Close();
+        GlobalLanguage(Saved);
+        Observer.Expect('field control text', 'x');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7187_SetValueError_FieldControlCode_Dutch()
+    var
+        Observer: Codeunit "Probe Observer";
+        Card: TestPage "LT R7187 Row Card";
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1043);
+        Card.OpenNew();
+        if TrySetPlain(Card) then
+            Error('SetValue did not fail');
+        Observer.Observe('field control code', GetLastErrorCode());
+        Card.Close();
+        GlobalLanguage(Saved);
+        Observer.Expect('field control code', 'x');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7187_SetValueError_FieldControlText_English()
+    var
+        Observer: Codeunit "Probe Observer";
+        Card: TestPage "LT R7187 Row Card";
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        Card.OpenNew();
+        if TrySetPlain(Card) then
+            Error('SetValue did not fail');
+        Observer.Observe('field control text', GetLastErrorText());
+        Card.Close();
+        GlobalLanguage(Saved);
+        Observer.Expect('field control text', 'x');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R7187_SetValueError_FieldControlCode_English()
+    var
+        Observer: Codeunit "Probe Observer";
+        Card: TestPage "LT R7187 Row Card";
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        Card.OpenNew();
+        if TrySetPlain(Card) then
+            Error('SetValue did not fail');
+        Observer.Observe('field control code', GetLastErrorCode());
+        Card.Close();
+        GlobalLanguage(Saved);
+        Observer.Expect('field control code', 'x');
         Observer.Verify();
     end;
 
@@ -146,7 +218,7 @@ codeunit 96165 "LT R7187 Page Caption"
         Observer.Observe('SalesLine.FieldCaption Description', SalesLine.FieldCaption(Description));
         Observer.Observe('SalesLine.FieldCaption extension field', SalesLine.FieldCaption("R7187 Ext Note"));
         GlobalLanguage(Saved);
-        Observer.Expect('SalesLine.FieldCaption Inv. Discount Amount', 'x');
+        Observer.Expect('SalesLine.FieldCaption Inv. Discount Amount', 'Inv. Discount Amount Excl. VAT');
         Observer.Expect('FieldRef.Caption 69', 'x');
         Observer.Expect('SalesLine.FieldCaption Description', 'Description');
         Observer.Expect('SalesLine.FieldCaption extension field', 'R7187 note');
