@@ -90,11 +90,6 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
         end;
     end;
 
-    [TryFunction]
-    local procedure W5TryInsert(var L: Record "Tenant Report Layout"; var Ok: Boolean)
-    begin
-        Ok := L.Insert();
-    end;
 
     local procedure W5WordRow(var L: Record "Tenant Report Layout"; ReportId: Integer; LayoutName: Text[250])
     var
@@ -112,16 +107,16 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
     local procedure W5Insert(var Observer: Codeunit "Probe Observer"; Tag: Text; var L: Record "Tenant Report Layout")
     var
         Reader: Record "Tenant Report Layout";
-        Ok: Boolean;
+        Runner: Codeunit "LT W5 Layout Insert";
     begin
         Reader.SetRange("Report ID", L."Report ID");
         Observer.Observe(Tag + ' rows before', Format(Reader.Count()));
         ClearLastError();
-        if not W5TryInsert(L, Ok) then begin
+        if not Runner.Run(L) then begin
             Observer.Observe(Tag + ' insert', 'raised ' + GetLastErrorCode() + ' | ' + GetLastErrorText());
             ClearLastError();
         end else
-            Observer.Observe(Tag + ' insert', Format(Ok));
+            Observer.Observe(Tag + ' insert', 'ok');
         Observer.Observe(Tag + ' rows after', Format(Reader.Count()));
         Reader.SetRange(Name, L.Name);
         if Reader.FindFirst() then begin
@@ -237,6 +232,10 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
         L: Record "Tenant Report Layout";
         RS: Record "Report Selections";
     begin
+        RS.SetRange(Usage, RS.Usage::"S.Invoice");
+        Observer.Observe('existing S.Invoice selections', Format(RS.Count()));
+        RS.DeleteAll();
+        RS.Reset();
         RS.Init();
         RS.Usage := RS.Usage::"S.Invoice";
         RS.Sequence := 'W5';
@@ -254,5 +253,16 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
         RS.CalcFields("Email Body Layout Publisher", "Email Body Layout Caption");
         Observer.Observe('selection', RS."Email Body Layout Name" + '|' + Format(RS."Email Body Layout AppID") + '|' + Format(RS."Email Body Layout Type") + '|' + RS."Email Body Layout Publisher" + '|' + RS."Email Body Layout Caption" + '|' + Format(RS."Use for Email Body"));
         Observer.Finish();
+    end;
+}
+
+// local object: runs one Insert on a Tenant Report Layout row so that its error can be observed without ending the test (Insert is not allowed in a TryFunction)
+codeunit 96180 "LT W5 Layout Insert"
+{
+    TableNo = "Tenant Report Layout";
+
+    trigger OnRun()
+    begin
+        Rec.Insert();
     end;
 }
