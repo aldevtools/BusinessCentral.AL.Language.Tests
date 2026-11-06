@@ -102,8 +102,8 @@ codeunit 96165 "LT R7187 Page Caption"
         Observer.Observe('own control code', GetLastErrorCode());
         Card.Close();
         GlobalLanguage(Saved);
-        Observer.Expect('own control text', 'Validatiefout voor veld: RowIdCtl, bericht = ''Your entry of ''abc'' is not an acceptable value for ''Rij-id''. De waarde "abc" kan niet worden geëvalueerd tot type Integer.');
-        Observer.Expect('own control code', 'x');
+        Observer.Expect('own control text', 'Validatiefout voor veld: RowIdCtl, bericht = ''Your entry of ''abc'' is not an acceptable value for ''Rij-id''. De waarde "abc" kan niet worden geëvalueerd tot type Integer.''');
+        Observer.Expect('own control code', 'TestValidation');
         Observer.Verify();
     end;
 
@@ -123,8 +123,8 @@ codeunit 96165 "LT R7187 Page Caption"
         Observer.Observe('own control code', GetLastErrorCode());
         Card.Close();
         GlobalLanguage(Saved);
-        Observer.Expect('own control text', 'Validation error for Field: RowIdCtl,  Message = ''Your entry of ''abc'' is not an acceptable value for ''Row id''. The value "abc" can''t be evaluated into type Integer.');
-        Observer.Expect('own control code', 'x');
+        Observer.Expect('own control text', 'Validation error for Field: RowIdCtl,  Message = ''Your entry of ''abc'' is not an acceptable value for ''Row id''. The value "abc" can''t be evaluated into type Integer.''');
+        Observer.Expect('own control code', 'TestValidation');
         Observer.Verify();
     end;
 
@@ -143,7 +143,7 @@ codeunit 96165 "LT R7187 Page Caption"
         Observer.Observe('field control text', GetLastErrorText());
         Card.Close();
         GlobalLanguage(Saved);
-        Observer.Expect('field control text', 'x');
+        Observer.Expect('field control text', 'Validatiefout voor veld: PlainCtl, bericht = ''Your entry of ''abc'' is not an acceptable value for ''Rijnummer''. De waarde "abc" kan niet worden geëvalueerd tot type Integer.'''');
         Observer.Verify();
     end;
 
@@ -162,7 +162,7 @@ codeunit 96165 "LT R7187 Page Caption"
         Observer.Observe('field control code', GetLastErrorCode());
         Card.Close();
         GlobalLanguage(Saved);
-        Observer.Expect('field control code', 'x');
+        Observer.Expect('field control code', 'TestValidation');
         Observer.Verify();
     end;
 
@@ -181,7 +181,7 @@ codeunit 96165 "LT R7187 Page Caption"
         Observer.Observe('field control text', GetLastErrorText());
         Card.Close();
         GlobalLanguage(Saved);
-        Observer.Expect('field control text', 'x');
+        Observer.Expect('field control text', 'Validation error for Field: PlainCtl,  Message = ''Your entry of ''abc'' is not an acceptable value for ''Row number''. The value "abc" can''t be evaluated into type Integer.'''');
         Observer.Verify();
     end;
 
@@ -200,7 +200,7 @@ codeunit 96165 "LT R7187 Page Caption"
         Observer.Observe('field control code', GetLastErrorCode());
         Card.Close();
         GlobalLanguage(Saved);
-        Observer.Expect('field control code', 'x');
+        Observer.Expect('field control code', 'TestValidation');
         Observer.Verify();
     end;
 
@@ -219,7 +219,7 @@ codeunit 96165 "LT R7187 Page Caption"
         Observer.Observe('SalesLine.FieldCaption extension field', SalesLine.FieldCaption("R7187 Ext Note"));
         GlobalLanguage(Saved);
         Observer.Expect('SalesLine.FieldCaption Inv. Discount Amount', 'Inv. Discount Amount Excl. VAT');
-        Observer.Expect('FieldRef.Caption 69', 'x');
+        Observer.Expect('FieldRef.Caption 69', 'Inv. Discount Amount Excl. VAT');
         Observer.Expect('SalesLine.FieldCaption Description', 'Description');
         Observer.Expect('SalesLine.FieldCaption extension field', 'R7187 note');
         Observer.Verify();
