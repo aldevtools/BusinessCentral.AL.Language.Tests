@@ -84,6 +84,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension LT R7144 SIH Ext - Field R7144 SIH Payment ID - Property Caption</note>
         </trans-unit>
+        <trans-unit id="TableExtension 3078848360 - FieldModification 3461834954 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3276313895">
+          <source>LT Item Description</source>
+          <target>LT Artikelomschrijving</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension LT R7184 Item Ext - FieldModification Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3276313895 - Field 381961415 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unit Cost</source>
+          <target>Kostprijs per eenheid</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">cross-app: the unit id of the original Item.Unit Cost caption (Base Application's own id)</note>
+        </trans-unit>
       </group>
     </body>
   </file>
