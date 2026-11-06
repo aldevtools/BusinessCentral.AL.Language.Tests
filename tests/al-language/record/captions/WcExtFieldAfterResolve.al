@@ -7,7 +7,9 @@
 //   caption. Read through FieldCaption, FieldRef.Caption, a TestPage control, CaptionClassTranslate; a base table field of the same kind; an
 //   area 3 field; a second read of the same field; an expression with only one comma. Results (BC 27.5, 28.5, 29.0, all equal): the first read of an expression raises OnAfterCaptionClassResolve once with the
 //   expression and the caption as given (area 3 and a one-comma expression too), the subscriber's caption is the result, a second read raises
-//   nothing. Reads after a TestPage of the table was opened raised nothing (v1). The last test isolates that case on a second table. The log shows which OnAfterCaptionClassResolve calls
+//   nothing. Opening a TestPage raises the event once for every caption-class field of its table, shown or not (BC 28.5; the page-open test), and the later reads
+//   of those fields raise nothing. Other shapes: no comma and an empty area are passed to the event unchanged (the subscriber leaves them), '3,' alone has no
+//   event and gives the Caption, a page control's own area 3 CaptionClass raises the event at page open with the text after the comma. The log shows which OnAfterCaptionClassResolve calls
 //   the read raised (the expression and the caption the subscriber got).
 // BC versions: 27, 28, 29
 
@@ -406,7 +408,12 @@ codeunit 96205 "LT WC Ext Caption Resolve"
         Observer.Observe('log-hidden', Log.Take());
         Card.Close();
         Log.Stop();
-        Observer.Finish();
+        Observer.Expect('log-open', 'after expr=LTWC,27,7 in=LTWC,27,7 lang_is_session=Yes | after expr=LTWC,27,8 in=LTWC,27,8 lang_is_session=Yes');
+        Observer.Expect('control-caption', 'WC table 27 field 7');
+        Observer.Expect('log-after-control', '');
+        Observer.Expect('hidden-fieldcaption', 'WC table 27 field 8');
+        Observer.Expect('log-hidden', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -420,7 +427,9 @@ codeunit 96205 "LT WC Ext Caption Resolve"
         Observer.Observe('fieldcaption', T.FieldCaption("WC No Comma"));
         Observer.Observe('log', Log.Take());
         Log.Stop();
-        Observer.Finish();
+        Observer.Expect('fieldcaption', 'WCNOCOMMA');
+        Observer.Expect('log', 'after expr=WCNOCOMMA in=WCNOCOMMA lang_is_session=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -434,7 +443,9 @@ codeunit 96205 "LT WC Ext Caption Resolve"
         Observer.Observe('fieldcaption', T.FieldCaption("WC Empty Area"));
         Observer.Observe('log', Log.Take());
         Log.Stop();
-        Observer.Finish();
+        Observer.Expect('fieldcaption', ',WC empty area');
+        Observer.Expect('log', 'after expr=,WC empty area in=,WC empty area lang_is_session=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -448,7 +459,9 @@ codeunit 96205 "LT WC Ext Caption Resolve"
         Observer.Observe('fieldcaption', T.FieldCaption("WC Three Alone"));
         Observer.Observe('log', Log.Take());
         Log.Stop();
-        Observer.Finish();
+        Observer.Expect('fieldcaption', 'WC Three Alone Cap');
+        Observer.Expect('log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -470,7 +483,10 @@ codeunit 96205 "LT WC Ext Caption Resolve"
         Observer.Observe('log-after-control', Log.Take());
         Card.Close();
         Log.Stop();
-        Observer.Finish();
+        Observer.Expect('log-open', 'after expr=3,WC ctl three in=WC ctl three lang_is_session=Yes');
+        Observer.Expect('control-caption', 'WC ctl three');
+        Observer.Expect('log-after-control', '');
+        Observer.Verify();
     end;
 
     [Test]
