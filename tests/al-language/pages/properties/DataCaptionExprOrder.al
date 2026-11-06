@@ -1,10 +1,19 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-datacaptionexpression-property
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own table 96260, log 96261, page 96260, tests 96262
+// Probe: observed on BC 27.5, 28.5 and 29.0 (identical logs on all three for the RunModal and Page.Run tests; the TestPage tests were observed on 29.0).
 // Facts: al-runner issue 6924 (waldo): a page whose DataCaptionExpression calls a local procedure that assigns page globals from Rec.GetFilter,
-//   shown by field controls that OnOpenPage never assigns. When the expression runs relative to OnInit, OnOpenPage, OnFindRecord,
-//   OnAfterGetRecord, OnAfterGetCurrRecord and the handler, how often it runs (open, Next, CurrPage.Update, close), with rows and with an
-//   empty table, through Page.RunModal (from a table procedure), Page.Run and TestPage.OpenView / OpenEdit, and what TestPage.Caption returns.
+//   shown by field controls that OnOpenPage never assigns. The tests log every trigger, every evaluation of the expression ("DC") and what the
+//   handler reads ("H"); each test asserts the whole log.
+//   - The expression is NOT evaluated before OnInit, OnOpenPage or OnFindRecord. It runs after OnAfterGetRecord and again after OnAfterGetCurrRecord
+//     (twice per record change); with rows it never runs before the first OnAfterGetRecord.
+//   - TestPage.Caption() in the handler returns the caption built by the expression ('LT DCE - Cap I1|I2') but does not run it again.
+//   - Controls on globals the expression assigns are NOT yet updated at the first read in the handler (empty); after Next() and after
+//     CurrPage.Update they show the filter ('I1|I2'), i.e. the value of the previous evaluation.
+//   - With an empty table (RunModal) it still runs twice, with no OnAfterGetRecord before it (Rec."Item No." is the filter value I9) and the
+//     handler's first read again shows empty controls; a TestPage opened on an empty table does not run it at all.
+//   - A TestPage opened first and filtered afterwards (TestPage.Filter.SetFilter) runs OnFindRecord('-') and the expression again.
+//   - TestPage.Filter.SetFilter before OpenView is not possible (error 'The TestPage is not open'); the filter comes from Page.Run / RunModal on a Rec.
 
 table 96260 "LT DCE Row"
 {
@@ -343,7 +352,39 @@ codeunit 96262 "LT DCE Tests"
         Card.Close();
         Log.Add('after close');
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('log',
+            'OnInit(ctl=)' +
+            ' | OnOpenPage(ctl=)' +
+            ' | OnFindRecord(=><)' +
+            ' | OnAfterGetRecord(I1 ctl=)' +
+            ' | DC(filter= rec=I1)' +
+            ' | OnAfterGetCurrRecord(I1 ctl=)' +
+            ' | DC(filter= rec=I1)' +
+            ' | H open cap=LT DCE - Cap ctl=' +
+            ' | OnFindRecord(-)' +
+            ' | OnAfterGetRecord(I1 ctl=)' +
+            ' | DC(filter=I1|I2 rec=I1)' +
+            ' | OnAfterGetCurrRecord(I1 ctl=)' +
+            ' | DC(filter=I1|I2 rec=I1)' +
+            ' | H filtered cap=LT DCE - Cap I1|I2 ctl=' +
+            ' | OnNextRecord(1)' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | OnAfterGetCurrRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | H next cap=LT DCE - Cap I1|I2 ctl=I1|I2 item=I2' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | OnFindRecord(=)' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | OnAfterGetCurrRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | H update cap=LT DCE - Cap I1|I2 ctl=I1|I2' +
+            ' | OnQueryClosePage' +
+            ' | after close');
+        Observer.Verify();
     end;
 
     [Test]
@@ -360,7 +401,24 @@ codeunit 96262 "LT DCE Tests"
         Card.Close();
         Log.Add('after close');
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('log',
+            'OnInit(ctl=)' +
+            ' | OnOpenPage(ctl=)' +
+            ' | OnFindRecord(=><)' +
+            ' | OnAfterGetRecord(I1 ctl=)' +
+            ' | DC(filter= rec=I1)' +
+            ' | OnAfterGetCurrRecord(I1 ctl=)' +
+            ' | DC(filter= rec=I1)' +
+            ' | H open cap=LT DCE - Cap ctl=' +
+            ' | OnFindRecord(-)' +
+            ' | OnAfterGetRecord(I1 ctl=)' +
+            ' | DC(filter=I1|I2 rec=I1)' +
+            ' | OnAfterGetCurrRecord(I1 ctl=)' +
+            ' | DC(filter=I1|I2 rec=I1)' +
+            ' | H filtered cap=LT DCE - Cap I1|I2 ctl=' +
+            ' | OnQueryClosePage' +
+            ' | after close');
+        Observer.Verify();
     end;
 
     [Test]
@@ -377,7 +435,16 @@ codeunit 96262 "LT DCE Tests"
         Card.Close();
         Log.Add('after close');
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('log',
+            'OnInit(ctl=)' +
+            ' | OnOpenPage(ctl=)' +
+            ' | OnFindRecord(=><)' +
+            ' | H open cap=LT DCE ctl=' +
+            ' | OnFindRecord(-)' +
+            ' | H filtered cap=LT DCE ctl=' +
+            ' | OnQueryClosePage' +
+            ' | after close');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
