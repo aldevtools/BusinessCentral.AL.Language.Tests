@@ -9,6 +9,14 @@
 //   Log: F:<filters of Rec at the start of the first OnOpenPage>, B: / E0: / E: = Rec at the end of the base trigger, at the start and at the end of the
 //   extension trigger, O: = Rec at the end of OnOpenPage of a page without extension, R: = OnAfterGetRecord, C: = OnAfterGetCurrRecord.
 //   Rows: A 'delta', B 'charlie', C 'bravo', D 'alpha' (key No. orders A..D, key ByName D..A). Modes: 0 nothing, 1 Get('C'), 2 table procedure chain.
+//   BC (27.5, 28.5, 29.0 alike, every observation identical): the page opens on the row OnOpenPage left Rec on. Rec.Get('C') and the table procedure
+//   chain end on C in the same way (the chain gets its key from a second record: the filters are copied, SetFilter on No. replaces a filter
+//   on No. and keeps one on Name). Page.Run with No. B..D opens on C; with No. A..B (C is outside the view) it opens on B and Next answers
+//   Yes on an empty row; with Name <> bravo the direct Get still leaves Rec on C but the page opens on D, and the chain, whose second
+//   record excludes C, finds D and ends there. In a page extension the base OnOpenPage runs first (B: before E0:); the extension sees Rec as
+//   the base trigger left it (E0:C after a base Get) and its own move wins (base Get then extension chain, or the reverse, ends on C).
+//   A page with SourceTableView sorting(Name) order(descending) shows the same open row, Next and Previous as the plain list, with one more
+//   OnAfterGetRecord in the open and the next log.
 // BC versions: 27, 28, 29
 
 table 96320 "LT OG Row"
@@ -322,7 +330,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         P.OpenView();
         ReadList(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;O:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -335,7 +349,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         P.OpenEdit();
         ReadList(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;O:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -347,7 +367,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.Fill();
         Log.SetModes(1, 0);
         Page.Run(Page::"LT OG List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;O:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -360,7 +386,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.SetModes(1, 0);
         Row.SetRange("No.", 'B', 'D');
         Page.Run(Page::"LT OG List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:No.: B..D;O:C;R:C;R:D;R:C;R:B;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -373,7 +405,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.SetModes(1, 0);
         Row.SetRange("No.", 'A', 'B');
         Page.Run(Page::"LT OG List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'B|charlie');
+        Observer.Expect('open log', 'F:No.: A..B;O:C;R:B;R:A;R:B;R:B;C:B;');
+        Observer.Expect('next', 'Yes|');
+        Observer.Expect('next log', 'C:;');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;C:B;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -386,7 +424,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.SetModes(1, 0);
         Row.SetFilter(Name, '<>bravo');
         Page.Run(Page::"LT OG List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'D|alpha');
+        Observer.Expect('open log', 'F:Name: <>bravo;O:C;R:D;R:B;R:A;R:D;R:D;C:D;');
+        Observer.Expect('next', 'Yes|');
+        Observer.Expect('next log', 'C:;');
+        Observer.Expect('previous', 'Yes|D');
+        Observer.Expect('previous log', 'R:D;R:D;C:D;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -399,7 +443,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         P.OpenView();
         ReadList(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;O:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -412,7 +462,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         P.OpenEdit();
         ReadList(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;O:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -424,7 +480,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.Fill();
         Log.SetModes(2, 0);
         Page.Run(Page::"LT OG List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;O:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -437,7 +499,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.SetModes(2, 0);
         Row.SetRange("No.", 'B', 'D');
         Page.Run(Page::"LT OG List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:No.: B..D;O:C;R:C;R:D;R:C;R:B;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -450,7 +518,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.SetModes(2, 0);
         Row.SetRange("No.", 'A', 'B');
         Page.Run(Page::"LT OG List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'B|charlie');
+        Observer.Expect('open log', 'F:No.: A..B;O:C;R:B;R:A;R:B;R:B;C:B;');
+        Observer.Expect('next', 'Yes|');
+        Observer.Expect('next log', 'C:;');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;C:B;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -463,7 +537,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.SetModes(2, 0);
         Row.SetFilter(Name, '<>bravo');
         Page.Run(Page::"LT OG List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'D|alpha');
+        Observer.Expect('open log', 'F:Name: <>bravo;O:D;R:D;R:B;R:A;R:D;R:D;C:D;');
+        Observer.Expect('next', 'Yes|');
+        Observer.Expect('next log', 'C:;');
+        Observer.Expect('previous', 'Yes|D');
+        Observer.Expect('previous log', 'R:D;R:D;C:D;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -476,7 +556,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         P.OpenView();
         ReadExtList(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;B:C;E0:C;E:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -488,7 +574,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.Fill();
         Log.SetModes(1, 0);
         Page.Run(Page::"LT OG Ext List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;B:C;E0:C;E:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -501,7 +593,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         P.OpenView();
         ReadExtList(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;B:;E0:;E:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -513,7 +611,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.Fill();
         Log.SetModes(0, 1);
         Page.Run(Page::"LT OG Ext List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;B:;E0:;E:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -526,7 +630,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         P.OpenView();
         ReadExtList(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;B:;E0:;E:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -538,7 +648,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.Fill();
         Log.SetModes(0, 2);
         Page.Run(Page::"LT OG Ext List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;B:;E0:;E:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -551,7 +667,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         P.OpenView();
         ReadExtList(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;B:C;E0:C;E:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -563,7 +685,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.Fill();
         Log.SetModes(2, 0);
         Page.Run(Page::"LT OG Ext List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;B:C;E0:C;E:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -576,7 +704,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         P.OpenView();
         ReadExtList(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;B:C;E0:C;E:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -588,7 +722,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.Fill();
         Log.SetModes(1, 2);
         Page.Run(Page::"LT OG Ext List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;B:C;E0:C;E:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -601,7 +741,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         P.OpenView();
         ReadExtList(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;B:C;E0:C;E:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -613,7 +759,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.Fill();
         Log.SetModes(2, 1);
         Page.Run(Page::"LT OG Ext List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;B:C;E0:C;E:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -626,7 +778,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         P.OpenEdit();
         ReadExtList(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;B:;E0:;E:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -639,7 +797,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.SetModes(0, 2);
         Row.SetRange("No.", 'B', 'D');
         Page.Run(Page::"LT OG Ext List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:No.: B..D;B:;E0:;E:C;R:C;R:D;R:C;R:B;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -652,7 +816,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.SetModes(0, 2);
         Row.SetRange("No.", 'A', 'B');
         Page.Run(Page::"LT OG Ext List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'B|charlie');
+        Observer.Expect('open log', 'F:No.: A..B;B:;E0:;E:C;R:B;R:A;R:B;R:B;C:B;');
+        Observer.Expect('next', 'Yes|');
+        Observer.Expect('next log', 'C:;');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;C:B;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -665,7 +835,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.SetModes(0, 2);
         Row.SetFilter(Name, '<>bravo');
         Page.Run(Page::"LT OG Ext List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'D|alpha');
+        Observer.Expect('open log', 'F:Name: <>bravo;B:;E0:;E:D;R:D;R:B;R:A;R:D;R:D;C:D;');
+        Observer.Expect('next', 'Yes|');
+        Observer.Expect('next log', 'C:;');
+        Observer.Expect('previous', 'Yes|D');
+        Observer.Expect('previous log', 'R:D;R:D;C:D;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -678,7 +854,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         P.OpenView();
         ReadViewList(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;O:C;R:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -690,7 +872,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.Fill();
         Log.SetModes(1, 0);
         Page.Run(Page::"LT OG View List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;O:C;R:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -703,7 +891,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.SetModes(1, 0);
         Row.SetRange("No.", 'B', 'D');
         Page.Run(Page::"LT OG View List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:No.: B..D;O:C;R:C;R:C;R:D;R:C;R:B;R:C;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -716,7 +910,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.SetModes(1, 0);
         Row.SetRange("No.", 'A', 'B');
         Page.Run(Page::"LT OG View List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'B|charlie');
+        Observer.Expect('open log', 'F:No.: A..B;O:C;R:C;R:B;R:A;R:B;R:B;R:B;C:B;');
+        Observer.Expect('next', 'Yes|');
+        Observer.Expect('next log', 'C:;');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;R:B;C:B;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -729,7 +929,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         P.OpenView();
         ReadViewList(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;O:C;R:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -741,7 +947,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.Fill();
         Log.SetModes(2, 0);
         Page.Run(Page::"LT OG View List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:;O:C;R:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -754,7 +966,13 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.SetModes(2, 0);
         Row.SetRange("No.", 'B', 'D');
         Page.Run(Page::"LT OG View List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'F:No.: B..D;O:C;R:C;R:C;R:D;R:C;R:B;R:C;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -767,6 +985,12 @@ codeunit 96327 "LT OG Get Chain Tests"
         Log.SetModes(2, 0);
         Row.SetRange("No.", 'A', 'B');
         Page.Run(Page::"LT OG View List", Row);
-        Observer.Finish();
+        Observer.Expect('open', 'B|charlie');
+        Observer.Expect('open log', 'F:No.: A..B;O:C;R:C;R:B;R:A;R:B;R:B;R:B;C:B;');
+        Observer.Expect('next', 'Yes|');
+        Observer.Expect('next log', 'C:;');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;R:B;C:B;');
+        Observer.Verify();
     end;
 }
