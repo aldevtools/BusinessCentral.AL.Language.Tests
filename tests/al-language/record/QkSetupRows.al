@@ -224,9 +224,11 @@ codeunit 86940 "LT QK Setup Rows"
     // Global Dimension 1 Code in the cache for codeunit 86504 (QdCaptionClassAreas.al), which expects 'Department Code'. The translated text
     // '1,1,x' has no valid reference: it only makes codeunit 343 read the setup and returns an empty text.
     procedure PrimeDimensionCaptionCache()
+    var
+        Ignored: Text;
     begin
         WriteGLSetupCaptions();
-        CaptionClassTranslate('1,1,x');
+        Ignored := CaptionClassTranslate('1,1,x');
         RestoreGLSetupCaptions();
     end;
 
