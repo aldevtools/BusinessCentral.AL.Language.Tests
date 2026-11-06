@@ -10,6 +10,9 @@ codeunit 96123 "CU P7 B Reader"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    var
+        Assert: Codeunit Assert;
+
     trigger OnRun()
     var
         State: Codeunit "CU P7 State";
@@ -19,12 +22,20 @@ codeunit 96123 "CU P7 B Reader"
 
     [Test]
     procedure P7B_ReadsWhatThePreviousTestCodeunitLeft()
-    // CLAIM: see the assertions.
+    // CLAIM: SingleInstance state survives into the next test codeunit of the run (company scope),
+    // and so does A's OnRun call record; rows A inserted do not, committed or not (the test
+    // runner's codeunit isolation rolled them back). Measured identical on 27.5, 28.5, 29.0.
     var
         State: Codeunit "CU P7 State";
         Row: Record "CU P7 Row";
     begin
-        Error('P7 OBS B ran=%1 value=%2 COMMITTED=%3 OPEN=%4', State.GetRan(), State.GetValue(),
-          Row.Get('COMMITTED'), Row.Get('OPEN'));
+        // Guard: when neither the state nor A's call record is there, A did not run before this
+        // codeunit in this session (a different shard or runner); that is not the answer asked for.
+        if (State.GetRan() = '') and (State.GetValue() = 0) then
+            Error('P7 precondition: CU P7 A Setter (96122) did not run before this codeunit in this session');
+        Assert.AreEqual('A.OnRun;A.T1;B.OnRun', State.GetRan(), 'A ran first; B.OnRun ran before this test');
+        Assert.AreEqual(7, State.GetValue(), 'SingleInstance value of A survived');
+        Assert.IsFalse(Row.Get('COMMITTED'), 'row A committed is gone');
+        Assert.IsFalse(Row.Get('OPEN'), 'row A left uncommitted is gone');
     end;
 }

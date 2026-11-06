@@ -17,6 +17,9 @@ codeunit 96122 "CU P7 A Setter"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    var
+        Assert: Codeunit Assert;
+
     trigger OnRun()
     var
         State: Codeunit "CU P7 State";
@@ -47,7 +50,11 @@ codeunit 96122 "CU P7 A Setter"
         State: Codeunit "CU P7 State";
         Row: Record "CU P7 Row";
     begin
-        Error('P7 OBS A.T2 ran=%1 value=%2 COMMITTED=%3 OPEN=%4', State.GetRan(), State.GetValue(),
-          Row.Get('COMMITTED'), Row.Get('OPEN'));
+        // Measured on 27.5, 28.5 and 29.0 (hub and websocket runner alike): no rollback between
+        // the tests of one codeunit, and OnRun ran once before the first test.
+        Assert.AreEqual('A.OnRun;A.T1', State.GetRan(), 'OnRun ran before the first test, once; the first test ran');
+        Assert.AreEqual(7, State.GetValue(), 'value set by the first test');
+        Assert.IsTrue(Row.Get('COMMITTED'), 'committed row of the first test');
+        Assert.IsTrue(Row.Get('OPEN'), 'uncommitted row of the first test');
     end;
 }
