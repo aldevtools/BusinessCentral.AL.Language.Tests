@@ -27,6 +27,14 @@ tableextension 96160 "LT R7184 Item Ext" extends Item
         {
             Caption = 'LT Item Search';
         }
+        modify("Description 2")
+        {
+            Caption = 'LT Item Description Two';
+        }
+        modify("Unit Price")
+        {
+            Caption = 'LT Item Price';
+        }
     }
 }
 
@@ -58,6 +66,8 @@ codeunit 96162 "LT R7184 Base App Caption"
         Observer.Observe('FieldRef.Caption 3 Description (modify, unit)', RefCaption(Database::Item, 3));
         Observer.Observe('Item.FieldCaption Search Description (modify, no unit)', Item.FieldCaption("Search Description"));
         Observer.Observe('FieldRef.Caption 4 Search Description (modify, no unit)', RefCaption(Database::Item, 4));
+        Observer.Observe('Item.FieldCaption Description 2 (modify, unit with Field kind)', Item.FieldCaption("Description 2"));
+        Observer.Observe('Item.FieldCaption Unit Price (modify, unit with the original Item id)', Item.FieldCaption("Unit Price"));
         Observer.Observe('Item.FieldCaption Unit Cost (cross-app unit)', Item.FieldCaption("Unit Cost"));
         Observer.Observe('FieldRef.Caption 22 Unit Cost (cross-app unit)', RefCaption(Database::Item, 22));
         Observer.Observe('Item.FieldCaption extension field', Item.FieldCaption("R7184 Ext Code"));
@@ -69,6 +79,8 @@ codeunit 96162 "LT R7184 Base App Caption"
         Observer.Expect('FieldRef.Caption 3 Description (modify, unit)', 'LT Item Description');
         Observer.Expect('Item.FieldCaption Search Description (modify, no unit)', 'LT Item Search');
         Observer.Expect('FieldRef.Caption 4 Search Description (modify, no unit)', 'LT Item Search');
+        Observer.Expect('Item.FieldCaption Description 2 (modify, unit with Field kind)', 'LT Item Description Two');
+        Observer.Expect('Item.FieldCaption Unit Price (modify, unit with the original Item id)', 'LT Item Price');
         Observer.Expect('Item.FieldCaption Unit Cost (cross-app unit)', 'Unit Cost');
         Observer.Expect('FieldRef.Caption 22 Unit Cost (cross-app unit)', 'Unit Cost');
         Observer.Expect('Item.FieldCaption extension field', 'R7184 extension code');
@@ -137,23 +149,23 @@ codeunit 96162 "LT R7184 Base App Caption"
         SalesDocType := SalesDocType::Order;
         Observer.Observe('Format Base App value Order', Format(SalesDocType));
         Observer.Observe('Format own extension value', Format(SalesDocType::"R7184 Extra"));
-        Observer.Observe('Evaluate Order ok', Format(Evaluate(Parsed, 'Order')));
-        Observer.Observe('Evaluate Order value', Format(Parsed.AsInteger()));
+        Observer.Observe('Evaluate Order ok', BoolText(Evaluate(Parsed, 'Order')));
+        Observer.Observe('Evaluate Order value', Format(Parsed.AsInteger(), 0, 9));
         Parsed := SalesDocType::Quote;
-        Observer.Observe('Evaluate Bestelling ok', Format(Evaluate(Parsed, 'Bestelling')));
-        Observer.Observe('Evaluate Bestelling value', Format(Parsed.AsInteger()));
+        Observer.Observe('Evaluate Bestelling ok', BoolText(Evaluate(Parsed, 'Bestelling')));
+        Observer.Observe('Evaluate Bestelling value', Format(Parsed.AsInteger(), 0, 9));
         Parsed := SalesDocType::Quote;
-        Observer.Observe('Evaluate own value caption ok', Format(Evaluate(Parsed, 'R7184 Extra type')));
-        Observer.Observe('Evaluate own value caption value', Format(Parsed.AsInteger()));
+        Observer.Observe('Evaluate own value caption ok', BoolText(Evaluate(Parsed, 'R7184 Extra type')));
+        Observer.Observe('Evaluate own value caption value', Format(Parsed.AsInteger(), 0, 9));
         Observer.Observe('Ordinals', Format(SalesDocType.Ordinals().Count()));
         GlobalLanguage(Saved);
         Observer.Expect('Format Base App value Order', 'Order');
         Observer.Expect('Format own extension value', 'R7184 Extra type');
-        Observer.Expect('Evaluate Order ok', 'Yes');
+        Observer.Expect('Evaluate Order ok', 'True');
         Observer.Expect('Evaluate Order value', '1');
-        Observer.Expect('Evaluate Bestelling ok', 'No');
+        Observer.Expect('Evaluate Bestelling ok', 'False');
         Observer.Expect('Evaluate Bestelling value', '0');
-        Observer.Expect('Evaluate own value caption ok', 'Yes');
+        Observer.Expect('Evaluate own value caption ok', 'True');
         Observer.Expect('Evaluate own value caption value', '96160');
         Observer.Expect('Ordinals', '7');
         Observer.Verify();
@@ -174,6 +186,13 @@ codeunit 96162 "LT R7184 Base App Caption"
         Observer.Expect('SalesInvoiceHeader.FieldCaption No.', 'No.');
         Observer.Expect('FieldRef.Caption 3 No.', 'No.');
         Observer.Verify();
+    end;
+
+    local procedure BoolText(Value: Boolean): Text
+    begin
+        if Value then
+            exit('True');
+        exit('False');
     end;
 
     local procedure RefCaption(TableNo: Integer; FieldNo: Integer): Text

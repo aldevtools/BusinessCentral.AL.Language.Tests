@@ -96,6 +96,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">cross-app: the unit id of the original Item.Unit Cost caption (Base Application's own id)</note>
         </trans-unit>
+        <trans-unit id="TableExtension 3078848360 - Field 47657272 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3276313895">
+          <source>LT Item Description Two</source>
+          <target>LT Artikelomschrijving twee</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension LT R7184 Item Ext - Field Description 2 - Property Caption (Field kind instead of FieldModification)</note>
+        </trans-unit>
+        <trans-unit id="Table 3276313895 - Field 2937233469 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unit Price</source>
+          <target>Verkoopprijs</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">original Item.Unit Price caption id; the extension also modifies the caption</note>
+        </trans-unit>
       </group>
     </body>
   </file>
