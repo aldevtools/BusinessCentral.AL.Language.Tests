@@ -38,3 +38,5 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 - `tablefilter-neutral/`: quoted numeric grouping commas, quoted literal commas, and compound-condition boundaries (en-US), with plain/quoted controls.
 
 - `tablefilter-neutral/`: quoted blank Text equality/inequality and a bare nonempty Text control.
+
+- `tablefilter-neutral/`: declared and undeclared enum ordinal conditions, including preserving the numeric filter when no declared row matches.

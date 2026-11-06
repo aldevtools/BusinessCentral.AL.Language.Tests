@@ -502,7 +502,7 @@ codeunit 95454 "LT R6951 Tests"
         Cleanup: Codeunit ALTFixtureCleanup;
         Row: Record "FMT Blank Filter Row";
     begin
-        Cleanup.Initialize(); InitializeCaptionCodeRows();
+        Cleanup.Initialize(); InitializeCaptionCodeRows(); InitializeOrdinalRows();
         Row.DeleteAll(false);
     end;
 
@@ -750,11 +750,11 @@ codeunit 95454 "LT R6951 Tests"
         if not Ref.FindFirst() then
             Error('Expected the first selected row.');
         Fld := Ref.Field(Row.FieldNo("Entry No."));
-        if Fld.Value() <> ExpectedFirst then
+        if Format(Fld.Value()) <> Format(ExpectedFirst) then
             Error('Expected first key %1; actual %2.', ExpectedFirst, Fld.Value());
         Ref.FindLast();
         Fld := Ref.Field(Row.FieldNo("Entry No."));
-        if Fld.Value() <> ExpectedLast then
+        if Format(Fld.Value()) <> Format(ExpectedLast) then
             Error('Expected last key %1; actual %2.', ExpectedLast, Fld.Value());
         Ref.Close();
         GlobalLanguage(PreviousLanguage);
@@ -780,6 +780,67 @@ codeunit 95454 "LT R6951 Tests"
     begin
         Initialize();
         CheckCommaTableFilter('Text Field=''''', 1, 101, 101);
+    end;
+
+
+    [Test]
+    procedure TableFilter_Evaluate_UndeclaredEnumOrdinal_PreservesNumericFilter()
+    begin
+        Initialize();
+        CheckOrdinalTableFilter('10', 0, '');
+    end;
+
+    [Test]
+    procedure TableFilter_Evaluate_DeclaredEnumOrdinal_SelectsMatchingRow()
+    begin
+        Initialize();
+        CheckOrdinalTableFilter('1', 1, 'VAR42');
+    end;
+
+    local procedure InitializeOrdinalRows()
+    var
+        Row: Record "LT R6951 Target";
+    begin
+        Row.DeleteAll(false);
+    end;
+
+    local procedure CheckOrdinalTableFilter(OrdinalText: Text; ExpectedCount: Integer; ExpectedCode: Code[20])
+    var
+        Row: Record "LT R6951 Target";
+        Holder: Record "ALT TableFilter Holder";
+        Fields: Record "Table Filter" temporary;
+        FilterPage: Page "Table Filter";
+        Ref: RecordRef;
+        Fld: FieldRef;
+    begin
+        Row.Code := 'ITEM42';
+        Row."Config Type" := Row."Config Type"::Item;
+        Row.Insert(false);
+        Row.Code := 'VAR42';
+        Row."Config Type" := Row."Config Type"::Variant;
+        Row.Insert(false);
+        Evaluate(Holder."Filter Value", 'LT R6951 Target: Config Type=' + OrdinalText);
+        FilterPage.SetSourceTable(Format(Holder."Filter Value"), Database::"LT R6951 Target", Row.TableCaption());
+        FilterPage.GetFilterFieldsList(Fields);
+        if Fields.Count() <> 1 then
+            Error('Expected one enum condition; actual %1.', Fields.Count());
+        Fields.FindFirst();
+        if Fields."Field Number" <> Row.FieldNo("Config Type") then
+            Error('Expected the Config Type field.');
+        if (OrdinalText = '10') and (Fields."Field Filter" <> '10') then
+            Error('Expected preserved numeric condition 10; actual %1.', Fields."Field Filter");
+        Ref.Open(Database::"LT R6951 Target");
+        Fld := Ref.Field(Row.FieldNo("Config Type"));
+        Fld.SetFilter(Fields."Field Filter");
+        if Ref.Count() <> ExpectedCount then
+            Error('Expected %1 enum-selected rows; actual %2.', ExpectedCount, Ref.Count());
+        if ExpectedCount > 0 then begin
+            Ref.FindFirst();
+            Fld := Ref.Field(Row.FieldNo(Code));
+            if Format(Fld.Value()) <> ExpectedCode then
+                Error('Expected enum-selected key %1; actual %2.', ExpectedCode, Fld.Value());
+        end;
+        Ref.Close();
     end;
 
 }
