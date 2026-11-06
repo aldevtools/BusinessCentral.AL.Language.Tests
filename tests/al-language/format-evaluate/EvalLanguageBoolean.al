@@ -5,6 +5,7 @@
 //   For GlobalLanguage 2067, 1043, 1031, 1036, 1030 and 1033: which texts Evaluate accepts into a Boolean (Yes, yes, No, true, False, 1, 0, Ja, ja, JA,
 //   Nee, Nein, Nej, Oui, Non, Y, N), the error text and code of a rejected one, Format(Bool) and Format(Bool, 0, 9); Evaluate into an Option field and
 //   an Enum (name, caption, caption under the language, ordinal) and their Format; Evaluate of date texts and Format(Date) and Format(Date, 0, 9).
+// Facts (identical on BC 27.5, 28.5 and 29.0, W1 containers): see the pinned values; summary in corpus PR 1173.
 // BC versions: 27+ (tested by the corpus CI matrix)
 
 table 96280 "LT EL Row"
@@ -189,7 +190,25 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunWords(Observer, 2067);
-        Observer.Finish();
+        Observer.Expect('Evaluate Yes', 'rejected');
+        Observer.Expect('Evaluate yes', 'rejected');
+        Observer.Expect('Evaluate No', 'rejected');
+        Observer.Expect('Evaluate true', 'ok|true');
+        Observer.Expect('Evaluate False', 'ok|false');
+        Observer.Expect('Evaluate 1', 'ok|true');
+        Observer.Expect('Evaluate 0', 'ok|false');
+        Observer.Expect('Evaluate Ja', 'ok|true');
+        Observer.Expect('Evaluate ja', 'ok|true');
+        Observer.Expect('Evaluate JA', 'ok|true');
+        Observer.Expect('Evaluate Nee', 'ok|false');
+        Observer.Expect('Evaluate Nein', 'rejected');
+        Observer.Expect('Evaluate Nej', 'rejected');
+        Observer.Expect('Evaluate Oui', 'rejected');
+        Observer.Expect('Evaluate Non', 'rejected');
+        Observer.Expect('Evaluate Y', 'rejected');
+        Observer.Expect('Evaluate N', 'ok|false');
+        Observer.Expect('Evaluate  Ja ', 'ok|true');
+        Observer.Verify();
     end;
 
     [Test]
@@ -198,7 +217,21 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunErrors(Observer, 2067);
-        Observer.Finish();
+        Observer.Expect('TryBool Yes', 'err');
+        Observer.Expect('TryBool Yes|text', 'De waarde "Yes" kan niet worden geëvalueerd tot type Boolean.');
+        Observer.Expect('TryBool Yes|code', 'Evaluate');
+        Observer.Expect('TryBool Ja', 'ok');
+        Observer.Expect('TryBool Oui', 'err');
+        Observer.Expect('TryBool Oui|text', 'De waarde "Oui" kan niet worden geëvalueerd tot type Boolean.');
+        Observer.Expect('TryBool Oui|code', 'Evaluate');
+        Observer.Expect('Format true', 'Ja');
+        Observer.Expect('Format true 0 9', 'true');
+        Observer.Expect('Format true 1 9', 't');
+        Observer.Expect('Format false', 'Nee');
+        Observer.Expect('Format false 0 9', 'false');
+        Observer.Expect('Format false 0 1', 'Nee');
+        Observer.Expect('Format true 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -207,7 +240,26 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunOption(Observer, 2067);
-        Observer.Finish();
+        Observer.Expect('Option Open', 'ok|0');
+        Observer.Expect('Option open', 'ok|0');
+        Observer.Expect('Option Closed', 'ok|1');
+        Observer.Expect('Option Open cap', 'rejected');
+        Observer.Expect('Option Open BE', 'ok|0');
+        Observer.Expect('Option Gesloten BE', 'ok|1');
+        Observer.Expect('Option Gesloten NL', 'rejected');
+        Observer.Expect('Option gesloten nl', 'rejected');
+        Observer.Expect('Option Offen', 'rejected');
+        Observer.Expect('Option offen', 'rejected');
+        Observer.Expect('Option Geschlossen', 'rejected');
+        Observer.Expect('Option Ouvert', 'rejected');
+        Observer.Expect('Option Ferme', 'rejected');
+        Observer.Expect('Option Aaben', 'rejected');
+        Observer.Expect('Option Lukket', 'rejected');
+        Observer.Expect('Option 1', 'ok|1');
+        Observer.Expect('Format Closed', 'Gesloten BE');
+        Observer.Expect('Format Closed 0 9', '1');
+        Observer.Expect('Format Closed 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -216,7 +268,24 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunEnum(Observer, 2067);
-        Observer.Finish();
+        Observer.Expect('Enum Open', 'ok|0');
+        Observer.Expect('Enum open', 'ok|0');
+        Observer.Expect('Enum Closed', 'ok|1');
+        Observer.Expect('Enum Open cap', 'rejected');
+        Observer.Expect('Enum Open BE', 'ok|0');
+        Observer.Expect('Enum Gesloten BE', 'ok|1');
+        Observer.Expect('Enum Gesloten NL', 'rejected');
+        Observer.Expect('Enum Offen', 'rejected');
+        Observer.Expect('Enum Geschlossen', 'rejected');
+        Observer.Expect('Enum Ouvert', 'rejected');
+        Observer.Expect('Enum Ferme', 'rejected');
+        Observer.Expect('Enum Aaben', 'rejected');
+        Observer.Expect('Enum Lukket', 'rejected');
+        Observer.Expect('Enum 1', 'ok|1');
+        Observer.Expect('Format Closed', 'Gesloten BE');
+        Observer.Expect('Format Closed 0 9', '1');
+        Observer.Expect('Format Closed 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -225,7 +294,22 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunDate(Observer, 2067);
-        Observer.Finish();
+        Observer.Expect('Date 31.12.2026', 'rejected');
+        Observer.Expect('Date 31/12/2026', 'rejected');
+        Observer.Expect('Date 12/31/2026', 'ok|2026-12-31');
+        Observer.Expect('Date 31-12-2026', 'rejected');
+        Observer.Expect('Date 31-12-26', 'rejected');
+        Observer.Expect('Date 2026-12-31', 'ok|2026-12-31');
+        Observer.Expect('Date 311226', 'rejected');
+        Observer.Expect('Date 31 december 2026', 'ok|2026-12-31');
+        Observer.Expect('Date 31 Dezember 2026', 'rejected');
+        Observer.Expect('Date 31. Dezember 2026', 'rejected');
+        Observer.Expect('Date Dec 31 2026', 'rejected');
+        Observer.Expect('Format date', '12/31/26');
+        Observer.Expect('Format date 0 9', '2026-12-31');
+        Observer.Expect('Format date 0 4', 'december 31, 2026');
+        Observer.Expect('Format date 0 0', '12/31/26');
+        Observer.Verify();
     end;
 
     [Test]
@@ -234,7 +318,25 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunWords(Observer, 1043);
-        Observer.Finish();
+        Observer.Expect('Evaluate Yes', 'rejected');
+        Observer.Expect('Evaluate yes', 'rejected');
+        Observer.Expect('Evaluate No', 'rejected');
+        Observer.Expect('Evaluate true', 'ok|true');
+        Observer.Expect('Evaluate False', 'ok|false');
+        Observer.Expect('Evaluate 1', 'ok|true');
+        Observer.Expect('Evaluate 0', 'ok|false');
+        Observer.Expect('Evaluate Ja', 'ok|true');
+        Observer.Expect('Evaluate ja', 'ok|true');
+        Observer.Expect('Evaluate JA', 'ok|true');
+        Observer.Expect('Evaluate Nee', 'ok|false');
+        Observer.Expect('Evaluate Nein', 'rejected');
+        Observer.Expect('Evaluate Nej', 'rejected');
+        Observer.Expect('Evaluate Oui', 'rejected');
+        Observer.Expect('Evaluate Non', 'rejected');
+        Observer.Expect('Evaluate Y', 'rejected');
+        Observer.Expect('Evaluate N', 'ok|false');
+        Observer.Expect('Evaluate  Ja ', 'ok|true');
+        Observer.Verify();
     end;
 
     [Test]
@@ -243,7 +345,21 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunErrors(Observer, 1043);
-        Observer.Finish();
+        Observer.Expect('TryBool Yes', 'err');
+        Observer.Expect('TryBool Yes|text', 'De waarde "Yes" kan niet worden geëvalueerd tot type Boolean.');
+        Observer.Expect('TryBool Yes|code', 'Evaluate');
+        Observer.Expect('TryBool Ja', 'ok');
+        Observer.Expect('TryBool Oui', 'err');
+        Observer.Expect('TryBool Oui|text', 'De waarde "Oui" kan niet worden geëvalueerd tot type Boolean.');
+        Observer.Expect('TryBool Oui|code', 'Evaluate');
+        Observer.Expect('Format true', 'Ja');
+        Observer.Expect('Format true 0 9', 'true');
+        Observer.Expect('Format true 1 9', 't');
+        Observer.Expect('Format false', 'Nee');
+        Observer.Expect('Format false 0 9', 'false');
+        Observer.Expect('Format false 0 1', 'Nee');
+        Observer.Expect('Format true 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -252,7 +368,26 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunOption(Observer, 1043);
-        Observer.Finish();
+        Observer.Expect('Option Open', 'ok|0');
+        Observer.Expect('Option open', 'ok|0');
+        Observer.Expect('Option Closed', 'ok|1');
+        Observer.Expect('Option Open cap', 'rejected');
+        Observer.Expect('Option Open BE', 'rejected');
+        Observer.Expect('Option Gesloten BE', 'rejected');
+        Observer.Expect('Option Gesloten NL', 'ok|1');
+        Observer.Expect('Option gesloten nl', 'ok|1');
+        Observer.Expect('Option Offen', 'rejected');
+        Observer.Expect('Option offen', 'rejected');
+        Observer.Expect('Option Geschlossen', 'rejected');
+        Observer.Expect('Option Ouvert', 'rejected');
+        Observer.Expect('Option Ferme', 'rejected');
+        Observer.Expect('Option Aaben', 'rejected');
+        Observer.Expect('Option Lukket', 'rejected');
+        Observer.Expect('Option 1', 'ok|1');
+        Observer.Expect('Format Closed', 'Gesloten NL');
+        Observer.Expect('Format Closed 0 9', '1');
+        Observer.Expect('Format Closed 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -261,7 +396,24 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunEnum(Observer, 1043);
-        Observer.Finish();
+        Observer.Expect('Enum Open', 'ok|0');
+        Observer.Expect('Enum open', 'ok|0');
+        Observer.Expect('Enum Closed', 'ok|1');
+        Observer.Expect('Enum Open cap', 'rejected');
+        Observer.Expect('Enum Open BE', 'rejected');
+        Observer.Expect('Enum Gesloten BE', 'rejected');
+        Observer.Expect('Enum Gesloten NL', 'ok|1');
+        Observer.Expect('Enum Offen', 'rejected');
+        Observer.Expect('Enum Geschlossen', 'rejected');
+        Observer.Expect('Enum Ouvert', 'rejected');
+        Observer.Expect('Enum Ferme', 'rejected');
+        Observer.Expect('Enum Aaben', 'rejected');
+        Observer.Expect('Enum Lukket', 'rejected');
+        Observer.Expect('Enum 1', 'ok|1');
+        Observer.Expect('Format Closed', 'Gesloten NL');
+        Observer.Expect('Format Closed 0 9', '1');
+        Observer.Expect('Format Closed 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -270,7 +422,22 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunDate(Observer, 1043);
-        Observer.Finish();
+        Observer.Expect('Date 31.12.2026', 'rejected');
+        Observer.Expect('Date 31/12/2026', 'rejected');
+        Observer.Expect('Date 12/31/2026', 'ok|2026-12-31');
+        Observer.Expect('Date 31-12-2026', 'rejected');
+        Observer.Expect('Date 31-12-26', 'rejected');
+        Observer.Expect('Date 2026-12-31', 'ok|2026-12-31');
+        Observer.Expect('Date 311226', 'rejected');
+        Observer.Expect('Date 31 december 2026', 'ok|2026-12-31');
+        Observer.Expect('Date 31 Dezember 2026', 'rejected');
+        Observer.Expect('Date 31. Dezember 2026', 'rejected');
+        Observer.Expect('Date Dec 31 2026', 'rejected');
+        Observer.Expect('Format date', '12/31/26');
+        Observer.Expect('Format date 0 9', '2026-12-31');
+        Observer.Expect('Format date 0 4', 'december 31, 2026');
+        Observer.Expect('Format date 0 0', '12/31/26');
+        Observer.Verify();
     end;
 
     [Test]
@@ -279,7 +446,25 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunWords(Observer, 1031);
-        Observer.Finish();
+        Observer.Expect('Evaluate Yes', 'rejected');
+        Observer.Expect('Evaluate yes', 'rejected');
+        Observer.Expect('Evaluate No', 'rejected');
+        Observer.Expect('Evaluate true', 'ok|true');
+        Observer.Expect('Evaluate False', 'ok|false');
+        Observer.Expect('Evaluate 1', 'ok|true');
+        Observer.Expect('Evaluate 0', 'ok|false');
+        Observer.Expect('Evaluate Ja', 'ok|true');
+        Observer.Expect('Evaluate ja', 'ok|true');
+        Observer.Expect('Evaluate JA', 'ok|true');
+        Observer.Expect('Evaluate Nee', 'rejected');
+        Observer.Expect('Evaluate Nein', 'ok|false');
+        Observer.Expect('Evaluate Nej', 'rejected');
+        Observer.Expect('Evaluate Oui', 'rejected');
+        Observer.Expect('Evaluate Non', 'rejected');
+        Observer.Expect('Evaluate Y', 'rejected');
+        Observer.Expect('Evaluate N', 'ok|false');
+        Observer.Expect('Evaluate  Ja ', 'ok|true');
+        Observer.Verify();
     end;
 
     [Test]
@@ -288,7 +473,21 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunErrors(Observer, 1031);
-        Observer.Finish();
+        Observer.Expect('TryBool Yes', 'err');
+        Observer.Expect('TryBool Yes|text', 'Der Wert „Yes“ kann nicht in Typ Boolean ausgewertet werden.');
+        Observer.Expect('TryBool Yes|code', 'Evaluate');
+        Observer.Expect('TryBool Ja', 'ok');
+        Observer.Expect('TryBool Oui', 'err');
+        Observer.Expect('TryBool Oui|text', 'Der Wert „Oui“ kann nicht in Typ Boolean ausgewertet werden.');
+        Observer.Expect('TryBool Oui|code', 'Evaluate');
+        Observer.Expect('Format true', 'Ja');
+        Observer.Expect('Format true 0 9', 'true');
+        Observer.Expect('Format true 1 9', 't');
+        Observer.Expect('Format false', 'Nein');
+        Observer.Expect('Format false 0 9', 'false');
+        Observer.Expect('Format false 0 1', 'Nein');
+        Observer.Expect('Format true 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -297,7 +496,26 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunOption(Observer, 1031);
-        Observer.Finish();
+        Observer.Expect('Option Open', 'ok|0');
+        Observer.Expect('Option open', 'ok|0');
+        Observer.Expect('Option Closed', 'ok|1');
+        Observer.Expect('Option Open cap', 'rejected');
+        Observer.Expect('Option Open BE', 'rejected');
+        Observer.Expect('Option Gesloten BE', 'rejected');
+        Observer.Expect('Option Gesloten NL', 'rejected');
+        Observer.Expect('Option gesloten nl', 'rejected');
+        Observer.Expect('Option Offen', 'ok|0');
+        Observer.Expect('Option offen', 'ok|0');
+        Observer.Expect('Option Geschlossen', 'ok|1');
+        Observer.Expect('Option Ouvert', 'rejected');
+        Observer.Expect('Option Ferme', 'rejected');
+        Observer.Expect('Option Aaben', 'rejected');
+        Observer.Expect('Option Lukket', 'rejected');
+        Observer.Expect('Option 1', 'ok|1');
+        Observer.Expect('Format Closed', 'Geschlossen');
+        Observer.Expect('Format Closed 0 9', '1');
+        Observer.Expect('Format Closed 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -306,7 +524,24 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunEnum(Observer, 1031);
-        Observer.Finish();
+        Observer.Expect('Enum Open', 'ok|0');
+        Observer.Expect('Enum open', 'ok|0');
+        Observer.Expect('Enum Closed', 'ok|1');
+        Observer.Expect('Enum Open cap', 'rejected');
+        Observer.Expect('Enum Open BE', 'rejected');
+        Observer.Expect('Enum Gesloten BE', 'rejected');
+        Observer.Expect('Enum Gesloten NL', 'rejected');
+        Observer.Expect('Enum Offen', 'ok|0');
+        Observer.Expect('Enum Geschlossen', 'ok|1');
+        Observer.Expect('Enum Ouvert', 'rejected');
+        Observer.Expect('Enum Ferme', 'rejected');
+        Observer.Expect('Enum Aaben', 'rejected');
+        Observer.Expect('Enum Lukket', 'rejected');
+        Observer.Expect('Enum 1', 'ok|1');
+        Observer.Expect('Format Closed', 'Geschlossen');
+        Observer.Expect('Format Closed 0 9', '1');
+        Observer.Expect('Format Closed 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -315,7 +550,22 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunDate(Observer, 1031);
-        Observer.Finish();
+        Observer.Expect('Date 31.12.2026', 'rejected');
+        Observer.Expect('Date 31/12/2026', 'rejected');
+        Observer.Expect('Date 12/31/2026', 'ok|2026-12-31');
+        Observer.Expect('Date 31-12-2026', 'rejected');
+        Observer.Expect('Date 31-12-26', 'rejected');
+        Observer.Expect('Date 2026-12-31', 'ok|2026-12-31');
+        Observer.Expect('Date 311226', 'rejected');
+        Observer.Expect('Date 31 december 2026', 'ok|2026-12-31');
+        Observer.Expect('Date 31 Dezember 2026', 'rejected');
+        Observer.Expect('Date 31. Dezember 2026', 'rejected');
+        Observer.Expect('Date Dec 31 2026', 'rejected');
+        Observer.Expect('Format date', '12/31/26');
+        Observer.Expect('Format date 0 9', '2026-12-31');
+        Observer.Expect('Format date 0 4', 'Dezember 31, 2026');
+        Observer.Expect('Format date 0 0', '12/31/26');
+        Observer.Verify();
     end;
 
     [Test]
@@ -324,7 +574,25 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunWords(Observer, 1036);
-        Observer.Finish();
+        Observer.Expect('Evaluate Yes', 'rejected');
+        Observer.Expect('Evaluate yes', 'rejected');
+        Observer.Expect('Evaluate No', 'ok|false');
+        Observer.Expect('Evaluate true', 'ok|true');
+        Observer.Expect('Evaluate False', 'ok|false');
+        Observer.Expect('Evaluate 1', 'ok|true');
+        Observer.Expect('Evaluate 0', 'ok|false');
+        Observer.Expect('Evaluate Ja', 'rejected');
+        Observer.Expect('Evaluate ja', 'rejected');
+        Observer.Expect('Evaluate JA', 'rejected');
+        Observer.Expect('Evaluate Nee', 'rejected');
+        Observer.Expect('Evaluate Nein', 'rejected');
+        Observer.Expect('Evaluate Nej', 'rejected');
+        Observer.Expect('Evaluate Oui', 'ok|true');
+        Observer.Expect('Evaluate Non', 'ok|false');
+        Observer.Expect('Evaluate Y', 'rejected');
+        Observer.Expect('Evaluate N', 'ok|false');
+        Observer.Expect('Evaluate  Ja ', 'rejected');
+        Observer.Verify();
     end;
 
     [Test]
@@ -333,7 +601,21 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunErrors(Observer, 1036);
-        Observer.Finish();
+        Observer.Expect('TryBool Yes', 'err');
+        Observer.Expect('TryBool Yes|text', 'La valeur « Yes » ne peut pas être évaluée en type Boolean.');
+        Observer.Expect('TryBool Yes|code', 'Evaluate');
+        Observer.Expect('TryBool Ja', 'err');
+        Observer.Expect('TryBool Ja|text', 'La valeur « Ja » ne peut pas être évaluée en type Boolean.');
+        Observer.Expect('TryBool Ja|code', 'Evaluate');
+        Observer.Expect('TryBool Oui', 'ok');
+        Observer.Expect('Format true', 'Oui');
+        Observer.Expect('Format true 0 9', 'true');
+        Observer.Expect('Format true 1 9', 't');
+        Observer.Expect('Format false', 'Non');
+        Observer.Expect('Format false 0 9', 'false');
+        Observer.Expect('Format false 0 1', 'Non');
+        Observer.Expect('Format true 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -342,7 +624,26 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunOption(Observer, 1036);
-        Observer.Finish();
+        Observer.Expect('Option Open', 'ok|0');
+        Observer.Expect('Option open', 'ok|0');
+        Observer.Expect('Option Closed', 'ok|1');
+        Observer.Expect('Option Open cap', 'rejected');
+        Observer.Expect('Option Open BE', 'rejected');
+        Observer.Expect('Option Gesloten BE', 'rejected');
+        Observer.Expect('Option Gesloten NL', 'rejected');
+        Observer.Expect('Option gesloten nl', 'rejected');
+        Observer.Expect('Option Offen', 'rejected');
+        Observer.Expect('Option offen', 'rejected');
+        Observer.Expect('Option Geschlossen', 'rejected');
+        Observer.Expect('Option Ouvert', 'ok|0');
+        Observer.Expect('Option Ferme', 'ok|1');
+        Observer.Expect('Option Aaben', 'rejected');
+        Observer.Expect('Option Lukket', 'rejected');
+        Observer.Expect('Option 1', 'ok|1');
+        Observer.Expect('Format Closed', 'Ferme');
+        Observer.Expect('Format Closed 0 9', '1');
+        Observer.Expect('Format Closed 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -351,7 +652,24 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunEnum(Observer, 1036);
-        Observer.Finish();
+        Observer.Expect('Enum Open', 'ok|0');
+        Observer.Expect('Enum open', 'ok|0');
+        Observer.Expect('Enum Closed', 'ok|1');
+        Observer.Expect('Enum Open cap', 'rejected');
+        Observer.Expect('Enum Open BE', 'rejected');
+        Observer.Expect('Enum Gesloten BE', 'rejected');
+        Observer.Expect('Enum Gesloten NL', 'rejected');
+        Observer.Expect('Enum Offen', 'rejected');
+        Observer.Expect('Enum Geschlossen', 'rejected');
+        Observer.Expect('Enum Ouvert', 'ok|0');
+        Observer.Expect('Enum Ferme', 'ok|1');
+        Observer.Expect('Enum Aaben', 'rejected');
+        Observer.Expect('Enum Lukket', 'rejected');
+        Observer.Expect('Enum 1', 'ok|1');
+        Observer.Expect('Format Closed', 'Ferme');
+        Observer.Expect('Format Closed 0 9', '1');
+        Observer.Expect('Format Closed 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -360,7 +678,22 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunDate(Observer, 1036);
-        Observer.Finish();
+        Observer.Expect('Date 31.12.2026', 'rejected');
+        Observer.Expect('Date 31/12/2026', 'rejected');
+        Observer.Expect('Date 12/31/2026', 'ok|2026-12-31');
+        Observer.Expect('Date 31-12-2026', 'rejected');
+        Observer.Expect('Date 31-12-26', 'rejected');
+        Observer.Expect('Date 2026-12-31', 'ok|2026-12-31');
+        Observer.Expect('Date 311226', 'rejected');
+        Observer.Expect('Date 31 december 2026', 'ok|2026-12-31');
+        Observer.Expect('Date 31 Dezember 2026', 'rejected');
+        Observer.Expect('Date 31. Dezember 2026', 'rejected');
+        Observer.Expect('Date Dec 31 2026', 'rejected');
+        Observer.Expect('Format date', '12/31/26');
+        Observer.Expect('Format date 0 9', '2026-12-31');
+        Observer.Expect('Format date 0 4', 'décembre 31, 2026');
+        Observer.Expect('Format date 0 0', '12/31/26');
+        Observer.Verify();
     end;
 
     [Test]
@@ -369,7 +702,25 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunWords(Observer, 1030);
-        Observer.Finish();
+        Observer.Expect('Evaluate Yes', 'rejected');
+        Observer.Expect('Evaluate yes', 'rejected');
+        Observer.Expect('Evaluate No', 'rejected');
+        Observer.Expect('Evaluate true', 'ok|true');
+        Observer.Expect('Evaluate False', 'ok|false');
+        Observer.Expect('Evaluate 1', 'ok|true');
+        Observer.Expect('Evaluate 0', 'ok|false');
+        Observer.Expect('Evaluate Ja', 'ok|true');
+        Observer.Expect('Evaluate ja', 'ok|true');
+        Observer.Expect('Evaluate JA', 'ok|true');
+        Observer.Expect('Evaluate Nee', 'rejected');
+        Observer.Expect('Evaluate Nein', 'rejected');
+        Observer.Expect('Evaluate Nej', 'ok|false');
+        Observer.Expect('Evaluate Oui', 'rejected');
+        Observer.Expect('Evaluate Non', 'rejected');
+        Observer.Expect('Evaluate Y', 'rejected');
+        Observer.Expect('Evaluate N', 'ok|false');
+        Observer.Expect('Evaluate  Ja ', 'ok|true');
+        Observer.Verify();
     end;
 
     [Test]
@@ -378,7 +729,21 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunErrors(Observer, 1030);
-        Observer.Finish();
+        Observer.Expect('TryBool Yes', 'err');
+        Observer.Expect('TryBool Yes|text', 'Værdien "Yes" kan ikke evalueres til typen Boolean.');
+        Observer.Expect('TryBool Yes|code', 'Evaluate');
+        Observer.Expect('TryBool Ja', 'ok');
+        Observer.Expect('TryBool Oui', 'err');
+        Observer.Expect('TryBool Oui|text', 'Værdien "Oui" kan ikke evalueres til typen Boolean.');
+        Observer.Expect('TryBool Oui|code', 'Evaluate');
+        Observer.Expect('Format true', 'Ja');
+        Observer.Expect('Format true 0 9', 'true');
+        Observer.Expect('Format true 1 9', 't');
+        Observer.Expect('Format false', 'Nej');
+        Observer.Expect('Format false 0 9', 'false');
+        Observer.Expect('Format false 0 1', 'Nej');
+        Observer.Expect('Format true 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -387,7 +752,26 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunOption(Observer, 1030);
-        Observer.Finish();
+        Observer.Expect('Option Open', 'ok|0');
+        Observer.Expect('Option open', 'ok|0');
+        Observer.Expect('Option Closed', 'ok|1');
+        Observer.Expect('Option Open cap', 'rejected');
+        Observer.Expect('Option Open BE', 'rejected');
+        Observer.Expect('Option Gesloten BE', 'rejected');
+        Observer.Expect('Option Gesloten NL', 'rejected');
+        Observer.Expect('Option gesloten nl', 'rejected');
+        Observer.Expect('Option Offen', 'rejected');
+        Observer.Expect('Option offen', 'rejected');
+        Observer.Expect('Option Geschlossen', 'rejected');
+        Observer.Expect('Option Ouvert', 'rejected');
+        Observer.Expect('Option Ferme', 'rejected');
+        Observer.Expect('Option Aaben', 'ok|0');
+        Observer.Expect('Option Lukket', 'ok|1');
+        Observer.Expect('Option 1', 'ok|1');
+        Observer.Expect('Format Closed', 'Lukket');
+        Observer.Expect('Format Closed 0 9', '1');
+        Observer.Expect('Format Closed 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -396,7 +780,24 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunEnum(Observer, 1030);
-        Observer.Finish();
+        Observer.Expect('Enum Open', 'ok|0');
+        Observer.Expect('Enum open', 'ok|0');
+        Observer.Expect('Enum Closed', 'ok|1');
+        Observer.Expect('Enum Open cap', 'rejected');
+        Observer.Expect('Enum Open BE', 'rejected');
+        Observer.Expect('Enum Gesloten BE', 'rejected');
+        Observer.Expect('Enum Gesloten NL', 'rejected');
+        Observer.Expect('Enum Offen', 'rejected');
+        Observer.Expect('Enum Geschlossen', 'rejected');
+        Observer.Expect('Enum Ouvert', 'rejected');
+        Observer.Expect('Enum Ferme', 'rejected');
+        Observer.Expect('Enum Aaben', 'ok|0');
+        Observer.Expect('Enum Lukket', 'ok|1');
+        Observer.Expect('Enum 1', 'ok|1');
+        Observer.Expect('Format Closed', 'Lukket');
+        Observer.Expect('Format Closed 0 9', '1');
+        Observer.Expect('Format Closed 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -405,7 +806,22 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunDate(Observer, 1030);
-        Observer.Finish();
+        Observer.Expect('Date 31.12.2026', 'rejected');
+        Observer.Expect('Date 31/12/2026', 'rejected');
+        Observer.Expect('Date 12/31/2026', 'ok|2026-12-31');
+        Observer.Expect('Date 31-12-2026', 'rejected');
+        Observer.Expect('Date 31-12-26', 'rejected');
+        Observer.Expect('Date 2026-12-31', 'ok|2026-12-31');
+        Observer.Expect('Date 311226', 'rejected');
+        Observer.Expect('Date 31 december 2026', 'ok|2026-12-31');
+        Observer.Expect('Date 31 Dezember 2026', 'rejected');
+        Observer.Expect('Date 31. Dezember 2026', 'rejected');
+        Observer.Expect('Date Dec 31 2026', 'rejected');
+        Observer.Expect('Format date', '12/31/26');
+        Observer.Expect('Format date 0 9', '2026-12-31');
+        Observer.Expect('Format date 0 4', 'december 31, 2026');
+        Observer.Expect('Format date 0 0', '12/31/26');
+        Observer.Verify();
     end;
 
     [Test]
@@ -414,7 +830,25 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunWords(Observer, 1033);
-        Observer.Finish();
+        Observer.Expect('Evaluate Yes', 'ok|true');
+        Observer.Expect('Evaluate yes', 'ok|true');
+        Observer.Expect('Evaluate No', 'ok|false');
+        Observer.Expect('Evaluate true', 'ok|true');
+        Observer.Expect('Evaluate False', 'ok|false');
+        Observer.Expect('Evaluate 1', 'ok|true');
+        Observer.Expect('Evaluate 0', 'ok|false');
+        Observer.Expect('Evaluate Ja', 'rejected');
+        Observer.Expect('Evaluate ja', 'rejected');
+        Observer.Expect('Evaluate JA', 'rejected');
+        Observer.Expect('Evaluate Nee', 'rejected');
+        Observer.Expect('Evaluate Nein', 'rejected');
+        Observer.Expect('Evaluate Nej', 'rejected');
+        Observer.Expect('Evaluate Oui', 'rejected');
+        Observer.Expect('Evaluate Non', 'rejected');
+        Observer.Expect('Evaluate Y', 'ok|true');
+        Observer.Expect('Evaluate N', 'ok|false');
+        Observer.Expect('Evaluate  Ja ', 'rejected');
+        Observer.Verify();
     end;
 
     [Test]
@@ -423,7 +857,21 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunErrors(Observer, 1033);
-        Observer.Finish();
+        Observer.Expect('TryBool Yes', 'ok');
+        Observer.Expect('TryBool Ja', 'err');
+        Observer.Expect('TryBool Ja|text', 'The value "Ja" can''t be evaluated into type Boolean.');
+        Observer.Expect('TryBool Ja|code', 'Evaluate');
+        Observer.Expect('TryBool Oui', 'err');
+        Observer.Expect('TryBool Oui|text', 'The value "Oui" can''t be evaluated into type Boolean.');
+        Observer.Expect('TryBool Oui|code', 'Evaluate');
+        Observer.Expect('Format true', 'Yes');
+        Observer.Expect('Format true 0 9', 'true');
+        Observer.Expect('Format true 1 9', 't');
+        Observer.Expect('Format false', 'No');
+        Observer.Expect('Format false 0 9', 'false');
+        Observer.Expect('Format false 0 1', 'No');
+        Observer.Expect('Format true 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -432,7 +880,26 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunOption(Observer, 1033);
-        Observer.Finish();
+        Observer.Expect('Option Open', 'ok|0');
+        Observer.Expect('Option open', 'ok|0');
+        Observer.Expect('Option Closed', 'ok|1');
+        Observer.Expect('Option Open cap', 'ok|0');
+        Observer.Expect('Option Open BE', 'rejected');
+        Observer.Expect('Option Gesloten BE', 'rejected');
+        Observer.Expect('Option Gesloten NL', 'rejected');
+        Observer.Expect('Option gesloten nl', 'rejected');
+        Observer.Expect('Option Offen', 'rejected');
+        Observer.Expect('Option offen', 'rejected');
+        Observer.Expect('Option Geschlossen', 'rejected');
+        Observer.Expect('Option Ouvert', 'rejected');
+        Observer.Expect('Option Ferme', 'rejected');
+        Observer.Expect('Option Aaben', 'rejected');
+        Observer.Expect('Option Lukket', 'rejected');
+        Observer.Expect('Option 1', 'ok|1');
+        Observer.Expect('Format Closed', 'Closed cap');
+        Observer.Expect('Format Closed 0 9', '1');
+        Observer.Expect('Format Closed 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -441,7 +908,24 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunEnum(Observer, 1033);
-        Observer.Finish();
+        Observer.Expect('Enum Open', 'ok|0');
+        Observer.Expect('Enum open', 'ok|0');
+        Observer.Expect('Enum Closed', 'ok|1');
+        Observer.Expect('Enum Open cap', 'ok|0');
+        Observer.Expect('Enum Open BE', 'rejected');
+        Observer.Expect('Enum Gesloten BE', 'rejected');
+        Observer.Expect('Enum Gesloten NL', 'rejected');
+        Observer.Expect('Enum Offen', 'rejected');
+        Observer.Expect('Enum Geschlossen', 'rejected');
+        Observer.Expect('Enum Ouvert', 'rejected');
+        Observer.Expect('Enum Ferme', 'rejected');
+        Observer.Expect('Enum Aaben', 'rejected');
+        Observer.Expect('Enum Lukket', 'rejected');
+        Observer.Expect('Enum 1', 'ok|1');
+        Observer.Expect('Format Closed', 'Closed cap');
+        Observer.Expect('Format Closed 0 9', '1');
+        Observer.Expect('Format Closed 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -450,7 +934,22 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         RunDate(Observer, 1033);
-        Observer.Finish();
+        Observer.Expect('Date 31.12.2026', 'rejected');
+        Observer.Expect('Date 31/12/2026', 'rejected');
+        Observer.Expect('Date 12/31/2026', 'ok|2026-12-31');
+        Observer.Expect('Date 31-12-2026', 'rejected');
+        Observer.Expect('Date 31-12-26', 'rejected');
+        Observer.Expect('Date 2026-12-31', 'ok|2026-12-31');
+        Observer.Expect('Date 311226', 'rejected');
+        Observer.Expect('Date 31 december 2026', 'ok|2026-12-31');
+        Observer.Expect('Date 31 Dezember 2026', 'rejected');
+        Observer.Expect('Date 31. Dezember 2026', 'rejected');
+        Observer.Expect('Date Dec 31 2026', 'rejected');
+        Observer.Expect('Format date', '12/31/26');
+        Observer.Expect('Format date 0 9', '2026-12-31');
+        Observer.Expect('Format date 0 4', 'December 31, 2026');
+        Observer.Expect('Format date 0 0', '12/31/26');
+        Observer.Verify();
     end;
 
 }
