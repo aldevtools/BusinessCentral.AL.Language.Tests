@@ -15,7 +15,7 @@ enum 96900 "LT TF Kind"
     value(5; E) { }
 }
 
-table 96901 "LT TF Row"
+table 96901 "LT TF Filter Row"
 {
     DataClassification = SystemMetadata;
 
@@ -263,21 +263,21 @@ codeunit 96902 "LT TF Stored Test"
     [TryFunction]
     local procedure TryEvaluate(var Holder: Record "ALT TableFilter Holder"; Condition: Text)
     begin
-        Evaluate(Holder."Filter Value", 'LT TF Row: ' + Condition);
+        Evaluate(Holder."Filter Value", 'LT TF Filter Row: ' + Condition);
     end;
 
     [TryFunction]
     local procedure TryApply(Stored: Text; var Lines: Text; var AppliedFilters: Text; var Keys: Text)
     var
-        Row: Record "LT TF Row";
+        Row: Record "LT TF Filter Row";
         Fields: Record "Table Filter" temporary;
         FilterPage: Page "Table Filter";
         Ref: RecordRef;
         Fld: FieldRef;
     begin
-        FilterPage.SetSourceTable(Stored, Database::"LT TF Row", Row.TableCaption());
+        FilterPage.SetSourceTable(Stored, Database::"LT TF Filter Row", Row.TableCaption());
         FilterPage.GetFilterFieldsList(Fields);
-        Ref.Open(Database::"LT TF Row");
+        Ref.Open(Database::"LT TF Filter Row");
         if Fields.FindSet() then
             repeat
                 if Lines <> '' then
@@ -328,7 +328,7 @@ codeunit 96902 "LT TF Stored Test"
 
     local procedure Initialize()
     var
-        Row: Record "LT TF Row";
+        Row: Record "LT TF Filter Row";
     begin
         Row.DeleteAll(false);
         Row.Id := 1;
