@@ -15,6 +15,21 @@ codeunit 69552 "PS Caption Subscriber"
 
     var
         Calls: Text;
+        Active: Boolean;
+
+    // The log is written only between Start and Stop, so the OnResolveCaptionClass calls of other test codeunits leave no state here
+    // (every test starts it and stops it again).
+    procedure Start()
+    begin
+        Calls := '';
+        Active := true;
+    end;
+
+    procedure Stop()
+    begin
+        Calls := '';
+        Active := false;
+    end;
 
     procedure Take(): Text
     var
@@ -35,7 +50,8 @@ codeunit 69552 "PS Caption Subscriber"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Caption Class", 'OnResolveCaptionClass', '', true, true)]
     local procedure OnResolve(CaptionArea: Text; CaptionExpr: Text; Language: Integer; var Caption: Text; var Resolved: Boolean)
     begin
-        Calls += 'resolve(' + CaptionArea + '|' + CaptionExpr + '|lang=' + LanguageText(Language) + ')';
+        if Active then
+            Calls += 'resolve(' + CaptionArea + '|' + CaptionExpr + '|lang=' + LanguageText(Language) + ')';
         if CaptionArea = 'PSCC' then begin
             Caption := 'resolved:' + CaptionExpr;
             Resolved := true;
@@ -54,7 +70,7 @@ codeunit 69553 "PS Caption Probe"
         Subscriber: Codeunit "PS Caption Subscriber";
         Observer: Codeunit "Probe Observer";
     begin
-        Subscriber.Take();
+        Subscriber.Start();
         Observer.Observe('area3', CaptionClassTranslate('3,Foo'));
         Observer.Observe('area3_events', Subscriber.Take());
         Observer.Observe('no_comma', CaptionClassTranslate('No Comma'));
@@ -80,6 +96,7 @@ codeunit 69553 "PS Caption Probe"
         Observer.Expect('area3_two_commas', 'One,Two');
         Observer.Expect('area3_empty_text', '[]');
         Observer.Verify();
+        Subscriber.Stop();
     end;
 
     // Corpus issue 670 (writer CY): the docs say CaptionClassTranslate caches per session and SelectLatestVersion clears the cache.
@@ -91,7 +108,7 @@ codeunit 69553 "PS Caption Probe"
         Subscriber: Codeunit "PS Caption Subscriber";
         Observer: Codeunit "Probe Observer";
     begin
-        Subscriber.Take();
+        Subscriber.Start();
         Observer.Observe('first', CaptionClassTranslate('PSCC,CY cache one'));
         Observer.Observe('first_events', Subscriber.Take());
         Observer.Observe('second', CaptionClassTranslate('PSCC,CY cache one'));
@@ -114,5 +131,6 @@ codeunit 69553 "PS Caption Probe"
         Observer.Expect('after_select_latest', 'resolved:CY cache one');
         Observer.Expect('after_select_latest_events', 'resolve(PSCC|CY cache one|lang=session)');
         Observer.Verify();
+        Subscriber.Stop();
     end;
 }
