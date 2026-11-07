@@ -283,7 +283,9 @@ codeunit 95354 "LT R6924e Link Sibling Tests"
 // a header and line pair nested under another table element, and two header and line pairs.
 // Facts (BC 29.0 on the corpus CI, then checked on the matrix): see the asserted values below. Export in VariableText and FixedText follows the
 //   Xml rule (all header rows, then the lines of the last header). Import in a text format with the default MinOccurs reads every row into the
-//   header element and then raises the Min Occurs error for the line element; with MinOccurs = Zero see the VT0 and FT0 tests.
+//   header element and then raises the Min Occurs error for the line element. With MinOccurs = Zero on both elements every row is still read
+//   into the header element: the first row of a line (blank key) is inserted as a header, a second one raises DB:RecordExists. No row reaches the
+//   line element, so the link is never applied. A row whose key is not blank (Z1) is inserted as a header. Same on 27.5, 28.5 and 29.0.
 
 codeunit 97064 "LT R6924e Text Log"
 {
@@ -1089,7 +1091,11 @@ codeunit 97063 "LT R6924e Link Text Tests"
     begin
         Start();
         Import('vt0 headers first', 97065, 'H1,nH1' + Lf() + 'H2,nH2' + Lf() + ',1,a' + Lf() + ',2,b' + Lf());
-        Observer.Finish();
+        Observer.Expect('vt0 headers first error|text', 'The record in table LT R6924e Hdr already exists. Identification fields and values: No.=''''');
+        Observer.Expect('vt0 headers first error|code', 'DB:RecordExists');
+        Observer.Expect('vt0 headers first rows', '');
+        Observer.Expect('vt0 headers first log', 'ins hdr H1;ins hdr H2;ins hdr ;ins hdr ;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1097,7 +1103,11 @@ codeunit 97063 "LT R6924e Link Text Tests"
     begin
         Start();
         Import('vt0 interleaved', 97065, 'H1,nH1' + Lf() + ',1,a' + Lf() + 'H2,nH2' + Lf() + ',2,b' + Lf());
-        Observer.Finish();
+        Observer.Expect('vt0 interleaved error|text', 'The record in table LT R6924e Hdr already exists. Identification fields and values: No.=''''');
+        Observer.Expect('vt0 interleaved error|code', 'DB:RecordExists');
+        Observer.Expect('vt0 interleaved rows', '');
+        Observer.Expect('vt0 interleaved log', 'ins hdr H1;ins hdr ;ins hdr H2;ins hdr ;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1105,7 +1115,10 @@ codeunit 97063 "LT R6924e Link Text Tests"
     begin
         Start();
         Import('vt0 line with doc', 97065, 'H1,nH1' + Lf() + 'Z1,1,a' + Lf());
-        Observer.Finish();
+        Observer.Expect('vt0 line with doc result', 'ok');
+        Observer.Expect('vt0 line with doc rows', 'H H1 nH1;H Z1 1;');
+        Observer.Expect('vt0 line with doc log', 'ins hdr H1;ins hdr Z1;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1113,7 +1126,11 @@ codeunit 97063 "LT R6924e Link Text Tests"
     begin
         Start();
         Import('ft0 headers first', 97066, 'H1  nH1  ' + Lf() + 'H2  nH2  ' + Lf() + '      1a    ' + Lf() + '      2b    ' + Lf());
-        Observer.Finish();
+        Observer.Expect('ft0 headers first error|text', 'The record in table LT R6924e Hdr already exists. Identification fields and values: No.=''''');
+        Observer.Expect('ft0 headers first error|code', 'DB:RecordExists');
+        Observer.Expect('ft0 headers first rows', '');
+        Observer.Expect('ft0 headers first log', 'ins hdr H1;ins hdr H2;ins hdr ;ins hdr ;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1121,7 +1138,11 @@ codeunit 97063 "LT R6924e Link Text Tests"
     begin
         Start();
         Import('ft0 interleaved', 97066, 'H1  nH1  ' + Lf() + '      1a    ' + Lf() + 'H2  nH2  ' + Lf() + '      2b    ' + Lf());
-        Observer.Finish();
+        Observer.Expect('ft0 interleaved error|text', 'The record in table LT R6924e Hdr already exists. Identification fields and values: No.=''''');
+        Observer.Expect('ft0 interleaved error|code', 'DB:RecordExists');
+        Observer.Expect('ft0 interleaved rows', '');
+        Observer.Expect('ft0 interleaved log', 'ins hdr H1;ins hdr ;ins hdr H2;ins hdr ;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1129,7 +1150,10 @@ codeunit 97063 "LT R6924e Link Text Tests"
     begin
         Start();
         Import('ft0 line with doc', 97066, 'H1  nH1  ' + Lf() + 'Z1    1a    ' + Lf());
-        Observer.Finish();
+        Observer.Expect('ft0 line with doc result', 'ok');
+        Observer.Expect('ft0 line with doc rows', 'H H1 nH1;H Z1 1a;');
+        Observer.Expect('ft0 line with doc log', 'ins hdr H1;ins hdr Z1;');
+        Observer.Verify();
     end;
 
     // ---- Xml: header not the preceding sibling (Header, Between, Line) ----
