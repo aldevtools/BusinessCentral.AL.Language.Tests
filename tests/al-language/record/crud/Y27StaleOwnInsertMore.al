@@ -5,10 +5,20 @@
 // below cannot touch the Y27 tests). Row A is inserted through the test's own record variable and the buffer is kept. Between the
 // Insert and the end of the test other record variables (the helper codeunit) read or write the row, other rows or another table,
 // and Commit is called one to three times. At the end the stale buffer validates Description and
-// calls Modify. Every scenario is written twice: _Ok expects the write to be accepted, _Err expects an error; only the one that matches
-// what BC does is kept. The test records the buffer, the stored row (Description|Remaining Quantity|Validate Count|Modify Count|
-// xRec Remaining Quantity|xRec Description|Hook) and the counts of rows and log rows.
-// Names: <commits since the Insert>C_<what the other variables did>. BWrote = the helper modified the row (Get, Modify).
+// calls Modify. Each test records the buffer, the stored row (Description|Remaining Quantity|Validate Count|Modify Count|
+// xRec Remaining Quantity|xRec Description|Hook) and the counts of rows and log rows. _Accepted tests: the write goes through.
+// _Refused tests: it fails with DB:RecordChanged.
+// Measured (BC 29.0, stale Modify; the OnModify trigger runs once in both outcomes, the other variable's Hook flag and quantity are
+// overwritten when the write is accepted): ACCEPTED when nothing wrote row A after the Insert (nothing, or the helper only read it with
+// Get, after one, two or three Commits), when the helper wrote row A in the transaction after the last Commit (once or twice, with
+// Modify() or with Modify(true) and an OnModify subscriber that inserts a log row, also together with inserting or modifying another row
+// of the table or inserting a log row), and when the helper only inserted or modified another row or a log row after one Commit.
+// REFUSED with DB:RecordChanged when the helper wrote row A in a transaction that a Commit closed and wrote nothing to row A in the new one
+// (also when the new transaction inserted a log row), and when the helper wrote row A in the same transaction as the Insert. Neither a
+// log row nor another row of the table counts as touching row A. The final write may be Modify(true), Modify(false), Modify(true)
+// after assigning the value the row already holds, or Modify(true) with nothing assigned: all follow the same rule. A buffer that was
+// assigned from a fresh Get (Row := Fresh, or TransferFields) is never refused and writes the fresh row's Remaining Quantity back.
+// Names: <Commits since the Insert>C_<what the helper did>_Accepted or _Refused. BWrote = the helper modified the row (Get, Modify).
 // BC versions: 27+
 
 table 96960 "LT Y27B Row"
@@ -221,1303 +231,874 @@ codeunit 96962 "LT Y27B Stale Insert More"
         Y27BAfter(Row, Observer);
     end;
 
-        [Test]
-        procedure Y27B_2C_BWroteTx2_NothingAfter_W1_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+    [Test]
+    procedure Y27B_2C_BWroteTx2_NothingAfter_W1_Refused()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Commit();
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_BWroteTx2_NothingAfter_W1_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Commit();
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_BWroteNewTx_W1_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Commit();
-        Helper.Post('A', 5);
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_BWroteNewTx_W1_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Commit();
-        Helper.Post('A', 5);
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_Nothing_W1_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_Nothing_W1_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_3C_BWroteTx2_EmptyTx3_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Commit();
-        Commit();
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_3C_BWroteTx2_EmptyTx3_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Commit();
-        Commit();
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_3C_EmptyTx2_BWroteTx3_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
         Commit();
         Helper.Post('A', 5);
         Commit();
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_3C_EmptyTx2_BWroteTx3_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+        Y27BWriteError(Row, 1, Observer);
+        Observer.Expect('write|text', 'The changes to the LT Y27B Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('write|code', 'DB:RecordChanged');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Original|95|0|0|0||No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_2C_BWroteNewTx_W1_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Commit();
         Commit();
         Helper.Post('A', 5);
         Commit();
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_3C_BWroteInNone_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+        Helper.Post('A', 5);
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_1C_Nothing_W1_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Commit();
         Commit();
-        Commit();
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_3C_BWroteInNone_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_3C_BWroteTx2_EmptyTx3_Refused()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Commit();
+        Commit();
+        Helper.Post('A', 5);
         Commit();
         Commit();
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_GetOnly_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+        Y27BWriteError(Row, 1, Observer);
+        Observer.Expect('write|text', 'The changes to the LT Y27B Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('write|code', 'DB:RecordChanged');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Original|95|0|0|0||No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_3C_EmptyTx2_BWroteTx3_Refused()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Commit();
+        Commit();
+        Commit();
+        Helper.Post('A', 5);
+        Commit();
+        Y27BWriteError(Row, 1, Observer);
+        Observer.Expect('write|text', 'The changes to the LT Y27B Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('write|code', 'DB:RecordChanged');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Original|95|0|0|0||No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_3C_BWroteInNone_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
+        Y27BInsert(Row);
+        Commit();
+        Commit();
+        Commit();
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_1C_GetOnly_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
+        Y27BInsert(Row);
+        Commit();
         Helper.GetOnly('A');
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_GetOnly_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_2C_GetOnly_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Commit();
-        Helper.GetOnly('A');
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_GetOnly_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
+        Commit();
         Helper.GetOnly('A');
         Commit();
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_GetOnly_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_1C_BWroteInSameTxAsInsert_Refused()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Commit();
-        Helper.GetOnly('A');
+        Helper.Post('A', 5);
         Commit();
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_BWroteInSameTxAsInsert_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+        Y27BWriteError(Row, 1, Observer);
+        Observer.Expect('write|text', 'The changes to the LT Y27B Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('write|code', 'DB:RecordChanged');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Original|95|0|0|0||No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_2C_BWroteInSameTxAsInsert_Refused()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Helper.Post('A', 5);
+        Helper.Post('A', 5);
         Commit();
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_BWroteInSameTxAsInsert_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+        Commit();
+        Y27BWriteError(Row, 1, Observer);
+        Observer.Expect('write|text', 'The changes to the LT Y27B Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('write|code', 'DB:RecordChanged');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Original|95|0|0|0||No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_3C_BWroteInSameTxAsInsert_Refused()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Helper.Post('A', 5);
+        Helper.Post('A', 5);
         Commit();
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_BWroteInSameTxAsInsert_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+        Commit();
+        Commit();
+        Y27BWriteError(Row, 1, Observer);
+        Observer.Expect('write|text', 'The changes to the LT Y27B Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('write|code', 'DB:RecordChanged');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Original|95|0|0|0||No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_1C_BWroteAndInsertsOtherRow_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Helper.Post('A', 5);
         Commit();
-        Commit();
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_BWroteInSameTxAsInsert_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Helper.Post('A', 5);
-        Commit();
-        Commit();
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_3C_BWroteInSameTxAsInsert_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Helper.Post('A', 5);
-        Commit();
-        Commit();
-        Commit();
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_3C_BWroteInSameTxAsInsert_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Helper.Post('A', 5);
-        Commit();
-        Commit();
-        Commit();
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_BWroteAndInsertsOtherRow_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
         Helper.Post('A', 5);
         Helper.InsertOther('B');
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_BWroteAndInsertsOtherRow_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Helper.InsertOther('B');
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_BWroteAndModifiesOtherRow_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('rows', '2');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_1C_BWroteAndModifiesOtherRow_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
         Helper.InsertOther('B');
         Commit();
         Y27BInsert(Row);
-            Commit();
+        Commit();
         Helper.Post('A', 5);
         Helper.ModifyOther('B');
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_BWroteAndModifiesOtherRow_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Helper.InsertOther('B');
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('rows', '2');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_2C_BWroteAndInsertsOtherRow_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
+        Y27BInsert(Row);
         Commit();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Helper.ModifyOther('B');
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_BWroteAndInsertsOtherRow_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
         Helper.Post('A', 5);
         Commit();
         Helper.Post('A', 5);
         Helper.InsertOther('B');
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_BWroteAndInsertsOtherRow_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Commit();
-        Helper.Post('A', 5);
-        Helper.InsertOther('B');
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_BWroteAndModifiesOtherRow_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('rows', '2');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_2C_BWroteAndModifiesOtherRow_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
         Helper.InsertOther('B');
         Commit();
         Y27BInsert(Row);
-            Commit();
+        Commit();
         Helper.Post('A', 5);
         Commit();
         Helper.Post('A', 5);
         Helper.ModifyOther('B');
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_BWroteAndModifiesOtherRow_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('rows', '2');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_1C_OnlyInsertsOtherRow_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
+        Y27BInsert(Row);
+        Commit();
+        Helper.InsertOther('B');
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('rows', '2');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_1C_OnlyModifiesOtherRow_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
         Helper.InsertOther('B');
         Commit();
         Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
         Commit();
-        Helper.Post('A', 5);
         Helper.ModifyOther('B');
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_OnlyInsertsOtherRow_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('rows', '2');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_1C_BWroteAndLogInserted_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Commit();
-        Helper.InsertOther('B');
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_OnlyInsertsOtherRow_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.InsertOther('B');
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_OnlyModifiesOtherRow_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Helper.InsertOther('B');
         Commit();
-        Y27BInsert(Row);
-            Commit();
-        Helper.ModifyOther('B');
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_OnlyModifiesOtherRow_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Helper.InsertOther('B');
-        Commit();
-        Y27BInsert(Row);
-            Commit();
-        Helper.ModifyOther('B');
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_BWroteAndLogInserted_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
         Helper.Post('A', 5);
         Helper.InsertLog('Helper');
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_BWroteAndLogInserted_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_2C_BWroteAndLogInserted_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Helper.InsertLog('Helper');
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_BWroteAndLogInserted_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
+        Commit();
         Helper.Post('A', 5);
         Commit();
         Helper.Post('A', 5);
         Helper.InsertLog('Helper');
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_BWroteAndLogInserted_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_1C_OnlyLogInserted_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
         Commit();
-        Helper.Post('A', 5);
         Helper.InsertLog('Helper');
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_OnlyLogInserted_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_2C_OnlyLogInserted_Refused()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Commit();
-        Helper.InsertLog('Helper');
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_OnlyLogInserted_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.InsertLog('Helper');
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_OnlyLogInserted_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
+        Commit();
         Helper.Post('A', 5);
         Commit();
         Helper.InsertLog('Helper');
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_OnlyLogInserted_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+        Y27BWriteError(Row, 1, Observer);
+        Observer.Expect('write|text', 'The changes to the LT Y27B Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('write|code', 'DB:RecordChanged');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Original|95|0|0|0||No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_1C_BWroteTwice_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
         Commit();
-        Helper.InsertLog('Helper');
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_BWroteTwice_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
         Helper.Post('A', 5);
         Helper.Post('A', 1);
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_BWroteTwice_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_3C_BWroteTwiceInNewTx_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Helper.Post('A', 1);
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_3C_BWroteTwiceInNewTx_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
+        Commit();
         Commit();
         Commit();
         Helper.Post('A', 5);
         Helper.Post('A', 1);
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_3C_BWroteTwiceInNewTx_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Commit();
-        Commit();
-        Helper.Post('A', 5);
-        Helper.Post('A', 1);
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_BWroteWithOnModifySubscriberWritingLog_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.PostHook('A', 5);
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_BWroteWithOnModifySubscriberWritingLog_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.PostHook('A', 5);
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_BWroteWithOnModifySubscriberWritingLog_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Commit();
-        Helper.PostHook('A', 5);
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_BWroteWithOnModifySubscriberWritingLog_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Commit();
-        Helper.PostHook('A', 5);
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_SubscriberLogInTx2_NothingAfter_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.PostHook('A', 5);
-        Commit();
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_SubscriberLogInTx2_NothingAfter_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.PostHook('A', 5);
-        Commit();
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_Nothing_ModifyFalse_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-            Y27BWriteOk(Row, 2, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_Nothing_ModifyFalse_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-            Y27BWriteError(Row, 2, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_Nothing_ModifyFalse_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Commit();
-            Y27BWriteOk(Row, 2, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_Nothing_ModifyFalse_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Commit();
-            Y27BWriteError(Row, 2, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_BWrote_ModifyFalse_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-            Y27BWriteOk(Row, 2, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_BWrote_ModifyFalse_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-            Y27BWriteError(Row, 2, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_BWrote_SameValue_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-            Y27BWriteOk(Row, 3, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_BWrote_SameValue_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-            Y27BWriteError(Row, 3, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_BWrote_SameValue_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Commit();
-        Helper.Post('A', 5);
-            Y27BWriteOk(Row, 3, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_BWrote_SameValue_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Commit();
-        Helper.Post('A', 5);
-            Y27BWriteError(Row, 3, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_Nothing_SameValue_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-            Y27BWriteOk(Row, 3, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_Nothing_SameValue_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-            Y27BWriteError(Row, 3, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_Nothing_SameValue_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Commit();
-            Y27BWriteOk(Row, 3, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_Nothing_SameValue_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Commit();
-            Y27BWriteError(Row, 3, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_BWrote_NoAssign_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-            Y27BWriteOk(Row, 4, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_BWrote_NoAssign_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-            Y27BWriteError(Row, 4, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_Nothing_NoAssign_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-            Y27BWriteOk(Row, 4, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_Nothing_NoAssign_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-            Y27BWriteError(Row, 4, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_Nothing_NoAssign_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Commit();
-            Y27BWriteOk(Row, 4, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_Nothing_NoAssign_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Commit();
-            Y27BWriteError(Row, 4, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_Nothing_AssignedFromFreshGet_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Fresh: Record "LT Y27B Row";
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_1C_BWroteWithOnModifySubscriberWritingLog_Accepted()
+    var
+        Row: Record "LT Y27B Row";
         Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Commit();
+        Commit();
+        Helper.PostHook('A', 5);
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_2C_BWroteWithOnModifySubscriberWritingLog_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
+        Y27BInsert(Row);
+        Commit();
+        Helper.Post('A', 5);
+        Commit();
+        Helper.PostHook('A', 5);
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_2C_SubscriberLogInTx2_NothingAfter_Refused()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
+        Y27BInsert(Row);
+        Commit();
+        Helper.PostHook('A', 5);
+        Commit();
+        Y27BWriteError(Row, 1, Observer);
+        Observer.Expect('write|text', 'The changes to the LT Y27B Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('write|code', 'DB:RecordChanged');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Original|95|0|1|95|Original|Yes');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_1C_Nothing_ModifyFalse_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
+        Y27BInsert(Row);
+        Commit();
+        Y27BWriteOk(Row, 2, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|0|0|0||No');
+        Observer.Expect('stored', 'Changed|100|0|0|0||No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_2C_Nothing_ModifyFalse_Refused()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
+        Y27BInsert(Row);
+        Commit();
+        Helper.Post('A', 5);
+        Commit();
+        Y27BWriteError(Row, 2, Observer);
+        Observer.Expect('write|text', 'The changes to the LT Y27B Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('write|code', 'DB:RecordChanged');
+        Observer.Expect('buffer', 'Changed|100|0|0|0||No');
+        Observer.Expect('stored', 'Original|95|0|0|0||No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_1C_BWrote_ModifyFalse_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
+        Y27BInsert(Row);
+        Commit();
+        Helper.Post('A', 5);
+        Y27BWriteOk(Row, 2, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|0|0|0||No');
+        Observer.Expect('stored', 'Changed|100|0|0|0||No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_1C_BWrote_SameValue_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
+        Y27BInsert(Row);
+        Commit();
+        Helper.Post('A', 5);
+        Y27BWriteOk(Row, 3, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Original|100|1|1|100|Original|No');
+        Observer.Expect('stored', 'Original|100|1|1|100|Original|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_2C_BWrote_SameValue_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
+        Y27BInsert(Row);
+        Commit();
+        Helper.Post('A', 5);
+        Commit();
+        Helper.Post('A', 5);
+        Y27BWriteOk(Row, 3, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Original|100|1|1|100|Original|No');
+        Observer.Expect('stored', 'Original|100|1|1|100|Original|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_1C_Nothing_SameValue_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
+        Y27BInsert(Row);
+        Commit();
+        Y27BWriteOk(Row, 3, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Original|100|1|1|100|Original|No');
+        Observer.Expect('stored', 'Original|100|1|1|100|Original|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_2C_Nothing_SameValue_Refused()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
+        Y27BInsert(Row);
+        Commit();
+        Helper.Post('A', 5);
+        Commit();
+        Y27BWriteError(Row, 3, Observer);
+        Observer.Expect('write|text', 'The changes to the LT Y27B Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('write|code', 'DB:RecordChanged');
+        Observer.Expect('buffer', 'Original|100|1|1|100|Original|No');
+        Observer.Expect('stored', 'Original|95|0|0|0||No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_1C_BWrote_NoAssign_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
+        Y27BInsert(Row);
+        Commit();
+        Helper.Post('A', 5);
+        Y27BWriteOk(Row, 4, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Original|100|0|1|100|Original|No');
+        Observer.Expect('stored', 'Original|100|0|1|100|Original|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_1C_Nothing_NoAssign_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
+        Y27BInsert(Row);
+        Commit();
+        Y27BWriteOk(Row, 4, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Original|100|0|1|100|Original|No');
+        Observer.Expect('stored', 'Original|100|0|1|100|Original|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_2C_Nothing_NoAssign_Refused()
+    var
+        Row: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
+        Y27BInsert(Row);
+        Commit();
+        Helper.Post('A', 5);
+        Commit();
+        Y27BWriteError(Row, 4, Observer);
+        Observer.Expect('write|text', 'The changes to the LT Y27B Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('write|code', 'DB:RecordChanged');
+        Observer.Expect('buffer', 'Original|100|0|1|100|Original|No');
+        Observer.Expect('stored', 'Original|95|0|0|0||No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_1C_Nothing_AssignedFromFreshGet_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Fresh: Record "LT Y27B Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y27BCleanup();
+        Y27BInsert(Row);
+        Commit();
         Fresh.Get('A');
         Row := Fresh;
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_Nothing_AssignedFromFreshGet_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Fresh: Record "LT Y27B Row";
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_2C_Nothing_AssignedFromFreshGet_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Fresh: Record "LT Y27B Row";
         Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Commit();
-        Fresh.Get('A');
-        Row := Fresh;
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_Nothing_AssignedFromFreshGet_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Fresh: Record "LT Y27B Row";
-        Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
+        Commit();
         Helper.Post('A', 5);
         Commit();
         Fresh.Get('A');
         Row := Fresh;
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_Nothing_AssignedFromFreshGet_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Fresh: Record "LT Y27B Row";
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|95|1|1|95|Changed|No');
+        Observer.Expect('stored', 'Changed|95|1|1|95|Changed|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_2C_BWrote_AssignedFromFreshGet_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Fresh: Record "LT Y27B Row";
         Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
         Commit();
-        Fresh.Get('A');
-        Row := Fresh;
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_BWrote_AssignedFromFreshGet_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Fresh: Record "LT Y27B Row";
-        Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
         Helper.Post('A', 5);
         Commit();
         Helper.Post('A', 5);
         Fresh.Get('A');
         Row := Fresh;
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_BWrote_AssignedFromFreshGet_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Fresh: Record "LT Y27B Row";
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|90|1|1|90|Changed|No');
+        Observer.Expect('stored', 'Changed|90|1|1|90|Changed|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_1C_Nothing_TransferFieldsFromFreshGet_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Fresh: Record "LT Y27B Row";
         Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
         Commit();
-        Helper.Post('A', 5);
-        Fresh.Get('A');
-        Row := Fresh;
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_Nothing_TransferFieldsFromFreshGet_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Fresh: Record "LT Y27B Row";
-        Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
         Fresh.Get('A');
         Row.TransferFields(Fresh);
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_1C_Nothing_TransferFieldsFromFreshGet_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Fresh: Record "LT Y27B Row";
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_2C_Nothing_TransferFieldsFromFreshGet_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Fresh: Record "LT Y27B Row";
         Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Commit();
-        Fresh.Get('A');
-        Row.TransferFields(Fresh);
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_Nothing_TransferFieldsFromFreshGet_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Fresh: Record "LT Y27B Row";
-        Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
+        Commit();
         Helper.Post('A', 5);
         Commit();
         Fresh.Get('A');
         Row.TransferFields(Fresh);
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_Nothing_TransferFieldsFromFreshGet_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Fresh: Record "LT Y27B Row";
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|95|1|1|95|Changed|No');
+        Observer.Expect('stored', 'Changed|95|1|1|95|Changed|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y27B_2C_BWrote_TransferFieldsFromFreshGet_Accepted()
+    var
+        Row: Record "LT Y27B Row";
+        Fresh: Record "LT Y27B Row";
         Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
+    begin
+        Y27BCleanup();
         Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
         Commit();
-        Fresh.Get('A');
-        Row.TransferFields(Fresh);
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_BWrote_TransferFieldsFromFreshGet_Ok()
-        var
-            Row: Record "LT Y27B Row";
-            Fresh: Record "LT Y27B Row";
-        Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
         Helper.Post('A', 5);
         Commit();
         Helper.Post('A', 5);
         Fresh.Get('A');
         Row.TransferFields(Fresh);
-            Y27BWriteOk(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    
-        [Test]
-        procedure Y27B_2C_BWrote_TransferFieldsFromFreshGet_Err()
-        var
-            Row: Record "LT Y27B Row";
-            Fresh: Record "LT Y27B Row";
-        Observer: Codeunit "Probe Observer";
-        begin
-            Y27BCleanup();
-        Y27BInsert(Row);
-            Commit();
-        Helper.Post('A', 5);
-        Commit();
-        Helper.Post('A', 5);
-        Fresh.Get('A');
-        Row.TransferFields(Fresh);
-            Y27BWriteError(Row, 1, Observer);
-            Observer.Finish();
-        end;
-    }
+        Y27BWriteOk(Row, 1, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|90|1|1|90|Changed|No');
+        Observer.Expect('stored', 'Changed|90|1|1|90|Changed|No');
+        Observer.Expect('rows', '1');
+        Observer.Expect('log', '0');
+        Observer.Verify();
+    end;
+}
