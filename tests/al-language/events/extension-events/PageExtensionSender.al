@@ -498,7 +498,9 @@ codeunit 96993 "LT PES Page Extension Sender"
         Card.GoToKey('K2');
         Observer.Observe('goto K2', Log.Text());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'card|key=K1|rec=First|ext=First/ext|base_mark=|ext_mark=|caption=LT PES Card Caption;');
+        Observer.Expect('goto K2', 'card|key=K1|rec=First|ext=First/ext|base_mark=|ext_mark=|caption=LT PES Card Caption;card|key=K1|rec=First|ext=First/ext|base_mark=|ext_mark=|caption=LT PES Card Caption;card|key=K2|rec=Second|ext=Second/ext|base_mark=|ext_mark=|caption=LT PES Card Caption;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -522,7 +524,30 @@ codeunit 96993 "LT PES Page Extension Sender"
         Observer.Observe('ext after goto K3', Log.CardExt());
         Observer.Observe('log', Log.Text());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('base', 'Second||LT PES Card Caption');
+        Observer.Expect('ext', 'Second/ext|');
+        Observer.Expect('base after marks', 'Second|B1|LT PES Card Caption');
+        Observer.Expect('ext after marks', 'Second/ext|E1');
+        Observer.Expect('base after goto K3', 'Third|B1|LT PES Card Caption');
+        Observer.Expect('ext after goto K3', 'Third/ext|E1');
+        Observer.Expect('log', 'card|key=K1|rec=First|ext=First/ext|base_mark=|ext_mark=|caption=LT PES Card Caption;card|key=K1|rec=First|ext=First/ext|base_mark=|ext_mark=|caption=LT PES Card Caption;card|key=K2|rec=Second|ext=Second/ext|base_mark=|ext_mark=|caption=LT PES Card Caption;card|key=K1|rec=First|ext=First/ext|base_mark=B1|ext_mark=E1|caption=LT PES Card Caption;card|key=K2|rec=Second|ext=Second/ext|base_mark=B1|ext_mark=E1|caption=LT PES Card Caption;card|key=K3|rec=Third|ext=Third/ext|base_mark=B1|ext_mark=E1|caption=LT PES Card Caption;');
+        Observer.Verify();
+    end;
+
+    [TryFunction]
+    local procedure TryCardBase(var Result: Text)
+    var
+        Log: Codeunit "LT PES Log";
+    begin
+        Result := Log.CardBase();
+    end;
+
+    [TryFunction]
+    local procedure TryCardExt(var Result: Text)
+    var
+        Log: Codeunit "LT PES Log";
+    begin
+        Result := Log.CardExt();
     end;
 
     [Test]
@@ -538,10 +563,14 @@ codeunit 96993 "LT PES Page Extension Sender"
         Card.OpenView();
         Card.GoToKey('K2');
         Card.Close();
-        asserterror Result := Log.CardBase();
-        Observer.ObserveError('base after close');
-        asserterror Result := Log.CardExt();
-        Observer.ObserveError('ext after close');
+        if TryCardBase(Result) then
+            Observer.Observe('base after close', Result)
+        else
+            Observer.ObserveError('base after close');
+        if TryCardExt(Result) then
+            Observer.Observe('ext after close', Result)
+        else
+            Observer.ObserveError('ext after close');
         Observer.Finish();
     end;
 
@@ -566,7 +595,10 @@ codeunit 96993 "LT PES Page Extension Sender"
         Observer.Observe('held after first moves', Log.CardBase() + '#' + Log.CardExt());
         Second.Close();
         First.Close();
-        Observer.Finish();
+        Observer.Expect('log', 'card|key=K1|rec=First|ext=First/ext|base_mark=|ext_mark=|caption=LT PES Card Caption;card|key=K1|rec=First|ext=First/ext|base_mark=|ext_mark=|caption=LT PES Card Caption;card|key=K1|rec=First|ext=First/ext|base_mark=|ext_mark=|caption=LT PES Card Caption;card|key=K1|rec=First|ext=First/ext|base_mark=|ext_mark=|caption=LT PES Card Caption;card|key=K2|rec=Second|ext=Second/ext|base_mark=|ext_mark=|caption=LT PES Card Caption;card|key=K3|rec=Third|ext=Third/ext|base_mark=|ext_mark=|caption=LT PES Card Caption;');
+        Observer.Expect('held is second', 'Third||LT PES Card Caption#Third/ext|');
+        Observer.Expect('held after first moves', 'Second|FIRST|LT PES Card Caption#Second/ext|FIRST-EXT');
+        Observer.Verify();
     end;
 
     [Test]
@@ -593,7 +625,16 @@ codeunit 96993 "LT PES Page Extension Sender"
         Observer.Observe('next 2', Log.Text());
         Observer.Observe('held base after next 2', Log.ListBase());
         ListPage.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'list|key=K1|rec=First|ext=First/ext|base_mark=|ext_mark=;list|key=K2|rec=Second|ext=Second/ext|base_mark=|ext_mark=;list|key=K3|rec=Third|ext=Third/ext|base_mark=|ext_mark=;list|key=K1|rec=First|ext=First/ext|base_mark=|ext_mark=;');
+        Observer.Expect('first', 'list|key=K1|rec=First|ext=First/ext|base_mark=|ext_mark=;list|key=K2|rec=Second|ext=Second/ext|base_mark=|ext_mark=;list|key=K3|rec=Third|ext=Third/ext|base_mark=|ext_mark=;list|key=K1|rec=First|ext=First/ext|base_mark=|ext_mark=;');
+        Observer.Expect('held base', 'First|');
+        Observer.Expect('held ext', 'First/ext|');
+        Observer.Expect('next', 'list|key=K1|rec=First|ext=First/ext|base_mark=|ext_mark=;list|key=K2|rec=Second|ext=Second/ext|base_mark=|ext_mark=;list|key=K3|rec=Third|ext=Third/ext|base_mark=|ext_mark=;list|key=K1|rec=First|ext=First/ext|base_mark=|ext_mark=;');
+        Observer.Expect('held base after next', 'First|LB');
+        Observer.Expect('held ext after next', 'First/ext|LE');
+        Observer.Expect('next 2', 'list|key=K1|rec=First|ext=First/ext|base_mark=|ext_mark=;list|key=K2|rec=Second|ext=Second/ext|base_mark=|ext_mark=;list|key=K3|rec=Third|ext=Third/ext|base_mark=|ext_mark=;list|key=K1|rec=First|ext=First/ext|base_mark=|ext_mark=;');
+        Observer.Expect('held base after next 2', 'First|LB');
+        Observer.Verify();
     end;
 
     [Test]
@@ -620,6 +661,14 @@ codeunit 96993 "LT PES Page Extension Sender"
         Observer.Observe('held head after next', Log.DocBase());
         Observer.Observe('held lines after head next', Log.LinesBase());
         Doc.Close();
-        Observer.Finish();
+        Observer.Expect('open and goto D1', 'head|no=D1|rec=Doc One|ext=Doc One/ext|base_mark=;line|doc=D1|line=10000|rec=Line A|ext=Line A/ext|base_mark=;line|doc=D1|line=20000|rec=Line B|ext=Line B/ext|base_mark=;line|doc=D1|line=10000|rec=Line A|ext=Line A/ext|base_mark=;head|no=D1|rec=Doc One|ext=Doc One/ext|base_mark=;');
+        Observer.Expect('held head', 'Doc One||Doc One/ext');
+        Observer.Expect('held lines', 'Line A||Line A/ext');
+        Observer.Expect('lines next', '');
+        Observer.Expect('held lines after next', 'Line A||Line A/ext');
+        Observer.Expect('head next', 'head|no=D2|rec=Doc Two|ext=Doc Two/ext|base_mark=;line|doc=D2|line=10000|rec=Line C|ext=Line C/ext|base_mark=;');
+        Observer.Expect('held head after next', 'Doc Two||Doc Two/ext');
+        Observer.Expect('held lines after head next', 'Line C||Line C/ext');
+        Observer.Verify();
     end;
 }
