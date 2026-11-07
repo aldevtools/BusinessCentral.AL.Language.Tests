@@ -18,6 +18,7 @@
 table 96260 "LT DCE Row"
 {
     DataClassification = CustomerContent;
+    LookupPageId = "LT DCE Page";
 
     fields
     {
@@ -447,6 +448,81 @@ codeunit 96262 "LT DCE Tests"
         Observer.Verify();
     end;
 
+    [Test]
+    [HandlerFunctions('PageRunEmptyHandler')]
+    procedure DCE_PageRun_Empty()
+    var
+        Row: Record "LT DCE Row";
+    begin
+        Seed(false);
+        Log.Wipe();
+        Row.SetFilter("Item No.", 'I9');
+        Page.Run(Page::"LT DCE Page", Row);
+        Log.Add('after run');
+        Observer.Observe('log', Log.Joined());
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('PageRunHandler')]
+    procedure DCE_PageRunLookupId_Rows()
+    var
+        Row: Record "LT DCE Row";
+    begin
+        Seed(true);
+        Log.Wipe();
+        Row.SetFilter("Item No.", 'I1|I2');
+        Page.Run(0, Row);
+        Log.Add('after run');
+        Observer.Observe('log', Log.Joined());
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('PageRunEmptyHandler')]
+    procedure DCE_PageRunLookupId_Empty()
+    var
+        Row: Record "LT DCE Row";
+    begin
+        Seed(false);
+        Log.Wipe();
+        Row.SetFilter("Item No.", 'I9');
+        Page.Run(0, Row);
+        Log.Add('after run');
+        Observer.Observe('log', Log.Joined());
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalHandler')]
+    procedure DCE_RunModalLookupId_Rows()
+    var
+        Row: Record "LT DCE Row";
+    begin
+        Seed(true);
+        Log.Wipe();
+        Row.SetFilter("Item No.", 'I1|I2');
+        Page.RunModal(0, Row);
+        Log.Add('after run');
+        Observer.Observe('log', Log.Joined());
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalEmptyHandler')]
+    procedure DCE_RunModalLookupId_Empty()
+    var
+        Row: Record "LT DCE Row";
+    begin
+        Seed(false);
+        Log.Wipe();
+        Row.SetFilter("Item No.", 'I9');
+        Page.RunModal(0, Row);
+        Log.Add('after run');
+        Observer.Observe('log', Log.Joined());
+        Observer.Finish();
+    end;
+
     [ModalPageHandler]
     procedure ModalHandler(var Card: TestPage "LT DCE Page")
     begin
@@ -471,5 +547,11 @@ codeunit 96262 "LT DCE Tests"
             Log.Add('H next cap=' + Card.Caption() + ' ctl=' + Card.ItemNoFilterCtl.Value + ' item=' + Card.ItemNoCtl.Value);
         Card.UpdateAct.Invoke();
         Log.Add('H update cap=' + Card.Caption() + ' ctl=' + Card.ItemNoFilterCtl.Value);
+    end;
+
+    [PageHandler]
+    procedure PageRunEmptyHandler(var Card: TestPage "LT DCE Page")
+    begin
+        Log.Add('H open cap=' + Card.Caption() + ' ctl=' + Card.ItemNoFilterCtl.Value);
     end;
 }
