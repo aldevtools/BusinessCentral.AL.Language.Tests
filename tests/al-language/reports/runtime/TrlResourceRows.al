@@ -39,10 +39,8 @@ codeunit 97000 "LT TRL Resource Rows"
         Observer.Observe(Name + ' sha256', Crypto.GenerateHash(InS, 2));
     end;
 
-    local procedure DescribeLayoutFor(var Observer: Codeunit "Probe Observer"; Name: Text; Kind: Text; ReportId: Integer; ResourceName: Text)
-    var
-        InS: InStream;
-        Got: Boolean;
+    [TryFunction]
+    local procedure TryLayout(Kind: Text; ReportId: Integer; var InS: InStream; var Got: Boolean)
     begin
         case Kind of
             'word':
@@ -52,9 +50,22 @@ codeunit 97000 "LT TRL Resource Rows"
             'excel':
                 Got := Report.ExcelLayout(ReportId, InS);
         end;
-        Observer.Observe(Name + ' returned', Format(Got));
-        if Got then
-            DescribeStream(Observer, Name + ' report', InS);
+    end;
+
+    local procedure DescribeLayoutFor(var Observer: Codeunit "Probe Observer"; Name: Text; Kind: Text; ReportId: Integer; ResourceName: Text)
+    var
+        InS: InStream;
+        Got: Boolean;
+    begin
+        if not TryLayout(Kind, ReportId, InS, Got) then begin
+            Observer.Observe(Name + ' error', GetLastErrorText());
+            Observer.Observe(Name + ' code', GetLastErrorCode());
+            ClearLastError();
+        end else begin
+            Observer.Observe(Name + ' returned', Format(Got));
+            if Got then
+                DescribeStream(Observer, Name + ' report', InS);
+        end;
         if ResourceName <> '' then begin
             NavApp.GetResource(ResourceName, InS);
             DescribeStream(Observer, Name + ' file', InS);
@@ -107,7 +118,7 @@ codeunit 97000 "LT TRL Resource Rows"
         Observer.Finish();
     end;
 
-    local procedure TryInsert(var Observer: Codeunit "Probe Observer"; Tag: Text; ReportId: Integer; Kind: Option; ResourceName: Text; CustomType: Guid)
+    local procedure DoInsert(var Observer: Codeunit "Probe Observer"; Tag: Text; ReportId: Integer; Kind: Option; ResourceName: Text; CustomType: Guid)
     var
         Layout: Record "Tenant Report Layout";
         Reader: Record "Tenant Report Layout";
@@ -115,6 +126,7 @@ codeunit 97000 "LT TRL Resource Rows"
         InS: InStream;
         OutS: OutStream;
         LayoutName: Text[250];
+        Ok: Boolean;
     begin
         LayoutName := CopyStr(Delchr(Format(CreateGuid()), '=', '{}'), 1, 250);
         Layout.Init();
@@ -124,37 +136,17 @@ codeunit 97000 "LT TRL Resource Rows"
         Layout."Custom Type" := CustomType;
         NavApp.GetResource(ResourceName, InS);
         Layout.Layout.ImportStream(InS, 'trl');
-        Observer.Observe(Tag + ' has value before', Format(Layout.Layout.HasValue()));
-        asserterror Layout.Insert();
-        Observer.Observe(Tag + ' error', GetLastErrorText());
-        Observer.Observe(Tag + ' code', GetLastErrorCode());
-        ClearLastError();
-        Reader.SetRange(Name, LayoutName);
-        Observer.Observe(Tag + ' rows after error', Format(Reader.Count()));
-    end;
-
-    local procedure DoInsert(var Observer: Codeunit "Probe Observer"; Tag: Text; ReportId: Integer; Kind: Option; ResourceName: Text)
-    var
-        Layout: Record "Tenant Report Layout";
-        Reader: Record "Tenant Report Layout";
-        TempBlob: Codeunit "Temp Blob";
-        InS: InStream;
-        OutS: OutStream;
-        LayoutName: Text[250];
-    begin
-        LayoutName := CopyStr(Delchr(Format(CreateGuid()), '=', '{}'), 1, 250);
-        Layout.Init();
-        Layout."Report ID" := ReportId;
-        Layout.Name := LayoutName;
-        Layout."Layout Format" := Kind;
-        NavApp.GetResource(ResourceName, InS);
-        Layout.Layout.ImportStream(InS, 'trl');
-        Observer.Observe(Tag + ' insert', Format(Layout.Insert()));
+        Ok := Codeunit.Run(Codeunit::"LT TRL Insert", Layout);
+        Observer.Observe(Tag + ' insert', Format(Ok));
+        if not Ok then begin
+            Observer.Observe(Tag + ' error', GetLastErrorText());
+            Observer.Observe(Tag + ' code', GetLastErrorCode());
+            ClearLastError();
+        end;
         Reader.SetRange(Name, LayoutName);
         Observer.Observe(Tag + ' rows', Format(Reader.Count()));
         if Reader.FindFirst() then begin
             Observer.Observe(Tag + ' stored', Format(Reader."Report ID") + '|' + Format(Reader."Layout Format") + '|' + Format(IsNullGuid(Reader."App ID")) + '|' + Format(IsNullGuid(Reader."Custom Type")) + '|' + Reader."MIME Type" + '|' + Reader.Description + '|' + Format(Reader."Company Name" = ''));
-            Reader.CalcFields(Layout);
             Observer.Observe(Tag + ' has value', Format(Reader.Layout.HasValue()));
             TempBlob.CreateOutStream(OutS);
             Observer.Observe(Tag + ' export', Format(Reader.Layout.ExportStream(OutS)));
@@ -168,8 +160,9 @@ codeunit 97000 "LT TRL Resource Rows"
     var
         Observer: Codeunit "Probe Observer";
         Layout: Record "Tenant Report Layout";
+        NoType: Guid;
     begin
-        DoInsert(Observer, 'word', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Word, 'trl/Y67BaseDoc.docx');
+        DoInsert(Observer, 'word', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Word, 'trl/Y67BaseDoc.docx', NoType);
         Observer.Finish();
     end;
 
@@ -178,8 +171,9 @@ codeunit 97000 "LT TRL Resource Rows"
     var
         Observer: Codeunit "Probe Observer";
         Layout: Record "Tenant Report Layout";
+        NoType: Guid;
     begin
-        TryInsert(Observer, 'bindings', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Word, 'trl/Y17LayR1.docx', '');
+        DoInsert(Observer, 'bindings', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Word, 'trl/Y17LayR1.docx', NoType);
         Observer.Finish();
     end;
 
@@ -188,8 +182,9 @@ codeunit 97000 "LT TRL Resource Rows"
     var
         Observer: Codeunit "Probe Observer";
         Layout: Record "Tenant Report Layout";
+        NoType: Guid;
     begin
-        DoInsert(Observer, 'own', Report::"LT Y17 Lay R1", Layout."Layout Format"::Word, 'trl/Y17LayR1.docx');
+        DoInsert(Observer, 'own', Report::"LT Y17 Lay R1", Layout."Layout Format"::Word, 'trl/Y17LayR1.docx', NoType);
         Observer.Finish();
     end;
 
@@ -198,8 +193,9 @@ codeunit 97000 "LT TRL Resource Rows"
     var
         Observer: Codeunit "Probe Observer";
         Layout: Record "Tenant Report Layout";
+        NoType: Guid;
     begin
-        DoInsert(Observer, 'rdlc', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::RDLC, 'trl/Y17LayR1.rdl');
+        DoInsert(Observer, 'rdlc', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::RDLC, 'trl/Y17LayR1.rdl', NoType);
         Observer.Finish();
     end;
 
@@ -208,8 +204,9 @@ codeunit 97000 "LT TRL Resource Rows"
     var
         Observer: Codeunit "Probe Observer";
         Layout: Record "Tenant Report Layout";
+        NoType: Guid;
     begin
-        DoInsert(Observer, 'rdlc own', Report::"LT Y17 Lay R1", Layout."Layout Format"::RDLC, 'trl/Y17LayR1.rdl');
+        DoInsert(Observer, 'rdlc own', Report::"LT Y17 Lay R1", Layout."Layout Format"::RDLC, 'trl/Y17LayR1.rdl', NoType);
         Observer.Finish();
     end;
 
@@ -218,8 +215,9 @@ codeunit 97000 "LT TRL Resource Rows"
     var
         Observer: Codeunit "Probe Observer";
         Layout: Record "Tenant Report Layout";
+        NoType: Guid;
     begin
-        DoInsert(Observer, 'excel', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Excel, 'trl/Y17LayR4.xlsx');
+        DoInsert(Observer, 'excel', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Excel, 'trl/Y17LayR4.xlsx', NoType);
         Observer.Finish();
     end;
 
@@ -228,8 +226,9 @@ codeunit 97000 "LT TRL Resource Rows"
     var
         Observer: Codeunit "Probe Observer";
         Layout: Record "Tenant Report Layout";
+        NoType: Guid;
     begin
-        DoInsert(Observer, 'excel own', Report::"LT Y17 Lay R4", Layout."Layout Format"::Excel, 'trl/Y17LayR4.xlsx');
+        DoInsert(Observer, 'excel own', Report::"LT Y17 Lay R4", Layout."Layout Format"::Excel, 'trl/Y17LayR4.xlsx', NoType);
         Observer.Finish();
     end;
 
@@ -240,7 +239,7 @@ codeunit 97000 "LT TRL Resource Rows"
         Layout: Record "Tenant Report Layout";
         NoType: Guid;
     begin
-        TryInsert(Observer, 'custom no type', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Custom, 'trl/Y67BaseDoc.docx', NoType);
+        DoInsert(Observer, 'custom no type', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Custom, 'trl/Y67BaseDoc.docx', NoType);
         Observer.Finish();
     end;
 
@@ -249,8 +248,19 @@ codeunit 97000 "LT TRL Resource Rows"
     var
         Observer: Codeunit "Probe Observer";
         Layout: Record "Tenant Report Layout";
+        NoType: Guid;
     begin
         TryInsert(Observer, 'custom unknown type', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Custom, 'trl/Y67BaseDoc.docx', CreateGuid());
         Observer.Finish();
+    end;
+}
+
+codeunit 97001 "LT TRL Insert"
+{
+    TableNo = "Tenant Report Layout";
+
+    trigger OnRun()
+    begin
+        Rec.Insert();
     end;
 }
