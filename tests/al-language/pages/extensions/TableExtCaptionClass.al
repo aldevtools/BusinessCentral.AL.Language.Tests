@@ -134,4 +134,154 @@ codeunit 72307 "LT P123 CaptionClass Tests"
         Observer.Expect('new field page caption', 'Stand in 82554');
         Observer.Verify();
     end;
+
+    // Cross-app ownership: public dependency procedure versus local tableextension procedure.
+    // Expected branch markers are a probe hypothesis until genuine native CI adjudicates them.
+    [Test]
+    procedure TableExt_CrossApp_BareCallSelectsLocal()
+    var
+        T: Record "TBL Lexical Owner Base";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        T.Get(1);
+        Observer.Observe('result', T.ExtensionBare());
+        Observer.Expect('result', '3,Extension 19');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TableExt_CrossApp_BaseCallKeepsBase()
+    var
+        T: Record "TBL Lexical Owner Base";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        T.Get(1);
+        Observer.Observe('result', T.BaseCall());
+        Observer.Expect('result', '3,Base 17');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TableExt_CrossApp_AddedCaptionSelectsLocal()
+    var
+        T: Record "TBL Lexical Owner Base";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        T.Get(1);
+        Observer.Observe('result', T.FieldCaption(CollisionCaption));
+        Observer.Expect('result', 'Extension 97890');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TableExt_CrossApp_ModifiedCaptionSelectsLocal()
+    var
+        T: Record "TBL Lexical Owner Base";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        T.Get(1);
+        Observer.Observe('result', T.FieldCaption(BaseLabel));
+        Observer.Expect('result', 'Extension 2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TableExt_CrossApp_UniqueCaptionControl()
+    var
+        T: Record "TBL Lexical Owner Base";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        T.Get(1);
+        Observer.Observe('result', T.FieldCaption(UniqueCaption));
+        Observer.Expect('result', 'Unique 97891');
+        Observer.Verify();
+    end;
+
+    local procedure Initialize()
+    var
+        Cleanup: Codeunit ALTFixtureCleanup;
+        T: Record "TBL Lexical Owner Base";
+    begin
+        Cleanup.Initialize();
+        T.Init();
+        T.Id := 1;
+        T.Insert(false);
+    end;
+
+    // Unparenthesized lookup and explicitly qualified access are separate observed boundaries.
+    [Test]
+    procedure TableExt_CrossApp_NoParenCallSelectsLocal()
+    var
+        T: Record "TBL Lexical Owner Base";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        T.Get(1);
+        Observer.Observe('result', T.ExtensionZeroBare());
+        Observer.Expect('result', '3,Extension zero');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TableExt_CrossApp_NoParenBaseKeepsBase()
+    var
+        T: Record "TBL Lexical Owner Base";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        T.Get(1);
+        Observer.Observe('result', T.BaseZeroCall());
+        Observer.Expect('result', '3,Base zero');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TableExt_CrossApp_NoParenCaptionSelectsLocal()
+    var
+        T: Record "TBL Lexical Owner Base";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        T.Get(1);
+        Observer.Observe('result', T.FieldCaption(ZeroCaption));
+        Observer.Expect('result', 'Extension zero');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TableExt_CrossApp_QualifiedCallKeepsBase()
+    var
+        T: Record "TBL Lexical Owner Base";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        T.Get(1);
+        Observer.Observe('result', T.GetCaptionClass(23));
+        Observer.Expect('result', '3,Base 23');
+        Observer.Verify();
+    end;
+
+
+    // A bounded base result must not be imposed on the selected unbounded local declaration.
+    [Test]
+    procedure TableExt_CrossApp_BoundedBase_LongLocalResultStaysUnbounded()
+    var
+        T: Record "TBL Lexical Owner Base";
+        Observer: Codeunit "Probe Observer";
+        Actual: Text;
+    begin
+        Initialize();
+        T.Get(1);
+        Actual := T.ExtensionLong();
+        Observer.Observe('result', Actual);
+        Observer.Observe('length', Format(StrLen(Actual)));
+        Observer.Expect('result', '3,LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL');
+        Observer.Expect('length', '102');
+        Observer.Verify();
+    end;
 }
