@@ -261,6 +261,10 @@ codeunit 86142 "LT PW FlowField Key Rule"
 // Owner 3 has no line. Lookup takes the first line of the owner by line Id: o1 m 5.5 03-01, o2 z 9 02-01, o3 blank, o4 m 5.5 03-01, o5 b 2 01-01.
 // Min Amt: 1.5 9 0 5.5 2. Max Amt: 5.5 9 0 5.5 4. Average Amt: 3.5 9 0 5.5 3. Min Dt: 01-01 02-01 blank 03-01 01-01.
 // Count: 2 1 0 1 2. ExistBig (Amt > 5): yes yes no yes no.
+// Facts (BC 29.0 on the corpus CI, then checked on the matrix): every one of these FlowFields is accepted as a key field and sorts the rows by
+//   its calculated value (a blank or zero value first, ties in primary key order, Ascending(false) reverses the whole order, ties included).
+//   Rank first, then a FlowField, sorts by Rank, then by the FlowField. Two FlowFields in one key sort by the first, then the second.
+// BC versions: see the matrix result in the pull request
 
 table 97020 "LT W9 FK Owner"
 {
@@ -408,7 +412,14 @@ codeunit 97022 "LT W9 FlowField Key Kinds"
         Observer.Observe('maxDec', Outcome(5, false));
         Observer.Observe('avgDec', Outcome(6, false));
         Observer.Observe('minDate', Outcome(7, false));
-        Observer.Finish();
+        Observer.Expect('lkText', 'key=LkText order=3 5 1 4 2 ');
+        Observer.Expect('lkDec', 'key=LkDec order=3 5 1 4 2 ');
+        Observer.Expect('lkDate', 'key=LkDate order=3 5 2 1 4 ');
+        Observer.Expect('minDec', 'key=MinDec order=3 1 5 4 2 ');
+        Observer.Expect('maxDec', 'key=MaxDec order=3 5 1 4 2 ');
+        Observer.Expect('avgDec', 'key=AvgDec order=3 5 1 4 2 ');
+        Observer.Expect('minDate', 'key=MinDate order=3 1 5 2 4 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -424,7 +435,14 @@ codeunit 97022 "LT W9 FlowField Key Kinds"
         Observer.Observe('maxDec', Outcome(5, true));
         Observer.Observe('avgDec', Outcome(6, true));
         Observer.Observe('minDate', Outcome(7, true));
-        Observer.Finish();
+        Observer.Expect('lkText', 'key=LkText order=2 4 1 5 3 ');
+        Observer.Expect('lkDec', 'key=LkDec order=2 4 1 5 3 ');
+        Observer.Expect('lkDate', 'key=LkDate order=4 1 2 5 3 ');
+        Observer.Expect('minDec', 'key=MinDec order=2 4 5 1 3 ');
+        Observer.Expect('maxDec', 'key=MaxDec order=2 4 1 5 3 ');
+        Observer.Expect('avgDec', 'key=AvgDec order=2 4 1 5 3 ');
+        Observer.Expect('minDate', 'key=MinDate order=4 2 5 1 3 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -437,7 +455,11 @@ codeunit 97022 "LT W9 FlowField Key Kinds"
         Observer.Observe('rank,cntLinked', Outcome(9, false));
         Observer.Observe('rank,lkText', Outcome(10, false));
         Observer.Observe('rank,existBig desc', Outcome(8, true));
-        Observer.Finish();
+        Observer.Expect('rank,existBig', 'key=Rank,ExistBig order=5 1 2 3 4 ');
+        Observer.Expect('rank,cntLinked', 'key=Rank,CntLinked order=2 1 5 3 4 ');
+        Observer.Expect('rank,lkText', 'key=Rank,LkText order=5 1 2 3 4 ');
+        Observer.Expect('rank,existBig desc', 'key=Rank,ExistBig order=4 3 2 1 5 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -448,7 +470,9 @@ codeunit 97022 "LT W9 FlowField Key Kinds"
         Seed();
         Observer.Observe('existBig,rank', Outcome(11, false));
         Observer.Observe('existBig,rank desc', Outcome(11, true));
-        Observer.Finish();
+        Observer.Expect('existBig,rank', 'key=ExistBig,Rank order=5 3 1 2 4 ');
+        Observer.Expect('existBig,rank desc', 'key=ExistBig,Rank order=4 2 1 3 5 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -462,6 +486,11 @@ codeunit 97022 "LT W9 FlowField Key Kinds"
         Observer.Observe('existBig,cntLinked', Outcome(14, false));
         Observer.Observe('lkDec,avgDec', Outcome(15, false));
         Observer.Observe('maxDec,minDec desc', Outcome(12, true));
-        Observer.Finish();
+        Observer.Expect('maxDec,minDec', 'key=MaxDec,MinDec order=3 5 1 4 2 ');
+        Observer.Expect('cntLinked,lkText', 'key=CntLinked,LkText order=3 4 2 5 1 ');
+        Observer.Expect('existBig,cntLinked', 'key=ExistBig,CntLinked order=3 5 2 4 1 ');
+        Observer.Expect('lkDec,avgDec', 'key=LkDec,AvgDec order=3 5 1 4 2 ');
+        Observer.Expect('maxDec,minDec desc', 'key=MaxDec,MinDec order=2 4 1 5 3 ');
+        Observer.Verify();
     end;
 }
