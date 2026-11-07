@@ -398,4 +398,141 @@ codeunit 81861 "LT BL Sql Counters"
         Observer.Expect('count N=20', '1/1 1/1 1/1');
         Observer.Verify();
     end;
+
+    // Writer P6924 (al-runtime-rs triage of issue 6924, section C step 1): a counter read stored in an Integer, a Decimal and a
+    // Dictionary of [Guid, Integer] value, formatted, and passed to telemetry in a custom dimension. Only stable properties are
+    // asserted (no error, not negative, digits only, a later read is not smaller), never a count.
+    local procedure DigitsOnly(Value: Text): Boolean
+    var
+        I: Integer;
+    begin
+        if Value = '' then
+            exit(false);
+        for I := 1 to StrLen(Value) do
+            if not (Value[I] in ['0' .. '9']) then
+                exit(false);
+        exit(true);
+    end;
+
+    [Test]
+    procedure P6924_Counters_StoredInInteger_NotNegative()
+    var
+        Observer: Codeunit "Probe Observer";
+        Stmt: Integer;
+        Rows: Integer;
+    begin
+        Stmt := SessionInformation.SqlStatementsExecuted();
+        Rows := SessionInformation.SqlRowsRead();
+        Observer.Observe('statements in Integer >= 0', Format(Stmt >= 0));
+        Observer.Observe('rows in Integer >= 0', Format(Rows >= 0));
+        Observer.Expect('statements in Integer >= 0', 'Yes');
+        Observer.Expect('rows in Integer >= 0', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure P6924_Counters_Format_DigitsOnly()
+    var
+        Observer: Codeunit "Probe Observer";
+        Stmt: Integer;
+    begin
+        Observer.Observe('format statements', Format(DigitsOnly(Format(SessionInformation.SqlStatementsExecuted()))));
+        Observer.Observe('format rows', Format(DigitsOnly(Format(SessionInformation.SqlRowsRead()))));
+        Stmt := SessionInformation.SqlStatementsExecuted();
+        Observer.Observe('format of the Integer', Format(DigitsOnly(Format(Stmt))));
+        Observer.Expect('format statements', 'Yes');
+        Observer.Expect('format rows', 'Yes');
+        Observer.Expect('format of the Integer', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure P6924_Counters_DictionaryOfGuidInteger_AddGetAndLaterDifference()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT BL Sql Row";
+        Stored: Dictionary of [Guid, Integer];
+        Key1: Guid;
+        Value: Integer;
+        Later: Integer;
+    begin
+        Seed();
+        Key1 := CreateGuid();
+        Stored.Add(Key1, SessionInformation.SqlStatementsExecuted());
+        Value := Stored.Get(Key1);
+        Observer.Observe('contains key', Format(Stored.ContainsKey(Key1)));
+        Observer.Observe('stored value >= 0', Format(Value >= 0));
+        Row.Get(2);
+        Later := SessionInformation.SqlStatementsExecuted();
+        Observer.Observe('later minus stored >= 0', Format(Later - Stored.Get(Key1) >= 0));
+        Observer.Observe('later minus stored > 0 after a Get', Format(Later - Stored.Get(Key1) > 0));
+        Observer.Expect('contains key', 'Yes');
+        Observer.Expect('stored value >= 0', 'Yes');
+        Observer.Expect('later minus stored >= 0', 'Yes');
+        Observer.Expect('later minus stored > 0 after a Get', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure P6924_Counters_StoredInDecimal_NotNegativeAndWhole()
+    var
+        Observer: Codeunit "Probe Observer";
+        Stmt: Decimal;
+        Rows: Decimal;
+    begin
+        Stmt := SessionInformation.SqlStatementsExecuted();
+        Rows := SessionInformation.SqlRowsRead();
+        Observer.Observe('statements in Decimal >= 0', Format(Stmt >= 0));
+        Observer.Observe('rows in Decimal >= 0', Format(Rows >= 0));
+        Observer.Observe('statements whole', Format(Stmt = Round(Stmt, 1)));
+        Observer.Observe('later minus stored >= 0', Format(SessionInformation.SqlStatementsExecuted() - Stmt >= 0));
+        Observer.Expect('statements in Decimal >= 0', 'Yes');
+        Observer.Expect('rows in Decimal >= 0', 'Yes');
+        Observer.Expect('statements whole', 'Yes');
+        Observer.Expect('later minus stored >= 0', 'Yes');
+        Observer.Verify();
+    end;
+
+    [TryFunction]
+    local procedure TrySessionLogMessage(Value: Text)
+    var
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        Dimensions.Add('SqlStatements', Value);
+        Session.LogMessage('0000P69', 'LT P6924 sql counter', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
+    end;
+
+    [TryFunction]
+    local procedure TryTelemetryLogMessage(Value: Text)
+    var
+        Telemetry: Codeunit Telemetry;
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        Dimensions.Add('SqlStatements', Value);
+        Telemetry.LogMessage('0000P6A', 'LT P6924 sql counter', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
+    end;
+
+    [Test]
+    procedure P6924_Counters_FormattedInTelemetryDimension_NoError()
+    var
+        Observer: Codeunit "Probe Observer";
+        Stored: Dictionary of [Guid, Integer];
+        Key1: Guid;
+    begin
+        Key1 := CreateGuid();
+        Stored.Add(Key1, SessionInformation.SqlStatementsExecuted());
+        ClearLastError();
+        Observer.Observe('Session.LogMessage', Format(TrySessionLogMessage(Format(SessionInformation.SqlStatementsExecuted() - Stored.Get(Key1)))));
+        Observer.ObserveError('Session.LogMessage error');
+        ClearLastError();
+        Observer.Observe('Telemetry.LogMessage', Format(TryTelemetryLogMessage(Format(SessionInformation.SqlStatementsExecuted() - Stored.Get(Key1)))));
+        Observer.ObserveError('Telemetry.LogMessage error');
+        Observer.Expect('Session.LogMessage', 'Yes');
+        Observer.Expect('Session.LogMessage error|text', '');
+        Observer.Expect('Session.LogMessage error|code', '');
+        Observer.Expect('Telemetry.LogMessage', 'Yes');
+        Observer.Expect('Telemetry.LogMessage error|text', '');
+        Observer.Expect('Telemetry.LogMessage error|code', '');
+        Observer.Verify();
+    end;
 }

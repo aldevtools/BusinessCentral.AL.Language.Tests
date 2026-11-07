@@ -2,7 +2,7 @@
 // Scope: in-scope
 // Probe: written against BC 29 (observation only; the literals are measured later). Tag P91 (GitHub issue 91).
 // BC versions: 29
-// Fixtures used: Probe Observer (codeunit 69160); this file holds the tables 71591, 71592 and the helper codeunit 71593 (not a test codeunit)
+// Fixtures used: Probe Observer (codeunit 69160); this file holds the tables 71591, 71592 and the helper codeunit 71593 (not a test codeunit) (table 71592 is now shared table 50003 "ALT Shape 03")
 
 table 71591 "LT P91 Row"
 {
@@ -21,28 +21,12 @@ table 71591 "LT P91 Row"
     }
 }
 
-table 71592 "LT P91 Store"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Data; Blob) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 codeunit 71593 "LT P91 Helper"
 {
     procedure Seed()
     var
         Row: Record "LT P91 Row";
-        Store: Record "LT P91 Store";
+        Store: Record "ALT Shape 03";
     begin
         Row.DeleteAll();
         Store.DeleteAll();

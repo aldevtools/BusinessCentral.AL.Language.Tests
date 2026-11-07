@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-maxiteration-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); self-contained tables 91530 and 91531, reports 91532-91538, test codeunit 91539
+// Fixtures used: Probe Observer (codeunit 69160); self-contained tables 91530 and 91531, reports 91532-91538, test codeunit 91539 (table 91530 is now shared table 50015 "ALT Shape 15")
 // Probe: observe probe (writer Y11, 2026-10-30, al-runner issue 6412); every literal asserted below is what the BC service tier produced
 //   (SaaS sandbox BC 29 first, then the corpus CI legs).
 // Facts: MaxIteration on a data item over a record table, run through Report.SaveAs(Xml) on a report instance: how many rows OnAfterGetRecord
@@ -12,21 +12,6 @@
 //   a row skipped with CurrReport.Skip still counts; a linked child with MaxIteration 1 reads one line per parent; the dataset holds one
 //   row per row read and not skipped. A second SaveAs on the same report instance fails with ObjectHasAlreadyBeenRun.
 // BC versions: 27, 28, 29
-
-table 91530 "LT Y11 MI Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; No; Integer) { }
-        field(2; Grp; Code[10]) { }
-    }
-    keys
-    {
-        key(PK; No) { Clustered = true; }
-    }
-}
 
 table 91531 "LT Y11 MI Line"
 {
@@ -49,14 +34,14 @@ report 91532 "LT Y11 MI One"
 
     dataset
     {
-        dataitem(R; "LT Y11 MI Row")
+        dataitem(R; "ALT Shape 15")
         {
             MaxIteration = 1;
-            column(No; No) { }
+            column(No; Id) { }
 
             trigger OnAfterGetRecord()
             begin
-                Seen += Format(R.No) + ',';
+                Seen += Format(R.Id) + ',';
             end;
         }
     }
@@ -76,14 +61,14 @@ report 91533 "LT Y11 MI Three"
 
     dataset
     {
-        dataitem(R; "LT Y11 MI Row")
+        dataitem(R; "ALT Shape 15")
         {
             MaxIteration = 3;
-            column(No; No) { }
+            column(No; Id) { }
 
             trigger OnAfterGetRecord()
             begin
-                Seen += Format(R.No) + ',';
+                Seen += Format(R.Id) + ',';
             end;
         }
     }
@@ -103,14 +88,14 @@ report 91534 "LT Y11 MI Ten"
 
     dataset
     {
-        dataitem(R; "LT Y11 MI Row")
+        dataitem(R; "ALT Shape 15")
         {
             MaxIteration = 10;
-            column(No; No) { }
+            column(No; Id) { }
 
             trigger OnAfterGetRecord()
             begin
-                Seen += Format(R.No) + ',';
+                Seen += Format(R.Id) + ',';
             end;
         }
     }
@@ -130,15 +115,15 @@ report 91535 "LT Y11 MI View"
 
     dataset
     {
-        dataitem(R; "LT Y11 MI Row")
+        dataitem(R; "ALT Shape 15")
         {
-            DataItemTableView = sorting(No) where(Grp = const('B'));
+            DataItemTableView = sorting(Id) where(Grp = const('B'));
             MaxIteration = 2;
-            column(No; No) { }
+            column(No; Id) { }
 
             trigger OnAfterGetRecord()
             begin
-                Seen += Format(R.No) + ',';
+                Seen += Format(R.Id) + ',';
             end;
         }
     }
@@ -158,19 +143,19 @@ report 91536 "LT Y11 MI PreFilter"
 
     dataset
     {
-        dataitem(R; "LT Y11 MI Row")
+        dataitem(R; "ALT Shape 15")
         {
             MaxIteration = 2;
-            column(No; No) { }
+            column(No; Id) { }
 
             trigger OnPreDataItem()
             begin
-                R.SetFilter(No, '>=3');
+                R.SetFilter(Id, '>=3');
             end;
 
             trigger OnAfterGetRecord()
             begin
-                Seen += Format(R.No) + ',';
+                Seen += Format(R.Id) + ',';
             end;
         }
     }
@@ -190,15 +175,15 @@ report 91537 "LT Y11 MI Skip"
 
     dataset
     {
-        dataitem(R; "LT Y11 MI Row")
+        dataitem(R; "ALT Shape 15")
         {
             MaxIteration = 2;
-            column(No; No) { }
+            column(No; Id) { }
 
             trigger OnAfterGetRecord()
             begin
-                Seen += Format(R.No) + ',';
-                if R.No mod 2 = 1 then
+                Seen += Format(R.Id) + ',';
+                if R.Id mod 2 = 1 then
                     CurrReport.Skip();
             end;
         }
@@ -219,14 +204,14 @@ report 91538 "LT Y11 MI Nested"
 
     dataset
     {
-        dataitem(R; "LT Y11 MI Row")
+        dataitem(R; "ALT Shape 15")
         {
             MaxIteration = 2;
-            column(No; No) { }
+            column(No; Id) { }
 
             dataitem(L; "LT Y11 MI Line")
             {
-                DataItemLink = DocNo = field(No);
+                DataItemLink = DocNo = field(Id);
                 MaxIteration = 1;
                 column(LineNo; LineNo) { }
 
@@ -238,7 +223,7 @@ report 91538 "LT Y11 MI Nested"
 
             trigger OnAfterGetRecord()
             begin
-                Seen += 'R' + Format(R.No) + ',';
+                Seen += 'R' + Format(R.Id) + ',';
             end;
         }
     }
@@ -259,7 +244,7 @@ codeunit 91539 "LT Y11 MI Tests"
 
     local procedure Seed()
     var
-        Row: Record "LT Y11 MI Row";
+        Row: Record "ALT Shape 15";
         Line: Record "LT Y11 MI Line";
         i: Integer;
         j: Integer;
@@ -267,7 +252,7 @@ codeunit 91539 "LT Y11 MI Tests"
         Row.DeleteAll();
         Line.DeleteAll();
         for i := 1 to 5 do begin
-            Row.No := i;
+            Row.Id := i;
             if i in [2, 4, 5] then
                 Row.Grp := 'B'
             else

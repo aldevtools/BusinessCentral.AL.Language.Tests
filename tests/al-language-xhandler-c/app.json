@@ -1,0 +1,45 @@
+{
+  "id": "81c183d9-d0d9-43a4-b648-0216d57dd82a",
+  "name": "AL Language XHandler C",
+  "publisher": "Charlie Handler Publisher",
+  "version": "1.0.0.0",
+  "brief": "Cross-app default test handler fixture.",
+  "description": "Fixture of the cross-app DefaultTestHandler probes (al-runner 7181): AL Language XHandler C. Holds no tests; objects only exist on BC 29 and later.",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "platform": "27.0.0.0",
+  "application": "27.0.0.0",
+  "dependencies": [
+    {
+      "id": "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
+      "name": "System Application",
+      "publisher": "Microsoft",
+      "version": "27.0.0.0"
+    },
+    {
+      "id": "437dbf0e-84ff-417a-965d-ed2bb9650972",
+      "name": "Base Application",
+      "publisher": "Microsoft",
+      "version": "27.0.0.0"
+    },
+    {
+      "id": "7fa1f71f-c35e-44e8-8c90-87945e2e09d9",
+      "name": "AL Language XHandler Lib",
+      "publisher": "AL Language",
+      "version": "1.0.0.0"
+    }
+  ],
+  "screenshots": [],
+  "idRanges": [
+    {
+      "from": 97840,
+      "to": 97844
+    }
+  ],
+  "features": [],
+  "runtime": "18.0",
+  "target": "Cloud"
+}

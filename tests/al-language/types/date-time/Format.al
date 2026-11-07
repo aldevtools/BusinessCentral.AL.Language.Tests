@@ -1286,4 +1286,64 @@ codeunit 73804 "LT DtT Format"
         Observer.Expect('length -12', '[.078]');
         Observer.Verify();
     end;
+
+    // ---- <Second dec.> and its neighbours on the undefined DateTime 0DT (al-runner issue 6976): the strings of Y64Strings, and the
+    // reporter's ISO timestamp helper on 0DT and on a defined DateTime.
+    [Test]
+    procedure Y64_DateTime_Format_SecondDecPeriod_Undefined()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y64ObserveDateTime(Observer, '0DT_', 0DT);
+        Observer.Observe('0DT len 5', TuFormatDateTime(0DT, 5, '<Second dec.>'));
+        Observer.Observe('0DT thousands', TuFormatDateTime(0DT, 0, '<Thousands>'));
+        Observer.Expect('0DT_1', '[]');
+        Observer.Expect('0DT_2', '[]');
+        Observer.Expect('0DT_3', '[]');
+        Observer.Expect('0DT_4', '[]');
+        Observer.Expect('0DT_5', '[]');
+        Observer.Expect('0DT_6', '[]');
+        Observer.Expect('0DT_7', '[]');
+        Observer.Expect('0DT_8', '[]');
+        Observer.Expect('0DT_9', '[]');
+        Observer.Expect('0DT_10', '[]');
+        Observer.Expect('0DT_11', '[]');
+        Observer.Expect('0DT_12', '[]');
+        Observer.Expect('0DT_13', '[]');
+        Observer.Expect('0DT_14', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Second dec..> | InvalidFormatString');
+        Observer.Expect('0DT_15', '[]');
+        Observer.Expect('0DT len 5', '[     ]');
+        Observer.Expect('0DT thousands', '[]');
+        Observer.Verify();
+    end;
+
+    local procedure IsoDateTime(DT: DateTime) Result: Text[50]
+    var
+        MilliSec: Text[20];
+    begin
+        MilliSec := CopyStr(Format(DT, 0, '<Second dec.>'), 2, MaxStrLen(MilliSec));
+        Result := Format(DT, 0, '<Year4>-<Month,2>-<Day,2>T<Hours24,2>:<Minutes,2>:<Seconds,2>') + '.' + MilliSec;
+    end;
+
+    [Test]
+    procedure Y64_DateTime_SecondDecPeriod_IsoHelper()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('ms', '[' + IsoDateTime(CreateDateTime(20240305D, 134506.078T)) + ']');
+        Observer.Observe('no ms', '[' + IsoDateTime(CreateDateTime(20240305D, 090507T)) + ']');
+        Observer.Expect('ms', '[2024-03-05T13:45:06.078]');
+        Observer.Expect('no ms', '[2024-03-05T09:05:07.]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y64_DateTime_SecondDecPeriod_IsoHelperUndefined()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('undefined', '[' + IsoDateTime(0DT) + ']');
+        Observer.Expect('undefined', '[.]');
+        Observer.Verify();
+    end;
 }

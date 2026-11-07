@@ -301,4 +301,27 @@ codeunit 75510 "LT Y Report Props Tests"
         Observer.Expect('layouts', 'PlainLayout=Plain summary;SumLayout=English summary;');
         Observer.Verify();
     end;
+
+    // Writer P6924 (al-runtime-rs triage of issue 6924, row 2.18): EnableExternalImages = true and Report.SaveAs Xml. Reports 95270 (set)
+    // and 95271 (not set) have the same dataset (ExternalImagesReports.al). The DataItems part of the SaveAs Xml text is compared.
+    [Test]
+    procedure EnableExternalImages_SaveAsXml_SameAsWithout()
+    var
+        Observer: Codeunit "Probe Observer";
+        WithImages: Text;
+        Without: Text;
+    begin
+        WithImages := Helper.DataItemsXml(Report::"REP ExtImages On");
+        Without := Helper.DataItemsXml(Report::"REP ExtImages Off");
+        Observer.Observe('flag on', Helper.Facts(2000000139, 1, Report::"REP ExtImages On", 'EnableExternalImages'));
+        Observer.Observe('flag off', Helper.Facts(2000000139, 1, Report::"REP ExtImages Off", 'EnableExternalImages'));
+        Observer.Observe('same xml', Format(WithImages = Without));
+        Observer.Observe('xml with the property', Helper.AsciiOnly(WithImages));
+        // Observed on BC 27.5, 28.5 and 29.0: the property is in Report Metadata, and the SaveAs Xml dataset is the same with and without it.
+        Observer.Expect('flag on', 'EnableExternalImages=Yes;');
+        Observer.Expect('flag off', 'EnableExternalImages=No;');
+        Observer.Expect('same xml', 'Yes');
+        Observer.Expect('xml with the property', '<DataItems>|    <DataItem language="en-US" formatRegion="en-US" name="Row">|      <Columns>|        <Column name="NumCol">1</Column>|        <Column name="ImageUrl">https://example.com/images/1.png</Column>|        <Column name="AmtCol" decimalformatter="#,##0.00">1.5</Column>|        <Column name="DayCol">1/31/2025</Column>|      </Columns>|    </DataItem>|    <DataItem language="en-US" formatRegion="en-US" name="Row">|      <Columns>|        <Column name="NumCol">2</Column>|        <Column name="ImageUrl">https://example.com/images/2.png</Column>|        <Column name="AmtCol" decimalformatter="#,##0.00">3.0</Column>|        <Column name="DayCol">1/31/2025</Column>|      </Columns>|    </DataItem>|  </DataItems>|</ReportDataSet>|');
+        Observer.Verify();
+    end;
 }

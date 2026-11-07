@@ -24,34 +24,18 @@ table 74920 "LT P145 Row"
     }
 }
 
-table 74921 "LT P145 Log"
-{
-    DataClassification = CustomerContent;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Txt; Text[250]) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 codeunit 74922 "LT P145 Log Mgt"
 {
     procedure Clear()
     var
-        Log: Record "LT P145 Log";
+        Log: Record "ALT Shape 17";
     begin
         Log.DeleteAll();
     end;
 
     procedure Add(Value: Text)
     var
-        Log: Record "LT P145 Log";
+        Log: Record "ALT Shape 17";
         NextId: Integer;
     begin
         if Log.FindLast() then
@@ -64,7 +48,7 @@ codeunit 74922 "LT P145 Log Mgt"
 
     procedure Dump(): Text
     var
-        Log: Record "LT P145 Log";
+        Log: Record "ALT Shape 17";
         Result: Text;
     begin
         if Log.FindSet() then

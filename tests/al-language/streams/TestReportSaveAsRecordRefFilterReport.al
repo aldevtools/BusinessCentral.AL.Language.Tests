@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/report/report-saveas-method
 // Scope: in-scope
-// Fixtures used: SaveAs RecordRef Row (60577)
+// Fixtures used: "ALT Shape 04" (50004)
 //
 // A report shaped like a document report: it refuses to run unless its data item carries a
 // filter, the same guard Standard Sales - Invoice uses ("You must specify one or more
@@ -16,7 +16,7 @@ report 60578 "SaveAs RecordRef Document"
 
     dataset
     {
-        dataitem(Rows; "SaveAs RecordRef Row")
+        dataitem(Rows; "ALT Shape 04")
         {
             column(RowNo; "No.") { }
             column(RowName; Name) { }

@@ -10,7 +10,7 @@ The Record type: insert, modify, delete, get and find; filters; keys and sorting
 - `crud/`: Insert, Modify, Delete, Rename, Get, Find*, TransferFields, Copy and Init (44 AL files).
 - `curr-field-no/`: CurrFieldNo passed on (1 AL file).
 - `events/`: record and table events seen from the record (2 AL files).
-- `filters/`: SetRange, SetFilter, filter syntax and GetFilter(s) (31 AL files).
+- `filters/`: SetRange, SetFilter, filter syntax and GetFilter(s) (35 AL files).
 - `flowfields/`: FlowFields, CalcFields, CalcSums, CalcFormula and AutoCalcFields (20 AL files).
 - `keys-sorting/`: keys, SetCurrentKey, SetAscending and sort order (11 AL files).
 - `load-fields/`: SetLoadFields, AddLoadFields and AreFieldsLoaded (12 AL files).
@@ -21,7 +21,8 @@ The Record type: insert, modify, delete, get and find; filters; keys and sorting
 - `table-relation/`: TableRelation and its conditions (9 AL files).
 - `temporary/`: temporary records and tables (6 AL files).
 - `testfield/`: TestField and FieldError (29 AL files).
-- `transferfields-cross-app/`: TransferFields between tables of different apps (2 AL files).
+- `transferfields-cross-app/`: TransferFields between tables of different apps, and between fields of different apps (3 AL files).
+- `validate/`: Validate of a field with values of other types, through a Variant (1 AL file).
 - `views/`: SetView and GetView (5 AL files).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
@@ -61,3 +62,4 @@ These files assert line numbers or call stacks. Only append at the end of the co
 3. Use the shared fixtures. A local object needs a `// local object: <reason>` line.
 4. Name the folder after the topic, never after a writer, an issue or a batch.
 5. Never renumber a codeunit or rename a test. Read the standing rules in `CONTRIBUTING.md` first.
+`qualified-enum-filters/`: enum-qualified const/filter in CalcFormula and SourceTableView, with a plain-const control.
