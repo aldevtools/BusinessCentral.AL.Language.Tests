@@ -4,7 +4,7 @@
 // Probe: a pageextension publishes an event with IncludeSender = true from its OnAfterGetRecord trigger and a subscriber takes `Sender: Page "..."`.
 // Draft: observation form (Finish), values are filled in from the CI run.
 
-table 96981 "LT PS Row"
+table 96981 "LT PES Row"
 {
     DataClassification = SystemMetadata;
 
@@ -15,11 +15,11 @@ table 96981 "LT PS Row"
     }
     keys
     {
-        key(PK; PK) { Clustered = true; }
+        key(Pri; PK) { Clustered = true; }
     }
 }
 
-table 96985 "LT PS DocHead"
+table 96985 "LT PES DocHead"
 {
     DataClassification = SystemMetadata;
 
@@ -30,11 +30,11 @@ table 96985 "LT PS DocHead"
     }
     keys
     {
-        key(PK; No) { Clustered = true; }
+        key(Pri; No) { Clustered = true; }
     }
 }
 
-table 96986 "LT PS DocLine"
+table 96986 "LT PES DocLine"
 {
     DataClassification = SystemMetadata;
 
@@ -46,16 +46,16 @@ table 96986 "LT PS DocLine"
     }
     keys
     {
-        key(PK; DocNo, LineNo) { Clustered = true; }
+        key(Pri; DocNo, LineNo) { Clustered = true; }
     }
 }
 
-page 96980 "LT PS Card"
+page 96980 "LT PES Card"
 {
     PageType = Card;
-    SourceTable = "LT PS Row";
+    SourceTable = "LT PES Row";
     UsageCategory = None;
-    Caption = 'LT PS Card Caption';
+    Caption = 'LT PES Card Caption';
 
     layout
     {
@@ -90,7 +90,7 @@ page 96980 "LT PS Card"
     end;
 }
 
-pageextension 96987 "LT PS Card Ext" extends "LT PS Card"
+pageextension 96987 "LT PES Card Ext" extends "LT PES Card"
 {
     var
         ExtMark: Text;
@@ -121,10 +121,10 @@ pageextension 96987 "LT PS Card Ext" extends "LT PS Card"
     end;
 }
 
-page 96982 "LT PS List"
+page 96982 "LT PES List"
 {
     PageType = List;
-    SourceTable = "LT PS Row";
+    SourceTable = "LT PES Row";
     UsageCategory = None;
 
     layout
@@ -158,7 +158,7 @@ page 96982 "LT PS List"
     end;
 }
 
-pageextension 96988 "LT PS List Ext" extends "LT PS List"
+pageextension 96988 "LT PES List Ext" extends "LT PES List"
 {
     var
         ExtMark: Text;
@@ -189,10 +189,10 @@ pageextension 96988 "LT PS List Ext" extends "LT PS List"
     end;
 }
 
-page 96984 "LT PS Doc Lines"
+page 96984 "LT PES Doc Lines"
 {
     PageType = ListPart;
-    SourceTable = "LT PS DocLine";
+    SourceTable = "LT PES DocLine";
     UsageCategory = None;
 
     layout
@@ -226,7 +226,7 @@ page 96984 "LT PS Doc Lines"
     end;
 }
 
-pageextension 96990 "LT PS Doc Lines Ext" extends "LT PS Doc Lines"
+pageextension 96990 "LT PES Doc Lines Ext" extends "LT PES Doc Lines"
 {
     procedure GetExtRecDescr(): Text
     begin
@@ -244,10 +244,10 @@ pageextension 96990 "LT PS Doc Lines Ext" extends "LT PS Doc Lines"
     end;
 }
 
-page 96983 "LT PS Doc"
+page 96983 "LT PES Doc"
 {
     PageType = Document;
-    SourceTable = "LT PS DocHead";
+    SourceTable = "LT PES DocHead";
     UsageCategory = None;
 
     layout
@@ -256,7 +256,7 @@ page 96983 "LT PS Doc"
         {
             field(No; Rec.No) { ApplicationArea = All; }
             field(Name; Rec.Name) { ApplicationArea = All; }
-            part(Lines; "LT PS Doc Lines")
+            part(Lines; "LT PES Doc Lines")
             {
                 ApplicationArea = All;
                 SubPageLink = DocNo = field(No);
@@ -283,7 +283,7 @@ page 96983 "LT PS Doc"
     end;
 }
 
-pageextension 96989 "LT PS Doc Ext" extends "LT PS Doc"
+pageextension 96989 "LT PES Doc Ext" extends "LT PES Doc"
 {
     procedure GetExtRecName(): Text
     begin
@@ -301,16 +301,16 @@ pageextension 96989 "LT PS Doc Ext" extends "LT PS Doc"
     end;
 }
 
-codeunit 96991 "LT PS Log"
+codeunit 96991 "LT PES Log"
 {
     SingleInstance = true;
 
     var
         Lines: List of [Text];
-        HeldCard: Page "LT PS Card";
-        HeldList: Page "LT PS List";
-        HeldDoc: Page "LT PS Doc";
-        HeldLines: Page "LT PS Doc Lines";
+        HeldCard: Page "LT PES Card";
+        HeldList: Page "LT PES List";
+        HeldDoc: Page "LT PES Doc";
+        HeldLines: Page "LT PES Doc Lines";
 
     procedure Reset()
     begin
@@ -332,22 +332,22 @@ codeunit 96991 "LT PS Log"
         exit(Result);
     end;
 
-    procedure HoldCard(Sender: Page "LT PS Card")
+    procedure HoldCard(Sender: Page "LT PES Card")
     begin
         HeldCard := Sender;
     end;
 
-    procedure HoldList(Sender: Page "LT PS List")
+    procedure HoldList(Sender: Page "LT PES List")
     begin
         HeldList := Sender;
     end;
 
-    procedure HoldDoc(Sender: Page "LT PS Doc")
+    procedure HoldDoc(Sender: Page "LT PES Doc")
     begin
         HeldDoc := Sender;
     end;
 
-    procedure HoldLines(Sender: Page "LT PS Doc Lines")
+    procedure HoldLines(Sender: Page "LT PES Doc Lines")
     begin
         HeldLines := Sender;
     end;
@@ -395,53 +395,53 @@ codeunit 96991 "LT PS Log"
     end;
 }
 
-codeunit 96992 "LT PS Subscribers"
+codeunit 96992 "LT PES Subscribers"
 {
-    [EventSubscriber(ObjectType::Page, Page::"LT PS Card", 'OnRowRead', '', false, false)]
-    local procedure OnCardRow(Sender: Page "LT PS Card"; RowKey: Code[10])
+    [EventSubscriber(ObjectType::Page, Page::"LT PES Card", 'OnRowRead', '', false, false)]
+    local procedure OnCardRow(Sender: Page "LT PES Card"; RowKey: Code[10])
     var
-        Log: Codeunit "LT PS Log";
+        Log: Codeunit "LT PES Log";
     begin
         Log.HoldCard(Sender);
         Log.Add('card|key=' + RowKey + '|rec=' + Sender.GetRecName() + '|ext=' + Sender.GetExtRecName() + '|base_mark=' + Sender.GetBaseMark() + '|ext_mark=' + Sender.GetExtMark() + '|caption=' + Sender.GetCurrPageCaption());
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"LT PS List", 'OnRowRead', '', false, false)]
-    local procedure OnListRow(Sender: Page "LT PS List"; RowKey: Code[10])
+    [EventSubscriber(ObjectType::Page, Page::"LT PES List", 'OnRowRead', '', false, false)]
+    local procedure OnListRow(Sender: Page "LT PES List"; RowKey: Code[10])
     var
-        Log: Codeunit "LT PS Log";
+        Log: Codeunit "LT PES Log";
     begin
         Log.HoldList(Sender);
         Log.Add('list|key=' + RowKey + '|rec=' + Sender.GetRecName() + '|ext=' + Sender.GetExtRecName() + '|base_mark=' + Sender.GetBaseMark() + '|ext_mark=' + Sender.GetExtMark());
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"LT PS Doc", 'OnHeadRead', '', false, false)]
-    local procedure OnHeadRow(Sender: Page "LT PS Doc"; HeadNo: Code[10])
+    [EventSubscriber(ObjectType::Page, Page::"LT PES Doc", 'OnHeadRead', '', false, false)]
+    local procedure OnHeadRow(Sender: Page "LT PES Doc"; HeadNo: Code[10])
     var
-        Log: Codeunit "LT PS Log";
+        Log: Codeunit "LT PES Log";
     begin
         Log.HoldDoc(Sender);
         Log.Add('head|no=' + HeadNo + '|rec=' + Sender.GetRecName() + '|ext=' + Sender.GetExtRecName() + '|base_mark=' + Sender.GetBaseMark());
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"LT PS Doc Lines", 'OnLineRead', '', false, false)]
-    local procedure OnLineRow(Sender: Page "LT PS Doc Lines"; LineDocNo: Code[10]; LineNumber: Integer)
+    [EventSubscriber(ObjectType::Page, Page::"LT PES Doc Lines", 'OnLineRead', '', false, false)]
+    local procedure OnLineRow(Sender: Page "LT PES Doc Lines"; LineDocNo: Code[10]; LineNumber: Integer)
     var
-        Log: Codeunit "LT PS Log";
+        Log: Codeunit "LT PES Log";
     begin
         Log.HoldLines(Sender);
         Log.Add('line|doc=' + LineDocNo + '|line=' + Format(LineNumber) + '|rec=' + Sender.GetRecDescr() + '|ext=' + Sender.GetExtRecDescr() + '|base_mark=' + Sender.GetBaseMark());
     end;
 }
 
-codeunit 96993 "LT PS Page Extension Sender"
+codeunit 96993 "LT PES Page Extension Sender"
 {
     Subtype = Test;
     TestPermissions = Disabled;
 
     local procedure SeedRows()
     var
-        Row: Record "LT PS Row";
+        Row: Record "LT PES Row";
     begin
         Row.DeleteAll();
         Row.Init();
@@ -458,8 +458,8 @@ codeunit 96993 "LT PS Page Extension Sender"
 
     local procedure SeedDoc()
     var
-        Head: Record "LT PS DocHead";
-        Line: Record "LT PS DocLine";
+        Head: Record "LT PES DocHead";
+        Line: Record "LT PES DocLine";
     begin
         Head.DeleteAll();
         Line.DeleteAll();
@@ -488,8 +488,8 @@ codeunit 96993 "LT PS Page Extension Sender"
     procedure Card_SubscriberSeesSender()
     var
         Observer: Codeunit "Probe Observer";
-        Log: Codeunit "LT PS Log";
-        Card: TestPage "LT PS Card";
+        Log: Codeunit "LT PES Log";
+        Card: TestPage "LT PES Card";
     begin
         SeedRows();
         Log.Reset();
@@ -505,8 +505,8 @@ codeunit 96993 "LT PS Page Extension Sender"
     procedure Card_HeldSender_CallsWhileOpen()
     var
         Observer: Codeunit "Probe Observer";
-        Log: Codeunit "LT PS Log";
-        Card: TestPage "LT PS Card";
+        Log: Codeunit "LT PES Log";
+        Card: TestPage "LT PES Card";
     begin
         SeedRows();
         Log.Reset();
@@ -529,8 +529,8 @@ codeunit 96993 "LT PS Page Extension Sender"
     procedure Card_HeldSender_AfterClose()
     var
         Observer: Codeunit "Probe Observer";
-        Log: Codeunit "LT PS Log";
-        Card: TestPage "LT PS Card";
+        Log: Codeunit "LT PES Log";
+        Card: TestPage "LT PES Card";
         Result: Text;
     begin
         SeedRows();
@@ -549,9 +549,9 @@ codeunit 96993 "LT PS Page Extension Sender"
     procedure Card_TwoPagesTwoSenders()
     var
         Observer: Codeunit "Probe Observer";
-        Log: Codeunit "LT PS Log";
-        First: TestPage "LT PS Card";
-        Second: TestPage "LT PS Card";
+        Log: Codeunit "LT PES Log";
+        First: TestPage "LT PES Card";
+        Second: TestPage "LT PES Card";
     begin
         SeedRows();
         Log.Reset();
@@ -573,8 +573,8 @@ codeunit 96993 "LT PS Page Extension Sender"
     procedure List_SenderPerRow()
     var
         Observer: Codeunit "Probe Observer";
-        Log: Codeunit "LT PS Log";
-        ListPage: TestPage "LT PS List";
+        Log: Codeunit "LT PES Log";
+        ListPage: TestPage "LT PES List";
     begin
         SeedRows();
         Log.Reset();
@@ -600,8 +600,8 @@ codeunit 96993 "LT PS Page Extension Sender"
     procedure Document_HeaderAndLinesSenders()
     var
         Observer: Codeunit "Probe Observer";
-        Log: Codeunit "LT PS Log";
-        Doc: TestPage "LT PS Doc";
+        Log: Codeunit "LT PES Log";
+        Doc: TestPage "LT PES Doc";
     begin
         SeedDoc();
         Log.Reset();
