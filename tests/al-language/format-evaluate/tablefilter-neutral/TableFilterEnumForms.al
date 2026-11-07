@@ -931,4 +931,11 @@ codeunit 95454 "LT R6951 Tests"
         Ref.Close();
     end;
 
+
+    [Test]
+    procedure TableFilter_Evaluate_CodeExclusions_LeavesOtherRow()
+    begin
+        Initialize();
+        CheckCommaTableFilter('Code Field=<>CORP01&<>CORP02', 1, 101, 101);
+    end;
 }

@@ -154,4 +154,55 @@ codeunit 69478 "REC Enum Const Tests"
         Row."Text Field" := 'QUALIFIED-42';
         Row.Insert(false);
     end;
+
+    [Test]
+    procedure SubPageView_QualifiedEnumConst_OpensActiveRow()
+    var
+        View: TestPage "REC Enum Const Host";
+    begin
+        Initialize();
+        View.OpenView();
+        View.Lines.First();
+        View.Lines.EntryNo.AssertEquals(202);
+        View.Lines.Value.AssertEquals('QUALIFIED-42');
+        if View.Lines.Next() then
+            Error('Expected just the active row.');
+        View.Close();
+    end;
+}
+
+// local object: the qualified SubPageView property is declared on the host.
+page 69996 "REC Enum Const Host"
+{
+    PageType = Card;
+    SourceTable = "ALT Universal";
+    layout
+    {
+        area(Content)
+        {
+            part(Lines; "REC Enum Const Part")
+            {
+                ApplicationArea = All;
+                SubPageView = where("Status Field" = const("ALT Status"::Active));
+            }
+        }
+    }
+}
+
+// local object: the part leaves its view unrestricted so the host property supplies the filter.
+page 69997 "REC Enum Const Part"
+{
+    PageType = ListPart;
+    SourceTable = "ALT Universal";
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(EntryNo; Rec."Entry No.") { ApplicationArea = All; }
+                field(Value; Rec."Text Field") { ApplicationArea = All; }
+            }
+        }
+    }
 }
