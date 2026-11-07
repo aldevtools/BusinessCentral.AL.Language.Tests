@@ -589,6 +589,30 @@ reportextension 95361 "RPT ExtBind Ext" extends "RPT ExtBind Base"
 // Base report 97040: request page control BaseCtl on BaseVal only; NoCtlVal and NoCtlText are protected variables with no base control.
 // Extension 97041 adds controls: ExtNoCtl (NoCtlVal), ExtNoCtlText (NoCtlText), ExtItemCtl (ExtItem.Name, ExtItem is a data item the
 // extension adds below BaseRow), ExtRowCtl (BaseRow.Name), ExtRecCtl (ExtRec.Name, a record variable of the extension), ExtOwnCtl (OwnVal).
+// Facts (BC 29.0 on the corpus CI, then checked on the matrix): see the asserted values below. The values of all extension controls are written
+//   to the parameters text under the variable names (BaseRow.Name, ExtItem.Name, ExtRec.Name), and Report.Execute reads them back by those names only.
+
+codeunit 97043 "LT W9 RpExt Log"
+{
+    SingleInstance = true;
+
+    var
+        Entries: Text;
+
+    procedure Add(Entry: Text)
+    begin
+        Entries += Entry + ';';
+    end;
+
+    procedure Take(): Text
+    var
+        Result: Text;
+    begin
+        Result := Entries;
+        Entries := '';
+        exit(Result);
+    end;
+}
 
 report 97040 "LT W9 RpExt Base"
 {
@@ -634,7 +658,7 @@ report 97040 "LT W9 RpExt Base"
         NoCtlText: Text[30];
 
     var
-        ExtLog: Codeunit "W3 RpExt Log";
+        ExtLog: Codeunit "LT W9 RpExt Log";
 
     trigger OnPreReport()
     begin
@@ -708,7 +732,7 @@ reportextension 97041 "LT W9 RpExt Ext" extends "LT W9 RpExt Base"
     var
         OwnVal: Integer;
         ExtRec: Record "W3 Row";
-        ExtLog: Codeunit "W3 RpExt Log";
+        ExtLog: Codeunit "LT W9 RpExt Log";
 
     trigger OnPreReport()
     begin
@@ -722,8 +746,9 @@ codeunit 97042 "LT W9 RpExt Controls"
     TestPermissions = Disabled;
 
     var
-        ExtLog: Codeunit "W3 RpExt Log";
+        ExtLog: Codeunit "LT W9 RpExt Log";
         Dataset: Codeunit "W3 Dataset";
+        Observer: Codeunit "Probe Observer";
 
     local procedure Seed()
     var
@@ -746,13 +771,10 @@ codeunit 97042 "LT W9 RpExt Controls"
     end;
 
     local procedure ObserveParameters(Parameters: Text)
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('options', Dataset.Between(Parameters, '<Options>', '</Options>'));
         Observer.Observe('dataitems', Dataset.Between(Parameters, '<DataItems>', '</DataItems>'));
         Observer.Observe('log', ExtLog.Take());
-        Observer.Finish();
     end;
 
     // 1. Controls on variables the base page has no control for.
@@ -762,6 +784,10 @@ codeunit 97042 "LT W9 RpExt Controls"
     begin
         Seed();
         ObserveParameters(Report.RunRequestPage(Report::"LT W9 RpExt Base"));
+        Observer.Expect('options', '<Field name="BaseVal">0</Field><Field name="NoCtlVal">4</Field><Field name="NoCtlText" /><Field name="ExtItem.Name" /><Field name="BaseRow.Name" /><Field name="ExtRec.Name" /><Field name="OwnVal">0</Field>');
+        Observer.Expect('dataitems', '<DataItem name="BaseRow">VERSION(1) SORTING(Field1)</DataItem><DataItem name="ExtItem">VERSION(1) SORTING(Field1)</DataItem>');
+        Observer.Expect('log', 'open: base=[0] noCtl=[0] noCtlText=[] item=[] row=[] rec=[] own=[0];noCtl=4: base=[0] noCtl=[4] noCtlText=[] item=[] row=[] rec=[] own=[0];');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -779,6 +805,10 @@ codeunit 97042 "LT W9 RpExt Controls"
     begin
         Seed();
         ObserveParameters(Report.RunRequestPage(Report::"LT W9 RpExt Base"));
+        Observer.Expect('options', '<Field name="BaseVal">0</Field><Field name="NoCtlVal">4</Field><Field name="NoCtlText">abc</Field><Field name="ExtItem.Name" /><Field name="BaseRow.Name" /><Field name="ExtRec.Name" /><Field name="OwnVal">0</Field>');
+        Observer.Expect('dataitems', '<DataItem name="BaseRow">VERSION(1) SORTING(Field1)</DataItem><DataItem name="ExtItem">VERSION(1) SORTING(Field1)</DataItem>');
+        Observer.Expect('log', 'both: base=[0] noCtl=[4] noCtlText=[abc] item=[] row=[] rec=[] own=[0];');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -796,6 +826,10 @@ codeunit 97042 "LT W9 RpExt Controls"
     begin
         Seed();
         ObserveParameters(Report.RunRequestPage(Report::"LT W9 RpExt Base"));
+        Observer.Expect('options', '<Field name="BaseVal">0</Field><Field name="NoCtlVal">0</Field><Field name="NoCtlText" /><Field name="ExtItem.Name" /><Field name="BaseRow.Name" /><Field name="ExtRec.Name" /><Field name="OwnVal">0</Field>');
+        Observer.Expect('dataitems', '<DataItem name="BaseRow">VERSION(1) SORTING(Field1)</DataItem><DataItem name="ExtItem">VERSION(1) SORTING(Field1)</DataItem>');
+        Observer.Expect('log', 'open: base=[0] noCtl=[0] noCtlText=[] item=[] row=[] rec=[] own=[0];');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -808,13 +842,12 @@ codeunit 97042 "LT W9 RpExt Controls"
     [Test]
     [HandlerFunctions('NoCtlBothHandler')]
     procedure Run_NoBaseControl_ReachesTheRun()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         Seed();
         Report.Run(Report::"LT W9 RpExt Base");
         Observer.Observe('log', ExtLog.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'both: base=[0] noCtl=[4] noCtlText=[abc] item=[] row=[] rec=[] own=[0];base PreReport base=0 noCtl=4 noCtlText=abc row=;ext PreReport own=0 rec= item=;base PreDataItem name=;base Row 1;ext PreDataItem name=;ext Item 1;base Row 2;ext PreDataItem name=first;ext Item 2;');
+        Observer.Verify();
     end;
 
     // 2. A control on a data item the extension adds.
@@ -824,6 +857,10 @@ codeunit 97042 "LT W9 RpExt Controls"
     begin
         Seed();
         ObserveParameters(Report.RunRequestPage(Report::"LT W9 RpExt Base"));
+        Observer.Expect('options', '<Field name="BaseVal">0</Field><Field name="NoCtlVal">0</Field><Field name="NoCtlText" /><Field name="ExtItem.Name">typed</Field><Field name="BaseRow.Name" /><Field name="ExtRec.Name" /><Field name="OwnVal">0</Field>');
+        Observer.Expect('dataitems', '<DataItem name="BaseRow">VERSION(1) SORTING(Field1)</DataItem><DataItem name="ExtItem">VERSION(1) SORTING(Field1)</DataItem>');
+        Observer.Expect('log', 'open: base=[0] noCtl=[0] noCtlText=[] item=[] row=[] rec=[] own=[0];item=typed: base=[0] noCtl=[0] noCtlText=[] item=[typed] row=[] rec=[] own=[0];');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -838,13 +875,12 @@ codeunit 97042 "LT W9 RpExt Controls"
     [Test]
     [HandlerFunctions('ItemHandler')]
     procedure Run_ControlOnAddedDataItem_ReachesTheRun()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         Seed();
         Report.Run(Report::"LT W9 RpExt Base");
         Observer.Observe('log', ExtLog.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'open: base=[0] noCtl=[0] noCtlText=[] item=[] row=[] rec=[] own=[0];item=typed: base=[0] noCtl=[0] noCtlText=[] item=[typed] row=[] rec=[] own=[0];base PreReport base=0 noCtl=0 noCtlText= row=;ext PreReport own=0 rec= item=typed;base PreDataItem name=;base Row 1;ext PreDataItem name=typed;ext Item 1;base Row 2;ext PreDataItem name=first;ext Item 2;');
+        Observer.Verify();
     end;
 
     // 3. Source expressions other than a field of a data item or a plain variable: a field of a record variable of the extension.
@@ -854,6 +890,10 @@ codeunit 97042 "LT W9 RpExt Controls"
     begin
         Seed();
         ObserveParameters(Report.RunRequestPage(Report::"LT W9 RpExt Base"));
+        Observer.Expect('options', '<Field name="BaseVal">0</Field><Field name="NoCtlVal">0</Field><Field name="NoCtlText" /><Field name="ExtItem.Name" /><Field name="BaseRow.Name">viaRow</Field><Field name="ExtRec.Name">viaRec</Field><Field name="OwnVal">7</Field>');
+        Observer.Expect('dataitems', '<DataItem name="BaseRow">VERSION(1) SORTING(Field1)</DataItem><DataItem name="ExtItem">VERSION(1) SORTING(Field1)</DataItem>');
+        Observer.Expect('log', 'rec: base=[0] noCtl=[0] noCtlText=[] item=[] row=[viaRow] rec=[viaRec] own=[7];');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -869,19 +909,17 @@ codeunit 97042 "LT W9 RpExt Controls"
     [Test]
     [HandlerFunctions('RecHandler')]
     procedure Run_ControlOnRecordVariableField_ReachesTheRun()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         Seed();
         Report.Run(Report::"LT W9 RpExt Base");
         Observer.Observe('log', ExtLog.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'rec: base=[0] noCtl=[0] noCtlText=[] item=[] row=[viaRow] rec=[viaRec] own=[7];base PreReport base=0 noCtl=0 noCtlText= row=viaRow;ext PreReport own=7 rec=viaRec item=;base PreDataItem name=viaRow;base Row 1;ext PreDataItem name=;ext Item 1;base Row 2;ext PreDataItem name=first;ext Item 2;');
+        Observer.Verify();
     end;
 
     // 4. The same controls set through a parameters text, by control name and by variable name (no request page handler: the page is not shown).
     local procedure ExecuteWith(Options: Text; Items: Text)
     var
-        Observer: Codeunit "Probe Observer";
         Parameters: Text;
     begin
         Seed();
@@ -891,7 +929,6 @@ codeunit 97042 "LT W9 RpExt Controls"
         Observer.Observe('ok', Format(TryExecute(Parameters)));
         Observer.ObserveError('execute');
         Observer.Observe('log', ExtLog.Take());
-        Observer.Finish();
     end;
 
     [TryFunction]
@@ -904,42 +941,71 @@ codeunit 97042 "LT W9 RpExt Controls"
     procedure Execute_ParametersText_ControlNames()
     begin
         ExecuteWith('<Field name="ExtNoCtl">4</Field><Field name="ExtNoCtlText">abc</Field><Field name="ExtItemCtl">typed</Field><Field name="ExtRowCtl">viaRow</Field><Field name="ExtRecCtl">viaRec</Field><Field name="ExtOwnCtl">7</Field>', '');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('execute|text', '');
+        Observer.Expect('execute|code', '');
+        Observer.Expect('log', 'base PreReport base=0 noCtl=0 noCtlText= row=;ext PreReport own=0 rec= item=;base PreDataItem name=;base Row 1;ext PreDataItem name=;ext Item 1;base Row 2;ext PreDataItem name=first;ext Item 2;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Execute_ParametersText_VariableNames()
     begin
         ExecuteWith('<Field name="NoCtlVal">4</Field><Field name="NoCtlText">abc</Field><Field name="ExtItem.Name">typed</Field><Field name="BaseRow.Name">viaRow</Field><Field name="ExtRec.Name">viaRec</Field><Field name="OwnVal">7</Field>', '');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('execute|text', '');
+        Observer.Expect('execute|code', '');
+        Observer.Expect('log', 'base PreReport base=0 noCtl=4 noCtlText=abc row=viaRow;ext PreReport own=7 rec=viaRec item=typed;base PreDataItem name=viaRow;base Row 1;ext PreDataItem name=typed;ext Item 1;base Row 2;ext PreDataItem name=first;ext Item 2;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Execute_ParametersText_DataItemFieldOnly_ByControlName()
     begin
         ExecuteWith('<Field name="ExtItemCtl">typed</Field>', '');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('execute|text', '');
+        Observer.Expect('execute|code', '');
+        Observer.Expect('log', 'base PreReport base=0 noCtl=0 noCtlText= row=;ext PreReport own=0 rec= item=;base PreDataItem name=;base Row 1;ext PreDataItem name=;ext Item 1;base Row 2;ext PreDataItem name=first;ext Item 2;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Execute_ParametersText_DataItemFieldOnly_ByDataItemField()
     begin
         ExecuteWith('<Field name="ExtItem.Name">typed</Field>', '');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('execute|text', '');
+        Observer.Expect('execute|code', '');
+        Observer.Expect('log', 'base PreReport base=0 noCtl=0 noCtlText= row=;ext PreReport own=0 rec= item=typed;base PreDataItem name=;base Row 1;ext PreDataItem name=typed;ext Item 1;base Row 2;ext PreDataItem name=first;ext Item 2;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Execute_ParametersText_BaseRowFieldOnly_ByControlName()
     begin
         ExecuteWith('<Field name="ExtRowCtl">viaRow</Field>', '');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('execute|text', '');
+        Observer.Expect('execute|code', '');
+        Observer.Expect('log', 'base PreReport base=0 noCtl=0 noCtlText= row=;ext PreReport own=0 rec= item=;base PreDataItem name=;base Row 1;ext PreDataItem name=;ext Item 1;base Row 2;ext PreDataItem name=first;ext Item 2;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Execute_ParametersText_BaseRowFieldOnly_ByDataItemField()
     begin
         ExecuteWith('<Field name="BaseRow.Name">viaRow</Field>', '');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('execute|text', '');
+        Observer.Expect('execute|code', '');
+        Observer.Expect('log', 'base PreReport base=0 noCtl=0 noCtlText= row=viaRow;ext PreReport own=0 rec= item=;base PreDataItem name=viaRow;base Row 1;ext PreDataItem name=;ext Item 1;base Row 2;ext PreDataItem name=first;ext Item 2;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure SaveAs_ParametersText_DataItemFieldControl()
     var
-        Observer: Codeunit "Probe Observer";
         Xml: Text;
         Ok: Boolean;
     begin
@@ -950,6 +1016,11 @@ codeunit 97042 "LT W9 RpExt Controls"
         Observer.ObserveError('saveas');
         Observer.Observe('xml', Xml);
         Observer.Observe('log', ExtLog.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'No');
+        Observer.Expect('saveas|text', 'Report 97040 is a processing-only report. Output cannot be rendered and saved to a file.');
+        Observer.Expect('saveas|code', 'ReportProcessingOnly');
+        Observer.Expect('xml', '');
+        Observer.Expect('log', '');
+        Observer.Verify();
     end;
 }
