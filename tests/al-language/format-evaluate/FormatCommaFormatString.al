@@ -13,6 +13,10 @@
 // Writer TV (2026-10-29, TV_* tests): <Precision,0:B> with B above 18 (0:19, 0:26, 0:28) and 26:26, alone and before <Standard Format,N>.
 //   Not asserted: B of 29 or more raises a CLR ArgumentOutOfRangeException ("Decimal can only round to between 0 and 28 digits") that a TryFunction
 //   does not catch (BC 29 SaaS sandbox, 2026-10-29).
+// Writer VQ (al-runner 6924, Vq_* tests): <Precision,A:B><Integer><Decimals> and <Integer Thousand> without a standard format, for A:B 2:5, 0:5, 1:5 and 4:6
+//   on 12, 12.5, 1.23456, 1.234565, 99999.999995, -3.5, -0.000001 and 0; <Sign> before <Precision>, before <Integer> and at the end; and the same
+//   format on a Decimal variable and on table fields (plain, DecimalPlaces 0:5, AutoFormatType 1). Without <Sign> a negative value loses its sign.
+//   <Sign> in front of <Precision> drops the precision (12 stays 12). The three kinds of source give the same text. Same result on 27, 28 and 29.
 // BC versions: 27, 28, 29
 
 codeunit 74320 "LT FCF Format Comma String"
@@ -778,7 +782,23 @@ codeunit 74320 "LT FCF Format Comma String"
     begin
         VqObserve(Observer, '2:5', 1);
         VqObserve(Observer, '2:5', 2);
-        Observer.Finish();
+        Observer.Expect('12 2:5 s1', 'ok:12.00');
+        Observer.Expect('12.5 2:5 s1', 'ok:12.50');
+        Observer.Expect('1.23456 2:5 s1', 'ok:1.23456');
+        Observer.Expect('1.234565 2:5 s1', 'ok:1.23457');
+        Observer.Expect('99999.999995 2:5 s1', 'ok:100000.00');
+        Observer.Expect('-3.5 2:5 s1', 'ok:3.50');
+        Observer.Expect('-0.000001 2:5 s1', 'ok:0.00');
+        Observer.Expect('0 2:5 s1', 'ok:0.00');
+        Observer.Expect('12 2:5 s2', 'ok:12.00');
+        Observer.Expect('12.5 2:5 s2', 'ok:12.50');
+        Observer.Expect('1.23456 2:5 s2', 'ok:1.23456');
+        Observer.Expect('1.234565 2:5 s2', 'ok:1.23457');
+        Observer.Expect('99999.999995 2:5 s2', 'ok:100,000.00');
+        Observer.Expect('-3.5 2:5 s2', 'ok:3.50');
+        Observer.Expect('-0.000001 2:5 s2', 'ok:0.00');
+        Observer.Expect('0 2:5 s2', 'ok:0.00');
+        Observer.Verify();
     end;
 
     [Test]
@@ -788,7 +808,23 @@ codeunit 74320 "LT FCF Format Comma String"
     begin
         VqObserve(Observer, '0:5', 1);
         VqObserve(Observer, '0:5', 2);
-        Observer.Finish();
+        Observer.Expect('12 0:5 s1', 'ok:12');
+        Observer.Expect('12.5 0:5 s1', 'ok:12.5');
+        Observer.Expect('1.23456 0:5 s1', 'ok:1.23456');
+        Observer.Expect('1.234565 0:5 s1', 'ok:1.23457');
+        Observer.Expect('99999.999995 0:5 s1', 'ok:100000');
+        Observer.Expect('-3.5 0:5 s1', 'ok:3.5');
+        Observer.Expect('-0.000001 0:5 s1', 'ok:0');
+        Observer.Expect('0 0:5 s1', 'ok:0');
+        Observer.Expect('12 0:5 s2', 'ok:12');
+        Observer.Expect('12.5 0:5 s2', 'ok:12.5');
+        Observer.Expect('1.23456 0:5 s2', 'ok:1.23456');
+        Observer.Expect('1.234565 0:5 s2', 'ok:1.23457');
+        Observer.Expect('99999.999995 0:5 s2', 'ok:100,000');
+        Observer.Expect('-3.5 0:5 s2', 'ok:3.5');
+        Observer.Expect('-0.000001 0:5 s2', 'ok:0');
+        Observer.Expect('0 0:5 s2', 'ok:0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -798,7 +834,23 @@ codeunit 74320 "LT FCF Format Comma String"
     begin
         VqObserve(Observer, '1:5', 1);
         VqObserve(Observer, '1:5', 2);
-        Observer.Finish();
+        Observer.Expect('12 1:5 s1', 'ok:12.0');
+        Observer.Expect('12.5 1:5 s1', 'ok:12.5');
+        Observer.Expect('1.23456 1:5 s1', 'ok:1.23456');
+        Observer.Expect('1.234565 1:5 s1', 'ok:1.23457');
+        Observer.Expect('99999.999995 1:5 s1', 'ok:100000.0');
+        Observer.Expect('-3.5 1:5 s1', 'ok:3.5');
+        Observer.Expect('-0.000001 1:5 s1', 'ok:0.0');
+        Observer.Expect('0 1:5 s1', 'ok:0.0');
+        Observer.Expect('12 1:5 s2', 'ok:12.0');
+        Observer.Expect('12.5 1:5 s2', 'ok:12.5');
+        Observer.Expect('1.23456 1:5 s2', 'ok:1.23456');
+        Observer.Expect('1.234565 1:5 s2', 'ok:1.23457');
+        Observer.Expect('99999.999995 1:5 s2', 'ok:100,000.0');
+        Observer.Expect('-3.5 1:5 s2', 'ok:3.5');
+        Observer.Expect('-0.000001 1:5 s2', 'ok:0.0');
+        Observer.Expect('0 1:5 s2', 'ok:0.0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -808,7 +860,23 @@ codeunit 74320 "LT FCF Format Comma String"
     begin
         VqObserve(Observer, '4:6', 1);
         VqObserve(Observer, '4:6', 2);
-        Observer.Finish();
+        Observer.Expect('12 4:6 s1', 'ok:12.0000');
+        Observer.Expect('12.5 4:6 s1', 'ok:12.5000');
+        Observer.Expect('1.23456 4:6 s1', 'ok:1.23456');
+        Observer.Expect('1.234565 4:6 s1', 'ok:1.234565');
+        Observer.Expect('99999.999995 4:6 s1', 'ok:99999.999995');
+        Observer.Expect('-3.5 4:6 s1', 'ok:3.5000');
+        Observer.Expect('-0.000001 4:6 s1', 'ok:0.000001');
+        Observer.Expect('0 4:6 s1', 'ok:0.0000');
+        Observer.Expect('12 4:6 s2', 'ok:12.0000');
+        Observer.Expect('12.5 4:6 s2', 'ok:12.5000');
+        Observer.Expect('1.23456 4:6 s2', 'ok:1.23456');
+        Observer.Expect('1.234565 4:6 s2', 'ok:1.234565');
+        Observer.Expect('99999.999995 4:6 s2', 'ok:99,999.999995');
+        Observer.Expect('-3.5 4:6 s2', 'ok:3.5000');
+        Observer.Expect('-0.000001 4:6 s2', 'ok:0.000001');
+        Observer.Expect('0 4:6 s2', 'ok:0.0000');
+        Observer.Verify();
     end;
 
     [Test]
@@ -819,7 +887,31 @@ codeunit 74320 "LT FCF Format Comma String"
         VqObserve(Observer, '2:5', 3);
         VqObserve(Observer, '2:5', 4);
         VqObserve(Observer, '2:5', 5);
-        Observer.Finish();
+        Observer.Expect('12 2:5 s3', 'ok:12');
+        Observer.Expect('12.5 2:5 s3', 'ok:12.5');
+        Observer.Expect('1.23456 2:5 s3', 'ok:1.23456');
+        Observer.Expect('1.234565 2:5 s3', 'ok:1.234565');
+        Observer.Expect('99999.999995 2:5 s3', 'ok:99999.999995');
+        Observer.Expect('-3.5 2:5 s3', 'ok:-3.5');
+        Observer.Expect('-0.000001 2:5 s3', 'ok:-0.000001');
+        Observer.Expect('0 2:5 s3', 'ok:0');
+        Observer.Expect('12 2:5 s4', 'ok:12.00');
+        Observer.Expect('12.5 2:5 s4', 'ok:12.50');
+        Observer.Expect('1.23456 2:5 s4', 'ok:1.23456');
+        Observer.Expect('1.234565 2:5 s4', 'ok:1.23457');
+        Observer.Expect('99999.999995 2:5 s4', 'ok:100000.00');
+        Observer.Expect('-3.5 2:5 s4', 'ok:-3.50');
+        Observer.Expect('-0.000001 2:5 s4', 'ok:-0.00');
+        Observer.Expect('0 2:5 s4', 'ok:0.00');
+        Observer.Expect('12 2:5 s5', 'ok:12.00');
+        Observer.Expect('12.5 2:5 s5', 'ok:12.50');
+        Observer.Expect('1.23456 2:5 s5', 'ok:1.23456');
+        Observer.Expect('1.234565 2:5 s5', 'ok:1.23457');
+        Observer.Expect('99999.999995 2:5 s5', 'ok:100000.00');
+        Observer.Expect('-3.5 2:5 s5', 'ok:3.50-');
+        Observer.Expect('-0.000001 2:5 s5', 'ok:0.00-');
+        Observer.Expect('0 2:5 s5', 'ok:0.00');
+        Observer.Verify();
     end;
 
     [Test]
@@ -830,7 +922,31 @@ codeunit 74320 "LT FCF Format Comma String"
         VqObserve(Observer, '2:5', 6);
         VqObserve(Observer, '2:5', 7);
         VqObserve(Observer, '2:5', 8);
-        Observer.Finish();
+        Observer.Expect('12 2:5 s6', 'ok:12');
+        Observer.Expect('12.5 2:5 s6', 'ok:12.5');
+        Observer.Expect('1.23456 2:5 s6', 'ok:1.23456');
+        Observer.Expect('1.234565 2:5 s6', 'ok:1.234565');
+        Observer.Expect('99999.999995 2:5 s6', 'ok:99,999.999995');
+        Observer.Expect('-3.5 2:5 s6', 'ok:-3.5');
+        Observer.Expect('-0.000001 2:5 s6', 'ok:-0.000001');
+        Observer.Expect('0 2:5 s6', 'ok:0');
+        Observer.Expect('12 2:5 s7', 'ok:12.00');
+        Observer.Expect('12.5 2:5 s7', 'ok:12.50');
+        Observer.Expect('1.23456 2:5 s7', 'ok:1.23456');
+        Observer.Expect('1.234565 2:5 s7', 'ok:1.23457');
+        Observer.Expect('99999.999995 2:5 s7', 'ok:100,000.00');
+        Observer.Expect('-3.5 2:5 s7', 'ok:-3.50');
+        Observer.Expect('-0.000001 2:5 s7', 'ok:-0.00');
+        Observer.Expect('0 2:5 s7', 'ok:0.00');
+        Observer.Expect('12 2:5 s8', 'ok:12.00');
+        Observer.Expect('12.5 2:5 s8', 'ok:12.50');
+        Observer.Expect('1.23456 2:5 s8', 'ok:1.23456');
+        Observer.Expect('1.234565 2:5 s8', 'ok:1.23457');
+        Observer.Expect('99999.999995 2:5 s8', 'ok:100,000.00');
+        Observer.Expect('-3.5 2:5 s8', 'ok:3.50-');
+        Observer.Expect('-0.000001 2:5 s8', 'ok:0.00-');
+        Observer.Expect('0 2:5 s8', 'ok:0.00');
+        Observer.Verify();
     end;
 
     local procedure VqFieldFormats(var Observer: Codeunit "Probe Observer"; Prefix: Text; Fmt: Text; Value: Decimal)
@@ -884,7 +1000,23 @@ codeunit 74320 "LT FCF Format Comma String"
         VqFieldFormats(Observer, '12.5 2:5', '<Precision,2:5><Integer Thousand><Decimals>', 12.5);
         VqFieldFormats(Observer, '1.23456 2:5', '<Precision,2:5><Integer Thousand><Decimals>', 1.23456);
         VqFieldFormats(Observer, '1.234565 2:5', '<Precision,2:5><Integer Thousand><Decimals>', 1.234565);
-        Observer.Finish();
+        Observer.Expect('12 2:5 var', 'ok:12.00');
+        Observer.Expect('12 2:5 field', 'ok:12.00');
+        Observer.Expect('12 2:5 field dp05', 'ok:12.00');
+        Observer.Expect('12 2:5 field amt', 'ok:12.00');
+        Observer.Expect('12.5 2:5 var', 'ok:12.50');
+        Observer.Expect('12.5 2:5 field', 'ok:12.50');
+        Observer.Expect('12.5 2:5 field dp05', 'ok:12.50');
+        Observer.Expect('12.5 2:5 field amt', 'ok:12.50');
+        Observer.Expect('1.23456 2:5 var', 'ok:1.23456');
+        Observer.Expect('1.23456 2:5 field', 'ok:1.23456');
+        Observer.Expect('1.23456 2:5 field dp05', 'ok:1.23456');
+        Observer.Expect('1.23456 2:5 field amt', 'ok:1.23456');
+        Observer.Expect('1.234565 2:5 var', 'ok:1.23457');
+        Observer.Expect('1.234565 2:5 field', 'ok:1.23457');
+        Observer.Expect('1.234565 2:5 field dp05', 'ok:1.23457');
+        Observer.Expect('1.234565 2:5 field amt', 'ok:1.23457');
+        Observer.Verify();
     end;
 
     [Test]
@@ -896,7 +1028,23 @@ codeunit 74320 "LT FCF Format Comma String"
         VqFieldFormats(Observer, '-3.5 2:5', '<Precision,2:5><Integer Thousand><Decimals>', -3.5);
         VqFieldFormats(Observer, '-0.000001 2:5', '<Precision,2:5><Integer Thousand><Decimals>', -0.000001);
         VqFieldFormats(Observer, '0 2:5', '<Precision,2:5><Integer Thousand><Decimals>', 0);
-        Observer.Finish();
+        Observer.Expect('99999.999995 2:5 var', 'ok:100,000.00');
+        Observer.Expect('99999.999995 2:5 field', 'ok:100,000.00');
+        Observer.Expect('99999.999995 2:5 field dp05', 'ok:100,000.00');
+        Observer.Expect('99999.999995 2:5 field amt', 'ok:100,000.00');
+        Observer.Expect('-3.5 2:5 var', 'ok:3.50');
+        Observer.Expect('-3.5 2:5 field', 'ok:3.50');
+        Observer.Expect('-3.5 2:5 field dp05', 'ok:3.50');
+        Observer.Expect('-3.5 2:5 field amt', 'ok:3.50');
+        Observer.Expect('-0.000001 2:5 var', 'ok:0.00');
+        Observer.Expect('-0.000001 2:5 field', 'ok:0.00');
+        Observer.Expect('-0.000001 2:5 field dp05', 'ok:0.00');
+        Observer.Expect('-0.000001 2:5 field amt', 'ok:0.00');
+        Observer.Expect('0 2:5 var', 'ok:0.00');
+        Observer.Expect('0 2:5 field', 'ok:0.00');
+        Observer.Expect('0 2:5 field dp05', 'ok:0.00');
+        Observer.Expect('0 2:5 field amt', 'ok:0.00');
+        Observer.Verify();
     end;
 
     [Test]
@@ -908,7 +1056,23 @@ codeunit 74320 "LT FCF Format Comma String"
         VqFieldFormats(Observer, '12.5 4:6', '<Precision,4:6><Integer Thousand><Decimals>', 12.5);
         VqFieldFormats(Observer, '1.23456 4:6', '<Precision,4:6><Integer Thousand><Decimals>', 1.23456);
         VqFieldFormats(Observer, '1.234565 4:6', '<Precision,4:6><Integer Thousand><Decimals>', 1.234565);
-        Observer.Finish();
+        Observer.Expect('12 4:6 var', 'ok:12.0000');
+        Observer.Expect('12 4:6 field', 'ok:12.0000');
+        Observer.Expect('12 4:6 field dp05', 'ok:12.0000');
+        Observer.Expect('12 4:6 field amt', 'ok:12.0000');
+        Observer.Expect('12.5 4:6 var', 'ok:12.5000');
+        Observer.Expect('12.5 4:6 field', 'ok:12.5000');
+        Observer.Expect('12.5 4:6 field dp05', 'ok:12.5000');
+        Observer.Expect('12.5 4:6 field amt', 'ok:12.5000');
+        Observer.Expect('1.23456 4:6 var', 'ok:1.23456');
+        Observer.Expect('1.23456 4:6 field', 'ok:1.23456');
+        Observer.Expect('1.23456 4:6 field dp05', 'ok:1.23456');
+        Observer.Expect('1.23456 4:6 field amt', 'ok:1.23456');
+        Observer.Expect('1.234565 4:6 var', 'ok:1.234565');
+        Observer.Expect('1.234565 4:6 field', 'ok:1.234565');
+        Observer.Expect('1.234565 4:6 field dp05', 'ok:1.234565');
+        Observer.Expect('1.234565 4:6 field amt', 'ok:1.234565');
+        Observer.Verify();
     end;
 
     [Test]
@@ -920,6 +1084,22 @@ codeunit 74320 "LT FCF Format Comma String"
         VqFieldFormats(Observer, '-3.5 4:6', '<Precision,4:6><Integer Thousand><Decimals>', -3.5);
         VqFieldFormats(Observer, '-0.000001 4:6', '<Precision,4:6><Integer Thousand><Decimals>', -0.000001);
         VqFieldFormats(Observer, '0 4:6', '<Precision,4:6><Integer Thousand><Decimals>', 0);
-        Observer.Finish();
+        Observer.Expect('99999.999995 4:6 var', 'ok:99,999.999995');
+        Observer.Expect('99999.999995 4:6 field', 'ok:99,999.999995');
+        Observer.Expect('99999.999995 4:6 field dp05', 'ok:99,999.999995');
+        Observer.Expect('99999.999995 4:6 field amt', 'ok:99,999.999995');
+        Observer.Expect('-3.5 4:6 var', 'ok:3.5000');
+        Observer.Expect('-3.5 4:6 field', 'ok:3.5000');
+        Observer.Expect('-3.5 4:6 field dp05', 'ok:3.5000');
+        Observer.Expect('-3.5 4:6 field amt', 'ok:3.5000');
+        Observer.Expect('-0.000001 4:6 var', 'ok:0.000001');
+        Observer.Expect('-0.000001 4:6 field', 'ok:0.000001');
+        Observer.Expect('-0.000001 4:6 field dp05', 'ok:0.000001');
+        Observer.Expect('-0.000001 4:6 field amt', 'ok:0.000001');
+        Observer.Expect('0 4:6 var', 'ok:0.0000');
+        Observer.Expect('0 4:6 field', 'ok:0.0000');
+        Observer.Expect('0 4:6 field dp05', 'ok:0.0000');
+        Observer.Expect('0 4:6 field amt', 'ok:0.0000');
+        Observer.Verify();
     end;
 }
