@@ -7,8 +7,8 @@
 //   Subscribers (Company OnAfterModifyEvent on a temporary record named 'LT TT ORDER', each appends its letter): A, N, T, M.
 //   Apps, with their ids (compared as text), publisher and publish order (CI publishes F, A, D, B, C, N, T, M):
 //     N 01a5e2c7 Yankee Probe Publisher, depends on nothing; lowest id of all corpus apps; only T depends on it.
-//     C 0df0fadc, M a1b2c3d4 (AL Language, depends on F, A, B, C), A cd6a4292 (AL Language, depends on nothing), and the apps B, D, F of the
-//     earlier probes (they have no subscriber on this event).
+//     M a1b2c3d4 (AL Language, depends on F, A, B, C), A cd6a4292 (AL Language, depends on nothing). The apps B, C, D, F of the earlier
+//     probes have no subscriber on this event (their ids: C 0df0fadc, B c87ced6d, D e92be076, F f1e2d3c4).
 //     T f7c3b9d2 Aaa Probe Publisher, depends on N only; highest id of all corpus apps; nothing depends on it.
 //   Top-level apps (no app depends on them): M and T. N is not one (T depends on it). A is not one (D, B, C, M depend on it).
 //   Predictions (al-runner crates/al-vm/src/dispatch.rs visit_orders, plus the rules the corpus already ruled out for four apps):
@@ -20,7 +20,8 @@
 //     app name                                                      M A N T
 //     publisher, then name                                          T M A N
 //   All seven differ, so the observed order tells which one BC follows.
-// Observed: see the Expect lines (BC 27.5, 28.5, 29.0).
+// Observed (BC 29.0): N A M T, the first prediction: BC walks from EVERY app in ascending app id and places each app's dependencies
+//   before it, so the non-top-level app N (lowest id) runs before A and M. The only-top-level-apps rules are ruled out. 27.5 and 28.5: see CI.
 // Fixtures: TtOrderFixtures.al, tests/al-language-xapp-a/TtXaOrder.al, tests/al-language-xapp-n, tests/al-language-xapp-t. Probe Observer (69160).
 // BC versions: 27 - 29
 
@@ -39,6 +40,8 @@ codeunit 97802 "LT TT Subscriber Order Tests"
     begin
         Observer.Observe('order', Raiser.RaiseCompany());
         Observer.Observe('order again', Raiser.RaiseCompany());
-        Observer.Finish();
+        Observer.Expect('order', 'N;A;M;T;');
+        Observer.Expect('order again', 'N;A;M;T;');
+        Observer.Verify();
     end;
 }
