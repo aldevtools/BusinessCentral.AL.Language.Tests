@@ -254,3 +254,214 @@ codeunit 86142 "LT PW FlowField Key Rule"
         Observer.Verify();
     end;
 }
+
+// ---- Lookup, min, max, average, exist and several FlowFields in a key (al-runner issue 6924, waldo) ----
+// Owners 1 to 5 (Name e, d, c, b, a; Rank 1, 1, 2, 2, 1) and lines (Id: owner, Txt, Amt, Dt):
+//   1: 1 m 5.5 2025-03-01   2: 1 a 1.5 2025-01-01   3: 2 z 9 2025-02-01   4: 4 m 5.5 2025-03-01   5: 5 b 2 2025-01-01   6: 5 b 4 2025-06-01
+// Owner 3 has no line. Lookup takes the first line of the owner by line Id: o1 m 5.5 03-01, o2 z 9 02-01, o3 blank, o4 m 5.5 03-01, o5 b 2 01-01.
+// Min Amt: 1.5 9 0 5.5 2. Max Amt: 5.5 9 0 5.5 4. Average Amt: 3.5 9 0 5.5 3. Min Dt: 01-01 02-01 blank 03-01 01-01.
+// Count: 2 1 0 1 2. ExistBig (Amt > 5): yes yes no yes no.
+
+table 97020 "LT W9 FK Owner"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Name; Text[20]) { }
+        field(3; Rank; Integer) { }
+        field(4; LkText; Text[20]) { FieldClass = FlowField; CalcFormula = lookup("LT W9 FK Line".Txt where(OwnerId = field(Id))); Editable = false; }
+        field(5; LkDec; Decimal) { FieldClass = FlowField; CalcFormula = lookup("LT W9 FK Line".Amt where(OwnerId = field(Id))); Editable = false; }
+        field(6; LkDate; Date) { FieldClass = FlowField; CalcFormula = lookup("LT W9 FK Line".Dt where(OwnerId = field(Id))); Editable = false; }
+        field(7; MinDec; Decimal) { FieldClass = FlowField; CalcFormula = min("LT W9 FK Line".Amt where(OwnerId = field(Id))); Editable = false; }
+        field(8; MaxDec; Decimal) { FieldClass = FlowField; CalcFormula = max("LT W9 FK Line".Amt where(OwnerId = field(Id))); Editable = false; }
+        field(9; AvgDec; Decimal) { FieldClass = FlowField; CalcFormula = average("LT W9 FK Line".Amt where(OwnerId = field(Id))); Editable = false; }
+        field(10; MinDate; Date) { FieldClass = FlowField; CalcFormula = min("LT W9 FK Line".Dt where(OwnerId = field(Id))); Editable = false; }
+        field(11; CntLinked; Integer) { FieldClass = FlowField; CalcFormula = count("LT W9 FK Line" where(OwnerId = field(Id))); Editable = false; }
+        field(12; ExistBig; Boolean) { FieldClass = FlowField; CalcFormula = exist("LT W9 FK Line" where(OwnerId = field(Id), Amt = filter(> 5))); Editable = false; }
+    }
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+table 97021 "LT W9 FK Line"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; OwnerId; Integer) { }
+        field(3; Txt; Text[20]) { }
+        field(4; Amt; Decimal) { }
+        field(5; Dt; Date) { }
+    }
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+codeunit 97022 "LT W9 FlowField Key Kinds"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    local procedure Seed()
+    var
+        Owner: Record "LT W9 FK Owner";
+        Line: Record "LT W9 FK Line";
+    begin
+        Owner.DeleteAll();
+        Line.DeleteAll();
+        Owner.Id := 1; Owner.Name := 'e'; Owner.Rank := 1; Owner.Insert();
+        Owner.Id := 2; Owner.Name := 'd'; Owner.Rank := 1; Owner.Insert();
+        Owner.Id := 3; Owner.Name := 'c'; Owner.Rank := 2; Owner.Insert();
+        Owner.Id := 4; Owner.Name := 'b'; Owner.Rank := 2; Owner.Insert();
+        Owner.Id := 5; Owner.Name := 'a'; Owner.Rank := 1; Owner.Insert();
+        AddLine(1, 1, 'm', 5.5, 20250301D);
+        AddLine(2, 1, 'a', 1.5, 20250101D);
+        AddLine(3, 2, 'z', 9, 20250201D);
+        AddLine(4, 4, 'm', 5.5, 20250301D);
+        AddLine(5, 5, 'b', 2, 20250101D);
+        AddLine(6, 5, 'b', 4, 20250601D);
+    end;
+
+    local procedure AddLine(Id: Integer; OwnerId: Integer; Txt: Text[20]; Amt: Decimal; Dt: Date)
+    var
+        Line: Record "LT W9 FK Line";
+    begin
+        Line.Id := Id;
+        Line.OwnerId := OwnerId;
+        Line.Txt := Txt;
+        Line.Amt := Amt;
+        Line.Dt := Dt;
+        Line.Insert();
+    end;
+
+    [TryFunction]
+    local procedure TryKey(var Owner: Record "LT W9 FK Owner"; Which: Integer)
+    begin
+        case Which of
+            1: Owner.SetCurrentKey(LkText);
+            2: Owner.SetCurrentKey(LkDec);
+            3: Owner.SetCurrentKey(LkDate);
+            4: Owner.SetCurrentKey(MinDec);
+            5: Owner.SetCurrentKey(MaxDec);
+            6: Owner.SetCurrentKey(AvgDec);
+            7: Owner.SetCurrentKey(MinDate);
+            8: Owner.SetCurrentKey(Rank, ExistBig);
+            9: Owner.SetCurrentKey(Rank, CntLinked);
+            10: Owner.SetCurrentKey(Rank, LkText);
+            11: Owner.SetCurrentKey(ExistBig, Rank);
+            12: Owner.SetCurrentKey(MaxDec, MinDec);
+            13: Owner.SetCurrentKey(CntLinked, LkText);
+            14: Owner.SetCurrentKey(ExistBig, CntLinked);
+            15: Owner.SetCurrentKey(LkDec, AvgDec);
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TryOrder(var Owner: Record "LT W9 FK Owner"; var Order: Text)
+    begin
+        Order := '';
+        if Owner.FindSet() then
+            repeat
+                Order += Format(Owner.Id) + ' ';
+            until Owner.Next() = 0;
+    end;
+
+    local procedure Outcome(Which: Integer; Descending: Boolean): Text
+    var
+        Owner: Record "LT W9 FK Owner";
+        Order: Text;
+        Result: Text;
+    begin
+        ClearLastError();
+        if not TryKey(Owner, Which) then begin
+            Result := 'error:' + GetLastErrorText() + '|' + GetLastErrorCode();
+            ClearLastError();
+            exit(Result);
+        end;
+        if Descending then
+            Owner.Ascending(false);
+        Result := 'key=' + Owner.CurrentKey();
+        if TryOrder(Owner, Order) then
+            Result += ' order=' + Order
+        else
+            Result += ' findset error:' + GetLastErrorText() + '|' + GetLastErrorCode();
+        ClearLastError();
+        exit(Result);
+    end;
+
+    [Test]
+    procedure Lookup_Min_Max_Average_AsFirstKeyField()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Observer.Observe('lkText', Outcome(1, false));
+        Observer.Observe('lkDec', Outcome(2, false));
+        Observer.Observe('lkDate', Outcome(3, false));
+        Observer.Observe('minDec', Outcome(4, false));
+        Observer.Observe('maxDec', Outcome(5, false));
+        Observer.Observe('avgDec', Outcome(6, false));
+        Observer.Observe('minDate', Outcome(7, false));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Lookup_Min_Max_Average_AsFirstKeyField_Descending()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Observer.Observe('lkText', Outcome(1, true));
+        Observer.Observe('lkDec', Outcome(2, true));
+        Observer.Observe('lkDate', Outcome(3, true));
+        Observer.Observe('minDec', Outcome(4, true));
+        Observer.Observe('maxDec', Outcome(5, true));
+        Observer.Observe('avgDec', Outcome(6, true));
+        Observer.Observe('minDate', Outcome(7, true));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure FlowField_AfterAnotherKeyField()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Observer.Observe('rank,existBig', Outcome(8, false));
+        Observer.Observe('rank,cntLinked', Outcome(9, false));
+        Observer.Observe('rank,lkText', Outcome(10, false));
+        Observer.Observe('rank,existBig desc', Outcome(8, true));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure FlowField_BeforeAnotherKeyField()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Observer.Observe('existBig,rank', Outcome(11, false));
+        Observer.Observe('existBig,rank desc', Outcome(11, true));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TwoFlowFields_InOneKey()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Observer.Observe('maxDec,minDec', Outcome(12, false));
+        Observer.Observe('cntLinked,lkText', Outcome(13, false));
+        Observer.Observe('existBig,cntLinked', Outcome(14, false));
+        Observer.Observe('lkDec,avgDec', Outcome(15, false));
+        Observer.Observe('maxDec,minDec desc', Outcome(12, true));
+        Observer.Finish();
+    end;
+}
