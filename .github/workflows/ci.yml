@@ -343,6 +343,8 @@ jobs:
         tests/al-language-xapp-d
         tests/al-language-xapp-b
         tests/al-language-xapp-c
+        tests/al-language-xapp-n
+        tests/al-language-xapp-t
       test_app_dirs:        "tests/al-language"
       # The quoted range after || is this job's full range. Every job's full range is 50000..99999, every id a test app
       # can use, so a new id block never needs an edit here (the runner reads the Subtype = Test codeunits of the test
@@ -444,6 +446,8 @@ jobs:
         tests/al-language-xapp-d
         tests/al-language-xapp-b
         tests/al-language-xapp-c
+        tests/al-language-xapp-n
+        tests/al-language-xapp-t
         tests/al-language
       test_app_dirs:        "tests/al-language-onprem"
       codeunit_range:       ${{ fromJson(needs.prepare.outputs.subset)['tests/al-language-onprem'] || '50000..99999' }}
@@ -491,6 +495,8 @@ jobs:
         tests/al-language-xapp-d
         tests/al-language-xapp-b
         tests/al-language-xapp-c
+        tests/al-language-xapp-n
+        tests/al-language-xapp-t
         tests/al-language
       test_app_dirs:        "tests/al-language-onprem-dotnet"
       assembly_probing_paths: |
@@ -557,6 +563,8 @@ jobs:
         tests/al-language-xapp-d
         tests/al-language-xapp-b
         tests/al-language-xapp-c
+        tests/al-language-xapp-n
+        tests/al-language-xapp-t
         tests/al-language
       test_app_dirs:        "tests/al-language-testlibraries"
       codeunit_range:       ${{ fromJson(needs.prepare.outputs.subset)['tests/al-language-testlibraries'] || '81550..81649' }}
