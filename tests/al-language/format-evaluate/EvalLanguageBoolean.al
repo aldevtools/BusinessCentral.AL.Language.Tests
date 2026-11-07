@@ -6,6 +6,12 @@
 //   Nee, Nein, Nej, Oui, Non, Y, N), the error text and code of a rejected one, Format(Bool) and Format(Bool, 0, 9); Evaluate into an Option field and
 //   an Enum (name, caption, caption under the language, ordinal) and their Format; Evaluate of date texts and Format(Date) and Format(Date, 0, 9).
 // Facts (identical on BC 27.5, 28.5 and 29.0, W1 containers): see the pinned values; summary in corpus PR 1173.
+// Blank first enum member (al-runner issue 6924, waldo run 2; WA_BlankEnum1/2/3_<language>_<id> at the end of the file, enums 97270 to 97272, GlobalLanguage 1034, 2067
+// and 1033): a member named " " (with and without Caption ' '), and a member with an empty name. Measured on BC 27.5, 28.5 and 29.0 (identical, and identical in the three
+// languages): Format of the blank member is ' ' for the " " members and '0' for the empty-name member; Format(blank, 0, 9) and Format(blank, 0, 2) are '0'. Evaluate of the text
+// Format gave, of an empty text, of one or two blanks and of the ordinal '0' returns true and selects the blank member (ordinal 0), also when the start value was another
+// member. The member names (First) and the caption of the current language are accepted; the captions of the other languages and the English caption under another
+// language are rejected (Evaluate answers false with no error text, and the variable keeps its value).
 // BC versions: 27+ (tested by the corpus CI matrix)
 
 table 96280 "LT EL Row"
@@ -952,4 +958,387 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer.Verify();
     end;
 
+    // Waldo run 2 (al-runner issue 6924): enums whose first member is blank. Enum 1 (97270): value(0; " ") without a caption. Enum 2 (97271):
+    // the same member with Caption ' ' (ENU, ESP, NLB). Enum 3 (97272): value(0; "") with an empty name. For GlobalLanguage 1034, 2067 and 1033: the text
+    // Format gives for the blank member (and with format 9 and 2), and what Evaluate does with that text, an empty text, blanks, the
+    // member names, the captions and the ordinal. Start value is Second, so a value that is kept shows.
+
+    local procedure WA_Enum1(var Observer: Codeunit "Probe Observer"; Lang: Integer)
+    var
+        E: Enum "LT WA Blank Enum";
+        Blank: Enum "LT WA Blank Enum";
+        WordList: List of [Text];
+        Word: Text;
+        Ok: Boolean;
+    begin
+        GlobalLanguage(Lang);
+        Blank := Blank::" ";
+        Observer.Observe('Format blank', '[' + Format(Blank) + ']');
+        Observer.Observe('Format blank 0 9', '[' + Format(Blank, 0, 9) + ']');
+        Observer.Observe('Format blank 0 2', '[' + Format(Blank, 0, 2) + ']');
+        WordList.Add(Format(Blank));
+        WordList.AddRange('', ' ', '  ', 'First', 'Primero', 'Eerste BE', 'first cap', 'First cap', '0');
+        foreach Word in WordList do begin
+            E := E::Second;
+            ClearLastError();
+            Ok := Evaluate(E, Word);
+            if Ok then
+                Observer.Observe('Evaluate [' + Word + ']', 'ok|' + Format(E, 0, 2) + '|[' + Format(E) + ']')
+            else begin
+                Observer.Observe('Evaluate [' + Word + ']', 'rejected|' + Format(E, 0, 2));
+                Observer.ObserveError('Evaluate [' + Word + ']');
+            end;
+        end;
+        E := E::Second;
+        Ok := Evaluate(E, Format(Blank), 9);
+        Observer.Observe('Evaluate format 9 of blank', Format(Ok) + '|' + Format(E, 0, 2));
+        GlobalLanguage(1033);
+    end;
+
+    local procedure WA_Enum2(var Observer: Codeunit "Probe Observer"; Lang: Integer)
+    var
+        E: Enum "LT WA Blank Cap Enum";
+        Blank: Enum "LT WA Blank Cap Enum";
+        WordList: List of [Text];
+        Word: Text;
+        Ok: Boolean;
+    begin
+        GlobalLanguage(Lang);
+        Blank := Blank::" ";
+        Observer.Observe('Format blank', '[' + Format(Blank) + ']');
+        Observer.Observe('Format blank 0 9', '[' + Format(Blank, 0, 9) + ']');
+        Observer.Observe('Format blank 0 2', '[' + Format(Blank, 0, 2) + ']');
+        WordList.Add(Format(Blank));
+        WordList.AddRange('', ' ', '  ', 'First', 'Primero', 'Eerste BE', 'first cap', 'First cap', '0');
+        foreach Word in WordList do begin
+            E := E::Second;
+            ClearLastError();
+            Ok := Evaluate(E, Word);
+            if Ok then
+                Observer.Observe('Evaluate [' + Word + ']', 'ok|' + Format(E, 0, 2) + '|[' + Format(E) + ']')
+            else begin
+                Observer.Observe('Evaluate [' + Word + ']', 'rejected|' + Format(E, 0, 2));
+                Observer.ObserveError('Evaluate [' + Word + ']');
+            end;
+        end;
+        E := E::Second;
+        Ok := Evaluate(E, Format(Blank), 9);
+        Observer.Observe('Evaluate format 9 of blank', Format(Ok) + '|' + Format(E, 0, 2));
+        GlobalLanguage(1033);
+    end;
+
+    local procedure WA_Enum3(var Observer: Codeunit "Probe Observer"; Lang: Integer)
+    var
+        E: Enum "LT WA Empty Name Enum";
+        Blank: Enum "LT WA Empty Name Enum";
+        WordList: List of [Text];
+        Word: Text;
+        Ok: Boolean;
+    begin
+        GlobalLanguage(Lang);
+        Blank := Enum::"LT WA Empty Name Enum".FromInteger(0);
+        Observer.Observe('Format blank', '[' + Format(Blank) + ']');
+        Observer.Observe('Format blank 0 9', '[' + Format(Blank, 0, 9) + ']');
+        Observer.Observe('Format blank 0 2', '[' + Format(Blank, 0, 2) + ']');
+        WordList.Add(Format(Blank));
+        WordList.AddRange('', ' ', '  ', 'First', 'Primero', 'Eerste BE', 'first cap', 'First cap', '0');
+        foreach Word in WordList do begin
+            E := E::Second;
+            ClearLastError();
+            Ok := Evaluate(E, Word);
+            if Ok then
+                Observer.Observe('Evaluate [' + Word + ']', 'ok|' + Format(E, 0, 2) + '|[' + Format(E) + ']')
+            else begin
+                Observer.Observe('Evaluate [' + Word + ']', 'rejected|' + Format(E, 0, 2));
+                Observer.ObserveError('Evaluate [' + Word + ']');
+            end;
+        end;
+        E := E::Second;
+        Ok := Evaluate(E, Format(Blank), 9);
+        Observer.Observe('Evaluate format 9 of blank', Format(Ok) + '|' + Format(E, 0, 2));
+        GlobalLanguage(1033);
+    end;
+
+    [Test]
+    procedure WA_BlankEnum1_ES_1034()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Enum1(Observer, 1034);
+        Observer.Expect('Format blank', '[ ]');
+        Observer.Expect('Format blank 0 9', '[0]');
+        Observer.Expect('Format blank 0 2', '[0]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate []', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [  ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [First]', 'ok|1|[Primero]');
+        Observer.Expect('Evaluate [Primero]', 'ok|1|[Primero]');
+        Observer.Expect('Evaluate [Eerste BE]', 'rejected|2');
+        Observer.Expect('Evaluate [Eerste BE]|text', '');
+        Observer.Expect('Evaluate [Eerste BE]|code', '');
+        Observer.Expect('Evaluate [first cap]', 'rejected|2');
+        Observer.Expect('Evaluate [first cap]|text', '');
+        Observer.Expect('Evaluate [first cap]|code', '');
+        Observer.Expect('Evaluate [First cap]', 'rejected|2');
+        Observer.Expect('Evaluate [First cap]|text', '');
+        Observer.Expect('Evaluate [First cap]|code', '');
+        Observer.Expect('Evaluate [0]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate format 9 of blank', 'Sí|0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WA_BlankEnum1_NLB_2067()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Enum1(Observer, 2067);
+        Observer.Expect('Format blank', '[ ]');
+        Observer.Expect('Format blank 0 9', '[0]');
+        Observer.Expect('Format blank 0 2', '[0]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate []', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [  ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [First]', 'ok|1|[Eerste BE]');
+        Observer.Expect('Evaluate [Primero]', 'rejected|2');
+        Observer.Expect('Evaluate [Primero]|text', '');
+        Observer.Expect('Evaluate [Primero]|code', '');
+        Observer.Expect('Evaluate [Eerste BE]', 'ok|1|[Eerste BE]');
+        Observer.Expect('Evaluate [first cap]', 'rejected|2');
+        Observer.Expect('Evaluate [first cap]|text', '');
+        Observer.Expect('Evaluate [first cap]|code', '');
+        Observer.Expect('Evaluate [First cap]', 'rejected|2');
+        Observer.Expect('Evaluate [First cap]|text', '');
+        Observer.Expect('Evaluate [First cap]|code', '');
+        Observer.Expect('Evaluate [0]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate format 9 of blank', 'Ja|0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WA_BlankEnum1_ENU_1033()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Enum1(Observer, 1033);
+        Observer.Expect('Format blank', '[ ]');
+        Observer.Expect('Format blank 0 9', '[0]');
+        Observer.Expect('Format blank 0 2', '[0]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate []', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [  ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [First]', 'ok|1|[First cap]');
+        Observer.Expect('Evaluate [Primero]', 'rejected|2');
+        Observer.Expect('Evaluate [Primero]|text', '');
+        Observer.Expect('Evaluate [Primero]|code', '');
+        Observer.Expect('Evaluate [Eerste BE]', 'rejected|2');
+        Observer.Expect('Evaluate [Eerste BE]|text', '');
+        Observer.Expect('Evaluate [Eerste BE]|code', '');
+        Observer.Expect('Evaluate [first cap]', 'ok|1|[First cap]');
+        Observer.Expect('Evaluate [First cap]', 'ok|1|[First cap]');
+        Observer.Expect('Evaluate [0]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate format 9 of blank', 'Yes|0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WA_BlankEnum2_ES_1034()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Enum2(Observer, 1034);
+        Observer.Expect('Format blank', '[ ]');
+        Observer.Expect('Format blank 0 9', '[0]');
+        Observer.Expect('Format blank 0 2', '[0]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate []', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [  ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [First]', 'ok|1|[Primero]');
+        Observer.Expect('Evaluate [Primero]', 'ok|1|[Primero]');
+        Observer.Expect('Evaluate [Eerste BE]', 'rejected|2');
+        Observer.Expect('Evaluate [Eerste BE]|text', '');
+        Observer.Expect('Evaluate [Eerste BE]|code', '');
+        Observer.Expect('Evaluate [first cap]', 'rejected|2');
+        Observer.Expect('Evaluate [first cap]|text', '');
+        Observer.Expect('Evaluate [first cap]|code', '');
+        Observer.Expect('Evaluate [First cap]', 'rejected|2');
+        Observer.Expect('Evaluate [First cap]|text', '');
+        Observer.Expect('Evaluate [First cap]|code', '');
+        Observer.Expect('Evaluate [0]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate format 9 of blank', 'Sí|0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WA_BlankEnum2_NLB_2067()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Enum2(Observer, 2067);
+        Observer.Expect('Format blank', '[ ]');
+        Observer.Expect('Format blank 0 9', '[0]');
+        Observer.Expect('Format blank 0 2', '[0]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate []', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [  ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [First]', 'ok|1|[Eerste BE]');
+        Observer.Expect('Evaluate [Primero]', 'rejected|2');
+        Observer.Expect('Evaluate [Primero]|text', '');
+        Observer.Expect('Evaluate [Primero]|code', '');
+        Observer.Expect('Evaluate [Eerste BE]', 'ok|1|[Eerste BE]');
+        Observer.Expect('Evaluate [first cap]', 'rejected|2');
+        Observer.Expect('Evaluate [first cap]|text', '');
+        Observer.Expect('Evaluate [first cap]|code', '');
+        Observer.Expect('Evaluate [First cap]', 'rejected|2');
+        Observer.Expect('Evaluate [First cap]|text', '');
+        Observer.Expect('Evaluate [First cap]|code', '');
+        Observer.Expect('Evaluate [0]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate format 9 of blank', 'Ja|0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WA_BlankEnum2_ENU_1033()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Enum2(Observer, 1033);
+        Observer.Expect('Format blank', '[ ]');
+        Observer.Expect('Format blank 0 9', '[0]');
+        Observer.Expect('Format blank 0 2', '[0]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate []', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [  ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [First]', 'ok|1|[First cap]');
+        Observer.Expect('Evaluate [Primero]', 'rejected|2');
+        Observer.Expect('Evaluate [Primero]|text', '');
+        Observer.Expect('Evaluate [Primero]|code', '');
+        Observer.Expect('Evaluate [Eerste BE]', 'rejected|2');
+        Observer.Expect('Evaluate [Eerste BE]|text', '');
+        Observer.Expect('Evaluate [Eerste BE]|code', '');
+        Observer.Expect('Evaluate [first cap]', 'ok|1|[First cap]');
+        Observer.Expect('Evaluate [First cap]', 'ok|1|[First cap]');
+        Observer.Expect('Evaluate [0]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate format 9 of blank', 'Yes|0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WA_BlankEnum3_ES_1034()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Enum3(Observer, 1034);
+        Observer.Expect('Format blank', '[0]');
+        Observer.Expect('Format blank 0 9', '[0]');
+        Observer.Expect('Format blank 0 2', '[0]');
+        Observer.Expect('Evaluate [0]', 'ok|0|[0]');
+        Observer.Expect('Evaluate []', 'ok|0|[0]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[0]');
+        Observer.Expect('Evaluate [  ]', 'ok|0|[0]');
+        Observer.Expect('Evaluate [First]', 'ok|1|[Primero]');
+        Observer.Expect('Evaluate [Primero]', 'ok|1|[Primero]');
+        Observer.Expect('Evaluate [Eerste BE]', 'rejected|2');
+        Observer.Expect('Evaluate [Eerste BE]|text', '');
+        Observer.Expect('Evaluate [Eerste BE]|code', '');
+        Observer.Expect('Evaluate [first cap]', 'rejected|2');
+        Observer.Expect('Evaluate [first cap]|text', '');
+        Observer.Expect('Evaluate [first cap]|code', '');
+        Observer.Expect('Evaluate [First cap]', 'rejected|2');
+        Observer.Expect('Evaluate [First cap]|text', '');
+        Observer.Expect('Evaluate [First cap]|code', '');
+        Observer.Expect('Evaluate [0]', 'ok|0|[0]');
+        Observer.Expect('Evaluate format 9 of blank', 'Sí|0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WA_BlankEnum3_NLB_2067()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Enum3(Observer, 2067);
+        Observer.Expect('Format blank', '[0]');
+        Observer.Expect('Format blank 0 9', '[0]');
+        Observer.Expect('Format blank 0 2', '[0]');
+        Observer.Expect('Evaluate [0]', 'ok|0|[0]');
+        Observer.Expect('Evaluate []', 'ok|0|[0]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[0]');
+        Observer.Expect('Evaluate [  ]', 'ok|0|[0]');
+        Observer.Expect('Evaluate [First]', 'ok|1|[Eerste BE]');
+        Observer.Expect('Evaluate [Primero]', 'rejected|2');
+        Observer.Expect('Evaluate [Primero]|text', '');
+        Observer.Expect('Evaluate [Primero]|code', '');
+        Observer.Expect('Evaluate [Eerste BE]', 'ok|1|[Eerste BE]');
+        Observer.Expect('Evaluate [first cap]', 'rejected|2');
+        Observer.Expect('Evaluate [first cap]|text', '');
+        Observer.Expect('Evaluate [first cap]|code', '');
+        Observer.Expect('Evaluate [First cap]', 'rejected|2');
+        Observer.Expect('Evaluate [First cap]|text', '');
+        Observer.Expect('Evaluate [First cap]|code', '');
+        Observer.Expect('Evaluate [0]', 'ok|0|[0]');
+        Observer.Expect('Evaluate format 9 of blank', 'Ja|0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WA_BlankEnum3_ENU_1033()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Enum3(Observer, 1033);
+        Observer.Expect('Format blank', '[0]');
+        Observer.Expect('Format blank 0 9', '[0]');
+        Observer.Expect('Format blank 0 2', '[0]');
+        Observer.Expect('Evaluate [0]', 'ok|0|[0]');
+        Observer.Expect('Evaluate []', 'ok|0|[0]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[0]');
+        Observer.Expect('Evaluate [  ]', 'ok|0|[0]');
+        Observer.Expect('Evaluate [First]', 'ok|1|[First cap]');
+        Observer.Expect('Evaluate [Primero]', 'rejected|2');
+        Observer.Expect('Evaluate [Primero]|text', '');
+        Observer.Expect('Evaluate [Primero]|code', '');
+        Observer.Expect('Evaluate [Eerste BE]', 'rejected|2');
+        Observer.Expect('Evaluate [Eerste BE]|text', '');
+        Observer.Expect('Evaluate [Eerste BE]|code', '');
+        Observer.Expect('Evaluate [first cap]', 'ok|1|[First cap]');
+        Observer.Expect('Evaluate [First cap]', 'ok|1|[First cap]');
+        Observer.Expect('Evaluate [0]', 'ok|0|[0]');
+        Observer.Expect('Evaluate format 9 of blank', 'Yes|0');
+        Observer.Verify();
+    end;
+}
+
+// local objects of the WA_BlankEnum tests (al-runner issue 6924, waldo run 2).
+enum 97270 "LT WA Blank Enum"
+{
+    Extensible = true;
+
+    value(0; " ") { }
+    value(1; First) { CaptionML = ENU = 'First cap', ESP = 'Primero', NLB = 'Eerste BE'; }
+    value(2; Second) { CaptionML = ENU = 'Second cap', ESP = 'Segundo', NLB = 'Tweede BE'; }
+}
+
+enum 97271 "LT WA Blank Cap Enum"
+{
+    Extensible = true;
+
+    value(0; " ") { CaptionML = ENU = ' ', ESP = ' ', NLB = ' '; }
+    value(1; First) { CaptionML = ENU = 'First cap', ESP = 'Primero', NLB = 'Eerste BE'; }
+    value(2; Second) { CaptionML = ENU = 'Second cap', ESP = 'Segundo', NLB = 'Tweede BE'; }
+}
+
+enum 97272 "LT WA Empty Name Enum"
+{
+    Extensible = true;
+
+    value(0; "") { }
+    value(1; First) { CaptionML = ENU = 'First cap', ESP = 'Primero', NLB = 'Eerste BE'; }
+    value(2; Second) { CaptionML = ENU = 'Second cap', ESP = 'Segundo', NLB = 'Tweede BE'; }
 }
