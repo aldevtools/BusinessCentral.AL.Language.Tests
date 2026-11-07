@@ -6,7 +6,7 @@
 page 60814 "Test Page Part Agcr Host"
 {
     PageType = Card;
-    SourceTable = "Test Page Part Agcr Row";
+    SourceTable = "ALT Shape 04";
     ApplicationArea = All;
     UsageCategory = None;
 

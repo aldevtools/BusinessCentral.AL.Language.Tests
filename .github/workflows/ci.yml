@@ -81,7 +81,7 @@ on:
 # and `BC OnPrem DotNet <version> / test` legs for 27.5, 28.5 and 29.0, plus the object-id gate. Each
 # leg's check is the job `test` of bc-leg.yml, which runs with `if: always()` and fails unless every
 # shard succeeded, so a cancelled run reports it as failed or cancelled, never as skipped or green, and
-# a superseded run can never satisfy a required check. The one green without shards is a pull request
+# a superseded run can never satisfy a required check. The one green without shards is a subset-run
 # leg whose app has nothing affected (CONTRIBUTING.md, "Shards in CI"). ci.yml is the only workflow
 # registered here (the object-id gate is a job inside it), so this block covers everything.
 concurrency:
@@ -231,7 +231,7 @@ jobs:
       # codeunit_range. The job names and the required checks do not change; only the codeunits each leg runs.
       subset: ${{ steps.select.outputs.subset || '{}' }}
       # {bc_version: {test app dir: [{"n": "1 of 3", "range": ...}]}}: the shards each leg runs (.github/scripts/ci-shards.py,
-      # boundaries in .github/ci-shards.json). [] for a leg: nothing in its app is affected (pull requests only), the leg
+      # boundaries in .github/ci-shards.json). [] for a leg: nothing in its app is affected (any subset run), the leg
       # reports success without starting BC. {} (the step failed): each leg runs its codeunit_range as one shard.
       shards: ${{ steps.shards.outputs.shards || '{}' }}
     steps:
@@ -343,6 +343,8 @@ jobs:
         tests/al-language-xapp-d
         tests/al-language-xapp-b
         tests/al-language-xapp-c
+        tests/al-language-xapp-n
+        tests/al-language-xapp-t
       test_app_dirs:        "tests/al-language"
       # The quoted range after || is this job's full range. Every job's full range is 50000..99999, every id a test app
       # can use, so a new id block never needs an edit here (the runner reads the Subtype = Test codeunits of the test
@@ -444,6 +446,8 @@ jobs:
         tests/al-language-xapp-d
         tests/al-language-xapp-b
         tests/al-language-xapp-c
+        tests/al-language-xapp-n
+        tests/al-language-xapp-t
         tests/al-language
       test_app_dirs:        "tests/al-language-onprem"
       codeunit_range:       ${{ fromJson(needs.prepare.outputs.subset)['tests/al-language-onprem'] || '50000..99999' }}
@@ -491,6 +495,8 @@ jobs:
         tests/al-language-xapp-d
         tests/al-language-xapp-b
         tests/al-language-xapp-c
+        tests/al-language-xapp-n
+        tests/al-language-xapp-t
         tests/al-language
       test_app_dirs:        "tests/al-language-onprem-dotnet"
       assembly_probing_paths: |
@@ -551,12 +557,21 @@ jobs:
       bc_country:           "w1"
       # al-language is published only because the test app depends on it (Probe Observer). Its own tests run in the
       # test job above.
+      # The tests/al-language-xhandler-* apps hold default test handlers (DefaultTestHandler extensions) for the cross-app
+      # handler probes (BiTestHandlerCrossApp.al). They are published in this job only: a default handler of an installed
+      # app may run for the test codeunits of other apps, so the other jobs must not install them.
       app_dirs: |
         tests/al-language-internals-fixture
+        tests/al-language-xhandler-lib
+        tests/al-language-xhandler-a
+        tests/al-language-xhandler-c
+        tests/al-language-xhandler-d
         tests/al-language-xapp-a
         tests/al-language-xapp-d
         tests/al-language-xapp-b
         tests/al-language-xapp-c
+        tests/al-language-xapp-n
+        tests/al-language-xapp-t
         tests/al-language
       test_app_dirs:        "tests/al-language-testlibraries"
       codeunit_range:       ${{ fromJson(needs.prepare.outputs.subset)['tests/al-language-testlibraries'] || '81550..81649' }}

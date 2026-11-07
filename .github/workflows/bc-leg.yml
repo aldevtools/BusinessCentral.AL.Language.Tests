@@ -14,8 +14,9 @@ name: BC leg (shards of one test app on one BC version)
 # keeps one artifact per leg holding one JUnit file, as before. A shard re-run ("Re-run failed jobs") uploads a new
 # artifact; the merge then takes the earlier merged file and replaces the re-run shard's codeunits with the new results.
 #
-# SKIPPED LEG. On a pull request a leg whose app has nothing affected gets no shard (shards = []). The shard job is
-# then skipped and `test` reports success without starting BC. Any other skipped or cancelled shard fails `test`.
+# SKIPPED LEG. In a subset run (a pull request, or a dispatch with select_codeunits or select_base) a leg whose app has
+# nothing affected gets no shard (shards = []). The shard job is then skipped and `test` reports success without
+# starting BC. Any other skipped or cancelled shard fails `test`.
 
 on:
   workflow_call:

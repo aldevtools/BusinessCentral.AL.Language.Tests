@@ -16,21 +16,6 @@
 //   With the request page (Report.Run(id, true) and a handler) both forms are Yes inside the run (measured on the Windows 28.5 container,
 //   checked by CI; the SaaS route has no UI).
 // BC versions: 29 (27 and 28 by CI)
-table 92376 "LT Y36 BRM Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 codeunit 92379 "LT Y36 BRM Log"
 {
     SingleInstance = true;
@@ -59,7 +44,7 @@ report 92377 "LT Y36 BRM A"
 
     dataset
     {
-        dataitem(Row; "LT Y36 BRM Row")
+        dataitem(Row; "ALT Shape 00")
         {
             trigger OnAfterGetRecord()
             begin
@@ -117,7 +102,7 @@ report 92377 "LT Y36 BRM A"
             ' onlyifdetail=' + Format(PrintOnlyIfDetail()) + '/' + Format(CurrReport.PrintOnlyIfDetail()));
     end;
 
-    procedure SetViewBare(var R: Record "LT Y36 BRM Row")
+    procedure SetViewBare(var R: Record "ALT Shape 00")
     begin
         SetTableView(R);
     end;
@@ -130,7 +115,7 @@ report 92378 "LT Y36 BRM B"
 
     dataset
     {
-        dataitem(Row; "LT Y36 BRM Row")
+        dataitem(Row; "ALT Shape 00")
         {
         }
     }
@@ -177,7 +162,7 @@ codeunit 92381 "LT Y36 BRM Tests"
 
     local procedure Start()
     var
-        R: Record "LT Y36 BRM Row";
+        R: Record "ALT Shape 00";
         I: Integer;
     begin
         R.DeleteAll();
@@ -344,7 +329,7 @@ codeunit 92381 "LT Y36 BRM Tests"
     var
         Observer: Codeunit "Probe Observer";
         RptA: Report "LT Y36 BRM A";
-        R: Record "LT Y36 BRM Row";
+        R: Record "ALT Shape 00";
     begin
         Start();
         R.SetRange(Id, 2);

@@ -7,7 +7,7 @@ query 60863 "QJ Cust Orders Inner"
 
     elements
     {
-        dataitem(Customer; "QJ Customer")
+        dataitem(Customer; "ALT Shape 04")
         {
             column(CustNo; "No.") { }
             column(CustName; "Name") { }

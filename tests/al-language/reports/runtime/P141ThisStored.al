@@ -1,25 +1,10 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-this-keyword
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), self-contained table 71551, log 71552, keeper (SingleInstance) 71553, publisher 71554, report 71555, subscriber 71556, test 71557
+// Fixtures used: Probe Observer (codeunit 69160), shared table 50000 "ALT Shape 00", log 71552, keeper (SingleInstance) 71553, publisher 71554, report 71555, subscriber 71556, test 71557
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: the report parameter stored in a global of a SingleInstance codeunit (by a static subscriber, in OnPreReport) and used after the report finished: values read through the stored variable, errors caught with a TryFunction, cleared variable, second run replaces the stored one
 // Known compile facts (not written): `this` to a var parameter gives AL0130; a Page parameter receiving `this` from a page gives AL0133.
 // BC versions: 29 (27 and 28 by CI)
-
-table 71551 "LT P141 S Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 codeunit 71552 "LT P141 S Log"
 {
@@ -143,7 +128,7 @@ report 71555 "LT P141 S Rpt"
 
     dataset
     {
-        dataitem(Row; "LT P141 S Row")
+        dataitem(Row; "ALT Shape 00")
         {
             DataItemTableView = sorting(Id);
 
@@ -202,7 +187,7 @@ codeunit 71557 "LT P141 S Tests"
 
     local procedure Seed(Count: Integer)
     var
-        Row: Record "LT P141 S Row";
+        Row: Record "ALT Shape 00";
         Log: Codeunit "LT P141 S Log";
         i: Integer;
     begin

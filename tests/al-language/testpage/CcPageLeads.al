@@ -13,6 +13,11 @@
 //   triggers for a TestPage write versus Validate from code; a Visible = false FlowField on OpenView; control expressions with a Record-returning
 //   procedure, a BigInteger literal, a Date compared with 0D and a global Record; a 1100-character ToolTip; Rec.Reset plus CurrPage.Update(false)
 //   with SourceTableView; Drilldown on a FactBox field that only has OnLookup; CurrPage.Editable(true) after CurrPage.Editable(false) in OnOpenPage.
+// Writer VQ (al-runner 6924, VisibleExpr_V1 to V6): Visible, Editable and an action's Enabled set to a comparison with a qualified enum value:
+//   Dir = E.Mode::Beta, Rec.Kind = E.Mode::Beta, E.Mode::Beta = Rec.Kind (E a global Record of another table), Dir = "Enum"::Beta,
+//   Dir = EV::Beta (EV a global enum variable), Dir = E."Mode Two"::"Gamma Delta". All six compile and open. Editable and Enabled follow the
+//   global or Rec after every change (GoToKey, an action that assigns the global). Visible is evaluated once when the page opens, with an empty
+//   Rec and the global as OnOpenPage left it, and does not change on GoToKey or after the action (TestPage.Visible).
 // BC versions: 27.5, 28.5, 29.0 (CI). The BigInteger literal 0L in a control expression fails on 27 ("Not a valid number") and works from 28.
 
 codeunit 84270 "LT CC Log"
@@ -1015,6 +1020,426 @@ codeunit 84275 "LT CC Page Leads"
         Observer.Expect('name_before', 'No');
         Observer.Expect('page_after', 'No');
         Observer.Expect('name_after', 'No');
+        Observer.Verify();
+    end;
+
+    local procedure PrepareVq(Rotate: Boolean)
+    var
+        Row: Record "LT VQ Row";
+        Idx: Integer;
+    begin
+        Row.DeleteAll();
+        for Idx := 1 to 3 do begin
+            Row.Init();
+            Row.Id := Idx;
+            if Rotate then
+                Row.Kind := Enum::"LT VQ Kind".FromInteger((Idx + 0) mod 3)
+            else
+                Row.Kind := Enum::"LT VQ Kind".FromInteger(Idx - 1);
+            Row.Name := 'row' + Format(Idx);
+            Row.Insert();
+        end;
+    end;
+
+    local procedure OpenVqV1(var P: TestPage "LT VQ Page V1")
+    begin
+        P.OpenEdit();
+        Error(OkTxt);
+    end;
+
+    [Test]
+    procedure VisibleExpr_V1_MemberEnumValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT VQ Page V1";
+        Res: Text;
+        Idx: Integer;
+    begin
+        PrepareVq(false);
+        asserterror OpenVqV1(P);
+        Res := Outcome();
+        Observer.Observe('open', Res);
+        if Res = 'ok' then begin
+            P.Close();
+            PrepareVq(false);
+            P.OpenEdit();
+            for Idx := 1 to 3 do begin
+                P.GoToKey(Idx);
+                Observer.Observe('visible_' + Format(Idx), Format(P.VisCtl.Visible()));
+                Observer.Observe('editable_' + Format(Idx), Format(P.EdtCtl.Editable()));
+                Observer.Observe('enabled_' + Format(Idx), Format(P.ActCtl.Enabled()));
+            end;
+            P.GoToKey(2);
+            P.FlipCtl.Invoke();
+            Observer.Observe('visible_flipped', Format(P.VisCtl.Visible()));
+            Observer.Observe('editable_flipped', Format(P.EdtCtl.Editable()));
+            Observer.Observe('enabled_flipped', Format(P.ActCtl.Enabled()));
+            P.Close();
+            PrepareVq(true);
+            P.OpenEdit();
+            Observer.Observe('visible_rotated_first', Format(P.VisCtl.Visible()));
+            Observer.Observe('editable_rotated_first', Format(P.EdtCtl.Editable()));
+            Observer.Observe('enabled_rotated_first', Format(P.ActCtl.Enabled()));
+            P.GoToKey(2);
+            Observer.Observe('visible_rotated_second', Format(P.VisCtl.Visible()));
+            Observer.Observe('editable_rotated_second', Format(P.EdtCtl.Editable()));
+            Observer.Observe('enabled_rotated_second', Format(P.ActCtl.Enabled()));
+            P.Close();
+        end;
+        Observer.Expect('open', 'ok');
+        Observer.Expect('visible_1', 'Yes');
+        Observer.Expect('editable_1', 'Yes');
+        Observer.Expect('enabled_1', 'Yes');
+        Observer.Expect('visible_2', 'Yes');
+        Observer.Expect('editable_2', 'Yes');
+        Observer.Expect('enabled_2', 'Yes');
+        Observer.Expect('visible_3', 'Yes');
+        Observer.Expect('editable_3', 'Yes');
+        Observer.Expect('enabled_3', 'Yes');
+        Observer.Expect('visible_flipped', 'Yes');
+        Observer.Expect('editable_flipped', 'No');
+        Observer.Expect('enabled_flipped', 'No');
+        Observer.Expect('visible_rotated_first', 'Yes');
+        Observer.Expect('editable_rotated_first', 'Yes');
+        Observer.Expect('enabled_rotated_first', 'Yes');
+        Observer.Expect('visible_rotated_second', 'Yes');
+        Observer.Expect('editable_rotated_second', 'Yes');
+        Observer.Expect('enabled_rotated_second', 'Yes');
+        Observer.Verify();
+    end;
+
+    local procedure OpenVqV2(var P: TestPage "LT VQ Page V2")
+    begin
+        P.OpenEdit();
+        Error(OkTxt);
+    end;
+
+    [Test]
+    procedure VisibleExpr_V2_MemberEnumValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT VQ Page V2";
+        Res: Text;
+        Idx: Integer;
+    begin
+        PrepareVq(false);
+        asserterror OpenVqV2(P);
+        Res := Outcome();
+        Observer.Observe('open', Res);
+        if Res = 'ok' then begin
+            P.Close();
+            PrepareVq(false);
+            P.OpenEdit();
+            for Idx := 1 to 3 do begin
+                P.GoToKey(Idx);
+                Observer.Observe('visible_' + Format(Idx), Format(P.VisCtl.Visible()));
+                Observer.Observe('editable_' + Format(Idx), Format(P.EdtCtl.Editable()));
+                Observer.Observe('enabled_' + Format(Idx), Format(P.ActCtl.Enabled()));
+            end;
+            P.GoToKey(2);
+            P.FlipCtl.Invoke();
+            Observer.Observe('visible_flipped', Format(P.VisCtl.Visible()));
+            Observer.Observe('editable_flipped', Format(P.EdtCtl.Editable()));
+            Observer.Observe('enabled_flipped', Format(P.ActCtl.Enabled()));
+            P.Close();
+            PrepareVq(true);
+            P.OpenEdit();
+            Observer.Observe('visible_rotated_first', Format(P.VisCtl.Visible()));
+            Observer.Observe('editable_rotated_first', Format(P.EdtCtl.Editable()));
+            Observer.Observe('enabled_rotated_first', Format(P.ActCtl.Enabled()));
+            P.GoToKey(2);
+            Observer.Observe('visible_rotated_second', Format(P.VisCtl.Visible()));
+            Observer.Observe('editable_rotated_second', Format(P.EdtCtl.Editable()));
+            Observer.Observe('enabled_rotated_second', Format(P.ActCtl.Enabled()));
+            P.Close();
+        end;
+        Observer.Expect('open', 'ok');
+        Observer.Expect('visible_1', 'No');
+        Observer.Expect('editable_1', 'No');
+        Observer.Expect('enabled_1', 'No');
+        Observer.Expect('visible_2', 'No');
+        Observer.Expect('editable_2', 'Yes');
+        Observer.Expect('enabled_2', 'Yes');
+        Observer.Expect('visible_3', 'No');
+        Observer.Expect('editable_3', 'No');
+        Observer.Expect('enabled_3', 'No');
+        Observer.Expect('visible_flipped', 'No');
+        Observer.Expect('editable_flipped', 'Yes');
+        Observer.Expect('enabled_flipped', 'Yes');
+        Observer.Expect('visible_rotated_first', 'No');
+        Observer.Expect('editable_rotated_first', 'Yes');
+        Observer.Expect('enabled_rotated_first', 'Yes');
+        Observer.Expect('visible_rotated_second', 'No');
+        Observer.Expect('editable_rotated_second', 'No');
+        Observer.Expect('enabled_rotated_second', 'No');
+        Observer.Verify();
+    end;
+
+    local procedure OpenVqV3(var P: TestPage "LT VQ Page V3")
+    begin
+        P.OpenEdit();
+        Error(OkTxt);
+    end;
+
+    [Test]
+    procedure VisibleExpr_V3_MemberEnumValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT VQ Page V3";
+        Res: Text;
+        Idx: Integer;
+    begin
+        PrepareVq(false);
+        asserterror OpenVqV3(P);
+        Res := Outcome();
+        Observer.Observe('open', Res);
+        if Res = 'ok' then begin
+            P.Close();
+            PrepareVq(false);
+            P.OpenEdit();
+            for Idx := 1 to 3 do begin
+                P.GoToKey(Idx);
+                Observer.Observe('visible_' + Format(Idx), Format(P.VisCtl.Visible()));
+                Observer.Observe('editable_' + Format(Idx), Format(P.EdtCtl.Editable()));
+                Observer.Observe('enabled_' + Format(Idx), Format(P.ActCtl.Enabled()));
+            end;
+            P.GoToKey(2);
+            P.FlipCtl.Invoke();
+            Observer.Observe('visible_flipped', Format(P.VisCtl.Visible()));
+            Observer.Observe('editable_flipped', Format(P.EdtCtl.Editable()));
+            Observer.Observe('enabled_flipped', Format(P.ActCtl.Enabled()));
+            P.Close();
+            PrepareVq(true);
+            P.OpenEdit();
+            Observer.Observe('visible_rotated_first', Format(P.VisCtl.Visible()));
+            Observer.Observe('editable_rotated_first', Format(P.EdtCtl.Editable()));
+            Observer.Observe('enabled_rotated_first', Format(P.ActCtl.Enabled()));
+            P.GoToKey(2);
+            Observer.Observe('visible_rotated_second', Format(P.VisCtl.Visible()));
+            Observer.Observe('editable_rotated_second', Format(P.EdtCtl.Editable()));
+            Observer.Observe('enabled_rotated_second', Format(P.ActCtl.Enabled()));
+            P.Close();
+        end;
+        Observer.Expect('open', 'ok');
+        Observer.Expect('visible_1', 'No');
+        Observer.Expect('editable_1', 'No');
+        Observer.Expect('enabled_1', 'No');
+        Observer.Expect('visible_2', 'No');
+        Observer.Expect('editable_2', 'Yes');
+        Observer.Expect('enabled_2', 'Yes');
+        Observer.Expect('visible_3', 'No');
+        Observer.Expect('editable_3', 'No');
+        Observer.Expect('enabled_3', 'No');
+        Observer.Expect('visible_flipped', 'No');
+        Observer.Expect('editable_flipped', 'Yes');
+        Observer.Expect('enabled_flipped', 'Yes');
+        Observer.Expect('visible_rotated_first', 'No');
+        Observer.Expect('editable_rotated_first', 'Yes');
+        Observer.Expect('enabled_rotated_first', 'Yes');
+        Observer.Expect('visible_rotated_second', 'No');
+        Observer.Expect('editable_rotated_second', 'No');
+        Observer.Expect('enabled_rotated_second', 'No');
+        Observer.Verify();
+    end;
+
+    local procedure OpenVqV4(var P: TestPage "LT VQ Page V4")
+    begin
+        P.OpenEdit();
+        Error(OkTxt);
+    end;
+
+    [Test]
+    procedure VisibleExpr_V4_MemberEnumValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT VQ Page V4";
+        Res: Text;
+        Idx: Integer;
+    begin
+        PrepareVq(false);
+        asserterror OpenVqV4(P);
+        Res := Outcome();
+        Observer.Observe('open', Res);
+        if Res = 'ok' then begin
+            P.Close();
+            PrepareVq(false);
+            P.OpenEdit();
+            for Idx := 1 to 3 do begin
+                P.GoToKey(Idx);
+                Observer.Observe('visible_' + Format(Idx), Format(P.VisCtl.Visible()));
+                Observer.Observe('editable_' + Format(Idx), Format(P.EdtCtl.Editable()));
+                Observer.Observe('enabled_' + Format(Idx), Format(P.ActCtl.Enabled()));
+            end;
+            P.GoToKey(2);
+            P.FlipCtl.Invoke();
+            Observer.Observe('visible_flipped', Format(P.VisCtl.Visible()));
+            Observer.Observe('editable_flipped', Format(P.EdtCtl.Editable()));
+            Observer.Observe('enabled_flipped', Format(P.ActCtl.Enabled()));
+            P.Close();
+            PrepareVq(true);
+            P.OpenEdit();
+            Observer.Observe('visible_rotated_first', Format(P.VisCtl.Visible()));
+            Observer.Observe('editable_rotated_first', Format(P.EdtCtl.Editable()));
+            Observer.Observe('enabled_rotated_first', Format(P.ActCtl.Enabled()));
+            P.GoToKey(2);
+            Observer.Observe('visible_rotated_second', Format(P.VisCtl.Visible()));
+            Observer.Observe('editable_rotated_second', Format(P.EdtCtl.Editable()));
+            Observer.Observe('enabled_rotated_second', Format(P.ActCtl.Enabled()));
+            P.Close();
+        end;
+        Observer.Expect('open', 'ok');
+        Observer.Expect('visible_1', 'Yes');
+        Observer.Expect('editable_1', 'Yes');
+        Observer.Expect('enabled_1', 'Yes');
+        Observer.Expect('visible_2', 'Yes');
+        Observer.Expect('editable_2', 'Yes');
+        Observer.Expect('enabled_2', 'Yes');
+        Observer.Expect('visible_3', 'Yes');
+        Observer.Expect('editable_3', 'Yes');
+        Observer.Expect('enabled_3', 'Yes');
+        Observer.Expect('visible_flipped', 'Yes');
+        Observer.Expect('editable_flipped', 'No');
+        Observer.Expect('enabled_flipped', 'No');
+        Observer.Expect('visible_rotated_first', 'Yes');
+        Observer.Expect('editable_rotated_first', 'Yes');
+        Observer.Expect('enabled_rotated_first', 'Yes');
+        Observer.Expect('visible_rotated_second', 'Yes');
+        Observer.Expect('editable_rotated_second', 'Yes');
+        Observer.Expect('enabled_rotated_second', 'Yes');
+        Observer.Verify();
+    end;
+
+    local procedure OpenVqV5(var P: TestPage "LT VQ Page V5")
+    begin
+        P.OpenEdit();
+        Error(OkTxt);
+    end;
+
+    [Test]
+    procedure VisibleExpr_V5_MemberEnumValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT VQ Page V5";
+        Res: Text;
+        Idx: Integer;
+    begin
+        PrepareVq(false);
+        asserterror OpenVqV5(P);
+        Res := Outcome();
+        Observer.Observe('open', Res);
+        if Res = 'ok' then begin
+            P.Close();
+            PrepareVq(false);
+            P.OpenEdit();
+            for Idx := 1 to 3 do begin
+                P.GoToKey(Idx);
+                Observer.Observe('visible_' + Format(Idx), Format(P.VisCtl.Visible()));
+                Observer.Observe('editable_' + Format(Idx), Format(P.EdtCtl.Editable()));
+                Observer.Observe('enabled_' + Format(Idx), Format(P.ActCtl.Enabled()));
+            end;
+            P.GoToKey(2);
+            P.FlipCtl.Invoke();
+            Observer.Observe('visible_flipped', Format(P.VisCtl.Visible()));
+            Observer.Observe('editable_flipped', Format(P.EdtCtl.Editable()));
+            Observer.Observe('enabled_flipped', Format(P.ActCtl.Enabled()));
+            P.Close();
+            PrepareVq(true);
+            P.OpenEdit();
+            Observer.Observe('visible_rotated_first', Format(P.VisCtl.Visible()));
+            Observer.Observe('editable_rotated_first', Format(P.EdtCtl.Editable()));
+            Observer.Observe('enabled_rotated_first', Format(P.ActCtl.Enabled()));
+            P.GoToKey(2);
+            Observer.Observe('visible_rotated_second', Format(P.VisCtl.Visible()));
+            Observer.Observe('editable_rotated_second', Format(P.EdtCtl.Editable()));
+            Observer.Observe('enabled_rotated_second', Format(P.ActCtl.Enabled()));
+            P.Close();
+        end;
+        Observer.Expect('open', 'ok');
+        Observer.Expect('visible_1', 'Yes');
+        Observer.Expect('editable_1', 'Yes');
+        Observer.Expect('enabled_1', 'Yes');
+        Observer.Expect('visible_2', 'Yes');
+        Observer.Expect('editable_2', 'Yes');
+        Observer.Expect('enabled_2', 'Yes');
+        Observer.Expect('visible_3', 'Yes');
+        Observer.Expect('editable_3', 'Yes');
+        Observer.Expect('enabled_3', 'Yes');
+        Observer.Expect('visible_flipped', 'Yes');
+        Observer.Expect('editable_flipped', 'No');
+        Observer.Expect('enabled_flipped', 'No');
+        Observer.Expect('visible_rotated_first', 'Yes');
+        Observer.Expect('editable_rotated_first', 'Yes');
+        Observer.Expect('enabled_rotated_first', 'Yes');
+        Observer.Expect('visible_rotated_second', 'Yes');
+        Observer.Expect('editable_rotated_second', 'Yes');
+        Observer.Expect('enabled_rotated_second', 'Yes');
+        Observer.Verify();
+    end;
+
+    local procedure OpenVqV6(var P: TestPage "LT VQ Page V6")
+    begin
+        P.OpenEdit();
+        Error(OkTxt);
+    end;
+
+    [Test]
+    procedure VisibleExpr_V6_MemberEnumValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT VQ Page V6";
+        Res: Text;
+        Idx: Integer;
+    begin
+        PrepareVq(false);
+        asserterror OpenVqV6(P);
+        Res := Outcome();
+        Observer.Observe('open', Res);
+        if Res = 'ok' then begin
+            P.Close();
+            PrepareVq(false);
+            P.OpenEdit();
+            for Idx := 1 to 3 do begin
+                P.GoToKey(Idx);
+                Observer.Observe('visible_' + Format(Idx), Format(P.VisCtl.Visible()));
+                Observer.Observe('editable_' + Format(Idx), Format(P.EdtCtl.Editable()));
+                Observer.Observe('enabled_' + Format(Idx), Format(P.ActCtl.Enabled()));
+            end;
+            P.GoToKey(2);
+            P.FlipCtl.Invoke();
+            Observer.Observe('visible_flipped', Format(P.VisCtl.Visible()));
+            Observer.Observe('editable_flipped', Format(P.EdtCtl.Editable()));
+            Observer.Observe('enabled_flipped', Format(P.ActCtl.Enabled()));
+            P.Close();
+            PrepareVq(true);
+            P.OpenEdit();
+            Observer.Observe('visible_rotated_first', Format(P.VisCtl.Visible()));
+            Observer.Observe('editable_rotated_first', Format(P.EdtCtl.Editable()));
+            Observer.Observe('enabled_rotated_first', Format(P.ActCtl.Enabled()));
+            P.GoToKey(2);
+            Observer.Observe('visible_rotated_second', Format(P.VisCtl.Visible()));
+            Observer.Observe('editable_rotated_second', Format(P.EdtCtl.Editable()));
+            Observer.Observe('enabled_rotated_second', Format(P.ActCtl.Enabled()));
+            P.Close();
+        end;
+        Observer.Expect('open', 'ok');
+        Observer.Expect('visible_1', 'Yes');
+        Observer.Expect('editable_1', 'Yes');
+        Observer.Expect('enabled_1', 'Yes');
+        Observer.Expect('visible_2', 'Yes');
+        Observer.Expect('editable_2', 'Yes');
+        Observer.Expect('enabled_2', 'Yes');
+        Observer.Expect('visible_3', 'Yes');
+        Observer.Expect('editable_3', 'Yes');
+        Observer.Expect('enabled_3', 'Yes');
+        Observer.Expect('visible_flipped', 'Yes');
+        Observer.Expect('editable_flipped', 'No');
+        Observer.Expect('enabled_flipped', 'No');
+        Observer.Expect('visible_rotated_first', 'Yes');
+        Observer.Expect('editable_rotated_first', 'Yes');
+        Observer.Expect('enabled_rotated_first', 'Yes');
+        Observer.Expect('visible_rotated_second', 'Yes');
+        Observer.Expect('editable_rotated_second', 'Yes');
+        Observer.Expect('enabled_rotated_second', 'Yes');
         Observer.Verify();
     end;
 }

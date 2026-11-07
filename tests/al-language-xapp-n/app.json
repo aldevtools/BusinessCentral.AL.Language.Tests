@@ -1,0 +1,25 @@
+{
+  "id": "01a5e2c7-4f3b-4d1e-9b6a-2c8d7e1f0a53",
+  "name": "AL Language XApp N",
+  "publisher": "Yankee Probe Publisher",
+  "version": "1.0.0.0",
+  "brief": "Cross-app fixture N: a subscriber app that depends on no app and that only cross-app fixture T depends on.",
+  "description": "Holds one subscriber of the Company table event of the two-top subscriber order probe (tests/al-language/events/subscriber-order/TtSubscriberOrderTests.al). Depends on no app; only cross-app fixture T depends on it. The app id is lower than the id of every other corpus app on purpose. The app id, name and publisher are fixed on purpose: they decide the candidate orders of the probe (CONTRIBUTING.md, \"Multi-app fixtures\"). Do not change them.",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "platform": "27.0.0.0",
+  "dependencies": [],
+  "screenshots": [],
+  "idRanges": [
+    {
+      "from": 97810,
+      "to": 97814
+    }
+  ],
+  "features": [],
+  "runtime": "18.0",
+  "target": "Cloud"
+}

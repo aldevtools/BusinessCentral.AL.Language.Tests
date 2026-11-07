@@ -152,6 +152,39 @@ codeunit 71031 "LT VaT Is Scalars"
         Observer.Expect('enum_format', 'Five');
         Observer.Verify();
     end;
+
+    // al-runner issue 6924 (item 3.8): a one-character literal passed straight to a Variant parameter (no Variant variable in between), next to a
+    // Text variable, a Char variable and a Code[1] variable that hold one character.
+    [Test]
+    procedure Is_OneCharacter_PassedToVariantParameter()
+    var
+        Observer: Codeunit "Probe Observer";
+        Helper: Codeunit "LT VaT Helper";
+        T: Text;
+        Ch: Char;
+        C1: Code[1];
+        V: Variant;
+    begin
+        T := 'x';
+        Ch := ',';
+        C1 := ',';
+        Observer.Observe('literal_comma_param', Helper.Flags(','));
+        Observer.Observe('literal_x_param', Helper.Flags('x'));
+        Observer.Observe('literal_two_chars_param', Helper.Flags('ab'));
+        Observer.Observe('text_var_param', Helper.Flags(T));
+        Observer.Observe('char_var_param', Helper.Flags(Ch));
+        Observer.Observe('code1_var_param', Helper.Flags(C1));
+        V := ',';
+        Observer.Observe('literal_comma_assigned', Helper.Flags(V));
+        Observer.Expect('literal_comma_param', 'Text,');
+        Observer.Expect('literal_x_param', 'Text,');
+        Observer.Expect('literal_two_chars_param', 'Text,');
+        Observer.Expect('text_var_param', 'Text,');
+        Observer.Expect('char_var_param', 'Char,');
+        Observer.Expect('code1_var_param', 'Code,');
+        Observer.Expect('literal_comma_assigned', 'Char,');
+        Observer.Verify();
+    end;
 }
 
 codeunit 71032 "LT VaT Is Objects"
