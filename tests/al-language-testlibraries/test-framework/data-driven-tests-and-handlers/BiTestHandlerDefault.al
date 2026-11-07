@@ -228,6 +228,7 @@ codeunit 81695 "LT BI DH Common"
         LogOnly: Codeunit "LT BI DH Log Only";
         LogDefaultOnly: Codeunit "LT BI DH Log Default Only";
         LogCombo: Codeunit "LT BI DH Log Combo";
+        XhLog: Codeunit "XH Log";
         Marker: Text;
     begin
         Marker := 'set by ' + Prefix + ' in ' + Callback + ' of ' + ProcName;
@@ -250,6 +251,8 @@ codeunit 81695 "LT BI DH Common"
                     if Callback = 'bP' then
                         LogCombo.SetMarker(Marker);
                 end;
+            81646, 81647:
+                XhLog.Add(CodeunitId, Entry);
         end;
     end;
 }

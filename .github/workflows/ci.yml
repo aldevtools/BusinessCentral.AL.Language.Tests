@@ -557,8 +557,15 @@ jobs:
       bc_country:           "w1"
       # al-language is published only because the test app depends on it (Probe Observer). Its own tests run in the
       # test job above.
+      # The tests/al-language-xhandler-* apps hold default test handlers (DefaultTestHandler extensions) for the cross-app
+      # handler probes (BiTestHandlerCrossApp.al). They are published in this job only: a default handler of an installed
+      # app may run for the test codeunits of other apps, so the other jobs must not install them.
       app_dirs: |
         tests/al-language-internals-fixture
+        tests/al-language-xhandler-lib
+        tests/al-language-xhandler-a
+        tests/al-language-xhandler-c
+        tests/al-language-xhandler-d
         tests/al-language-xapp-a
         tests/al-language-xapp-d
         tests/al-language-xapp-b
