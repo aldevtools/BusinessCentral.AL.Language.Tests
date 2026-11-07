@@ -9,7 +9,15 @@
 //      with 0, 1 and 2 rows of the inner table element; the value element before the table element, empty, after it, and with a field
 //      element before the value element.
 //   Each observation is the exact exported text.
-// Facts: filled in after the run.
+// Facts (BC 27.5, 28.5 and 29.0; the 29.0 run measured first, then the matrix): BC writes the plain tree in schema order; the elements are the
+//   ones of the schema, one text element wraps the next. A: below the root table element the table element writes one `order` per row, and the text element
+//   with a value writes once, `<username>x</username>`, after the last row (text element after the table element) or before the first (text element
+//   first). With no row the table element writes one `order` with the record as it stands (`<No />`). With Namespaces and UseDefaultNamespace = true
+//   the prefixed L1 and L0 keep tem:, the root keeps soap: and declares the three namespaces, order and username have no prefix and declare
+//   urn:microsoft-dynamics-nav/xmlports/x<id> of the port. B: the text element TI below the row of the table element writes its value element
+//   (`<T1>x</T1>`, or `<T1 />` when empty) and one `r` per row of the inner table element, in schema order (value element after the table
+//   element: after the last `r`); a field element of the outer row first writes `<No>O1</No>`. With no inner row one `r` is written with the
+//   record as it stands (`<Ref />`).
 // BC versions: 27, 28, 29
 
 table 97940 "LT X63 Comm"
@@ -341,7 +349,10 @@ codeunit 97950 "LT X63 Tests"
         Observer.Observe('1 rows', Helper.TryExportRaw(97943, TextEncoding::UTF8));
         SeedA(2);
         Observer.Observe('2 rows', Helper.TryExportRaw(97943, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <L1>\r\n    <L0>\r\n      <order>\r\n        <No />\r\n      </order>\r\n      <username>x</username>\r\n    </L0>\r\n  </L1>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <L1>\r\n    <L0>\r\n      <order>\r\n        <No>O1</No>\r\n      </order>\r\n      <username>x</username>\r\n    </L0>\r\n  </L1>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <L1>\r\n    <L0>\r\n      <order>\r\n        <No>O1</No>\r\n      </order>\r\n      <order>\r\n        <No>O2</No>\r\n      </order>\r\n      <username>x</username>\r\n    </L0>\r\n  </L1>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -353,7 +364,10 @@ codeunit 97950 "LT X63 Tests"
         Observer.Observe('1 rows', Helper.TryExportRaw(97944, TextEncoding::UTF8));
         SeedA(2);
         Observer.Observe('2 rows', Helper.TryExportRaw(97944, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <L1>\r\n    <L0>\r\n      <username>x</username>\r\n      <order>\r\n        <No />\r\n      </order>\r\n    </L0>\r\n  </L1>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <L1>\r\n    <L0>\r\n      <username>x</username>\r\n      <order>\r\n        <No>O1</No>\r\n      </order>\r\n    </L0>\r\n  </L1>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <L1>\r\n    <L0>\r\n      <username>x</username>\r\n      <order>\r\n        <No>O1</No>\r\n      </order>\r\n      <order>\r\n        <No>O2</No>\r\n      </order>\r\n    </L0>\r\n  </L1>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -365,7 +379,10 @@ codeunit 97950 "LT X63 Tests"
         Observer.Observe('1 rows', Helper.TryExportRaw(97945, TextEncoding::UTF8));
         SeedA(2);
         Observer.Observe('2 rows', Helper.TryExportRaw(97945, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <tem:L1>\r\n    <tem:L0>\r\n      <order xmlns="urn:microsoft-dynamics-nav/xmlports/x97945">\r\n        <No />\r\n      </order>\r\n      <username xmlns="urn:microsoft-dynamics-nav/xmlports/x97945">x</username>\r\n    </tem:L0>\r\n  </tem:L1>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <tem:L1>\r\n    <tem:L0>\r\n      <order xmlns="urn:microsoft-dynamics-nav/xmlports/x97945">\r\n        <No>O1</No>\r\n      </order>\r\n      <username xmlns="urn:microsoft-dynamics-nav/xmlports/x97945">x</username>\r\n    </tem:L0>\r\n  </tem:L1>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <tem:L1>\r\n    <tem:L0>\r\n      <order xmlns="urn:microsoft-dynamics-nav/xmlports/x97945">\r\n        <No>O1</No>\r\n      </order>\r\n      <order xmlns="urn:microsoft-dynamics-nav/xmlports/x97945">\r\n        <No>O2</No>\r\n      </order>\r\n      <username xmlns="urn:microsoft-dynamics-nav/xmlports/x97945">x</username>\r\n    </tem:L0>\r\n  </tem:L1>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -377,7 +394,10 @@ codeunit 97950 "LT X63 Tests"
         Observer.Observe('1 rows', Helper.TryExportRaw(97946, TextEncoding::UTF8));
         SeedB(2);
         Observer.Observe('2 rows', Helper.TryExportRaw(97946, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1>x</T1>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1>x</T1>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1>x</T1>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -389,7 +409,10 @@ codeunit 97950 "LT X63 Tests"
         Observer.Observe('1 rows', Helper.TryExportRaw(97947, TextEncoding::UTF8));
         SeedB(2);
         Observer.Observe('2 rows', Helper.TryExportRaw(97947, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1 />\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1 />\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1 />\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -401,7 +424,10 @@ codeunit 97950 "LT X63 Tests"
         Observer.Observe('1 rows', Helper.TryExportRaw(97948, TextEncoding::UTF8));
         SeedB(2);
         Observer.Observe('2 rows', Helper.TryExportRaw(97948, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n      <T1>x</T1>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <T1>x</T1>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n      <T1>x</T1>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -413,6 +439,9 @@ codeunit 97950 "LT X63 Tests"
         Observer.Observe('1 rows', Helper.TryExportRaw(97949, TextEncoding::UTF8));
         SeedB(2);
         Observer.Observe('2 rows', Helper.TryExportRaw(97949, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <No>O1</No>\r\n      <T1>x</T1>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <No>O1</No>\r\n      <T1>x</T1>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <No>O1</No>\r\n      <T1>x</T1>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
     end;
 }
