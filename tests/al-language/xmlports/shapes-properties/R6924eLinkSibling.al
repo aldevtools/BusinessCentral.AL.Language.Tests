@@ -500,16 +500,6 @@ xmlport 95358 "LT R6924e Link Nest"
                 MinOccurs = Zero;
                 fieldattribute(Code; Outer.Code) { }
 
-                trigger OnAfterGetRecord()
-                begin
-                    Log.Add('agr outer ' + Outer.Code);
-                end;
-
-                trigger OnBeforeInsertRecord()
-                begin
-                    Log.Add('ins outer ' + Outer.Code);
-                end;
-
                 tableelement(TransportHeader; "LT R6924e Hdr")
                 {
                     MinOccurs = Zero;
@@ -543,6 +533,16 @@ xmlport 95358 "LT R6924e Link Nest"
                         Log.Add('ins line ' + TransportLine."Doc No." + '-' + Format(TransportLine."Line No.") + '|' + TransportHeader."No.");
                     end;
                 }
+
+                trigger OnAfterGetRecord()
+                begin
+                    Log.Add('agr outer ' + Outer.Code);
+                end;
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    Log.Add('ins outer ' + Outer.Code);
+                end;
             }
         }
     }
