@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-datacaptionexpression-property
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own table 96260, log 96261, page 96260, tests 96262
-// Probe: observed on BC 27.5, 28.5 and 29.0 (identical logs on all three for the RunModal and Page.Run tests; the TestPage tests were observed on 29.0).
+// Probe: observed on BC 27.5, 28.5 and 29.0 (identical logs on all three for the RunModal, Page.Run and page-id-0 tests; the TestPage tests were observed on 29.0).
 // Facts: al-runner issue 6924 (waldo): a page whose DataCaptionExpression calls a local procedure that assigns page globals from Rec.GetFilter,
 //   shown by field controls that OnOpenPage never assigns. The tests log every trigger, every evaluation of the expression ("DC") and what the
 //   handler reads ("H"); each test asserts the whole log.
@@ -13,11 +13,16 @@
 //   - With an empty table (RunModal) it still runs twice, with no OnAfterGetRecord before it (Rec."Item No." is the filter value I9) and the
 //     handler's first read again shows empty controls; a TestPage opened on an empty table does not run it at all.
 //   - A TestPage opened first and filtered afterwards (TestPage.Filter.SetFilter) runs OnFindRecord('-') and the expression again.
+//   - Page.Run(0, Rec) (page id 0) picks the table's LookupPageId and behaves like Page.Run(Page::"LT DCE Page", Rec) and like RunModal(0, Rec):
+//     the same logs on 27.5, 28.5 and 29.0. With an empty view (filter I9, no rows) the handler's first read of the filter control is empty
+//     for Page.Run as well (the expression ran twice before the handler, but the control shows nothing yet).
+//     Page.Run on an empty view does not call OnAfterGetRecord; RunModal on an empty view calls OnAfterGetRecord(' ctl=I9') after the handler's first read.
 //   - TestPage.Filter.SetFilter before OpenView is not possible (error 'The TestPage is not open'); the filter comes from Page.Run / RunModal on a Rec.
 
 table 96260 "LT DCE Row"
 {
     DataClassification = CustomerContent;
+    LookupPageId = "LT DCE Page";
 
     fields
     {
@@ -447,6 +452,168 @@ codeunit 96262 "LT DCE Tests"
         Observer.Verify();
     end;
 
+    [Test]
+    [HandlerFunctions('PageRunEmptyHandler')]
+    procedure DCE_PageRun_Empty()
+    var
+        Row: Record "LT DCE Row";
+    begin
+        Seed(false);
+        Log.Wipe();
+        Row.SetFilter("Item No.", 'I9');
+        Page.Run(Page::"LT DCE Page", Row);
+        Log.Add('after run');
+        Observer.Observe('log', Log.Joined());
+        Observer.Expect('log',
+            'OnInit(ctl=)' +
+            ' | OnOpenPage(ctl=)' +
+            ' | OnFindRecord(=><)' +
+            ' | DC(filter=I9 rec=I9)' +
+            ' | OnAfterGetCurrRecord(I9 ctl=)' +
+            ' | DC(filter=I9 rec=I9)' +
+            ' | H open cap=LT DCE ctl=' +
+            ' | OnQueryClosePage' +
+            ' | after run');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('PageRunHandler')]
+    procedure DCE_PageRunLookupId_Rows()
+    var
+        Row: Record "LT DCE Row";
+    begin
+        Seed(true);
+        Log.Wipe();
+        Row.SetFilter("Item No.", 'I1|I2');
+        Page.Run(0, Row);
+        Log.Add('after run');
+        Observer.Observe('log', Log.Joined());
+        Observer.Expect('log',
+            'OnInit(ctl=)' +
+            ' | OnOpenPage(ctl=)' +
+            ' | OnFindRecord(=><)' +
+            ' | OnAfterGetRecord(I1 ctl=)' +
+            ' | DC(filter=I1|I2 rec=I1)' +
+            ' | OnAfterGetCurrRecord(I1 ctl=)' +
+            ' | DC(filter=I1|I2 rec=I1)' +
+            ' | H open cap=LT DCE - Cap I1|I2 ctl=' +
+            ' | OnNextRecord(1)' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | OnAfterGetCurrRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | H next cap=LT DCE - Cap I1|I2 ctl=I1|I2 item=I2' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | OnFindRecord(=)' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | OnAfterGetCurrRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | H update cap=LT DCE - Cap I1|I2 ctl=I1|I2' +
+            ' | OnQueryClosePage' +
+            ' | after run');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('PageRunEmptyHandler')]
+    procedure DCE_PageRunLookupId_Empty()
+    var
+        Row: Record "LT DCE Row";
+    begin
+        Seed(false);
+        Log.Wipe();
+        Row.SetFilter("Item No.", 'I9');
+        Page.Run(0, Row);
+        Log.Add('after run');
+        Observer.Observe('log', Log.Joined());
+        Observer.Expect('log',
+            'OnInit(ctl=)' +
+            ' | OnOpenPage(ctl=)' +
+            ' | OnFindRecord(=><)' +
+            ' | DC(filter=I9 rec=I9)' +
+            ' | OnAfterGetCurrRecord(I9 ctl=)' +
+            ' | DC(filter=I9 rec=I9)' +
+            ' | H open cap=LT DCE ctl=' +
+            ' | OnQueryClosePage' +
+            ' | after run');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalHandler')]
+    procedure DCE_RunModalLookupId_Rows()
+    var
+        Row: Record "LT DCE Row";
+    begin
+        Seed(true);
+        Log.Wipe();
+        Row.SetFilter("Item No.", 'I1|I2');
+        Page.RunModal(0, Row);
+        Log.Add('after run');
+        Observer.Observe('log', Log.Joined());
+        Observer.Expect('log',
+            'OnInit(ctl=)' +
+            ' | OnOpenPage(ctl=)' +
+            ' | OnFindRecord(=)' +
+            ' | OnFindRecord(=><)' +
+            ' | OnAfterGetRecord(I1 ctl=)' +
+            ' | DC(filter=I1|I2 rec=I1)' +
+            ' | OnAfterGetCurrRecord(I1 ctl=)' +
+            ' | DC(filter=I1|I2 rec=I1)' +
+            ' | H open cap=LT DCE - Cap I1|I2 ctl=' +
+            ' | OnNextRecord(1)' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | OnAfterGetCurrRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | H next cap=LT DCE - Cap I1|I2 ctl=I1|I2 item=I2' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | OnAfterGetRecord( ctl=I1|I2)' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | OnFindRecord(=)' +
+            ' | OnAfterGetRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | OnAfterGetCurrRecord(I2 ctl=I1|I2)' +
+            ' | DC(filter=I1|I2 rec=I2)' +
+            ' | H update cap=LT DCE - Cap I1|I2 ctl=I1|I2' +
+            ' | OnQueryClosePage' +
+            ' | after run');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalEmptyHandler')]
+    procedure DCE_RunModalLookupId_Empty()
+    var
+        Row: Record "LT DCE Row";
+    begin
+        Seed(false);
+        Log.Wipe();
+        Row.SetFilter("Item No.", 'I9');
+        Page.RunModal(0, Row);
+        Log.Add('after run');
+        Observer.Observe('log', Log.Joined());
+        Observer.Expect('log',
+            'OnInit(ctl=)' +
+            ' | OnOpenPage(ctl=)' +
+            ' | OnFindRecord(=)' +
+            ' | OnFindRecord(=><)' +
+            ' | DC(filter=I9 rec=I9)' +
+            ' | OnAfterGetCurrRecord(I9 ctl=)' +
+            ' | DC(filter=I9 rec=I9)' +
+            ' | H open cap=LT DCE ctl=' +
+            ' | OnAfterGetRecord( ctl=I9)' +
+            ' | OnQueryClosePage' +
+            ' | after run');
+        Observer.Verify();
+    end;
+
     [ModalPageHandler]
     procedure ModalHandler(var Card: TestPage "LT DCE Page")
     begin
@@ -471,5 +638,11 @@ codeunit 96262 "LT DCE Tests"
             Log.Add('H next cap=' + Card.Caption() + ' ctl=' + Card.ItemNoFilterCtl.Value + ' item=' + Card.ItemNoCtl.Value);
         Card.UpdateAct.Invoke();
         Log.Add('H update cap=' + Card.Caption() + ' ctl=' + Card.ItemNoFilterCtl.Value);
+    end;
+
+    [PageHandler]
+    procedure PageRunEmptyHandler(var Card: TestPage "LT DCE Page")
+    begin
+        Log.Add('H open cap=' + Card.Caption() + ' ctl=' + Card.ItemNoFilterCtl.Value);
     end;
 }
