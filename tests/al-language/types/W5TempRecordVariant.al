@@ -1,21 +1,5 @@
 // Batch 5, md:627 (Temporary record and Variant): what a Variant holds when a temporary record WITH ROWS is assigned or passed.
 
-table 67058 "W5 Variant Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[20]) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 codeunit 67059 "W5 Temp Variant Tests"
 {
     Subtype = Test;
@@ -26,7 +10,7 @@ codeunit 67059 "W5 Temp Variant Tests"
     procedure TempRecord_AssignedToVariant()
     var
         Observer: Codeunit "Probe Observer";
-        Temp: Record "W5 Variant Row" temporary;
+        Temp: Record "ALT Shape 06" temporary;
         V: Variant;
         RecRef: RecordRef;
     begin
@@ -54,7 +38,7 @@ codeunit 67059 "W5 Temp Variant Tests"
     procedure TempRecord_PassedToVariantParameter()
     var
         Observer: Codeunit "Probe Observer";
-        Temp: Record "W5 Variant Row" temporary;
+        Temp: Record "ALT Shape 06" temporary;
     begin
         FillThree(Temp);
         Observer.Observe('count_through_variant_temp_3_rows', Format(CountThroughVariant(Temp)));
@@ -69,7 +53,7 @@ codeunit 67059 "W5 Temp Variant Tests"
     procedure RealRecord_PassedToVariantParameter()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "W5 Variant Row";
+        Row: Record "ALT Shape 06";
     begin
         Row.DeleteAll();
         FillThree(Row);
@@ -84,8 +68,8 @@ codeunit 67059 "W5 Temp Variant Tests"
     procedure TempRecord_InsertThroughVariantRecordRef()
     var
         Observer: Codeunit "Probe Observer";
-        Temp: Record "W5 Variant Row" temporary;
-        Real: Record "W5 Variant Row";
+        Temp: Record "ALT Shape 06" temporary;
+        Real: Record "ALT Shape 06";
         V: Variant;
     begin
         Real.DeleteAll();
@@ -107,8 +91,8 @@ codeunit 67059 "W5 Temp Variant Tests"
     procedure TempRecord_VariantBackIntoRecord()
     var
         Observer: Codeunit "Probe Observer";
-        Temp: Record "W5 Variant Row" temporary;
-        Back: Record "W5 Variant Row" temporary;
+        Temp: Record "ALT Shape 06" temporary;
+        Back: Record "ALT Shape 06" temporary;
         V: Variant;
     begin
         FillThree(Temp);
@@ -127,12 +111,12 @@ codeunit 67059 "W5 Temp Variant Tests"
     end;
 
     [TryFunction]
-    local procedure TryAssignBack(V: Variant; var Target: Record "W5 Variant Row")
+    local procedure TryAssignBack(V: Variant; var Target: Record "ALT Shape 06")
     begin
         Target := V;
     end;
 
-    local procedure FillThree(var Target: Record "W5 Variant Row")
+    local procedure FillThree(var Target: Record "ALT Shape 06")
     var
         i: Integer;
     begin
@@ -152,7 +136,7 @@ codeunit 67059 "W5 Temp Variant Tests"
         exit(RecRef.Count());
     end;
 
-    local procedure CountFiltered(var Source: Record "W5 Variant Row"): Integer
+    local procedure CountFiltered(var Source: Record "ALT Shape 06"): Integer
     begin
         Source.SetFilter(Id, '<3');
         exit(CountThroughVariant(Source));

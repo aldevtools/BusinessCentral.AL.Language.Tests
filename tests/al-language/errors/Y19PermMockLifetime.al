@@ -131,6 +131,9 @@ codeunit 91956 "LT Y19 Mock Lifetime B"
         Observer.Expect('insert_after_cleanup|text', 'LT Y19 ok 2');
         Observer.Expect('insert_after_cleanup|code', 'Dialog');
         Observer.Verify();
+        // The test runner toggles the mock around every test method (Started true on entry). Leave it as found, so the toggle
+        // after this method stops it and the next test codeunit starts from the same state as when run alone.
+        Mock.Start();
     end;
 
     local procedure InsertRow(NewId: Integer)

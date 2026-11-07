@@ -1,22 +1,10 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/report/report-saveas-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), Temp Blob (Base Application); own table 71937, report 71938
+// Fixtures used: Probe Observer (codeunit 69160), Temp Blob (Base Application); shared table 50000 "ALT Shape 00", report 71938
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Risky: Report.SaveAs with every ReportFormat; the whole file is one unit.
 // Facts: for a ProcessingOnly report with a dataset and no layout: the result of SaveAs for Xml, Pdf, Html, Word, Excel (value, bytes written, GetLastErrorText start and code) and whether the data item triggers ran.
 // BC versions: 29 (27 and 28 by CI)
-
-table 71937 "LT P160 PoRow"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 codeunit 71943 "LT P160 Po Log"
 {
@@ -46,7 +34,7 @@ report 71938 "LT P160 Po Report"
 
     dataset
     {
-        dataitem(Rows; "LT P160 PoRow")
+        dataitem(Rows; "ALT Shape 00")
         {
             trigger OnAfterGetRecord()
             var
@@ -94,7 +82,7 @@ codeunit 71944 "LT P160 Po Formats"
 
     local procedure Seed()
     var
-        Row: Record "LT P160 PoRow";
+        Row: Record "ALT Shape 00";
     begin
         Row.DeleteAll();
         Row.Id := 1;

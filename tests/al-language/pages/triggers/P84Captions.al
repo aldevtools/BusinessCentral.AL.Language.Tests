@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-captionclass-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), own table 73037, page 73038, log codeunit 73039 (used only by test codeunit 73040), test codeunit 73040
+// Fixtures used: Probe Observer (codeunit 69160), own table 73037, page 73038, log codeunit 73039 (used only by test codeunit 73040), test codeunit 73040, LT QK Setup Rows (86940)
 // Probe: written against BC 29 ...; observed values are added by the lead after measuring (tag P84, GitHub issue #84)
 // Facts: CaptionClass expressions on table fields and page controls, with no subscriber, with a logging subscriber and with a resolving subscriber of codeunit 'Caption Class' (OnResolveCaptionClass)
 // BC versions: 29
@@ -185,6 +185,16 @@ codeunit 73040 "LT P84 Cap Tests"
     var
         CapLog: Codeunit "LT P84 Cap Log";
 
+    // Resolving an area 1 caption makes SingleInstance codeunit 343 keep the General Ledger Setup row of its first read in the session. Every test
+    // fills that cache with the corpus setup first (QkSetupRows.al), so this codeunit never decides what codeunit 86504 reads. It runs before
+    // SetMode, so the log of the mode in force is not touched by it (SetMode clears the log).
+    local procedure Prime()
+    var
+        QkRows: Codeunit "LT QK Setup Rows";
+    begin
+        QkRows.PrimeDimensionCaptionCache();
+    end;
+
     local procedure Tbl(var Observer: Codeunit "Probe Observer"; Name: Text; Caption: Text)
     begin
         Observer.Observe(Name, Caption);
@@ -197,6 +207,7 @@ codeunit 73040 "LT P84 Cap Tests"
         Observer: Codeunit "Probe Observer";
         Rec: Record "LT P84 Cap Rec";
     begin
+        Prime();
         CapLog.SetMode('');
         Observer.Observe('id', Rec.FieldCaption(Id));
         Observer.Observe('plain', Rec.FieldCaption(Plain));
@@ -239,6 +250,7 @@ codeunit 73040 "LT P84 Cap Tests"
         Observer: Codeunit "Probe Observer";
         Page: TestPage "LT P84 Cap Card";
     begin
+        Prime();
         CapLog.SetMode('');
         Page.OpenNew();
         Observer.Observe('c01', Page.C01.Caption());
@@ -281,6 +293,7 @@ codeunit 73040 "LT P84 Cap Tests"
         Observer: Codeunit "Probe Observer";
         Rec: Record "LT P84 Cap Rec";
     begin
+        Prime();
         CapLog.SetMode('log');
         Tbl(Observer, 'f01', Rec.FieldCaption(F01));
         Tbl(Observer, 'f02', Rec.FieldCaption(F02));
@@ -313,6 +326,7 @@ codeunit 73040 "LT P84 Cap Tests"
         Observer: Codeunit "Probe Observer";
         Page: TestPage "LT P84 Cap Card";
     begin
+        Prime();
         CapLog.SetMode('log');
         Page.OpenNew();
         Observer.Observe('open_calls', CapLog.Take());
@@ -349,6 +363,7 @@ codeunit 73040 "LT P84 Cap Tests"
         Observer: Codeunit "Probe Observer";
         Rec: Record "LT P84 Cap Rec";
     begin
+        Prime();
         CapLog.SetMode('log');
         Tbl(Observer, 'f08', Rec.FieldCaption(F08));
         Tbl(Observer, 'f09', Rec.FieldCaption(F09));
@@ -381,6 +396,7 @@ codeunit 73040 "LT P84 Cap Tests"
         Observer: Codeunit "Probe Observer";
         Page: TestPage "LT P84 Cap Card";
     begin
+        Prime();
         CapLog.SetMode('log');
         Page.OpenNew();
         Observer.Observe('open_calls', CapLog.Take());
@@ -417,6 +433,7 @@ codeunit 73040 "LT P84 Cap Tests"
         Observer: Codeunit "Probe Observer";
         Rec: Record "LT P84 Cap Rec";
     begin
+        Prime();
         CapLog.SetMode('resolve');
         Tbl(Observer, 'f01', Rec.FieldCaption(F01));
         Tbl(Observer, 'f02', Rec.FieldCaption(F02));
@@ -449,6 +466,7 @@ codeunit 73040 "LT P84 Cap Tests"
         Observer: Codeunit "Probe Observer";
         Page: TestPage "LT P84 Cap Card";
     begin
+        Prime();
         CapLog.SetMode('resolve');
         Page.OpenNew();
         Observer.Observe('open_calls', CapLog.Take());
@@ -485,6 +503,7 @@ codeunit 73040 "LT P84 Cap Tests"
         Observer: Codeunit "Probe Observer";
         Rec: Record "LT P84 Cap Rec";
     begin
+        Prime();
         CapLog.SetMode('resolve');
         Tbl(Observer, 'f08', Rec.FieldCaption(F08));
         Tbl(Observer, 'f09', Rec.FieldCaption(F09));
@@ -517,6 +536,7 @@ codeunit 73040 "LT P84 Cap Tests"
         Observer: Codeunit "Probe Observer";
         Page: TestPage "LT P84 Cap Card";
     begin
+        Prime();
         CapLog.SetMode('resolve');
         Page.OpenNew();
         Observer.Observe('open_calls', CapLog.Take());
@@ -553,6 +573,7 @@ codeunit 73040 "LT P84 Cap Tests"
         Observer: Codeunit "Probe Observer";
         Rec: Record "LT P84 Cap Rec";
     begin
+        Prime();
         CapLog.SetMode('caption-only');
         Tbl(Observer, 'f01', Rec.FieldCaption(F01));
         Tbl(Observer, 'f03', Rec.FieldCaption(F03));
@@ -579,6 +600,7 @@ codeunit 73040 "LT P84 Cap Tests"
         Observer: Codeunit "Probe Observer";
         Page: TestPage "LT P84 Cap Card";
     begin
+        Prime();
         CapLog.SetMode('caption-only');
         Page.OpenNew();
         Observer.Observe('open_calls', CapLog.Take());
@@ -609,6 +631,7 @@ codeunit 73040 "LT P84 Cap Tests"
         Observer: Codeunit "Probe Observer";
         Rec: Record "LT P84 Cap Rec";
     begin
+        Prime();
         CapLog.SetMode('resolved-only');
         Tbl(Observer, 'f01', Rec.FieldCaption(F01));
         Tbl(Observer, 'f03', Rec.FieldCaption(F03));
@@ -635,6 +658,7 @@ codeunit 73040 "LT P84 Cap Tests"
         Observer: Codeunit "Probe Observer";
         Page: TestPage "LT P84 Cap Card";
     begin
+        Prime();
         CapLog.SetMode('resolved-only');
         Page.OpenNew();
         Observer.Observe('open_calls', CapLog.Take());
@@ -667,6 +691,7 @@ codeunit 73040 "LT P84 Cap Tests"
         FRef: FieldRef;
         Index: Integer;
     begin
+        Prime();
         CapLog.SetMode('');
         RecRef.Open(Database::"LT P84 Cap Rec");
         for Index := 11 to 24 do begin
@@ -699,6 +724,7 @@ codeunit 73040 "LT P84 Cap Tests"
         FRef: FieldRef;
         Index: Integer;
     begin
+        Prime();
         CapLog.SetMode('resolve');
         RecRef.Open(Database::"LT P84 Cap Rec");
         for Index := 11 to 17 do begin
@@ -731,6 +757,7 @@ codeunit 73040 "LT P84 Cap Tests"
         Observer: Codeunit "Probe Observer";
         Rec: Record "LT P84 Cap Rec";
     begin
+        Prime();
         CapLog.SetMode('resolve');
         Observer.Observe('first', Rec.FieldCaption(F03));
         Observer.Observe('first_calls', CapLog.Take());

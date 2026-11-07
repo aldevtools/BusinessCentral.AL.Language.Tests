@@ -4,6 +4,7 @@
 // Fixtures used: QDTF Row (60497), QDTF Open Rows (60500), QDTF Two Field Filter (60501),
 //   QDTF Status Filtered (60507), QDTF Self Join Status (60508); shared Assert (60021)
 //   Writer SQ: Probe Observer (69160) and SqQdtfEmptyFilter.al (table 89589, queries 89590-89594)
+//   Writer VQ (al-runner 6924): Probe Observer (69160) and VqQueryEnumFilter.al (enum 97120, tables 97121 97144, queries 97122-97133)
 //
 // A query dataitem's DataItemTableFilter property is a STATIC filter on the dataitem's own
 // TABLE rows, applied before anything is projected. It differs from a column's ColumnFilter
@@ -25,7 +26,10 @@
 //     admit none. The older runtime-filter tests above filter on a different field (RowCode),
 //     so neither of them pins what happens when the two name one field;
 //   - two dataitems of a self-join each filtering that one field keep their filters apart, so a
-//     contradictory pair returns nothing rather than one condition standing for both.
+//     contradictory pair returns nothing rather than one condition standing for both.//
+// Writer VQ: a qualified enum value "Enum"::Member in DataItemTableFilter compiles (filter, const, OR of two members, quoted member name, table
+// field named like its enum) and selects the rows of that member. In ColumnFilter the same form does not compile (AL0118): must-not-compile
+// cases 2980 to 2984. A plain member name (filter(Beta), const(Beta)) works in ColumnFilter.
 codeunit 60503 "QDTF Table Filter Tests"
 {
     Subtype = Test;
@@ -386,6 +390,179 @@ codeunit 60503 "QDTF Table Filter Tests"
         Observer.Expect('code const empty', 'ok:1,4,');
         Observer.Expect('code filter empty or A', 'ok:1,2,4,');
         Observer.Expect('column filter empty', 'ok:1,4,');
+        Observer.Verify();
+    end;
+
+    // Writer VQ (al-runner 6924): a qualified enum value in DataItemTableFilter and ColumnFilter (VqQueryEnumFilter.al).
+    local procedure VqSeed()
+    var
+        Row: Record "LT VQ Q Row";
+        SameRow: Record "LT VQ Q Same";
+        Idx: Integer;
+    begin
+        Row.DeleteAll();
+        SameRow.DeleteAll();
+        // Kind: Alpha, Beta, Gamma Delta, Beta. In the other table the same-named field holds Beta, Alpha, Gamma Delta, Beta,
+        // so a filter on the wrong field of that table shows.
+        for Idx := 1 to 4 do begin
+            Row.Init();
+            Row.Id := Idx;
+            SameRow.Init();
+            SameRow.Id := Idx;
+            case Idx of
+                1:
+                    begin
+                        Row.Kind := Row.Kind::Alpha;
+                        SameRow.Kind := SameRow.Kind::Alpha;
+                        SameRow."LT VQ Q Kind" := SameRow."LT VQ Q Kind"::Beta;
+                    end;
+                2:
+                    begin
+                        Row.Kind := Row.Kind::Beta;
+                        SameRow.Kind := SameRow.Kind::Beta;
+                        SameRow."LT VQ Q Kind" := SameRow."LT VQ Q Kind"::Alpha;
+                    end;
+                3:
+                    begin
+                        Row.Kind := Row.Kind::"Gamma Delta";
+                        SameRow.Kind := SameRow.Kind::"Gamma Delta";
+                        SameRow."LT VQ Q Kind" := SameRow."LT VQ Q Kind"::"Gamma Delta";
+                    end;
+                4:
+                    begin
+                        Row.Kind := Row.Kind::Beta;
+                        SameRow.Kind := SameRow.Kind::Beta;
+                        SameRow."LT VQ Q Kind" := SameRow."LT VQ Q Kind"::Beta;
+                    end;
+            end;
+            Row.Insert();
+            SameRow.Insert();
+        end;
+    end;
+
+    [TryFunction]
+    local procedure VqTryRead(QueryId: Integer; var Ids: Text)
+    var
+        QDitFilter: Query "LT VQ Q Dit Filter";
+        QDitConst: Query "LT VQ Q Dit Const";
+        QDitOr: Query "LT VQ Q Dit Or";
+        QDitQuoted: Query "LT VQ Q Dit Quoted";
+        QDitSame: Query "LT VQ Q Dit Same";
+        QDitSameConst: Query "LT VQ Q Dit SameConst";
+        QColPlain: Query "LT VQ Q Col Plain";
+        QColPlainConst: Query "LT VQ Q Col PlainConst";
+        QDitPlain: Query "LT VQ Q Dit Plain";
+    begin
+        case QueryId of
+            Query::"LT VQ Q Dit Filter":
+                begin
+                    QDitFilter.Open();
+                    while QDitFilter.Read() do
+                        Ids += Format(QDitFilter.RowId) + ',';
+                end;
+            Query::"LT VQ Q Dit Const":
+                begin
+                    QDitConst.Open();
+                    while QDitConst.Read() do
+                        Ids += Format(QDitConst.RowId) + ',';
+                end;
+            Query::"LT VQ Q Dit Or":
+                begin
+                    QDitOr.Open();
+                    while QDitOr.Read() do
+                        Ids += Format(QDitOr.RowId) + ',';
+                end;
+            Query::"LT VQ Q Dit Quoted":
+                begin
+                    QDitQuoted.Open();
+                    while QDitQuoted.Read() do
+                        Ids += Format(QDitQuoted.RowId) + ',';
+                end;
+            Query::"LT VQ Q Dit Same":
+                begin
+                    QDitSame.Open();
+                    while QDitSame.Read() do
+                        Ids += Format(QDitSame.RowId) + ',';
+                end;
+            Query::"LT VQ Q Dit SameConst":
+                begin
+                    QDitSameConst.Open();
+                    while QDitSameConst.Read() do
+                        Ids += Format(QDitSameConst.RowId) + ',';
+                end;
+            Query::"LT VQ Q Col Plain":
+                begin
+                    QColPlain.Open();
+                    while QColPlain.Read() do
+                        Ids += Format(QColPlain.RowId) + ',';
+                end;
+            Query::"LT VQ Q Col PlainConst":
+                begin
+                    QColPlainConst.Open();
+                    while QColPlainConst.Read() do
+                        Ids += Format(QColPlainConst.RowId) + ',';
+                end;
+            Query::"LT VQ Q Dit Plain":
+                begin
+                    QDitPlain.Open();
+                    while QDitPlain.Read() do
+                        Ids += Format(QDitPlain.RowId) + ',';
+                end;
+        end;
+    end;
+
+    local procedure VqRead(QueryId: Integer): Text
+    var
+        Ids: Text;
+    begin
+        ClearLastError();
+        if VqTryRead(QueryId, Ids) then
+            exit('ok:' + Ids);
+        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    [Test]
+    procedure Vq_QualifiedEnumValue_DataItemTableFilter()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        VqSeed();
+        Observer.Observe('dit filter', VqRead(Query::"LT VQ Q Dit Filter"));
+        Observer.Observe('dit const', VqRead(Query::"LT VQ Q Dit Const"));
+        Observer.Observe('dit or', VqRead(Query::"LT VQ Q Dit Or"));
+        Observer.Observe('dit quoted', VqRead(Query::"LT VQ Q Dit Quoted"));
+        Observer.Expect('dit filter', 'ok:2,4,');
+        Observer.Expect('dit const', 'ok:2,4,');
+        Observer.Expect('dit or', 'ok:1,2,4,');
+        Observer.Expect('dit quoted', 'ok:3,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Vq_PlainEnumMember_ColumnFilterAndDataItemFilter()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        VqSeed();
+        Observer.Observe('col plain', VqRead(Query::"LT VQ Q Col Plain"));
+        Observer.Observe('col plainconst', VqRead(Query::"LT VQ Q Col PlainConst"));
+        Observer.Observe('dit plain', VqRead(Query::"LT VQ Q Dit Plain"));
+        Observer.Expect('col plain', 'ok:2,4,');
+        Observer.Expect('col plainconst', 'ok:2,4,');
+        Observer.Expect('dit plain', 'ok:2,4,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Vq_QualifiedEnumValue_FieldNamedLikeTheEnum()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        VqSeed();
+        Observer.Observe('dit same', VqRead(Query::"LT VQ Q Dit Same"));
+        Observer.Observe('dit sameconst', VqRead(Query::"LT VQ Q Dit SameConst"));
+        Observer.Expect('dit same', 'ok:1,4,');
+        Observer.Expect('dit sameconst', 'ok:1,4,');
         Observer.Verify();
     end;
 }

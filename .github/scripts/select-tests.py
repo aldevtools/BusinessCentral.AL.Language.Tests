@@ -30,8 +30,8 @@ Only codeunits inside the job's own codeunit_range are selected, so a codeunit t
 object {test app dir: "50010,50012..50015|50020"}. The corpus CI batcher passes the union of the selections it made for
 each branch of a batch alone: the selection of the merged diff would mostly be a full run (more than MAX_FILES files).
 Only runnable test codeunits of the job's range are kept (a range never pulls in a Subtype = Test codeunit without a
-[Test] procedure); every app still gets its sentinel; an app the input leaves out runs only its sentinel. An input that
-cannot be read, or that names an app no test job reads the selection for, means a full run.
+[Test] procedure); every app still gets its sentinel; an app the input leaves out gets only its sentinel, and
+ci-shards.py then starts no shard for it. An input that cannot be read, or that names an app no test job reads the selection for, means a full run.
 
 A change to ci.yml that edits nothing but the values of codeunit_range lines (a "CI range edit") is no reason for a
 full run: the selection is made as usual, plus every test codeunit the edit brings into its job's range.

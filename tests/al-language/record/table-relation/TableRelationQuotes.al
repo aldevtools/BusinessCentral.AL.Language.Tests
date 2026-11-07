@@ -1083,4 +1083,160 @@ codeunit 74068 "LT Table Relation Quotes"
         Obs.Expect('f13k2_NOPE', 'DB:PrimRecordNotFound');
         Obs.Verify();
     end;
+
+    // ---- TRX (al-runner issue 6924, item 3.2): a where() filter on a field that a tableextension in the same app adds to the related table, written
+    // filter('<>'''''), the "not empty" filter with escaped quotes; next to the same filter on a field of the table itself, filter('<>'''), const(''),
+    // filter(<> ''), filter('A B'), const('A B') and filter(''''''). Objects in TableRelationExtFieldFilter.Objects.al. ----
+
+    local procedure TrxSeed()
+    var
+        X: Record "LT TRX X";
+        Y: Record "LT TRX Y";
+    begin
+        X.DeleteAll();
+        Y.DeleteAll();
+        X.Code := 'XA';
+        X.Insert();
+        TrxAddY('FILLED', 'C1');
+        TrxAddY('EMPTY', '');
+        TrxAddY('SPACE', 'A B');
+        TrxAddY('QUOTE', '''');
+    end;
+
+    local procedure TrxAddY(Code: Code[20]; Value: Code[10])
+    var
+        Y: Record "LT TRX Y";
+    begin
+        Y.Init();
+        Y.Code := Code;
+        Y."Own Code" := Value;
+        Y."Ext Code" := Value;
+        Y.Insert();
+    end;
+
+    [TryFunction]
+    local procedure TrxTryValidate(FieldNo: Integer; TypeValue: Enum "LT TRX Type"; Value: Code[20])
+    var
+        S: Record "LT TRX Src";
+    begin
+        S.Type := TypeValue;
+        case FieldNo of
+            3:
+                S.Validate("Source No.", Value);
+            4:
+                S.Validate(ExtNotEmptyQuoted, Value);
+            5:
+                S.Validate(OwnNotEmptyQuoted, Value);
+            6:
+                S.Validate(ExtNotQuote, Value);
+            7:
+                S.Validate(ExtConstEmpty, Value);
+            8:
+                S.Validate(ExtNotEmptyBare, Value);
+            9:
+                S.Validate(ExtSpaceFilter, Value);
+            10:
+                S.Validate(ExtSpaceConst, Value);
+            11:
+                S.Validate(ExtEmptyQuoted, Value);
+            12:
+                S.Validate(OwnNotEmptyBare, Value);
+        end;
+    end;
+
+    // One line per field: <code>:ok or <code>:<error code>, for the rows FILLED (C1), EMPTY (''), SPACE ('A B'), QUOTE (') and a missing code.
+    local procedure TrxLine(FieldNo: Integer; TypeValue: Enum "LT TRX Type"): Text
+    var
+        Codes: List of [Text];
+        C: Text;
+        R: Text;
+    begin
+        Codes.Add('FILLED');
+        Codes.Add('EMPTY');
+        Codes.Add('SPACE');
+        Codes.Add('QUOTE');
+        Codes.Add('XA');
+        Codes.Add('NOPE');
+        foreach C in Codes do begin
+            ClearLastError();
+            if TrxTryValidate(FieldNo, TypeValue, CopyStr(C, 1, 20)) then
+                R += C + ':ok '
+            else
+                R += C + ':' + GetLastErrorCode() + ' ';
+        end;
+        ClearLastError();
+        exit(R.TrimEnd());
+    end;
+
+    local procedure TrxText(FieldNo: Integer; TypeValue: Enum "LT TRX Type"; Value: Code[20]): Text
+    begin
+        ClearLastError();
+        if TrxTryValidate(FieldNo, TypeValue, Value) then
+            exit('ok');
+        exit(GetLastErrorText());
+    end;
+
+    [Test]
+    procedure TRX_ConditionalArm_ExtFieldNotEmptyQuoted()
+    begin
+        TrxSeed();
+        Obs.Observe('type A', TrxLine(3, "LT TRX Type"::A));
+        Obs.Observe('type B', TrxLine(3, "LT TRX Type"::B));
+        Obs.Observe('type B EMPTY text', TrxText(3, "LT TRX Type"::B, 'EMPTY'));
+        Obs.Observe('type A FILLED text', TrxText(3, "LT TRX Type"::A, 'FILLED'));
+        Obs.Expect('type A', 'FILLED:DB:PrimRecordNotFound EMPTY:DB:PrimRecordNotFound SPACE:DB:PrimRecordNotFound QUOTE:DB:PrimRecordNotFound XA:ok NOPE:DB:PrimRecordNotFound');
+        Obs.Expect('type B', 'FILLED:ok EMPTY:DB:NothingInsideFilter SPACE:ok QUOTE:ok XA:DB:NothingInsideFilter NOPE:DB:NothingInsideFilter');
+        Obs.Expect('type B EMPTY text', 'The field Source No. of table LT TRX Src contains a value (EMPTY) that cannot be found in the related table (LT TRX Y).');
+        Obs.Expect('type A FILLED text', 'The field Source No. of table LT TRX Src contains a value (FILLED) that cannot be found in the related table (LT TRX X).');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TRX_Plain_ExtAndOwnFieldNotEmptyQuoted()
+    begin
+        TrxSeed();
+        Obs.Observe('ext not empty quoted', TrxLine(4, "LT TRX Type"::A));
+        Obs.Observe('own not empty quoted', TrxLine(5, "LT TRX Type"::A));
+        Obs.Observe('ext not empty quoted EMPTY text', TrxText(4, "LT TRX Type"::A, 'EMPTY'));
+        Obs.Observe('own not empty bare', TrxLine(12, "LT TRX Type"::A));
+        Obs.Observe('ext not empty bare', TrxLine(8, "LT TRX Type"::A));
+        Obs.Expect('ext not empty quoted', 'FILLED:ok EMPTY:DB:NothingInsideFilter SPACE:ok QUOTE:ok XA:DB:NothingInsideFilter NOPE:DB:NothingInsideFilter');
+        Obs.Expect('own not empty quoted', 'FILLED:ok EMPTY:DB:NothingInsideFilter SPACE:ok QUOTE:ok XA:DB:NothingInsideFilter NOPE:DB:NothingInsideFilter');
+        Obs.Expect('ext not empty quoted EMPTY text', 'The field ExtNotEmptyQuoted of table LT TRX Src contains a value (EMPTY) that cannot be found in the related table (LT TRX Y).');
+        Obs.Expect('own not empty bare', 'FILLED:ok EMPTY:DB:NothingInsideFilter SPACE:ok QUOTE:ok XA:DB:NothingInsideFilter NOPE:DB:NothingInsideFilter');
+        Obs.Expect('ext not empty bare', 'FILLED:ok EMPTY:DB:NothingInsideFilter SPACE:ok QUOTE:ok XA:DB:NothingInsideFilter NOPE:DB:NothingInsideFilter');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TRX_Plain_ExtFieldOtherForms()
+    begin
+        TrxSeed();
+        Obs.Observe('ext not quote', TrxLine(6, "LT TRX Type"::A));
+        Obs.Observe('ext const empty', TrxLine(7, "LT TRX Type"::A));
+        Obs.Observe('ext space filter', TrxLine(9, "LT TRX Type"::A));
+        Obs.Observe('ext space const', TrxLine(10, "LT TRX Type"::A));
+        Obs.Observe('ext empty quoted', TrxLine(11, "LT TRX Type"::A));
+        Obs.Observe('ext const empty FILLED text', TrxText(7, "LT TRX Type"::A, 'FILLED'));
+        Obs.Expect('ext not quote', 'FILLED:InvalidFilterExpression EMPTY:InvalidFilterExpression SPACE:InvalidFilterExpression QUOTE:InvalidFilterExpression XA:InvalidFilterExpression NOPE:InvalidFilterExpression');
+        Obs.Expect('ext const empty', 'FILLED:DB:NothingInsideFilter EMPTY:ok SPACE:DB:NothingInsideFilter QUOTE:DB:NothingInsideFilter XA:DB:NothingInsideFilter NOPE:DB:NothingInsideFilter');
+        Obs.Expect('ext space filter', 'FILLED:DB:NothingInsideFilter EMPTY:DB:NothingInsideFilter SPACE:ok QUOTE:DB:NothingInsideFilter XA:DB:NothingInsideFilter NOPE:DB:NothingInsideFilter');
+        Obs.Expect('ext space const', 'FILLED:DB:NothingInsideFilter EMPTY:DB:NothingInsideFilter SPACE:ok QUOTE:DB:NothingInsideFilter XA:DB:NothingInsideFilter NOPE:DB:NothingInsideFilter');
+        Obs.Expect('ext empty quoted', 'FILLED:DB:NothingInsideFilter EMPTY:ok SPACE:DB:NothingInsideFilter QUOTE:DB:NothingInsideFilter XA:DB:NothingInsideFilter NOPE:DB:NothingInsideFilter');
+        Obs.Expect('ext const empty FILLED text', 'The field ExtConstEmpty of table LT TRX Src contains a value (FILLED) that cannot be found in the related table (LT TRX Y).');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TRX_Plain_ExtNotQuote_ErrorText()
+    begin
+        TrxSeed();
+        Obs.Observe('ext not quote FILLED text', TrxText(6, "LT TRX Type"::A, 'FILLED'));
+        Obs.Observe('ext not quote empty value text', TrxText(6, "LT TRX Type"::A, ''));
+        Obs.Observe('ext not empty quoted empty value', TrxText(4, "LT TRX Type"::A, ''));
+        Obs.Expect('ext not quote FILLED text', 'An single quote ('') is missing.');
+        Obs.Expect('ext not quote empty value text', 'ok');
+        Obs.Expect('ext not empty quoted empty value', 'ok');
+        Obs.Verify();
+    end;
 }

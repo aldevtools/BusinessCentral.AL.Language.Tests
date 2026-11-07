@@ -150,4 +150,213 @@ codeunit 60915 "Test Blob CalcFields Uncomm"
     begin
         Cleanup.Initialize();
     end;
+
+    // Tests below (al-runner issue 6791): a Blob written through CreateOutStream after Insert, without Modify, read back with
+    // CalcFields + CreateInStream. Matrix: a database row of ALT Blob, a temporary variable of ALT Blob, a table with
+    // TableType = Temporary (table 95782 at the end of this file); with and without Clear(Blob) before CreateOutStream; with and
+    // without a Get between the write and CalcFields; with and without HasValue before CalcFields. Each observation:
+    // hv=<HasValue before CalcFields, or -> read=<text read back> after=<HasValue after CalcFields>.
+    // Measured on BC 29.0 (corpus CI): a temporary record (variable or TableType = Temporary) reads the text back in every cell,
+    // also after Clear and after a Get; a database row reads it back without a Get (with or without Clear) and reads nothing after a Get.
+
+    [Test]
+    procedure BlobRoundTrip_DatabaseRow_Matrix()
+    var
+        Observer: Codeunit "Probe Observer";
+        i: Integer;
+    begin
+        Initialize();
+        for i := 0 to 7 do
+            Observer.Observe(CellName(i), DbCell(i));
+        Observer.Expect('noclear+noget+nohasvalue', 'hv=- read=ROUNDTRIP after=Yes');
+        Observer.Expect('clear+noget+nohasvalue', 'hv=- read=ROUNDTRIP after=Yes');
+        Observer.Expect('noclear+get+nohasvalue', 'hv=- read= after=No');
+        Observer.Expect('clear+get+nohasvalue', 'hv=- read= after=No');
+        Observer.Expect('noclear+noget+hasvalue', 'hv=Yes read=ROUNDTRIP after=Yes');
+        Observer.Expect('clear+noget+hasvalue', 'hv=Yes read=ROUNDTRIP after=Yes');
+        Observer.Expect('noclear+get+hasvalue', 'hv=No read= after=No');
+        Observer.Expect('clear+get+hasvalue', 'hv=No read= after=No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure BlobRoundTrip_TemporaryVariable_Matrix()
+    var
+        Observer: Codeunit "Probe Observer";
+        i: Integer;
+    begin
+        Initialize();
+        for i := 0 to 7 do
+            Observer.Observe(CellName(i), TempVarCell(i));
+        Observer.Expect('noclear+noget+nohasvalue', 'hv=- read=ROUNDTRIP after=Yes');
+        Observer.Expect('clear+noget+nohasvalue', 'hv=- read=ROUNDTRIP after=Yes');
+        Observer.Expect('noclear+get+nohasvalue', 'hv=- read=ROUNDTRIP after=Yes');
+        Observer.Expect('clear+get+nohasvalue', 'hv=- read=ROUNDTRIP after=Yes');
+        Observer.Expect('noclear+noget+hasvalue', 'hv=Yes read=ROUNDTRIP after=Yes');
+        Observer.Expect('clear+noget+hasvalue', 'hv=Yes read=ROUNDTRIP after=Yes');
+        Observer.Expect('noclear+get+hasvalue', 'hv=Yes read=ROUNDTRIP after=Yes');
+        Observer.Expect('clear+get+hasvalue', 'hv=Yes read=ROUNDTRIP after=Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure BlobRoundTrip_TemporaryTable_Matrix()
+    var
+        Observer: Codeunit "Probe Observer";
+        i: Integer;
+    begin
+        Initialize();
+        for i := 0 to 7 do
+            Observer.Observe(CellName(i), TempTableCell(i));
+        Observer.Expect('noclear+noget+nohasvalue', 'hv=- read=ROUNDTRIP after=Yes');
+        Observer.Expect('clear+noget+nohasvalue', 'hv=- read=ROUNDTRIP after=Yes');
+        Observer.Expect('noclear+get+nohasvalue', 'hv=- read=ROUNDTRIP after=Yes');
+        Observer.Expect('clear+get+nohasvalue', 'hv=- read=ROUNDTRIP after=Yes');
+        Observer.Expect('noclear+noget+hasvalue', 'hv=Yes read=ROUNDTRIP after=Yes');
+        Observer.Expect('clear+noget+hasvalue', 'hv=Yes read=ROUNDTRIP after=Yes');
+        Observer.Expect('noclear+get+hasvalue', 'hv=Yes read=ROUNDTRIP after=Yes');
+        Observer.Expect('clear+get+hasvalue', 'hv=Yes read=ROUNDTRIP after=Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure BlobRoundTrip_TableMethods()
+    // The reporter's shape: SetContent and GetContent are procedures of the table and work on Rec.
+    var
+        TempTable: Record "STR Blob Temp Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        TempTable.Init();
+        TempTable."Entry No." := 1;
+        TempTable.Insert(false);
+        TempTable.SetContent('ROUNDTRIP');
+        Observer.Observe('temporary table', TempTable.GetContent());
+        Observer.Expect('temporary table', 'ROUNDTRIP');
+        Observer.Verify();
+    end;
+
+    local procedure CellName(i: Integer): Text
+    var
+        Name: Text;
+    begin
+        if i mod 2 = 1 then
+            Name := 'clear'
+        else
+            Name := 'noclear';
+        if (i div 2) mod 2 = 1 then
+            Name += '+get'
+        else
+            Name += '+noget';
+        if i div 4 = 1 then
+            Name += '+hasvalue'
+        else
+            Name += '+nohasvalue';
+        exit(Name);
+    end;
+
+    local procedure DbCell(i: Integer): Text
+    var
+        BlobRec: Record "ALT Blob";
+    begin
+        exit(AltBlobCell(BlobRec, i));
+    end;
+
+    local procedure TempVarCell(i: Integer): Text
+    var
+        TempBlobRec: Record "ALT Blob" temporary;
+    begin
+        exit(AltBlobCell(TempBlobRec, i));
+    end;
+
+    local procedure AltBlobCell(var BlobRec: Record "ALT Blob"; i: Integer): Text
+    var
+        OutS: OutStream;
+        InS: InStream;
+        HasBefore: Text;
+        ReadBack: Text;
+    begin
+        BlobRec.Init();
+        BlobRec.Code := 'CELL' + Format(i);
+        BlobRec.Insert(true);
+        if i mod 2 = 1 then
+            Clear(BlobRec.Data);
+        BlobRec.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        OutS.WriteText('ROUNDTRIP');
+        if (i div 2) mod 2 = 1 then
+            BlobRec.Get(BlobRec.Code);
+        HasBefore := '-';
+        if i div 4 = 1 then
+            HasBefore := Format(BlobRec.Data.HasValue());
+        BlobRec.CalcFields(Data);
+        BlobRec.Data.CreateInStream(InS, TextEncoding::UTF8);
+        InS.Read(ReadBack);
+        exit(StrSubstNo('hv=%1 read=%2 after=%3', HasBefore, ReadBack, BlobRec.Data.HasValue()));
+    end;
+
+    local procedure TempTableCell(i: Integer): Text
+    var
+        Row: Record "STR Blob Temp Row";
+        OutS: OutStream;
+        InS: InStream;
+        HasBefore: Text;
+        ReadBack: Text;
+    begin
+        Row.Init();
+        Row."Entry No." := 100 + i;
+        Row.Insert(false);
+        if i mod 2 = 1 then
+            Clear(Row.Content);
+        Row.Content.CreateOutStream(OutS, TextEncoding::UTF8);
+        OutS.WriteText('ROUNDTRIP');
+        if (i div 2) mod 2 = 1 then
+            Row.Get(Row."Entry No.");
+        HasBefore := '-';
+        if i div 4 = 1 then
+            HasBefore := Format(Row.Content.HasValue());
+        Row.CalcFields(Content);
+        Row.Content.CreateInStream(InS, TextEncoding::UTF8);
+        InS.Read(ReadBack);
+        exit(StrSubstNo('hv=%1 read=%2 after=%3', HasBefore, ReadBack, Row.Content.HasValue()));
+    end;
+}
+
+// local object: the test checks a table with TableType = Temporary (al-runner issue 6791).
+table 95782 "STR Blob Temp Row"
+{
+    TableType = Temporary;
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(10; Content; Blob) { }
+    }
+
+    keys
+    {
+        key(PK; "Entry No.") { Clustered = true; }
+    }
+
+    procedure SetContent(ContentP: Text)
+    var
+        OutStreamL: OutStream;
+    begin
+        Clear(Rec.Content);
+        if ContentP = '' then
+            exit;
+        Rec.Content.CreateOutStream(OutStreamL, TextEncoding::UTF8);
+        OutStreamL.WriteText(ContentP);
+    end;
+
+    procedure GetContent() ResultR: Text
+    var
+        InStreamL: InStream;
+    begin
+        if not Rec.Content.HasValue() then
+            exit('');
+        Rec.CalcFields(Content);
+        Rec.Content.CreateInStream(InStreamL, TextEncoding::UTF8);
+        InStreamL.Read(ResultR);
+    end;
 }

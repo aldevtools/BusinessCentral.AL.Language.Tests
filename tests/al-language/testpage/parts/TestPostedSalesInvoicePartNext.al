@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testpart/testpart-next-method
 // Scope: in-scope
 // Fixtures used: Base Application page 132 "Posted Sales Invoice" and its part page 133
-//                "Posted Sales Invoice Subform" (read-only ListPart); Assert (60021)
+//                "Posted Sales Invoice Subform" (read-only ListPart); Assert (60021); LT QK Setup Rows (86940)
 //
 // "OKP Part Next Tests" (60229) pins that a part's first Next() after the host's GoToKey steps
 // to the part's SECOND row, on an editable part. This codeunit asks the same question on a
@@ -31,7 +31,11 @@ codeunit 60233 "OKP Posted Inv Part Next Tests"
     var
         Header: Record "Sales Invoice Header";
         Line: Record "Sales Invoice Line";
+        QkRows: Codeunit "LT QK Setup Rows";
     begin
+        // Opening the page resolves dimension captions through SingleInstance codeunit 343, which keeps the General Ledger Setup row of its first
+        // read in the session; fill that cache with the corpus setup so this codeunit never decides what codeunit 86504 reads (QkSetupRows.al).
+        QkRows.PrimeDimensionCaptionCache();
         Line.SetRange("Document No.", InvoiceNoTok);
         Line.DeleteAll();
         if Header.Get(InvoiceNoTok) then

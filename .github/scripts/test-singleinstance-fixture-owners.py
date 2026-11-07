@@ -144,13 +144,22 @@ scenario("a tree with no SingleInstance codeunit REFUSES to pass", {
     "a.al": test_cu(60002, "Test A", '        I: Integer;\n'),
 }, expected=1)
 
+# 8. A file that marks its SingleInstance codeunit as shared on purpose is not
+#    reported; the same tree without the marker is (scenario 1).
+scenario("marked shared-on-purpose fixture is ACCEPTED", {
+    "f.al": "// singleinstance-shared-on-purpose: the probe reads it in a later test codeunit\n"
+            + fixture(60001, "Shared"),
+    "a.al": test_cu(60002, "Test A", '        C: Codeunit "Shared";\n'),
+    "b.al": test_cu(60003, "Test B", '        C: Codeunit "Shared";\n'),
+}, expected=0)
+
 print()
 if FAILURES:
     for f in FAILURES:
         print(f"::error::{f}")
-    print(f"FAILED — {len(FAILURES)} of 7 scenarios wrong")
+    print(f"FAILED — {len(FAILURES)} of 8 scenarios wrong")
     sys.exit(1)
-print("OK — all 7 scenarios behaved as specified")
+print("OK — all 8 scenarios behaved as specified")
 
 # The gate itself. Only reached once the scenarios above have proved the checker
 # still works, so an OK here means something.

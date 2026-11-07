@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-overloading
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own interface 91270, enum 91271, table 91272, codeunits 91273 / 91274 and test codeunit 91275
+// Fixtures used: Probe Observer (codeunit 69160); own interface 91270, enum 91271, shared table 50000 "ALT Shape 00", codeunits 91273 / 91274 and test codeunit 91275
 // Probe: written against BC 29 and checked on the corpus CI matrix (27, 28, 29); every literal asserted below is what BC produced.
 // Facts: which overload BC calls when one procedure name has a variant with a var Record parameter and a variant with an Interface parameter (same second
 //   parameter, a JsonObject), and the argument is an enum that implements the interface, an interface variable, a codeunit variable that implements it, or a
@@ -20,18 +20,6 @@ enum 91271 "LT SC Importer Kind" implements "LT SC Importer"
     value(1; Special) { Implementation = "LT SC Importer" = "LT SC Importer Special"; }
 }
 
-table 91272 "LT SC Importer Row"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 codeunit 91273 "LT SC Importer Impl" implements "LT SC Importer"
 {
     procedure Name(): Text
@@ -47,7 +35,7 @@ codeunit 91274 "LT SC Importer Special" implements "LT SC Importer"
         exit('special');
     end;
 
-    procedure Get(var Rec: Record "LT SC Importer Row"; J: JsonObject): Text
+    procedure Get(var Rec: Record "ALT Shape 00"; J: JsonObject): Text
     begin
         exit('record overload');
     end;
@@ -72,7 +60,7 @@ codeunit 91274 "LT SC Importer Special" implements "LT SC Importer"
         exit(Get(C, J));
     end;
 
-    procedure ByRecord(var Row: Record "LT SC Importer Row"; J: JsonObject): Text
+    procedure ByRecord(var Row: Record "ALT Shape 00"; J: JsonObject): Text
     begin
         exit(Get(Row, J));
     end;
@@ -89,7 +77,7 @@ codeunit 91275 "LT SC Overload Rec Intf"
         Observer: Codeunit "Probe Observer";
         Host: Codeunit "LT SC Importer Special";
         Impl: Codeunit "LT SC Importer Impl";
-        Row: Record "LT SC Importer Row";
+        Row: Record "ALT Shape 00";
         Kind: Enum "LT SC Importer Kind";
         I: Interface "LT SC Importer";
         J: JsonObject;
