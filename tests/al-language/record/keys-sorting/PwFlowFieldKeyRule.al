@@ -495,6 +495,13 @@ codeunit 97022 "LT W9 FlowField Key Kinds"
     end;
 }
 
+// Pinned (waldo 6924, own shapes; BC 29.0 observed, other majors confirmed by the CI matrix): an exist FlowField added by a table extension
+//   and listed in no key still sorts as a key field after SetCurrentKey. The FlowField value orders false before true, and rows with equal
+//   values come in primary key order, not insertion order (rows inserted 5, 3, 1, 6, 4, 2):
+//   SetRange true -> 2 4 5; SetRange false -> 1 3 6; no SetRange -> 1 3 6 2 4 5; SetAscending false -> 2 4 5 1 3 6 (ties stay in primary key order).
+//   The range works with and without SetCurrentKey (the answer is the same rows in primary key order, CurrentKey stays the primary key).
+//   The order of SetRange and SetCurrentKey does not matter; a two field key (flow field, Report ID) gives the same rows; an extra
+//   filter on Report ID narrows the rows (4 5), still sorted by the key.
 // Probe (waldo 6924, own shapes): an exist FlowField added by a TABLE EXTENSION to a base table, listed in no key. SetCurrentKey on it,
 //   then SetRange true, SetRange false and no SetRange, FindSet loop: which rows, in which order, how ties among equal values fall
 //   (the rows are inserted in the order 5, 3, 1, 6, 4, 2, so primary key order and insertion order differ). Without SetCurrentKey for contrast.
@@ -588,7 +595,10 @@ codeunit 97163 "LT OR Exist FlowField Range"
         Observer.Observe('keyThenFalse', Order(Rep));
         Rep.SetRange("Has Layout");
         Observer.Observe('keyNoRange', Order(Rep));
-        Observer.Finish();
+        Observer.Expect('keyThenTrue', 'key=Has Layout order=2 4 5 count=3');
+        Observer.Expect('keyThenFalse', 'key=Has Layout order=1 3 6 count=3');
+        Observer.Expect('keyNoRange', 'key=Has Layout order=1 3 6 2 4 5 count=6');
+        Observer.Verify();
     end;
 
     [Test]
@@ -602,7 +612,9 @@ codeunit 97163 "LT OR Exist FlowField Range"
         Observer.Observe('noKeyTrue', Order(Rep));
         Rep.SetRange("Has Layout", false);
         Observer.Observe('noKeyFalse', Order(Rep));
-        Observer.Finish();
+        Observer.Expect('noKeyTrue', 'key=Report ID order=2 4 5 count=3');
+        Observer.Expect('noKeyFalse', 'key=Report ID order=1 3 6 count=3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -630,6 +642,11 @@ codeunit 97163 "LT OR Exist FlowField Range"
         Rep.SetRange("Has Layout", true);
         Rep.SetFilter("Report ID", '>2');
         Observer.Observe('keyTrueAndPk', Order(Rep));
-        Observer.Finish();
+        Observer.Expect('descNoRange', 'key=Has Layout order=2 4 5 1 3 6 count=6');
+        Observer.Expect('descTrue', 'key=Has Layout order=2 4 5 count=3');
+        Observer.Expect('rangeThenKeyTrue', 'key=Has Layout order=2 4 5 count=3');
+        Observer.Expect('twoFieldKeyTrue', 'key=Has Layout,Report ID order=2 4 5 count=3');
+        Observer.Expect('keyTrueAndPk', 'key=Has Layout order=4 5 count=2');
+        Observer.Verify();
     end;
 }
