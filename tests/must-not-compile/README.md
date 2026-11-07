@@ -58,6 +58,7 @@ is only a reference.
 | 0019 | AL0132 | `ExecutionMode::Profile` does not exist |
 | 0020 to 0024 | AL0296 (and AL0433 for removed tables) | all 123 platform tables of System.app with Scope = OnPrem named from a Cloud app, 30 per case; symbols of BC 27.0 only (`@from 27`, `@until 27`) |
 | 0030 to 0033 | AL0118 | an unknown bare procedure name inside a table, a page, a report and a page extension |
+| 2980 to 2984 | AL0118 (AL0204) | `ColumnFilter` with a qualified enum value `"Enum"::Member` (filter, const, OR, quoted member, field named like the enum); DataItemTableFilter accepts it |
 | 0034, 0035 | AL0197 | two page extensions / two tables of the same name |
 | 0036 | AL0264 | two codeunits with the same id |
 | 0040 to 0042 | AL0161, AL0161, AL0440 | report extension forms of cases 0001 to 0003 |
