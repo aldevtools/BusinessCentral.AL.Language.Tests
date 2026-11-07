@@ -6,6 +6,12 @@
 //   Nee, Nein, Nej, Oui, Non, Y, N), the error text and code of a rejected one, Format(Bool) and Format(Bool, 0, 9); Evaluate into an Option field and
 //   an Enum (name, caption, caption under the language, ordinal) and their Format; Evaluate of date texts and Format(Date) and Format(Date, 0, 9).
 // Facts (identical on BC 27.5, 28.5 and 29.0, W1 containers): see the pinned values; summary in corpus PR 1173.
+// Blank first enum member (al-runner issue 6924, waldo run 2; WA_BlankEnum1/2/3_<language>_<id> at the end of the file, enums 97270 to 97272, GlobalLanguage 1034, 2067
+// and 1033): a member named " " (with and without Caption ' '), and a member with an empty name. Measured on BC 27.5, 28.5 and 29.0 (identical, and identical in the three
+// languages): Format of the blank member is ' ' for the " " members and '0' for the empty-name member; Format(blank, 0, 9) and Format(blank, 0, 2) are '0'. Evaluate of the text
+// Format gave, of an empty text, of one or two blanks and of the ordinal '0' returns true and selects the blank member (ordinal 0), also when the start value was another
+// member. The member names (First) and the caption of the current language are accepted; the captions of the other languages and the English caption under another
+// language are rejected (Evaluate answers false with no error text, and the variable keeps its value).
 // BC versions: 27+ (tested by the corpus CI matrix)
 
 table 96280 "LT EL Row"
@@ -1059,7 +1065,27 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         WA_Enum1(Observer, 1034);
-        Observer.Finish();
+        Observer.Expect('Format blank', '[ ]');
+        Observer.Expect('Format blank 0 9', '[0]');
+        Observer.Expect('Format blank 0 2', '[0]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate []', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [  ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [First]', 'ok|1|[Primero]');
+        Observer.Expect('Evaluate [Primero]', 'ok|1|[Primero]');
+        Observer.Expect('Evaluate [Eerste BE]', 'rejected|2');
+        Observer.Expect('Evaluate [Eerste BE]|text', '');
+        Observer.Expect('Evaluate [Eerste BE]|code', '');
+        Observer.Expect('Evaluate [first cap]', 'rejected|2');
+        Observer.Expect('Evaluate [first cap]|text', '');
+        Observer.Expect('Evaluate [first cap]|code', '');
+        Observer.Expect('Evaluate [First cap]', 'rejected|2');
+        Observer.Expect('Evaluate [First cap]|text', '');
+        Observer.Expect('Evaluate [First cap]|code', '');
+        Observer.Expect('Evaluate [0]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate format 9 of blank', 'Sí|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1068,7 +1094,27 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         WA_Enum1(Observer, 2067);
-        Observer.Finish();
+        Observer.Expect('Format blank', '[ ]');
+        Observer.Expect('Format blank 0 9', '[0]');
+        Observer.Expect('Format blank 0 2', '[0]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate []', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [  ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [First]', 'ok|1|[Eerste BE]');
+        Observer.Expect('Evaluate [Primero]', 'rejected|2');
+        Observer.Expect('Evaluate [Primero]|text', '');
+        Observer.Expect('Evaluate [Primero]|code', '');
+        Observer.Expect('Evaluate [Eerste BE]', 'ok|1|[Eerste BE]');
+        Observer.Expect('Evaluate [first cap]', 'rejected|2');
+        Observer.Expect('Evaluate [first cap]|text', '');
+        Observer.Expect('Evaluate [first cap]|code', '');
+        Observer.Expect('Evaluate [First cap]', 'rejected|2');
+        Observer.Expect('Evaluate [First cap]|text', '');
+        Observer.Expect('Evaluate [First cap]|code', '');
+        Observer.Expect('Evaluate [0]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate format 9 of blank', 'Ja|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1077,7 +1123,25 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         WA_Enum1(Observer, 1033);
-        Observer.Finish();
+        Observer.Expect('Format blank', '[ ]');
+        Observer.Expect('Format blank 0 9', '[0]');
+        Observer.Expect('Format blank 0 2', '[0]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate []', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [  ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [First]', 'ok|1|[First cap]');
+        Observer.Expect('Evaluate [Primero]', 'rejected|2');
+        Observer.Expect('Evaluate [Primero]|text', '');
+        Observer.Expect('Evaluate [Primero]|code', '');
+        Observer.Expect('Evaluate [Eerste BE]', 'rejected|2');
+        Observer.Expect('Evaluate [Eerste BE]|text', '');
+        Observer.Expect('Evaluate [Eerste BE]|code', '');
+        Observer.Expect('Evaluate [first cap]', 'ok|1|[First cap]');
+        Observer.Expect('Evaluate [First cap]', 'ok|1|[First cap]');
+        Observer.Expect('Evaluate [0]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate format 9 of blank', 'Yes|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1086,7 +1150,27 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         WA_Enum2(Observer, 1034);
-        Observer.Finish();
+        Observer.Expect('Format blank', '[ ]');
+        Observer.Expect('Format blank 0 9', '[0]');
+        Observer.Expect('Format blank 0 2', '[0]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate []', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [  ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [First]', 'ok|1|[Primero]');
+        Observer.Expect('Evaluate [Primero]', 'ok|1|[Primero]');
+        Observer.Expect('Evaluate [Eerste BE]', 'rejected|2');
+        Observer.Expect('Evaluate [Eerste BE]|text', '');
+        Observer.Expect('Evaluate [Eerste BE]|code', '');
+        Observer.Expect('Evaluate [first cap]', 'rejected|2');
+        Observer.Expect('Evaluate [first cap]|text', '');
+        Observer.Expect('Evaluate [first cap]|code', '');
+        Observer.Expect('Evaluate [First cap]', 'rejected|2');
+        Observer.Expect('Evaluate [First cap]|text', '');
+        Observer.Expect('Evaluate [First cap]|code', '');
+        Observer.Expect('Evaluate [0]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate format 9 of blank', 'Sí|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1095,7 +1179,27 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         WA_Enum2(Observer, 2067);
-        Observer.Finish();
+        Observer.Expect('Format blank', '[ ]');
+        Observer.Expect('Format blank 0 9', '[0]');
+        Observer.Expect('Format blank 0 2', '[0]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate []', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [  ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [First]', 'ok|1|[Eerste BE]');
+        Observer.Expect('Evaluate [Primero]', 'rejected|2');
+        Observer.Expect('Evaluate [Primero]|text', '');
+        Observer.Expect('Evaluate [Primero]|code', '');
+        Observer.Expect('Evaluate [Eerste BE]', 'ok|1|[Eerste BE]');
+        Observer.Expect('Evaluate [first cap]', 'rejected|2');
+        Observer.Expect('Evaluate [first cap]|text', '');
+        Observer.Expect('Evaluate [first cap]|code', '');
+        Observer.Expect('Evaluate [First cap]', 'rejected|2');
+        Observer.Expect('Evaluate [First cap]|text', '');
+        Observer.Expect('Evaluate [First cap]|code', '');
+        Observer.Expect('Evaluate [0]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate format 9 of blank', 'Ja|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1104,7 +1208,25 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         WA_Enum2(Observer, 1033);
-        Observer.Finish();
+        Observer.Expect('Format blank', '[ ]');
+        Observer.Expect('Format blank 0 9', '[0]');
+        Observer.Expect('Format blank 0 2', '[0]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate []', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [  ]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate [First]', 'ok|1|[First cap]');
+        Observer.Expect('Evaluate [Primero]', 'rejected|2');
+        Observer.Expect('Evaluate [Primero]|text', '');
+        Observer.Expect('Evaluate [Primero]|code', '');
+        Observer.Expect('Evaluate [Eerste BE]', 'rejected|2');
+        Observer.Expect('Evaluate [Eerste BE]|text', '');
+        Observer.Expect('Evaluate [Eerste BE]|code', '');
+        Observer.Expect('Evaluate [first cap]', 'ok|1|[First cap]');
+        Observer.Expect('Evaluate [First cap]', 'ok|1|[First cap]');
+        Observer.Expect('Evaluate [0]', 'ok|0|[ ]');
+        Observer.Expect('Evaluate format 9 of blank', 'Yes|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1113,7 +1235,27 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         WA_Enum3(Observer, 1034);
-        Observer.Finish();
+        Observer.Expect('Format blank', '[0]');
+        Observer.Expect('Format blank 0 9', '[0]');
+        Observer.Expect('Format blank 0 2', '[0]');
+        Observer.Expect('Evaluate [0]', 'ok|0|[0]');
+        Observer.Expect('Evaluate []', 'ok|0|[0]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[0]');
+        Observer.Expect('Evaluate [  ]', 'ok|0|[0]');
+        Observer.Expect('Evaluate [First]', 'ok|1|[Primero]');
+        Observer.Expect('Evaluate [Primero]', 'ok|1|[Primero]');
+        Observer.Expect('Evaluate [Eerste BE]', 'rejected|2');
+        Observer.Expect('Evaluate [Eerste BE]|text', '');
+        Observer.Expect('Evaluate [Eerste BE]|code', '');
+        Observer.Expect('Evaluate [first cap]', 'rejected|2');
+        Observer.Expect('Evaluate [first cap]|text', '');
+        Observer.Expect('Evaluate [first cap]|code', '');
+        Observer.Expect('Evaluate [First cap]', 'rejected|2');
+        Observer.Expect('Evaluate [First cap]|text', '');
+        Observer.Expect('Evaluate [First cap]|code', '');
+        Observer.Expect('Evaluate [0]', 'ok|0|[0]');
+        Observer.Expect('Evaluate format 9 of blank', 'Sí|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1122,7 +1264,27 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         WA_Enum3(Observer, 2067);
-        Observer.Finish();
+        Observer.Expect('Format blank', '[0]');
+        Observer.Expect('Format blank 0 9', '[0]');
+        Observer.Expect('Format blank 0 2', '[0]');
+        Observer.Expect('Evaluate [0]', 'ok|0|[0]');
+        Observer.Expect('Evaluate []', 'ok|0|[0]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[0]');
+        Observer.Expect('Evaluate [  ]', 'ok|0|[0]');
+        Observer.Expect('Evaluate [First]', 'ok|1|[Eerste BE]');
+        Observer.Expect('Evaluate [Primero]', 'rejected|2');
+        Observer.Expect('Evaluate [Primero]|text', '');
+        Observer.Expect('Evaluate [Primero]|code', '');
+        Observer.Expect('Evaluate [Eerste BE]', 'ok|1|[Eerste BE]');
+        Observer.Expect('Evaluate [first cap]', 'rejected|2');
+        Observer.Expect('Evaluate [first cap]|text', '');
+        Observer.Expect('Evaluate [first cap]|code', '');
+        Observer.Expect('Evaluate [First cap]', 'rejected|2');
+        Observer.Expect('Evaluate [First cap]|text', '');
+        Observer.Expect('Evaluate [First cap]|code', '');
+        Observer.Expect('Evaluate [0]', 'ok|0|[0]');
+        Observer.Expect('Evaluate format 9 of blank', 'Ja|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1131,7 +1293,25 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer: Codeunit "Probe Observer";
     begin
         WA_Enum3(Observer, 1033);
-        Observer.Finish();
+        Observer.Expect('Format blank', '[0]');
+        Observer.Expect('Format blank 0 9', '[0]');
+        Observer.Expect('Format blank 0 2', '[0]');
+        Observer.Expect('Evaluate [0]', 'ok|0|[0]');
+        Observer.Expect('Evaluate []', 'ok|0|[0]');
+        Observer.Expect('Evaluate [ ]', 'ok|0|[0]');
+        Observer.Expect('Evaluate [  ]', 'ok|0|[0]');
+        Observer.Expect('Evaluate [First]', 'ok|1|[First cap]');
+        Observer.Expect('Evaluate [Primero]', 'rejected|2');
+        Observer.Expect('Evaluate [Primero]|text', '');
+        Observer.Expect('Evaluate [Primero]|code', '');
+        Observer.Expect('Evaluate [Eerste BE]', 'rejected|2');
+        Observer.Expect('Evaluate [Eerste BE]|text', '');
+        Observer.Expect('Evaluate [Eerste BE]|code', '');
+        Observer.Expect('Evaluate [first cap]', 'ok|1|[First cap]');
+        Observer.Expect('Evaluate [First cap]', 'ok|1|[First cap]');
+        Observer.Expect('Evaluate [0]', 'ok|0|[0]');
+        Observer.Expect('Evaluate format 9 of blank', 'Yes|0');
+        Observer.Verify();
     end;
 }
 
