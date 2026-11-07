@@ -952,4 +952,213 @@ codeunit 96283 "LT EL Evaluate Language"
         Observer.Verify();
     end;
 
+    // Waldo run 2 (al-runner issue 6924): enums whose first member is blank. Enum 1 (97270): value(0; " ") without a caption. Enum 2 (97271):
+    // the same member with Caption ' ' (ENU, ESP, NLB). Enum 3 (97272): value(0; "") with an empty name. For GlobalLanguage 1034, 2067 and 1033: the text
+    // Format gives for the blank member (and with format 9 and 2), and what Evaluate does with that text, an empty text, blanks, the
+    // member names, the captions and the ordinal. Start value is Second, so a value that is kept shows.
+
+    local procedure WA_Enum1(var Observer: Codeunit "Probe Observer"; Lang: Integer)
+    var
+        E: Enum "LT WA Blank Enum";
+        Blank: Enum "LT WA Blank Enum";
+        WordList: List of [Text];
+        Word: Text;
+        Ok: Boolean;
+    begin
+        GlobalLanguage(Lang);
+        Blank := Blank::" ";
+        Observer.Observe('Format blank', '[' + Format(Blank) + ']');
+        Observer.Observe('Format blank 0 9', '[' + Format(Blank, 0, 9) + ']');
+        Observer.Observe('Format blank 0 2', '[' + Format(Blank, 0, 2) + ']');
+        WordList.Add(Format(Blank));
+        WordList.AddRange('', ' ', '  ', 'First', 'Primero', 'Eerste BE', 'first cap', 'First cap', '0');
+        foreach Word in WordList do begin
+            E := E::Second;
+            ClearLastError();
+            Ok := Evaluate(E, Word);
+            if Ok then
+                Observer.Observe('Evaluate [' + Word + ']', 'ok|' + Format(E, 0, 2) + '|[' + Format(E) + ']')
+            else begin
+                Observer.Observe('Evaluate [' + Word + ']', 'rejected|' + Format(E, 0, 2));
+                Observer.ObserveError('Evaluate [' + Word + ']');
+            end;
+        end;
+        E := E::Second;
+        Ok := Evaluate(E, Format(Blank), 9);
+        Observer.Observe('Evaluate format 9 of blank', Format(Ok) + '|' + Format(E, 0, 2));
+        GlobalLanguage(1033);
+    end;
+
+    local procedure WA_Enum2(var Observer: Codeunit "Probe Observer"; Lang: Integer)
+    var
+        E: Enum "LT WA Blank Cap Enum";
+        Blank: Enum "LT WA Blank Cap Enum";
+        WordList: List of [Text];
+        Word: Text;
+        Ok: Boolean;
+    begin
+        GlobalLanguage(Lang);
+        Blank := Blank::" ";
+        Observer.Observe('Format blank', '[' + Format(Blank) + ']');
+        Observer.Observe('Format blank 0 9', '[' + Format(Blank, 0, 9) + ']');
+        Observer.Observe('Format blank 0 2', '[' + Format(Blank, 0, 2) + ']');
+        WordList.Add(Format(Blank));
+        WordList.AddRange('', ' ', '  ', 'First', 'Primero', 'Eerste BE', 'first cap', 'First cap', '0');
+        foreach Word in WordList do begin
+            E := E::Second;
+            ClearLastError();
+            Ok := Evaluate(E, Word);
+            if Ok then
+                Observer.Observe('Evaluate [' + Word + ']', 'ok|' + Format(E, 0, 2) + '|[' + Format(E) + ']')
+            else begin
+                Observer.Observe('Evaluate [' + Word + ']', 'rejected|' + Format(E, 0, 2));
+                Observer.ObserveError('Evaluate [' + Word + ']');
+            end;
+        end;
+        E := E::Second;
+        Ok := Evaluate(E, Format(Blank), 9);
+        Observer.Observe('Evaluate format 9 of blank', Format(Ok) + '|' + Format(E, 0, 2));
+        GlobalLanguage(1033);
+    end;
+
+    local procedure WA_Enum3(var Observer: Codeunit "Probe Observer"; Lang: Integer)
+    var
+        E: Enum "LT WA Empty Name Enum";
+        Blank: Enum "LT WA Empty Name Enum";
+        WordList: List of [Text];
+        Word: Text;
+        Ok: Boolean;
+    begin
+        GlobalLanguage(Lang);
+        Blank := Enum::"LT WA Empty Name Enum".FromInteger(0);
+        Observer.Observe('Format blank', '[' + Format(Blank) + ']');
+        Observer.Observe('Format blank 0 9', '[' + Format(Blank, 0, 9) + ']');
+        Observer.Observe('Format blank 0 2', '[' + Format(Blank, 0, 2) + ']');
+        WordList.Add(Format(Blank));
+        WordList.AddRange('', ' ', '  ', 'First', 'Primero', 'Eerste BE', 'first cap', 'First cap', '0');
+        foreach Word in WordList do begin
+            E := E::Second;
+            ClearLastError();
+            Ok := Evaluate(E, Word);
+            if Ok then
+                Observer.Observe('Evaluate [' + Word + ']', 'ok|' + Format(E, 0, 2) + '|[' + Format(E) + ']')
+            else begin
+                Observer.Observe('Evaluate [' + Word + ']', 'rejected|' + Format(E, 0, 2));
+                Observer.ObserveError('Evaluate [' + Word + ']');
+            end;
+        end;
+        E := E::Second;
+        Ok := Evaluate(E, Format(Blank), 9);
+        Observer.Observe('Evaluate format 9 of blank', Format(Ok) + '|' + Format(E, 0, 2));
+        GlobalLanguage(1033);
+    end;
+
+    [Test]
+    procedure WA_BlankEnum1_ES_1034()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Enum1(Observer, 1034);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_BlankEnum1_NLB_2067()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Enum1(Observer, 2067);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_BlankEnum1_ENU_1033()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Enum1(Observer, 1033);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_BlankEnum2_ES_1034()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Enum2(Observer, 1034);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_BlankEnum2_NLB_2067()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Enum2(Observer, 2067);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_BlankEnum2_ENU_1033()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Enum2(Observer, 1033);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_BlankEnum3_ES_1034()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Enum3(Observer, 1034);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_BlankEnum3_NLB_2067()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Enum3(Observer, 2067);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_BlankEnum3_ENU_1033()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Enum3(Observer, 1033);
+        Observer.Finish();
+    end;
+}
+
+// local objects of the WA_BlankEnum tests (al-runner issue 6924, waldo run 2).
+enum 97270 "LT WA Blank Enum"
+{
+    Extensible = true;
+
+    value(0; " ") { }
+    value(1; First) { CaptionML = ENU = 'First cap', ESP = 'Primero', NLB = 'Eerste BE'; }
+    value(2; Second) { CaptionML = ENU = 'Second cap', ESP = 'Segundo', NLB = 'Tweede BE'; }
+}
+
+enum 97271 "LT WA Blank Cap Enum"
+{
+    Extensible = true;
+
+    value(0; " ") { CaptionML = ENU = ' ', ESP = ' ', NLB = ' '; }
+    value(1; First) { CaptionML = ENU = 'First cap', ESP = 'Primero', NLB = 'Eerste BE'; }
+    value(2; Second) { CaptionML = ENU = 'Second cap', ESP = 'Segundo', NLB = 'Tweede BE'; }
+}
+
+enum 97272 "LT WA Empty Name Enum"
+{
+    Extensible = true;
+
+    value(0; "") { }
+    value(1; First) { CaptionML = ENU = 'First cap', ESP = 'Primero', NLB = 'Eerste BE'; }
+    value(2; Second) { CaptionML = ENU = 'Second cap', ESP = 'Segundo', NLB = 'Tweede BE'; }
 }
