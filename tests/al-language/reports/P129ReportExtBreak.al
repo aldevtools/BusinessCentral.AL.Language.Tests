@@ -1,22 +1,10 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/reportinstance/reportinstance-break-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); table 73319, SingleInstance log 73320 (used only by test codeunit 73325), report 73321, report extension 73322
+// Fixtures used: Probe Observer (codeunit 69160); shared table 50000 "ALT Shape 00", SingleInstance log 73320 (used only by test codeunit 73325), report 73321, report extension 73322
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: CurrReport.Break and CurrReport.Skip in the triggers a report extension adds to a data item (OnBeforeAfterGetRecord, OnAfterAfterGetRecord, OnBeforePreDataItem, OnAfterPostDataItem):
 // the log of the triggers of base report and extension that ran and whether the run raised an error (text and code).
 // BC versions: 29 (27 and 28 by CI)
-
-table 73319 "LT P129 BrkX Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-
-    keys { key(PK; Id) { Clustered = true; } }
-}
 
 codeunit 73320 "LT P129 BrkX Log"
 {
@@ -58,7 +46,7 @@ report 73321 "LT P129 BrkX Report"
 
     dataset
     {
-        dataitem(Row; "LT P129 BrkX Row")
+        dataitem(Row; "ALT Shape 00")
         {
             trigger OnPreDataItem()
             begin
@@ -151,7 +139,7 @@ codeunit 73325 "LT P129 Report Ext Break"
 
     local procedure RunMode(Mode: Text): Text
     var
-        Row: Record "LT P129 BrkX Row";
+        Row: Record "ALT Shape 00";
         Outcome: Text;
     begin
         Row.DeleteAll();

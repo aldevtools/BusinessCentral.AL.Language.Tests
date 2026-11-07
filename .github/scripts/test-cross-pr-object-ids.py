@@ -7,7 +7,8 @@ untested it would sit in CI for months reporting "no collisions" whether or not
 it still worked -- the shape of a check that has quietly stopped checking.
 
 So this builds a throwaway git repository with a known collision and asserts
-the real detection code reports it, plus the three ways it must NOT fire.
+the real detection code reports it, plus the ways it must NOT fire (including a PR
+branched before master renumbered an object).
 No network, no token, about a second.
 """
 import importlib.util
@@ -65,6 +66,40 @@ def build(root: Path):
             (root / name).write_text(body)
         git("add", "-A", cwd=root)
         git("commit", "-qm", branch, cwd=root)
+
+    # The stale-base case (outside PR #1132): "S" branches from master while
+    # master still declares table 60369, touches an unrelated file, and then
+    # master renumbers 60369 to 60370. S's tree still says `table 60369`, which
+    # master's tip no longer has -- but S never added it, so it is not a claim.
+    git("checkout", "-q", "master", cwd=root)
+    (root / "Renumbered.al").write_text(obj("table", 60369, "Renumbered"))
+    git("add", "-A", cwd=root)
+    git("commit", "-qm", "master: add table 60369", cwd=root)
+    git("checkout", "-q", "-B", "S", "master", cwd=root)
+    (root / "S1.al").write_text(obj("codeunit", 61700, "Stale Unrelated"))
+    git("add", "-A", cwd=root)
+    git("commit", "-qm", "S", cwd=root)
+    git("checkout", "-q", "master", cwd=root)
+    (root / "Renumbered.al").write_text(obj("table", 60370, "Renumbered"))
+    git("commit", "-qam", "master: renumber table 60369 -> 60370", cwd=root)
+    # "N" is based on the NEW master and reuses the freed id 60369 for a new
+    # table. Against S that must still pass: S does not claim 60369. (If both
+    # merged, master's renumber wins in S's merge commit; the single-tree check
+    # covers anything else.)
+    git("checkout", "-q", "-B", "N", "master", cwd=root)
+    (root / "N1.al").write_text(obj("table", 60369, "New Reuse"))
+    git("add", "-A", cwd=root)
+    git("commit", "-qm", "N", cwd=root)
+    # "D" is also stale-based (same base as S) and adds a NEW id that "E", based
+    # on the new master, adds too. A real clash, whatever the bases.
+    git("checkout", "-q", "-B", "D", "S~1", cwd=root)
+    (root / "D1.al").write_text(obj("codeunit", 61800, "Dup D"))
+    git("add", "-A", cwd=root)
+    git("commit", "-qm", "D", cwd=root)
+    git("checkout", "-q", "-B", "E", "master", cwd=root)
+    (root / "E1.al").write_text(obj("codeunit", 61800, "Dup E"))
+    git("add", "-A", cwd=root)
+    git("commit", "-qm", "E", cwd=root)
     git("checkout", "-q", "master", cwd=root)
 
 
@@ -120,6 +155,18 @@ def main() -> int:
              {1: "B", 2: "C"}, "1", 0),
             ("a lone open PR has nothing to collide with",
              {1: "A"}, "1", 0),
+            # The #1132 incident: two PRs on the same old base both still declare
+            # table 60369, which master later renumbered. Neither added it.
+            ("two stale-based PRs do NOT claim an id master later renumbered",
+             {1: "S", 2: "D"}, "2", 0),
+            ("stale-based PR vs a PR reusing the freed id is NOT a collision",
+             {1: "S", 2: "N"}, "2", 0),
+            ("stale-based sweep stays clean",
+             {1: "S", 2: "N", 3: "B"}, "", 0),
+            ("two PRs adding the same new id clash across different bases",
+             {1: "D", 2: "E"}, "2", 1),
+            ("same-new-id clash is reported by the pairwise sweep",
+             {1: "D", 2: "E", 3: "S"}, "", 1),
         ]
         for label, refs, pr, expected in cases:
             print(f"\n--- {label} (expect exit {expected}) ---")
@@ -133,7 +180,7 @@ def main() -> int:
         for f in failures:
             print(f"::error::self-test FAILED — {f}")
         return 1
-    print(f"self-test OK — {len(cases)} cases, detection and all three "
+    print(f"self-test OK — {len(cases)} cases, detection and all "
           f"must-not-fire cases behave as specified.")
     return 0
 

@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-captionclass-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), own table 73970, pages 73971-73972, test codeunit 73973
+// Fixtures used: Probe Observer (codeunit 69160), own table 73970, pages 73971-73972, test codeunit 73973, LT QK Setup Rows (86940)
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: CaptionClass of page controls and table fields ('1,1,x', '3,x', '3,', unknown type, variable expression) and what TestPage field Caption shows
 // BC versions: 29 (27 and 28 by CI)
@@ -168,11 +168,16 @@ codeunit 73973 "LT P79 CaptionClass Tests"
     var
         Observer: Codeunit "Probe Observer";
         Rec: Record "LT P79 Cap Rec";
+        QkRows: Codeunit "LT QK Setup Rows";
     begin
         // depends on the dimension setup of the database: only compared, not asserted by value
+        // Writes the General Ledger Setup and Dimension rows first (QkSetupRows.al): Base Application's SingleInstance codeunit 343 keeps the
+        // General Ledger Setup row of its first read in the session, and this codeunit can be that first read. Only relations are asserted.
+        QkRows.WriteGLSetupCaptions();
         Observer.Observe('dim-not-empty', Format(Rec.FieldCaption(Dim) <> ''));
         Observer.Observe('dim-not-class', Format(Rec.FieldCaption(Dim) <> '1,1,x'));
         Observer.Observe('dim-eq-tablecaption', Format(Rec.FieldCaption(Dim) = 'Dim Table Caption'));
+        QkRows.RestoreGLSetupCaptions();
         Observer.Expect('dim-not-empty', 'Yes');
         Observer.Expect('dim-not-class', 'No');
         Observer.Expect('dim-eq-tablecaption', 'No');
@@ -217,8 +222,12 @@ codeunit 73973 "LT P79 CaptionClass Tests"
     var
         Observer: Codeunit "Probe Observer";
         Page: TestPage "LT P79 Cap Literal";
+        QkRows: Codeunit "LT QK Setup Rows";
     begin
         // dimension captions depend on the database setup: only relations are asserted
+        // Writes the General Ledger Setup and Dimension rows first (QkSetupRows.al): Base Application's SingleInstance codeunit 343 keeps the
+        // General Ledger Setup row of its first read in the session, and this codeunit can be that first read. Only relations are asserted.
+        QkRows.WriteGLSetupCaptions();
         Page.OpenNew();
         Observer.Observe('table-dim-not-class', Format(Page.DimF.Caption() <> '1,1,x'));
         Observer.Observe('dim1x-not-class', Format(Page.Dim1x.Caption() <> '1,1,x'));
@@ -228,6 +237,7 @@ codeunit 73973 "LT P79 CaptionClass Tests"
         Observer.Observe('dim1x-eq-dim2x', Format(Page.Dim1x.Caption() = Page.Dim2x.Caption()));
         Observer.Observe('dim1x-eq-dim1plain', Format(Page.Dim1x.Caption() = Page.Dim1Plain.Caption()));
         Page.Close();
+        QkRows.RestoreGLSetupCaptions();
         Observer.Expect('table-dim-not-class', 'No');
         Observer.Expect('dim1x-not-class', 'No');
         Observer.Expect('dim1x-eq-control-caption', 'No');

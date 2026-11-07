@@ -1,23 +1,10 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/httpcontent/httpcontent-data-type
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), self-contained codeunit 72601, table 72602
+// Fixtures used: Probe Observer (codeunit 69160), self-contained codeunit 72601, shared table 50003 "ALT Shape 03"
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Settles probes-needed row: "NP Retail blockers - `HttpContent`" (`ReadAs` on a fresh content, WriteFrom(InStream) then ReadAs(Text), headers after WriteFrom(Text), copy on Request.Content := C)
 // Facts: HttpContent ReadAs of a fresh content, round trip of non-ASCII bytes, Content-Type header after WriteFrom, whether the request copies the content
 // BC versions: 29 (27 and 28 by CI)
-
-table 72602 "LT PnE Http Rec"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Data; Blob) { }
-    }
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 codeunit 72601 "LT PnE Http Content"
 {
@@ -29,7 +16,7 @@ codeunit 72601 "LT PnE Http Content"
         exit(StrPos('0123456789ABCDEF', UpperCase(Format(c))) - 1);
     end;
 
-    local procedure PutBytes(var Rec: Record "LT PnE Http Rec"; Hex: Text; var Ins: InStream)
+    local procedure PutBytes(var Rec: Record "ALT Shape 03"; Hex: Text; var Ins: InStream)
     var
         Out: OutStream;
         B: Byte;
@@ -147,7 +134,7 @@ codeunit 72601 "LT PnE Http Content"
     procedure WriteFromInStream_NonAsciiBytes()
     var
         Observer: Codeunit "Probe Observer";
-        Rec: Record "LT PnE Http Rec";
+        Rec: Record "ALT Shape 03";
         C: HttpContent;
         Ins: InStream;
         T: Text;

@@ -567,4 +567,171 @@ codeunit 74046 "LT P133 Date Eval Format"
         Observer.Expect('not_open_default', '');
         Observer.Verify();
     end;
+
+    // al-runner issue 6924: DMY2Date with all three arguments where one or more parts are out of range (a day and a month out of range together,
+    // the 31st of February in a leap year, day 0, month 13, year 0, and a valid day and month in year 0). Result: ok and the date, or the error text and code.
+    local procedure P133Dmy(Day: Integer; Month: Integer; Year: Integer): Text
+    var
+        D: Date;
+        R: Text;
+    begin
+        ClearLastError();
+        if TryDayMonthYear(Day, Month, Year, D) then
+            R := 'ok|' + Format(D, 0, 9)
+        else
+            R := GetLastErrorText() + '|' + GetLastErrorCode();
+        ClearLastError();
+        exit(R);
+    end;
+
+    [Test]
+    procedure P133_DMY2Date_ThreeArgs_OutOfRange()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('57.52.2076', P133Dmy(57, 52, 2076));
+        Observer.Observe('31.2.2024', P133Dmy(31, 2, 2024));
+        Observer.Observe('29.2.2024', P133Dmy(29, 2, 2024));
+        Observer.Observe('0.1.2024', P133Dmy(0, 1, 2024));
+        Observer.Observe('1.13.2024', P133Dmy(1, 13, 2024));
+        Observer.Observe('1.1.0', P133Dmy(1, 1, 0));
+        Observer.Expect('57.52.2076', 'The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: 52. The permitted range is: from 1 to 12.|OutsidePermittedRange');
+        Observer.Expect('31.2.2024', 'The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 31. The permitted range is: from 1 to 29.|OutsidePermittedRange');
+        Observer.Expect('29.2.2024', 'ok|2024-02-29');
+        Observer.Expect('0.1.2024', 'The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 31.|OutsidePermittedRange');
+        Observer.Expect('1.13.2024', 'The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: 13. The permitted range is: from 1 to 12.|OutsidePermittedRange');
+        Observer.Expect('1.1.0', 'ok|0001-01-02');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure P133_DMY2Date_ThreeArgs_SeveralPartsOutOfRange()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('32.13.2024', P133Dmy(32, 13, 2024));
+        Observer.Observe('0.0.2024', P133Dmy(0, 0, 2024));
+        Observer.Observe('57.52.0', P133Dmy(57, 52, 0));
+        Observer.Observe('31.2.0', P133Dmy(31, 2, 0));
+        Observer.Observe('1.1.10000', P133Dmy(1, 1, 10000));
+        Observer.Observe('1.1.-1', P133Dmy(1, 1, -1));
+        Observer.Observe('31.12.9999', P133Dmy(31, 12, 9999));
+        Observer.Observe('1.1.1', P133Dmy(1, 1, 1));
+        Observer.Expect('32.13.2024', 'The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: 13. The permitted range is: from 1 to 12.|OutsidePermittedRange');
+        Observer.Expect('0.0.2024', 'The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 12.|OutsidePermittedRange');
+        Observer.Expect('57.52.0', 'The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: 52. The permitted range is: from 1 to 12.|OutsidePermittedRange');
+        Observer.Expect('31.2.0', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.|OutsidePermittedRange');
+        Observer.Expect('1.1.10000', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 10000. The permitted range is: from 1 to 9999.|OutsidePermittedRange');
+        Observer.Expect('1.1.-1', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: -1. The permitted range is: from 1 to 9999.|OutsidePermittedRange');
+        Observer.Expect('31.12.9999', 'ok|9999-12-31');
+        Observer.Expect('1.1.1', 'ok|');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure P133_DMY2Date_ThreeArgs_AssertError()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: Date;
+    begin
+        asserterror D := DMY2Date(57, 52, 2076);
+        Observer.ObserveError('57.52.2076');
+        asserterror D := DMY2Date(31, 2, 2024);
+        Observer.ObserveError('31.2.2024');
+        asserterror D := DMY2Date(0, 1, 2024);
+        Observer.ObserveError('0.1.2024');
+        asserterror D := DMY2Date(1, 13, 2024);
+        Observer.ObserveError('1.13.2024');
+        Observer.Expect('57.52.2076|text', 'The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: 52. The permitted range is: from 1 to 12.');
+        Observer.Expect('57.52.2076|code', 'OutsidePermittedRange');
+        Observer.Expect('31.2.2024|text', 'The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 31. The permitted range is: from 1 to 29.');
+        Observer.Expect('31.2.2024|code', 'OutsidePermittedRange');
+        Observer.Expect('0.1.2024|text', 'The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 31.');
+        Observer.Expect('0.1.2024|code', 'OutsidePermittedRange');
+        Observer.Expect('1.13.2024|text', 'The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: 13. The permitted range is: from 1 to 12.');
+        Observer.Expect('1.13.2024|code', 'OutsidePermittedRange');
+        Observer.Verify();
+    end;
+
+    local procedure P133Parts(D: Date): Text
+    begin
+        if D = 0D then
+            exit('0D');
+        exit(Format(Date2DMY(D, 1)) + '.' + Format(Date2DMY(D, 2)) + '.' + Format(Date2DMY(D, 3)));
+    end;
+
+    // Year 0: DMY2Date(1, 1, 0) does not raise, with literal or variable arguments and inside a TryFunction: it gives a date whose Date2DMY
+    // parts are 1, 1 and 0 and that Format(D, 0, 9) writes as 0001-01-02 (DMY2Date(1, 1, 1) is 0D). Any other day and month in year 0
+    // (15.6.0, 31.2.0) raises the parameter 3 error.
+    [Test]
+    procedure P133_DMY2Date_YearZero_LiteralArgs_AssertError()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: Date;
+    begin
+        D := DMY2Date(1, 1, 0);
+        Observer.Observe('1.1.0 literal', P133Parts(D) + '|' + Format(D, 0, 9));
+        asserterror D := DMY2Date(15, 6, 0);
+        Observer.ObserveError('15.6.0 literal');
+        Observer.Expect('1.1.0 literal', '1.1.0|0001-01-02');
+        Observer.Expect('15.6.0 literal|text', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.');
+        Observer.Expect('15.6.0 literal|code', 'OutsidePermittedRange');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure P133_DMY2Date_YearZero_VariableArgs_Direct()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: Date;
+        Day: Integer;
+        Month: Integer;
+        Year: Integer;
+    begin
+        Day := 1;
+        Month := 1;
+        Year := 0;
+        D := DMY2Date(Day, Month, Year);
+        Observer.Observe('1.1.0 variables', P133Parts(D) + '|' + Format(D, 0, 9));
+        Observer.Expect('1.1.0 variables', '1.1.0|0001-01-02');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure P133_DMY2Date_YearZero_TryFunction()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: Date;
+        Ok: Boolean;
+    begin
+        ClearLastError();
+        Ok := TryDayMonthYear(1, 1, 0, D);
+        Observer.Observe('try 1.1.0', Format(Ok) + '|' + P133Parts(D) + '|' + GetLastErrorText());
+        ClearLastError();
+        Ok := TryDayMonthYear(15, 6, 0, D);
+        Observer.Observe('try 15.6.0', Format(Ok) + '|' + P133Parts(D) + '|' + GetLastErrorText());
+        ClearLastError();
+        Observer.Expect('try 1.1.0', 'Yes|1.1.0|');
+        Observer.Expect('try 15.6.0', 'No|1.1.0|The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure P133_DMY2Date_YearOne()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: Date;
+    begin
+        D := DMY2Date(1, 1, 1);
+        Observer.Observe('1.1.1 parts', P133Parts(D));
+        Observer.Observe('1.1.1 is 0D', Format(D = 0D));
+        Observer.Observe('1.1.1 format', Format(D, 0, 9));
+        D := DMY2Date(2, 1, 1);
+        Observer.Observe('2.1.1 format', Format(D, 0, 9));
+        Observer.Expect('1.1.1 parts', '0D');
+        Observer.Expect('1.1.1 is 0D', 'Yes');
+        Observer.Expect('1.1.1 format', '');
+        Observer.Expect('2.1.1 format', '0001-01-02');
+        Observer.Verify();
+    end;
 }

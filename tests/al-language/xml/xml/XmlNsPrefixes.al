@@ -274,4 +274,251 @@ codeunit 67080 "LT TF Xml Ns Prefixes"
         Observer.Expect('setattribute_ns', '<e p1:k="1" p2:k="2" p1:m="3" xmlns:p2="urn:y" xmlns:p1="urn:x" />');
         Observer.Verify();
     end;
+
+    // Issue 7208 (al-runner): serialization and read-back of an element that gets a prefixed namespace declaration.
+    // Probe: observed in the BC 27.5, 28.5 and 29.0 CI runs (identical on all three, 2026-11-06); every literal asserted is what BC produced.
+    local procedure DescribeEl(Tag: Text; E: XmlElement)
+    var
+        Txt: Text;
+        P: Text;
+        R: Boolean;
+        Kids: XmlNodeList;
+        Kid: XmlNode;
+        i: Integer;
+    begin
+        E.WriteTo(Txt);
+        Observer.Observe(Tag + '_txt', Txt);
+        Observer.Observe(Tag + '_name', E.Name());
+        Observer.Observe(Tag + '_local', E.LocalName());
+        Observer.Observe(Tag + '_uri', E.NamespaceUri());
+        P := 'unset';
+        R := E.GetPrefixOfNamespace(E.NamespaceUri(), P);
+        Observer.Observe(Tag + '_pfx', Format(R) + '[' + P + ']');
+        Kids := E.GetChildElements();
+        i := 0;
+        foreach Kid in Kids do begin
+            i += 1;
+            Observer.Observe(Tag + '_k' + Format(i), Kid.AsXmlElement().Name() + '|' + Kid.AsXmlElement().LocalName() + '|' + Kid.AsXmlElement().NamespaceUri());
+        end;
+    end;
+
+    local procedure DescribeDoc(Tag: Text; E: XmlElement)
+    var
+        Doc: XmlDocument;
+        Txt: Text;
+    begin
+        Doc := XmlDocument.Create();
+        Doc.Add(E);
+        Doc.WriteTo(Txt);
+        Observer.Observe(Tag + '_doc', Txt);
+    end;
+
+    local procedure RoundTrip(Tag: Text; E: XmlElement)
+    var
+        Txt: Text;
+        Doc: XmlDocument;
+        Root: XmlElement;
+        Again: Text;
+    begin
+        E.WriteTo(Txt);
+        XmlDocument.ReadFrom(Txt, Doc);
+        Doc.GetRoot(Root);
+        Root.WriteTo(Again);
+        Observer.Observe(Tag + '_again', Again);
+        Observer.Observe(Tag + '_rtname', Root.Name() + '|' + Root.LocalName() + '|' + Root.NamespaceUri());
+    end;
+
+    local procedure Decl(E: XmlElement; PrefixText: Text; Ns: Text)
+    begin
+        E.Add(XmlAttribute.CreateNamespaceDeclaration(PrefixText, Ns));
+    end;
+
+    [Test]
+    procedure Decl7208_SameNamespace()
+    var
+        E: XmlElement;
+    begin
+        E := XmlElement.Create('name', 'urn:x');
+        Decl(E, 'p', 'urn:x');
+        DescribeEl('same', E);
+        RoundTrip('same', E);
+        DescribeDoc('same', E);
+        Observer.Expect('same_txt', '<p:name xmlns:p="urn:x" />');
+        Observer.Expect('same_name', 'p:name');
+        Observer.Expect('same_local', 'name');
+        Observer.Expect('same_uri', 'urn:x');
+        Observer.Expect('same_pfx', 'Yes[p]');
+        Observer.Expect('same_again', '<p:name xmlns:p="urn:x" />');
+        Observer.Expect('same_rtname', 'p:name|name|urn:x');
+        Observer.Expect('same_doc', '<?xml version="1.0" encoding="utf-16"?>\r\n<p:name xmlns:p="urn:x" />');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Decl7208_OtherNamespace()
+    var
+        E: XmlElement;
+    begin
+        E := XmlElement.Create('name', 'urn:x');
+        Decl(E, 'p', 'urn:y');
+        DescribeEl('other', E);
+        RoundTrip('other', E);
+        DescribeDoc('other', E);
+        Observer.Expect('other_txt', '<name xmlns:p="urn:y" xmlns="urn:x" />');
+        Observer.Expect('other_name', ':name');
+        Observer.Expect('other_local', 'name');
+        Observer.Expect('other_uri', 'urn:x');
+        Observer.Expect('other_pfx', 'Yes[]');
+        Observer.Expect('other_again', '<name xmlns:p="urn:y" xmlns="urn:x" />');
+        Observer.Expect('other_rtname', ':name|name|urn:x');
+        Observer.Expect('other_doc', '<?xml version="1.0" encoding="utf-16"?>\r\n<name xmlns:p="urn:y" xmlns="urn:x" />');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Decl7208_TwoPrefixes()
+    var
+        E: XmlElement;
+        F: XmlElement;
+    begin
+        E := XmlElement.Create('name', 'urn:x');
+        Decl(E, 'p', 'urn:x');
+        Decl(E, 'q', 'urn:x');
+        DescribeEl('pq', E);
+        RoundTrip('pq', E);
+        F := XmlElement.Create('name', 'urn:x');
+        Decl(F, 'q', 'urn:x');
+        Decl(F, 'p', 'urn:x');
+        DescribeEl('qp', F);
+        DescribeDoc('qp', F);
+        Observer.Expect('pq_txt', '<q:name xmlns:p="urn:x" xmlns:q="urn:x" />');
+        Observer.Expect('pq_name', 'p:name');
+        Observer.Expect('pq_local', 'name');
+        Observer.Expect('pq_uri', 'urn:x');
+        Observer.Expect('pq_pfx', 'Yes[p]');
+        Observer.Expect('pq_again', '<q:name xmlns:p="urn:x" xmlns:q="urn:x" />');
+        Observer.Expect('pq_rtname', 'p:name|name|urn:x');
+        Observer.Expect('qp_txt', '<p:name xmlns:q="urn:x" xmlns:p="urn:x" />');
+        Observer.Expect('qp_name', 'q:name');
+        Observer.Expect('qp_local', 'name');
+        Observer.Expect('qp_uri', 'urn:x');
+        Observer.Expect('qp_pfx', 'Yes[q]');
+        Observer.Expect('qp_doc', '<?xml version="1.0" encoding="utf-16"?>\r\n<p:name xmlns:q="urn:x" xmlns:p="urn:x" />');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Decl7208_DeclarationBeforeChildren()
+    var
+        E: XmlElement;
+    begin
+        E := XmlElement.Create('name', 'urn:x');
+        Decl(E, 'p', 'urn:x');
+        E.Add(XmlElement.Create('same', 'urn:x'));
+        E.Add(XmlElement.Create('other', 'urn:y'));
+        E.Add(XmlElement.Create('none'));
+        DescribeEl('before', E);
+        RoundTrip('before', E);
+        DescribeDoc('before', E);
+        Observer.Expect('before_txt', '<p:name xmlns:p="urn:x">\r\n  <p:same />\r\n  <other xmlns="urn:y" />\r\n  <none />\r\n</p:name>');
+        Observer.Expect('before_name', 'p:name');
+        Observer.Expect('before_local', 'name');
+        Observer.Expect('before_uri', 'urn:x');
+        Observer.Expect('before_pfx', 'Yes[p]');
+        Observer.Expect('before_k1', 'p:same|same|urn:x');
+        Observer.Expect('before_k2', ':other|other|urn:y');
+        Observer.Expect('before_k3', 'none|none|');
+        Observer.Expect('before_again', '<p:name xmlns:p="urn:x">\r\n  <p:same />\r\n  <other xmlns="urn:y" />\r\n  <none />\r\n</p:name>');
+        Observer.Expect('before_rtname', 'p:name|name|urn:x');
+        Observer.Expect('before_doc', '<?xml version="1.0" encoding="utf-16"?>\r\n<p:name xmlns:p="urn:x">\r\n  <p:same />\r\n  <other xmlns="urn:y" />\r\n  <none />\r\n</p:name>');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Decl7208_DeclarationAfterChildren()
+    var
+        E: XmlElement;
+    begin
+        E := XmlElement.Create('name', 'urn:x');
+        E.Add(XmlElement.Create('same', 'urn:x'));
+        E.Add(XmlElement.Create('other', 'urn:y'));
+        E.Add(XmlElement.Create('none'));
+        Decl(E, 'p', 'urn:x');
+        DescribeEl('after', E);
+        RoundTrip('after', E);
+        DescribeDoc('after', E);
+        Observer.Expect('after_txt', '<p:name xmlns:p="urn:x">\r\n  <p:same />\r\n  <other xmlns="urn:y" />\r\n  <none />\r\n</p:name>');
+        Observer.Expect('after_name', 'p:name');
+        Observer.Expect('after_local', 'name');
+        Observer.Expect('after_uri', 'urn:x');
+        Observer.Expect('after_pfx', 'Yes[p]');
+        Observer.Expect('after_k1', 'p:same|same|urn:x');
+        Observer.Expect('after_k2', ':other|other|urn:y');
+        Observer.Expect('after_k3', 'none|none|');
+        Observer.Expect('after_again', '<p:name xmlns:p="urn:x">\r\n  <p:same />\r\n  <other xmlns="urn:y" />\r\n  <none />\r\n</p:name>');
+        Observer.Expect('after_rtname', 'p:name|name|urn:x');
+        Observer.Expect('after_doc', '<?xml version="1.0" encoding="utf-16"?>\r\n<p:name xmlns:p="urn:x">\r\n  <p:same />\r\n  <other xmlns="urn:y" />\r\n  <none />\r\n</p:name>');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Decl7208_ChildOfDeclaredOtherNamespace()
+    var
+        E: XmlElement;
+    begin
+        E := XmlElement.Create('name', 'urn:x');
+        Decl(E, 'p', 'urn:x');
+        Decl(E, 'y', 'urn:y');
+        E.Add(XmlElement.Create('c', 'urn:y'));
+        E.Add(XmlElement.Create('d', 'urn:x'));
+        DescribeEl('multi', E);
+        RoundTrip('multi', E);
+        DescribeDoc('multi', E);
+        Observer.Expect('multi_txt', '<p:name xmlns:p="urn:x" xmlns:y="urn:y">\r\n  <y:c />\r\n  <p:d />\r\n</p:name>');
+        Observer.Expect('multi_name', 'p:name');
+        Observer.Expect('multi_local', 'name');
+        Observer.Expect('multi_uri', 'urn:x');
+        Observer.Expect('multi_pfx', 'Yes[p]');
+        Observer.Expect('multi_k1', 'y:c|c|urn:y');
+        Observer.Expect('multi_k2', 'p:d|d|urn:x');
+        Observer.Expect('multi_again', '<p:name xmlns:p="urn:x" xmlns:y="urn:y">\r\n  <y:c />\r\n  <p:d />\r\n</p:name>');
+        Observer.Expect('multi_rtname', 'p:name|name|urn:x');
+        Observer.Expect('multi_doc', '<?xml version="1.0" encoding="utf-16"?>\r\n<p:name xmlns:p="urn:x" xmlns:y="urn:y">\r\n  <y:c />\r\n  <p:d />\r\n</p:name>');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Decl7208_AttributeInNamespace()
+    var
+        E: XmlElement;
+        F: XmlElement;
+    begin
+        E := XmlElement.Create('name', 'urn:x');
+        Decl(E, 'p', 'urn:x');
+        E.Add(XmlAttribute.Create('k', 'urn:x', 'v'));
+        DescribeEl('attrafter', E);
+        RoundTrip('attrafter', E);
+        F := XmlElement.Create('name', 'urn:x');
+        F.Add(XmlAttribute.Create('k', 'urn:x', 'v'));
+        Decl(F, 'p', 'urn:x');
+        DescribeEl('attrbefore', F);
+        RoundTrip('attrbefore', F);
+        DescribeDoc('attrbefore', F);
+        Observer.Expect('attrafter_txt', '<p:name xmlns:p="urn:x" p:k="v" />');
+        Observer.Expect('attrafter_name', 'p:name');
+        Observer.Expect('attrafter_local', 'name');
+        Observer.Expect('attrafter_uri', 'urn:x');
+        Observer.Expect('attrafter_pfx', 'Yes[p]');
+        Observer.Expect('attrafter_again', '<p:name xmlns:p="urn:x" p:k="v" />');
+        Observer.Expect('attrafter_rtname', 'p:name|name|urn:x');
+        Observer.Expect('attrbefore_txt', '<p:name p:k="v" xmlns:p="urn:x" />');
+        Observer.Expect('attrbefore_name', 'p:name');
+        Observer.Expect('attrbefore_local', 'name');
+        Observer.Expect('attrbefore_uri', 'urn:x');
+        Observer.Expect('attrbefore_pfx', 'Yes[p]');
+        Observer.Expect('attrbefore_again', '<p:name p:k="v" xmlns:p="urn:x" />');
+        Observer.Expect('attrbefore_rtname', 'p:name|name|urn:x');
+        Observer.Expect('attrbefore_doc', '<?xml version="1.0" encoding="utf-16"?>\r\n<p:name p:k="v" xmlns:p="urn:x" />');
+        Observer.Verify();
+    end;
 }

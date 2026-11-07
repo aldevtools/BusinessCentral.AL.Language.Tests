@@ -7,6 +7,7 @@ The xmlport object: import, export, element and attribute properties.
 - (area folder itself): 21 AL files that are about the area as a whole or were not given a topic yet.
 - `import/`: xmlport import (20 AL files).
 - `shapes-properties/`: xmlport shapes, elements and properties (48 AL files).
+- `set-table-view/`: XmlPort.SetTableView and which table element the view goes to (1 AL file).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 

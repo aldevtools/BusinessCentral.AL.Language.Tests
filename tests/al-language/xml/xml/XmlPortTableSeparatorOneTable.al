@@ -5,38 +5,6 @@
 // Facts: a one-table VariableText export with TableSeparator '#', '<None>', default and set on the instance, written into an INSERTED record's Blob and read back after Modify; two and zero rows
 // BC versions: 29 (27 and 28 by CI)
 
-table 70940 "LT P170 Sep Item"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[50]) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
-table 70941 "LT P170 Sep Blob"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Data; Blob) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
 xmlport 70942 "LT P170 Sep Hash"
 {
     Format = VariableText;
@@ -48,7 +16,7 @@ xmlport 70942 "LT P170 Sep Hash"
 
     schema
     {
-        tableelement(ItemRow; "LT P170 Sep Item")
+        tableelement(ItemRow; "ALT Shape 18")
         {
             fieldelement(Id; ItemRow.Id) { }
             fieldelement(Name; ItemRow.Name) { }
@@ -67,7 +35,7 @@ xmlport 70943 "LT P170 Sep None"
 
     schema
     {
-        tableelement(ItemRow; "LT P170 Sep Item")
+        tableelement(ItemRow; "ALT Shape 18")
         {
             fieldelement(Id; ItemRow.Id) { }
             fieldelement(Name; ItemRow.Name) { }
@@ -85,7 +53,7 @@ xmlport 70944 "LT P170 Sep Default"
 
     schema
     {
-        tableelement(ItemRow; "LT P170 Sep Item")
+        tableelement(ItemRow; "ALT Shape 18")
         {
             fieldelement(Id; ItemRow.Id) { }
             fieldelement(Name; ItemRow.Name) { }
@@ -100,7 +68,7 @@ codeunit 70945 "LT P170 Sep Tests"
 
     local procedure Seed(Rows: Integer)
     var
-        Item: Record "LT P170 Sep Item";
+        Item: Record "ALT Shape 18";
         i: Integer;
     begin
         Item.DeleteAll();
@@ -111,7 +79,7 @@ codeunit 70945 "LT P170 Sep Tests"
         end;
     end;
 
-    local procedure NewBlob(var Row: Record "LT P170 Sep Blob")
+    local procedure NewBlob(var Row: Record "ALT Shape 03")
     begin
         Row.DeleteAll();
         Row.Id := 1;
@@ -119,7 +87,7 @@ codeunit 70945 "LT P170 Sep Tests"
         Row.Get(1);
     end;
 
-    local procedure ReadBack(var Row: Record "LT P170 Sep Blob"): Text
+    local procedure ReadBack(var Row: Record "ALT Shape 03"): Text
     var
         InS: InStream;
         Big: BigText;
@@ -142,7 +110,7 @@ codeunit 70945 "LT P170 Sep Tests"
     procedure P170_TableSeparator_Hash_OneTable()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT P170 Sep Blob";
+        Row: Record "ALT Shape 03";
         Xp: XmlPort "LT P170 Sep Hash";
         OutS: OutStream;
     begin
@@ -162,7 +130,7 @@ codeunit 70945 "LT P170 Sep Tests"
     procedure P170_TableSeparator_None_OneTable()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT P170 Sep Blob";
+        Row: Record "ALT Shape 03";
         Xp: XmlPort "LT P170 Sep None";
         OutS: OutStream;
     begin
@@ -182,7 +150,7 @@ codeunit 70945 "LT P170 Sep Tests"
     procedure P170_TableSeparator_Default_OneTable()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT P170 Sep Blob";
+        Row: Record "ALT Shape 03";
         Xp: XmlPort "LT P170 Sep Default";
         OutS: OutStream;
     begin
@@ -202,7 +170,7 @@ codeunit 70945 "LT P170 Sep Tests"
     procedure P170_TableSeparator_SetOnInstance_OneTable()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT P170 Sep Blob";
+        Row: Record "ALT Shape 03";
         Xp: XmlPort "LT P170 Sep Default";
         OutS: OutStream;
     begin
@@ -223,7 +191,7 @@ codeunit 70945 "LT P170 Sep Tests"
     procedure P170_TableSeparator_Hash_RowCounts()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT P170 Sep Blob";
+        Row: Record "ALT Shape 03";
         Xp: XmlPort "LT P170 Sep Hash";
         OutS: OutStream;
     begin

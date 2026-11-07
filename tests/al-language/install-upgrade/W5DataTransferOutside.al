@@ -153,4 +153,76 @@ codeunit 67054 "W5 DataTransfer Tests"
     begin
         DT.UpdateAuditFields := false;
     end;
+
+    // Writer P6924 (al-runtime-rs triage of issue 6924, row 1f): what Clear of a DataTransfer variable resets, outside install code.
+    // A call after SetTables answers "only usable during upgrade and installation code"; a call before SetTables answers "SetTables
+    // must first be called" (codeunit 60992). So the text of the next call shows whether Clear dropped the tables of SetTables.
+    [Test]
+    procedure P6924_Clear_AfterSetTables_NextCallText()
+    var
+        Observer: Codeunit "Probe Observer";
+        DT: DataTransfer;
+        Ok: Boolean;
+    begin
+        DT.SetTables(Database::"W5 Tx Row", Database::"W5 SeqGuid Row");
+        Clear(DT);
+        ClearLastError();
+        Ok := TryAddFieldValue(DT, 1, 1);
+        Observer.Observe('add_field_value_after_clear_ok', Format(Ok));
+        Observer.ObserveError('add_field_value_after_clear');
+        Ok := TryCopyRows(DT);
+        Observer.Observe('copy_rows_after_clear_ok', Format(Ok));
+        Observer.ObserveError('copy_rows_after_clear');
+        Ok := TrySetTablesOn(DT, Database::"W5 SeqGuid Row", Database::"W5 Tx Row");
+        Observer.Observe('set_tables_after_clear_ok', Format(Ok));
+        Observer.ObserveError('set_tables_after_clear');
+        Ok := TryAddFieldValue(DT, 1, 1);
+        Observer.Observe('add_field_value_after_new_set_tables_ok', Format(Ok));
+        Observer.ObserveError('add_field_value_after_new_set_tables');
+        // Observed on BC 27.5, 28.5 and 29.0: Clear drops the tables of SetTables (the next call asks for SetTables); a new SetTables works.
+        Observer.Expect('add_field_value_after_clear_ok', 'No');
+        Observer.Expect('add_field_value_after_clear|text', 'SetTables must first be called before calling other methods on DataTransfer.');
+        Observer.Expect('add_field_value_after_clear|code', 'DB:Ok');
+        Observer.Expect('copy_rows_after_clear_ok', 'No');
+        Observer.Expect('copy_rows_after_clear|text', 'SetTables must first be called before calling other methods on DataTransfer.');
+        Observer.Expect('copy_rows_after_clear|code', 'DB:Ok');
+        Observer.Expect('set_tables_after_clear_ok', 'Yes');
+        Observer.Expect('set_tables_after_clear|text', '');
+        Observer.Expect('set_tables_after_clear|code', '');
+        Observer.Expect('add_field_value_after_new_set_tables_ok', 'No');
+        Observer.Expect('add_field_value_after_new_set_tables|text', 'DataTransfer is only usable during upgrade and installation code.');
+        Observer.Expect('add_field_value_after_new_set_tables|code', 'DB:Ok');
+        Observer.Verify();
+    end;
+
+    // Clear of a DataTransfer variable that was never used, then SetTables and a call: Clear raises nothing.
+    [Test]
+    procedure P6924_Clear_Unused_ThenSetTables()
+    var
+        Observer: Codeunit "Probe Observer";
+        DT: DataTransfer;
+        Ok: Boolean;
+    begin
+        Clear(DT);
+        ClearLastError();
+        Ok := TryCopyFields(DT);
+        Observer.Observe('copy_fields_after_clear_ok', Format(Ok));
+        Observer.ObserveError('copy_fields_after_clear');
+        Ok := TrySetTablesOn(DT, Database::"W5 Tx Row", Database::"W5 SeqGuid Row");
+        Observer.Observe('set_tables_ok', Format(Ok));
+        Observer.ObserveError('set_tables');
+        Ok := TryCopyFields(DT);
+        Observer.Observe('copy_fields_ok', Format(Ok));
+        Observer.ObserveError('copy_fields');
+        Observer.Expect('copy_fields_after_clear_ok', 'No');
+        Observer.Expect('copy_fields_after_clear|text', 'SetTables must first be called before calling other methods on DataTransfer.');
+        Observer.Expect('copy_fields_after_clear|code', 'DB:Ok');
+        Observer.Expect('set_tables_ok', 'Yes');
+        Observer.Expect('set_tables|text', '');
+        Observer.Expect('set_tables|code', '');
+        Observer.Expect('copy_fields_ok', 'No');
+        Observer.Expect('copy_fields|text', 'DataTransfer is only usable during upgrade and installation code.');
+        Observer.Expect('copy_fields|code', 'DB:Ok');
+        Observer.Verify();
+    end;
 }

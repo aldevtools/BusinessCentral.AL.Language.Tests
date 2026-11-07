@@ -8,7 +8,7 @@ query 60601 "QJ Cust Orders Implicit"
 
     elements
     {
-        dataitem(Customer; "QJ Customer")
+        dataitem(Customer; "ALT Shape 04")
         {
             column(CustNo; "No.") { }
             column(CustName; "Name") { }

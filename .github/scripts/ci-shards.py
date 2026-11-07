@@ -20,10 +20,12 @@ shard shows its time).
 
 plan: the shards each leg of a run runs, as the job output `shards`: {bc_version: {test app dir: [{"n": "1 of 3",
 "range": codeunit_range}]}}. An app without entry in FILE runs as one shard. A full run gives each shard its id range,
-cut down to the job's codeunit_range. A subset run (select-tests.py --json, its `selection`) gives each shard the
-selected codeunits of its range plus the app's sentinel; a shard with no selected codeunit does not run. On a pull
-request an app whose selection is its sentinel only (nothing in it is affected) gets no shard at all, and its leg
-reports success without starting BC; a dispatched subset run (the CI batcher) still runs the sentinel.
+cut down to the job's codeunit_range. A subset run (select-tests.py --json, its `selection`) with at most
+SINGLE_SHARD_MAX selected codeunits in an app runs them in one shard, plus the app's sentinel. A larger selection gives
+each shard the selected codeunits of its range plus the sentinel; a shard with no selected codeunit does not run. An
+app whose selection is its sentinel only (nothing in it is affected) gets no shard at all, and its leg reports success
+without starting BC. This holds for a pull request and for a dispatched subset run (select_codeunits, the CI batcher)
+alike.
 
 merge: merges JUnit files into one, in the order given. A codeunit that appears again in a later file (the shard of a
 re-run) replaces the earlier result in place. The totals are summed again.
@@ -37,6 +39,16 @@ import sys
 import xml.etree.ElementTree as ET
 
 TOP = 2 ** 31 - 1
+
+# A subset run puts an app's selected codeunits into ONE shard while there are at most this many (sentinel not
+# counted); above it, each shard range with a selected codeunit runs, as in a full run. WHY 250: a shard container
+# costs 9 to 14 minutes before its first test (compile, publish, BC boot; probe pull request run 41800358788: jobs of 12
+# to 14 minutes with 0.3 to 0.5 minutes of tests), and a codeunit costs about 1.2 s on 27.5 (3435 s for 2869 codeunits,
+# run 41193457271; 28.5 and 29.0 are faster). 250 codeunits are about 5 minutes of tests, so one shard ends in about
+# 15 minutes, like the OnPrem and TestLibraries legs of the same run. A second shard would save at most 2.5 minutes of
+# wall time and cost a whole container (about 10 runner minutes) plus a place in the queue for the account's 20
+# concurrent jobs, which is where a subset run spends most of its wall time.
+SINGLE_SHARD_MAX = 250
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -141,7 +153,7 @@ def cut(cost, n, start):
 
 # ---------- plan ----------
 
-def plan(sel, jobs, versions, conf, event):
+def plan(sel, jobs, versions, conf, event, single_max=SINGLE_SHARD_MAX):
     out = {}
     subset = (sel or {}).get('mode') == 'subset'
     for v in versions.get('include', []):
@@ -162,13 +174,15 @@ def plan(sel, jobs, versions, conf, event):
                     r = intersect(job_range, [s])
                     if r:
                         shards.append({'n': '%d of %d' % (i + 1, n), 'range': fmt(r)})
-            elif event == 'pull_request' and entry.get('sentinel'):
+            elif entry.get('sentinel'):
                 shards = []  # nothing in this app is affected: the leg reports success without starting BC
             else:
                 cus = entry.get('codeunits', [])
                 sentinels = sorted({c['id'] for c in cus if c.get('sentinel')})
                 own = sorted({c['id'] for c in cus if not c.get('sentinel')})
-                for i, (lo, hi) in enumerate(sp):
+                if own and len(own) <= single_max:
+                    shards = [{'n': '1 of 1', 'range': ','.join(map(str, sorted(set(own) | set(sentinels))))}]
+                for i, (lo, hi) in enumerate(sp if not shards else []):
                     mine = [c for c in own if lo <= c <= hi]
                     if mine:
                         ids = sorted(set(mine) | set(sentinels))
