@@ -57,8 +57,10 @@ codeunit 60019 ALTFixtureCleanup
         ALTShape28: Record "ALT Shape 28";
         ALTShape29: Record "ALT Shape 29";
         TBLLexicalOwner: Record "TBL Lexical Owner Base";
+        PAGTriggerCloseRow: Record "PAG Trigger Close Row";
     begin
         TBLLexicalOwner.DeleteAll(false);
+        PAGTriggerCloseRow.DeleteAll(false);
         ALTUniversal.DeleteAll(false);
         ALTComposite.DeleteAll(false);
         ALTTriggered.DeleteAll(false);

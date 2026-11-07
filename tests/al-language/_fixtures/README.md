@@ -248,3 +248,4 @@ has an event subscriber, sits in a namespace, or when one test codeunit would ne
 5. Never renumber a codeunit or rename a test. Read the standing rules in `CONTRIBUTING.md` first.
 
 - `TblLexicalOwner.al`: extension-side lexical binding fixture over the dedicated `TBL Lexical Owner Base` dependency table; reset by `ALTFixtureCleanup.Initialize()`.
+- `PagTriggerCloseParts.al`: temporary parent/part lifecycle observation fixtures; the dedicated log is used by the existing parts-after-close topic codeunit. Bootstrap observations are unqualified until complete native capture and stable assertions.
