@@ -364,6 +364,7 @@ codeunit 67605 "LT N582 Eval FieldRef"
 
     // Waldo run 2 (al-runner issue 6924): the same statement form on a RecordId field. Table 97240 below; Rid starts as the RecordId of the
     // row itself, Rid2 starts blank. Mode 0: statement; 1: result used; 9: statement with format 9.
+    // Pinned from CI on BC 27.5, 28.5 and 29.0 (identical on all three).
     [TryFunction]
     local procedure WA_TryEval9(FldRef: FieldRef; Txt: Text)
     begin
@@ -414,7 +415,21 @@ codeunit 67605 "LT N582 Eval FieldRef"
         WA_Eval(Observer, 'own row no blank', 2, 'LT WA RecId Row:3', 0);
         WA_Eval(Observer, 'own row not stored', 2, 'LT WA RecId Row: 99999', 0);
         WA_Eval(Observer, 'customer', 2, 'Customer: 10000', 0);
-        Observer.Finish();
+        Observer.Expect('own row', 'no error');
+        Observer.Expect('own row|value', 'LT WA RecId Row: 2');
+        Observer.Expect('own row|value9', 'LT WA RecId Row: 2');
+        Observer.Expect('own row lower case', 'no error');
+        Observer.Expect('own row lower case|value', 'LT WA RecId Row: 2');
+        Observer.Expect('own row lower case|value9', 'LT WA RecId Row: 2');
+        Observer.Expect('own row no blank', 'no error');
+        Observer.Expect('own row no blank|value', 'LT WA RecId Row: 3');
+        Observer.Expect('own row no blank|value9', 'LT WA RecId Row: 3');
+        Observer.Expect('own row not stored', 'no error');
+        Observer.Expect('own row not stored|value', 'LT WA RecId Row: 99999');
+        Observer.Expect('own row not stored|value9', 'LT WA RecId Row: 99999');
+        Observer.Expect('customer', 'no error');
+        Observer.Expect('customer|value', 'Customer: 10000');
+        Observer.Verify();
     end;
 
     [Test]
@@ -427,7 +442,25 @@ codeunit 67605 "LT N582 Eval FieldRef"
         WA_Eval(Observer, 'blank', 2, ' ', 0);
         WA_Eval(Observer, 'unknown table', 2, 'No Such Table LT: 1', 0);
         WA_Eval(Observer, 'key not a number', 2, 'LT WA RecId Row: abc', 0);
-        Observer.Finish();
+        Observer.Expect('not a table|text', 'The value "zzz" can''t be evaluated into type RecordID.');
+        Observer.Expect('not a table|code', 'Evaluate');
+        Observer.Expect('not a table|value', 'LT WA RecId Row: 1');
+        Observer.Expect('not a table|value9', 'LT WA RecId Row: 1');
+        Observer.Expect('empty', 'no error');
+        Observer.Expect('empty|value', '');
+        Observer.Expect('empty|value9', '');
+        Observer.Expect('blank', 'no error');
+        Observer.Expect('blank|value', '');
+        Observer.Expect('blank|value9', '');
+        Observer.Expect('unknown table|text', 'The value "No Such Table LT: 1" can''t be evaluated into type RecordID.');
+        Observer.Expect('unknown table|code', 'Evaluate');
+        Observer.Expect('unknown table|value', 'LT WA RecId Row: 1');
+        Observer.Expect('unknown table|value9', 'LT WA RecId Row: 1');
+        Observer.Expect('key not a number|text', 'The value "abc" can''t be evaluated into type Integer.');
+        Observer.Expect('key not a number|code', 'Evaluate');
+        Observer.Expect('key not a number|value', 'LT WA RecId Row: 1');
+        Observer.Expect('key not a number|value9', 'LT WA RecId Row: 1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -440,7 +473,23 @@ codeunit 67605 "LT N582 Eval FieldRef"
         WA_Eval(Observer, 'two part key', 2, 'LT WA RecId Two: A,1', 0);
         WA_Eval(Observer, 'two part key one value', 2, 'LT WA RecId Two: A', 0);
         WA_Eval(Observer, 'one part key two values', 2, 'LT WA RecId Row: 1,2', 0);
-        Observer.Finish();
+        Observer.Expect('empty key', 'no error');
+        Observer.Expect('empty key|value', 'LT WA RecId Row');
+        Observer.Expect('empty key|value9', 'LT WA RecId Row');
+        Observer.Expect('no colon', 'no error');
+        Observer.Expect('no colon|value', 'LT WA RecId Row');
+        Observer.Expect('no colon|value9', 'LT WA RecId Row');
+        Observer.Expect('two part key', 'no error');
+        Observer.Expect('two part key|value', 'LT WA RecId Two: A,1');
+        Observer.Expect('two part key|value9', 'LT WA RecId Two: A,1');
+        Observer.Expect('two part key one value', 'no error');
+        Observer.Expect('two part key one value|value', 'LT WA RecId Two: A');
+        Observer.Expect('two part key one value|value9', 'LT WA RecId Two: A');
+        Observer.Expect('one part key two values|text', 'The value "LT WA RecId Row: 1,2" can''t be evaluated into type RecordID.');
+        Observer.Expect('one part key two values|code', 'Evaluate');
+        Observer.Expect('one part key two values|value', 'LT WA RecId Row: 1');
+        Observer.Expect('one part key two values|value9', 'LT WA RecId Row: 1');
+        Observer.Verify();
     end;
 
     // Is the table found by a prefix of its name, with and without a key? A text that is only a prefix of a table name (the corpus tables
@@ -455,7 +504,23 @@ codeunit 67605 "LT N582 Eval FieldRef"
         WA_Eval(Observer, 'shared prefix with key', 2, 'LT WA RecId: 2', 0);
         WA_Eval(Observer, 'name followed by text', 2, 'LT WA RecId Row Extra: 2', 0);
         WA_Eval(Observer, 'name in quotes', 2, '"LT WA RecId Row": 2', 0);
-        Observer.Finish();
+        Observer.Expect('prefix with key', 'no error');
+        Observer.Expect('prefix with key|value', 'LT WA RecId Row: 2');
+        Observer.Expect('prefix with key|value9', 'LT WA RecId Row: 2');
+        Observer.Expect('prefix without key', 'no error');
+        Observer.Expect('prefix without key|value', 'LT WA RecId Row');
+        Observer.Expect('prefix without key|value9', 'LT WA RecId Row');
+        Observer.Expect('shared prefix with key', 'no error');
+        Observer.Expect('shared prefix with key|value', 'LT WA RecId Row: 2');
+        Observer.Expect('shared prefix with key|value9', 'LT WA RecId Row: 2');
+        Observer.Expect('name followed by text|text', 'The value "LT WA RecId Row Extra: 2" can''t be evaluated into type RecordID.');
+        Observer.Expect('name followed by text|code', 'Evaluate');
+        Observer.Expect('name followed by text|value', 'LT WA RecId Row: 1');
+        Observer.Expect('name followed by text|value9', 'LT WA RecId Row: 1');
+        Observer.Expect('name in quotes', 'no error');
+        Observer.Expect('name in quotes|value', 'LT WA RecId Row: 2');
+        Observer.Expect('name in quotes|value9', 'LT WA RecId Row: 2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -468,7 +533,22 @@ codeunit 67605 "LT N582 Eval FieldRef"
         WA_Eval(Observer, 'blank start empty', 3, '', 0);
         WA_Eval(Observer, 'blank start customer', 3, 'Customer: 10000', 0);
         WA_Eval(Observer, 'table id text', 2, 'Table 97240: 2', 0);
-        Observer.Finish();
+        Observer.Expect('blank start valid', 'no error');
+        Observer.Expect('blank start valid|value', 'LT WA RecId Row: 2');
+        Observer.Expect('blank start valid|value9', 'LT WA RecId Row: 2');
+        Observer.Expect('blank start not a table|text', 'The value "zzz" can''t be evaluated into type RecordID.');
+        Observer.Expect('blank start not a table|code', 'Evaluate');
+        Observer.Expect('blank start not a table|value', '');
+        Observer.Expect('blank start not a table|value9', '');
+        Observer.Expect('blank start empty', 'no error');
+        Observer.Expect('blank start empty|value', '');
+        Observer.Expect('blank start empty|value9', '');
+        Observer.Expect('blank start customer', 'no error');
+        Observer.Expect('blank start customer|value', 'Customer: 10000');
+        Observer.Expect('table id text', 'no error');
+        Observer.Expect('table id text|value', 'LT WA RecId Row: 2');
+        Observer.Expect('table id text|value9', 'LT WA RecId Row: 2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -481,7 +561,31 @@ codeunit 67605 "LT N582 Eval FieldRef"
         WA_Eval(Observer, 'used not a table', 2, 'zzz', 1);
         WA_Eval(Observer, 'used empty', 2, '', 1);
         WA_Eval(Observer, 'used unknown table', 2, 'No Such Table LT: 1', 1);
-        Observer.Finish();
+        Observer.Expect('used own row', 'returned Yes');
+        Observer.Expect('used own row|text', '');
+        Observer.Expect('used own row|code', '');
+        Observer.Expect('used own row|value', 'LT WA RecId Row: 2');
+        Observer.Expect('used own row|value9', 'LT WA RecId Row: 2');
+        Observer.Expect('used customer', 'returned Yes');
+        Observer.Expect('used customer|text', '');
+        Observer.Expect('used customer|code', '');
+        Observer.Expect('used customer|value', 'Customer: 10000');
+        Observer.Expect('used not a table', 'returned No');
+        Observer.Expect('used not a table|text', 'The value "zzz" can''t be evaluated into type RecordID.');
+        Observer.Expect('used not a table|code', 'Evaluate');
+        Observer.Expect('used not a table|value', 'LT WA RecId Row: 1');
+        Observer.Expect('used not a table|value9', 'LT WA RecId Row: 1');
+        Observer.Expect('used empty', 'returned Yes');
+        Observer.Expect('used empty|text', '');
+        Observer.Expect('used empty|code', '');
+        Observer.Expect('used empty|value', '');
+        Observer.Expect('used empty|value9', '');
+        Observer.Expect('used unknown table', 'returned No');
+        Observer.Expect('used unknown table|text', 'The value "No Such Table LT: 1" can''t be evaluated into type RecordID.');
+        Observer.Expect('used unknown table|code', 'Evaluate');
+        Observer.Expect('used unknown table|value', 'LT WA RecId Row: 1');
+        Observer.Expect('used unknown table|value9', 'LT WA RecId Row: 1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -493,7 +597,19 @@ codeunit 67605 "LT N582 Eval FieldRef"
         WA_Eval(Observer, 'nine customer', 2, 'Customer: 10000', 9);
         WA_Eval(Observer, 'nine not a table', 2, 'zzz', 9);
         WA_Eval(Observer, 'nine empty', 2, '', 9);
-        Observer.Finish();
+        Observer.Expect('nine own row', 'no error');
+        Observer.Expect('nine own row|value', 'LT WA RecId Row: 2');
+        Observer.Expect('nine own row|value9', 'LT WA RecId Row: 2');
+        Observer.Expect('nine customer', 'no error');
+        Observer.Expect('nine customer|value', 'Customer: 10000');
+        Observer.Expect('nine not a table|text', 'The value "zzz" can''t be evaluated into type RecordID.');
+        Observer.Expect('nine not a table|code', 'Evaluate');
+        Observer.Expect('nine not a table|value', 'LT WA RecId Row: 1');
+        Observer.Expect('nine not a table|value9', 'LT WA RecId Row: 1');
+        Observer.Expect('nine empty', 'no error');
+        Observer.Expect('nine empty|value', '');
+        Observer.Expect('nine empty|value9', '');
+        Observer.Verify();
     end;
 
     // The text Format gives for a RecordId, evaluated back into the field (round trip), and the variable form with a bad text.
@@ -527,7 +643,17 @@ codeunit 67605 "LT N582 Eval FieldRef"
         Ok := Evaluate(Rid, Format(Two.RecordId()));
         Observer.Observe('variable valid', Format(Ok));
         Observer.Observe('variable valid|value', Format(Rid));
-        Observer.Finish();
+        Observer.Expect('format own', 'LT WA RecId Row: 7');
+        Observer.Expect('format two', 'LT WA RecId Two: A,5');
+        Observer.Expect('field after round trip', 'LT WA RecId Two: A,5');
+        Observer.Expect('field after round trip own', 'LT WA RecId Row: 7');
+        Observer.Expect('variable not a table', 'No');
+        Observer.Expect('variable not a table|text', 'The value "zzz" can''t be evaluated into type RecordID.');
+        Observer.Expect('variable not a table|code', 'Evaluate');
+        Observer.Expect('variable abc|value', 'LT WA RecId Row: 7');
+        Observer.Expect('variable valid', 'Yes');
+        Observer.Expect('variable valid|value', 'LT WA RecId Two: A,5');
+        Observer.Verify();
     end;
 }
 
