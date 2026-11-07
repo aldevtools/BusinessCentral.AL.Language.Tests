@@ -1,5 +1,5 @@
 // Fixture of the cross-app DefaultTestHandler probes (al-runner 7181): a default test handler declared in an app that holds no test codeunit.
-// It logs every callback as <tag>.<callback>(procedure|case|n=<its call count>[|Success]) into "XH Log", keyed by the test codeunit id.
+// It logs every callback of the probe codeunits 81646-81648 (and only those) as <tag>.<callback>(procedure|case|n=<its call count>[|Success]) into "XH Log", keyed by the test codeunit id.
 #if BC29PLUS
 codeunit 97845 "XH Handler D" implements ITestHandler
 {
@@ -42,6 +42,9 @@ codeunit 97845 "XH Handler D" implements ITestHandler
         Entry: Text;
     begin
         Counter += 1;
+        // Only the probe codeunits 81646-81648 read this log; skip every other test codeunit so none of them touches the SingleInstance log.
+        if not (Context.CodeunitId() in [81646 .. 81648]) then
+            exit;
         Entry := 'HD.' + Callback + '(' + Context.ProcedureName() + '|' + Context.TestCaseName() + '|n=' + Format(Counter);
         if WithSuccess then
             Entry += '|' + Format(Context.Success());
