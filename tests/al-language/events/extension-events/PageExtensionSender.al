@@ -2,7 +2,11 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own tables 96981, 96985, 96986; own pages 96980, 96982 to 96984; own pageextensions 96987 to 96990; log 96991; subscribers 96992
 // Probe: a pageextension publishes an event with IncludeSender = true from its OnAfterGetRecord trigger and a subscriber takes `Sender: Page "..."`.
-// Draft: observation form (Finish), values are filled in from the CI run.
+// Facts pinned (identical on BC 27.5, 28.5 and 29.0): the subscriber gets the page instance that runs the trigger. Through it the
+//   subscriber and later code can call a base page procedure and an extension procedure; both read the live Rec of that page instance
+//   (after the page moves to another row the held sender shows the new row) and the variables of that instance (marks set through the
+//   held sender are seen at the next raise of the same page, a second open page has its own instance). Card, List, Document header and
+//   Document lines part behave the same. A held sender still answers after the TestPage is closed (state of the last row).
 
 table 96981 "LT PES Row"
 {
@@ -571,7 +575,9 @@ codeunit 96993 "LT PES Page Extension Sender"
             Observer.Observe('ext after close', Result)
         else
             Observer.ObserveError('ext after close');
-        Observer.Finish();
+        Observer.Expect('base after close', 'Second||LT PES Card Caption');
+        Observer.Expect('ext after close', 'Second/ext|');
+        Observer.Verify();
     end;
 
     [Test]
