@@ -56,7 +56,9 @@ codeunit 60019 ALTFixtureCleanup
         ALTShape27: Record "ALT Shape 27";
         ALTShape28: Record "ALT Shape 28";
         ALTShape29: Record "ALT Shape 29";
+        PAGTriggerCloseRow: Record "PAG Trigger Close Row";
     begin
+        PAGTriggerCloseRow.DeleteAll(false);
         ALTUniversal.DeleteAll(false);
         ALTComposite.DeleteAll(false);
         ALTTriggered.DeleteAll(false);

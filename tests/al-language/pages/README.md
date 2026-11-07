@@ -92,3 +92,5 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 
 - `record-method-controls/`: extension controls bound to zero-argument record methods, with and without parentheses.
 - `statistics-compatibility/`: versioned Statistics extension anchors and non-default marker action results; BC29 legacy-member compile negatives are in must-not-compile cases 2971–2972.
+
+`parts/Y37PartAfterClose.al` includes an observe-only bootstrap for trigger Close followed by an in-body part call, with no-close, veto and already-open action controls. Catch-context and external follow-up observations are separate.
