@@ -4,7 +4,7 @@
 //   XH Handler C (97840, app XHandler C) and XH Handler D (97845, app XHandler D) (both published, neither depends on this app and this app depends on neither);
 //   LT BI DH Default (81693) and LT BI DH Own (81694) from BiTestHandlerDefault.al
 // Corpus issue (al-runner 7181, runtime 18): a DefaultTestHandler extension declared in another app than the test codeunit.
-// Probe: OBSERVE
+// Probe: written against BC 29.0 (CI run of the batcher). Pinned: the handler apps are ordered HD (XH Handler D), HC, HA, then this app's default handler (D) and TestHandlers handler (O).
 // BC versions: 29
 #if BC29PLUS
 // Test codeunit without TestHandlers. The default handlers of apps A (a dependency of this app), C and D (unrelated apps, no tests) and this app's own (LT BI DH Default)
@@ -37,7 +37,8 @@ codeunit 81646 "LT BI XH Plain"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('log', Log.Take(81646));
-        Observer.Finish();
+        Observer.Expect('log', 'HD.bCU(||n=1);HC.bCU(||n=1);HA.bCU(||n=1);D.bCU(||n=1);HD.bP(BiXh_A_First||n=2);HC.bP(BiXh_A_First||n=2);HA.bP(BiXh_A_First||n=2);D.bP(BiXh_A_First||n=2);body A;HD.aP(BiXh_A_First||n=3|Yes);HC.aP(BiXh_A_First||n=3|Yes);HA.aP(BiXh_A_First||n=3|Yes);D.aP(BiXh_A_First||n=3|Yes);HD.bP(BiXh_B_Second||n=4);HC.bP(BiXh_B_Second||n=4);HA.bP(BiXh_B_Second||n=4);D.bP(BiXh_B_Second||n=4);body B;HD.aP(BiXh_B_Second||n=5|Yes);HC.aP(BiXh_B_Second||n=5|Yes);HA.aP(BiXh_B_Second||n=5|Yes);D.aP(BiXh_B_Second||n=5|Yes);HD.bP(BiXh_Z_Observe||n=6);HC.bP(BiXh_Z_Observe||n=6);HA.bP(BiXh_Z_Observe||n=6);D.bP(BiXh_Z_Observe||n=6);');
+        Observer.Verify();
     end;
 }
 
@@ -63,7 +64,8 @@ codeunit 81647 "LT BI XH Own"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('log', Log.Take(81647));
-        Observer.Finish();
+        Observer.Expect('log', 'HD.bCU(||n=1);HC.bCU(||n=1);HA.bCU(||n=1);D.bCU(||n=1);O.bCU(||n=1);HD.bP(BiXh_A_Plain||n=2);HC.bP(BiXh_A_Plain||n=2);HA.bP(BiXh_A_Plain||n=2);D.bP(BiXh_A_Plain||n=2);O.bP(BiXh_A_Plain||n=2);body A;HD.aP(BiXh_A_Plain||n=3|Yes);HC.aP(BiXh_A_Plain||n=3|Yes);HA.aP(BiXh_A_Plain||n=3|Yes);D.aP(BiXh_A_Plain||n=3|Yes);O.aP(BiXh_A_Plain||n=3|Yes);HD.bP(BiXh_Z_Observe||n=4);HC.bP(BiXh_Z_Observe||n=4);HA.bP(BiXh_Z_Observe||n=4);D.bP(BiXh_Z_Observe||n=4);O.bP(BiXh_Z_Observe||n=4);');
+        Observer.Verify();
     end;
 }
 
@@ -81,7 +83,8 @@ codeunit 81648 "LT BI XH Reader"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('log', Log.Take(81646));
-        Observer.Finish();
+        Observer.Expect('log', 'HD.bCU(||n=1);HC.bCU(||n=1);HA.bCU(||n=1);D.bCU(||n=1);HD.bP(BiXh_A_First||n=2);HC.bP(BiXh_A_First||n=2);HA.bP(BiXh_A_First||n=2);D.bP(BiXh_A_First||n=2);body A;HD.aP(BiXh_A_First||n=3|Yes);HC.aP(BiXh_A_First||n=3|Yes);HA.aP(BiXh_A_First||n=3|Yes);D.aP(BiXh_A_First||n=3|Yes);HD.bP(BiXh_B_Second||n=4);HC.bP(BiXh_B_Second||n=4);HA.bP(BiXh_B_Second||n=4);D.bP(BiXh_B_Second||n=4);body B;HD.aP(BiXh_B_Second||n=5|Yes);HC.aP(BiXh_B_Second||n=5|Yes);HA.aP(BiXh_B_Second||n=5|Yes);D.aP(BiXh_B_Second||n=5|Yes);HD.bP(BiXh_Z_Observe||n=6);HC.bP(BiXh_Z_Observe||n=6);HA.bP(BiXh_Z_Observe||n=6);D.bP(BiXh_Z_Observe||n=6);HD.aP(BiXh_Z_Observe||n=7|Yes);HC.aP(BiXh_Z_Observe||n=7|Yes);HA.aP(BiXh_Z_Observe||n=7|Yes);D.aP(BiXh_Z_Observe||n=7|Yes);HD.aCU(||n=8|Yes);HC.aCU(||n=8|Yes);HA.aCU(||n=8|Yes);D.aCU(||n=8|Yes);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -91,7 +94,8 @@ codeunit 81648 "LT BI XH Reader"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('log', Log.Take(81647));
-        Observer.Finish();
+        Observer.Expect('log', 'HD.bCU(||n=1);HC.bCU(||n=1);HA.bCU(||n=1);D.bCU(||n=1);O.bCU(||n=1);HD.bP(BiXh_A_Plain||n=2);HC.bP(BiXh_A_Plain||n=2);HA.bP(BiXh_A_Plain||n=2);D.bP(BiXh_A_Plain||n=2);O.bP(BiXh_A_Plain||n=2);body A;HD.aP(BiXh_A_Plain||n=3|Yes);HC.aP(BiXh_A_Plain||n=3|Yes);HA.aP(BiXh_A_Plain||n=3|Yes);D.aP(BiXh_A_Plain||n=3|Yes);O.aP(BiXh_A_Plain||n=3|Yes);HD.bP(BiXh_Z_Observe||n=4);HC.bP(BiXh_Z_Observe||n=4);HA.bP(BiXh_Z_Observe||n=4);D.bP(BiXh_Z_Observe||n=4);O.bP(BiXh_Z_Observe||n=4);HD.aP(BiXh_Z_Observe||n=5|Yes);HC.aP(BiXh_Z_Observe||n=5|Yes);HA.aP(BiXh_Z_Observe||n=5|Yes);D.aP(BiXh_Z_Observe||n=5|Yes);O.aP(BiXh_Z_Observe||n=5|Yes);HD.aCU(||n=6|Yes);HC.aCU(||n=6|Yes);HA.aCU(||n=6|Yes);D.aCU(||n=6|Yes);O.aCU(||n=6|Yes);');
+        Observer.Verify();
     end;
 }
 #endif
