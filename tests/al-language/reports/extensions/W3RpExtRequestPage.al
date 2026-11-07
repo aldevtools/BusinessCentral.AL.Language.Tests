@@ -1367,4 +1367,21 @@ codeunit 97205 "LT OR RpExt Own Record"
         ExecuteWith('<Field name="Params.Name">viaName</Field><Field name="BaseNameCtl">viaCtl</Field>');
         Observer.Finish();
     end;
+
+    // 7. The parameters text names a control on the extension's record by the quoted form BC itself writes ("Params.&quot;Per Zone&quot;").
+    [Test]
+    [HandlerFunctions('OkOnlyHandler')]
+    procedure RunRequestPage_SeededByQuotedFieldName()
+    begin
+        Seed();
+        ObserveParameters(Report.RunRequestPage(Report::"LT OR RpExt Base", ParametersText('<Field name="Params.&quot;Per Zone&quot;">true</Field><Field name="Params.&quot;Max Lines&quot;">8</Field><Field name="Params.&quot;Zone Text&quot;">abc</Field><Field name="Params.&quot;Zone Code&quot;">q</Field>')));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Execute_ParametersText_QuotedFieldNames()
+    begin
+        ExecuteWith('<Field name="Params.&quot;Per Zone&quot;">true</Field><Field name="Params.&quot;Max Lines&quot;">8</Field><Field name="Params.&quot;Zone Text&quot;">abc</Field><Field name="Params.&quot;Zone Code&quot;">q</Field>');
+        Observer.Finish();
+    end;
 }
