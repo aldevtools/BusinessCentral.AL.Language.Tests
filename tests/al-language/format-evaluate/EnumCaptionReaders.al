@@ -173,8 +173,19 @@ codeunit 97908 "LT ECR Obs"
         Pairs: Text;
 
     procedure Observe(ObservedName: Text; ObservedValue: Text)
+    var
+        Rs: Text[1];
+        Us: Text[1];
+        Cr: Text[1];
+        Lf: Text[1];
+        Tab: Text[1];
     begin
-        Pairs += ObservedName + '=' + ObservedValue + '~';
+        Rs[1] := 9246;
+        Us[1] := 9247;
+        Cr[1] := 13;
+        Lf[1] := 10;
+        Tab[1] := 9;
+        Pairs += ObservedName + Us + ObservedValue.Replace(Rs, '?').Replace(Us, '?').Replace(Cr, '\r').Replace(Lf, '\n').Replace(Tab, '\t') + Rs;
     end;
 
     procedure ObserveError(ObservedName: Text)
@@ -652,6 +663,7 @@ codeunit 97910 "LT ECR Enum Readers"
         Word: Text;
     begin
         Seed();
+        Commit();
         GlobalLanguage(Lang);
         Row.CalcFields(ClosedCount, OpenOrClosedCount);
         Observer.Observe('const Closed count', Format(Row.ClosedCount));
@@ -660,6 +672,7 @@ codeunit 97910 "LT ECR Enum Readers"
         Rel.Init();
         Rel.Id := 1;
         Rel.Insert();
+        Commit();
         Rel.Validate(ClosedRef, 1);
         asserterror Rel.Validate(ClosedRef, 2);
         Observer.ObserveError('relation Closed row 2');
@@ -808,6 +821,7 @@ codeunit 97910 "LT ECR Enum Readers"
         Row: Record "LT ECR Row";
     begin
         Seed();
+        Commit();
         GlobalLanguage(Lang);
         Row.Get(2);
         asserterror Row.TestField(Status, Row.Status::Closed);
@@ -895,7 +909,7 @@ codeunit 97910 "LT ECR Enum Readers"
             RecRef.Open(Database::"LT ECR Keyed");
             if Tools.SetPos(RecRef, Word) then begin
                 Observer.Observe('SetPosition ' + Word, 'ok|' + RecRef.GetPosition());
-                Observer.Observe('SetPosition ' + Word + ' Get', Format(RecRef.Get(RecRef.RecordId())));
+                Observer.Observe('SetPosition ' + Word + ' Get', Format(RecRef.Get(RecRef.RecordId()), 0, 9));
             end else begin
                 Observer.Observe('SetPosition ' + Word, 'err');
                 Observer.ObserveError('SetPosition ' + Word);
@@ -940,7 +954,7 @@ codeunit 97910 "LT ECR Enum Readers"
         List.OpenView();
         List.Filter.SetFilter(Status, 'Closed');
         Observer.Observe('Filter Closed first', List.Id.Value());
-        Observer.Observe('Filter Closed next', Format(List.Next()));
+        Observer.Observe('Filter Closed next', Format(List.Next(), 0, 9));
         List.Close();
         GlobalLanguage(1033);
     end;
