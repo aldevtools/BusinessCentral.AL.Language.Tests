@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/interface/interface-data-type
 // Scope: in-scope
-// Fixtures used: "Interface State Rec" (60369), "Interface State Kind" (60370), "Interface Impl Vendor" (60371)
+// Fixtures used: "ALT Shape 04" (50004), "Interface State Kind" (60370), "Interface Impl Vendor" (60371)
 //
 /// <summary>
 /// Regression proof: a codeunit obtained via an interface enum cast keeps its instance
@@ -59,7 +59,7 @@ codeunit 60372 "Test Interface CU StateField"
 
     local procedure Initialize()
     var
-        StateRec: Record "Interface State Rec";
+        StateRec: Record "ALT Shape 04";
     begin
         StateRec.DeleteAll();
     end;

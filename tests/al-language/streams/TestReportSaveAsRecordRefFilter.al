@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/report/report-saveas-method
 // Scope: in-scope
-// Fixtures used: SaveAs RecordRef Row (60577), SaveAs RecordRef Document (60578)
+// Fixtures used: "ALT Shape 04" (50004), SaveAs RecordRef Document (60578)
 //
 // The RecordRef handed to Report.SaveAs must filter the report's matching data item.
 //
@@ -23,7 +23,7 @@ codeunit 60579 "Test Report SaveAs RecRef Flt"
 
     local procedure Initialize()
     var
-        Row: Record "SaveAs RecordRef Row";
+        Row: Record "ALT Shape 04";
     begin
         Row.DeleteAll();
         Row.Init();
@@ -51,7 +51,7 @@ codeunit 60579 "Test Report SaveAs RecRef Flt"
     [Test]
     procedure TestReport_SaveAs_FilteredRecordRef_LimitsDatasetToThatRecord()
     var
-        Row: Record "SaveAs RecordRef Row";
+        Row: Record "ALT Shape 04";
         RowRef: RecordRef;
         TempBlob: Codeunit "Temp Blob";
         DatasetOutStream: OutStream;

@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-events-in-al
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); self-contained: table 71770, SingleInstance log 71771 (used only by test codeunit 71775), subscribers 71772, pages 71773 and 71774, codeunit 71776
+// Fixtures used: Probe Observer (codeunit 69160); self-contained: shared table 50001 "ALT Shape 01", SingleInstance log 71771 (used only by test codeunit 71775), subscribers 71772, pages 71773 and 71774, codeunit 71776
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: a subscriber to OnBeforeActionEvent or OnAfterActionEvent of a page action that raises an error, when a TestPage invokes the action: does OnAction run, does the other event fire, what error does
 // Invoke report (text and code), and can the action be invoked again. The same for an action with RunObject = Page and RunObject = Codeunit: do both events fire, and in what order relative to the opened page or codeunit.
@@ -9,19 +9,6 @@
 // subscriber's text with code TestWrapped:Dialog; with both failing only the before error is reported; the action can be invoked again. For an action with RunObject = Page neither event fires (the target
 // opens and closes, the failing mode makes no difference). For RunObject = Codeunit only OnAfterActionEvent fires, after the codeunit ran, and an error in it reaches Invoke; the before event does not fire.
 // BC versions: 27.0 to 29.0
-
-table 71770 "LT PAS Row"
-{
-    DataClassification = CustomerContent;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-
-    keys { key(PK; Id) { Clustered = true; } }
-}
 
 codeunit 71771 "LT PAS Log"
 {
@@ -142,7 +129,7 @@ codeunit 71776 "LT PAS Run"
 page 71774 "LT PAS Target"
 {
     PageType = Card;
-    SourceTable = "LT PAS Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -172,7 +159,7 @@ page 71774 "LT PAS Target"
 page 71773 "LT PAS Card"
 {
     PageType = Card;
-    SourceTable = "LT PAS Row";
+    SourceTable = "ALT Shape 01";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -220,7 +207,7 @@ codeunit 71775 "LT Page Action Sub Errors"
 
     local procedure Seed(FailMode: Text)
     var
-        Row: Record "LT PAS Row";
+        Row: Record "ALT Shape 01";
         Log: Codeunit "LT PAS Log";
     begin
         Row.DeleteAll(false);

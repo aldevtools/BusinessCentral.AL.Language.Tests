@@ -33,6 +33,15 @@ ordering, the `CodeUnit Metadata` SingleInstance column) and must not be reporte
 Reachability is transitive: a test codeunit that runs a plain helper codeunit which
 declares the fixture owns the fixture just as much as one naming it directly.
 
+Shared on purpose
+-----------------
+A probe whose subject IS the state carried from one test codeunit to the next (the
+runner-trigger probe of the isolation-probe app records what a test runner's triggers
+saw and reads it back in a later test codeunit) needs one log across several test
+codeunits. Its file says so in a comment line starting with SHARED_MARKER and the
+reason; every SingleInstance codeunit declared in that file is then not reported.
+The marker is explicit and greppable on purpose: sharing stays the exception.
+
 Preprocessor branches are not interpreted, matching check-object-ids.py. A fixture
 reachable only under mutually exclusive `#if` branches would be reported falsely;
 no corpus file does that today, and a loud false positive beats a silent miss.
@@ -51,6 +60,8 @@ SUBTYPE_TEST = re.compile(r'\bSubtype\s*=\s*Test\s*;', re.I)
 VAR_DECL = re.compile(r':\s*Codeunit\s+"([^"]+)"')
 # `Codeunit.Run(Codeunit::"Foo")` -- executes Foo's OnRun, so it reaches Foo's
 # instance even though the argument itself is only an id literal.
+SHARED_MARKER = "// singleinstance-shared-on-purpose:"
+SHARED_OK = set()
 CODEUNIT_RUN = re.compile(r'Codeunit\s*\.\s*Run\s*\(\s*Codeunit\s*::\s*"([^"]+)"')
 
 
@@ -66,6 +77,7 @@ def strip_comments(text: str) -> str:
 def parse(root: Path):
     """-> (objects, refs). objects[name] = (id, relpath, line, is_single, is_test)."""
     objects, refs = {}, defaultdict(set)
+    SHARED_OK.clear()
     for al in sorted(root.rglob("*.al")):
         if ".git" in al.parts:
             continue
@@ -75,6 +87,7 @@ def parse(root: Path):
             print(f"::error file={al}::could not be read: {exc}")
             raise SystemExit(1)
         body = strip_comments(raw)
+        shared_ok = any(line.strip().startswith(SHARED_MARKER) for line in raw.splitlines())
         decls = list(CODEUNIT_DECL.finditer(body))
         for i, m in enumerate(decls):
             end = decls[i + 1].start() if i + 1 < len(decls) else len(body)
@@ -87,6 +100,8 @@ def parse(root: Path):
                 SINGLE_INSTANCE.search(seg) is not None,
                 SUBTYPE_TEST.search(seg) is not None,
             )
+            if shared_ok:
+                SHARED_OK.add(name)
             for pat in (VAR_DECL, CODEUNIT_RUN):
                 for r in pat.finditer(seg):
                     refs[name].add(r.group(1))
@@ -125,7 +140,7 @@ def main() -> int:
         for s in reachable(t, refs) & singles:
             owners[s].add(t)
 
-    shared = {s: sorted(v) for s, v in owners.items() if len(v) > 1}
+    shared = {s: sorted(v) for s, v in owners.items() if len(v) > 1 and s not in SHARED_OK}
 
     if not shared:
         print(f"OK — {len(singles)} SingleInstance codeunit(s), {len(tests)} test codeunit(s); "

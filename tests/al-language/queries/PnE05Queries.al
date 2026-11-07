@@ -1,36 +1,11 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-query-object
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), self-contained codeunit 72540, tables 72541-72546, queries 72547-72549
+// Fixtures used: Probe Observer (codeunit 69160), self-contained codeunit 72540, tables 72541-72546, queries 72547-72549 (tables 72541 and 72542 are now shared tables 50000 "ALT Shape 00" and 50016 "ALT Shape 16")
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Settles probes-needed rows: "Queries: AboutTitle, AboutText, a DataItemLink to an outer data item" (the AboutTitle/AboutText part and the
 // parent plus grandparent link part) and "A query column with `Method` over a FlowField" (NP Retail blockers)
 // Facts: query with AboutTitle/AboutText, DataItemLink naming parent and grandparent, Sum/Count column over a FlowField
 // BC versions: 29 (27 and 28 by CI)
-
-table 72541 "LT PnE Q Grand"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
-table 72542 "LT PnE Q Parent"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; GId; Integer) { }
-    }
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 table 72543 "LT PnE Q Child"
 {
@@ -105,12 +80,12 @@ query 72548 "LT PnE Q Link Both"
 
     elements
     {
-        dataitem(Grand; "LT PnE Q Grand")
+        dataitem(Grand; "ALT Shape 00")
         {
             column(GrandId; Id) { }
-            dataitem(Parent; "LT PnE Q Parent")
+            dataitem(Parent; "ALT Shape 16")
             {
-                DataItemLink = GId = Grand.Id;
+                DataItemLink = Amount = Grand.Id;
                 column(ParentId; Id) { }
                 dataitem(Child; "LT PnE Q Child")
                 {
@@ -150,8 +125,8 @@ codeunit 72540 "LT PnE Query Probes"
 
     local procedure Clean()
     var
-        G: Record "LT PnE Q Grand";
-        P: Record "LT PnE Q Parent";
+        G: Record "ALT Shape 00";
+        P: Record "ALT Shape 16";
         C: Record "LT PnE Q Child";
         O: Record "LT PnE Q Owner";
         L: Record "LT PnE Q Line";
@@ -213,8 +188,8 @@ codeunit 72540 "LT PnE Query Probes"
     procedure DataItemLink_ParentAndGrandparent()
     var
         Observer: Codeunit "Probe Observer";
-        G: Record "LT PnE Q Grand";
-        P: Record "LT PnE Q Parent";
+        G: Record "ALT Shape 00";
+        P: Record "ALT Shape 16";
         C: Record "LT PnE Q Child";
         Q: Query "LT PnE Q Link Both";
         S: Text;
@@ -226,10 +201,10 @@ codeunit 72540 "LT PnE Query Probes"
         G.Id := 2;
         G.Insert();
         P.Id := 10;
-        P.GId := 1;
+        P.Amount := 1;
         P.Insert();
         P.Id := 20;
-        P.GId := 2;
+        P.Amount := 2;
         P.Insert();
         C.Id := 100;
         C.PId := 10;

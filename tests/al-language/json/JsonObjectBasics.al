@@ -430,4 +430,64 @@ codeunit 72500 "LT JsT Object Basics"
         Observer.Expect('existing statement', '{}');
         Observer.Verify();
     end;
+
+    // al-runner issue 6924 (item 3.8): a value passed to a Variant parameter and added to a JsonObject the way a JSON helper does it: a type switch on
+    // the Variant (IsChar first, then IsText and IsCode), the Char branch reads the Variant into a Char variable and adds that. Next to it the direct
+    // Add of a Char variable, a Text variable and a one-character literal. Result: the branch the switch took and the JSON text of WriteTo.
+    local procedure QwAddVariant(var O: JsonObject; KeyName: Text; Value: Variant): Text
+    var
+        Ch: Char;
+        T: Text;
+    begin
+        case true of
+            Value.IsChar():
+                begin
+                    Ch := Value;
+                    O.Add(KeyName, Ch);
+                    exit('char');
+                end;
+            Value.IsText(), Value.IsCode():
+                begin
+                    T := Value;
+                    O.Add(KeyName, T);
+                    exit('text');
+                end;
+        end;
+        exit('other');
+    end;
+
+    [Test]
+    procedure QW_Add_CharAndText_ThroughVariant()
+    var
+        Observer: Codeunit "Probe Observer";
+        O: JsonObject;
+        Ch: Char;
+        T: Text;
+        C1: Code[1];
+        Txt: Text;
+    begin
+        Ch := ',';
+        T := 'x';
+        C1 := '.';
+        Observer.Observe('branch literal comma', QwAddVariant(O, 'lit', ','));
+        Observer.Observe('branch text var', QwAddVariant(O, 'txt', T));
+        Observer.Observe('branch char var', QwAddVariant(O, 'chr', Ch));
+        Observer.Observe('branch code1 var', QwAddVariant(O, 'code1', C1));
+        O.WriteTo(Txt);
+        Observer.Observe('through variant', Txt);
+        Clear(O);
+        O.Add('chr', Ch);
+        O.Add('txt', T);
+        O.Add('lit', ',');
+        O.Add('code1', C1);
+        O.WriteTo(Txt);
+        Observer.Observe('direct', Txt);
+        Observer.Expect('branch literal comma', 'text');
+        Observer.Expect('branch text var', 'text');
+        Observer.Expect('branch char var', 'char');
+        Observer.Expect('branch code1 var', 'text');
+        Observer.Expect('through variant', '{"lit":",","txt":"x","chr":44,"code1":"."}');
+        Observer.Expect('direct', '{"chr":44,"txt":"x","lit":",","code1":"."}');
+        Observer.Verify();
+    end;
 }

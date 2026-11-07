@@ -9,7 +9,7 @@
 codeunit 60371 "Interface Impl Vendor" implements "IInterface State Provider"
 {
     var
-        Probe: Record "Interface State Rec";
+        Probe: Record "ALT Shape 04";
 
     procedure GetProbedName(): Text
     begin

@@ -26,6 +26,9 @@ codeunit 79938 "LT AS DT Installer"
 #if BC28PLUS
         Save('S4', Outcome(TryCopyFieldsDestFilter()));
 #endif
+        Save('C1', Outcome(TryClearBetweenSetTables()));
+        Save('C2', Outcome(TrySetTablesTwiceNoClear()));
+        Save('C3', Outcome(TryClearThenCopyRows()));
         Save('DONE', 'ok');
     end;
 
@@ -195,6 +198,61 @@ codeunit 79938 "LT AS DT Installer"
         DT.CopyFields();
     end;
 #endif
+
+    // Writer P6924 (al-runtime-rs triage of issue 6924, row 1f): what Clear of a DataTransfer variable resets (tables DtClearTables.al).
+    // C1: SetTables to "INS DT Clear First" with a source filter (Amount > 10), Code and Amount mapped and a constant; Clear; SetTables to
+    //   "INS DT Clear Second" with only Code and Name mapped; CopyRows.
+    [TryFunction]
+    local procedure TryClearBetweenSetTables()
+    var
+        Src: Record "LT AS DT Src";
+        Dst: Record "INS DT Clear Second";
+        DT: DataTransfer;
+    begin
+        DT.SetTables(Database::"LT AS DT Src", Database::"INS DT Clear First");
+        DT.AddSourceFilter(Src.FieldNo(Amount), '>%1', 10);
+        DT.AddFieldValue(Src.FieldNo("Code"), Dst.FieldNo("Code"));
+        DT.AddFieldValue(Src.FieldNo(Amount), Dst.FieldNo(Amount));
+        DT.AddConstantValue('first', Dst.FieldNo(Note));
+        Clear(DT);
+        DT.SetTables(Database::"LT AS DT Src", Database::"INS DT Clear Second");
+        DT.AddFieldValue(Src.FieldNo("Code"), Dst.FieldNo("Code"));
+        DT.AddFieldValue(Src.FieldNo(Name), Dst.FieldNo(Name));
+        DT.CopyRows();
+    end;
+
+    // C2, the control for C1: the same calls without Clear (SetTables twice on one variable).
+    [TryFunction]
+    local procedure TrySetTablesTwiceNoClear()
+    var
+        Src: Record "LT AS DT Src";
+        Dst: Record "INS DT Twice Second";
+        DT: DataTransfer;
+    begin
+        DT.SetTables(Database::"LT AS DT Src", Database::"INS DT Twice First");
+        DT.AddSourceFilter(Src.FieldNo(Amount), '>%1', 10);
+        DT.AddFieldValue(Src.FieldNo("Code"), Dst.FieldNo("Code"));
+        DT.AddFieldValue(Src.FieldNo(Amount), Dst.FieldNo(Amount));
+        DT.AddConstantValue('first', Dst.FieldNo(Note));
+        DT.SetTables(Database::"LT AS DT Src", Database::"INS DT Twice Second");
+        DT.AddFieldValue(Src.FieldNo("Code"), Dst.FieldNo("Code"));
+        DT.AddFieldValue(Src.FieldNo(Name), Dst.FieldNo(Name));
+        DT.CopyRows();
+    end;
+
+    // C3: SetTables to "INS DT Clear Only" with Code mapped, Clear, then CopyRows with no SetTables after the Clear.
+    [TryFunction]
+    local procedure TryClearThenCopyRows()
+    var
+        Src: Record "LT AS DT Src";
+        Dst: Record "INS DT Clear Only";
+        DT: DataTransfer;
+    begin
+        DT.SetTables(Database::"LT AS DT Src", Database::"INS DT Clear Only");
+        DT.AddFieldValue(Src.FieldNo("Code"), Dst.FieldNo("Code"));
+        Clear(DT);
+        DT.CopyRows();
+    end;
 }
 
 // Probe UM (ADR-046 Q1): see install/lt-um-install-order/UmInstallOrder.al. Writes only `if Insert() then;` into a DataPerCompany = false log.

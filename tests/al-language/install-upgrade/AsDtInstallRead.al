@@ -145,4 +145,65 @@ codeunit 79939 "LT AS DT Install Read"
         Observer.Verify();
     end;
 #endif
+
+    // Writer P6924 (al-runtime-rs triage of issue 6924, row 1f): Clear of a DataTransfer variable in install code (scenarios C1-C3 of
+    // codeunit 79938, tables DtClearTables.al). Each row is Code|Amount|Name|Note.
+    local procedure DumpRows(TableNo: Integer): Text
+    var
+        RR: RecordRef;
+        Result: Text;
+    begin
+        RR.Open(TableNo);
+        if RR.FindSet() then
+            repeat
+                Result += StrSubstNo('%1|%2|%3|%4;', RR.Field(1).Value, RR.Field(2).Value, RR.Field(3).Value, RR.Field(4).Value);
+            until RR.Next() = 0;
+        RR.Close();
+        exit(Result);
+    end;
+
+    [Test]
+    procedure Install_Clear_BetweenSetTables_CopyRows()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('outcome', ObsText('C1'));
+        Observer.Observe('first target rows', DumpRows(Database::"INS DT Clear First"));
+        Observer.Observe('second target rows', DumpRows(Database::"INS DT Clear Second"));
+        // Observed on BC 27.5, 28.5 and 29.0: Clear drops the source filter, the field mappings and the constant staged before it; only the
+        // calls after the second SetTables count (all four source rows, Amount and Note not copied). Nothing goes to the first target.
+        Observer.Expect('outcome', 'ok');
+        Observer.Expect('first target rows', '');
+        Observer.Expect('second target rows', 'A|0|alpha|;B|0|beta|;C|0|gamma|;D|0|delta|;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Install_SetTablesTwice_NoClear_CopyRows()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('outcome', ObsText('C2'));
+        Observer.Observe('first target rows', DumpRows(Database::"INS DT Twice First"));
+        Observer.Observe('second target rows', DumpRows(Database::"INS DT Twice Second"));
+        // Observed on BC 27.5, 28.5 and 29.0: without Clear, a second SetTables keeps the field mappings of the first one: mapping Code
+        // again raises (the text is BC's, with its spelling), and nothing is copied.
+        Observer.Expect('outcome', 'Not possible to add the same field as destionation field twice.|DB:Ok');
+        Observer.Expect('first target rows', '');
+        Observer.Expect('second target rows', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Install_Clear_ThenCopyRowsWithoutSetTables()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('outcome', ObsText('C3'));
+        Observer.Observe('target rows', DumpRows(Database::"INS DT Clear Only"));
+        // Observed on BC 27.5, 28.5 and 29.0: after Clear, CopyRows asks for SetTables, also in install code.
+        Observer.Expect('outcome', 'SetTables must first be called before calling other methods on DataTransfer.|DB:Ok');
+        Observer.Expect('target rows', '');
+        Observer.Verify();
+    end;
 }

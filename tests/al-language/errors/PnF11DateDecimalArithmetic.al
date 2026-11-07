@@ -1,22 +1,10 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/date/date-data-type
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), self-contained table 73887, codeunit 73888
+// Fixtures used: Probe Observer (codeunit 69160), shared table 50000 "ALT Shape 00", codeunit 73888
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Settles probes-needed row: "Date + Decimal, Date - Decimal, Next(Decimal) with a whole number" (Tests-SCM round 2)
 // Facts: Date plus and minus a Decimal (whole, fractional, negative, from a division), Record.Next with a Decimal steps argument (whole and fractional, forward and backward)
 // BC versions: 29 (27 and 28 by CI)
-
-table 73887 "LT PnF DD Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-
-    keys { key(PK; Id) { Clustered = true; } }
-}
 
 codeunit 73888 "LT PnF Date Decimal"
 {
@@ -118,12 +106,12 @@ codeunit 73888 "LT PnF Date Decimal"
     end;
 
     [TryFunction]
-    local procedure TryNext(var Row: Record "LT PnF DD Row"; Steps: Decimal; var Moved: Integer)
+    local procedure TryNext(var Row: Record "ALT Shape 00"; Steps: Decimal; var Moved: Integer)
     begin
         Moved := Row.Next(Steps);
     end;
 
-    local procedure NextBy(Steps: Decimal; Start: Integer; var Row: Record "LT PnF DD Row"): Text
+    local procedure NextBy(Steps: Decimal; Start: Integer; var Row: Record "ALT Shape 00"): Text
     var
         Moved: Integer;
     begin
@@ -137,7 +125,7 @@ codeunit 73888 "LT PnF Date Decimal"
     procedure Next_Decimal_Whole()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT PnF DD Row";
+        Row: Record "ALT Shape 00";
         i: Integer;
     begin
         Row.DeleteAll();
@@ -166,7 +154,7 @@ codeunit 73888 "LT PnF Date Decimal"
     procedure Next_Decimal_Fraction()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT PnF DD Row";
+        Row: Record "ALT Shape 00";
         i: Integer;
     begin
         Row.DeleteAll();
