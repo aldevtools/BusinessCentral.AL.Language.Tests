@@ -938,4 +938,49 @@ codeunit 95454 "LT R6951 Tests"
         Initialize();
         CheckCommaTableFilter('Code Field=<>CORP01&<>CORP02', 1, 101, 101);
     end;
+
+    [Test]
+    procedure TableFilter_Evaluate_CodeAlternatives_SelectsBothMatchingRows()
+    var
+        Row: Record "ALT Universal";
+        Holder: Record "ALT TableFilter Holder";
+        Fields: Record "Table Filter" temporary;
+        FilterPage: Page "Table Filter";
+        Ref: RecordRef;
+        Field: FieldRef;
+    begin
+        Initialize();
+        Row."Entry No." := 101;
+        Row."Code Field" := 'BIN-A';
+        Row.Insert(false);
+        Row."Entry No." := 202;
+        Row."Code Field" := 'BIN/B';
+        Row.Insert(false);
+        Row."Entry No." := 303;
+        Row."Code Field" := 'BIN/C';
+        Row.Insert(false);
+
+        Evaluate(Holder."Filter Value", 'ALT Universal: Code Field=BIN-A|BIN/B');
+        FilterPage.SetSourceTable(Format(Holder."Filter Value"), Database::"ALT Universal", Row.TableCaption());
+        FilterPage.GetFilterFieldsList(Fields);
+        if (Fields.Count() <> 1) or not Fields.FindFirst() then
+            Error('Expected one Code filter.');
+        if Fields."Field Number" <> Row.FieldNo("Code Field") then
+            Error('Expected the Code Field filter.');
+
+        Ref.Open(Database::"ALT Universal");
+        Field := Ref.Field(Fields."Field Number");
+        Field.SetFilter(Fields."Field Filter");
+        if Ref.Count() <> 2 then
+            Error('Expected two selected rows; actual %1.', Ref.Count());
+        Ref.FindFirst();
+        Field := Ref.Field(Row.FieldNo("Entry No."));
+        if Format(Field.Value()) <> '101' then
+            Error('Expected first selected key 101; actual %1.', Field.Value());
+        Ref.FindLast();
+        Field := Ref.Field(Row.FieldNo("Entry No."));
+        if Format(Field.Value()) <> '202' then
+            Error('Expected last selected key 202; actual %1.', Field.Value());
+        Ref.Close();
+    end;
 }
