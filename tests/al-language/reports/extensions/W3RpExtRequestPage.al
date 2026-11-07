@@ -1025,6 +1025,15 @@ codeunit 97042 "LT W9 RpExt Controls"
     end;
 }
 
+// Pinned (BC 29.0 observed; the other majors are checked by the CI matrix):
+//  - Controls on the extension's own protected record (fields added by a table extension, plus a base table field) work like controls on
+//    a base report variable: the values set in the handler reach the extension's procedure in OnPreReport and in OnBeforePreDataItem (Code fields are uppercased: z1 -> Z1).
+//  - Cancel: the report does not run, nothing is logged. Defaults when nothing is set: false, 0, empty text.
+//  - RunRequestPage writes each control as <Field name="Params.&quot;Per Zone&quot;"> (variable name, dot, field name; a name with a space is quoted,
+//    Params.Factor and Params.Name are not); the base control is <Field name="BaseVal">. Empty text values are written as an empty element.
+//  - Reading a parameters text: the quoted form "Params.&quot;Per Zone&quot;" seeds the control (and Report.Execute); the control name (PerZoneCtl) does not seed
+//    anything; the unquoted form Params.Per Zone does not either; Params.Factor and Params.Name (no space, written unquoted) seed too.
+//  - Report.Execute with a parameters text and no page succeeds, no error.
 // ---- Extension request page controls on a field of the extension's OWN protected record variable (al-runner issue 6924, waldo) ----
 // The record variable (Params) is declared in a protected var section of the reportextension. Its table is extended by the same app
 // with the fields the controls show (tableextension 97201 adds Per Zone, Max Lines, Zone Text, Factor and Zone Code to table 97200).
@@ -1243,7 +1252,8 @@ codeunit 97205 "LT OR RpExt Own Record"
         Seed();
         Report.Run(Report::"LT OR RpExt Base");
         Observer.Observe('log', ExtLog.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'open: perZone=[No] maxLines=[0] zoneText=[] factor=[0.00] zoneCode=[] name=[] base=[0];set: perZone=[Yes] maxLines=[12] zoneText=[north] factor=[2.50] zoneCode=[Z1] name=[named] base=[3];PreReport perZone=Yes maxLines=12 zoneText=north factor=2.5 zoneCode=Z1 name=named base=3;BeforePreDataItem perZone=Yes maxLines=12 zoneText=north factor=2.5 zoneCode=Z1 name=named base=3;base PreDataItem;base Row 1;base Row 2;');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -1268,7 +1278,10 @@ codeunit 97205 "LT OR RpExt Own Record"
     begin
         Seed();
         ObserveParameters(Report.RunRequestPage(Report::"LT OR RpExt Base"));
-        Observer.Finish();
+        Observer.Expect('options', '<Field name="BaseVal">3</Field><Field name="Params.&quot;Per Zone&quot;">true</Field><Field name="Params.&quot;Max Lines&quot;">12</Field><Field name="Params.&quot;Zone Text&quot;">north</Field><Field name="Params.Factor">2.5</Field><Field name="Params.&quot;Zone Code&quot;">Z1</Field><Field name="Params.Name">named</Field>');
+        Observer.Expect('dataitems', '<DataItem name="BaseRow">VERSION(1) SORTING(Field1)</DataItem>');
+        Observer.Expect('log', 'open: perZone=[No] maxLines=[0] zoneText=[] factor=[0.00] zoneCode=[] name=[] base=[0];set: perZone=[Yes] maxLines=[12] zoneText=[north] factor=[2.50] zoneCode=[Z1] name=[named] base=[3];');
+        Observer.Verify();
     end;
 
     // 3. Nothing set: the defaults and the parameters text.
@@ -1278,7 +1291,10 @@ codeunit 97205 "LT OR RpExt Own Record"
     begin
         Seed();
         ObserveParameters(Report.RunRequestPage(Report::"LT OR RpExt Base"));
-        Observer.Finish();
+        Observer.Expect('options', '<Field name="BaseVal">0</Field><Field name="Params.&quot;Per Zone&quot;">false</Field><Field name="Params.&quot;Max Lines&quot;">0</Field><Field name="Params.&quot;Zone Text&quot;" /><Field name="Params.Factor">0</Field><Field name="Params.&quot;Zone Code&quot;" /><Field name="Params.Name" />');
+        Observer.Expect('dataitems', '<DataItem name="BaseRow">VERSION(1) SORTING(Field1)</DataItem>');
+        Observer.Expect('log', 'open: perZone=[No] maxLines=[0] zoneText=[] factor=[0.00] zoneCode=[] name=[] base=[0];');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -1296,7 +1312,8 @@ codeunit 97205 "LT OR RpExt Own Record"
         Seed();
         Report.Run(Report::"LT OR RpExt Base");
         Observer.Observe('log', ExtLog.Take());
-        Observer.Finish();
+        Observer.Expect('log', '');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -1313,7 +1330,10 @@ codeunit 97205 "LT OR RpExt Own Record"
     begin
         Seed();
         ObserveParameters(Report.RunRequestPage(Report::"LT OR RpExt Base", ParametersText('<Field name="PerZoneCtl">1</Field><Field name="MaxLinesCtl">8</Field><Field name="ZoneTextCtl">abc</Field><Field name="FactorCtl">1.5</Field><Field name="ZoneCodeCtl">q</Field>')));
-        Observer.Finish();
+        Observer.Expect('options', '<Field name="BaseVal">0</Field><Field name="Params.&quot;Per Zone&quot;">false</Field><Field name="Params.&quot;Max Lines&quot;">0</Field><Field name="Params.&quot;Zone Text&quot;" /><Field name="Params.Factor">0</Field><Field name="Params.&quot;Zone Code&quot;" /><Field name="Params.Name" />');
+        Observer.Expect('dataitems', '<DataItem name="BaseRow">VERSION(1) SORTING(Field1)</DataItem>');
+        Observer.Expect('log', 'open: perZone=[No] maxLines=[0] zoneText=[] factor=[0.00] zoneCode=[] name=[] base=[0];');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1322,7 +1342,10 @@ codeunit 97205 "LT OR RpExt Own Record"
     begin
         Seed();
         ObserveParameters(Report.RunRequestPage(Report::"LT OR RpExt Base", ParametersText('<Field name="Params.Per Zone">1</Field><Field name="Params.Max Lines">8</Field><Field name="Params.Zone Text">abc</Field><Field name="Params.Factor">1.5</Field><Field name="Params.Zone Code">q</Field>')));
-        Observer.Finish();
+        Observer.Expect('options', '<Field name="BaseVal">0</Field><Field name="Params.&quot;Per Zone&quot;">false</Field><Field name="Params.&quot;Max Lines&quot;">0</Field><Field name="Params.&quot;Zone Text&quot;" /><Field name="Params.Factor">1.5</Field><Field name="Params.&quot;Zone Code&quot;" /><Field name="Params.Name" />');
+        Observer.Expect('dataitems', '<DataItem name="BaseRow">VERSION(1) SORTING(Field1)</DataItem>');
+        Observer.Expect('log', 'open: perZone=[No] maxLines=[0] zoneText=[] factor=[1.50] zoneCode=[] name=[] base=[0];');
+        Observer.Verify();
     end;
 
     local procedure ParametersText(Options: Text): Text
@@ -1351,21 +1374,33 @@ codeunit 97205 "LT OR RpExt Own Record"
     procedure Execute_ParametersText_ControlNames()
     begin
         ExecuteWith('<Field name="PerZoneCtl">1</Field><Field name="MaxLinesCtl">8</Field><Field name="ZoneTextCtl">abc</Field><Field name="FactorCtl">1.5</Field><Field name="ZoneCodeCtl">q</Field>');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('execute|text', '');
+        Observer.Expect('execute|code', '');
+        Observer.Expect('log', 'PreReport perZone=No maxLines=0 zoneText= factor=0 zoneCode= name= base=0;BeforePreDataItem perZone=No maxLines=0 zoneText= factor=0 zoneCode= name= base=0;base PreDataItem;base Row 1;base Row 2;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Execute_ParametersText_VariableAndFieldNames()
     begin
         ExecuteWith('<Field name="Params.Per Zone">1</Field><Field name="Params.Max Lines">8</Field><Field name="Params.Zone Text">abc</Field><Field name="Params.Factor">1.5</Field><Field name="Params.Zone Code">q</Field>');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('execute|text', '');
+        Observer.Expect('execute|code', '');
+        Observer.Expect('log', 'PreReport perZone=No maxLines=0 zoneText= factor=1.5 zoneCode= name= base=0;BeforePreDataItem perZone=No maxLines=0 zoneText= factor=1.5 zoneCode= name= base=0;base PreDataItem;base Row 1;base Row 2;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Execute_ParametersText_BaseTableFieldOnly()
     begin
         ExecuteWith('<Field name="Params.Name">viaName</Field><Field name="BaseNameCtl">viaCtl</Field>');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('execute|text', '');
+        Observer.Expect('execute|code', '');
+        Observer.Expect('log', 'PreReport perZone=No maxLines=0 zoneText= factor=0 zoneCode= name=viaName base=0;BeforePreDataItem perZone=No maxLines=0 zoneText= factor=0 zoneCode= name=viaName base=0;base PreDataItem;base Row 1;base Row 2;');
+        Observer.Verify();
     end;
 
     // 7. The parameters text names a control on the extension's record by the quoted form BC itself writes ("Params.&quot;Per Zone&quot;").
@@ -1375,13 +1410,20 @@ codeunit 97205 "LT OR RpExt Own Record"
     begin
         Seed();
         ObserveParameters(Report.RunRequestPage(Report::"LT OR RpExt Base", ParametersText('<Field name="Params.&quot;Per Zone&quot;">true</Field><Field name="Params.&quot;Max Lines&quot;">8</Field><Field name="Params.&quot;Zone Text&quot;">abc</Field><Field name="Params.&quot;Zone Code&quot;">q</Field>')));
-        Observer.Finish();
+        Observer.Expect('options', '<Field name="BaseVal">0</Field><Field name="Params.&quot;Per Zone&quot;">true</Field><Field name="Params.&quot;Max Lines&quot;">8</Field><Field name="Params.&quot;Zone Text&quot;">abc</Field><Field name="Params.Factor">0</Field><Field name="Params.&quot;Zone Code&quot;">Q</Field><Field name="Params.Name" />');
+        Observer.Expect('dataitems', '<DataItem name="BaseRow">VERSION(1) SORTING(Field1)</DataItem>');
+        Observer.Expect('log', 'open: perZone=[Yes] maxLines=[8] zoneText=[abc] factor=[0.00] zoneCode=[Q] name=[] base=[0];');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Execute_ParametersText_QuotedFieldNames()
     begin
         ExecuteWith('<Field name="Params.&quot;Per Zone&quot;">true</Field><Field name="Params.&quot;Max Lines&quot;">8</Field><Field name="Params.&quot;Zone Text&quot;">abc</Field><Field name="Params.&quot;Zone Code&quot;">q</Field>');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('execute|text', '');
+        Observer.Expect('execute|code', '');
+        Observer.Expect('log', 'PreReport perZone=Yes maxLines=8 zoneText=abc factor=0 zoneCode=Q name= base=0;BeforePreDataItem perZone=Yes maxLines=8 zoneText=abc factor=0 zoneCode=Q name= base=0;base PreDataItem;base Row 1;base Row 2;');
+        Observer.Verify();
     end;
 }
