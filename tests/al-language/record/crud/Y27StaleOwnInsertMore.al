@@ -19,6 +19,13 @@
 // after assigning the value the row already holds, or Modify(true) with nothing assigned: all follow the same rule. A buffer that was
 // assigned from a fresh Get (Row := Fresh, or TransferFields) is never refused and writes the fresh row's Remaining Quantity back.
 // Names: <Commits since the Insert>C_<what the helper did>_Accepted or _Refused. BWrote = the helper modified the row (Get, Modify).
+// Waldo's exact sequence (al-runner issue 6924, run 2; WA_Stale_Waldo_* at the end of the file, table 97250, codeunit 97250): A inserts (Insert(true)) and modifies
+//   (Modify(true)) without a Commit; B reads the row (Get) and calls Commit; Codeunit.Run(97250) gets the row into its own variable, assigns F1 and calls Modify(true);
+//   C finds the row (SetRange, FindFirst), assigns F2 and calls Modify(true); then A assigns F3 and calls Modify(true). Measured on BC 27.5, 28.5 and 29.0 (identical):
+//   the final write of A is ACCEPTED, and it overwrites the whole row with A's stale buffer: the stored row keeps A's first Modify and F3, and loses F1 (Run) and F2 (C).
+//   Also accepted: without the write of C, without the write of the Run codeunit, without A's first Modify, with the final write on F1 (the field the Run codeunit wrote),
+//   and with Modify(false). The end of Codeunit.Run does not count as a Commit for this rule: with an explicit Commit() right after the Run codeunit and no write of C the
+//   final write is REFUSED with DB:RecordChanged (as in the tests above); with the explicit Commit and a write of C it is accepted.
 // BC versions: 27+
 
 table 96960 "LT Y27B Row"
@@ -1194,20 +1201,11 @@ codeunit 96962 "LT Y27B Stale Insert More"
         WA_Final(A, 1);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure WA_Stale_Waldo_Full_Refused()
-    var
-        A: Record "LT WA Stale Row";
-        Observer: Codeunit "Probe Observer";
-    begin
-        WA_Prepare(A, true, true, true, false);
-        asserterror WA_Final(A, 1);
-        Observer.ObserveError('write');
-        WA_After(Observer, A);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'AFirst|Orig|Orig|FromA');
+        Observer.Expect('stored', 'AFirst|Orig|Orig|FromA');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1220,20 +1218,11 @@ codeunit 96962 "LT Y27B Stale Insert More"
         WA_Final(A, 1);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure WA_Stale_Waldo_NoCWrite_Refused()
-    var
-        A: Record "LT WA Stale Row";
-        Observer: Codeunit "Probe Observer";
-    begin
-        WA_Prepare(A, true, false, true, false);
-        asserterror WA_Final(A, 1);
-        Observer.ObserveError('write');
-        WA_After(Observer, A);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'AFirst|Orig|Orig|FromA');
+        Observer.Expect('stored', 'AFirst|Orig|Orig|FromA');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1246,20 +1235,11 @@ codeunit 96962 "LT Y27B Stale Insert More"
         WA_Final(A, 1);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure WA_Stale_Waldo_NoRunWrite_Refused()
-    var
-        A: Record "LT WA Stale Row";
-        Observer: Codeunit "Probe Observer";
-    begin
-        WA_Prepare(A, false, true, true, false);
-        asserterror WA_Final(A, 1);
-        Observer.ObserveError('write');
-        WA_After(Observer, A);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'AFirst|Orig|Orig|FromA');
+        Observer.Expect('stored', 'AFirst|Orig|Orig|FromA');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1272,20 +1252,11 @@ codeunit 96962 "LT Y27B Stale Insert More"
         WA_Final(A, 1);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure WA_Stale_Waldo_NoRunWriteNoCWrite_Refused()
-    var
-        A: Record "LT WA Stale Row";
-        Observer: Codeunit "Probe Observer";
-    begin
-        WA_Prepare(A, false, false, true, false);
-        asserterror WA_Final(A, 1);
-        Observer.ObserveError('write');
-        WA_After(Observer, A);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'AFirst|Orig|Orig|FromA');
+        Observer.Expect('stored', 'AFirst|Orig|Orig|FromA');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1298,20 +1269,11 @@ codeunit 96962 "LT Y27B Stale Insert More"
         WA_Final(A, 1);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure WA_Stale_Waldo_NoInitialModify_Refused()
-    var
-        A: Record "LT WA Stale Row";
-        Observer: Codeunit "Probe Observer";
-    begin
-        WA_Prepare(A, true, true, false, false);
-        asserterror WA_Final(A, 1);
-        Observer.ObserveError('write');
-        WA_After(Observer, A);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Orig|Orig|Orig|FromA');
+        Observer.Expect('stored', 'Orig|Orig|Orig|FromA');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1324,20 +1286,11 @@ codeunit 96962 "LT Y27B Stale Insert More"
         WA_Final(A, 1);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure WA_Stale_Waldo_NoInitialModify_NoCWrite_Refused()
-    var
-        A: Record "LT WA Stale Row";
-        Observer: Codeunit "Probe Observer";
-    begin
-        WA_Prepare(A, true, false, false, false);
-        asserterror WA_Final(A, 1);
-        Observer.ObserveError('write');
-        WA_After(Observer, A);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Orig|Orig|Orig|FromA');
+        Observer.Expect('stored', 'Orig|Orig|Orig|FromA');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1350,20 +1303,11 @@ codeunit 96962 "LT Y27B Stale Insert More"
         WA_Final(A, 2);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure WA_Stale_Waldo_FinalSameFieldAsRun_Refused()
-    var
-        A: Record "LT WA Stale Row";
-        Observer: Codeunit "Probe Observer";
-    begin
-        WA_Prepare(A, true, true, true, false);
-        asserterror WA_Final(A, 2);
-        Observer.ObserveError('write');
-        WA_After(Observer, A);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'AFirst|FromA|Orig|Orig');
+        Observer.Expect('stored', 'AFirst|FromA|Orig|Orig');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1376,20 +1320,11 @@ codeunit 96962 "LT Y27B Stale Insert More"
         WA_Final(A, 2);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure WA_Stale_Waldo_FinalSameFieldAsRun_NoCWrite_Refused()
-    var
-        A: Record "LT WA Stale Row";
-        Observer: Codeunit "Probe Observer";
-    begin
-        WA_Prepare(A, true, false, true, false);
-        asserterror WA_Final(A, 2);
-        Observer.ObserveError('write');
-        WA_After(Observer, A);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'AFirst|FromA|Orig|Orig');
+        Observer.Expect('stored', 'AFirst|FromA|Orig|Orig');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1402,20 +1337,11 @@ codeunit 96962 "LT Y27B Stale Insert More"
         WA_Final(A, 3);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure WA_Stale_Waldo_FinalModifyFalse_Refused()
-    var
-        A: Record "LT WA Stale Row";
-        Observer: Codeunit "Probe Observer";
-    begin
-        WA_Prepare(A, true, true, true, false);
-        asserterror WA_Final(A, 3);
-        Observer.ObserveError('write');
-        WA_After(Observer, A);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'AFirst|Orig|Orig|FromA');
+        Observer.Expect('stored', 'AFirst|Orig|Orig|FromA');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1428,33 +1354,11 @@ codeunit 96962 "LT Y27B Stale Insert More"
         WA_Final(A, 3);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure WA_Stale_Waldo_FinalModifyFalse_NoCWrite_Refused()
-    var
-        A: Record "LT WA Stale Row";
-        Observer: Codeunit "Probe Observer";
-    begin
-        WA_Prepare(A, true, false, true, false);
-        asserterror WA_Final(A, 3);
-        Observer.ObserveError('write');
-        WA_After(Observer, A);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure WA_Stale_Waldo_CommitAfterRun_NoCWrite_Accepted()
-    var
-        A: Record "LT WA Stale Row";
-        Observer: Codeunit "Probe Observer";
-    begin
-        WA_Prepare(A, true, false, true, true);
-        WA_Final(A, 1);
-        Observer.Observe('write', 'ok');
-        WA_After(Observer, A);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'AFirst|Orig|Orig|FromA');
+        Observer.Expect('stored', 'AFirst|Orig|Orig|FromA');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1467,7 +1371,12 @@ codeunit 96962 "LT Y27B Stale Insert More"
         asserterror WA_Final(A, 1);
         Observer.ObserveError('write');
         WA_After(Observer, A);
-        Observer.Finish();
+        Observer.Expect('write|text', 'The changes to the LT WA Stale Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('write|code', 'DB:RecordChanged');
+        Observer.Expect('buffer', 'AFirst|Orig|Orig|FromA');
+        Observer.Expect('stored', 'AFirst|FromRun|Orig|Orig');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1480,21 +1389,13 @@ codeunit 96962 "LT Y27B Stale Insert More"
         WA_Final(A, 1);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'AFirst|Orig|Orig|FromA');
+        Observer.Expect('stored', 'AFirst|Orig|Orig|FromA');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure WA_Stale_Waldo_CommitAfterRun_Refused()
-    var
-        A: Record "LT WA Stale Row";
-        Observer: Codeunit "Probe Observer";
-    begin
-        WA_Prepare(A, true, true, true, true);
-        asserterror WA_Final(A, 1);
-        Observer.ObserveError('write');
-        WA_After(Observer, A);
-        Observer.Finish();
-    end;
 }
 
 // local objects of the WA_Stale_Waldo tests (al-runner issue 6924, waldo run 2).
