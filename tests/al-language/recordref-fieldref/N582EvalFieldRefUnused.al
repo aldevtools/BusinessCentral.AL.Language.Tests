@@ -361,6 +361,174 @@ codeunit 67605 "LT N582 Eval FieldRef"
         Observer.Expect('enum empty|value', ' ');
         Observer.Verify();
     end;
+
+    // Waldo run 2 (al-runner issue 6924): the same statement form on a RecordId field. Table 97240 below; Rid starts as the RecordId of the
+    // row itself, Rid2 starts blank. Mode 0: statement; 1: result used; 9: statement with format 9.
+    [TryFunction]
+    local procedure WA_TryEval9(FldRef: FieldRef; Txt: Text)
+    begin
+        Evaluate(FldRef, Txt, 9);
+    end;
+
+    local procedure WA_Eval(var Observer: Codeunit "Probe Observer"; Name: Text; FieldNo: Integer; Txt: Text; Mode: Integer)
+    var
+        Row: Record "LT WA RecId Row";
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+        Ok: Boolean;
+        Done: Boolean;
+    begin
+        Row.Id := 1;
+        Row.Rid := Row.RecordId();
+        RecRef.GetTable(Row);
+        FldRef := RecRef.Field(FieldNo);
+        ClearLastError();
+        case Mode of
+            0:
+                Done := TryEval(FldRef, Txt);
+            1:
+                Done := P6924_TryEvalUsed(FldRef, Txt, Ok);
+            9:
+                Done := WA_TryEval9(FldRef, Txt);
+        end;
+        if not Done then
+            Observer.ObserveError(Name)
+        else
+            if Mode = 1 then begin
+                Observer.Observe(Name, 'returned ' + Format(Ok));
+                Observer.ObserveError(Name);
+            end else
+                Observer.Observe(Name, 'no error');
+        Observer.Observe(Name + '|value', Format(FldRef.Value));
+        if not Txt.StartsWith('Customer') then
+            Observer.Observe(Name + '|value9', Format(FldRef.Value, 0, 9));
+    end;
+
+    [Test]
+    procedure WA_Evaluate_FieldRef_RecordId_Statement_Valid()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Eval(Observer, 'own row', 2, 'LT WA RecId Row: 2', 0);
+        WA_Eval(Observer, 'own row lower case', 2, 'lt wa recid row: 2', 0);
+        WA_Eval(Observer, 'own row no blank', 2, 'LT WA RecId Row:3', 0);
+        WA_Eval(Observer, 'own row not stored', 2, 'LT WA RecId Row: 99999', 0);
+        WA_Eval(Observer, 'customer', 2, 'Customer: 10000', 0);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Evaluate_FieldRef_RecordId_Statement_Invalid()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Eval(Observer, 'not a table', 2, 'zzz', 0);
+        WA_Eval(Observer, 'empty', 2, '', 0);
+        WA_Eval(Observer, 'blank', 2, ' ', 0);
+        WA_Eval(Observer, 'unknown table', 2, 'No Such Table LT: 1', 0);
+        WA_Eval(Observer, 'key not a number', 2, 'LT WA RecId Row: abc', 0);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Evaluate_FieldRef_RecordId_Statement_KeyShapes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Eval(Observer, 'empty key', 2, 'LT WA RecId Row: ', 0);
+        WA_Eval(Observer, 'no colon', 2, 'LT WA RecId Row', 0);
+        WA_Eval(Observer, 'two part key', 2, 'LT WA RecId Two: A,1', 0);
+        WA_Eval(Observer, 'two part key one value', 2, 'LT WA RecId Two: A', 0);
+        WA_Eval(Observer, 'one part key two values', 2, 'LT WA RecId Row: 1,2', 0);
+        Observer.Finish();
+    end;
+
+    // Is the table found by a prefix of its name, with and without a key? A text that is only a prefix of a table name (the corpus tables
+    // 97240 and 97241 share the prefix "LT WA RecId").
+    [Test]
+    procedure WA_Evaluate_FieldRef_RecordId_Statement_TableNamePrefix()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Eval(Observer, 'prefix with key', 2, 'LT WA RecId R: 2', 0);
+        WA_Eval(Observer, 'prefix without key', 2, 'LT WA RecId R', 0);
+        WA_Eval(Observer, 'shared prefix with key', 2, 'LT WA RecId: 2', 0);
+        WA_Eval(Observer, 'name followed by text', 2, 'LT WA RecId Row Extra: 2', 0);
+        WA_Eval(Observer, 'name in quotes', 2, '"LT WA RecId Row": 2', 0);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Evaluate_FieldRef_RecordId_Statement_BlankStart()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Eval(Observer, 'blank start valid', 3, 'LT WA RecId Row: 2', 0);
+        WA_Eval(Observer, 'blank start not a table', 3, 'zzz', 0);
+        WA_Eval(Observer, 'blank start empty', 3, '', 0);
+        WA_Eval(Observer, 'blank start customer', 3, 'Customer: 10000', 0);
+        WA_Eval(Observer, 'table id text', 2, 'Table 97240: 2', 0);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Evaluate_FieldRef_RecordId_ResultUsed()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Eval(Observer, 'used own row', 2, 'LT WA RecId Row: 2', 1);
+        WA_Eval(Observer, 'used customer', 2, 'Customer: 10000', 1);
+        WA_Eval(Observer, 'used not a table', 2, 'zzz', 1);
+        WA_Eval(Observer, 'used empty', 2, '', 1);
+        WA_Eval(Observer, 'used unknown table', 2, 'No Such Table LT: 1', 1);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Evaluate_FieldRef_RecordId_Format9()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Eval(Observer, 'nine own row', 2, 'LT WA RecId Row: 2', 9);
+        WA_Eval(Observer, 'nine customer', 2, 'Customer: 10000', 9);
+        WA_Eval(Observer, 'nine not a table', 2, 'zzz', 9);
+        WA_Eval(Observer, 'nine empty', 2, '', 9);
+        Observer.Finish();
+    end;
+
+    // The text Format gives for a RecordId, evaluated back into the field (round trip), and the variable form with a bad text.
+    [Test]
+    procedure WA_Evaluate_RecordId_RoundTripAndVariable()
+    var
+        Row: Record "LT WA RecId Row";
+        Two: Record "LT WA RecId Two";
+        Observer: Codeunit "Probe Observer";
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+        Rid: RecordId;
+        Ok: Boolean;
+    begin
+        Row.Id := 7;
+        Two.Code := 'A';
+        Two.Num := 5;
+        RecRef.GetTable(Row);
+        FldRef := RecRef.Field(2);
+        Observer.Observe('format own', Format(Row.RecordId()));
+        Observer.Observe('format two', Format(Two.RecordId()));
+        Evaluate(FldRef, Format(Two.RecordId()));
+        Observer.Observe('field after round trip', Format(FldRef.Value));
+        Evaluate(FldRef, Format(Row.RecordId()));
+        Observer.Observe('field after round trip own', Format(FldRef.Value));
+        Rid := Row.RecordId();
+        Ok := Evaluate(Rid, 'zzz');
+        Observer.Observe('variable not a table', Format(Ok));
+        Observer.ObserveError('variable not a table');
+        Observer.Observe('variable abc|value', Format(Rid));
+        Ok := Evaluate(Rid, Format(Two.RecordId()));
+        Observer.Observe('variable valid', Format(Ok));
+        Observer.Observe('variable valid|value', Format(Rid));
+        Observer.Finish();
+    end;
 }
 
 // local object: the field types are what the tests above check (al-runner issue 6924 item 2.17).
@@ -380,4 +548,28 @@ table 95366 "REC Eval Guid Row"
         field(9; Kind; Enum "REC TF Source Kind") { }
     }
     keys { key(PK; Id) { Clustered = true; } }
+}
+
+// local objects of the RecordId tests above (al-runner issue 6924, waldo run 2).
+table 97240 "LT WA RecId Row"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Rid; RecordId) { }
+        field(3; Rid2; RecordId) { }
+    }
+    keys { key(PK; Id) { Clustered = true; } }
+}
+
+table 97241 "LT WA RecId Two"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; Code; Code[10]) { }
+        field(2; Num; Integer) { }
+    }
+    keys { key(PK; Code, Num) { Clustered = true; } }
 }
