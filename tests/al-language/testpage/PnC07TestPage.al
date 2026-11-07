@@ -11,15 +11,26 @@ codeunit 71143 "LT PnC Log 4"
 
     var
         Items: List of [Text];
+        Active: Boolean;
 
+    // The page triggers log only between Start and Stop (every test of LT PnC TestPage Insert starts and stops it), so test codeunits that
+    // open the page without reading the log leave no state here.
     procedure Add(Value: Text)
     begin
-        Items.Add(Value);
+        if Active then
+            Items.Add(Value);
     end;
 
     procedure Reset()
     begin
         Clear(Items);
+        Active := true;
+    end;
+
+    procedure Stop()
+    begin
+        Clear(Items);
+        Active := false;
     end;
 
     procedure Joined(): Text
@@ -149,6 +160,7 @@ codeunit 71108 "LT PnC TestPage Insert"
         Observer.Expect('afterClose', 'OnNewRecord(below=Yes)|OnNewRecord(below=Yes)|OnInsertRecord(below=Yes)');
         Observer.Expect('rows', '4');
         Observer.Verify();
+        Log.Stop();
     end;
 
     [Test]
@@ -173,6 +185,7 @@ codeunit 71108 "LT PnC TestPage Insert"
         Observer.Expect('afterClose', 'OnNewRecord(below=Yes)|OnInsertRecord(below=Yes)');
         Observer.Expect('rows', '4');
         Observer.Verify();
+        Log.Stop();
     end;
 
     [Test]
@@ -194,6 +207,7 @@ codeunit 71108 "LT PnC TestPage Insert"
         Observer.Expect('log', 'OnNewRecord(below=Yes)|OnNewRecord(below=Yes)|OnNewRecord(below=Yes)|OnInsertRecord(below=Yes)');
         Observer.Expect('rows', '1');
         Observer.Verify();
+        Log.Stop();
     end;
 
     [Test]
@@ -214,6 +228,7 @@ codeunit 71108 "LT PnC TestPage Insert"
         List.Close();
         Observer.Expect('afterPrevious', 'OnNewRecord(below=Yes)|OnNewRecord(below=Yes)|OnInsertRecord(below=Yes)');
         Observer.Verify();
+        Log.Stop();
     end;
 }
 
