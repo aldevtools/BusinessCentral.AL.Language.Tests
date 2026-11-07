@@ -709,4 +709,217 @@ codeunit 74320 "LT FCF Format Comma String"
         Observer.Expect('15 integer 0:26 sf2', 'ok:15');
         Observer.Verify();
     end;
+
+    // Writer VQ (al-runner 6924): <Precision,A:B> with <Integer><Decimals> and no standard format, on a decimal literal, a variable and a table field.
+    local procedure VqShow(Value: Decimal; Fmt: Text): Text
+    var
+        Res: Text;
+    begin
+        exit(Show(TryFormat(Value, Fmt, Res), Res));
+    end;
+
+    local procedure VqFmtOf(Precision: Text; Shape: Integer): Text
+    begin
+        case Shape of
+            1:
+                exit('<Precision,' + Precision + '><Integer><Decimals>');
+            2:
+                exit('<Precision,' + Precision + '><Integer Thousand><Decimals>');
+            3:
+                exit('<Sign><Precision,' + Precision + '><Integer><Decimals>');
+            4:
+                exit('<Precision,' + Precision + '><Sign><Integer><Decimals>');
+            5:
+                exit('<Precision,' + Precision + '><Integer><Decimals><Sign>');
+            6:
+                exit('<Sign><Precision,' + Precision + '><Integer Thousand><Decimals>');
+            7:
+                exit('<Precision,' + Precision + '><Sign><Integer Thousand><Decimals>');
+            8:
+                exit('<Precision,' + Precision + '><Integer Thousand><Decimals><Sign>');
+        end;
+    end;
+
+    local procedure VqObserve(var Observer: Codeunit "Probe Observer"; Precision: Text; Shape: Integer)
+    var
+        Fmt: Text;
+        V0: Decimal;
+        V1: Decimal;
+        V2: Decimal;
+        V3: Decimal;
+        V4: Decimal;
+        V5: Decimal;
+        V6: Decimal;
+        V7: Decimal;
+    begin
+        Fmt := VqFmtOf(Precision, Shape);
+        V0 := 12;
+        Observer.Observe('12 ' + Precision + ' s' + Format(Shape), VqShow(V0, Fmt));
+        V1 := 12.5;
+        Observer.Observe('12.5 ' + Precision + ' s' + Format(Shape), VqShow(V1, Fmt));
+        V2 := 1.23456;
+        Observer.Observe('1.23456 ' + Precision + ' s' + Format(Shape), VqShow(V2, Fmt));
+        V3 := 1.234565;
+        Observer.Observe('1.234565 ' + Precision + ' s' + Format(Shape), VqShow(V3, Fmt));
+        V4 := 99999.999995;
+        Observer.Observe('99999.999995 ' + Precision + ' s' + Format(Shape), VqShow(V4, Fmt));
+        V5 := -3.5;
+        Observer.Observe('-3.5 ' + Precision + ' s' + Format(Shape), VqShow(V5, Fmt));
+        V6 := -0.000001;
+        Observer.Observe('-0.000001 ' + Precision + ' s' + Format(Shape), VqShow(V6, Fmt));
+        V7 := 0;
+        Observer.Observe('0 ' + Precision + ' s' + Format(Shape), VqShow(V7, Fmt));
+    end;
+
+    [Test]
+    procedure Vq_Precision25_IntegerDecimals()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        VqObserve(Observer, '2:5', 1);
+        VqObserve(Observer, '2:5', 2);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Vq_Precision05_IntegerDecimals()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        VqObserve(Observer, '0:5', 1);
+        VqObserve(Observer, '0:5', 2);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Vq_Precision15_IntegerDecimals()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        VqObserve(Observer, '1:5', 1);
+        VqObserve(Observer, '1:5', 2);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Vq_Precision46_IntegerDecimals()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        VqObserve(Observer, '4:6', 1);
+        VqObserve(Observer, '4:6', 2);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Vq_Precision25_SignPositions_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        VqObserve(Observer, '2:5', 3);
+        VqObserve(Observer, '2:5', 4);
+        VqObserve(Observer, '2:5', 5);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Vq_Precision25_SignPositions_IntegerThousand()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        VqObserve(Observer, '2:5', 6);
+        VqObserve(Observer, '2:5', 7);
+        VqObserve(Observer, '2:5', 8);
+        Observer.Finish();
+    end;
+
+    local procedure VqFieldFormats(var Observer: Codeunit "Probe Observer"; Prefix: Text; Fmt: Text; Value: Decimal)
+    var
+        Row: Record "LT QS Std Fmt Row" temporary;
+        Var1: Decimal;
+        Res: Text;
+    begin
+        Row.Init();
+        Row.Id := 1;
+        Row.Plain := Value;
+        Row.Dec5 := Value;
+        Row.Amt := Value;
+        Var1 := Value;
+        Observer.Observe(Prefix + ' var', Show(TryFormatVar(Var1, Fmt, Res), Res));
+        Observer.Observe(Prefix + ' field', Show(TryFormatPlain(Row, Fmt, Res), Res));
+        Observer.Observe(Prefix + ' field dp05', Show(TryFormatDec5(Row, Fmt, Res), Res));
+        Observer.Observe(Prefix + ' field amt', Show(TryFormatAmt(Row, Fmt, Res), Res));
+    end;
+
+    [TryFunction]
+    local procedure TryFormatVar(Value: Decimal; Fmt: Text; var Res: Text)
+    begin
+        Res := Format(Value, 0, Fmt);
+    end;
+
+    [TryFunction]
+    local procedure TryFormatPlain(var Row: Record "LT QS Std Fmt Row"; Fmt: Text; var Res: Text)
+    begin
+        Res := Format(Row.Plain, 0, Fmt);
+    end;
+
+    [TryFunction]
+    local procedure TryFormatDec5(var Row: Record "LT QS Std Fmt Row"; Fmt: Text; var Res: Text)
+    begin
+        Res := Format(Row.Dec5, 0, Fmt);
+    end;
+
+    [TryFunction]
+    local procedure TryFormatAmt(var Row: Record "LT QS Std Fmt Row"; Fmt: Text; var Res: Text)
+    begin
+        Res := Format(Row.Amt, 0, Fmt);
+    end;
+
+    [Test]
+    procedure Vq_Precision25_VariableAndFields_A()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        VqFieldFormats(Observer, '12 2:5', '<Precision,2:5><Integer Thousand><Decimals>', 12);
+        VqFieldFormats(Observer, '12.5 2:5', '<Precision,2:5><Integer Thousand><Decimals>', 12.5);
+        VqFieldFormats(Observer, '1.23456 2:5', '<Precision,2:5><Integer Thousand><Decimals>', 1.23456);
+        VqFieldFormats(Observer, '1.234565 2:5', '<Precision,2:5><Integer Thousand><Decimals>', 1.234565);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Vq_Precision25_VariableAndFields_B()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        VqFieldFormats(Observer, '99999.999995 2:5', '<Precision,2:5><Integer Thousand><Decimals>', 99999.999995);
+        VqFieldFormats(Observer, '-3.5 2:5', '<Precision,2:5><Integer Thousand><Decimals>', -3.5);
+        VqFieldFormats(Observer, '-0.000001 2:5', '<Precision,2:5><Integer Thousand><Decimals>', -0.000001);
+        VqFieldFormats(Observer, '0 2:5', '<Precision,2:5><Integer Thousand><Decimals>', 0);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Vq_Precision46_VariableAndFields_A()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        VqFieldFormats(Observer, '12 4:6', '<Precision,4:6><Integer Thousand><Decimals>', 12);
+        VqFieldFormats(Observer, '12.5 4:6', '<Precision,4:6><Integer Thousand><Decimals>', 12.5);
+        VqFieldFormats(Observer, '1.23456 4:6', '<Precision,4:6><Integer Thousand><Decimals>', 1.23456);
+        VqFieldFormats(Observer, '1.234565 4:6', '<Precision,4:6><Integer Thousand><Decimals>', 1.234565);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Vq_Precision46_VariableAndFields_B()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        VqFieldFormats(Observer, '99999.999995 4:6', '<Precision,4:6><Integer Thousand><Decimals>', 99999.999995);
+        VqFieldFormats(Observer, '-3.5 4:6', '<Precision,4:6><Integer Thousand><Decimals>', -3.5);
+        VqFieldFormats(Observer, '-0.000001 4:6', '<Precision,4:6><Integer Thousand><Decimals>', -0.000001);
+        VqFieldFormats(Observer, '0 4:6', '<Precision,4:6><Integer Thousand><Decimals>', 0);
+        Observer.Finish();
+    end;
 }
