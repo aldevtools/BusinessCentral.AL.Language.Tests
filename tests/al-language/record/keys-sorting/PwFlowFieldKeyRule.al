@@ -254,3 +254,399 @@ codeunit 86142 "LT PW FlowField Key Rule"
         Observer.Verify();
     end;
 }
+
+// ---- Lookup, min, max, average, exist and several FlowFields in a key (al-runner issue 6924, waldo) ----
+// Owners 1 to 5 (Name e, d, c, b, a; Rank 1, 1, 2, 2, 1) and lines (Id: owner, Txt, Amt, Dt):
+//   1: 1 m 5.5 2025-03-01   2: 1 a 1.5 2025-01-01   3: 2 z 9 2025-02-01   4: 4 m 5.5 2025-03-01   5: 5 b 2 2025-01-01   6: 5 b 4 2025-06-01
+// Owner 3 has no line. Lookup takes the first line of the owner by line Id: o1 m 5.5 03-01, o2 z 9 02-01, o3 blank, o4 m 5.5 03-01, o5 b 2 01-01.
+// Min Amt: 1.5 9 0 5.5 2. Max Amt: 5.5 9 0 5.5 4. Average Amt: 3.5 9 0 5.5 3. Min Dt: 01-01 02-01 blank 03-01 01-01.
+// Count: 2 1 0 1 2. ExistBig (Amt > 5): yes yes no yes no.
+// Facts (BC 29.0 on the corpus CI, then checked on the matrix): every one of these FlowFields is accepted as a key field and sorts the rows by
+//   its calculated value (a blank or zero value first, ties in primary key order, Ascending(false) reverses the whole order, ties included).
+//   Rank first, then a FlowField, sorts by Rank, then by the FlowField. Two FlowFields in one key sort by the first, then the second.
+// BC versions: see the matrix result in the pull request
+
+table 97020 "LT W9 FK Owner"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Name; Text[20]) { }
+        field(3; Rank; Integer) { }
+        field(4; LkText; Text[20]) { FieldClass = FlowField; CalcFormula = lookup("LT W9 FK Line".Txt where(OwnerId = field(Id))); Editable = false; }
+        field(5; LkDec; Decimal) { FieldClass = FlowField; CalcFormula = lookup("LT W9 FK Line".Amt where(OwnerId = field(Id))); Editable = false; }
+        field(6; LkDate; Date) { FieldClass = FlowField; CalcFormula = lookup("LT W9 FK Line".Dt where(OwnerId = field(Id))); Editable = false; }
+        field(7; MinDec; Decimal) { FieldClass = FlowField; CalcFormula = min("LT W9 FK Line".Amt where(OwnerId = field(Id))); Editable = false; }
+        field(8; MaxDec; Decimal) { FieldClass = FlowField; CalcFormula = max("LT W9 FK Line".Amt where(OwnerId = field(Id))); Editable = false; }
+        field(9; AvgDec; Decimal) { FieldClass = FlowField; CalcFormula = average("LT W9 FK Line".Amt where(OwnerId = field(Id))); Editable = false; }
+        field(10; MinDate; Date) { FieldClass = FlowField; CalcFormula = min("LT W9 FK Line".Dt where(OwnerId = field(Id))); Editable = false; }
+        field(11; CntLinked; Integer) { FieldClass = FlowField; CalcFormula = count("LT W9 FK Line" where(OwnerId = field(Id))); Editable = false; }
+        field(12; ExistBig; Boolean) { FieldClass = FlowField; CalcFormula = exist("LT W9 FK Line" where(OwnerId = field(Id), Amt = filter(> 5))); Editable = false; }
+    }
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+table 97021 "LT W9 FK Line"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; OwnerId; Integer) { }
+        field(3; Txt; Text[20]) { }
+        field(4; Amt; Decimal) { }
+        field(5; Dt; Date) { }
+    }
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+codeunit 97022 "LT W9 FlowField Key Kinds"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    local procedure Seed()
+    var
+        Owner: Record "LT W9 FK Owner";
+        Line: Record "LT W9 FK Line";
+    begin
+        Owner.DeleteAll();
+        Line.DeleteAll();
+        Owner.Id := 1; Owner.Name := 'e'; Owner.Rank := 1; Owner.Insert();
+        Owner.Id := 2; Owner.Name := 'd'; Owner.Rank := 1; Owner.Insert();
+        Owner.Id := 3; Owner.Name := 'c'; Owner.Rank := 2; Owner.Insert();
+        Owner.Id := 4; Owner.Name := 'b'; Owner.Rank := 2; Owner.Insert();
+        Owner.Id := 5; Owner.Name := 'a'; Owner.Rank := 1; Owner.Insert();
+        AddLine(1, 1, 'm', 5.5, 20250301D);
+        AddLine(2, 1, 'a', 1.5, 20250101D);
+        AddLine(3, 2, 'z', 9, 20250201D);
+        AddLine(4, 4, 'm', 5.5, 20250301D);
+        AddLine(5, 5, 'b', 2, 20250101D);
+        AddLine(6, 5, 'b', 4, 20250601D);
+    end;
+
+    local procedure AddLine(Id: Integer; OwnerId: Integer; Txt: Text[20]; Amt: Decimal; Dt: Date)
+    var
+        Line: Record "LT W9 FK Line";
+    begin
+        Line.Id := Id;
+        Line.OwnerId := OwnerId;
+        Line.Txt := Txt;
+        Line.Amt := Amt;
+        Line.Dt := Dt;
+        Line.Insert();
+    end;
+
+    [TryFunction]
+    local procedure TryKey(var Owner: Record "LT W9 FK Owner"; Which: Integer)
+    begin
+        case Which of
+            1: Owner.SetCurrentKey(LkText);
+            2: Owner.SetCurrentKey(LkDec);
+            3: Owner.SetCurrentKey(LkDate);
+            4: Owner.SetCurrentKey(MinDec);
+            5: Owner.SetCurrentKey(MaxDec);
+            6: Owner.SetCurrentKey(AvgDec);
+            7: Owner.SetCurrentKey(MinDate);
+            8: Owner.SetCurrentKey(Rank, ExistBig);
+            9: Owner.SetCurrentKey(Rank, CntLinked);
+            10: Owner.SetCurrentKey(Rank, LkText);
+            11: Owner.SetCurrentKey(ExistBig, Rank);
+            12: Owner.SetCurrentKey(MaxDec, MinDec);
+            13: Owner.SetCurrentKey(CntLinked, LkText);
+            14: Owner.SetCurrentKey(ExistBig, CntLinked);
+            15: Owner.SetCurrentKey(LkDec, AvgDec);
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TryOrder(var Owner: Record "LT W9 FK Owner"; var Order: Text)
+    begin
+        Order := '';
+        if Owner.FindSet() then
+            repeat
+                Order += Format(Owner.Id) + ' ';
+            until Owner.Next() = 0;
+    end;
+
+    local procedure Outcome(Which: Integer; Descending: Boolean): Text
+    var
+        Owner: Record "LT W9 FK Owner";
+        Order: Text;
+        Result: Text;
+    begin
+        ClearLastError();
+        if not TryKey(Owner, Which) then begin
+            Result := 'error:' + GetLastErrorText() + '|' + GetLastErrorCode();
+            ClearLastError();
+            exit(Result);
+        end;
+        if Descending then
+            Owner.Ascending(false);
+        Result := 'key=' + Owner.CurrentKey();
+        if TryOrder(Owner, Order) then
+            Result += ' order=' + Order
+        else
+            Result += ' findset error:' + GetLastErrorText() + '|' + GetLastErrorCode();
+        ClearLastError();
+        exit(Result);
+    end;
+
+    [Test]
+    procedure Lookup_Min_Max_Average_AsFirstKeyField()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Observer.Observe('lkText', Outcome(1, false));
+        Observer.Observe('lkDec', Outcome(2, false));
+        Observer.Observe('lkDate', Outcome(3, false));
+        Observer.Observe('minDec', Outcome(4, false));
+        Observer.Observe('maxDec', Outcome(5, false));
+        Observer.Observe('avgDec', Outcome(6, false));
+        Observer.Observe('minDate', Outcome(7, false));
+        Observer.Expect('lkText', 'key=LkText order=3 5 1 4 2 ');
+        Observer.Expect('lkDec', 'key=LkDec order=3 5 1 4 2 ');
+        Observer.Expect('lkDate', 'key=LkDate order=3 5 2 1 4 ');
+        Observer.Expect('minDec', 'key=MinDec order=3 1 5 4 2 ');
+        Observer.Expect('maxDec', 'key=MaxDec order=3 5 1 4 2 ');
+        Observer.Expect('avgDec', 'key=AvgDec order=3 5 1 4 2 ');
+        Observer.Expect('minDate', 'key=MinDate order=3 1 5 2 4 ');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Lookup_Min_Max_Average_AsFirstKeyField_Descending()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Observer.Observe('lkText', Outcome(1, true));
+        Observer.Observe('lkDec', Outcome(2, true));
+        Observer.Observe('lkDate', Outcome(3, true));
+        Observer.Observe('minDec', Outcome(4, true));
+        Observer.Observe('maxDec', Outcome(5, true));
+        Observer.Observe('avgDec', Outcome(6, true));
+        Observer.Observe('minDate', Outcome(7, true));
+        Observer.Expect('lkText', 'key=LkText order=2 4 1 5 3 ');
+        Observer.Expect('lkDec', 'key=LkDec order=2 4 1 5 3 ');
+        Observer.Expect('lkDate', 'key=LkDate order=4 1 2 5 3 ');
+        Observer.Expect('minDec', 'key=MinDec order=2 4 5 1 3 ');
+        Observer.Expect('maxDec', 'key=MaxDec order=2 4 1 5 3 ');
+        Observer.Expect('avgDec', 'key=AvgDec order=2 4 1 5 3 ');
+        Observer.Expect('minDate', 'key=MinDate order=4 2 5 1 3 ');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FlowField_AfterAnotherKeyField()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Observer.Observe('rank,existBig', Outcome(8, false));
+        Observer.Observe('rank,cntLinked', Outcome(9, false));
+        Observer.Observe('rank,lkText', Outcome(10, false));
+        Observer.Observe('rank,existBig desc', Outcome(8, true));
+        Observer.Expect('rank,existBig', 'key=Rank,ExistBig order=5 1 2 3 4 ');
+        Observer.Expect('rank,cntLinked', 'key=Rank,CntLinked order=2 1 5 3 4 ');
+        Observer.Expect('rank,lkText', 'key=Rank,LkText order=5 1 2 3 4 ');
+        Observer.Expect('rank,existBig desc', 'key=Rank,ExistBig order=4 3 2 1 5 ');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FlowField_BeforeAnotherKeyField()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Observer.Observe('existBig,rank', Outcome(11, false));
+        Observer.Observe('existBig,rank desc', Outcome(11, true));
+        Observer.Expect('existBig,rank', 'key=ExistBig,Rank order=5 3 1 2 4 ');
+        Observer.Expect('existBig,rank desc', 'key=ExistBig,Rank order=4 2 1 3 5 ');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TwoFlowFields_InOneKey()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Observer.Observe('maxDec,minDec', Outcome(12, false));
+        Observer.Observe('cntLinked,lkText', Outcome(13, false));
+        Observer.Observe('existBig,cntLinked', Outcome(14, false));
+        Observer.Observe('lkDec,avgDec', Outcome(15, false));
+        Observer.Observe('maxDec,minDec desc', Outcome(12, true));
+        Observer.Expect('maxDec,minDec', 'key=MaxDec,MinDec order=3 5 1 4 2 ');
+        Observer.Expect('cntLinked,lkText', 'key=CntLinked,LkText order=3 4 2 5 1 ');
+        Observer.Expect('existBig,cntLinked', 'key=ExistBig,CntLinked order=3 5 2 4 1 ');
+        Observer.Expect('lkDec,avgDec', 'key=LkDec,AvgDec order=3 5 1 4 2 ');
+        Observer.Expect('maxDec,minDec desc', 'key=MaxDec,MinDec order=2 4 1 5 3 ');
+        Observer.Verify();
+    end;
+}
+
+// Pinned (waldo 6924, own shapes; BC 29.0 observed, other majors confirmed by the CI matrix): an exist FlowField added by a table extension
+//   and listed in no key still sorts as a key field after SetCurrentKey. The FlowField value orders false before true, and rows with equal
+//   values come in primary key order, not insertion order (rows inserted 5, 3, 1, 6, 4, 2):
+//   SetRange true -> 2 4 5; SetRange false -> 1 3 6; no SetRange -> 1 3 6 2 4 5; SetAscending false -> 2 4 5 1 3 6 (ties stay in primary key order).
+//   The range works with and without SetCurrentKey (the answer is the same rows in primary key order, CurrentKey stays the primary key).
+//   The order of SetRange and SetCurrentKey does not matter; a two field key (flow field, Report ID) gives the same rows; an extra
+//   filter on Report ID narrows the rows (4 5), still sorted by the key.
+// Probe (waldo 6924, own shapes): an exist FlowField added by a TABLE EXTENSION to a base table, listed in no key. SetCurrentKey on it,
+//   then SetRange true, SetRange false and no SetRange, FindSet loop: which rows, in which order, how ties among equal values fall
+//   (the rows are inserted in the order 5, 3, 1, 6, 4, 2, so primary key order and insertion order differ). Without SetCurrentKey for contrast.
+table 97160 "LT OR Base Report"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; "Report ID"; Integer) { }
+        field(2; Name; Text[20]) { }
+    }
+    keys
+    {
+        key(PK; "Report ID") { Clustered = true; }
+    }
+}
+
+table 97161 "LT OR Layout Row"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; "Report ID"; Integer) { }
+    }
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+tableextension 97162 "LT OR Base Report Ext" extends "LT OR Base Report"
+{
+    fields
+    {
+        field(97160; "Has Layout"; Boolean)
+        {
+            FieldClass = FlowField;
+            CalcFormula = exist("LT OR Layout Row" where("Report ID" = field("Report ID")));
+        }
+    }
+}
+
+codeunit 97163 "LT OR Exist FlowField Range"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    local procedure Seed()
+    var
+        Rep: Record "LT OR Base Report";
+        Row: Record "LT OR Layout Row";
+        n: Integer;
+    begin
+        Rep.DeleteAll();
+        Row.DeleteAll();
+        // reports 2, 4 and 5 have a layout row (2 has two rows), reports 1, 3 and 6 have none
+        for n := 1 to 6 do begin
+            Rep."Report ID" := ((n * 5) mod 7) + 0;
+            Rep.Name := 'r' + Format(Rep."Report ID");
+            Rep.Insert();
+        end;
+        Row.Id := 1; Row."Report ID" := 5; Row.Insert();
+        Row.Id := 2; Row."Report ID" := 2; Row.Insert();
+        Row.Id := 3; Row."Report ID" := 4; Row.Insert();
+        Row.Id := 4; Row."Report ID" := 2; Row.Insert();
+    end;
+
+    local procedure Order(var Rep: Record "LT OR Base Report"): Text
+    var
+        Result: Text;
+    begin
+        if Rep.FindSet() then
+            repeat
+                Result += Format(Rep."Report ID") + ' ';
+            until Rep.Next() = 0;
+        exit('key=' + Rep.CurrentKey() + ' order=' + Result + 'count=' + Format(Rep.Count()));
+    end;
+
+    [Test]
+    procedure ExistFlowFieldKey_RangeTrueFalseNone()
+    var
+        Rep: Record "LT OR Base Report";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Rep.SetCurrentKey("Has Layout");
+        Rep.SetRange("Has Layout", true);
+        Observer.Observe('keyThenTrue', Order(Rep));
+        Rep.SetRange("Has Layout", false);
+        Observer.Observe('keyThenFalse', Order(Rep));
+        Rep.SetRange("Has Layout");
+        Observer.Observe('keyNoRange', Order(Rep));
+        Observer.Expect('keyThenTrue', 'key=Has Layout order=2 4 5 count=3');
+        Observer.Expect('keyThenFalse', 'key=Has Layout order=1 3 6 count=3');
+        Observer.Expect('keyNoRange', 'key=Has Layout order=1 3 6 2 4 5 count=6');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ExistFlowFieldKey_RangeWithoutSetCurrentKey()
+    var
+        Rep: Record "LT OR Base Report";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Rep.SetRange("Has Layout", true);
+        Observer.Observe('noKeyTrue', Order(Rep));
+        Rep.SetRange("Has Layout", false);
+        Observer.Observe('noKeyFalse', Order(Rep));
+        Observer.Expect('noKeyTrue', 'key=Report ID order=2 4 5 count=3');
+        Observer.Expect('noKeyFalse', 'key=Report ID order=1 3 6 count=3');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ExistFlowFieldKey_DescendingAndFilterOrder()
+    var
+        Rep: Record "LT OR Base Report";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Rep.SetCurrentKey("Has Layout");
+        Rep.SetAscending("Has Layout", false);
+        Observer.Observe('descNoRange', Order(Rep));
+        Rep.SetRange("Has Layout", true);
+        Observer.Observe('descTrue', Order(Rep));
+        Rep.Reset();
+        Rep.SetRange("Has Layout", true);
+        Rep.SetCurrentKey("Has Layout");
+        Observer.Observe('rangeThenKeyTrue', Order(Rep));
+        Rep.Reset();
+        Rep.SetCurrentKey("Has Layout", "Report ID");
+        Rep.SetRange("Has Layout", true);
+        Observer.Observe('twoFieldKeyTrue', Order(Rep));
+        Rep.Reset();
+        Rep.SetCurrentKey("Has Layout");
+        Rep.SetRange("Has Layout", true);
+        Rep.SetFilter("Report ID", '>2');
+        Observer.Observe('keyTrueAndPk', Order(Rep));
+        Observer.Expect('descNoRange', 'key=Has Layout order=2 4 5 1 3 6 count=6');
+        Observer.Expect('descTrue', 'key=Has Layout order=2 4 5 count=3');
+        Observer.Expect('rangeThenKeyTrue', 'key=Has Layout order=2 4 5 count=3');
+        Observer.Expect('twoFieldKeyTrue', 'key=Has Layout,Report ID order=2 4 5 count=3');
+        Observer.Expect('keyTrueAndPk', 'key=Has Layout order=4 5 count=2');
+        Observer.Verify();
+    end;
+}

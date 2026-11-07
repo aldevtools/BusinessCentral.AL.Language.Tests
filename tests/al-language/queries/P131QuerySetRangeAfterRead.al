@@ -1,23 +1,10 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/query/query-setrange-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), self-contained table 73659, query 73656, codeunit 73658
+// Fixtures used: Probe Observer (codeunit 69160), shared table 50015 "ALT Shape 15", query 73656, codeunit 73658
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: Query.SetRange / SetFilter after Open and after Read (error or ignored, rows read afterwards), after the last Read, after Close, and
 //        a second Open after a SetRange made between reads.
 // BC versions: 29 (27 and 28 by CI)
-
-table 73659 "LT P131 QSimple"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Code[10]) { }
-    }
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 query 73656 "LT P131 Q Simple"
 {
@@ -25,10 +12,10 @@ query 73656 "LT P131 Q Simple"
 
     elements
     {
-        dataitem(Rows; "LT P131 QSimple")
+        dataitem(Rows; "ALT Shape 15")
         {
             column(Id; Id) { }
-            column(Nm; Name) { }
+            column(Nm; Grp) { }
         }
     }
 }
@@ -40,13 +27,13 @@ codeunit 73658 "LT P131 Query SetRange"
 
     local procedure Seed()
     var
-        R: Record "LT P131 QSimple";
+        R: Record "ALT Shape 15";
         I: Integer;
     begin
         R.DeleteAll();
         for I := 1 to 5 do begin
             R.Id := I;
-            R.Name := 'N' + Format(I);
+            R.Grp := 'N' + Format(I);
             R.Insert();
         end;
     end;

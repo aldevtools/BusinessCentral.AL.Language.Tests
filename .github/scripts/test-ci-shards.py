@@ -122,26 +122,34 @@ def main():
     sel = sel_subset([50010, 50060], [60011])
     out = cs.plan(sel, jobs, VERSIONS, SHARDS, 'pull_request')
     m27 = out['27.5']['tests/main']
-    check('plan subset: only shards with a selected codeunit run, each with the sentinel',
-          m27 == [{'n': '1 of 3', 'range': '50001,50010'}, {'n': '2 of 3', 'range': '50001,50060'}], m27)
+    check('plan subset: a small selection runs in one shard with the sentinel, not one shard per range',
+          m27 == [{'n': '1 of 1', 'range': '50001,50010,50060'}], m27)
     check('plan subset: unsharded app keeps its selection',
           out['27.5']['tests/onprem'] == [{'n': '1 of 1', 'range': '60001,60011'}], out['27.5'])
+    check('plan subset: the threshold is SINGLE_SHARD_MAX selected codeunits', cs.SINGLE_SHARD_MAX == 250, cs.SINGLE_SHARD_MAX)
+    out = cs.plan(sel, jobs, VERSIONS, SHARDS, 'pull_request', single_max=1)
+    m27 = out['27.5']['tests/main']
+    check('plan subset above the threshold: only shards with a selected codeunit run, each with the sentinel',
+          m27 == [{'n': '1 of 3', 'range': '50001,50010'}, {'n': '2 of 3', 'range': '50001,50060'}], m27)
+    out = cs.plan(sel_subset([50010], [60011, 60012]), jobs, VERSIONS, SHARDS, 'pull_request', single_max=1)
+    check('plan subset above the threshold: an unsharded app still runs one shard',
+          out['27.5']['tests/onprem'] == [{'n': '1 of 1', 'range': '60001,60011,60012'}], out['27.5'])
     sel = sel_subset([50010], [], onprem_sentinel_only=True)
     out = cs.plan(sel, jobs, VERSIONS, SHARDS, 'pull_request')
     check('plan subset, pull request: an app with nothing affected is skipped', out['27.5']['tests/onprem'] == [], out)
     out = cs.plan(sel, jobs, VERSIONS, SHARDS, 'workflow_dispatch')
-    check('plan subset, dispatch (CI batcher): an app with nothing affected runs its sentinel',
-          out['27.5']['tests/onprem'] == [{'n': '1 of 1', 'range': '60001'}], out)
+    check('plan subset, dispatch (CI batcher): an app with nothing affected is skipped too',
+          out['27.5']['tests/onprem'] == [], out)
     sel = sel_subset([], [60011], main_sentinel_only=True)
     out = cs.plan(sel, jobs, VERSIONS, SHARDS, 'workflow_dispatch')
-    check('plan subset: sharded app with only its sentinel runs one shard', out['27.5']['tests/main']
-          == [{'n': '1 of 3', 'range': '50001'}], out['27.5'])
+    check('plan subset, dispatch: a sharded app with only its sentinel starts no shard', out['27.5']['tests/main'] == [],
+          out['27.5'])
     sel = {'mode': 'subset', 'apps': {'tests/main': {'codeunits': [{'id': 50060}], 'sentinel': False}}}
     out = cs.plan(sel, jobs, VERSIONS, SHARDS, 'pull_request')
     check('plan subset: an app missing from the selection runs its full range',
           out['27.5']['tests/onprem'] == [{'n': '1 of 1', 'range': '60000..60099'}], out)
     check('plan subset: no sentinel known, the shard runs only its ids',
-          out['27.5']['tests/main'] == [{'n': '2 of 3', 'range': '50060'}], out)
+          out['27.5']['tests/main'] == [{'n': '1 of 1', 'range': '50060'}], out)
 
     # ---- merge ----
     with tempfile.TemporaryDirectory() as d:

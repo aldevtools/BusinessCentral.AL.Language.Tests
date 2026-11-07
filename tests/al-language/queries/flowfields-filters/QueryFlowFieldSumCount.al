@@ -1,22 +1,9 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-query-object
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); tables 71310 71311, query 71312, codeunit 71313
+// Fixtures used: Probe Observer (codeunit 69160); tables 71310 71311, query 71312, codeunit 71313 (table 71310 is now shared table 50019 "ALT Shape 19")
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // BC versions: 29 (27 and 28 by CI)
 // Facts: Query column with Method = Sum / Count over a FlowField column of the dataitem table, grouped by another column, with and without a flow filter filter-element. RISKY: own file (a FlowField aggregated in a query may not compile or may raise at Open).
-
-table 71310 "LT QFlow Line"
-{
-    DataClassification = SystemMetadata;
-    fields
-    {
-        field(1; "Entry No."; Integer) { }
-        field(2; "Header No."; Code[20]) { }
-        field(3; Amount; Decimal) { }
-        field(4; "Posting Date"; Date) { }
-    }
-    keys { key(PK; "Entry No.") { Clustered = true; } }
-}
 
 table 71311 "LT QFlow Header"
 {
@@ -29,7 +16,7 @@ table 71311 "LT QFlow Header"
         field(4; Total; Decimal)
         {
             FieldClass = FlowField;
-            CalcFormula = sum("LT QFlow Line".Amount where("Header No." = field("No."), "Posting Date" = field("Date Filter")));
+            CalcFormula = sum("ALT Shape 19".Amount where("Header No." = field("No."), "Posting Date" = field("Date Filter")));
         }
     }
     keys { key(PK; "No.") { Clustered = true; } }
@@ -58,7 +45,7 @@ codeunit 71313 "LT QFlow SumCount Test"
     local procedure Seed()
     var
         H: Record "LT QFlow Header";
-        L: Record "LT QFlow Line";
+        L: Record "ALT Shape 19";
     begin
         H.DeleteAll();
         L.DeleteAll();
@@ -84,7 +71,7 @@ codeunit 71313 "LT QFlow SumCount Test"
 
     local procedure AddLine(EntryNo: Integer; HeaderNo: Code[20]; Amt: Decimal; PostingDate: Date)
     var
-        L: Record "LT QFlow Line";
+        L: Record "ALT Shape 19";
     begin
         L."Entry No." := EntryNo;
         L."Header No." := HeaderNo;
