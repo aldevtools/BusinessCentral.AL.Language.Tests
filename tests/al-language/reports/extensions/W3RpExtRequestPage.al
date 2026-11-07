@@ -584,3 +584,372 @@ reportextension 95361 "RPT ExtBind Ext" extends "RPT ExtBind Base"
         ExtLog.Add('ext PreReport base=' + Format(BaseVal) + ' own=' + Format(OwnVal) + ' row=' + BindRow.Name);
     end;
 }
+
+// ---- Extension controls on a variable with no base control, on a data item the extension adds, and on other source expressions (al-runner issue 6924, waldo) ----
+// Base report 97040: request page control BaseCtl on BaseVal only; NoCtlVal and NoCtlText are protected variables with no base control.
+// Extension 97041 adds controls: ExtNoCtl (NoCtlVal), ExtNoCtlText (NoCtlText), ExtItemCtl (ExtItem.Name, ExtItem is a data item the
+// extension adds below BaseRow), ExtRowCtl (BaseRow.Name), ExtRecCtl (ExtRec.Name, a record variable of the extension), ExtOwnCtl (OwnVal).
+
+report 97040 "LT W9 RpExt Base"
+{
+    ProcessingOnly = true;
+
+    dataset
+    {
+        dataitem(BaseRow; "W3 Row")
+        {
+            trigger OnPreDataItem()
+            begin
+                ExtLog.Add('base PreDataItem name=' + BaseRow.Name);
+            end;
+
+            trigger OnAfterGetRecord()
+            begin
+                ExtLog.Add('base Row ' + Format(BaseRow.Id));
+            end;
+        }
+    }
+
+    requestpage
+    {
+        layout
+        {
+            area(Content)
+            {
+                group(Opts)
+                {
+                    field(BaseCtl; BaseVal)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Base control';
+                    }
+                }
+            }
+        }
+    }
+
+    protected var
+        BaseVal: Integer;
+        NoCtlVal: Integer;
+        NoCtlText: Text[30];
+
+    var
+        ExtLog: Codeunit "W3 RpExt Log";
+
+    trigger OnPreReport()
+    begin
+        ExtLog.Add('base PreReport base=' + Format(BaseVal) + ' noCtl=' + Format(NoCtlVal) + ' noCtlText=' + NoCtlText + ' row=' + BaseRow.Name);
+    end;
+}
+
+reportextension 97041 "LT W9 RpExt Ext" extends "LT W9 RpExt Base"
+{
+    dataset
+    {
+        addlast(BaseRow)
+        {
+            dataitem(ExtItem; "W3 Row")
+            {
+                DataItemLink = Id = field(Id);
+
+                trigger OnPreDataItem()
+                begin
+                    ExtLog.Add('ext PreDataItem name=' + ExtItem.Name);
+                end;
+
+                trigger OnAfterGetRecord()
+                begin
+                    ExtLog.Add('ext Item ' + Format(ExtItem.Id));
+                end;
+            }
+        }
+    }
+
+    requestpage
+    {
+        layout
+        {
+            addlast(Opts)
+            {
+                field(ExtNoCtl; NoCtlVal)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Ext on variable without base control';
+                }
+                field(ExtNoCtlText; NoCtlText)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Ext on text variable without base control';
+                }
+                field(ExtItemCtl; ExtItem.Name)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Ext on added data item field';
+                }
+                field(ExtRowCtl; BaseRow.Name)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Ext on base data item field';
+                }
+                field(ExtRecCtl; ExtRec.Name)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Ext on record variable field';
+                }
+                field(ExtOwnCtl; OwnVal)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Ext on own variable';
+                }
+            }
+        }
+    }
+
+    var
+        OwnVal: Integer;
+        ExtRec: Record "W3 Row";
+        ExtLog: Codeunit "W3 RpExt Log";
+
+    trigger OnPreReport()
+    begin
+        ExtLog.Add('ext PreReport own=' + Format(OwnVal) + ' rec=' + ExtRec.Name + ' item=' + ExtItem.Name);
+    end;
+}
+
+codeunit 97042 "LT W9 RpExt Controls"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        ExtLog: Codeunit "W3 RpExt Log";
+        Dataset: Codeunit "W3 Dataset";
+
+    local procedure Seed()
+    var
+        Row: Record "W3 Row";
+    begin
+        Row.DeleteAll();
+        Row.Id := 1;
+        Row.Name := 'first';
+        Row.Insert();
+        Row.Id := 2;
+        Row.Name := 'second';
+        Row.Insert();
+        Commit();
+        ExtLog.Take();
+    end;
+
+    local procedure Controls(var RP: TestRequestPage "LT W9 RpExt Base"; Step: Text)
+    begin
+        ExtLog.Add(Step + ': base=[' + RP.BaseCtl.Value() + '] noCtl=[' + RP.ExtNoCtl.Value() + '] noCtlText=[' + RP.ExtNoCtlText.Value() + '] item=[' + RP.ExtItemCtl.Value() + '] row=[' + RP.ExtRowCtl.Value() + '] rec=[' + RP.ExtRecCtl.Value() + '] own=[' + RP.ExtOwnCtl.Value() + ']');
+    end;
+
+    local procedure ObserveParameters(Parameters: Text)
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('options', Dataset.Between(Parameters, '<Options>', '</Options>'));
+        Observer.Observe('dataitems', Dataset.Between(Parameters, '<DataItems>', '</DataItems>'));
+        Observer.Observe('log', ExtLog.Take());
+        Observer.Finish();
+    end;
+
+    // 1. Controls on variables the base page has no control for.
+    [Test]
+    [HandlerFunctions('NoCtlIntHandler')]
+    procedure RunRequestPage_NoBaseControl_IntegerSet()
+    begin
+        Seed();
+        ObserveParameters(Report.RunRequestPage(Report::"LT W9 RpExt Base"));
+    end;
+
+    [RequestPageHandler]
+    procedure NoCtlIntHandler(var RP: TestRequestPage "LT W9 RpExt Base")
+    begin
+        Controls(RP, 'open');
+        RP.ExtNoCtl.SetValue(4);
+        Controls(RP, 'noCtl=4');
+        RP.OK().Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('NoCtlBothHandler')]
+    procedure RunRequestPage_NoBaseControl_IntegerAndTextSet()
+    begin
+        Seed();
+        ObserveParameters(Report.RunRequestPage(Report::"LT W9 RpExt Base"));
+    end;
+
+    [RequestPageHandler]
+    procedure NoCtlBothHandler(var RP: TestRequestPage "LT W9 RpExt Base")
+    begin
+        RP.ExtNoCtl.SetValue(4);
+        RP.ExtNoCtlText.SetValue('abc');
+        Controls(RP, 'both');
+        RP.OK().Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('OkOnlyHandler')]
+    procedure RunRequestPage_NothingSet()
+    begin
+        Seed();
+        ObserveParameters(Report.RunRequestPage(Report::"LT W9 RpExt Base"));
+    end;
+
+    [RequestPageHandler]
+    procedure OkOnlyHandler(var RP: TestRequestPage "LT W9 RpExt Base")
+    begin
+        Controls(RP, 'open');
+        RP.OK().Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('NoCtlBothHandler')]
+    procedure Run_NoBaseControl_ReachesTheRun()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Report.Run(Report::"LT W9 RpExt Base");
+        Observer.Observe('log', ExtLog.Take());
+        Observer.Finish();
+    end;
+
+    // 2. A control on a data item the extension adds.
+    [Test]
+    [HandlerFunctions('ItemHandler')]
+    procedure RunRequestPage_ControlOnAddedDataItem()
+    begin
+        Seed();
+        ObserveParameters(Report.RunRequestPage(Report::"LT W9 RpExt Base"));
+    end;
+
+    [RequestPageHandler]
+    procedure ItemHandler(var RP: TestRequestPage "LT W9 RpExt Base")
+    begin
+        Controls(RP, 'open');
+        RP.ExtItemCtl.SetValue('typed');
+        Controls(RP, 'item=typed');
+        RP.OK().Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemHandler')]
+    procedure Run_ControlOnAddedDataItem_ReachesTheRun()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Report.Run(Report::"LT W9 RpExt Base");
+        Observer.Observe('log', ExtLog.Take());
+        Observer.Finish();
+    end;
+
+    // 3. Source expressions other than a field of a data item or a plain variable: a field of a record variable of the extension.
+    [Test]
+    [HandlerFunctions('RecHandler')]
+    procedure RunRequestPage_ControlOnRecordVariableField()
+    begin
+        Seed();
+        ObserveParameters(Report.RunRequestPage(Report::"LT W9 RpExt Base"));
+    end;
+
+    [RequestPageHandler]
+    procedure RecHandler(var RP: TestRequestPage "LT W9 RpExt Base")
+    begin
+        RP.ExtRecCtl.SetValue('viaRec');
+        RP.ExtOwnCtl.SetValue(7);
+        RP.ExtRowCtl.SetValue('viaRow');
+        Controls(RP, 'rec');
+        RP.OK().Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('RecHandler')]
+    procedure Run_ControlOnRecordVariableField_ReachesTheRun()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Report.Run(Report::"LT W9 RpExt Base");
+        Observer.Observe('log', ExtLog.Take());
+        Observer.Finish();
+    end;
+
+    // 4. The same controls set through a parameters text, by control name and by variable name (no request page handler: the page is not shown).
+    local procedure ExecuteWith(Options: Text; Items: Text)
+    var
+        Observer: Codeunit "Probe Observer";
+        Parameters: Text;
+    begin
+        Seed();
+        Parameters := '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT W9 RpExt Base" id="' + Format(Report::"LT W9 RpExt Base") +
+            '"><Options>' + Options + '</Options><DataItems>' + Items + '</DataItems></ReportParameters>';
+        ClearLastError();
+        Observer.Observe('ok', Format(TryExecute(Parameters)));
+        Observer.ObserveError('execute');
+        Observer.Observe('log', ExtLog.Take());
+        Observer.Finish();
+    end;
+
+    [TryFunction]
+    local procedure TryExecute(Parameters: Text)
+    begin
+        Report.Execute(Report::"LT W9 RpExt Base", Parameters);
+    end;
+
+    [Test]
+    procedure Execute_ParametersText_ControlNames()
+    begin
+        ExecuteWith('<Field name="ExtNoCtl">4</Field><Field name="ExtNoCtlText">abc</Field><Field name="ExtItemCtl">typed</Field><Field name="ExtRowCtl">viaRow</Field><Field name="ExtRecCtl">viaRec</Field><Field name="ExtOwnCtl">7</Field>', '');
+    end;
+
+    [Test]
+    procedure Execute_ParametersText_VariableNames()
+    begin
+        ExecuteWith('<Field name="NoCtlVal">4</Field><Field name="NoCtlText">abc</Field><Field name="ExtItem.Name">typed</Field><Field name="BaseRow.Name">viaRow</Field><Field name="ExtRec.Name">viaRec</Field><Field name="OwnVal">7</Field>', '');
+    end;
+
+    [Test]
+    procedure Execute_ParametersText_DataItemFieldOnly_ByControlName()
+    begin
+        ExecuteWith('<Field name="ExtItemCtl">typed</Field>', '');
+    end;
+
+    [Test]
+    procedure Execute_ParametersText_DataItemFieldOnly_ByDataItemField()
+    begin
+        ExecuteWith('<Field name="ExtItem.Name">typed</Field>', '');
+    end;
+
+    [Test]
+    procedure Execute_ParametersText_BaseRowFieldOnly_ByControlName()
+    begin
+        ExecuteWith('<Field name="ExtRowCtl">viaRow</Field>', '');
+    end;
+
+    [Test]
+    procedure Execute_ParametersText_BaseRowFieldOnly_ByDataItemField()
+    begin
+        ExecuteWith('<Field name="BaseRow.Name">viaRow</Field>', '');
+    end;
+
+    [Test]
+    procedure SaveAs_ParametersText_DataItemFieldControl()
+    var
+        Observer: Codeunit "Probe Observer";
+        Xml: Text;
+        Ok: Boolean;
+    begin
+        Seed();
+        Ok := Dataset.Save(Report::"LT W9 RpExt Base", '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT W9 RpExt Base" id="' + Format(Report::"LT W9 RpExt Base") +
+            '"><Options><Field name="ExtItemCtl">typed</Field><Field name="ExtRowCtl">viaRow</Field></Options><DataItems></DataItems></ReportParameters>', Xml);
+        Observer.Observe('ok', Format(Ok));
+        Observer.ObserveError('saveas');
+        Observer.Observe('xml', Xml);
+        Observer.Observe('log', ExtLog.Take());
+        Observer.Finish();
+    end;
+}
