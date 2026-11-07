@@ -556,14 +556,14 @@ jobs:
       # app may run for the test codeunits of other apps, so the other jobs must not install them.
       app_dirs: |
         tests/al-language-internals-fixture
-        tests/al-language-xapp-a
-        tests/al-language-xapp-d
-        tests/al-language-xapp-b
-        tests/al-language-xapp-c
         tests/al-language-xhandler-lib
         tests/al-language-xhandler-a
         tests/al-language-xhandler-c
         tests/al-language-xhandler-d
+        tests/al-language-xapp-a
+        tests/al-language-xapp-d
+        tests/al-language-xapp-b
+        tests/al-language-xapp-c
         tests/al-language
       test_app_dirs:        "tests/al-language-testlibraries"
       codeunit_range:       ${{ fromJson(needs.prepare.outputs.subset)['tests/al-language-testlibraries'] || '81550..81649' }}
