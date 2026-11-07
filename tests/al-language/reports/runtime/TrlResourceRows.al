@@ -86,7 +86,9 @@ codeunit 97000 "LT TRL Resource Rows"
                 Line += Format(Layout."Report ID") + ':' + Layout.Name + ':' + CopyStr(Format(Layout."App ID"), 1, 9) + ':' + Format(Layout."Layout Format") + ':' + Format(Layout."Company Name" = '') + '|';
             until Layout.Next() = 0;
         Observer.Observe('rows', Line);
-        Observer.Finish();
+        Observer.Expect('count', '0');
+        Observer.Expect('rows', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -95,7 +97,14 @@ codeunit 97000 "LT TRL Resource Rows"
         Observer: Codeunit "Probe Observer";
     begin
         DescribeLayoutFor(Observer, 'word R1', 'word', Report::"LT Y17 Lay R1", 'trl/Y17LayR1.docx');
-        Observer.Finish();
+        Observer.Expect('word R1 returned', 'Yes');
+        Observer.Expect('word R1 report length', '5451');
+        Observer.Expect('word R1 report first bytes', '504B0304');
+        Observer.Expect('word R1 report sha256', '25B756A06026DA7354BB7B74594C2D18B14B1EB15B644949A5EB46D969B5804E');
+        Observer.Expect('word R1 file length', '5451');
+        Observer.Expect('word R1 file first bytes', '504B0304');
+        Observer.Expect('word R1 file sha256', '25B756A06026DA7354BB7B74594C2D18B14B1EB15B644949A5EB46D969B5804E');
+        Observer.Verify();
     end;
 
     [Test]
@@ -105,7 +114,21 @@ codeunit 97000 "LT TRL Resource Rows"
     begin
         DescribeLayoutFor(Observer, 'rdlc R1', 'rdlc', Report::"LT Y17 Lay R1", 'trl/Y17LayR1.rdl');
         DescribeLayoutFor(Observer, 'excel R4', 'excel', Report::"LT Y17 Lay R4", 'trl/Y17LayR4.xlsx');
-        Observer.Finish();
+        Observer.Expect('rdlc R1 returned', 'Yes');
+        Observer.Expect('rdlc R1 report length', '2104');
+        Observer.Expect('rdlc R1 report first bytes', 'EFBBBF3C');
+        Observer.Expect('rdlc R1 report sha256', 'E28FAC5DB3F79B65DE60707DDBED8F5306BE7605DC4D9A71E1BF2597E440B5EF');
+        Observer.Expect('rdlc R1 file length', '2104');
+        Observer.Expect('rdlc R1 file first bytes', 'EFBBBF3C');
+        Observer.Expect('rdlc R1 file sha256', 'E28FAC5DB3F79B65DE60707DDBED8F5306BE7605DC4D9A71E1BF2597E440B5EF');
+        Observer.Expect('excel R4 returned', 'Yes');
+        Observer.Expect('excel R4 report length', '20314');
+        Observer.Expect('excel R4 report first bytes', '504B0304');
+        Observer.Expect('excel R4 report sha256', 'B7748123A94313033D504A565EBB4C708BFD0B5CB9EBD95BB61223A80148BF0D');
+        Observer.Expect('excel R4 file length', '20314');
+        Observer.Expect('excel R4 file first bytes', '504B0304');
+        Observer.Expect('excel R4 file sha256', 'B7748123A94313033D504A565EBB4C708BFD0B5CB9EBD95BB61223A80148BF0D');
+        Observer.Verify();
     end;
 
     [Test]
@@ -116,7 +139,13 @@ codeunit 97000 "LT TRL Resource Rows"
         DescribeLayoutFor(Observer, 'word R4', 'word', Report::"LT Y17 Lay R4", '');
         DescribeLayoutFor(Observer, 'rdlc R4', 'rdlc', Report::"LT Y17 Lay R4", '');
         DescribeLayoutFor(Observer, 'excel R1', 'excel', Report::"LT Y17 Lay R1", '');
-        Observer.Finish();
+        Observer.Expect('word R4 returned', 'No');
+        Observer.Expect('rdlc R4 returned', 'Yes');
+        Observer.Expect('rdlc R4 report length', '0');
+        Observer.Expect('rdlc R4 report first bytes', '');
+        Observer.Expect('rdlc R4 report sha256', '');
+        Observer.Expect('excel R1 returned', 'No');
+        Observer.Verify();
     end;
 
     local procedure DoInsert(var Observer: Codeunit "Probe Observer"; Tag: Text; ReportId: Integer; Kind: Option; ResourceName: Text; CustomType: Guid; Fails: Boolean)
@@ -128,6 +157,7 @@ codeunit 97000 "LT TRL Resource Rows"
         OutS: OutStream;
         LayoutName: Text[250];
         Ok: Boolean;
+        InLength: Integer;
     begin
         LayoutName := CopyStr(Delchr(Format(CreateGuid()), '=', '{}'), 1, 250);
         Layout.Init();
@@ -136,6 +166,10 @@ codeunit 97000 "LT TRL Resource Rows"
         Layout."Layout Format" := Kind;
         Layout."Custom Type" := CustomType;
         NavApp.GetResource(ResourceName, InS);
+        TempBlob.CreateOutStream(OutS);
+        CopyStream(OutS, InS);
+        InLength := TempBlob.Length();
+        TempBlob.CreateInStream(InS);
         Layout.Layout.ImportStream(InS, 'trl');
         if Fails then begin
             asserterror Layout.Insert();
@@ -155,7 +189,10 @@ codeunit 97000 "LT TRL Resource Rows"
             Observer.Observe(Tag + ' has value', Format(Reader.Layout.HasValue()));
             TempBlob.CreateOutStream(OutS);
             Observer.Observe(Tag + ' export', Format(Reader.Layout.ExportStream(OutS)));
-            Observer.Observe(Tag + ' length', Format(TempBlob.Length()));
+            Observer.Observe(Tag + ' length equals the file', Format(TempBlob.Length() = InLength));
+            // the stored layout of a Microsoft report depends on that report's data set: its length is not asserted
+            if ReportId >= 90000 then
+                Observer.Observe(Tag + ' length', Format(TempBlob.Length()));
             Reader.DeleteAll();
         end;
     end;
@@ -168,7 +205,13 @@ codeunit 97000 "LT TRL Resource Rows"
         NoType: Guid;
     begin
         DoInsert(Observer, 'word', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Word, 'trl/Y67BaseDoc.docx', NoType, false);
-        Observer.Finish();
+        Observer.Expect('word insert', 'Yes');
+        Observer.Expect('word rows', '1');
+        Observer.Expect('word stored', '1305|Word|Yes|Yes|||Yes');
+        Observer.Expect('word has value', 'Yes');
+        Observer.Expect('word export', 'Yes');
+        Observer.Expect('word length equals the file', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -178,7 +221,7 @@ codeunit 97000 "LT TRL Resource Rows"
         Layout: Record "Tenant Report Layout";
         NoType: Guid;
     begin
-        DoInsert(Observer, 'bindings', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Word, 'trl/Y17LayR1.docx', NoType, true);
+        DoInsert(Observer, 'bindings', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Word, 'trl/Y17LayR1.docx', NoType, false);
         Observer.Finish();
     end;
 
@@ -190,7 +233,30 @@ codeunit 97000 "LT TRL Resource Rows"
         NoType: Guid;
     begin
         DoInsert(Observer, 'own', Report::"LT Y17 Lay R1", Layout."Layout Format"::Word, 'trl/Y17LayR1.docx', NoType, false);
-        Observer.Finish();
+        Observer.Expect('own insert', 'Yes');
+        Observer.Expect('own rows', '1');
+        Observer.Expect('own stored', '91851|Word|Yes|Yes|||Yes');
+        Observer.Expect('own has value', 'Yes');
+        Observer.Expect('own export', 'Yes');
+#if BC29PLUS
+        Observer.Expect('own length equals the file', 'Yes');
+#else
+#if BC28PLUS
+        Observer.Expect('own length equals the file', 'No');
+#else
+        Observer.Expect('own length equals the file', 'No');
+#endif
+#endif
+#if BC29PLUS
+        Observer.Expect('own length', '5451');
+#else
+#if BC28PLUS
+        Observer.Expect('own length', '4463');
+#else
+        Observer.Expect('own length', '4463');
+#endif
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -201,7 +267,13 @@ codeunit 97000 "LT TRL Resource Rows"
         NoType: Guid;
     begin
         DoInsert(Observer, 'rdlc', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::RDLC, 'trl/Y17LayR1.rdl', NoType, false);
-        Observer.Finish();
+        Observer.Expect('rdlc insert', 'Yes');
+        Observer.Expect('rdlc rows', '1');
+        Observer.Expect('rdlc stored', '1305|RDLC|Yes|Yes|||Yes');
+        Observer.Expect('rdlc has value', 'Yes');
+        Observer.Expect('rdlc export', 'Yes');
+        Observer.Expect('rdlc length equals the file', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -212,7 +284,14 @@ codeunit 97000 "LT TRL Resource Rows"
         NoType: Guid;
     begin
         DoInsert(Observer, 'rdlc own', Report::"LT Y17 Lay R1", Layout."Layout Format"::RDLC, 'trl/Y17LayR1.rdl', NoType, false);
-        Observer.Finish();
+        Observer.Expect('rdlc own insert', 'Yes');
+        Observer.Expect('rdlc own rows', '1');
+        Observer.Expect('rdlc own stored', '91851|RDLC|Yes|Yes|||Yes');
+        Observer.Expect('rdlc own has value', 'Yes');
+        Observer.Expect('rdlc own export', 'Yes');
+        Observer.Expect('rdlc own length equals the file', 'No');
+        Observer.Expect('rdlc own length', '2022');
+        Observer.Verify();
     end;
 
     [Test]
@@ -223,7 +302,13 @@ codeunit 97000 "LT TRL Resource Rows"
         NoType: Guid;
     begin
         DoInsert(Observer, 'excel', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Excel, 'trl/Y17LayR4.xlsx', NoType, false);
-        Observer.Finish();
+        Observer.Expect('excel insert', 'Yes');
+        Observer.Expect('excel rows', '1');
+        Observer.Expect('excel stored', '1305|Excel|Yes|Yes|||Yes');
+        Observer.Expect('excel has value', 'Yes');
+        Observer.Expect('excel export', 'Yes');
+        Observer.Expect('excel length equals the file', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -234,7 +319,22 @@ codeunit 97000 "LT TRL Resource Rows"
         NoType: Guid;
     begin
         DoInsert(Observer, 'excel own', Report::"LT Y17 Lay R4", Layout."Layout Format"::Excel, 'trl/Y17LayR4.xlsx', NoType, false);
-        Observer.Finish();
+        Observer.Expect('excel own insert', 'Yes');
+        Observer.Expect('excel own rows', '1');
+        Observer.Expect('excel own stored', '91854|Excel|Yes|Yes|||Yes');
+        Observer.Expect('excel own has value', 'Yes');
+        Observer.Expect('excel own export', 'Yes');
+        Observer.Expect('excel own length equals the file', 'No');
+#if BC29PLUS
+        Observer.Expect('excel own length', '20313');
+#else
+#if BC28PLUS
+        Observer.Expect('excel own length', '19696');
+#else
+        Observer.Expect('excel own length', '19696');
+#endif
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -245,7 +345,13 @@ codeunit 97000 "LT TRL Resource Rows"
         NoType: Guid;
     begin
         DoInsert(Observer, 'custom no type', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Custom, 'trl/Y67BaseDoc.docx', NoType, false);
-        Observer.Finish();
+        Observer.Expect('custom no type insert', 'Yes');
+        Observer.Expect('custom no type rows', '1');
+        Observer.Expect('custom no type stored', '1305|External|Yes|Yes|||Yes');
+        Observer.Expect('custom no type has value', 'Yes');
+        Observer.Expect('custom no type export', 'Yes');
+        Observer.Expect('custom no type length equals the file', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -256,6 +362,12 @@ codeunit 97000 "LT TRL Resource Rows"
         NoType: Guid;
     begin
         DoInsert(Observer, 'custom unknown type', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Custom, 'trl/Y67BaseDoc.docx', CreateGuid(), false);
-        Observer.Finish();
+        Observer.Expect('custom unknown type insert', 'Yes');
+        Observer.Expect('custom unknown type rows', '1');
+        Observer.Expect('custom unknown type stored', '1305|External|Yes|No|||Yes');
+        Observer.Expect('custom unknown type has value', 'Yes');
+        Observer.Expect('custom unknown type export', 'Yes');
+        Observer.Expect('custom unknown type length equals the file', 'Yes');
+        Observer.Verify();
     end;
 }
