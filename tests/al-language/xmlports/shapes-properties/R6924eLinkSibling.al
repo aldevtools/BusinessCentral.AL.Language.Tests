@@ -281,6 +281,31 @@ codeunit 95354 "LT R6924e Link Sibling Tests"
 // ---- Text formats and other sibling layouts (al-runner issue 6924, waldo) ----
 // Same header and line tables as above; ports in VariableText and FixedText, a header that is not the preceding sibling,
 // a header and line pair nested under another table element, and two header and line pairs.
+// Facts (BC 29.0 on the corpus CI, then checked on the matrix): see the asserted values below. Export in VariableText and FixedText follows the
+//   Xml rule (all header rows, then the lines of the last header). Import in a text format with the default MinOccurs reads every row into the
+//   header element and then raises the Min Occurs error for the line element; with MinOccurs = Zero see the VT0 and FT0 tests.
+
+codeunit 97064 "LT R6924e Text Log"
+{
+    SingleInstance = true;
+
+    var
+        Entries: Text;
+
+    procedure Add(Entry: Text)
+    begin
+        Entries += Entry + ';';
+    end;
+
+    procedure Take(): Text
+    var
+        Result: Text;
+    begin
+        Result := Entries;
+        Entries := '';
+        exit(Result);
+    end;
+}
 
 table 97060 "LT R6924e Outer"
 {
@@ -363,7 +388,7 @@ xmlport 95355 "LT R6924e Link VT"
     }
 
     var
-        Log: Codeunit "LT R6924e Link Log";
+        Log: Codeunit "LT R6924e Text Log";
 }
 
 xmlport 95356 "LT R6924e Link FT"
@@ -415,7 +440,7 @@ xmlport 95356 "LT R6924e Link FT"
     }
 
     var
-        Log: Codeunit "LT R6924e Link Log";
+        Log: Codeunit "LT R6924e Text Log";
 }
 
 xmlport 95357 "LT R6924e Link Gap"
@@ -481,7 +506,7 @@ xmlport 95357 "LT R6924e Link Gap"
     }
 
     var
-        Log: Codeunit "LT R6924e Link Log";
+        Log: Codeunit "LT R6924e Text Log";
 }
 
 xmlport 95358 "LT R6924e Link Nest"
@@ -548,7 +573,7 @@ xmlport 95358 "LT R6924e Link Nest"
     }
 
     var
-        Log: Codeunit "LT R6924e Link Log";
+        Log: Codeunit "LT R6924e Text Log";
 }
 
 xmlport 95359 "LT R6924e Link Pairs"
@@ -632,7 +657,117 @@ xmlport 95359 "LT R6924e Link Pairs"
     }
 
     var
-        Log: Codeunit "LT R6924e Link Log";
+        Log: Codeunit "LT R6924e Text Log";
+}
+
+xmlport 97065 "LT R6924e Link VT0"
+{
+    Direction = Both;
+    Format = VariableText;
+    FieldSeparator = ',';
+    FieldDelimiter = '"';
+    RecordSeparator = '<LF>';
+    TextEncoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(TransportHeader; "LT R6924e Hdr")
+            {
+                MinOccurs = Zero;
+                fieldelement(No; TransportHeader."No.") { }
+                fieldelement(Name; TransportHeader.Name) { }
+
+                trigger OnAfterGetRecord()
+                begin
+                    Log.Add('agr hdr ' + TransportHeader."No.");
+                end;
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    Log.Add('ins hdr ' + TransportHeader."No.");
+                end;
+            }
+            tableelement(TransportLine; "LT R6924e Line")
+            {
+                MinOccurs = Zero;
+                LinkTable = TransportHeader;
+                LinkFields = "Doc No." = field("No.");
+                fieldelement(Doc; TransportLine."Doc No.") { }
+                fieldelement(LineNo; TransportLine."Line No.") { }
+                fieldelement(Item; TransportLine.Item) { }
+
+                trigger OnAfterGetRecord()
+                begin
+                    Log.Add('agr line ' + TransportLine."Doc No." + '-' + Format(TransportLine."Line No.") + '|' + TransportHeader."No.");
+                end;
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    Log.Add('ins line ' + TransportLine."Doc No." + '-' + Format(TransportLine."Line No.") + '|' + TransportHeader."No.");
+                end;
+            }
+        }
+    }
+
+    var
+        Log: Codeunit "LT R6924e Text Log";
+}
+
+xmlport 97066 "LT R6924e Link FT0"
+{
+    Direction = Both;
+    Format = FixedText;
+    RecordSeparator = '<LF>';
+    TextEncoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(TransportHeader; "LT R6924e Hdr")
+            {
+                MinOccurs = Zero;
+                fieldelement(No; TransportHeader."No.") { Width = 4; }
+                fieldelement(Name; TransportHeader.Name) { Width = 5; }
+
+                trigger OnAfterGetRecord()
+                begin
+                    Log.Add('agr hdr ' + TransportHeader."No.");
+                end;
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    Log.Add('ins hdr ' + TransportHeader."No.");
+                end;
+            }
+            tableelement(TransportLine; "LT R6924e Line")
+            {
+                MinOccurs = Zero;
+                LinkTable = TransportHeader;
+                LinkFields = "Doc No." = field("No.");
+                fieldelement(Doc; TransportLine."Doc No.") { Width = 4; }
+                fieldelement(LineNo; TransportLine."Line No.") { Width = 3; }
+                fieldelement(Item; TransportLine.Item) { Width = 5; }
+
+                trigger OnAfterGetRecord()
+                begin
+                    Log.Add('agr line ' + TransportLine."Doc No." + '-' + Format(TransportLine."Line No.") + '|' + TransportHeader."No.");
+                end;
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    Log.Add('ins line ' + TransportLine."Doc No." + '-' + Format(TransportLine."Line No.") + '|' + TransportHeader."No.");
+                end;
+            }
+        }
+    }
+
+    var
+        Log: Codeunit "LT R6924e Text Log";
 }
 
 // Runs one import inside Codeunit.Run so an error is observed as a result, not a failed test.
@@ -668,7 +803,7 @@ codeunit 97063 "LT R6924e Link Text Tests"
 
     var
         Observer: Codeunit "Probe Observer";
-        Log: Codeunit "LT R6924e Link Log";
+        Log: Codeunit "LT R6924e Text Log";
 
     local procedure Start()
     var
@@ -810,7 +945,9 @@ codeunit 97063 "LT R6924e Link Text Tests"
         Start();
         Fill();
         Export('vt export', 95355);
-        Observer.Finish();
+        Observer.Expect('vt export text', '"H1","nH1"|"H2","nH2"||"H2","1","iH21"|');
+        Observer.Expect('vt export log', 'agr hdr H1;agr hdr H2;agr line H2-1|H2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -819,7 +956,9 @@ codeunit 97063 "LT R6924e Link Text Tests"
         Start();
         AddLine('H1', 1);
         Export('vt no header', 95355);
-        Observer.Finish();
+        Observer.Expect('vt no header text', '||');
+        Observer.Expect('vt no header log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -827,7 +966,11 @@ codeunit 97063 "LT R6924e Link Text Tests"
     begin
         Start();
         Import('vt headers first', 95355, 'H1,nH1' + Lf() + 'H2,nH2' + Lf() + ',1,a' + Lf() + ',2,b' + Lf());
-        Observer.Finish();
+        Observer.Expect('vt headers first error|text', 'The Element <TransportLine> is expected by Min Occurs value: Once. Element received: <Root>.');
+        Observer.Expect('vt headers first error|code', 'XmlPortMetadata');
+        Observer.Expect('vt headers first rows', '');
+        Observer.Expect('vt headers first log', 'ins hdr H1;ins hdr H2;ins hdr ;ins hdr ;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -835,7 +978,11 @@ codeunit 97063 "LT R6924e Link Text Tests"
     begin
         Start();
         Import('vt interleaved', 95355, 'H1,nH1' + Lf() + ',1,a' + Lf() + 'H2,nH2' + Lf() + ',2,b' + Lf());
-        Observer.Finish();
+        Observer.Expect('vt interleaved error|text', 'The Element <TransportLine> is expected by Min Occurs value: Once. Element received: <Root>.');
+        Observer.Expect('vt interleaved error|code', 'XmlPortMetadata');
+        Observer.Expect('vt interleaved rows', '');
+        Observer.Expect('vt interleaved log', 'ins hdr H1;ins hdr ;ins hdr H2;ins hdr ;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -843,7 +990,11 @@ codeunit 97063 "LT R6924e Link Text Tests"
     begin
         Start();
         Import('vt line with doc', 95355, 'H1,nH1' + Lf() + 'Z1,1,a' + Lf());
-        Observer.Finish();
+        Observer.Expect('vt line with doc error|text', 'The Element <TransportLine> is expected by Min Occurs value: Once. Element received: <Root>.');
+        Observer.Expect('vt line with doc error|code', 'XmlPortMetadata');
+        Observer.Expect('vt line with doc rows', '');
+        Observer.Expect('vt line with doc log', 'ins hdr H1;ins hdr Z1;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -851,7 +1002,11 @@ codeunit 97063 "LT R6924e Link Text Tests"
     begin
         Start();
         Import('vt headers only', 95355, 'H1,nH1' + Lf() + 'H2,nH2' + Lf());
-        Observer.Finish();
+        Observer.Expect('vt headers only error|text', 'The Element <TransportLine> is expected by Min Occurs value: Once. Element received: <Root>.');
+        Observer.Expect('vt headers only error|code', 'XmlPortMetadata');
+        Observer.Expect('vt headers only rows', '');
+        Observer.Expect('vt headers only log', 'ins hdr H1;ins hdr H2;');
+        Observer.Verify();
     end;
 
     // ---- FixedText (header: No 4, Name 5; line: Doc 4, LineNo 3, Item 5) ----
@@ -862,7 +1017,9 @@ codeunit 97063 "LT R6924e Link Text Tests"
         Start();
         Fill();
         Export('ft export', 95356);
-        Observer.Finish();
+        Observer.Expect('ft export text', 'H1..nH1..|H2..nH2..||H2..1..iH21.|');
+        Observer.Expect('ft export log', 'agr hdr H1;agr hdr H2;agr line H2-1|H2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -871,7 +1028,9 @@ codeunit 97063 "LT R6924e Link Text Tests"
         Start();
         AddLine('H1', 1);
         Export('ft no header', 95356);
-        Observer.Finish();
+        Observer.Expect('ft no header text', '||');
+        Observer.Expect('ft no header log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -879,7 +1038,11 @@ codeunit 97063 "LT R6924e Link Text Tests"
     begin
         Start();
         Import('ft headers first', 95356, 'H1  nH1  ' + Lf() + 'H2  nH2  ' + Lf() + '      1a    ' + Lf() + '      2b    ' + Lf());
-        Observer.Finish();
+        Observer.Expect('ft headers first error|text', 'The Element <TransportLine> is expected by Min Occurs value: Once. Element received: <Root>.');
+        Observer.Expect('ft headers first error|code', 'XmlPortMetadata');
+        Observer.Expect('ft headers first rows', '');
+        Observer.Expect('ft headers first log', 'ins hdr H1;ins hdr H2;ins hdr ;ins hdr ;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -887,7 +1050,11 @@ codeunit 97063 "LT R6924e Link Text Tests"
     begin
         Start();
         Import('ft interleaved', 95356, 'H1  nH1  ' + Lf() + '      1a    ' + Lf() + 'H2  nH2  ' + Lf() + '      2b    ' + Lf());
-        Observer.Finish();
+        Observer.Expect('ft interleaved error|text', 'The Element <TransportLine> is expected by Min Occurs value: Once. Element received: <Root>.');
+        Observer.Expect('ft interleaved error|code', 'XmlPortMetadata');
+        Observer.Expect('ft interleaved rows', '');
+        Observer.Expect('ft interleaved log', 'ins hdr H1;ins hdr ;ins hdr H2;ins hdr ;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -895,7 +1062,11 @@ codeunit 97063 "LT R6924e Link Text Tests"
     begin
         Start();
         Import('ft line with doc', 95356, 'H1  nH1  ' + Lf() + 'Z1    1a    ' + Lf());
-        Observer.Finish();
+        Observer.Expect('ft line with doc error|text', 'The Element <TransportLine> is expected by Min Occurs value: Once. Element received: <Root>.');
+        Observer.Expect('ft line with doc error|code', 'XmlPortMetadata');
+        Observer.Expect('ft line with doc rows', '');
+        Observer.Expect('ft line with doc log', 'ins hdr H1;ins hdr Z1;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -903,6 +1074,61 @@ codeunit 97063 "LT R6924e Link Text Tests"
     begin
         Start();
         Import('ft headers only', 95356, 'H1  nH1  ' + Lf() + 'H2  nH2  ' + Lf());
+        Observer.Expect('ft headers only error|text', 'The Element <TransportLine> is expected by Min Occurs value: Once. Element received: <Root>.');
+        Observer.Expect('ft headers only error|code', 'XmlPortMetadata');
+        Observer.Expect('ft headers only rows', '');
+        Observer.Expect('ft headers only log', 'ins hdr H1;ins hdr H2;');
+        Observer.Verify();
+    end;
+
+
+    // ---- VariableText and FixedText with MinOccurs = Zero on both table elements ----
+
+    [Test]
+    procedure VT0_Import_HeadersFirst()
+    begin
+        Start();
+        Import('vt0 headers first', 97065, 'H1,nH1' + Lf() + 'H2,nH2' + Lf() + ',1,a' + Lf() + ',2,b' + Lf());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure VT0_Import_Interleaved()
+    begin
+        Start();
+        Import('vt0 interleaved', 97065, 'H1,nH1' + Lf() + ',1,a' + Lf() + 'H2,nH2' + Lf() + ',2,b' + Lf());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure VT0_Import_LineWithDoc()
+    begin
+        Start();
+        Import('vt0 line with doc', 97065, 'H1,nH1' + Lf() + 'Z1,1,a' + Lf());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure FT0_Import_HeadersFirst()
+    begin
+        Start();
+        Import('ft0 headers first', 97066, 'H1  nH1  ' + Lf() + 'H2  nH2  ' + Lf() + '      1a    ' + Lf() + '      2b    ' + Lf());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure FT0_Import_Interleaved()
+    begin
+        Start();
+        Import('ft0 interleaved', 97066, 'H1  nH1  ' + Lf() + '      1a    ' + Lf() + 'H2  nH2  ' + Lf() + '      2b    ' + Lf());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure FT0_Import_LineWithDoc()
+    begin
+        Start();
+        Import('ft0 line with doc', 97066, 'H1  nH1  ' + Lf() + 'Z1    1a    ' + Lf());
         Observer.Finish();
     end;
 
@@ -920,7 +1146,9 @@ codeunit 97063 "LT R6924e Link Text Tests"
         Other.Code := 'O2';
         Other.Insert();
         Export('gap export', 95357);
-        Observer.Finish();
+        Observer.Expect('gap export text', '<?xml.version="1.0".encoding="UTF-8".standalone="no"?>|<Root>|..<TransportHeader.No="H1"./>|..<TransportHeader.No="H2"./>|..<Between.Code="O1"./>|..<Between.Code="O2"./>|..<TransportLine.Doc="H2".LineNo="1"./>|</Root>|');
+        Observer.Expect('gap export log', 'agr hdr H1;agr hdr H2;agr other O1;agr other O2;agr line H2-1|H2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -928,7 +1156,10 @@ codeunit 97063 "LT R6924e Link Text Tests"
     begin
         Start();
         Import('gap in order', 95357, '<Root><TransportHeader No="H1" /><TransportHeader No="H2" /><Between Code="O1" /><TransportLine LineNo="1" /><TransportLine LineNo="2" /></Root>');
-        Observer.Finish();
+        Observer.Expect('gap in order result', 'ok');
+        Observer.Expect('gap in order rows', 'X O1;H H1 ;H H2 ;L -1 ;L -2 ;');
+        Observer.Expect('gap in order log', 'ins hdr H1;ins hdr H2;ins other O1;ins line -1|;ins line -2|;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -936,7 +1167,11 @@ codeunit 97063 "LT R6924e Link Text Tests"
     begin
         Start();
         Import('gap line with doc', 95357, '<Root><TransportHeader No="H1" /><Between Code="O1" /><TransportLine Doc="Z1" LineNo="1" /></Root>');
-        Observer.Finish();
+        Observer.Expect('gap line with doc error|text', 'The data conflicts with the LinkTable and LinkFields setup of Table TransportLine.');
+        Observer.Expect('gap line with doc error|code', 'XmlPortData');
+        Observer.Expect('gap line with doc rows', '');
+        Observer.Expect('gap line with doc log', 'ins hdr H1;ins other O1;');
+        Observer.Verify();
     end;
 
     // ---- Xml: header and line nested under another table element ----
@@ -953,7 +1188,9 @@ codeunit 97063 "LT R6924e Link Text Tests"
         Outer.Code := 'O2';
         Outer.Insert();
         Export('nest export', 95358);
-        Observer.Finish();
+        Observer.Expect('nest export text', '<?xml.version="1.0".encoding="UTF-8".standalone="no"?>|<Root>|..<Outer.Code="O1">|....<TransportHeader.No="H1"./>|....<TransportHeader.No="H2"./>|....<TransportLine.Doc="H2".LineNo="1"./>|..</Outer>|..<Outer.Code="O2">|....<TransportHeader.No="H1"./>|....<TransportHeader.No="H2"./>|....<TransportLine.Doc="H2".LineNo="1"./>|..</Outer>|</Root>|');
+        Observer.Expect('nest export log', 'agr outer O1;agr hdr H1;agr hdr H2;agr line H2-1|H2;agr outer O2;agr hdr H1;agr hdr H2;agr line H2-1|H2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -961,7 +1198,10 @@ codeunit 97063 "LT R6924e Link Text Tests"
     begin
         Start();
         Import('nest import', 95358, '<Root><Outer Code="O1"><TransportHeader No="H1" /><TransportHeader No="H2" /><TransportLine LineNo="1" /></Outer><Outer Code="O2"><TransportHeader No="H3" /><TransportLine LineNo="2" /></Outer></Root>');
-        Observer.Finish();
+        Observer.Expect('nest import result', 'ok');
+        Observer.Expect('nest import rows', 'O O1;O O2;H H1 ;H H2 ;H H3 ;L -1 ;L -2 ;');
+        Observer.Expect('nest import log', 'ins hdr H1;ins hdr H2;ins line -1|;ins outer O1;ins hdr H3;ins line -2|;ins outer O2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -969,7 +1209,11 @@ codeunit 97063 "LT R6924e Link Text Tests"
     begin
         Start();
         Import('nest line with doc', 95358, '<Root><Outer Code="O1"><TransportHeader No="H1" /><TransportLine Doc="Z1" LineNo="1" /></Outer></Root>');
-        Observer.Finish();
+        Observer.Expect('nest line with doc error|text', 'The data conflicts with the LinkTable and LinkFields setup of Table TransportLine.');
+        Observer.Expect('nest line with doc error|code', 'XmlPortData');
+        Observer.Expect('nest line with doc rows', '');
+        Observer.Expect('nest line with doc log', 'ins hdr H1;');
+        Observer.Verify();
     end;
 
     // ---- Xml: two header and line pairs ----
@@ -980,7 +1224,9 @@ codeunit 97063 "LT R6924e Link Text Tests"
         Start();
         Fill();
         Export('pairs export', 95359);
-        Observer.Finish();
+        Observer.Expect('pairs export text', '<?xml.version="1.0".encoding="UTF-8".standalone="no"?>|<Root>|..<HdrA.No="H1"./>|..<HdrA.No="H2"./>|..<LineA.Doc="H2".LineNo="1"./>|..<HdrB.No="H1"./>|..<HdrB.No="H2"./>|..<LineB.Doc="H2".LineNo="1"./>|</Root>|');
+        Observer.Expect('pairs export log', 'agr hdrA H1;agr hdrA H2;agr lineA H2-1|H2;agr hdrB H1;agr hdrB H2;agr lineB H2-1|H2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -988,6 +1234,9 @@ codeunit 97063 "LT R6924e Link Text Tests"
     begin
         Start();
         Import('pairs import', 95359, '<Root><HdrA No="H1" /><HdrA No="H2" /><LineA LineNo="1" /><HdrB No="H3" /><LineB LineNo="2" /></Root>');
-        Observer.Finish();
+        Observer.Expect('pairs import result', 'ok');
+        Observer.Expect('pairs import rows', 'H H1 ;H H2 ;H H3 ;L -1 ;L -2 ;');
+        Observer.Expect('pairs import log', 'ins hdrA H1;ins hdrA H2;ins lineA -1|;ins hdrB H3;ins lineB -2|;');
+        Observer.Verify();
     end;
 }
