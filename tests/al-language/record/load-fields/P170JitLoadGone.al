@@ -205,7 +205,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         GoneCode('A1');
         Observer.Observe('raised', Format(not TryReadName(R)));
         Observer.ObserveError('name');
-        Observer.Finish();
+        Observer.Expect('raised', 'Yes');
+        Observer.Expect('name|text', 'JIT loading of field(s): ''Name'' failed for table: ''LT PG Code Row'' identification values: ''No.=''A1''''');
+        Observer.Expect('name|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     [Test]
@@ -219,7 +222,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         GoneCode('A2');
         Observer.Observe('raised', Format(not TryReadNote(R)));
         Observer.ObserveError('note');
-        Observer.Finish();
+        Observer.Expect('raised', 'Yes');
+        Observer.Expect('note|text', 'JIT loading of field(s): ''Note'' failed for table: ''LT PG Code Row'' identification values: ''No.=''A2''''');
+        Observer.Expect('note|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     // The record is complete (no SetLoadFields): nothing is loaded later, so a deleted row does not matter.
@@ -235,7 +241,11 @@ codeunit 96940 "LT PG Jit Load Gone"
         Observer.Observe('raised', Format(not TryReadName(R)));
         Observer.ObserveError('name');
         Observer.Observe('name', R.Name);
-        Observer.Finish();
+        Observer.Expect('raised', 'No');
+        Observer.Expect('name|text', '');
+        Observer.Expect('name|code', '');
+        Observer.Expect('name', 'one');
+        Observer.Verify();
     end;
 
     // ---- 2. Composite key (separator, order) ----
@@ -255,7 +265,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         Gone.Delete();
         Observer.Observe('raised', Format(not TryReadCompositeName(R)));
         Observer.ObserveError('name');
-        Observer.Finish();
+        Observer.Expect('raised', 'Yes');
+        Observer.Expect('name|text', 'JIT loading of field(s): ''Name'' failed for table: ''LT PG Composite Row'' identification values: ''Part1=''P1'',Part2=''7''''');
+        Observer.Expect('name|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     [Test]
@@ -272,7 +285,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         Gone.Delete();
         Observer.Observe('raised', Format(not TryReadCompositeName(R)));
         Observer.ObserveError('name');
-        Observer.Finish();
+        Observer.Expect('raised', 'Yes');
+        Observer.Expect('name|text', 'JIT loading of field(s): ''Name'' failed for table: ''LT PG Composite Row'' identification values: ''Part1=''P1'',Part2=''7''''');
+        Observer.Expect('name|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     [Test]
@@ -289,7 +305,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         Gone.Delete();
         Observer.Observe('raised', Format(not TryReadCompositeName(R)));
         Observer.ObserveError('name');
-        Observer.Finish();
+        Observer.Expect('raised', 'Yes');
+        Observer.Expect('name|text', 'JIT loading of field(s): ''Name'' failed for table: ''LT PG Composite Row'' identification values: ''Part1=''P1'',Part2=''7''''');
+        Observer.Expect('name|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     local procedure SeedComposite()
@@ -328,7 +347,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         Gone.Delete();
         Observer.Observe('raised', Format(not TryReadInfo(R)));
         Observer.ObserveError('info');
-        Observer.Finish();
+        Observer.Expect('raised', 'Yes');
+        Observer.Expect('info|text', 'JIT loading of field(s): ''Info'' failed for table: ''Gone Caption Table'' identification values: ''Row Identifier=''1''''');
+        Observer.Expect('info|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     [Test]
@@ -345,7 +367,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         Gone.Delete();
         Observer.Observe('raised', Format(not TryReadPlain(R)));
         Observer.ObserveError('plain');
-        Observer.Finish();
+        Observer.Expect('raised', 'Yes');
+        Observer.Expect('plain|text', 'JIT loading of field(s): ''Plain'' failed for table: ''Gone Caption Table'' identification values: ''Row Identifier=''1''''');
+        Observer.Expect('plain|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     local procedure SeedCaption()
@@ -403,7 +428,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         Gone.Delete();
         Observer.Observe('raised', Format(not TryReadTypedName(R)));
         Observer.ObserveError('name');
-        Observer.Finish();
+        Observer.Expect('raised', 'Yes');
+        Observer.Expect('name|text', 'JIT loading of field(s): ''Name'' failed for table: ''LT PG Typed Row'' identification values: ''DateKey=''03/07/26'',DecimalKey=''12.5'',GuidKey=''{3F2504E0-4F89-41D3-9A0C-0305E82C3301}'',OptionKey=''Beta'',EnumKey=''Second Caption''''');
+        Observer.Expect('name|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     [Test]
@@ -425,7 +453,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         Gone.Delete();
         Observer.Observe('raised', Format(not TryReadTypedName(R)));
         Observer.ObserveError('name');
-        Observer.Finish();
+        Observer.Expect('raised', 'Yes');
+        Observer.Expect('name|text', 'JIT loading of field(s): ''Name'' failed for table: ''LT PG Typed Row'' identification values: ''DateKey='''',DecimalKey=''0'',GuidKey=''{00000000-0000-0000-0000-000000000000}'',OptionKey=''Alpha'',EnumKey=''First''''');
+        Observer.Expect('name|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     [Test]
@@ -449,7 +480,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         Gone.Delete();
         Observer.Observe('raised', Format(not TryReadTypedName(R)));
         Observer.ObserveError('name');
-        Observer.Finish();
+        Observer.Expect('raised', 'Yes');
+        Observer.Expect('name|text', 'JIT loading of field(s): ''Name'' failed for table: ''LT PG Typed Row'' identification values: ''DateKey='''',DecimalKey=''-1,234.5678'',GuidKey=''{00000000-0000-0000-0000-000000000000}'',OptionKey=''Gamma'',EnumKey=''First''''');
+        Observer.Expect('name|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -473,7 +507,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         GoneCode('O''NEIL');
         Observer.Observe('raised', Format(not TryReadName(R)));
         Observer.ObserveError('name');
-        Observer.Finish();
+        Observer.Expect('raised', 'Yes');
+        Observer.Expect('name|text', 'JIT loading of field(s): ''Name'' failed for table: ''LT PG Code Row'' identification values: ''No.=''O''NEIL''''');
+        Observer.Expect('name|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     [Test]
@@ -487,7 +524,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         GoneCode('');
         Observer.Observe('raised', Format(not TryReadName(R)));
         Observer.ObserveError('name');
-        Observer.Finish();
+        Observer.Expect('raised', 'Yes');
+        Observer.Expect('name|text', 'JIT loading of field(s): ''Name'' failed for table: ''LT PG Code Row'' identification values: ''No.=''''''');
+        Observer.Expect('name|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     // ---- 6. Other uses of the partial record after the row is gone ----
@@ -504,7 +544,9 @@ codeunit 96940 "LT PG Jit Load Gone"
         R.Name := 'changed';
         asserterror R.Modify();
         Observer.ObserveError('modify');
-        Observer.Finish();
+        Observer.Expect('modify|text', 'The LT PG Code Row does not exist. Identification fields and values: No.=''A1''');
+        Observer.Expect('modify|code', 'DB:RecordNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -518,7 +560,9 @@ codeunit 96940 "LT PG Jit Load Gone"
         GoneCode('A1');
         asserterror R.Modify();
         Observer.ObserveError('modify');
-        Observer.Finish();
+        Observer.Expect('modify|text', 'The LT PG Code Row does not exist. Identification fields and values: No.=''A1''');
+        Observer.Expect('modify|code', 'DB:RecordNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -534,7 +578,9 @@ codeunit 96940 "LT PG Jit Load Gone"
         R.Amount := 9;
         asserterror R.Modify();
         Observer.ObserveError('modify');
-        Observer.Finish();
+        Observer.Expect('modify|text', 'The LT PG Code Row does not exist. Identification fields and values: No.=''A1''');
+        Observer.Expect('modify|code', 'DB:RecordNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -548,6 +594,7 @@ codeunit 96940 "LT PG Jit Load Gone"
         GoneCode('A1');
         Observer.Observe('raised', Format(not TryCalcLineCount(R)));
         Observer.ObserveError('calc');
+        Observer.Observe('lineCount', Format(R."Line Count"));
         Observer.Finish();
     end;
 
@@ -562,7 +609,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         GoneCode('A1');
         Observer.Observe('raised', Format(not TryValidateAmount(R)));
         Observer.ObserveError('validate');
-        Observer.Finish();
+        Observer.Expect('raised', 'Yes');
+        Observer.Expect('validate|text', 'JIT loading of field(s): ''Amount'' failed for table: ''LT PG Code Row'' identification values: ''No.=''A1''''');
+        Observer.Expect('validate|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     // OnValidate of Note reads Name, which was not loaded.
@@ -577,7 +627,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         GoneCode('A1');
         Observer.Observe('raised', Format(not TryValidateNote(R)));
         Observer.ObserveError('validate');
-        Observer.Finish();
+        Observer.Expect('raised', 'Yes');
+        Observer.Expect('validate|text', 'JIT loading of field(s): ''Name'' failed for table: ''LT PG Code Row'' identification values: ''No.=''A1''''');
+        Observer.Expect('validate|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     [Test]
@@ -591,7 +644,9 @@ codeunit 96940 "LT PG Jit Load Gone"
         GoneCode('A1');
         asserterror R.Rename('A9');
         Observer.ObserveError('rename');
-        Observer.Finish();
+        Observer.Expect('rename|text', 'JIT loading of field(s): ''Name, Note, Amount, ReadName'' failed for table: ''LT PG Code Row'' identification values: ''No.=''A1''''');
+        Observer.Expect('rename|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -626,6 +681,8 @@ codeunit 96940 "LT PG Jit Load Gone"
         Observer.Observe('raised', Format(not TryLoadFieldsName(R)));
         Observer.ObserveError('loadfields');
         Observer.Observe('nameLoaded', Format(R.AreFieldsLoaded(Name)));
+        Observer.Observe('raisedName', Format(not TryReadName(R)));
+        Observer.ObserveError('name');
         Observer.Finish();
     end;
 
@@ -640,6 +697,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         GoneCode('A1');
         Observer.Observe('raised', Format(not TryLoadFieldsNameNote(R)));
         Observer.ObserveError('loadfields');
+        Observer.Observe('raisedName', Format(not TryReadName(R)));
+        Observer.ObserveError('name');
+        Observer.Observe('raisedNote', Format(not TryReadNote(R)));
+        Observer.ObserveError('note');
         Observer.Finish();
     end;
 
@@ -657,7 +718,11 @@ codeunit 96940 "LT PG Jit Load Gone"
         Observer.Observe('raisedNote', Format(not TryReadNote(R)));
         Observer.ObserveError('note');
         Observer.Observe('note', R.Note);
-        Observer.Finish();
+        Observer.Expect('raisedNote', 'No');
+        Observer.Expect('note|text', '');
+        Observer.Expect('note|code', '');
+        Observer.Expect('note', 'note one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -673,7 +738,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         GoneCode('A1');
         Observer.Observe('raisedName', Format(not TryReadName(R)));
         Observer.ObserveError('name');
-        Observer.Finish();
+        Observer.Expect('raisedName', 'Yes');
+        Observer.Expect('name|text', 'JIT loading of field(s): ''Name'' failed for table: ''LT PG Code Row'' identification values: ''No.=''A1''''');
+        Observer.Expect('name|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     [Test]
@@ -691,7 +759,14 @@ codeunit 96940 "LT PG Jit Load Gone"
         Observer.Observe('raisedName', Format(not TryReadName(R)));
         Observer.ObserveError('name');
         Observer.Observe('name', R.Name);
-        Observer.Finish();
+        Observer.Expect('raisedNote', 'Yes');
+        Observer.Expect('note|text', 'JIT loading of field(s): ''Note'' failed for table: ''LT PG Code Row'' identification values: ''No.=''A1''''');
+        Observer.Expect('note|code', 'JustInTimeFieldLoad');
+        Observer.Expect('raisedName', 'No');
+        Observer.Expect('name|text', '');
+        Observer.Expect('name|code', '');
+        Observer.Expect('name', 'one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -705,7 +780,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         GoneCode('A1');
         Observer.Observe('raised', Format(not TryReadBoth(R)));
         Observer.ObserveError('both');
-        Observer.Finish();
+        Observer.Expect('raised', 'Yes');
+        Observer.Expect('both|text', 'JIT loading of field(s): ''Name'' failed for table: ''LT PG Code Row'' identification values: ''No.=''A1''''');
+        Observer.Expect('both|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -729,6 +807,7 @@ codeunit 96940 "LT PG Jit Load Gone"
     [Test]
     procedure PG_RecordRef_Get_ReadField()
     var
+        Value: Text;
         R: Record "LT PG Code Row";
         RecRef: RecordRef;
         Observer: Codeunit "Probe Observer";
@@ -739,14 +818,16 @@ codeunit 96940 "LT PG Jit Load Gone"
         RecRef.SetLoadFields(R.FieldNo("No."));
         RecRef.Get(R.RecordId);
         GoneCode('A1');
-        Observer.Observe('raised', Format(not TryReadRefField(RecRef, R.FieldNo(Name))));
+        Observer.Observe('raised', Format(not TryReadRefField(RecRef, R.FieldNo(Name), Value)));
         Observer.ObserveError('name');
+        Observer.Observe('namevalue', Value);
         Observer.Finish();
     end;
 
     [Test]
     procedure PG_RecordRef_FindFirst_ReadField()
     var
+        Value: Text;
         R: Record "LT PG Code Row";
         RecRef: RecordRef;
         Observer: Codeunit "Probe Observer";
@@ -757,14 +838,16 @@ codeunit 96940 "LT PG Jit Load Gone"
         RecRef.Field(R.FieldNo(Name)).SetRange('one');
         RecRef.FindFirst();
         GoneCode('A1');
-        Observer.Observe('raised', Format(not TryReadRefField(RecRef, R.FieldNo(Name))));
+        Observer.Observe('raised', Format(not TryReadRefField(RecRef, R.FieldNo(Name), Value)));
         Observer.ObserveError('name');
+        Observer.Observe('namevalue', Value);
         Observer.Finish();
     end;
 
     [Test]
     procedure PG_RecordRef_AddLoadFields_ReadAddedField()
     var
+        Value: Text;
         R: Record "LT PG Code Row";
         RecRef: RecordRef;
         Observer: Codeunit "Probe Observer";
@@ -776,21 +859,22 @@ codeunit 96940 "LT PG Jit Load Gone"
         RecRef.AddLoadFields(R.FieldNo(Note));
         RecRef.Get(R.RecordId);
         GoneCode('A1');
-        Observer.Observe('raisedNote', Format(not TryReadRefField(RecRef, R.FieldNo(Note))));
+        Observer.Observe('raisedNote', Format(not TryReadRefField(RecRef, R.FieldNo(Note), Value)));
         Observer.ObserveError('note');
-        Observer.Observe('raisedName', Format(not TryReadRefField(RecRef, R.FieldNo(Name))));
+        Observer.Observe('notevalue', Value);
+        Observer.Observe('raisedName', Format(not TryReadRefField(RecRef, R.FieldNo(Name), Value)));
         Observer.ObserveError('name');
+        Observer.Observe('namevalue', Value);
         Observer.Finish();
     end;
 
     [TryFunction]
-    local procedure TryReadRefField(var RecRef: RecordRef; FieldNumber: Integer)
+    local procedure TryReadRefField(var RecRef: RecordRef; FieldNumber: Integer; var Value: Text)
     var
         FldRef: FieldRef;
-        S: Text;
     begin
         FldRef := RecRef.Field(FieldNumber);
-        S := Format(FldRef.Value);
+        Value := Format(FldRef.Value);
     end;
 
     // ---- 9. How the row goes away ----
@@ -808,7 +892,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         Gone.DeleteAll();
         Observer.Observe('raised', Format(not TryReadName(R)));
         Observer.ObserveError('name');
-        Observer.Finish();
+        Observer.Expect('raised', 'Yes');
+        Observer.Expect('name|text', 'JIT loading of field(s): ''Name'' failed for table: ''LT PG Code Row'' identification values: ''No.=''A1''''');
+        Observer.Expect('name|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     [Test]
@@ -824,7 +911,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         Gone.DeleteAll(true);
         Observer.Observe('raised', Format(not TryReadName(R)));
         Observer.ObserveError('name');
-        Observer.Finish();
+        Observer.Expect('raised', 'Yes');
+        Observer.Expect('name|text', 'JIT loading of field(s): ''Name'' failed for table: ''LT PG Code Row'' identification values: ''No.=''A1''''');
+        Observer.Expect('name|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     [Test]
@@ -839,7 +929,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         Gone.DeleteAll();
         Observer.Observe('raised', Format(not TryReadName(R)));
         Observer.ObserveError('name');
-        Observer.Finish();
+        Observer.Expect('raised', 'Yes');
+        Observer.Expect('name|text', 'JIT loading of field(s): ''Name'' failed for table: ''LT PG Code Row'' identification values: ''No.=''A1''''');
+        Observer.Expect('name|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     [Test]
@@ -855,7 +948,10 @@ codeunit 96940 "LT PG Jit Load Gone"
         Moved.Rename('A7');
         Observer.Observe('raised', Format(not TryReadName(R)));
         Observer.ObserveError('name');
-        Observer.Finish();
+        Observer.Expect('raised', 'Yes');
+        Observer.Expect('name|text', 'JIT loading of field(s): ''Name'' failed for table: ''LT PG Code Row'' identification values: ''No.=''A1''''');
+        Observer.Expect('name|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     [Test]
@@ -870,7 +966,6 @@ codeunit 96940 "LT PG Jit Load Gone"
         AddCode('A1', 'again', 'note again');
         Observer.Observe('raised', Format(not TryReadName(R)));
         Observer.ObserveError('name');
-        Observer.Observe('name', R.Name);
         Observer.Finish();
     end;
 }
