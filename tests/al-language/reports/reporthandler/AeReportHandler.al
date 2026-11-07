@@ -237,7 +237,7 @@ codeunit 78200 "LT AE Report Handler"
     procedure Report_RunModal_RdlcReportCallsRegisteredHandler()
     begin
         Initialize();
-        Report.RunModal(Report::"Assembly Order");
+        Report.RunModal(Report::"Assembly Order", false, false);
         Observer.Observe('log', L.Take());
         Observer.Expect('log', 'rdlc-handler;');
         Observer.Verify();

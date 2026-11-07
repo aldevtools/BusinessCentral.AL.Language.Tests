@@ -138,8 +138,11 @@ codeunit 69478 "REC Enum Const Tests"
         Cleanup: Codeunit ALTFixtureCleanup;
         Header: Record "REC Enum Const Header";
         Row: Record "ALT Universal";
+        Comment: Record "Purch. Comment Line";
     begin
         Cleanup.Initialize();
+        Comment.SetRange("No.", 'NEUTRAL-ENUM');
+        Comment.DeleteAll(false);
         Header.DeleteAll(false);
         Header.Id := 1;
         Header.Insert(false);
@@ -156,22 +159,31 @@ codeunit 69478 "REC Enum Const Tests"
     end;
 
     [Test]
-    procedure SubPageView_QualifiedEnumConst_OpensActiveRow()
+    procedure SubPageView_CrossEnumQualifier_SelectsPurchaseOrderComment()
     var
+        Row: Record "Purch. Comment Line";
         View: TestPage "REC Enum Const Host";
     begin
         Initialize();
+        Row."Document Type" := Row."Document Type"::Order;
+        Row."No." := 'NEUTRAL-ENUM';
+        Row."Line No." := 101;
+        Row.Comment := 'ORDER-COMMENT';
+        Row.Insert(false);
+        Row."Document Type" := Row."Document Type"::Invoice;
+        Row.Comment := 'INVOICE-COMMENT';
+        Row.Insert(false);
+
         View.OpenView();
         View.Lines.First();
-        View.Lines.EntryNo.AssertEquals(202);
-        View.Lines.Value.AssertEquals('QUALIFIED-42');
+        View.Lines.Value.AssertEquals('ORDER-COMMENT');
         if View.Lines.Next() then
-            Error('Expected just the active row.');
+            Error('Expected one order comment.');
         View.Close();
     end;
 }
 
-// local object: the qualified SubPageView property is declared on the host.
+// local object: this host exposes a factbox with a cross-enum qualifier.
 page 69996 "REC Enum Const Host"
 {
     PageType = Card;
@@ -180,28 +192,31 @@ page 69996 "REC Enum Const Host"
     {
         area(Content)
         {
+            field(EntryNo; Rec."Entry No.") { ApplicationArea = All; }
+        }
+        area(FactBoxes)
+        {
             part(Lines; "REC Enum Const Part")
             {
                 ApplicationArea = All;
-                SubPageView = where("Status Field" = const("ALT Status"::Active));
+                SubPageView = where("Document Type" = const("Purchase Document Type"::Order), "No." = const('NEUTRAL-ENUM'));
             }
         }
     }
 }
 
-// local object: the part leaves its view unrestricted so the host property supplies the filter.
+// local object: the part exposes the standard purchase comment's separate document enum.
 page 69997 "REC Enum Const Part"
 {
     PageType = ListPart;
-    SourceTable = "ALT Universal";
+    SourceTable = "Purch. Comment Line";
     layout
     {
         area(Content)
         {
             repeater(Rows)
             {
-                field(EntryNo; Rec."Entry No.") { ApplicationArea = All; }
-                field(Value; Rec."Text Field") { ApplicationArea = All; }
+                field(Value; Rec.Comment) { ApplicationArea = All; }
             }
         }
     }
