@@ -2,10 +2,22 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own tables 96940 to 96945, enum 96940, codeunit 96940
 // Probe: al-runner issue 6924 (reporter waldo). Companion of the P170_JitLoad_* tests in LoadFieldsFetched.al. A record is read with
-// SetLoadFields(primary key), the row is removed through another record variable, then a field that was not loaded is used. The tests
-// record the text and code of the error (or that none was raised) for: Code keys, composite keys, captions that differ from names, Date,
-// Decimal, Guid, Option and Enum key parts, apostrophes and blank Code keys, Modify, CalcFields, Validate, Rename, LoadFields,
-// AddLoadFields, RecordRef and the ways the row can go away.
+// SetLoadFields(primary key), the row is removed through another record variable, then a field that was not loaded is used. Each test
+// records the text and code of the error, or that none was raised. Measured on BC 27.5, 28.5 and 29.0 (identical):
+// - Reading an unloaded field raises error JustInTimeFieldLoad: "JIT loading of field(s): '<field name>' failed for table: '<table caption>'
+//   identification values: '<key field caption>='<value>''". Code keys are written as is, an apostrophe in the value is not doubled, a
+//   blank Code key gives 'No.='''. A composite key lists all parts in key order (Part1='P1',Part2='7'), whatever SetLoadFields names.
+//   The table and the key fields use their captions, the field that caused the load its name. Key parts: Date 03/07/26 (blank: empty),
+//   Decimal 12.5 or -1,234.5678, Guid in braces, Option and Enum by caption.
+// - Only fields that are not loaded are named; fields loaded by AddLoadFields or SetLoadFields are read from the old buffer. A record read
+//   without SetLoadFields is complete: no error. Reading two unloaded fields in one expression names the first.
+// - Validate of an unloaded field raises the same error, also when only OnValidate reads an unloaded field. Modify raises DB:RecordNotFound.
+//   Rename raises a JIT error naming all unloaded fields (Name, Note, Amount, ReadName). CalcFields raises nothing.
+// - Rec.LoadFields(...) after the row is gone raises nothing and loads nothing; later reads still raise.
+// - RecordRef: reading a field after the row is gone raises nothing and returns the old value (Get, FindFirst and AddLoadFields alike).
+// - The row removed by Delete, DeleteAll with a filter, DeleteAll(true), DeleteAll without a filter or a Rename of the key: same error.
+// - Row deleted and inserted again with the same key: error InconsistentRead ("The field '$systemId' on table ... has changed in the
+//   database between initial and JIT load").
 // BC versions: 27+
 
 table 96940 "LT PG Code Row"
@@ -595,7 +607,11 @@ codeunit 96940 "LT PG Jit Load Gone"
         Observer.Observe('raised', Format(not TryCalcLineCount(R)));
         Observer.ObserveError('calc');
         Observer.Observe('lineCount', Format(R."Line Count"));
-        Observer.Finish();
+        Observer.Expect('raised', 'No');
+        Observer.Expect('calc|text', '');
+        Observer.Expect('calc|code', '');
+        Observer.Expect('lineCount', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -683,7 +699,14 @@ codeunit 96940 "LT PG Jit Load Gone"
         Observer.Observe('nameLoaded', Format(R.AreFieldsLoaded(Name)));
         Observer.Observe('raisedName', Format(not TryReadName(R)));
         Observer.ObserveError('name');
-        Observer.Finish();
+        Observer.Expect('raised', 'No');
+        Observer.Expect('loadfields|text', '');
+        Observer.Expect('loadfields|code', '');
+        Observer.Expect('nameLoaded', 'No');
+        Observer.Expect('raisedName', 'Yes');
+        Observer.Expect('name|text', 'JIT loading of field(s): ''Name'' failed for table: ''LT PG Code Row'' identification values: ''No.=''A1''''');
+        Observer.Expect('name|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     [Test]
@@ -701,7 +724,16 @@ codeunit 96940 "LT PG Jit Load Gone"
         Observer.ObserveError('name');
         Observer.Observe('raisedNote', Format(not TryReadNote(R)));
         Observer.ObserveError('note');
-        Observer.Finish();
+        Observer.Expect('raised', 'No');
+        Observer.Expect('loadfields|text', '');
+        Observer.Expect('loadfields|code', '');
+        Observer.Expect('raisedName', 'Yes');
+        Observer.Expect('name|text', 'JIT loading of field(s): ''Name'' failed for table: ''LT PG Code Row'' identification values: ''No.=''A1''''');
+        Observer.Expect('name|code', 'JustInTimeFieldLoad');
+        Observer.Expect('raisedNote', 'Yes');
+        Observer.Expect('note|text', 'JIT loading of field(s): ''Note'' failed for table: ''LT PG Code Row'' identification values: ''No.=''A1''''');
+        Observer.Expect('note|code', 'JustInTimeFieldLoad');
+        Observer.Verify();
     end;
 
     [Test]
@@ -821,7 +853,11 @@ codeunit 96940 "LT PG Jit Load Gone"
         Observer.Observe('raised', Format(not TryReadRefField(RecRef, R.FieldNo(Name), Value)));
         Observer.ObserveError('name');
         Observer.Observe('namevalue', Value);
-        Observer.Finish();
+        Observer.Expect('raised', 'No');
+        Observer.Expect('name|text', '');
+        Observer.Expect('name|code', '');
+        Observer.Expect('namevalue', 'one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -841,7 +877,11 @@ codeunit 96940 "LT PG Jit Load Gone"
         Observer.Observe('raised', Format(not TryReadRefField(RecRef, R.FieldNo(Name), Value)));
         Observer.ObserveError('name');
         Observer.Observe('namevalue', Value);
-        Observer.Finish();
+        Observer.Expect('raised', 'No');
+        Observer.Expect('name|text', '');
+        Observer.Expect('name|code', '');
+        Observer.Expect('namevalue', 'one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -865,7 +905,15 @@ codeunit 96940 "LT PG Jit Load Gone"
         Observer.Observe('raisedName', Format(not TryReadRefField(RecRef, R.FieldNo(Name), Value)));
         Observer.ObserveError('name');
         Observer.Observe('namevalue', Value);
-        Observer.Finish();
+        Observer.Expect('raisedNote', 'No');
+        Observer.Expect('note|text', '');
+        Observer.Expect('note|code', '');
+        Observer.Expect('notevalue', 'note one');
+        Observer.Expect('raisedName', 'No');
+        Observer.Expect('name|text', '');
+        Observer.Expect('name|code', '');
+        Observer.Expect('namevalue', 'one');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -966,6 +1014,9 @@ codeunit 96940 "LT PG Jit Load Gone"
         AddCode('A1', 'again', 'note again');
         Observer.Observe('raised', Format(not TryReadName(R)));
         Observer.ObserveError('name');
-        Observer.Finish();
+        Observer.Expect('raised', 'Yes');
+        Observer.Expect('name|text', 'The field ''$systemId'' on table ''LT PG Code Row'' has changed in the database between initial and JIT load. The fields causing the JIT load are: ''Name''.\\The error may be transient if multiple users are editing the same record or permanent if the same user edits the record while keeping an old record.\\Identification values: ''No.=''A1''''\    ');
+        Observer.Expect('name|code', 'InconsistentRead');
+        Observer.Verify();
     end;
 }
