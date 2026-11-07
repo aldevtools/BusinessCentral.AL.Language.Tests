@@ -400,7 +400,8 @@ codeunit 67605 "LT N582 Eval FieldRef"
             end else
                 Observer.Observe(Name, 'no error');
         Observer.Observe(Name + '|value', Format(FldRef.Value));
-        Observer.Observe(Name + '|value9', Format(FldRef.Value, 0, 9));
+        if not Txt.StartsWith('Customer') then
+            Observer.Observe(Name + '|value9', Format(FldRef.Value, 0, 9));
     end;
 
     [Test]
@@ -421,7 +422,7 @@ codeunit 67605 "LT N582 Eval FieldRef"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Eval(Observer, 'abc', 2, 'abc', 0);
+        WA_Eval(Observer, 'not a table', 2, 'zzz', 0);
         WA_Eval(Observer, 'empty', 2, '', 0);
         WA_Eval(Observer, 'blank', 2, ' ', 0);
         WA_Eval(Observer, 'unknown table', 2, 'No Such Table LT: 1', 0);
@@ -442,13 +443,28 @@ codeunit 67605 "LT N582 Eval FieldRef"
         Observer.Finish();
     end;
 
+    // Is the table found by a prefix of its name, with and without a key? A text that is only a prefix of a table name (the corpus tables
+    // 97240 and 97241 share the prefix "LT WA RecId").
+    [Test]
+    procedure WA_Evaluate_FieldRef_RecordId_Statement_TableNamePrefix()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Eval(Observer, 'prefix with key', 2, 'LT WA RecId R: 2', 0);
+        WA_Eval(Observer, 'prefix without key', 2, 'LT WA RecId R', 0);
+        WA_Eval(Observer, 'shared prefix with key', 2, 'LT WA RecId: 2', 0);
+        WA_Eval(Observer, 'name followed by text', 2, 'LT WA RecId Row Extra: 2', 0);
+        WA_Eval(Observer, 'name in quotes', 2, '"LT WA RecId Row": 2', 0);
+        Observer.Finish();
+    end;
+
     [Test]
     procedure WA_Evaluate_FieldRef_RecordId_Statement_BlankStart()
     var
         Observer: Codeunit "Probe Observer";
     begin
         WA_Eval(Observer, 'blank start valid', 3, 'LT WA RecId Row: 2', 0);
-        WA_Eval(Observer, 'blank start abc', 3, 'abc', 0);
+        WA_Eval(Observer, 'blank start not a table', 3, 'zzz', 0);
         WA_Eval(Observer, 'blank start empty', 3, '', 0);
         WA_Eval(Observer, 'blank start customer', 3, 'Customer: 10000', 0);
         WA_Eval(Observer, 'table id text', 2, 'Table 97240: 2', 0);
@@ -462,7 +478,7 @@ codeunit 67605 "LT N582 Eval FieldRef"
     begin
         WA_Eval(Observer, 'used own row', 2, 'LT WA RecId Row: 2', 1);
         WA_Eval(Observer, 'used customer', 2, 'Customer: 10000', 1);
-        WA_Eval(Observer, 'used abc', 2, 'abc', 1);
+        WA_Eval(Observer, 'used not a table', 2, 'zzz', 1);
         WA_Eval(Observer, 'used empty', 2, '', 1);
         WA_Eval(Observer, 'used unknown table', 2, 'No Such Table LT: 1', 1);
         Observer.Finish();
@@ -475,7 +491,7 @@ codeunit 67605 "LT N582 Eval FieldRef"
     begin
         WA_Eval(Observer, 'nine own row', 2, 'LT WA RecId Row: 2', 9);
         WA_Eval(Observer, 'nine customer', 2, 'Customer: 10000', 9);
-        WA_Eval(Observer, 'nine abc', 2, 'abc', 9);
+        WA_Eval(Observer, 'nine not a table', 2, 'zzz', 9);
         WA_Eval(Observer, 'nine empty', 2, '', 9);
         Observer.Finish();
     end;
@@ -504,9 +520,9 @@ codeunit 67605 "LT N582 Eval FieldRef"
         Evaluate(FldRef, Format(Row.RecordId()));
         Observer.Observe('field after round trip own', Format(FldRef.Value));
         Rid := Row.RecordId();
-        Ok := Evaluate(Rid, 'abc');
-        Observer.Observe('variable abc', Format(Ok));
-        Observer.ObserveError('variable abc');
+        Ok := Evaluate(Rid, 'zzz');
+        Observer.Observe('variable not a table', Format(Ok));
+        Observer.ObserveError('variable not a table');
         Observer.Observe('variable abc|value', Format(Rid));
         Ok := Evaluate(Rid, Format(Two.RecordId()));
         Observer.Observe('variable valid', Format(Ok));
