@@ -1019,4 +1019,414 @@ codeunit 96940 "LT PG Jit Load Gone"
         Observer.Expect('name|code', 'InconsistentRead');
         Observer.Verify();
     end;
+
+    // Waldo run 2 (al-runner issue 6924): Delete on a partially loaded record while subscribers and the table's OnDelete trigger read a
+    // field that was not loaded. Table 97260 below (single Integer key, captions differ from names). Codeunit 97262 records, for every
+    // call of OnBeforeDeleteEvent, OnDelete and OnAfterDeleteEvent, the value or the error of reading a loaded and an unloaded field of Rec.
+    var
+        DelLog: Codeunit "LT WA Del Log";
+
+    local procedure WA_DelSeed()
+    var
+        Row: Record "LT WA Del Row";
+    begin
+        Row.DeleteAll();
+        Row.Id := 1;
+        Row.Name := 'N1';
+        Row.Info := 'I1';
+        Row.Insert();
+        Row.Id := 2;
+        Row.Name := 'N2';
+        Row.Info := 'I2';
+        Row.Insert();
+        DelLog.Wipe();
+    end;
+
+    local procedure WA_DelReport(var Observer: Codeunit "Probe Observer")
+    var
+        Row: Record "LT WA Del Row";
+        Entry: Text;
+        Index: Integer;
+    begin
+        for Index := 1 to DelLog.Count() do begin
+            Entry := DelLog.Entry(Index);
+            Observer.Observe('log ' + Format(Index), Entry);
+        end;
+        Observer.Observe('log count', Format(DelLog.Count()));
+        Observer.Observe('rows left', Format(Row.Count()));
+    end;
+
+    [TryFunction]
+    local procedure WA_TryReadInfo(var Row: Record "LT WA Del Row"; var Value: Text)
+    begin
+        Value := Row.Info;
+    end;
+
+    local procedure WA_BufferAfter(var Observer: Codeunit "Probe Observer"; var Row: Record "LT WA Del Row")
+    var
+        InfoValue: Text;
+    begin
+        ClearLastError();
+        if WA_TryReadInfo(Row, InfoValue) then
+            Observer.Observe('buffer info after', 'value ' + InfoValue)
+        else
+            Observer.ObserveError('buffer info after');
+        Observer.Observe('buffer id after', Format(Row.Id));
+    end;
+
+    [Test]
+    procedure WA_Delete_FindSetForUpdate_DeleteTrue()
+    var
+        Row: Record "LT WA Del Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_DelSeed();
+        Row.SetLoadFields(Name);
+        Row.FindSet(true);
+        repeat
+            Row.Delete(true);
+        until Row.Next() = 0;
+        WA_DelReport(Observer);
+        WA_BufferAfter(Observer, Row);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Delete_FindSetForUpdate_DeleteNoArgument()
+    var
+        Row: Record "LT WA Del Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_DelSeed();
+        Row.SetLoadFields(Name);
+        Row.FindSet(true);
+        repeat
+            Row.Delete();
+        until Row.Next() = 0;
+        WA_DelReport(Observer);
+        WA_BufferAfter(Observer, Row);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Delete_FindSetReadOnly_DeleteTrue()
+    var
+        Row: Record "LT WA Del Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_DelSeed();
+        Row.SetLoadFields(Name);
+        Row.FindSet();
+        repeat
+            Row.Delete(true);
+        until Row.Next() = 0;
+        WA_DelReport(Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Delete_Get_DeleteTrue()
+    var
+        Row: Record "LT WA Del Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_DelSeed();
+        Row.SetLoadFields(Name);
+        Row.Get(1);
+        Row.Delete(true);
+        WA_DelReport(Observer);
+        WA_BufferAfter(Observer, Row);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Delete_FindFirst_DeleteTrue()
+    var
+        Row: Record "LT WA Del Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_DelSeed();
+        Row.SetLoadFields(Name);
+        Row.FindFirst();
+        Row.Delete(true);
+        WA_DelReport(Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Delete_AllLoaded_DeleteTrue()
+    var
+        Row: Record "LT WA Del Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_DelSeed();
+        Row.FindSet(true);
+        repeat
+            Row.Delete(true);
+        until Row.Next() = 0;
+        WA_DelReport(Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_DeleteAll_True_WithSetLoadFields()
+    var
+        Row: Record "LT WA Del Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_DelSeed();
+        Row.SetLoadFields(Name);
+        Row.DeleteAll(true);
+        WA_DelReport(Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_DeleteAll_NoArgument_WithSetLoadFields()
+    var
+        Row: Record "LT WA Del Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_DelSeed();
+        Row.SetLoadFields(Name);
+        Row.DeleteAll();
+        WA_DelReport(Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_DeleteAll_True_WithFilterAndSetLoadFields()
+    var
+        Row: Record "LT WA Del Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_DelSeed();
+        Row.SetRange(Id, 2);
+        Row.SetLoadFields(Name);
+        Row.DeleteAll(true);
+        WA_DelReport(Observer);
+        Observer.Finish();
+    end;
+
+    // Controls: the same partial read and Delete on a table without trigger and subscribers (Plain) and on a table with only an OnDelete
+    // trigger (Trig). Then the unloaded field of the buffer is read after the Delete.
+    [TryFunction]
+    local procedure WA_TryReadPlainInfo(var Row: Record "LT WA Del Plain"; var Value: Text)
+    begin
+        Value := Row.Info;
+    end;
+
+    [TryFunction]
+    local procedure WA_TryReadTrigInfo(var Row: Record "LT WA Del Trig"; var Value: Text)
+    begin
+        Value := Row.Info;
+    end;
+
+    [Test]
+    procedure WA_Delete_Control_PlainTable()
+    var
+        Row: Record "LT WA Del Plain";
+        Observer: Codeunit "Probe Observer";
+        Value: Text;
+    begin
+        Row.DeleteAll();
+        Row.Id := 1;
+        Row.Name := 'N1';
+        Row.Info := 'I1';
+        Row.Insert();
+        Row.Id := 2;
+        Row.Info := 'I2';
+        Row.Insert();
+        Row.Reset();
+        Row.SetLoadFields(Name);
+        Row.FindSet(true);
+        repeat
+            Row.Delete(true);
+        until Row.Next() = 0;
+        ClearLastError();
+        if WA_TryReadPlainInfo(Row, Value) then
+            Observer.Observe('buffer info after', 'value ' + Value)
+        else
+            Observer.ObserveError('buffer info after');
+        Observer.Observe('rows left', Format(Row.Count()));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Delete_Control_PlainTable_NoArgument()
+    var
+        Row: Record "LT WA Del Plain";
+        Observer: Codeunit "Probe Observer";
+        Value: Text;
+    begin
+        Row.DeleteAll();
+        Row.Id := 1;
+        Row.Name := 'N1';
+        Row.Info := 'I1';
+        Row.Insert();
+        Row.SetLoadFields(Name);
+        Row.FindFirst();
+        Row.Delete();
+        ClearLastError();
+        if WA_TryReadPlainInfo(Row, Value) then
+            Observer.Observe('buffer info after', 'value ' + Value)
+        else
+            Observer.ObserveError('buffer info after');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Delete_Control_TriggerTable()
+    var
+        Row: Record "LT WA Del Trig";
+        Observer: Codeunit "Probe Observer";
+        Value: Text;
+    begin
+        Row.DeleteAll();
+        Row.Id := 1;
+        Row.Name := 'N1';
+        Row.Info := 'I1';
+        Row.Insert();
+        Row.SetLoadFields(Name);
+        Row.FindFirst();
+        Row.Delete(true);
+        ClearLastError();
+        if WA_TryReadTrigInfo(Row, Value) then
+            Observer.Observe('buffer info after', 'value ' + Value)
+        else
+            Observer.ObserveError('buffer info after');
+        Observer.Finish();
+    end;
+}
+
+// local objects of the WA_Delete tests (al-runner issue 6924, waldo run 2).
+table 97260 "LT WA Del Row"
+{
+    Caption = 'Wa Del Caption Table';
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { Caption = 'Row Identifier'; }
+        field(2; Name; Text[30]) { Caption = 'Name Caption'; }
+        field(3; Info; Text[30]) { Caption = 'Info Caption'; }
+    }
+
+    keys { key(PK; Id) { Clustered = true; } }
+
+    trigger OnDelete()
+    var
+        Log: Codeunit "LT WA Del Log";
+    begin
+        Log.Describe('OnDelete', Rec, 'n/a');
+    end;
+}
+
+codeunit 97261 "LT WA Del Subscribers"
+{
+    [EventSubscriber(ObjectType::Table, Database::"LT WA Del Row", 'OnBeforeDeleteEvent', '', false, false)]
+    local procedure OnBeforeDelete(var Rec: Record "LT WA Del Row"; RunTrigger: Boolean)
+    var
+        Log: Codeunit "LT WA Del Log";
+    begin
+        Log.Describe('OnBeforeDeleteEvent', Rec, Format(RunTrigger));
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"LT WA Del Row", 'OnAfterDeleteEvent', '', false, false)]
+    local procedure OnAfterDelete(var Rec: Record "LT WA Del Row"; RunTrigger: Boolean)
+    var
+        Log: Codeunit "LT WA Del Log";
+    begin
+        Log.Describe('OnAfterDeleteEvent', Rec, Format(RunTrigger));
+    end;
+}
+
+codeunit 97262 "LT WA Del Log"
+{
+    SingleInstance = true;
+
+    var
+        Entries: List of [Text];
+
+    procedure Wipe()
+    begin
+        if Entries.Count() > 0 then
+            Entries.RemoveRange(1, Entries.Count());
+    end;
+
+    procedure Count(): Integer
+    begin
+        exit(Entries.Count());
+    end;
+
+    procedure Entry(Index: Integer): Text
+    begin
+        exit(Entries.Get(Index));
+    end;
+
+    procedure Describe(EventName: Text; var Row: Record "LT WA Del Row"; RunTrigger: Text)
+    var
+        NameText: Text;
+        InfoText: Text;
+    begin
+        ClearLastError();
+        if TryReadName(Row, NameText) then
+            NameText := 'value ' + NameText
+        else
+            NameText := 'error ' + GetLastErrorCode() + ': ' + GetLastErrorText();
+        ClearLastError();
+        if TryReadInfo(Row, InfoText) then
+            InfoText := 'value ' + InfoText
+        else
+            InfoText := 'error ' + GetLastErrorCode() + ': ' + GetLastErrorText();
+        ClearLastError();
+        Entries.Add(EventName + ' | trigger ' + RunTrigger + ' | id ' + Format(Row.Id) + ' | name ' + NameText + ' | info ' + InfoText);
+    end;
+
+    [TryFunction]
+    local procedure TryReadName(var Row: Record "LT WA Del Row"; var Value: Text)
+    begin
+        Value := Row.Name;
+    end;
+
+    [TryFunction]
+    local procedure TryReadInfo(var Row: Record "LT WA Del Row"; var Value: Text)
+    begin
+        Value := Row.Info;
+    end;
+}
+
+table 97263 "LT WA Del Plain"
+{
+    Caption = 'Wa Del Plain Caption';
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { Caption = 'Row Identifier'; }
+        field(2; Name; Text[30]) { Caption = 'Name Caption'; }
+        field(3; Info; Text[30]) { Caption = 'Info Caption'; }
+    }
+
+    keys { key(PK; Id) { Clustered = true; } }
+}
+
+table 97264 "LT WA Del Trig"
+{
+    Caption = 'Wa Del Trigger Caption';
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { Caption = 'Row Identifier'; }
+        field(2; Name; Text[30]) { Caption = 'Name Caption'; }
+        field(3; Info; Text[30]) { Caption = 'Info Caption'; }
+    }
+
+    keys { key(PK; Id) { Clustered = true; } }
+
+    trigger OnDelete()
+    begin
+        Name := Name + '!';
+    end;
 }
