@@ -4,7 +4,14 @@
 //   XH Handler C (97840, app XHandler C) and XH Handler D (97845, app XHandler D) (both published, neither depends on this app and this app depends on neither);
 //   LT BI DH Default (81693) and LT BI DH Own (81694) from BiTestHandlerDefault.al
 // Corpus issue (al-runner 7181, runtime 18): a DefaultTestHandler extension declared in another app than the test codeunit.
-// Probe: written against BC 29.0 (CI run of the batcher). Pinned: the handler apps are ordered HD (XH Handler D), HC, HA, then this app's default handler (D) and TestHandlers handler (O).
+// Probe: written against BC 29.0 (CI, batcher run). A DefaultTestHandler extension declared in another app than the test codeunit is honoured:
+//   - Every installed default handler runs for every test codeunit, whichever app declares it: XH Handler A (a dependency of this app), C and D (apps
+//     that hold no tests and that this app does not depend on) and this app's own LT BI DH Default. Plain and TestHandlers codeunits alike.
+//   - Order of the handlers, identical on every callback: D, C, A, this app's default handler, then the TestHandlers handler (LT BI DH Own). The
+//     callbacks of one test codeunit run in the order bCU, (bP, body, aP) per procedure, aCU. Each handler instance counts its calls (n=...) from 1
+//     per test codeunit, so handler state lives for one test codeunit run.
+//   - Success is Yes in the After callbacks of a passing procedure and codeunit (the reader codeunit sees them after the run).
+//   - The test codeunit itself sees no callback of its own after-procedure; the last After callbacks of a codeunit are readable only from a later one.
 // BC versions: 29
 #if BC29PLUS
 // Test codeunit without TestHandlers. The default handlers of apps A (a dependency of this app), C and D (unrelated apps, no tests) and this app's own (LT BI DH Default)
