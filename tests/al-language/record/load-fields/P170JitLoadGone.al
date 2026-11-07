@@ -18,6 +18,13 @@
 // - The row removed by Delete, DeleteAll with a filter, DeleteAll(true), DeleteAll without a filter or a Rename of the key: same error.
 // - Row deleted and inserted again with the same key: error InconsistentRead ("The field '$systemId' on table ... has changed in the
 //   database between initial and JIT load").
+// Delete of a partially loaded record (al-runner issue 6924, waldo run 2; WA_Delete* tests at the end of the file, tables 97260 to 97264): the record is read with
+//   SetLoadFields(Name), then removed with Delete(true), Delete(), DeleteAll(true) or DeleteAll() (also after Get, FindFirst, FindSet and FindSet(true), with a filter, and with
+//   all fields loaded). OnBeforeDeleteEvent, the table's OnDelete trigger and OnAfterDeleteEvent each read a loaded and an unloaded field of Rec. Measured on BC 27.5, 28.5 and 29.0
+//   (identical): every one of them reads the unloaded field Info without error and gets the stored value (the platform loads the whole row for the delete), also in
+//   OnAfterDeleteEvent after the row is gone. RunTrigger is Yes for Delete(true) and DeleteAll(true) and No for Delete() and DeleteAll(); the OnDelete trigger runs only in
+//   the first case, the two events run in both. Order: OnBeforeDeleteEvent, OnDelete, OnAfterDeleteEvent, per row. After the Delete the caller's own buffer also reads the unloaded
+//   field without error (the stored value), on a table with subscribers and trigger, on a table with only an OnDelete trigger and on a table with neither.
 // BC versions: 27+
 
 table 96940 "LT PG Code Row"
@@ -1088,7 +1095,17 @@ codeunit 96940 "LT PG Jit Load Gone"
         until Row.Next() = 0;
         WA_DelReport(Observer);
         WA_BufferAfter(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log 1', 'OnBeforeDeleteEvent | trigger Yes | id 1 | name value N1 | info value I1');
+        Observer.Expect('log 2', 'OnDelete | trigger n/a | id 1 | name value N1 | info value I1');
+        Observer.Expect('log 3', 'OnAfterDeleteEvent | trigger Yes | id 1 | name value N1 | info value I1');
+        Observer.Expect('log 4', 'OnBeforeDeleteEvent | trigger Yes | id 2 | name value N2 | info value I2');
+        Observer.Expect('log 5', 'OnDelete | trigger n/a | id 2 | name value N2 | info value I2');
+        Observer.Expect('log 6', 'OnAfterDeleteEvent | trigger Yes | id 2 | name value N2 | info value I2');
+        Observer.Expect('log count', '6');
+        Observer.Expect('rows left', '0');
+        Observer.Expect('buffer info after', 'value I2');
+        Observer.Expect('buffer id after', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1105,7 +1122,15 @@ codeunit 96940 "LT PG Jit Load Gone"
         until Row.Next() = 0;
         WA_DelReport(Observer);
         WA_BufferAfter(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log 1', 'OnBeforeDeleteEvent | trigger No | id 1 | name value N1 | info value I1');
+        Observer.Expect('log 2', 'OnAfterDeleteEvent | trigger No | id 1 | name value N1 | info value I1');
+        Observer.Expect('log 3', 'OnBeforeDeleteEvent | trigger No | id 2 | name value N2 | info value I2');
+        Observer.Expect('log 4', 'OnAfterDeleteEvent | trigger No | id 2 | name value N2 | info value I2');
+        Observer.Expect('log count', '4');
+        Observer.Expect('rows left', '0');
+        Observer.Expect('buffer info after', 'value I2');
+        Observer.Expect('buffer id after', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1121,7 +1146,15 @@ codeunit 96940 "LT PG Jit Load Gone"
             Row.Delete(true);
         until Row.Next() = 0;
         WA_DelReport(Observer);
-        Observer.Finish();
+        Observer.Expect('log 1', 'OnBeforeDeleteEvent | trigger Yes | id 1 | name value N1 | info value I1');
+        Observer.Expect('log 2', 'OnDelete | trigger n/a | id 1 | name value N1 | info value I1');
+        Observer.Expect('log 3', 'OnAfterDeleteEvent | trigger Yes | id 1 | name value N1 | info value I1');
+        Observer.Expect('log 4', 'OnBeforeDeleteEvent | trigger Yes | id 2 | name value N2 | info value I2');
+        Observer.Expect('log 5', 'OnDelete | trigger n/a | id 2 | name value N2 | info value I2');
+        Observer.Expect('log 6', 'OnAfterDeleteEvent | trigger Yes | id 2 | name value N2 | info value I2');
+        Observer.Expect('log count', '6');
+        Observer.Expect('rows left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1136,7 +1169,14 @@ codeunit 96940 "LT PG Jit Load Gone"
         Row.Delete(true);
         WA_DelReport(Observer);
         WA_BufferAfter(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log 1', 'OnBeforeDeleteEvent | trigger Yes | id 1 | name value N1 | info value I1');
+        Observer.Expect('log 2', 'OnDelete | trigger n/a | id 1 | name value N1 | info value I1');
+        Observer.Expect('log 3', 'OnAfterDeleteEvent | trigger Yes | id 1 | name value N1 | info value I1');
+        Observer.Expect('log count', '3');
+        Observer.Expect('rows left', '1');
+        Observer.Expect('buffer info after', 'value I1');
+        Observer.Expect('buffer id after', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1150,7 +1190,12 @@ codeunit 96940 "LT PG Jit Load Gone"
         Row.FindFirst();
         Row.Delete(true);
         WA_DelReport(Observer);
-        Observer.Finish();
+        Observer.Expect('log 1', 'OnBeforeDeleteEvent | trigger Yes | id 1 | name value N1 | info value I1');
+        Observer.Expect('log 2', 'OnDelete | trigger n/a | id 1 | name value N1 | info value I1');
+        Observer.Expect('log 3', 'OnAfterDeleteEvent | trigger Yes | id 1 | name value N1 | info value I1');
+        Observer.Expect('log count', '3');
+        Observer.Expect('rows left', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1165,7 +1210,15 @@ codeunit 96940 "LT PG Jit Load Gone"
             Row.Delete(true);
         until Row.Next() = 0;
         WA_DelReport(Observer);
-        Observer.Finish();
+        Observer.Expect('log 1', 'OnBeforeDeleteEvent | trigger Yes | id 1 | name value N1 | info value I1');
+        Observer.Expect('log 2', 'OnDelete | trigger n/a | id 1 | name value N1 | info value I1');
+        Observer.Expect('log 3', 'OnAfterDeleteEvent | trigger Yes | id 1 | name value N1 | info value I1');
+        Observer.Expect('log 4', 'OnBeforeDeleteEvent | trigger Yes | id 2 | name value N2 | info value I2');
+        Observer.Expect('log 5', 'OnDelete | trigger n/a | id 2 | name value N2 | info value I2');
+        Observer.Expect('log 6', 'OnAfterDeleteEvent | trigger Yes | id 2 | name value N2 | info value I2');
+        Observer.Expect('log count', '6');
+        Observer.Expect('rows left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1178,7 +1231,15 @@ codeunit 96940 "LT PG Jit Load Gone"
         Row.SetLoadFields(Name);
         Row.DeleteAll(true);
         WA_DelReport(Observer);
-        Observer.Finish();
+        Observer.Expect('log 1', 'OnBeforeDeleteEvent | trigger Yes | id 1 | name value N1 | info value I1');
+        Observer.Expect('log 2', 'OnDelete | trigger n/a | id 1 | name value N1 | info value I1');
+        Observer.Expect('log 3', 'OnAfterDeleteEvent | trigger Yes | id 1 | name value N1 | info value I1');
+        Observer.Expect('log 4', 'OnBeforeDeleteEvent | trigger Yes | id 2 | name value N2 | info value I2');
+        Observer.Expect('log 5', 'OnDelete | trigger n/a | id 2 | name value N2 | info value I2');
+        Observer.Expect('log 6', 'OnAfterDeleteEvent | trigger Yes | id 2 | name value N2 | info value I2');
+        Observer.Expect('log count', '6');
+        Observer.Expect('rows left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1191,7 +1252,13 @@ codeunit 96940 "LT PG Jit Load Gone"
         Row.SetLoadFields(Name);
         Row.DeleteAll();
         WA_DelReport(Observer);
-        Observer.Finish();
+        Observer.Expect('log 1', 'OnBeforeDeleteEvent | trigger No | id 1 | name value N1 | info value I1');
+        Observer.Expect('log 2', 'OnAfterDeleteEvent | trigger No | id 1 | name value N1 | info value I1');
+        Observer.Expect('log 3', 'OnBeforeDeleteEvent | trigger No | id 2 | name value N2 | info value I2');
+        Observer.Expect('log 4', 'OnAfterDeleteEvent | trigger No | id 2 | name value N2 | info value I2');
+        Observer.Expect('log count', '4');
+        Observer.Expect('rows left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1205,7 +1272,12 @@ codeunit 96940 "LT PG Jit Load Gone"
         Row.SetLoadFields(Name);
         Row.DeleteAll(true);
         WA_DelReport(Observer);
-        Observer.Finish();
+        Observer.Expect('log 1', 'OnBeforeDeleteEvent | trigger Yes | id 2 | name value N2 | info value I2');
+        Observer.Expect('log 2', 'OnDelete | trigger n/a | id 2 | name value N2 | info value I2');
+        Observer.Expect('log 3', 'OnAfterDeleteEvent | trigger Yes | id 2 | name value N2 | info value I2');
+        Observer.Expect('log count', '3');
+        Observer.Expect('rows left', '1');
+        Observer.Verify();
     end;
 
     // Controls: the same partial read and Delete on a table without trigger and subscribers (Plain) and on a table with only an OnDelete
@@ -1249,7 +1321,9 @@ codeunit 96940 "LT PG Jit Load Gone"
         else
             Observer.ObserveError('buffer info after');
         Observer.Observe('rows left', Format(Row.Count()));
-        Observer.Finish();
+        Observer.Expect('buffer info after', 'value I2');
+        Observer.Expect('rows left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1272,7 +1346,8 @@ codeunit 96940 "LT PG Jit Load Gone"
             Observer.Observe('buffer info after', 'value ' + Value)
         else
             Observer.ObserveError('buffer info after');
-        Observer.Finish();
+        Observer.Expect('buffer info after', 'value I1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1295,7 +1370,8 @@ codeunit 96940 "LT PG Jit Load Gone"
             Observer.Observe('buffer info after', 'value ' + Value)
         else
             Observer.ObserveError('buffer info after');
-        Observer.Finish();
+        Observer.Expect('buffer info after', 'value I1');
+        Observer.Verify();
     end;
 }
 
