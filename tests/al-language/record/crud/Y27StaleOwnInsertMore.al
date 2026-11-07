@@ -1112,8 +1112,8 @@ codeunit 96962 "LT Y27B Stale Insert More"
         exit(Row.Note + '|' + Row.F1 + '|' + Row.F2 + '|' + Row.F3);
     end;
 
-    // Everything up to (not including) the final write of A. RunWrites: the Run codeunit assigns F1 and modifies. CWrites: C assigns F2 and modifies.
-    local procedure WA_Prepare(var A: Record "LT WA Stale Row"; RunWrites: Boolean; CWrites: Boolean; InitialModify: Boolean)
+    // Everything up to (not including) the final write of A. CommitAfterRun: an explicit Commit right after the Run codeunit. RunWrites: the Run codeunit assigns F1 and modifies. CWrites: C assigns F2 and modifies.
+    local procedure WA_Prepare(var A: Record "LT WA Stale Row"; RunWrites: Boolean; CWrites: Boolean; InitialModify: Boolean; CommitAfterRun: Boolean)
     var
         B: Record "LT WA Stale Row";
         C: Record "LT WA Stale Row";
@@ -1138,6 +1138,8 @@ codeunit 96962 "LT Y27B Stale Insert More"
         KeyRow."No." := 'A';
         KeyRow.Flag := RunWrites;
         Codeunit.Run(Codeunit::"LT WA Stale Run", KeyRow);
+        if CommitAfterRun then
+            Commit();
         C.SetRange("No.", 'A');
         C.FindFirst();
         if CWrites then begin
@@ -1188,7 +1190,7 @@ codeunit 96962 "LT Y27B Stale Insert More"
         A: Record "LT WA Stale Row";
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Prepare(A, true, true, true);
+        WA_Prepare(A, true, true, true, false);
         WA_Final(A, 1);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
@@ -1201,7 +1203,7 @@ codeunit 96962 "LT Y27B Stale Insert More"
         A: Record "LT WA Stale Row";
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Prepare(A, true, true, true);
+        WA_Prepare(A, true, true, true, false);
         asserterror WA_Final(A, 1);
         Observer.ObserveError('write');
         WA_After(Observer, A);
@@ -1214,7 +1216,7 @@ codeunit 96962 "LT Y27B Stale Insert More"
         A: Record "LT WA Stale Row";
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Prepare(A, true, false, true);
+        WA_Prepare(A, true, false, true, false);
         WA_Final(A, 1);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
@@ -1227,7 +1229,7 @@ codeunit 96962 "LT Y27B Stale Insert More"
         A: Record "LT WA Stale Row";
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Prepare(A, true, false, true);
+        WA_Prepare(A, true, false, true, false);
         asserterror WA_Final(A, 1);
         Observer.ObserveError('write');
         WA_After(Observer, A);
@@ -1240,7 +1242,7 @@ codeunit 96962 "LT Y27B Stale Insert More"
         A: Record "LT WA Stale Row";
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Prepare(A, false, true, true);
+        WA_Prepare(A, false, true, true, false);
         WA_Final(A, 1);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
@@ -1253,7 +1255,7 @@ codeunit 96962 "LT Y27B Stale Insert More"
         A: Record "LT WA Stale Row";
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Prepare(A, false, true, true);
+        WA_Prepare(A, false, true, true, false);
         asserterror WA_Final(A, 1);
         Observer.ObserveError('write');
         WA_After(Observer, A);
@@ -1266,7 +1268,7 @@ codeunit 96962 "LT Y27B Stale Insert More"
         A: Record "LT WA Stale Row";
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Prepare(A, false, false, true);
+        WA_Prepare(A, false, false, true, false);
         WA_Final(A, 1);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
@@ -1279,7 +1281,7 @@ codeunit 96962 "LT Y27B Stale Insert More"
         A: Record "LT WA Stale Row";
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Prepare(A, false, false, true);
+        WA_Prepare(A, false, false, true, false);
         asserterror WA_Final(A, 1);
         Observer.ObserveError('write');
         WA_After(Observer, A);
@@ -1292,7 +1294,7 @@ codeunit 96962 "LT Y27B Stale Insert More"
         A: Record "LT WA Stale Row";
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Prepare(A, true, true, false);
+        WA_Prepare(A, true, true, false, false);
         WA_Final(A, 1);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
@@ -1305,7 +1307,7 @@ codeunit 96962 "LT Y27B Stale Insert More"
         A: Record "LT WA Stale Row";
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Prepare(A, true, true, false);
+        WA_Prepare(A, true, true, false, false);
         asserterror WA_Final(A, 1);
         Observer.ObserveError('write');
         WA_After(Observer, A);
@@ -1318,7 +1320,7 @@ codeunit 96962 "LT Y27B Stale Insert More"
         A: Record "LT WA Stale Row";
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Prepare(A, true, false, false);
+        WA_Prepare(A, true, false, false, false);
         WA_Final(A, 1);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
@@ -1331,7 +1333,7 @@ codeunit 96962 "LT Y27B Stale Insert More"
         A: Record "LT WA Stale Row";
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Prepare(A, true, false, false);
+        WA_Prepare(A, true, false, false, false);
         asserterror WA_Final(A, 1);
         Observer.ObserveError('write');
         WA_After(Observer, A);
@@ -1344,7 +1346,7 @@ codeunit 96962 "LT Y27B Stale Insert More"
         A: Record "LT WA Stale Row";
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Prepare(A, true, true, true);
+        WA_Prepare(A, true, true, true, false);
         WA_Final(A, 2);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
@@ -1357,7 +1359,7 @@ codeunit 96962 "LT Y27B Stale Insert More"
         A: Record "LT WA Stale Row";
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Prepare(A, true, true, true);
+        WA_Prepare(A, true, true, true, false);
         asserterror WA_Final(A, 2);
         Observer.ObserveError('write');
         WA_After(Observer, A);
@@ -1370,7 +1372,7 @@ codeunit 96962 "LT Y27B Stale Insert More"
         A: Record "LT WA Stale Row";
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Prepare(A, true, false, true);
+        WA_Prepare(A, true, false, true, false);
         WA_Final(A, 2);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
@@ -1383,7 +1385,7 @@ codeunit 96962 "LT Y27B Stale Insert More"
         A: Record "LT WA Stale Row";
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Prepare(A, true, false, true);
+        WA_Prepare(A, true, false, true, false);
         asserterror WA_Final(A, 2);
         Observer.ObserveError('write');
         WA_After(Observer, A);
@@ -1396,7 +1398,7 @@ codeunit 96962 "LT Y27B Stale Insert More"
         A: Record "LT WA Stale Row";
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Prepare(A, true, true, true);
+        WA_Prepare(A, true, true, true, false);
         WA_Final(A, 3);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
@@ -1409,7 +1411,7 @@ codeunit 96962 "LT Y27B Stale Insert More"
         A: Record "LT WA Stale Row";
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Prepare(A, true, true, true);
+        WA_Prepare(A, true, true, true, false);
         asserterror WA_Final(A, 3);
         Observer.ObserveError('write');
         WA_After(Observer, A);
@@ -1422,7 +1424,7 @@ codeunit 96962 "LT Y27B Stale Insert More"
         A: Record "LT WA Stale Row";
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Prepare(A, true, false, true);
+        WA_Prepare(A, true, false, true, false);
         WA_Final(A, 3);
         Observer.Observe('write', 'ok');
         WA_After(Observer, A);
@@ -1435,8 +1437,60 @@ codeunit 96962 "LT Y27B Stale Insert More"
         A: Record "LT WA Stale Row";
         Observer: Codeunit "Probe Observer";
     begin
-        WA_Prepare(A, true, false, true);
+        WA_Prepare(A, true, false, true, false);
         asserterror WA_Final(A, 3);
+        Observer.ObserveError('write');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_CommitAfterRun_NoCWrite_Accepted()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, true, false, true, true);
+        WA_Final(A, 1);
+        Observer.Observe('write', 'ok');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_CommitAfterRun_NoCWrite_Refused()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, true, false, true, true);
+        asserterror WA_Final(A, 1);
+        Observer.ObserveError('write');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_CommitAfterRun_Accepted()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, true, true, true, true);
+        WA_Final(A, 1);
+        Observer.Observe('write', 'ok');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_CommitAfterRun_Refused()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, true, true, true, true);
+        asserterror WA_Final(A, 1);
         Observer.ObserveError('write');
         WA_After(Observer, A);
         Observer.Finish();
