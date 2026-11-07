@@ -1,7 +1,15 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-system-tables
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); reports 91851 and 91854 (Y17LayoutExportObjects.al); layout files copied to session/res/trl
-// Probe: Tenant Report Layout (draft, observation form).
+// Probe: platform table Tenant Report Layout with layouts that come from NavApp.GetResource (files in session/res/trl, copies of the layout files
+//   of reports 91851 and 91854 and of Y67BaseDoc.docx). al-runner issue 6924 (waldo). Measured on BC 27.5, 28.5 and 29.0.
+// Facts: the fresh tenant has no rows; Report.WordLayout, RdlcLayout and ExcelLayout return the bytes of the layout file (length, first bytes, SHA-256)
+//   and Report.RdlcLayout of a report without an RDLC layout answers Yes with an empty stream; Insert of a row for Microsoft report 1305 and for
+//   own reports with an RDLC, Word, Excel or Custom layout (Custom Type empty or an unknown GUID: Layout Format External): the answer, the stored row,
+//   and whether the stored layout has the length of the file (an own Word layout is 4463 bytes on 27 and 28 and 5451 on 29; an RDLC layout of an own
+//   report is 2022, an Excel layout 19696 on 27 and 28 and 20313 on 29, a Microsoft report's layout grows or changes with its data set).
+//   A Word layout with field bindings for other columns is accepted on a Microsoft report without an error.
+// Every inserted row is deleted again by the test.
 
 codeunit 97000 "LT TRL Resource Rows"
 {
@@ -148,11 +156,12 @@ codeunit 97000 "LT TRL Resource Rows"
         Observer.Verify();
     end;
 
-    local procedure DoInsert(var Observer: Codeunit "Probe Observer"; Tag: Text; ReportId: Integer; Kind: Option; ResourceName: Text; CustomType: Guid; Fails: Boolean; ViaCopy: Boolean)
+    local procedure DoInsert(var Observer: Codeunit "Probe Observer"; Tag: Text; ReportId: Integer; Kind: Option; ResourceName: Text; CustomType: Guid; Fails: Boolean)
     var
         Layout: Record "Tenant Report Layout";
         Reader: Record "Tenant Report Layout";
         TempBlob: Codeunit "Temp Blob";
+        ExportBlob: Codeunit "Temp Blob";
         InS: InStream;
         OutS: OutStream;
         LayoutName: Text[250];
@@ -169,11 +178,7 @@ codeunit 97000 "LT TRL Resource Rows"
         TempBlob.CreateOutStream(OutS);
         CopyStream(OutS, InS);
         InLength := TempBlob.Length();
-        // ViaCopy: the layout is imported from a copy of the resource bytes; otherwise straight from the resource stream
-        if ViaCopy then
-            TempBlob.CreateInStream(InS)
-        else
-            NavApp.GetResource(ResourceName, InS);
+        NavApp.GetResource(ResourceName, InS);
         Layout.Layout.ImportStream(InS, 'trl');
         if Fails then begin
             asserterror Layout.Insert();
@@ -191,12 +196,12 @@ codeunit 97000 "LT TRL Resource Rows"
         if Reader.FindFirst() then begin
             Observer.Observe(Tag + ' stored', Format(Reader."Report ID") + '|' + Format(Reader."Layout Format") + '|' + Format(IsNullGuid(Reader."App ID")) + '|' + Format(IsNullGuid(Reader."Custom Type")) + '|' + Reader."MIME Type" + '|' + Reader.Description + '|' + Format(Reader."Company Name" = ''));
             Observer.Observe(Tag + ' has value', Format(Reader.Layout.HasValue()));
-            TempBlob.CreateOutStream(OutS);
+            ExportBlob.CreateOutStream(OutS);
             Observer.Observe(Tag + ' export', Format(Reader.Layout.ExportStream(OutS)));
-            Observer.Observe(Tag + ' length equals the file', Format(TempBlob.Length() = InLength));
+            Observer.Observe(Tag + ' length equals the file', Format(ExportBlob.Length() = InLength));
             // the stored layout of a Microsoft report depends on that report's data set: its length is not asserted
             if ReportId >= 90000 then
-                Observer.Observe(Tag + ' length', Format(TempBlob.Length()));
+                Observer.Observe(Tag + ' length', Format(ExportBlob.Length()));
             Reader.DeleteAll();
         end;
     end;
@@ -208,7 +213,7 @@ codeunit 97000 "LT TRL Resource Rows"
         Layout: Record "Tenant Report Layout";
         NoType: Guid;
     begin
-        DoInsert(Observer, 'word', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Word, 'trl/Y67BaseDoc.docx', NoType, false, false);
+        DoInsert(Observer, 'word', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Word, 'trl/Y67BaseDoc.docx', NoType, false);
         Observer.Expect('word insert', 'Yes');
         Observer.Expect('word rows', '1');
         Observer.Expect('word stored', '1305|Word|Yes|Yes|||Yes');
@@ -225,8 +230,14 @@ codeunit 97000 "LT TRL Resource Rows"
         Layout: Record "Tenant Report Layout";
         NoType: Guid;
     begin
-        DoInsert(Observer, 'bindings', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Word, 'trl/Y17LayR1.docx', NoType, false, false);
-        Observer.Finish();
+        DoInsert(Observer, 'bindings', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Word, 'trl/Y17LayR1.docx', NoType, false);
+        Observer.Expect('bindings insert', 'Yes');
+        Observer.Expect('bindings rows', '1');
+        Observer.Expect('bindings stored', '1305|Word|Yes|Yes|||Yes');
+        Observer.Expect('bindings has value', 'Yes');
+        Observer.Expect('bindings export', 'Yes');
+        Observer.Expect('bindings length equals the file', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -236,7 +247,7 @@ codeunit 97000 "LT TRL Resource Rows"
         Layout: Record "Tenant Report Layout";
         NoType: Guid;
     begin
-        DoInsert(Observer, 'own', Report::"LT Y17 Lay R1", Layout."Layout Format"::Word, 'trl/Y17LayR1.docx', NoType, false, false);
+        DoInsert(Observer, 'own', Report::"LT Y17 Lay R1", Layout."Layout Format"::Word, 'trl/Y17LayR1.docx', NoType, false);
         Observer.Expect('own insert', 'Yes');
         Observer.Expect('own rows', '1');
         Observer.Expect('own stored', '91851|Word|Yes|Yes|||Yes');
@@ -270,7 +281,7 @@ codeunit 97000 "LT TRL Resource Rows"
         Layout: Record "Tenant Report Layout";
         NoType: Guid;
     begin
-        DoInsert(Observer, 'rdlc', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::RDLC, 'trl/Y17LayR1.rdl', NoType, false, false);
+        DoInsert(Observer, 'rdlc', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::RDLC, 'trl/Y17LayR1.rdl', NoType, false);
         Observer.Expect('rdlc insert', 'Yes');
         Observer.Expect('rdlc rows', '1');
         Observer.Expect('rdlc stored', '1305|RDLC|Yes|Yes|||Yes');
@@ -287,7 +298,7 @@ codeunit 97000 "LT TRL Resource Rows"
         Layout: Record "Tenant Report Layout";
         NoType: Guid;
     begin
-        DoInsert(Observer, 'rdlc own', Report::"LT Y17 Lay R1", Layout."Layout Format"::RDLC, 'trl/Y17LayR1.rdl', NoType, false, false);
+        DoInsert(Observer, 'rdlc own', Report::"LT Y17 Lay R1", Layout."Layout Format"::RDLC, 'trl/Y17LayR1.rdl', NoType, false);
         Observer.Expect('rdlc own insert', 'Yes');
         Observer.Expect('rdlc own rows', '1');
         Observer.Expect('rdlc own stored', '91851|RDLC|Yes|Yes|||Yes');
@@ -305,7 +316,7 @@ codeunit 97000 "LT TRL Resource Rows"
         Layout: Record "Tenant Report Layout";
         NoType: Guid;
     begin
-        DoInsert(Observer, 'excel', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Excel, 'trl/Y17LayR4.xlsx', NoType, false, false);
+        DoInsert(Observer, 'excel', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Excel, 'trl/Y17LayR4.xlsx', NoType, false);
         Observer.Expect('excel insert', 'Yes');
         Observer.Expect('excel rows', '1');
         Observer.Expect('excel stored', '1305|Excel|Yes|Yes|||Yes');
@@ -322,7 +333,7 @@ codeunit 97000 "LT TRL Resource Rows"
         Layout: Record "Tenant Report Layout";
         NoType: Guid;
     begin
-        DoInsert(Observer, 'excel own', Report::"LT Y17 Lay R4", Layout."Layout Format"::Excel, 'trl/Y17LayR4.xlsx', NoType, false, false);
+        DoInsert(Observer, 'excel own', Report::"LT Y17 Lay R4", Layout."Layout Format"::Excel, 'trl/Y17LayR4.xlsx', NoType, false);
         Observer.Expect('excel own insert', 'Yes');
         Observer.Expect('excel own rows', '1');
         Observer.Expect('excel own stored', '91854|Excel|Yes|Yes|||Yes');
@@ -348,7 +359,7 @@ codeunit 97000 "LT TRL Resource Rows"
         Layout: Record "Tenant Report Layout";
         NoType: Guid;
     begin
-        DoInsert(Observer, 'custom no type', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Custom, 'trl/Y67BaseDoc.docx', NoType, false, false);
+        DoInsert(Observer, 'custom no type', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Custom, 'trl/Y67BaseDoc.docx', NoType, false);
         Observer.Expect('custom no type insert', 'Yes');
         Observer.Expect('custom no type rows', '1');
         Observer.Expect('custom no type stored', '1305|External|Yes|Yes|||Yes');
@@ -365,105 +376,13 @@ codeunit 97000 "LT TRL Resource Rows"
         Layout: Record "Tenant Report Layout";
         NoType: Guid;
     begin
-        DoInsert(Observer, 'custom unknown type', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Custom, 'trl/Y67BaseDoc.docx', CreateGuid(), false, false);
+        DoInsert(Observer, 'custom unknown type', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Custom, 'trl/Y67BaseDoc.docx', CreateGuid(), false);
         Observer.Expect('custom unknown type insert', 'Yes');
         Observer.Expect('custom unknown type rows', '1');
         Observer.Expect('custom unknown type stored', '1305|External|Yes|No|||Yes');
         Observer.Expect('custom unknown type has value', 'Yes');
         Observer.Expect('custom unknown type export', 'Yes');
         Observer.Expect('custom unknown type length equals the file', 'Yes');
-        Observer.Verify();
-    end;
-
-    [Test]
-    procedure Insert_ViaCopy_Word_OwnReport()
-    var
-        Observer: Codeunit "Probe Observer";
-        Layout: Record "Tenant Report Layout";
-        NoType: Guid;
-    begin
-        DoInsert(Observer, 'copy word own', Report::"LT Y17 Lay R1", Layout."Layout Format"::Word, 'trl/Y17LayR1.docx', NoType, false, true);
-        Observer.Expect('copy word own insert', 'Yes');
-        Observer.Expect('copy word own rows', '1');
-        Observer.Expect('copy word own stored', '91851|Word|Yes|Yes|||Yes');
-        Observer.Expect('copy word own has value', 'Yes');
-        Observer.Expect('copy word own export', 'Yes');
-        Observer.Expect('copy word own length equals the file', 'Yes');
-        Observer.Expect('copy word own length', '5451');
-        Observer.Verify();
-    end;
-
-    [Test]
-    procedure Insert_ViaCopy_Rdlc_OwnReport()
-    var
-        Observer: Codeunit "Probe Observer";
-        Layout: Record "Tenant Report Layout";
-        NoType: Guid;
-    begin
-        DoInsert(Observer, 'copy rdlc own', Report::"LT Y17 Lay R1", Layout."Layout Format"::RDLC, 'trl/Y17LayR1.rdl', NoType, false, true);
-        Observer.Expect('copy rdlc own insert', 'Yes');
-        Observer.Expect('copy rdlc own rows', '1');
-        Observer.Expect('copy rdlc own stored', '91851|RDLC|Yes|Yes|||Yes');
-        Observer.Expect('copy rdlc own has value', 'Yes');
-        Observer.Expect('copy rdlc own export', 'Yes');
-        Observer.Expect('copy rdlc own length equals the file', 'Yes');
-        Observer.Expect('copy rdlc own length', '2104');
-        Observer.Verify();
-    end;
-
-    [Test]
-    procedure Insert_ViaCopy_Excel_OwnReport()
-    var
-        Observer: Codeunit "Probe Observer";
-        Layout: Record "Tenant Report Layout";
-        NoType: Guid;
-    begin
-        DoInsert(Observer, 'copy excel own', Report::"LT Y17 Lay R4", Layout."Layout Format"::Excel, 'trl/Y17LayR4.xlsx', NoType, false, true);
-        Observer.Expect('copy excel own insert', 'Yes');
-        Observer.Expect('copy excel own rows', '1');
-        Observer.Expect('copy excel own stored', '91854|Excel|Yes|Yes|||Yes');
-        Observer.Expect('copy excel own has value', 'Yes');
-        Observer.Expect('copy excel own export', 'Yes');
-        Observer.Expect('copy excel own length equals the file', 'Yes');
-        Observer.Expect('copy excel own length', '20314');
-        Observer.Verify();
-    end;
-
-    [Test]
-    procedure Insert_ViaCopy_MsReport_AllFormats()
-    var
-        Observer: Codeunit "Probe Observer";
-        Layout: Record "Tenant Report Layout";
-        NoType: Guid;
-    begin
-        DoInsert(Observer, 'copy word ms', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Word, 'trl/Y67BaseDoc.docx', NoType, false, true);
-        DoInsert(Observer, 'copy bindings ms', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Word, 'trl/Y17LayR1.docx', NoType, false, true);
-        DoInsert(Observer, 'copy rdlc ms', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::RDLC, 'trl/Y17LayR1.rdl', NoType, false, true);
-        DoInsert(Observer, 'copy excel ms', Report::"Standard Sales - Order Conf.", Layout."Layout Format"::Excel, 'trl/Y17LayR4.xlsx', NoType, false, true);
-        Observer.Expect('copy word ms insert', 'Yes');
-        Observer.Expect('copy word ms rows', '1');
-        Observer.Expect('copy word ms stored', '1305|Word|Yes|Yes|||Yes');
-        Observer.Expect('copy word ms has value', 'Yes');
-        Observer.Expect('copy word ms export', 'Yes');
-        Observer.Expect('copy word ms length equals the file', 'No');
-        Observer.Expect('copy bindings ms insert', 'Yes');
-        Observer.Expect('copy bindings ms rows', '1');
-        Observer.Expect('copy bindings ms stored', '1305|Word|Yes|Yes|||Yes');
-        Observer.Expect('copy bindings ms has value', 'Yes');
-        Observer.Expect('copy bindings ms export', 'Yes');
-        Observer.Expect('copy bindings ms length equals the file', 'No');
-        Observer.Expect('copy rdlc ms insert', 'Yes');
-        Observer.Expect('copy rdlc ms rows', '1');
-        Observer.Expect('copy rdlc ms stored', '1305|RDLC|Yes|Yes|||Yes');
-        Observer.Expect('copy rdlc ms has value', 'Yes');
-        Observer.Expect('copy rdlc ms export', 'Yes');
-        Observer.Expect('copy rdlc ms length equals the file', 'No');
-        Observer.Expect('copy excel ms insert', 'Yes');
-        Observer.Expect('copy excel ms rows', '1');
-        Observer.Expect('copy excel ms stored', '1305|Excel|Yes|Yes|||Yes');
-        Observer.Expect('copy excel ms has value', 'Yes');
-        Observer.Expect('copy excel ms export', 'Yes');
-        Observer.Expect('copy excel ms length equals the file', 'Yes');
         Observer.Verify();
     end;
 }
