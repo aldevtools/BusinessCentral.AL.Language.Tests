@@ -1101,4 +1101,377 @@ codeunit 96962 "LT Y27B Stale Insert More"
         Observer.Expect('log', '0');
         Observer.Verify();
     end;
+
+    // Waldo run 2 (al-runner issue 6924): the exact sequence of the reporter, own table 97250 below.
+    //   A: Insert(true), Modify(true) (field Note), no Commit.   B: Get, then an explicit Commit.
+    //   Codeunit.Run(97250): Gets the row into its own variable, assigns F1, Modify(true); Codeunit.Run commits at its end.
+    //   C: SetRange + FindFirst, assigns F2, Modify(true), no Commit.   A: assigns F3 (or F1), Modify(true) (or Modify(false)).
+    // Names: <variant>_Accepted (the final write goes through) and <variant>_Refused (it raises); WA_Sequence has the parameters.
+    local procedure WA_Fields(Row: Record "LT WA Stale Row"): Text
+    begin
+        exit(Row.Note + '|' + Row.F1 + '|' + Row.F2 + '|' + Row.F3);
+    end;
+
+    // Everything up to (not including) the final write of A. RunWrites: the Run codeunit assigns F1 and modifies. CWrites: C assigns F2 and modifies.
+    local procedure WA_Prepare(var A: Record "LT WA Stale Row"; RunWrites: Boolean; CWrites: Boolean; InitialModify: Boolean)
+    var
+        B: Record "LT WA Stale Row";
+        C: Record "LT WA Stale Row";
+        Stored: Record "LT WA Stale Row";
+        KeyRow: Record "LT WA Stale Row";
+    begin
+        Stored.DeleteAll();
+        Commit();
+        A.Init();
+        A."No." := 'A';
+        A.Note := 'Orig';
+        A.F1 := 'Orig';
+        A.F2 := 'Orig';
+        A.F3 := 'Orig';
+        A.Insert(true);
+        if InitialModify then begin
+            A.Note := 'AFirst';
+            A.Modify(true);
+        end;
+        B.Get('A');
+        Commit();
+        KeyRow."No." := 'A';
+        KeyRow.Flag := RunWrites;
+        Codeunit.Run(Codeunit::"LT WA Stale Run", KeyRow);
+        C.SetRange("No.", 'A');
+        C.FindFirst();
+        if CWrites then begin
+            C.F2 := 'FromC';
+            C.Modify(true);
+        end;
+    end;
+
+    // The final write. Final 1: F3 and Modify(true). 2: F1 and Modify(true). 3: F3 and Modify(false).
+    local procedure WA_Final(var A: Record "LT WA Stale Row"; Final: Integer)
+    begin
+        case Final of
+            1:
+                begin
+                    A.F3 := 'FromA';
+                    A.Modify(true);
+                end;
+            2:
+                begin
+                    A.F1 := 'FromA';
+                    A.Modify(true);
+                end;
+            3:
+                begin
+                    A.F3 := 'FromA';
+                    A.Modify(false);
+                end;
+        end;
+    end;
+
+    local procedure WA_After(var Observer: Codeunit "Probe Observer"; var A: Record "LT WA Stale Row")
+    var
+        Stored: Record "LT WA Stale Row";
+    begin
+        Observer.Observe('buffer', WA_Fields(A));
+        if Stored.Get('A') then
+            Observer.Observe('stored', WA_Fields(Stored))
+        else
+            Observer.Observe('stored', 'missing');
+        Observer.Observe('rows', Format(Stored.Count()));
+        Stored.DeleteAll();
+        Commit();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_Full_Accepted()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, true, true, true);
+        WA_Final(A, 1);
+        Observer.Observe('write', 'ok');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_Full_Refused()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, true, true, true);
+        asserterror WA_Final(A, 1);
+        Observer.ObserveError('write');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_NoCWrite_Accepted()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, true, false, true);
+        WA_Final(A, 1);
+        Observer.Observe('write', 'ok');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_NoCWrite_Refused()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, true, false, true);
+        asserterror WA_Final(A, 1);
+        Observer.ObserveError('write');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_NoRunWrite_Accepted()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, false, true, true);
+        WA_Final(A, 1);
+        Observer.Observe('write', 'ok');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_NoRunWrite_Refused()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, false, true, true);
+        asserterror WA_Final(A, 1);
+        Observer.ObserveError('write');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_NoRunWriteNoCWrite_Accepted()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, false, false, true);
+        WA_Final(A, 1);
+        Observer.Observe('write', 'ok');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_NoRunWriteNoCWrite_Refused()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, false, false, true);
+        asserterror WA_Final(A, 1);
+        Observer.ObserveError('write');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_NoInitialModify_Accepted()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, true, true, false);
+        WA_Final(A, 1);
+        Observer.Observe('write', 'ok');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_NoInitialModify_Refused()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, true, true, false);
+        asserterror WA_Final(A, 1);
+        Observer.ObserveError('write');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_NoInitialModify_NoCWrite_Accepted()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, true, false, false);
+        WA_Final(A, 1);
+        Observer.Observe('write', 'ok');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_NoInitialModify_NoCWrite_Refused()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, true, false, false);
+        asserterror WA_Final(A, 1);
+        Observer.ObserveError('write');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_FinalSameFieldAsRun_Accepted()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, true, true, true);
+        WA_Final(A, 2);
+        Observer.Observe('write', 'ok');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_FinalSameFieldAsRun_Refused()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, true, true, true);
+        asserterror WA_Final(A, 2);
+        Observer.ObserveError('write');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_FinalSameFieldAsRun_NoCWrite_Accepted()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, true, false, true);
+        WA_Final(A, 2);
+        Observer.Observe('write', 'ok');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_FinalSameFieldAsRun_NoCWrite_Refused()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, true, false, true);
+        asserterror WA_Final(A, 2);
+        Observer.ObserveError('write');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_FinalModifyFalse_Accepted()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, true, true, true);
+        WA_Final(A, 3);
+        Observer.Observe('write', 'ok');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_FinalModifyFalse_Refused()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, true, true, true);
+        asserterror WA_Final(A, 3);
+        Observer.ObserveError('write');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_FinalModifyFalse_NoCWrite_Accepted()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, true, false, true);
+        WA_Final(A, 3);
+        Observer.Observe('write', 'ok');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WA_Stale_Waldo_FinalModifyFalse_NoCWrite_Refused()
+    var
+        A: Record "LT WA Stale Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Prepare(A, true, false, true);
+        asserterror WA_Final(A, 3);
+        Observer.ObserveError('write');
+        WA_After(Observer, A);
+        Observer.Finish();
+    end;
+}
+
+// local objects of the WA_Stale_Waldo tests (al-runner issue 6924, waldo run 2).
+table 97250 "LT WA Stale Row"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; Note; Text[30]) { }
+        field(3; F1; Text[30]) { }
+        field(4; F2; Text[30]) { }
+        field(5; F3; Text[30]) { }
+        field(6; Flag; Boolean) { }
+    }
+    keys { key(PK; "No.") { Clustered = true; } }
+}
+
+// Gets the row into its own variable and, when Rec.Flag is set, assigns F1 and calls Modify(true).
+codeunit 97250 "LT WA Stale Run"
+{
+    TableNo = "LT WA Stale Row";
+
+    trigger OnRun()
+    var
+        Own: Record "LT WA Stale Row";
+    begin
+        Own.Get(Rec."No.");
+        if Rec.Flag then begin
+            Own.F1 := 'FromRun';
+            Own.Modify(true);
+        end;
+    end;
 }
