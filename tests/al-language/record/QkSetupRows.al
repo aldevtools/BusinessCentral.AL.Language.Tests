@@ -1,5 +1,5 @@
 // Scope: fixture
-// Fixtures used: none; used by test codeunits 78603, 70535, 67755, 84363, 73973 and 86504.
+// Fixtures used: none; used by test codeunits 78603, 70535, 67755, 84363, 73973, 73040, 60233 and 86504.
 // Writer QK (owner decision 2026-10-21: corpus tests must not depend on the demo rows of the corpus database). Writes the setup rows a test
 // reads with fixed values, and puts the rows back afterwards (the corpus runner does not promise a rollback between tests or codeunits).
 // Not SingleInstance: every test declares its own variable, so the saved rows live in that variable only.
@@ -216,6 +216,20 @@ codeunit 86940 "LT QK Setup Rows"
             DimTrans.Modify();
         end;
         GLSetupWritten := true;
+    end;
+
+    // Fills the session cache of codeunit 343 "Dimension CaptionClass Mgmt" (SingleInstance, GLSetup/GLSetupRead, read once, no reset) with the
+    // setup WriteGLSetupCaptions writes, then puts the rows back. A test codeunit that resolves area 1 captions (field captions or opening a
+    // page with a dimension caption) and does not write the setup itself calls this first, so that its read does not leave another row's
+    // Global Dimension 1 Code in the cache for codeunit 86504 (QdCaptionClassAreas.al), which expects 'Department Code'. The translated text
+    // '1,1,x' has no valid reference: it only makes codeunit 343 read the setup and returns an empty text.
+    procedure PrimeDimensionCaptionCache()
+    var
+        Ignored: Text;
+    begin
+        WriteGLSetupCaptions();
+        Ignored := CaptionClassTranslate('1,1,x');
+        RestoreGLSetupCaptions();
     end;
 
     procedure RestoreGLSetupCaptions()
