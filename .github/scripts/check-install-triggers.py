@@ -37,7 +37,6 @@ ALLOWED = {
     'tests/al-language-xapp-a codeunit 94682',  # "LT Y88 Pkg Install"
     # al-runner issue 6649: LoadPackageData in the install part that does not match the table's DataPerCompany; each load can run only once,
     # the log is written only with `if Insert() then;` into a DataPerCompany = false table. (PkgDataPartsFixture.al)
-    'tests/al-language-xapp-a codeunit 97999',  # "LT PkgParts Install"
     'tests/al-language-xapp-a codeunit 97998',  # "LT PkgParts Install Co"
     # al-runner issue 7169: reads "Published As" in TryFunctions, writes only `if Insert() then;` into a DataPerCompany = false log. (R7169XaInstallPublishedAs.al)
     'tests/al-language-xapp-a codeunit 96081',  # "LT R7169 XA Install"

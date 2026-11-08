@@ -1,6 +1,7 @@
 // Cross-app fixture A: NavApp.LoadPackageData of a table in the install part that does not match its DataPerCompany (al-runner issue 6649).
-// The files TAB97990.navxdata and TAB97991.navxdata in this folder (same layout as Y85XaPackageData.al: key "No." then Description, two rows
-// each) are loaded by the install codeunits below.
+// The file TAB97991.navxdata in this folder (same layout as Y85XaPackageData.al: key "No." then Description, two rows) is loaded by the install
+// codeunit below. The other half of the question (a per-company table loaded from OnInstallAppPerDatabase) cannot be a fixture: on BC 29.0 the load
+// fails the publish of the whole app with "Cannot access destination table", and no TryFunction catches it (see the pull request).
 
 table 97992 "LT PkgParts Log"
 {
@@ -20,21 +21,6 @@ table 97992 "LT PkgParts Log"
     }
 }
 
-table 97990 "LT PkgParts Company"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; "No."; Code[20]) { }
-        field(2; Description; Text[30]) { }
-    }
-    keys
-    {
-        key(PK; "No.") { Clustered = true; }
-    }
-}
-
 table 97991 "LT PkgParts Shared"
 {
     DataClassification = SystemMetadata;
@@ -49,34 +35,6 @@ table 97991 "LT PkgParts Shared"
     {
         key(PK; "No.") { Clustered = true; }
     }
-}
-
-// Case 1 (database part, per-company table): OnInstallAppPerDatabase runs once per install, so the load cannot repeat. The load runs inside a
-// TryFunction and its outcome is logged afterwards: an uncaught error here would abort the publish of the whole corpus app.
-codeunit 97999 "LT PkgParts Install"
-{
-    Subtype = Install;
-
-    trigger OnInstallAppPerDatabase()
-    var
-        Log: Record "LT PkgParts Log";
-        Ok: Boolean;
-    begin
-        Ok := TryLoad();
-        Log.Part := 'database';
-        Log.Subject := 'company table';
-        if Ok then
-            Log.Detail := 'load returned'
-        else
-            Log.Detail := CopyStr('load failed: ' + GetLastErrorText(), 1, MaxStrLen(Log.Detail));
-        if Log.Insert() then;
-    end;
-
-    [TryFunction]
-    local procedure TryLoad()
-    begin
-        NavApp.LoadPackageData(Database::"LT PkgParts Company");
-    end;
 }
 
 // Case 2 (company part, shared table): OnInstallAppPerCompany runs once per company. The load runs only in the first company that reaches the
