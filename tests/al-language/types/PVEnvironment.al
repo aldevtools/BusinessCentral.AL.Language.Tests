@@ -32,24 +32,19 @@ codeunit 69340 "PV Environment Probe"
         Observer.Verify();
     end;
 
+#if BC28PLUS
+    // IsPreview and IsEarlyPreview are new in System Application 28.0 (BC 27.5 fails to compile with AL0132 on IsPreview).
     [TryFunction]
     local procedure TryPreview(Early: Boolean; var Shown: Text)
     var
         EnvInfo: Codeunit "Environment Information";
     begin
-        // IsEarlyPreview is new in System Application 28.0.
-#if BC28PLUS
         if Early then
             Shown := Format(EnvInfo.IsEarlyPreview())
         else
             Shown := Format(EnvInfo.IsPreview());
-#else
-        if Early then
-            Shown := 'not in BC 27'
-        else
-            Shown := Format(EnvInfo.IsPreview());
-#endif
     end;
+#endif
 
     [Test]
     procedure EnvironmentInformation_PreviewRings()
@@ -57,6 +52,7 @@ codeunit 69340 "PV Environment Probe"
         Observer: Codeunit "Probe Observer";
         Shown: Text;
     begin
+#if BC28PLUS
         if TryPreview(false, Shown) then
             Observer.Observe('is_preview', Shown)
         else
@@ -65,6 +61,10 @@ codeunit 69340 "PV Environment Probe"
             Observer.Observe('is_early_preview', Shown)
         else
             Observer.ObserveError('is_early_preview');
-        Observer.Finish();
+        // Measured on BC 28.5 and 29.0 (corpus PR 1211 CI): a container is on no preview ring.
+        Observer.Expect('is_preview', 'No');
+        Observer.Expect('is_early_preview', 'No');
+#endif
+        Observer.Verify();
     end;
 }

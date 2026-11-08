@@ -116,7 +116,9 @@ codeunit 99221 "LT BB Nav Helpers"
             Observer.Observe('ring name', Shown)
         else
             Observer.ObserveError('ring name');
-        Observer.Finish();
+        // Measured on BC 28.5 and 29.0 OnPrem (corpus PR 1211 CI): GetRingName returns an empty text.
+        Observer.Expect('ring name', '[]');
+        Observer.Verify();
     end;
 
     [Test]
