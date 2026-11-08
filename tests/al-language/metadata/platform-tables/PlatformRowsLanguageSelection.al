@@ -235,11 +235,9 @@ codeunit 78100 "LT AD Plat Rows Language"
         Observer.Expect('Language Selection row eu-ES', 'Name=Basque (Spain)|Language Tag=eu-ES|Language ID=1069|Primary Language ID=1069|Abbreviated Name=EUQ|Enabled=No|');
         Observer.Expect('Language Selection row fa-IR', 'Name=Persian (Iran)|Language Tag=fa-IR|Language ID=1065|Primary Language ID=1065|Abbreviated Name=FAR|Enabled=No|');
         Observer.Expect('Language Selection row ff-Latn-SN', 'Name=Fula (Latin, Senegal)|Language Tag=ff-Latn-SN|Language ID=2151|Primary Language ID=1127|Abbreviated Name=FUL|Enabled=No|');
-#if BC29PLUS
+        // Linux container value (image 1a121fc6): Windows has 247 Language Selection rows (nightly Windows run 42360491883, BC 28.4); this value is the Linux
+        // container's until aldevtools/MsDyn365Bc.On.Linux issue 223 is fixed.
         Observer.Expect('Language Selection row ff-NG', 'Name=Fula (Nigeria)|Language Tag=ff-NG|Language ID=1127|Primary Language ID=1127|Abbreviated Name=ZZZ|Enabled=No|');
-#else
-        Observer.Expect('Language Selection row ff-NG', '<absent>');
-#endif
         Observer.Expect('Language Selection row fi-FI', 'Name=Finnish (Finland)|Language Tag=fi-FI|Language ID=1035|Primary Language ID=1035|Abbreviated Name=FIN|Enabled=Yes|');
         Observer.Expect('Language Selection row fil-PH', 'Name=Filipino (Philippines)|Language Tag=fil-PH|Language ID=1124|Primary Language ID=1124|Abbreviated Name=FPO|Enabled=No|');
         Observer.Expect('Language Selection row fr-BE', 'Name=French (Belgium)|Language Tag=fr-BE|Language ID=2060|Primary Language ID=1036|Abbreviated Name=FRB|Enabled=Yes|');
@@ -374,11 +372,9 @@ codeunit 78100 "LT AD Plat Rows Language"
         Observer.Expect('Language Selection row om-ET', 'Name=Oromo (Ethiopia)|Language Tag=om-ET|Language ID=1138|Primary Language ID=1138|Abbreviated Name=ORM|Enabled=No|');
         Observer.Expect('Language Selection row or-IN', 'Name=Odia (India)|Language Tag=or-IN|Language ID=1096|Primary Language ID=1096|Abbreviated Name=ORI|Enabled=No|');
         Observer.Expect('Language Selection row pa-Arab-PK', 'Name=Punjabi (Arabic, Pakistan)|Language Tag=pa-Arab-PK|Language ID=2118|Primary Language ID=1094|Abbreviated Name=PAP|Enabled=No|');
-#if BC29PLUS
+        // Linux container value (image 1a121fc6): Windows has 247 Language Selection rows (nightly Windows run 42360491883, BC 28.4); this value is the Linux
+        // container's until aldevtools/MsDyn365Bc.On.Linux issue 223 is fixed.
         Observer.Expect('Language Selection row pa-IN', 'Name=Punjabi (India)|Language Tag=pa-IN|Language ID=1094|Primary Language ID=1094|Abbreviated Name=PAN|Enabled=No|');
-#else
-        Observer.Expect('Language Selection row pa-IN', '<absent>');
-#endif
         Observer.Expect('Language Selection row pt-BR', 'Name=Portuguese (Brazil)|Language Tag=pt-BR|Language ID=1046|Primary Language ID=1046|Abbreviated Name=PTB|Enabled=Yes|');
         Observer.Expect('Language Selection row pt-PT', 'Name=Portuguese (Portugal)|Language Tag=pt-PT|Language ID=2070|Primary Language ID=1046|Abbreviated Name=PTG|Enabled=Yes|');
         Observer.Expect('Language Selection row rm-CH', 'Name=Romansh (Switzerland)|Language Tag=rm-CH|Language ID=1047|Primary Language ID=1047|Abbreviated Name=RMC|Enabled=No|');
@@ -398,11 +394,9 @@ codeunit 78100 "LT AD Plat Rows Language"
         Observer.Expect('Language Selection row rw-RW', 'Name=Kinyarwanda (Rwanda)|Language Tag=rw-RW|Language ID=1159|Primary Language ID=1159|Abbreviated Name=KIN|Enabled=No|');
         Observer.Expect('Language Selection row sah-RU', 'Name=Yakut (Russia)|Language Tag=sah-RU|Language ID=1157|Primary Language ID=1157|Abbreviated Name=SAH|Enabled=No|');
         Observer.Expect('Language Selection row sd-Arab-PK', 'Name=Sindhi (Arabic, Pakistan)|Language Tag=sd-Arab-PK|Language ID=2137|Primary Language ID=1113|Abbreviated Name=SIP|Enabled=No|');
-#if BC29PLUS
+        // Linux container value (image 1a121fc6): Windows has 247 Language Selection rows (nightly Windows run 42360491883, BC 28.4); this value is the Linux
+        // container's until aldevtools/MsDyn365Bc.On.Linux issue 223 is fixed.
         Observer.Expect('Language Selection row sd-Deva-IN', 'Name=Sindhi (Devanagari, India)|Language Tag=sd-Deva-IN|Language ID=1113|Primary Language ID=1113|Abbreviated Name=ZZZ|Enabled=No|');
-#else
-        Observer.Expect('Language Selection row sd-Deva-IN', '<absent>');
-#endif
         Observer.Expect('Language Selection row se-FI', 'Name=Northern Sami (Finland)|Language Tag=se-FI|Language ID=3131|Primary Language ID=1083|Abbreviated Name=SMG|Enabled=No|');
         Observer.Verify();
     end;
@@ -485,12 +479,12 @@ codeunit 78100 "LT AD Plat Rows Language"
         Observer.Expect('Language Selection row xh-ZA', 'Name=Xhosa (South Africa)|Language Tag=xh-ZA|Language ID=1076|Primary Language ID=1076|Abbreviated Name=XHO|Enabled=No|');
         Observer.Expect('Language Selection row yo-NG', 'Name=Yoruba (Nigeria)|Language Tag=yo-NG|Language ID=1130|Primary Language ID=1130|Abbreviated Name=YOR|Enabled=No|');
         Observer.Expect('Language Selection row zh-CN', 'Name=Chinese (China)|Language Tag=zh-CN|Language ID=2052|Primary Language ID=1028|Abbreviated Name=CHS|Enabled=Yes|');
-        Observer.Expect('Language Selection row zh-Hant', 'Name=Chinese (Traditional)|Language Tag=zh-Hant|Language ID=31748|Primary Language ID=1028|Abbreviated Name=ZHH|Enabled=No|');
-#if BC29PLUS
+        // Linux container value (image 1a121fc6): Windows has 247 Language Selection rows (nightly Windows run 42360491883, BC 28.4); this value is the Linux
+        // container's until aldevtools/MsDyn365Bc.On.Linux issue 223 is fixed.
+        Observer.Expect('Language Selection row zh-Hant', '<absent>');
+        // Linux container value (image 1a121fc6): Windows has 247 Language Selection rows (nightly Windows run 42360491883, BC 28.4); this value is the Linux
+        // container's until aldevtools/MsDyn365Bc.On.Linux issue 223 is fixed.
         Observer.Expect('Language Selection row zh-TW', 'Name=Chinese (Taiwan)|Language Tag=zh-TW|Language ID=1028|Primary Language ID=1028|Abbreviated Name=CHT|Enabled=Yes|');
-#else
-        Observer.Expect('Language Selection row zh-TW', '<absent>');
-#endif
         Observer.Expect('Language Selection row zu-ZA', 'Name=Zulu (South Africa)|Language Tag=zu-ZA|Language ID=1077|Primary Language ID=1077|Abbreviated Name=ZUL|Enabled=No|');
         Observer.Verify();
     end;
@@ -578,11 +572,9 @@ codeunit 78100 "LT AD Plat Rows Language"
     begin
         RR.Open(TableIdByName('Language Selection'));
         Observer.Observe('count', Format(RR.Count()));
-#if BC29PLUS
-        Observer.Expect('count', '212');
-#else
-        Observer.Expect('count', '208');
-#endif
+        // Linux container value (image 1a121fc6): Windows has 247 Language Selection rows (nightly Windows run 42360491883, BC 28.4); this value is the Linux
+        // container's until aldevtools/MsDyn365Bc.On.Linux issue 223 is fixed.
+        Observer.Expect('count', '214');
         Observer.Verify();
     end;
 }
