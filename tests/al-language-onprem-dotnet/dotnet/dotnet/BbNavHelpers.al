@@ -13,6 +13,9 @@
 //   Observed on the corpus CI matrix (single-tenant Linux container, tenant 'default'): an unset application setting reads as empty text,
 //   also for an empty name; IsInTestMode is true in OnRun and in a test method; TENANTID = default, DISPLAYNAME = empty (found),
 //   AADTENANTID = common, an unknown name gives false and clears the out value.
+//   14. NavTenantSettingsHelper.GetRingName(), which "Environment Information Impl.".IsPreview / IsEarlyPreview compare with
+//       'PREVIEW', 'EARLYPREVIEW' and 'EARLYPREV' (AL Runner issue 6675: the role-center pages "SO Processor Activities" and
+//       "O365 Activities" reach it in OnOpenPage through ShowEarlyPreviewNotification).
 // BC versions: 27, 28, 29
 dotnet
 {
@@ -92,6 +95,30 @@ codeunit 99221 "LT BB Nav Helpers"
             Observer.Observe('tenant setting ' + Name, Shown)
         else
             Observer.ObserveError('tenant setting ' + Name);
+    end;
+
+    [TryFunction]
+    local procedure TryRingName(var Shown: Text)
+    var
+        Helper: DotNet LtBbTenantSettings;
+        Value: Text;
+    begin
+        Value := Helper.GetRingName();
+        Shown := '[' + Value + ']';
+    end;
+
+    [Test]
+    procedure TenantSettings_GetRingName()
+    var
+        Shown: Text;
+    begin
+        if TryRingName(Shown) then
+            Observer.Observe('ring name', Shown)
+        else
+            Observer.ObserveError('ring name');
+        // Measured on BC 28.5 and 29.0 OnPrem (corpus PR 1211 CI): GetRingName returns an empty text.
+        Observer.Expect('ring name', '[]');
+        Observer.Verify();
     end;
 
     [Test]
