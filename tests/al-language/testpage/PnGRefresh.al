@@ -1145,7 +1145,8 @@ codeunit 70177 "LT PnG Refresh"
     // first window; an action then puts another stored row into Rec with Rec.Get and does not call CurrPage.Update.
     // Fixtures: testpage/PnGBwFixtures.al (page LT BW List over ALT Shape 15). Log: G = OnAfterGetRecord, C = OnAfterGetCurrRecord
     // (with xRec), A = the end of the action (with xRec).
-    // Observed by corpus CI on BC 29.0 (batch run 42454103250); 27.5 and 28.5 by the CI matrix.
+    // Observed by corpus CI on BC 29.0 (batch run 42454103250); the same values pass on 27.5, 28.5 and 29.0 (batch runs 42456505404,
+    // 42456521814, 42456537405).
     // Results: how far the list was walked makes no difference. From R3, R20, R21, R25 and R30 the action that leaves R2 is followed by
     // the same reads (the row shown, the action, R2 as the action left it, then R2 to R21 from the table, R1 on the way back, R2 twice,
     // OnAfterGetCurrRecord with the row shown before as xRec) and the list stands on R2; Next and Previous then step from R2. A row
