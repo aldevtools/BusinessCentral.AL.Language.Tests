@@ -37,6 +37,9 @@ codeunit 97980 "LT PkgParts Probe"
                 T += Row."No." + '=' + Row.Description + ';';
             until Row.Next() = 0;
         Observer.Observe('rows', T);
-        Observer.Finish();
+        Observer.Expect('load', 'shared table -> load returned;');
+        Observer.Expect('later companies', 'shared table -> no load;');
+        Observer.Expect('rows', 'S1=one;S2=two;');
+        Observer.Verify();
     end;
 }
