@@ -12,14 +12,14 @@ codeunit 80972 "BC Implicit Areas"
 
     local procedure Setup()
     var
-        Row: Record "BC Implicit Row";
+        Row: Record "ALT Shape 01";
     begin
         Row.DeleteAll();
-        Row.Number := 3;
+        Row.Id := 3;
         Row.Insert();
-        Row.Number := 5;
+        Row.Id := 5;
         Row.Insert();
-        Row.Number := 7;
+        Row.Id := 7;
         Row.Insert();
     end;
 

@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-al-control-statements
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); self-contained codeunit 67293
-// The empty statement (a lone semicolon): it compiles and does nothing as a whole body, in the branches of if, in case branches and in loop bodies, and several in a row.
+// The empty statement (a lone semicolon): it compiles and does nothing as a whole body, in the branches of if, in case branches and in loop bodies (foreach included), and several in a row.
 // BC versions: 27, 28, 29
 codeunit 67293 "LT P Empty Statement"
 {
@@ -139,6 +139,31 @@ codeunit 67293 "LT P Empty Statement"
         Observer.Expect('while_false_empty', '3');
         Observer.Expect('repeat_empty_then_count', '2');
         Observer.Expect('repeat_only_empty', '2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure PEmpty_InForeach()
+    var
+        Observer: Codeunit "Probe Observer";
+        L: List of [Integer];
+        V: Integer;
+        Sum: Integer;
+    begin
+        L.Add(1);
+        L.Add(2);
+        L.Add(3);
+        foreach V in L do
+            ;
+        Observer.Observe('foreach_empty_body_count', Format(L.Count()));
+        foreach V in L do begin
+            ;
+            Sum += V;
+            ;
+        end;
+        Observer.Observe('foreach_empty_around_sum', Format(Sum));
+        Observer.Expect('foreach_empty_body_count', '3');
+        Observer.Expect('foreach_empty_around_sum', '6');
         Observer.Verify();
     end;
 }

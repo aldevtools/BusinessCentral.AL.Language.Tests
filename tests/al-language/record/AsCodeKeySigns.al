@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-table-keys
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), AsFixtures.al (table 79905)
+// Fixtures used: Probe Observer (codeunit 69160), AsFixtures.al (shared table 50009 "ALT Shape 09")
 // Probe: observed values; every literal asserted below is what the BC tiers of the corpus matrix produced (corpus issue 644, item 8).
 // Facts: the key order of Code values that start with a hyphen or a plus sign (-+5, -A, +5, -0, 0 and neighbours) in FindSet, ascending and
 //   descending, and filters on them (a range, < and >, a single value, a wildcard).
@@ -13,7 +13,7 @@ codeunit 79925 "LT AS Code Key Signs"
 
     local procedure Seed()
     var
-        K: Record "LT AS Code Key";
+        K: Record "ALT Shape 09";
     begin
         K.DeleteAll();
         Add('-+5');
@@ -30,13 +30,13 @@ codeunit 79925 "LT AS Code Key Signs"
 
     local procedure Add(Value: Code[20])
     var
-        K: Record "LT AS Code Key";
+        K: Record "ALT Shape 09";
     begin
         K."Code" := Value;
         K.Insert();
     end;
 
-    local procedure List(var K: Record "LT AS Code Key"): Text
+    local procedure List(var K: Record "ALT Shape 09"): Text
     var
         Result: Text;
     begin
@@ -51,7 +51,7 @@ codeunit 79925 "LT AS Code Key Signs"
     procedure Order_Ascending()
     var
         Observer: Codeunit "Probe Observer";
-        K: Record "LT AS Code Key";
+        K: Record "ALT Shape 09";
     begin
         Seed();
         Observer.Observe('asc', List(K));
@@ -63,7 +63,7 @@ codeunit 79925 "LT AS Code Key Signs"
     procedure Order_Descending()
     var
         Observer: Codeunit "Probe Observer";
-        K: Record "LT AS Code Key";
+        K: Record "ALT Shape 09";
     begin
         Seed();
         K.Ascending(false);
@@ -76,7 +76,7 @@ codeunit 79925 "LT AS Code Key Signs"
     procedure Filters_Range()
     var
         Observer: Codeunit "Probe Observer";
-        K: Record "LT AS Code Key";
+        K: Record "ALT Shape 09";
     begin
         Seed();
         K.SetRange("Code", '+5', '0');
@@ -92,7 +92,7 @@ codeunit 79925 "LT AS Code Key Signs"
     procedure Filters_Compare()
     var
         Observer: Codeunit "Probe Observer";
-        K: Record "LT AS Code Key";
+        K: Record "ALT Shape 09";
     begin
         Seed();
         K.SetFilter("Code", '<%1', '-A');
@@ -108,7 +108,7 @@ codeunit 79925 "LT AS Code Key Signs"
     procedure Filters_Single()
     var
         Observer: Codeunit "Probe Observer";
-        K: Record "LT AS Code Key";
+        K: Record "ALT Shape 09";
     begin
         Seed();
         K.SetFilter("Code", '-+5');

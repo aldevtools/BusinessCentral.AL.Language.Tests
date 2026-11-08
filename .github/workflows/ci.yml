@@ -81,7 +81,7 @@ on:
 # and `BC OnPrem DotNet <version> / test` legs for 27.5, 28.5 and 29.0, plus the object-id gate. Each
 # leg's check is the job `test` of bc-leg.yml, which runs with `if: always()` and fails unless every
 # shard succeeded, so a cancelled run reports it as failed or cancelled, never as skipped or green, and
-# a superseded run can never satisfy a required check. The one green without shards is a pull request
+# a superseded run can never satisfy a required check. The one green without shards is a subset-run
 # leg whose app has nothing affected (CONTRIBUTING.md, "Shards in CI"). ci.yml is the only workflow
 # registered here (the object-id gate is a job inside it), so this block covers everything.
 concurrency:
@@ -231,7 +231,7 @@ jobs:
       # codeunit_range. The job names and the required checks do not change; only the codeunits each leg runs.
       subset: ${{ steps.select.outputs.subset || '{}' }}
       # {bc_version: {test app dir: [{"n": "1 of 3", "range": ...}]}}: the shards each leg runs (.github/scripts/ci-shards.py,
-      # boundaries in .github/ci-shards.json). [] for a leg: nothing in its app is affected (pull requests only), the leg
+      # boundaries in .github/ci-shards.json). [] for a leg: nothing in its app is affected (any subset run), the leg
       # reports success without starting BC. {} (the step failed): each leg runs its codeunit_range as one shard.
       shards: ${{ steps.shards.outputs.shards || '{}' }}
     steps:
@@ -329,7 +329,7 @@ jobs:
       actions: write
     with:
       shards:               ${{ toJson(fromJson(needs.prepare.outputs.shards)[matrix.bc_version]['tests/al-language']) }}
-      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-65f6b26bbc5041a567790812773522accfae5473"
+      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-cf9d0239e3232efc263c5c5e5bec053e4ea72f08"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
       # Dependency apps of al-language, in publish order (an app after the apps it depends on). The cross-app fixtures
@@ -343,6 +343,8 @@ jobs:
         tests/al-language-xapp-d
         tests/al-language-xapp-b
         tests/al-language-xapp-c
+        tests/al-language-xapp-n
+        tests/al-language-xapp-t
       test_app_dirs:        "tests/al-language"
       # The quoted range after || is this job's full range. Every job's full range is 50000..99999, every id a test app
       # can use, so a new id block never needs an edit here (the runner reads the Subtype = Test codeunits of the test
@@ -432,7 +434,7 @@ jobs:
       actions: write
     with:
       shards:               ${{ toJson(fromJson(needs.prepare.outputs.shards)[matrix.bc_version]['tests/al-language-onprem']) }}
-      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-65f6b26bbc5041a567790812773522accfae5473"
+      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-cf9d0239e3232efc263c5c5e5bec053e4ea72f08"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
       # al-language is a production app HERE only in the sense that it has to be
@@ -444,6 +446,8 @@ jobs:
         tests/al-language-xapp-d
         tests/al-language-xapp-b
         tests/al-language-xapp-c
+        tests/al-language-xapp-n
+        tests/al-language-xapp-t
         tests/al-language
       test_app_dirs:        "tests/al-language-onprem"
       codeunit_range:       ${{ fromJson(needs.prepare.outputs.subset)['tests/al-language-onprem'] || '50000..99999' }}
@@ -482,7 +486,7 @@ jobs:
       actions: write
     with:
       shards:               ${{ toJson(fromJson(needs.prepare.outputs.shards)[matrix.bc_version]['tests/al-language-onprem-dotnet']) }}
-      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:65f6b26bbc5041a567790812773522accfae5473"
+      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:cf9d0239e3232efc263c5c5e5bec053e4ea72f08"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
       app_dirs: |
@@ -491,6 +495,8 @@ jobs:
         tests/al-language-xapp-d
         tests/al-language-xapp-b
         tests/al-language-xapp-c
+        tests/al-language-xapp-n
+        tests/al-language-xapp-t
         tests/al-language
       test_app_dirs:        "tests/al-language-onprem-dotnet"
       assembly_probing_paths: |
@@ -546,17 +552,26 @@ jobs:
       actions: write
     with:
       shards:               ${{ toJson(fromJson(needs.prepare.outputs.shards)[matrix.bc_version]['tests/al-language-testlibraries']) }}
-      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-65f6b26bbc5041a567790812773522accfae5473"
+      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-cf9d0239e3232efc263c5c5e5bec053e4ea72f08"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
       # al-language is published only because the test app depends on it (Probe Observer). Its own tests run in the
       # test job above.
+      # The tests/al-language-xhandler-* apps hold default test handlers (DefaultTestHandler extensions) for the cross-app
+      # handler probes (BiTestHandlerCrossApp.al). They are published in this job only: a default handler of an installed
+      # app may run for the test codeunits of other apps, so the other jobs must not install them.
       app_dirs: |
         tests/al-language-internals-fixture
+        tests/al-language-xhandler-lib
+        tests/al-language-xhandler-a
+        tests/al-language-xhandler-c
+        tests/al-language-xhandler-d
         tests/al-language-xapp-a
         tests/al-language-xapp-d
         tests/al-language-xapp-b
         tests/al-language-xapp-c
+        tests/al-language-xapp-n
+        tests/al-language-xapp-t
         tests/al-language
       test_app_dirs:        "tests/al-language-testlibraries"
       codeunit_range:       ${{ fromJson(needs.prepare.outputs.subset)['tests/al-language-testlibraries'] || '81550..81649' }}
@@ -570,5 +585,52 @@ jobs:
       # Full-text search: al-language has tables with OptimizeForTextSearch = true (corpus #633).
       sql_image:            "ghcr.io/aldevtools/msdyn365bc.on.linux/mssql:2022-fts"
       # RDLC rendering: see the test job above (al-language holds RDLC reports).
+      rdlc_renderer:        true
+      rdlc_trust_layouts:   true
+
+  # The test app tests/al-language-trywrite-allowed, in a job of its own that runs BC with the service-tier setting
+  # DisableWriteInsideTryFunctions=false (bc-linux input server_settings, MsDyn365Bc.On.Linux #218; al-runner issue 7143).
+  #
+  # WHY A SEPARATE JOB. The container default is true: a write inside a TryFunction fails with TryFunctionWrite, and the other
+  # legs pin that. SaaS runs with false. The setting is per service tier, so a test for the other mode needs its own BC boot.
+  # A test belongs in tests/al-language-trywrite-allowed only when its result depends on this setting. Its objects live in
+  # 81700..81749.
+  #
+  # Not a required status check yet: its checks are named "BC TryWrites <ver> / test".
+  test-trywrite-allowed:
+    name: BC TryWrites ${{ matrix.bc_version }}
+    # Second wave, like test-testlibraries: starts when the OnPrem legs are done (container limit).
+    needs: [prepare, test-onprem]
+    if: ${{ !cancelled() && needs.prepare.result == 'success' }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    uses: ./.github/workflows/bc-leg.yml
+    permissions:
+      contents: read
+      actions: write
+    with:
+      shards:               ${{ toJson(fromJson(needs.prepare.outputs.shards)[matrix.bc_version]['tests/al-language-trywrite-allowed']) }}
+      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-cf9d0239e3232efc263c5c5e5bec053e4ea72f08"
+      bc_version:           ${{ matrix.bc_version }}
+      bc_country:           "w1"
+      # al-language is published only because the test app depends on it (Probe Observer, LT CU Row).
+      app_dirs: |
+        tests/al-language-internals-fixture
+        tests/al-language-xapp-a
+        tests/al-language-xapp-d
+        tests/al-language-xapp-b
+        tests/al-language-xapp-c
+        tests/al-language-xapp-n
+        tests/al-language-xapp-t
+        tests/al-language
+      test_app_dirs:        "tests/al-language-trywrite-allowed"
+      codeunit_range:       ${{ fromJson(needs.prepare.outputs.subset)['tests/al-language-trywrite-allowed'] || '81700..81749' }}
+      server_settings:      "DisableWriteInsideTryFunctions=false"
+      preprocessor_symbols: ${{ matrix.preprocessor_symbols }}
+      al_tool_version:      "30.0.43.45776-beta"
+      runtime_version:      ${{ matrix.runtime }}
+      bc_artifact_url: ${{ startsWith(matrix.bc_version, '29.') && 'https://bcartifacts-exdbf9fwegejdqak.b02.azurefd.net/sandbox/29.0.54011.55816/w1' || '' }}
+      sql_image:            "ghcr.io/aldevtools/msdyn365bc.on.linux/mssql:2022-fts"
       rdlc_renderer:        true
       rdlc_trust_layouts:   true

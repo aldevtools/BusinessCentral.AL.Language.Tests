@@ -770,3 +770,406 @@ codeunit 84271 "LT CC Bg Worker"
         Page.SetBackgroundTaskResult(Results);
     end;
 }
+
+enum 97080 "LT VQ Kind"
+{
+    Extensible = true;
+    value(0; Alpha) { }
+    value(1; Beta) { }
+    value(2; "Gamma Delta") { }
+}
+
+table 97081 "LT VQ Row"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Kind; Enum "LT VQ Kind") { }
+        field(3; Name; Text[30]) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+table 97082 "LT VQ Other"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Mode; Enum "LT VQ Kind") { }
+        field(3; "Mode Two"; Enum "LT VQ Kind") { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+page 97083 "LT VQ Page V1"
+{
+    PageType = Card;
+    SourceTable = "LT VQ Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field(Id; Rec.Id) { ApplicationArea = All; }
+            field(VisCtl; Rec.Name)
+            {
+                ApplicationArea = All;
+                Visible = Dir = E.Mode::Beta;
+            }
+            field(EdtCtl; Rec.Name)
+            {
+                ApplicationArea = All;
+                Editable = Dir = E.Mode::Beta;
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(ActCtl)
+            {
+                ApplicationArea = All;
+                Enabled = Dir = E.Mode::Beta;
+
+                trigger OnAction()
+                begin
+                end;
+            }
+            action(FlipCtl)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Dir := Dir::Alpha;
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Dir := Dir::Beta;
+    end;
+
+    var
+        E: Record "LT VQ Other";
+        Dir: Enum "LT VQ Kind";
+}
+
+page 97084 "LT VQ Page V2"
+{
+    PageType = Card;
+    SourceTable = "LT VQ Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field(Id; Rec.Id) { ApplicationArea = All; }
+            field(VisCtl; Rec.Name)
+            {
+                ApplicationArea = All;
+                Visible = Rec.Kind = E.Mode::Beta;
+            }
+            field(EdtCtl; Rec.Name)
+            {
+                ApplicationArea = All;
+                Editable = Rec.Kind = E.Mode::Beta;
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(ActCtl)
+            {
+                ApplicationArea = All;
+                Enabled = Rec.Kind = E.Mode::Beta;
+
+                trigger OnAction()
+                begin
+                end;
+            }
+            action(FlipCtl)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Dir := Dir::Alpha;
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Dir := Dir::Beta;
+    end;
+
+    var
+        E: Record "LT VQ Other";
+        Dir: Enum "LT VQ Kind";
+}
+
+page 97085 "LT VQ Page V3"
+{
+    PageType = Card;
+    SourceTable = "LT VQ Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field(Id; Rec.Id) { ApplicationArea = All; }
+            field(VisCtl; Rec.Name)
+            {
+                ApplicationArea = All;
+                Visible = E.Mode::Beta = Rec.Kind;
+            }
+            field(EdtCtl; Rec.Name)
+            {
+                ApplicationArea = All;
+                Editable = E.Mode::Beta = Rec.Kind;
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(ActCtl)
+            {
+                ApplicationArea = All;
+                Enabled = E.Mode::Beta = Rec.Kind;
+
+                trigger OnAction()
+                begin
+                end;
+            }
+            action(FlipCtl)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Dir := Dir::Alpha;
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Dir := Dir::Beta;
+    end;
+
+    var
+        E: Record "LT VQ Other";
+        Dir: Enum "LT VQ Kind";
+}
+
+page 97086 "LT VQ Page V4"
+{
+    PageType = Card;
+    SourceTable = "LT VQ Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field(Id; Rec.Id) { ApplicationArea = All; }
+            field(VisCtl; Rec.Name)
+            {
+                ApplicationArea = All;
+                Visible = Dir = "LT VQ Kind"::Beta;
+            }
+            field(EdtCtl; Rec.Name)
+            {
+                ApplicationArea = All;
+                Editable = Dir = "LT VQ Kind"::Beta;
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(ActCtl)
+            {
+                ApplicationArea = All;
+                Enabled = Dir = "LT VQ Kind"::Beta;
+
+                trigger OnAction()
+                begin
+                end;
+            }
+            action(FlipCtl)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Dir := Dir::Alpha;
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Dir := Dir::Beta;
+    end;
+
+    var
+        E: Record "LT VQ Other";
+        Dir: Enum "LT VQ Kind";
+}
+
+page 97087 "LT VQ Page V5"
+{
+    PageType = Card;
+    SourceTable = "LT VQ Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field(Id; Rec.Id) { ApplicationArea = All; }
+            field(VisCtl; Rec.Name)
+            {
+                ApplicationArea = All;
+                Visible = Dir = EV::Beta;
+            }
+            field(EdtCtl; Rec.Name)
+            {
+                ApplicationArea = All;
+                Editable = Dir = EV::Beta;
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(ActCtl)
+            {
+                ApplicationArea = All;
+                Enabled = Dir = EV::Beta;
+
+                trigger OnAction()
+                begin
+                end;
+            }
+            action(FlipCtl)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Dir := Dir::Alpha;
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Dir := Dir::Beta;
+    end;
+
+    var
+        E: Record "LT VQ Other";
+        Dir: Enum "LT VQ Kind";
+        EV: Enum "LT VQ Kind";
+}
+
+page 97088 "LT VQ Page V6"
+{
+    PageType = Card;
+    SourceTable = "LT VQ Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field(Id; Rec.Id) { ApplicationArea = All; }
+            field(VisCtl; Rec.Name)
+            {
+                ApplicationArea = All;
+                Visible = Dir = E."Mode Two"::"Gamma Delta";
+            }
+            field(EdtCtl; Rec.Name)
+            {
+                ApplicationArea = All;
+                Editable = Dir = E."Mode Two"::"Gamma Delta";
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(ActCtl)
+            {
+                ApplicationArea = All;
+                Enabled = Dir = E."Mode Two"::"Gamma Delta";
+
+                trigger OnAction()
+                begin
+                end;
+            }
+            action(FlipCtl)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Dir := Dir::Alpha;
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Dir := Dir::"Gamma Delta";
+    end;
+
+    var
+        E: Record "LT VQ Other";
+        Dir: Enum "LT VQ Kind";
+}

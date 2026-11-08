@@ -1,36 +1,11 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-report-ext-object
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), self-contained codeunit 72621, tables 72990-72991, report 72624, report extension 72625
+// Fixtures used: Probe Observer (codeunit 69160), self-contained codeunit 72621, tables 72990-72991, report 72624, report extension 72625 (tables 72990 and 72991 are now shared tables 50000 "ALT Shape 00" and 50023 "ALT Shape 23")
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Settles probes-needed row: "NP Retail blockers - A reportextension that declares procedures and adds data items or global variables" (a public procedure
 // next to an added data item and a variable, called through a base report variable before and after Run, and from a second variable)
 // Facts: state a reportextension procedure sees through a base report variable: variable set by a trigger, added data item records, second instance
 // BC versions: 29 (27 and 28 by CI)
-
-table 72990 "LT PnE Rx Parent"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
-
-table 72991 "LT PnE Rx Child"
-{
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; ParentId; Integer) { }
-    }
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 report 72624 "LT PnE Rx Base"
 {
@@ -40,7 +15,7 @@ report 72624 "LT PnE Rx Base"
 
     dataset
     {
-        dataitem(Parent; "LT PnE Rx Parent")
+        dataitem(Parent; "ALT Shape 00")
         {
         }
     }
@@ -65,7 +40,7 @@ reportextension 72625 "LT PnE Rx Ext" extends "LT PnE Rx Base"
     {
         addlast(Parent)
         {
-            dataitem(Kid; "LT PnE Rx Child")
+            dataitem(Kid; "ALT Shape 23")
             {
                 DataItemLink = ParentId = field(Id);
 
@@ -106,8 +81,8 @@ codeunit 72621 "LT PnE Report Ext Proc"
 
     local procedure Seed()
     var
-        P: Record "LT PnE Rx Parent";
-        C: Record "LT PnE Rx Child";
+        P: Record "ALT Shape 00";
+        C: Record "ALT Shape 23";
     begin
         P.DeleteAll();
         C.DeleteAll();
@@ -128,8 +103,8 @@ codeunit 72621 "LT PnE Report Ext Proc"
 
     local procedure Clean()
     var
-        P: Record "LT PnE Rx Parent";
-        C: Record "LT PnE Rx Child";
+        P: Record "ALT Shape 00";
+        C: Record "ALT Shape 23";
     begin
         P.DeleteAll();
         C.DeleteAll();

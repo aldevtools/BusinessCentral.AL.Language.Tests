@@ -7,6 +7,8 @@
 // answers false and leaves a last error without raising, see json/lt-json-selecttokens/SelectTokensList.al); a path that raises is observed
 // as 'raised' with its error.
 // Facts: see the Expect lines of each test.
+//   cw-waldo5 (al-runner 6924): SelectToken path forms with bracket-quoted keys ('$.[''No.'']', '$[''x''][''y'']', keys with a dot, a space, brackets, an escaped
+//   quote), dot notation with special characters, wildcard, recursive descent, unions and slices on a JsonObject, a JsonArray and a JsonToken.
 // BC versions: 27, 28, 29
 
 codeunit 85723 "LT DB JPath Leads"
@@ -421,4 +423,715 @@ codeunit 85723 "LT DB JPath Leads"
         Observer.Verify();
     end;
 #endif
+
+    // Al-runner issue 6924 item 2.5: the path forms of SelectToken that no test above or in JsonObjectBasics.al pins: wildcard names,
+    // empty names (a trailing or a doubled dot), `..` with zero or several matches, quoted names with blanks, dots, quotes or nothing,
+    // slices with an open end or a step, odd indexers, names on arrays and values, and the same paths as a statement (result unused).
+    // Observed like Sel above; the statement form as P6924_SelStmt below ('raised', or 'done [<token>]', and the last error).
+    [TryFunction]
+    local procedure P6924_TrySelStmt(O: JsonObject; Path: Text; var T: JsonToken)
+    begin
+        O.SelectToken(Path, T);
+    end;
+
+    [TryFunction]
+    local procedure P6924_TryWrite(T: JsonToken; var Written: Text)
+    begin
+        T.WriteTo(Written);
+    end;
+
+    local procedure P6924_SelStmt(var Observer: Codeunit "Probe Observer"; Name: Text; O: JsonObject; Path: Text)
+    var
+        T: JsonToken;
+        Written: Text;
+    begin
+        ClearLastError();
+        if not P6924_TrySelStmt(O, Path, T) then begin
+            Observer.Observe(Name, 'raised');
+            Observer.ObserveError(Name);
+            exit;
+        end;
+        if not P6924_TryWrite(T, Written) then
+            Written := '<no token>';
+        ClearLastError();
+        Observer.Observe(Name, 'done [' + Written + ']');
+        Observer.ObserveError(Name);
+    end;
+
+    local procedure P6924_Doc() O: JsonObject
+    begin
+        O.ReadFrom('{"a":{"b":1,"c":[10,20,30],"d e":2,"x.y":3,"it''s":4,"":5,"n":null},"arr":[{"k":1},{"k":2}],"one":[{"k":7}],"empty":[],"s":"txt"}');
+    end;
+
+    [Test]
+    procedure P6924_SelectToken_WildcardAndEmptyNames()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Sel(Observer, 'name_star', P6924_Doc(), 'a.*');
+        Sel(Observer, 'root_star', P6924_Doc(), '$.*');
+        Sel(Observer, 'bare_star', P6924_Doc(), '*');
+        Sel(Observer, 'one_star', P6924_Doc(), 'one.*');
+        Sel(Observer, 'trailing_dot', P6924_Doc(), 'a.');
+        Sel(Observer, 'root_dot', P6924_Doc(), '$.');
+        Sel(Observer, 'leading_dot', P6924_Doc(), '.a.b');
+        Sel(Observer, 'at_sign', P6924_Doc(), '@.a');
+        Observer.Expect('name_star', 'No []');
+        Observer.Expect('name_star|text', '');
+        Observer.Expect('name_star|code', '');
+        Observer.Expect('root_star', 'No []');
+        Observer.Expect('root_star|text', '');
+        Observer.Expect('root_star|code', '');
+        Observer.Expect('bare_star', 'No []');
+        Observer.Expect('bare_star|text', '');
+        Observer.Expect('bare_star|code', '');
+        Observer.Expect('one_star', 'No []');
+        Observer.Expect('one_star|text', '');
+        Observer.Expect('one_star|code', '');
+        Observer.Expect('trailing_dot', 'No []');
+        Observer.Expect('trailing_dot|text', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('trailing_dot|code', 'InvalidOperation');
+        Observer.Expect('root_dot', 'No []');
+        Observer.Expect('root_dot|text', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('root_dot|code', 'InvalidOperation');
+        Observer.Expect('leading_dot', 'Yes [1]');
+        Observer.Expect('leading_dot|text', '');
+        Observer.Expect('leading_dot|code', '');
+        Observer.Expect('at_sign', 'No []');
+        Observer.Expect('at_sign|text', '');
+        Observer.Expect('at_sign|code', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure P6924_SelectToken_RecursiveDescent()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Sel(Observer, 'inner_descent', P6924_Doc(), 'a..b');
+        Sel(Observer, 'descent_many', P6924_Doc(), '$..k');
+        Sel(Observer, 'descent_none', P6924_Doc(), '$..zzz');
+        Sel(Observer, 'descent_one', P6924_Doc(), '$..b');
+        Sel(Observer, 'descent_index', P6924_Doc(), '$..[0]');
+        Sel(Observer, 'descent_then_index', P6924_Doc(), '$..c[1]');
+        Sel(Observer, 'descent_star', P6924_Doc(), '$..*');
+        Sel(Observer, 'descent_one_then_key', P6924_Doc(), '$..one[0].k');
+        Observer.Expect('inner_descent', 'Yes [1]');
+        Observer.Expect('inner_descent|text', '');
+        Observer.Expect('inner_descent|code', '');
+        Observer.Expect('descent_many', 'No []');
+        Observer.Expect('descent_many|text', '');
+        Observer.Expect('descent_many|code', '');
+        Observer.Expect('descent_none', 'No []');
+        Observer.Expect('descent_none|text', '');
+        Observer.Expect('descent_none|code', '');
+        Observer.Expect('descent_one', 'Yes [1]');
+        Observer.Expect('descent_one|text', '');
+        Observer.Expect('descent_one|code', '');
+        Observer.Expect('descent_index', 'No []');
+        Observer.Expect('descent_index|text', '');
+        Observer.Expect('descent_index|code', '');
+        Observer.Expect('descent_then_index', 'Yes [20]');
+        Observer.Expect('descent_then_index|text', '');
+        Observer.Expect('descent_then_index|code', '');
+        Observer.Expect('descent_star', 'No []');
+        Observer.Expect('descent_star|text', '');
+        Observer.Expect('descent_star|code', '');
+        Observer.Expect('descent_one_then_key', 'Yes [7]');
+        Observer.Expect('descent_one_then_key|text', '');
+        Observer.Expect('descent_one_then_key|code', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure P6924_SelectToken_QuotedNames()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Sel(Observer, 'quoted_blank', P6924_Doc(), 'a[''d e'']');
+        Sel(Observer, 'dotted_blank', P6924_Doc(), 'a.d e');
+        Sel(Observer, 'quoted_dot', P6924_Doc(), 'a[''x.y'']');
+        Sel(Observer, 'dotted_dot', P6924_Doc(), 'a.x.y');
+        Sel(Observer, 'quoted_escaped_quote', P6924_Doc(), 'a[''it\''s'']');
+        Sel(Observer, 'quoted_empty', P6924_Doc(), 'a['''']');
+        Sel(Observer, 'root_quoted_chain', P6924_Doc(), '$[''a''][''b'']');
+        Sel(Observer, 'quoted_null', P6924_Doc(), '$.a[''n'']');
+        Observer.Expect('quoted_blank', 'Yes [2]');
+        Observer.Expect('quoted_blank|text', '');
+        Observer.Expect('quoted_blank|code', '');
+        Observer.Expect('dotted_blank', 'No []');
+        Observer.Expect('dotted_blank|text', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('dotted_blank|code', 'InvalidOperation');
+        Observer.Expect('quoted_dot', 'Yes [3]');
+        Observer.Expect('quoted_dot|text', '');
+        Observer.Expect('quoted_dot|code', '');
+        Observer.Expect('dotted_dot', 'No []');
+        Observer.Expect('dotted_dot|text', '');
+        Observer.Expect('dotted_dot|code', '');
+        Observer.Expect('quoted_escaped_quote', 'Yes [4]');
+        Observer.Expect('quoted_escaped_quote|text', '');
+        Observer.Expect('quoted_escaped_quote|code', '');
+        Observer.Expect('quoted_empty', 'Yes [5]');
+        Observer.Expect('quoted_empty|text', '');
+        Observer.Expect('quoted_empty|code', '');
+        Observer.Expect('root_quoted_chain', 'Yes [1]');
+        Observer.Expect('root_quoted_chain|text', '');
+        Observer.Expect('root_quoted_chain|code', '');
+        Observer.Expect('quoted_null', 'Yes [null]');
+        Observer.Expect('quoted_null|text', '');
+        Observer.Expect('quoted_null|code', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure P6924_SelectToken_Slices()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Sel(Observer, 'slice_open_start', P6924_Doc(), 'a.c[:1]');
+        Sel(Observer, 'slice_open_end', P6924_Doc(), 'a.c[2:]');
+        Sel(Observer, 'slice_step', P6924_Doc(), 'a.c[0:3:2]');
+        Sel(Observer, 'slice_step_only', P6924_Doc(), 'a.c[::3]');
+        Sel(Observer, 'slice_one', P6924_Doc(), 'a.c[1:2]');
+        Sel(Observer, 'slice_two', P6924_Doc(), 'a.c[0:2]');
+        Sel(Observer, 'slice_none', P6924_Doc(), 'a.c[5:9]');
+        Sel(Observer, 'slice_then_key', P6924_Doc(), 'arr[1:2].k');
+        Observer.Expect('slice_open_start', 'Yes [10]');
+        Observer.Expect('slice_open_start|text', '');
+        Observer.Expect('slice_open_start|code', '');
+        Observer.Expect('slice_open_end', 'Yes [30]');
+        Observer.Expect('slice_open_end|text', '');
+        Observer.Expect('slice_open_end|code', '');
+        Observer.Expect('slice_step', 'No []');
+        Observer.Expect('slice_step|text', '');
+        Observer.Expect('slice_step|code', '');
+        Observer.Expect('slice_step_only', 'Yes [10]');
+        Observer.Expect('slice_step_only|text', '');
+        Observer.Expect('slice_step_only|code', '');
+        Observer.Expect('slice_one', 'Yes [20]');
+        Observer.Expect('slice_one|text', '');
+        Observer.Expect('slice_one|code', '');
+        Observer.Expect('slice_two', 'No []');
+        Observer.Expect('slice_two|text', '');
+        Observer.Expect('slice_two|code', '');
+        Observer.Expect('slice_none', 'No []');
+        Observer.Expect('slice_none|text', '');
+        Observer.Expect('slice_none|code', '');
+        Observer.Expect('slice_then_key', 'Yes [2]');
+        Observer.Expect('slice_then_key|text', '');
+        Observer.Expect('slice_then_key|code', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure P6924_SelectToken_WildcardIndexers()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Sel(Observer, 'wild_single', P6924_Doc(), 'one[*]');
+        Sel(Observer, 'wild_single_key', P6924_Doc(), 'one[*].k');
+        Sel(Observer, 'wild_empty', P6924_Doc(), 'empty[*]');
+        Sel(Observer, 'wild_many_key', P6924_Doc(), 'arr[*].k');
+        Sel(Observer, 'wild_on_object', P6924_Doc(), 'a[*]');
+        Sel(Observer, 'quoted_star', P6924_Doc(), '$[''*'']');
+        Sel(Observer, 'wild_then_index', P6924_Doc(), '$.a.c[*]');
+        Sel(Observer, 'root_wild', P6924_Doc(), '$[*]');
+        Observer.Expect('wild_single', 'Yes [{"k":7}]');
+        Observer.Expect('wild_single|text', '');
+        Observer.Expect('wild_single|code', '');
+        Observer.Expect('wild_single_key', 'Yes [7]');
+        Observer.Expect('wild_single_key|text', '');
+        Observer.Expect('wild_single_key|code', '');
+        Observer.Expect('wild_empty', 'No []');
+        Observer.Expect('wild_empty|text', '');
+        Observer.Expect('wild_empty|code', '');
+        Observer.Expect('wild_many_key', 'No []');
+        Observer.Expect('wild_many_key|text', '');
+        Observer.Expect('wild_many_key|code', '');
+        Observer.Expect('wild_on_object', 'No []');
+        Observer.Expect('wild_on_object|text', '');
+        Observer.Expect('wild_on_object|code', '');
+        Observer.Expect('quoted_star', 'No []');
+        Observer.Expect('quoted_star|text', '');
+        Observer.Expect('quoted_star|code', '');
+        Observer.Expect('wild_then_index', 'No []');
+        Observer.Expect('wild_then_index|text', '');
+        Observer.Expect('wild_then_index|code', '');
+        Observer.Expect('root_wild', 'No []');
+        Observer.Expect('root_wild|text', '');
+        Observer.Expect('root_wild|code', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure P6924_SelectToken_IndexerForms()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Sel(Observer, 'index_blanks', P6924_Doc(), 'a.c[ 1 ]');
+        Sel(Observer, 'index_plus', P6924_Doc(), 'a.c[+1]');
+        Sel(Observer, 'index_leading_zero', P6924_Doc(), 'a.c[01]');
+        Sel(Observer, 'index_decimal', P6924_Doc(), 'a.c[1.0]');
+        Sel(Observer, 'index_letters_used', P6924_Doc(), 'a.c[x]');
+        Sel(Observer, 'index_quoted_number', P6924_Doc(), 'a.c[''1'']');
+        Sel(Observer, 'index_on_object', P6924_Doc(), 'a[0]');
+        Sel(Observer, 'index_chain', P6924_Doc(), 'arr[0][0]');
+        Observer.Expect('index_blanks', 'Yes [20]');
+        Observer.Expect('index_blanks|text', '');
+        Observer.Expect('index_blanks|code', '');
+        Observer.Expect('index_plus', 'No []');
+        Observer.Expect('index_plus|text', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('index_plus|code', 'InvalidOperation');
+        Observer.Expect('index_leading_zero', 'Yes [20]');
+        Observer.Expect('index_leading_zero|text', '');
+        Observer.Expect('index_leading_zero|code', '');
+        Observer.Expect('index_decimal', 'No []');
+        Observer.Expect('index_decimal|text', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('index_decimal|code', 'InvalidOperation');
+        Observer.Expect('index_letters_used', 'No []');
+        Observer.Expect('index_letters_used|text', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('index_letters_used|code', 'InvalidOperation');
+        Observer.Expect('index_quoted_number', 'No []');
+        Observer.Expect('index_quoted_number|text', '');
+        Observer.Expect('index_quoted_number|code', '');
+        Observer.Expect('index_on_object', 'No []');
+        Observer.Expect('index_on_object|text', '');
+        Observer.Expect('index_on_object|code', '');
+        Observer.Expect('index_chain', 'No []');
+        Observer.Expect('index_chain|text', '');
+        Observer.Expect('index_chain|code', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure P6924_SelectToken_NamesOnArraysAndValues()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Sel(Observer, 'name_on_array', P6924_Doc(), 'arr.k');
+        Sel(Observer, 'name_on_text', P6924_Doc(), 's.x');
+        Sel(Observer, 'name_on_null', P6924_Doc(), 'a.n.x');
+        Sel(Observer, 'null_value', P6924_Doc(), 'a.n');
+        Sel(Observer, 'name_on_number', P6924_Doc(), 'a.b.c');
+        Sel(Observer, 'case_differs', P6924_Doc(), 'A.B');
+        Sel(Observer, 'blank_around_dot', P6924_Doc(), 'a. b');
+        Sel(Observer, 'dollar_inside', P6924_Doc(), 'a.$');
+        Observer.Expect('name_on_array', 'No []');
+        Observer.Expect('name_on_array|text', '');
+        Observer.Expect('name_on_array|code', '');
+        Observer.Expect('name_on_text', 'No []');
+        Observer.Expect('name_on_text|text', '');
+        Observer.Expect('name_on_text|code', '');
+        Observer.Expect('name_on_null', 'No []');
+        Observer.Expect('name_on_null|text', '');
+        Observer.Expect('name_on_null|code', '');
+        Observer.Expect('null_value', 'Yes [null]');
+        Observer.Expect('null_value|text', '');
+        Observer.Expect('null_value|code', '');
+        Observer.Expect('name_on_number', 'No []');
+        Observer.Expect('name_on_number|text', '');
+        Observer.Expect('name_on_number|code', '');
+        Observer.Expect('case_differs', 'No []');
+        Observer.Expect('case_differs|text', '');
+        Observer.Expect('case_differs|code', '');
+        Observer.Expect('blank_around_dot', 'No []');
+        Observer.Expect('blank_around_dot|text', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('blank_around_dot|code', 'InvalidOperation');
+        Observer.Expect('dollar_inside', 'No []');
+        Observer.Expect('dollar_inside|text', '');
+        Observer.Expect('dollar_inside|code', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure P6924_SelectToken_Statement_NoOrManyMatches()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        P6924_SelStmt(Observer, 'stmt_missing', P6924_Doc(), 'nope');
+        P6924_SelStmt(Observer, 'stmt_missing_inner', P6924_Doc(), 'a.zzz');
+        P6924_SelStmt(Observer, 'stmt_index_past_end', P6924_Doc(), 'a.c[9]');
+        P6924_SelStmt(Observer, 'stmt_wild_empty', P6924_Doc(), 'empty[*]');
+        P6924_SelStmt(Observer, 'stmt_wild_single', P6924_Doc(), 'one[*]');
+        P6924_SelStmt(Observer, 'stmt_descent_none', P6924_Doc(), '$..zzz');
+        P6924_SelStmt(Observer, 'stmt_descent_many', P6924_Doc(), '$..k');
+        P6924_SelStmt(Observer, 'stmt_descent_one', P6924_Doc(), '$..b');
+        Observer.Expect('stmt_missing', 'raised');
+        Observer.Expect('stmt_missing|text', 'The JSON path ''nope'' does not match any tokens.');
+        Observer.Expect('stmt_missing|code', 'InvalidJsonPathSelection');
+        Observer.Expect('stmt_missing_inner', 'raised');
+        Observer.Expect('stmt_missing_inner|text', 'The JSON path ''a.zzz'' does not match any tokens.');
+        Observer.Expect('stmt_missing_inner|code', 'InvalidJsonPathSelection');
+        Observer.Expect('stmt_index_past_end', 'raised');
+        Observer.Expect('stmt_index_past_end|text', 'The JSON path ''a.c[9]'' does not match any tokens.');
+        Observer.Expect('stmt_index_past_end|code', 'InvalidJsonPathSelection');
+        Observer.Expect('stmt_wild_empty', 'raised');
+        Observer.Expect('stmt_wild_empty|text', 'The JSON path ''empty[*]'' does not match any tokens.');
+        Observer.Expect('stmt_wild_empty|code', 'InvalidJsonPathSelection');
+        Observer.Expect('stmt_wild_single', 'done [{"k":7}]');
+        Observer.Expect('stmt_wild_single|text', '');
+        Observer.Expect('stmt_wild_single|code', '');
+        Observer.Expect('stmt_descent_none', 'raised');
+        Observer.Expect('stmt_descent_none|text', 'The JSON path ''$..zzz'' does not match any tokens.');
+        Observer.Expect('stmt_descent_none|code', 'InvalidJsonPathSelection');
+        Observer.Expect('stmt_descent_many', 'raised');
+        Observer.Expect('stmt_descent_many|text', 'The set of tokens matching the JSON path ''$..k'' contains more than one element.');
+        Observer.Expect('stmt_descent_many|code', 'InvalidJsonPathSelection');
+        Observer.Expect('stmt_descent_one', 'done [1]');
+        Observer.Expect('stmt_descent_one|text', '');
+        Observer.Expect('stmt_descent_one|code', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure P6924_SelectToken_Statement_OtherForms()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        P6924_SelStmt(Observer, 'stmt_slice_two', P6924_Doc(), 'a.c[0:2]');
+        P6924_SelStmt(Observer, 'stmt_slice_one', P6924_Doc(), 'a.c[1:2]');
+        P6924_SelStmt(Observer, 'stmt_name_star', P6924_Doc(), 'a.*');
+        P6924_SelStmt(Observer, 'stmt_trailing_dot', P6924_Doc(), 'a.');
+        P6924_SelStmt(Observer, 'stmt_quoted_blank', P6924_Doc(), 'a[''d e'']');
+        P6924_SelStmt(Observer, 'stmt_double_quoted', P6924_Doc(), 'a["b"]');
+        P6924_SelStmt(Observer, 'stmt_name_on_array', P6924_Doc(), 'arr.k');
+        P6924_SelStmt(Observer, 'stmt_wild_many_key', P6924_Doc(), 'arr[*].k');
+        Observer.Expect('stmt_slice_two', 'raised');
+        Observer.Expect('stmt_slice_two|text', 'The set of tokens matching the JSON path ''a.c[0:2]'' contains more than one element.');
+        Observer.Expect('stmt_slice_two|code', 'InvalidJsonPathSelection');
+        Observer.Expect('stmt_slice_one', 'done [20]');
+        Observer.Expect('stmt_slice_one|text', '');
+        Observer.Expect('stmt_slice_one|code', '');
+        Observer.Expect('stmt_name_star', 'raised');
+        Observer.Expect('stmt_name_star|text', 'The set of tokens matching the JSON path ''a.*'' contains more than one element.');
+        Observer.Expect('stmt_name_star|code', 'InvalidJsonPathSelection');
+        Observer.Expect('stmt_trailing_dot', 'raised');
+        Observer.Expect('stmt_trailing_dot|text', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('stmt_trailing_dot|code', 'InvalidOperation');
+        Observer.Expect('stmt_quoted_blank', 'done [2]');
+        Observer.Expect('stmt_quoted_blank|text', '');
+        Observer.Expect('stmt_quoted_blank|code', '');
+        Observer.Expect('stmt_double_quoted', 'raised');
+        Observer.Expect('stmt_double_quoted|text', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('stmt_double_quoted|code', 'InvalidOperation');
+        Observer.Expect('stmt_name_on_array', 'raised');
+        Observer.Expect('stmt_name_on_array|text', 'The JSON path ''arr.k'' does not match any tokens.');
+        Observer.Expect('stmt_name_on_array|code', 'InvalidJsonPathSelection');
+        Observer.Expect('stmt_wild_many_key', 'raised');
+        Observer.Expect('stmt_wild_many_key|text', 'The set of tokens matching the JSON path ''arr[*].k'' contains more than one element.');
+        Observer.Expect('stmt_wild_many_key|code', 'InvalidJsonPathSelection');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure P6924_SelectToken_OtherReceivers()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: JsonArray;
+        V: JsonValue;
+        Tok: JsonToken;
+        T: JsonToken;
+        Ret: Boolean;
+        Written: Text;
+    begin
+        A.ReadFrom('[{"k":1},[2,3],"x"]');
+        Y47_SelArr(Observer, 'array_index_key', A, '[0].k');
+        Y47_SelArr(Observer, 'array_dollar_index', A, '$[1][0]');
+        Y47_SelArr(Observer, 'array_name', A, 'k');
+        Y47_SelArr(Observer, 'array_descent', A, '$..k');
+        V.SetValue(5);
+        Tok := V.AsToken();
+        Y47_SelTok(Observer, 'value_token_root', Tok, '$');
+        Y47_SelTok(Observer, 'value_token_name', Tok, 'x');
+        ClearLastError();
+        Ret := V.SelectToken('', T);
+        if Ret then
+            T.WriteTo(Written);
+        Observer.Observe('value_empty_path', Format(Ret) + ' [' + Written + ']');
+        Observer.ObserveError('value_empty_path');
+        Observer.Expect('array_index_key', 'Yes [1]');
+        Observer.Expect('array_index_key|text', '');
+        Observer.Expect('array_index_key|code', '');
+        Observer.Expect('array_dollar_index', 'Yes [2]');
+        Observer.Expect('array_dollar_index|text', '');
+        Observer.Expect('array_dollar_index|code', '');
+        Observer.Expect('array_name', 'No []');
+        Observer.Expect('array_name|text', '');
+        Observer.Expect('array_name|code', '');
+        Observer.Expect('array_descent', 'Yes [1]');
+        Observer.Expect('array_descent|text', '');
+        Observer.Expect('array_descent|code', '');
+        Observer.Expect('value_token_root', 'Yes [5]');
+        Observer.Expect('value_token_root|text', '');
+        Observer.Expect('value_token_root|code', '');
+        Observer.Expect('value_token_name', 'No []');
+        Observer.Expect('value_token_name|text', '');
+        Observer.Expect('value_token_name|code', '');
+        Observer.Expect('value_empty_path', 'Yes [5]');
+        Observer.Expect('value_empty_path|text', '');
+        Observer.Expect('value_empty_path|code', '');
+        Observer.Verify();
+    end;
+
+    // ---- cw-waldo5 (al-runner 6924, waldo): SelectToken path forms with bracket-quoted keys, the full surface ----
+    // Compact observation: answer, token as text, last error code and text, in one value named by the path.
+    local procedure W5Doc() O: JsonObject
+    var
+        Inner: JsonObject;
+        Inner2: JsonObject;
+        Arr: JsonArray;
+    begin
+        O.Add('No.', 'N1');
+        O.Add('Due Date', '2026');
+        Inner.Add('c', 1);
+        O.Add('a.b', Inner);
+        Clear(Inner);
+        Inner.Add('y', 2);
+        O.Add('x', Inner);
+        Clear(Inner);
+        Inner.Add('b c', 3);
+        Inner.Add('b', 4);
+        O.Add('a', Inner);
+        O.Add('it''s', 5);
+        O.Add('[0]', 6);
+        Arr.Add(10);
+        Arr.Add(20);
+        Arr.Add(30);
+        O.Add('arr', Arr);
+        O.Add('k-v', 7);
+        O.Add('k v', 8);
+        O.Add('', 9);
+        Inner2.Add('No.', 'deep');
+        O.Add('n', Inner2);
+    end;
+
+    local procedure W5Sel(var Observer: Codeunit "Probe Observer"; O: JsonObject; Path: Text)
+    var
+        T: JsonToken;
+        Ret: Boolean;
+        Written: Text;
+    begin
+        ClearLastError();
+        if not TrySel(O, Path, T, Ret) then begin
+            Observer.Observe(Path, 'raised ' + GetLastErrorCode() + ' | ' + GetLastErrorText());
+            ClearLastError();
+            exit;
+        end;
+        if Ret then
+            T.WriteTo(Written);
+        Observer.Observe(Path, Format(Ret) + ' [' + Written + '] ' + GetLastErrorCode() + ' | ' + GetLastErrorText());
+        ClearLastError();
+    end;
+
+    [Test]
+    procedure W5_BracketKeys_DollarDotForm()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        W5Sel(Observer, W5Doc(), '$.[''No.'']');
+        W5Sel(Observer, W5Doc(), '$.[''Due Date'']');
+        W5Sel(Observer, W5Doc(), '$[''No.'']');
+        W5Sel(Observer, W5Doc(), '[''No.'']');
+        W5Sel(Observer, W5Doc(), '[''Due Date'']');
+        W5Sel(Observer, W5Doc(), '$.[''a.b''].c');
+        W5Sel(Observer, W5Doc(), '$.[''a.b''][''c'']');
+        W5Sel(Observer, W5Doc(), '$[''x''][''y'']');
+        W5Sel(Observer, W5Doc(), '$.a[''b c'']');
+        W5Sel(Observer, W5Doc(), '$.a.[''b c'']');
+        W5Sel(Observer, W5Doc(), '$.[''x''].y');
+        W5Sel(Observer, W5Doc(), '$.[''n''].[''No.'']');
+        Observer.Expect('$.[''No.'']', 'Yes ["N1"]  | ');
+        Observer.Expect('$.[''Due Date'']', 'Yes ["2026"]  | ');
+        Observer.Expect('$[''No.'']', 'Yes ["N1"]  | ');
+        Observer.Expect('[''No.'']', 'Yes ["N1"]  | ');
+        Observer.Expect('[''Due Date'']', 'Yes ["2026"]  | ');
+        Observer.Expect('$.[''a.b''].c', 'Yes [1]  | ');
+        Observer.Expect('$.[''a.b''][''c'']', 'Yes [1]  | ');
+        Observer.Expect('$[''x''][''y'']', 'Yes [2]  | ');
+        Observer.Expect('$.a[''b c'']', 'Yes [3]  | ');
+        Observer.Expect('$.a.[''b c'']', 'Yes [3]  | ');
+        Observer.Expect('$.[''x''].y', 'Yes [2]  | ');
+        Observer.Expect('$.[''n''].[''No.'']', 'Yes ["deep"]  | ');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure W5_BracketKeys_Escapes_Brackets_Missing()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        W5Sel(Observer, W5Doc(), '$.[''it''''s'']');
+        W5Sel(Observer, W5Doc(), '[''it''''s'']');
+        W5Sel(Observer, W5Doc(), '[''it\''s'']');
+        W5Sel(Observer, W5Doc(), '$.[''[0]'']');
+        W5Sel(Observer, W5Doc(), '[''[0]'']');
+        W5Sel(Observer, W5Doc(), '$.[''Nope'']');
+        W5Sel(Observer, W5Doc(), '$.[''No.'']x');
+        W5Sel(Observer, W5Doc(), '$.[''No.''');
+        W5Sel(Observer, W5Doc(), '$.[''''] ');
+        W5Sel(Observer, W5Doc(), '[''''] ');
+        W5Sel(Observer, W5Doc(), '$.["No."]');
+        W5Sel(Observer, W5Doc(), '["No."]');
+        W5Sel(Observer, W5Doc(), '$.[No.]');
+        Observer.Expect('$.[''it''''s'']', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('[''it''''s'']', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('[''it\''s'']', 'Yes [5]  | ');
+        Observer.Expect('$.[''[0]'']', 'Yes [6]  | ');
+        Observer.Expect('[''[0]'']', 'Yes [6]  | ');
+        Observer.Expect('$.[''Nope'']', 'No []  | ');
+        Observer.Expect('$.[''No.'']x', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('$.[''No.''', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('$.[''''] ', 'Yes [9]  | ');
+        Observer.Expect('[''''] ', 'Yes [9]  | ');
+        Observer.Expect('$.["No."]', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('["No."]', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('$.[No.]', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure W5_DotNotation_SpecialCharacters_AndArrays()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        W5Sel(Observer, W5Doc(), 'No.');
+        W5Sel(Observer, W5Doc(), '$.No.');
+        W5Sel(Observer, W5Doc(), 'k-v');
+        W5Sel(Observer, W5Doc(), '$.k-v');
+        W5Sel(Observer, W5Doc(), 'k v');
+        W5Sel(Observer, W5Doc(), '$.k v');
+        W5Sel(Observer, W5Doc(), 'x.y');
+        W5Sel(Observer, W5Doc(), '$.x.y');
+        W5Sel(Observer, W5Doc(), 'x[''y'']');
+        W5Sel(Observer, W5Doc(), 'x.[''y'']');
+        W5Sel(Observer, W5Doc(), '$.[''arr''][0]');
+        W5Sel(Observer, W5Doc(), '$.[''arr''][-1]');
+        W5Sel(Observer, W5Doc(), '$.arr[1]');
+        W5Sel(Observer, W5Doc(), '$.arr[-1]');
+        Observer.Expect('No.', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('$.No.', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('k-v', 'Yes [7]  | ');
+        Observer.Expect('$.k-v', 'Yes [7]  | ');
+        Observer.Expect('k v', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('$.k v', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('x.y', 'Yes [2]  | ');
+        Observer.Expect('$.x.y', 'Yes [2]  | ');
+        Observer.Expect('x[''y'']', 'Yes [2]  | ');
+        Observer.Expect('x.[''y'']', 'Yes [2]  | ');
+        Observer.Expect('$.[''arr''][0]', 'Yes [10]  | ');
+        Observer.Expect('$.[''arr''][-1]', 'No [] ArgumentOutOfRange | An invalid argument was passed to a ''Json'' data type method.');
+        Observer.Expect('$.arr[1]', 'Yes [20]  | ');
+        Observer.Expect('$.arr[-1]', 'No [] ArgumentOutOfRange | An invalid argument was passed to a ''Json'' data type method.');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure W5_Wildcard_Recursive_Union()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        W5Sel(Observer, W5Doc(), '$.arr[*]');
+        W5Sel(Observer, W5Doc(), '$.[*]');
+        W5Sel(Observer, W5Doc(), '$.x[*]');
+        W5Sel(Observer, W5Doc(), '$..y');
+        W5Sel(Observer, W5Doc(), '$..[''y'']');
+        W5Sel(Observer, W5Doc(), '$..[''No.'']');
+        W5Sel(Observer, W5Doc(), '$..No.');
+        W5Sel(Observer, W5Doc(), '$.[''No.'',''Due Date'']');
+        W5Sel(Observer, W5Doc(), '$.[''No.'',''Nope'']');
+        W5Sel(Observer, W5Doc(), '$.arr[0,2]');
+        W5Sel(Observer, W5Doc(), '$.arr[1:]');
+        W5Sel(Observer, W5Doc(), '$.arr[:2]');
+        Observer.Expect('$.arr[*]', 'No []  | ');
+        Observer.Expect('$.[*]', 'No []  | ');
+        Observer.Expect('$.x[*]', 'No []  | ');
+        Observer.Expect('$..y', 'Yes [2]  | ');
+        Observer.Expect('$..[''y'']', 'Yes [2]  | ');
+        Observer.Expect('$..[''No.'']', 'No []  | ');
+        Observer.Expect('$..No.', 'No [] InvalidOperation | The requested operation cannot be performed in this context.');
+        Observer.Expect('$.[''No.'',''Due Date'']', 'No []  | ');
+        Observer.Expect('$.[''No.'',''Nope'']', 'Yes ["N1"]  | ');
+        Observer.Expect('$.arr[0,2]', 'No []  | ');
+        Observer.Expect('$.arr[1:]', 'No []  | ');
+        Observer.Expect('$.arr[:2]', 'No []  | ');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure W5_VariableFieldName_AsInWaldoCase()
+    var
+        Observer: Codeunit "Probe Observer";
+        T: JsonToken;
+        O: JsonObject;
+        Names: List of [Text];
+        Name: Text;
+        Ret: Boolean;
+        Written: Text;
+    begin
+        O := W5Doc();
+        Names.Add('No.');
+        Names.Add('Due Date');
+        Names.Add('it''s');
+        Names.Add('Nope');
+        Names.Add('');
+        foreach Name in Names do begin
+            Clear(T);
+            Written := '';
+            Ret := O.SelectToken('$.[''' + Name + ''']', T);
+            if Ret then
+                T.WriteTo(Written);
+            Observer.Observe('var [' + Name + ']', Format(Ret) + ' [' + Written + '] ' + GetLastErrorCode());
+            ClearLastError();
+        end;
+        Observer.Expect('var [No.]', 'Yes ["N1"] ');
+        Observer.Expect('var [Due Date]', 'Yes ["2026"] ');
+        Observer.Expect('var [it''s]', 'No [] InvalidOperation');
+        Observer.Expect('var [Nope]', 'No [] ');
+        Observer.Expect('var []', 'Yes [9] ');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure W5_ArrayAndTokenReceivers()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: JsonArray;
+        Obj: JsonObject;
+        Tok: JsonToken;
+        T: JsonToken;
+        Ret: Boolean;
+        Written: Text;
+    begin
+        A.Add(W5Doc());
+        Ret := A.SelectToken('[0].[''No.'']', T);
+        if Ret then
+            T.WriteTo(Written);
+        Observer.Observe('array [0].[No.]', Format(Ret) + ' [' + Written + '] ' + GetLastErrorCode());
+        ClearLastError();
+        Written := '';
+        Ret := A.SelectToken('$.[0][''No.'']', T);
+        if Ret then
+            T.WriteTo(Written);
+        Observer.Observe('array $.[0][No.]', Format(Ret) + ' [' + Written + '] ' + GetLastErrorCode() + ' | ' + GetLastErrorText());
+        ClearLastError();
+        Obj := W5Doc();
+        Tok := Obj.AsToken();
+        Written := '';
+        Ret := Tok.SelectToken('$.[''Due Date'']', T);
+        if Ret then
+            T.WriteTo(Written);
+        Observer.Observe('token $.[Due Date]', Format(Ret) + ' [' + Written + '] ' + GetLastErrorCode());
+        ClearLastError();
+        Written := '';
+        Ret := Tok.SelectToken('[''No.'']', T);
+        if Ret then
+            T.WriteTo(Written);
+        Observer.Observe('token [No.]', Format(Ret) + ' [' + Written + '] ' + GetLastErrorCode());
+        ClearLastError();
+        Observer.Expect('array [0].[No.]', 'Yes ["N1"] ');
+        Observer.Expect('array $.[0][No.]', 'Yes ["N1"]  | ');
+        Observer.Expect('token $.[Due Date]', 'Yes ["2026"] ');
+        Observer.Expect('token [No.]', 'Yes ["N1"] ');
+        Observer.Verify();
+    end;
 }

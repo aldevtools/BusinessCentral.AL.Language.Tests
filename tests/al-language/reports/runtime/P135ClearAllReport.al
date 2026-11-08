@@ -1,26 +1,10 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/system/system-clearall-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); self-contained table 74250, codeunit 74251 (log), report 74252, codeunit 74253
+// Fixtures used: Probe Observer (codeunit 69160); shared table 50001 "ALT Shape 01", codeunit 74251 (log), report 74252, codeunit 74253
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Settles (issue 135, reason 12): "ClearAll in a report (not pinned)".
 // Facts: ClearAll() called in OnInitReport, OnPreReport, a data item's OnPreDataItem and OnPostReport of a report: what happens to the report's global variables (Integer, Text, Boolean, List, Record, the Mode variable itself), to the data item record, and to the rest of the run (rows still read, triggers still run).
 // BC versions: 29 (27 and 28 by CI)
-
-table 74250 "LT P135 CA Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 codeunit 74251 "LT P135 CA Log"
 {
@@ -51,7 +35,7 @@ report 74252 "LT P135 ClearAll Report"
 
     dataset
     {
-        dataitem(Row; "LT P135 CA Row")
+        dataitem(Row; "ALT Shape 01")
         {
             trigger OnPreDataItem()
             var
@@ -86,7 +70,7 @@ report 74252 "LT P135 ClearAll Report"
         Caption2: Text[30];
         Flag: Boolean;
         Items: List of [Text];
-        Extra: Record "LT P135 CA Row";
+        Extra: Record "ALT Shape 01";
 
     procedure SetMode(NewMode: Integer)
     begin
@@ -144,7 +128,7 @@ codeunit 74253 "LT P135 ClearAll Report Tests"
 
     local procedure Seed()
     var
-        R: Record "LT P135 CA Row";
+        R: Record "ALT Shape 01";
     begin
         R.DeleteAll();
         R.Id := 1;
