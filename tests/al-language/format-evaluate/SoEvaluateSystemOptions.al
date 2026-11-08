@@ -555,7 +555,7 @@ codeunit 99603 "LT SO Eval DataClassifica"
         V: DataClassification;
         Ok: Boolean;
     begin
-        V := DataClassification::AnonymousData;
+        V := DataClassification::SystemMetadata;
         Ok := Evaluate(V, Txt);
         Observer.Observe(Nm, Format(Ok) + '/' + Format(V) + '/' + Format(V, 0, 2));
     end;
@@ -565,7 +565,7 @@ codeunit 99603 "LT SO Eval DataClassifica"
         V: DataClassification;
         Passed: Boolean;
     begin
-        V := DataClassification::AnonymousData;
+        V := DataClassification::SystemMetadata;
         Passed := TryEval(V, Txt);
         Observer.Observe(Nm, Format(Passed) + '/' + Format(V));
         Observer.ObserveError(Nm);
@@ -576,7 +576,7 @@ codeunit 99603 "LT SO Eval DataClassifica"
         V: DataClassification;
         Ok: Boolean;
     begin
-        V := DataClassification::AnonymousData;
+        V := DataClassification::SystemMetadata;
         Ok := Evaluate(V, Txt, Number);
         Observer.Observe(Nm, Format(Ok) + '/' + Format(V) + '/' + Format(V, 0, 2));
     end;
@@ -593,7 +593,6 @@ codeunit 99603 "LT SO Eval DataClassifica"
         Obs(Observer, 'name EndUserPseudonymousIdentifiers', 'EndUserPseudonymousIdentifiers');
         Obs(Observer, 'name OrganizationIdentifiableInformation', 'OrganizationIdentifiableInformation');
         Obs(Observer, 'name SystemMetadata', 'SystemMetadata');
-        Obs(Observer, 'name AnonymousData', 'AnonymousData');
         Observer.Finish();
     end;
 
@@ -610,7 +609,7 @@ codeunit 99603 "LT SO Eval DataClassifica"
         Obs(Observer, 'both_blanks', '  CustomerContent  ');
         Obs(Observer, 'prefix', 'Cus');
         Obs(Observer, 'extra_char', 'CustomerContentx');
-        Obs(Observer, 'two_names', 'CustomerContent,AnonymousData');
+        Obs(Observer, 'two_names', 'CustomerContent,SystemMetadata');
         Observer.Finish();
     end;
 
@@ -630,7 +629,6 @@ codeunit 99603 "LT SO Eval DataClassifica"
         Obs(Observer, 'num 8', '8');
         Obs(Observer, 'num 9', '9');
         Obs(Observer, 'num 10', '10');
-        Obs(Observer, 'num 11', '11');
         Observer.Finish();
     end;
 
@@ -683,8 +681,8 @@ codeunit 99603 "LT SO Eval DataClassifica"
         Err(Observer, 'garbage', 'zzz');
         Err(Observer, 'empty', '');
         Err(Observer, 'blank', ' ');
-        Err(Observer, 'past_last', '8');
-        Err(Observer, 'far_past', '28');
+        Err(Observer, 'past_last', '7');
+        Err(Observer, 'far_past', '27');
         Err(Observer, 'negative', '-1');
         Err(Observer, 'long_garbage', 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSs');
         Err(Observer, 'quote', 'it''s');
@@ -699,9 +697,9 @@ codeunit 99603 "LT SO Eval DataClassifica"
         Observer: Codeunit "Probe Observer";
     begin
         ObsFormat(Observer, 'f9 first', 'CustomerContent', 9);
-        ObsFormat(Observer, 'f9 last', 'AnonymousData', 9);
+        ObsFormat(Observer, 'f9 last', 'SystemMetadata', 9);
         ObsFormat(Observer, 'f9 0', '0', 9);
-        ObsFormat(Observer, 'f9 past', '8', 9);
+        ObsFormat(Observer, 'f9 past', '7', 9);
         ObsFormat(Observer, 'f9 garbage', 'zzz', 9);
         ObsFormat(Observer, 'f9 empty', '', 9);
         ObsFormat(Observer, 'f0 first', 'CustomerContent', 0);
