@@ -6,7 +6,7 @@
 //   the caption, the name and the other language's caption, TableRelation and CalcFormula filters, FieldRef OptionCaption and OptionMembers,
 //   TestField and FieldError texts, key values (RecordId, GetPosition, KeyRef), list page columns. Under GlobalLanguage 1033 and 2067, for an enum
 //   with CaptionML on every value, an enum that mixes CaptionML, Caption and no caption, and an enum with an ENU-only CaptionML.
-// Facts (measured on BC 27.5, 28.5 and 29.0; the only version difference is the FieldRef.Value := text error text, see #if BC28PLUS):
+// Facts (measured on BC 27.5, 28.5 and 29.0; the only version difference is the FieldRef.Value := text error (text and code), see #if BC28PLUS):
 //   Every reader shows the caption of the GlobalLanguage (CaptionML; the plain Caption of a value that has no CaptionML; the name when a value has neither).
 //   An ENU-only CaptionML shows its ENU text under 2067 as well. GetFilter, GetFilters, GetView, TestPage values, TestField, FieldError, RecordId and
 //   key values use the caption; GetPosition and SetPosition use the name. SetFilter, SetView, SetPosition and FieldRef.SetFilter accept the name and
@@ -1134,27 +1134,30 @@ codeunit 97910 "LT ECR Enum Readers"
         Observer.Expect('FieldRef.Value := Closed', 'err');
 #if BC28PLUS
         Observer.Expect('FieldRef.Value := Closed|text', 'The value "Closed" can''t be evaluated into type Option.');
+        Observer.Expect('FieldRef.Value := Closed|code', 'Evaluate:Format');
 #else
         // BC 27.5 names the internal type instead (measured on the corpus CI 27.5 leg).
         Observer.Expect('FieldRef.Value := Closed|text', 'The type NavOption is unknown.');
+        Observer.Expect('FieldRef.Value := Closed|code', 'NotSupportedType');
 #endif
-        Observer.Expect('FieldRef.Value := Closed|code', 'Evaluate:Format');
         Observer.Expect('FieldRef.Value := Closed cap', 'err');
 #if BC28PLUS
         Observer.Expect('FieldRef.Value := Closed cap|text', 'The value "Closed cap" can''t be evaluated into type Option.');
+        Observer.Expect('FieldRef.Value := Closed cap|code', 'Evaluate:Format');
 #else
         // BC 27.5 names the internal type instead (measured on the corpus CI 27.5 leg).
         Observer.Expect('FieldRef.Value := Closed cap|text', 'The type NavOption is unknown.');
+        Observer.Expect('FieldRef.Value := Closed cap|code', 'NotSupportedType');
 #endif
-        Observer.Expect('FieldRef.Value := Closed cap|code', 'Evaluate:Format');
         Observer.Expect('FieldRef.Value := Gesloten BE', 'err');
 #if BC28PLUS
         Observer.Expect('FieldRef.Value := Gesloten BE|text', 'The value "Gesloten BE" can''t be evaluated into type Option.');
+        Observer.Expect('FieldRef.Value := Gesloten BE|code', 'Evaluate:Format');
 #else
         // BC 27.5 names the internal type instead (measured on the corpus CI 27.5 leg).
         Observer.Expect('FieldRef.Value := Gesloten BE|text', 'The type NavOption is unknown.');
+        Observer.Expect('FieldRef.Value := Gesloten BE|code', 'NotSupportedType');
 #endif
-        Observer.Expect('FieldRef.Value := Gesloten BE|code', 'Evaluate:Format');
         Observer.Expect('FieldRef.Value := 1', 'ok|1');
         Observer.Verify();
     end;
@@ -1168,27 +1171,30 @@ codeunit 97910 "LT ECR Enum Readers"
         Observer.Expect('FieldRef.Value := Closed', 'err');
 #if BC28PLUS
         Observer.Expect('FieldRef.Value := Closed|text', 'De waarde "Closed" kan niet worden geëvalueerd tot type Option.');
+        Observer.Expect('FieldRef.Value := Closed|code', 'Evaluate:Format');
 #else
         // BC 27.5 names the internal type instead (measured on the corpus CI 27.5 leg).
         Observer.Expect('FieldRef.Value := Closed|text', 'Het type NavOption is onbekend.');
+        Observer.Expect('FieldRef.Value := Closed|code', 'NotSupportedType');
 #endif
-        Observer.Expect('FieldRef.Value := Closed|code', 'Evaluate:Format');
         Observer.Expect('FieldRef.Value := Closed cap', 'err');
 #if BC28PLUS
         Observer.Expect('FieldRef.Value := Closed cap|text', 'De waarde "Closed cap" kan niet worden geëvalueerd tot type Option.');
+        Observer.Expect('FieldRef.Value := Closed cap|code', 'Evaluate:Format');
 #else
         // BC 27.5 names the internal type instead (measured on the corpus CI 27.5 leg).
         Observer.Expect('FieldRef.Value := Closed cap|text', 'Het type NavOption is onbekend.');
+        Observer.Expect('FieldRef.Value := Closed cap|code', 'NotSupportedType');
 #endif
-        Observer.Expect('FieldRef.Value := Closed cap|code', 'Evaluate:Format');
         Observer.Expect('FieldRef.Value := Gesloten BE', 'err');
 #if BC28PLUS
         Observer.Expect('FieldRef.Value := Gesloten BE|text', 'De waarde "Gesloten BE" kan niet worden geëvalueerd tot type Option.');
+        Observer.Expect('FieldRef.Value := Gesloten BE|code', 'Evaluate:Format');
 #else
         // BC 27.5 names the internal type instead (measured on the corpus CI 27.5 leg).
         Observer.Expect('FieldRef.Value := Gesloten BE|text', 'Het type NavOption is onbekend.');
+        Observer.Expect('FieldRef.Value := Gesloten BE|code', 'NotSupportedType');
 #endif
-        Observer.Expect('FieldRef.Value := Gesloten BE|code', 'Evaluate:Format');
         Observer.Expect('FieldRef.Value := 1', 'ok|1');
         Observer.Verify();
     end;
