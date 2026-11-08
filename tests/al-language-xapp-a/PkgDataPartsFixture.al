@@ -1,6 +1,57 @@
 // Cross-app fixture A: NavApp.LoadPackageData of a table in the install part that does not match its DataPerCompany (al-runner issue 6649).
 // The files TAB97990.navxdata and TAB97991.navxdata in this folder (same layout as Y85XaPackageData.al: key "No." then Description, two rows
-// each) are loaded by the install // Case 1 (database part, per-company table): OnInstallAppPerDatabase runs once per install, so the load cannot repeat.
+// each) are loaded by the install codeunits below.
+
+table 97992 "LT PkgParts Log"
+{
+    DataClassification = SystemMetadata;
+    DataPerCompany = false;
+
+    fields
+    {
+        field(1; Id; Integer) { AutoIncrement = true; }
+        field(2; Part; Text[20]) { }
+        field(3; Subject; Text[50]) { }
+        field(4; Detail; Text[250]) { }
+    }
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+table 97990 "LT PkgParts Company"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; Description; Text[30]) { }
+    }
+    keys
+    {
+        key(PK; "No.") { Clustered = true; }
+    }
+}
+
+table 97991 "LT PkgParts Shared"
+{
+    DataClassification = SystemMetadata;
+    DataPerCompany = false;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; Description; Text[30]) { }
+    }
+    keys
+    {
+        key(PK; "No.") { Clustered = true; }
+    }
+}
+
+// Case 1 (database part, per-company table): OnInstallAppPerDatabase runs once per install, so the load cannot repeat.
 codeunit 97999 "LT PkgParts Install"
 {
     Subtype = Install;
