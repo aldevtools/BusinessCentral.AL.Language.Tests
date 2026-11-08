@@ -1052,7 +1052,10 @@ codeunit 99603 "LT SO Eval DataClassifica"
         Observer: Codeunit "Probe Observer";
     begin
         Err(Observer, 'tab_garbage', 'a' + Tab() + 'b');
-        Observer.Finish();
+        Observer.Expect('tab_garbage', 'No/SystemMetadata');
+        Observer.Expect('tab_garbage|text', '''a\tb'' is not an option. The existing options are: CustomerContent, ToBeClassified, EndUserIdentifiableInformation, AccountData, EndUserPseudonymousIdentifiers, OrganizationIdentifiableInformation, SystemMetadata');
+        Observer.Expect('tab_garbage|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1061,7 +1064,10 @@ codeunit 99603 "LT SO Eval DataClassifica"
         Observer: Codeunit "Probe Observer";
     begin
         Err(Observer, 'name_tab', 'CustomerContent' + Tab());
-        Observer.Finish();
+        Observer.Expect('name_tab', 'Yes/CustomerContent');
+        Observer.Expect('name_tab|text', '');
+        Observer.Expect('name_tab|code', '');
+        Observer.Verify();
     end;
 
     [Test]
