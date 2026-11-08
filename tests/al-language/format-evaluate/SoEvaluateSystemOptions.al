@@ -532,7 +532,7 @@ codeunit 99602 "LT SO Eval TelemetryScope"
     end;
 }
 
-codeunit 99603 "LT SO Eval DataClassification"
+codeunit 99603 "LT SO Eval DataClassifica"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -712,7 +712,7 @@ codeunit 99603 "LT SO Eval DataClassification"
     end;
 }
 
-codeunit 99604 "LT SO Eval TransactionType"
+codeunit 99604 "LT SO Eval TransactionTyp"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -1402,7 +1402,7 @@ codeunit 99607 "LT SO Eval DefaultLayout"
     end;
 }
 
-codeunit 99608 "LT SO Eval TestPermissions"
+codeunit 99608 "LT SO Eval TestPermission"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -1746,7 +1746,7 @@ codeunit 99609 "LT SO Eval DataScope"
     end;
 }
 
-codeunit 99610 "LT SO Eval ExecutionContext"
+codeunit 99610 "LT SO Eval ExecutionConte"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -1916,7 +1916,7 @@ codeunit 99610 "LT SO Eval ExecutionContext"
     end;
 }
 
-codeunit 99611 "LT SO Eval NotificationScope"
+codeunit 99611 "LT SO Eval NotificationSc"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -2084,7 +2084,7 @@ codeunit 99611 "LT SO Eval NotificationScope"
     end;
 }
 
-codeunit 99612 "LT SO Eval WebServiceActionResultCode"
+codeunit 99612 "LT SO Eval WebServiceActi"
 {
     Subtype = Test;
     TestPermissions = Disabled;
