@@ -1138,4 +1138,390 @@ codeunit 70177 "LT PnG Refresh"
         List.TakeOtherChangedClose.Invoke();
         Log.Add('MPH.out');
     end;
+
+
+    // ---- al-runner issue 7288 (2026-11-08): a list of thirty rows (more than the twenty rows of the client's first window) with
+    // OnAfterGetRecord and OnAfterGetCurrRecord and without OnFindRecord or OnNextRecord, walked with Next to a row inside or beyond the
+    // first window; an action then puts another stored row into Rec with Rec.Get and does not call CurrPage.Update.
+    // Fixtures: testpage/PnGBwFixtures.al (page LT BW List over ALT Shape 15). Log: G = OnAfterGetRecord, C = OnAfterGetCurrRecord
+    // (with xRec), A = the end of the action (with xRec).
+    // Observed by corpus CI on BC 29.0 (batch run 42454103250); the same values pass on 27.5, 28.5 and 29.0 (batch runs 42456505404,
+    // 42456521814, 42456537405).
+    // Results: how far the list was walked makes no difference. From R3, R20, R21, R25 and R30 the action that leaves R2 is followed by
+    // the same reads (the row shown, the action, R2 as the action left it, then R2 to R21 from the table, R1 on the way back, R2 twice,
+    // OnAfterGetCurrRecord with the row shown before as xRec) and the list stands on R2; Next and Previous then step from R2. A row
+    // the action leaves near the end of the view is read forward to the last row, then back 20 rows from it (R24: R24 to R30, back
+    // R23 to R4; R28: R28 to R30, back R27 to R8). From R3, leaving R28 (a row past the first window) reads R28 to R30 and runs
+    // OnAfterGetCurrRecord once, then reads the list again from R28 the long way (OnAfterGetCurrRecord with xRec R28). On a view
+    // filtered to R3..R30, leaving R2 (outside the filter) puts the list on R3, its first row, with no reads on the way back.
+    // ----
+
+    local procedure BwSeed()
+    var
+        Row: Record "ALT Shape 15";
+        Log: Codeunit "LT PnG Log";
+        RowId: Integer;
+    begin
+        Row.DeleteAll();
+        for RowId := 1 to 30 do begin
+            Row.Init();
+            Row.Id := RowId;
+            Row.Grp := 'R' + Format(RowId);
+            Row.Insert();
+        end;
+        Log.Reset();
+    end;
+
+    local procedure BwWalk(var List: TestPage "LT BW List"; FromRow: Integer; ToRow: Integer)
+    var
+        Step: Integer;
+    begin
+        List.First();
+        for Step := FromRow + 1 to ToRow do
+            List.Next();
+    end;
+
+    // Opens and closes the list once before the asserted tests (a freshly published page once failed its first Close on BC 28.5, see
+    // QL_RecAssign_WarmUp). Nothing is asserted here.
+    [Test]
+    procedure BW_WarmUp()
+    var
+        List: TestPage "LT BW List";
+    begin
+        BwSeed();
+        if TryOpenBwList(List) then
+            List.Close();
+        ClearLastError();
+    end;
+
+    [TryFunction]
+    local procedure TryOpenBwList(var List: TestPage "LT BW List")
+    begin
+        List.OpenEdit();
+    end;
+
+    // From R3, a row of the first window: the action leaves R2 in Rec.
+    [Test]
+    procedure BW_GetRow2_FromRow3_InsideFirstWindow()
+    var
+        Observer: Codeunit "Probe Observer";
+        List: TestPage "LT BW List";
+    begin
+        BwSeed();
+        List.OpenEdit();
+        BwWalk(List, 1, 3);
+        Observer.Observe('shown-before', List.NoF.Value());
+        QlTake();
+        List.GetRow2.Invoke();
+        Observer.Observe('log-action', QlTake());
+        Observer.Observe('shown-after-action', List.NoF.Value() + ',' + List.CellF.Value());
+        Observer.Observe('next', Format(List.Next()));
+        Observer.Observe('log-next', QlTake());
+        Observer.Observe('shown-after-next', List.NoF.Value() + ',' + List.CellF.Value());
+        Observer.Observe('previous', Format(List.Previous()));
+        Observer.Observe('log-previous', QlTake());
+        Observer.Observe('shown-after-previous', List.NoF.Value() + ',' + List.CellF.Value());
+        List.Close();
+        Observer.Observe('log-close', QlTake());
+        Observer.Expect('shown-before', 'R3');
+        Observer.Expect('log-action', 'G:R3;A:R2/x=R3;G:R2;G:R2;G:R3;G:R4;G:R5;G:R6;G:R7;G:R8;G:R9;G:R10;G:R11;G:R12;G:R13;G:R14;G:R15;G:R16;G:R17;G:R18;G:R19;G:R20;G:R21;G:R2;G:R1;G:R2;G:R2;C:R2/x=R3');
+        Observer.Expect('shown-after-action', 'R2,cell of R2');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('log-next', 'G:R3;G:R3;C:R3/x=R2');
+        Observer.Expect('shown-after-next', 'R3,cell of R3');
+        Observer.Expect('previous', 'Yes');
+        Observer.Expect('log-previous', 'G:R2;G:R2;C:R2/x=R3');
+        Observer.Expect('shown-after-previous', 'R2,cell of R2');
+        Observer.Expect('log-close', '');
+        Observer.Verify();
+    end;
+
+    // From R20, the last row of the first window.
+    [Test]
+    procedure BW_GetRow2_FromRow20_LastRowOfFirstWindow()
+    var
+        Observer: Codeunit "Probe Observer";
+        List: TestPage "LT BW List";
+    begin
+        BwSeed();
+        List.OpenEdit();
+        BwWalk(List, 1, 20);
+        Observer.Observe('shown-before', List.NoF.Value());
+        QlTake();
+        List.GetRow2.Invoke();
+        Observer.Observe('log-action', QlTake());
+        Observer.Observe('shown-after-action', List.NoF.Value() + ',' + List.CellF.Value());
+        Observer.Observe('next', Format(List.Next()));
+        Observer.Observe('log-next', QlTake());
+        Observer.Observe('shown-after-next', List.NoF.Value() + ',' + List.CellF.Value());
+        Observer.Observe('previous', Format(List.Previous()));
+        Observer.Observe('log-previous', QlTake());
+        Observer.Observe('shown-after-previous', List.NoF.Value() + ',' + List.CellF.Value());
+        List.Close();
+        Observer.Observe('log-close', QlTake());
+        Observer.Expect('shown-before', 'R20');
+        Observer.Expect('log-action', 'G:R20;A:R2/x=R20;G:R2;G:R2;G:R3;G:R4;G:R5;G:R6;G:R7;G:R8;G:R9;G:R10;G:R11;G:R12;G:R13;G:R14;G:R15;G:R16;G:R17;G:R18;G:R19;G:R20;G:R21;G:R2;G:R1;G:R2;G:R2;C:R2/x=R20');
+        Observer.Expect('shown-after-action', 'R2,cell of R2');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('log-next', 'G:R3;G:R3;C:R3/x=R2');
+        Observer.Expect('shown-after-next', 'R3,cell of R3');
+        Observer.Expect('previous', 'Yes');
+        Observer.Expect('log-previous', 'G:R2;G:R2;C:R2/x=R3');
+        Observer.Expect('shown-after-previous', 'R2,cell of R2');
+        Observer.Expect('log-close', '');
+        Observer.Verify();
+    end;
+
+    // From R21, the first row past the first window.
+    [Test]
+    procedure BW_GetRow2_FromRow21_FirstRowPastFirstWindow()
+    var
+        Observer: Codeunit "Probe Observer";
+        List: TestPage "LT BW List";
+    begin
+        BwSeed();
+        List.OpenEdit();
+        BwWalk(List, 1, 21);
+        Observer.Observe('shown-before', List.NoF.Value());
+        QlTake();
+        List.GetRow2.Invoke();
+        Observer.Observe('log-action', QlTake());
+        Observer.Observe('shown-after-action', List.NoF.Value() + ',' + List.CellF.Value());
+        Observer.Observe('next', Format(List.Next()));
+        Observer.Observe('log-next', QlTake());
+        Observer.Observe('shown-after-next', List.NoF.Value() + ',' + List.CellF.Value());
+        Observer.Observe('previous', Format(List.Previous()));
+        Observer.Observe('log-previous', QlTake());
+        Observer.Observe('shown-after-previous', List.NoF.Value() + ',' + List.CellF.Value());
+        List.Close();
+        Observer.Observe('log-close', QlTake());
+        Observer.Expect('shown-before', 'R21');
+        Observer.Expect('log-action', 'G:R21;A:R2/x=R21;G:R2;G:R2;G:R3;G:R4;G:R5;G:R6;G:R7;G:R8;G:R9;G:R10;G:R11;G:R12;G:R13;G:R14;G:R15;G:R16;G:R17;G:R18;G:R19;G:R20;G:R21;G:R2;G:R1;G:R2;G:R2;C:R2/x=R21');
+        Observer.Expect('shown-after-action', 'R2,cell of R2');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('log-next', 'G:R3;G:R3;C:R3/x=R2');
+        Observer.Expect('shown-after-next', 'R3,cell of R3');
+        Observer.Expect('previous', 'Yes');
+        Observer.Expect('log-previous', 'G:R2;G:R2;C:R2/x=R3');
+        Observer.Expect('shown-after-previous', 'R2,cell of R2');
+        Observer.Expect('log-close', '');
+        Observer.Verify();
+    end;
+
+    // From R25, beyond the first window (the reporter's shape): R2 is a row the window no longer holds.
+    [Test]
+    procedure BW_GetRow2_FromRow25_BeyondFirstWindow()
+    var
+        Observer: Codeunit "Probe Observer";
+        List: TestPage "LT BW List";
+    begin
+        BwSeed();
+        List.OpenEdit();
+        BwWalk(List, 1, 25);
+        Observer.Observe('shown-before', List.NoF.Value());
+        QlTake();
+        List.GetRow2.Invoke();
+        Observer.Observe('log-action', QlTake());
+        Observer.Observe('shown-after-action', List.NoF.Value() + ',' + List.CellF.Value());
+        Observer.Observe('next', Format(List.Next()));
+        Observer.Observe('log-next', QlTake());
+        Observer.Observe('shown-after-next', List.NoF.Value() + ',' + List.CellF.Value());
+        Observer.Observe('previous', Format(List.Previous()));
+        Observer.Observe('log-previous', QlTake());
+        Observer.Observe('shown-after-previous', List.NoF.Value() + ',' + List.CellF.Value());
+        List.Close();
+        Observer.Observe('log-close', QlTake());
+        Observer.Expect('shown-before', 'R25');
+        Observer.Expect('log-action', 'G:R25;A:R2/x=R25;G:R2;G:R2;G:R3;G:R4;G:R5;G:R6;G:R7;G:R8;G:R9;G:R10;G:R11;G:R12;G:R13;G:R14;G:R15;G:R16;G:R17;G:R18;G:R19;G:R20;G:R21;G:R2;G:R1;G:R2;G:R2;C:R2/x=R25');
+        Observer.Expect('shown-after-action', 'R2,cell of R2');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('log-next', 'G:R3;G:R3;C:R3/x=R2');
+        Observer.Expect('shown-after-next', 'R3,cell of R3');
+        Observer.Expect('previous', 'Yes');
+        Observer.Expect('log-previous', 'G:R2;G:R2;C:R2/x=R3');
+        Observer.Expect('shown-after-previous', 'R2,cell of R2');
+        Observer.Expect('log-close', '');
+        Observer.Verify();
+    end;
+
+    // From R30, the last row of the view.
+    [Test]
+    procedure BW_GetRow2_FromRow30_LastRowOfView()
+    var
+        Observer: Codeunit "Probe Observer";
+        List: TestPage "LT BW List";
+    begin
+        BwSeed();
+        List.OpenEdit();
+        BwWalk(List, 1, 30);
+        Observer.Observe('shown-before', List.NoF.Value());
+        QlTake();
+        List.GetRow2.Invoke();
+        Observer.Observe('log-action', QlTake());
+        Observer.Observe('shown-after-action', List.NoF.Value() + ',' + List.CellF.Value());
+        Observer.Observe('next', Format(List.Next()));
+        Observer.Observe('log-next', QlTake());
+        Observer.Observe('shown-after-next', List.NoF.Value() + ',' + List.CellF.Value());
+        Observer.Observe('previous', Format(List.Previous()));
+        Observer.Observe('log-previous', QlTake());
+        Observer.Observe('shown-after-previous', List.NoF.Value() + ',' + List.CellF.Value());
+        List.Close();
+        Observer.Observe('log-close', QlTake());
+        Observer.Expect('shown-before', 'R30');
+        Observer.Expect('log-action', 'G:R30;A:R2/x=R30;G:R2;G:R2;G:R3;G:R4;G:R5;G:R6;G:R7;G:R8;G:R9;G:R10;G:R11;G:R12;G:R13;G:R14;G:R15;G:R16;G:R17;G:R18;G:R19;G:R20;G:R21;G:R2;G:R1;G:R2;G:R2;C:R2/x=R30');
+        Observer.Expect('shown-after-action', 'R2,cell of R2');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('log-next', 'G:R3;G:R3;C:R3/x=R2');
+        Observer.Expect('shown-after-next', 'R3,cell of R3');
+        Observer.Expect('previous', 'Yes');
+        Observer.Expect('log-previous', 'G:R2;G:R2;C:R2/x=R3');
+        Observer.Expect('shown-after-previous', 'R2,cell of R2');
+        Observer.Expect('log-close', '');
+        Observer.Verify();
+    end;
+
+    // From R25, the action leaves R24, the row just above, which the window holds.
+    [Test]
+    procedure BW_GetRow24_FromRow25_RowAboveInWindow()
+    var
+        Observer: Codeunit "Probe Observer";
+        List: TestPage "LT BW List";
+    begin
+        BwSeed();
+        List.OpenEdit();
+        BwWalk(List, 1, 25);
+        Observer.Observe('shown-before', List.NoF.Value());
+        QlTake();
+        List.GetRow24.Invoke();
+        Observer.Observe('log-action', QlTake());
+        Observer.Observe('shown-after-action', List.NoF.Value() + ',' + List.CellF.Value());
+        Observer.Observe('next', Format(List.Next()));
+        Observer.Observe('log-next', QlTake());
+        Observer.Observe('shown-after-next', List.NoF.Value() + ',' + List.CellF.Value());
+        Observer.Observe('previous', Format(List.Previous()));
+        Observer.Observe('log-previous', QlTake());
+        Observer.Observe('shown-after-previous', List.NoF.Value() + ',' + List.CellF.Value());
+        List.Close();
+        Observer.Observe('log-close', QlTake());
+        Observer.Expect('shown-before', 'R25');
+        Observer.Expect('log-action', 'G:R25;A:R24/x=R25;G:R24;G:R24;G:R25;G:R26;G:R27;G:R28;G:R29;G:R30;G:R24;G:R23;G:R22;G:R21;G:R20;G:R19;G:R18;G:R17;G:R16;G:R15;G:R14;G:R13;G:R12;G:R11;G:R10;G:R9;G:R8;G:R7;G:R6;G:R5;G:R4;G:R24;G:R24;C:R24/x=R25');
+        Observer.Expect('shown-after-action', 'R24,cell of R24');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('log-next', 'G:R25;G:R25;C:R25/x=R24');
+        Observer.Expect('shown-after-next', 'R25,cell of R25');
+        Observer.Expect('previous', 'Yes');
+        Observer.Expect('log-previous', 'G:R24;G:R24;C:R24/x=R25');
+        Observer.Expect('shown-after-previous', 'R24,cell of R24');
+        Observer.Expect('log-close', '');
+        Observer.Verify();
+    end;
+
+    // From R25, the action leaves R28, a row below.
+    [Test]
+    procedure BW_GetRow28_FromRow25_RowBelowInView()
+    var
+        Observer: Codeunit "Probe Observer";
+        List: TestPage "LT BW List";
+    begin
+        BwSeed();
+        List.OpenEdit();
+        BwWalk(List, 1, 25);
+        Observer.Observe('shown-before', List.NoF.Value());
+        QlTake();
+        List.GetRow28.Invoke();
+        Observer.Observe('log-action', QlTake());
+        Observer.Observe('shown-after-action', List.NoF.Value() + ',' + List.CellF.Value());
+        Observer.Observe('next', Format(List.Next()));
+        Observer.Observe('log-next', QlTake());
+        Observer.Observe('shown-after-next', List.NoF.Value() + ',' + List.CellF.Value());
+        Observer.Observe('previous', Format(List.Previous()));
+        Observer.Observe('log-previous', QlTake());
+        Observer.Observe('shown-after-previous', List.NoF.Value() + ',' + List.CellF.Value());
+        List.Close();
+        Observer.Observe('log-close', QlTake());
+        Observer.Expect('shown-before', 'R25');
+        Observer.Expect('log-action', 'G:R25;A:R28/x=R25;G:R28;G:R28;G:R29;G:R30;G:R28;G:R27;G:R26;G:R25;G:R24;G:R23;G:R22;G:R21;G:R20;G:R19;G:R18;G:R17;G:R16;G:R15;G:R14;G:R13;G:R12;G:R11;G:R10;G:R9;G:R8;G:R28;G:R28;C:R28/x=R25');
+        Observer.Expect('shown-after-action', 'R28,cell of R28');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('log-next', 'G:R29;G:R29;C:R29/x=R28');
+        Observer.Expect('shown-after-next', 'R29,cell of R29');
+        Observer.Expect('previous', 'Yes');
+        Observer.Expect('log-previous', 'G:R28;G:R28;C:R28/x=R29');
+        Observer.Expect('shown-after-previous', 'R28,cell of R28');
+        Observer.Expect('log-close', '');
+        Observer.Verify();
+    end;
+
+    // From R3, the action leaves R28, a row past the first window.
+    [Test]
+    procedure BW_GetRow28_FromRow3_RowPastFirstWindow()
+    var
+        Observer: Codeunit "Probe Observer";
+        List: TestPage "LT BW List";
+    begin
+        BwSeed();
+        List.OpenEdit();
+        BwWalk(List, 1, 3);
+        Observer.Observe('shown-before', List.NoF.Value());
+        QlTake();
+        List.GetRow28.Invoke();
+        Observer.Observe('log-action', QlTake());
+        Observer.Observe('shown-after-action', List.NoF.Value() + ',' + List.CellF.Value());
+        Observer.Observe('next', Format(List.Next()));
+        Observer.Observe('log-next', QlTake());
+        Observer.Observe('shown-after-next', List.NoF.Value() + ',' + List.CellF.Value());
+        Observer.Observe('previous', Format(List.Previous()));
+        Observer.Observe('log-previous', QlTake());
+        Observer.Observe('shown-after-previous', List.NoF.Value() + ',' + List.CellF.Value());
+        List.Close();
+        Observer.Observe('log-close', QlTake());
+        Observer.Expect('shown-before', 'R3');
+        Observer.Expect('log-action', 'G:R3;A:R28/x=R3;G:R28;G:R28;G:R29;G:R30;G:R28;G:R28;C:R28/x=R3;G:R28;G:R29;G:R30;G:R28;G:R27;G:R26;G:R25;G:R24;G:R23;G:R22;G:R21;G:R20;G:R19;G:R18;G:R17;G:R16;G:R15;G:R14;G:R13;G:R12;G:R11;G:R10;G:R9;G:R8;G:R28;G:R28;C:R28/x=R28');
+        Observer.Expect('shown-after-action', 'R28,cell of R28');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('log-next', 'G:R29;G:R29;C:R29/x=R28');
+        Observer.Expect('shown-after-next', 'R29,cell of R29');
+        Observer.Expect('previous', 'Yes');
+        Observer.Expect('log-previous', 'G:R28;G:R28;C:R28/x=R29');
+        Observer.Expect('shown-after-previous', 'R28,cell of R28');
+        Observer.Expect('log-close', '');
+        Observer.Verify();
+    end;
+
+    // A view filtered to R3..R30, from R25: the action leaves R2, a row outside the filter.
+    [Test]
+    procedure BW_Filtered_GetRow2_FromRow25_RowOutsideFilter()
+    var
+        Observer: Codeunit "Probe Observer";
+        List: TestPage "LT BW List";
+    begin
+        BwSeed();
+        List.OpenEdit();
+        List.Filter.SetFilter(Id, '3..30');
+        BwWalk(List, 3, 25);
+        Observer.Observe('shown-before', List.NoF.Value());
+        QlTake();
+        List.GetRow2.Invoke();
+        Observer.Observe('log-action', QlTake());
+        Observer.Observe('shown-after-action', List.NoF.Value() + ',' + List.CellF.Value());
+        Observer.Observe('next', Format(List.Next()));
+        Observer.Observe('log-next', QlTake());
+        Observer.Observe('shown-after-next', List.NoF.Value() + ',' + List.CellF.Value());
+        Observer.Observe('previous', Format(List.Previous()));
+        Observer.Observe('log-previous', QlTake());
+        Observer.Observe('shown-after-previous', List.NoF.Value() + ',' + List.CellF.Value());
+        List.Close();
+        Observer.Observe('log-close', QlTake());
+        Observer.Expect('shown-before', 'R25');
+        Observer.Expect('log-action', 'G:R25;A:R2/x=R25;G:R3;G:R3;G:R4;G:R5;G:R6;G:R7;G:R8;G:R9;G:R10;G:R11;G:R12;G:R13;G:R14;G:R15;G:R16;G:R17;G:R18;G:R19;G:R20;G:R21;G:R22;G:R3;G:R3;C:R3/x=R25');
+        Observer.Expect('shown-after-action', 'R3,cell of R3');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('log-next', 'G:R4;G:R4;C:R4/x=R3');
+        Observer.Expect('shown-after-next', 'R4,cell of R4');
+        Observer.Expect('previous', 'Yes');
+        Observer.Expect('log-previous', 'G:R3;G:R3;C:R3/x=R4');
+        Observer.Expect('shown-after-previous', 'R3,cell of R3');
+        Observer.Expect('log-close', '');
+        Observer.Verify();
+    end;
 }
