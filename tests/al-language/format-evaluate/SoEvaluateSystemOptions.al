@@ -1043,7 +1043,7 @@ codeunit 99603 "LT SO Eval DataClassifica"
         Observer.Expect('long_garbage|text', '''AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSs'' is not an option. The existing options are: CustomerContent, ToBeClassified, EndUserIdentifiableInformation, AccountData, EndUserPseudonymousIdentifiers, OrganizationIdentifiableInformation, SystemMetadata');
         Observer.Expect('long_garbage|code', 'InvalidOptionString');
         Observer.Expect('quote', 'No/SystemMetadata');
-        Observer.Expect('quote|text', '''it''s'' is not an option. The existing options are: Custom<MORE>');
+        Observer.Expect('quote|text', '''it''s'' is not an option. The existing options are: CustomerContent, ToBeClassified, EndUserIdentifiableInformation, AccountData, EndUserPseudonymousIdentifiers, OrganizationIdentifiableInformation, SystemMetadata');
         Observer.Verify();
     end;
 
