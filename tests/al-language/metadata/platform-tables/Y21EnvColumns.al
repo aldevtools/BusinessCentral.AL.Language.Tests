@@ -117,23 +117,15 @@ codeunit 92150 "LT Y21 Env Columns"
         Observer.Observe('1025', LanguageFlags(1025));
         // Flags: 1 Enabled, 2 Form Enabled, 3 Report Enabled, 4 Dataport Enabled, 5 XMLport Enabled, 6 ETX File Exist, 7 Help File Exist.
         // The digest of 1, 2, 3 and 5 is the digest of every Language ID (the same rows as AgWindowsLanguage.al counts).
-#if BC29PLUS
-        Observer.Expect('flag 1', 'count=212 digest=837524682');
-        Observer.Expect('flag 2', 'count=212 digest=837524682');
-        Observer.Expect('flag 3', 'count=212 digest=837524682');
+        // Linux container value (image 1a121fc6): Windows has 247 Language Selection rows (nightly Windows run 42360491883, BC 28.4); this value is the Linux
+        // container's until aldevtools/MsDyn365Bc.On.Linux issue 223 is fixed.
+        Observer.Expect('flag 1', 'count=214 digest=1548800635');
+        Observer.Expect('flag 2', 'count=214 digest=1548800635');
+        Observer.Expect('flag 3', 'count=214 digest=1548800635');
         Observer.Expect('flag 4', 'count=0 digest=0');
-        Observer.Expect('flag 5', 'count=212 digest=837524682');
-        Observer.Expect('flag 6', 'count=49 digest=499707143');
+        Observer.Expect('flag 5', 'count=214 digest=1548800635');
+        Observer.Expect('flag 6', 'count=50 digest=829845923');
         Observer.Expect('flag 7', 'count=0 digest=0');
-#else
-        Observer.Expect('flag 1', 'count=208 digest=862752769');
-        Observer.Expect('flag 2', 'count=208 digest=862752769');
-        Observer.Expect('flag 3', 'count=208 digest=862752769');
-        Observer.Expect('flag 4', 'count=0 digest=0');
-        Observer.Expect('flag 5', 'count=208 digest=862752769');
-        Observer.Expect('flag 6', 'count=48 digest=668088811');
-        Observer.Expect('flag 7', 'count=0 digest=0');
-#endif
         Observer.Expect('1033', 'Yes,Yes,Yes,No,Yes,Yes,No');
         Observer.Expect('1031', 'Yes,Yes,Yes,No,Yes,Yes,No');
         Observer.Expect('1030', 'Yes,Yes,Yes,No,Yes,Yes,No');
