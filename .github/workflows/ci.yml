@@ -599,7 +599,9 @@ jobs:
   # Not a required status check yet: its checks are named "BC TryWrites <ver> / test".
   test-trywrite-allowed:
     name: BC TryWrites ${{ matrix.bc_version }}
-    needs: prepare
+    # Second wave, like test-testlibraries: starts when the OnPrem legs are done (container limit).
+    needs: [prepare, test-onprem]
+    if: ${{ !cancelled() && needs.prepare.result == 'success' }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
