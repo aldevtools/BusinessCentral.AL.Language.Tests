@@ -8,6 +8,8 @@ Format and Evaluate of every type, format strings and AutoFormat.
 - `autoformat/`: AutoFormatType and AutoFormatExpression (7 AL files).
 - `record-format/`: Format of a Record, RecordRef and FieldRef, also as a %n argument of StrSubstNo, Message and Error (1 AL file).
 
+- `SoEvaluateSystemOptions.al` (in the area folder itself): Evaluate into the system option types ObjectType, Verbosity, TelemetryScope, DataClassification, TransactionType, ReportFormat, ErrorType, DefaultLayout, TestPermissions, DataScope, ExecutionContext, NotificationScope, WebServiceActionResultCode and FieldClass.
+
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 
 ## Shared fixtures used here
