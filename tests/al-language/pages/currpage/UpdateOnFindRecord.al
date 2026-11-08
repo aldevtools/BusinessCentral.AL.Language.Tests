@@ -352,4 +352,56 @@ codeunit 74820 "LT P168 Update Find Record"
         Observer.Expect('stored', 'Edited');
         Observer.Verify();
     end;
+
+    [Test]
+    procedure CurrPage_Update_CardWithOnlyOnNextRecord_KeepsCurrentRow()
+    var
+        Card: TestPage "PAG Next Only Update Card";
+    begin
+        Initialize();
+        Card.OpenEdit();
+        Card.GoToKey(2);
+        Card.IdF.AssistEdit();
+        Card.IdF.AssertEquals(2);
+        Card.Close();
+    end;
+
+    local procedure Initialize()
+    begin
+        Seed();
+    end;
+}
+
+// local object: this card has OnNextRecord and a row trigger but no OnFindRecord.
+page 69998 "PAG Next Only Update Card"
+{
+    PageType = Card;
+    SourceTable = "LT P168 Upd Row";
+    layout
+    {
+        area(Content)
+        {
+            field(IdF; Rec.Id)
+            {
+                ApplicationArea = All;
+                trigger OnAssistEdit()
+                begin
+                    CurrPage.Update(false);
+                end;
+            }
+        }
+    }
+
+    trigger OnNextRecord(Steps: Integer): Integer
+    begin
+        exit(Rec.Next(Steps));
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        SeenId := Rec.Id;
+    end;
+
+    var
+        SeenId: Integer;
 }

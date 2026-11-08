@@ -138,8 +138,11 @@ codeunit 69478 "REC Enum Const Tests"
         Cleanup: Codeunit ALTFixtureCleanup;
         Header: Record "REC Enum Const Header";
         Row: Record "ALT Universal";
+        Comment: Record "Purch. Comment Line";
     begin
         Cleanup.Initialize();
+        Comment.SetRange("No.", 'NEUTRAL-ENUM');
+        Comment.DeleteAll(false);
         Header.DeleteAll(false);
         Header.Id := 1;
         Header.Insert(false);
@@ -154,4 +157,67 @@ codeunit 69478 "REC Enum Const Tests"
         Row."Text Field" := 'QUALIFIED-42';
         Row.Insert(false);
     end;
+
+    [Test]
+    procedure SubPageView_CrossEnumQualifier_SelectsPurchaseOrderComment()
+    var
+        Row: Record "Purch. Comment Line";
+        View: TestPage "REC Enum Const Host";
+    begin
+        Initialize();
+        Row."Document Type" := Row."Document Type"::Order;
+        Row."No." := 'NEUTRAL-ENUM';
+        Row."Line No." := 101;
+        Row.Comment := 'ORDER-COMMENT';
+        Row.Insert(false);
+        Row."Document Type" := Row."Document Type"::Invoice;
+        Row.Comment := 'INVOICE-COMMENT';
+        Row.Insert(false);
+
+        View.OpenView();
+        View.Lines.First();
+        View.Lines.Value.AssertEquals('ORDER-COMMENT');
+        if View.Lines.Next() then
+            Error('Expected one order comment.');
+        View.Close();
+    end;
+}
+
+// local object: this host exposes a factbox with a cross-enum qualifier.
+page 69996 "REC Enum Const Host"
+{
+    PageType = Card;
+    SourceTable = "ALT Universal";
+    layout
+    {
+        area(Content)
+        {
+            field(EntryNo; Rec."Entry No.") { ApplicationArea = All; }
+        }
+        area(FactBoxes)
+        {
+            part(Lines; "REC Enum Const Part")
+            {
+                ApplicationArea = All;
+                SubPageView = where("Document Type" = const("Purchase Document Type"::Order), "No." = const('NEUTRAL-ENUM'));
+            }
+        }
+    }
+}
+
+// local object: the part exposes the standard purchase comment's separate document enum.
+page 69997 "REC Enum Const Part"
+{
+    PageType = ListPart;
+    SourceTable = "Purch. Comment Line";
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(Value; Rec.Comment) { ApplicationArea = All; }
+            }
+        }
+    }
 }
