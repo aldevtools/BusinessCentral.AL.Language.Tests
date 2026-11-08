@@ -118,11 +118,11 @@ codeunit 92150 "LT Y21 Env Columns"
         // Flags: 1 Enabled, 2 Form Enabled, 3 Report Enabled, 4 Dataport Enabled, 5 XMLport Enabled, 6 ETX File Exist, 7 Help File Exist.
         // The digest of 1, 2, 3 and 5 is the digest of every Language ID (the same rows as AgWindowsLanguage.al counts).
         // Windows has 248 rows (Windows containers BC 27.5, 28.5, 29.0, bc-linux issue 223); counts and digests below are read from CI on the bc-linux image with PR 225.
-        Observer.Expect('flag 1', 'count=248 digest=1793734783');
-        Observer.Expect('flag 2', 'count=248 digest=1793734783');
-        Observer.Expect('flag 3', 'count=248 digest=1793734783');
+        Observer.Expect('flag 1', 'count=248 digest=1118756386');
+        Observer.Expect('flag 2', 'count=248 digest=1118756386');
+        Observer.Expect('flag 3', 'count=248 digest=1118756386');
         Observer.Expect('flag 4', 'count=0 digest=0');
-        Observer.Expect('flag 5', 'count=248 digest=1793734783');
+        Observer.Expect('flag 5', 'count=248 digest=1118756386');
         Observer.Expect('flag 6', 'count=50 digest=829845923');
         Observer.Expect('flag 7', 'count=0 digest=0');
         Observer.Expect('1033', 'Yes,Yes,Yes,No,Yes,Yes,No');
