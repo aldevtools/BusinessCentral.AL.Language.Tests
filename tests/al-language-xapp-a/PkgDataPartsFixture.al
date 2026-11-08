@@ -51,7 +51,8 @@ table 97991 "LT PkgParts Shared"
     }
 }
 
-// Case 1 (database part, per-company table): OnInstallAppPerDatabase runs once per install, so the load cannot repeat.
+// Case 1 (database part, per-company table): OnInstallAppPerDatabase runs once per install, so the load cannot repeat. The load runs inside a
+// TryFunction and its outcome is logged afterwards: an uncaught error here would abort the publish of the whole corpus app.
 codeunit 97999 "LT PkgParts Install"
 {
     Subtype = Install;
@@ -59,19 +60,27 @@ codeunit 97999 "LT PkgParts Install"
     trigger OnInstallAppPerDatabase()
     var
         Log: Record "LT PkgParts Log";
+        Ok: Boolean;
     begin
+        Ok := TryLoad();
         Log.Part := 'database';
         Log.Subject := 'company table';
-        Log.Detail := 'load called';
+        if Ok then
+            Log.Detail := 'load returned'
+        else
+            Log.Detail := CopyStr('load failed: ' + GetLastErrorText(), 1, MaxStrLen(Log.Detail));
         if Log.Insert() then;
+    end;
+
+    [TryFunction]
+    local procedure TryLoad()
+    begin
         NavApp.LoadPackageData(Database::"LT PkgParts Company");
     end;
 }
 
-// Case 2 (company part, shared table): OnInstallAppPerCompany runs once per company. The first version of this probe guarded the load with
-// IsEmpty() of the shared table, and the install of 'My Company' failed with a duplicate key (S1) in the shared table: the guard did not stop a
-// second load. Now the load runs only in the first company that reaches the trigger: the marker row in the log is inserted before the load and
-// read back in every later company, so the load cannot run twice.
+// Case 2 (company part, shared table): OnInstallAppPerCompany runs once per company. The load runs only in the first company that reaches the
+// trigger: a marker row in the log is read back in every later company, so the load cannot run twice. Inside a TryFunction, outcome logged after.
 codeunit 97998 "LT PkgParts Install Co"
 {
     Subtype = Install;
@@ -79,6 +88,7 @@ codeunit 97998 "LT PkgParts Install Co"
     trigger OnInstallAppPerCompany()
     var
         Log: Record "LT PkgParts Log";
+        Ok: Boolean;
     begin
         Log.SetRange(Part, 'company');
         Log.SetRange(Subject, 'shared table');
@@ -90,11 +100,20 @@ codeunit 97998 "LT PkgParts Install Co"
             if Log.Insert() then;
             exit;
         end;
+        Ok := TryLoad();
         Log.Init();
         Log.Part := 'company';
         Log.Subject := 'shared table';
-        Log.Detail := 'load called';
+        if Ok then
+            Log.Detail := 'load returned'
+        else
+            Log.Detail := CopyStr('load failed: ' + GetLastErrorText(), 1, MaxStrLen(Log.Detail));
         if Log.Insert() then;
+    end;
+
+    [TryFunction]
+    local procedure TryLoad()
+    begin
         NavApp.LoadPackageData(Database::"LT PkgParts Shared");
     end;
 }
