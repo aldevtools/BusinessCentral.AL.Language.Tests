@@ -587,3 +587,48 @@ jobs:
       # RDLC rendering: see the test job above (al-language holds RDLC reports).
       rdlc_renderer:        true
       rdlc_trust_layouts:   true
+
+  # The test app tests/al-language-trywrite-allowed, in a job of its own that runs BC with the service-tier setting
+  # DisableWriteInsideTryFunctions=false (bc-linux input server_settings, MsDyn365Bc.On.Linux #218; al-runner issue 7143).
+  #
+  # WHY A SEPARATE JOB. The container default is true: a write inside a TryFunction fails with TryFunctionWrite, and the other
+  # legs pin that. SaaS runs with false. The setting is per service tier, so a test for the other mode needs its own BC boot.
+  # A test belongs in tests/al-language-trywrite-allowed only when its result depends on this setting. Its objects live in
+  # 81700..81749.
+  #
+  # Not a required status check yet: its checks are named "BC TryWrites <ver> / test".
+  test-trywrite-allowed:
+    name: BC TryWrites ${{ matrix.bc_version }}
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    uses: ./.github/workflows/bc-leg.yml
+    permissions:
+      contents: read
+      actions: write
+    with:
+      shards:               ${{ toJson(fromJson(needs.prepare.outputs.shards)[matrix.bc_version]['tests/al-language-trywrite-allowed']) }}
+      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-1a121fc6b54c63c96e6b806b16090f366b395453"
+      bc_version:           ${{ matrix.bc_version }}
+      bc_country:           "w1"
+      # al-language is published only because the test app depends on it (Probe Observer, LT CU Row).
+      app_dirs: |
+        tests/al-language-internals-fixture
+        tests/al-language-xapp-a
+        tests/al-language-xapp-d
+        tests/al-language-xapp-b
+        tests/al-language-xapp-c
+        tests/al-language-xapp-n
+        tests/al-language-xapp-t
+        tests/al-language
+      test_app_dirs:        "tests/al-language-trywrite-allowed"
+      codeunit_range:       ${{ fromJson(needs.prepare.outputs.subset)['tests/al-language-trywrite-allowed'] || '81700..81749' }}
+      server_settings:      "DisableWriteInsideTryFunctions=false"
+      preprocessor_symbols: ${{ matrix.preprocessor_symbols }}
+      al_tool_version:      "30.0.43.45776-beta"
+      runtime_version:      ${{ matrix.runtime }}
+      bc_artifact_url: ${{ startsWith(matrix.bc_version, '29.') && 'https://bcartifacts-exdbf9fwegejdqak.b02.azurefd.net/sandbox/29.0.54011.55816/w1' || '' }}
+      sql_image:            "ghcr.io/aldevtools/msdyn365bc.on.linux/mssql:2022-fts"
+      rdlc_renderer:        true
+      rdlc_trust_layouts:   true

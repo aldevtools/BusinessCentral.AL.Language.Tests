@@ -42,6 +42,7 @@ on:
       rdlc_trust_layouts:     {type: boolean, default: false}
       assembly_probing_paths: {type: string, default: ""}
       extra_apps:             {type: string, default: ""}
+      server_settings:        {type: string, default: ""}
 
 jobs:
   shard:
@@ -81,6 +82,7 @@ jobs:
       rdlc_trust_layouts:     ${{ inputs.rdlc_trust_layouts }}
       assembly_probing_paths: ${{ inputs.assembly_probing_paths }}
       extra_apps:             ${{ inputs.extra_apps }}
+      server_settings:        ${{ inputs.server_settings }}
 
   test:
     needs: shard
