@@ -1,6 +1,6 @@
 // Fixture of the cross-app DefaultTestHandler probes (al-runner 7181): the log the handler apps A, C and D write to.
 // One entry list per test codeunit id, kept in a SingleInstance codeunit so every app of the session shares it.
-// singleinstance-shared-on-purpose: the log is written by the handler apps while three test codeunits run and read back by "LT BI XH Reader" in a later one; that is the measurement.
+// singleinstance-shared-on-purpose: the log is written by the handler apps only while the probe codeunits 81646-81648 run and read back by "LT BI XH Reader" in a later one; that is the measurement.
 #if BC29PLUS
 codeunit 97830 "XH Log"
 {
