@@ -80,7 +80,7 @@ codeunit 81700 "LT TW Allowed Tests"
             Error('error after write');
     end;
 
-    local procedure Probe(Op: Text; FailAfter: Boolean)
+    local procedure Probe(Op: Text; FailAfter: Boolean; WantState: Text)
     var
         Observer: Codeunit "Probe Observer";
         Ok: Boolean;
@@ -94,45 +94,56 @@ codeunit 81700 "LT TW Allowed Tests"
         Observer.Observe('state', State());
         Commit();
         Observer.Observe('state after commit', State());
-        Observer.Finish();
+        if FailAfter then begin
+            Observer.Expect('ok', 'No');
+            Observer.Expect('lasterror', 'error after write');
+            Observer.Expect('lastcode', 'Dialog');
+        end else begin
+            Observer.Expect('ok', 'Yes');
+            Observer.Expect('lasterror', '');
+            Observer.Expect('lastcode', '');
+        end;
+        Observer.Expect('state', WantState);
+        Observer.Expect('state after commit', WantState);
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Insert_InTryFunction_Succeeds() begin Probe('insert', false); end;
+    procedure Insert_InTryFunction_Succeeds() begin Probe('insert', false, '1=a;2=b;3=c;10=new;'); end;
 
     [Test]
-    procedure Insert_InTryFunction_ErrorAfter() begin Probe('insert', true); end;
+    procedure Insert_InTryFunction_ErrorAfter() begin Probe('insert', true, '1=a;2=b;3=c;10=new;'); end;
 
     [Test]
-    procedure Modify_InTryFunction_Succeeds() begin Probe('modify', false); end;
+    procedure Modify_InTryFunction_Succeeds() begin Probe('modify', false, '1=mod;2=b;3=c;'); end;
 
     [Test]
-    procedure Modify_InTryFunction_ErrorAfter() begin Probe('modify', true); end;
+    procedure Modify_InTryFunction_ErrorAfter() begin Probe('modify', true, '1=mod;2=b;3=c;'); end;
 
     [Test]
-    procedure Delete_InTryFunction_Succeeds() begin Probe('delete', false); end;
+    procedure Delete_InTryFunction_Succeeds() begin Probe('delete', false, '2=b;3=c;'); end;
 
     [Test]
-    procedure Delete_InTryFunction_ErrorAfter() begin Probe('delete', true); end;
+    procedure Delete_InTryFunction_ErrorAfter() begin Probe('delete', true, '2=b;3=c;'); end;
 
     [Test]
-    procedure DeleteAll_InTryFunction_Succeeds() begin Probe('deleteall', false); end;
+    procedure DeleteAll_InTryFunction_Succeeds() begin Probe('deleteall', false, ''); end;
 
     [Test]
-    procedure DeleteAll_InTryFunction_ErrorAfter() begin Probe('deleteall', true); end;
+    procedure DeleteAll_InTryFunction_ErrorAfter() begin Probe('deleteall', true, ''); end;
 
     [Test]
-    procedure ModifyAll_InTryFunction_Succeeds() begin Probe('modifyall', false); end;
+    procedure ModifyAll_InTryFunction_Succeeds() begin Probe('modifyall', false, '1=all;2=all;3=all;'); end;
 
     [Test]
-    procedure ModifyAll_InTryFunction_ErrorAfter() begin Probe('modifyall', true); end;
+    procedure ModifyAll_InTryFunction_ErrorAfter() begin Probe('modifyall', true, '1=all;2=all;3=all;'); end;
 
     [Test]
-    procedure Rename_InTryFunction_Succeeds() begin Probe('rename', false); end;
+    procedure Rename_InTryFunction_Succeeds() begin Probe('rename', false, '2=b;3=c;11=a;'); end;
 
     [Test]
-    procedure Rename_InTryFunction_ErrorAfter() begin Probe('rename', true); end;
+    procedure Rename_InTryFunction_ErrorAfter() begin Probe('rename', true, '2=b;3=c;11=a;'); end;
 
     [Test]
-    procedure Commit_InTryFunction_Succeeds() begin Probe('commit', false); end;
+    procedure Commit_InTryFunction_Succeeds() begin Probe('commit', false, '1=a;2=b;3=c;'); end;
 }
