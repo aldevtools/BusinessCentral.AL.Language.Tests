@@ -4,6 +4,10 @@
 // TestProbeEventContracts.al BSK_Bind_AfterClear_And_OnCopy). Once with the global in a plain codeunit, once in the test codeunit itself.
 // Subscriber and publisher are in BindSubscriptionKinds.Objects.al: "LT BSK Manual" adds 'M' + its Tag to the hits of a Ping, and the
 // automatic subscriber "LT BSK Static Explicit" adds 'A' to every Ping.
+// Measured on BC 29.0: ClearAll keeps the bound instance in the variable and the binding stays (the subscriber still runs, a second
+// BindSubscription of the variable raises "already been bound", UnbindSubscription of it ends the binding), but the instance's own
+// globals are reset (its Tag is empty after ClearAll). Clear of the global gives a fresh, unbound instance and ends the binding, as
+// Clear of a local does.
 // local object: ClearAll resets the globals of the codeunit that calls it, so the bound variable is a global of a codeunit of its own.
 
 codeunit 95394 "EVT BindSub ClearAll Holder"
@@ -90,7 +94,18 @@ codeunit 95395 "EVT BindSub ClearAll Tests"
         O.Observe('hits after unbind', Pub.Ping());
         O.Observe('unbind again', Holder.Unbind());
         O.Observe('hits end', Pub.Ping());
-        O.Finish();
+        O.Expect('bind', 'ok');
+        O.Expect('hits bound', 'AM1');
+        O.Expect('marker after clearall', '0');
+        O.Expect('hits after clearall', 'AM');
+        O.Expect('hits after settag', 'AMC');
+        O.Expect('bind after clearall', 'The binding of codeunit 95393 was unsuccessful. The codeunit has already been bound.|EventBinding');
+        O.Expect('hits after bind', 'AMC');
+        O.Expect('unbind', 'Yes');
+        O.Expect('hits after unbind', 'A');
+        O.Expect('unbind again', 'Yes');
+        O.Expect('hits end', 'A');
+        O.Verify();
     end;
 
     [Test]
@@ -115,7 +130,18 @@ codeunit 95395 "EVT BindSub ClearAll Tests"
         O.Observe('hits after unbind', Pub.Ping());
         O.Observe('unbind again', Holder.Unbind());
         O.Observe('hits end', Pub.Ping());
-        O.Finish();
+        O.Expect('bind', 'ok');
+        O.Expect('hits bound', 'AM2');
+        O.Expect('marker after clear', '5');
+        O.Expect('hits after clear', 'A');
+        O.Expect('hits after settag', 'A');
+        O.Expect('bind after clear', 'ok');
+        O.Expect('hits after bind', 'AMD');
+        O.Expect('unbind', 'Yes');
+        O.Expect('hits after unbind', 'A');
+        O.Expect('unbind again', 'Yes');
+        O.Expect('hits end', 'A');
+        O.Verify();
     end;
 
     [Test]
@@ -138,7 +164,17 @@ codeunit 95395 "EVT BindSub ClearAll Tests"
         O.Observe('hits after unbind', Pub.Ping());
         O.Observe('unbind again', Format(UnbindSubscription(Sub)));
         O.Observe('hits end', Pub.Ping());
-        O.Finish();
+        O.Expect('bind', 'ok');
+        O.Expect('hits bound', 'AM3');
+        O.Expect('hits after clearall', 'AM');
+        O.Expect('hits after settag', 'AME');
+        O.Expect('bind after clearall', 'The binding of codeunit 95393 was unsuccessful. The codeunit has already been bound.|EventBinding');
+        O.Expect('hits after bind', 'AME');
+        O.Expect('unbind', 'Yes');
+        O.Expect('hits after unbind', 'A');
+        O.Expect('unbind again', 'Yes');
+        O.Expect('hits end', 'A');
+        O.Verify();
     end;
 
     local procedure BindResult(): Text
