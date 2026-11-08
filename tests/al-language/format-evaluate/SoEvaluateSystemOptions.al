@@ -1013,8 +1013,6 @@ codeunit 99603 "LT SO Eval DataClassifica"
         Err(Observer, 'negative', '-1');
         Err(Observer, 'long_garbage', 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSs');
         Err(Observer, 'quote', 'it''s');
-        Err(Observer, 'tab_garbage', 'a' + Tab() + 'b');
-        Err(Observer, 'name_tab', 'CustomerContent' + Tab());
         Observer.Expect('good_name', 'Yes/CustomerContent');
         Observer.Expect('good_name|text', '');
         Observer.Expect('good_name|code', '');
@@ -1044,7 +1042,26 @@ codeunit 99603 "LT SO Eval DataClassifica"
         Observer.Expect('long_garbage|code', 'InvalidOptionString');
         Observer.Expect('quote', 'No/SystemMetadata');
         Observer.Expect('quote|text', '''it''s'' is not an option. The existing options are: CustomerContent, ToBeClassified, EndUserIdentifiableInformation, AccountData, EndUserPseudonymousIdentifiers, OrganizationIdentifiableInformation, SystemMetadata');
+        Observer.Expect('quote|code', 'InvalidOptionString');
         Observer.Verify();
+    end;
+
+    [Test]
+    procedure StatementErrorTabInside()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Err(Observer, 'tab_garbage', 'a' + Tab() + 'b');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure StatementErrorNameThenTab()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Err(Observer, 'name_tab', 'CustomerContent' + Tab());
+        Observer.Finish();
     end;
 
     [Test]
