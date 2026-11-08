@@ -124,7 +124,7 @@ codeunit 92150 "LT Y21 Env Columns"
         Observer.Expect('flag 3', 'count=214 digest=1548800635');
         Observer.Expect('flag 4', 'count=0 digest=0');
         Observer.Expect('flag 5', 'count=214 digest=1548800635');
-        Observer.Expect('flag 6', 'count=0 digest=0'); // PLACEHOLDER: real value read from CI
+        Observer.Expect('flag 6', 'count=50 digest=829845923');
         Observer.Expect('flag 7', 'count=0 digest=0');
         Observer.Expect('1033', 'Yes,Yes,Yes,No,Yes,Yes,No');
         Observer.Expect('1031', 'Yes,Yes,Yes,No,Yes,Yes,No');
