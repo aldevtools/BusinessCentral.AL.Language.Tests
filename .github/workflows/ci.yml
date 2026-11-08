@@ -329,7 +329,7 @@ jobs:
       actions: write
     with:
       shards:               ${{ toJson(fromJson(needs.prepare.outputs.shards)[matrix.bc_version]['tests/al-language']) }}
-      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-1a121fc6b54c63c96e6b806b16090f366b395453"
+      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-cf9d0239e3232efc263c5c5e5bec053e4ea72f08"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
       # Dependency apps of al-language, in publish order (an app after the apps it depends on). The cross-app fixtures
@@ -434,7 +434,7 @@ jobs:
       actions: write
     with:
       shards:               ${{ toJson(fromJson(needs.prepare.outputs.shards)[matrix.bc_version]['tests/al-language-onprem']) }}
-      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-1a121fc6b54c63c96e6b806b16090f366b395453"
+      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-cf9d0239e3232efc263c5c5e5bec053e4ea72f08"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
       # al-language is a production app HERE only in the sense that it has to be
@@ -486,7 +486,7 @@ jobs:
       actions: write
     with:
       shards:               ${{ toJson(fromJson(needs.prepare.outputs.shards)[matrix.bc_version]['tests/al-language-onprem-dotnet']) }}
-      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:1a121fc6b54c63c96e6b806b16090f366b395453"
+      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:cf9d0239e3232efc263c5c5e5bec053e4ea72f08"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
       app_dirs: |
@@ -552,7 +552,7 @@ jobs:
       actions: write
     with:
       shards:               ${{ toJson(fromJson(needs.prepare.outputs.shards)[matrix.bc_version]['tests/al-language-testlibraries']) }}
-      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-1a121fc6b54c63c96e6b806b16090f366b395453"
+      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-cf9d0239e3232efc263c5c5e5bec053e4ea72f08"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
       # al-language is published only because the test app depends on it (Probe Observer). Its own tests run in the
@@ -611,7 +611,7 @@ jobs:
       actions: write
     with:
       shards:               ${{ toJson(fromJson(needs.prepare.outputs.shards)[matrix.bc_version]['tests/al-language-trywrite-allowed']) }}
-      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-1a121fc6b54c63c96e6b806b16090f366b395453"
+      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-cf9d0239e3232efc263c5c5e5bec053e4ea72f08"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
       # al-language is published only because the test app depends on it (Probe Observer, LT CU Row).
