@@ -1,11 +1,10 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/navapp/navapp-loadpackagedata-method
 // Scope: in-scope
-// Fixtures used: tests/al-language-xapp-a/PkgDataPartsFixture.al (tables 97990-97992, install codeunit 97999) with the data files TAB97990 and
+// Fixtures used: tests/al-language-xapp-a/PkgDataPartsFixture.al (tables 97990-97992, install codeunits 97998 and 97999) with the data files TAB97990 and
 //   TAB97991.navxdata; Probe Observer (69160).
 // Probe (al-runner issue 6649): what NavApp.LoadPackageData does when the install part does not match the table's DataPerCompany: a per-company
-//   table loaded from OnInstallAppPerDatabase, and a shared table (DataPerCompany = false) loaded from OnInstallAppPerCompany. Each load runs in a
-//   TryFunction in the install code; the log says `ok` or the error code and text. The shared table is loaded only while it is empty, so a later
-//   company logs `skipped, it had rows`.
+//   table loaded from OnInstallAppPerDatabase, and a shared table (DataPerCompany = false) loaded from OnInstallAppPerCompany. The shared table is
+//   loaded in the first company only (a later company logs `no load` under part company-later).
 // BC versions: 27 - 29
 codeunit 97980 "LT PkgParts Probe"
 {
@@ -25,6 +24,20 @@ codeunit 97980 "LT PkgParts Probe"
         exit(T);
     end;
 
+    local procedure RowsPerCompany(): Text
+    var
+        Company: Record Company;
+        Row: Record "LT PkgParts Company";
+        T: Text;
+    begin
+        if Company.FindSet() then
+            repeat
+                Row.ChangeCompany(Company.Name);
+                T += Company.Name + '=' + Format(Row.Count()) + ';';
+            until Company.Next() = 0;
+        exit(T);
+    end;
+
     [Test]
     procedure LoadPackageData_CompanyTableInDatabasePart()
     var
@@ -38,6 +51,7 @@ codeunit 97980 "LT PkgParts Probe"
                 T += Row."No." + '=' + Row.Description + ';';
             until Row.Next() = 0;
         Observer.Observe('rows in this company', T);
+        Observer.Observe('rows per company', RowsPerCompany());
         Observer.Finish();
     end;
 
@@ -49,6 +63,7 @@ codeunit 97980 "LT PkgParts Probe"
         T: Text;
     begin
         Observer.Observe('load', LogText('company'));
+        Observer.Observe('later companies', LogText('company-later'));
         if Row.FindSet() then
             repeat
                 T += Row."No." + '=' + Row.Description + ';';
