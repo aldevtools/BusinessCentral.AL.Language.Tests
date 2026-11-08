@@ -14,8 +14,9 @@ name: BC leg (shards of one test app on one BC version)
 # keeps one artifact per leg holding one JUnit file, as before. A shard re-run ("Re-run failed jobs") uploads a new
 # artifact; the merge then takes the earlier merged file and replaces the re-run shard's codeunits with the new results.
 #
-# SKIPPED LEG. On a pull request a leg whose app has nothing affected gets no shard (shards = []). The shard job is
-# then skipped and `test` reports success without starting BC. Any other skipped or cancelled shard fails `test`.
+# SKIPPED LEG. In a subset run (a pull request, or a dispatch with select_codeunits or select_base) a leg whose app has
+# nothing affected gets no shard (shards = []). The shard job is then skipped and `test` reports success without
+# starting BC. Any other skipped or cancelled shard fails `test`.
 
 on:
   workflow_call:
@@ -41,6 +42,7 @@ on:
       rdlc_trust_layouts:     {type: boolean, default: false}
       assembly_probing_paths: {type: string, default: ""}
       extra_apps:             {type: string, default: ""}
+      server_settings:        {type: string, default: ""}
 
 jobs:
   shard:
@@ -50,7 +52,9 @@ jobs:
       fail-fast: false
       matrix:
         shard: ${{ fromJson(inputs.shards != 'null' && inputs.shards || format('[{{"n":"1 of 1","range":"{0}"}}]', inputs.codeunit_range)) }}
-    # Workflow and scripts pinned to bc-linux 79d557f (scripts only; the runner images in ci.yml stay at 65f6b26):
+    # Workflow, scripts and (in ci.yml) runner images pinned to bc-linux cf9d0239 (bump of 2026-11-08): temporary-table Code/Text keys sort in the Windows punctuation order (#222, #224); Language Selection and Windows Language list the 248 Windows rows (#223, #225). Before, at 1a121fc: the boot stops when an app it
+    # publishes fails (#219, #220); callers can set service-tier settings (#218, #221). Before, workflow and scripts at 79d557f
+    # (images at 65f6b26):
     # publish limit 1200 s with a timeout reported as such (#210, #206); test codeunits run in ID order (#213, #209);
     # the web client is off by default, so GetUrl builds the URL as on Windows (#215, #214). Before, workflow and scripts for corpus bump 63 at 65f6b26: a write into a missing folder fails with
     # InvalidPath as on Windows (#189). Bump 62 pin 84291ff before: fr-FR group separator U+00A0 on BC 27/28 as on
@@ -58,9 +62,9 @@ jobs:
     # (#175, #181); MediaSet.ImportFile stores the bare file name (#176); Directory/DirectoryInfo listings match patterns
     # case-insensitively and list in name order (#183). Earlier: #165, #166, #167. The runner images in ci.yml carry
     # the same commit until 2026-11-03.
-    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@79d557f7042ccc22a4d37ece6d7f4ca5d4fa617d
+    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@cf9d0239e3232efc263c5c5e5bec053e4ea72f08
     with:
-      bc_linux_ref:           "79d557f7042ccc22a4d37ece6d7f4ca5d4fa617d"
+      bc_linux_ref:           "cf9d0239e3232efc263c5c5e5bec053e4ea72f08"
       runner_image:           ${{ inputs.runner_image }}
       bc_version:             ${{ inputs.bc_version }}
       bc_country:             ${{ inputs.bc_country }}
@@ -78,6 +82,7 @@ jobs:
       rdlc_trust_layouts:     ${{ inputs.rdlc_trust_layouts }}
       assembly_probing_paths: ${{ inputs.assembly_probing_paths }}
       extra_apps:             ${{ inputs.extra_apps }}
+      server_settings:        ${{ inputs.server_settings }}
 
   test:
     needs: shard

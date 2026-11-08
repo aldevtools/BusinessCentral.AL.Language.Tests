@@ -245,7 +245,10 @@ codeunit 74334 "LT P136 Filter"
         Observer.Expect('oneDAngles|code', 'Filter:CSide');
         Observer.Expect('notOneM', '2|<>1M');
         Observer.Expect('geOneD', '3|>=1D');
-        Observer.Expect('orBoth', '2|1M|1D');
+        // Correction (bc-linux fix b0581b8f, issue 207): 2 was measured on a Linux image where ICU compared the control-character unit of 1M and 1D as equal and the
+        // union lost a term. Windows counts 3: nightly Windows run 42360491883 (BC 28.4, this test, observation 12) and bc-linux issue 207 (Windows 27.5 and 28.5).
+        // No Windows BC 29 run of this case exists yet; BC 29 on the fixed image also gives 3.
+        Observer.Expect('orBoth', '3|1M|1D');
         Observer.Expect('range', '3|1D..1M');
         Observer.Expect('cm', '0|CM');
         Observer.Expect('garbage|text', 'The filter "x" is not valid for the DF field on the LT P136 Row table. The date formula ''X'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.');

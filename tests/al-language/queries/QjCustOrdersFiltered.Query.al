@@ -1,6 +1,6 @@
 // A multi-dataitem JOIN query whose PLAIN (non-aggregated) column on the driving dataitem
 // carries a static ColumnFilter — a WHERE-style filter, evaluated against raw joined rows
-// before any grouping. Reuses the "QJ Customer"/"QJ Order" tables already established by
+// before any grouping. Reuses the "ALT Shape 04"/"QJ Order" tables already established by
 // TestQueryJoin.al.
 query 60781 "QJ Cust Orders Filtered"
 {
@@ -9,7 +9,7 @@ query 60781 "QJ Cust Orders Filtered"
 
     elements
     {
-        dataitem(Customer; "QJ Customer")
+        dataitem(Customer; "ALT Shape 04")
         {
             column(CustNo; "No.")
             {

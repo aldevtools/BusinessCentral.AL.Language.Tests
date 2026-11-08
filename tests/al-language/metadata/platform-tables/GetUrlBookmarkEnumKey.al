@@ -5,6 +5,8 @@
 // Facts: the bookmark= value of GetUrl(ClientType::Web, Company, ObjectType::Page, Id, Record, false) for a record whose primary key starts with an enum
 //   field followed by a Code[20] field: an own table, Purchase Header with three document types and a blank and a long number, an Option field in the
 //   same position, and an enum as the only key field. Code and Integer keys are pinned in GetUrlBookmarkFilter.al.
+// Also: Code values 1, 12, 123, 1234, 12345, 12345678, 1A2 and A1 behind the enum, on the own table and on Purchase Header (EnumAndCodeKey_OwnTable_NumericAndMixedCodes,
+//   PurchaseHeaderOrder_NumericAndMixedNumbers). All digits: length byte then UTF-16 text, no 0xFF marker; a digit followed by a letter, or a letter first, adds the 0xFF marker. Same on 27, 28 and 29.
 // BC versions: 27, 28, 29
 enum 91260 "LT SC Url Kind"
 {
@@ -169,4 +171,120 @@ codeunit 91264 "LT SC GetUrl Enum Key"
         Observer.Expect('fifth A1', '?company=My%20Company&page=91263&bookmark=21%3bfmQBAACLAgAAAAJ7%2f0EAMQ%3d%3d');
         Observer.Verify();
     end;
+
+    // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/system/system-geturl-method
+    [Test]
+    procedure GetUrl_PurchaseHeader_SevenDigits_UsesCompositeBookmark()
+    var
+        Row: Record "Purchase Header";
+        ActualUrl: Text;
+        ExpectedUrl: Text;
+    begin
+        Initialize();
+        Row.Init();
+        Row."Document Type" := Row."Document Type"::Order;
+        Row."No." := '1234567';
+        ActualUrl := Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", Row, false));
+        ExpectedUrl := '?company=My%20Company&page=50&bookmark=31%3bJgAAAACLAQAAAAJ7BzEAMgAzADQANQA2ADc%3d';
+        if ActualUrl <> ExpectedUrl then
+            Error('Expected native bookmark URL %1; actual %2.', ExpectedUrl, ActualUrl);
+    end;
+
+    [Test]
+    procedure GetUrl_PurchaseHeader_DigitThenLetter_UsesCompositeBookmark()
+    var
+        Row: Record "Purchase Header";
+        ActualUrl: Text;
+        ExpectedUrl: Text;
+    begin
+        Initialize();
+        Row.Init();
+        Row."Document Type" := Row."Document Type"::Order;
+        Row."No." := '1A';
+        ActualUrl := Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", Row, false));
+        ExpectedUrl := '?company=My%20Company&page=50&bookmark=21%3bJgAAAACLAQAAAAJ7%2fzEAQQ%3d%3d';
+        if ActualUrl <> ExpectedUrl then
+            Error('Expected native bookmark URL %1; actual %2.', ExpectedUrl, ActualUrl);
+    end;
+
+    [Test]
+    procedure EnumAndCodeKey_OwnTable_NumericAndMixedCodes()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT SC Url Enum Row";
+    begin
+        Row.Init();
+        Row.Kind := "LT SC Url Kind"::Second;
+        Row.Code := '1';
+        Observer.Observe('code 1', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false)));
+        Row.Code := '12';
+        Observer.Observe('code 12', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false)));
+        Row.Code := '123';
+        Observer.Observe('code 123', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false)));
+        Row.Code := '1234';
+        Observer.Observe('code 1234', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false)));
+        Row.Code := '12345';
+        Observer.Observe('code 12345', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false)));
+        Row.Code := '12345678';
+        Observer.Observe('code 12345678', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false)));
+        Row.Code := '1A2';
+        Observer.Observe('code 1A2', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false)));
+        Row.Code := 'A1';
+        Observer.Observe('code A1', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false)));
+        Observer.Expect('code 1', '?company=My%20Company&page=91263&bookmark=19%3bfWQBAACLAQAAAAJ7ATE%3d');
+        Observer.Expect('code 12', '?company=My%20Company&page=91263&bookmark=21%3bfWQBAACLAQAAAAJ7AjEAMg%3d%3d');
+        Observer.Expect('code 123', '?company=My%20Company&page=91263&bookmark=23%3bfWQBAACLAQAAAAJ7AzEAMgAz');
+        Observer.Expect('code 1234', '?company=My%20Company&page=91263&bookmark=25%3bfWQBAACLAQAAAAJ7BDEAMgAzADQ%3d');
+        Observer.Expect('code 12345', '?company=My%20Company&page=91263&bookmark=27%3bfWQBAACLAQAAAAJ7BTEAMgAzADQANQ%3d%3d');
+        Observer.Expect('code 12345678', '?company=My%20Company&page=91263&bookmark=33%3bfWQBAACLAQAAAAJ7CDEAMgAzADQANQA2ADcAOA%3d%3d');
+        Observer.Expect('code 1A2', '?company=My%20Company&page=91263&bookmark=23%3bfWQBAACLAQAAAAJ7%2fzEAQQAy');
+        Observer.Expect('code A1', '?company=My%20Company&page=91263&bookmark=21%3bfWQBAACLAQAAAAJ7%2f0EAMQ%3d%3d');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure PurchaseHeaderOrder_NumericAndMixedNumbers()
+    var
+        Observer: Codeunit "Probe Observer";
+        PurchHeader: Record "Purchase Header";
+    begin
+        PurchHeader.Init();
+        PurchHeader."Document Type" := PurchHeader."Document Type"::Order;
+        PurchHeader."No." := '1';
+        Observer.Observe('no 1', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", PurchHeader, false)));
+        PurchHeader."No." := '12';
+        Observer.Observe('no 12', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", PurchHeader, false)));
+        PurchHeader."No." := '123';
+        Observer.Observe('no 123', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", PurchHeader, false)));
+        PurchHeader."No." := '1234';
+        Observer.Observe('no 1234', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", PurchHeader, false)));
+        PurchHeader."No." := '12345';
+        Observer.Observe('no 12345', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", PurchHeader, false)));
+        PurchHeader."No." := '12345678';
+        Observer.Observe('no 12345678', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", PurchHeader, false)));
+        PurchHeader."No." := '1A2';
+        Observer.Observe('no 1A2', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", PurchHeader, false)));
+        PurchHeader."No." := 'A1';
+        Observer.Observe('no A1', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Order", PurchHeader, false)));
+        Observer.Expect('no 1', '?company=My%20Company&page=50&bookmark=19%3bJgAAAACLAQAAAAJ7ATE%3d');
+        Observer.Expect('no 12', '?company=My%20Company&page=50&bookmark=21%3bJgAAAACLAQAAAAJ7AjEAMg%3d%3d');
+        Observer.Expect('no 123', '?company=My%20Company&page=50&bookmark=23%3bJgAAAACLAQAAAAJ7AzEAMgAz');
+        Observer.Expect('no 1234', '?company=My%20Company&page=50&bookmark=25%3bJgAAAACLAQAAAAJ7BDEAMgAzADQ%3d');
+        Observer.Expect('no 12345', '?company=My%20Company&page=50&bookmark=27%3bJgAAAACLAQAAAAJ7BTEAMgAzADQANQ%3d%3d');
+        Observer.Expect('no 12345678', '?company=My%20Company&page=50&bookmark=33%3bJgAAAACLAQAAAAJ7CDEAMgAzADQANQA2ADcAOA%3d%3d');
+        Observer.Expect('no 1A2', '?company=My%20Company&page=50&bookmark=23%3bJgAAAACLAQAAAAJ7%2fzEAQQAy');
+        Observer.Expect('no A1', '?company=My%20Company&page=50&bookmark=21%3bJgAAAACLAQAAAAJ7%2f0EAMQ%3d%3d');
+        Observer.Verify();
+    end;
+
+    local procedure Initialize()
+    var
+        Cleanup: Codeunit ALTFixtureCleanup;
+        Row: Record "Purchase Header";
+    begin
+        Cleanup.Initialize();
+        // The API consumes uninserted buffers; clear the standard table to make that precondition explicit.
+        Row.DeleteAll(false);
+    end;
+
 }

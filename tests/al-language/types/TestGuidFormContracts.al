@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/system/system-createguid-function
 // Scope: in-scope
-// Fixtures used: shared Assert (60021); self-contained table 68870, codeunit 68871
+// Fixtures used: shared Assert (60021); shared table 50000 "ALT Shape 00", codeunit 68871
 // Probe: written against a real BC 27.5 service tier; every literal below is what that tier
 // produced. Other BC versions were not measured.
 //
@@ -12,21 +12,6 @@
 //    than one value (and the variant position more than the four 8, 9, A, B), and the first 20 characters of all 50 differ.
 // There is no CreateSequentialGuid in AL (AL0118).
 // BC versions: 27.5
-
-table 68870 "Probe Guid Table"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; Id; Integer) { }
-    }
-
-    keys
-    {
-        key(PK; Id) { Clustered = true; }
-    }
-}
 
 codeunit 68871 "Probe Guid Form"
 {
@@ -76,7 +61,7 @@ codeunit 68871 "Probe Guid Form"
     [Test]
     procedure SystemId_OfNewRows_IsNotVersion4()
     var
-        GuidRec: Record "Probe Guid Table";
+        GuidRec: Record "ALT Shape 00";
         Guids: List of [Guid];
         Index: Integer;
         VersionDigits: Text;

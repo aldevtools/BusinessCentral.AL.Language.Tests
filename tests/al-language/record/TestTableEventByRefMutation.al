@@ -22,6 +22,7 @@ codeunit 60237 "Test Event ByRef Mut"
         MutationControl.SetScenario('CODEUNIT-HANDLED');
 
         Assert.IsTrue(Publisher.TriggerBeforeAndReturnHandled(7001), 'Var scalar event parameters must allow subscriber mutation back to the publisher');
+        MutationControl.ClearScenario(); // leave no scenario for the subscriber when other test codeunits fire these events
     end;
 
     [Test]
@@ -42,6 +43,7 @@ codeunit 60237 "Test Event ByRef Mut"
         Triggered.Modify(false);
         Triggered.Get(7101);
         Assert.AreEqual('BeforeValidateMutation', Triggered.Name, 'Rec mutations from OnBeforeValidateEvent must remain persistable after Validate');
+        MutationControl.ClearScenario(); // leave no scenario for the subscriber when other test codeunits fire these events
     end;
 
     [Test]
@@ -62,6 +64,7 @@ codeunit 60237 "Test Event ByRef Mut"
         Triggered.Modify(false);
         Triggered.Get(7102);
         Assert.AreEqual('AfterValidateMutation', Triggered.Name, 'Rec mutations from OnAfterValidateEvent must remain persistable after Validate');
+        MutationControl.ClearScenario(); // leave no scenario for the subscriber when other test codeunits fire these events
     end;
 
     [Test]
@@ -81,6 +84,7 @@ codeunit 60237 "Test Event ByRef Mut"
 
         FindLog(TrigLog, 'TableOnAfterValidate', 7103);
         Assert.AreEqual('XREC-BEFORE-VALIDATE', TrigLog."OldValue", 'xRec mutations must be visible to later validate subscribers');
+        MutationControl.ClearScenario(); // leave no scenario for the subscriber when other test codeunits fire these events
     end;
 
     [Test]
@@ -96,6 +100,7 @@ codeunit 60237 "Test Event ByRef Mut"
 
         Triggered.Get(7104);
         Assert.AreEqual('BeforeInsertMutation', Triggered.Name, 'OnBeforeInsertEvent must be able to mutate the inserted record');
+        MutationControl.ClearScenario(); // leave no scenario for the subscriber when other test codeunits fire these events
     end;
 
     [Test]
@@ -110,6 +115,7 @@ codeunit 60237 "Test Event ByRef Mut"
         Triggered.Insert(true);
 
         Assert.AreEqual('AfterInsertMutation', Triggered.Name, 'OnAfterInsertEvent must be able to mutate the caller''s Rec variable');
+        MutationControl.ClearScenario(); // leave no scenario for the subscriber when other test codeunits fire these events
     end;
 
     [Test]
@@ -127,6 +133,7 @@ codeunit 60237 "Test Event ByRef Mut"
 
         Triggered.Get(7107);
         Assert.AreEqual('BeforeModifyMutation', Triggered.Name, 'OnBeforeModifyEvent must be able to mutate the modified record');
+        MutationControl.ClearScenario(); // leave no scenario for the subscriber when other test codeunits fire these events
     end;
 
     [Test]
@@ -151,6 +158,7 @@ codeunit 60237 "Test Event ByRef Mut"
         FindLog(TrigLog, 'TableOnAfterModify', 7108);
         Assert.AreEqual(4242, TrigLog."OldIntegerValue", 'xRec integer mutations must be visible to later modify subscribers');
         Assert.AreEqual('XREC-BEFORE-MODIFY', TrigLog."OldValue", 'xRec text mutations must be visible to later modify subscribers');
+        MutationControl.ClearScenario(); // leave no scenario for the subscriber when other test codeunits fire these events
     end;
 
     [Test]
@@ -167,6 +175,7 @@ codeunit 60237 "Test Event ByRef Mut"
         Triggered.Modify(true);
 
         Assert.AreEqual('AfterModifyMutation', Triggered.Name, 'OnAfterModifyEvent must be able to mutate the caller''s Rec variable');
+        MutationControl.ClearScenario(); // leave no scenario for the subscriber when other test codeunits fire these events
     end;
 
     [Test]
@@ -190,6 +199,7 @@ codeunit 60237 "Test Event ByRef Mut"
         FindLog(TrigLog, 'TableOnAfterDelete', 7111);
         Assert.AreEqual(5151, TrigLog."NewIntegerValue", 'OnBeforeDeleteEvent Rec mutations must be visible to later delete subscribers');
         Assert.AreEqual('BeforeDeleteMutation', TrigLog."NewValue", 'OnBeforeDeleteEvent Rec text mutations must be visible to later delete subscribers');
+        MutationControl.ClearScenario(); // leave no scenario for the subscriber when other test codeunits fire these events
     end;
 
     [Test]
@@ -206,6 +216,7 @@ codeunit 60237 "Test Event ByRef Mut"
         Triggered.Delete(true);
 
         Assert.AreEqual(5252, Triggered.Value, 'OnAfterDeleteEvent must be able to mutate the caller''s Rec variable');
+        MutationControl.ClearScenario(); // leave no scenario for the subscriber when other test codeunits fire these events
     end;
 
     [Test]
@@ -223,6 +234,7 @@ codeunit 60237 "Test Event ByRef Mut"
 
         Triggered.Get(8114);
         Assert.AreEqual('BeforeRenameMutation', Triggered.Name, 'OnBeforeRenameEvent must be able to mutate the renamed record');
+        MutationControl.ClearScenario(); // leave no scenario for the subscriber when other test codeunits fire these events
     end;
 
     [Test]
@@ -246,6 +258,7 @@ codeunit 60237 "Test Event ByRef Mut"
         TrigLog.SetRange("OldEntryNo", 7115);
         Assert.IsTrue(TrigLog.FindFirst(), 'OnAfterRename subscriber log must exist');
         Assert.AreEqual(6262, TrigLog."OldIntegerValue", 'xRec mutations must be visible to later rename subscribers');
+        MutationControl.ClearScenario(); // leave no scenario for the subscriber when other test codeunits fire these events
     end;
 
     [Test]
@@ -262,6 +275,7 @@ codeunit 60237 "Test Event ByRef Mut"
         Triggered.Rename(8117);
 
         Assert.AreEqual('AfterRenameMutation', Triggered.Name, 'OnAfterRenameEvent must be able to mutate the caller''s Rec variable');
+        MutationControl.ClearScenario(); // leave no scenario for the subscriber when other test codeunits fire these events
     end;
 
     local procedure Initialize()

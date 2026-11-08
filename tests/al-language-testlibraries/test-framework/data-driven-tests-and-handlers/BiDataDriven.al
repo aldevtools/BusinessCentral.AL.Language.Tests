@@ -52,15 +52,32 @@ codeunit 81600 "LT BI DD Log"
 
     var
         Entries: Text;
+        Active: Boolean;
+
+    // The log is written only between Start and Stop (the codeunit that asserts on it starts and stops it), so the other
+    // data-driven codeunits that use the same source leave no state here.
+    procedure Start()
+    begin
+        Entries := '';
+        Active := true;
+    end;
+
+    procedure Stop()
+    begin
+        Entries := '';
+        Active := false;
+    end;
 
     procedure Reset()
     begin
-        Entries := '';
+        if Active then
+            Entries := '';
     end;
 
     procedure Add(Entry: Text)
     begin
-        Entries += Entry + ';';
+        if Active then
+            Entries += Entry + ';';
     end;
 
     procedure Peek(): Text
@@ -166,12 +183,17 @@ codeunit 81603 "LT BI DD Calls"
                 Assert.Fail('unexpected case ' + Id);
         end;
         Log.Add('run(' + Id + ')');
+        if Id = 'gamma' then
+            Log.Stop(); // the last case of the last data-driven procedure of this codeunit
     end;
 
     // The old log is replaced only by the next list call: a plain test sees whatever the last data-driven procedure left (nothing asserted).
     [Test]
     procedure BiDd_Plain_Runs()
+    var
+        Log: Codeunit "LT BI DD Log";
     begin
+        Log.Start(); // plain tests run before the data-driven procedure, which stops the log after its last case
         Assert.IsTrue(true, 'a plain test next to a data-driven procedure runs');
     end;
 }

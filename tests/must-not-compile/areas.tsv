@@ -1201,3 +1201,7 @@ stem	area
 2792-loadpackagedata-two-arguments	session-system
 2793-loadpackagedata-used-as-value	session-system
 2794-loadpackagedata-record-argument	record
+2952-tableext-protected-var-of-app-not-depended-on	table-objects
+2953-codeunit-protected-table-var-through-record	table-objects
+2971-bc29-legacy-statistics-anchor	pages
+2972-bc29-legacy-statistics-invoke	pages

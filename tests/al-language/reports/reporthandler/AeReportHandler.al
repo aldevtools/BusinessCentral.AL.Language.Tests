@@ -231,4 +231,30 @@ codeunit 78200 "LT AE Report Handler"
         RP.Row.SetFilter(Id, '');
         RP.OK().Invoke();
     end;
+
+    [Test]
+    [HandlerFunctions('RdlcHandler')]
+    procedure Report_RunModal_RdlcReportCallsRegisteredHandler()
+    begin
+        Initialize();
+        Report.RunModal(Report::"Assembly Order", false, false);
+        Observer.Observe('log', L.Take());
+        Observer.Expect('log', 'rdlc-handler;');
+        Observer.Verify();
+    end;
+
+    [ReportHandler]
+    procedure RdlcHandler(var R: Report "Assembly Order")
+    begin
+        L.Add('rdlc-handler');
+    end;
+
+    local procedure Initialize()
+    var
+        Cleanup: Codeunit ALTFixtureCleanup;
+    begin
+        Cleanup.Initialize();
+        L.Take();
+    end;
+
 }

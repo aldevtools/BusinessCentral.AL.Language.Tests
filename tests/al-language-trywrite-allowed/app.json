@@ -1,0 +1,50 @@
+{
+  "id": "e7b1fda9-465d-4efe-94c0-4804e66f84d9",
+  "name": "AL Language Coverage Tests (Try Writes Allowed)",
+  "publisher": "AL Language",
+  "version": "1.0.0.0",
+  "brief": "Probes that run with the service-tier setting DisableWriteInsideTryFunctions=false.",
+  "description": "BC's service tier denies a write inside a TryFunction by default (DisableWriteInsideTryFunctions=true, the container default); SaaS runs with false. The main coverage app runs in deny mode (error TryFunctionWrite). This app runs in its own CI job that sets the value to false through bc-linux's server_settings input, and holds only the tests that need that mode.",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "platform": "27.0.0.0",
+  "application": "27.0.0.0",
+  "dependencies": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "AL Language Coverage Tests",
+      "publisher": "AL Language",
+      "version": "1.0.0.0"
+    },
+    {
+      "id": "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
+      "name": "System Application",
+      "publisher": "Microsoft",
+      "version": "27.0.0.0"
+    },
+    {
+      "id": "437dbf0e-84ff-417a-965d-ed2bb9650972",
+      "name": "Base Application",
+      "publisher": "Microsoft",
+      "version": "27.0.0.0"
+    }
+  ],
+  "screenshots": [],
+  "idRanges": [
+    {
+      "from": 81700,
+      "to": 81749
+    }
+  ],
+  "features": [],
+  "runtime": "18.0",
+  "target": "Cloud",
+  "resourceExposurePolicy": {
+    "allowDebugging": true,
+    "allowDownloadingSource": true,
+    "includeSourceInSymbolFile": true
+  }
+}

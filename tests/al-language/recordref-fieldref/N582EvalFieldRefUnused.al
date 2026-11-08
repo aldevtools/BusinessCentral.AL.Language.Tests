@@ -148,4 +148,554 @@ codeunit 67605 "LT N582 Eval FieldRef"
         Observer.Expect('integer overflow|value', '9');
         Observer.Verify();
     end;
+
+    // Al-runner issue 6924 item 2.17: the same statement form on a Guid field (and the other field types the tests above leave out:
+    // BigInteger, Time, DateTime, DateFormula, Duration, an Option with an OptionCaption and an Enum), next to the form with the result
+    // used and Evaluate with format 9. Table 95366 below; every field starts with a value, so a kept value shows.
+    [TryFunction]
+    local procedure P6924_TryEvalUsed(FldRef: FieldRef; Txt: Text; var Ok: Boolean)
+    begin
+        Ok := Evaluate(FldRef, Txt);
+    end;
+
+    [TryFunction]
+    local procedure P6924_TryEval9(FldRef: FieldRef; Txt: Text)
+    begin
+        Evaluate(FldRef, Txt, 9);
+    end;
+
+    local procedure P6924_Field(FieldNo: Integer; var RecRef: RecordRef; var FldRef: FieldRef)
+    var
+        Row: Record "REC Eval Guid Row";
+    begin
+        Row.Id := 1;
+        Row.G := '{11111111-2222-3333-4444-555555555555}';
+        Row.Big := 9;
+        Row.Tm := 101010T;
+        Row.Dtm := CreateDateTime(20240101D, 101010T);
+        Evaluate(Row.DF, '<1D>');
+        Row.Dur := 1000;
+        Row.OptCap := Row.OptCap::One;
+        Row.Kind := Row.Kind::Customer;
+        RecRef.GetTable(Row);
+        FldRef := RecRef.Field(FieldNo);
+    end;
+
+    // Mode 0: statement; 1: result used; 9: statement with format 9.
+    local procedure P6924_Eval(var Observer: Codeunit "Probe Observer"; Name: Text; FieldNo: Integer; Txt: Text; Mode: Integer)
+    var
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+        Ok: Boolean;
+        Done: Boolean;
+    begin
+        P6924_Field(FieldNo, RecRef, FldRef);
+        ClearLastError();
+        case Mode of
+            0:
+                Done := TryEval(FldRef, Txt);
+            1:
+                Done := P6924_TryEvalUsed(FldRef, Txt, Ok);
+            9:
+                Done := P6924_TryEval9(FldRef, Txt);
+        end;
+        if not Done then
+            Observer.ObserveError(Name)
+        else
+            if Mode = 1 then begin
+                Observer.Observe(Name, 'returned ' + Format(Ok));
+                Observer.ObserveError(Name);
+            end else
+                Observer.Observe(Name, 'no error');
+        Observer.Observe(Name + '|value', Format(FldRef.Value));
+    end;
+
+    [Test]
+    procedure N582_Evaluate_FieldRef_Guid_Statement()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        P6924_Eval(Observer, 'guid braces', 2, '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}', 0);
+        P6924_Eval(Observer, 'guid no braces', 2, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', 0);
+        P6924_Eval(Observer, 'guid digits only', 2, 'AAAAAAAABBBBCCCCDDDDEEEEEEEEEEEE', 0);
+        P6924_Eval(Observer, 'guid parentheses', 2, '(AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE)', 0);
+        P6924_Eval(Observer, 'guid blanks', 2, ' {AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE} ', 0);
+        P6924_Eval(Observer, 'guid bad', 2, 'abc', 0);
+        P6924_Eval(Observer, 'guid empty', 2, '', 0);
+        P6924_Eval(Observer, 'guid null', 2, '{00000000-0000-0000-0000-000000000000}', 0);
+        Observer.Expect('guid braces', 'no error');
+        Observer.Expect('guid braces|value', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('guid no braces', 'no error');
+        Observer.Expect('guid no braces|value', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('guid digits only', 'no error');
+        Observer.Expect('guid digits only|value', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('guid parentheses', 'no error');
+        Observer.Expect('guid parentheses|value', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('guid blanks', 'no error');
+        Observer.Expect('guid blanks|value', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('guid bad|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('guid bad|code', 'InvalidGuidFormat');
+        Observer.Expect('guid bad|value', '{11111111-2222-3333-4444-555555555555}');
+        Observer.Expect('guid empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('guid empty|code', 'InvalidGuidFormat');
+        Observer.Expect('guid empty|value', '{11111111-2222-3333-4444-555555555555}');
+        Observer.Expect('guid null', 'no error');
+        Observer.Expect('guid null|value', '{00000000-0000-0000-0000-000000000000}');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure N582_Evaluate_FieldRef_Guid_ResultUsedAndFormat9()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        P6924_Eval(Observer, 'used braces', 2, '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}', 1);
+        P6924_Eval(Observer, 'used bad', 2, 'abc', 1);
+        P6924_Eval(Observer, 'used empty', 2, '', 1);
+        P6924_Eval(Observer, 'used too short', 2, '{AAAAAAAA-BBBB-CCCC-DDDD}', 1);
+        P6924_Eval(Observer, 'nine braces', 2, '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}', 9);
+        P6924_Eval(Observer, 'nine no braces', 2, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', 9);
+        P6924_Eval(Observer, 'nine bad', 2, 'abc', 9);
+        Observer.Expect('used braces', 'returned Yes');
+        Observer.Expect('used braces|text', '');
+        Observer.Expect('used braces|code', '');
+        Observer.Expect('used braces|value', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('used bad', 'returned No');
+#if BC28PLUS // BC 28.5 and 29.0 clear the last error when Evaluate into a Guid FieldRef answers false; BC 27.5 keeps it
+        Observer.Expect('used bad|text', '');
+        Observer.Expect('used bad|code', '');
+#else
+        Observer.Expect('used bad|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('used bad|code', 'InvalidGuidFormat');
+#endif
+        Observer.Expect('used bad|value', '{11111111-2222-3333-4444-555555555555}');
+        Observer.Expect('used empty', 'returned No');
+#if BC28PLUS // BC 28.5 and 29.0 clear the last error when Evaluate into a Guid FieldRef answers false; BC 27.5 keeps it
+        Observer.Expect('used empty|text', '');
+        Observer.Expect('used empty|code', '');
+#else
+        Observer.Expect('used empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('used empty|code', 'InvalidGuidFormat');
+#endif
+        Observer.Expect('used empty|value', '{11111111-2222-3333-4444-555555555555}');
+        Observer.Expect('used too short', 'returned No');
+#if BC28PLUS // BC 28.5 and 29.0 clear the last error when Evaluate into a Guid FieldRef answers false; BC 27.5 keeps it
+        Observer.Expect('used too short|text', '');
+        Observer.Expect('used too short|code', '');
+#else
+        Observer.Expect('used too short|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('used too short|code', 'InvalidGuidFormat');
+#endif
+        Observer.Expect('used too short|value', '{11111111-2222-3333-4444-555555555555}');
+        Observer.Expect('nine braces', 'no error');
+        Observer.Expect('nine braces|value', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('nine no braces', 'no error');
+        Observer.Expect('nine no braces|value', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('nine bad|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('nine bad|code', 'InvalidGuidFormat');
+        Observer.Expect('nine bad|value', '{11111111-2222-3333-4444-555555555555}');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure N582_Evaluate_FieldRef_Statement_BadText_MoreTypes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        P6924_Eval(Observer, 'biginteger abc', 3, 'abc', 0);
+        P6924_Eval(Observer, 'biginteger ok', 3, '12345678901', 0);
+        P6924_Eval(Observer, 'time abc', 4, 'abc', 0);
+        P6924_Eval(Observer, 'datetime abc', 5, 'abc', 0);
+        P6924_Eval(Observer, 'dateformula abc', 6, 'abc', 0);
+        P6924_Eval(Observer, 'dateformula ok', 6, '<2W>', 0);
+        P6924_Eval(Observer, 'duration abc', 7, 'abc', 0);
+        Observer.Expect('biginteger abc|text', 'The value "abc" can''t be evaluated into type BigInteger.');
+        Observer.Expect('biginteger abc|code', 'Evaluate');
+        Observer.Expect('biginteger abc|value', '9');
+        Observer.Expect('biginteger ok', 'no error');
+        Observer.Expect('biginteger ok|value', '12345678901');
+        Observer.Expect('time abc|text', 'The value "abc" can''t be evaluated into type Time.');
+        Observer.Expect('time abc|code', 'Evaluate');
+        Observer.Expect('time abc|value', '10:10:10 AM');
+        Observer.Expect('datetime abc|text', 'The value "abc" can''t be evaluated into type DateTime.');
+        Observer.Expect('datetime abc|code', 'Evaluate');
+        Observer.Expect('datetime abc|value', '01/01/24 10:10 AM');
+        Observer.Expect('dateformula abc|text', 'The date formula ''ABC'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.');
+        Observer.Expect('dateformula abc|code', 'Evaluate');
+        Observer.Expect('dateformula abc|value', '1D');
+        Observer.Expect('dateformula ok', 'no error');
+        Observer.Expect('dateformula ok|value', '2W');
+        Observer.Expect('duration abc|text', 'The value "abc" can''t be evaluated into type Duration.');
+        Observer.Expect('duration abc|code', 'Evaluate');
+        Observer.Expect('duration abc|value', '1 second');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure N582_Evaluate_FieldRef_Statement_BadText_OptionCaptionAndEnum()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        P6924_Eval(Observer, 'option caption Nope', 8, 'Nope', 0);
+        P6924_Eval(Observer, 'option caption by caption', 8, 'Two Cap', 0);
+        P6924_Eval(Observer, 'option caption by name', 8, 'Two', 0);
+        P6924_Eval(Observer, 'enum Nope', 9, 'Nope', 0);
+        P6924_Eval(Observer, 'enum by name', 9, 'Vendor', 0);
+        P6924_Eval(Observer, 'enum by caption', 9, 'Vendor Cap', 0);
+        P6924_Eval(Observer, 'enum empty', 9, '', 0);
+        Observer.Expect('option caption Nope|text', '''Nope'' is not an option. The existing options are: Zero Cap,One Cap,Two Cap');
+        Observer.Expect('option caption Nope|code', 'InvalidOptionString');
+        Observer.Expect('option caption Nope|value', 'One Cap');
+        Observer.Expect('option caption by caption', 'no error');
+        Observer.Expect('option caption by caption|value', 'Two Cap');
+        Observer.Expect('option caption by name', 'no error');
+        Observer.Expect('option caption by name|value', 'Two Cap');
+        Observer.Expect('enum Nope|text', '''Nope'' is not an option. The existing options are:  ,Customer Cap,Vendor Cap,Sales Order Cap');
+        Observer.Expect('enum Nope|code', 'InvalidOptionString');
+        Observer.Expect('enum Nope|value', 'Customer Cap');
+        Observer.Expect('enum by name', 'no error');
+        Observer.Expect('enum by name|value', 'Vendor Cap');
+        Observer.Expect('enum by caption', 'no error');
+        Observer.Expect('enum by caption|value', 'Vendor Cap');
+        Observer.Expect('enum empty', 'no error');
+        Observer.Expect('enum empty|value', ' ');
+        Observer.Verify();
+    end;
+
+    // Waldo run 2 (al-runner issue 6924): the same statement form on a RecordId field. Table 97240 below; Rid starts as the RecordId of the
+    // row itself, Rid2 starts blank. Mode 0: statement; 1: result used; 9: statement with format 9.
+    // Pinned from CI on BC 27.5, 28.5 and 29.0 (identical on all three).
+    [TryFunction]
+    local procedure WA_TryEval9(FldRef: FieldRef; Txt: Text)
+    begin
+        Evaluate(FldRef, Txt, 9);
+    end;
+
+    local procedure WA_Eval(var Observer: Codeunit "Probe Observer"; Name: Text; FieldNo: Integer; Txt: Text; Mode: Integer)
+    var
+        Row: Record "LT WA RecId Row";
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+        Ok: Boolean;
+        Done: Boolean;
+    begin
+        Row.Id := 1;
+        Row.Rid := Row.RecordId();
+        RecRef.GetTable(Row);
+        FldRef := RecRef.Field(FieldNo);
+        ClearLastError();
+        case Mode of
+            0:
+                Done := TryEval(FldRef, Txt);
+            1:
+                Done := P6924_TryEvalUsed(FldRef, Txt, Ok);
+            9:
+                Done := WA_TryEval9(FldRef, Txt);
+        end;
+        if not Done then
+            Observer.ObserveError(Name)
+        else
+            if Mode = 1 then begin
+                Observer.Observe(Name, 'returned ' + Format(Ok));
+                Observer.ObserveError(Name);
+            end else
+                Observer.Observe(Name, 'no error');
+        Observer.Observe(Name + '|value', Format(FldRef.Value));
+        if not Txt.StartsWith('Customer') then
+            Observer.Observe(Name + '|value9', Format(FldRef.Value, 0, 9));
+    end;
+
+    [Test]
+    procedure WA_Evaluate_FieldRef_RecordId_Statement_Valid()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Eval(Observer, 'own row', 2, 'LT WA RecId Row: 2', 0);
+        WA_Eval(Observer, 'own row lower case', 2, 'lt wa recid row: 2', 0);
+        WA_Eval(Observer, 'own row no blank', 2, 'LT WA RecId Row:3', 0);
+        WA_Eval(Observer, 'own row not stored', 2, 'LT WA RecId Row: 99999', 0);
+        WA_Eval(Observer, 'customer', 2, 'Customer: 10000', 0);
+        Observer.Expect('own row', 'no error');
+        Observer.Expect('own row|value', 'LT WA RecId Row: 2');
+        Observer.Expect('own row|value9', 'LT WA RecId Row: 2');
+        Observer.Expect('own row lower case', 'no error');
+        Observer.Expect('own row lower case|value', 'LT WA RecId Row: 2');
+        Observer.Expect('own row lower case|value9', 'LT WA RecId Row: 2');
+        Observer.Expect('own row no blank', 'no error');
+        Observer.Expect('own row no blank|value', 'LT WA RecId Row: 3');
+        Observer.Expect('own row no blank|value9', 'LT WA RecId Row: 3');
+        Observer.Expect('own row not stored', 'no error');
+        Observer.Expect('own row not stored|value', 'LT WA RecId Row: 99999');
+        Observer.Expect('own row not stored|value9', 'LT WA RecId Row: 99999');
+        Observer.Expect('customer', 'no error');
+        Observer.Expect('customer|value', 'Customer: 10000');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WA_Evaluate_FieldRef_RecordId_Statement_Invalid()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Eval(Observer, 'not a table', 2, 'zzz', 0);
+        WA_Eval(Observer, 'empty', 2, '', 0);
+        WA_Eval(Observer, 'blank', 2, ' ', 0);
+        WA_Eval(Observer, 'unknown table', 2, 'No Such Table LT: 1', 0);
+        WA_Eval(Observer, 'key not a number', 2, 'LT WA RecId Row: abc', 0);
+        Observer.Expect('not a table|text', 'The value "zzz" can''t be evaluated into type RecordID.');
+        Observer.Expect('not a table|code', 'Evaluate');
+        Observer.Expect('not a table|value', 'LT WA RecId Row: 1');
+        Observer.Expect('not a table|value9', 'LT WA RecId Row: 1');
+        Observer.Expect('empty', 'no error');
+        Observer.Expect('empty|value', '');
+        Observer.Expect('empty|value9', '');
+        Observer.Expect('blank', 'no error');
+        Observer.Expect('blank|value', '');
+        Observer.Expect('blank|value9', '');
+        Observer.Expect('unknown table|text', 'The value "No Such Table LT: 1" can''t be evaluated into type RecordID.');
+        Observer.Expect('unknown table|code', 'Evaluate');
+        Observer.Expect('unknown table|value', 'LT WA RecId Row: 1');
+        Observer.Expect('unknown table|value9', 'LT WA RecId Row: 1');
+        Observer.Expect('key not a number|text', 'The value "abc" can''t be evaluated into type Integer.');
+        Observer.Expect('key not a number|code', 'Evaluate');
+        Observer.Expect('key not a number|value', 'LT WA RecId Row: 1');
+        Observer.Expect('key not a number|value9', 'LT WA RecId Row: 1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WA_Evaluate_FieldRef_RecordId_Statement_KeyShapes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Eval(Observer, 'empty key', 2, 'LT WA RecId Row: ', 0);
+        WA_Eval(Observer, 'no colon', 2, 'LT WA RecId Row', 0);
+        WA_Eval(Observer, 'two part key', 2, 'LT WA RecId Two: A,1', 0);
+        WA_Eval(Observer, 'two part key one value', 2, 'LT WA RecId Two: A', 0);
+        WA_Eval(Observer, 'one part key two values', 2, 'LT WA RecId Row: 1,2', 0);
+        Observer.Expect('empty key', 'no error');
+        Observer.Expect('empty key|value', 'LT WA RecId Row');
+        Observer.Expect('empty key|value9', 'LT WA RecId Row');
+        Observer.Expect('no colon', 'no error');
+        Observer.Expect('no colon|value', 'LT WA RecId Row');
+        Observer.Expect('no colon|value9', 'LT WA RecId Row');
+        Observer.Expect('two part key', 'no error');
+        Observer.Expect('two part key|value', 'LT WA RecId Two: A,1');
+        Observer.Expect('two part key|value9', 'LT WA RecId Two: A,1');
+        Observer.Expect('two part key one value', 'no error');
+        Observer.Expect('two part key one value|value', 'LT WA RecId Two: A');
+        Observer.Expect('two part key one value|value9', 'LT WA RecId Two: A');
+        Observer.Expect('one part key two values|text', 'The value "LT WA RecId Row: 1,2" can''t be evaluated into type RecordID.');
+        Observer.Expect('one part key two values|code', 'Evaluate');
+        Observer.Expect('one part key two values|value', 'LT WA RecId Row: 1');
+        Observer.Expect('one part key two values|value9', 'LT WA RecId Row: 1');
+        Observer.Verify();
+    end;
+
+    // Is the table found by a prefix of its name, with and without a key? A text that is only a prefix of a table name (the corpus tables
+    // 97240 and 97241 share the prefix "LT WA RecId").
+    [Test]
+    procedure WA_Evaluate_FieldRef_RecordId_Statement_TableNamePrefix()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Eval(Observer, 'prefix with key', 2, 'LT WA RecId R: 2', 0);
+        WA_Eval(Observer, 'prefix without key', 2, 'LT WA RecId R', 0);
+        WA_Eval(Observer, 'shared prefix with key', 2, 'LT WA RecId: 2', 0);
+        WA_Eval(Observer, 'name followed by text', 2, 'LT WA RecId Row Extra: 2', 0);
+        WA_Eval(Observer, 'name in quotes', 2, '"LT WA RecId Row": 2', 0);
+        Observer.Expect('prefix with key', 'no error');
+        Observer.Expect('prefix with key|value', 'LT WA RecId Row: 2');
+        Observer.Expect('prefix with key|value9', 'LT WA RecId Row: 2');
+        Observer.Expect('prefix without key', 'no error');
+        Observer.Expect('prefix without key|value', 'LT WA RecId Row');
+        Observer.Expect('prefix without key|value9', 'LT WA RecId Row');
+        Observer.Expect('shared prefix with key', 'no error');
+        Observer.Expect('shared prefix with key|value', 'LT WA RecId Row: 2');
+        Observer.Expect('shared prefix with key|value9', 'LT WA RecId Row: 2');
+        Observer.Expect('name followed by text|text', 'The value "LT WA RecId Row Extra: 2" can''t be evaluated into type RecordID.');
+        Observer.Expect('name followed by text|code', 'Evaluate');
+        Observer.Expect('name followed by text|value', 'LT WA RecId Row: 1');
+        Observer.Expect('name followed by text|value9', 'LT WA RecId Row: 1');
+        Observer.Expect('name in quotes', 'no error');
+        Observer.Expect('name in quotes|value', 'LT WA RecId Row: 2');
+        Observer.Expect('name in quotes|value9', 'LT WA RecId Row: 2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WA_Evaluate_FieldRef_RecordId_Statement_BlankStart()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Eval(Observer, 'blank start valid', 3, 'LT WA RecId Row: 2', 0);
+        WA_Eval(Observer, 'blank start not a table', 3, 'zzz', 0);
+        WA_Eval(Observer, 'blank start empty', 3, '', 0);
+        WA_Eval(Observer, 'blank start customer', 3, 'Customer: 10000', 0);
+        WA_Eval(Observer, 'table id text', 2, 'Table 97240: 2', 0);
+        Observer.Expect('blank start valid', 'no error');
+        Observer.Expect('blank start valid|value', 'LT WA RecId Row: 2');
+        Observer.Expect('blank start valid|value9', 'LT WA RecId Row: 2');
+        Observer.Expect('blank start not a table|text', 'The value "zzz" can''t be evaluated into type RecordID.');
+        Observer.Expect('blank start not a table|code', 'Evaluate');
+        Observer.Expect('blank start not a table|value', '');
+        Observer.Expect('blank start not a table|value9', '');
+        Observer.Expect('blank start empty', 'no error');
+        Observer.Expect('blank start empty|value', '');
+        Observer.Expect('blank start empty|value9', '');
+        Observer.Expect('blank start customer', 'no error');
+        Observer.Expect('blank start customer|value', 'Customer: 10000');
+        Observer.Expect('table id text', 'no error');
+        Observer.Expect('table id text|value', 'LT WA RecId Row: 2');
+        Observer.Expect('table id text|value9', 'LT WA RecId Row: 2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WA_Evaluate_FieldRef_RecordId_ResultUsed()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Eval(Observer, 'used own row', 2, 'LT WA RecId Row: 2', 1);
+        WA_Eval(Observer, 'used customer', 2, 'Customer: 10000', 1);
+        WA_Eval(Observer, 'used not a table', 2, 'zzz', 1);
+        WA_Eval(Observer, 'used empty', 2, '', 1);
+        WA_Eval(Observer, 'used unknown table', 2, 'No Such Table LT: 1', 1);
+        Observer.Expect('used own row', 'returned Yes');
+        Observer.Expect('used own row|text', '');
+        Observer.Expect('used own row|code', '');
+        Observer.Expect('used own row|value', 'LT WA RecId Row: 2');
+        Observer.Expect('used own row|value9', 'LT WA RecId Row: 2');
+        Observer.Expect('used customer', 'returned Yes');
+        Observer.Expect('used customer|text', '');
+        Observer.Expect('used customer|code', '');
+        Observer.Expect('used customer|value', 'Customer: 10000');
+        Observer.Expect('used not a table', 'returned No');
+        Observer.Expect('used not a table|text', 'The value "zzz" can''t be evaluated into type RecordID.');
+        Observer.Expect('used not a table|code', 'Evaluate');
+        Observer.Expect('used not a table|value', 'LT WA RecId Row: 1');
+        Observer.Expect('used not a table|value9', 'LT WA RecId Row: 1');
+        Observer.Expect('used empty', 'returned Yes');
+        Observer.Expect('used empty|text', '');
+        Observer.Expect('used empty|code', '');
+        Observer.Expect('used empty|value', '');
+        Observer.Expect('used empty|value9', '');
+        Observer.Expect('used unknown table', 'returned No');
+        Observer.Expect('used unknown table|text', 'The value "No Such Table LT: 1" can''t be evaluated into type RecordID.');
+        Observer.Expect('used unknown table|code', 'Evaluate');
+        Observer.Expect('used unknown table|value', 'LT WA RecId Row: 1');
+        Observer.Expect('used unknown table|value9', 'LT WA RecId Row: 1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WA_Evaluate_FieldRef_RecordId_Format9()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WA_Eval(Observer, 'nine own row', 2, 'LT WA RecId Row: 2', 9);
+        WA_Eval(Observer, 'nine customer', 2, 'Customer: 10000', 9);
+        WA_Eval(Observer, 'nine not a table', 2, 'zzz', 9);
+        WA_Eval(Observer, 'nine empty', 2, '', 9);
+        Observer.Expect('nine own row', 'no error');
+        Observer.Expect('nine own row|value', 'LT WA RecId Row: 2');
+        Observer.Expect('nine own row|value9', 'LT WA RecId Row: 2');
+        Observer.Expect('nine customer', 'no error');
+        Observer.Expect('nine customer|value', 'Customer: 10000');
+        Observer.Expect('nine not a table|text', 'The value "zzz" can''t be evaluated into type RecordID.');
+        Observer.Expect('nine not a table|code', 'Evaluate');
+        Observer.Expect('nine not a table|value', 'LT WA RecId Row: 1');
+        Observer.Expect('nine not a table|value9', 'LT WA RecId Row: 1');
+        Observer.Expect('nine empty', 'no error');
+        Observer.Expect('nine empty|value', '');
+        Observer.Expect('nine empty|value9', '');
+        Observer.Verify();
+    end;
+
+    // The text Format gives for a RecordId, evaluated back into the field (round trip), and the variable form with a bad text.
+    [Test]
+    procedure WA_Evaluate_RecordId_RoundTripAndVariable()
+    var
+        Row: Record "LT WA RecId Row";
+        Two: Record "LT WA RecId Two";
+        Observer: Codeunit "Probe Observer";
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+        Rid: RecordId;
+        Ok: Boolean;
+    begin
+        Row.Id := 7;
+        Two.Code := 'A';
+        Two.Num := 5;
+        RecRef.GetTable(Row);
+        FldRef := RecRef.Field(2);
+        Observer.Observe('format own', Format(Row.RecordId()));
+        Observer.Observe('format two', Format(Two.RecordId()));
+        Evaluate(FldRef, Format(Two.RecordId()));
+        Observer.Observe('field after round trip', Format(FldRef.Value));
+        Evaluate(FldRef, Format(Row.RecordId()));
+        Observer.Observe('field after round trip own', Format(FldRef.Value));
+        Rid := Row.RecordId();
+        Ok := Evaluate(Rid, 'zzz');
+        Observer.Observe('variable not a table', Format(Ok));
+        Observer.ObserveError('variable not a table');
+        Observer.Observe('variable abc|value', Format(Rid));
+        Ok := Evaluate(Rid, Format(Two.RecordId()));
+        Observer.Observe('variable valid', Format(Ok));
+        Observer.Observe('variable valid|value', Format(Rid));
+        Observer.Expect('format own', 'LT WA RecId Row: 7');
+        Observer.Expect('format two', 'LT WA RecId Two: A,5');
+        Observer.Expect('field after round trip', 'LT WA RecId Two: A,5');
+        Observer.Expect('field after round trip own', 'LT WA RecId Row: 7');
+        Observer.Expect('variable not a table', 'No');
+        Observer.Expect('variable not a table|text', 'The value "zzz" can''t be evaluated into type RecordID.');
+        Observer.Expect('variable not a table|code', 'Evaluate');
+        Observer.Expect('variable abc|value', 'LT WA RecId Row: 7');
+        Observer.Expect('variable valid', 'Yes');
+        Observer.Expect('variable valid|value', 'LT WA RecId Two: A,5');
+        Observer.Verify();
+    end;
+}
+
+// local object: the field types are what the tests above check (al-runner issue 6924 item 2.17).
+table 95366 "REC Eval Guid Row"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; G; Guid) { }
+        field(3; Big; BigInteger) { }
+        field(4; Tm; Time) { }
+        field(5; Dtm; DateTime) { }
+        field(6; DF; DateFormula) { }
+        field(7; Dur; Duration) { }
+        field(8; OptCap; Option) { OptionMembers = Zero,One,Two; OptionCaption = 'Zero Cap,One Cap,Two Cap'; }
+        field(9; Kind; Enum "REC TF Source Kind") { }
+    }
+    keys { key(PK; Id) { Clustered = true; } }
+}
+
+// local objects of the RecordId tests above (al-runner issue 6924, waldo run 2).
+table 97240 "LT WA RecId Row"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Rid; RecordId) { }
+        field(3; Rid2; RecordId) { }
+    }
+    keys { key(PK; Id) { Clustered = true; } }
+}
+
+table 97241 "LT WA RecId Two"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; Code; Code[10]) { }
+        field(2; Num; Integer) { }
+    }
+    keys { key(PK; Code, Num) { Clustered = true; } }
 }
