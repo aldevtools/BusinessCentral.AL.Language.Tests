@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-xmlport-object
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); LT Y83 Helper (Y83XpFixtures.al); own objects: tables 97940-97942, xmlports 97943-97949, test codeunit 97950
+// Fixtures used: Probe Observer (69160); LT Y83 Helper (Y83XpFixtures.al); own objects: tables 97940-97942, xmlports 97943-97949 and 97951-97964, test codeunit 97950
 // Probe: al-runner issue 7263 (follow-up to 7130 and 7131, XpTableRootNestedText.al). Export (Format = Xml) of
 //   A: a root table element (MaxOccurs = Once, XmlName Envelope) > text element L1 > text element L0 > a table element (orders, field element
 //      No) and a text element with a value (username, set in OnBeforePassVariable), the text element after and before the table element, and
@@ -9,6 +9,13 @@
 //      with 0, 1 and 2 rows of the inner table element; the value element before the table element, empty, after it, and with a field
 //      element before the value element.
 //   Each observation is the exact exported text.
+// Probe: al-runner issue 7309 (follow-up to 7263). Export of
+//   A: the shape of A with three text levels (L2 > L1 > L0) and four (L3 > L2 > L1 > L0) below the root table element, the value
+//      element after and before the table element, with Namespaces and UseDefaultNamespace = true; two value elements (username,
+//      password) around the table element on the third level and before it on the second;
+//   B: the row text element TI with two value elements (T1, T2) before, around and after the table element, three value elements
+//      before it, a value element and an empty one, a field element and two value elements; TI > TJ with two value elements and
+//      TI > TJ > TK with one, before the table element.
 // Facts (BC 27.5, 28.5 and 29.0; the 29.0 run measured first, then the matrix): BC writes the plain tree in schema order; the elements are the
 //   ones of the schema, one text element wraps the next. A: below the root table element the table element writes one `order` per row, and the text element
 //   with a value writes once, `<username>x</username>`, after the last row (text element after the table element) or before the first (text element
@@ -18,6 +25,9 @@
 //   (`<T1>x</T1>`, or `<T1 />` when empty) and one `r` per row of the inner table element, in schema order (value element after the table
 //   element: after the last `r`); a field element of the outer row first writes `<No>O1</No>`. With no inner row one `r` is written with the
 //   record as it stands (`<Ref />`).
+//   Issue 7309 (BC 29.0 measured first): the same at every depth and with several value elements: BC writes the plain tree in
+//   schema order, each text element once around the next, each value element once where the schema has it (before the first row,
+//   between the rows and the next element, or after the last row), and with namespaces L2, L1 and L0 keep tem: as in A.
 // BC versions: 27, 28, 29
 
 table 97940 "LT X63 Comm"
@@ -295,6 +305,606 @@ xmlport 97949 "LT X63 B Field"
     }
 }
 
+// A, issue 7309: three text levels below the root table element, the table element, then the text element with a value.
+xmlport 97951 "LT X63 A3 After"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        tableelement(comm; "LT X63 Comm")
+        {
+            MaxOccurs = Once;
+            XmlName = 'Envelope';
+
+            textelement(L2)
+            {
+                textelement(L1)
+                {
+                    textelement(L0)
+                    {
+                        tableelement(orders; "LT X63 Order")
+                        {
+                            XmlName = 'order';
+                            fieldelement(No; orders."No.") { }
+                        }
+                        textelement(username)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                username := 'x';
+                            end;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// A: three text levels, the text element with a value, then the table element.
+xmlport 97952 "LT X63 A3 Before"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        tableelement(comm; "LT X63 Comm")
+        {
+            MaxOccurs = Once;
+            XmlName = 'Envelope';
+
+            textelement(L2)
+            {
+                textelement(L1)
+                {
+                    textelement(L0)
+                    {
+                        textelement(username)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                username := 'x';
+                            end;
+                        }
+                        tableelement(orders; "LT X63 Order")
+                        {
+                            XmlName = 'order';
+                            fieldelement(No; orders."No.") { }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// A: three text levels with Namespaces and UseDefaultNamespace = true.
+xmlport 97953 "LT X63 A3 Ns"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+    Namespaces = soap = 'http://schemas.xmlsoap.org/soap/envelope/', tem = 'http://tempuri.org/';
+    UseDefaultNamespace = true;
+
+    schema
+    {
+        tableelement(comm; "LT X63 Comm")
+        {
+            MaxOccurs = Once;
+            XmlName = 'Envelope';
+            NamespacePrefix = 'soap';
+
+            textelement(L2)
+            {
+                NamespacePrefix = 'tem';
+                textelement(L1)
+                {
+                    NamespacePrefix = 'tem';
+                    textelement(L0)
+                    {
+                        NamespacePrefix = 'tem';
+                        tableelement(orders; "LT X63 Order")
+                        {
+                            XmlName = 'order';
+                            fieldelement(No; orders."No.") { }
+                        }
+                        textelement(username)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                username := 'x';
+                            end;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// A: four text levels, the table element, then the text element with a value.
+xmlport 97954 "LT X63 A4 After"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        tableelement(comm; "LT X63 Comm")
+        {
+            MaxOccurs = Once;
+            XmlName = 'Envelope';
+
+            textelement(L3)
+            {
+                textelement(L2)
+                {
+                    textelement(L1)
+                    {
+                        textelement(L0)
+                        {
+                            tableelement(orders; "LT X63 Order")
+                            {
+                                XmlName = 'order';
+                                fieldelement(No; orders."No.") { }
+                            }
+                            textelement(username)
+                            {
+                                trigger OnBeforePassVariable()
+                                begin
+                                    username := 'x';
+                                end;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// A: three text levels, a value element, the table element, a second value element.
+xmlport 97955 "LT X63 A3 Two"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        tableelement(comm; "LT X63 Comm")
+        {
+            MaxOccurs = Once;
+            XmlName = 'Envelope';
+
+            textelement(L2)
+            {
+                textelement(L1)
+                {
+                    textelement(L0)
+                    {
+                        textelement(username)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                username := 'x';
+                            end;
+                        }
+                        tableelement(orders; "LT X63 Order")
+                        {
+                            XmlName = 'order';
+                            fieldelement(No; orders."No.") { }
+                        }
+                        textelement(password)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                password := 'y';
+                            end;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// A: two text levels, two value elements, then the table element.
+xmlport 97956 "LT X63 A2 Two"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        tableelement(comm; "LT X63 Comm")
+        {
+            MaxOccurs = Once;
+            XmlName = 'Envelope';
+
+            textelement(L1)
+            {
+                textelement(L0)
+                {
+                    textelement(username)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            username := 'x';
+                        end;
+                    }
+                    textelement(password)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            password := 'y';
+                        end;
+                    }
+                    tableelement(orders; "LT X63 Order")
+                    {
+                        XmlName = 'order';
+                        fieldelement(No; orders."No.") { }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// B, issue 7309: a row text element with two value elements, then the table element.
+xmlport 97957 "LT X63 B Two"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(T1)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            T1 := 'x';
+                        end;
+                    }
+                    textelement(T2)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            T2 := 'y';
+                        end;
+                    }
+                    tableelement(rf; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; rf."Ref") { }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// B: a value element, the table element, a value element.
+xmlport 97958 "LT X63 B Two Mid"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(T1)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            T1 := 'x';
+                        end;
+                    }
+                    tableelement(rf; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; rf."Ref") { }
+                    }
+                    textelement(T2)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            T2 := 'y';
+                        end;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// B: the table element, then two value elements.
+xmlport 97959 "LT X63 B Two Last"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    tableelement(rf; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; rf."Ref") { }
+                    }
+                    textelement(T1)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            T1 := 'x';
+                        end;
+                    }
+                    textelement(T2)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            T2 := 'y';
+                        end;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// B: three value elements, then the table element.
+xmlport 97960 "LT X63 B Three"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(T1)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            T1 := 'x';
+                        end;
+                    }
+                    textelement(T2)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            T2 := 'y';
+                        end;
+                    }
+                    textelement(T3)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            T3 := 'z';
+                        end;
+                    }
+                    tableelement(rf; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; rf."Ref") { }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// B: a value element, a value element that stays empty, then the table element.
+xmlport 97961 "LT X63 B Two Empty"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(T1)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            T1 := 'x';
+                        end;
+                    }
+                    textelement(T2) { }
+                    tableelement(rf; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; rf."Ref") { }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// B: two text levels in the row, two value elements, then the table element.
+xmlport 97962 "LT X63 B Deep Two"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(TJ)
+                    {
+                        textelement(T1)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                T1 := 'x';
+                            end;
+                        }
+                        textelement(T2)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                T2 := 'y';
+                            end;
+                        }
+                        tableelement(rf; "LT X63 Ref")
+                        {
+                            XmlName = 'r';
+                            fieldelement(Ref; rf."Ref") { }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// B: three text levels in the row, one value element, then the table element.
+xmlport 97963 "LT X63 B Deep One"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(TJ)
+                    {
+                        textelement(TK)
+                        {
+                            textelement(T1)
+                            {
+                                trigger OnBeforePassVariable()
+                                begin
+                                    T1 := 'x';
+                                end;
+                            }
+                            tableelement(rf; "LT X63 Ref")
+                            {
+                                XmlName = 'r';
+                                fieldelement(Ref; rf."Ref") { }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// B: a field element, two value elements, then the table element.
+xmlport 97964 "LT X63 B Field Two"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    fieldelement(No; orders."No.") { }
+                    textelement(T1)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            T1 := 'x';
+                        end;
+                    }
+                    textelement(T2)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            T2 := 'y';
+                        end;
+                    }
+                    tableelement(rf; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; rf."Ref") { }
+                    }
+                }
+            }
+        }
+    }
+}
+
 codeunit 97950 "LT X63 Tests"
 {
     Subtype = Test;
@@ -442,6 +1052,201 @@ codeunit 97950 "LT X63 Tests"
         Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <No>O1</No>\r\n      <T1>x</T1>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
         Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <No>O1</No>\r\n      <T1>x</T1>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
         Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <No>O1</No>\r\n      <T1>x</T1>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Issue 7309: three text levels, table element then value.
+    [Test]
+    procedure XTV_Root3TextsTableThenValue_Export()
+    begin
+        SeedA(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97951, TextEncoding::UTF8));
+        SeedA(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97951, TextEncoding::UTF8));
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <L2>\r\n    <L1>\r\n      <L0>\r\n        <order>\r\n          <No>O1</No>\r\n        </order>\r\n        <username>x</username>\r\n      </L0>\r\n    </L1>\r\n  </L2>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <L2>\r\n    <L1>\r\n      <L0>\r\n        <order>\r\n          <No>O1</No>\r\n        </order>\r\n        <order>\r\n          <No>O2</No>\r\n        </order>\r\n        <username>x</username>\r\n      </L0>\r\n    </L1>\r\n  </L2>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Three text levels, value then table element.
+    [Test]
+    procedure XTV_Root3TextsValueThenTable_Export()
+    begin
+        SeedA(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97952, TextEncoding::UTF8));
+        SeedA(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97952, TextEncoding::UTF8));
+        SeedA(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97952, TextEncoding::UTF8));
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <L2>\r\n    <L1>\r\n      <L0>\r\n        <username>x</username>\r\n        <order>\r\n          <No />\r\n        </order>\r\n      </L0>\r\n    </L1>\r\n  </L2>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <L2>\r\n    <L1>\r\n      <L0>\r\n        <username>x</username>\r\n        <order>\r\n          <No>O1</No>\r\n        </order>\r\n      </L0>\r\n    </L1>\r\n  </L2>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <L2>\r\n    <L1>\r\n      <L0>\r\n        <username>x</username>\r\n        <order>\r\n          <No>O1</No>\r\n        </order>\r\n        <order>\r\n          <No>O2</No>\r\n        </order>\r\n      </L0>\r\n    </L1>\r\n  </L2>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Three text levels with namespaces, one row.
+    [Test]
+    procedure XTV_Root3TextsNamespaces_Export()
+    begin
+        SeedA(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97953, TextEncoding::UTF8));
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <tem:L2>\r\n    <tem:L1>\r\n      <tem:L0>\r\n        <order xmlns="urn:microsoft-dynamics-nav/xmlports/x97953">\r\n          <No>O1</No>\r\n        </order>\r\n        <username xmlns="urn:microsoft-dynamics-nav/xmlports/x97953">x</username>\r\n      </tem:L0>\r\n    </tem:L1>\r\n  </tem:L2>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Three text levels with namespaces, two rows.
+    [Test]
+    procedure XTV_Root3TextsNamespaces2_Export()
+    begin
+        SeedA(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97953, TextEncoding::UTF8));
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/soap/envelope/">\r\n  <tem:L2>\r\n    <tem:L1>\r\n      <tem:L0>\r\n        <order xmlns="urn:microsoft-dynamics-nav/xmlports/x97953">\r\n          <No>O1</No>\r\n        </order>\r\n        <order xmlns="urn:microsoft-dynamics-nav/xmlports/x97953">\r\n          <No>O2</No>\r\n        </order>\r\n        <username xmlns="urn:microsoft-dynamics-nav/xmlports/x97953">x</username>\r\n      </tem:L0>\r\n    </tem:L1>\r\n  </tem:L2>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Four text levels, table element then value.
+    [Test]
+    procedure XTV_Root4TextsTableThenValue_Export()
+    begin
+        SeedA(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97954, TextEncoding::UTF8));
+        SeedA(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97954, TextEncoding::UTF8));
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <L3>\r\n    <L2>\r\n      <L1>\r\n        <L0>\r\n          <order>\r\n            <No>O1</No>\r\n          </order>\r\n          <username>x</username>\r\n        </L0>\r\n      </L1>\r\n    </L2>\r\n  </L3>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <L3>\r\n    <L2>\r\n      <L1>\r\n        <L0>\r\n          <order>\r\n            <No>O1</No>\r\n          </order>\r\n          <order>\r\n            <No>O2</No>\r\n          </order>\r\n          <username>x</username>\r\n        </L0>\r\n      </L1>\r\n    </L2>\r\n  </L3>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Three text levels, value, table element, value.
+    [Test]
+    procedure XTV_Root3TextsTwoValues_Export()
+    begin
+        SeedA(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97955, TextEncoding::UTF8));
+        SeedA(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97955, TextEncoding::UTF8));
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <L2>\r\n    <L1>\r\n      <L0>\r\n        <username>x</username>\r\n        <order>\r\n          <No>O1</No>\r\n        </order>\r\n        <password>y</password>\r\n      </L0>\r\n    </L1>\r\n  </L2>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <L2>\r\n    <L1>\r\n      <L0>\r\n        <username>x</username>\r\n        <order>\r\n          <No>O1</No>\r\n        </order>\r\n        <order>\r\n          <No>O2</No>\r\n        </order>\r\n        <password>y</password>\r\n      </L0>\r\n    </L1>\r\n  </L2>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Two text levels, value, value, table element.
+    [Test]
+    procedure XTV_Root2TextsTwoValues_Export()
+    begin
+        SeedA(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97956, TextEncoding::UTF8));
+        SeedA(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97956, TextEncoding::UTF8));
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <L1>\r\n    <L0>\r\n      <username>x</username>\r\n      <password>y</password>\r\n      <order>\r\n        <No>O1</No>\r\n      </order>\r\n    </L0>\r\n  </L1>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <L1>\r\n    <L0>\r\n      <username>x</username>\r\n      <password>y</password>\r\n      <order>\r\n        <No>O1</No>\r\n      </order>\r\n      <order>\r\n        <No>O2</No>\r\n      </order>\r\n    </L0>\r\n  </L1>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Issue 7309: row text element with value, value, table element.
+    [Test]
+    procedure XTV_RowTextTwoValuesThenTable_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97957, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97957, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97957, TextEncoding::UTF8));
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1>x</T1>\r\n      <T2>y</T2>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1>x</T1>\r\n      <T2>y</T2>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1>x</T1>\r\n      <T2>y</T2>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Row text element with value, table element, value.
+    [Test]
+    procedure XTV_RowTextValueTableValue_Export()
+    begin
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97958, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97958, TextEncoding::UTF8));
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1>x</T1>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <T2>y</T2>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1>x</T1>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n      <T2>y</T2>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Row text element with table element, value, value.
+    [Test]
+    procedure XTV_RowTextTableThenTwoValues_Export()
+    begin
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97959, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97959, TextEncoding::UTF8));
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <T1>x</T1>\r\n      <T2>y</T2>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n      <T1>x</T1>\r\n      <T2>y</T2>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Row text element with three values, table element.
+    [Test]
+    procedure XTV_RowTextThreeValuesThenTable_Export()
+    begin
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97960, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97960, TextEncoding::UTF8));
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1>x</T1>\r\n      <T2>y</T2>\r\n      <T3>z</T3>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1>x</T1>\r\n      <T2>y</T2>\r\n      <T3>z</T3>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Row text element with value, empty value, table element.
+    [Test]
+    procedure XTV_RowTextValueEmptyThenTable_Export()
+    begin
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97961, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97961, TextEncoding::UTF8));
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1>x</T1>\r\n      <T2 />\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1>x</T1>\r\n      <T2 />\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Two text levels in the row, value, value, table element.
+    [Test]
+    procedure XTV_RowDeepTwoValuesThenTable_Export()
+    begin
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97962, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97962, TextEncoding::UTF8));
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <TJ>\r\n        <T1>x</T1>\r\n        <T2>y</T2>\r\n        <r>\r\n          <Ref>R1</Ref>\r\n        </r>\r\n      </TJ>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <TJ>\r\n        <T1>x</T1>\r\n        <T2>y</T2>\r\n        <r>\r\n          <Ref>R1</Ref>\r\n        </r>\r\n        <r>\r\n          <Ref>R2</Ref>\r\n        </r>\r\n      </TJ>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Three text levels in the row, value, table element.
+    [Test]
+    procedure XTV_RowDeep3OneValueThenTable_Export()
+    begin
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97963, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97963, TextEncoding::UTF8));
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <TJ>\r\n        <TK>\r\n          <T1>x</T1>\r\n          <r>\r\n            <Ref>R1</Ref>\r\n          </r>\r\n        </TK>\r\n      </TJ>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <TJ>\r\n        <TK>\r\n          <T1>x</T1>\r\n          <r>\r\n            <Ref>R1</Ref>\r\n          </r>\r\n          <r>\r\n            <Ref>R2</Ref>\r\n          </r>\r\n        </TK>\r\n      </TJ>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Field element, value, value, table element.
+    [Test]
+    procedure XTV_RowFieldTwoValuesThenTable_Export()
+    begin
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97964, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97964, TextEncoding::UTF8));
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <No>O1</No>\r\n      <T1>x</T1>\r\n      <T2>y</T2>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <No>O1</No>\r\n      <T1>x</T1>\r\n      <T2>y</T2>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
         Observer.Verify();
     end;
 }
