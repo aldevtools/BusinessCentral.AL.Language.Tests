@@ -10,12 +10,11 @@
 //   (TTS.001, TTS-HD.001, TTSA, TTS-A, A-B, AB, A.B) ascending, descending and under range, compare and wildcard filters.
 //   Asserted: the normal record (SQL Server order: a hyphen and an apostrophe do not count first, and the text with one follows the
 //   text without, an apostrophe before a hyphen; every other punctuation character sorts before the digits in the order shown).
-//   NOT asserted: the temporary record. On the Linux tiers of the corpus CI it sorts in another order (the hyphen counts, `TTS-HD.001`
-//   before `TTS.001`). On Windows BC 27.5 and 29.0 (official Microsoft containers, measured 2026-11-07 with this codeunit) the
-//   temporary record sorts exactly like the normal record, in every test here: ascending, descending, ranges and compare and
-//   wildcard filters. The Linux order is a bug of the Linux container (aldevtools/MsDyn365Bc.On.Linux#222; this repo #1207), and
-//   Windows is the authority (docs/nightly-windows-authority.md). Both orders are kept as comments next to each Ignore.
-//   TODO: once MsDyn365Bc.On.Linux#222 is fixed, replace each Ignore of a temporary value with an Expect of the Windows value.
+//   Also asserted: the temporary record, which sorts exactly like the normal record, in every test here: ascending, descending, ranges and
+//   compare and wildcard filters. Windows evidence: BC 27.5 and 29.0 (official Microsoft containers, measured 2026-11-07 with this codeunit,
+//   aldevtools/MsDyn365Bc.On.Linux#222). Before bc-linux PR 224 the Linux tiers sorted a temporary record in another order (the hyphen
+//   counted, `TTS-HD.001` before `TTS.001`; al-runner issue 6980); bc-linux cf9d0239 maps the punctuation to the Windows order, and the
+//   test passed on BC 27.5 with the Windows values (comment on #222). Letters, digits and non-ASCII text keep ICU's order (#114).
 // BC versions: 27, 28, 29
 
 table 95570 "LT R6 Code Key"
@@ -200,13 +199,9 @@ codeunit 95572 "LT R6 Key Punctuation"
     begin
         ObserveShape(Observer, 1);
         Observer.Expect('code normal', '!B¦"B¦#B¦$B¦%B¦&B¦(B¦)B¦*B¦,B¦.B¦/B¦:B¦;B¦?B¦@B¦[B¦\B¦]B¦^B¦_B¦`B¦{B¦|B¦}B¦~B¦+B¦<B¦=B¦>B¦0¦9¦A¦B¦''B¦-B¦BB¦C');
-        // Windows BC 27.5, 29.0 (measured 2026-11-07, same as the normal record): '!B¦"B¦#B¦$B¦%B¦&B¦(B¦)B¦*B¦,B¦.B¦/B¦:B¦;B¦?B¦@B¦[B¦\B¦]B¦^B¦_B¦`B¦{B¦|B¦}B¦~B¦+B¦<B¦=B¦>B¦0¦9¦A¦B¦''B¦-B¦BB¦C'
-        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): '_B¦-B¦,B¦;B¦:B¦!B¦?B¦.B¦''B¦"B¦(B¦)B¦[B¦]B¦{B¦}B¦@B¦*B¦/B¦\B¦&B¦#B¦%B¦`B¦^B¦+B¦<B¦=B¦>B¦|B¦~B¦$B¦0¦9¦A¦B¦BB¦C'
-        Observer.Ignore('code temporary');
+        Observer.Expect('code temporary', '!B¦"B¦#B¦$B¦%B¦&B¦(B¦)B¦*B¦,B¦.B¦/B¦:B¦;B¦?B¦@B¦[B¦\B¦]B¦^B¦_B¦`B¦{B¦|B¦}B¦~B¦+B¦<B¦=B¦>B¦0¦9¦A¦B¦''B¦-B¦BB¦C');
         Observer.Expect('text normal', ' B¦!B¦"B¦#B¦$B¦%B¦&B¦(B¦)B¦*B¦,B¦.B¦/B¦:B¦;B¦?B¦@B¦[B¦\B¦]B¦^B¦_B¦`B¦{B¦|B¦}B¦~B¦+B¦<B¦=B¦>B¦0¦9¦A¦B¦''B¦-B¦BB¦C');
-        // Windows BC 27.5, 29.0 (measured 2026-11-07, same as the normal record): ' B¦!B¦"B¦#B¦$B¦%B¦&B¦(B¦)B¦*B¦,B¦.B¦/B¦:B¦;B¦?B¦@B¦[B¦\B¦]B¦^B¦_B¦`B¦{B¦|B¦}B¦~B¦+B¦<B¦=B¦>B¦0¦9¦A¦B¦''B¦-B¦BB¦C'
-        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): ' B¦_B¦-B¦,B¦;B¦:B¦!B¦?B¦.B¦''B¦"B¦(B¦)B¦[B¦]B¦{B¦}B¦@B¦*B¦/B¦\B¦&B¦#B¦%B¦`B¦^B¦+B¦<B¦=B¦>B¦|B¦~B¦$B¦0¦9¦A¦B¦BB¦C'
-        Observer.Ignore('text temporary');
+        Observer.Expect('text temporary', ' B¦!B¦"B¦#B¦$B¦%B¦&B¦(B¦)B¦*B¦,B¦.B¦/B¦:B¦;B¦?B¦@B¦[B¦\B¦]B¦^B¦_B¦`B¦{B¦|B¦}B¦~B¦+B¦<B¦=B¦>B¦0¦9¦A¦B¦''B¦-B¦BB¦C');
         Observer.Verify();
     end;
 
@@ -217,13 +212,9 @@ codeunit 95572 "LT R6 Key Punctuation"
     begin
         ObserveShape(Observer, 2);
         Observer.Expect('code normal', 'A¦A B¦A!B¦A"B¦A#B¦A$B¦A%B¦A&B¦A(B¦A)B¦A*B¦A,B¦A.B¦A/B¦A:B¦A;B¦A?B¦A@B¦A[B¦A\B¦A]B¦A^B¦A_B¦A`B¦A{B¦A|B¦A}B¦A~B¦A+B¦A<B¦A=B¦A>B¦A0B¦A9B¦AA¦AAB¦AB¦A''B¦A-B¦ABB¦AC¦B');
-        // Windows BC 27.5, 29.0 (measured 2026-11-07, same as the normal record): 'A¦A B¦A!B¦A"B¦A#B¦A$B¦A%B¦A&B¦A(B¦A)B¦A*B¦A,B¦A.B¦A/B¦A:B¦A;B¦A?B¦A@B¦A[B¦A\B¦A]B¦A^B¦A_B¦A`B¦A{B¦A|B¦A}B¦A~B¦A+B¦A<B¦A=B¦A>B¦A0B¦A9B¦AA¦AAB¦AB¦A''B¦A-B¦ABB¦AC¦B'
-        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'A¦A B¦A_B¦A-B¦A,B¦A;B¦A:B¦A!B¦A?B¦A.B¦A''B¦A"B¦A(B¦A)B¦A[B¦A]B¦A{B¦A}B¦A@B¦A*B¦A/B¦A\B¦A&B¦A#B¦A%B¦A`B¦A^B¦A+B¦A<B¦A=B¦A>B¦A|B¦A~B¦A$B¦A0B¦A9B¦AA¦AAB¦AB¦ABB¦AC¦B'
-        Observer.Ignore('code temporary');
+        Observer.Expect('code temporary', 'A¦A B¦A!B¦A"B¦A#B¦A$B¦A%B¦A&B¦A(B¦A)B¦A*B¦A,B¦A.B¦A/B¦A:B¦A;B¦A?B¦A@B¦A[B¦A\B¦A]B¦A^B¦A_B¦A`B¦A{B¦A|B¦A}B¦A~B¦A+B¦A<B¦A=B¦A>B¦A0B¦A9B¦AA¦AAB¦AB¦A''B¦A-B¦ABB¦AC¦B');
         Observer.Expect('text normal', 'A¦A B¦A!B¦A"B¦A#B¦A$B¦A%B¦A&B¦A(B¦A)B¦A*B¦A,B¦A.B¦A/B¦A:B¦A;B¦A?B¦A@B¦A[B¦A\B¦A]B¦A^B¦A_B¦A`B¦A{B¦A|B¦A}B¦A~B¦A+B¦A<B¦A=B¦A>B¦A0B¦A9B¦AA¦AAB¦AB¦A''B¦A-B¦ABB¦AC¦B');
-        // Windows BC 27.5, 29.0 (measured 2026-11-07, same as the normal record): 'A¦A B¦A!B¦A"B¦A#B¦A$B¦A%B¦A&B¦A(B¦A)B¦A*B¦A,B¦A.B¦A/B¦A:B¦A;B¦A?B¦A@B¦A[B¦A\B¦A]B¦A^B¦A_B¦A`B¦A{B¦A|B¦A}B¦A~B¦A+B¦A<B¦A=B¦A>B¦A0B¦A9B¦AA¦AAB¦AB¦A''B¦A-B¦ABB¦AC¦B'
-        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'A¦A B¦A_B¦A-B¦A,B¦A;B¦A:B¦A!B¦A?B¦A.B¦A''B¦A"B¦A(B¦A)B¦A[B¦A]B¦A{B¦A}B¦A@B¦A*B¦A/B¦A\B¦A&B¦A#B¦A%B¦A`B¦A^B¦A+B¦A<B¦A=B¦A>B¦A|B¦A~B¦A$B¦A0B¦A9B¦AA¦AAB¦AB¦ABB¦AC¦B'
-        Observer.Ignore('text temporary');
+        Observer.Expect('text temporary', 'A¦A B¦A!B¦A"B¦A#B¦A$B¦A%B¦A&B¦A(B¦A)B¦A*B¦A,B¦A.B¦A/B¦A:B¦A;B¦A?B¦A@B¦A[B¦A\B¦A]B¦A^B¦A_B¦A`B¦A{B¦A|B¦A}B¦A~B¦A+B¦A<B¦A=B¦A>B¦A0B¦A9B¦AA¦AAB¦AB¦A''B¦A-B¦ABB¦AC¦B');
         Observer.Verify();
     end;
 
@@ -234,13 +225,9 @@ codeunit 95572 "LT R6 Key Punctuation"
     begin
         ObserveShape(Observer, 3);
         Observer.Expect('code normal', 'A¦A''¦A-¦A!¦A"¦A#¦A$¦A%¦A&¦A(¦A)¦A*¦A,¦A.¦A/¦A:¦A;¦A?¦A@¦A[¦A\¦A]¦A^¦A_¦A`¦A{¦A|¦A}¦A~¦A+¦A<¦A=¦A>¦A0¦A9¦AA¦B');
-        // Windows BC 27.5, 29.0 (measured 2026-11-07, same as the normal record): 'A¦A''¦A-¦A!¦A"¦A#¦A$¦A%¦A&¦A(¦A)¦A*¦A,¦A.¦A/¦A:¦A;¦A?¦A@¦A[¦A\¦A]¦A^¦A_¦A`¦A{¦A|¦A}¦A~¦A+¦A<¦A=¦A>¦A0¦A9¦AA¦B'
-        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'A¦A_¦A-¦A,¦A;¦A:¦A!¦A?¦A.¦A''¦A"¦A(¦A)¦A[¦A]¦A{¦A}¦A@¦A*¦A/¦A\¦A&¦A#¦A%¦A`¦A^¦A+¦A<¦A=¦A>¦A|¦A~¦A$¦A0¦A9¦AA¦B'
-        Observer.Ignore('code temporary');
+        Observer.Expect('code temporary', 'A¦A''¦A-¦A!¦A"¦A#¦A$¦A%¦A&¦A(¦A)¦A*¦A,¦A.¦A/¦A:¦A;¦A?¦A@¦A[¦A\¦A]¦A^¦A_¦A`¦A{¦A|¦A}¦A~¦A+¦A<¦A=¦A>¦A0¦A9¦AA¦B');
         Observer.Expect('text normal', 'A¦A''¦A-¦A!¦A"¦A#¦A$¦A%¦A&¦A(¦A)¦A*¦A,¦A.¦A/¦A:¦A;¦A?¦A@¦A[¦A\¦A]¦A^¦A_¦A`¦A{¦A|¦A}¦A~¦A+¦A<¦A=¦A>¦A0¦A9¦AA¦B');
-        // Windows BC 27.5, 29.0 (measured 2026-11-07, same as the normal record): 'A¦A''¦A-¦A!¦A"¦A#¦A$¦A%¦A&¦A(¦A)¦A*¦A,¦A.¦A/¦A:¦A;¦A?¦A@¦A[¦A\¦A]¦A^¦A_¦A`¦A{¦A|¦A}¦A~¦A+¦A<¦A=¦A>¦A0¦A9¦AA¦B'
-        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'A¦A_¦A-¦A,¦A;¦A:¦A!¦A?¦A.¦A''¦A"¦A(¦A)¦A[¦A]¦A{¦A}¦A@¦A*¦A/¦A\¦A&¦A#¦A%¦A`¦A^¦A+¦A<¦A=¦A>¦A|¦A~¦A$¦A0¦A9¦AA¦B'
-        Observer.Ignore('text temporary');
+        Observer.Expect('text temporary', 'A¦A''¦A-¦A!¦A"¦A#¦A$¦A%¦A&¦A(¦A)¦A*¦A,¦A.¦A/¦A:¦A;¦A?¦A@¦A[¦A\¦A]¦A^¦A_¦A`¦A{¦A|¦A}¦A~¦A+¦A<¦A=¦A>¦A0¦A9¦AA¦B');
         Observer.Verify();
     end;
 
@@ -251,13 +238,9 @@ codeunit 95572 "LT R6 Key Punctuation"
     begin
         ObserveShape(Observer, 4);
         Observer.Expect('code normal', 'A.B¦AB¦A-B¦TTS.001¦TTSA¦TTS-A¦TTS-HD.001');
-        // Windows BC 27.5, 29.0 (measured 2026-11-07, same as the normal record): 'A.B¦AB¦A-B¦TTS.001¦TTSA¦TTS-A¦TTS-HD.001'
-        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'A-B¦A.B¦AB¦TTS-A¦TTS-HD.001¦TTS.001¦TTSA'
-        Observer.Ignore('code temporary');
+        Observer.Expect('code temporary', 'A.B¦AB¦A-B¦TTS.001¦TTSA¦TTS-A¦TTS-HD.001');
         Observer.Expect('text normal', 'A.B¦AB¦A-B¦TTS.001¦TTSA¦TTS-A¦TTS-HD.001');
-        // Windows BC 27.5, 29.0 (measured 2026-11-07, same as the normal record): 'A.B¦AB¦A-B¦TTS.001¦TTSA¦TTS-A¦TTS-HD.001'
-        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'A-B¦A.B¦AB¦TTS-A¦TTS-HD.001¦TTS.001¦TTSA'
-        Observer.Ignore('text temporary');
+        Observer.Expect('text temporary', 'A.B¦AB¦A-B¦TTS.001¦TTSA¦TTS-A¦TTS-HD.001');
         Observer.Verify();
     end;
 
@@ -301,30 +284,14 @@ codeunit 95572 "LT R6 Key Punctuation"
         Observer.Expect('normal lt AB', 'A.B');
         Observer.Expect('normal gt A-B', 'TTS.001¦TTSA¦TTS-A¦TTS-HD.001');
         Observer.Expect('normal wildcard hyphen', 'A-B¦TTS-A¦TTS-HD.001');
-        // Windows BC 27.5, 29.0 (measured 2026-11-07, same as the normal record): 'TTS-HD.001¦TTS-A¦TTSA¦TTS.001¦A-B¦AB¦A.B'
-        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'TTSA¦TTS.001¦TTS-HD.001¦TTS-A¦AB¦A.B¦A-B'
-        Observer.Ignore('temporary desc');
-        // Windows BC 27.5, 29.0 (measured 2026-11-07, same as the normal record): 'TTS.001¦TTSA'
-        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'TTS.001¦TTSA'
-        Observer.Ignore('temporary range TTS.001..TTSA');
-        // Windows BC 27.5, 29.0 (measured 2026-11-07, same as the normal record): ''
-        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'TTS-A¦TTS-HD.001¦TTS.001'
-        Observer.Ignore('temporary range TTS-A..TTS.001');
-        // Windows BC 27.5, 29.0 (measured 2026-11-07, same as the normal record): 'TTSA¦TTS-A¦TTS-HD.001'
-        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'TTSA'
-        Observer.Ignore('temporary gt TTS.001');
-        // Windows BC 27.5, 29.0 (measured 2026-11-07, same as the normal record): 'A.B¦AB¦A-B¦TTS.001¦TTSA¦TTS-A'
-        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'A-B¦A.B¦AB¦TTS-A'
-        Observer.Ignore('temporary lt TTS-HD.001');
-        // Windows BC 27.5, 29.0 (measured 2026-11-07, same as the normal record): 'A.B'
-        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'A-B¦A.B'
-        Observer.Ignore('temporary lt AB');
-        // Windows BC 27.5, 29.0 (measured 2026-11-07, same as the normal record): 'TTS.001¦TTSA¦TTS-A¦TTS-HD.001'
-        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'A.B¦AB¦TTS-A¦TTS-HD.001¦TTS.001¦TTSA'
-        Observer.Ignore('temporary gt A-B');
-        // Windows BC 27.5, 29.0 (measured 2026-11-07, same as the normal record): 'A-B¦TTS-A¦TTS-HD.001'
-        // Linux BC 27.5, 28.5, 29.0 (not asserted, see the header): 'A-B¦TTS-A¦TTS-HD.001'
-        Observer.Ignore('temporary wildcard hyphen');
+        Observer.Expect('temporary desc', 'TTS-HD.001¦TTS-A¦TTSA¦TTS.001¦A-B¦AB¦A.B');
+        Observer.Expect('temporary range TTS.001..TTSA', 'TTS.001¦TTSA');
+        Observer.Expect('temporary range TTS-A..TTS.001', '');
+        Observer.Expect('temporary gt TTS.001', 'TTSA¦TTS-A¦TTS-HD.001');
+        Observer.Expect('temporary lt TTS-HD.001', 'A.B¦AB¦A-B¦TTS.001¦TTSA¦TTS-A');
+        Observer.Expect('temporary lt AB', 'A.B');
+        Observer.Expect('temporary gt A-B', 'TTS.001¦TTSA¦TTS-A¦TTS-HD.001');
+        Observer.Expect('temporary wildcard hyphen', 'A-B¦TTS-A¦TTS-HD.001');
         Observer.Verify();
     end;
 }
