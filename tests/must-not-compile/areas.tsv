@@ -1217,3 +1217,4 @@ stem	area
 3109-calcformula-option-value-not-defined	table-objects
 3110-flowfield-lookup-type-mismatch	table-objects
 3111-calcsums-count-exist-lookup-average-min-flowfield	table-objects
+3112-table-field-type-char-and-byte	xmlports
