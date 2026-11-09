@@ -221,7 +221,15 @@ codeunit 70233 "LT P144 Date Text Width"
         Defined(Observer, 'd_monthtext_closing_day', '<Month Text> <Closing><Day>, <Year4>');
         Defined(Observer, 'd_day_dot_month_dot_year4', '<Day>. <Month>. <Year4>');
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('z_month_day_year4', '[]');
+        Observer.Expect('z_closing_day_monthtext', '[]');
+        Observer.Expect('z_monthtext_closing_day', '[]');
+        Observer.Expect('z_day_dot_month_dot_year4', '[]');
+        Observer.Expect('d_month_day_year4', '[3/5/2024]');
+        Observer.Expect('d_closing_day_monthtext', '[5 March, 2024]');
+        Observer.Expect('d_monthtext_closing_day', '[March 5, 2024]');
+        Observer.Expect('d_day_dot_month_dot_year4', '[5. 3. 2024]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -242,7 +250,16 @@ codeunit 70233 "LT P144 Date Text Width"
         Blank(Observer, 'z_closing', '<Closing>');
         Defined(Observer, 'd_closing', '<Closing>');
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('z_day', '[]');
+        Observer.Expect('z_day_zero', '[]');
+        Observer.Expect('z_month', '[]');
+        Observer.Expect('z_month_zero', '[]');
+        Observer.Expect('z_year', '[]');
+        Observer.Expect('z_year4', '[]');
+        Observer.Expect('z_year4_width', '[]');
+        Observer.Expect('z_closing', '[]');
+        Observer.Expect('d_closing', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -265,7 +282,19 @@ codeunit 70233 "LT P144 Date Text Width"
         Blank(Observer, 'z_day_literal', 'Day: <Day>');
         Blank(Observer, 'z_closing_day', '<Closing><Day>');
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('z_month_text', '[]');
+        Observer.Expect('z_weekday_text', '[]');
+        Observer.Expect('z_day_text|text', 'An invalid field or attribute has been specified for the ''Format'' property.\\<Day Text>');
+        Observer.Expect('z_day_text|code', 'InvalidFormatString');
+        Observer.Expect('z_week', '[]');
+        Observer.Expect('z_standard_format_0', '[]');
+        Observer.Expect('z_standard_format_1', '[]');
+        Observer.Expect('z_standard_format_4', '[]');
+        Observer.Expect('z_literal_only', '[]');
+        Observer.Expect('z_empty_format', '[]');
+        Observer.Expect('z_day_literal', '[]');
+        Observer.Expect('z_closing_day', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -283,6 +312,12 @@ codeunit 70233 "LT P144 Date Text Width"
         Blank(Observer, 'de_standard_format_0', '<Standard Format,0>');
         Defined(Observer, 'de_d_closing_day_monthtext', '<Closing><Day> <Month Text>, <Year4>');
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('de_month_day_year4', '[]');
+        Observer.Expect('de_closing_day_monthtext', '[]');
+        Observer.Expect('de_day_dot_month_dot_year4', '[]');
+        Observer.Expect('de_month_text', '[]');
+        Observer.Expect('de_standard_format_0', '[]');
+        Observer.Expect('de_d_closing_day_monthtext', '[5 März, 2024]');
+        Observer.Verify();
     end;
 }

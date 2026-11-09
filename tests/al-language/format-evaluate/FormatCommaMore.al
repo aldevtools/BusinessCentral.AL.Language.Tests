@@ -665,7 +665,19 @@ codeunit 67357 "LT FCM Tests"
         Table(Observer, 'a', '<Sign><Integer><1000Character,.><Decimal,3><Comma,,>');
         Table(Observer, 'b', '<Integer><1000Character,,><Decimal,3><Comma,.>');
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('a_1234567.891', 'ok:1.234.567***');
+        Observer.Expect('a_1234.5', 'ok:1.234,50');
+        Observer.Expect('a_0.5', 'ok:0,50');
+        Observer.Expect('a_neg1234.5', 'ok:-1.234,50');
+        Observer.Expect('a_0', 'error:An invalid field or attribute has been specified for the ''Format'' property.\\<Sign><Integer><1000Character,.><Decimal,3><Comma,,>|InvalidFormatString');
+        Observer.Expect('a_1000', 'error:An invalid field or attribute has been specified for the ''Format'' property.\\<Sign><Integer><1000Character,.><Decimal,3><Comma,,>|InvalidFormatString');
+        Observer.Expect('b_1234567.891', 'ok:1,234,567***');
+        Observer.Expect('b_1234.5', 'ok:1,234.50');
+        Observer.Expect('b_0.5', 'ok:0.50');
+        Observer.Expect('b_neg1234.5', 'ok:1,234.50');
+        Observer.Expect('b_0', 'error:An invalid field or attribute has been specified for the ''Format'' property.\\<Integer><1000Character,,><Decimal,3><Comma,.>|InvalidFormatString');
+        Observer.Expect('b_1000', 'error:An invalid field or attribute has been specified for the ''Format'' property.\\<Integer><1000Character,,><Decimal,3><Comma,.>|InvalidFormatString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -680,7 +692,25 @@ codeunit 67357 "LT FCM Tests"
         Table(Observer, 'd', '<Integer><1000Character,.><Comma,,>');
         Table(Observer, 'e', '<Integer><1000Character,.><Decimals,3><Comma,,>');
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('c_1234567.891', 'ok:1.234.567,891');
+        Observer.Expect('c_1234.5', 'ok:1.234,5');
+        Observer.Expect('c_0.5', 'ok:0,5');
+        Observer.Expect('c_neg1234.5', 'ok:-1.234,5');
+        Observer.Expect('c_0', 'error:An invalid field or attribute has been specified for the ''Format'' property.\\<Sign><Integer><1000Character,.><Decimals><Comma,,>|InvalidFormatString');
+        Observer.Expect('c_1000', 'error:An invalid field or attribute has been specified for the ''Format'' property.\\<Sign><Integer><1000Character,.><Decimals><Comma,,>|InvalidFormatString');
+        Observer.Expect('d_1234567.891', 'ok:1.234.567');
+        Observer.Expect('d_1234.5', 'ok:1.234');
+        Observer.Expect('d_0.5', 'ok:0');
+        Observer.Expect('d_neg1234.5', 'ok:1.234');
+        Observer.Expect('d_0', 'ok:0');
+        Observer.Expect('d_1000', 'ok:1.000');
+        Observer.Expect('e_1234567.891', 'ok:1.234.567***');
+        Observer.Expect('e_1234.5', 'ok:1.234,50');
+        Observer.Expect('e_0.5', 'ok:0,50');
+        Observer.Expect('e_neg1234.5', 'ok:1.234,50');
+        Observer.Expect('e_0', 'error:An invalid field or attribute has been specified for the ''Format'' property.\\<Integer><1000Character,.><Decimals,3><Comma,,>|InvalidFormatString');
+        Observer.Expect('e_1000', 'error:An invalid field or attribute has been specified for the ''Format'' property.\\<Integer><1000Character,.><Decimals,3><Comma,,>|InvalidFormatString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -695,7 +725,25 @@ codeunit 67357 "LT FCM Tests"
         Table(Observer, 'g', '<Integer><Decimals,3><Comma,.>');
         Table(Observer, 'h', '<Integer Thousand><Decimals><Comma,.>');
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f_1234567.891', 'ok:1234567***');
+        Observer.Expect('f_1234.5', 'ok:1234.50');
+        Observer.Expect('f_0.5', 'ok:0.50');
+        Observer.Expect('f_neg1234.5', 'ok:1234.50');
+        Observer.Expect('f_0', 'error:An invalid field or attribute has been specified for the ''Format'' property.\\<Integer><Decimal,3><Comma,.>|InvalidFormatString');
+        Observer.Expect('f_1000', 'error:An invalid field or attribute has been specified for the ''Format'' property.\\<Integer><Decimal,3><Comma,.>|InvalidFormatString');
+        Observer.Expect('g_1234567.891', 'ok:1234567***');
+        Observer.Expect('g_1234.5', 'ok:1234.50');
+        Observer.Expect('g_0.5', 'ok:0.50');
+        Observer.Expect('g_neg1234.5', 'ok:1234.50');
+        Observer.Expect('g_0', 'error:An invalid field or attribute has been specified for the ''Format'' property.\\<Integer><Decimals,3><Comma,.>|InvalidFormatString');
+        Observer.Expect('g_1000', 'error:An invalid field or attribute has been specified for the ''Format'' property.\\<Integer><Decimals,3><Comma,.>|InvalidFormatString');
+        Observer.Expect('h_1234567.891', 'ok:1,234,567.891');
+        Observer.Expect('h_1234.5', 'ok:1,234.5');
+        Observer.Expect('h_0.5', 'ok:0.5');
+        Observer.Expect('h_neg1234.5', 'ok:1,234.5');
+        Observer.Expect('h_0', 'error:An invalid field or attribute has been specified for the ''Format'' property.\\<Integer Thousand><Decimals><Comma,.>|InvalidFormatString');
+        Observer.Expect('h_1000', 'error:An invalid field or attribute has been specified for the ''Format'' property.\\<Integer Thousand><Decimals><Comma,.>|InvalidFormatString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -710,7 +758,25 @@ codeunit 67357 "LT FCM Tests"
         Table(Observer, 'j', '<Sign><Integer><1000Character,.>');
         Table(Observer, 'k', '<Sign><Integer><Comma,,><Decimals,3>');
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('i_1234567.891', 'ok:1.234.567**');
+        Observer.Expect('i_1234.5', 'ok:1.234,5');
+        Observer.Expect('i_0.5', 'ok:0,5');
+        Observer.Expect('i_neg1234.5', 'ok:1.234,5');
+        Observer.Expect('i_0', 'error:An invalid field or attribute has been specified for the ''Format'' property.\\<Integer><1000Character,.><Decimals,2><Comma,,>|InvalidFormatString');
+        Observer.Expect('i_1000', 'error:An invalid field or attribute has been specified for the ''Format'' property.\\<Integer><1000Character,.><Decimals,2><Comma,,>|InvalidFormatString');
+        Observer.Expect('j_1234567.891', 'ok:1.234.567');
+        Observer.Expect('j_1234.5', 'ok:1.234');
+        Observer.Expect('j_0.5', 'ok:0');
+        Observer.Expect('j_neg1234.5', 'ok:-1.234');
+        Observer.Expect('j_0', 'ok:0');
+        Observer.Expect('j_1000', 'ok:1.000');
+        Observer.Expect('k_1234567.891', 'ok:1234567***');
+        Observer.Expect('k_1234.5', 'ok:1234.50');
+        Observer.Expect('k_0.5', 'ok:0.50');
+        Observer.Expect('k_neg1234.5', 'ok:-1234.50');
+        Observer.Expect('k_0', 'error:An invalid field or attribute has been specified for the ''Format'' property.\\<Sign><Integer><Comma,,><Decimals,3>|InvalidFormatString');
+        Observer.Expect('k_1000', 'error:An invalid field or attribute has been specified for the ''Format'' property.\\<Sign><Integer><Comma,,><Decimals,3>|InvalidFormatString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -725,6 +791,24 @@ codeunit 67357 "LT FCM Tests"
         Table(Observer, 'b', '<Integer><1000Character,,><Decimal,3><Comma,.>');
         Table(Observer, 'c', '<Sign><Integer><1000Character,.><Decimals><Comma,,>');
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('a_1234567.891', 'ok:1.234.567***');
+        Observer.Expect('a_1234.5', 'ok:1.234,50');
+        Observer.Expect('a_0.5', 'ok:0,50');
+        Observer.Expect('a_neg1234.5', 'ok:-1.234,50');
+        Observer.Expect('a_0', 'error:Ein ungültiges Feld oder Attribut wurde für die Eigenschaft ''Format'' angegeben.\\<Sign><Integer><1000Character,.><Decimal,3><Comma,,>|InvalidFormatString');
+        Observer.Expect('a_1000', 'error:Ein ungültiges Feld oder Attribut wurde für die Eigenschaft ''Format'' angegeben.\\<Sign><Integer><1000Character,.><Decimal,3><Comma,,>|InvalidFormatString');
+        Observer.Expect('b_1234567.891', 'ok:1,234,567***');
+        Observer.Expect('b_1234.5', 'ok:1,234.50');
+        Observer.Expect('b_0.5', 'ok:0.50');
+        Observer.Expect('b_neg1234.5', 'ok:1,234.50');
+        Observer.Expect('b_0', 'error:Ein ungültiges Feld oder Attribut wurde für die Eigenschaft ''Format'' angegeben.\\<Integer><1000Character,,><Decimal,3><Comma,.>|InvalidFormatString');
+        Observer.Expect('b_1000', 'error:Ein ungültiges Feld oder Attribut wurde für die Eigenschaft ''Format'' angegeben.\\<Integer><1000Character,,><Decimal,3><Comma,.>|InvalidFormatString');
+        Observer.Expect('c_1234567.891', 'ok:1.234.567,891');
+        Observer.Expect('c_1234.5', 'ok:1.234,5');
+        Observer.Expect('c_0.5', 'ok:0,5');
+        Observer.Expect('c_neg1234.5', 'ok:-1.234,5');
+        Observer.Expect('c_0', 'error:Ein ungültiges Feld oder Attribut wurde für die Eigenschaft ''Format'' angegeben.\\<Sign><Integer><1000Character,.><Decimals><Comma,,>|InvalidFormatString');
+        Observer.Expect('c_1000', 'error:Ein ungültiges Feld oder Attribut wurde für die Eigenschaft ''Format'' angegeben.\\<Sign><Integer><1000Character,.><Decimals><Comma,,>|InvalidFormatString');
+        Observer.Verify();
     end;
 }

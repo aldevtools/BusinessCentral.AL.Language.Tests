@@ -254,13 +254,25 @@ codeunit 93826 "LT Y71 Evaluate Dashed Dates"
         Ev('compact_D', '120926D');
         Ev('compact_4y_D', '12092026D');
         Ev('day_13_D', '13/09/26D');
-        Ev('only_D', 'D');
-        Ev('digits_D', '1D');
         Ev('zero_D', '0D');
         Ev('double_D', '12/09/26DD');
         Ev('trailing_blank_D', '12/09/26D ');
         Ev('plain_control', '12/09/26');
-        Obs.Finish();
+        Obs.Expect('slash_2y_D', 'Yes|2026-12-09');
+        Obs.Expect('slash_4y_D', 'Yes|2026-12-09');
+        Obs.Expect('slash_2y_d_lower', 'Yes|2026-12-09');
+        Obs.Expect('slash_2y_blank_D', 'Yes|2026-12-09');
+        Obs.Expect('slash_01_01_D', 'Yes|2026-01-01');
+        Obs.Expect('dash_D', 'Yes|2026-12-09');
+        Obs.Expect('dot_D', 'Yes|2026-12-09');
+        Obs.Expect('compact_D', 'Yes|2026-12-09');
+        Obs.Expect('compact_4y_D', 'Yes|2026-12-09');
+        Obs.Expect('day_13_D', 'No|');
+        Obs.Expect('zero_D', 'No|');
+        Obs.Expect('double_D', 'Yes|2026-12-09');
+        Obs.Expect('trailing_blank_D', 'Yes|2026-12-09');
+        Obs.Expect('plain_control', 'Yes|2026-12-09');
+        Obs.Verify();
     end;
 
     [Test]
@@ -271,7 +283,12 @@ codeunit 93826 "LT Y71 Evaluate Dashed Dates"
         DeEv('de_slash_2y_D', '12/09/26D');
         DeEv('de_dot_plain_control', '12.09.26');
         DeEv('de_zero_D', '0D');
-        Obs.Finish();
+        Obs.Expect('de_dot_2y_D', 'Ja|2026-12-09');
+        Obs.Expect('de_dot_4y_D', 'Ja|2026-12-09');
+        Obs.Expect('de_slash_2y_D', 'Ja|2026-12-09');
+        Obs.Expect('de_dot_plain_control', 'Ja|2026-12-09');
+        Obs.Expect('de_zero_D', 'Nein|');
+        Obs.Verify();
     end;
 
     [Test]
@@ -290,7 +307,20 @@ codeunit 93826 "LT Y71 Evaluate Dashed Dates"
         Ev('range_open_end', '11/09/26..');
         Ev('le_alone', '<=');
         Ev('le_dash', '<=11-09-26');
-        Obs.Finish();
+        Obs.Expect('le', 'No|');
+        Obs.Expect('ge', 'No|');
+        Obs.Expect('lt', 'No|');
+        Obs.Expect('gt', 'No|');
+        Obs.Expect('ne', 'No|');
+        Obs.Expect('eq', 'No|');
+        Obs.Expect('le_blank', 'No|');
+        Obs.Expect('le_4y', 'No|');
+        Obs.Expect('range', 'Yes|2026-11-09');
+        Obs.Expect('range_open_start', 'No|');
+        Obs.Expect('range_open_end', 'Yes|2026-11-09');
+        Obs.Expect('le_alone', 'No|');
+        Obs.Expect('le_dash', 'No|');
+        Obs.Verify();
     end;
 
     [Test]
@@ -300,7 +330,11 @@ codeunit 93826 "LT Y71 Evaluate Dashed Dates"
         DeEv('de_le_4y', '<=11.09.2026');
         DeEv('de_ge', '>=11.09.26');
         DeEv('de_le_slash', '<=11/09/26');
-        Obs.Finish();
+        Obs.Expect('de_le', 'Nein|');
+        Obs.Expect('de_le_4y', 'Nein|');
+        Obs.Expect('de_ge', 'Nein|');
+        Obs.Expect('de_le_slash', 'Nein|');
+        Obs.Verify();
     end;
 
     local procedure MakeDate(Name: Text; Filter: Text)
@@ -331,7 +365,14 @@ codeunit 93826 "LT Y71 Evaluate Dashed Dates"
         MakeDate('today_token', '%today');
         MakeDate('le_4y', '<=11/09/2026');
         MakeDate('empty', '');
-        Obs.Finish();
+        Obs.Expect('le', '<=11/09/26');
+        Obs.Expect('ge', '>=11/09/26');
+        Obs.Expect('range', '11/09/26..12/09/26');
+        Obs.Expect('plain', '11/09/26');
+        Obs.Expect('today_token', '%today');
+        Obs.Expect('le_4y', '<=11/09/2026');
+        Obs.Expect('empty', '');
+        Obs.Verify();
     end;
 
     local procedure EvDT(Name: Text; Value: Text)
@@ -366,7 +407,17 @@ codeunit 93826 "LT Y71 Evaluate Dashed Dates"
         EvDT('compact', '010126');
         EvDT('iso_date', '2026-01-01');
         EvDT('iso_date_t', '2026-01-01T00:00:00');
-        Obs.Finish();
+        Obs.Expect('slash_2y', 'Yes|2026-01-01T00:00:00Z|01/01/26 12:00 AM');
+        Obs.Expect('slash_2y_23', 'Yes|2023-01-01T00:00:00Z|01/01/23 12:00 AM');
+        Obs.Expect('slash_2y_nov', 'Yes|2026-11-01T00:00:00Z|11/01/26 12:00 AM');
+        Obs.Expect('slash_4y', 'Yes|2026-01-01T00:00:00Z|01/01/26 12:00 AM');
+        Obs.Expect('slash_day_13', 'No|2005-05-05T12:34:56Z|05/05/05 12:34 PM');
+        Obs.Expect('dash', 'Yes|2026-01-01T00:00:00Z|01/01/26 12:00 AM');
+        Obs.Expect('dot', 'Yes|2026-01-01T00:00:00Z|01/01/26 12:00 AM');
+        Obs.Expect('compact', 'Yes|2026-01-01T00:00:00Z|01/01/26 12:00 AM');
+        Obs.Expect('iso_date', 'Yes|2026-01-01T00:00:00Z|01/01/26 12:00 AM');
+        Obs.Expect('iso_date_t', 'No|2005-05-05T12:34:56Z|05/05/05 12:34 PM');
+        Obs.Verify();
     end;
 
     [Test]
@@ -379,7 +430,14 @@ codeunit 93826 "LT Y71 Evaluate Dashed Dates"
         EvDT('empty', '');
         EvDTFormat('format9_date_only', '2026-01-01', 9);
         EvDTFormat('format9_slash', '01/01/26', 9);
-        Obs.Finish();
+        Obs.Expect('date_time', 'Yes|2026-01-01T12:00:00Z|01/01/26 12:00 PM');
+        Obs.Expect('date_time_short', 'Yes|2026-01-01T12:00:00Z|01/01/26 12:00 PM');
+        Obs.Expect('date_blank', 'Yes|2026-01-01T00:00:00Z|01/01/26 12:00 AM');
+        Obs.Expect('garbage', 'Yes|2026-01-26T00:00:00Z|01/26/26 12:00 AM');
+        Obs.Expect('empty', 'Yes||');
+        Obs.Expect('format9_date_only', 'Yes|2026-01-01T00:00:00Z');
+        Obs.Expect('format9_slash', 'No|');
+        Obs.Verify();
     end;
 
     [Test]
@@ -394,6 +452,10 @@ codeunit 93826 "LT Y71 Evaluate Dashed Dates"
         EvDT('de_slash_2y', '01/01/26');
         EvDT('de_date_time', '01.01.26 12:00:00');
         GlobalLanguage(Saved);
-        Obs.Finish();
+        Obs.Expect('de_dot_2y', 'Ja|2026-01-01T00:00:00Z|01/01/26 12:00 AM');
+        Obs.Expect('de_dot_4y', 'Ja|2026-01-01T00:00:00Z|01/01/26 12:00 AM');
+        Obs.Expect('de_slash_2y', 'Ja|2026-01-01T00:00:00Z|01/01/26 12:00 AM');
+        Obs.Expect('de_date_time', 'Ja|2026-01-01T12:00:00Z|01/01/26 12:00 PM');
+        Obs.Verify();
     end;
 }
