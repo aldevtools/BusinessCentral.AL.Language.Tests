@@ -596,4 +596,80 @@ codeunit 67861 "LT Q Stream Len Oth"
         Observer.Expect('l16_rid_bytes', '0:');
         Observer.Verify();
     end;
+
+    // Char above 127 written with a length (al-runner issue 7387: a bitmap written byte by byte; the Char reaches OutStream.Write as a local and as a
+    // parameter), and Write(Text, Length) of non-ASCII text. Char 65 is pinned above, Write(Char) without a length for 128..255 in
+    // types/text-code-char/ByteCharHigh.al.
+    [TryFunction]
+    local procedure W_Text(var O: OutStream; V: Text; WL: Integer; var Ret: Integer)
+    begin
+        Ret := O.Write(V, WL);
+    end;
+
+    local procedure Do_Text(var Observer: Codeunit "Probe Observer"; Id: Text; V: Text; WL: Integer)
+    var
+        Helper: Codeunit "LT OutIn Helper";
+        Rec: Record "LT OutIn Rec";
+        Out: OutStream;
+        Ret: Integer;
+    begin
+        Helper.Fresh(Rec);
+        Rec.Data.CreateOutStream(Out);
+        if W_Text(Out, V, WL, Ret) then
+            Observer.Observe(Id + '_wret', Format(Ret))
+        else
+            Observer.ObserveError(Id + '_w');
+        Rec.Modify();
+        Observer.Observe(Id + '_bytes', Helper.Dump(Rec));
+    end;
+
+    local procedure Do_CharParam(var Observer: Codeunit "Probe Observer"; Id: Text; CharCode: Integer; WL: Integer)
+    var
+        C: Char;
+    begin
+        C := CharCode;
+        Do_Char(Observer, Id, C, WL, WL);
+    end;
+
+    [Test]
+    procedure Char_WriteReadLength_High_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Do_CharParam(Observer, 'c182_w1', 182, 1);
+        Do_CharParam(Observer, 'c182_n', 182, -1);
+        Do_CharParam(Observer, 'c128_w1', 128, 1);
+        Do_CharParam(Observer, 'c255_w1', 255, 1);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Char_WriteReadLength_High_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Do_CharParam(Observer, 'c127_w1', 127, 1);
+        Do_CharParam(Observer, 'c256_w1', 256, 1);
+        Do_CharParam(Observer, 'c8364_w1', 8364, 1);
+        Do_CharParam(Observer, 'c182_w2', 182, 2);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Text_WriteLength_NonAscii()
+    var
+        Observer: Codeunit "Probe Observer";
+        T: Text;
+    begin
+        T := 'A';
+        Do_Text(Observer, 't_a_1', T, 1);
+        Do_Text(Observer, 't_pilcrow_1', CopyStr('¶', 1, 1), 1);
+        Do_Text(Observer, 't_pilcrow_2', CopyStr('¶', 1, 1), 2);
+        Do_Text(Observer, 't_eacute_1', CopyStr('é', 1, 1), 1);
+        Do_Text(Observer, 't_euro_1', CopyStr('€', 1, 1), 1);
+        Do_Text(Observer, 't_ab_pilcrow_3', 'a¶b', 3);
+        Do_Text(Observer, 't_ab_pilcrow_4', 'a¶b', 4);
+        Do_Text(Observer, 't_ab_2', 'ab', 2);
+        Observer.Finish();
+    end;
 }

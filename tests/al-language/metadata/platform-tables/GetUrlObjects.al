@@ -187,4 +187,102 @@ codeunit 73981 "LT P95 GetUrl Objects"
         Observer.Expect('soap_page_no_id', 'No|No|No|No|No|No|No|noquery');
         Observer.Verify();
     end;
+
+    // GetUrl with the client type given by DefaultClientType() (a function, not the enum value), a page, a record or a RecordRef, and UseFilters
+    // true or false (al-runner issue 7370); ClientType::Default and Windows beside it.
+    [TryFunction]
+    local procedure TryRecRef(CT: ClientType; OT: ObjectType; Id: Integer; var Cust: Record Customer; UseFilters: Boolean; var R: Text)
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(Cust);
+        R := GetUrl(CT, CompanyName(), OT, Id, RecRef, UseFilters);
+    end;
+
+    [TryFunction]
+    local procedure TryVariant(CT: ClientType; OT: ObjectType; Id: Integer; Cust: Record Customer; UseFilters: Boolean; var R: Text)
+    var
+        V: Variant;
+    begin
+        V := Cust;
+        R := GetUrl(CT, CompanyName(), OT, Id, V, UseFilters);
+    end;
+
+    local procedure DefaultCT(Name: Text; Kind: Integer; UseFilters: Boolean; var Observer: Codeunit "Probe Observer")
+    var
+        Cust: Record Customer;
+        R: Text;
+        Ok: Boolean;
+    begin
+        Cust."No." := 'CYX';
+        Cust.SetRange("No.", 'CYA', 'CYZ');
+        ClearLastError();
+        case Kind of
+            1:
+                Ok := TryRec(DefaultClientType(), ObjectType::Page, 21, Cust, UseFilters, R);
+            2:
+                Ok := TryRecRef(DefaultClientType(), ObjectType::Page, 21, Cust, UseFilters, R);
+            3:
+                Ok := TryVariant(DefaultClientType(), ObjectType::Page, 21, Cust, UseFilters, R);
+            4:
+                Ok := TryRecRef(ClientType::Default, ObjectType::Page, 21, Cust, UseFilters, R);
+            5:
+                Ok := TryRecRef(ClientType::Windows, ObjectType::Page, 21, Cust, UseFilters, R);
+            6:
+                Ok := TryRec(ClientType::Default, ObjectType::Page, 21, Cust, UseFilters, R);
+            7:
+                Ok := TryRec(ClientType::Windows, ObjectType::Page, 21, Cust, UseFilters, R);
+            8:
+                Ok := TryRecRef(Session.DefaultClientType(), ObjectType::Page, 21, Cust, UseFilters, R);
+            9:
+                Ok := TryRecRef(DefaultClientType(), ObjectType::Report, 101, Cust, UseFilters, R);
+            10:
+                Ok := TryRecRef(ClientType::Web, ObjectType::Page, 21, Cust, UseFilters, R);
+        end;
+        if Ok then
+            Observer.Observe(Name, Shape(R) + '|' + Tail(R))
+        else
+            Observer.Observe(Name, Err());
+    end;
+
+    [Test]
+    procedure GetUrl_DefaultClientTypeFunction_PageRecord_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        DefaultCT('fn_record_true', 1, true, Observer);
+        DefaultCT('fn_record_false', 1, false, Observer);
+        DefaultCT('fn_recref_true', 2, true, Observer);
+        DefaultCT('fn_recref_false', 2, false, Observer);
+        DefaultCT('fn_variant_true', 3, true, Observer);
+        DefaultCT('fn_variant_false', 3, false, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure GetUrl_DefaultClientTypeFunction_PageRecord_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        DefaultCT('enum_default_recref_true', 4, true, Observer);
+        DefaultCT('enum_default_recref_false', 4, false, Observer);
+        DefaultCT('enum_windows_recref_true', 5, true, Observer);
+        DefaultCT('enum_windows_recref_false', 5, false, Observer);
+        DefaultCT('enum_default_record_true', 6, true, Observer);
+        DefaultCT('enum_windows_record_true', 7, true, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure GetUrl_DefaultClientTypeFunction_PageRecord_3()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        DefaultCT('session_fn_recref_true', 8, true, Observer);
+        DefaultCT('fn_report_recref_true', 9, true, Observer);
+        DefaultCT('fn_report_recref_false', 9, false, Observer);
+        DefaultCT('web_recref_true', 10, true, Observer);
+        Observer.Observe('default_client_type', Format(DefaultClientType()));
+        Observer.Finish();
+    end;
 }
