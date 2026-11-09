@@ -329,6 +329,18 @@ codeunit 97427 "TPM DI Tests"
     end;
 
     [TryFunction]
+    local procedure TryAskNew(var P: TestPage "TPM ASK List")
+    begin
+        P.New();
+    end;
+
+    [TryFunction]
+    local procedure TryAskPrevious(var P: TestPage "TPM ASK List"; var Moved: Boolean)
+    begin
+        Moved := P.Previous();
+    end;
+
+    [TryFunction]
     local procedure TryAskDiName(var P: TestPage "TPM ASK List DI"; Value: Text)
     begin
         P.Name.SetValue(Value);
@@ -353,7 +365,16 @@ codeunit 97427 "TPM DI Tests"
         P.Close();
         Observer.Observe('log after Close', Log.Take());
         Observer.Observe('rows after Close', Rows());
-        Observer.Finish();
+        Observer.Expect('log after OpenNew', 'P-NEW:');
+        Observer.Expect('Code ok', 'Yes');
+        Observer.Expect('log after Code', '');
+        Observer.Expect('rows after Code', 'R1=name1 R2=name2');
+        Observer.Expect('Name ok', 'Yes');
+        Observer.Expect('log after Name', '');
+        Observer.Expect('rows after Name', 'R1=name1 R2=name2');
+        Observer.Expect('log after Close', 'P-INS:X1 T-I:X1 P-QC:OK');
+        Observer.Expect('rows after Close', 'R1=name1 R2=name2 X1=nx');
+        Observer.Verify();
     end;
 
     [Test]
@@ -373,7 +394,16 @@ codeunit 97427 "TPM DI Tests"
         P.Close();
         Observer.Observe('log after Close', Log.Take());
         Observer.Observe('rows after Close', Rows());
-        Observer.Finish();
+        Observer.Expect('log after OpenNew', 'P-NEW:');
+        Observer.Expect('Code ok', 'Yes');
+        Observer.Expect('log after Code', '');
+        Observer.Expect('rows after Code', 'R1=name1 R2=name2');
+        Observer.Expect('Name ok', 'Yes');
+        Observer.Expect('log after Name', 'P-INS:X1 T-I:X1');
+        Observer.Expect('rows after Name', 'R1=name1 R2=name2 X1=');
+        Observer.Expect('log after Close', 'T-M:X1');
+        Observer.Expect('rows after Close', 'R1=name1 R2=name2 X1=nx');
+        Observer.Verify();
     end;
 
     [Test]
@@ -397,7 +427,18 @@ codeunit 97427 "TPM DI Tests"
         Observer.Observe('GoToKey X1', Format(P.GoToKey('X1')));
         P.Close();
         Observer.Observe('log after Close', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log after New', 'P-NEW:');
+        Observer.Expect('Code ok', 'Yes');
+        Observer.Expect('Name ok', 'Yes');
+        Observer.Expect('log before leaving', '');
+        Observer.Expect('rows before leaving', 'R1=name1 R2=name2');
+        Observer.Expect('First', 'Yes');
+        Observer.Expect('log after First', 'P-INS:X1 T-I:X1');
+        Observer.Expect('rows after First', 'R1=name1 R2=name2 X1=nx');
+        Observer.Expect('shown', 'R1');
+        Observer.Expect('GoToKey X1', 'Yes');
+        Observer.Expect('log after Close', 'P-QC:OK');
+        Observer.Verify();
     end;
 
     [Test]
@@ -417,7 +458,12 @@ codeunit 97427 "TPM DI Tests"
         Observer.Observe('rows', Rows());
         P.Close();
         Observer.Observe('log after Close', Log.Take());
-        Observer.Finish();
+        Observer.Expect('Name ok', 'Yes');
+        Observer.Expect('log after Name', '');
+        Observer.Expect('log after First', 'P-INS: T-I:');
+        Observer.Expect('rows', '=nokey R1=name1 R2=name2');
+        Observer.Expect('log after Close', 'P-QC:OK');
+        Observer.Verify();
     end;
 
     [Test]
@@ -434,7 +480,9 @@ codeunit 97427 "TPM DI Tests"
         P.Close();
         Observer.Observe('log after Close', Log.Take());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('log after Close', 'P-INS:X2 T-I:X2 P-QC:OK');
+        Observer.Expect('rows', 'R1=name1 R2=name2 X2=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -453,7 +501,13 @@ codeunit 97427 "TPM DI Tests"
         Observer.Observe('log after First', Log.Take());
         Observer.Observe('rows', Rows());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('Code R1 ok', 'Yes');
+        Observer.Expect('log after Code', '');
+        Observer.Expect('First leaving the duplicate key|text', 'The record in table TPM DI Row already exists. Identification fields and values: Code=''R1''');
+        Observer.Expect('First leaving the duplicate key|code', 'DB:RecordExists');
+        Observer.Expect('log after First', 'P-INS:R1 T-I:R1');
+        Observer.Expect('rows', 'R1=name1 R2=name2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -470,7 +524,11 @@ codeunit 97427 "TPM DI Tests"
         Observer.Observe('rows', Rows());
         P.Close();
         Observer.Observe('log after Close', Log.Take());
-        Observer.Finish();
+        Observer.Expect('Name ok', 'Yes');
+        Observer.Expect('log after Name', 'P-INS:R1 T-I:R1');
+        Observer.Expect('rows', 'R1=name1 R2=name2');
+        Observer.Expect('log after Close', 'P-MOD:R2 T-M:R2 P-QC:OK');
+        Observer.Verify();
     end;
 
     // The list stays open when this test ends with a new row not yet inserted; the next test reads the table.
@@ -492,7 +550,9 @@ codeunit 97427 "TPM DI Tests"
     begin
         Observer.Observe('rows', Rows());
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('rows', 'R1=name1 R2=name2 X9=left open');
+        Observer.Expect('log', 'P-INS:X9 T-I:X9 P-QC:OK');
+        Observer.Verify();
     end;
 
     // AutoSplitKey
@@ -511,7 +571,13 @@ codeunit 97427 "TPM DI Tests"
         P.Close();
         Observer.Observe('log after Close', Log.Take());
         Observer.Observe('lines', Lines());
-        Observer.Finish();
+        Observer.Expect('log after OpenNew', 'P-NEW:0 below=Yes');
+        Observer.Expect('Line No. shown', '0');
+        Observer.Expect('Name ok', 'Yes');
+        Observer.Expect('log after Name', 'P-INS:10000 T-I:10000');
+        Observer.Expect('log after Close', '');
+        Observer.Expect('lines', 'D1/10000=first');
+        Observer.Verify();
     end;
 
     [Test]
@@ -530,7 +596,12 @@ codeunit 97427 "TPM DI Tests"
         Observer.Observe('log after Name', Log.Take());
         P.Close();
         Observer.Observe('lines', Lines());
-        Observer.Finish();
+        Observer.Expect('log after New', 'P-NEW:0 below=Yes');
+        Observer.Expect('Line No. shown', '0');
+        Observer.Expect('Name ok', 'Yes');
+        Observer.Expect('log after Name', '');
+        Observer.Expect('lines', 'D1/10000=line1 D1/20000=line2 D1/30000=end');
+        Observer.Verify();
     end;
 
     [Test]
@@ -553,7 +624,16 @@ codeunit 97427 "TPM DI Tests"
         Observer.Observe('shown after Next', P."Line No.".Value());
         P.Close();
         Observer.Observe('lines', Lines());
-        Observer.Finish();
+        Observer.Expect('log after New', 'P-NEW:0 below=Yes');
+        Observer.Expect('Line No. shown', '0');
+        Observer.Expect('Name ok', 'Yes');
+        Observer.Expect('log after Name', '');
+        Observer.Expect('Previous', 'Yes');
+        Observer.Expect('shown after Previous', '10000');
+        Observer.Expect('Next', 'Yes');
+        Observer.Expect('shown after Next', '15000');
+        Observer.Expect('lines', 'D1/10000=line1 D1/15000=middle D1/20000=line2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -561,17 +641,33 @@ codeunit 97427 "TPM DI Tests"
     var
         P: TestPage "TPM ASK List";
         i: Integer;
+        Stopped: Boolean;
+        Moved: Boolean;
     begin
         SeedLines(2);
         P.OpenEdit();
         P.First();
-        for i := 1 to 16 do begin
-            P.New();
-            if not TryAskName(P, 'n' + Format(i)) then
-                Observer.ObserveError('SetValue ' + Format(i));
-            if not P.Previous() then
-                Observer.ObserveError('Previous ' + Format(i));
-        end;
+        // New and Previous run in TryFunctions: the first observation run raised "The line cannot be split." in this loop.
+        // The loop stops at the first error and records at which step it came.
+        for i := 1 to 16 do
+            if not Stopped then begin
+                if not TryAskNew(P) then begin
+                    Observer.ObserveError('New ' + Format(i));
+                    Stopped := true;
+                end;
+                if not Stopped then
+                    if not TryAskName(P, 'n' + Format(i)) then begin
+                        Observer.ObserveError('SetValue ' + Format(i));
+                        Stopped := true;
+                    end;
+                if not Stopped then
+                    if not TryAskPrevious(P, Moved) then begin
+                        Observer.ObserveError('Previous ' + Format(i));
+                        Stopped := true;
+                    end else
+                        if not Moved then
+                            Observer.Observe('Previous ' + Format(i), 'No');
+            end;
         Observer.Observe('log', Log.Take());
         Observer.Observe('lines', Lines());
         Observer.Finish();
@@ -596,6 +692,14 @@ codeunit 97427 "TPM DI Tests"
         Observer.Observe('log after Next', Log.Take());
         Observer.Observe('lines after Next', Lines());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('Line No. shown', '0');
+        Observer.Expect('Name ok', 'Yes');
+        Observer.Expect('Line No. shown after Name', '0');
+        Observer.Expect('log before leaving', '');
+        Observer.Expect('lines before leaving', 'D1/10000=line1 D1/20000=line2');
+        Observer.Expect('Next', 'Yes');
+        Observer.Expect('log after Next', 'T-I:15000');
+        Observer.Expect('lines after Next', 'D1/10000=line1 D1/15000=middle D1/20000=line2');
+        Observer.Verify();
     end;
 }
