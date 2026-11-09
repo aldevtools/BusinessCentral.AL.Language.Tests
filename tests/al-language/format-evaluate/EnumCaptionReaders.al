@@ -1515,4 +1515,39 @@ codeunit 97910 "LT ECR Enum Readers"
         Observer.Expect('list filter Open BE|Gesloten BE', 'ok|3');
         Observer.Verify();
     end;
+
+    local procedure ViewTextOf(ViewText: Text; Localized: Boolean): Text
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.Open(Database::"LT ECR Row");
+        RecRef.SetView(ViewText);
+        exit(RecRef.GetView(Localized));
+    end;
+
+    // AL Runner issue 7456: GetView(false) is the language-neutral view. After a SetView whose filter value is an enum value NAME (or the
+    // caption, or the ordinal) it writes the ordinal, e.g. WHERE(Field2=1(1)); GetView(true) writes the caption of the current language.
+    [Test]
+    procedure ECR_RecordRefSetViewEnumName_GetViewFalseWritesTheOrdinal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT ECR Row";
+    begin
+        Observer.Observe('name, filter type 0', ViewTextOf('WHERE(field2=0(Closed))', false));
+        Observer.Observe('name, filter type 1', ViewTextOf('WHERE(field2=1(Closed))', false));
+        Observer.Observe('caption', ViewTextOf('WHERE(field2=0(Closed cap))', false));
+        Observer.Observe('name of a field with a caption without language', ViewTextOf('WHERE(field3=0(Beta))', false));
+        Observer.Observe('name, GetView(true)', ViewTextOf('WHERE(field2=0(Closed))', true));
+        Observer.Observe('name of mixed field, GetView(true)', ViewTextOf('WHERE(field3=0(Beta))', true));
+        Row.SetView('WHERE(field2=0(Closed))');
+        Observer.Observe('Record, name, GetView(false)', Row.GetView(false));
+        Observer.Expect('name, filter type 0', 'VERSION(1) SORTING(Field1) WHERE(Field2=1(1))');
+        Observer.Expect('name, filter type 1', 'VERSION(1) SORTING(Field1) WHERE(Field2=1(1))');
+        Observer.Expect('caption', 'VERSION(1) SORTING(Field1) WHERE(Field2=1(1))');
+        Observer.Expect('name of a field with a caption without language', 'VERSION(1) SORTING(Field1) WHERE(Field3=1(1))');
+        Observer.Expect('name, GetView(true)', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Closed cap))');
+        Observer.Expect('name of mixed field, GetView(true)', 'VERSION(1) SORTING(Id) WHERE(Mixed=FILTER(Beta plain))');
+        Observer.Expect('Record, name, GetView(false)', 'VERSION(1) SORTING(Field1) WHERE(Field2=1(1))');
+        Observer.Verify();
+    end;
 }
