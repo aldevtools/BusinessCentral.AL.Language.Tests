@@ -145,6 +145,7 @@ codeunit 81693 "LT BI DH Default" implements ITestHandler
 
     local procedure Handle(Callback: Text; Context: TestHandlerContext; WithSuccess: Boolean)
     var
+        SuccessLog: Codeunit "LT BI TS Log";
         Common: Codeunit "LT BI DH Common";
         Entry: Text;
     begin
@@ -153,6 +154,8 @@ codeunit 81693 "LT BI DH Default" implements ITestHandler
         if WithSuccess then
             Entry += '|' + Format(Context.Success());
         Common.Record(Context.CodeunitId(), Entry + ')', 'D', Callback, Context.ProcedureName());
+        // Success of every callback, for the probes of BiTestHandlerSuccess.al (al-runner 7181).
+        SuccessLog.Add(Context.CodeunitId(), 'D.' + Callback + '(' + Context.ProcedureName() + '|' + Context.TestCaseName() + '|' + Format(Context.Success()) + ')');
     end;
 }
 
