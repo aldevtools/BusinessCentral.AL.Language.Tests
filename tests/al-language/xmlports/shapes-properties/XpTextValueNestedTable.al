@@ -31,7 +31,13 @@
 // Probe: al-runner issue 7355 (follow-up to 7349). Export of a value text element with OnAfterAssignVariable only and with OnBeforePassVariable
 //   and OnAfterAssignVariable, next to a table element in a row (TI > [value, table], [table, value], no TI), at a root text element and at a
 //   root table element, a field element with OnBeforePassField and OnAfterAssignField, and a table element with every table trigger; a
-//   SingleInstance log codeunit records which triggers run. (Readings are added below once measured.)
+//   SingleInstance log codeunit records which triggers run.
+// Readings (BC 27.5, 28.5 and 29.0 identical, CI subset runs 42625890377, 42625924631, 42625958537): on export, OnBeforePassVariable of a
+//   value text element runs once per element instance, before the element is written, in every position (before or after the table
+//   element in TI, at the root, at a root table element), also when the table element has 0 rows; OnAfterAssignVariable and
+//   OnAfterAssignField never run on export. A value element with only OnAfterAssignVariable writes its variable as it is (an empty element
+//   <T1 /> for an empty text, 'pre' when the variable was set before). The table triggers OnPreXmlItem and OnAfterGetRecord run in document
+//   order around the value element's OnBeforePassVariable. A nested table element with 0 rows (default MinOccurs) writes one empty row element.
 // local object: the schemas of the ports are what is under test
 // BC versions: 27, 28, 29
 
@@ -1424,7 +1430,9 @@ codeunit 97950 "LT X63 Tests"
         Log.Reset();
         Observer.Observe('1 row', Helper.TryExportRaw(97975, TextEncoding::UTF8));
         Observer.Observe('1 row log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <T1 />\r\n    <r>\r\n      <Ref>R1</Ref>\r\n    </r>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('1 row log', 'Pre;Post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1442,7 +1450,13 @@ codeunit 97950 "LT X63 Tests"
         Log.Reset();
         Observer.Observe('2 rows', Helper.TryExportRaw(97976, TextEncoding::UTF8));
         Observer.Observe('2 rows log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <T1>x</T1>\r\n    <r>\r\n      <Ref />\r\n    </r>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('0 rows log', 'Pre;T1.BeforePass;Post;');
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <T1>x</T1>\r\n    <r>\r\n      <Ref>R1</Ref>\r\n    </r>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('1 row log', 'Pre;T1.BeforePass;Post;');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <T1>x</T1>\r\n    <r>\r\n      <Ref>R1</Ref>\r\n    </r>\r\n    <r>\r\n      <Ref>R2</Ref>\r\n    </r>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('2 rows log', 'Pre;T1.BeforePass;Post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1460,7 +1474,13 @@ codeunit 97950 "LT X63 Tests"
         Log.Reset();
         Observer.Observe('2 rows', Helper.TryExportRaw(97977, TextEncoding::UTF8));
         Observer.Observe('2 rows log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <r>\r\n      <Ref />\r\n    </r>\r\n    <T1>x</T1>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('0 rows log', 'Pre;T1.BeforePass;Post;');
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <r>\r\n      <Ref>R1</Ref>\r\n    </r>\r\n    <T1>x</T1>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('1 row log', 'Pre;T1.BeforePass;Post;');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <r>\r\n      <Ref>R1</Ref>\r\n    </r>\r\n    <r>\r\n      <Ref>R2</Ref>\r\n    </r>\r\n    <T1>x</T1>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('2 rows log', 'Pre;T1.BeforePass;Post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1470,7 +1490,9 @@ codeunit 97950 "LT X63 Tests"
         Log.Reset();
         Observer.Observe('1 row', Helper.TryExportRaw(97978, TextEncoding::UTF8));
         Observer.Observe('1 row log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <D1>O1</D1>\r\n    <r>\r\n      <Ref>R1</Ref>\r\n    </r>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('1 row log', 'Pre;D1.BeforePass;Post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1480,7 +1502,9 @@ codeunit 97950 "LT X63 Tests"
         Log.Reset();
         Observer.Observe('1 row', Helper.TryExportRaw(97979, TextEncoding::UTF8));
         Observer.Observe('1 row log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <T1>x</T1>\r\n    <r>\r\n      <Ref>R1</Ref>\r\n    </r>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('1 row log', 'Pre;orders.OnPreXmlItem;orders.OnAfterGetRecord;T1.BeforePass;r.OnPreXmlItem;r.OnAfterGetRecord;Post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1490,7 +1514,9 @@ codeunit 97950 "LT X63 Tests"
         Log.Reset();
         Observer.Observe('1 row', Helper.TryExportRaw(97982, TextEncoding::UTF8));
         Observer.Observe('1 row log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <T1>x</T1>\r\n  <orders>\r\n    <No>O1</No>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 row log', 'Pre;T1.BeforePass;Post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1500,7 +1526,9 @@ codeunit 97950 "LT X63 Tests"
         Log.Reset();
         Observer.Observe('1 row', Helper.TryExportRaw(97983, TextEncoding::UTF8));
         Observer.Observe('1 row log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <T1>x</T1>\r\n  <orders>\r\n    <No>O1</No>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 row log', 'Pre;T1.BeforePass;Post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1510,7 +1538,9 @@ codeunit 97950 "LT X63 Tests"
         Log.Reset();
         Observer.Observe('1 row', Helper.TryExportRaw(97984, TextEncoding::UTF8));
         Observer.Observe('1 row log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <T1 />\r\n  <orders>\r\n    <No>O1</No>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 row log', 'Pre;Post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1520,7 +1550,9 @@ codeunit 97950 "LT X63 Tests"
         Log.Reset();
         Observer.Observe('1 row', Helper.TryExportRaw(97985, TextEncoding::UTF8));
         Observer.Observe('1 row log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <T1>x</T1>\r\n  <r>\r\n    <Ref>R1</Ref>\r\n  </r>\r\n</orders>');
+        Observer.Expect('1 row log', 'Pre;T1.BeforePass;Post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1530,7 +1562,9 @@ codeunit 97950 "LT X63 Tests"
         Log.Reset();
         Observer.Observe('1 row', Helper.TryExportRaw(97986, TextEncoding::UTF8));
         Observer.Observe('1 row log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <T1 />\r\n  <orders>\r\n    <No>O1</No>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 row log', 'Pre;Post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1540,7 +1574,9 @@ codeunit 97950 "LT X63 Tests"
         Log.Reset();
         Observer.Observe('1 row', Helper.TryExportRaw(97987, TextEncoding::UTF8));
         Observer.Observe('1 row log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <T1>x</T1>\r\n</Envelope>');
+        Observer.Expect('1 row log', 'Pre;T1.BeforePass;Post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1550,7 +1586,9 @@ codeunit 97950 "LT X63 Tests"
         Log.Reset();
         Observer.Observe('1 row', Helper.TryExportRaw(97988, TextEncoding::UTF8));
         Observer.Observe('1 row log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <T1>pre</T1>\r\n    <r>\r\n      <Ref>R1</Ref>\r\n    </r>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('1 row log', 'Pre;Post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1560,7 +1598,9 @@ codeunit 97950 "LT X63 Tests"
         Log.Reset();
         Observer.Observe('1 row', Helper.TryExportRaw(97989, TextEncoding::UTF8));
         Observer.Observe('1 row log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <T1>x</T1>\r\n    <r>\r\n      <Ref>R1</Ref>\r\n    </r>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('1 row log', 'Pre;T1.BeforePass;Ref.BeforePass;Post;');
+        Observer.Verify();
     end;
 }
 
