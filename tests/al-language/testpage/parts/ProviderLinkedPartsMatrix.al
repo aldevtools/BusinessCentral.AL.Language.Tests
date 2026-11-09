@@ -469,10 +469,18 @@ page 65410 "LT PV Host Temp"
         ShowLines: Boolean;
         ShowDetail: Boolean;
 
+    // The source table is temporary: the page copies the rows of the real table so there is something to show.
     trigger OnOpenPage()
     var
         Log: Codeunit "LT PV Log";
+        Source: Record "PVD Header";
     begin
+        if Source.FindSet() then
+            repeat
+                Rec := Source;
+                Rec.Insert();
+            until Source.Next() = 0;
+        if Rec.FindFirst() then;
         Log.Add('host-open');
     end;
 
@@ -1033,7 +1041,11 @@ codeunit 65414 "LT PV Provider Matrix"
         Card.GoToKey('H1');
         SnapHost('h1_again', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'vis(lines=Yes,detail=Yes) lines=10,20, detail=twenty, log=[host-open | lines-open() | detail-open() | host-row(H1) | detail-row() | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h1', 'vis(lines=Yes,detail=Yes) lines=10,20, detail=twenty, log=[host-row(H1) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h2', 'vis(lines=Yes,detail=Yes) lines= detail= log=[host-row(H1) | host-row(H2) | lines-row(0) | detail-row()]');
+        Observer.Expect('h1_again', 'vis(lines=Yes,detail=Yes) lines=10,20, detail=twenty, log=[host-row(H1) | lines-row(20) | detail-row(twenty) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1052,7 +1064,11 @@ codeunit 65414 "LT PV Provider Matrix"
         Card.GoToKey('H1');
         SnapHost('h1_again', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'vis(lines=No,detail=No) lines=10,20, detail=twenty, log=[host-open | lines-open() | detail-open() | host-row(H1) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h1', 'vis(lines=No,detail=No) lines=10,20, detail=twenty, log=[host-row(H1) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h2', 'vis(lines=No,detail=No) lines= detail= log=[host-row(H1) | host-row(H2) | lines-row(0) | detail-row()]');
+        Observer.Expect('h1_again', 'vis(lines=No,detail=No) lines=10,20, detail=twenty, log=[host-row(H1) | lines-row(20) | detail-row(twenty) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1071,7 +1087,11 @@ codeunit 65414 "LT PV Provider Matrix"
         Card.GoToKey('H1');
         SnapHost('h1_again', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'vis(lines=No,detail=Yes) lines=10,20, detail=twenty, log=[host-open | lines-open() | detail-open() | host-row(H1) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h1', 'vis(lines=No,detail=Yes) lines=10,20, detail=twenty, log=[host-row(H1) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h2', 'vis(lines=No,detail=Yes) lines= detail= log=[host-row(H1) | host-row(H2) | lines-row(0) | detail-row()]');
+        Observer.Expect('h1_again', 'vis(lines=No,detail=Yes) lines=10,20, detail=twenty, log=[host-row(H1) | lines-row(20) | detail-row(twenty) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1090,7 +1110,11 @@ codeunit 65414 "LT PV Provider Matrix"
         Card.GoToKey('H1');
         SnapHost('h1_again', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'vis(lines=Yes,detail=No) lines=10,20, detail=twenty, log=[host-open | lines-open() | detail-open() | host-row(H1) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h1', 'vis(lines=Yes,detail=No) lines=10,20, detail=twenty, log=[host-row(H1) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h2', 'vis(lines=Yes,detail=No) lines= detail= log=[host-row(H1) | host-row(H2) | lines-row(0) | detail-row()]');
+        Observer.Expect('h1_again', 'vis(lines=Yes,detail=No) lines=10,20, detail=twenty, log=[host-row(H1) | lines-row(20) | detail-row(twenty) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1109,7 +1133,11 @@ codeunit 65414 "LT PV Provider Matrix"
         Card.GoToRecord(Header('H2'));
         SnapHost('gotorecord_h2', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'vis(lines=Yes,detail=Yes) lines=10,20,0, detail= log=[host-open | lines-open() | detail-open() | host-row(H1) | lines-row(0) | lines-row(0) | detail-row() | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty) | lines-row(0) | detail-row()]');
+        Observer.Expect('next', 'vis(lines=Yes,detail=Yes) lines= detail= log=[host-row(H2) | lines-row(0) | lines-row(0) | lines-row(0)]');
+        Observer.Expect('previous', 'vis(lines=Yes,detail=Yes) lines=10,20,0, detail= log=[host-row(H1) | lines-row(20) | detail-row(twenty) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty) | lines-row(0) | detail-row()]');
+        Observer.Expect('gotorecord_h2', 'vis(lines=Yes,detail=Yes) lines= detail= log=[host-row(H1) | host-row(H2) | lines-row(0) | lines-row(0) | lines-row(0)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1128,7 +1156,11 @@ codeunit 65414 "LT PV Provider Matrix"
         Card.GoToRecord(Header('H2'));
         SnapHost('gotorecord_h2', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'vis(lines=No,detail=No) lines=10,20,0, detail= log=[host-open | lines-open() | detail-open() | host-row(H1) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty) | lines-row(0) | detail-row()]');
+        Observer.Expect('next', 'vis(lines=No,detail=No) lines= detail= log=[host-row(H2) | lines-row(0) | lines-row(0) | lines-row(0)]');
+        Observer.Expect('previous', 'vis(lines=No,detail=No) lines=10,20,0, detail= log=[host-row(H1) | lines-row(20) | detail-row(twenty) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty) | lines-row(0) | detail-row()]');
+        Observer.Expect('gotorecord_h2', 'vis(lines=No,detail=No) lines= detail= log=[host-row(H1) | host-row(H2) | lines-row(0) | lines-row(0) | lines-row(0)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1147,7 +1179,11 @@ codeunit 65414 "LT PV Provider Matrix"
         Card.GoToRecord(Header('H2'));
         SnapHost('gotorecord_h2', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'vis(lines=No,detail=Yes) lines=10,20,0, detail= log=[host-open | lines-open() | detail-open() | host-row(H1) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty) | lines-row(0) | detail-row()]');
+        Observer.Expect('next', 'vis(lines=No,detail=Yes) lines= detail= log=[host-row(H2) | lines-row(0) | lines-row(0) | lines-row(0)]');
+        Observer.Expect('previous', 'vis(lines=No,detail=Yes) lines=10,20,0, detail= log=[host-row(H1) | lines-row(20) | detail-row(twenty) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty) | lines-row(0) | detail-row()]');
+        Observer.Expect('gotorecord_h2', 'vis(lines=No,detail=Yes) lines= detail= log=[host-row(H1) | host-row(H2) | lines-row(0) | lines-row(0) | lines-row(0)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1166,7 +1202,11 @@ codeunit 65414 "LT PV Provider Matrix"
         Card.GoToRecord(Header('H2'));
         SnapHost('gotorecord_h2', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'vis(lines=Yes,detail=No) lines=10,20,0, detail= log=[host-open | lines-open() | detail-open() | host-row(H1) | lines-row(0) | lines-row(0) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty) | lines-row(0) | detail-row()]');
+        Observer.Expect('next', 'vis(lines=Yes,detail=No) lines= detail= log=[host-row(H2) | lines-row(0) | lines-row(0) | lines-row(0)]');
+        Observer.Expect('previous', 'vis(lines=Yes,detail=No) lines=10,20,0, detail= log=[host-row(H1) | lines-row(20) | detail-row(twenty) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty) | lines-row(0) | detail-row()]');
+        Observer.Expect('gotorecord_h2', 'vis(lines=Yes,detail=No) lines= detail= log=[host-row(H1) | host-row(H2) | lines-row(0) | lines-row(0) | lines-row(0)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1182,7 +1222,10 @@ codeunit 65414 "LT PV Provider Matrix"
         SnapHost('keyed', Card);
         Card.Close();
         Observer.Observe('stored', StoredKey('H3') + ' lines=' + Format(CountLines('H3')));
-        Observer.Finish();
+        Observer.Expect('new', 'vis(lines=Yes,detail=Yes) lines= detail= log=[host-open | lines-open() | detail-open() | host-row() | lines-row(0) | lines-row(0) | lines-row(0) | detail-row() | lines-row(0) | lines-row(0) | lines-row(0) | lines-row(0) | lines-row(0) | lines-row(0)]');
+        Observer.Expect('keyed', 'vis(lines=Yes,detail=Yes) lines= detail= log=[]');
+        Observer.Expect('stored', '<none> lines=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1198,7 +1241,10 @@ codeunit 65414 "LT PV Provider Matrix"
         SnapHost('keyed', Card);
         Card.Close();
         Observer.Observe('stored', StoredKey('H3') + ' lines=' + Format(CountLines('H3')));
-        Observer.Finish();
+        Observer.Expect('new', 'vis(lines=No,detail=No) lines= detail= log=[host-open | lines-open() | detail-open() | host-row() | lines-row(0) | lines-row(0) | lines-row(0) | detail-row() | lines-row(0) | lines-row(0) | lines-row(0)]');
+        Observer.Expect('keyed', 'vis(lines=No,detail=No) lines= detail= log=[]');
+        Observer.Expect('stored', '<none> lines=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1214,7 +1260,10 @@ codeunit 65414 "LT PV Provider Matrix"
         SnapHost('keyed', Card);
         Card.Close();
         Observer.Observe('stored', StoredKey('H3') + ' lines=' + Format(CountLines('H3')));
-        Observer.Finish();
+        Observer.Expect('new', 'vis(lines=No,detail=Yes) lines= detail= log=[host-open | lines-open() | detail-open() | host-row() | lines-row(0) | lines-row(0) | lines-row(0) | detail-row() | lines-row(0) | lines-row(0) | lines-row(0)]');
+        Observer.Expect('keyed', 'vis(lines=No,detail=Yes) lines= detail= log=[]');
+        Observer.Expect('stored', '<none> lines=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1230,7 +1279,10 @@ codeunit 65414 "LT PV Provider Matrix"
         SnapHost('keyed', Card);
         Card.Close();
         Observer.Observe('stored', StoredKey('H3') + ' lines=' + Format(CountLines('H3')));
-        Observer.Finish();
+        Observer.Expect('new', 'vis(lines=Yes,detail=No) lines= detail= log=[host-open | lines-open() | detail-open() | host-row() | lines-row(0) | lines-row(0) | lines-row(0) | lines-row(0) | lines-row(0) | lines-row(0) | detail-row() | lines-row(0) | lines-row(0) | lines-row(0)]');
+        Observer.Expect('keyed', 'vis(lines=Yes,detail=No) lines= detail= log=[]');
+        Observer.Expect('stored', '<none> lines=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1246,7 +1298,10 @@ codeunit 65414 "LT PV Provider Matrix"
         SnapHost('keyed', Card);
         Card.Close();
         Observer.Observe('stored', StoredKey('H3') + ' lines=' + Format(CountLines('H3')));
-        Observer.Finish();
+        Observer.Expect('new', 'vis(lines=No,detail=No) lines= detail= log=[host-open | lines-open() | detail-open() | host-row() | lines-row(0) | lines-row(0) | lines-row(0) | detail-row() | lines-row(0) | lines-row(0) | lines-row(0)]');
+        Observer.Expect('keyed', 'vis(lines=No,detail=No) lines= detail= log=[]');
+        Observer.Expect('stored', '<none> lines=0');
+        Observer.Verify();
     end;
 
     local procedure StoredKey(No: Code[20]): Text
@@ -1280,7 +1335,10 @@ codeunit 65414 "LT PV Provider Matrix"
         Card.GoToKey('H2');
         SnapLitBoth('h2', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'vis(ERR[The part with ID = n was not found on the page.]) lines=ERR[The part with ID = n was not found on the page.] detail=ERR[The part with ID = n was not found on the page.] log=[host-open | host-row(H1)]');
+        Observer.Expect('h1', 'vis(ERR[The part with ID = n was not found on the page.]) lines=ERR[The part with ID = n was not found on the page.] detail=ERR[The part with ID = n was not found on the page.] log=[host-row(H1)]');
+        Observer.Expect('h2', 'vis(ERR[The part with ID = n was not found on the page.]) lines=ERR[The part with ID = n was not found on the page.] detail=ERR[The part with ID = n was not found on the page.] log=[host-row(H1) | host-row(H2)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1297,7 +1355,10 @@ codeunit 65414 "LT PV Provider Matrix"
         Card.GoToKey('H2');
         SnapLitProv('h2', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'vis(lines=No,detail=Yes) lines=10,20, detail=twenty, log=[host-open | lines-open() | detail-open() | host-row(H1) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h1', 'vis(lines=No,detail=Yes) lines=10,20, detail=twenty, log=[host-row(H1) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h2', 'vis(lines=No,detail=Yes) lines= detail= log=[host-row(H1) | host-row(H2) | lines-row(0) | detail-row()]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1314,7 +1375,10 @@ codeunit 65414 "LT PV Provider Matrix"
         Card.GoToKey('H2');
         SnapLitLinked('h2', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'vis(ERR[The part with ID = n was not found on the page.]) lines=10,20, detail=ERR[The part with ID = n was not found on the page.] log=[host-open | lines-open() | host-row(H1) | lines-row(10) | lines-row(20)]');
+        Observer.Expect('h1', 'vis(ERR[The part with ID = n was not found on the page.]) lines=10,20, detail=ERR[The part with ID = n was not found on the page.] log=[host-row(H1) | lines-row(10) | lines-row(20)]');
+        Observer.Expect('h2', 'vis(ERR[The part with ID = n was not found on the page.]) lines= detail=ERR[The part with ID = n was not found on the page.] log=[host-row(H1) | host-row(H2) | lines-row(0)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1331,7 +1395,10 @@ codeunit 65414 "LT PV Provider Matrix"
         Card.GoToKey('H2');
         SnapDoc('h2', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'vis(lines=Yes,detail=Yes) lines=10,20, detail=twenty, log=[host-open | lines-open() | detail-open() | host-row(H1) | detail-row() | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h1', 'vis(lines=Yes,detail=Yes) lines=10,20, detail=twenty, log=[host-row(H1) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h2', 'vis(lines=Yes,detail=Yes) lines= detail= log=[host-row(H1) | host-row(H2) | lines-row(0) | detail-row()]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1348,7 +1415,10 @@ codeunit 65414 "LT PV Provider Matrix"
         Card.GoToKey('H2');
         SnapDoc('h2', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'vis(lines=No,detail=No) lines=10,20, detail=twenty, log=[host-open | lines-open() | detail-open() | host-row(H1) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h1', 'vis(lines=No,detail=No) lines=10,20, detail=twenty, log=[host-row(H1) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h2', 'vis(lines=No,detail=No) lines= detail= log=[host-row(H1) | host-row(H2) | lines-row(0) | detail-row()]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1365,7 +1435,10 @@ codeunit 65414 "LT PV Provider Matrix"
         Card.GoToKey('H2');
         SnapListPlus('h2', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'vis(lines=Yes,detail=Yes) lines=10,20, detail=twenty, log=[host-open | lines-open() | detail-open() | host-row(H1) | detail-row() | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h1', 'vis(lines=Yes,detail=Yes) lines=10,20, detail=twenty, log=[lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h2', 'vis(lines=Yes,detail=Yes) lines= detail= log=[host-row(H2) | lines-row(0) | detail-row()]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1382,7 +1455,10 @@ codeunit 65414 "LT PV Provider Matrix"
         Card.GoToKey('H2');
         SnapListPlus('h2', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'vis(lines=No,detail=No) lines=10,20, detail=twenty, log=[host-open | lines-open() | detail-open() | host-row(H1) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h1', 'vis(lines=No,detail=No) lines=10,20, detail=twenty, log=[lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h2', 'vis(lines=No,detail=No) lines= detail= log=[host-row(H2) | lines-row(0) | detail-row()]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1416,7 +1492,11 @@ codeunit 65414 "LT PV Provider Matrix"
         Card.GoToKey('H2');
         SnapTwo('h2', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'vis(lines=No,detail=No) lines= detail= log=[host-open | lines-open() | detail-open() | lines-row(0) | detail-row()]');
+        Observer.Expect('open', 'vis(lines=Yes,detail=Yes) lines=10,20, detail=twenty, detail2= log=[host-open | lines-open() | detail-open() | detail-open() | host-row(H1) | detail-row() | detail-row() | lines-row(10) | detail-row(ten) | detail-row() | lines-row(20) | detail-row(twenty) | detail-row()]');
+        Observer.Expect('h1', 'vis(lines=Yes,detail=Yes) lines=10,20, detail=twenty, detail2= log=[host-row(H1) | lines-row(10) | detail-row(ten) | detail-row() | lines-row(20) | detail-row(twenty) | detail-row()]');
+        Observer.Expect('h2', 'vis(lines=Yes,detail=Yes) lines= detail= detail2= log=[host-row(H1) | host-row(H2) | lines-row(0) | detail-row() | detail-row()]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1431,7 +1511,9 @@ codeunit 65414 "LT PV Provider Matrix"
         Card."No.".SetValue('H3');
         SnapTwo('keyed', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('new', 'vis(lines=Yes,detail=Yes) lines= detail= detail2= log=[host-open | lines-open() | detail-open() | detail-open() | host-row() | lines-row(0) | lines-row(0) | lines-row(0) | detail-row() | detail-row() | lines-row(0) | lines-row(0) | lines-row(0) | lines-row(0) | lines-row(0) | lines-row(0)]');
+        Observer.Expect('keyed', 'vis(lines=Yes,detail=Yes) lines= detail= detail2= log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1448,7 +1530,10 @@ codeunit 65414 "LT PV Provider Matrix"
         Card.GoToKey('H2');
         SnapBase('h2', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'vis(lines=Yes,detail=Yes) lines=10,20, detail=twenty, log=[lines-open() | detail-open() | base-row(H1) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h1', 'vis(lines=Yes,detail=Yes) lines=10,20, detail=twenty, log=[base-row(H1) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h2', 'vis(lines=Yes,detail=Yes) lines= detail= log=[base-row(H1) | base-row(H2) | lines-row(0) | detail-row()]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1463,7 +1548,9 @@ codeunit 65414 "LT PV Provider Matrix"
         Card."No.".SetValue('H3');
         SnapBase('keyed', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('new', 'vis(lines=Yes,detail=Yes) lines= detail= log=[lines-open() | detail-open() | base-row() | lines-row(0) | detail-row()]');
+        Observer.Expect('keyed', 'vis(lines=Yes,detail=Yes) lines= detail= log=[lines-row(0)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1477,7 +1564,8 @@ codeunit 65414 "LT PV Provider Matrix"
         Row.Get('H2');
         Page.Run(Page::"LT PV Host", Row);
         Observer.Observe('run_h2', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('run_h2', '[host-open | lines-open() | detail-open() | host-row(H2) | lines-row(0) | lines-row(0) | detail-row() | lines-row(0) | lines-row(0) | lines-row(0) | handler(H2)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1493,7 +1581,8 @@ codeunit 65414 "LT PV Provider Matrix"
         Row.Insert();
         Page.Run(Page::"LT PV Host Two", Row);
         Observer.Observe('run_h4_two', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('run_h4_two', '[host-open | lines-open() | detail-open() | detail-open() | host-row(H4) | lines-row(0) | lines-row(0) | detail-row() | detail-row() | lines-row(0) | lines-row(0) | lines-row(0) | handler(H4)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1507,7 +1596,8 @@ codeunit 65414 "LT PV Provider Matrix"
         Row.Get('H1');
         Page.Run(Page::"LT PV Host", Row);
         Observer.Observe('run_h1_hidden', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('run_h1_hidden', '[host-open | lines-open() | detail-open() | host-row(H1) | lines-row(10) | detail-row(ten) | handler(H1)]');
+        Observer.Verify();
     end;
 
     [PageHandler]
