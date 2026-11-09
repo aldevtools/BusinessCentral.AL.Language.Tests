@@ -431,7 +431,19 @@ codeunit 70869 "LT Err Text Exclude Label"
         Forms('one', Observer);
         Observer.Observe('try2', Format(TryLocalLabelTwoArgs('C10', 12.5)));
         Forms('two', Observer);
-        Observer.Finish();
+        Observer.Expect('try0', 'No');
+        Observer.Expect('zero_true', 'A local label without arguments');
+        Observer.Expect('zero_false', 'A local label without arguments');
+        Observer.Expect('zero_code', 'Dialog');
+        Observer.Expect('try1', 'No');
+        Observer.Expect('one_true', 'A local label with %1');
+        Observer.Expect('one_false', 'A local label with customer value');
+        Observer.Expect('one_code', 'Dialog');
+        Observer.Expect('try2', 'No');
+        Observer.Expect('two_true', 'Local customer %1 owes %2');
+        Observer.Expect('two_false', 'Local customer C10 owes 12.5');
+        Observer.Expect('two_code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -446,7 +458,19 @@ codeunit 70869 "LT Err Text Exclude Label"
         Forms('date', Observer);
         Observer.Observe('try_int', Format(TryLocalLabelIntegerArg(42)));
         Forms('int', Observer);
-        Observer.Finish();
+        Observer.Expect('try_code', 'No');
+        Observer.Expect('code_true', 'Local code %1');
+        Observer.Expect('code_false', 'Local code ABC');
+        Observer.Expect('code_code', 'Dialog');
+        Observer.Expect('try_date', 'No');
+        Observer.Expect('date_true', 'Local date %1');
+        Observer.Expect('date_false', 'Local date 03/05/27');
+        Observer.Expect('date_code', 'Dialog');
+        Observer.Expect('try_int', 'No');
+        Observer.Expect('int_true', 'Local integer %1');
+        Observer.Expect('int_false', 'Local integer 42');
+        Observer.Expect('int_code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -463,7 +487,23 @@ codeunit 70869 "LT Err Text Exclude Label"
         Forms('max', Observer);
         Observer.Observe('try_crlf', Format(TryLocalLabelCrLf()));
         Forms('crlf', Observer);
-        Observer.Finish();
+        Observer.Expect('try_comment', 'No');
+        Observer.Expect('comment_true', 'Local commented %1');
+        Observer.Expect('comment_false', 'Local commented v');
+        Observer.Expect('comment_code', 'Dialog');
+        Observer.Expect('try_locked', 'No');
+        Observer.Expect('locked_true', 'Local locked label');
+        Observer.Expect('locked_false', 'Local locked label');
+        Observer.Expect('locked_code', 'Dialog');
+        Observer.Expect('try_max', 'No');
+        Observer.Expect('max_true', 'Local max length label');
+        Observer.Expect('max_false', 'Local max length label');
+        Observer.Expect('max_code', 'Dialog');
+        Observer.Expect('try_crlf', 'No');
+        Observer.Expect('crlf_true', 'Line one%1Line two');
+        Observer.Expect('crlf_false', 'Line one\Line two');
+        Observer.Expect('crlf_code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -480,7 +520,23 @@ codeunit 70869 "LT Err Text Exclude Label"
         Forms('var_arg', Observer);
         Observer.Observe('try_proc', Format(TryLabelReturnedByProcedure()));
         Forms('proc', Observer);
-        Observer.Finish();
+        Observer.Expect('try_param', 'No');
+        Observer.Expect('param_true', 'Use ERROR with a text constant to improve telemetry details');
+        Observer.Expect('param_false', 'A label passed as a text parameter');
+        Observer.Expect('param_code', 'Dialog');
+        Observer.Expect('try_var', 'No');
+        Observer.Expect('var_true', 'Use ERROR with a text constant to improve telemetry details');
+        Observer.Expect('var_false', 'A label assigned to a text variable');
+        Observer.Expect('var_code', 'Dialog');
+        Observer.Expect('try_var_arg', 'No');
+        Observer.Expect('var_arg_true', 'Use ERROR with a text constant to improve telemetry details');
+        Observer.Expect('var_arg_false', 'A label assigned with x');
+        Observer.Expect('var_arg_code', 'Dialog');
+        Observer.Expect('try_proc', 'No');
+        Observer.Expect('proc_true', 'Use ERROR with a text constant to improve telemetry details');
+        Observer.Expect('proc_false', 'A global label returned as text');
+        Observer.Expect('proc_code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -493,7 +549,15 @@ codeunit 70869 "LT Err Text Exclude Label"
         Forms('subst', Observer);
         Observer.Observe('try_plain', Format(TryLocalLabelErrorInfoMessageNoArgs()));
         Forms('plain', Observer);
-        Observer.Finish();
+        Observer.Expect('try_subst', 'No');
+        Observer.Expect('subst_true', 'This message had personal data removed. The original may still be in transient telemetry. Find it using the transientTelemetryId.');
+        Observer.Expect('subst_false', 'Local error info message x');
+        Observer.Expect('subst_code', 'Dialog');
+        Observer.Expect('try_plain', 'No');
+        Observer.Expect('plain_true', 'This message had personal data removed. The original may still be in transient telemetry. Find it using the transientTelemetryId.');
+        Observer.Expect('plain_false', 'Local error info message without arguments');
+        Observer.Expect('plain_code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -509,7 +573,14 @@ codeunit 70869 "LT Err Text Exclude Label"
         ClearLastError();
         Observer.Observe('run', Format(Runner.Run()));
         Forms('run', Observer);
-        Observer.Finish();
+        Observer.Expect('asserterror_true', 'Local label under asserterror %1');
+        Observer.Expect('asserterror_false', 'Local label under asserterror direct');
+        Observer.Expect('asserterror_code', 'Dialog');
+        Observer.Expect('run', 'No');
+        Observer.Expect('run_true', 'Local label in OnRun %1');
+        Observer.Expect('run_false', 'Local label in OnRun run value');
+        Observer.Expect('run_code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -527,7 +598,23 @@ codeunit 70869 "LT Err Text Exclude Label"
         Forms('max', Observer);
         Observer.Observe('try_crlf', Format(Source.RaiseCrLf()));
         Forms('crlf', Observer);
-        Observer.Finish();
+        Observer.Expect('try_comment', 'No');
+        Observer.Expect('comment_true', 'Global commented %1');
+        Observer.Expect('comment_false', 'Global commented v');
+        Observer.Expect('comment_code', 'Dialog');
+        Observer.Expect('try_locked', 'No');
+        Observer.Expect('locked_true', 'Global locked label');
+        Observer.Expect('locked_false', 'Global locked label');
+        Observer.Expect('locked_code', 'Dialog');
+        Observer.Expect('try_max', 'No');
+        Observer.Expect('max_true', 'Global max length label');
+        Observer.Expect('max_false', 'Global max length label');
+        Observer.Expect('max_code', 'Dialog');
+        Observer.Expect('try_crlf', 'No');
+        Observer.Expect('crlf_true', 'Global line one%1Global line two');
+        Observer.Expect('crlf_false', 'Global line one\Global line two');
+        Observer.Expect('crlf_code', 'Dialog');
+        Observer.Verify();
     end;
 }
 

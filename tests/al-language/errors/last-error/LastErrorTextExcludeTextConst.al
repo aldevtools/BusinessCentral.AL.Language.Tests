@@ -113,6 +113,14 @@ codeunit 74851 "LT LET TextConst"
         Forms('local', Observer);
         Observer.Observe('try_arg', Format(TryLocalConstArg('v')));
         Forms('local_arg', Observer);
-        Observer.Finish();
+        Observer.Expect('try', 'No');
+        Observer.Expect('local_true', 'Local text const message');
+        Observer.Expect('local_false', 'Local text const message');
+        Observer.Expect('local_code', 'Dialog');
+        Observer.Expect('try_arg', 'No');
+        Observer.Expect('local_arg_true', 'Local text const with %1');
+        Observer.Expect('local_arg_false', 'Local text const with v');
+        Observer.Expect('local_arg_code', 'Dialog');
+        Observer.Verify();
     end;
 }
