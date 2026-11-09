@@ -1043,7 +1043,19 @@ codeunit 72865 "LT FM Fields Tests"
         EvF(O, 'NUL', 15, Nul());
         EvF(O, '?', 15, '?');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('abc', 'err:InvalidGuidFormat|{00000000-0000-0000-0000-000000000000}');
+        O.Expect('{12345678-1234-5678-9ABC-DEF01234567}', 'err:InvalidGuidFormat|{00000000-0000-0000-0000-000000000000}');
+        O.Expect('{12345678-1234-5678-9ABC-DEF0123456789}', 'err:InvalidGuidFormat|{00000000-0000-0000-0000-000000000000}');
+        O.Expect('{12345678-1234-5678-9ABC-DEF012345678', 'err:InvalidGuidFormat|{00000000-0000-0000-0000-000000000000}');
+        O.Expect('12345678-1234-5678-9ABC-DEF012345678}', 'err:InvalidGuidFormat|{00000000-0000-0000-0000-000000000000}');
+        O.Expect('{GGGGGGGG-1234-5678-9ABC-DEF012345678}', 'err:InvalidGuidFormat|{00000000-0000-0000-0000-000000000000}');
+        O.Expect(' {12345678-1234-5678-9ABC-DEF012345678}', 'ok|{12345678-1234-5678-9ABC-DEF012345678}|{12345678-1234-5678-9ABC-DEF012345678}');
+        O.Expect('{12345678-1234-5678-9ABC-DEF012345678} ', 'ok|{12345678-1234-5678-9ABC-DEF012345678}|{12345678-1234-5678-9ABC-DEF012345678}');
+        O.Expect('1D', 'err:InvalidGuidFormat|{00000000-0000-0000-0000-000000000000}');
+        O.Expect('1T', 'err:InvalidGuidFormat|{00000000-0000-0000-0000-000000000000}');
+        O.Expect('NUL', 'err:InvalidGuidFormat|{00000000-0000-0000-0000-000000000000}');
+        O.Expect('?', 'err:InvalidGuidFormat|{00000000-0000-0000-0000-000000000000}');
+        O.Verify();
     end;
 
     [Test]
