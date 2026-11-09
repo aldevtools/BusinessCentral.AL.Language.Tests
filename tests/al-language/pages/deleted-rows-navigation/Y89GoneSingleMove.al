@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-testpage-class
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); tables, list pages and the log of pages/lt-y80-gone-rows/Y80GoneRows.al ("LT Y80 Row", "LT Y80 Log", "LT Y80 List All", "LT Y80 List NoNew", "LT Y80 List ReadOnly", "LT Y80 List NoInsMod"); own objects 94729 and 94731 - 94733, test codeunit 94730
+// Fixtures used: Probe Observer (codeunit 69160); tables, list pages and the log of pages/lt-y80-gone-rows/Y80GoneRows.al ("LT Y80 Row", "LT Y80 Log", "LT Y80 List All", "LT Y80 List NoNew", "LT Y80 List ReadOnly", "LT Y80 List NoInsMod"); own objects 94729, 94731 - 94733, 94742 and 94743, test codeunit 94730
 // Probe (writer Y89, from the runtime lane rt-pages-1103g). (1) ONE move (Next, Previous, First, Last or GoToKey) on its own, as the first thing that happens, on a List that stands on its blank line
 // because an action deleted its only row: pages/lt-y80-gone-rows/Y80GoneRows.al tries the moves one after the other, so the answer of a single move after the
 // action is not pinned there. Per list shape, OpenEdit and OpenView, the action deleting every row with and without CurrPage.Update(false). (2) the CloseAction that
@@ -106,6 +106,72 @@ page 94732 "LT Y89 Card Close True"
     end;
 }
 
+table 94742 "LT Y89 Last Log"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Line No."; Integer) { AutoIncrement = true; }
+        field(2; Entry; Text[250]) { }
+    }
+    keys { key(PK; "Line No.") { Clustered = true; } }
+}
+
+page 94743 "LT Y89 Card Last True"
+{
+    PageType = Card;
+    SourceTable = "LT Y80 Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(G)
+            {
+                field(IdCtl; Rec.Id) { ApplicationArea = All; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(DeleteCurrentAct)
+            {
+                ApplicationArea = All;
+                trigger OnAction()
+                begin
+                    Rec.Delete(true);
+                end;
+            }
+        }
+    }
+
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    begin
+        AddLog('Q:' + Format(CloseAction) + ':' + Format(Rec.Id));
+        exit(true);
+    end;
+
+    trigger OnClosePage()
+    begin
+        AddLog('X:' + Format(Rec.Id));
+    end;
+
+    local procedure AddLog(Entry: Text)
+    var
+        Log: Record "LT Y89 Last Log";
+    begin
+        Log.Init();
+        Log.Entry := CopyStr(Entry, 1, MaxStrLen(Log.Entry));
+        Log.Insert();
+    end;
+}
+
 page 94729 "LT Y89 Card Close Get"
 {
     PageType = Card;
@@ -162,7 +228,7 @@ page 94729 "LT Y89 Card Close Get"
 
     local procedure AddLog(Entry: Text)
     var
-        Log: Record "LT Y89 Close Log";
+        Log: Record "LT Y89 Last Log";
     begin
         Log.Init();
         Log.Entry := CopyStr(Entry, 1, MaxStrLen(Log.Entry));
@@ -267,6 +333,7 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Row: Record "LT Y80 Row";
         Log: Record "LT Y80 Log";
         CloseLog: Record "LT Y89 Close Log";
+        LastLog: Record "LT Y89 Last Log";
         I: Integer;
     begin
         Row.DeleteAll();
@@ -277,11 +344,27 @@ codeunit 94730 "LT Y89 Gone Single Move"
         end;
         Log.DeleteAll();
         CloseLog.DeleteAll();
+        LastLog.DeleteAll();
     end;
 
     local procedure TakeLog(): Text
     var
         Log: Record "LT Y80 Log";
+        Result: Text;
+    begin
+        if Log.FindSet() then
+            repeat
+                if Result <> '' then
+                    Result += ';';
+                Result += Log.Entry;
+            until Log.Next() = 0;
+        Log.DeleteAll();
+        exit(Result);
+    end;
+
+    local procedure TakeLastLog(): Text
+    var
+        Log: Record "LT Y89 Last Log";
         Result: Text;
     begin
         if Log.FindSet() then
@@ -4164,6 +4247,44 @@ codeunit 94730 "LT Y89 Gone Single Move"
     end;
 
     [ModalPageHandler]
+    procedure DeleteCurrentModalLast(var P: TestPage "LT Y89 Card Last True")
+    begin
+        P.DeleteCurrentAct.Invoke();
+        ModalAction := 'acted';
+    end;
+
+    local procedure DoCardLast(var P: TestPage "LT Y89 Card Last True"; Which: Text): Text
+    var
+        Result: Text;
+    begin
+        if TryCardLast(P, Which, Result) then
+            exit(Result);
+        Result := 'err|' + GetLastErrorCode() + '|' + GetLastErrorText();
+        ClearLastError();
+        exit(Result);
+    end;
+
+    [TryFunction]
+    local procedure TryCardLast(var P: TestPage "LT Y89 Card Last True"; Which: Text; var Result: Text)
+    begin
+        case Which of
+            'delcur':
+                begin
+                    P.DeleteCurrentAct.Invoke();
+                    Result := 'acted';
+                end;
+            'close':
+                begin
+                    P.Close();
+                    Result := 'closed';
+                end;
+            'shown':
+                Result := 'shown';
+        end;
+        Result += '|' + P.IdCtl.Value();
+    end;
+
+    [ModalPageHandler]
     procedure DeleteCurrentModalGet(var P: TestPage "LT Y89 Card Close Get")
     begin
         P.DeleteCurrentAct.Invoke();
@@ -4185,7 +4306,7 @@ codeunit 94730 "LT Y89 Gone Single Move"
 
     local procedure CardTrueLastRow(View: Boolean)
     var
-        P: TestPage "LT Y89 Card Close True";
+        P: TestPage "LT Y89 Card Last True";
     begin
         Seed(3);
         if View then
@@ -4194,13 +4315,13 @@ codeunit 94730 "LT Y89 Gone Single Move"
             P.OpenEdit();
         P.GoToKey(30);
         Observer.Observe('goto', P.IdCtl.Value());
-        Observer.Observe('open log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Observe('action', DoCardTrue(P, 'delcur'));
-        Observer.Observe('action log', TakeLog() + '/' + TakeCloseLog());
-        Observer.Observe('shown', DoCardTrue(P, 'shown'));
+        Observer.Observe('open log', TakeLog() + '/' + TakeLastLog());
+        Observer.Observe('action', DoCardLast(P, 'delcur'));
+        Observer.Observe('action log', TakeLog() + '/' + TakeLastLog());
+        Observer.Observe('shown', DoCardLast(P, 'shown'));
         Observer.Observe('rows', Rows());
-        Observer.Observe('close', DoCardTrue(P, 'close'));
-        Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('close', DoCardLast(P, 'close'));
+        Observer.Observe('close log', TakeLog() + '/' + TakeLastLog());
         Observer.Finish();
     end;
 
@@ -4212,10 +4333,10 @@ codeunit 94730 "LT Y89 Gone Single Move"
         P.OpenEdit();
         P.GoToKey(Id);
         Observer.Observe('goto', P.IdCtl.Value());
-        Observer.Observe('open log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('open log', TakeLog() + '/' + TakeLastLog());
         Observer.Observe('action', DoCardGetDelete(P));
         ClearLastError();
-        Observer.Observe('action log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('action log', TakeLog() + '/' + TakeLastLog());
         Observer.Observe('rows', Rows());
         Observer.Finish();
     end;
@@ -4245,7 +4366,7 @@ codeunit 94730 "LT Y89 Gone Single Move"
     end;
 
     [Test]
-    [HandlerFunctions('DeleteCurrentModal')]
+    [HandlerFunctions('DeleteCurrentModalLast')]
     procedure Y89_CA_Modal_True_3Row_DeleteCurrentLast()
     var
         Row: Record "LT Y80 Row";
@@ -4254,10 +4375,10 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Seed(3);
         Row.Get(30);
         ModalAction := '';
-        Result := Page.RunModal(Page::"LT Y89 Card Close True", Row);
+        Result := Page.RunModal(Page::"LT Y89 Card Last True", Row);
         Observer.Observe('result', Format(Result));
         Observer.Observe('handler', ModalAction);
-        Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('log', TakeLog() + '/' + TakeLastLog());
         Observer.Observe('rows', Rows());
         Observer.Finish();
     end;
@@ -4275,7 +4396,7 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Result := Page.RunModal(Page::"LT Y89 Card Close Get", Row);
         Observer.Observe('result', Format(Result));
         Observer.Observe('handler', ModalAction);
-        Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('log', TakeLog() + '/' + TakeLastLog());
         Observer.Observe('rows', Rows());
         Observer.Finish();
     end;
