@@ -7,6 +7,9 @@
 // local object: tables 67420 and 67421 are needed because the probe changes the keys, filters and a FlowField of the record that goes into the run, and
 //   codeunits 67422 to 67426 (runner with TableNo, publisher, subscriber) because the failing OnRun, the failing nested procedure and the failing subscriber are the
 //   variables of the probe. LT SyT Runner (RunCommitClear.al) has one change and one failure only.
+// Result (27.5, 28.5 and 29.0 alike, read from the corpus CI): a failed Codeunit.Run(Rec) whose result is used gives the caller back the record exactly as it was
+//   before the call (fields, key values, filters, current key, marks, mode field), whatever OnRun changed. Under asserterror (statement form) the in-memory
+//   changes stay. A temporary record keeps the rows OnRun inserted, changed, deleted or renamed, only the caller's current record is restored.
 // BC versions: 27.5+
 
 table 67420 "LT RFR Row"
@@ -294,7 +297,14 @@ codeunit 67423 "LT RFR Run Failed Record"
         Observer.Observe('succeeds, static', RunCase('modify', 'none', 0));
         Observer.Observe('succeeds, variable', RunCase('modify', 'none', 2));
         CleanUp();
-        Observer.Finish();
+        Observer.Expect('result used, static', 'ok=No err=[boom] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=modify|error filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('if not, static', 'ok=No err=[boom] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=modify|error filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('result used, variable', 'ok=No err=[boom] calls=1 code=A amt=10 name=a qty=1 kids=0 mode=modify|error filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('asserterror, static', 'err=[boom] calls=0 code=A amt=99 name=changed qty=1 kids=0 mode=modify|error filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('asserterror, variable', 'err=[boom] calls=1 code=A amt=99 name=changed qty=1 kids=0 mode=modify|error filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('succeeds, static', 'ok=Yes err=[] calls=0 code=A amt=99 name=changed qty=1 kids=0 mode=modify|none filters=[] key=Code markedonly=No mark=No next=1:B db=A:99:changed,B:20:b,n=2');
+        Observer.Expect('succeeds, variable', 'ok=Yes err=[] calls=1 code=A amt=99 name=changed qty=1 kids=0 mode=modify|none filters=[] key=Code markedonly=No mark=No next=1:B db=A:99:changed,B:20:b,n=2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -307,7 +317,15 @@ codeunit 67423 "LT RFR Run Failed Record"
         ObserveChange(Observer, 'insert');
         ObserveChange(Observer, 'delete');
         CleanUp();
-        Observer.Finish();
+        Observer.Expect('fields fails', 'ok=No err=[boom] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=fields|error filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('fields succeeds', 'ok=Yes err=[] calls=0 code=A amt=99 name=changed qty=1 kids=0 mode=fields|none filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('modify fails', 'ok=No err=[boom] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=modify|error filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('modify succeeds', 'ok=Yes err=[] calls=0 code=A amt=99 name=changed qty=1 kids=0 mode=modify|none filters=[] key=Code markedonly=No mark=No next=1:B db=A:99:changed,B:20:b,n=2');
+        Observer.Expect('insert fails', 'ok=No err=[boom] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=insert|error filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('insert succeeds', 'ok=Yes err=[] calls=0 code=NEW amt=99 name=a qty=1 kids=0 mode=insert|none filters=[] key=Code markedonly=No mark=No next=0:NEW db=A:10:a,B:20:b,NEW:99:a,n=3');
+        Observer.Expect('delete fails', 'ok=No err=[boom] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=delete|error filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('delete succeeds', 'ok=Yes err=[] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=delete|none filters=[] key=Code markedonly=No mark=No next=1:B db=B:20:b,n=1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -320,7 +338,15 @@ codeunit 67423 "LT RFR Run Failed Record"
         ObserveChange(Observer, 'init');
         ObserveChange(Observer, 'validate');
         CleanUp();
-        Observer.Finish();
+        Observer.Expect('rename fails', 'ok=No err=[boom] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=rename|error filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('rename succeeds', 'ok=Yes err=[] calls=0 code=R amt=10 name=a qty=1 kids=0 mode=rename|none filters=[] key=Code markedonly=No mark=No next=0:R db=B:20:b,R:10:a,n=2');
+        Observer.Expect('get fails', 'ok=No err=[boom] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=get|error filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('get succeeds', 'ok=Yes err=[] calls=0 code=B amt=20 name=b qty=2 kids=0 mode= filters=[] key=Code markedonly=No mark=No next=0:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('init fails', 'ok=No err=[boom] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=init|error filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('init succeeds', 'ok=Yes err=[] calls=0 code=A amt=7 name= qty=0 kids=0 mode= filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('validate fails', 'ok=No err=[boom] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=validate|error filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('validate succeeds', 'ok=Yes err=[] calls=0 code=A amt=55 name=a qty=1 kids=0 mode=validate|none filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -334,7 +360,17 @@ codeunit 67423 "LT RFR Run Failed Record"
         ObserveChange(Observer, 'marks');
         ObserveChange(Observer, 'calcfields');
         CleanUp();
-        Observer.Finish();
+        Observer.Expect('setrange fails', 'ok=No err=[boom] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=setrange|error filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('setrange succeeds', 'ok=Yes err=[] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=setrange|none filters=[Code: A..B] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('setfilter fails', 'ok=No err=[boom] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=setfilter|error filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('setfilter succeeds', 'ok=Yes err=[] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=setfilter|none filters=[Name: a*|b*] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('setkey fails', 'ok=No err=[boom] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=setkey|error filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('setkey succeeds', 'ok=Yes err=[] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=setkey|none filters=[] key=Name,Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('marks fails', 'ok=No err=[boom] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=marks|error filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('marks succeeds', 'ok=Yes err=[] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=marks|none filters=[Marked: Yes] key=Code markedonly=Yes mark=Yes next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('calcfields fails', 'ok=No err=[boom] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=calcfields|error filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('calcfields succeeds', 'ok=Yes err=[] calls=0 code=A amt=10 name=a qty=1 kids=2 mode=calcfields|none filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -349,7 +385,13 @@ codeunit 67423 "LT RFR Run Failed Record"
         Observer.Observe('no error', RunCase('fields', 'none', 0));
         Observer.Observe('empty text, asserterror', RunCase('fields', 'empty', 3));
         CleanUp();
-        Observer.Finish();
+        Observer.Expect('Error in OnRun', 'ok=No err=[boom] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=fields|error filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('Error with empty text', 'ok=No err=[] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=fields|empty filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('Error in nested procedure', 'ok=No err=[nested boom] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=fields|nested filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('Error in subscriber', 'ok=No err=[subscriber boom] calls=0 code=A amt=10 name=a qty=1 kids=0 mode=fields|sub filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('no error', 'ok=Yes err=[] calls=0 code=A amt=99 name=changed qty=1 kids=0 mode=fields|none filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Expect('empty text, asserterror', 'err=[] calls=0 code=A amt=99 name=changed qty=1 kids=0 mode=fields|empty filters=[] key=Code markedonly=No mark=No next=1:B db=A:10:a,B:20:b,n=2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -372,7 +414,10 @@ codeunit 67423 "LT RFR Run Failed Record"
         Ok := Cu.Run(Row);
         Observer.Observe('after second failed run', StrSubstNo('ok=%1 calls=%2 trail=%3', Ok, Cu.GetCalls(), Cu.GetTrail()));
         CleanUp();
-        Observer.Finish();
+        Observer.Expect('after failed run', 'ok=No calls=1 trail=fields;');
+        Observer.Expect('after successful run', 'ok=Yes calls=2 trail=fields;fields;');
+        Observer.Expect('after second failed run', 'ok=No calls=3 trail=fields;fields;fields;');
+        Observer.Verify();
     end;
 
     local procedure TempRows(var T: Record "LT RFR Row" temporary): Text
@@ -424,6 +469,16 @@ codeunit 67423 "LT RFR Run Failed Record"
         Observer.Observe('delete succeeds', TempCase('delete', 'none'));
         Observer.Observe('rename fails', TempCase('rename', 'error'));
         Observer.Observe('rename succeeds', TempCase('rename', 'none'));
-        Observer.Finish();
+        Observer.Expect('fields fails', 'ok=No code=A amt=10 name=a rows=A:10:a,B:20:b,n=2');
+        Observer.Expect('fields succeeds', 'ok=Yes code=A amt=99 name=changed rows=A:10:a,B:20:b,n=2');
+        Observer.Expect('modify fails', 'ok=No code=A amt=10 name=a rows=A:99:changed,B:20:b,n=2');
+        Observer.Expect('modify succeeds', 'ok=Yes code=A amt=99 name=changed rows=A:99:changed,B:20:b,n=2');
+        Observer.Expect('insert fails', 'ok=No code=A amt=10 name=a rows=A:10:a,B:20:b,NEW:99:a,n=3');
+        Observer.Expect('insert succeeds', 'ok=Yes code=NEW amt=99 name=a rows=A:10:a,B:20:b,NEW:99:a,n=3');
+        Observer.Expect('delete fails', 'ok=No code=A amt=10 name=a rows=B:20:b,n=1');
+        Observer.Expect('delete succeeds', 'ok=Yes code=A amt=10 name=a rows=B:20:b,n=1');
+        Observer.Expect('rename fails', 'ok=No code=A amt=10 name=a rows=B:20:b,R:10:a,n=2');
+        Observer.Expect('rename succeeds', 'ok=Yes code=R amt=10 name=a rows=B:20:b,R:10:a,n=2');
+        Observer.Verify();
     end;
 }
