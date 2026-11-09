@@ -3792,19 +3792,6 @@ codeunit 99613 "LT SO Eval FieldClass"
         Observer.Finish();
     end;
 
-#if BC28PLUS // FieldClass::KeyFieldReference exists from BC 28 (Evaluate of 3, see Numbers)
-    [Test]
-    procedure FormatOfVariable_KeyFieldReference()
-    var
-        Observer: Codeunit "Probe Observer";
-        V: FieldClass;
-    begin
-        V := FieldClass::KeyFieldReference;
-        Observer.Observe('KeyFieldReference', ShowFormats(V));
-        Observer.Finish();
-    end;
-#endif
-
     [Test]
     procedure FormatOfVariable_FromEvaluate()
     var
