@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-xmlport-object
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); LT Y83 Helper (Y83XpFixtures.al); own objects: tables 97940-97942, xmlports 97943-97949 and 97951-97964, test codeunit 97950
+// Fixtures used: Probe Observer (69160); LT Y83 Helper (Y83XpFixtures.al); own objects: tables 97940-97942, xmlports 97943-97949 and 97951-97974, test codeunit 97950
 // Probe: al-runner issue 7263 (follow-up to 7130 and 7131, XpTableRootNestedText.al). Export (Format = Xml) of
 //   A: a root table element (MaxOccurs = Once, XmlName Envelope) > text element L1 > text element L0 > a table element (orders, field element
 //      No) and a text element with a value (username, set in OnBeforePassVariable), the text element after and before the table element, and
@@ -1249,4 +1249,585 @@ codeunit 97950 "LT X63 Tests"
         Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <No>O1</No>\r\n      <T1>x</T1>\r\n      <T2>y</T2>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
         Observer.Verify();
     end;
+
+    // Issue 7349: TI > [RD > [value], table element] (issue 7349 R1).
+    [Test]
+    procedure XTN_R1_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97965, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97965, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97965, TextEncoding::UTF8));
+        Observer.Finish();
+    end;
+
+    // Issue 7349: TI > [table element, RD > [value]] (R2).
+    [Test]
+    procedure XTN_R2_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97966, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97966, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97966, TextEncoding::UTF8));
+        Observer.Finish();
+    end;
+
+    // Issue 7349: TI > [RD > [field element, value], table element] (R3).
+    [Test]
+    procedure XTN_R3_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97967, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97967, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97967, TextEncoding::UTF8));
+        Observer.Finish();
+    end;
+
+    // Issue 7349: TI > [RD > [value], table element, RE > [value]].
+    [Test]
+    procedure XTN_Around_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97968, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97968, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97968, TextEncoding::UTF8));
+        Observer.Finish();
+    end;
+
+    // Issue 7349: TI > [RD > [value], RE > [value], table element].
+    [Test]
+    procedure XTN_TwoTexts_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97969, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97969, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97969, TextEncoding::UTF8));
+        Observer.Finish();
+    end;
+
+    // Issue 7349: TI > [RD > [field element, value], table element r, table element q].
+    [Test]
+    procedure XTN_TwoTables_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97970, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97970, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97970, TextEncoding::UTF8));
+        Observer.Finish();
+    end;
+
+    // Issue 7349: TI > [value, RD > [value], table element, value].
+    [Test]
+    procedure XTN_Mixed_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97971, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97971, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97971, TextEncoding::UTF8));
+        Observer.Finish();
+    end;
+
+    // Issue 7349: TI > TJ > [RD > [value], table element].
+    [Test]
+    procedure XTN_DeepTable_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97972, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97972, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97972, TextEncoding::UTF8));
+        Observer.Finish();
+    end;
+
+    // Issue 7349: TI > [RD > RC > [value], table element].
+    [Test]
+    procedure XTN_DeepValue_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97973, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97973, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97973, TextEncoding::UTF8));
+        Observer.Finish();
+    end;
+
+    // Issue 7349: TI > [field element, value, RD > [field element, value], table element, RE > [field element, value]].
+    [Test]
+    procedure XTN_FieldValueAround_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97974, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97974, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97974, TextEncoding::UTF8));
+        Observer.Finish();
+    end;
+}
+
+// Probe: al-runner issue 7349 (follow-up to 7309). Export of a row text element TI that holds a text element with content (a value
+//   element, or a field element and a value element) and a table element, in several orders, with 0, 1 and 2 rows of the inner table
+//   element. Objects xmlport 97965-97974; the tests are XTN_*.
+
+// TI > [RD > [value], table element] (issue 7349 R1)
+xmlport 97965 "LT X63 Y R1"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(RD)
+                    {
+                        textelement(TT)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TT := 'x';
+                            end;
+                        }
+                    }
+                    tableelement(r; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; r."Ref") { }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// TI > [table element, RD > [value]] (R2)
+xmlport 97966 "LT X63 Y R2"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    tableelement(r; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; r."Ref") { }
+                    }
+                    textelement(RD)
+                    {
+                        textelement(TT)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TT := 'x';
+                            end;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// TI > [RD > [field element, value], table element] (R3)
+xmlport 97967 "LT X63 Y R3"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(RD)
+                    {
+                        fieldelement(D; orders."No.") { }
+                        textelement(TT)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TT := 'x';
+                            end;
+                        }
+                    }
+                    tableelement(r; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; r."Ref") { }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// TI > [RD > [value], table element, RE > [value]]
+xmlport 97968 "LT X63 Y Around"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(RD)
+                    {
+                        textelement(TT)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TT := 'x';
+                            end;
+                        }
+                    }
+                    tableelement(r; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; r."Ref") { }
+                    }
+                    textelement(RE)
+                    {
+                        textelement(TU)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TU := 'y';
+                            end;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// TI > [RD > [value], RE > [value], table element]
+xmlport 97969 "LT X63 Y Two Texts"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(RD)
+                    {
+                        textelement(TT)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TT := 'x';
+                            end;
+                        }
+                    }
+                    textelement(RE)
+                    {
+                        textelement(TU)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TU := 'y';
+                            end;
+                        }
+                    }
+                    tableelement(r; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; r."Ref") { }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// TI > [RD > [field element, value], table element r, table element q]
+xmlport 97970 "LT X63 Y Two Tables"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(RD)
+                    {
+                        fieldelement(D; orders."No.") { }
+                        textelement(TT)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TT := 'x';
+                            end;
+                        }
+                    }
+                    tableelement(r; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; r."Ref") { }
+                    }
+                    tableelement(q; "LT X63 Ref")
+                    {
+                        XmlName = 'q';
+                        fieldelement(Ref; q."Ref") { }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// TI > [value, RD > [value], table element, value]
+xmlport 97971 "LT X63 Y Mixed"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(T1)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            T1 := 'a';
+                        end;
+                    }
+                    textelement(RD)
+                    {
+                        textelement(TT)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TT := 'x';
+                            end;
+                        }
+                    }
+                    tableelement(r; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; r."Ref") { }
+                    }
+                    textelement(T2)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            T2 := 'b';
+                        end;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// TI > TJ > [RD > [value], table element]
+xmlport 97972 "LT X63 Y Deep Table"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(TJ)
+                    {
+                        textelement(RD)
+                        {
+                            textelement(TT)
+                            {
+                                trigger OnBeforePassVariable()
+                                begin
+                                    TT := 'x';
+                                end;
+                            }
+                        }
+                        tableelement(r; "LT X63 Ref")
+                        {
+                            XmlName = 'r';
+                            fieldelement(Ref; r."Ref") { }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// TI > [RD > RC > [value], table element]
+xmlport 97973 "LT X63 Y Deep Value"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(RD)
+                    {
+                        textelement(RC)
+                        {
+                            textelement(TT)
+                            {
+                                trigger OnBeforePassVariable()
+                                begin
+                                    TT := 'x';
+                                end;
+                            }
+                        }
+                    }
+                    tableelement(r; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; r."Ref") { }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// TI > [field element, value, RD > [field element, value], table element, RE > [field element, value]]
+xmlport 97974 "LT X63 Y Field Value Around"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    fieldelement(D1; orders."No.") { }
+                    textelement(T1)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            T1 := 'a';
+                        end;
+                    }
+                    textelement(RD)
+                    {
+                        fieldelement(D2; orders."No.") { }
+                        textelement(TT)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TT := 'x';
+                            end;
+                        }
+                    }
+                    tableelement(r; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; r."Ref") { }
+                    }
+                    textelement(RE)
+                    {
+                        fieldelement(D3; orders."No.") { }
+                        textelement(TU)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TU := 'y';
+                            end;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
