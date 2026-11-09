@@ -249,7 +249,16 @@ codeunit 65503 "LT AE Dependency Reads"
         Report('Customer_findset', Try_Customer_findset());
         Report('Customer_isempty', Try_Customer_isempty());
         StopSet();
-        Observer.Finish();
+        Observer.Expect('customer_rows', 'Yes');
+        Observer.Expect('item_rows', 'Yes');
+        Observer.Expect('Customer_find_dash', 'denied: Sorry, the current permissions prevented the action. (TableData 18 Customer Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Customer_find_plus', 'denied: Sorry, the current permissions prevented the action. (TableData 18 Customer Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Customer_find_eq', 'ok');
+        Observer.Expect('Customer_findfirst', 'denied: Sorry, the current permissions prevented the action. (TableData 18 Customer Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Customer_findlast', 'denied: Sorry, the current permissions prevented the action. (TableData 18 Customer Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Customer_findset', 'denied: Sorry, the current permissions prevented the action. (TableData 18 Customer Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Customer_isempty', 'denied: Sorry, the current permissions prevented the action. (TableData 18 Customer Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -265,7 +274,16 @@ codeunit 65503 "LT AE Dependency Reads"
         Report('Customer_get_existing', Try_Customer_get_existing());
         Report('Customer_get_missing', Try_Customer_get_missing());
         StopSet();
-        Observer.Finish();
+        Observer.Expect('customer_rows', 'Yes');
+        Observer.Expect('item_rows', 'Yes');
+        Observer.Expect('Customer_count', 'denied: Sorry, the current permissions prevented the action. (TableData 18 Customer Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Customer_countapprox', 'denied: Sorry, the current permissions prevented the action. (TableData 18 Customer Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Customer_next', 'denied: Sorry, the current permissions prevented the action. (TableData 18 Customer Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Customer_recref_findfirst', 'denied: Sorry, the current permissions prevented the action. (TableData 18 Customer Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Customer_getbysystemid_missing', 'ok');
+        Observer.Expect('Customer_get_existing', 'denied: Sorry, the current permissions prevented the action. (TableData 18 Customer Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Customer_get_missing', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -279,7 +297,14 @@ codeunit 65503 "LT AE Dependency Reads"
         Report('Customer_calcfields_flowfield', Try_Customer_calcfields_flowfield());
         Report('Customer_recref_get_recordid', Try_Customer_recref_get_recordid());
         StopSet();
-        Observer.Finish();
+        Observer.Expect('customer_rows', 'Yes');
+        Observer.Expect('item_rows', 'Yes');
+        Observer.Expect('Customer_getbysystemid_existing', 'denied: Sorry, the current permissions prevented the action. (TableData 18 Customer Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Customer_filter_no_match', 'denied: Sorry, the current permissions prevented the action. (TableData 18 Customer Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Customer_calcsums', 'denied: Sorry, the current permissions prevented the action. (TableData 18 Customer IndirectRead: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Customer_calcfields_flowfield', 'denied: Sorry, the current permissions prevented the action. (TableData 379 Detailed Cust. Ledg. Entry IndirectRead: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Customer_recref_get_recordid', 'denied: Sorry, the current permissions prevented the action. (TableData 18 Customer Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -295,7 +320,16 @@ codeunit 65503 "LT AE Dependency Reads"
         Report('Customer_findset', Try_Customer_findset());
         Report('Customer_isempty', Try_Customer_isempty());
         StopSet();
-        Observer.Finish();
+        Observer.Expect('customer_rows', 'Yes');
+        Observer.Expect('item_rows', 'Yes');
+        Observer.Expect('Customer_find_dash', 'ok');
+        Observer.Expect('Customer_find_plus', 'ok');
+        Observer.Expect('Customer_find_eq', 'ok');
+        Observer.Expect('Customer_findfirst', 'ok');
+        Observer.Expect('Customer_findlast', 'ok');
+        Observer.Expect('Customer_findset', 'ok');
+        Observer.Expect('Customer_isempty', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -311,7 +345,16 @@ codeunit 65503 "LT AE Dependency Reads"
         Report('Customer_get_existing', Try_Customer_get_existing());
         Report('Customer_get_missing', Try_Customer_get_missing());
         StopSet();
-        Observer.Finish();
+        Observer.Expect('customer_rows', 'Yes');
+        Observer.Expect('item_rows', 'Yes');
+        Observer.Expect('Customer_count', 'ok');
+        Observer.Expect('Customer_countapprox', 'ok');
+        Observer.Expect('Customer_next', 'ok');
+        Observer.Expect('Customer_recref_findfirst', 'ok');
+        Observer.Expect('Customer_getbysystemid_missing', 'ok');
+        Observer.Expect('Customer_get_existing', 'ok');
+        Observer.Expect('Customer_get_missing', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -325,7 +368,14 @@ codeunit 65503 "LT AE Dependency Reads"
         Report('Customer_calcfields_flowfield', Try_Customer_calcfields_flowfield());
         Report('Customer_recref_get_recordid', Try_Customer_recref_get_recordid());
         StopSet();
-        Observer.Finish();
+        Observer.Expect('customer_rows', 'Yes');
+        Observer.Expect('item_rows', 'Yes');
+        Observer.Expect('Customer_getbysystemid_existing', 'ok');
+        Observer.Expect('Customer_filter_no_match', 'ok');
+        Observer.Expect('Customer_calcsums', 'ok');
+        Observer.Expect('Customer_calcfields_flowfield', 'denied: Sorry, the current permissions prevented the action. (TableData 379 Detailed Cust. Ledg. Entry IndirectRead: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Customer_recref_get_recordid', 'ok');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -487,7 +537,16 @@ codeunit 65503 "LT AE Dependency Reads"
         Report('Item_findset', Try_Item_findset());
         Report('Item_isempty', Try_Item_isempty());
         StopSet();
-        Observer.Finish();
+        Observer.Expect('customer_rows', 'Yes');
+        Observer.Expect('item_rows', 'Yes');
+        Observer.Expect('Item_find_dash', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_find_plus', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_find_eq', 'ok');
+        Observer.Expect('Item_findfirst', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_findlast', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_findset', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_isempty', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -503,7 +562,16 @@ codeunit 65503 "LT AE Dependency Reads"
         Report('Item_get_existing', Try_Item_get_existing());
         Report('Item_get_missing', Try_Item_get_missing());
         StopSet();
-        Observer.Finish();
+        Observer.Expect('customer_rows', 'Yes');
+        Observer.Expect('item_rows', 'Yes');
+        Observer.Expect('Item_count', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_countapprox', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_next', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_recref_findfirst', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_getbysystemid_missing', 'ok');
+        Observer.Expect('Item_get_existing', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_get_missing', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -516,7 +584,13 @@ codeunit 65503 "LT AE Dependency Reads"
         Report('Item_calcsums', Try_Item_calcsums());
         Report('Item_calcfields_flowfield', Try_Item_calcfields_flowfield());
         StopSet();
-        Observer.Finish();
+        Observer.Expect('customer_rows', 'Yes');
+        Observer.Expect('item_rows', 'Yes');
+        Observer.Expect('Item_getbysystemid_existing', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_filter_no_match', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_calcsums', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item IndirectRead: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_calcfields_flowfield', 'denied: Sorry, the current permissions prevented the action. (TableData 32 Item Ledger Entry IndirectRead: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -532,7 +606,16 @@ codeunit 65503 "LT AE Dependency Reads"
         Report('Item_findset', Try_Item_findset());
         Report('Item_isempty', Try_Item_isempty());
         StopSet();
-        Observer.Finish();
+        Observer.Expect('customer_rows', 'Yes');
+        Observer.Expect('item_rows', 'Yes');
+        Observer.Expect('Item_find_dash', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_find_plus', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_find_eq', 'ok');
+        Observer.Expect('Item_findfirst', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_findlast', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_findset', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_isempty', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -548,7 +631,16 @@ codeunit 65503 "LT AE Dependency Reads"
         Report('Item_get_existing', Try_Item_get_existing());
         Report('Item_get_missing', Try_Item_get_missing());
         StopSet();
-        Observer.Finish();
+        Observer.Expect('customer_rows', 'Yes');
+        Observer.Expect('item_rows', 'Yes');
+        Observer.Expect('Item_count', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_countapprox', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_next', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_recref_findfirst', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_getbysystemid_missing', 'ok');
+        Observer.Expect('Item_get_existing', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_get_missing', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -561,7 +653,13 @@ codeunit 65503 "LT AE Dependency Reads"
         Report('Item_calcsums', Try_Item_calcsums());
         Report('Item_calcfields_flowfield', Try_Item_calcfields_flowfield());
         StopSet();
-        Observer.Finish();
+        Observer.Expect('customer_rows', 'Yes');
+        Observer.Expect('item_rows', 'Yes');
+        Observer.Expect('Item_getbysystemid_existing', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_filter_no_match', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item Read: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_calcsums', 'denied: Sorry, the current permissions prevented the action. (TableData 27 Item IndirectRead: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Expect('Item_calcfields_flowfield', 'denied: Sorry, the current permissions prevented the action. (TableData 32 Item Ledger Entry IndirectRead: AL Language Coverage Tests) [DB:ClientReadDenied]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -674,7 +772,16 @@ codeunit 65503 "LT AE Dependency Reads"
         Report('StdCost_findset', Try_StdCost_findset());
         Report('StdCost_isempty', Try_StdCost_isempty());
         StopSet();
-        Observer.Finish();
+        Observer.Expect('customer_rows', 'Yes');
+        Observer.Expect('item_rows', 'Yes');
+        Observer.Expect('StdCost_find_dash', 'ok');
+        Observer.Expect('StdCost_find_plus', 'ok');
+        Observer.Expect('StdCost_find_eq', 'ok');
+        Observer.Expect('StdCost_findfirst', 'ok');
+        Observer.Expect('StdCost_findlast', 'ok');
+        Observer.Expect('StdCost_findset', 'ok');
+        Observer.Expect('StdCost_isempty', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -688,7 +795,14 @@ codeunit 65503 "LT AE Dependency Reads"
         Report('StdCost_recref_findfirst', Try_StdCost_recref_findfirst());
         Report('StdCost_getbysystemid_missing', Try_StdCost_getbysystemid_missing());
         StopSet();
-        Observer.Finish();
+        Observer.Expect('customer_rows', 'Yes');
+        Observer.Expect('item_rows', 'Yes');
+        Observer.Expect('StdCost_count', 'ok');
+        Observer.Expect('StdCost_countapprox', 'ok');
+        Observer.Expect('StdCost_next', 'ok');
+        Observer.Expect('StdCost_recref_findfirst', 'denied: The Standard Cost Worksheet table is empty. [DB:TableIsEmpty]');
+        Observer.Expect('StdCost_getbysystemid_missing', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -704,7 +818,16 @@ codeunit 65503 "LT AE Dependency Reads"
         Report('StdCost_findset', Try_StdCost_findset());
         Report('StdCost_isempty', Try_StdCost_isempty());
         StopSet();
-        Observer.Finish();
+        Observer.Expect('customer_rows', 'Yes');
+        Observer.Expect('item_rows', 'Yes');
+        Observer.Expect('StdCost_find_dash', 'ok');
+        Observer.Expect('StdCost_find_plus', 'ok');
+        Observer.Expect('StdCost_find_eq', 'ok');
+        Observer.Expect('StdCost_findfirst', 'ok');
+        Observer.Expect('StdCost_findlast', 'ok');
+        Observer.Expect('StdCost_findset', 'ok');
+        Observer.Expect('StdCost_isempty', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -718,6 +841,13 @@ codeunit 65503 "LT AE Dependency Reads"
         Report('StdCost_recref_findfirst', Try_StdCost_recref_findfirst());
         Report('StdCost_getbysystemid_missing', Try_StdCost_getbysystemid_missing());
         StopSet();
-        Observer.Finish();
+        Observer.Expect('customer_rows', 'Yes');
+        Observer.Expect('item_rows', 'Yes');
+        Observer.Expect('StdCost_count', 'ok');
+        Observer.Expect('StdCost_countapprox', 'ok');
+        Observer.Expect('StdCost_next', 'ok');
+        Observer.Expect('StdCost_recref_findfirst', 'denied: The Standard Cost Worksheet table is empty. [DB:TableIsEmpty]');
+        Observer.Expect('StdCost_getbysystemid_missing', 'ok');
+        Observer.Verify();
     end;
 }
