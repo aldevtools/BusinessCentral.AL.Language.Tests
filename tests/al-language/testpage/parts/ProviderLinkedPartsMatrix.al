@@ -1475,7 +1475,10 @@ codeunit 65414 "LT PV Provider Matrix"
         Card.GoToKey('H2');
         SnapTemp('h2', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'vis(lines=Yes,detail=Yes) lines=10,20, detail=twenty, log=[host-open | lines-open() | detail-open() | host-row(H1) | detail-row() | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h1', 'vis(lines=Yes,detail=Yes) lines=10,20, detail=twenty, log=[host-row(H1) | lines-row(10) | detail-row(ten) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('h2', 'vis(lines=Yes,detail=Yes) lines= detail= log=[host-row(H1) | host-row(H2) | lines-row(0) | detail-row()]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1492,7 +1495,6 @@ codeunit 65414 "LT PV Provider Matrix"
         Card.GoToKey('H2');
         SnapTwo('h2', Card);
         Card.Close();
-        Observer.Expect('open', 'vis(lines=No,detail=No) lines= detail= log=[host-open | lines-open() | detail-open() | lines-row(0) | detail-row()]');
         Observer.Expect('open', 'vis(lines=Yes,detail=Yes) lines=10,20, detail=twenty, detail2= log=[host-open | lines-open() | detail-open() | detail-open() | host-row(H1) | detail-row() | detail-row() | lines-row(10) | detail-row(ten) | detail-row() | lines-row(20) | detail-row(twenty) | detail-row()]');
         Observer.Expect('h1', 'vis(lines=Yes,detail=Yes) lines=10,20, detail=twenty, detail2= log=[host-row(H1) | lines-row(10) | detail-row(ten) | detail-row() | lines-row(20) | detail-row(twenty) | detail-row()]');
         Observer.Expect('h2', 'vis(lines=Yes,detail=Yes) lines= detail= detail2= log=[host-row(H1) | host-row(H2) | lines-row(0) | detail-row() | detail-row()]');
