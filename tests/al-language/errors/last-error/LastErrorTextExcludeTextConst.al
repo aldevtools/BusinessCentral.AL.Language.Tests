@@ -86,4 +86,33 @@ codeunit 74851 "LT LET TextConst"
         Observer.Expect('direct_arg_code', 'Dialog');
         Observer.Verify();
     end;
+
+    [TryFunction]
+    local procedure TryLocalConst()
+    var
+        LocalConst: TextConst ENU = 'Local text const message';
+    begin
+        Error(LocalConst);
+    end;
+
+    [TryFunction]
+    local procedure TryLocalConstArg(Value: Text)
+    var
+        LocalConst: TextConst ENU = 'Local text const with %1';
+    begin
+        Error(LocalConst, Value);
+    end;
+
+    [Test]
+    procedure ErrorTextConst_LocalTextConst_ExcludeFlag()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ClearLastError();
+        Observer.Observe('try', Format(TryLocalConst()));
+        Forms('local', Observer);
+        Observer.Observe('try_arg', Format(TryLocalConstArg('v')));
+        Forms('local_arg', Observer);
+        Observer.Finish();
+    end;
 }

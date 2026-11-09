@@ -272,4 +272,316 @@ codeunit 70869 "LT Err Text Exclude Label"
         Observer.Expect('cleared_code', '');
         Observer.Verify();
     end;
+
+    // ---- error text origin matrix: a Label declared locally, labels with properties, labels from another codeunit, labels passed on as text ----
+
+    [TryFunction]
+    local procedure TryLocalLabelNoArgs()
+    var
+        LocalLbl: Label 'A local label without arguments';
+    begin
+        Error(LocalLbl);
+    end;
+
+    [TryFunction]
+    local procedure TryLocalLabelOneArg(Value: Text)
+    var
+        LocalLbl: Label 'A local label with %1';
+    begin
+        Error(LocalLbl, Value);
+    end;
+
+    [TryFunction]
+    local procedure TryLocalLabelTwoArgs(Value: Text; Amount: Decimal)
+    var
+        LocalLbl: Label 'Local customer %1 owes %2';
+    begin
+        Error(LocalLbl, Value, Amount);
+    end;
+
+    [TryFunction]
+    local procedure TryLocalLabelCodeArg(Value: Code[10])
+    var
+        LocalLbl: Label 'Local code %1';
+    begin
+        Error(LocalLbl, Value);
+    end;
+
+    [TryFunction]
+    local procedure TryLocalLabelDateArg(Value: Date)
+    var
+        LocalLbl: Label 'Local date %1';
+    begin
+        Error(LocalLbl, Value);
+    end;
+
+    [TryFunction]
+    local procedure TryLocalLabelIntegerArg(Value: Integer)
+    var
+        LocalLbl: Label 'Local integer %1';
+    begin
+        Error(LocalLbl, Value);
+    end;
+
+    [TryFunction]
+    local procedure TryLocalLabelComment(Value: Text)
+    var
+        LocalLbl: Label 'Local commented %1', Comment = '%1 = a value';
+    begin
+        Error(LocalLbl, Value);
+    end;
+
+    [TryFunction]
+    local procedure TryLocalLabelLocked()
+    var
+        LocalLbl: Label 'Local locked label', Locked = true;
+    begin
+        Error(LocalLbl);
+    end;
+
+    [TryFunction]
+    local procedure TryLocalLabelMaxLength()
+    var
+        LocalLbl: Label 'Local max length label', MaxLength = 50;
+    begin
+        Error(LocalLbl);
+    end;
+
+    [TryFunction]
+    local procedure TryLocalLabelCrLf()
+    var
+        LocalLbl: Label 'Line one%1Line two';
+        CrLf: Text[2];
+    begin
+        CrLf[1] := 13;
+        CrLf[2] := 10;
+        Error(LocalLbl, CrLf);
+    end;
+
+    [TryFunction]
+    local procedure TryLabelAsTextParameter()
+    var
+        LocalLbl: Label 'A label passed as a text parameter';
+    begin
+        RaiseText(LocalLbl);
+    end;
+
+    [TryFunction]
+    local procedure TryLabelAssignedToTextVariable()
+    var
+        LocalLbl: Label 'A label assigned to a text variable';
+        Msg: Text;
+    begin
+        Msg := LocalLbl;
+        Error(Msg);
+    end;
+
+    [TryFunction]
+    local procedure TryLabelAssignedToTextVariableWithArg(Value: Text)
+    var
+        LocalLbl: Label 'A label assigned with %1';
+        Msg: Text;
+    begin
+        Msg := LocalLbl;
+        Error(Msg, Value);
+    end;
+
+    [TryFunction]
+    local procedure TryLabelReturnedByProcedure()
+    var
+        Source: Codeunit "LT LET Origin Source";
+    begin
+        Error(Source.LabelAsText());
+    end;
+
+    [TryFunction]
+    local procedure TryLocalLabelErrorInfoMessage(Value: Text)
+    var
+        LocalLbl: Label 'Local error info message %1';
+        ErrInfo: ErrorInfo;
+    begin
+        ErrInfo.Message := StrSubstNo(LocalLbl, Value);
+        Error(ErrInfo);
+    end;
+
+    [TryFunction]
+    local procedure TryLocalLabelErrorInfoMessageNoArgs()
+    var
+        LocalLbl: Label 'Local error info message without arguments';
+        ErrInfo: ErrorInfo;
+    begin
+        ErrInfo.Message := LocalLbl;
+        Error(ErrInfo);
+    end;
+
+    local procedure RaiseText(Msg: Text)
+    begin
+        Error(Msg);
+    end;
+
+    [Test]
+    procedure ExcludeFlag_LocalLabelNoArgsOneArgTwoArgs()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ClearLastError();
+        Observer.Observe('try0', Format(TryLocalLabelNoArgs()));
+        Forms('zero', Observer);
+        Observer.Observe('try1', Format(TryLocalLabelOneArg('customer value')));
+        Forms('one', Observer);
+        Observer.Observe('try2', Format(TryLocalLabelTwoArgs('C10', 12.5)));
+        Forms('two', Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ExcludeFlag_LocalLabelArgumentTypes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ClearLastError();
+        Observer.Observe('try_code', Format(TryLocalLabelCodeArg('ABC')));
+        Forms('code', Observer);
+        Observer.Observe('try_date', Format(TryLocalLabelDateArg(DMY2Date(5, 3, 2027))));
+        Forms('date', Observer);
+        Observer.Observe('try_int', Format(TryLocalLabelIntegerArg(42)));
+        Forms('int', Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ExcludeFlag_LocalLabelCommentLockedMaxLengthCrLf()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ClearLastError();
+        Observer.Observe('try_comment', Format(TryLocalLabelComment('v')));
+        Forms('comment', Observer);
+        Observer.Observe('try_locked', Format(TryLocalLabelLocked()));
+        Forms('locked', Observer);
+        Observer.Observe('try_max', Format(TryLocalLabelMaxLength()));
+        Forms('max', Observer);
+        Observer.Observe('try_crlf', Format(TryLocalLabelCrLf()));
+        Forms('crlf', Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ExcludeFlag_LabelHandedOnAsText()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ClearLastError();
+        Observer.Observe('try_param', Format(TryLabelAsTextParameter()));
+        Forms('param', Observer);
+        Observer.Observe('try_var', Format(TryLabelAssignedToTextVariable()));
+        Forms('var', Observer);
+        Observer.Observe('try_var_arg', Format(TryLabelAssignedToTextVariableWithArg('x')));
+        Forms('var_arg', Observer);
+        Observer.Observe('try_proc', Format(TryLabelReturnedByProcedure()));
+        Forms('proc', Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ExcludeFlag_LocalLabelInErrorInfoMessage()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ClearLastError();
+        Observer.Observe('try_subst', Format(TryLocalLabelErrorInfoMessage('x')));
+        Forms('subst', Observer);
+        Observer.Observe('try_plain', Format(TryLocalLabelErrorInfoMessageNoArgs()));
+        Forms('plain', Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ExcludeFlag_LocalLabelAsserterrorAndCodeunitRun()
+    var
+        Observer: Codeunit "Probe Observer";
+        Runner: Codeunit "LT LET Origin Runner";
+        LocalLbl: Label 'Local label under asserterror %1';
+    begin
+        ClearLastError();
+        asserterror Error(LocalLbl, 'direct');
+        Forms('asserterror', Observer);
+        ClearLastError();
+        Observer.Observe('run', Format(Runner.Run()));
+        Forms('run', Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ExcludeFlag_GlobalLabelPropertiesFromAnotherCodeunit()
+    var
+        Observer: Codeunit "Probe Observer";
+        Source: Codeunit "LT LET Origin Source";
+    begin
+        ClearLastError();
+        Observer.Observe('try_comment', Format(Source.RaiseComment('v')));
+        Forms('comment', Observer);
+        Observer.Observe('try_locked', Format(Source.RaiseLocked()));
+        Forms('locked', Observer);
+        Observer.Observe('try_max', Format(Source.RaiseMaxLength()));
+        Forms('max', Observer);
+        Observer.Observe('try_crlf', Format(Source.RaiseCrLf()));
+        Forms('crlf', Observer);
+        Observer.Finish();
+    end;
+}
+
+// local object: the label sources of the origin matrix must live in another codeunit (a label returned by a procedure, global labels with properties)
+codeunit 65001 "LT LET Origin Source"
+{
+    var
+        GlobalPlain: Label 'A global label returned as text';
+        GlobalComment: Label 'Global commented %1', Comment = '%1 = a value';
+        GlobalLocked: Label 'Global locked label', Locked = true;
+        GlobalMax: Label 'Global max length label', MaxLength = 50;
+        GlobalCrLf: Label 'Global line one%1Global line two';
+
+    procedure LabelAsText(): Text
+    begin
+        exit(GlobalPlain);
+    end;
+
+    [TryFunction]
+    procedure RaiseComment(Value: Text)
+    begin
+        Error(GlobalComment, Value);
+    end;
+
+    [TryFunction]
+    procedure RaiseLocked()
+    begin
+        Error(GlobalLocked);
+    end;
+
+    [TryFunction]
+    procedure RaiseMaxLength()
+    begin
+        Error(GlobalMax);
+    end;
+
+    [TryFunction]
+    procedure RaiseCrLf()
+    var
+        CrLf: Text[2];
+    begin
+        CrLf[1] := 13;
+        CrLf[2] := 10;
+        Error(GlobalCrLf, CrLf);
+    end;
+}
+
+// local object: Codeunit.Run needs a codeunit whose OnRun raises the error from a local label
+codeunit 65002 "LT LET Origin Runner"
+{
+    trigger OnRun()
+    var
+        LocalLbl: Label 'Local label in OnRun %1';
+    begin
+        Error(LocalLbl, 'run value');
+    end;
 }
