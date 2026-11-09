@@ -347,7 +347,8 @@ codeunit 99926 "LT K12 Upd XRec Tests"
         P.GoToKey('R1');
         P.F0.SetValue(5);
         Observer.Observe('List no call', Log.Take());
-        Observer.Finish();
+        Observer.Expect('List no call', 'base F0 (no call) rec=5 xrec=1; ext F0 rec=5 xrec=1 equal=No; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -361,7 +362,8 @@ codeunit 99926 "LT K12 Upd XRec Tests"
         P.GoToKey('R1');
         P.F1.SetValue(5);
         Observer.Observe('List CurrPage.Update()', Log.Take());
-        Observer.Finish();
+        Observer.Expect('List CurrPage.Update()', 'base F1 (CurrPage.Update()) rec=5 xrec=1; ext F1 rec=5 xrec=1 equal=No; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -375,7 +377,8 @@ codeunit 99926 "LT K12 Upd XRec Tests"
         P.GoToKey('R1');
         P.F2.SetValue(5);
         Observer.Observe('List CurrPage.Update(true)', Log.Take());
-        Observer.Finish();
+        Observer.Expect('List CurrPage.Update(true)', 'base F2 (CurrPage.Update(true)) rec=5 xrec=1; ext F2 rec=5 xrec=1 equal=No; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -389,7 +392,8 @@ codeunit 99926 "LT K12 Upd XRec Tests"
         P.GoToKey('R1');
         P.F3.SetValue(5);
         Observer.Observe('List CurrPage.Update(false)', Log.Take());
-        Observer.Finish();
+        Observer.Expect('List CurrPage.Update(false)', 'base F3 (CurrPage.Update(false)) rec=5 xrec=1; ext F3 rec=5 xrec=1 equal=No; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -403,7 +407,8 @@ codeunit 99926 "LT K12 Upd XRec Tests"
         P.GoToKey('R1');
         P.F4.SetValue(5);
         Observer.Observe('List CurrPage.SaveRecord()', Log.Take());
-        Observer.Finish();
+        Observer.Expect('List CurrPage.SaveRecord()', 'base F4 (CurrPage.SaveRecord()) rec=5 xrec=1; ext F4 rec=5 xrec=1 equal=No; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -417,7 +422,8 @@ codeunit 99926 "LT K12 Upd XRec Tests"
         P.GoToKey('R1');
         P.F5.SetValue(5);
         Observer.Observe('List SaveRecord then Update(false)', Log.Take());
-        Observer.Finish();
+        Observer.Expect('List SaveRecord then Update(false)', 'base F5 (SaveRecord then Update(false)) rec=5 xrec=1; ext F5 rec=5 xrec=1 equal=No; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -430,7 +436,8 @@ codeunit 99926 "LT K12 Upd XRec Tests"
         P.OpenEdit();
         P.F0.SetValue(5);
         Observer.Observe('Card no call', Log.Take());
-        Observer.Finish();
+        Observer.Expect('Card no call', 'base F0 (no call) rec=5 xrec=1; ext F0 rec=5 xrec=1 equal=No; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -443,7 +450,8 @@ codeunit 99926 "LT K12 Upd XRec Tests"
         P.OpenEdit();
         P.F1.SetValue(5);
         Observer.Observe('Card CurrPage.Update()', Log.Take());
-        Observer.Finish();
+        Observer.Expect('Card CurrPage.Update()', 'base F1 (CurrPage.Update()) rec=5 xrec=1; ext F1 rec=5 xrec=1 equal=No; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -456,7 +464,8 @@ codeunit 99926 "LT K12 Upd XRec Tests"
         P.OpenEdit();
         P.F2.SetValue(5);
         Observer.Observe('Card CurrPage.Update(true)', Log.Take());
-        Observer.Finish();
+        Observer.Expect('Card CurrPage.Update(true)', 'base F2 (CurrPage.Update(true)) rec=5 xrec=1; ext F2 rec=5 xrec=1 equal=No; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -469,7 +478,8 @@ codeunit 99926 "LT K12 Upd XRec Tests"
         P.OpenEdit();
         P.F3.SetValue(5);
         Observer.Observe('Card CurrPage.Update(false)', Log.Take());
-        Observer.Finish();
+        Observer.Expect('Card CurrPage.Update(false)', 'base F3 (CurrPage.Update(false)) rec=5 xrec=1; ext F3 rec=5 xrec=1 equal=No; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -482,7 +492,8 @@ codeunit 99926 "LT K12 Upd XRec Tests"
         P.OpenEdit();
         P.F4.SetValue(5);
         Observer.Observe('Card CurrPage.SaveRecord()', Log.Take());
-        Observer.Finish();
+        Observer.Expect('Card CurrPage.SaveRecord()', 'base F4 (CurrPage.SaveRecord()) rec=5 xrec=1; ext F4 rec=5 xrec=1 equal=No; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -495,7 +506,8 @@ codeunit 99926 "LT K12 Upd XRec Tests"
         P.OpenEdit();
         P.F5.SetValue(5);
         Observer.Observe('Card SaveRecord then Update(false)', Log.Take());
-        Observer.Finish();
+        Observer.Expect('Card SaveRecord then Update(false)', 'base F5 (SaveRecord then Update(false)) rec=5 xrec=1; ext F5 rec=5 xrec=1 equal=No; ');
+        Observer.Verify();
     end;
 
     // Matrix cells beyond the first set: a second SetValue (5 -> 6) and a SetValue to the value the field already holds, on the list page.
@@ -517,7 +529,11 @@ codeunit 99926 "LT K12 Upd XRec Tests"
         Observer.Observe('set to the held value 6', Log.Take());
         P.F0.SetValue(1);
         Observer.Observe('set back to 1', Log.Take());
-        Observer.Finish();
+        Observer.Expect('first set 1 -> 5', 'base F0 (no call) rec=5 xrec=1; ext F0 rec=5 xrec=1 equal=No; ');
+        Observer.Expect('second set 5 -> 6', 'base F0 (no call) rec=6 xrec=5; ext F0 rec=6 xrec=5 equal=No; ');
+        Observer.Expect('set to the held value 6', 'base F0 (no call) rec=6 xrec=1; ext F0 rec=6 xrec=1 equal=No; ');
+        Observer.Expect('set back to 1', 'base F0 (no call) rec=1 xrec=6; ext F0 rec=1 xrec=6 equal=No; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -537,7 +553,11 @@ codeunit 99926 "LT K12 Upd XRec Tests"
         Observer.Observe('set to the held value 6', Log.Take());
         P.F1.SetValue(1);
         Observer.Observe('set back to 1', Log.Take());
-        Observer.Finish();
+        Observer.Expect('first set 1 -> 5', 'base F1 (CurrPage.Update()) rec=5 xrec=1; ext F1 rec=5 xrec=1 equal=No; ');
+        Observer.Expect('second set 5 -> 6', 'base F1 (CurrPage.Update()) rec=6 xrec=5; ext F1 rec=6 xrec=5 equal=No; ');
+        Observer.Expect('set to the held value 6', 'base F1 (CurrPage.Update()) rec=6 xrec=6; ext F1 rec=6 xrec=6 equal=Yes; ');
+        Observer.Expect('set back to 1', 'base F1 (CurrPage.Update()) rec=1 xrec=6; ext F1 rec=1 xrec=6 equal=No; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -557,7 +577,11 @@ codeunit 99926 "LT K12 Upd XRec Tests"
         Observer.Observe('set to the held value 6', Log.Take());
         P.F2.SetValue(1);
         Observer.Observe('set back to 1', Log.Take());
-        Observer.Finish();
+        Observer.Expect('first set 1 -> 5', 'base F2 (CurrPage.Update(true)) rec=5 xrec=1; ext F2 rec=5 xrec=1 equal=No; ');
+        Observer.Expect('second set 5 -> 6', 'base F2 (CurrPage.Update(true)) rec=6 xrec=5; ext F2 rec=6 xrec=5 equal=No; ');
+        Observer.Expect('set to the held value 6', 'base F2 (CurrPage.Update(true)) rec=6 xrec=6; ext F2 rec=6 xrec=6 equal=Yes; ');
+        Observer.Expect('set back to 1', 'base F2 (CurrPage.Update(true)) rec=1 xrec=6; ext F2 rec=1 xrec=6 equal=No; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -577,7 +601,11 @@ codeunit 99926 "LT K12 Upd XRec Tests"
         Observer.Observe('set to the held value 6', Log.Take());
         P.F3.SetValue(1);
         Observer.Observe('set back to 1', Log.Take());
-        Observer.Finish();
+        Observer.Expect('first set 1 -> 5', 'base F3 (CurrPage.Update(false)) rec=5 xrec=1; ext F3 rec=5 xrec=1 equal=No; ');
+        Observer.Expect('second set 5 -> 6', 'base F3 (CurrPage.Update(false)) rec=6 xrec=1; ext F3 rec=6 xrec=1 equal=No; ');
+        Observer.Expect('set to the held value 6', 'base F3 (CurrPage.Update(false)) rec=6 xrec=1; ext F3 rec=6 xrec=1 equal=No; ');
+        Observer.Expect('set back to 1', 'base F3 (CurrPage.Update(false)) rec=1 xrec=1; ext F3 rec=1 xrec=1 equal=Yes; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -597,7 +625,11 @@ codeunit 99926 "LT K12 Upd XRec Tests"
         Observer.Observe('set to the held value 6', Log.Take());
         P.F4.SetValue(1);
         Observer.Observe('set back to 1', Log.Take());
-        Observer.Finish();
+        Observer.Expect('first set 1 -> 5', 'base F4 (CurrPage.SaveRecord()) rec=5 xrec=1; ext F4 rec=5 xrec=1 equal=No; ');
+        Observer.Expect('second set 5 -> 6', 'base F4 (CurrPage.SaveRecord()) rec=6 xrec=5; ext F4 rec=6 xrec=5 equal=No; ');
+        Observer.Expect('set to the held value 6', 'base F4 (CurrPage.SaveRecord()) rec=6 xrec=6; ext F4 rec=6 xrec=6 equal=Yes; ');
+        Observer.Expect('set back to 1', 'base F4 (CurrPage.SaveRecord()) rec=1 xrec=6; ext F4 rec=1 xrec=6 equal=No; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -617,6 +649,10 @@ codeunit 99926 "LT K12 Upd XRec Tests"
         Observer.Observe('set to the held value 6', Log.Take());
         P.F5.SetValue(1);
         Observer.Observe('set back to 1', Log.Take());
-        Observer.Finish();
+        Observer.Expect('first set 1 -> 5', 'base F5 (SaveRecord then Update(false)) rec=5 xrec=1; ext F5 rec=5 xrec=1 equal=No; ');
+        Observer.Expect('second set 5 -> 6', 'base F5 (SaveRecord then Update(false)) rec=6 xrec=5; ext F5 rec=6 xrec=5 equal=No; ');
+        Observer.Expect('set to the held value 6', 'base F5 (SaveRecord then Update(false)) rec=6 xrec=6; ext F5 rec=6 xrec=6 equal=Yes; ');
+        Observer.Expect('set back to 1', 'base F5 (SaveRecord then Update(false)) rec=1 xrec=6; ext F5 rec=1 xrec=6 equal=No; ');
+        Observer.Verify();
     end;
 }
