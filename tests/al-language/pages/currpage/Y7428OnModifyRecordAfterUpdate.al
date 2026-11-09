@@ -197,7 +197,10 @@ codeunit 99983 "LT K12 Formula Tests"
         Observer.Observe('no call: log after Last', Log.Take());
         Row.Get('A');
         Observer.Observe('no call: stored A', Row.Formula);
-        Observer.Finish();
+        Observer.Expect('no call: log after set', '');
+        Observer.Expect('no call: log after Last', 'page OnModifyRecord rec=2+4+1 xrec=1+1 stored=1+1; table OnValidate Formula=2+4+1 xrec=1+1; ');
+        Observer.Expect('no call: stored A', '2+4+1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -216,7 +219,10 @@ codeunit 99983 "LT K12 Formula Tests"
         Observer.Observe('CurrPage.Update(true): log after Last', Log.Take());
         Row.Get('A');
         Observer.Observe('CurrPage.Update(true): stored A', Row.Formula);
-        Observer.Finish();
+        Observer.Expect('CurrPage.Update(true): log after set', 'page OnModifyRecord rec=2+4+1 xrec=1+1 stored=1+1; table OnValidate Formula=2+4+1 xrec=1+1; ');
+        Observer.Expect('CurrPage.Update(true): log after Last', '');
+        Observer.Expect('CurrPage.Update(true): stored A', '2+4+1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -235,7 +241,10 @@ codeunit 99983 "LT K12 Formula Tests"
         Observer.Observe('CurrPage.Update(false): log after Last', Log.Take());
         Row.Get('A');
         Observer.Observe('CurrPage.Update(false): stored A', Row.Formula);
-        Observer.Finish();
+        Observer.Expect('CurrPage.Update(false): log after set', '');
+        Observer.Expect('CurrPage.Update(false): log after Last', '');
+        Observer.Expect('CurrPage.Update(false): stored A', '1+1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -254,7 +263,10 @@ codeunit 99983 "LT K12 Formula Tests"
         Observer.Observe('CurrPage.Update(): log after Last', Log.Take());
         Row.Get('A');
         Observer.Observe('CurrPage.Update(): stored A', Row.Formula);
-        Observer.Finish();
+        Observer.Expect('CurrPage.Update(): log after set', 'page OnModifyRecord rec=2+4+1 xrec=1+1 stored=1+1; table OnValidate Formula=2+4+1 xrec=1+1; ');
+        Observer.Expect('CurrPage.Update(): log after Last', '');
+        Observer.Expect('CurrPage.Update(): stored A', '2+4+1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -273,7 +285,10 @@ codeunit 99983 "LT K12 Formula Tests"
         Observer.Observe('CurrPage.SaveRecord(): log after Last', Log.Take());
         Row.Get('A');
         Observer.Observe('CurrPage.SaveRecord(): stored A', Row.Formula);
-        Observer.Finish();
+        Observer.Expect('CurrPage.SaveRecord(): log after set', 'page OnModifyRecord rec=2+4+1 xrec=1+1 stored=1+1; table OnValidate Formula=2+4+1 xrec=1+1; ');
+        Observer.Expect('CurrPage.SaveRecord(): log after Last', '');
+        Observer.Expect('CurrPage.SaveRecord(): stored A', '2+4+1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -292,7 +307,10 @@ codeunit 99983 "LT K12 Formula Tests"
         Observer.Observe('table-bound control, no CurrPage call: log after Last', Log.Take());
         Row.Get('A');
         Observer.Observe('table-bound control, no CurrPage call: stored A', Row.Formula);
-        Observer.Finish();
+        Observer.Expect('table-bound control, no CurrPage call: log after set', 'table OnValidate Formula=2+4+1 xrec=1+1; ');
+        Observer.Expect('table-bound control, no CurrPage call: log after Last', 'page OnModifyRecord rec=2+4+1 xrec=1+1 stored=1+1; table OnValidate Formula=2+4+1 xrec=1+1; ');
+        Observer.Expect('table-bound control, no CurrPage call: stored A', '2+4+1');
+        Observer.Verify();
     end;
 
     // Matrix: the change made by an action instead of a typed value (xRec in OnModifyRecord and in the table field's OnValidate).
@@ -313,7 +331,10 @@ codeunit 99983 "LT K12 Formula Tests"
         Observer.Observe('AssignUpdateTrue: log after Last', Log.Take());
         Row.Get('A');
         Observer.Observe('AssignUpdateTrue: stored A', Row.Formula);
-        Observer.Finish();
+        Observer.Expect('AssignUpdateTrue: log after action', 'page OnModifyRecord rec=ACT xrec=1+1 stored=1+1; table OnValidate Formula=ACT xrec=1+1; ');
+        Observer.Expect('AssignUpdateTrue: log after Last', '');
+        Observer.Expect('AssignUpdateTrue: stored A', 'ACT');
+        Observer.Verify();
     end;
 
     [Test]
@@ -332,7 +353,10 @@ codeunit 99983 "LT K12 Formula Tests"
         Observer.Observe('AssignUpdateFalse: log after Last', Log.Take());
         Row.Get('A');
         Observer.Observe('AssignUpdateFalse: stored A', Row.Formula);
-        Observer.Finish();
+        Observer.Expect('AssignUpdateFalse: log after action', '');
+        Observer.Expect('AssignUpdateFalse: log after Last', '');
+        Observer.Expect('AssignUpdateFalse: stored A', '1+1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -351,7 +375,10 @@ codeunit 99983 "LT K12 Formula Tests"
         Observer.Observe('AssignSave: log after Last', Log.Take());
         Row.Get('A');
         Observer.Observe('AssignSave: stored A', Row.Formula);
-        Observer.Finish();
+        Observer.Expect('AssignSave: log after action', 'page OnModifyRecord rec=ACT xrec=1+1 stored=1+1; table OnValidate Formula=ACT xrec=1+1; ');
+        Observer.Expect('AssignSave: log after Last', '');
+        Observer.Expect('AssignSave: stored A', 'ACT');
+        Observer.Verify();
     end;
 
     [Test]
@@ -370,7 +397,10 @@ codeunit 99983 "LT K12 Formula Tests"
         Observer.Observe('AssignModify: log after Last', Log.Take());
         Row.Get('A');
         Observer.Observe('AssignModify: stored A', Row.Formula);
-        Observer.Finish();
+        Observer.Expect('AssignModify: log after action', '');
+        Observer.Expect('AssignModify: log after Last', '');
+        Observer.Expect('AssignModify: stored A', 'ACT');
+        Observer.Verify();
     end;
 
     [Test]
@@ -389,7 +419,10 @@ codeunit 99983 "LT K12 Formula Tests"
         Observer.Observe('ValidateUpdateTrue: log after Last', Log.Take());
         Row.Get('A');
         Observer.Observe('ValidateUpdateTrue: stored A', Row.Formula);
-        Observer.Finish();
+        Observer.Expect('ValidateUpdateTrue: log after action', 'table OnValidate Formula=ACT xrec=1+1; page OnModifyRecord rec=ACT xrec=1+1 stored=1+1; table OnValidate Formula=ACT xrec=1+1; ');
+        Observer.Expect('ValidateUpdateTrue: log after Last', '');
+        Observer.Expect('ValidateUpdateTrue: stored A', 'ACT');
+        Observer.Verify();
     end;
 
     [Test]
@@ -408,7 +441,10 @@ codeunit 99983 "LT K12 Formula Tests"
         Observer.Observe('AssignOnly: log after Last', Log.Take());
         Row.Get('A');
         Observer.Observe('AssignOnly: stored A', Row.Formula);
-        Observer.Finish();
+        Observer.Expect('AssignOnly: log after action', 'page OnModifyRecord rec=ACT xrec=1+1 stored=1+1; table OnValidate Formula=ACT xrec=1+1; ');
+        Observer.Expect('AssignOnly: log after Last', '');
+        Observer.Expect('AssignOnly: stored A', 'ACT');
+        Observer.Verify();
     end;
 
     [Test]
@@ -428,6 +464,10 @@ codeunit 99983 "LT K12 Formula Tests"
         Observer.Observe('Update(true) field, same value', Log.Take());
         P.Formula.SetValue('7');
         Observer.Observe('table-bound field after that', Log.Take());
-        Observer.Finish();
+        Observer.Expect('Update(true) field, first set', 'page OnModifyRecord rec=2+4+1 xrec=1+1 stored=1+1; table OnValidate Formula=2+4+1 xrec=1+1; ');
+        Observer.Expect('Update(true) field, second set', 'page OnModifyRecord rec=9 xrec=2+4+1 stored=2+4+1; table OnValidate Formula=9 xrec=2+4+1; ');
+        Observer.Expect('Update(true) field, same value', '');
+        Observer.Expect('table-bound field after that', 'table OnValidate Formula=7 xrec=9; ');
+        Observer.Verify();
     end;
 }
