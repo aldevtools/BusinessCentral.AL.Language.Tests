@@ -151,7 +151,9 @@ codeunit 99902 "LT K12 XRec Modify Event"
         Row.Modify();
         Observer.Observe('modify, filter excludes the row', Subscriber.Take());
         Observer.Observe('caller filters after', Row.GetFilters());
-        Observer.Finish();
+        Observer.Expect('modify, filter excludes the row', 'before-modify event: rec filters=[Company: 0001] hasfilter=Yes key=No.; xrec filters=[Company: 0001] hasfilter=Yes key=No.; formats equal=Yes; xrec no=CT2 member=[X-1] rec member=[X-1]; copy filters=[Company: 0001] copy find=No; assigned filters=[] assigned find=Yes; copy find statement ok=No err=[The LT K12 XRec Row does not exist. Identification fields and values: No.=''CT2'']; xrec find=No; after-modify event: rec member=X-1 xrec member=X-1 xrecfilters=[Company: 0001] equal=Yes; ');
+        Observer.Expect('caller filters after', 'Company: 0001');
+        Observer.Verify();
     end;
 
     [Test]
@@ -166,7 +168,8 @@ codeunit 99902 "LT K12 XRec Modify Event"
         Row.Member := 'X-1';
         Row.Modify();
         Observer.Observe('modify, filter includes the row', Subscriber.Take());
-        Observer.Finish();
+        Observer.Expect('modify, filter includes the row', 'before-modify event: rec filters=[Company: 0001] hasfilter=Yes key=No.; xrec filters=[Company: 0001] hasfilter=Yes key=No.; formats equal=Yes; xrec no=CT1 member=[X-1] rec member=[X-1]; copy filters=[Company: 0001] copy find=Yes; assigned filters=[] assigned find=Yes; copy find statement ok=Yes err=[]; xrec find=Yes; after-modify event: rec member=X-1 xrec member= xrecfilters=[Company: 0001] equal=No; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -186,7 +189,9 @@ codeunit 99902 "LT K12 XRec Modify Event"
         Row.Member := 'X-2';
         Row.Modify(false);
         Observer.Observe('modify(false), filter excludes the row', Subscriber.Take());
-        Observer.Finish();
+        Observer.Expect('modify, no filter', 'before-modify event: rec filters=[] hasfilter=No key=No.; xrec filters=[] hasfilter=No key=No.; formats equal=Yes; xrec no=CT2 member=[X-1] rec member=[X-1]; copy filters=[] copy find=Yes; assigned filters=[] assigned find=Yes; copy find statement ok=Yes err=[]; xrec find=Yes; after-modify event: rec member=X-1 xrec member= xrecfilters=[] equal=No; ');
+        Observer.Expect('modify(false), filter excludes the row', 'before-modify event: rec filters=[Company: 0001] hasfilter=Yes key=No.; xrec filters=[Company: 0001] hasfilter=Yes key=No.; formats equal=Yes; xrec no=CT2 member=[X-2] rec member=[X-2]; copy filters=[Company: 0001] copy find=No; assigned filters=[] assigned find=Yes; copy find statement ok=No err=[The LT K12 XRec Row does not exist. Identification fields and values: No.=''CT2'']; xrec find=No; after-modify event: rec member=X-2 xrec member=X-2 xrecfilters=[Company: 0001] equal=Yes; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -208,7 +213,9 @@ codeunit 99902 "LT K12 XRec Modify Event"
         Row.Member := 'X-2';
         Row.Modify();
         Observer.Observe('modify, filter on the primary key excludes the row', Subscriber.Take());
-        Observer.Finish();
+        Observer.Expect('modify, secondary key and filter', 'before-modify event: rec filters=[Company: 0002] hasfilter=Yes key=Company,No.; xrec filters=[Company: 0002] hasfilter=Yes key=Company,No.; formats equal=Yes; xrec no=CT2 member=[X-1] rec member=[X-1]; copy filters=[Company: 0002] copy find=Yes; assigned filters=[] assigned find=Yes; copy find statement ok=Yes err=[]; xrec find=Yes; after-modify event: rec member=X-1 xrec member= xrecfilters=[Company: 0002] equal=No; ');
+        Observer.Expect('modify, filter on the primary key excludes the row', 'before-modify event: rec filters=[No.: CT1|CT3] hasfilter=Yes key=No.; xrec filters=[No.: CT1|CT3] hasfilter=Yes key=No.; formats equal=Yes; xrec no=CT2 member=[X-2] rec member=[X-2]; copy filters=[No.: CT1|CT3] copy find=No; assigned filters=[] assigned find=Yes; copy find statement ok=No err=[The LT K12 XRec Row does not exist. Identification fields and values: No.=''CT2'']; xrec find=No; after-modify event: rec member=X-2 xrec member=X-2 xrecfilters=[No.: CT1|CT3] equal=Yes; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -226,7 +233,9 @@ codeunit 99902 "LT K12 XRec Modify Event"
         Row.Company := '0002';
         Row.Modify();
         Observer.Observe('modify, field in the filter changed to leave it', Subscriber.Take());
-        Observer.Finish();
+        Observer.Expect('modify, row found under the filter', 'before-modify event: rec filters=[Company: 0001] hasfilter=Yes key=No.; xrec filters=[Company: 0001] hasfilter=Yes key=No.; formats equal=Yes; xrec no=CT1 member=[X-1] rec member=[X-1]; copy filters=[Company: 0001] copy find=Yes; assigned filters=[] assigned find=Yes; copy find statement ok=Yes err=[]; xrec find=Yes; after-modify event: rec member=X-1 xrec member= xrecfilters=[Company: 0001] equal=No; ');
+        Observer.Expect('modify, field in the filter changed to leave it', 'before-modify event: rec filters=[Company: 0001] hasfilter=Yes key=No.; xrec filters=[Company: 0001] hasfilter=Yes key=No.; formats equal=Yes; xrec no=CT1 member=[X-1] rec member=[X-1]; copy filters=[Company: 0001] copy find=Yes; assigned filters=[] assigned find=Yes; copy find statement ok=Yes err=[]; xrec find=Yes; after-modify event: rec member=X-1 xrec member=X-1 xrecfilters=[Company: 0001] equal=No; ');
+        Observer.Verify();
     end;
 
     // Matrix: how the change happens (cells below) x where xRec is read (field OnValidate, before/after validate event, table OnModify,
@@ -249,7 +258,11 @@ codeunit 99902 "LT K12 XRec Modify Event"
         Observer.Observe('Validate on a row outside the filter', Subscriber.Take());
         Row.Modify(true);
         Observer.Observe('then Modify(true) outside the filter', Subscriber.Take());
-        Observer.Finish();
+        Observer.Expect('Validate (new value), no filter', 'before-validate event: rec member=V-1 xrec member= xrecfilters=[]; field OnValidate Member=V-1 xrec= xrecfilters=[]; after-validate event: rec member=V-1 xrec member= xrecfilters=[]; ');
+        Observer.Expect('then Modify(true), no filter', 'before-modify event: rec filters=[] hasfilter=No key=No.; xrec filters=[] hasfilter=No key=No.; formats equal=Yes; xrec no=CT1 member=[V-1] rec member=[V-1]; copy filters=[] copy find=Yes; assigned filters=[] assigned find=Yes; copy find statement ok=Yes err=[]; xrec find=Yes; table OnModify Member=V-1 xrec= xrecfilters=[] recfilters=[]; after-modify event: rec member=V-1 xrec member= xrecfilters=[] equal=No; ');
+        Observer.Expect('Validate on a row outside the filter', 'before-validate event: rec member=V-2 xrec member= xrecfilters=[Company: 0002]; field OnValidate Member=V-2 xrec= xrecfilters=[Company: 0002]; after-validate event: rec member=V-2 xrec member= xrecfilters=[Company: 0002]; ');
+        Observer.Expect('then Modify(true) outside the filter', 'before-modify event: rec filters=[Company: 0002] hasfilter=Yes key=No.; xrec filters=[Company: 0002] hasfilter=Yes key=No.; formats equal=Yes; xrec no=CT3 member=[V-2] rec member=[V-2]; copy filters=[Company: 0002] copy find=No; assigned filters=[] assigned find=Yes; copy find statement ok=No err=[The LT K12 XRec Row does not exist. Identification fields and values: No.=''CT3'']; xrec find=No; table OnModify Member=V-2 xrec=V-2 xrecfilters=[Company: 0002] recfilters=[Company: 0002]; after-modify event: rec member=V-2 xrec member=V-2 xrecfilters=[Company: 0002] equal=Yes; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -272,7 +285,11 @@ codeunit 99902 "LT K12 XRec Modify Event"
         Observer.Observe('then Modify', Subscriber.Take());
         Row.Modify();
         Observer.Observe('second Modify with no change', Subscriber.Take());
-        Observer.Finish();
+        Observer.Expect('Validate with the value already held', 'before-validate event: rec member=A xrec member=A xrecfilters=[]; field OnValidate Member=A xrec=A xrecfilters=[]; after-validate event: rec member=A xrec member=A xrecfilters=[]; ');
+        Observer.Expect('assign, then Validate(field) without a value', 'before-validate event: rec member=B xrec member=B xrecfilters=[]; field OnValidate Member=B xrec=B xrecfilters=[]; after-validate event: rec member=B xrec member=B xrecfilters=[]; ');
+        Observer.Expect('then Modify', 'before-modify event: rec filters=[] hasfilter=No key=No.; xrec filters=[] hasfilter=No key=No.; formats equal=Yes; xrec no=CT1 member=[B] rec member=[B]; copy filters=[] copy find=Yes; assigned filters=[] assigned find=Yes; copy find statement ok=Yes err=[]; xrec find=Yes; after-modify event: rec member=B xrec member=A xrecfilters=[] equal=No; ');
+        Observer.Expect('second Modify with no change', 'before-modify event: rec filters=[] hasfilter=No key=No.; xrec filters=[] hasfilter=No key=No.; formats equal=Yes; xrec no=CT1 member=[B] rec member=[B]; copy filters=[] copy find=Yes; assigned filters=[] assigned find=Yes; copy find statement ok=Yes err=[]; xrec find=Yes; after-modify event: rec member=B xrec member=B xrecfilters=[] equal=Yes; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -290,6 +307,8 @@ codeunit 99902 "LT K12 XRec Modify Event"
         Row.Member := 'Z';
         Row.Modify(false);
         Observer.Observe('Modify(false), no filter', Subscriber.Take());
-        Observer.Finish();
+        Observer.Expect('ModifyAll(true) under a filter', 'before-modify event: rec filters=[Company: 0001] hasfilter=Yes key=No.; xrec filters=[Company: 0001] hasfilter=Yes key=No.; formats equal=Yes; xrec no=CT1 member=[M-ALL] rec member=[M-ALL]; copy filters=[Company: 0001] copy find=Yes; assigned filters=[] assigned find=Yes; copy find statement ok=Yes err=[]; xrec find=Yes; table OnModify Member=M-ALL xrec= xrecfilters=[Company: 0001] recfilters=[Company: 0001]; after-modify event: rec member=M-ALL xrec member= xrecfilters=[Company: 0001] equal=No; before-modify event: rec filters=[Company: 0001] hasfilter=Yes key=No.; xrec filters=[Company: 0001] hasfilter=Yes key=No.; formats equal=Yes; xrec no=CT3 member=[M-ALL] rec member=[M-ALL]; copy filters=[Company: 0001] copy find=Yes; assigned filters=[] assigned find=Yes; copy find statement ok=Yes err=[]; xrec find=Yes; table OnModify Member=M-ALL xrec= xrecfilters=[Company: 0001] recfilters=[Company: 0001]; after-modify event: rec member=M-ALL xrec member= xrecfilters=[Company: 0001] equal=No; ');
+        Observer.Expect('Modify(false), no filter', 'before-modify event: rec filters=[] hasfilter=No key=No.; xrec filters=[] hasfilter=No key=No.; formats equal=Yes; xrec no=CT2 member=[Z] rec member=[Z]; copy filters=[] copy find=Yes; assigned filters=[] assigned find=Yes; copy find statement ok=Yes err=[]; xrec find=Yes; after-modify event: rec member=Z xrec member= xrecfilters=[] equal=No; ');
+        Observer.Verify();
     end;
 }
