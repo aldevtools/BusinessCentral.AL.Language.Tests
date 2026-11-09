@@ -89,57 +89,57 @@ codeunit 67422 "LT RFR Runner"
         Failure := CopyStr(Rec.Mode, Pos + 1);
         Calls += 1;
         Trail += Change + ';';
-        ApplyChange(Change);
-        RaiseFailure(Failure);
+        ApplyChange(Rec, Change);
+        RaiseFailure(Rec, Failure);
     end;
 
-    local procedure ApplyChange(Change: Text)
+    local procedure ApplyChange(var Row: Record "LT RFR Row"; Change: Text)
     begin
         case Change of
             'fields':
                 begin
-                    Rec.Amount := 99;
-                    Rec.Name := 'changed';
+                    Row.Amount := 99;
+                    Row.Name := 'changed';
                 end;
             'modify':
                 begin
-                    Rec.Amount := 99;
-                    Rec.Name := 'changed';
-                    Rec.Modify();
+                    Row.Amount := 99;
+                    Row.Name := 'changed';
+                    Row.Modify();
                 end;
             'insert':
                 begin
-                    Rec.Code := 'NEW';
-                    Rec.Amount := 99;
-                    Rec.Insert();
+                    Row.Code := 'NEW';
+                    Row.Amount := 99;
+                    Row.Insert();
                 end;
             'delete':
-                Rec.Delete();
+                Row.Delete();
             'rename':
-                Rec.Rename('R');
+                Row.Rename('R');
             'setrange':
-                Rec.SetRange(Code, 'A', 'B');
+                Row.SetRange(Code, 'A', 'B');
             'setfilter':
-                Rec.SetFilter(Name, 'a*|b*');
+                Row.SetFilter(Name, 'a*|b*');
             'setkey':
-                Rec.SetCurrentKey(Name);
+                Row.SetCurrentKey(Name);
             'get':
-                Rec.Get('B');
+                Row.Get('B');
             'init':
-                Rec.Init();
+                Row.Init();
             'validate':
-                Rec.Validate(Amount, 55);
+                Row.Validate(Amount, 55);
             'marks':
                 begin
-                    Rec.Mark(true);
-                    Rec.MarkedOnly(true);
+                    Row.Mark(true);
+                    Row.MarkedOnly(true);
                 end;
             'calcfields':
-                Rec.CalcFields(Kids);
+                Row.CalcFields(Kids);
         end;
     end;
 
-    local procedure RaiseFailure(Failure: Text)
+    local procedure RaiseFailure(var Row: Record "LT RFR Row"; Failure: Text)
     var
         Publisher: Codeunit "LT RFR Publisher";
     begin
@@ -149,15 +149,15 @@ codeunit 67422 "LT RFR Runner"
             'empty':
                 Error('');
             'nested':
-                NestedBoom();
+                NestedBoom(Row);
             'sub':
-                Publisher.OnFail(Rec);
+                Publisher.OnFail(Row);
         end;
     end;
 
-    local procedure NestedBoom()
+    local procedure NestedBoom(var Row: Record "LT RFR Row")
     begin
-        Rec.Amount := 88;
+        Row.Amount := 88;
         Error('nested boom');
     end;
 
