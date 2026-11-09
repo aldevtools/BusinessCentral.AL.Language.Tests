@@ -119,6 +119,19 @@ page 99982 "LT K12 Formulas"
         }
     }
 
+    actions
+    {
+        area(Processing)
+        {
+            action(AssignUpdateTrue) { ApplicationArea = All; trigger OnAction() begin Rec.Formula := 'ACT'; CurrPage.Update(true); end; }
+            action(AssignUpdateFalse) { ApplicationArea = All; trigger OnAction() begin Rec.Formula := 'ACT'; CurrPage.Update(false); end; }
+            action(AssignSave) { ApplicationArea = All; trigger OnAction() begin Rec.Formula := 'ACT'; CurrPage.SaveRecord(); end; }
+            action(AssignModify) { ApplicationArea = All; trigger OnAction() begin Rec.Formula := 'ACT'; Rec.Modify(true); end; }
+            action(ValidateUpdateTrue) { ApplicationArea = All; trigger OnAction() begin Rec.Validate(Formula, 'ACT'); CurrPage.Update(true); end; }
+            action(AssignOnly) { ApplicationArea = All; trigger OnAction() begin Rec.Formula := 'ACT'; end; }
+        }
+    }
+
     trigger OnAfterGetRecord()
     begin
         T0Text := Rec.Formula;
@@ -279,6 +292,142 @@ codeunit 99983 "LT K12 Formula Tests"
         Observer.Observe('table-bound control, no CurrPage call: log after Last', Log.Take());
         Row.Get('A');
         Observer.Observe('table-bound control, no CurrPage call: stored A', Row.Formula);
+        Observer.Finish();
+    end;
+
+    // Matrix: the change made by an action instead of a typed value (xRec in OnModifyRecord and in the table field's OnValidate).
+
+    [Test]
+    procedure Y7428_Action_AssignUpdateTrue()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT K12 Formulas";
+        Row: Record "LT K12 Formula";
+    begin
+        Seed();
+        P.OpenEdit();
+        P.First();
+        P.AssignUpdateTrue.Invoke();
+        Observer.Observe('AssignUpdateTrue: log after action', Log.Take());
+        P.Last();
+        Observer.Observe('AssignUpdateTrue: log after Last', Log.Take());
+        Row.Get('A');
+        Observer.Observe('AssignUpdateTrue: stored A', Row.Formula);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y7428_Action_AssignUpdateFalse()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT K12 Formulas";
+        Row: Record "LT K12 Formula";
+    begin
+        Seed();
+        P.OpenEdit();
+        P.First();
+        P.AssignUpdateFalse.Invoke();
+        Observer.Observe('AssignUpdateFalse: log after action', Log.Take());
+        P.Last();
+        Observer.Observe('AssignUpdateFalse: log after Last', Log.Take());
+        Row.Get('A');
+        Observer.Observe('AssignUpdateFalse: stored A', Row.Formula);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y7428_Action_AssignSave()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT K12 Formulas";
+        Row: Record "LT K12 Formula";
+    begin
+        Seed();
+        P.OpenEdit();
+        P.First();
+        P.AssignSave.Invoke();
+        Observer.Observe('AssignSave: log after action', Log.Take());
+        P.Last();
+        Observer.Observe('AssignSave: log after Last', Log.Take());
+        Row.Get('A');
+        Observer.Observe('AssignSave: stored A', Row.Formula);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y7428_Action_AssignModify()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT K12 Formulas";
+        Row: Record "LT K12 Formula";
+    begin
+        Seed();
+        P.OpenEdit();
+        P.First();
+        P.AssignModify.Invoke();
+        Observer.Observe('AssignModify: log after action', Log.Take());
+        P.Last();
+        Observer.Observe('AssignModify: log after Last', Log.Take());
+        Row.Get('A');
+        Observer.Observe('AssignModify: stored A', Row.Formula);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y7428_Action_ValidateUpdateTrue()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT K12 Formulas";
+        Row: Record "LT K12 Formula";
+    begin
+        Seed();
+        P.OpenEdit();
+        P.First();
+        P.ValidateUpdateTrue.Invoke();
+        Observer.Observe('ValidateUpdateTrue: log after action', Log.Take());
+        P.Last();
+        Observer.Observe('ValidateUpdateTrue: log after Last', Log.Take());
+        Row.Get('A');
+        Observer.Observe('ValidateUpdateTrue: stored A', Row.Formula);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y7428_Action_AssignOnly()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT K12 Formulas";
+        Row: Record "LT K12 Formula";
+    begin
+        Seed();
+        P.OpenEdit();
+        P.First();
+        P.AssignOnly.Invoke();
+        Observer.Observe('AssignOnly: log after action', Log.Take());
+        P.Last();
+        Observer.Observe('AssignOnly: log after Last', Log.Take());
+        Row.Get('A');
+        Observer.Observe('AssignOnly: stored A', Row.Formula);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y7428_TypedTwice_And_SameValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT K12 Formulas";
+    begin
+        Seed();
+        P.OpenEdit();
+        P.First();
+        P.T1Text.SetValue('2+4+1');
+        Observer.Observe('Update(true) field, first set', Log.Take());
+        P.T1Text.SetValue('9');
+        Observer.Observe('Update(true) field, second set', Log.Take());
+        P.T1Text.SetValue('9');
+        Observer.Observe('Update(true) field, same value', Log.Take());
+        P.Formula.SetValue('7');
+        Observer.Observe('table-bound field after that', Log.Take());
         Observer.Finish();
     end;
 }
