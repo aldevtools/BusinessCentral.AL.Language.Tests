@@ -4,7 +4,7 @@
 // Probe (al-runner issue 7348): what a write inside a [TryFunction] whose result is used does in install code (OnInstallAppPerDatabase,
 //   tables with DataPerCompany = false) when the service tier setting DisableWriteInsideTryFunctions is false (SaaS). This app runs only in
 //   the CI job "BC TryWrites", which sets that value and publishes the app to a fresh database, so the install code runs once there.
-//   The install code runs each case in a TryFunction (Modify, Modify then an error, Insert, a Modify through a RecordRef, NavApp.GetResource
+//   The install code runs each case in a TryFunction (Modify, Modify then an error, Insert, Delete, Rename, ModifyAll, DeleteAll, a Modify through a RecordRef, NavApp.GetResource
 //   plus Media.ImportStream plus Modify, and the same with a resource that does not exist) and logs the result of the call, the last error
 //   text and code. The tests read the rows and the log.
 //   The install code writes outside the TryFunctions only with `if Insert() then;` and `if Modify() then;`, so it cannot fail the publish.
@@ -58,6 +58,10 @@ codeunit 81703 "LT TW Install"
         AddRow(3, 'c');
         AddRow(4, 'd');
         AddRow(5, 'e');
+        AddRow(7, 'g');
+        AddRow(8, 'h');
+        AddRow(9, 'i');
+        AddRow(10, 'j');
 
         ClearLastError();
         if Row.Get(1) then
@@ -72,6 +76,18 @@ codeunit 81703 "LT TW Install"
 
         ClearLastError();
         Log('recref modify', TryModifyViaRecRef(5, 'Set via RecordRef'));
+
+        ClearLastError();
+        Log('delete', TryOtherWrite('delete', 7));
+
+        ClearLastError();
+        Log('rename', TryOtherWrite('rename', 8));
+
+        ClearLastError();
+        Log('modifyall', TryOtherWrite('modifyall', 9));
+
+        ClearLastError();
+        Log('deleteall', TryOtherWrite('deleteall', 10));
 
         ClearLastError();
         if Row.Get(3) then
@@ -138,6 +154,35 @@ codeunit 81703 "LT TW Install"
         RecRef.FindFirst();
         RecRef.Field(2).Value := Description;
         RecRef.Modify();
+    end;
+
+    [TryFunction]
+    local procedure TryOtherWrite(Op: Text; No: Integer)
+    var
+        Row: Record "LT TW Install Row";
+    begin
+        case Op of
+            'delete':
+                begin
+                    Row.Get(No);
+                    Row.Delete();
+                end;
+            'rename':
+                begin
+                    Row.Get(No);
+                    Row.Rename(No + 10);
+                end;
+            'modifyall':
+                begin
+                    Row.SetRange("No.", No);
+                    Row.ModifyAll(Description, 'all');
+                end;
+            'deleteall':
+                begin
+                    Row.SetRange("No.", No);
+                    Row.DeleteAll();
+                end;
+        end;
     end;
 
     // The shape of al-runner issue 7348: a thumbnail from the app's resources into a Media field, then Modify.
@@ -261,9 +306,67 @@ codeunit 81704 "LT TW Install Tests"
         ObserveCase(Observer, 'media missing');
         Observer.Observe('row', RowState(4));
         Observer.Expect('media missing ok', 'No');
-        Observer.Expect('media missing lasterror', '<observe>');
-        Observer.Expect('media missing lastcode', '<observe>');
+        Observer.Expect('media missing lasterror', 'A resource matching ''tw-missing.png'' could not be found in app ''AL Language Coverage Tests (Try Writes Allowed) by AL Language 1.0.0.0''.');
+        Observer.Expect('media missing lastcode', 'ResourceNotFound');
         Observer.Expect('row', 'd thumbnail=No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Install_DeleteInTryFunction_Kept()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveCase(Observer, 'delete');
+        Observer.Observe('row', RowState(7));
+        Observer.Expect('delete ok', 'Yes');
+        Observer.Expect('delete lasterror', '');
+        Observer.Expect('delete lastcode', '');
+        Observer.Expect('row', '<no row>');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Install_RenameInTryFunction_Kept()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveCase(Observer, 'rename');
+        Observer.Observe('old row', RowState(8));
+        Observer.Observe('new row', RowState(18));
+        Observer.Expect('rename ok', 'Yes');
+        Observer.Expect('rename lasterror', '');
+        Observer.Expect('rename lastcode', '');
+        Observer.Expect('old row', '<no row>');
+        Observer.Expect('new row', 'h thumbnail=No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Install_ModifyAllInTryFunction_Kept()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveCase(Observer, 'modifyall');
+        Observer.Observe('row', RowState(9));
+        Observer.Expect('modifyall ok', 'Yes');
+        Observer.Expect('modifyall lasterror', '');
+        Observer.Expect('modifyall lastcode', '');
+        Observer.Expect('row', 'all thumbnail=No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Install_DeleteAllInTryFunction_Kept()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveCase(Observer, 'deleteall');
+        Observer.Observe('row', RowState(10));
+        Observer.Expect('deleteall ok', 'Yes');
+        Observer.Expect('deleteall lasterror', '');
+        Observer.Expect('deleteall lastcode', '');
+        Observer.Expect('row', '<no row>');
         Observer.Verify();
     end;
 }
