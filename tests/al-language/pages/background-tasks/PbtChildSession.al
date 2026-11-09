@@ -9,6 +9,10 @@
 //   OnPageBackgroundTaskError receive when the task needs a manual binding the child session does not have.
 // Pinned elsewhere, not repeated: the rows of the test (committed and uncommitted) the worker reads (testpage/TestPageBgTaskTx_Tests.al), the refused
 //   writes of the worker (testpage/TestPageBgTask_Tests.al), the order of several tasks, task ids and ErrorCode (W2BackgroundTasks.al).
+// Measured on 27.5, 28.5 and 29.0 (same on all three): the task runs in another session; the SingleInstance state of the test is not there (the task
+//   saw an empty state, and the state the task sets is not visible to the test); every task starts with a fresh SingleInstance codeunit (the counter was 1 in
+//   each of three tasks); the manual binding of the test does not apply in the task; an automatic subscriber does answer; the Completed and Error
+//   triggers run in the test session; a task that errors for lack of the manual binding raises OnPageBackgroundTaskError (ErrorCode Dialog) and not Completed.
 // BC versions: 27 - 29
 
 // local object: the worker of a page background task runs in a child session, so its own objects (and a SingleInstance state) are the subject
@@ -217,7 +221,11 @@ codeunit 77305 "PBT Child Session Tests"
         Observer.Observe('task session is not empty', Format(Card.TaskSessionCtl.Value() <> ''));
         Observer.Observe('completed trigger runs in the test session', Format(Card.CompletedSessionCtl.Value() = Format(SessionId())));
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('completed once', '1');
+        Observer.Expect('task session is not the test session', 'Yes');
+        Observer.Expect('task session is not empty', 'Yes');
+        Observer.Expect('completed trigger runs in the test session', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -234,7 +242,9 @@ codeunit 77305 "PBT Child Session Tests"
         Observer.Observe('state the task saw', Card.TaskStateCtl.Value());
         Observer.Observe('state of the test after the task', State.Get());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('state the task saw', '');
+        Observer.Expect('state of the test after the task', 'set by the test');
+        Observer.Verify();
     end;
 
     [Test]
@@ -253,7 +263,10 @@ codeunit 77305 "PBT Child Session Tests"
         Observer.Observe('state the second task saw', Card.TaskStateCtl.Value());
         Observer.Observe('counter in the test session', Format(State.Bump()));
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('calls the tasks counted', '1;1;1;');
+        Observer.Expect('state the second task saw', '');
+        Observer.Expect('counter in the test session', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -271,7 +284,8 @@ codeunit 77305 "PBT Child Session Tests"
         Observer.Observe('manual answer in the task', Card.ManualCtl.Value());
         UnbindSubscription(Subscriber);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('manual answer in the task', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -286,7 +300,8 @@ codeunit 77305 "PBT Child Session Tests"
         Card.OpenView();
         Observer.Observe('automatic answer in the task', Card.AutoCtl.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('automatic answer in the task', 'automatic');
+        Observer.Verify();
     end;
 
     [Test]
@@ -308,7 +323,12 @@ codeunit 77305 "PBT Child Session Tests"
         Observer.Observe('error trigger runs in the test session', Format(Card.ErrorSessionCtl.Value() = Format(SessionId())));
         UnbindSubscription(Subscriber);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('completed count', '0');
+        Observer.Expect('error count', '1');
+        Observer.Expect('error text', 'the manual subscriber did not answer');
+        Observer.Expect('error code', 'Dialog');
+        Observer.Expect('error trigger runs in the test session', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -339,6 +359,10 @@ codeunit 77305 "PBT Child Session Tests"
         Observer.Observe('automatic answer in the task', Value);
         UnbindSubscription(Subscriber);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('task session is not the test session', 'Yes');
+        Observer.Expect('state the task saw', '');
+        Observer.Expect('manual answer in the task', '');
+        Observer.Expect('automatic answer in the task', 'automatic');
+        Observer.Verify();
     end;
 }
