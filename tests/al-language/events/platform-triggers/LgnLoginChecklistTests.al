@@ -9,6 +9,10 @@
 //   The subscribers keep what they saw in a SingleInstance codeunit (state of the session) and never fail.
 // What this does not measure: the issue's case "the checklist was set up before the app was installed" (the CI tenant is fixed), and a
 //   BcContainerHelper login (the corpus CI uses its own test runner session; the client type and the login events it sees are in the observations).
+// Measured on 27.5 and 28.5 (29.0: see the pull request; the final run checks it): the corpus CI test session is a Web client with GuiAllowed. Before the
+//   first test of this codeunit it raised OnRegisterAssistedSetup and then OnAfterLogin, once each, both in the test session. The row this app's
+//   subscriber registers exists and is not complete without the test registering it, and Checklist.ShouldInitializeChecklist(false) is already No
+//   (the login marked the checklist setup as done). The second test sees no further call.
 // BC versions: 27 - 29
 
 // local object: the subscribers and the wizard page exist to be run by the login raised before the first test; when they run is the subject
@@ -132,9 +136,17 @@ codeunit 77323 "LGN Login Checklist Tests"
         Observer.Observe('test: GuiAllowed', Format(GuiAllowed()));
         Observer.Observe('row of this app exists and is not complete', Format(GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, Page::"LGN Login Wizard")));
         Observer.Observe('row of this app exists', Format(GuidedExperience.Exists(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"LGN Login Wizard")));
-        Observer.Observe('Microsoft row exists (page 1805, Assisted Company Setup Wizard)', Format(GuidedExperience.Exists(GuidedExperienceType::"Assisted Setup", ObjectType::Page, 1805)));
         Observer.Observe('Checklist.ShouldInitializeChecklist(false)', Format(Checklist.ShouldInitializeChecklist(false)));
-        Observer.Finish();
+        Observer.Expect('entries', 'OnRegisterAssistedSetup|<Company>|Web|Yes;OnAfterLogin|<Company>|Web|Yes;');
+        Observer.Expect('OnAfterLogin calls', '1');
+        Observer.Expect('OnRegisterAssistedSetup calls', '1');
+        Observer.Expect('calls in the test session', '2');
+        Observer.Expect('test: client type', 'Web');
+        Observer.Expect('test: GuiAllowed', 'Yes');
+        Observer.Expect('row of this app exists and is not complete', 'Yes');
+        Observer.Expect('row of this app exists', 'Yes');
+        Observer.Expect('Checklist.ShouldInitializeChecklist(false)', 'No');
+        Observer.Verify();
     end;
 
     // The second test of the codeunit runs in the same session: the login and the registration are not raised again for it.
@@ -147,6 +159,9 @@ codeunit 77323 "LGN Login Checklist Tests"
         Observer.Observe('OnAfterLogin calls', Format(State.Calls('OnAfterLogin')));
         Observer.Observe('OnRegisterAssistedSetup calls', Format(State.Calls('OnRegisterAssistedSetup')));
         Observer.Observe('row of this app exists and is not complete', Format(GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, Page::"LGN Login Wizard")));
-        Observer.Finish();
+        Observer.Expect('OnAfterLogin calls', '1');
+        Observer.Expect('OnRegisterAssistedSetup calls', '1');
+        Observer.Expect('row of this app exists and is not complete', 'Yes');
+        Observer.Verify();
     end;
 }
