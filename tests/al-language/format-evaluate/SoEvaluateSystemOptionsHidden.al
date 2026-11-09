@@ -57,6 +57,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         V: ObjectType;
         Passed: Boolean;
     begin
+        ClearLastError();
         V := ObjectType::Page;
         Passed := TryObjectType(V, Txt);
         Observer.Observe(Nm, Format(Passed) + '/' + Format(V));
@@ -97,7 +98,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsObjectType(Observer, 'lower Form', 'form');
         ObsObjectType(Observer, 'upper Form', 'FORM');
         ObsObjectType(Observer, 'blanks Form', '  Form  ');
-        ObsObjectType(Observer, 'prefix Form', 'Fo');
+        ObsObjectType(Observer, 'prefix_Fo', 'Fo');
         ObsObjectTypeFormat(Observer, 'f9 Form', 'Form', 9);
         ErrObjectType(Observer, 'stmt Form', 'Form');
         Observer.Finish();
@@ -112,7 +113,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsObjectType(Observer, 'lower Enum', 'enum');
         ObsObjectType(Observer, 'upper Enum', 'ENUM');
         ObsObjectType(Observer, 'blanks Enum', '  Enum  ');
-        ObsObjectType(Observer, 'prefix Enum', 'En');
+        ObsObjectType(Observer, 'prefix_En', 'En');
         ObsObjectTypeFormat(Observer, 'f9 Enum', 'Enum', 9);
         ErrObjectType(Observer, 'stmt Enum', 'Enum');
         Observer.Finish();
@@ -154,6 +155,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         V: Verbosity;
         Passed: Boolean;
     begin
+        ClearLastError();
         V := Verbosity::Verbose;
         Passed := TryVerbosity(V, Txt);
         Observer.Observe(Nm, Format(Passed) + '/' + Format(V));
@@ -221,6 +223,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         V: TelemetryScope;
         Passed: Boolean;
     begin
+        ClearLastError();
         V := TelemetryScope::All;
         Passed := TryTelemetryScope(V, Txt);
         Observer.Observe(Nm, Format(Passed) + '/' + Format(V));
@@ -288,6 +291,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         V: DataClassification;
         Passed: Boolean;
     begin
+        ClearLastError();
         V := DataClassification::SystemMetadata;
         Passed := TryDataClassification(V, Txt);
         Observer.Observe(Nm, Format(Passed) + '/' + Format(V));
@@ -355,6 +359,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         V: TransactionType;
         Passed: Boolean;
     begin
+        ClearLastError();
         V := TransactionType::Report;
         Passed := TryTransactionType(V, Txt);
         Observer.Observe(Nm, Format(Passed) + '/' + Format(V));
@@ -422,6 +427,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         V: ReportFormat;
         Passed: Boolean;
     begin
+        ClearLastError();
         V := ReportFormat::Html;
         Passed := TryReportFormat(V, Txt);
         Observer.Observe(Nm, Format(Passed) + '/' + Format(V));
@@ -462,7 +468,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsReportFormat(Observer, 'lower None', 'none');
         ObsReportFormat(Observer, 'upper None', 'NONE');
         ObsReportFormat(Observer, 'blanks None', '  None  ');
-        ObsReportFormat(Observer, 'prefix None', 'No');
+        ObsReportFormat(Observer, 'prefix_No', 'No');
         ObsReportFormatFormat(Observer, 'f9 None', 'None', 9);
         ErrReportFormat(Observer, 'stmt None', 'None');
         Observer.Finish();
@@ -477,7 +483,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsReportFormat(Observer, 'lower Jpeg', 'jpeg');
         ObsReportFormat(Observer, 'upper Jpeg', 'JPEG');
         ObsReportFormat(Observer, 'blanks Jpeg', '  Jpeg  ');
-        ObsReportFormat(Observer, 'prefix Jpeg', 'Jp');
+        ObsReportFormat(Observer, 'prefix_Jp', 'Jp');
         ObsReportFormatFormat(Observer, 'f9 Jpeg', 'Jpeg', 9);
         ErrReportFormat(Observer, 'stmt Jpeg', 'Jpeg');
         Observer.Finish();
@@ -492,7 +498,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsReportFormat(Observer, 'lower Xps', 'xps');
         ObsReportFormat(Observer, 'upper Xps', 'XPS');
         ObsReportFormat(Observer, 'blanks Xps', '  Xps  ');
-        ObsReportFormat(Observer, 'prefix Xps', 'X');
+        ObsReportFormat(Observer, 'prefix_X', 'X');
         ObsReportFormatFormat(Observer, 'f9 Xps', 'Xps', 9);
         ErrReportFormat(Observer, 'stmt Xps', 'Xps');
         Observer.Finish();
@@ -507,7 +513,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsReportFormat(Observer, 'lower Meta', 'meta');
         ObsReportFormat(Observer, 'upper Meta', 'META');
         ObsReportFormat(Observer, 'blanks Meta', '  Meta  ');
-        ObsReportFormat(Observer, 'prefix Meta', 'Me');
+        ObsReportFormat(Observer, 'prefix_Me', 'Me');
         ObsReportFormatFormat(Observer, 'f9 Meta', 'Meta', 9);
         ErrReportFormat(Observer, 'stmt Meta', 'Meta');
         Observer.Finish();
@@ -522,7 +528,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsReportFormat(Observer, 'lower ExcelDataset', 'exceldataset');
         ObsReportFormat(Observer, 'upper ExcelDataset', 'EXCELDATASET');
         ObsReportFormat(Observer, 'blanks ExcelDataset', '  ExcelDataset  ');
-        ObsReportFormat(Observer, 'prefix ExcelDataset', 'ExcelDatas');
+        ObsReportFormat(Observer, 'prefix_ExcelDatas', 'ExcelDatas');
         ObsReportFormatFormat(Observer, 'f9 ExcelDataset', 'ExcelDataset', 9);
         ErrReportFormat(Observer, 'stmt ExcelDataset', 'ExcelDataset');
         Observer.Finish();
@@ -537,7 +543,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsReportFormat(Observer, 'lower Custom', 'custom');
         ObsReportFormat(Observer, 'upper Custom', 'CUSTOM');
         ObsReportFormat(Observer, 'blanks Custom', '  Custom  ');
-        ObsReportFormat(Observer, 'prefix Custom', 'Cust');
+        ObsReportFormat(Observer, 'prefix_Cust', 'Cust');
         ObsReportFormatFormat(Observer, 'f9 Custom', 'Custom', 9);
         ErrReportFormat(Observer, 'stmt Custom', 'Custom');
         Observer.Finish();
@@ -552,7 +558,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsReportFormat(Observer, 'lower Zip', 'zip');
         ObsReportFormat(Observer, 'upper Zip', 'ZIP');
         ObsReportFormat(Observer, 'blanks Zip', '  Zip  ');
-        ObsReportFormat(Observer, 'prefix Zip', 'Z');
+        ObsReportFormat(Observer, 'prefix_Z', 'Z');
         ObsReportFormatFormat(Observer, 'f9 Zip', 'Zip', 9);
         ErrReportFormat(Observer, 'stmt Zip', 'Zip');
         Observer.Finish();
@@ -594,6 +600,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         V: ErrorType;
         Passed: Boolean;
     begin
+        ClearLastError();
         V := ErrorType::Internal;
         Passed := TryErrorType(V, Txt);
         Observer.Observe(Nm, Format(Passed) + '/' + Format(V));
@@ -661,6 +668,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         V: DefaultLayout;
         Passed: Boolean;
     begin
+        ClearLastError();
         V := DefaultLayout::Word;
         Passed := TryDefaultLayout(V, Txt);
         Observer.Observe(Nm, Format(Passed) + '/' + Format(V));
@@ -728,6 +736,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         V: TestPermissions;
         Passed: Boolean;
     begin
+        ClearLastError();
         V := TestPermissions::InheritFromTestCodeunit;
         Passed := TryTestPermissions(V, Txt);
         Observer.Observe(Nm, Format(Passed) + '/' + Format(V));
@@ -795,6 +804,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         V: DataScope;
         Passed: Boolean;
     begin
+        ClearLastError();
         V := DataScope::CompanyAndUser;
         Passed := TryDataScope(V, Txt);
         Observer.Observe(Nm, Format(Passed) + '/' + Format(V));
@@ -862,6 +872,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         V: ExecutionContext;
         Passed: Boolean;
     begin
+        ClearLastError();
         V := ExecutionContext::Upgrade;
         Passed := TryExecutionContext(V, Txt);
         Observer.Observe(Nm, Format(Passed) + '/' + Format(V));
@@ -902,7 +913,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsExecutionContext(Observer, 'lower Uninstall', 'uninstall');
         ObsExecutionContext(Observer, 'upper Uninstall', 'UNINSTALL');
         ObsExecutionContext(Observer, 'blanks Uninstall', '  Uninstall  ');
-        ObsExecutionContext(Observer, 'prefix Uninstall', 'Uninsta');
+        ObsExecutionContext(Observer, 'prefix_Uninsta', 'Uninsta');
         ObsExecutionContextFormat(Observer, 'f9 Uninstall', 'Uninstall', 9);
         ErrExecutionContext(Observer, 'stmt Uninstall', 'Uninstall');
         Observer.Finish();
@@ -944,6 +955,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         V: NotificationScope;
         Passed: Boolean;
     begin
+        ClearLastError();
         V := NotificationScope::GlobalScope;
         Passed := TryNotificationScope(V, Txt);
         Observer.Observe(Nm, Format(Passed) + '/' + Format(V));
@@ -1011,6 +1023,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         V: WebServiceActionResultCode;
         Passed: Boolean;
     begin
+        ClearLastError();
         V := WebServiceActionResultCode::Deleted;
         Passed := TryWebServiceActionResultCode(V, Txt);
         Observer.Observe(Nm, Format(Passed) + '/' + Format(V));
@@ -1134,6 +1147,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         V: FieldClass;
         Passed: Boolean;
     begin
+        ClearLastError();
         V := FieldClass::FlowFilter;
         Passed := TryFieldClass(V, Txt);
         Observer.Observe(Nm, Format(Passed) + '/' + Format(V));
@@ -1174,7 +1188,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsFieldClass(Observer, 'lower KeyFieldReference', 'keyfieldreference');
         ObsFieldClass(Observer, 'upper KeyFieldReference', 'KEYFIELDREFERENCE');
         ObsFieldClass(Observer, 'blanks KeyFieldReference', '  KeyFieldReference  ');
-        ObsFieldClass(Observer, 'prefix KeyFieldReference', 'KeyFieldReferen');
+        ObsFieldClass(Observer, 'prefix_KeyFieldReferen', 'KeyFieldReferen');
         ObsFieldClassFormat(Observer, 'f9 KeyFieldReference', 'KeyFieldReference', 9);
         ErrFieldClass(Observer, 'stmt KeyFieldReference', 'KeyFieldReference');
         Observer.Finish();
