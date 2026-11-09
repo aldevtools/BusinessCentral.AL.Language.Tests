@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/navapp/navapp-loadpackagedata-method
 // Scope: in-scope
 // Fixtures used: tests/al-language-xapp-a/Y7366XaPackageData.al (tables 94692-94698, install codeunit 94699) with the data files TAB94692 - TAB94698.navxdata, and the
-//   log table 94681 of Y88XaPackageData.al; Probe Observer (69160). The fixture app is a dependency of this app, so these probes also read what the install code
+//   log table 97992 of PkgDataPartsFixture.al; Probe Observer (69160). The fixture app is a dependency of this app, so these probes also read what the install code
 //   of a dependency app loaded with NavApp.LoadPackageData.
 // Probe (al-runner issues 7366 and 6649): what NavApp.LoadPackageData does with a data file whose column list ends with the column `$systemId` (as the platform
 //   writes it), and with column lists that do not match the table.
@@ -13,10 +13,10 @@ codeunit 94710 "LT Y7366 Package Data"
 
     local procedure LogText(Subject: Text): Text
     var
-        Log: Record "LT Y88 Pkg Log";
+        Log: Record "LT PkgParts Log";
         T: Text;
     begin
-        Log.SetRange(Kind, 'sys7366');
+        Log.SetRange(Part, 'sys7366');
         Log.SetRange(Subject, Subject);
         if Log.FindSet() then
             repeat
