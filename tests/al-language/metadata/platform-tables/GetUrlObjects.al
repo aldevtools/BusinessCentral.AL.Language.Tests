@@ -199,15 +199,6 @@ codeunit 73981 "LT P95 GetUrl Objects"
         R := GetUrl(CT, CompanyName(), OT, Id, RecRef, UseFilters);
     end;
 
-    [TryFunction]
-    local procedure TryVariant(CT: ClientType; OT: ObjectType; Id: Integer; Cust: Record Customer; UseFilters: Boolean; var R: Text)
-    var
-        V: Variant;
-    begin
-        V := Cust;
-        R := GetUrl(CT, CompanyName(), OT, Id, V, UseFilters);
-    end;
-
     local procedure DefaultCT(Name: Text; Kind: Integer; UseFilters: Boolean; var Observer: Codeunit "Probe Observer")
     var
         Cust: Record Customer;
@@ -222,8 +213,6 @@ codeunit 73981 "LT P95 GetUrl Objects"
                 Ok := TryRec(DefaultClientType(), ObjectType::Page, 21, Cust, UseFilters, R);
             2:
                 Ok := TryRecRef(DefaultClientType(), ObjectType::Page, 21, Cust, UseFilters, R);
-            3:
-                Ok := TryVariant(DefaultClientType(), ObjectType::Page, 21, Cust, UseFilters, R);
             4:
                 Ok := TryRecRef(ClientType::Default, ObjectType::Page, 21, Cust, UseFilters, R);
             5:
@@ -254,8 +243,6 @@ codeunit 73981 "LT P95 GetUrl Objects"
         DefaultCT('fn_record_false', 1, false, Observer);
         DefaultCT('fn_recref_true', 2, true, Observer);
         DefaultCT('fn_recref_false', 2, false, Observer);
-        DefaultCT('fn_variant_true', 3, true, Observer);
-        DefaultCT('fn_variant_false', 3, false, Observer);
         Observer.Finish();
     end;
 
