@@ -3777,7 +3777,10 @@ codeunit 99613 "LT SO Eval FieldClass"
         Observer.Observe('FlowField', ShowFormats(V));
         V := FieldClass::FlowFilter;
         Observer.Observe('FlowFilter', ShowFormats(V));
-        Observer.Finish();
+        Observer.Expect('Normal', 'Normal|Normal|Normal|Normal|Normal');
+        Observer.Expect('FlowField', 'FlowField|FlowField|FlowField|FlowField|FlowField');
+        Observer.Expect('FlowFilter', 'FlowFilter|FlowFilter|FlowFilter|FlowFilter|FlowFilter');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3792,7 +3795,11 @@ codeunit 99613 "LT SO Eval FieldClass"
         Observer.Observe('default text error', GetLastErrorText());
         Observer.Observe('default text error code', GetLastErrorCode());
         ClearLastError();
-        Observer.Finish();
+        Observer.Expect('default', 'Normal|Normal|Normal|Normal|Normal');
+        Observer.Expect('default length 3', 'Nor');
+        Observer.Expect('default text error', 'An invalid field or attribute has been specified for the ''Format'' property.\\<Text>');
+        Observer.Expect('default text error code', 'InvalidFormatString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3806,7 +3813,14 @@ codeunit 99613 "LT SO Eval FieldClass"
         Observer.Observe('evaluate 3', Format(Ok) + '/' + ShowFormats(V));
         Ok := Evaluate(V, '2');
         Observer.Observe('evaluate 2', Format(Ok) + '/' + ShowFormats(V));
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('evaluate 3', 'Yes/KeyFieldReference|KeyFieldReference|KeyFieldReference|KeyFieldReference|KeyFieldReference');
+        Observer.Expect('evaluate 2', 'Yes/FlowFilter|FlowFilter|FlowFilter|FlowFilter|FlowFilter');
+#else
+        Observer.Expect('evaluate 3', 'No/Normal|Normal|Normal|Normal|Normal');
+        Observer.Expect('evaluate 2', 'Yes/FlowFilter|FlowFilter|FlowFilter|FlowFilter|FlowFilter');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -3822,7 +3836,10 @@ codeunit 99613 "LT SO Eval FieldClass"
         Observer.Observe('FlowField', ShowClass(FieldRec));
         FieldRec.Get(67307, 18);
         Observer.Observe('FlowFilter', ShowClass(FieldRec));
-        Observer.Finish();
+        Observer.Expect('Normal', 'Normal|Normal|Normal|0|0');
+        Observer.Expect('FlowField', 'FlowField|FlowField|FlowField|1|1');
+        Observer.Expect('FlowFilter', 'FlowFilter|FlowFilter|FlowFilter|2|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3846,6 +3863,12 @@ codeunit 99613 "LT SO Eval FieldClass"
         Observer.Observe('error', GetLastErrorText());
         Observer.Observe('error code', GetLastErrorCode());
         ClearLastError();
-        Observer.Finish();
+        Observer.Expect('evaluate name', 'No/Normal|Normal|Normal|0|0');
+        Observer.Expect('evaluate 3', 'Yes/3|3|3|3|3');
+        Observer.Expect('evaluate FlowField', 'Yes/FlowField|FlowField|FlowField|1|1');
+        Observer.Expect('evaluate 2 f9', 'Yes/FlowFilter|FlowFilter|FlowFilter|2|2');
+        Observer.Expect('error', '''zzz'' is not an option. The existing options are: Normal,FlowField,FlowFilter');
+        Observer.Expect('error code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 }
