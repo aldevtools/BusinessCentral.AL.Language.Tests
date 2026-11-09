@@ -11,6 +11,10 @@
 //   no comma, (d) gives an empty text, (e) gives 'Area,text' with a non-numeric area, (f) gives a plain text for a field that also has a Caption
 //   property; the error text of FieldCaption inside an OnInsert Error; the empty-record and row runs at the page open for an expression that
 //   calls AsInteger. Observed on real BC; every literal asserted below is what BC produced.
+// Results (BC 27.5, 28.5 and 29.0 identical): no form raises an error. A CaptionClass expression that gives a text without a comma (a label,
+//   the formatted enum value, or 'Zed,some text' with a non-numeric area) is used as the caption as it is, also over a Caption property. An
+//   empty text gives the field name in FieldCaption and FieldRef.Caption, and an empty caption on a TestPage control. An expression that only
+//   calls AsInteger opens the page normally.
 // BC versions: 27, 28, 29 (corpus CI)
 
 enum 99780 "HC Kind"
@@ -238,7 +242,8 @@ codeunit 99786 "HC CaptionClass Plain Tests"
     begin
         Row.Kind := Row.Kind::Item;
         Observer.Observe('captions', FieldCaptions(Row));
-        Observer.Finish();
+        Observer.Expect('captions', 'asint=All|plainformat=Item|plainlabel=Plain label text|empty=EmptyText|nonnumeric=Zed,some text|withcaption=Item');
+        Observer.Verify();
     end;
 
     [Test]
@@ -249,7 +254,8 @@ codeunit 99786 "HC CaptionClass Plain Tests"
     begin
         Row.Kind := Row.Kind::Resource;
         Observer.Observe('captions', FieldCaptions(Row));
-        Observer.Finish();
+        Observer.Expect('captions', 'asint=Resource|plainformat=Resource|plainlabel=Plain label text|empty=EmptyText|nonnumeric=Zed,some text|withcaption=Resource');
+        Observer.Verify();
     end;
 
     [Test]
@@ -266,7 +272,8 @@ codeunit 99786 "HC CaptionClass Plain Tests"
         for FieldNo := 3 to 8 do
             Got += Format(FieldNo) + '=' + RecRef.Field(FieldNo).Caption() + '|';
         Observer.Observe('captions', Got);
-        Observer.Finish();
+        Observer.Expect('captions', '3=Resource|4=Resource|5=Plain label text|6=EmptyText|7=Zed,some text|8=Resource|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -280,7 +287,9 @@ codeunit 99786 "HC CaptionClass Plain Tests"
         Row.Kind := Row.Kind::Resource;
         asserterror Row.Insert(true);
         Observer.ObserveError('insert');
-        Observer.Finish();
+        Observer.Expect('insert|text', 'Already there. Resource = .');
+        Observer.Expect('insert|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -298,7 +307,13 @@ codeunit 99786 "HC CaptionClass Plain Tests"
         Observer.Observe('nonnumeric', Card.NonNumericArea.Caption());
         Observer.Observe('withcaption', Card.WithCaption.Caption());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('asint', 'Resource');
+        Observer.Expect('plainformat', 'Resource');
+        Observer.Expect('plainlabel', 'Plain label text');
+        Observer.Expect('empty', '');
+        Observer.Expect('nonnumeric', 'Zed,some text');
+        Observer.Expect('withcaption', 'Resource');
+        Observer.Verify();
     end;
 
     [Test]
@@ -316,7 +331,13 @@ codeunit 99786 "HC CaptionClass Plain Tests"
         Observer.Observe('nonnumeric', Card.NonNumericArea.Caption());
         Observer.Observe('withcaption', Card.WithCaption.Caption());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('asint', 'All');
+        Observer.Expect('plainformat', 'Item');
+        Observer.Expect('plainlabel', 'Plain label text');
+        Observer.Expect('empty', '');
+        Observer.Expect('nonnumeric', 'Zed,some text');
+        Observer.Expect('withcaption', 'Item');
+        Observer.Verify();
     end;
 
     [Test]
@@ -334,7 +355,13 @@ codeunit 99786 "HC CaptionClass Plain Tests"
         Observer.Observe('nonnumeric', List.NonNumericArea.Caption());
         Observer.Observe('withcaption', List.WithCaption.Caption());
         List.Close();
-        Observer.Finish();
+        Observer.Expect('asint', 'Resource');
+        Observer.Expect('plainformat', 'Resource');
+        Observer.Expect('plainlabel', 'Plain label text');
+        Observer.Expect('empty', '');
+        Observer.Expect('nonnumeric', 'Zed,some text');
+        Observer.Expect('withcaption', 'Resource');
+        Observer.Verify();
     end;
 
     [Test]
@@ -361,7 +388,10 @@ codeunit 99786 "HC CaptionClass Plain Tests"
             Got += ' close ' + Log.Take() + '|';
         end;
         Observer.Observe('cycles', Got);
-        Observer.Finish();
+        Observer.Expect('caption 1', 'Resource');
+        Observer.Expect('caption 2', 'Resource');
+        Observer.Expect('cycles', 'open empty=9 rows=1 read empty=0 rows=0 close empty=0 rows=0|open empty=9 rows=1 read empty=0 rows=0 close empty=0 rows=0|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -377,6 +407,10 @@ codeunit 99786 "HC CaptionClass Plain Tests"
         Observer.Observe('after first read', Log.Take());
         Observer.Observe('caption again', Row.FieldCaption(Amount));
         Observer.Observe('after second read', Log.Take());
-        Observer.Finish();
+        Observer.Expect('caption', 'Resource');
+        Observer.Expect('after first read', 'empty=1 rows=0');
+        Observer.Expect('caption again', 'Resource');
+        Observer.Expect('after second read', 'empty=1 rows=0');
+        Observer.Verify();
     end;
 }
