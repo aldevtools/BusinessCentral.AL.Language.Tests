@@ -9,6 +9,7 @@ Format and Evaluate of every type, format strings and AutoFormat.
 - `record-format/`: Format of a Record, RecordRef and FieldRef, also as a %n argument of StrSubstNo, Message and Error (1 AL file).
 
 - `SoEvaluateSystemOptions.al` (in the area folder itself): Evaluate into the system option types ObjectType, Verbosity, TelemetryScope, DataClassification, TransactionType, ReportFormat, ErrorType, DefaultLayout, TestPermissions, DataScope, ExecutionContext, NotificationScope, WebServiceActionResultCode and FieldClass.
+- `SoEvaluateSystemOptionsHidden.al` (in the area folder itself): the part of the system option Evaluate probe that `SoEvaluateSystemOptions.al` left open: the numbers of WebServiceActionResultCode (200, 201, 204 and around), the names of members AL cannot name (ObjectType Form and Enum, ReportFormat None, Jpeg, Xps, Meta, ExcelDataset, Custom, Zip, ExecutionContext Uninstall, FieldClass KeyFieldReference on BC 27), and rejected texts with blanks or TABs around them in the statement form.
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 
