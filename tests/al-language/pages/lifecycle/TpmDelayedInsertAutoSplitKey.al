@@ -670,7 +670,11 @@ codeunit 97427 "TPM DI Tests"
             end;
         Observer.Observe('log', Log.Take());
         Observer.Observe('lines', Lines());
-        Observer.Finish();
+        Observer.Expect('New 14|text', 'The line cannot be split.');
+        Observer.Expect('New 14|code', 'TestWrapped');
+        Observer.Expect('log', 'P-NEW:0 below=Yes P-INS:15000 T-I:15000 P-NEW:0 below=Yes P-INS:12500 T-I:12500 P-NEW:0 below=Yes P-INS:11250 T-I:11250 P-NEW:0 below=Yes P-INS:10625 T-I:10625 P-NEW:0 below=Yes P-INS:10312 T-I:10312 P-NEW:0 below=Yes P-INS:10156 T-I:10156 P-NEW:0 below=Yes P-INS:10078 T-I:10078 P-NEW:0 below=Yes P-INS:10039 T-I:10039 P-NEW:0 below=Yes P-INS:10019 T-I:10019 P-NEW:0 below=Yes P-INS:10009 T-I:10009 P-NEW:0 below=Yes P-INS:10004 T-I:10004 P-NEW:0 below=Yes P-INS:10002 T-I:10002 P-NEW:0 below=Yes P-INS:10001 T-I:10001');
+        Observer.Expect('lines', 'D1/10000=line1 D1/10001=n13 D1/10002=n12 D1/10004=n11 D1/10009=n10 D1/10019=n9 D1/10039=n8 D1/10078=n7 D1/10156=n6 D1/10312=n5 D1/10625=n4 D1/11250=n3 D1/12500=n2 D1/15000=n1 D1/20000=line2');
+        Observer.Verify();
     end;
 
     [Test]
