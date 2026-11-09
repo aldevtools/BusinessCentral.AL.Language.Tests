@@ -7,6 +7,12 @@
 //   OpenNew on a new key, OpenNew then GoToRecord of an existing row; a valid value, an invalid value (the field's OnValidate raises
 //   an error), a valid then an invalid value; with and without OnQueryClosePage; and an explicit Close() as the control. The writer tests
 //   record what they saw in the log, the reader tests Observe the rows and the log.
+// Results (BC 27.5, 28.5, 29.0 on the Linux CI, identical): a value set on a card that is still open when the test ends is saved when the
+//   card closes at the end of the test, and the next test reads it: OpenEdit (E1, E2), OpenNew then GoToRecord of an existing row (E8, E9)
+//   and OpenNew on a new key (N6, N7), with and without OnQueryClosePage (it runs with CloseAction OK, after the value is set). The same as an
+//   explicit Close() (E10). A value whose OnValidate fails is not saved: the row keeps 'old' (E3, E4), OnQueryClosePage does not run in the
+//   cases that ended with a failed SetValue (E4, E5, N12), and a valid value set before the failed one is lost too (E5 keeps 'old'). OpenNew on a
+//   new key whose Url failed leaves the row with the key and a blank Url (N11, N12).
 // BC versions: 27, 28, 29
 
 table 99740 "LT SC Setting"
@@ -158,7 +164,8 @@ codeunit 99744 "LT SC Tests"
     procedure Y7345_Read1_NextTestSeesEdit()
     begin
         Observer.Observe('E1 after the test that left the card open', ReadRow('E1'));
-        Observer.Finish();
+        Observer.Expect('E1 after the test that left the card open', 'new1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -288,7 +295,20 @@ codeunit 99744 "LT SC Tests"
         foreach Name in 'E1,E2,E3,E4,E5,N6,N7,E8,E9,E10,N11,N12'.Split(',') do
             Observer.Observe('row ' + Name, ReadRow(CopyStr(Name, 1, 20)));
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('row E1', 'new1');
+        Observer.Expect('row E2', 'new2');
+        Observer.Expect('row E3', 'old');
+        Observer.Expect('row E4', 'old');
+        Observer.Expect('row E5', 'old');
+        Observer.Expect('row N6', 'new6');
+        Observer.Expect('row N7', 'new7');
+        Observer.Expect('row E8', 'new8');
+        Observer.Expect('row E9', 'new9');
+        Observer.Expect('row E10', 'new10');
+        Observer.Expect('row N11', '');
+        Observer.Expect('row N12', '');
+        Observer.Expect('log', 'E1:ok;E2:ok;Q:E2:OK:new2;E3:Validation error for Fi');
+        Observer.Verify();
     end;
 
     local procedure GetSetting(Code: Code[20]) Setting: Record "LT SC Setting"
