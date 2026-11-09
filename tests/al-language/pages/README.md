@@ -10,7 +10,7 @@ The page object: page triggers, parts, controls, actions, CurrPage, Run and RunM
 - `application-area/`: ApplicationArea (13 AL files).
 - `array-element-fields/`: page fields that are array elements (1 AL file).
 - `assistedit-refresh/`: AssistEdit and the refresh of the page afterwards (1 AL file).
-- `background-tasks/`: page background tasks (2 AL files).
+- `background-tasks/`: page background tasks (3 AL files).
 - `bare-page-methods/`: page methods called without CurrPage (2 AL files).
 - `client-features/`: client-only features seen in a test session (role centers, camera) (1 AL file).
 - `controls/`: page controls and their properties (26 AL files).
