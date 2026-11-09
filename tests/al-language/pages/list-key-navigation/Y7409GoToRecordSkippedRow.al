@@ -113,6 +113,59 @@ page 99942 "LT K12 Plan View List"
     }
 }
 
+page 99944 "LT K12 Plan Find Only"
+{
+    PageType = List;
+    SourceTable = "LT K12 Plan Line";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+            }
+        }
+    }
+
+    trigger OnFindRecord(Which: Text): Boolean
+    begin
+        if not Rec.Find(Which) then
+            exit(false);
+        while Rec."Reserved Quantity" >= Rec."Outstanding Quantity" do
+            if Rec.Next(1) = 0 then
+                exit(false);
+        exit(true);
+    end;
+}
+
+page 99945 "LT K12 Plan Afterget"
+{
+    PageType = List;
+    SourceTable = "LT K12 Plan Line";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+            }
+        }
+    }
+
+    trigger OnNextRecord(Steps: Integer): Integer
+    begin
+        exit(Rec.Next(Steps));
+    end;
+}
+
 codeunit 99943 "LT K12 GoTo Skipped Row"
 {
     Subtype = Test;
@@ -292,5 +345,43 @@ codeunit 99943 "LT K12 GoTo Skipped Row"
         Ok := TryViewKey(P, 2, Found);
         Observer.Observe('GoToKey 2 inside SourceTableView', Reading(Ok, Found) + ' now=' + P."No.".Value());
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y7409_FindOnlyPage_And_NextOnlyPage_And_OpenEdit()
+    var
+        Observer: Codeunit "Probe Observer";
+        F: TestPage "LT K12 Plan Find Only";
+        N: TestPage "LT K12 Plan Afterget";
+        E: TestPage "LT K12 Plan List";
+        Line: Record "LT K12 Plan Line";
+        Found: Boolean;
+    begin
+        Seed('2');
+        Line.Get(2);
+        F.OpenView();
+        Observer.Observe('find-only page: GoToKey of the hidden row', FindOnlyKey(F, 2));
+        Observer.Observe('find-only page: GoToKey of a shown row', FindOnlyKey(F, 3));
+        N.OpenView();
+        Found := N.GoToRecord(Line);
+        Observer.Observe('next-only page (shows every row): GoToRecord of row 2', Format(Found) + ' now=' + N."No.".Value());
+        E.OpenEdit();
+        ClearLastError();
+        Observer.Observe('OpenEdit: GoToRecord of the hidden row', Reading(TryRecord(E, 2, Found), Found));
+        Observer.Finish();
+    end;
+
+    [TryFunction]
+    local procedure TryFindOnlyKey(var P: TestPage "LT K12 Plan Find Only"; RowNo: Integer; var Found: Boolean)
+    begin
+        Found := P.GoToKey(RowNo);
+    end;
+
+    local procedure FindOnlyKey(var P: TestPage "LT K12 Plan Find Only"; RowNo: Integer): Text
+    var
+        Found: Boolean;
+    begin
+        ClearLastError();
+        exit(Reading(TryFindOnlyKey(P, RowNo, Found), Found));
     end;
 }
