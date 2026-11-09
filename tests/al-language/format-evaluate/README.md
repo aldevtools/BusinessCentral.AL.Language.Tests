@@ -6,7 +6,6 @@ Format and Evaluate of every type, format strings and AutoFormat.
 
 - (area folder itself): 85 AL files that are about the area as a whole or were not given a topic yet.
 - `autoformat/`: AutoFormatType and AutoFormatExpression (7 AL files).
-- `format-matrix/`: Format of Date (also 0D), Time, DateTime and Duration (every standard format number 0 to 10 and a list of format-string elements, en-US and de-DE), Evaluate of matching texts, Date2DMY, Date2DWY and DMY2Date edge values.
 - `record-format/`: Format of a Record, RecordRef and FieldRef, also as a %n argument of StrSubstNo, Message and Error (1 AL file).
 
 - `SoEvaluateSystemOptions.al` (in the area folder itself): Evaluate into the system option types ObjectType, Verbosity, TelemetryScope, DataClassification, TransactionType, ReportFormat, ErrorType, DefaultLayout, TestPermissions, DataScope, ExecutionContext, NotificationScope, WebServiceActionResultCode and FieldClass.
