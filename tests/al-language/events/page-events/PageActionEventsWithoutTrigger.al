@@ -406,7 +406,12 @@ codeunit 65306 "LT PAN Action Events"
         Result('open', TryOpenView(Card));
         Card.Close();
         Observer.Observe('close.log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('open.ok', 'Yes');
+        Observer.Expect('open.err', '');
+        Observer.Expect('open.code', '');
+        Observer.Expect('open.log', '[card-OnOpenPage]');
+        Observer.Expect('close.log', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -421,7 +426,19 @@ codeunit 65306 "LT PAN Action Events"
         Result('no_trigger', TryInvokeNoTrigger(Card));
         Result('no_trigger_again', TryInvokeNoTrigger(Card));
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('with_trigger.ok', 'Yes');
+        Observer.Expect('with_trigger.err', '');
+        Observer.Expect('with_trigger.code', '');
+        Observer.Expect('with_trigger.log', '[before-WithTrigger | OnAction-WithTrigger | after-WithTrigger]');
+        Observer.Expect('no_trigger.ok', 'Yes');
+        Observer.Expect('no_trigger.err', '');
+        Observer.Expect('no_trigger.code', '');
+        Observer.Expect('no_trigger.log', '[before-NoTrigger | after-NoTrigger]');
+        Observer.Expect('no_trigger_again.ok', 'Yes');
+        Observer.Expect('no_trigger_again.err', '');
+        Observer.Expect('no_trigger_again.code', '');
+        Observer.Expect('no_trigger_again.log', '[before-NoTrigger | after-NoTrigger]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -436,7 +453,19 @@ codeunit 65306 "LT PAN Action Events"
         Result('hidden', TryInvokeHidden(Card));
         Result('disabled', TryInvokeDisabled(Card));
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('in_group.ok', 'Yes');
+        Observer.Expect('in_group.err', '');
+        Observer.Expect('in_group.code', '');
+        Observer.Expect('in_group.log', '[before-InGroupNoTrigger | after-InGroupNoTrigger]');
+        Observer.Expect('hidden.ok', 'Yes');
+        Observer.Expect('hidden.err', '');
+        Observer.Expect('hidden.code', '');
+        Observer.Expect('hidden.log', '[before-HiddenNoTrigger | after-HiddenNoTrigger]');
+        Observer.Expect('disabled.ok', 'Yes');
+        Observer.Expect('disabled.err', '');
+        Observer.Expect('disabled.code', '');
+        Observer.Expect('disabled.log', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -451,7 +480,19 @@ codeunit 65306 "LT PAN Action Events"
         Result('ext_triggers_only', TryInvokeNoTriggerExtOnly(Card));
         Result('ext_triggers_only_again', TryInvokeNoTriggerExtOnly(Card));
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('ext_action.ok', 'Yes');
+        Observer.Expect('ext_action.err', '');
+        Observer.Expect('ext_action.code', '');
+        Observer.Expect('ext_action.log', '[before-ExtNoTrigger | after-ExtNoTrigger]');
+        Observer.Expect('ext_triggers_only.ok', 'Yes');
+        Observer.Expect('ext_triggers_only.err', '');
+        Observer.Expect('ext_triggers_only.code', '');
+        Observer.Expect('ext_triggers_only.log', '[before-NoTriggerExtOnly | ext-OnBeforeAction-NoTriggerExtOnly | ext-OnAfterAction-NoTriggerExtOnly | after-NoTriggerExtOnly]');
+        Observer.Expect('ext_triggers_only_again.ok', 'Yes');
+        Observer.Expect('ext_triggers_only_again.err', '');
+        Observer.Expect('ext_triggers_only_again.code', '');
+        Observer.Expect('ext_triggers_only_again.log', '[before-NoTriggerExtOnly | ext-OnBeforeAction-NoTriggerExtOnly | ext-OnAfterAction-NoTriggerExtOnly | after-NoTriggerExtOnly]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -464,6 +505,41 @@ codeunit 65306 "LT PAN Action Events"
         Log.Reset();
         Result('run_report', TryInvokeRunRep(Card));
         Result('run_page_link', TryInvokeRunPgLink(Card));
+        Card.Close();
+        Observer.Expect('run_report.ok', 'No');
+        Observer.Expect('run_report.err', 'The method RunReport is not supported for TestPages.');
+        Observer.Expect('run_report.code', 'TestMethodNotSupportedInPageTest');
+        Observer.Expect('run_report.log', '[]');
+        Observer.Expect('run_page_link.ok', 'Yes');
+        Observer.Expect('run_page_link.err', 'Unhandled UI: Page 65302');
+        Observer.Expect('run_page_link.code', 'MissingUIHandler');
+        Observer.Expect('run_page_link.log', '[target-OnOpenPage(filter=1)]');
+        Observer.Verify();
+    end;
+
+    [TryFunction]
+    local procedure TryInvokeRunPgLinkHandled(var Card: TestPage "LT PAN Card")
+    begin
+        Card.RunPgLink.Invoke();
+    end;
+
+    [PageHandler]
+    procedure TargetHandler(var Target: TestPage "LT PAN Target")
+    begin
+        Log.Add('handler(' + Format(Target.IdCtl.Value) + ')');
+    end;
+
+    [Test]
+    [HandlerFunctions('TargetHandler')]
+    procedure ActionEvents_Invoke_RunObjectPageWithLink_WithPageHandler()
+    var
+        Card: TestPage "LT PAN Card";
+    begin
+        Row();
+        Card.OpenView();
+        Log.Reset();
+        Result('run_page_link_handled', TryInvokeRunPgLinkHandled(Card));
+        Result('run_page_link_handled_again', TryInvokeRunPgLinkHandled(Card));
         Card.Close();
         Observer.Finish();
     end;
