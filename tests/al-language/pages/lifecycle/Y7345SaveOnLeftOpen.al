@@ -307,7 +307,7 @@ codeunit 99744 "LT SC Tests"
         Observer.Expect('row E10', 'new10');
         Observer.Expect('row N11', '');
         Observer.Expect('row N12', '');
-        Observer.Expect('log', 'E1:ok;E2:ok;Q:E2:OK:new2;E3:Validation error for Fi');
+        Observer.Expect('log', 'E1:ok;E2:ok;Q:E2:OK:new2;E3:Validation error for Field: Url,  Message = ''Url must not start with bad. (Select Refresh to discard errors)'';E4:Validation error for Field: Url,  Message = ''Url must not start with bad. (Select Refresh to discard errors)'';E5a:ok;E5b:Validation error for Field: Url,  Message = ''Url must not start with bad. (Select Refresh to discard errors)'';N6:ok;N7:ok;Q:N7:OK:new7;E8:ok;E9:ok;Q:E9:OK:new9;E10:ok;N11:Validation error for Field: Url,  Message = ''Url must not start with bad. (Select Refresh to discard errors)'';N12:Validation error for Field: Url,  Message = ''Url must not start with bad. (Select Refresh to discard errors)'';');
         Observer.Verify();
     end;
 
