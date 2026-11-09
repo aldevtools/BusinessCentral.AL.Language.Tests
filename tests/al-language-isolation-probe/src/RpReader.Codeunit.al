@@ -120,7 +120,7 @@ codeunit 61346 "LT RP Reader"
     procedure P5_RunWithOnRunError()
     begin
         Expect('P5 OnRun raises',
-          ':B ; OnRun:B ; OnRun:X body ; OnRun:A No ; :A No ; :RUN No err=[P5 OnRun fails on purpose]',
+          ':B ; OnRun:B ; OnRun:X body ; OnRun:A No ' + AfterOfCodeunitAfterFailedOnRun() + ':RUN No err=[P5 OnRun fails on purpose]',
           Log.Seq(Runner(), Codeunit::"LT RP P5 OnRun Raises", '') + ' err=[' + RunData(Codeunit::"LT RP P5 OnRun Raises") + ']');
     end;
 
@@ -188,6 +188,17 @@ codeunit 61346 "LT RP Reader"
     procedure P8_CodeunitPropertyDisabled()
     begin
         Expect('P8 control', 'Disabled', Log.DataOf(Runner(), Codeunit::"LT RP P3 No OnRun", 'P3_Passes', 'B', 1));
+    end;
+
+    // The platform's OnAfterTestRun call for the test codeunit itself (FunctionName '', IsSuccess false) after its OnRun
+    // raised: made on BC 27.5, 28.4 and 28.5, not made on BC 29.0 (Windows runs of 2026-11-08 and 2026-11-09).
+    local procedure AfterOfCodeunitAfterFailedOnRun(): Text
+    begin
+#if BC29PLUS
+        exit('; ');
+#else
+        exit('; :A No ; ');
+#endif
     end;
 
     local procedure Runner(): Integer
