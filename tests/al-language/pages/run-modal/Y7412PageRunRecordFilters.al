@@ -116,6 +116,33 @@ codeunit 99962 "LT K12 Page Run Filters"
         Seen += ' ' + KeyReading(P, 1) + ' ' + KeyReading(P, 2) + ' ' + KeyReading(P, 3) + ' ' + KeyReading(P, 4);
     end;
 
+    [TryFunction]
+    local procedure TryKeyStatement(var P: TestPage "LT K12 Ledger Entries"; EntryNo: Integer)
+    begin
+        P.GoToKey(EntryNo);
+    end;
+
+    // Statement form: GoToKey called without using the Boolean it returns (the shape of the report's asserterror).
+    local procedure ReadStatements(var P: TestPage "LT K12 Ledger Entries")
+    var
+        EntryNo: Integer;
+    begin
+        Seen := '';
+        for EntryNo := 1 to 4 do begin
+            ClearLastError();
+            if TryKeyStatement(P, EntryNo) then
+                Seen += 'key' + Format(EntryNo) + '=no error '
+            else
+                Seen += 'key' + Format(EntryNo) + ' error:' + GetLastErrorText() + '|' + GetLastErrorCode() + ' ';
+        end;
+    end;
+
+    [PageHandler]
+    procedure EntriesStatementHandler(var Entries: TestPage "LT K12 Ledger Entries")
+    begin
+        ReadStatements(Entries);
+    end;
+
     [PageHandler]
     procedure EntriesHandler(var Entries: TestPage "LT K12 Ledger Entries")
     begin
@@ -143,7 +170,8 @@ codeunit 99962 "LT K12 Page Run Filters"
         Entry.SetFilter("Due Date", '<=%1', Today());
         Page.Run(0, Entry);
         Observer.Observe('Page.Run(0, Entry): case, open, due date filters, secondary key', Seen);
-        Observer.Finish();
+        Observer.Expect('Page.Run(0, Entry): case, open, due date filters, secondary key', 'rows=2, key1=No key2=Yes key3=No key4=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -163,7 +191,9 @@ codeunit 99962 "LT K12 Page Run Filters"
         Entry.Reset();
         Page.Run(0, Entry);
         Observer.Observe('Page.Run(0, Entry): no filter', Seen);
-        Observer.Finish();
+        Observer.Expect('Page.Run(Page::X, Entry): same filters', 'rows=2, key1=No key2=Yes key3=No key4=No');
+        Observer.Expect('Page.Run(0, Entry): no filter', 'rows=1,2,3,4, key1=Yes key2=Yes key3=Yes key4=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -185,7 +215,10 @@ codeunit 99962 "LT K12 Page Run Filters"
         Entry.SetRange("Entry No.", 2, 3);
         Page.Run(0, Entry);
         Observer.Observe('Page.Run(0, Entry): primary key range 2..3', Seen);
-        Observer.Finish();
+        Observer.Expect('Page.Run(0, Entry): Open filter only, primary key', 'rows=2,3,4, key1=No key2=Yes key3=Yes key4=Yes');
+        Observer.Expect('Page.Run(0, Entry): due date filter only', 'rows=1,2,4, key1=Yes key2=Yes key3=No key4=Yes');
+        Observer.Expect('Page.Run(0, Entry): primary key range 2..3', 'rows=2,3, key1=No key2=Yes key3=Yes key4=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -202,7 +235,8 @@ codeunit 99962 "LT K12 Page Run Filters"
         Entry.SetFilter("Due Date", '<=%1', Today());
         Page.RunModal(0, Entry);
         Observer.Observe('Page.RunModal(0, Entry): same filters', Seen);
-        Observer.Finish();
+        Observer.Expect('Page.RunModal(0, Entry): same filters', 'rows=2, key1=No key2=Yes key3=No key4=No');
+        Observer.Verify();
     end;
 
     // Matrix: what a record carries into Page.Run / Page.RunModal beyond plain filters: filter group 2, a view, a copy, CopyFilters, a temporary
@@ -239,7 +273,12 @@ codeunit 99962 "LT K12 Page Run Filters"
         Entry.SetFilter("Entry No.", '1|3');
         Page.Run(0, Entry);
         Observer.Observe('OR of two single keys on the primary key', Seen);
-        Observer.Finish();
+        Observer.Expect('filter in group 2 only', 'rows=1,2,3, key1=Yes key2=Yes key3=Yes key4=No');
+        Observer.Expect('SetView with sorting and filters', 'rows=2,4, key1=No key2=Yes key3=No key4=Yes');
+        Observer.Expect('Copy of a filtered record', 'rows=4, key1=No key2=No key3=No key4=Yes');
+        Observer.Expect('CopyFilters from a filtered record', 'rows=4, key1=No key2=No key3=No key4=Yes');
+        Observer.Expect('OR of two single keys on the primary key', 'rows=1,3, key1=Yes key2=No key3=Yes key4=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -264,7 +303,10 @@ codeunit 99962 "LT K12 Page Run Filters"
         Entry.Get(3);
         Page.Run(0, Entry);
         Observer.Observe('record positioned on a row outside its own filter', Seen);
-        Observer.Finish();
+        Observer.Expect('temporary record with one row and a filter', 'rows= key1=No key2=No key3=No key4=No');
+        Observer.Expect('filtered record positioned on its first row', 'rows=2,3,4, key1=No key2=Yes key3=Yes key4=Yes');
+        Observer.Expect('record positioned on a row outside its own filter', 'rows=1, key1=Yes key2=No key3=No key4=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -284,6 +326,29 @@ codeunit 99962 "LT K12 Page Run Filters"
         Entry.SetRange("Case No.", 'C2');
         Page.RunModal(0, Entry);
         Observer.Observe('RunModal(0), case filter on the secondary key field', Seen);
+        Observer.Expect('RunModal explicit page, no filter', 'rows=1,2,3,4, key1=Yes key2=Yes key3=Yes key4=Yes');
+        Observer.Expect('RunModal explicit page, Open filter', 'rows=2,3,4, key1=No key2=Yes key3=Yes key4=Yes');
+        Observer.Expect('RunModal(0), case filter on the secondary key field', 'rows=4, key1=No key2=No key3=No key4=Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('EntriesStatementHandler')]
+    procedure Y7412_Run0_StatementForm()
+    var
+        Observer: Codeunit "Probe Observer";
+        Entry: Record "LT K12 Ledger Entry";
+    begin
+        Seed();
+        Entry.SetCurrentKey("Case No.", Open);
+        Entry.SetRange("Case No.", 'C1');
+        Entry.SetRange(Open, true);
+        Entry.SetFilter("Due Date", '<=%1', Today());
+        Page.Run(0, Entry);
+        Observer.Observe('GoToKey statements, issue filters (only row 2 passes)', Seen);
+        Entry.Reset();
+        Page.Run(0, Entry);
+        Observer.Observe('GoToKey statements, no filter', Seen);
         Observer.Finish();
     end;
 }
