@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/report/report-wordxmlpart-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); own tables 95740-95741, enum 95742, reports 95740-95749 and 95753-95754, report extensions 95750-95752, test codeunit 95759
+// Fixtures used: Probe Observer (69160); own tables 95740-95741, enum 95742, reports 95740-95749, 95753-95754 and 95766-95770, report extensions 95750-95752, cross-app report 94695 (app A) with extensions 95525 (app B) and 61194 (app D), test codeunit 95759
 // Probe: written for al-runner issues 6993 and 6994; every literal asserted below is what the BC tiers of the corpus CI matrix produced.
 // Facts: the full text of Report.WordXmlPart(Id) and Report.WordXmlPart(Id, true) for
 // - report, data item and column names with spaces, dashes, dots, a leading digit, underscores, non-ASCII letters, punctuation and a long name;
@@ -416,6 +416,135 @@ report 95754 "LT WXP Types C"
     end;
 }
 
+// Columns bound to elements of arrays (al-runner issue 7381), and the Ship-to address shape of "Standard Sales - Order Conf."
+// (columns ShipToAddress1..8 bound to an array and a label variable column, al-runner issue 7367).
+report 95766 "LT WXP Array"
+{
+    UsageCategory = None;
+    UseRequestPage = false;
+
+    dataset
+    {
+        dataitem(Item; "LT WXP Row")
+        {
+            column(Contact_AddrArray_1; TxtArr[1]) { }
+            column(Contact_AddrArray_8; TxtArr[8]) { }
+            column(Code_Arr_2; CodeArr[2]) { }
+            column(Int_Arr_1; IntArr[1]) { }
+            column(Dec_Arr_1; DecArr[1]) { }
+            column(Bool_Arr_1; BoolArr[1]) { }
+            column(Date_Arr_1; DateArr[1]) { }
+            column(Txt30_Arr_1; Txt30Arr[1]) { }
+            column(Txt_Arr2D_1_2; TxtArr2D[1, 2]) { }
+            column(Txt_Plain; PlainTxt) { }
+        }
+    }
+
+    var
+        TxtArr: array[8] of Text;
+        CodeArr: array[3] of Code[10];
+        IntArr: array[2] of Integer;
+        DecArr: array[2] of Decimal;
+        BoolArr: array[2] of Boolean;
+        DateArr: array[2] of Date;
+        Txt30Arr: array[2] of Text[30];
+        TxtArr2D: array[2, 3] of Text;
+        PlainTxt: Text;
+}
+
+report 95767 "LT WXP Ship To"
+{
+    UsageCategory = None;
+    UseRequestPage = false;
+
+    dataset
+    {
+        dataitem(Header; "LT WXP Row")
+        {
+            column(ShipToAddress1; ShipToAddr[1]) { }
+            column(ShipToAddress2; ShipToAddr[2]) { }
+            column(ShipToAddress8; ShipToAddr[8]) { }
+            column(ShipToAddress_Lbl; ShipToAddrLbl) { }
+            column(ShipToAddress9; ShipToAddr9) { }
+            column(ShipToAddressX; ShipToAddr[1]) { }
+        }
+    }
+
+    var
+        ShipToAddr: array[8] of Text[100];
+        ShipToAddr9: Text[100];
+        ShipToAddrLbl: Label 'Ship-to Address';
+}
+
+// Data items with no column and no nested data item (al-runner issue 7383).
+report 95768 "LT WXP Empty Total"
+{
+    UsageCategory = None;
+    UseRequestPage = false;
+
+    dataset
+    {
+        dataitem(Header; "LT WXP Row")
+        {
+            column(HCode; "Code") { }
+        }
+        dataitem(Total; Integer)
+        {
+            DataItemTableView = sorting(Number) where(Number = const(1));
+        }
+    }
+}
+
+report 95769 "LT WXP Empty Only"
+{
+    UsageCategory = None;
+    UseRequestPage = false;
+
+    dataset
+    {
+        dataitem(Total; Integer)
+        {
+            DataItemTableView = sorting(Number) where(Number = const(1));
+        }
+    }
+}
+
+report 95770 "LT WXP Empty Nested"
+{
+    UsageCategory = None;
+    UseRequestPage = false;
+
+    dataset
+    {
+        dataitem(FirstEmpty; Integer)
+        {
+            DataItemTableView = sorting(Number) where(Number = const(1));
+        }
+        dataitem(Header; "LT WXP Row")
+        {
+            column(HCode; "Code") { }
+            dataitem(NestedEmpty; Integer)
+            {
+                DataItemTableView = sorting(Number) where(Number = const(1));
+            }
+            dataitem(NestedFull; "LT WXP Line")
+            {
+                DataItemLink = RowCode = field("Code");
+                column(NQty; Qty) { }
+            }
+        }
+        dataitem(EmptyWithLabel; Integer)
+        {
+            DataItemTableView = sorting(Number) where(Number = const(1));
+        }
+    }
+
+    labels
+    {
+        LblOne = 'One';
+    }
+}
+
 codeunit 95759 "LT WXP Tests"
 {
     Subtype = Test;
@@ -699,6 +828,182 @@ codeunit 95759 "LT WXP Tests"
         Observer.Observe('length', Format(StrLen(Plain) > 100));
         Observer.Expect('same', 'Yes');
         Observer.Expect('length', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_Array_Plain()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Array"));
+        Observer.Expect('part', 'TBD');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_Array_Extended()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Array", true));
+        Observer.Expect('part', 'TBD');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_ShipTo_Plain()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Ship To"));
+        Observer.Expect('part', 'TBD');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_ShipTo_Extended()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Ship To", true));
+        Observer.Expect('part', 'TBD');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_EmptyTotal_Plain()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Empty Total"));
+        Observer.Expect('part', 'TBD');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_EmptyTotal_Extended()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Empty Total", true));
+        Observer.Expect('part', 'TBD');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_EmptyOnly_Plain()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Empty Only"));
+        Observer.Expect('part', 'TBD');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_EmptyOnly_Extended()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Empty Only", true));
+        Observer.Expect('part', 'TBD');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_EmptyNested_Plain()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Empty Nested"));
+        Observer.Expect('part', 'TBD');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_EmptyNested_Extended()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Empty Nested", true));
+        Observer.Expect('part', 'TBD');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_Order_Plain()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Order"));
+        Observer.Expect('part', 'TBD');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_Order_Extended()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Order", true));
+        Observer.Expect('part', 'TBD');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_CrossApp_Plain()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP XA Report"));
+        Observer.Expect('part', 'TBD');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_CrossApp_Extended()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP XA Report", true));
+        Observer.Expect('part', 'TBD');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_CrossApp_Repeated()
+    var
+        Observer: Codeunit "Probe Observer";
+        First: Text;
+        i: Integer;
+        Same: Boolean;
+    begin
+        // Repeated calls in one session; the order across independent apps is also compared by the runs of the CI legs.
+        First := Report.WordXmlPart(Report::"LT WXP XA Report", true);
+        Same := true;
+        for i := 1 to 20 do
+            if Report.WordXmlPart(Report::"LT WXP XA Report", true) <> First then
+                Same := false;
+        Observer.Observe('same', Format(Same));
+        Observer.Expect('same', 'TBD');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_Report1305_ShipToOrder()
+    var
+        Observer: Codeunit "Probe Observer";
+        Part: Text;
+    begin
+        // Base Application report 1305 "Standard Sales - Order Conf." (al-runner issue 7367).
+        Part := Report.WordXmlPart(Report::"Standard Sales - Order Conf.");
+        Observer.Observe('len', Format(StrLen(Part)));
+        Observer.Observe('addr8 before lbl', Format(StrPos(Part, '<ShipToAddress8>') < StrPos(Part, '<ShipToAddress_Lbl>')));
+        Observer.Observe('addr slice', CopyStr(Part, StrPos(Part, '<ShipToAddress'), 400));
+        Observer.Expect('len', 'TBD');
+        Observer.Expect('addr8 before lbl', 'TBD');
+        Observer.Expect('addr slice', 'TBD');
         Observer.Verify();
     end;
 }
