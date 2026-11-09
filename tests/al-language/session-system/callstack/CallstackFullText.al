@@ -100,24 +100,31 @@ codeunit 65101 "LT AG Cs Holder"
         exit(CopyStr(Value, Last + StrLen(Marker)));
     end;
 
+    // BC 27.5 appends six frames of Microsoft's test runner below the test procedure (BC 28.5 and 29.0 do not). The shape is read from the
+    // text up to the first runner frame; the number of runner frames is observed apart, so the observations are the same on every version.
     procedure Shape(ContextName: Text; var Observer: Codeunit "Probe Observer")
     var
         Source: Text;
         Value: Text;
+        Prefix: Text;
         Cr: Text[1];
         Lf: Text[1];
-        Tail: Text;
+        RunnerAt: Integer;
     begin
         Cr[1] := 13;
         Lf[1] := 10;
         foreach Source in ShapeSources() do begin
             Value := Get(ContextName + '.' + Source);
+            Prefix := Value;
+            RunnerAt := Value.IndexOf('"Test Runner - Mgt"');
+            if RunnerAt > 0 then
+                Prefix := CopyStr(Value, 1, RunnerAt - 1);
+            Observer.Observe(ContextName + '.' + Source + '.runnerframes', Format(Count(Value, 'Test Runner by Microsoft')));
             Observer.Observe(ContextName + '.' + Source + '.shape',
-                'len=' + Format(StrLen(Value)) + ';cr=' + Format(Count(Value, Cr)) + ';lf=' + Format(Count(Value, Lf)) +
-                ';bs=' + Format(Count(Value, '\')) + ';own=' + Format(Count(Value, 'AL Language Coverage Tests by AL Language version')) +
-                ';last=' + Format(LastCharCode(Value)) + ';crlf-lines=' + Format(Value.Split(Cr + Lf).Count()) + ';lf-lines=' + Format(Value.Split(Lf).Count()));
-            Tail := TailAfterLastOwnFrame(Value);
-            Observer.Observe(ContextName + '.' + Source + '.tail', Tail);
+                'len=' + Format(StrLen(Prefix)) + ';cr=' + Format(Count(Prefix, Cr)) + ';lf=' + Format(Count(Prefix, Lf)) +
+                ';bs=' + Format(Count(Prefix, '\')) + ';own=' + Format(Count(Prefix, 'AL Language Coverage Tests by AL Language version')) +
+                ';last=' + Format(LastCharCode(Prefix)) + ';crlf-lines=' + Format(Prefix.Split(Cr + Lf).Count()) + ';lf-lines=' + Format(Prefix.Split(Lf).Count()));
+            Observer.Observe(ContextName + '.' + Source + '.tail', TailAfterLastOwnFrame(Prefix));
         end;
     end;
 
