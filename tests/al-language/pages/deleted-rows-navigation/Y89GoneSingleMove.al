@@ -4510,7 +4510,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/R:10;R:10;R:20');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:20/R:20;R:30;X:30');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '2');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4528,7 +4535,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/R:10;R:10;R:20');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10;D:20;D:30/R:20;X:0');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4546,7 +4560,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/R:10;R:10;R:20;R:30');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:30/R:30;R:20;X:20');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '2');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4564,7 +4585,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/R:10;R:10;R:20;R:30');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10;D:20;D:30/R:30;X:0');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4581,7 +4609,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/R:10');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10/R:10;X:0');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4598,7 +4633,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/R:10');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10/R:10;X:0');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4616,7 +4658,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/R:10;R:10;R:20');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:20/R:20;R:30;X:30');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '2');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4634,7 +4683,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/R:10;R:10;R:20');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10;D:20;D:30/R:20;X:0');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4652,7 +4708,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/R:10;R:10;R:20;R:30');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:30/R:30;R:20;X:20');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '2');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4670,7 +4733,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/R:10;R:10;R:20;R:30');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10;D:20;D:30/R:30;X:0');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4687,7 +4757,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/R:10');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10/R:10;X:0');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4704,7 +4781,14 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
-        Observer.Finish();
+        Observer.Expect('open log', '/R:10');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10/R:10;X:0');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4722,7 +4806,11 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:20/R:20;R:20;R:30;X:30');
+        Observer.Expect('rows', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4740,7 +4828,11 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:10;D:20;D:30/R:20;R:20;X:0');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4758,7 +4850,11 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:30/R:30;R:30;R:20;X:20');
+        Observer.Expect('rows', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4776,7 +4872,11 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:10;D:20;D:30/R:30;R:30;X:0');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4794,7 +4894,11 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:10/R:10;R:10;X:0');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4812,7 +4916,11 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:10/R:10;R:10;X:0');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 }
 
