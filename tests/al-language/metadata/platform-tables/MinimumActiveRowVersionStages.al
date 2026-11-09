@@ -166,3 +166,54 @@ codeunit 97989 "MRV Function Isolation Tests"
         Observer.Finish();
     end;
 }
+
+codeunit 97990 "MRV Open Write First Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    [Test]
+    procedure MinRowVersion_OpenWriteBeforeFirstRead()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT RV Row";
+    begin
+        Row.Id := 1;
+        Row.Insert();
+        Row.Id := 2;
+        Row.Insert();
+        Row.Id := 3;
+        Row.Insert();
+        Row.Get(3);
+        Observer.Observe('open first min-last', Format(MinimumActiveRowVersion() - LastUsedRowVersion()));
+        Observer.Observe('open first row/min', Format(Row.SystemRowVersion - MinimumActiveRowVersion()));
+        Observer.Observe('open first tx', Format(IsInWriteTransaction()));
+        Observer.Finish();
+    end;
+}
+
+codeunit 97991 "MRV Committed Write First Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    [Test]
+    procedure MinRowVersion_CommittedWriteBeforeFirstRead()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT RV Row";
+    begin
+        Row.Id := 1;
+        Row.Insert();
+        Row.Id := 2;
+        Row.Insert();
+        Row.Id := 3;
+        Row.Insert();
+        Commit();
+        Row.Get(3);
+        Observer.Observe('committed first min-last', Format(MinimumActiveRowVersion() - LastUsedRowVersion()));
+        Observer.Observe('committed first row/min', Format(Row.SystemRowVersion - MinimumActiveRowVersion()));
+        Observer.Observe('committed first tx', Format(IsInWriteTransaction()));
+        Observer.Finish();
+    end;
+}
