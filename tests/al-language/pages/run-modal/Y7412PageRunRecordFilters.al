@@ -349,6 +349,8 @@ codeunit 99962 "LT K12 Page Run Filters"
         Entry.Reset();
         Page.Run(0, Entry);
         Observer.Observe('GoToKey statements, no filter', Seen);
-        Observer.Finish();
+        Observer.Expect('GoToKey statements, issue filters (only row 2 passes)', 'key1 error:The row does not exist on the TestPage.|TestRowNotFound key2=no error key3 error:The row does not exist on the TestPage.|TestRowNotFound key4 error:The row does not exist on the TestPage.|TestRowNotFound ');
+        Observer.Expect('GoToKey statements, no filter', 'key1=no error key2=no error key3=no error key4=no error ');
+        Observer.Verify();
     end;
 }
