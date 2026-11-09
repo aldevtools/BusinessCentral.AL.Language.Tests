@@ -1,7 +1,7 @@
 // Cross-app fixture A: NavApp.LoadPackageData of a data file whose column list ends with a `$systemId` column (al-runner issues 7366 and 6649). The files
 // TAB<id>.navxdata in this folder have the layout of Y85XaPackageData.al, except that the column list (count and names) differs as noted per table. They are loaded by
 // the install codeunit 94699 below in OnInstallAppPerDatabase (the tables are DataPerCompany = false, the shape of the report), each load in a TryFunction whose error goes to
-// the log table 97992 of PkgPartsFixture.al (Part 'sys7366'). Tests: tests/al-language/install-upgrade/install-triggers/Y7366SystemIdPackageData.al.
+// the log table 97992 of PkgDataPartsFixture.al (Part 'sys7366'). Tests: tests/al-language/install-upgrade/install-triggers/Y7366SystemIdPackageData.al.
 //   94692 trailing: columns Entry No., Description, Content, $systemId (count 4 for 3 fields), 2 rows.
 //   94693 fewer: table has No., Description, Note; the file lists No., Description, $systemId and its rows carry no Note value.
 //   94694 more: table has No., Description; the file lists No., Description, Extra, $systemId and each row carries an Extra string.
