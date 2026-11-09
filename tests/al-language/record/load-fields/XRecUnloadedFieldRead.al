@@ -9,6 +9,9 @@
 //   load) or an empty value, whether a row changed by another variable between the Get and the read shows its new or its old value, what xRec holds
 //   after a Get, and the same reads after the key field was assigned (not renamed) and from the OnInsert trigger of a second table. A control
 //   without SetLoadFields gives the same reads. Observed on real BC; every literal asserted below is what BC produced.
+// Results (BC 27.5, 28.5 and 29.0 identical): no read raises an error. After SetLoadFields and Get, every field of xRec read in a table method
+//   is empty (also the key), and a field of Rec that is not in the load set gives the stored value (a just-in-time load), also the new value when
+//   another variable changed the row after the Get.
 // BC versions: 27, 28, 29 (corpus CI)
 
 table 99650 "XL Header"
@@ -124,7 +127,9 @@ codeunit 99652 "XL XRec Unloaded Tests"
         Header.SetLoadFields("No.");
         Observer.Observe('get', Format(Header.Get('A1')));
         Observer.Observe('is blocked', Format(Header.IsBlocked()));
-        Observer.Finish();
+        Observer.Expect('get', 'Yes');
+        Observer.Expect('is blocked', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -139,7 +144,10 @@ codeunit 99652 "XL XRec Unloaded Tests"
         Observer.Observe('xrec no', Header.ReadXRecNo());
         Observer.Observe('xrec template', Header.ReadXRecTemplate());
         Observer.Observe('xrec status', Header.ReadXRecStatus());
-        Observer.Finish();
+        Observer.Expect('xrec no', '');
+        Observer.Expect('xrec template', '');
+        Observer.Expect('xrec status', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -153,7 +161,9 @@ codeunit 99652 "XL XRec Unloaded Tests"
         Header.Get('A1');
         Observer.Observe('rec template', Header.ReadRecTemplate());
         Observer.Observe('rec status', Header.ReadRecStatus());
-        Observer.Finish();
+        Observer.Expect('rec template', 'T1');
+        Observer.Expect('rec status', 'NEW');
+        Observer.Verify();
     end;
 
     [Test]
@@ -168,7 +178,9 @@ codeunit 99652 "XL XRec Unloaded Tests"
         ChangeStatusElsewhere();
         Observer.Observe('rec status', Header.ReadRecStatus());
         Observer.Observe('xrec status', Header.ReadXRecStatus());
-        Observer.Finish();
+        Observer.Expect('rec status', 'CHANGED');
+        Observer.Expect('xrec status', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -183,7 +195,9 @@ codeunit 99652 "XL XRec Unloaded Tests"
         ChangeStatusElsewhere();
         Observer.Observe('xrec status', Header.ReadXRecStatus());
         Observer.Observe('rec status', Header.ReadRecStatus());
-        Observer.Finish();
+        Observer.Expect('xrec status', '');
+        Observer.Expect('rec status', 'CHANGED');
+        Observer.Verify();
     end;
 
     [Test]
@@ -199,7 +213,10 @@ codeunit 99652 "XL XRec Unloaded Tests"
         Observer.Observe('rec status', Header.ReadRecStatus());
         Observer.Observe('xrec no', Header.ReadXRecNo());
         Observer.Observe('xrec status', Header.ReadXRecStatus());
-        Observer.Finish();
+        Observer.Expect('rec status', 'NEW');
+        Observer.Expect('xrec no', '');
+        Observer.Expect('xrec status', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -214,7 +231,11 @@ codeunit 99652 "XL XRec Unloaded Tests"
         Observer.Observe('xrec status', Header.ReadXRecStatus());
         Observer.Observe('rec status', Header.ReadRecStatus());
         Observer.Observe('is blocked', Format(Header.IsBlocked()));
-        Observer.Finish();
+        Observer.Expect('xrec no', '');
+        Observer.Expect('xrec status', '');
+        Observer.Expect('rec status', 'NEW');
+        Observer.Expect('is blocked', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -230,7 +251,10 @@ codeunit 99652 "XL XRec Unloaded Tests"
         Observer.Observe('xrec no', Header.ReadXRecNo());
         Observer.Observe('xrec status', Header.ReadXRecStatus());
         Observer.Observe('rec status', Header.ReadRecStatus());
-        Observer.Finish();
+        Observer.Expect('xrec no', '');
+        Observer.Expect('xrec status', '');
+        Observer.Expect('rec status', 'NEW');
+        Observer.Verify();
     end;
 
     [Test]
@@ -244,6 +268,8 @@ codeunit 99652 "XL XRec Unloaded Tests"
         Line."Header No." := 'A1';
         asserterror Line.Insert(true);
         Observer.ObserveError('insert');
-        Observer.Finish();
+        Observer.Expect('insert|text', 'blocked');
+        Observer.Expect('insert|code', 'Dialog');
+        Observer.Verify();
     end;
 }
