@@ -541,6 +541,14 @@ codeunit 65306 "LT PAN Action Events"
         Result('run_page_link_handled', TryInvokeRunPgLinkHandled(Card));
         Result('run_page_link_handled_again', TryInvokeRunPgLinkHandled(Card));
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('run_page_link_handled.ok', 'Yes');
+        Observer.Expect('run_page_link_handled.err', '');
+        Observer.Expect('run_page_link_handled.code', '');
+        Observer.Expect('run_page_link_handled.log', '[target-OnOpenPage(filter=1) | handler(1)]');
+        Observer.Expect('run_page_link_handled_again.ok', 'Yes');
+        Observer.Expect('run_page_link_handled_again.err', '');
+        Observer.Expect('run_page_link_handled_again.code', '');
+        Observer.Expect('run_page_link_handled_again.log', '[target-OnOpenPage(filter=1) | handler(1)]');
+        Observer.Verify();
     end;
 }
