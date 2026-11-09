@@ -961,6 +961,15 @@ jobs:
           }
 
           $folder = 'tests/al-language-isolation-probe'
+          # The probe's expected readings differ between majors in a few places (#if BC29PLUS): define the
+          # same symbols ci.yml defines per leg (27 -> BC27PLUS, 28 -> +BC28PLUS, 29 -> +BC29PLUS).
+          $major = [int]($env:BC_VERSION -split '\.')[0]
+          $symbols = @(); if ($major -ge 27) { $symbols += 'BC27PLUS' }; if ($major -ge 28) { $symbols += 'BC28PLUS' }; if ($major -ge 29) { $symbols += 'BC29PLUS' }
+          $probeJson = Join-Path $env:GITHUB_WORKSPACE "$folder/app.json"
+          $probeApp = Get-Content $probeJson -Raw | ConvertFrom-Json
+          $probeApp | Add-Member -NotePropertyName preprocessorSymbols -NotePropertyValue $symbols -Force
+          [IO.File]::WriteAllText($probeJson, ($probeApp | ConvertTo-Json -Depth 10), (New-Object Text.UTF8Encoding($false)))
+          Write-Host "probe app symbols: $($symbols -join ',')"
           $outDir = Join-Path $env:GITHUB_WORKSPACE '.output'
           New-Item -ItemType Directory -Force -Path $outDir | Out-Null
           # The latest AL compiler on the host, not the container's (see "Install the latest AL compiler").
@@ -1030,7 +1039,7 @@ jobs:
         run: |
           python .github/scripts/isolation-probe-results.py \
             --title "Runner-trigger probe (ADR-066 of al-runtime-rs, P1-P8)" \
-            --note "Not part of the headline above. Each test of LT RP Reader (61346) states the platform behavior ADR-066 assumes for a TestRunner codeunit's triggers; a failure message carries what was observed. P2_Fails and P5_Fails fail on purpose." \
+            --note "Not part of the headline above. Each test of LT RP Reader (61346) states the platform behavior ADR-066 assumes for a TestRunner codeunit's triggers; a failure message carries what was observed. P2_Fails, P4_Fails and P5_Fails fail on purpose." \
             --fixture tests/al-language-isolation-probe/src/RpReader.Codeunit.al \
             --run "TestIsolation = Codeunit (runner 61330)=xunit-runner-probe-codeunit.xml" \
             --run "TestIsolation = Function (runner 61331)=xunit-runner-probe-function.xml" \

@@ -20,7 +20,7 @@ codeunit 61346 "LT RP Reader"
     [Test]
     procedure P1_FalseFromOnBeforeTestRun()
     begin
-        Expect('P1 P1_Skipped', 'B ; A Yes', Log.Seq(Runner(), Codeunit::"LT RP P1 Skip", 'P1_Skipped'));
+        Expect('P1 P1_Skipped', 'B', Log.Seq(Runner(), Codeunit::"LT RP P1 Skip", 'P1_Skipped'));
     end;
 
     // P1 control: the runner answers true for P1_Runs.
@@ -57,7 +57,7 @@ codeunit 61346 "LT RP Reader"
     procedure P3_DeclaredOnRun()
     begin
         Expect('P3 OnRun declared',
-          'OnRun:B ; OnRun:X body ; OnRun:A Yes ; P2_Passes:B ; P2_Passes:A Yes ; P2_Fails:B ; P2_Fails:A No ; P2_Caught:B ; P2_Caught:A Yes',
+          ':B ; OnRun:B ; OnRun:X body ; OnRun:A Yes ; P2_Passes:B ; P2_Passes:A Yes ; P2_Fails:B ; P2_Fails:A No ; P2_Caught:B ; P2_Caught:A Yes ; :A No',
           Log.Seq(Runner(), Codeunit::"LT RP P2 Outcomes", ''));
     end;
 
@@ -65,7 +65,7 @@ codeunit 61346 "LT RP Reader"
     [Test]
     procedure P3_NoOnRun()
     begin
-        Expect('P3 no OnRun', 'P3_Passes:B ; P3_Passes:A Yes', Log.Seq(Runner(), Codeunit::"LT RP P3 No OnRun", ''));
+        Expect('P3 no OnRun', ':B ; P3_Passes:B ; P3_Passes:A Yes ; :A Yes', Log.Seq(Runner(), Codeunit::"LT RP P3 No OnRun", ''));
     end;
 
     // P4: which rows of P4_Plain survive the isolation rollback: the triggers' rows, the
@@ -83,6 +83,20 @@ codeunit 61346 "LT RP Reader"
         Expect('P4 P4_Commit rows', RowsExpected('P4_COMMIT'), Rows('P4_COMMIT'));
     end;
 
+    // P4: the same for a method that fails after it wrote its row, and whether that method saw the row
+    // OnBeforeTestRun wrote.
+    [Test]
+    procedure P4_TriggerWritesSurviveAFailingTest()
+    begin
+        Expect('P4 P4_Fails rows', RowsExpected('P4_FAILS'), Rows('P4_FAILS'));
+    end;
+
+    [Test]
+    procedure P4_MethodSeesRowOfOnBeforeTestRun()
+    begin
+        Expect('P4 P4_Fails sees', 'Yes', Log.DataOf(Runner(), Codeunit::"LT RP P4 Trigger Writes", 'P4_Fails', 'X before row visible', 1));
+    end;
+
     // P4: Commit() in OnBeforeTestRun and OnAfterTestRun returns, and the test still runs.
     [Test]
     procedure P4_CommitInTriggersReturns()
@@ -97,7 +111,7 @@ codeunit 61346 "LT RP Reader"
     procedure P5_RunWithFailingTest()
     begin
         Expect('P5 failing test',
-          'P5_Passes:B ; P5_Passes:X body ; P5_Passes:A Yes ; P5_Fails:B ; P5_Fails:X body ; P5_Fails:A No ; :RUN Yes err=[]',
+          ':B ; P5_Passes:B ; P5_Passes:X body ; P5_Passes:A Yes ; P5_Fails:B ; P5_Fails:X body ; P5_Fails:A No ; :A No ; :RUN No err=[]',
           Log.Seq(Runner(), Codeunit::"LT RP P5 Failing", '') + ' err=[' + RunData(Codeunit::"LT RP P5 Failing") + ']');
     end;
 
@@ -106,7 +120,7 @@ codeunit 61346 "LT RP Reader"
     procedure P5_RunWithOnRunError()
     begin
         Expect('P5 OnRun raises',
-          'OnRun:B ; OnRun:X body ; OnRun:A No ; :RUN No err=[P5 OnRun fails on purpose]',
+          ':B ; OnRun:B ; OnRun:X body ; OnRun:A No ' + AfterOfCodeunitAfterFailedOnRun() + ':RUN No err=[P5 OnRun fails on purpose]',
           Log.Seq(Runner(), Codeunit::"LT RP P5 OnRun Raises", '') + ' err=[' + RunData(Codeunit::"LT RP P5 OnRun Raises") + ']');
     end;
 
@@ -120,9 +134,9 @@ codeunit 61346 "LT RP Reader"
     begin
         DiscoveryKey := Log.DataOf(0, Codeunit::"LT RP P6 Twice", 'OnRun', 'X inserted', -1);
         FirstSees := Log.DataOf(Runner(), Codeunit::"LT RP P6 Twice", 'OnRun', 'X sees', 1);
-        Expect('P6 discovery row', 'discovery row seen by first run=Yes',
-          'discovery row seen by first run=' + Format(Contains(FirstSees, DiscoveryKey)) +
-          ' (discovery inserted [' + DiscoveryKey + '], first run sees [' + FirstSees + '])');
+        ExpectDetailed('P6 discovery row', 'discovery row seen by first run=Yes',
+          'discovery row seen by first run=' + Format(Contains(FirstSees, DiscoveryKey)),
+          'discovery inserted [' + DiscoveryKey + '], first run sees [' + FirstSees + ']');
     end;
 
     // P6: the second run of "LT RP P6 Twice" in the same runner invocation sees the row the first
@@ -135,11 +149,11 @@ codeunit 61346 "LT RP Reader"
     begin
         FirstKey := Log.DataOf(Runner(), Codeunit::"LT RP P6 Twice", 'OnRun', 'X inserted', 1);
         SecondSees := Log.DataOf(Runner(), Codeunit::"LT RP P6 Twice", 'OnRun', 'X sees', 2);
-        Expect('P6 second run', 'first run row seen by second run=No',
-          'first run row seen by second run=' + Format(Contains(SecondSees, FirstKey)) +
-          ' (first run inserted [' + FirstKey + '], second run sees [' + SecondSees + '], methods see [' +
+        ExpectDetailed('P6 second run', 'first run row seen by second run=No',
+          'first run row seen by second run=' + Format(Contains(SecondSees, FirstKey)),
+          'first run inserted [' + FirstKey + '], second run sees [' + SecondSees + '], methods see [' +
           Log.DataOf(Runner(), Codeunit::"LT RP P6 Twice", 'P6_MethodSees', 'X sees', 1) + '] and [' +
-          Log.DataOf(Runner(), Codeunit::"LT RP P6 Twice", 'P6_MethodSees', 'X sees', 2) + '])');
+          Log.DataOf(Runner(), Codeunit::"LT RP P6 Twice", 'P6_MethodSees', 'X sees', 2) + ']');
     end;
 
     // P7: what "LT RP P7 Second" sees when the runner runs it right after "LT RP P7 First" in
@@ -174,6 +188,17 @@ codeunit 61346 "LT RP Reader"
     procedure P8_CodeunitPropertyDisabled()
     begin
         Expect('P8 control', 'Disabled', Log.DataOf(Runner(), Codeunit::"LT RP P3 No OnRun", 'P3_Passes', 'B', 1));
+    end;
+
+    // The platform's OnAfterTestRun call for the test codeunit itself (FunctionName '', IsSuccess false) after its OnRun
+    // raised: made on BC 27.5, 28.4 and 28.5, not made on BC 29.0 (Windows runs of 2026-11-08 and 2026-11-09).
+    local procedure AfterOfCodeunitAfterFailedOnRun(): Text
+    begin
+#if BC29PLUS
+        exit('; ');
+#else
+        exit('; :A No ; ');
+#endif
     end;
 
     local procedure Runner(): Integer
@@ -259,8 +284,14 @@ codeunit 61346 "LT RP Reader"
 
     local procedure Expect(Probe: Text; Expected: Text; Observed: Text)
     begin
+        ExpectDetailed(Probe, Expected, Observed, Observed);
+    end;
+
+    // The compared reading is Observed; Detail (row keys, which carry the runner's tag) only goes into the message.
+    local procedure ExpectDetailed(Probe: Text; Expected: Text; Observed: Text; Detail: Text)
+    begin
         if Observed <> Expected then
-            Error('%1: expected [%2], observed [%3]', Probe, Expected, Observed);
+            Error('%1: expected [%2], observed [%3] (%4)', Probe, Expected, Observed, Detail);
     end;
 
     var
