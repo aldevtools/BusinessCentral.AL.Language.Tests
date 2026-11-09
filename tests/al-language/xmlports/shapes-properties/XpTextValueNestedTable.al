@@ -918,6 +918,7 @@ codeunit 97950 "LT X63 Tests"
     var
         Observer: Codeunit "Probe Observer";
         Helper: Codeunit "LT Y83 Helper";
+        Log: Codeunit "LT X63 Trigger Log";
 
     // A: one root row, Orders rows O1, O2 (as many as given), no rows of Ref.
     local procedure SeedA(Orders: Integer)
