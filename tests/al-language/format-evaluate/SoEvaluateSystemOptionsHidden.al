@@ -74,7 +74,22 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrObjectType(Observer, 'both', ' zzz ');
         ErrObjectType(Observer, 'tab_lead', Tab() + 'zzz');
         ErrObjectType(Observer, 'tab_trail', 'zzz' + Tab());
-        Observer.Finish();
+        Observer.Expect('lead', 'No/Page');
+        Observer.Expect('lead|text', '''zzz'' is not an option. The existing options are: TableData, Table, Form, Report, Codeunit, XmlPort, MenuSuite, Page, Query, Enum');
+        Observer.Expect('lead|code', 'InvalidOptionString');
+        Observer.Expect('trail', 'No/Page');
+        Observer.Expect('trail|text', '''zzz'' is not an option. The existing options are: TableData, Table, Form, Report, Codeunit, XmlPort, MenuSuite, Page, Query, Enum');
+        Observer.Expect('trail|code', 'InvalidOptionString');
+        Observer.Expect('both', 'No/Page');
+        Observer.Expect('both|text', '''zzz'' is not an option. The existing options are: TableData, Table, Form, Report, Codeunit, XmlPort, MenuSuite, Page, Query, Enum');
+        Observer.Expect('both|code', 'InvalidOptionString');
+        Observer.Expect('tab_lead', 'No/Page');
+        Observer.Expect('tab_lead|text', '''zzz'' is not an option. The existing options are: TableData, Table, Form, Report, Codeunit, XmlPort, MenuSuite, Page, Query, Enum');
+        Observer.Expect('tab_lead|code', 'InvalidOptionString');
+        Observer.Expect('tab_trail', 'No/Page');
+        Observer.Expect('tab_trail|text', '''zzz'' is not an option. The existing options are: TableData, Table, Form, Report, Codeunit, XmlPort, MenuSuite, Page, Query, Enum');
+        Observer.Expect('tab_trail|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -86,7 +101,19 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrObjectType(Observer, 'num_lead', ' 99');
         ErrObjectType(Observer, 'num_trail', '99 ');
         ErrObjectType(Observer, 'neg_both', ' -1 ');
-        Observer.Finish();
+        Observer.Expect('num_both', 'No/Page');
+        Observer.Expect('num_both|text', '''99'' is not an option. The existing options are: TableData, Table, Form, Report, Codeunit, XmlPort, MenuSuite, Page, Query, Enum');
+        Observer.Expect('num_both|code', 'InvalidOptionString');
+        Observer.Expect('num_lead', 'No/Page');
+        Observer.Expect('num_lead|text', '''99'' is not an option. The existing options are: TableData, Table, Form, Report, Codeunit, XmlPort, MenuSuite, Page, Query, Enum');
+        Observer.Expect('num_lead|code', 'InvalidOptionString');
+        Observer.Expect('num_trail', 'No/Page');
+        Observer.Expect('num_trail|text', '''99'' is not an option. The existing options are: TableData, Table, Form, Report, Codeunit, XmlPort, MenuSuite, Page, Query, Enum');
+        Observer.Expect('num_trail|code', 'InvalidOptionString');
+        Observer.Expect('neg_both', 'No/Page');
+        Observer.Expect('neg_both|text', '''-1'' is not an option. The existing options are: TableData, Table, Form, Report, Codeunit, XmlPort, MenuSuite, Page, Query, Enum');
+        Observer.Expect('neg_both|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -101,7 +128,16 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsObjectType(Observer, 'prefix_Fo', 'Fo');
         ObsObjectTypeFormat(Observer, 'f9 Form', 'Form', 9);
         ErrObjectType(Observer, 'stmt Form', 'Form');
-        Observer.Finish();
+        Observer.Expect('name Form', 'Yes/Form/Form/2/2');
+        Observer.Expect('lower Form', 'Yes/Form/Form/2/2');
+        Observer.Expect('upper Form', 'Yes/Form/Form/2/2');
+        Observer.Expect('blanks Form', 'Yes/Form/Form/2/2');
+        Observer.Expect('prefix_Fo', 'Yes/Form/Form/2/2');
+        Observer.Expect('f9 Form', 'Yes/Form/Form/2/2');
+        Observer.Expect('stmt Form', 'Yes/Form');
+        Observer.Expect('stmt Form|text', '');
+        Observer.Expect('stmt Form|code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -116,7 +152,16 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsObjectType(Observer, 'prefix_En', 'En');
         ObsObjectTypeFormat(Observer, 'f9 Enum', 'Enum', 9);
         ErrObjectType(Observer, 'stmt Enum', 'Enum');
-        Observer.Finish();
+        Observer.Expect('name Enum', 'Yes/Enum/Enum/10/10');
+        Observer.Expect('lower Enum', 'Yes/Enum/Enum/10/10');
+        Observer.Expect('upper Enum', 'Yes/Enum/Enum/10/10');
+        Observer.Expect('blanks Enum', 'Yes/Enum/Enum/10/10');
+        Observer.Expect('prefix_En', 'Yes/Enum/Enum/10/10');
+        Observer.Expect('f9 Enum', 'Yes/Enum/Enum/10/10');
+        Observer.Expect('stmt Enum', 'Yes/Enum');
+        Observer.Expect('stmt Enum|text', '');
+        Observer.Expect('stmt Enum|code', '');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -172,7 +217,22 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrVerbosity(Observer, 'both', ' zzz ');
         ErrVerbosity(Observer, 'tab_lead', Tab() + 'zzz');
         ErrVerbosity(Observer, 'tab_trail', 'zzz' + Tab());
-        Observer.Finish();
+        Observer.Expect('lead', 'No/Verbose');
+        Observer.Expect('lead|text', '''zzz'' is not an option. The existing options are: Critical, Error, Warning, Normal, Verbose');
+        Observer.Expect('lead|code', 'InvalidOptionString');
+        Observer.Expect('trail', 'No/Verbose');
+        Observer.Expect('trail|text', '''zzz'' is not an option. The existing options are: Critical, Error, Warning, Normal, Verbose');
+        Observer.Expect('trail|code', 'InvalidOptionString');
+        Observer.Expect('both', 'No/Verbose');
+        Observer.Expect('both|text', '''zzz'' is not an option. The existing options are: Critical, Error, Warning, Normal, Verbose');
+        Observer.Expect('both|code', 'InvalidOptionString');
+        Observer.Expect('tab_lead', 'No/Verbose');
+        Observer.Expect('tab_lead|text', '''zzz'' is not an option. The existing options are: Critical, Error, Warning, Normal, Verbose');
+        Observer.Expect('tab_lead|code', 'InvalidOptionString');
+        Observer.Expect('tab_trail', 'No/Verbose');
+        Observer.Expect('tab_trail|text', '''zzz'' is not an option. The existing options are: Critical, Error, Warning, Normal, Verbose');
+        Observer.Expect('tab_trail|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -184,7 +244,19 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrVerbosity(Observer, 'num_lead', ' 99');
         ErrVerbosity(Observer, 'num_trail', '99 ');
         ErrVerbosity(Observer, 'neg_both', ' -1 ');
-        Observer.Finish();
+        Observer.Expect('num_both', 'No/Verbose');
+        Observer.Expect('num_both|text', '''99'' is not an option. The existing options are: Critical, Error, Warning, Normal, Verbose');
+        Observer.Expect('num_both|code', 'InvalidOptionString');
+        Observer.Expect('num_lead', 'No/Verbose');
+        Observer.Expect('num_lead|text', '''99'' is not an option. The existing options are: Critical, Error, Warning, Normal, Verbose');
+        Observer.Expect('num_lead|code', 'InvalidOptionString');
+        Observer.Expect('num_trail', 'No/Verbose');
+        Observer.Expect('num_trail|text', '''99'' is not an option. The existing options are: Critical, Error, Warning, Normal, Verbose');
+        Observer.Expect('num_trail|code', 'InvalidOptionString');
+        Observer.Expect('neg_both', 'No/Verbose');
+        Observer.Expect('neg_both|text', '''-1'' is not an option. The existing options are: Critical, Error, Warning, Normal, Verbose');
+        Observer.Expect('neg_both|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -240,7 +312,22 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrTelemetryScope(Observer, 'both', ' zzz ');
         ErrTelemetryScope(Observer, 'tab_lead', Tab() + 'zzz');
         ErrTelemetryScope(Observer, 'tab_trail', 'zzz' + Tab());
-        Observer.Finish();
+        Observer.Expect('lead', 'No/All');
+        Observer.Expect('lead|text', '''zzz'' is not an option. The existing options are: ExtensionPublisher, All');
+        Observer.Expect('lead|code', 'InvalidOptionString');
+        Observer.Expect('trail', 'No/All');
+        Observer.Expect('trail|text', '''zzz'' is not an option. The existing options are: ExtensionPublisher, All');
+        Observer.Expect('trail|code', 'InvalidOptionString');
+        Observer.Expect('both', 'No/All');
+        Observer.Expect('both|text', '''zzz'' is not an option. The existing options are: ExtensionPublisher, All');
+        Observer.Expect('both|code', 'InvalidOptionString');
+        Observer.Expect('tab_lead', 'No/All');
+        Observer.Expect('tab_lead|text', '''zzz'' is not an option. The existing options are: ExtensionPublisher, All');
+        Observer.Expect('tab_lead|code', 'InvalidOptionString');
+        Observer.Expect('tab_trail', 'No/All');
+        Observer.Expect('tab_trail|text', '''zzz'' is not an option. The existing options are: ExtensionPublisher, All');
+        Observer.Expect('tab_trail|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -252,7 +339,19 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrTelemetryScope(Observer, 'num_lead', ' 99');
         ErrTelemetryScope(Observer, 'num_trail', '99 ');
         ErrTelemetryScope(Observer, 'neg_both', ' -1 ');
-        Observer.Finish();
+        Observer.Expect('num_both', 'No/All');
+        Observer.Expect('num_both|text', '''99'' is not an option. The existing options are: ExtensionPublisher, All');
+        Observer.Expect('num_both|code', 'InvalidOptionString');
+        Observer.Expect('num_lead', 'No/All');
+        Observer.Expect('num_lead|text', '''99'' is not an option. The existing options are: ExtensionPublisher, All');
+        Observer.Expect('num_lead|code', 'InvalidOptionString');
+        Observer.Expect('num_trail', 'No/All');
+        Observer.Expect('num_trail|text', '''99'' is not an option. The existing options are: ExtensionPublisher, All');
+        Observer.Expect('num_trail|code', 'InvalidOptionString');
+        Observer.Expect('neg_both', 'No/All');
+        Observer.Expect('neg_both|text', '''-1'' is not an option. The existing options are: ExtensionPublisher, All');
+        Observer.Expect('neg_both|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -308,7 +407,22 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrDataClassification(Observer, 'both', ' zzz ');
         ErrDataClassification(Observer, 'tab_lead', Tab() + 'zzz');
         ErrDataClassification(Observer, 'tab_trail', 'zzz' + Tab());
-        Observer.Finish();
+        Observer.Expect('lead', 'No/SystemMetadata');
+        Observer.Expect('lead|text', '''zzz'' is not an option. The existing options are: CustomerContent, ToBeClassified, EndUserIdentifiableInformation, AccountData, EndUserPseudonymousIdentifiers, OrganizationIdentifiableInformation, SystemMetadata');
+        Observer.Expect('lead|code', 'InvalidOptionString');
+        Observer.Expect('trail', 'No/SystemMetadata');
+        Observer.Expect('trail|text', '''zzz'' is not an option. The existing options are: CustomerContent, ToBeClassified, EndUserIdentifiableInformation, AccountData, EndUserPseudonymousIdentifiers, OrganizationIdentifiableInformation, SystemMetadata');
+        Observer.Expect('trail|code', 'InvalidOptionString');
+        Observer.Expect('both', 'No/SystemMetadata');
+        Observer.Expect('both|text', '''zzz'' is not an option. The existing options are: CustomerContent, ToBeClassified, EndUserIdentifiableInformation, AccountData, EndUserPseudonymousIdentifiers, OrganizationIdentifiableInformation, SystemMetadata');
+        Observer.Expect('both|code', 'InvalidOptionString');
+        Observer.Expect('tab_lead', 'No/SystemMetadata');
+        Observer.Expect('tab_lead|text', '''zzz'' is not an option. The existing options are: CustomerContent, ToBeClassified, EndUserIdentifiableInformation, AccountData, EndUserPseudonymousIdentifiers, OrganizationIdentifiableInformation, SystemMetadata');
+        Observer.Expect('tab_lead|code', 'InvalidOptionString');
+        Observer.Expect('tab_trail', 'No/SystemMetadata');
+        Observer.Expect('tab_trail|text', '''zzz'' is not an option. The existing options are: CustomerContent, ToBeClassified, EndUserIdentifiableInformation, AccountData, EndUserPseudonymousIdentifiers, OrganizationIdentifiableInformation, SystemMetadata');
+        Observer.Expect('tab_trail|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -320,7 +434,19 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrDataClassification(Observer, 'num_lead', ' 99');
         ErrDataClassification(Observer, 'num_trail', '99 ');
         ErrDataClassification(Observer, 'neg_both', ' -1 ');
-        Observer.Finish();
+        Observer.Expect('num_both', 'No/SystemMetadata');
+        Observer.Expect('num_both|text', '''99'' is not an option. The existing options are: CustomerContent, ToBeClassified, EndUserIdentifiableInformation, AccountData, EndUserPseudonymousIdentifiers, OrganizationIdentifiableInformation, SystemMetadata');
+        Observer.Expect('num_both|code', 'InvalidOptionString');
+        Observer.Expect('num_lead', 'No/SystemMetadata');
+        Observer.Expect('num_lead|text', '''99'' is not an option. The existing options are: CustomerContent, ToBeClassified, EndUserIdentifiableInformation, AccountData, EndUserPseudonymousIdentifiers, OrganizationIdentifiableInformation, SystemMetadata');
+        Observer.Expect('num_lead|code', 'InvalidOptionString');
+        Observer.Expect('num_trail', 'No/SystemMetadata');
+        Observer.Expect('num_trail|text', '''99'' is not an option. The existing options are: CustomerContent, ToBeClassified, EndUserIdentifiableInformation, AccountData, EndUserPseudonymousIdentifiers, OrganizationIdentifiableInformation, SystemMetadata');
+        Observer.Expect('num_trail|code', 'InvalidOptionString');
+        Observer.Expect('neg_both', 'No/SystemMetadata');
+        Observer.Expect('neg_both|text', '''-1'' is not an option. The existing options are: CustomerContent, ToBeClassified, EndUserIdentifiableInformation, AccountData, EndUserPseudonymousIdentifiers, OrganizationIdentifiableInformation, SystemMetadata');
+        Observer.Expect('neg_both|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -376,7 +502,22 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrTransactionType(Observer, 'both', ' zzz ');
         ErrTransactionType(Observer, 'tab_lead', Tab() + 'zzz');
         ErrTransactionType(Observer, 'tab_trail', 'zzz' + Tab());
-        Observer.Finish();
+        Observer.Expect('lead', 'No/Report');
+        Observer.Expect('lead|text', '''zzz'' is not an option. The existing options are: UpdateNoLocks, Update, Snapshot, Browse, Report');
+        Observer.Expect('lead|code', 'InvalidOptionString');
+        Observer.Expect('trail', 'No/Report');
+        Observer.Expect('trail|text', '''zzz'' is not an option. The existing options are: UpdateNoLocks, Update, Snapshot, Browse, Report');
+        Observer.Expect('trail|code', 'InvalidOptionString');
+        Observer.Expect('both', 'No/Report');
+        Observer.Expect('both|text', '''zzz'' is not an option. The existing options are: UpdateNoLocks, Update, Snapshot, Browse, Report');
+        Observer.Expect('both|code', 'InvalidOptionString');
+        Observer.Expect('tab_lead', 'No/Report');
+        Observer.Expect('tab_lead|text', '''zzz'' is not an option. The existing options are: UpdateNoLocks, Update, Snapshot, Browse, Report');
+        Observer.Expect('tab_lead|code', 'InvalidOptionString');
+        Observer.Expect('tab_trail', 'No/Report');
+        Observer.Expect('tab_trail|text', '''zzz'' is not an option. The existing options are: UpdateNoLocks, Update, Snapshot, Browse, Report');
+        Observer.Expect('tab_trail|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -388,7 +529,19 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrTransactionType(Observer, 'num_lead', ' 99');
         ErrTransactionType(Observer, 'num_trail', '99 ');
         ErrTransactionType(Observer, 'neg_both', ' -1 ');
-        Observer.Finish();
+        Observer.Expect('num_both', 'No/Report');
+        Observer.Expect('num_both|text', '''99'' is not an option. The existing options are: UpdateNoLocks, Update, Snapshot, Browse, Report');
+        Observer.Expect('num_both|code', 'InvalidOptionString');
+        Observer.Expect('num_lead', 'No/Report');
+        Observer.Expect('num_lead|text', '''99'' is not an option. The existing options are: UpdateNoLocks, Update, Snapshot, Browse, Report');
+        Observer.Expect('num_lead|code', 'InvalidOptionString');
+        Observer.Expect('num_trail', 'No/Report');
+        Observer.Expect('num_trail|text', '''99'' is not an option. The existing options are: UpdateNoLocks, Update, Snapshot, Browse, Report');
+        Observer.Expect('num_trail|code', 'InvalidOptionString');
+        Observer.Expect('neg_both', 'No/Report');
+        Observer.Expect('neg_both|text', '''-1'' is not an option. The existing options are: UpdateNoLocks, Update, Snapshot, Browse, Report');
+        Observer.Expect('neg_both|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -444,7 +597,22 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrReportFormat(Observer, 'both', ' zzz ');
         ErrReportFormat(Observer, 'tab_lead', Tab() + 'zzz');
         ErrReportFormat(Observer, 'tab_trail', 'zzz' + Tab());
-        Observer.Finish();
+        Observer.Expect('lead', 'No/Html');
+        Observer.Expect('lead|text', '''zzz'' is not an option. The existing options are: None, Excel, Pdf, Word, Xml, Html, Jpeg, Xps, Meta, ExcelDataset, Custom, Zip');
+        Observer.Expect('lead|code', 'InvalidOptionString');
+        Observer.Expect('trail', 'No/Html');
+        Observer.Expect('trail|text', '''zzz'' is not an option. The existing options are: None, Excel, Pdf, Word, Xml, Html, Jpeg, Xps, Meta, ExcelDataset, Custom, Zip');
+        Observer.Expect('trail|code', 'InvalidOptionString');
+        Observer.Expect('both', 'No/Html');
+        Observer.Expect('both|text', '''zzz'' is not an option. The existing options are: None, Excel, Pdf, Word, Xml, Html, Jpeg, Xps, Meta, ExcelDataset, Custom, Zip');
+        Observer.Expect('both|code', 'InvalidOptionString');
+        Observer.Expect('tab_lead', 'No/Html');
+        Observer.Expect('tab_lead|text', '''zzz'' is not an option. The existing options are: None, Excel, Pdf, Word, Xml, Html, Jpeg, Xps, Meta, ExcelDataset, Custom, Zip');
+        Observer.Expect('tab_lead|code', 'InvalidOptionString');
+        Observer.Expect('tab_trail', 'No/Html');
+        Observer.Expect('tab_trail|text', '''zzz'' is not an option. The existing options are: None, Excel, Pdf, Word, Xml, Html, Jpeg, Xps, Meta, ExcelDataset, Custom, Zip');
+        Observer.Expect('tab_trail|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -456,7 +624,19 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrReportFormat(Observer, 'num_lead', ' 99');
         ErrReportFormat(Observer, 'num_trail', '99 ');
         ErrReportFormat(Observer, 'neg_both', ' -1 ');
-        Observer.Finish();
+        Observer.Expect('num_both', 'No/Html');
+        Observer.Expect('num_both|text', '''99'' is not an option. The existing options are: None, Excel, Pdf, Word, Xml, Html, Jpeg, Xps, Meta, ExcelDataset, Custom, Zip');
+        Observer.Expect('num_both|code', 'InvalidOptionString');
+        Observer.Expect('num_lead', 'No/Html');
+        Observer.Expect('num_lead|text', '''99'' is not an option. The existing options are: None, Excel, Pdf, Word, Xml, Html, Jpeg, Xps, Meta, ExcelDataset, Custom, Zip');
+        Observer.Expect('num_lead|code', 'InvalidOptionString');
+        Observer.Expect('num_trail', 'No/Html');
+        Observer.Expect('num_trail|text', '''99'' is not an option. The existing options are: None, Excel, Pdf, Word, Xml, Html, Jpeg, Xps, Meta, ExcelDataset, Custom, Zip');
+        Observer.Expect('num_trail|code', 'InvalidOptionString');
+        Observer.Expect('neg_both', 'No/Html');
+        Observer.Expect('neg_both|text', '''-1'' is not an option. The existing options are: None, Excel, Pdf, Word, Xml, Html, Jpeg, Xps, Meta, ExcelDataset, Custom, Zip');
+        Observer.Expect('neg_both|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -471,7 +651,16 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsReportFormat(Observer, 'prefix_No', 'No');
         ObsReportFormatFormat(Observer, 'f9 None', 'None', 9);
         ErrReportFormat(Observer, 'stmt None', 'None');
-        Observer.Finish();
+        Observer.Expect('name None', 'Yes/None/None/0/0');
+        Observer.Expect('lower None', 'Yes/None/None/0/0');
+        Observer.Expect('upper None', 'Yes/None/None/0/0');
+        Observer.Expect('blanks None', 'Yes/None/None/0/0');
+        Observer.Expect('prefix_No', 'Yes/None/None/0/0');
+        Observer.Expect('f9 None', 'Yes/None/None/0/0');
+        Observer.Expect('stmt None', 'Yes/None');
+        Observer.Expect('stmt None|text', '');
+        Observer.Expect('stmt None|code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -486,7 +675,16 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsReportFormat(Observer, 'prefix_Jp', 'Jp');
         ObsReportFormatFormat(Observer, 'f9 Jpeg', 'Jpeg', 9);
         ErrReportFormat(Observer, 'stmt Jpeg', 'Jpeg');
-        Observer.Finish();
+        Observer.Expect('name Jpeg', 'Yes/Jpeg/Jpeg/6/6');
+        Observer.Expect('lower Jpeg', 'Yes/Jpeg/Jpeg/6/6');
+        Observer.Expect('upper Jpeg', 'Yes/Jpeg/Jpeg/6/6');
+        Observer.Expect('blanks Jpeg', 'Yes/Jpeg/Jpeg/6/6');
+        Observer.Expect('prefix_Jp', 'Yes/Jpeg/Jpeg/6/6');
+        Observer.Expect('f9 Jpeg', 'Yes/Jpeg/Jpeg/6/6');
+        Observer.Expect('stmt Jpeg', 'Yes/Jpeg');
+        Observer.Expect('stmt Jpeg|text', '');
+        Observer.Expect('stmt Jpeg|code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -501,7 +699,16 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsReportFormat(Observer, 'prefix_X', 'X');
         ObsReportFormatFormat(Observer, 'f9 Xps', 'Xps', 9);
         ErrReportFormat(Observer, 'stmt Xps', 'Xps');
-        Observer.Finish();
+        Observer.Expect('name Xps', 'Yes/Xps/Xps/7/7');
+        Observer.Expect('lower Xps', 'Yes/Xps/Xps/7/7');
+        Observer.Expect('upper Xps', 'Yes/Xps/Xps/7/7');
+        Observer.Expect('blanks Xps', 'Yes/Xps/Xps/7/7');
+        Observer.Expect('prefix_X', 'Yes/Xml/Xml/4/4');
+        Observer.Expect('f9 Xps', 'Yes/Xps/Xps/7/7');
+        Observer.Expect('stmt Xps', 'Yes/Xps');
+        Observer.Expect('stmt Xps|text', '');
+        Observer.Expect('stmt Xps|code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -516,7 +723,16 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsReportFormat(Observer, 'prefix_Me', 'Me');
         ObsReportFormatFormat(Observer, 'f9 Meta', 'Meta', 9);
         ErrReportFormat(Observer, 'stmt Meta', 'Meta');
-        Observer.Finish();
+        Observer.Expect('name Meta', 'Yes/Meta/Meta/8/8');
+        Observer.Expect('lower Meta', 'Yes/Meta/Meta/8/8');
+        Observer.Expect('upper Meta', 'Yes/Meta/Meta/8/8');
+        Observer.Expect('blanks Meta', 'Yes/Meta/Meta/8/8');
+        Observer.Expect('prefix_Me', 'Yes/Meta/Meta/8/8');
+        Observer.Expect('f9 Meta', 'Yes/Meta/Meta/8/8');
+        Observer.Expect('stmt Meta', 'Yes/Meta');
+        Observer.Expect('stmt Meta|text', '');
+        Observer.Expect('stmt Meta|code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -531,7 +747,16 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsReportFormat(Observer, 'prefix_ExcelDatas', 'ExcelDatas');
         ObsReportFormatFormat(Observer, 'f9 ExcelDataset', 'ExcelDataset', 9);
         ErrReportFormat(Observer, 'stmt ExcelDataset', 'ExcelDataset');
-        Observer.Finish();
+        Observer.Expect('name ExcelDataset', 'Yes/ExcelDataset/ExcelDataset/9/9');
+        Observer.Expect('lower ExcelDataset', 'Yes/ExcelDataset/ExcelDataset/9/9');
+        Observer.Expect('upper ExcelDataset', 'Yes/ExcelDataset/ExcelDataset/9/9');
+        Observer.Expect('blanks ExcelDataset', 'Yes/ExcelDataset/ExcelDataset/9/9');
+        Observer.Expect('prefix_ExcelDatas', 'Yes/ExcelDataset/ExcelDataset/9/9');
+        Observer.Expect('f9 ExcelDataset', 'Yes/ExcelDataset/ExcelDataset/9/9');
+        Observer.Expect('stmt ExcelDataset', 'Yes/ExcelDataset');
+        Observer.Expect('stmt ExcelDataset|text', '');
+        Observer.Expect('stmt ExcelDataset|code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -546,7 +771,16 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsReportFormat(Observer, 'prefix_Cust', 'Cust');
         ObsReportFormatFormat(Observer, 'f9 Custom', 'Custom', 9);
         ErrReportFormat(Observer, 'stmt Custom', 'Custom');
-        Observer.Finish();
+        Observer.Expect('name Custom', 'Yes/Custom/Custom/10/10');
+        Observer.Expect('lower Custom', 'Yes/Custom/Custom/10/10');
+        Observer.Expect('upper Custom', 'Yes/Custom/Custom/10/10');
+        Observer.Expect('blanks Custom', 'Yes/Custom/Custom/10/10');
+        Observer.Expect('prefix_Cust', 'Yes/Custom/Custom/10/10');
+        Observer.Expect('f9 Custom', 'Yes/Custom/Custom/10/10');
+        Observer.Expect('stmt Custom', 'Yes/Custom');
+        Observer.Expect('stmt Custom|text', '');
+        Observer.Expect('stmt Custom|code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -561,7 +795,16 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsReportFormat(Observer, 'prefix_Z', 'Z');
         ObsReportFormatFormat(Observer, 'f9 Zip', 'Zip', 9);
         ErrReportFormat(Observer, 'stmt Zip', 'Zip');
-        Observer.Finish();
+        Observer.Expect('name Zip', 'Yes/Zip/Zip/11/11');
+        Observer.Expect('lower Zip', 'Yes/Zip/Zip/11/11');
+        Observer.Expect('upper Zip', 'Yes/Zip/Zip/11/11');
+        Observer.Expect('blanks Zip', 'Yes/Zip/Zip/11/11');
+        Observer.Expect('prefix_Z', 'Yes/Zip/Zip/11/11');
+        Observer.Expect('f9 Zip', 'Yes/Zip/Zip/11/11');
+        Observer.Expect('stmt Zip', 'Yes/Zip');
+        Observer.Expect('stmt Zip|text', '');
+        Observer.Expect('stmt Zip|code', '');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -617,7 +860,22 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrErrorType(Observer, 'both', ' zzz ');
         ErrErrorType(Observer, 'tab_lead', Tab() + 'zzz');
         ErrErrorType(Observer, 'tab_trail', 'zzz' + Tab());
-        Observer.Finish();
+        Observer.Expect('lead', 'No/Internal');
+        Observer.Expect('lead|text', '''zzz'' is not an option. The existing options are: Client, Internal');
+        Observer.Expect('lead|code', 'InvalidOptionString');
+        Observer.Expect('trail', 'No/Internal');
+        Observer.Expect('trail|text', '''zzz'' is not an option. The existing options are: Client, Internal');
+        Observer.Expect('trail|code', 'InvalidOptionString');
+        Observer.Expect('both', 'No/Internal');
+        Observer.Expect('both|text', '''zzz'' is not an option. The existing options are: Client, Internal');
+        Observer.Expect('both|code', 'InvalidOptionString');
+        Observer.Expect('tab_lead', 'No/Internal');
+        Observer.Expect('tab_lead|text', '''zzz'' is not an option. The existing options are: Client, Internal');
+        Observer.Expect('tab_lead|code', 'InvalidOptionString');
+        Observer.Expect('tab_trail', 'No/Internal');
+        Observer.Expect('tab_trail|text', '''zzz'' is not an option. The existing options are: Client, Internal');
+        Observer.Expect('tab_trail|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -629,7 +887,19 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrErrorType(Observer, 'num_lead', ' 99');
         ErrErrorType(Observer, 'num_trail', '99 ');
         ErrErrorType(Observer, 'neg_both', ' -1 ');
-        Observer.Finish();
+        Observer.Expect('num_both', 'No/Internal');
+        Observer.Expect('num_both|text', '''99'' is not an option. The existing options are: Client, Internal');
+        Observer.Expect('num_both|code', 'InvalidOptionString');
+        Observer.Expect('num_lead', 'No/Internal');
+        Observer.Expect('num_lead|text', '''99'' is not an option. The existing options are: Client, Internal');
+        Observer.Expect('num_lead|code', 'InvalidOptionString');
+        Observer.Expect('num_trail', 'No/Internal');
+        Observer.Expect('num_trail|text', '''99'' is not an option. The existing options are: Client, Internal');
+        Observer.Expect('num_trail|code', 'InvalidOptionString');
+        Observer.Expect('neg_both', 'No/Internal');
+        Observer.Expect('neg_both|text', '''-1'' is not an option. The existing options are: Client, Internal');
+        Observer.Expect('neg_both|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -685,7 +955,22 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrDefaultLayout(Observer, 'both', ' zzz ');
         ErrDefaultLayout(Observer, 'tab_lead', Tab() + 'zzz');
         ErrDefaultLayout(Observer, 'tab_trail', 'zzz' + Tab());
-        Observer.Finish();
+        Observer.Expect('lead', 'No/Word');
+        Observer.Expect('lead|text', '''zzz'' is not an option. The existing options are: None, RDLC, Word, Excel');
+        Observer.Expect('lead|code', 'InvalidOptionString');
+        Observer.Expect('trail', 'No/Word');
+        Observer.Expect('trail|text', '''zzz'' is not an option. The existing options are: None, RDLC, Word, Excel');
+        Observer.Expect('trail|code', 'InvalidOptionString');
+        Observer.Expect('both', 'No/Word');
+        Observer.Expect('both|text', '''zzz'' is not an option. The existing options are: None, RDLC, Word, Excel');
+        Observer.Expect('both|code', 'InvalidOptionString');
+        Observer.Expect('tab_lead', 'No/Word');
+        Observer.Expect('tab_lead|text', '''zzz'' is not an option. The existing options are: None, RDLC, Word, Excel');
+        Observer.Expect('tab_lead|code', 'InvalidOptionString');
+        Observer.Expect('tab_trail', 'No/Word');
+        Observer.Expect('tab_trail|text', '''zzz'' is not an option. The existing options are: None, RDLC, Word, Excel');
+        Observer.Expect('tab_trail|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -697,7 +982,19 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrDefaultLayout(Observer, 'num_lead', ' 99');
         ErrDefaultLayout(Observer, 'num_trail', '99 ');
         ErrDefaultLayout(Observer, 'neg_both', ' -1 ');
-        Observer.Finish();
+        Observer.Expect('num_both', 'No/Word');
+        Observer.Expect('num_both|text', '''99'' is not an option. The existing options are: None, RDLC, Word, Excel');
+        Observer.Expect('num_both|code', 'InvalidOptionString');
+        Observer.Expect('num_lead', 'No/Word');
+        Observer.Expect('num_lead|text', '''99'' is not an option. The existing options are: None, RDLC, Word, Excel');
+        Observer.Expect('num_lead|code', 'InvalidOptionString');
+        Observer.Expect('num_trail', 'No/Word');
+        Observer.Expect('num_trail|text', '''99'' is not an option. The existing options are: None, RDLC, Word, Excel');
+        Observer.Expect('num_trail|code', 'InvalidOptionString');
+        Observer.Expect('neg_both', 'No/Word');
+        Observer.Expect('neg_both|text', '''-1'' is not an option. The existing options are: None, RDLC, Word, Excel');
+        Observer.Expect('neg_both|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -753,7 +1050,22 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrTestPermissions(Observer, 'both', ' zzz ');
         ErrTestPermissions(Observer, 'tab_lead', Tab() + 'zzz');
         ErrTestPermissions(Observer, 'tab_trail', 'zzz' + Tab());
-        Observer.Finish();
+        Observer.Expect('lead', 'No/InheritFromTestCodeunit');
+        Observer.Expect('lead|text', '''zzz'' is not an option. The existing options are: InheritFromTestCodeunit, Restrictive, NonRestrictive, Disabled');
+        Observer.Expect('lead|code', 'InvalidOptionString');
+        Observer.Expect('trail', 'No/InheritFromTestCodeunit');
+        Observer.Expect('trail|text', '''zzz'' is not an option. The existing options are: InheritFromTestCodeunit, Restrictive, NonRestrictive, Disabled');
+        Observer.Expect('trail|code', 'InvalidOptionString');
+        Observer.Expect('both', 'No/InheritFromTestCodeunit');
+        Observer.Expect('both|text', '''zzz'' is not an option. The existing options are: InheritFromTestCodeunit, Restrictive, NonRestrictive, Disabled');
+        Observer.Expect('both|code', 'InvalidOptionString');
+        Observer.Expect('tab_lead', 'No/InheritFromTestCodeunit');
+        Observer.Expect('tab_lead|text', '''zzz'' is not an option. The existing options are: InheritFromTestCodeunit, Restrictive, NonRestrictive, Disabled');
+        Observer.Expect('tab_lead|code', 'InvalidOptionString');
+        Observer.Expect('tab_trail', 'No/InheritFromTestCodeunit');
+        Observer.Expect('tab_trail|text', '''zzz'' is not an option. The existing options are: InheritFromTestCodeunit, Restrictive, NonRestrictive, Disabled');
+        Observer.Expect('tab_trail|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -765,7 +1077,19 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrTestPermissions(Observer, 'num_lead', ' 99');
         ErrTestPermissions(Observer, 'num_trail', '99 ');
         ErrTestPermissions(Observer, 'neg_both', ' -1 ');
-        Observer.Finish();
+        Observer.Expect('num_both', 'No/InheritFromTestCodeunit');
+        Observer.Expect('num_both|text', '''99'' is not an option. The existing options are: InheritFromTestCodeunit, Restrictive, NonRestrictive, Disabled');
+        Observer.Expect('num_both|code', 'InvalidOptionString');
+        Observer.Expect('num_lead', 'No/InheritFromTestCodeunit');
+        Observer.Expect('num_lead|text', '''99'' is not an option. The existing options are: InheritFromTestCodeunit, Restrictive, NonRestrictive, Disabled');
+        Observer.Expect('num_lead|code', 'InvalidOptionString');
+        Observer.Expect('num_trail', 'No/InheritFromTestCodeunit');
+        Observer.Expect('num_trail|text', '''99'' is not an option. The existing options are: InheritFromTestCodeunit, Restrictive, NonRestrictive, Disabled');
+        Observer.Expect('num_trail|code', 'InvalidOptionString');
+        Observer.Expect('neg_both', 'No/InheritFromTestCodeunit');
+        Observer.Expect('neg_both|text', '''-1'' is not an option. The existing options are: InheritFromTestCodeunit, Restrictive, NonRestrictive, Disabled');
+        Observer.Expect('neg_both|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -821,7 +1145,22 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrDataScope(Observer, 'both', ' zzz ');
         ErrDataScope(Observer, 'tab_lead', Tab() + 'zzz');
         ErrDataScope(Observer, 'tab_trail', 'zzz' + Tab());
-        Observer.Finish();
+        Observer.Expect('lead', 'No/CompanyAndUser');
+        Observer.Expect('lead|text', '''zzz'' is not an option. The existing options are: Module, Company, User, CompanyAndUser');
+        Observer.Expect('lead|code', 'InvalidOptionString');
+        Observer.Expect('trail', 'No/CompanyAndUser');
+        Observer.Expect('trail|text', '''zzz'' is not an option. The existing options are: Module, Company, User, CompanyAndUser');
+        Observer.Expect('trail|code', 'InvalidOptionString');
+        Observer.Expect('both', 'No/CompanyAndUser');
+        Observer.Expect('both|text', '''zzz'' is not an option. The existing options are: Module, Company, User, CompanyAndUser');
+        Observer.Expect('both|code', 'InvalidOptionString');
+        Observer.Expect('tab_lead', 'No/CompanyAndUser');
+        Observer.Expect('tab_lead|text', '''zzz'' is not an option. The existing options are: Module, Company, User, CompanyAndUser');
+        Observer.Expect('tab_lead|code', 'InvalidOptionString');
+        Observer.Expect('tab_trail', 'No/CompanyAndUser');
+        Observer.Expect('tab_trail|text', '''zzz'' is not an option. The existing options are: Module, Company, User, CompanyAndUser');
+        Observer.Expect('tab_trail|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -833,7 +1172,19 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrDataScope(Observer, 'num_lead', ' 99');
         ErrDataScope(Observer, 'num_trail', '99 ');
         ErrDataScope(Observer, 'neg_both', ' -1 ');
-        Observer.Finish();
+        Observer.Expect('num_both', 'No/CompanyAndUser');
+        Observer.Expect('num_both|text', '''99'' is not an option. The existing options are: Module, Company, User, CompanyAndUser');
+        Observer.Expect('num_both|code', 'InvalidOptionString');
+        Observer.Expect('num_lead', 'No/CompanyAndUser');
+        Observer.Expect('num_lead|text', '''99'' is not an option. The existing options are: Module, Company, User, CompanyAndUser');
+        Observer.Expect('num_lead|code', 'InvalidOptionString');
+        Observer.Expect('num_trail', 'No/CompanyAndUser');
+        Observer.Expect('num_trail|text', '''99'' is not an option. The existing options are: Module, Company, User, CompanyAndUser');
+        Observer.Expect('num_trail|code', 'InvalidOptionString');
+        Observer.Expect('neg_both', 'No/CompanyAndUser');
+        Observer.Expect('neg_both|text', '''-1'' is not an option. The existing options are: Module, Company, User, CompanyAndUser');
+        Observer.Expect('neg_both|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -889,7 +1240,22 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrExecutionContext(Observer, 'both', ' zzz ');
         ErrExecutionContext(Observer, 'tab_lead', Tab() + 'zzz');
         ErrExecutionContext(Observer, 'tab_trail', 'zzz' + Tab());
-        Observer.Finish();
+        Observer.Expect('lead', 'No/Upgrade');
+        Observer.Expect('lead|text', '''zzz'' is not an option. The existing options are: Normal, Install, Uninstall, Upgrade');
+        Observer.Expect('lead|code', 'InvalidOptionString');
+        Observer.Expect('trail', 'No/Upgrade');
+        Observer.Expect('trail|text', '''zzz'' is not an option. The existing options are: Normal, Install, Uninstall, Upgrade');
+        Observer.Expect('trail|code', 'InvalidOptionString');
+        Observer.Expect('both', 'No/Upgrade');
+        Observer.Expect('both|text', '''zzz'' is not an option. The existing options are: Normal, Install, Uninstall, Upgrade');
+        Observer.Expect('both|code', 'InvalidOptionString');
+        Observer.Expect('tab_lead', 'No/Upgrade');
+        Observer.Expect('tab_lead|text', '''zzz'' is not an option. The existing options are: Normal, Install, Uninstall, Upgrade');
+        Observer.Expect('tab_lead|code', 'InvalidOptionString');
+        Observer.Expect('tab_trail', 'No/Upgrade');
+        Observer.Expect('tab_trail|text', '''zzz'' is not an option. The existing options are: Normal, Install, Uninstall, Upgrade');
+        Observer.Expect('tab_trail|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -901,7 +1267,19 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrExecutionContext(Observer, 'num_lead', ' 99');
         ErrExecutionContext(Observer, 'num_trail', '99 ');
         ErrExecutionContext(Observer, 'neg_both', ' -1 ');
-        Observer.Finish();
+        Observer.Expect('num_both', 'No/Upgrade');
+        Observer.Expect('num_both|text', '''99'' is not an option. The existing options are: Normal, Install, Uninstall, Upgrade');
+        Observer.Expect('num_both|code', 'InvalidOptionString');
+        Observer.Expect('num_lead', 'No/Upgrade');
+        Observer.Expect('num_lead|text', '''99'' is not an option. The existing options are: Normal, Install, Uninstall, Upgrade');
+        Observer.Expect('num_lead|code', 'InvalidOptionString');
+        Observer.Expect('num_trail', 'No/Upgrade');
+        Observer.Expect('num_trail|text', '''99'' is not an option. The existing options are: Normal, Install, Uninstall, Upgrade');
+        Observer.Expect('num_trail|code', 'InvalidOptionString');
+        Observer.Expect('neg_both', 'No/Upgrade');
+        Observer.Expect('neg_both|text', '''-1'' is not an option. The existing options are: Normal, Install, Uninstall, Upgrade');
+        Observer.Expect('neg_both|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -916,7 +1294,16 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsExecutionContext(Observer, 'prefix_Uninsta', 'Uninsta');
         ObsExecutionContextFormat(Observer, 'f9 Uninstall', 'Uninstall', 9);
         ErrExecutionContext(Observer, 'stmt Uninstall', 'Uninstall');
-        Observer.Finish();
+        Observer.Expect('name Uninstall', 'Yes/Uninstall/Uninstall/2/2');
+        Observer.Expect('lower Uninstall', 'Yes/Uninstall/Uninstall/2/2');
+        Observer.Expect('upper Uninstall', 'Yes/Uninstall/Uninstall/2/2');
+        Observer.Expect('blanks Uninstall', 'Yes/Uninstall/Uninstall/2/2');
+        Observer.Expect('prefix_Uninsta', 'Yes/Uninstall/Uninstall/2/2');
+        Observer.Expect('f9 Uninstall', 'Yes/Uninstall/Uninstall/2/2');
+        Observer.Expect('stmt Uninstall', 'Yes/Uninstall');
+        Observer.Expect('stmt Uninstall|text', '');
+        Observer.Expect('stmt Uninstall|code', '');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -972,7 +1359,22 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrNotificationScope(Observer, 'both', ' zzz ');
         ErrNotificationScope(Observer, 'tab_lead', Tab() + 'zzz');
         ErrNotificationScope(Observer, 'tab_trail', 'zzz' + Tab());
-        Observer.Finish();
+        Observer.Expect('lead', 'No/GlobalScope');
+        Observer.Expect('lead|text', '''zzz'' is not an option. The existing options are: LocalScope, GlobalScope');
+        Observer.Expect('lead|code', 'InvalidOptionString');
+        Observer.Expect('trail', 'No/GlobalScope');
+        Observer.Expect('trail|text', '''zzz'' is not an option. The existing options are: LocalScope, GlobalScope');
+        Observer.Expect('trail|code', 'InvalidOptionString');
+        Observer.Expect('both', 'No/GlobalScope');
+        Observer.Expect('both|text', '''zzz'' is not an option. The existing options are: LocalScope, GlobalScope');
+        Observer.Expect('both|code', 'InvalidOptionString');
+        Observer.Expect('tab_lead', 'No/GlobalScope');
+        Observer.Expect('tab_lead|text', '''zzz'' is not an option. The existing options are: LocalScope, GlobalScope');
+        Observer.Expect('tab_lead|code', 'InvalidOptionString');
+        Observer.Expect('tab_trail', 'No/GlobalScope');
+        Observer.Expect('tab_trail|text', '''zzz'' is not an option. The existing options are: LocalScope, GlobalScope');
+        Observer.Expect('tab_trail|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -984,7 +1386,19 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrNotificationScope(Observer, 'num_lead', ' 99');
         ErrNotificationScope(Observer, 'num_trail', '99 ');
         ErrNotificationScope(Observer, 'neg_both', ' -1 ');
-        Observer.Finish();
+        Observer.Expect('num_both', 'No/GlobalScope');
+        Observer.Expect('num_both|text', '''99'' is not an option. The existing options are: LocalScope, GlobalScope');
+        Observer.Expect('num_both|code', 'InvalidOptionString');
+        Observer.Expect('num_lead', 'No/GlobalScope');
+        Observer.Expect('num_lead|text', '''99'' is not an option. The existing options are: LocalScope, GlobalScope');
+        Observer.Expect('num_lead|code', 'InvalidOptionString');
+        Observer.Expect('num_trail', 'No/GlobalScope');
+        Observer.Expect('num_trail|text', '''99'' is not an option. The existing options are: LocalScope, GlobalScope');
+        Observer.Expect('num_trail|code', 'InvalidOptionString');
+        Observer.Expect('neg_both', 'No/GlobalScope');
+        Observer.Expect('neg_both|text', '''-1'' is not an option. The existing options are: LocalScope, GlobalScope');
+        Observer.Expect('neg_both|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1040,7 +1454,22 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrWebServiceActionResultCode(Observer, 'both', ' zzz ');
         ErrWebServiceActionResultCode(Observer, 'tab_lead', Tab() + 'zzz');
         ErrWebServiceActionResultCode(Observer, 'tab_trail', 'zzz' + Tab());
-        Observer.Finish();
+        Observer.Expect('lead', 'No/Deleted');
+        Observer.Expect('lead|text', '''zzz'' is not an option. The existing options are: None, Get, Created, Updated, Deleted');
+        Observer.Expect('lead|code', 'InvalidOptionString');
+        Observer.Expect('trail', 'No/Deleted');
+        Observer.Expect('trail|text', '''zzz'' is not an option. The existing options are: None, Get, Created, Updated, Deleted');
+        Observer.Expect('trail|code', 'InvalidOptionString');
+        Observer.Expect('both', 'No/Deleted');
+        Observer.Expect('both|text', '''zzz'' is not an option. The existing options are: None, Get, Created, Updated, Deleted');
+        Observer.Expect('both|code', 'InvalidOptionString');
+        Observer.Expect('tab_lead', 'No/Deleted');
+        Observer.Expect('tab_lead|text', '''zzz'' is not an option. The existing options are: None, Get, Created, Updated, Deleted');
+        Observer.Expect('tab_lead|code', 'InvalidOptionString');
+        Observer.Expect('tab_trail', 'No/Deleted');
+        Observer.Expect('tab_trail|text', '''zzz'' is not an option. The existing options are: None, Get, Created, Updated, Deleted');
+        Observer.Expect('tab_trail|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1052,7 +1481,19 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrWebServiceActionResultCode(Observer, 'num_lead', ' 99');
         ErrWebServiceActionResultCode(Observer, 'num_trail', '99 ');
         ErrWebServiceActionResultCode(Observer, 'neg_both', ' -1 ');
-        Observer.Finish();
+        Observer.Expect('num_both', 'No/Deleted');
+        Observer.Expect('num_both|text', '''99'' is not an option. The existing options are: None, Get, Created, Updated, Deleted');
+        Observer.Expect('num_both|code', 'InvalidOptionString');
+        Observer.Expect('num_lead', 'No/Deleted');
+        Observer.Expect('num_lead|text', '''99'' is not an option. The existing options are: None, Get, Created, Updated, Deleted');
+        Observer.Expect('num_lead|code', 'InvalidOptionString');
+        Observer.Expect('num_trail', 'No/Deleted');
+        Observer.Expect('num_trail|text', '''99'' is not an option. The existing options are: None, Get, Created, Updated, Deleted');
+        Observer.Expect('num_trail|code', 'InvalidOptionString');
+        Observer.Expect('neg_both', 'No/Deleted');
+        Observer.Expect('neg_both|text', '''-1'' is not an option. The existing options are: None, Get, Created, Updated, Deleted');
+        Observer.Expect('neg_both|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1074,7 +1515,21 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsWebServiceActionResultCode(Observer, 'num 400', '400');
         ObsWebServiceActionResultCode(Observer, 'num 404', '404');
         ObsWebServiceActionResultCode(Observer, 'num 500', '500');
-        Observer.Finish();
+        Observer.Expect('num 0', 'Yes/None/None/0/0');
+        Observer.Expect('num 1', 'No/Deleted/Deleted/204/204');
+        Observer.Expect('num 199', 'No/Deleted/Deleted/204/204');
+        Observer.Expect('num 200', 'Yes/Get/Get/200/200');
+        Observer.Expect('num 201', 'Yes/Created/Created/201/201');
+        Observer.Expect('num 202', 'No/Deleted/Deleted/204/204');
+        Observer.Expect('num 203', 'No/Deleted/Deleted/204/204');
+        Observer.Expect('num 204', 'Yes/Deleted/Deleted/204/204');
+        Observer.Expect('num 205', 'No/Deleted/Deleted/204/204');
+        Observer.Expect('num 206', 'No/Deleted/Deleted/204/204');
+        Observer.Expect('num 300', 'No/Deleted/Deleted/204/204');
+        Observer.Expect('num 400', 'No/Deleted/Deleted/204/204');
+        Observer.Expect('num 404', 'No/Deleted/Deleted/204/204');
+        Observer.Expect('num 500', 'No/Deleted/Deleted/204/204');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1095,7 +1550,26 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrWebServiceActionResultCode(Observer, 'stmt 200', '200');
         ErrWebServiceActionResultCode(Observer, 'stmt 202', '202');
         ErrWebServiceActionResultCode(Observer, 'stmt blank 202', ' 202 ');
-        Observer.Finish();
+        Observer.Expect('plus_200', 'Yes/Get/Get/200/200');
+        Observer.Expect('blank_200', 'Yes/Get/Get/200/200');
+        Observer.Expect('zero_200', 'Yes/Get/Get/200/200');
+        Observer.Expect('tab_204', 'Yes/Deleted/Deleted/204/204');
+        Observer.Expect('decimal_200', 'No/Deleted/Deleted/204/204');
+        Observer.Expect('neg_200', 'No/Deleted/Deleted/204/204');
+        Observer.Expect('f0 200', 'Yes/Get/Get/200/200');
+        Observer.Expect('f2 201', 'Yes/Created/Created/201/201');
+        Observer.Expect('f9 204', 'Yes/Deleted/Deleted/204/204');
+        Observer.Expect('f9 202', 'No/Deleted/Deleted/204/204');
+        Observer.Expect('stmt 200', 'Yes/Get');
+        Observer.Expect('stmt 200|text', '');
+        Observer.Expect('stmt 200|code', '');
+        Observer.Expect('stmt 202', 'No/Deleted');
+        Observer.Expect('stmt 202|text', '''202'' is not an option. The existing options are: None, Get, Created, Updated, Deleted');
+        Observer.Expect('stmt 202|code', 'InvalidOptionString');
+        Observer.Expect('stmt blank 202', 'No/Deleted');
+        Observer.Expect('stmt blank 202|text', '''202'' is not an option. The existing options are: None, Get, Created, Updated, Deleted');
+        Observer.Expect('stmt blank 202|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1108,7 +1582,12 @@ codeunit 99614 "LT SO Eval Hidden Members"
         Observer.Observe('Created', ShowWebServiceActionResultCode(WebServiceActionResultCode::Created));
         Observer.Observe('Updated', ShowWebServiceActionResultCode(WebServiceActionResultCode::Updated));
         Observer.Observe('Deleted', ShowWebServiceActionResultCode(WebServiceActionResultCode::Deleted));
-        Observer.Finish();
+        Observer.Expect('None', 'None/None/0/0');
+        Observer.Expect('Get', 'Get/Get/200/200');
+        Observer.Expect('Created', 'Created/Created/201/201');
+        Observer.Expect('Updated', 'Get/Get/200/200');
+        Observer.Expect('Deleted', 'Deleted/Deleted/204/204');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1164,7 +1643,40 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrFieldClass(Observer, 'both', ' zzz ');
         ErrFieldClass(Observer, 'tab_lead', Tab() + 'zzz');
         ErrFieldClass(Observer, 'tab_trail', 'zzz' + Tab());
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('lead', 'No/FlowFilter');
+        Observer.Expect('lead|text', '''zzz'' is not an option. The existing options are: Normal, FlowField, FlowFilter, KeyFieldReference');
+        Observer.Expect('lead|code', 'InvalidOptionString');
+        Observer.Expect('trail', 'No/FlowFilter');
+        Observer.Expect('trail|text', '''zzz'' is not an option. The existing options are: Normal, FlowField, FlowFilter, KeyFieldReference');
+        Observer.Expect('trail|code', 'InvalidOptionString');
+        Observer.Expect('both', 'No/FlowFilter');
+        Observer.Expect('both|text', '''zzz'' is not an option. The existing options are: Normal, FlowField, FlowFilter, KeyFieldReference');
+        Observer.Expect('both|code', 'InvalidOptionString');
+        Observer.Expect('tab_lead', 'No/FlowFilter');
+        Observer.Expect('tab_lead|text', '''zzz'' is not an option. The existing options are: Normal, FlowField, FlowFilter, KeyFieldReference');
+        Observer.Expect('tab_lead|code', 'InvalidOptionString');
+        Observer.Expect('tab_trail', 'No/FlowFilter');
+        Observer.Expect('tab_trail|text', '''zzz'' is not an option. The existing options are: Normal, FlowField, FlowFilter, KeyFieldReference');
+        Observer.Expect('tab_trail|code', 'InvalidOptionString');
+#else
+        Observer.Expect('lead', 'No/FlowFilter');
+        Observer.Expect('lead|text', '''zzz'' is not an option. The existing options are: Normal, FlowField, FlowFilter');
+        Observer.Expect('lead|code', 'InvalidOptionString');
+        Observer.Expect('trail', 'No/FlowFilter');
+        Observer.Expect('trail|text', '''zzz'' is not an option. The existing options are: Normal, FlowField, FlowFilter');
+        Observer.Expect('trail|code', 'InvalidOptionString');
+        Observer.Expect('both', 'No/FlowFilter');
+        Observer.Expect('both|text', '''zzz'' is not an option. The existing options are: Normal, FlowField, FlowFilter');
+        Observer.Expect('both|code', 'InvalidOptionString');
+        Observer.Expect('tab_lead', 'No/FlowFilter');
+        Observer.Expect('tab_lead|text', '''zzz'' is not an option. The existing options are: Normal, FlowField, FlowFilter');
+        Observer.Expect('tab_lead|code', 'InvalidOptionString');
+        Observer.Expect('tab_trail', 'No/FlowFilter');
+        Observer.Expect('tab_trail|text', '''zzz'' is not an option. The existing options are: Normal, FlowField, FlowFilter');
+        Observer.Expect('tab_trail|code', 'InvalidOptionString');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -1176,7 +1688,34 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrFieldClass(Observer, 'num_lead', ' 99');
         ErrFieldClass(Observer, 'num_trail', '99 ');
         ErrFieldClass(Observer, 'neg_both', ' -1 ');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('num_both', 'No/FlowFilter');
+        Observer.Expect('num_both|text', '''99'' is not an option. The existing options are: Normal, FlowField, FlowFilter, KeyFieldReference');
+        Observer.Expect('num_both|code', 'InvalidOptionString');
+        Observer.Expect('num_lead', 'No/FlowFilter');
+        Observer.Expect('num_lead|text', '''99'' is not an option. The existing options are: Normal, FlowField, FlowFilter, KeyFieldReference');
+        Observer.Expect('num_lead|code', 'InvalidOptionString');
+        Observer.Expect('num_trail', 'No/FlowFilter');
+        Observer.Expect('num_trail|text', '''99'' is not an option. The existing options are: Normal, FlowField, FlowFilter, KeyFieldReference');
+        Observer.Expect('num_trail|code', 'InvalidOptionString');
+        Observer.Expect('neg_both', 'No/FlowFilter');
+        Observer.Expect('neg_both|text', '''-1'' is not an option. The existing options are: Normal, FlowField, FlowFilter, KeyFieldReference');
+        Observer.Expect('neg_both|code', 'InvalidOptionString');
+#else
+        Observer.Expect('num_both', 'No/FlowFilter');
+        Observer.Expect('num_both|text', '''99'' is not an option. The existing options are: Normal, FlowField, FlowFilter');
+        Observer.Expect('num_both|code', 'InvalidOptionString');
+        Observer.Expect('num_lead', 'No/FlowFilter');
+        Observer.Expect('num_lead|text', '''99'' is not an option. The existing options are: Normal, FlowField, FlowFilter');
+        Observer.Expect('num_lead|code', 'InvalidOptionString');
+        Observer.Expect('num_trail', 'No/FlowFilter');
+        Observer.Expect('num_trail|text', '''99'' is not an option. The existing options are: Normal, FlowField, FlowFilter');
+        Observer.Expect('num_trail|code', 'InvalidOptionString');
+        Observer.Expect('neg_both', 'No/FlowFilter');
+        Observer.Expect('neg_both|text', '''-1'' is not an option. The existing options are: Normal, FlowField, FlowFilter');
+        Observer.Expect('neg_both|code', 'InvalidOptionString');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -1191,6 +1730,27 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsFieldClass(Observer, 'prefix_KeyFieldReferen', 'KeyFieldReferen');
         ObsFieldClassFormat(Observer, 'f9 KeyFieldReference', 'KeyFieldReference', 9);
         ErrFieldClass(Observer, 'stmt KeyFieldReference', 'KeyFieldReference');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('name KeyFieldReference', 'Yes/KeyFieldReference/KeyFieldReference/KeyFieldReference/KeyFieldReference');
+        Observer.Expect('lower KeyFieldReference', 'Yes/KeyFieldReference/KeyFieldReference/KeyFieldReference/KeyFieldReference');
+        Observer.Expect('upper KeyFieldReference', 'Yes/KeyFieldReference/KeyFieldReference/KeyFieldReference/KeyFieldReference');
+        Observer.Expect('blanks KeyFieldReference', 'Yes/KeyFieldReference/KeyFieldReference/KeyFieldReference/KeyFieldReference');
+        Observer.Expect('prefix_KeyFieldReferen', 'Yes/KeyFieldReference/KeyFieldReference/KeyFieldReference/KeyFieldReference');
+        Observer.Expect('f9 KeyFieldReference', 'Yes/KeyFieldReference/KeyFieldReference/KeyFieldReference/KeyFieldReference');
+        Observer.Expect('stmt KeyFieldReference', 'Yes/KeyFieldReference');
+        Observer.Expect('stmt KeyFieldReference|text', '');
+        Observer.Expect('stmt KeyFieldReference|code', '');
+#else
+        Observer.Expect('name KeyFieldReference', 'No/FlowFilter/FlowFilter/FlowFilter/FlowFilter');
+        Observer.Expect('lower KeyFieldReference', 'No/FlowFilter/FlowFilter/FlowFilter/FlowFilter');
+        Observer.Expect('upper KeyFieldReference', 'No/FlowFilter/FlowFilter/FlowFilter/FlowFilter');
+        Observer.Expect('blanks KeyFieldReference', 'No/FlowFilter/FlowFilter/FlowFilter/FlowFilter');
+        Observer.Expect('prefix_KeyFieldReferen', 'No/FlowFilter/FlowFilter/FlowFilter/FlowFilter');
+        Observer.Expect('f9 KeyFieldReference', 'No/FlowFilter/FlowFilter/FlowFilter/FlowFilter');
+        Observer.Expect('stmt KeyFieldReference', 'No/FlowFilter');
+        Observer.Expect('stmt KeyFieldReference|text', '''KeyFieldReference'' is not an option. The existing options are: Normal, FlowField, FlowFilter');
+        Observer.Expect('stmt KeyFieldReference|code', 'InvalidOptionString');
+#endif
+        Observer.Verify();
     end;
 }
