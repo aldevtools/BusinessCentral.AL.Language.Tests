@@ -181,4 +181,108 @@ codeunit 70233 "LT P144 Date Text Width"
         Observer.Expect('language_restored', 'Yes');
         Observer.Verify();
     end;
+
+    // Format of an undefined Date (0D) with a format string (al-runner issue 7378), every code of the date format, with and without a width,
+    // next to the same string on a defined date.
+    local procedure Blank(var Observer: Codeunit "Probe Observer"; Name: Text; Spec: Text)
+    var
+        Result: Text;
+    begin
+        if TryFmt(0D, Spec, Result) then
+            Observer.Observe(Name, '[' + Result + ']')
+        else
+            Observer.ObserveError(Name);
+    end;
+
+    local procedure Defined(var Observer: Codeunit "Probe Observer"; Name: Text; Spec: Text)
+    var
+        Result: Text;
+    begin
+        if TryFmt(DMY2Date(5, 3, 2024), Spec, Result) then
+            Observer.Observe(Name, '[' + Result + ']')
+        else
+            Observer.ObserveError(Name);
+    end;
+
+    [Test]
+    procedure Format_UndefinedDate_IssueStrings()
+    var
+        Observer: Codeunit "Probe Observer";
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        Blank(Observer, 'z_month_day_year4', '<Month>/<Day>/<Year4>');
+        Blank(Observer, 'z_closing_day_monthtext', '<Closing><Day> <Month Text>, <Year4>');
+        Blank(Observer, 'z_monthtext_closing_day', '<Month Text> <Closing><Day>, <Year4>');
+        Blank(Observer, 'z_day_dot_month_dot_year4', '<Day>. <Month>. <Year4>');
+        Defined(Observer, 'd_month_day_year4', '<Month>/<Day>/<Year4>');
+        Defined(Observer, 'd_closing_day_monthtext', '<Closing><Day> <Month Text>, <Year4>');
+        Defined(Observer, 'd_monthtext_closing_day', '<Month Text> <Closing><Day>, <Year4>');
+        Defined(Observer, 'd_day_dot_month_dot_year4', '<Day>. <Month>. <Year4>');
+        GlobalLanguage(Saved);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_UndefinedDate_SingleCodes()
+    var
+        Observer: Codeunit "Probe Observer";
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        Blank(Observer, 'z_day', '<Day>');
+        Blank(Observer, 'z_day_zero', '<Day,2>');
+        Blank(Observer, 'z_month', '<Month>');
+        Blank(Observer, 'z_month_zero', '<Month,2>');
+        Blank(Observer, 'z_year', '<Year>');
+        Blank(Observer, 'z_year4', '<Year4>');
+        Blank(Observer, 'z_year4_width', '<Year4,4>');
+        Blank(Observer, 'z_closing', '<Closing>');
+        Defined(Observer, 'd_closing', '<Closing>');
+        GlobalLanguage(Saved);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_UndefinedDate_TextAndStandardCodes()
+    var
+        Observer: Codeunit "Probe Observer";
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        Blank(Observer, 'z_month_text', '<Month Text>');
+        Blank(Observer, 'z_weekday_text', '<Weekday Text>');
+        Blank(Observer, 'z_day_text', '<Day Text>');
+        Blank(Observer, 'z_week', '<Week>');
+        Blank(Observer, 'z_standard_format_0', '<Standard Format,0>');
+        Blank(Observer, 'z_standard_format_1', '<Standard Format,1>');
+        Blank(Observer, 'z_standard_format_4', '<Standard Format,4>');
+        Blank(Observer, 'z_literal_only', 'literal');
+        Blank(Observer, 'z_empty_format', '');
+        Blank(Observer, 'z_day_literal', 'Day: <Day>');
+        Blank(Observer, 'z_closing_day', '<Closing><Day>');
+        GlobalLanguage(Saved);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_UndefinedDate_FormatStrings_De()
+    var
+        Observer: Codeunit "Probe Observer";
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1031);
+        Blank(Observer, 'de_month_day_year4', '<Month>/<Day>/<Year4>');
+        Blank(Observer, 'de_closing_day_monthtext', '<Closing><Day> <Month Text>, <Year4>');
+        Blank(Observer, 'de_day_dot_month_dot_year4', '<Day>. <Month>. <Year4>');
+        Blank(Observer, 'de_month_text', '<Month Text>');
+        Blank(Observer, 'de_standard_format_0', '<Standard Format,0>');
+        Defined(Observer, 'de_d_closing_day_monthtext', '<Closing><Day> <Month Text>, <Year4>');
+        GlobalLanguage(Saved);
+        Observer.Finish();
+    end;
 }

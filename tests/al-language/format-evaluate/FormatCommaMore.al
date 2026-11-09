@@ -641,4 +641,90 @@ codeunit 67357 "LT FCM Tests"
         Observer.Expect('big', 'ok:1234567');
         Observer.Verify();
     end;
+
+    // Format(Decimal) with the Comma element after Integer, 1000Character and Decimal codes (al-runner issue 7369): a general table of Comma
+    // combinations over several values, each in en-US and de-DE.
+    local procedure Table(var Observer: Codeunit "Probe Observer"; Tag: Text; Fmt: Text)
+    begin
+        Run(Tag + '_1234567.891', 1234567.891, Fmt, Observer);
+        Run(Tag + '_1234.5', 1234.5, Fmt, Observer);
+        Run(Tag + '_0.5', 0.5, Fmt, Observer);
+        Run(Tag + '_neg1234.5', -1234.5, Fmt, Observer);
+        Run(Tag + '_0', 0, Fmt, Observer);
+        Run(Tag + '_1000', 1000, Fmt, Observer);
+    end;
+
+    [Test]
+    procedure Format_CommaAfterIntegerAndThousandChar_IssueStrings_En()
+    var
+        Observer: Codeunit "Probe Observer";
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        Table(Observer, 'a', '<Sign><Integer><1000Character,.><Decimal,3><Comma,,>');
+        Table(Observer, 'b', '<Integer><1000Character,,><Decimal,3><Comma,.>');
+        GlobalLanguage(Saved);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_CommaAfterIntegerAndThousandChar_Variants1_En()
+    var
+        Observer: Codeunit "Probe Observer";
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        Table(Observer, 'c', '<Sign><Integer><1000Character,.><Decimals><Comma,,>');
+        Table(Observer, 'd', '<Integer><1000Character,.><Comma,,>');
+        Table(Observer, 'e', '<Integer><1000Character,.><Decimals,3><Comma,,>');
+        GlobalLanguage(Saved);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_CommaAfterIntegerAndThousandChar_Variants2_En()
+    var
+        Observer: Codeunit "Probe Observer";
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        Table(Observer, 'f', '<Integer><Decimal,3><Comma,.>');
+        Table(Observer, 'g', '<Integer><Decimals,3><Comma,.>');
+        Table(Observer, 'h', '<Integer Thousand><Decimals><Comma,.>');
+        GlobalLanguage(Saved);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_CommaAfterIntegerAndThousandChar_Variants3_En()
+    var
+        Observer: Codeunit "Probe Observer";
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        Table(Observer, 'i', '<Integer><1000Character,.><Decimals,2><Comma,,>');
+        Table(Observer, 'j', '<Sign><Integer><1000Character,.>');
+        Table(Observer, 'k', '<Sign><Integer><Comma,,><Decimals,3>');
+        GlobalLanguage(Saved);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_CommaAfterIntegerAndThousandChar_De()
+    var
+        Observer: Codeunit "Probe Observer";
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1031);
+        Table(Observer, 'a', '<Sign><Integer><1000Character,.><Decimal,3><Comma,,>');
+        Table(Observer, 'b', '<Integer><1000Character,,><Decimal,3><Comma,.>');
+        Table(Observer, 'c', '<Sign><Integer><1000Character,.><Decimals><Comma,,>');
+        GlobalLanguage(Saved);
+        Observer.Finish();
+    end;
 }
