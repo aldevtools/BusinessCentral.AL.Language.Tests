@@ -4422,6 +4422,29 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Verify();
     end;
 
+    local procedure SeedNQ(Count: Integer)
+    var
+        NQLog: Record "LT Y89 NQ Log";
+    begin
+        Seed(Count);
+        NQLog.DeleteAll();
+    end;
+
+    local procedure TakeNQLog(): Text
+    var
+        Log: Record "LT Y89 NQ Log";
+        Result: Text;
+    begin
+        if Log.FindSet() then
+            repeat
+                if Result <> '' then
+                    Result += ';';
+                Result += Log.Entry;
+            until Log.Next() = 0;
+        Log.DeleteAll();
+        exit(Result);
+    end;
+
     [TryFunction]
     local procedure TryCardNQ(var P: TestPage "LT Y89 Card NoQuery"; Which: Text; var Result: Text)
     begin
@@ -4477,16 +4500,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
     var
         P: TestPage "LT Y89 Card NoQuery";
     begin
-        Seed(3);
+        SeedNQ(3);
         P.OpenEdit();
         P.GoToKey(20);
-        Observer.Observe('open log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('action', DoCardNQ(P, 'delcur'));
-        Observer.Observe('action log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('shown', DoCardNQ(P, 'shown'));
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
-        Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
         Observer.Finish();
     end;
 
@@ -4495,16 +4518,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
     var
         P: TestPage "LT Y89 Card NoQuery";
     begin
-        Seed(3);
+        SeedNQ(3);
         P.OpenEdit();
         P.GoToKey(20);
-        Observer.Observe('open log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('action', DoCardNQ(P, 'delall'));
-        Observer.Observe('action log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('shown', DoCardNQ(P, 'shown'));
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
-        Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
         Observer.Finish();
     end;
 
@@ -4513,16 +4536,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
     var
         P: TestPage "LT Y89 Card NoQuery";
     begin
-        Seed(3);
+        SeedNQ(3);
         P.OpenEdit();
         P.GoToKey(30);
-        Observer.Observe('open log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('action', DoCardNQ(P, 'delcur'));
-        Observer.Observe('action log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('shown', DoCardNQ(P, 'shown'));
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
-        Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
         Observer.Finish();
     end;
 
@@ -4531,16 +4554,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
     var
         P: TestPage "LT Y89 Card NoQuery";
     begin
-        Seed(3);
+        SeedNQ(3);
         P.OpenEdit();
         P.GoToKey(30);
-        Observer.Observe('open log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('action', DoCardNQ(P, 'delall'));
-        Observer.Observe('action log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('shown', DoCardNQ(P, 'shown'));
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
-        Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
         Observer.Finish();
     end;
 
@@ -4549,15 +4572,15 @@ codeunit 94730 "LT Y89 Gone Single Move"
     var
         P: TestPage "LT Y89 Card NoQuery";
     begin
-        Seed(1);
+        SeedNQ(1);
         P.OpenEdit();
-        Observer.Observe('open log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('action', DoCardNQ(P, 'delcur'));
-        Observer.Observe('action log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('shown', DoCardNQ(P, 'shown'));
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
-        Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
         Observer.Finish();
     end;
 
@@ -4566,15 +4589,15 @@ codeunit 94730 "LT Y89 Gone Single Move"
     var
         P: TestPage "LT Y89 Card NoQuery";
     begin
-        Seed(1);
+        SeedNQ(1);
         P.OpenEdit();
-        Observer.Observe('open log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('action', DoCardNQ(P, 'delall'));
-        Observer.Observe('action log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('shown', DoCardNQ(P, 'shown'));
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
-        Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
         Observer.Finish();
     end;
 
@@ -4583,16 +4606,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
     var
         P: TestPage "LT Y89 Card NoQuery";
     begin
-        Seed(3);
+        SeedNQ(3);
         P.OpenView();
         P.GoToKey(20);
-        Observer.Observe('open log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('action', DoCardNQ(P, 'delcur'));
-        Observer.Observe('action log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('shown', DoCardNQ(P, 'shown'));
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
-        Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
         Observer.Finish();
     end;
 
@@ -4601,16 +4624,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
     var
         P: TestPage "LT Y89 Card NoQuery";
     begin
-        Seed(3);
+        SeedNQ(3);
         P.OpenView();
         P.GoToKey(20);
-        Observer.Observe('open log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('action', DoCardNQ(P, 'delall'));
-        Observer.Observe('action log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('shown', DoCardNQ(P, 'shown'));
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
-        Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
         Observer.Finish();
     end;
 
@@ -4619,16 +4642,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
     var
         P: TestPage "LT Y89 Card NoQuery";
     begin
-        Seed(3);
+        SeedNQ(3);
         P.OpenView();
         P.GoToKey(30);
-        Observer.Observe('open log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('action', DoCardNQ(P, 'delcur'));
-        Observer.Observe('action log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('shown', DoCardNQ(P, 'shown'));
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
-        Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
         Observer.Finish();
     end;
 
@@ -4637,16 +4660,16 @@ codeunit 94730 "LT Y89 Gone Single Move"
     var
         P: TestPage "LT Y89 Card NoQuery";
     begin
-        Seed(3);
+        SeedNQ(3);
         P.OpenView();
         P.GoToKey(30);
-        Observer.Observe('open log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('action', DoCardNQ(P, 'delall'));
-        Observer.Observe('action log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('shown', DoCardNQ(P, 'shown'));
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
-        Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
         Observer.Finish();
     end;
 
@@ -4655,15 +4678,15 @@ codeunit 94730 "LT Y89 Gone Single Move"
     var
         P: TestPage "LT Y89 Card NoQuery";
     begin
-        Seed(1);
+        SeedNQ(1);
         P.OpenView();
-        Observer.Observe('open log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('action', DoCardNQ(P, 'delcur'));
-        Observer.Observe('action log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('shown', DoCardNQ(P, 'shown'));
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
-        Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
         Observer.Finish();
     end;
 
@@ -4672,15 +4695,15 @@ codeunit 94730 "LT Y89 Gone Single Move"
     var
         P: TestPage "LT Y89 Card NoQuery";
     begin
-        Seed(1);
+        SeedNQ(1);
         P.OpenView();
-        Observer.Observe('open log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('action', DoCardNQ(P, 'delall'));
-        Observer.Observe('action log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('shown', DoCardNQ(P, 'shown'));
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardNQ(P, 'close'));
-        Observer.Observe('close log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
         Observer.Finish();
     end;
 
@@ -4691,13 +4714,13 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Row: Record "LT Y80 Row";
         Result: Action;
     begin
-        Seed(3);
+        SeedNQ(3);
         Row.Get(20);
         ModalAction := '';
         Result := Page.RunModal(Page::"LT Y89 Card NoQuery", Row);
         Observer.Observe('result', Format(Result));
         Observer.Observe('handler', ModalAction);
-        Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('rows', Rows());
         Observer.Finish();
     end;
@@ -4709,13 +4732,13 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Row: Record "LT Y80 Row";
         Result: Action;
     begin
-        Seed(3);
+        SeedNQ(3);
         Row.Get(20);
         ModalAction := '';
         Result := Page.RunModal(Page::"LT Y89 Card NoQuery", Row);
         Observer.Observe('result', Format(Result));
         Observer.Observe('handler', ModalAction);
-        Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('rows', Rows());
         Observer.Finish();
     end;
@@ -4727,13 +4750,13 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Row: Record "LT Y80 Row";
         Result: Action;
     begin
-        Seed(3);
+        SeedNQ(3);
         Row.Get(30);
         ModalAction := '';
         Result := Page.RunModal(Page::"LT Y89 Card NoQuery", Row);
         Observer.Observe('result', Format(Result));
         Observer.Observe('handler', ModalAction);
-        Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('rows', Rows());
         Observer.Finish();
     end;
@@ -4745,13 +4768,13 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Row: Record "LT Y80 Row";
         Result: Action;
     begin
-        Seed(3);
+        SeedNQ(3);
         Row.Get(30);
         ModalAction := '';
         Result := Page.RunModal(Page::"LT Y89 Card NoQuery", Row);
         Observer.Observe('result', Format(Result));
         Observer.Observe('handler', ModalAction);
-        Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('rows', Rows());
         Observer.Finish();
     end;
@@ -4763,13 +4786,13 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Row: Record "LT Y80 Row";
         Result: Action;
     begin
-        Seed(1);
+        SeedNQ(1);
         Row.Get(10);
         ModalAction := '';
         Result := Page.RunModal(Page::"LT Y89 Card NoQuery", Row);
         Observer.Observe('result', Format(Result));
         Observer.Observe('handler', ModalAction);
-        Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('rows', Rows());
         Observer.Finish();
     end;
@@ -4781,13 +4804,13 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Row: Record "LT Y80 Row";
         Result: Action;
     begin
-        Seed(1);
+        SeedNQ(1);
         Row.Get(10);
         ModalAction := '';
         Result := Page.RunModal(Page::"LT Y89 Card NoQuery", Row);
         Observer.Observe('result', Format(Result));
         Observer.Observe('handler', ModalAction);
-        Observer.Observe('log', TakeLog() + '/' + TakeCloseLog());
+        Observer.Observe('log', TakeLog() + '/' + TakeNQLog());
         Observer.Observe('rows', Rows());
         Observer.Finish();
     end;
@@ -4840,7 +4863,7 @@ page 94734 "LT Y89 Card NoQuery"
 
     trigger OnAfterGetRecord()
     var
-        Log: Record "LT Y89 Close Log";
+        Log: Record "LT Y89 NQ Log";
     begin
         Log.Init();
         Log.Entry := 'R:' + Format(Rec.Id);
@@ -4849,10 +4872,24 @@ page 94734 "LT Y89 Card NoQuery"
 
     trigger OnClosePage()
     var
-        Log: Record "LT Y89 Close Log";
+        Log: Record "LT Y89 NQ Log";
     begin
         Log.Init();
         Log.Entry := 'X:' + Format(Rec.Id);
         Log.Insert();
     end;
+}
+
+table 94735 "LT Y89 NQ Log"
+{
+    // The log of the card without OnQueryClosePage: its own table, because cards of earlier tests of the codeunit that are still open
+    // log their OnQueryClosePage into "LT Y89 Close Log" when the rows disappear.
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Line No."; Integer) { AutoIncrement = true; }
+        field(2; Entry; Text[250]) { }
+    }
+    keys { key(PK; "Line No.") { Clustered = true; } }
 }
