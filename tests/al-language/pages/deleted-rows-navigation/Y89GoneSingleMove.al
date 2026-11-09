@@ -4322,10 +4322,18 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', DoCardLast(P, 'close'));
         Observer.Observe('close log', TakeLog() + '/' + TakeLastLog());
-        Observer.Finish();
+        Observer.Expect('goto', '30');
+        Observer.Expect('open log', '/');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:30/Q:OK:20;X:20');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '2');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
     end;
 
-    local procedure CardGetOn(Id: Integer)
+    local procedure CardGetOn(Id: Integer; OpenLog: Text; ActionLog: Text)
     var
         P: TestPage "LT Y89 Card Close Get";
     begin
@@ -4338,7 +4346,12 @@ codeunit 94730 "LT Y89 Gone Single Move"
         ClearLastError();
         Observer.Observe('action log', TakeLog() + '/' + TakeLastLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('goto', Format(Id));
+        Observer.Expect('open log', OpenLog);
+        Observer.Expect('action', 'acted');
+        Observer.Expect('action log', ActionLog);
+        Observer.Expect('rows', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4356,13 +4369,13 @@ codeunit 94730 "LT Y89 Gone Single Move"
     [Test]
     procedure Y89_CA_Get_OpenEdit_3Row_delcur_last()
     begin
-        CardGetOn(30);
+        CardGetOn(30, '/G:10;C:10;G:10;C:10;G:20;C:20;G:30;C:30', 'D:30/G:30;G:20;Q:OK:20;X:20');
     end;
 
     [Test]
     procedure Y89_CA_Get_OpenEdit_3Row_delcur_first()
     begin
-        CardGetOn(10);
+        CardGetOn(10, '/G:10;C:10;G:10;C:10', 'D:10/G:10;G:20;Q:OK:20;X:20');
     end;
 
     [Test]
@@ -4380,7 +4393,11 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeLastLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:30/Q:LookupCancel:20;X:20');
+        Observer.Expect('rows', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4398,6 +4415,10 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Observe('handler', ModalAction);
         Observer.Observe('log', TakeLog() + '/' + TakeLastLog());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:30/G:30;C:30;G:30;G:20;Q:LookupCancel:20;X:20');
+        Observer.Expect('rows', '2');
+        Observer.Verify();
     end;
 }
