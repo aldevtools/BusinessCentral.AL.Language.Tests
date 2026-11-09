@@ -204,4 +204,86 @@ codeunit 99962 "LT K12 Page Run Filters"
         Observer.Observe('Page.RunModal(0, Entry): same filters', Seen);
         Observer.Finish();
     end;
+
+    // Matrix: what a record carries into Page.Run / Page.RunModal beyond plain filters: filter group 2, a view, a copy, CopyFilters, a temporary
+    // record, an OR of ranges on one field, and the record after SetRecord-style reuse (Run twice on the same variable).
+    [Test]
+    [HandlerFunctions('EntriesHandler')]
+    procedure Y7412_Run0_FilterGroup_View_Copies()
+    var
+        Observer: Codeunit "Probe Observer";
+        Entry: Record "LT K12 Ledger Entry";
+        Other: Record "LT K12 Ledger Entry";
+    begin
+        Seed();
+        Entry.FilterGroup(2);
+        Entry.SetRange("Case No.", 'C1');
+        Entry.FilterGroup(0);
+        Page.Run(0, Entry);
+        Observer.Observe('filter in group 2 only', Seen);
+        Entry.Reset();
+        Entry.SetView('SORTING("Case No.",Open) WHERE(Open=CONST(Yes),"Due Date"=FILTER(..' + Format(Today() - 1) + '))');
+        Page.Run(0, Entry);
+        Observer.Observe('SetView with sorting and filters', Seen);
+        Entry.Reset();
+        Entry.SetRange(Open, true);
+        Entry.SetRange("Case No.", 'C2');
+        Other.Copy(Entry);
+        Page.Run(0, Other);
+        Observer.Observe('Copy of a filtered record', Seen);
+        Other.Reset();
+        Other.CopyFilters(Entry);
+        Page.Run(0, Other);
+        Observer.Observe('CopyFilters from a filtered record', Seen);
+        Entry.Reset();
+        Entry.SetFilter("Entry No.", '1|3');
+        Page.Run(0, Entry);
+        Observer.Observe('OR of two single keys on the primary key', Seen);
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('EntriesHandler')]
+    procedure Y7412_Run0_TemporaryRecord_And_RecordWithCurrentRow()
+    var
+        Observer: Codeunit "Probe Observer";
+        Entry: Record "LT K12 Ledger Entry";
+        Temp: Record "LT K12 Ledger Entry" temporary;
+    begin
+        Seed();
+        Temp."Entry No." := 2;
+        Temp.Insert();
+        Temp.SetRange(Open, true);
+        Page.Run(0, Temp);
+        Observer.Observe('temporary record with one row and a filter', Seen);
+        Entry.SetRange(Open, true);
+        Entry.FindFirst();
+        Page.Run(0, Entry);
+        Observer.Observe('filtered record positioned on its first row', Seen);
+        Entry.SetRange(Open, false);
+        Entry.Get(3);
+        Page.Run(0, Entry);
+        Observer.Observe('record positioned on a row outside its own filter', Seen);
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('EntriesModalHandler')]
+    procedure Y7412_RunModal_Variants()
+    var
+        Observer: Codeunit "Probe Observer";
+        Entry: Record "LT K12 Ledger Entry";
+    begin
+        Seed();
+        Page.RunModal(Page::"LT K12 Ledger Entries", Entry);
+        Observer.Observe('RunModal explicit page, no filter', Seen);
+        Entry.SetRange(Open, true);
+        Page.RunModal(Page::"LT K12 Ledger Entries", Entry);
+        Observer.Observe('RunModal explicit page, Open filter', Seen);
+        Entry.Reset();
+        Entry.SetRange("Case No.", 'C2');
+        Page.RunModal(0, Entry);
+        Observer.Observe('RunModal(0), case filter on the secondary key field', Seen);
+        Observer.Finish();
+    end;
 }
