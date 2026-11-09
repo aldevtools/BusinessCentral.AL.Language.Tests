@@ -495,4 +495,37 @@ codeunit 73801 "LT DtT DateFuncs"
         Observer.Expect('1.1.-2024|code', 'OutsidePermittedRange');
         Observer.Verify();
     end;
+
+    [TryFunction]
+    local procedure TryDmyOfUndefinedDate(Part: Integer; var Result: Integer)
+    begin
+        Result := Date2DMY(0D, Part);
+    end;
+
+    // AL Runner issue 7468: Date2DMY of an undefined date (0D) raises "The date is not valid." for the day, month and year parts alike.
+    [Test]
+    procedure Date2DMY_UndefinedDate_DayMonthYear_RaiseDateInvalid()
+    var
+        Observer: Codeunit "Probe Observer";
+        Result: Integer;
+        Part: Integer;
+        Ok: Boolean;
+    begin
+        for Part := 1 to 3 do begin
+            asserterror Result := Date2DMY(0D, Part);
+            Observer.ObserveError('direct part ' + Format(Part));
+            Result := -5;
+            Ok := TryDmyOfUndefinedDate(Part, Result);
+            Observer.Observe('try part ' + Format(Part), Format(Ok) + '|' + Format(Result));
+            Observer.ObserveError('try error part ' + Format(Part));
+        end;
+        for Part := 1 to 3 do begin
+            Observer.Expect('direct part ' + Format(Part) + '|text', 'The date is not valid.');
+            Observer.Expect('direct part ' + Format(Part) + '|code', 'DateInvalid');
+            Observer.Expect('try part ' + Format(Part), 'No|-5');
+            Observer.Expect('try error part ' + Format(Part) + '|text', 'The date is not valid.');
+            Observer.Expect('try error part ' + Format(Part) + '|code', 'DateInvalid');
+        end;
+        Observer.Verify();
+    end;
 }
