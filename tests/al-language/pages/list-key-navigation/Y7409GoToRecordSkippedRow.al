@@ -449,6 +449,11 @@ codeunit 99943 "LT K12 GoTo Skipped Row"
         Observer.Observe('GoToKey statement, shown row 1', StatementReading(TryKeyStatement(P, 1)));
         ClearLastError();
         Observer.Observe('GoToKey statement, row 99 that does not exist', StatementReading(TryKeyStatement(P, 99)));
-        Observer.Finish();
+        Observer.Expect('GoToRecord statement, hidden row 2', 'error:The row does not exist on the TestPage.|TestRowNotFound');
+        Observer.Expect('GoToKey statement, hidden row 2', 'error:The row does not exist on the TestPage.|TestRowNotFound');
+        Observer.Expect('GoToRecord statement, shown row 3', 'no error');
+        Observer.Expect('GoToKey statement, shown row 1', 'no error');
+        Observer.Expect('GoToKey statement, row 99 that does not exist', 'error:The row does not exist on the TestPage.|TestRowNotFound');
+        Observer.Verify();
     end;
 }
