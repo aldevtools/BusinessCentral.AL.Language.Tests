@@ -53,8 +53,30 @@ table 70041 "LT FRM Row"
 
 codeunit 70043 "LT FRM Probe"
 {
+    // Each test declares its own "LT FRM Probe" variable, so every test starts with an empty observer; the cells observe into Obs here,
+    // and the test ends with Probe.Finish() or Probe.Expect(...) and Probe.Verify().
     var
         Obs: Codeunit "Probe Observer";
+
+    procedure Expect(Name: Text; Value: Text)
+    begin
+        Obs.Expect(Name, Value);
+    end;
+
+    procedure Ignore(Name: Text)
+    begin
+        Obs.Ignore(Name);
+    end;
+
+    procedure Verify()
+    begin
+        Obs.Verify();
+    end;
+
+    procedure Finish()
+    begin
+        Obs.Finish();
+    end;
 
     procedure Rows(var RecRef: RecordRef): Text
     var
@@ -285,10 +307,6 @@ codeunit 70044 "LT FRM Numeric Tests"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Obs: Codeunit "Probe Observer";
-        Probe: Codeunit "LT FRM Probe";
-
     local procedure SeedInt()
     var
         R: Record "LT FRM Row";
@@ -314,6 +332,8 @@ codeunit 70044 "LT FRM Numeric Tests"
 
     [Test]
     procedure Filter_Int_Compare()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedInt();
         Probe.Cell('eq.Int', 10, '{a}');
@@ -323,11 +343,13 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.Cell('le.Int', 10, '<={a}');
         Probe.Cell('gt.Int', 10, '>{a}');
         Probe.Cell('ge.Int', 10, '>={a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Int_Lists()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedInt();
         Probe.Cell('rng.Int', 10, '{a}..{b}');
@@ -337,11 +359,13 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.Cell('and.Int', 10, '>{a}&<{b}');
         Probe.Cell('ordinal.Int', 10, '{o}');
         Probe.Cell('neordinal.Int', 10, '<>{o}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Int_Wild()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedInt();
         Probe.Cell('star.Int', 10, '*');
@@ -350,11 +374,13 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.Cell('prefix.Int', 10, '{a}*');
         Probe.Cell('nstar.Int', 10, '<>*');
         Probe.Cell('suffix.Int', 10, '*{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Int_Empty()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedInt();
         Probe.Cell('empty.Int', 10, '');
@@ -364,11 +390,13 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.Cell('unterm.Int', 10, '''');
         Probe.Cell('unterm2.Int', 10, '{a}''');
         Probe.Cell('quotedA.Int', 10, '''{a}''');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Int_Args()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedInt();
         Probe.CellArg('p1.Int', 10, '%1', 'a');
@@ -378,21 +406,25 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.CellArg('pnestar.Int', 10, '<>%1', 'w');
         Probe.CellArg('pq.Int', 10, '%1', 'q');
         Probe.CellArg('pnq.Int', 10, '<>%1', 'q');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Int_Range()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedInt();
         Probe.CellRange('r1.Int', 10, 'r1');
         Probe.CellRange('r2.Int', 10, 'r2');
         Probe.CellRange('rtext.Int', 10, 'rt');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Int_View()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedInt();
         Probe.CellView('vgt.Int', 10, '>{a}');
@@ -400,7 +432,7 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.CellView('vrng.Int', 10, '{a}..{b}');
         Probe.CellView('vor.Int', 10, '{a}|{b}');
         Probe.CellView('veq.Int', 10, '{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     local procedure SeedBig()
@@ -428,6 +460,8 @@ codeunit 70044 "LT FRM Numeric Tests"
 
     [Test]
     procedure Filter_Big_Compare()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBig();
         Probe.Cell('eq.Big', 11, '{a}');
@@ -437,11 +471,13 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.Cell('le.Big', 11, '<={a}');
         Probe.Cell('gt.Big', 11, '>{a}');
         Probe.Cell('ge.Big', 11, '>={a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Big_Lists()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBig();
         Probe.Cell('rng.Big', 11, '{a}..{b}');
@@ -451,11 +487,13 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.Cell('and.Big', 11, '>{a}&<{b}');
         Probe.Cell('ordinal.Big', 11, '{o}');
         Probe.Cell('neordinal.Big', 11, '<>{o}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Big_Wild()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBig();
         Probe.Cell('star.Big', 11, '*');
@@ -464,11 +502,13 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.Cell('prefix.Big', 11, '{a}*');
         Probe.Cell('nstar.Big', 11, '<>*');
         Probe.Cell('suffix.Big', 11, '*{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Big_Empty()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBig();
         Probe.Cell('empty.Big', 11, '');
@@ -478,11 +518,13 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.Cell('unterm.Big', 11, '''');
         Probe.Cell('unterm2.Big', 11, '{a}''');
         Probe.Cell('quotedA.Big', 11, '''{a}''');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Big_Args()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBig();
         Probe.CellArg('p1.Big', 11, '%1', 'a');
@@ -492,21 +534,25 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.CellArg('pnestar.Big', 11, '<>%1', 'w');
         Probe.CellArg('pq.Big', 11, '%1', 'q');
         Probe.CellArg('pnq.Big', 11, '<>%1', 'q');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Big_Range()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBig();
         Probe.CellRange('r1.Big', 11, 'r1');
         Probe.CellRange('r2.Big', 11, 'r2');
         Probe.CellRange('rtext.Big', 11, 'rt');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Big_View()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBig();
         Probe.CellView('vgt.Big', 11, '>{a}');
@@ -514,7 +560,7 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.CellView('vrng.Big', 11, '{a}..{b}');
         Probe.CellView('vor.Big', 11, '{a}|{b}');
         Probe.CellView('veq.Big', 11, '{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     local procedure SeedDec()
@@ -542,6 +588,8 @@ codeunit 70044 "LT FRM Numeric Tests"
 
     [Test]
     procedure Filter_Dec_Compare()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDec();
         Probe.Cell('eq.Dec', 12, '{a}');
@@ -551,11 +599,13 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.Cell('le.Dec', 12, '<={a}');
         Probe.Cell('gt.Dec', 12, '>{a}');
         Probe.Cell('ge.Dec', 12, '>={a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Dec_Lists()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDec();
         Probe.Cell('rng.Dec', 12, '{a}..{b}');
@@ -565,11 +615,13 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.Cell('and.Dec', 12, '>{a}&<{b}');
         Probe.Cell('ordinal.Dec', 12, '{o}');
         Probe.Cell('neordinal.Dec', 12, '<>{o}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Dec_Wild()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDec();
         Probe.Cell('star.Dec', 12, '*');
@@ -578,11 +630,13 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.Cell('prefix.Dec', 12, '{a}*');
         Probe.Cell('nstar.Dec', 12, '<>*');
         Probe.Cell('suffix.Dec', 12, '*{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Dec_Empty()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDec();
         Probe.Cell('empty.Dec', 12, '');
@@ -592,11 +646,13 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.Cell('unterm.Dec', 12, '''');
         Probe.Cell('unterm2.Dec', 12, '{a}''');
         Probe.Cell('quotedA.Dec', 12, '''{a}''');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Dec_Args()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDec();
         Probe.CellArg('p1.Dec', 12, '%1', 'a');
@@ -606,21 +662,25 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.CellArg('pnestar.Dec', 12, '<>%1', 'w');
         Probe.CellArg('pq.Dec', 12, '%1', 'q');
         Probe.CellArg('pnq.Dec', 12, '<>%1', 'q');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Dec_Range()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDec();
         Probe.CellRange('r1.Dec', 12, 'r1');
         Probe.CellRange('r2.Dec', 12, 'r2');
         Probe.CellRange('rtext.Dec', 12, 'rt');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Dec_View()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDec();
         Probe.CellView('vgt.Dec', 12, '>{a}');
@@ -628,7 +688,7 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.CellView('vrng.Dec', 12, '{a}..{b}');
         Probe.CellView('vor.Dec', 12, '{a}|{b}');
         Probe.CellView('veq.Dec', 12, '{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     local procedure SeedDur()
@@ -656,6 +716,8 @@ codeunit 70044 "LT FRM Numeric Tests"
 
     [Test]
     procedure Filter_Dur_Compare()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDur();
         Probe.Cell('eq.Dur', 13, '{a}');
@@ -665,11 +727,13 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.Cell('le.Dur', 13, '<={a}');
         Probe.Cell('gt.Dur', 13, '>{a}');
         Probe.Cell('ge.Dur', 13, '>={a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Dur_Lists()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDur();
         Probe.Cell('rng.Dur', 13, '{a}..{b}');
@@ -679,11 +743,13 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.Cell('and.Dur', 13, '>{a}&<{b}');
         Probe.Cell('ordinal.Dur', 13, '{o}');
         Probe.Cell('neordinal.Dur', 13, '<>{o}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Dur_Wild()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDur();
         Probe.Cell('star.Dur', 13, '*');
@@ -692,11 +758,13 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.Cell('prefix.Dur', 13, '{a}*');
         Probe.Cell('nstar.Dur', 13, '<>*');
         Probe.Cell('suffix.Dur', 13, '*{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Dur_Empty()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDur();
         Probe.Cell('empty.Dur', 13, '');
@@ -706,11 +774,13 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.Cell('unterm.Dur', 13, '''');
         Probe.Cell('unterm2.Dur', 13, '{a}''');
         Probe.Cell('quotedA.Dur', 13, '''{a}''');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Dur_Args()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDur();
         Probe.CellArg('p1.Dur', 13, '%1', 'a');
@@ -720,21 +790,25 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.CellArg('pnestar.Dur', 13, '<>%1', 'w');
         Probe.CellArg('pq.Dur', 13, '%1', 'q');
         Probe.CellArg('pnq.Dur', 13, '<>%1', 'q');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Dur_Range()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDur();
         Probe.CellRange('r1.Dur', 13, 'r1');
         Probe.CellRange('r2.Dur', 13, 'r2');
         Probe.CellRange('rtext.Dur', 13, 'rt');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Dur_View()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDur();
         Probe.CellView('vgt.Dur', 13, '>{a}');
@@ -742,7 +816,7 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.CellView('vrng.Dur', 13, '{a}..{b}');
         Probe.CellView('vor.Dur', 13, '{a}|{b}');
         Probe.CellView('veq.Dur', 13, '{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
 }
@@ -751,10 +825,6 @@ codeunit 70045 "LT FRM Text Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
-
-    var
-        Obs: Codeunit "Probe Observer";
-        Probe: Codeunit "LT FRM Probe";
 
     local procedure SeedCode()
     var
@@ -781,6 +851,8 @@ codeunit 70045 "LT FRM Text Tests"
 
     [Test]
     procedure Filter_Code_Compare()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedCode();
         Probe.Cell('eq.Code', 14, '{a}');
@@ -790,11 +862,13 @@ codeunit 70045 "LT FRM Text Tests"
         Probe.Cell('le.Code', 14, '<={a}');
         Probe.Cell('gt.Code', 14, '>{a}');
         Probe.Cell('ge.Code', 14, '>={a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Code_Lists()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedCode();
         Probe.Cell('rng.Code', 14, '{a}..{b}');
@@ -804,11 +878,13 @@ codeunit 70045 "LT FRM Text Tests"
         Probe.Cell('and.Code', 14, '>{a}&<{b}');
         Probe.Cell('ordinal.Code', 14, '{o}');
         Probe.Cell('neordinal.Code', 14, '<>{o}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Code_Wild()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedCode();
         Probe.Cell('star.Code', 14, '*');
@@ -817,11 +893,13 @@ codeunit 70045 "LT FRM Text Tests"
         Probe.Cell('prefix.Code', 14, '{a}*');
         Probe.Cell('nstar.Code', 14, '<>*');
         Probe.Cell('suffix.Code', 14, '*{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Code_Empty()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedCode();
         Probe.Cell('empty.Code', 14, '');
@@ -831,11 +909,13 @@ codeunit 70045 "LT FRM Text Tests"
         Probe.Cell('unterm.Code', 14, '''');
         Probe.Cell('unterm2.Code', 14, '{a}''');
         Probe.Cell('quotedA.Code', 14, '''{a}''');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Code_Args()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedCode();
         Probe.CellArg('p1.Code', 14, '%1', 'a');
@@ -845,21 +925,25 @@ codeunit 70045 "LT FRM Text Tests"
         Probe.CellArg('pnestar.Code', 14, '<>%1', 'w');
         Probe.CellArg('pq.Code', 14, '%1', 'q');
         Probe.CellArg('pnq.Code', 14, '<>%1', 'q');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Code_Range()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedCode();
         Probe.CellRange('r1.Code', 14, 'r1');
         Probe.CellRange('r2.Code', 14, 'r2');
         Probe.CellRange('rtext.Code', 14, 'rt');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Code_View()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedCode();
         Probe.CellView('vgt.Code', 14, '>{a}');
@@ -867,7 +951,7 @@ codeunit 70045 "LT FRM Text Tests"
         Probe.CellView('vrng.Code', 14, '{a}..{b}');
         Probe.CellView('vor.Code', 14, '{a}|{b}');
         Probe.CellView('veq.Code', 14, '{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     local procedure SeedText()
@@ -895,6 +979,8 @@ codeunit 70045 "LT FRM Text Tests"
 
     [Test]
     procedure Filter_Text_Compare()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedText();
         Probe.Cell('eq.Text', 15, '{a}');
@@ -904,11 +990,13 @@ codeunit 70045 "LT FRM Text Tests"
         Probe.Cell('le.Text', 15, '<={a}');
         Probe.Cell('gt.Text', 15, '>{a}');
         Probe.Cell('ge.Text', 15, '>={a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Text_Lists()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedText();
         Probe.Cell('rng.Text', 15, '{a}..{b}');
@@ -918,11 +1006,13 @@ codeunit 70045 "LT FRM Text Tests"
         Probe.Cell('and.Text', 15, '>{a}&<{b}');
         Probe.Cell('ordinal.Text', 15, '{o}');
         Probe.Cell('neordinal.Text', 15, '<>{o}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Text_Wild()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedText();
         Probe.Cell('star.Text', 15, '*');
@@ -931,11 +1021,13 @@ codeunit 70045 "LT FRM Text Tests"
         Probe.Cell('prefix.Text', 15, '{a}*');
         Probe.Cell('nstar.Text', 15, '<>*');
         Probe.Cell('suffix.Text', 15, '*{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Text_Empty()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedText();
         Probe.Cell('empty.Text', 15, '');
@@ -945,11 +1037,13 @@ codeunit 70045 "LT FRM Text Tests"
         Probe.Cell('unterm.Text', 15, '''');
         Probe.Cell('unterm2.Text', 15, '{a}''');
         Probe.Cell('quotedA.Text', 15, '''{a}''');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Text_Args()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedText();
         Probe.CellArg('p1.Text', 15, '%1', 'a');
@@ -959,21 +1053,25 @@ codeunit 70045 "LT FRM Text Tests"
         Probe.CellArg('pnestar.Text', 15, '<>%1', 'w');
         Probe.CellArg('pq.Text', 15, '%1', 'q');
         Probe.CellArg('pnq.Text', 15, '<>%1', 'q');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Text_Range()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedText();
         Probe.CellRange('r1.Text', 15, 'r1');
         Probe.CellRange('r2.Text', 15, 'r2');
         Probe.CellRange('rtext.Text', 15, 'rt');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Text_View()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedText();
         Probe.CellView('vgt.Text', 15, '>{a}');
@@ -981,7 +1079,7 @@ codeunit 70045 "LT FRM Text Tests"
         Probe.CellView('vrng.Text', 15, '{a}..{b}');
         Probe.CellView('vor.Text', 15, '{a}|{b}');
         Probe.CellView('veq.Text', 15, '{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     local procedure SeedGuid()
@@ -1009,6 +1107,8 @@ codeunit 70045 "LT FRM Text Tests"
 
     [Test]
     procedure Filter_Guid_Compare()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedGuid();
         Probe.Cell('eq.Guid', 23, '{a}');
@@ -1018,11 +1118,13 @@ codeunit 70045 "LT FRM Text Tests"
         Probe.Cell('le.Guid', 23, '<={a}');
         Probe.Cell('gt.Guid', 23, '>{a}');
         Probe.Cell('ge.Guid', 23, '>={a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Guid_Lists()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedGuid();
         Probe.Cell('rng.Guid', 23, '{a}..{b}');
@@ -1032,11 +1134,13 @@ codeunit 70045 "LT FRM Text Tests"
         Probe.Cell('and.Guid', 23, '>{a}&<{b}');
         Probe.Cell('ordinal.Guid', 23, '{o}');
         Probe.Cell('neordinal.Guid', 23, '<>{o}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Guid_Wild()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedGuid();
         Probe.Cell('star.Guid', 23, '*');
@@ -1045,11 +1149,13 @@ codeunit 70045 "LT FRM Text Tests"
         Probe.Cell('prefix.Guid', 23, '{a}*');
         Probe.Cell('nstar.Guid', 23, '<>*');
         Probe.Cell('suffix.Guid', 23, '*{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Guid_Empty()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedGuid();
         Probe.Cell('empty.Guid', 23, '');
@@ -1059,11 +1165,13 @@ codeunit 70045 "LT FRM Text Tests"
         Probe.Cell('unterm.Guid', 23, '''');
         Probe.Cell('unterm2.Guid', 23, '{a}''');
         Probe.Cell('quotedA.Guid', 23, '''{a}''');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Guid_Args()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedGuid();
         Probe.CellArg('p1.Guid', 23, '%1', 'a');
@@ -1073,21 +1181,25 @@ codeunit 70045 "LT FRM Text Tests"
         Probe.CellArg('pnestar.Guid', 23, '<>%1', 'w');
         Probe.CellArg('pq.Guid', 23, '%1', 'q');
         Probe.CellArg('pnq.Guid', 23, '<>%1', 'q');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Guid_Range()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedGuid();
         Probe.CellRange('r1.Guid', 23, 'r1');
         Probe.CellRange('r2.Guid', 23, 'r2');
         Probe.CellRange('rtext.Guid', 23, 'rt');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Guid_View()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedGuid();
         Probe.CellView('vgt.Guid', 23, '>{a}');
@@ -1095,7 +1207,7 @@ codeunit 70045 "LT FRM Text Tests"
         Probe.CellView('vrng.Guid', 23, '{a}..{b}');
         Probe.CellView('vor.Guid', 23, '{a}|{b}');
         Probe.CellView('veq.Guid', 23, '{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
 }
@@ -1104,10 +1216,6 @@ codeunit 70046 "LT FRM DateTime Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
-
-    var
-        Obs: Codeunit "Probe Observer";
-        Probe: Codeunit "LT FRM Probe";
 
     local procedure SeedDate()
     var
@@ -1134,6 +1242,8 @@ codeunit 70046 "LT FRM DateTime Tests"
 
     [Test]
     procedure Filter_Date_Compare()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDate();
         Probe.Cell('eq.Date', 16, '{a}');
@@ -1143,11 +1253,13 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.Cell('le.Date', 16, '<={a}');
         Probe.Cell('gt.Date', 16, '>{a}');
         Probe.Cell('ge.Date', 16, '>={a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Date_Lists()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDate();
         Probe.Cell('rng.Date', 16, '{a}..{b}');
@@ -1157,11 +1269,13 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.Cell('and.Date', 16, '>{a}&<{b}');
         Probe.Cell('ordinal.Date', 16, '{o}');
         Probe.Cell('neordinal.Date', 16, '<>{o}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Date_Wild()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDate();
         Probe.Cell('star.Date', 16, '*');
@@ -1170,11 +1284,13 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.Cell('prefix.Date', 16, '{a}*');
         Probe.Cell('nstar.Date', 16, '<>*');
         Probe.Cell('suffix.Date', 16, '*{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Date_Empty()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDate();
         Probe.Cell('empty.Date', 16, '');
@@ -1184,11 +1300,13 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.Cell('unterm.Date', 16, '''');
         Probe.Cell('unterm2.Date', 16, '{a}''');
         Probe.Cell('quotedA.Date', 16, '''{a}''');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Date_Args()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDate();
         Probe.CellArg('p1.Date', 16, '%1', 'a');
@@ -1198,21 +1316,25 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.CellArg('pnestar.Date', 16, '<>%1', 'w');
         Probe.CellArg('pq.Date', 16, '%1', 'q');
         Probe.CellArg('pnq.Date', 16, '<>%1', 'q');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Date_Range()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDate();
         Probe.CellRange('r1.Date', 16, 'r1');
         Probe.CellRange('r2.Date', 16, 'r2');
         Probe.CellRange('rtext.Date', 16, 'rt');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Date_View()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDate();
         Probe.CellView('vgt.Date', 16, '>{a}');
@@ -1220,7 +1342,7 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.CellView('vrng.Date', 16, '{a}..{b}');
         Probe.CellView('vor.Date', 16, '{a}|{b}');
         Probe.CellView('veq.Date', 16, '{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     local procedure SeedTime()
@@ -1248,6 +1370,8 @@ codeunit 70046 "LT FRM DateTime Tests"
 
     [Test]
     procedure Filter_Time_Compare()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedTime();
         Probe.Cell('eq.Time', 17, '{a}');
@@ -1257,11 +1381,13 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.Cell('le.Time', 17, '<={a}');
         Probe.Cell('gt.Time', 17, '>{a}');
         Probe.Cell('ge.Time', 17, '>={a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Time_Lists()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedTime();
         Probe.Cell('rng.Time', 17, '{a}..{b}');
@@ -1271,11 +1397,13 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.Cell('and.Time', 17, '>{a}&<{b}');
         Probe.Cell('ordinal.Time', 17, '{o}');
         Probe.Cell('neordinal.Time', 17, '<>{o}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Time_Wild()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedTime();
         Probe.Cell('star.Time', 17, '*');
@@ -1284,11 +1412,13 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.Cell('prefix.Time', 17, '{a}*');
         Probe.Cell('nstar.Time', 17, '<>*');
         Probe.Cell('suffix.Time', 17, '*{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Time_Empty()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedTime();
         Probe.Cell('empty.Time', 17, '');
@@ -1298,11 +1428,13 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.Cell('unterm.Time', 17, '''');
         Probe.Cell('unterm2.Time', 17, '{a}''');
         Probe.Cell('quotedA.Time', 17, '''{a}''');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Time_Args()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedTime();
         Probe.CellArg('p1.Time', 17, '%1', 'a');
@@ -1312,21 +1444,25 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.CellArg('pnestar.Time', 17, '<>%1', 'w');
         Probe.CellArg('pq.Time', 17, '%1', 'q');
         Probe.CellArg('pnq.Time', 17, '<>%1', 'q');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Time_Range()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedTime();
         Probe.CellRange('r1.Time', 17, 'r1');
         Probe.CellRange('r2.Time', 17, 'r2');
         Probe.CellRange('rtext.Time', 17, 'rt');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Time_View()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedTime();
         Probe.CellView('vgt.Time', 17, '>{a}');
@@ -1334,7 +1470,7 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.CellView('vrng.Time', 17, '{a}..{b}');
         Probe.CellView('vor.Time', 17, '{a}|{b}');
         Probe.CellView('veq.Time', 17, '{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     local procedure SeedDateTime()
@@ -1362,6 +1498,8 @@ codeunit 70046 "LT FRM DateTime Tests"
 
     [Test]
     procedure Filter_DateTime_Compare()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDateTime();
         Probe.Cell('eq.DateTime', 18, '{a}');
@@ -1371,11 +1509,13 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.Cell('le.DateTime', 18, '<={a}');
         Probe.Cell('gt.DateTime', 18, '>{a}');
         Probe.Cell('ge.DateTime', 18, '>={a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_DateTime_Lists()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDateTime();
         Probe.Cell('rng.DateTime', 18, '{a}..{b}');
@@ -1385,11 +1525,13 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.Cell('and.DateTime', 18, '>{a}&<{b}');
         Probe.Cell('ordinal.DateTime', 18, '{o}');
         Probe.Cell('neordinal.DateTime', 18, '<>{o}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_DateTime_Wild()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDateTime();
         Probe.Cell('star.DateTime', 18, '*');
@@ -1398,11 +1540,13 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.Cell('prefix.DateTime', 18, '{a}*');
         Probe.Cell('nstar.DateTime', 18, '<>*');
         Probe.Cell('suffix.DateTime', 18, '*{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_DateTime_Empty()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDateTime();
         Probe.Cell('empty.DateTime', 18, '');
@@ -1412,11 +1556,13 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.Cell('unterm.DateTime', 18, '''');
         Probe.Cell('unterm2.DateTime', 18, '{a}''');
         Probe.Cell('quotedA.DateTime', 18, '''{a}''');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_DateTime_Args()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDateTime();
         Probe.CellArg('p1.DateTime', 18, '%1', 'a');
@@ -1426,21 +1572,25 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.CellArg('pnestar.DateTime', 18, '<>%1', 'w');
         Probe.CellArg('pq.DateTime', 18, '%1', 'q');
         Probe.CellArg('pnq.DateTime', 18, '<>%1', 'q');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_DateTime_Range()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDateTime();
         Probe.CellRange('r1.DateTime', 18, 'r1');
         Probe.CellRange('r2.DateTime', 18, 'r2');
         Probe.CellRange('rtext.DateTime', 18, 'rt');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_DateTime_View()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDateTime();
         Probe.CellView('vgt.DateTime', 18, '>{a}');
@@ -1448,7 +1598,7 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.CellView('vrng.DateTime', 18, '{a}..{b}');
         Probe.CellView('vor.DateTime', 18, '{a}|{b}');
         Probe.CellView('veq.DateTime', 18, '{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     local procedure SeedDf()
@@ -1476,6 +1626,8 @@ codeunit 70046 "LT FRM DateTime Tests"
 
     [Test]
     procedure Filter_Df_Compare()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDf();
         Probe.Cell('eq.Df', 19, '{a}');
@@ -1485,11 +1637,13 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.Cell('le.Df', 19, '<={a}');
         Probe.Cell('gt.Df', 19, '>{a}');
         Probe.Cell('ge.Df', 19, '>={a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Df_Lists()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDf();
         Probe.Cell('rng.Df', 19, '{a}..{b}');
@@ -1499,11 +1653,13 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.Cell('and.Df', 19, '>{a}&<{b}');
         Probe.Cell('ordinal.Df', 19, '{o}');
         Probe.Cell('neordinal.Df', 19, '<>{o}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Df_Wild()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDf();
         Probe.Cell('star.Df', 19, '*');
@@ -1512,11 +1668,13 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.Cell('prefix.Df', 19, '{a}*');
         Probe.Cell('nstar.Df', 19, '<>*');
         Probe.Cell('suffix.Df', 19, '*{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Df_Empty()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDf();
         Probe.Cell('empty.Df', 19, '');
@@ -1526,11 +1684,13 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.Cell('unterm.Df', 19, '''');
         Probe.Cell('unterm2.Df', 19, '{a}''');
         Probe.Cell('quotedA.Df', 19, '''{a}''');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Df_Args()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDf();
         Probe.CellArg('p1.Df', 19, '%1', 'a');
@@ -1540,21 +1700,25 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.CellArg('pnestar.Df', 19, '<>%1', 'w');
         Probe.CellArg('pq.Df', 19, '%1', 'q');
         Probe.CellArg('pnq.Df', 19, '<>%1', 'q');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Df_Range()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDf();
         Probe.CellRange('r1.Df', 19, 'r1');
         Probe.CellRange('r2.Df', 19, 'r2');
         Probe.CellRange('rtext.Df', 19, 'rt');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Df_View()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedDf();
         Probe.CellView('vgt.Df', 19, '>{a}');
@@ -1562,7 +1726,7 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.CellView('vrng.Df', 19, '{a}..{b}');
         Probe.CellView('vor.Df', 19, '{a}|{b}');
         Probe.CellView('veq.Df', 19, '{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
 }
@@ -1571,10 +1735,6 @@ codeunit 70047 "LT FRM Scalar Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
-
-    var
-        Obs: Codeunit "Probe Observer";
-        Probe: Codeunit "LT FRM Probe";
 
     local procedure SeedBool()
     var
@@ -1601,6 +1761,8 @@ codeunit 70047 "LT FRM Scalar Tests"
 
     [Test]
     procedure Filter_Bool_Compare()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBool();
         Probe.Cell('eq.Bool', 20, '{a}');
@@ -1610,11 +1772,13 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.Cell('le.Bool', 20, '<={a}');
         Probe.Cell('gt.Bool', 20, '>{a}');
         Probe.Cell('ge.Bool', 20, '>={a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Bool_Lists()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBool();
         Probe.Cell('rng.Bool', 20, '{a}..{b}');
@@ -1624,11 +1788,13 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.Cell('and.Bool', 20, '>{a}&<{b}');
         Probe.Cell('ordinal.Bool', 20, '{o}');
         Probe.Cell('neordinal.Bool', 20, '<>{o}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Bool_Wild()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBool();
         Probe.Cell('star.Bool', 20, '*');
@@ -1637,11 +1803,13 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.Cell('prefix.Bool', 20, '{a}*');
         Probe.Cell('nstar.Bool', 20, '<>*');
         Probe.Cell('suffix.Bool', 20, '*{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Bool_Empty()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBool();
         Probe.Cell('empty.Bool', 20, '');
@@ -1651,11 +1819,13 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.Cell('unterm.Bool', 20, '''');
         Probe.Cell('unterm2.Bool', 20, '{a}''');
         Probe.Cell('quotedA.Bool', 20, '''{a}''');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Bool_Args()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBool();
         Probe.CellArg('p1.Bool', 20, '%1', 'a');
@@ -1665,21 +1835,25 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.CellArg('pnestar.Bool', 20, '<>%1', 'w');
         Probe.CellArg('pq.Bool', 20, '%1', 'q');
         Probe.CellArg('pnq.Bool', 20, '<>%1', 'q');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Bool_Range()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBool();
         Probe.CellRange('r1.Bool', 20, 'r1');
         Probe.CellRange('r2.Bool', 20, 'r2');
         Probe.CellRange('rtext.Bool', 20, 'rt');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Bool_View()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBool();
         Probe.CellView('vgt.Bool', 20, '>{a}');
@@ -1687,7 +1861,7 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.CellView('vrng.Bool', 20, '{a}..{b}');
         Probe.CellView('vor.Bool', 20, '{a}|{b}');
         Probe.CellView('veq.Bool', 20, '{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     local procedure SeedOpt()
@@ -1715,6 +1889,8 @@ codeunit 70047 "LT FRM Scalar Tests"
 
     [Test]
     procedure Filter_Opt_Compare()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedOpt();
         Probe.Cell('eq.Opt', 21, '{a}');
@@ -1724,11 +1900,13 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.Cell('le.Opt', 21, '<={a}');
         Probe.Cell('gt.Opt', 21, '>{a}');
         Probe.Cell('ge.Opt', 21, '>={a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Opt_Lists()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedOpt();
         Probe.Cell('rng.Opt', 21, '{a}..{b}');
@@ -1738,11 +1916,13 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.Cell('and.Opt', 21, '>{a}&<{b}');
         Probe.Cell('ordinal.Opt', 21, '{o}');
         Probe.Cell('neordinal.Opt', 21, '<>{o}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Opt_Wild()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedOpt();
         Probe.Cell('star.Opt', 21, '*');
@@ -1751,11 +1931,13 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.Cell('prefix.Opt', 21, '{a}*');
         Probe.Cell('nstar.Opt', 21, '<>*');
         Probe.Cell('suffix.Opt', 21, '*{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Opt_Empty()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedOpt();
         Probe.Cell('empty.Opt', 21, '');
@@ -1765,11 +1947,13 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.Cell('unterm.Opt', 21, '''');
         Probe.Cell('unterm2.Opt', 21, '{a}''');
         Probe.Cell('quotedA.Opt', 21, '''{a}''');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Opt_Args()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedOpt();
         Probe.CellArg('p1.Opt', 21, '%1', 'a');
@@ -1779,21 +1963,25 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.CellArg('pnestar.Opt', 21, '<>%1', 'w');
         Probe.CellArg('pq.Opt', 21, '%1', 'q');
         Probe.CellArg('pnq.Opt', 21, '<>%1', 'q');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Opt_Range()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedOpt();
         Probe.CellRange('r1.Opt', 21, 'r1');
         Probe.CellRange('r2.Opt', 21, 'r2');
         Probe.CellRange('rtext.Opt', 21, 'rt');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Opt_View()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedOpt();
         Probe.CellView('vgt.Opt', 21, '>{a}');
@@ -1801,7 +1989,7 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.CellView('vrng.Opt', 21, '{a}..{b}');
         Probe.CellView('vor.Opt', 21, '{a}|{b}');
         Probe.CellView('veq.Opt', 21, '{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     local procedure SeedEnum()
@@ -1829,6 +2017,8 @@ codeunit 70047 "LT FRM Scalar Tests"
 
     [Test]
     procedure Filter_Enum_Compare()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedEnum();
         Probe.Cell('eq.Enum', 22, '{a}');
@@ -1838,11 +2028,13 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.Cell('le.Enum', 22, '<={a}');
         Probe.Cell('gt.Enum', 22, '>{a}');
         Probe.Cell('ge.Enum', 22, '>={a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Enum_Lists()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedEnum();
         Probe.Cell('rng.Enum', 22, '{a}..{b}');
@@ -1852,11 +2044,13 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.Cell('and.Enum', 22, '>{a}&<{b}');
         Probe.Cell('ordinal.Enum', 22, '{o}');
         Probe.Cell('neordinal.Enum', 22, '<>{o}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Enum_Wild()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedEnum();
         Probe.Cell('star.Enum', 22, '*');
@@ -1865,11 +2059,13 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.Cell('prefix.Enum', 22, '{a}*');
         Probe.Cell('nstar.Enum', 22, '<>*');
         Probe.Cell('suffix.Enum', 22, '*{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Enum_Empty()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedEnum();
         Probe.Cell('empty.Enum', 22, '');
@@ -1879,11 +2075,13 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.Cell('unterm.Enum', 22, '''');
         Probe.Cell('unterm2.Enum', 22, '{a}''');
         Probe.Cell('quotedA.Enum', 22, '''{a}''');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Enum_Args()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedEnum();
         Probe.CellArg('p1.Enum', 22, '%1', 'a');
@@ -1893,21 +2091,25 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.CellArg('pnestar.Enum', 22, '<>%1', 'w');
         Probe.CellArg('pq.Enum', 22, '%1', 'q');
         Probe.CellArg('pnq.Enum', 22, '<>%1', 'q');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Enum_Range()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedEnum();
         Probe.CellRange('r1.Enum', 22, 'r1');
         Probe.CellRange('r2.Enum', 22, 'r2');
         Probe.CellRange('rtext.Enum', 22, 'rt');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Enum_View()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedEnum();
         Probe.CellView('vgt.Enum', 22, '>{a}');
@@ -1915,7 +2117,7 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.CellView('vrng.Enum', 22, '{a}..{b}');
         Probe.CellView('vor.Enum', 22, '{a}|{b}');
         Probe.CellView('veq.Enum', 22, '{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     local procedure SeedRid()
@@ -1943,6 +2145,8 @@ codeunit 70047 "LT FRM Scalar Tests"
 
     [Test]
     procedure Filter_Rid_Compare()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedRid();
         Probe.Cell('eq.Rid', 24, '{a}');
@@ -1952,11 +2156,13 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.Cell('le.Rid', 24, '<={a}');
         Probe.Cell('gt.Rid', 24, '>{a}');
         Probe.Cell('ge.Rid', 24, '>={a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Rid_Lists()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedRid();
         Probe.Cell('rng.Rid', 24, '{a}..{b}');
@@ -1966,11 +2172,13 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.Cell('and.Rid', 24, '>{a}&<{b}');
         Probe.Cell('ordinal.Rid', 24, '{o}');
         Probe.Cell('neordinal.Rid', 24, '<>{o}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Rid_Wild()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedRid();
         Probe.Cell('star.Rid', 24, '*');
@@ -1979,11 +2187,13 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.Cell('prefix.Rid', 24, '{a}*');
         Probe.Cell('nstar.Rid', 24, '<>*');
         Probe.Cell('suffix.Rid', 24, '*{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Rid_Empty()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedRid();
         Probe.Cell('empty.Rid', 24, '');
@@ -1993,11 +2203,13 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.Cell('unterm.Rid', 24, '''');
         Probe.Cell('unterm2.Rid', 24, '{a}''');
         Probe.Cell('quotedA.Rid', 24, '''{a}''');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Rid_Args()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedRid();
         Probe.CellArg('p1.Rid', 24, '%1', 'a');
@@ -2007,21 +2219,25 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.CellArg('pnestar.Rid', 24, '<>%1', 'w');
         Probe.CellArg('pq.Rid', 24, '%1', 'q');
         Probe.CellArg('pnq.Rid', 24, '<>%1', 'q');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Rid_Range()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedRid();
         Probe.CellRange('r1.Rid', 24, 'r1');
         Probe.CellRange('r2.Rid', 24, 'r2');
         Probe.CellRange('rtext.Rid', 24, 'rt');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Rid_View()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedRid();
         Probe.CellView('vgt.Rid', 24, '>{a}');
@@ -2029,7 +2245,7 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.CellView('vrng.Rid', 24, '{a}..{b}');
         Probe.CellView('vor.Rid', 24, '{a}|{b}');
         Probe.CellView('veq.Rid', 24, '{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
 }
@@ -2038,20 +2254,6 @@ codeunit 70048 "LT FRM Binary Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
-
-    var
-        Obs: Codeunit "Probe Observer";
-        Probe: Codeunit "LT FRM Probe";
-
-    local procedure BlobStream() Result: InStream
-    var
-        TempBlob: Codeunit "Temp Blob";
-        OutS: OutStream;
-    begin
-        TempBlob.CreateOutStream(OutS);
-        OutS.WriteText('abc');
-        TempBlob.CreateInStream(Result);
-    end;
 
     local procedure SeedBlob()
     var
@@ -2077,6 +2279,8 @@ codeunit 70048 "LT FRM Binary Tests"
 
     [Test]
     procedure Filter_Blob_Compare()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBlob();
         Probe.Cell('eq.Blob', 25, '{a}');
@@ -2086,11 +2290,13 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.Cell('le.Blob', 25, '<={a}');
         Probe.Cell('gt.Blob', 25, '>{a}');
         Probe.Cell('ge.Blob', 25, '>={a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Blob_Lists()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBlob();
         Probe.Cell('rng.Blob', 25, '{a}..{b}');
@@ -2100,11 +2306,13 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.Cell('and.Blob', 25, '>{a}&<{b}');
         Probe.Cell('ordinal.Blob', 25, '{o}');
         Probe.Cell('neordinal.Blob', 25, '<>{o}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Blob_Wild()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBlob();
         Probe.Cell('star.Blob', 25, '*');
@@ -2113,11 +2321,13 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.Cell('prefix.Blob', 25, '{a}*');
         Probe.Cell('nstar.Blob', 25, '<>*');
         Probe.Cell('suffix.Blob', 25, '*{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Blob_Empty()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBlob();
         Probe.Cell('empty.Blob', 25, '');
@@ -2127,11 +2337,13 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.Cell('unterm.Blob', 25, '''');
         Probe.Cell('unterm2.Blob', 25, '{a}''');
         Probe.Cell('quotedA.Blob', 25, '''{a}''');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Blob_Args()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBlob();
         Probe.CellArg('p1.Blob', 25, '%1', 'a');
@@ -2141,21 +2353,25 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.CellArg('pnestar.Blob', 25, '<>%1', 'w');
         Probe.CellArg('pq.Blob', 25, '%1', 'q');
         Probe.CellArg('pnq.Blob', 25, '<>%1', 'q');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Blob_Range()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBlob();
         Probe.CellRange('r1.Blob', 25, 'r1');
         Probe.CellRange('r2.Blob', 25, 'r2');
         Probe.CellRange('rtext.Blob', 25, 'rt');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Blob_View()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedBlob();
         Probe.CellView('vgt.Blob', 25, '>{a}');
@@ -2163,21 +2379,29 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.CellView('vrng.Blob', 25, '{a}..{b}');
         Probe.CellView('vor.Blob', 25, '{a}|{b}');
         Probe.CellView('veq.Blob', 25, '{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     local procedure SeedMedia()
     var
         R: Record "LT FRM Row";
+        TempBlob: Codeunit "Temp Blob";
+        Base64: Codeunit "Base64 Convert";
         OutS: OutStream;
+        InS: InStream;
     begin
+        // The stream comes from a Temp Blob of this procedure: an InStream returned from a helper's own Temp Blob is empty here
+        // ("Media object cannot be imported because the InStream object is empty.", first local observation on BC 29.0).
+        TempBlob.CreateOutStream(OutS);
+        Base64.FromBase64('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', OutS);
+        TempBlob.CreateInStream(InS);
         R.DeleteAll();
         R.Init();
         R."No." := 1;
         R.Insert();
         R.Init();
         R."No." := 2;
-        R.FMedia.ImportStream(BlobStream(), 'probe');
+        R.FMedia.ImportStream(InS, 'probe', 'image/png');
         R.Insert();
         R.Init();
         R."No." := 3;
@@ -2189,6 +2413,8 @@ codeunit 70048 "LT FRM Binary Tests"
 
     [Test]
     procedure Filter_Media_Compare()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedMedia();
         Probe.Cell('eq.Media', 26, '{a}');
@@ -2198,11 +2424,13 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.Cell('le.Media', 26, '<={a}');
         Probe.Cell('gt.Media', 26, '>{a}');
         Probe.Cell('ge.Media', 26, '>={a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Media_Lists()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedMedia();
         Probe.Cell('rng.Media', 26, '{a}..{b}');
@@ -2212,11 +2440,13 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.Cell('and.Media', 26, '>{a}&<{b}');
         Probe.Cell('ordinal.Media', 26, '{o}');
         Probe.Cell('neordinal.Media', 26, '<>{o}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Media_Wild()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedMedia();
         Probe.Cell('star.Media', 26, '*');
@@ -2225,11 +2455,13 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.Cell('prefix.Media', 26, '{a}*');
         Probe.Cell('nstar.Media', 26, '<>*');
         Probe.Cell('suffix.Media', 26, '*{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Media_Empty()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedMedia();
         Probe.Cell('empty.Media', 26, '');
@@ -2239,11 +2471,13 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.Cell('unterm.Media', 26, '''');
         Probe.Cell('unterm2.Media', 26, '{a}''');
         Probe.Cell('quotedA.Media', 26, '''{a}''');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Media_Args()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedMedia();
         Probe.CellArg('p1.Media', 26, '%1', 'a');
@@ -2253,21 +2487,25 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.CellArg('pnestar.Media', 26, '<>%1', 'w');
         Probe.CellArg('pq.Media', 26, '%1', 'q');
         Probe.CellArg('pnq.Media', 26, '<>%1', 'q');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Media_Range()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedMedia();
         Probe.CellRange('r1.Media', 26, 'r1');
         Probe.CellRange('r2.Media', 26, 'r2');
         Probe.CellRange('rtext.Media', 26, 'rt');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_Media_View()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedMedia();
         Probe.CellView('vgt.Media', 26, '>{a}');
@@ -2275,21 +2513,29 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.CellView('vrng.Media', 26, '{a}..{b}');
         Probe.CellView('vor.Media', 26, '{a}|{b}');
         Probe.CellView('veq.Media', 26, '{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     local procedure SeedMediaSet()
     var
         R: Record "LT FRM Row";
+        TempBlob: Codeunit "Temp Blob";
+        Base64: Codeunit "Base64 Convert";
         OutS: OutStream;
+        InS: InStream;
     begin
+        // The stream comes from a Temp Blob of this procedure: an InStream returned from a helper's own Temp Blob is empty here
+        // ("Media object cannot be imported because the InStream object is empty.", first local observation on BC 29.0).
+        TempBlob.CreateOutStream(OutS);
+        Base64.FromBase64('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', OutS);
+        TempBlob.CreateInStream(InS);
         R.DeleteAll();
         R.Init();
         R."No." := 1;
         R.Insert();
         R.Init();
         R."No." := 2;
-        R.FMediaSet.ImportStream(BlobStream(), 'probe');
+        R.FMediaSet.ImportStream(InS, 'probe', 'image/png');
         R.Insert();
         R.Init();
         R."No." := 3;
@@ -2301,6 +2547,8 @@ codeunit 70048 "LT FRM Binary Tests"
 
     [Test]
     procedure Filter_MediaSet_Compare()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedMediaSet();
         Probe.Cell('eq.MediaSet', 27, '{a}');
@@ -2310,11 +2558,13 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.Cell('le.MediaSet', 27, '<={a}');
         Probe.Cell('gt.MediaSet', 27, '>{a}');
         Probe.Cell('ge.MediaSet', 27, '>={a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_MediaSet_Lists()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedMediaSet();
         Probe.Cell('rng.MediaSet', 27, '{a}..{b}');
@@ -2324,11 +2574,13 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.Cell('and.MediaSet', 27, '>{a}&<{b}');
         Probe.Cell('ordinal.MediaSet', 27, '{o}');
         Probe.Cell('neordinal.MediaSet', 27, '<>{o}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_MediaSet_Wild()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedMediaSet();
         Probe.Cell('star.MediaSet', 27, '*');
@@ -2337,11 +2589,13 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.Cell('prefix.MediaSet', 27, '{a}*');
         Probe.Cell('nstar.MediaSet', 27, '<>*');
         Probe.Cell('suffix.MediaSet', 27, '*{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_MediaSet_Empty()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedMediaSet();
         Probe.Cell('empty.MediaSet', 27, '');
@@ -2351,11 +2605,13 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.Cell('unterm.MediaSet', 27, '''');
         Probe.Cell('unterm2.MediaSet', 27, '{a}''');
         Probe.Cell('quotedA.MediaSet', 27, '''{a}''');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_MediaSet_Args()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedMediaSet();
         Probe.CellArg('p1.MediaSet', 27, '%1', 'a');
@@ -2365,21 +2621,25 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.CellArg('pnestar.MediaSet', 27, '<>%1', 'w');
         Probe.CellArg('pq.MediaSet', 27, '%1', 'q');
         Probe.CellArg('pnq.MediaSet', 27, '<>%1', 'q');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_MediaSet_Range()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedMediaSet();
         Probe.CellRange('r1.MediaSet', 27, 'r1');
         Probe.CellRange('r2.MediaSet', 27, 'r2');
         Probe.CellRange('rtext.MediaSet', 27, 'rt');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
     [Test]
     procedure Filter_MediaSet_View()
+    var
+        Probe: Codeunit "LT FRM Probe";
     begin
         SeedMediaSet();
         Probe.CellView('vgt.MediaSet', 27, '>{a}');
@@ -2387,7 +2647,7 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.CellView('vrng.MediaSet', 27, '{a}..{b}');
         Probe.CellView('vor.MediaSet', 27, '{a}|{b}');
         Probe.CellView('veq.MediaSet', 27, '{a}');
-        Obs.Finish();
+        Probe.Finish();
     end;
 
 }
