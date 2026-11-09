@@ -497,4 +497,126 @@ codeunit 99926 "LT K12 Upd XRec Tests"
         Observer.Observe('Card SaveRecord then Update(false)', Log.Take());
         Observer.Finish();
     end;
+
+    // Matrix cells beyond the first set: a second SetValue (5 -> 6) and a SetValue to the value the field already holds, on the list page.
+
+    [Test]
+    procedure Y7403_List_F0_SetTwice_And_SameValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT K12 Upd List";
+    begin
+        Seed();
+        P.OpenEdit();
+        P.GoToKey('R1');
+        P.F0.SetValue(5);
+        Observer.Observe('first set 1 -> 5', Log.Take());
+        P.F0.SetValue(6);
+        Observer.Observe('second set 5 -> 6', Log.Take());
+        P.F0.SetValue(6);
+        Observer.Observe('set to the held value 6', Log.Take());
+        P.F0.SetValue(1);
+        Observer.Observe('set back to 1', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y7403_List_F1_SetTwice_And_SameValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT K12 Upd List";
+    begin
+        Seed();
+        P.OpenEdit();
+        P.GoToKey('R1');
+        P.F1.SetValue(5);
+        Observer.Observe('first set 1 -> 5', Log.Take());
+        P.F1.SetValue(6);
+        Observer.Observe('second set 5 -> 6', Log.Take());
+        P.F1.SetValue(6);
+        Observer.Observe('set to the held value 6', Log.Take());
+        P.F1.SetValue(1);
+        Observer.Observe('set back to 1', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y7403_List_F2_SetTwice_And_SameValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT K12 Upd List";
+    begin
+        Seed();
+        P.OpenEdit();
+        P.GoToKey('R1');
+        P.F2.SetValue(5);
+        Observer.Observe('first set 1 -> 5', Log.Take());
+        P.F2.SetValue(6);
+        Observer.Observe('second set 5 -> 6', Log.Take());
+        P.F2.SetValue(6);
+        Observer.Observe('set to the held value 6', Log.Take());
+        P.F2.SetValue(1);
+        Observer.Observe('set back to 1', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y7403_List_F3_SetTwice_And_SameValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT K12 Upd List";
+    begin
+        Seed();
+        P.OpenEdit();
+        P.GoToKey('R1');
+        P.F3.SetValue(5);
+        Observer.Observe('first set 1 -> 5', Log.Take());
+        P.F3.SetValue(6);
+        Observer.Observe('second set 5 -> 6', Log.Take());
+        P.F3.SetValue(6);
+        Observer.Observe('set to the held value 6', Log.Take());
+        P.F3.SetValue(1);
+        Observer.Observe('set back to 1', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y7403_List_F4_SetTwice_And_SameValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT K12 Upd List";
+    begin
+        Seed();
+        P.OpenEdit();
+        P.GoToKey('R1');
+        P.F4.SetValue(5);
+        Observer.Observe('first set 1 -> 5', Log.Take());
+        P.F4.SetValue(6);
+        Observer.Observe('second set 5 -> 6', Log.Take());
+        P.F4.SetValue(6);
+        Observer.Observe('set to the held value 6', Log.Take());
+        P.F4.SetValue(1);
+        Observer.Observe('set back to 1', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y7403_List_F5_SetTwice_And_SameValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT K12 Upd List";
+    begin
+        Seed();
+        P.OpenEdit();
+        P.GoToKey('R1');
+        P.F5.SetValue(5);
+        Observer.Observe('first set 1 -> 5', Log.Take());
+        P.F5.SetValue(6);
+        Observer.Observe('second set 5 -> 6', Log.Take());
+        P.F5.SetValue(6);
+        Observer.Observe('set to the held value 6', Log.Take());
+        P.F5.SetValue(1);
+        Observer.Observe('set back to 1', Log.Take());
+        Observer.Finish();
+    end;
 }
