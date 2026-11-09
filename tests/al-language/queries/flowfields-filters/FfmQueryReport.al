@@ -8,7 +8,8 @@
 //   Reports: dataitem columns over every FlowField kind, and a column over a Blob field and a FlowField of a global record that the report
 //   only reads with Get() and never calculates (al-runner issues 7401 and 7399).
 // Nearby: queries/flowfields-filters/QueryOuterFlowFilters.al, queries/flowfields-filters/QueryOuterFlowKinds.al, reports/layouts-saveas/BcXmlBlob.al
-// Probe: values recorded on BC; the corpus CI matrix checks the other versions.
+// Probe: values recorded on BC 29.0 (CI run 42640995004); the corpus CI matrix checks the other versions. A report column over a FlowField of a
+//   global record that is only read with Get() gives 0 / False / empty, and a Blob column of that record is empty; after CalcFields both give the values.
 
 table 64601 "FFM QR Detail"
 {
@@ -295,7 +296,8 @@ codeunit 64612 "FFM QR Tests"
                 Rows += StrSubstNo('%1:%2|%3|%4|%5|%6|%7|%8|%9;', Q.Code, Q.SumC, Q.NSumC, Q.AvgC, Q.MinC, Q.MaxC, Q.CntC, Q.ExC, Q.LkC);
             Observer.Observe('rows', Rows);
         end;
-        Observer.Finish();
+        Observer.Expect('rows', 'H1:150.75|-150.75|37.6875|10.5|80|4|Yes|alpha;H2:21|-21|10.5|7|14|2|Yes|echo;H3:0|0|0|0|0|0|No|;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -316,7 +318,18 @@ codeunit 64612 "FFM QR Tests"
         Observer.Observe('exist=false', ReadCodes(Q, 'ExC', 'No'));
         Observer.Observe('lookup=a*', ReadCodes(Q, 'LkC', 'a*'));
         Observer.Observe('lookup=empty', ReadCodes(Q, 'LkC', ''''''));
-        Observer.Finish();
+        Observer.Expect('sum>100', 'H1,');
+        Observer.Expect('nsum<-100', 'H1,');
+        Observer.Expect('avg>30', 'H1,');
+        Observer.Expect('min<=10.5', 'H1,H2,H3,');
+        Observer.Expect('max>=80', 'H1,');
+        Observer.Expect('count>=2', 'H1,H2,');
+        Observer.Expect('count=0', 'H3,');
+        Observer.Expect('exist=true', 'H1,H2,');
+        Observer.Expect('exist=false', 'H3,');
+        Observer.Expect('lookup=a*', 'H1,');
+        Observer.Expect('lookup=empty', 'H3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -334,7 +347,8 @@ codeunit 64612 "FFM QR Tests"
                 Rows += StrSubstNo('%1:%2;', Q.Code, Q.SumC);
             Observer.Observe('rows', Rows);
         end;
-        Observer.Finish();
+        Observer.Expect('rows', 'H1:150.75;H2:21;H3:0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -360,7 +374,15 @@ codeunit 64612 "FFM QR Tests"
         Observer.Observe('exist=true', ReadOuterFilter(GlobalOuterFilter));
         GlobalOuterFilter.SetRange(Hdr_Exist, false);
         Observer.Observe('exist=false', ReadOuterFilter(GlobalOuterFilter));
-        Observer.Finish();
+        Observer.Expect('unfiltered', 'T1/1,T1/2,T2/3,T2/4,T3/5,');
+        Observer.Expect('name a*', 'T1/1,T3/5,');
+        Observer.Expect('name empty', 'T1/1,T1/2,T2/3,T2/4,T3/5,');
+        Observer.Expect('name empty literal', 'T2/3,T2/4,');
+        Observer.Expect('sum>100', 'T1/1,T3/5,');
+        Observer.Expect('count=0', 'T2/3,T2/4,');
+        Observer.Expect('exist=true', 'T1/1,T1/2,T3/5,');
+        Observer.Expect('exist=false', 'T2/3,T2/4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -375,7 +397,8 @@ codeunit 64612 "FFM QR Tests"
             Rows += StrSubstNo('%1/%2:%3|%4|%5|%6|%7;', GlobalOuterColumns.TopCode, GlobalOuterColumns.LineNo, GlobalOuterColumns.Hdr_Sum, GlobalOuterColumns.Hdr_NSum, GlobalOuterColumns.Hdr_Count, GlobalOuterColumns.Hdr_Exist, GlobalOuterColumns.Hdr_Name);
         GlobalOuterColumns.Close();
         Observer.Observe('rows', Rows);
-        Observer.Finish();
+        Observer.Expect('rows', 'T1/1:150.75|-150.75|4|Yes|alpha;T1/2:21|-21|2|Yes|echo;T2/3:0|0|0|No|;T2/4:0|0|0|No|;T3/5:150.75|-150.75|4|Yes|alpha;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -384,7 +407,8 @@ codeunit 64612 "FFM QR Tests"
     begin
         Initialize();
         Observer.Observe('dataset', Columns(Dataset(Report::"FFM QR Dataset")));
-        Observer.Finish();
+        Observer.Expect('dataset', 'Code=H1;SumCol" decimalformatter="#,##0.00=150.75;NSumCol" decimalformatter="#,##0.00=-150.75;AvgCol" decimalformatter="#,##0.00=37.6875;MinCol" decimalformatter="#,##0.00=10.5;MaxCol" decimalformatter="#,##0.00=80;CntCol=4;ExCol=True;LkCol=alpha;PicCol=SGVsbG8gSDE=;Code=H2;SumCol" decimalformatter="#,##0.00=21;NSumCol" decimalformatter="#,##0.00=-21;AvgCol" decimalformatter="#,##0.00=10.5;MinCol" decimalformatter="#,##0.00=7;MaxCol" decimalformatter="#,##0.00=14;CntCol=2;ExCol=True;LkCol=echo;PicCol=;Code=H3;SumCol" decimalformatter="#,##0.00=0;NSumCol" decimalformatter="#,##0.00=0;AvgCol" decimalformatter="#,##0.00=0;MinCol" decimalformatter="#,##0.00=0;MaxCol" decimalformatter="#,##0.00=0;CntCol=0;ExCol=False;LkCol=;PicCol=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -393,7 +417,8 @@ codeunit 64612 "FFM QR Tests"
     begin
         Initialize();
         Observer.Observe('dataset', Columns(Dataset(Report::"FFM QR Global Uncalculated")));
-        Observer.Finish();
+        Observer.Expect('dataset', 'Num=1;InfoPicture=;InfoSum" decimalformatter="#,##0.00=0;InfoNSum" decimalformatter="#,##0.00=0;InfoCount=0;InfoExist=False;InfoName=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -402,7 +427,8 @@ codeunit 64612 "FFM QR Tests"
     begin
         Initialize();
         Observer.Observe('dataset', Columns(Dataset(Report::"FFM QR Global Calculated")));
-        Observer.Finish();
+        Observer.Expect('dataset', 'Num=1;InfoPicture=SGVsbG8gSDE=;InfoSum" decimalformatter="#,##0.00=150.75;InfoNSum" decimalformatter="#,##0.00=-150.75;InfoCount=4;InfoExist=True;InfoName=alpha;');
+        Observer.Verify();
     end;
 
     [TryFunction]
