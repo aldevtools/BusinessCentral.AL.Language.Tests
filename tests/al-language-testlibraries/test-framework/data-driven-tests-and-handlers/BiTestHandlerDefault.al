@@ -145,7 +145,7 @@ codeunit 81693 "LT BI DH Default" implements ITestHandler
 
     local procedure Handle(Callback: Text; Context: TestHandlerContext; WithSuccess: Boolean)
     var
-        SuccessLog: Codeunit "LT BI TS Log";
+        SuccessLog: Codeunit "LT BI HS Log";
         Common: Codeunit "LT BI DH Common";
         Entry: Text;
     begin

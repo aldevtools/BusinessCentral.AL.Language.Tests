@@ -4,7 +4,7 @@
 // Corpus issue (al-runner 7181): what TestHandlerContext.Success() returns in every Before and After callback.
 // BC versions: 29 (the TestHandler enum, ITestHandler and TestHandlerContext need runtime 18.0, so BC 27.5 and 28.5 cannot compile them; see must-not-compile case 0996)
 #if BC29PLUS
-codeunit 81696 "LT BI TS Log"
+codeunit 81696 "LT BI HS Log"
 {
     SingleInstance = true;
 
@@ -28,7 +28,7 @@ codeunit 81696 "LT BI TS Log"
     end;
 }
 
-codeunit 81697 "LT BI TS Handler" implements ITestHandler
+codeunit 81697 "LT BI HS Handler" implements ITestHandler
 {
     procedure OnBeforeTestCodeunitRun(Context: TestHandlerContext)
     begin
@@ -62,26 +62,26 @@ codeunit 81697 "LT BI TS Handler" implements ITestHandler
 
     local procedure Handle(Callback: Text; Context: TestHandlerContext)
     var
-        Log: Codeunit "LT BI TS Log";
+        Log: Codeunit "LT BI HS Log";
     begin
         Log.Add(Context.CodeunitId(), 'O.' + Callback + '(' + Context.ProcedureName() + '|' + Context.TestCaseName() + '|' + Format(Context.Success()) + ')');
     end;
 }
 
-enumextension 81698 "LT BI TS Handler" extends TestHandler
+enumextension 81698 "LT BI HS Handler" extends TestHandler
 {
-    value(81698; "LT BI TS Handler")
+    value(81698; "LT BI HS Handler")
     {
-        Implementation = ITestHandler = "LT BI TS Handler";
+        Implementation = ITestHandler = "LT BI HS Handler";
     }
 }
 
 // Tests that pass: plain procedures, one with asserterror, and a data-driven procedure whose cases pass.
-codeunit 81599 "LT BI TS Pass"
+codeunit 81599 "LT BI HS Pass"
 {
     Subtype = Test;
     TestPermissions = Disabled;
-    TestHandlers = "LT BI TS Handler";
+    TestHandlers = "LT BI HS Handler";
 
     [Test]
     procedure BiTs_A_Plain()
@@ -91,13 +91,13 @@ codeunit 81599 "LT BI TS Pass"
     [Test]
     procedure BiTs_B_AssertError()
     begin
-        asserterror Error('LT BI TS expected');
+        asserterror Error('LT BI HS expected');
     end;
 
     [TestDataSource(81602, 'Set1')]
     procedure BiTs_Z_Rows(Context: Interface ITestContext)
     var
-        Log: Codeunit "LT BI TS Log";
+        Log: Codeunit "LT BI HS Log";
         Observer: Codeunit "Probe Observer";
         CaseData: Interface "LT BI DD Case Data";
     begin
@@ -110,16 +110,16 @@ codeunit 81599 "LT BI TS Pass"
 }
 
 // PROBE ONLY (not merged): a failing procedure and a failing case.
-codeunit 81649 "LT BI TS Fail"
+codeunit 81649 "LT BI HS Fail"
 {
     Subtype = Test;
     TestPermissions = Disabled;
-    TestHandlers = "LT BI TS Handler";
+    TestHandlers = "LT BI HS Handler";
 
     [Test]
     procedure BiTs_A_Fail()
     begin
-        Error('LT BI TS failing procedure');
+        Error('LT BI HS failing procedure');
     end;
 
     [Test]
@@ -130,13 +130,13 @@ codeunit 81649 "LT BI TS Fail"
     [TestDataSource(81602, 'Set1')]
     procedure BiTs_Z_Rows(Context: Interface ITestContext)
     var
-        Log: Codeunit "LT BI TS Log";
+        Log: Codeunit "LT BI HS Log";
         Observer: Codeunit "Probe Observer";
         CaseData: Interface "LT BI DD Case Data";
     begin
         CaseData := Context as "LT BI DD Case Data";
         if CaseData.CaseText() = 'beta' then
-            Error('LT BI TS failing case');
+            Error('LT BI HS failing case');
         if CaseData.CaseText() = 'gamma' then begin
             Observer.Observe('log', Log.Take(81649));
             Observer.Finish();
