@@ -277,7 +277,10 @@ codeunit 99943 "LT K12 GoTo Skipped Row"
         ClearLastError();
         Ok := TryKey(P, 1, Found);
         Observer.Observe('GoToKey of the hidden only line', Reading(Ok, Found));
-        Observer.Finish();
+        Observer.Expect('open: first row shown', 'No');
+        Observer.Expect('GoToRecord of the hidden only line', 'found=No');
+        Observer.Expect('GoToKey of the hidden only line', 'found=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -289,7 +292,11 @@ codeunit 99943 "LT K12 GoTo Skipped Row"
         Observer.Observe('GoToKey 2 (hidden)', Go('2', 2, false));
         Observer.Observe('GoToRecord 3 (shown)', Go('2', 3, true));
         Observer.Observe('GoToKey 3 (shown)', Go('2', 3, false));
-        Observer.Finish();
+        Observer.Expect('GoToRecord 2 (hidden)', 'found=No now=1 rows=1,3,');
+        Observer.Expect('GoToKey 2 (hidden)', 'found=No now=1 rows=1,3,');
+        Observer.Expect('GoToRecord 3 (shown)', 'found=Yes now=3 rows=1,3,');
+        Observer.Expect('GoToKey 3 (shown)', 'found=Yes now=3 rows=1,3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -300,7 +307,10 @@ codeunit 99943 "LT K12 GoTo Skipped Row"
         Observer.Observe('GoToRecord 1 (hidden first)', Go('1', 1, true));
         Observer.Observe('GoToKey 1 (hidden first)', Go('1', 1, false));
         Observer.Observe('GoToRecord 2 (shown)', Go('1', 2, true));
-        Observer.Finish();
+        Observer.Expect('GoToRecord 1 (hidden first)', 'found=No now=2 rows=2,3,');
+        Observer.Expect('GoToKey 1 (hidden first)', 'found=No now=2 rows=2,3,');
+        Observer.Expect('GoToRecord 2 (shown)', 'found=Yes now=2 rows=2,3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -311,7 +321,10 @@ codeunit 99943 "LT K12 GoTo Skipped Row"
         Observer.Observe('GoToRecord 3 (hidden last)', Go('3', 3, true));
         Observer.Observe('GoToKey 3 (hidden last)', Go('3', 3, false));
         Observer.Observe('GoToRecord 2 (shown)', Go('3', 2, true));
-        Observer.Finish();
+        Observer.Expect('GoToRecord 3 (hidden last)', 'found=No now=1 rows=1,2,');
+        Observer.Expect('GoToKey 3 (hidden last)', 'found=No now=1 rows=1,2,');
+        Observer.Expect('GoToRecord 2 (shown)', 'found=Yes now=2 rows=1,2,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -322,7 +335,10 @@ codeunit 99943 "LT K12 GoTo Skipped Row"
         Observer.Observe('GoToRecord 2, rows 1 and 2 hidden', Go('1|2', 2, true));
         Observer.Observe('GoToRecord 3, rows 1 and 2 hidden', Go('1|2', 3, true));
         Observer.Observe('GoToRecord 2, none hidden', Go('', 2, true));
-        Observer.Finish();
+        Observer.Expect('GoToRecord 2, rows 1 and 2 hidden', 'found=No now=3 rows=3,');
+        Observer.Expect('GoToRecord 3, rows 1 and 2 hidden', 'found=Yes now=3 rows=3,');
+        Observer.Expect('GoToRecord 2, none hidden', 'found=Yes now=2 rows=1,2,3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -344,7 +360,10 @@ codeunit 99943 "LT K12 GoTo Skipped Row"
         ClearLastError();
         Ok := TryViewKey(P, 2, Found);
         Observer.Observe('GoToKey 2 inside SourceTableView', Reading(Ok, Found) + ' now=' + P."No.".Value());
-        Observer.Finish();
+        Observer.Expect('GoToRecord 3 outside SourceTableView', 'found=No now=1');
+        Observer.Expect('GoToKey 3 outside SourceTableView', 'found=No now=1');
+        Observer.Expect('GoToKey 2 inside SourceTableView', 'found=Yes now=2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -368,7 +387,11 @@ codeunit 99943 "LT K12 GoTo Skipped Row"
         E.OpenEdit();
         ClearLastError();
         Observer.Observe('OpenEdit: GoToRecord of the hidden row', Reading(TryRecord(E, 2, Found), Found));
-        Observer.Finish();
+        Observer.Expect('find-only page: GoToKey of the hidden row', 'found=Yes');
+        Observer.Expect('find-only page: GoToKey of a shown row', 'found=Yes');
+        Observer.Expect('next-only page (shows every row): GoToRecord of row 2', 'Yes now=2');
+        Observer.Expect('OpenEdit: GoToRecord of the hidden row', 'found=No');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -383,5 +406,49 @@ codeunit 99943 "LT K12 GoTo Skipped Row"
     begin
         ClearLastError();
         exit(Reading(TryFindOnlyKey(P, RowNo, Found), Found));
+    end;
+
+    // Statement form: GoToRecord / GoToKey called without using the Boolean they return (the shape of the report's asserterror).
+    [TryFunction]
+    local procedure TryRecordStatement(var P: TestPage "LT K12 Plan List"; RowNo: Integer)
+    var
+        Line: Record "LT K12 Plan Line";
+    begin
+        Line.Get(RowNo);
+        P.GoToRecord(Line);
+    end;
+
+    [TryFunction]
+    local procedure TryKeyStatement(var P: TestPage "LT K12 Plan List"; RowNo: Integer)
+    begin
+        P.GoToKey(RowNo);
+    end;
+
+    local procedure StatementReading(Ok: Boolean): Text
+    begin
+        if Ok then
+            exit('no error');
+        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    [Test]
+    procedure Y7409_StatementForm_HiddenAndShownRow()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT K12 Plan List";
+    begin
+        Seed('2');
+        P.OpenView();
+        ClearLastError();
+        Observer.Observe('GoToRecord statement, hidden row 2', StatementReading(TryRecordStatement(P, 2)));
+        ClearLastError();
+        Observer.Observe('GoToKey statement, hidden row 2', StatementReading(TryKeyStatement(P, 2)));
+        ClearLastError();
+        Observer.Observe('GoToRecord statement, shown row 3', StatementReading(TryRecordStatement(P, 3)));
+        ClearLastError();
+        Observer.Observe('GoToKey statement, shown row 1', StatementReading(TryKeyStatement(P, 1)));
+        ClearLastError();
+        Observer.Observe('GoToKey statement, row 99 that does not exist', StatementReading(TryKeyStatement(P, 99)));
+        Observer.Finish();
     end;
 }
