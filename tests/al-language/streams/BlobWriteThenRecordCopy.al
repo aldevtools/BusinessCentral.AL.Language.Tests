@@ -10,6 +10,14 @@
 // and Length after CalcFields, and what Modify (or Insert, for a row that was never stored) of the
 // copy stores (read back with a fresh Get and CalcFields). Stored and never-stored rows, with and
 // without Clear before the write.
+//
+// Observed on real BC 27.5, 28.5 and 29.0 (identical):
+//  - Stored row: every form keeps the text. HasValue is Yes before and after CalcFields, CalcFields
+//    leaves the text and Length 3, and Modify of the copy stores it (a fresh Get and CalcFields reads it).
+//    This holds with and without Clear before the write, for ":=", for a by-value parameter plus a var
+//    parameter back, and when the write is made on the copy after the assignment (the form of the issue).
+//  - Row never stored: HasValue is Yes before CalcFields, then CalcFields empties the Blob (HasValue No,
+//    Length 0, empty text), and Insert of the copy stores nothing. Same in every form.
 // Related pin: types/ProbeTypeFormsAndFilters.al (FormatRecord_AssignmentCopiesBlobBytes).
 
 // local object: a codeunit that holds a record in a global variable, so the test can pass a record by value and get it back through a var parameter
@@ -49,7 +57,8 @@ codeunit 96500 "LT Blob Write Then Copy"
         WriteBlob(Row, 'abc', false);
         Copy1 := Row;
         ObserveCopy(Observer, 'copy', Copy1, true);
-        Observer.Finish();
+        ExpectStored(Observer);
+        Observer.Verify();
     end;
 
     [Test]
@@ -64,7 +73,8 @@ codeunit 96500 "LT Blob Write Then Copy"
         WriteBlob(Row, 'abc', true);
         Copy1 := Row;
         ObserveCopy(Observer, 'copy', Copy1, true);
-        Observer.Finish();
+        ExpectStored(Observer);
+        Observer.Verify();
     end;
 
     [Test]
@@ -81,7 +91,8 @@ codeunit 96500 "LT Blob Write Then Copy"
         Holder.SetRec(Row);
         Holder.GetRec(Copy1);
         ObserveCopy(Observer, 'copy', Copy1, true);
-        Observer.Finish();
+        ExpectStored(Observer);
+        Observer.Verify();
     end;
 
     [Test]
@@ -98,7 +109,8 @@ codeunit 96500 "LT Blob Write Then Copy"
         Holder.SetRec(Row);
         Holder.GetRec(Copy1);
         ObserveCopy(Observer, 'copy', Copy1, true);
-        Observer.Finish();
+        ExpectStored(Observer);
+        Observer.Verify();
     end;
 
     // The form from the issue: copy first, write on the copy, then pass the copy through the holder.
@@ -118,7 +130,8 @@ codeunit 96500 "LT Blob Write Then Copy"
         Holder.SetRec(Copy1);
         Holder.GetRec(Copy2);
         ObserveCopy(Observer, 'copy', Copy2, true);
-        Observer.Finish();
+        ExpectStored(Observer);
+        Observer.Verify();
     end;
 
     [Test]
@@ -137,7 +150,8 @@ codeunit 96500 "LT Blob Write Then Copy"
         Holder.SetRec(Copy1);
         Holder.GetRec(Copy2);
         ObserveCopy(Observer, 'copy', Copy2, true);
-        Observer.Finish();
+        ExpectStored(Observer);
+        Observer.Verify();
     end;
 
     [Test]
@@ -153,7 +167,8 @@ codeunit 96500 "LT Blob Write Then Copy"
         WriteBlob(Row, 'abc', false);
         Copy1 := Row;
         ObserveCopy(Observer, 'copy', Copy1, false);
-        Observer.Finish();
+        ExpectUnstored(Observer);
+        Observer.Verify();
     end;
 
     [Test]
@@ -169,7 +184,8 @@ codeunit 96500 "LT Blob Write Then Copy"
         WriteBlob(Row, 'abc', true);
         Copy1 := Row;
         ObserveCopy(Observer, 'copy', Copy1, false);
-        Observer.Finish();
+        ExpectUnstored(Observer);
+        Observer.Verify();
     end;
 
     [Test]
@@ -187,7 +203,8 @@ codeunit 96500 "LT Blob Write Then Copy"
         Holder.SetRec(Row);
         Holder.GetRec(Copy1);
         ObserveCopy(Observer, 'copy', Copy1, false);
-        Observer.Finish();
+        ExpectUnstored(Observer);
+        Observer.Verify();
     end;
 
     [Test]
@@ -205,7 +222,8 @@ codeunit 96500 "LT Blob Write Then Copy"
         Holder.SetRec(Row);
         Holder.GetRec(Copy1);
         ObserveCopy(Observer, 'copy', Copy1, false);
-        Observer.Finish();
+        ExpectUnstored(Observer);
+        Observer.Verify();
     end;
 
     [Test]
@@ -225,7 +243,32 @@ codeunit 96500 "LT Blob Write Then Copy"
         Holder.SetRec(Copy1);
         Holder.GetRec(Copy2);
         ObserveCopy(Observer, 'copy', Copy2, false);
-        Observer.Finish();
+        ExpectUnstored(Observer);
+        Observer.Verify();
+    end;
+
+    // Real BC 27.5, 28.5 and 29.0 (identical): a stored row keeps the write through every copy, and Modify stores it.
+    local procedure ExpectStored(var Observer: Codeunit "Probe Observer")
+    begin
+        Observer.Expect('copyHasValueBefore', 'Yes');
+        Observer.Expect('copyHasValueAfter', 'Yes');
+        Observer.Expect('copyLengthAfter', '3');
+        Observer.Expect('copyTextAfter', 'abc');
+        Observer.Expect('copyFreshHasValue', 'Yes');
+        Observer.Expect('copyFreshLength', '3');
+        Observer.Expect('copyFreshText', 'abc');
+    end;
+
+    // Real BC 27.5, 28.5 and 29.0 (identical): a row that was never stored has the write until CalcFields, which empties it; Insert stores nothing.
+    local procedure ExpectUnstored(var Observer: Codeunit "Probe Observer")
+    begin
+        Observer.Expect('copyHasValueBefore', 'Yes');
+        Observer.Expect('copyHasValueAfter', 'No');
+        Observer.Expect('copyLengthAfter', '0');
+        Observer.Expect('copyTextAfter', '');
+        Observer.Expect('copyFreshHasValue', 'No');
+        Observer.Expect('copyFreshLength', '0');
+        Observer.Expect('copyFreshText', '');
     end;
 
     local procedure StoreRow(var Row: Record "ALT Blob"; RowCode: Code[20])
