@@ -325,7 +325,11 @@ codeunit 99703 "LT FW Tests"
         Observer.Expect('GoToKey 19 rows', 'found=Yes now=A');
         Observer.Expect('GoToRecord 19 rows', 'found=Yes now=A');
         Observer.Expect('GoToKey 20 rows', 'found=Yes now=A');
-        Observer.Expect('GoToRecord 20 rows', 'found=Yes');
+        Observer.Expect('GoToRecord 20 rows', 'found=Yes now=A');
+        Observer.Expect('GoToKey 21 rows', 'found=Yes now=A');
+        Observer.Expect('GoToRecord 21 rows', 'found=Yes now=A');
+        Observer.Expect('GoToKey 60 rows', 'found=Yes now=A');
+        Observer.Expect('GoToRecord 60 rows', 'found=Yes now=A');
         Observer.Verify();
     end;
 
@@ -347,7 +351,11 @@ codeunit 99703 "LT FW Tests"
         Observer.Expect('GoToKey 19 rows', 'found=Yes now=A');
         Observer.Expect('GoToRecord 19 rows', 'found=Yes now=A');
         Observer.Expect('GoToKey 20 rows', 'found=Yes now=A');
-        Observer.Expect('GoToRecord 20 rows', 'found=Yes');
+        Observer.Expect('GoToRecord 20 rows', 'found=Yes now=A');
+        Observer.Expect('GoToKey 21 rows', 'found=Yes now=A');
+        Observer.Expect('GoToRecord 21 rows', 'found=Yes now=A');
+        Observer.Expect('GoToKey 60 rows', 'found=Yes now=A');
+        Observer.Expect('GoToRecord 60 rows', 'found=Yes now=A');
         Observer.Verify();
     end;
 
@@ -365,7 +373,7 @@ codeunit 99703 "LT FW Tests"
         Observer.Expect('GoToKey 20 rows', 'found=Yes now=Z');
         Observer.Expect('GoToRecord 20 rows', 'found=Yes now=Z');
         Observer.Expect('GoToKey 60 rows', 'found=Yes now=Z');
-        Observer.Expect('GoToRecord 60 rows', 'found=Y');
+        Observer.Expect('GoToRecord 60 rows', 'found=Yes now=Z');
         Observer.Verify();
     end;
 
@@ -383,7 +391,7 @@ codeunit 99703 "LT FW Tests"
         Observer.Expect('GoToKey 20 rows', 'found=Yes now=R1010A');
         Observer.Expect('GoToRecord 20 rows', 'found=Yes now=R1010A');
         Observer.Expect('GoToKey 60 rows', 'found=Yes now=R1010A');
-        Observer.Expect('G', '');
+        Observer.Expect('GoToRecord 60 rows', 'found=Yes now=R1010A');
         Observer.Verify();
     end;
 
@@ -401,7 +409,7 @@ codeunit 99703 "LT FW Tests"
         Observer.Expect('GoToKey 20 rows', 'found=Yes now=A');
         Observer.Expect('GoToRecord 20 rows', 'found=Yes now=A');
         Observer.Expect('GoToKey 60 rows', 'found=Yes now=A');
-        Observer.Expect('GoToRecord 60 rows', 'found=Y');
+        Observer.Expect('GoToRecord 60 rows', 'found=Yes now=A');
         Observer.Verify();
     end;
 }
