@@ -64,7 +64,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
     end;
 
     [Test]
-    procedure ObjectType_StatementBlanks()
+    procedure ObjectType_StatementBlanksText()
     var
         Observer: Codeunit "Probe Observer";
     begin
@@ -73,6 +73,14 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrObjectType(Observer, 'both', ' zzz ');
         ErrObjectType(Observer, 'tab_lead', Tab() + 'zzz');
         ErrObjectType(Observer, 'tab_trail', 'zzz' + Tab());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ObjectType_StatementBlanksNumber()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         ErrObjectType(Observer, 'num_both', ' 99 ');
         ErrObjectType(Observer, 'num_lead', ' 99');
         ErrObjectType(Observer, 'num_trail', '99 ');
@@ -92,6 +100,14 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsObjectType(Observer, 'prefix Form', 'Fo');
         ObsObjectTypeFormat(Observer, 'f9 Form', 'Form', 9);
         ErrObjectType(Observer, 'stmt Form', 'Form');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ObjectType_UnnamableNames2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         ObsObjectType(Observer, 'name Enum', 'Enum');
         ObsObjectType(Observer, 'lower Enum', 'enum');
         ObsObjectType(Observer, 'upper Enum', 'ENUM');
@@ -145,7 +161,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
     end;
 
     [Test]
-    procedure Verbosity_StatementBlanks()
+    procedure Verbosity_StatementBlanksText()
     var
         Observer: Codeunit "Probe Observer";
     begin
@@ -154,6 +170,14 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrVerbosity(Observer, 'both', ' zzz ');
         ErrVerbosity(Observer, 'tab_lead', Tab() + 'zzz');
         ErrVerbosity(Observer, 'tab_trail', 'zzz' + Tab());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Verbosity_StatementBlanksNumber()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         ErrVerbosity(Observer, 'num_both', ' 99 ');
         ErrVerbosity(Observer, 'num_lead', ' 99');
         ErrVerbosity(Observer, 'num_trail', '99 ');
@@ -204,7 +228,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
     end;
 
     [Test]
-    procedure TelemetryScope_StatementBlanks()
+    procedure TelemetryScope_StatementBlanksText()
     var
         Observer: Codeunit "Probe Observer";
     begin
@@ -213,6 +237,14 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrTelemetryScope(Observer, 'both', ' zzz ');
         ErrTelemetryScope(Observer, 'tab_lead', Tab() + 'zzz');
         ErrTelemetryScope(Observer, 'tab_trail', 'zzz' + Tab());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TelemetryScope_StatementBlanksNumber()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         ErrTelemetryScope(Observer, 'num_both', ' 99 ');
         ErrTelemetryScope(Observer, 'num_lead', ' 99');
         ErrTelemetryScope(Observer, 'num_trail', '99 ');
@@ -263,7 +295,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
     end;
 
     [Test]
-    procedure DataClassification_StatementBlanks()
+    procedure DataClassification_StatementBlanksText()
     var
         Observer: Codeunit "Probe Observer";
     begin
@@ -272,6 +304,14 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrDataClassification(Observer, 'both', ' zzz ');
         ErrDataClassification(Observer, 'tab_lead', Tab() + 'zzz');
         ErrDataClassification(Observer, 'tab_trail', 'zzz' + Tab());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure DataClassification_StatementBlanksNumber()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         ErrDataClassification(Observer, 'num_both', ' 99 ');
         ErrDataClassification(Observer, 'num_lead', ' 99');
         ErrDataClassification(Observer, 'num_trail', '99 ');
@@ -322,7 +362,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
     end;
 
     [Test]
-    procedure TransactionType_StatementBlanks()
+    procedure TransactionType_StatementBlanksText()
     var
         Observer: Codeunit "Probe Observer";
     begin
@@ -331,6 +371,14 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrTransactionType(Observer, 'both', ' zzz ');
         ErrTransactionType(Observer, 'tab_lead', Tab() + 'zzz');
         ErrTransactionType(Observer, 'tab_trail', 'zzz' + Tab());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TransactionType_StatementBlanksNumber()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         ErrTransactionType(Observer, 'num_both', ' 99 ');
         ErrTransactionType(Observer, 'num_lead', ' 99');
         ErrTransactionType(Observer, 'num_trail', '99 ');
@@ -381,7 +429,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
     end;
 
     [Test]
-    procedure ReportFormat_StatementBlanks()
+    procedure ReportFormat_StatementBlanksText()
     var
         Observer: Codeunit "Probe Observer";
     begin
@@ -390,6 +438,14 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrReportFormat(Observer, 'both', ' zzz ');
         ErrReportFormat(Observer, 'tab_lead', Tab() + 'zzz');
         ErrReportFormat(Observer, 'tab_trail', 'zzz' + Tab());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ReportFormat_StatementBlanksNumber()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         ErrReportFormat(Observer, 'num_both', ' 99 ');
         ErrReportFormat(Observer, 'num_lead', ' 99');
         ErrReportFormat(Observer, 'num_trail', '99 ');
@@ -409,6 +465,14 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsReportFormat(Observer, 'prefix None', 'No');
         ObsReportFormatFormat(Observer, 'f9 None', 'None', 9);
         ErrReportFormat(Observer, 'stmt None', 'None');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ReportFormat_UnnamableNames2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         ObsReportFormat(Observer, 'name Jpeg', 'Jpeg');
         ObsReportFormat(Observer, 'lower Jpeg', 'jpeg');
         ObsReportFormat(Observer, 'upper Jpeg', 'JPEG');
@@ -420,7 +484,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
     end;
 
     [Test]
-    procedure ReportFormat_UnnamableNames2()
+    procedure ReportFormat_UnnamableNames3()
     var
         Observer: Codeunit "Probe Observer";
     begin
@@ -431,6 +495,14 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsReportFormat(Observer, 'prefix Xps', 'X');
         ObsReportFormatFormat(Observer, 'f9 Xps', 'Xps', 9);
         ErrReportFormat(Observer, 'stmt Xps', 'Xps');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ReportFormat_UnnamableNames4()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         ObsReportFormat(Observer, 'name Meta', 'Meta');
         ObsReportFormat(Observer, 'lower Meta', 'meta');
         ObsReportFormat(Observer, 'upper Meta', 'META');
@@ -442,7 +514,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
     end;
 
     [Test]
-    procedure ReportFormat_UnnamableNames3()
+    procedure ReportFormat_UnnamableNames5()
     var
         Observer: Codeunit "Probe Observer";
     begin
@@ -453,6 +525,14 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ObsReportFormat(Observer, 'prefix ExcelDataset', 'ExcelDatas');
         ObsReportFormatFormat(Observer, 'f9 ExcelDataset', 'ExcelDataset', 9);
         ErrReportFormat(Observer, 'stmt ExcelDataset', 'ExcelDataset');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ReportFormat_UnnamableNames6()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         ObsReportFormat(Observer, 'name Custom', 'Custom');
         ObsReportFormat(Observer, 'lower Custom', 'custom');
         ObsReportFormat(Observer, 'upper Custom', 'CUSTOM');
@@ -464,7 +544,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
     end;
 
     [Test]
-    procedure ReportFormat_UnnamableNames4()
+    procedure ReportFormat_UnnamableNames7()
     var
         Observer: Codeunit "Probe Observer";
     begin
@@ -521,7 +601,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
     end;
 
     [Test]
-    procedure ErrorType_StatementBlanks()
+    procedure ErrorType_StatementBlanksText()
     var
         Observer: Codeunit "Probe Observer";
     begin
@@ -530,6 +610,14 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrErrorType(Observer, 'both', ' zzz ');
         ErrErrorType(Observer, 'tab_lead', Tab() + 'zzz');
         ErrErrorType(Observer, 'tab_trail', 'zzz' + Tab());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ErrorType_StatementBlanksNumber()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         ErrErrorType(Observer, 'num_both', ' 99 ');
         ErrErrorType(Observer, 'num_lead', ' 99');
         ErrErrorType(Observer, 'num_trail', '99 ');
@@ -580,7 +668,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
     end;
 
     [Test]
-    procedure DefaultLayout_StatementBlanks()
+    procedure DefaultLayout_StatementBlanksText()
     var
         Observer: Codeunit "Probe Observer";
     begin
@@ -589,6 +677,14 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrDefaultLayout(Observer, 'both', ' zzz ');
         ErrDefaultLayout(Observer, 'tab_lead', Tab() + 'zzz');
         ErrDefaultLayout(Observer, 'tab_trail', 'zzz' + Tab());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure DefaultLayout_StatementBlanksNumber()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         ErrDefaultLayout(Observer, 'num_both', ' 99 ');
         ErrDefaultLayout(Observer, 'num_lead', ' 99');
         ErrDefaultLayout(Observer, 'num_trail', '99 ');
@@ -639,7 +735,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
     end;
 
     [Test]
-    procedure TestPermissions_StatementBlanks()
+    procedure TestPermissions_StatementBlanksText()
     var
         Observer: Codeunit "Probe Observer";
     begin
@@ -648,6 +744,14 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrTestPermissions(Observer, 'both', ' zzz ');
         ErrTestPermissions(Observer, 'tab_lead', Tab() + 'zzz');
         ErrTestPermissions(Observer, 'tab_trail', 'zzz' + Tab());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TestPermissions_StatementBlanksNumber()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         ErrTestPermissions(Observer, 'num_both', ' 99 ');
         ErrTestPermissions(Observer, 'num_lead', ' 99');
         ErrTestPermissions(Observer, 'num_trail', '99 ');
@@ -698,7 +802,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
     end;
 
     [Test]
-    procedure DataScope_StatementBlanks()
+    procedure DataScope_StatementBlanksText()
     var
         Observer: Codeunit "Probe Observer";
     begin
@@ -707,6 +811,14 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrDataScope(Observer, 'both', ' zzz ');
         ErrDataScope(Observer, 'tab_lead', Tab() + 'zzz');
         ErrDataScope(Observer, 'tab_trail', 'zzz' + Tab());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure DataScope_StatementBlanksNumber()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         ErrDataScope(Observer, 'num_both', ' 99 ');
         ErrDataScope(Observer, 'num_lead', ' 99');
         ErrDataScope(Observer, 'num_trail', '99 ');
@@ -757,7 +869,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
     end;
 
     [Test]
-    procedure ExecutionContext_StatementBlanks()
+    procedure ExecutionContext_StatementBlanksText()
     var
         Observer: Codeunit "Probe Observer";
     begin
@@ -766,6 +878,14 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrExecutionContext(Observer, 'both', ' zzz ');
         ErrExecutionContext(Observer, 'tab_lead', Tab() + 'zzz');
         ErrExecutionContext(Observer, 'tab_trail', 'zzz' + Tab());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ExecutionContext_StatementBlanksNumber()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         ErrExecutionContext(Observer, 'num_both', ' 99 ');
         ErrExecutionContext(Observer, 'num_lead', ' 99');
         ErrExecutionContext(Observer, 'num_trail', '99 ');
@@ -831,7 +951,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
     end;
 
     [Test]
-    procedure NotificationScope_StatementBlanks()
+    procedure NotificationScope_StatementBlanksText()
     var
         Observer: Codeunit "Probe Observer";
     begin
@@ -840,6 +960,14 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrNotificationScope(Observer, 'both', ' zzz ');
         ErrNotificationScope(Observer, 'tab_lead', Tab() + 'zzz');
         ErrNotificationScope(Observer, 'tab_trail', 'zzz' + Tab());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NotificationScope_StatementBlanksNumber()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         ErrNotificationScope(Observer, 'num_both', ' 99 ');
         ErrNotificationScope(Observer, 'num_lead', ' 99');
         ErrNotificationScope(Observer, 'num_trail', '99 ');
@@ -890,7 +1018,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
     end;
 
     [Test]
-    procedure WebServiceActionResultCode_StatementBlanks()
+    procedure WebServiceActionResultCode_StatementBlanksText()
     var
         Observer: Codeunit "Probe Observer";
     begin
@@ -899,6 +1027,14 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrWebServiceActionResultCode(Observer, 'both', ' zzz ');
         ErrWebServiceActionResultCode(Observer, 'tab_lead', Tab() + 'zzz');
         ErrWebServiceActionResultCode(Observer, 'tab_trail', 'zzz' + Tab());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WebServiceActionResultCode_StatementBlanksNumber()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         ErrWebServiceActionResultCode(Observer, 'num_both', ' 99 ');
         ErrWebServiceActionResultCode(Observer, 'num_lead', ' 99');
         ErrWebServiceActionResultCode(Observer, 'num_trail', '99 ');
@@ -1005,7 +1141,7 @@ codeunit 99614 "LT SO Eval Hidden Members"
     end;
 
     [Test]
-    procedure FieldClass_StatementBlanks()
+    procedure FieldClass_StatementBlanksText()
     var
         Observer: Codeunit "Probe Observer";
     begin
@@ -1014,6 +1150,14 @@ codeunit 99614 "LT SO Eval Hidden Members"
         ErrFieldClass(Observer, 'both', ' zzz ');
         ErrFieldClass(Observer, 'tab_lead', Tab() + 'zzz');
         ErrFieldClass(Observer, 'tab_trail', 'zzz' + Tab());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure FieldClass_StatementBlanksNumber()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         ErrFieldClass(Observer, 'num_both', ' 99 ');
         ErrFieldClass(Observer, 'num_lead', ' 99');
         ErrFieldClass(Observer, 'num_trail', '99 ');
