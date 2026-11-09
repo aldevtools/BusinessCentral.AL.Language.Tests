@@ -100,8 +100,18 @@ codeunit 65101 "LT AG Cs Holder"
         exit(CopyStr(Value, Last + StrLen(Marker)));
     end;
 
+    // The frames of Microsoft's test runner below the test procedure: six on BC 27.5, none on BC 28.5 and 29.0 (measured by CI).
+    local procedure ExpectedRunnerFrames(): Integer
+    begin
+#if BC28PLUS
+        exit(0);
+#else
+        exit(6);
+#endif
+    end;
+
     // BC 27.5 appends six frames of Microsoft's test runner below the test procedure (BC 28.5 and 29.0 do not). The shape is read from the
-    // text up to the first runner frame; the number of runner frames is observed apart, so the observations are the same on every version.
+    // text up to the first runner frame; the number of runner frames beyond the expected count is observed apart (0 on every version), so the observations are the same on every version.
     procedure Shape(ContextName: Text; var Observer: Codeunit "Probe Observer")
     var
         Source: Text;
@@ -119,7 +129,7 @@ codeunit 65101 "LT AG Cs Holder"
             RunnerAt := Value.IndexOf('"Test Runner - Mgt"');
             if RunnerAt > 0 then
                 Prefix := CopyStr(Value, 1, RunnerAt - 1);
-            Observer.Observe(ContextName + '.' + Source + '.runnerframes', Format(Count(Value, 'Test Runner by Microsoft')));
+            Observer.Observe(ContextName + '.' + Source + '.runnerframes', Format(Count(Value, 'Test Runner by Microsoft') - ExpectedRunnerFrames()));
             Observer.Observe(ContextName + '.' + Source + '.shape',
                 'len=' + Format(StrLen(Prefix)) + ';cr=' + Format(Count(Prefix, Cr)) + ';lf=' + Format(Count(Prefix, Lf)) +
                 ';bs=' + Format(Count(Prefix, '\')) + ';own=' + Format(Count(Prefix, 'AL Language Coverage Tests by AL Language version')) +
@@ -228,7 +238,19 @@ codeunit 65105 "LT AG Callstack Full Text"
         Holder.ResetSeen();
         Holder.Capture('test');
         Holder.Shape('test', Observer);
-        Observer.Finish();
+        Observer.Expect('test.session.runnerframes', '0');
+        Observer.Expect('test.session.shape', 'len=258;cr=0;lf=0;bs=2;own=2;last=92;crlf-lines=1;lf-lines=1');
+        Observer.Expect('test.session.tail', ' 1.0.0.0\');
+        Observer.Expect('test.collected.runnerframes', '0');
+        Observer.Expect('test.collected.shape', 'len=492;cr=4;lf=4;bs=0;own=4;last=10;crlf-lines=5;lf-lines=5');
+        Observer.Expect('test.collected.tail', ' 1.0.0.0\r\n');
+        Observer.Expect('test.lasttry.runnerframes', '0');
+        Observer.Expect('test.lasttry.shape', 'len=367;cr=0;lf=0;bs=3;own=3;last=92;crlf-lines=1;lf-lines=1');
+        Observer.Expect('test.lasttry.tail', ' 1.0.0.0\');
+        Observer.Expect('test.lastassert.runnerframes', '0');
+        Observer.Expect('test.lastassert.shape', 'len=375;cr=0;lf=0;bs=3;own=3;last=92;crlf-lines=1;lf-lines=1');
+        Observer.Expect('test.lastassert.tail', ' 1.0.0.0\');
+        Observer.Verify();
     end;
 
     [Test]
@@ -241,7 +263,19 @@ codeunit 65105 "LT AG Callstack Full Text"
         Holder.ResetSeen();
         Runner.Run();
         Holder.Shape('run', Observer);
-        Observer.Finish();
+        Observer.Expect('run.session.runnerframes', '0');
+        Observer.Expect('run.session.shape', 'len=372;cr=0;lf=0;bs=3;own=3;last=92;crlf-lines=1;lf-lines=1');
+        Observer.Expect('run.session.tail', ' 1.0.0.0\');
+        Observer.Expect('run.collected.runnerframes', '0');
+        Observer.Expect('run.collected.shape', 'len=607;cr=5;lf=5;bs=0;own=5;last=10;crlf-lines=6;lf-lines=6');
+        Observer.Expect('run.collected.tail', ' 1.0.0.0\r\n');
+        Observer.Expect('run.lasttry.runnerframes', '0');
+        Observer.Expect('run.lasttry.shape', 'len=481;cr=0;lf=0;bs=4;own=4;last=92;crlf-lines=1;lf-lines=1');
+        Observer.Expect('run.lasttry.tail', ' 1.0.0.0\');
+        Observer.Expect('run.lastassert.runnerframes', '0');
+        Observer.Expect('run.lastassert.shape', 'len=489;cr=0;lf=0;bs=4;own=4;last=92;crlf-lines=1;lf-lines=1');
+        Observer.Expect('run.lastassert.tail', ' 1.0.0.0\');
+        Observer.Verify();
     end;
 
     [Test]
@@ -254,7 +288,19 @@ codeunit 65105 "LT AG Callstack Full Text"
         Holder.ResetSeen();
         Worker.RaiseProbe();
         Holder.Shape('event', Observer);
-        Observer.Finish();
+        Observer.Expect('event.session.runnerframes', '0');
+        Observer.Expect('event.session.shape', 'len=611;cr=0;lf=0;bs=5;own=5;last=92;crlf-lines=1;lf-lines=1');
+        Observer.Expect('event.session.tail', ' 1.0.0.0\');
+        Observer.Expect('event.collected.runnerframes', '0');
+        Observer.Expect('event.collected.shape', 'len=848;cr=7;lf=7;bs=0;own=7;last=10;crlf-lines=8;lf-lines=8');
+        Observer.Expect('event.collected.tail', ' 1.0.0.0\r\n');
+        Observer.Expect('event.lasttry.runnerframes', '0');
+        Observer.Expect('event.lasttry.shape', 'len=720;cr=0;lf=0;bs=6;own=6;last=92;crlf-lines=1;lf-lines=1');
+        Observer.Expect('event.lasttry.tail', ' 1.0.0.0\');
+        Observer.Expect('event.lastassert.runnerframes', '0');
+        Observer.Expect('event.lastassert.shape', 'len=728;cr=0;lf=0;bs=6;own=6;last=92;crlf-lines=1;lf-lines=1');
+        Observer.Expect('event.lastassert.tail', ' 1.0.0.0\');
+        Observer.Verify();
     end;
 
     [Test]
@@ -268,6 +314,18 @@ codeunit 65105 "LT AG Callstack Full Text"
         Card.OpenView();
         Card.Close();
         Holder.Shape('page', Observer);
-        Observer.Finish();
+        Observer.Expect('page.session.runnerframes', '0');
+        Observer.Expect('page.session.shape', 'len=381;cr=0;lf=0;bs=3;own=3;last=92;crlf-lines=1;lf-lines=1');
+        Observer.Expect('page.session.tail', ' 1.0.0.0\');
+        Observer.Expect('page.collected.runnerframes', '0');
+        Observer.Expect('page.collected.shape', 'len=616;cr=5;lf=5;bs=0;own=5;last=10;crlf-lines=6;lf-lines=6');
+        Observer.Expect('page.collected.tail', ' 1.0.0.0\r\n');
+        Observer.Expect('page.lasttry.runnerframes', '0');
+        Observer.Expect('page.lasttry.shape', 'len=490;cr=0;lf=0;bs=4;own=4;last=92;crlf-lines=1;lf-lines=1');
+        Observer.Expect('page.lasttry.tail', ' 1.0.0.0\');
+        Observer.Expect('page.lastassert.runnerframes', '0');
+        Observer.Expect('page.lastassert.shape', 'len=498;cr=0;lf=0;bs=4;own=4;last=92;crlf-lines=1;lf-lines=1');
+        Observer.Expect('page.lastassert.tail', ' 1.0.0.0\');
+        Observer.Verify();
     end;
 }
