@@ -24,7 +24,7 @@ The page object: page triggers, parts, controls, actions, CurrPage, Run and RunM
 - `extensions/`: extension objects of this object type (77 AL files).
 - `filterpagebuilder/`: FilterPageBuilder (2 AL files).
 - `journal-batch-switch/`: switching the batch of a journal worksheet page (1 AL file).
-- `lifecycle/`: opening, closing and page variables (1 AL file).
+- `lifecycle/`: opening, closing and page variables (2 AL files).
 - `link-filter/`: SubPageLink and RunPageLink filter values (2 AL files).
 - `link-quoted-member/`: page links that name a member in quotes (1 AL file).
 - `list-key-navigation/`: moving through a list page on a key (2 AL files).
