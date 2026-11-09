@@ -243,7 +243,11 @@ codeunit 73981 "LT P95 GetUrl Objects"
         DefaultCT('fn_record_false', 1, false, Observer);
         DefaultCT('fn_recref_true', 2, true, Observer);
         DefaultCT('fn_recref_false', 2, false, Observer);
-        Observer.Finish();
+        Observer.Expect('fn_record_true', 'Yes|No|No|Yes|No|No|No|?page=21&$filter=%27No.%27%20IS%20%27CYA..CYZ%27');
+        Observer.Expect('fn_record_false', 'Yes|No|No|Yes|No|No|No|?page=21&bookmark=17%3bEgAAAAJ7%2f0MAWQBY');
+        Observer.Expect('fn_recref_true', 'Yes|No|No|Yes|No|No|No|?page=21&$filter=%27No.%27%20IS%20%27CYA..CYZ%27');
+        Observer.Expect('fn_recref_false', 'Yes|No|No|Yes|No|No|No|?page=21&bookmark=17%3bEgAAAAJ7%2f0MAWQBY');
+        Observer.Verify();
     end;
 
     [Test]
@@ -257,7 +261,13 @@ codeunit 73981 "LT P95 GetUrl Objects"
         DefaultCT('enum_windows_recref_false', 5, false, Observer);
         DefaultCT('enum_default_record_true', 6, true, Observer);
         DefaultCT('enum_windows_record_true', 7, true, Observer);
-        Observer.Finish();
+        Observer.Expect('enum_default_recref_true', 'Yes|No|No|Yes|No|No|No|?page=21&$filter=%27No.%27%20IS%20%27CYA..CYZ%27');
+        Observer.Expect('enum_default_recref_false', 'Yes|No|No|Yes|No|No|No|?page=21&bookmark=17%3bEgAAAAJ7%2f0MAWQBY');
+        Observer.Expect('enum_windows_recref_true', 'Yes|No|No|Yes|No|No|No|?page=21&$filter=%27No.%27%20IS%20%27CYA..CYZ%27');
+        Observer.Expect('enum_windows_recref_false', 'Yes|No|No|Yes|No|No|No|?page=21&bookmark=17%3bEgAAAAJ7%2f0MAWQBY');
+        Observer.Expect('enum_default_record_true', 'Yes|No|No|Yes|No|No|No|?page=21&$filter=%27No.%27%20IS%20%27CYA..CYZ%27');
+        Observer.Expect('enum_windows_record_true', 'Yes|No|No|Yes|No|No|No|?page=21&$filter=%27No.%27%20IS%20%27CYA..CYZ%27');
+        Observer.Verify();
     end;
 
     [Test]
@@ -270,7 +280,12 @@ codeunit 73981 "LT P95 GetUrl Objects"
         DefaultCT('fn_report_recref_false', 9, false, Observer);
         DefaultCT('web_recref_true', 10, true, Observer);
         Observer.Observe('default_client_type', Format(DefaultClientType()));
-        Observer.Finish();
+        Observer.Expect('session_fn_recref_true', 'Yes|No|No|Yes|No|No|No|?page=21&$filter=%27No.%27%20IS%20%27CYA..CYZ%27');
+        Observer.Expect('fn_report_recref_true', 'No|No|No|No|No|No|No|noquery');
+        Observer.Expect('fn_report_recref_false', 'No|No|No|No|No|No|No|noquery');
+        Observer.Expect('web_recref_true', 'Yes|Yes|Yes|Yes|No|No|No|?company=<Company>&page=21&filter=%27No.%27%20IS%20%27CYA..CYZ%27');
+        Observer.Expect('default_client_type', 'Windows');
+        Observer.Verify();
     end;
 
     // GetUrl with a page id of 0 or a negative id, with a record and UseFilters (al-runner 7429: ClientType ODataV4, the id comes from a setup row).
@@ -299,7 +314,13 @@ codeunit 73981 "LT P95 GetUrl Objects"
         ZeroId('odata_page0_true', ClientType::OData, ObjectType::Page, 0, true, Observer);
         ZeroId('soap_page0_true', ClientType::SOAP, ObjectType::Page, 0, true, Observer);
         ZeroId('api_page0_true', ClientType::Api, ObjectType::Page, 0, true, Observer);
-        Observer.Finish();
+        Observer.Expect('odatav4_page0_true', 'No|No|No|No|No|No|No|noquery');
+        Observer.Expect('odatav4_page0_false', 'No|No|No|No|No|No|No|noquery');
+        Observer.Expect('odatav4_page21_true', 'No|No|No|No|No|No|No|noquery');
+        Observer.Expect('odata_page0_true', 'No|No|No|No|No|No|No|noquery');
+        Observer.Expect('soap_page0_true', 'No|No|No|No|No|No|No|noquery');
+        Observer.Expect('api_page0_true', 'No|No|No|No|No|No|No|noquery');
+        Observer.Verify();
     end;
 
     [Test]
@@ -315,6 +336,14 @@ codeunit 73981 "LT P95 GetUrl Objects"
         ZeroId('default_page0_true', ClientType::Default, ObjectType::Page, 0, true, Observer);
         ZeroId('windows_page0_true', ClientType::Windows, ObjectType::Page, 0, true, Observer);
         ZeroId('tablet_page0_true', ClientType::Tablet, ObjectType::Page, 0, true, Observer);
-        Observer.Finish();
+        Observer.Expect('web_page0_true', 'No|No|No|No|No|No|No|noquery');
+        Observer.Expect('web_page0_false', 'No|No|No|No|No|No|No|noquery');
+        Observer.Expect('web_pageneg1_true', 'No|No|No|No|No|No|No|noquery');
+        Observer.Expect('web_report0_true', 'No|No|No|No|No|No|No|noquery');
+        Observer.Expect('web_table0_true', 'No|No|No|No|No|No|No|noquery');
+        Observer.Expect('default_page0_true', 'No|No|No|No|No|No|No|noquery');
+        Observer.Expect('windows_page0_true', 'No|No|No|No|No|No|No|noquery');
+        Observer.Expect('tablet_page0_true', 'No|No|No|No|No|No|No|noquery');
+        Observer.Verify();
     end;
 }

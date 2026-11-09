@@ -253,7 +253,15 @@ codeunit 60075 "Test FieldRef Filter"
         Probe(Observer, 'dur_gt0', 11, '>0');
         Probe(Observer, 'dur_range', 11, '0..1000');
         Probe(Observer, 'dur_1s', 11, '1S');
-        Observer.Finish();
+        Observer.Expect('dur_0', 'ok|''''|1,');
+        Observer.Expect('dur_ne0', 'ok|<>''''|2,3,');
+        Observer.Expect('dur_empty', 'ok||1,2,3,');
+        Observer.Expect('dur_ne_empty', 'ok|<>''''|2,3,');
+        Observer.Expect('dur_1000', 'ok|41 days 16 hours|');
+        Observer.Expect('dur_gt0', 'ok|>''''|2,3,');
+        Observer.Expect('dur_range', 'ok|''''..41 days 16 hours|1,2,3,');
+        Observer.Expect('dur_1s', 'ok|1 second|2,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -270,7 +278,15 @@ codeunit 60075 "Test FieldRef Filter"
         Probe(Observer, 'dur_0_blank', 11, ' 0 ');
         Probe(Observer, 'dur_minus1', 11, '-1');
         Probe(Observer, 'dur_0_0', 11, '0|1000');
-        Observer.Finish();
+        Observer.Expect('dur_1m', 'ok|1 minute|3,');
+        Observer.Expect('dur_1min', 'ok|1 minute|3,');
+        Observer.Expect('dur_zero_s', 'ok|''''|1,');
+        Observer.Expect('dur_text|text', 'The filter "abc" is not valid for the Duration Field field on the ALT Universal table. The value "abc" can''t be evaluated into type Duration.');
+        Observer.Expect('dur_text|code', 'Filter:CSide');
+        Observer.Expect('dur_0_blank', 'ok|''''|1,');
+        Observer.Expect('dur_minus1', 'ok|-1 hour|');
+        Observer.Expect('dur_0_0', 'ok|''''|41 days 16 hours|1,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -286,7 +302,13 @@ codeunit 60075 "Test FieldRef Filter"
         Probe(Observer, 'big_ne0', 4, '<>0');
         Probe(Observer, 'dec_0', 5, '0');
         Probe(Observer, 'dec_ne0', 5, '<>0');
-        Observer.Finish();
+        Observer.Expect('int_0', 'ok|0|1,');
+        Observer.Expect('int_ne0', 'ok|<>0|2,3,');
+        Observer.Expect('big_0', 'ok|0|1,');
+        Observer.Expect('big_ne0', 'ok|<>0|2,3,');
+        Observer.Expect('dec_0', 'ok|0|1,');
+        Observer.Expect('dec_ne0', 'ok|<>0|2,3,');
+        Observer.Verify();
     end;
 
     local procedure Initialize()
