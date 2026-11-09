@@ -139,7 +139,21 @@ codeunit 74983 "LT FRF Filter Empty Text"
         FldRef := RecRef.Field(5);
         Report('eq_text_other_field', RecRef, FldRef, TryFilter(FldRef, Text1));
         RecRef.Close();
-        Obs.Finish();
+        Obs.Expect('total', '4');
+        Obs.Expect('range_empty.filter', '''''');
+        Obs.Expect('range_empty.filters', 'Due: ''''');
+        Obs.Expect('range_empty.rows', 'NONE1,NONE2');
+        Obs.Expect('text_length', '2');
+        Obs.Expect('neq_text_same_field.filter', '<>''''');
+        Obs.Expect('neq_text_same_field.filters', 'Due: <>''''');
+        Obs.Expect('neq_text_same_field.rows', 'DAY,MONTH');
+        Obs.Expect('neq_text_other_field.filter', '<>''''');
+        Obs.Expect('neq_text_other_field.filters', 'Due2: <>''''');
+        Obs.Expect('neq_text_other_field.rows', 'DAY');
+        Obs.Expect('eq_text_other_field.filter', '''''');
+        Obs.Expect('eq_text_other_field.filters', 'Due2: ''''');
+        Obs.Expect('eq_text_other_field.rows', 'MONTH,NONE1,NONE2');
+        Obs.Verify();
     end;
 
     [Test]
@@ -162,7 +176,18 @@ codeunit 74983 "LT FRF Filter Empty Text"
         FldRef := RecRef.Field(3);
         Report('eq_text_same_field', RecRef, FldRef, TryFilter(FldRef, Text1));
         RecRef.Close();
-        Obs.Finish();
+        Obs.Expect('total', '4');
+        Obs.Expect('range_empty.filter', '''''');
+        Obs.Expect('range_empty.filters', 'Rid: ''''');
+        Obs.Expect('range_empty.rows', 'NONE1,NONE2');
+        Obs.Expect('text_length', '2');
+        Obs.Expect('neq_text_same_field.filter', '<>''''');
+        Obs.Expect('neq_text_same_field.filters', 'Rid: <>''''');
+        Obs.Expect('neq_text_same_field.rows', 'DAY,MONTH');
+        Obs.Expect('eq_text_same_field.filter', '''''');
+        Obs.Expect('eq_text_same_field.filters', 'Rid: ''''');
+        Obs.Expect('eq_text_same_field.rows', 'NONE1,NONE2');
+        Obs.Verify();
     end;
 
     [Test]
@@ -191,6 +216,29 @@ codeunit 74983 "LT FRF Filter Empty Text"
         FldRef := RecRef.Field(4);
         Report('range_quotes', RecRef, FldRef, TryRangeBlob(FldRef, '', ''));
         RecRef.Close();
-        Obs.Finish();
+        Obs.Expect('total', '4');
+        Obs.Expect('empty.filter', '');
+        Obs.Expect('empty.filters', '');
+        Obs.Expect('empty.rows', 'DAY,MONTH,NONE1,NONE2');
+        Obs.Expect('quotes.filter', ''' ''');
+        Obs.Expect('quotes.filters', 'Data: '' ''');
+        Obs.Expect('quotes.rows', 'MONTH,NONE1,NONE2');
+        Obs.Expect('neq_quotes.filter', '<>'' ''');
+        Obs.Expect('neq_quotes.filters', 'Data: <>'' ''');
+        Obs.Expect('neq_quotes.rows', 'DAY');
+        Obs.Expect('neq_bare|text', 'The filter "<>" is not valid for the Data field on the LT FRF Row table. A value is expected after the ''<>''.');
+        Obs.Expect('neq_bare|code', 'Filter:CSide');
+        Obs.Expect('text_value|text', 'The filter "abc" is not valid for the Data field on the LT FRF Row table. The value "abc" can''t be evaluated into type BLOB.');
+        Obs.Expect('text_value|code', 'Filter:CSide');
+        // The error of the range on a Blob field differs: BC 28.5 and 29.0 raise the Evaluate error, BC 27.5 an invalid conversion
+        // (CI subset runs 42625890377, 42625924631, 42625958537).
+#if BC28PLUS
+        Obs.Expect('range_quotes|text', 'The value "" can''t be evaluated into type BLOB.');
+        Obs.Expect('range_quotes|code', 'Evaluate:Argument');
+#else
+        Obs.Expect('range_quotes|text', 'Invalid Conversion. Source: NavText, Destination: NavBLOB.');
+        Obs.Expect('range_quotes|code', 'Argument');
+#endif
+        Obs.Verify();
     end;
 }
