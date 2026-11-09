@@ -6,6 +6,9 @@
 //   (A before every row, Z after every row, R1010A in the middle) and calls CurrPage.Update() (or not); then TestPage.GoToKey or
 //   TestPage.GoToRecord of the new row, in separate runs. N is 1, 19, 20, 21 and 60. The reading is Found true or false and the row the
 //   page shows afterwards. "Both" has the two triggers (empty), "None" has neither.
+// Results (BC 27.5, 28.5, 29.0 on the Linux CI, identical): GoToKey and GoToRecord find the inserted row (found=Yes, the page shows it) for every
+//   row count 1, 19, 20, 21 and 60, for an insert before every row, after every row and in the middle, with and without CurrPage.Update(),
+//   and on the page with neither trigger. There is no threshold at 20 rows.
 // BC versions: 27, 28, 29
 
 table 99700 "LT FW Line"
@@ -317,7 +320,13 @@ codeunit 99703 "LT FW Tests"
         Observer.Observe('GoToRecord 21 rows', RunBoth(21, 1, true));
         Observer.Observe('GoToKey 60 rows', RunBoth(60, 1, false));
         Observer.Observe('GoToRecord 60 rows', RunBoth(60, 1, true));
-        Observer.Finish();
+        Observer.Expect('GoToKey 1 rows', 'found=Yes now=A');
+        Observer.Expect('GoToRecord 1 rows', 'found=Yes now=A');
+        Observer.Expect('GoToKey 19 rows', 'found=Yes now=A');
+        Observer.Expect('GoToRecord 19 rows', 'found=Yes now=A');
+        Observer.Expect('GoToKey 20 rows', 'found=Yes now=A');
+        Observer.Expect('GoToRecord 20 rows', 'found=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -333,7 +342,13 @@ codeunit 99703 "LT FW Tests"
         Observer.Observe('GoToRecord 21 rows', RunBoth(21, 2, true));
         Observer.Observe('GoToKey 60 rows', RunBoth(60, 2, false));
         Observer.Observe('GoToRecord 60 rows', RunBoth(60, 2, true));
-        Observer.Finish();
+        Observer.Expect('GoToKey 1 rows', 'found=Yes now=A');
+        Observer.Expect('GoToRecord 1 rows', 'found=Yes now=A');
+        Observer.Expect('GoToKey 19 rows', 'found=Yes now=A');
+        Observer.Expect('GoToRecord 19 rows', 'found=Yes now=A');
+        Observer.Expect('GoToKey 20 rows', 'found=Yes now=A');
+        Observer.Expect('GoToRecord 20 rows', 'found=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -345,7 +360,13 @@ codeunit 99703 "LT FW Tests"
         Observer.Observe('GoToRecord 20 rows', RunBoth(20, 3, true));
         Observer.Observe('GoToKey 60 rows', RunBoth(60, 3, false));
         Observer.Observe('GoToRecord 60 rows', RunBoth(60, 3, true));
-        Observer.Finish();
+        Observer.Expect('GoToKey 19 rows', 'found=Yes now=Z');
+        Observer.Expect('GoToRecord 19 rows', 'found=Yes now=Z');
+        Observer.Expect('GoToKey 20 rows', 'found=Yes now=Z');
+        Observer.Expect('GoToRecord 20 rows', 'found=Yes now=Z');
+        Observer.Expect('GoToKey 60 rows', 'found=Yes now=Z');
+        Observer.Expect('GoToRecord 60 rows', 'found=Y');
+        Observer.Verify();
     end;
 
     [Test]
@@ -357,7 +378,13 @@ codeunit 99703 "LT FW Tests"
         Observer.Observe('GoToRecord 20 rows', RunBoth(20, 4, true));
         Observer.Observe('GoToKey 60 rows', RunBoth(60, 4, false));
         Observer.Observe('GoToRecord 60 rows', RunBoth(60, 4, true));
-        Observer.Finish();
+        Observer.Expect('GoToKey 19 rows', 'found=Yes now=R1010A');
+        Observer.Expect('GoToRecord 19 rows', 'found=Yes now=R1010A');
+        Observer.Expect('GoToKey 20 rows', 'found=Yes now=R1010A');
+        Observer.Expect('GoToRecord 20 rows', 'found=Yes now=R1010A');
+        Observer.Expect('GoToKey 60 rows', 'found=Yes now=R1010A');
+        Observer.Expect('G', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -369,6 +396,12 @@ codeunit 99703 "LT FW Tests"
         Observer.Observe('GoToRecord 20 rows', RunNone(20, 1, true));
         Observer.Observe('GoToKey 60 rows', RunNone(60, 1, false));
         Observer.Observe('GoToRecord 60 rows', RunNone(60, 1, true));
-        Observer.Finish();
+        Observer.Expect('GoToKey 19 rows', 'found=Yes now=A');
+        Observer.Expect('GoToRecord 19 rows', 'found=Yes now=A');
+        Observer.Expect('GoToKey 20 rows', 'found=Yes now=A');
+        Observer.Expect('GoToRecord 20 rows', 'found=Yes now=A');
+        Observer.Expect('GoToKey 60 rows', 'found=Yes now=A');
+        Observer.Expect('GoToRecord 60 rows', 'found=Y');
+        Observer.Verify();
     end;
 }
