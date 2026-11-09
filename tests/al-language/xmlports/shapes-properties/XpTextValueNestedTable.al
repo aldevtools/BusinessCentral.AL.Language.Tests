@@ -1260,7 +1260,10 @@ codeunit 97950 "LT X63 Tests"
         Observer.Observe('1 rows', Helper.TryExportRaw(97965, TextEncoding::UTF8));
         SeedB(2);
         Observer.Observe('2 rows', Helper.TryExportRaw(97965, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     // Issue 7349: TI > [table element, RD > [value]] (R2).
@@ -1273,7 +1276,10 @@ codeunit 97950 "LT X63 Tests"
         Observer.Observe('1 rows', Helper.TryExportRaw(97966, TextEncoding::UTF8));
         SeedB(2);
         Observer.Observe('2 rows', Helper.TryExportRaw(97966, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     // Issue 7349: TI > [RD > [field element, value], table element] (R3).
@@ -1286,7 +1292,10 @@ codeunit 97950 "LT X63 Tests"
         Observer.Observe('1 rows', Helper.TryExportRaw(97967, TextEncoding::UTF8));
         SeedB(2);
         Observer.Observe('2 rows', Helper.TryExportRaw(97967, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <D>O1</D>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <D>O1</D>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <D>O1</D>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     // Issue 7349: TI > [RD > [value], table element, RE > [value]].
@@ -1299,7 +1308,10 @@ codeunit 97950 "LT X63 Tests"
         Observer.Observe('1 rows', Helper.TryExportRaw(97968, TextEncoding::UTF8));
         SeedB(2);
         Observer.Observe('2 rows', Helper.TryExportRaw(97968, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n      <RE>\r\n        <TU>y</TU>\r\n      </RE>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <RE>\r\n        <TU>y</TU>\r\n      </RE>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n      <RE>\r\n        <TU>y</TU>\r\n      </RE>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     // Issue 7349: TI > [RD > [value], RE > [value], table element].
@@ -1312,7 +1324,10 @@ codeunit 97950 "LT X63 Tests"
         Observer.Observe('1 rows', Helper.TryExportRaw(97969, TextEncoding::UTF8));
         SeedB(2);
         Observer.Observe('2 rows', Helper.TryExportRaw(97969, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <RE>\r\n        <TU>y</TU>\r\n      </RE>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <RE>\r\n        <TU>y</TU>\r\n      </RE>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <RE>\r\n        <TU>y</TU>\r\n      </RE>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     // Issue 7349: TI > [RD > [field element, value], table element r, table element q].
@@ -1325,7 +1340,10 @@ codeunit 97950 "LT X63 Tests"
         Observer.Observe('1 rows', Helper.TryExportRaw(97970, TextEncoding::UTF8));
         SeedB(2);
         Observer.Observe('2 rows', Helper.TryExportRaw(97970, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <D>O1</D>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n      <q>\r\n        <Ref />\r\n      </q>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <D>O1</D>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <q>\r\n        <Ref>R1</Ref>\r\n      </q>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <D>O1</D>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n      <q>\r\n        <Ref>R1</Ref>\r\n      </q>\r\n      <q>\r\n        <Ref>R2</Ref>\r\n      </q>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     // Issue 7349: TI > [value, RD > [value], table element, value].
@@ -1338,7 +1356,10 @@ codeunit 97950 "LT X63 Tests"
         Observer.Observe('1 rows', Helper.TryExportRaw(97971, TextEncoding::UTF8));
         SeedB(2);
         Observer.Observe('2 rows', Helper.TryExportRaw(97971, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1>a</T1>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n      <T2>b</T2>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1>a</T1>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <T2>b</T2>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1>a</T1>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n      <T2>b</T2>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     // Issue 7349: TI > TJ > [RD > [value], table element].
@@ -1351,7 +1372,10 @@ codeunit 97950 "LT X63 Tests"
         Observer.Observe('1 rows', Helper.TryExportRaw(97972, TextEncoding::UTF8));
         SeedB(2);
         Observer.Observe('2 rows', Helper.TryExportRaw(97972, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <TJ>\r\n        <RD>\r\n          <TT>x</TT>\r\n        </RD>\r\n        <r>\r\n          <Ref />\r\n        </r>\r\n      </TJ>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <TJ>\r\n        <RD>\r\n          <TT>x</TT>\r\n        </RD>\r\n        <r>\r\n          <Ref>R1</Ref>\r\n        </r>\r\n      </TJ>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <TJ>\r\n        <RD>\r\n          <TT>x</TT>\r\n        </RD>\r\n        <r>\r\n          <Ref>R1</Ref>\r\n        </r>\r\n        <r>\r\n          <Ref>R2</Ref>\r\n        </r>\r\n      </TJ>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     // Issue 7349: TI > [RD > RC > [value], table element].
@@ -1364,7 +1388,10 @@ codeunit 97950 "LT X63 Tests"
         Observer.Observe('1 rows', Helper.TryExportRaw(97973, TextEncoding::UTF8));
         SeedB(2);
         Observer.Observe('2 rows', Helper.TryExportRaw(97973, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <RC>\r\n          <TT>x</TT>\r\n        </RC>\r\n      </RD>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <RC>\r\n          <TT>x</TT>\r\n        </RC>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <RC>\r\n          <TT>x</TT>\r\n        </RC>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
     end;
 
     // Issue 7349: TI > [field element, value, RD > [field element, value], table element, RE > [field element, value]].
@@ -1377,13 +1404,22 @@ codeunit 97950 "LT X63 Tests"
         Observer.Observe('1 rows', Helper.TryExportRaw(97974, TextEncoding::UTF8));
         SeedB(2);
         Observer.Observe('2 rows', Helper.TryExportRaw(97974, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <D1>O1</D1>\r\n      <T1>a</T1>\r\n      <RD>\r\n        <D2>O1</D2>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n      <RE>\r\n        <D3>O1</D3>\r\n        <TU>y</TU>\r\n      </RE>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <D1>O1</D1>\r\n      <T1>a</T1>\r\n      <RD>\r\n        <D2>O1</D2>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <RE>\r\n        <D3>O1</D3>\r\n        <TU>y</TU>\r\n      </RE>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <D1>O1</D1>\r\n      <T1>a</T1>\r\n      <RD>\r\n        <D2>O1</D2>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n      <RE>\r\n        <D3>O1</D3>\r\n        <TU>y</TU>\r\n      </RE>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
     end;
 }
 
 // Probe: al-runner issue 7349 (follow-up to 7309). Export of a row text element TI that holds a text element with content (a value
 //   element, or a field element and a value element) and a table element, in several orders, with 0, 1 and 2 rows of the inner table
 //   element. Objects xmlport 97965-97974; the tests are XTN_*.
+// Facts (BC 27.5, 28.5 and 29.0 write the same text for every shape; the issue's own 29.0 reading agrees): BC writes the plain tree in schema
+//   order. The text element RD with content (a value element, or a field element and a value element) is written once, whole, before the
+//   first `r`, between the elements around it, or after the last `r`, as the schema places it. The table element writes one `r` per row, and
+//   with no row one `r` with the record as it stands (`<Ref />`). Two table elements write all `r` rows, then all `q` rows. The field
+//   elements of the outer row (`<D>O1</D>`) are written next to the value element inside RD, RE and TI. A text element with content nested
+//   one level deeper (TJ > RD, RD > RC) is written the same way.
 
 // TI > [RD > [value], table element] (issue 7349 R1)
 xmlport 97965 "LT X63 Y R1"
