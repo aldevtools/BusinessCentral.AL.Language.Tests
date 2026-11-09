@@ -1217,3 +1217,15 @@ stem	area
 3109-calcformula-option-value-not-defined	table-objects
 3110-flowfield-lookup-type-mismatch	table-objects
 3111-calcsums-count-exist-lookup-average-min-flowfield	table-objects
+3120-option-variable-duplicate-blank-quoted-empty	format-evaluate
+3121-option-variable-duplicate-blank-space	format-evaluate
+3122-option-field-duplicate-blank-quoted-empty	format-evaluate
+3123-option-field-duplicate-blank-space	format-evaluate
+3124-enum-duplicate-blank-quoted-empty	format-evaluate
+3125-enum-duplicate-blank-space	format-evaluate
+3126-option-quoted-empty-member-has-no-name	format-evaluate
+3127-option-unquoted-empty-member-has-no-name	format-evaluate
+3128-option-space-member-is-not-the-empty-name	format-evaluate
+3129-option-quoted-empty-member-is-not-the-space-name	format-evaluate
+3130-option-field-quoted-empty-member-has-no-name	format-evaluate
+3131-enum-quoted-empty-value-has-no-name	format-evaluate
