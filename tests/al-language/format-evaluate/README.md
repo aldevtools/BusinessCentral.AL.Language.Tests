@@ -7,6 +7,7 @@ Format and Evaluate of every type, format strings and AutoFormat.
 - (area folder itself): 85 AL files that are about the area as a whole or were not given a topic yet.
 - `autoformat/`: AutoFormatType and AutoFormatExpression (7 AL files).
 - `record-format/`: Format of a Record, RecordRef and FieldRef, also as a %n argument of StrSubstNo, Message and Error (1 AL file).
+- `format-matrix/`: Format with every standard format number and a list of format-string elements, and Evaluate (boolean and statement form, format 0 and 9), for every simple type, also through FieldRef (24 AL files).
 
 - `SoEvaluateSystemOptions.al` (in the area folder itself): Evaluate into the system option types ObjectType, Verbosity, TelemetryScope, DataClassification, TransactionType, ReportFormat, ErrorType, DefaultLayout, TestPermissions, DataScope, ExecutionContext, NotificationScope, WebServiceActionResultCode and FieldClass.
 - `SoEvaluateSystemOptionsHidden.al` (in the area folder itself): the part of the system option Evaluate probe that `SoEvaluateSystemOptions.al` left open: the numbers of WebServiceActionResultCode (200, 201, 204 and around), the names of members AL cannot name (ObjectType Form and Enum, ReportFormat None, Jpeg, Xps, Meta, ExcelDataset, Custom, Zip, ExecutionContext Uninstall, FieldClass KeyFieldReference on BC 27), and rejected texts with blanks or TABs around them in the statement form.
