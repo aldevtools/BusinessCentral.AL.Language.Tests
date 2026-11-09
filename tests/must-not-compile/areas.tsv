@@ -1205,3 +1205,15 @@ stem	area
 2953-codeunit-protected-table-var-through-record	table-objects
 2971-bc29-legacy-statistics-anchor	pages
 2972-bc29-legacy-statistics-invoke	pages
+3100-flowfield-in-table-key	table-objects
+3101-flowfield-exist-count-wrong-type	table-objects
+3102-flowfield-sum-average-non-numeric	table-objects
+3103-calcformula-upperlimit-field-outside-field	table-objects
+3104-calcformula-upperlimit-bare-outside-field	table-objects
+3105-calcformula-upperlimit-const-outside-field	table-objects
+3106-calcformula-upperlimit-filter-outside-field	table-objects
+3107-calcformula-const-code-value-unquoted	table-objects
+3108-calcformula-field-condition-type-mismatch	table-objects
+3109-calcformula-option-value-not-defined	table-objects
+3110-flowfield-lookup-type-mismatch	table-objects
+3111-calcsums-count-exist-lookup-average-min-flowfield	table-objects
