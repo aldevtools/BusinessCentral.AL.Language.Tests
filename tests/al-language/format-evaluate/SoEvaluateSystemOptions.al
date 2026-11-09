@@ -3787,8 +3787,11 @@ codeunit 99613 "LT SO Eval FieldClass"
         V: FieldClass;
     begin
         Observer.Observe('default', ShowFormats(V));
-        Observer.Observe('default text', Format(V, 0, '<Text>'));
         Observer.Observe('default length 3', Format(V, 3));
+        asserterror Observer.Observe('default text', Format(V, 0, '<Text>'));
+        Observer.Observe('default text error', GetLastErrorText());
+        Observer.Observe('default text error code', GetLastErrorCode());
+        ClearLastError();
         Observer.Finish();
     end;
 
