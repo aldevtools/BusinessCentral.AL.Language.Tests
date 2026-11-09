@@ -15,7 +15,15 @@ table 99900 "LT K12 XRec Row"
     {
         field(1; "No."; Code[20]) { }
         field(2; Company; Code[20]) { }
-        field(3; Member; Code[20]) { }
+        field(3; Member; Code[20])
+        {
+            trigger OnValidate()
+            var
+                Log: Codeunit "LT K12 XRec Subscriber";
+            begin
+                Log.Add('field OnValidate Member=' + Member + ' xrec=' + xRec.Member + ' xrecfilters=[' + xRec.GetFilters() + ']');
+            end;
+        }
     }
 
     keys
@@ -23,6 +31,13 @@ table 99900 "LT K12 XRec Row"
         key(PK; "No.") { Clustered = true; }
         key(ByCompany; Company, "No.") { }
     }
+
+    trigger OnModify()
+    var
+        Log: Codeunit "LT K12 XRec Subscriber";
+    begin
+        Log.Add('table OnModify Member=' + Member + ' xrec=' + xRec.Member + ' xrecfilters=[' + xRec.GetFilters() + '] recfilters=[' + GetFilters() + ']');
+    end;
 }
 
 codeunit 99901 "LT K12 XRec Subscriber"
@@ -31,6 +46,11 @@ codeunit 99901 "LT K12 XRec Subscriber"
 
     var
         Log: Text;
+
+    procedure Add(Line: Text)
+    begin
+        Log += Line + '; ';
+    end;
 
     procedure Take(): Text
     var
@@ -64,14 +84,32 @@ codeunit 99901 "LT K12 XRec Subscriber"
         ClearLastError();
         StatementOk := TryFindStatement(Probe);
         Text1 := GetLastErrorText();
-        Log := 'rec filters=[' + Rec.GetFilters() + '] hasfilter=' + Format(Rec.HasFilter()) + ' key=' + Rec.CurrentKey() +
+        Log += 'before-modify event: rec filters=[' + Rec.GetFilters() + '] hasfilter=' + Format(Rec.HasFilter()) + ' key=' + Rec.CurrentKey() +
             '; xrec filters=[' + xRec.GetFilters() + '] hasfilter=' + Format(xRec.HasFilter()) + ' key=' + xRec.CurrentKey() +
             '; formats equal=' + Format(Same) +
             '; xrec no=' + xRec."No." + ' member=[' + xRec.Member + '] rec member=[' + Rec.Member + ']' +
             '; copy filters=[' + Copied.GetFilters() + '] copy find=' + Format(Copied.Find()) +
             '; assigned filters=[' + Assigned.GetFilters() + '] assigned find=' + Format(Assigned.Find()) +
             '; copy find statement ok=' + Format(StatementOk) + ' err=[' + Text1 + ']' +
-            '; xrec find=' + Format(xRec.Find());
+            '; xrec find=' + Format(xRec.Find()) + '; ';
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"LT K12 XRec Row", OnAfterModifyEvent, '', false, false)]
+    local procedure OnAfterModify(var Rec: Record "LT K12 XRec Row"; var xRec: Record "LT K12 XRec Row"; RunTrigger: Boolean)
+    begin
+        Log += 'after-modify event: rec member=' + Rec.Member + ' xrec member=' + xRec.Member + ' xrecfilters=[' + xRec.GetFilters() + '] equal=' + Format(Format(Rec) = Format(xRec)) + '; ';
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"LT K12 XRec Row", OnBeforeValidateEvent, Member, false, false)]
+    local procedure OnBeforeValidateMember(var Rec: Record "LT K12 XRec Row"; var xRec: Record "LT K12 XRec Row"; CurrFieldNo: Integer)
+    begin
+        Log += 'before-validate event: rec member=' + Rec.Member + ' xrec member=' + xRec.Member + ' xrecfilters=[' + xRec.GetFilters() + ']; ';
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"LT K12 XRec Row", OnAfterValidateEvent, Member, false, false)]
+    local procedure OnAfterValidateMember(var Rec: Record "LT K12 XRec Row"; var xRec: Record "LT K12 XRec Row"; CurrFieldNo: Integer)
+    begin
+        Log += 'after-validate event: rec member=' + Rec.Member + ' xrec member=' + xRec.Member + ' xrecfilters=[' + xRec.GetFilters() + ']; ';
     end;
 }
 
@@ -188,6 +226,70 @@ codeunit 99902 "LT K12 XRec Modify Event"
         Row.Company := '0002';
         Row.Modify();
         Observer.Observe('modify, field in the filter changed to leave it', Subscriber.Take());
+        Observer.Finish();
+    end;
+
+    // Matrix: how the change happens (cells below) x where xRec is read (field OnValidate, before/after validate event, table OnModify,
+    // before/after modify event), each with a filter left on the caller's variable and without. One row of the matrix per observation.
+    [Test]
+    procedure Y7408_Matrix_ValidateInCode_ThenModify()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT K12 XRec Row";
+    begin
+        Seed();
+        Row.Get('CT1');
+        Row.Validate(Member, 'V-1');
+        Observer.Observe('Validate (new value), no filter', Subscriber.Take());
+        Row.Modify(true);
+        Observer.Observe('then Modify(true), no filter', Subscriber.Take());
+        Row.SetRange(Company, '0002');
+        Row.Get('CT3');
+        Row.Validate(Member, 'V-2');
+        Observer.Observe('Validate on a row outside the filter', Subscriber.Take());
+        Row.Modify(true);
+        Observer.Observe('then Modify(true) outside the filter', Subscriber.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y7408_Matrix_ValidateSameValue_And_AssignThenValidate()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT K12 XRec Row";
+    begin
+        Seed();
+        Row.Get('CT1');
+        Row.Member := 'A';
+        Row.Modify();
+        Subscriber.Take();
+        Row.Validate(Member, 'A');
+        Observer.Observe('Validate with the value already held', Subscriber.Take());
+        Row.Member := 'B';
+        Row.Validate(Member);
+        Observer.Observe('assign, then Validate(field) without a value', Subscriber.Take());
+        Row.Modify();
+        Observer.Observe('then Modify', Subscriber.Take());
+        Row.Modify();
+        Observer.Observe('second Modify with no change', Subscriber.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y7408_Matrix_ModifyFalse_ModifyAll_Rename()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT K12 XRec Row";
+    begin
+        Seed();
+        Row.SetRange(Company, '0001');
+        Row.ModifyAll(Member, 'M-ALL', true);
+        Observer.Observe('ModifyAll(true) under a filter', Subscriber.Take());
+        Row.Reset();
+        Row.Get('CT2');
+        Row.Member := 'Z';
+        Row.Modify(false);
+        Observer.Observe('Modify(false), no filter', Subscriber.Take());
         Observer.Finish();
     end;
 }
