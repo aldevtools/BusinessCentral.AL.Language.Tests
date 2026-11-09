@@ -82,7 +82,33 @@ codeunit 72855 "LT FM Text"
         CellS(O, '<Standard Format,3>', V, '<Standard Format,3>');
         CellS(O, '<Standard Format,4>', V, '<Standard Format,4>');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('n0', 'ok:');
+        O.Expect('n1', 'ok:');
+        O.Expect('n2', 'ok:');
+        O.Expect('n3', 'err:InvalidStandardFormat');
+        O.Expect('n4', 'err:InvalidStandardFormat');
+        O.Expect('n5', 'err:InvalidStandardFormat');
+        O.Expect('n6', 'err:InvalidStandardFormat');
+        O.Expect('n7', 'err:InvalidStandardFormat');
+        O.Expect('n8', 'err:InvalidStandardFormat');
+        O.Expect('n9', 'ok:');
+        O.Expect('n10', 'err:InvalidStandardFormat');
+        O.Expect('<Text>', 'ok:');
+        O.Expect('<Text,10>', 'ok:          ');
+        O.Expect('<Text,3>', 'ok:   ');
+        O.Expect('<Filler Character,x><Text,10>', 'ok:xxxxxxxxxx');
+        O.Expect('<Integer>', 'err:InvalidFormatString');
+        O.Expect('<Integer,5>', 'err:InvalidFormatString');
+        O.Expect('<Sign>', 'err:InvalidFormatString');
+        O.Expect('<Decimals>', 'err:InvalidFormatString');
+        O.Expect('<Day>', 'err:InvalidFormatString');
+        O.Expect('<Hours24>', 'err:InvalidFormatString');
+        O.Expect('<Standard Format,0>', 'ok:');
+        O.Expect('<Standard Format,1>', 'ok:');
+        O.Expect('<Standard Format,2>', 'ok:');
+        O.Expect('<Standard Format,3>', 'err:InvalidStandardFormat');
+        O.Expect('<Standard Format,4>', 'err:InvalidStandardFormat');
+        O.Verify();
     end;
 
     [Test]
@@ -101,7 +127,12 @@ codeunit 72855 "LT FM Text"
         CellS(O, '', V, '');
         CellS(O, '<Precision,2:2>', V, '<Precision,2:2>');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('<Standard Format,9>', 'ok:');
+        O.Expect('x<Text>y', 'ok:xy');
+        O.Expect('literal', 'ok:literal');
+        O.Expect('', 'ok:');
+        O.Expect('<Precision,2:2>', 'ok:');
+        O.Verify();
     end;
 
     [Test]
@@ -141,7 +172,33 @@ codeunit 72855 "LT FM Text"
         CellS(O, '<Standard Format,3>', V, '<Standard Format,3>');
         CellS(O, '<Standard Format,4>', V, '<Standard Format,4>');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('n0', 'ok:abc');
+        O.Expect('n1', 'ok:abc');
+        O.Expect('n2', 'ok:abc');
+        O.Expect('n3', 'err:InvalidStandardFormat');
+        O.Expect('n4', 'err:InvalidStandardFormat');
+        O.Expect('n5', 'err:InvalidStandardFormat');
+        O.Expect('n6', 'err:InvalidStandardFormat');
+        O.Expect('n7', 'err:InvalidStandardFormat');
+        O.Expect('n8', 'err:InvalidStandardFormat');
+        O.Expect('n9', 'ok:abc');
+        O.Expect('n10', 'err:InvalidStandardFormat');
+        O.Expect('<Text>', 'ok:abc');
+        O.Expect('<Text,10>', 'ok:abc       ');
+        O.Expect('<Text,3>', 'ok:abc');
+        O.Expect('<Filler Character,x><Text,10>', 'ok:abcxxxxxxx');
+        O.Expect('<Integer>', 'err:InvalidFormatString');
+        O.Expect('<Integer,5>', 'err:InvalidFormatString');
+        O.Expect('<Sign>', 'err:InvalidFormatString');
+        O.Expect('<Decimals>', 'err:InvalidFormatString');
+        O.Expect('<Day>', 'err:InvalidFormatString');
+        O.Expect('<Hours24>', 'err:InvalidFormatString');
+        O.Expect('<Standard Format,0>', 'ok:abc');
+        O.Expect('<Standard Format,1>', 'ok:abc');
+        O.Expect('<Standard Format,2>', 'ok:abc');
+        O.Expect('<Standard Format,3>', 'err:InvalidStandardFormat');
+        O.Expect('<Standard Format,4>', 'err:InvalidStandardFormat');
+        O.Verify();
     end;
 
     [Test]
@@ -160,7 +217,12 @@ codeunit 72855 "LT FM Text"
         CellS(O, '', V, '');
         CellS(O, '<Precision,2:2>', V, '<Precision,2:2>');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('<Standard Format,9>', 'ok:abc');
+        O.Expect('x<Text>y', 'ok:xabcy');
+        O.Expect('literal', 'ok:literal');
+        O.Expect('', 'ok:');
+        O.Expect('<Precision,2:2>', 'ok:');
+        O.Verify();
     end;
 
     [Test]
@@ -200,7 +262,33 @@ codeunit 72855 "LT FM Text"
         CellS(O, '<Standard Format,3>', V, '<Standard Format,3>');
         CellS(O, '<Standard Format,4>', V, '<Standard Format,4>');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('n0', 'ok:Hello World');
+        O.Expect('n1', 'ok:Hello World');
+        O.Expect('n2', 'ok:Hello World');
+        O.Expect('n3', 'err:InvalidStandardFormat');
+        O.Expect('n4', 'err:InvalidStandardFormat');
+        O.Expect('n5', 'err:InvalidStandardFormat');
+        O.Expect('n6', 'err:InvalidStandardFormat');
+        O.Expect('n7', 'err:InvalidStandardFormat');
+        O.Expect('n8', 'err:InvalidStandardFormat');
+        O.Expect('n9', 'ok:Hello World');
+        O.Expect('n10', 'err:InvalidStandardFormat');
+        O.Expect('<Text>', 'ok:Hello World');
+        O.Expect('<Text,10>', 'ok:Hello Worl');
+        O.Expect('<Text,3>', 'ok:Hel');
+        O.Expect('<Filler Character,x><Text,10>', 'ok:Hello Worl');
+        O.Expect('<Integer>', 'err:InvalidFormatString');
+        O.Expect('<Integer,5>', 'err:InvalidFormatString');
+        O.Expect('<Sign>', 'err:InvalidFormatString');
+        O.Expect('<Decimals>', 'err:InvalidFormatString');
+        O.Expect('<Day>', 'err:InvalidFormatString');
+        O.Expect('<Hours24>', 'err:InvalidFormatString');
+        O.Expect('<Standard Format,0>', 'ok:Hello World');
+        O.Expect('<Standard Format,1>', 'ok:Hello World');
+        O.Expect('<Standard Format,2>', 'ok:Hello World');
+        O.Expect('<Standard Format,3>', 'err:InvalidStandardFormat');
+        O.Expect('<Standard Format,4>', 'err:InvalidStandardFormat');
+        O.Verify();
     end;
 
     [Test]
@@ -219,7 +307,12 @@ codeunit 72855 "LT FM Text"
         CellS(O, '', V, '');
         CellS(O, '<Precision,2:2>', V, '<Precision,2:2>');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('<Standard Format,9>', 'ok:Hello World');
+        O.Expect('x<Text>y', 'ok:xHello Worldy');
+        O.Expect('literal', 'ok:literal');
+        O.Expect('', 'ok:');
+        O.Expect('<Precision,2:2>', 'ok:');
+        O.Verify();
     end;
 
     [Test]
@@ -259,7 +352,33 @@ codeunit 72855 "LT FM Text"
         CellS(O, '<Standard Format,3>', V, '<Standard Format,3>');
         CellS(O, '<Standard Format,4>', V, '<Standard Format,4>');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('n0', 'ok:Ärger');
+        O.Expect('n1', 'ok:Ärger');
+        O.Expect('n2', 'ok:Ärger');
+        O.Expect('n3', 'err:InvalidStandardFormat');
+        O.Expect('n4', 'err:InvalidStandardFormat');
+        O.Expect('n5', 'err:InvalidStandardFormat');
+        O.Expect('n6', 'err:InvalidStandardFormat');
+        O.Expect('n7', 'err:InvalidStandardFormat');
+        O.Expect('n8', 'err:InvalidStandardFormat');
+        O.Expect('n9', 'ok:Ärger');
+        O.Expect('n10', 'err:InvalidStandardFormat');
+        O.Expect('<Text>', 'ok:Ärger');
+        O.Expect('<Text,10>', 'ok:Ärger     ');
+        O.Expect('<Text,3>', 'ok:Ärg');
+        O.Expect('<Filler Character,x><Text,10>', 'ok:Ärgerxxxxx');
+        O.Expect('<Integer>', 'err:InvalidFormatString');
+        O.Expect('<Integer,5>', 'err:InvalidFormatString');
+        O.Expect('<Sign>', 'err:InvalidFormatString');
+        O.Expect('<Decimals>', 'err:InvalidFormatString');
+        O.Expect('<Day>', 'err:InvalidFormatString');
+        O.Expect('<Hours24>', 'err:InvalidFormatString');
+        O.Expect('<Standard Format,0>', 'ok:Ärger');
+        O.Expect('<Standard Format,1>', 'ok:Ärger');
+        O.Expect('<Standard Format,2>', 'ok:Ärger');
+        O.Expect('<Standard Format,3>', 'err:InvalidStandardFormat');
+        O.Expect('<Standard Format,4>', 'err:InvalidStandardFormat');
+        O.Verify();
     end;
 
     [Test]
@@ -278,7 +397,12 @@ codeunit 72855 "LT FM Text"
         CellS(O, '', V, '');
         CellS(O, '<Precision,2:2>', V, '<Precision,2:2>');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('<Standard Format,9>', 'ok:Ärger');
+        O.Expect('x<Text>y', 'ok:xÄrgery');
+        O.Expect('literal', 'ok:literal');
+        O.Expect('', 'ok:');
+        O.Expect('<Precision,2:2>', 'ok:');
+        O.Verify();
     end;
 
     [Test]
@@ -318,7 +442,33 @@ codeunit 72855 "LT FM Text"
         CellS(O, '<Standard Format,3>', V, '<Standard Format,3>');
         CellS(O, '<Standard Format,4>', V, '<Standard Format,4>');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('n0', 'ok:123456789012345678901234567890');
+        O.Expect('n1', 'ok:123456789012345678901234567890');
+        O.Expect('n2', 'ok:123456789012345678901234567890');
+        O.Expect('n3', 'err:InvalidStandardFormat');
+        O.Expect('n4', 'err:InvalidStandardFormat');
+        O.Expect('n5', 'err:InvalidStandardFormat');
+        O.Expect('n6', 'err:InvalidStandardFormat');
+        O.Expect('n7', 'err:InvalidStandardFormat');
+        O.Expect('n8', 'err:InvalidStandardFormat');
+        O.Expect('n9', 'ok:123456789012345678901234567890');
+        O.Expect('n10', 'err:InvalidStandardFormat');
+        O.Expect('<Text>', 'ok:123456789012345678901234567890');
+        O.Expect('<Text,10>', 'ok:1234567890');
+        O.Expect('<Text,3>', 'ok:123');
+        O.Expect('<Filler Character,x><Text,10>', 'ok:1234567890');
+        O.Expect('<Integer>', 'err:InvalidFormatString');
+        O.Expect('<Integer,5>', 'err:InvalidFormatString');
+        O.Expect('<Sign>', 'err:InvalidFormatString');
+        O.Expect('<Decimals>', 'err:InvalidFormatString');
+        O.Expect('<Day>', 'err:InvalidFormatString');
+        O.Expect('<Hours24>', 'err:InvalidFormatString');
+        O.Expect('<Standard Format,0>', 'ok:123456789012345678901234567890');
+        O.Expect('<Standard Format,1>', 'ok:123456789012345678901234567890');
+        O.Expect('<Standard Format,2>', 'ok:123456789012345678901234567890');
+        O.Expect('<Standard Format,3>', 'err:InvalidStandardFormat');
+        O.Expect('<Standard Format,4>', 'err:InvalidStandardFormat');
+        O.Verify();
     end;
 
     [Test]
@@ -337,7 +487,12 @@ codeunit 72855 "LT FM Text"
         CellS(O, '', V, '');
         CellS(O, '<Precision,2:2>', V, '<Precision,2:2>');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('<Standard Format,9>', 'ok:123456789012345678901234567890');
+        O.Expect('x<Text>y', 'ok:x123456789012345678901234567890y');
+        O.Expect('literal', 'ok:literal');
+        O.Expect('', 'ok:');
+        O.Expect('<Precision,2:2>', 'ok:');
+        O.Verify();
     end;
 
     [Test]
@@ -377,7 +532,33 @@ codeunit 72855 "LT FM Text"
         CellS(O, '<Standard Format,3>', V, '<Standard Format,3>');
         CellS(O, '<Standard Format,4>', V, '<Standard Format,4>');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('n0', 'ok:abc');
+        O.Expect('n1', 'ok:abc');
+        O.Expect('n2', 'ok:abc');
+        O.Expect('n3', 'err:InvalidStandardFormat');
+        O.Expect('n4', 'err:InvalidStandardFormat');
+        O.Expect('n5', 'err:InvalidStandardFormat');
+        O.Expect('n6', 'err:InvalidStandardFormat');
+        O.Expect('n7', 'err:InvalidStandardFormat');
+        O.Expect('n8', 'err:InvalidStandardFormat');
+        O.Expect('n9', 'ok:abc');
+        O.Expect('n10', 'err:InvalidStandardFormat');
+        O.Expect('<Text>', 'ok:abc');
+        O.Expect('<Text,10>', 'ok:abc       ');
+        O.Expect('<Text,3>', 'ok:abc');
+        O.Expect('<Filler Character,x><Text,10>', 'ok:abcxxxxxxx');
+        O.Expect('<Integer>', 'err:InvalidFormatString');
+        O.Expect('<Integer,5>', 'err:InvalidFormatString');
+        O.Expect('<Sign>', 'err:InvalidFormatString');
+        O.Expect('<Decimals>', 'err:InvalidFormatString');
+        O.Expect('<Day>', 'err:InvalidFormatString');
+        O.Expect('<Hours24>', 'err:InvalidFormatString');
+        O.Expect('<Standard Format,0>', 'ok:abc');
+        O.Expect('<Standard Format,1>', 'ok:abc');
+        O.Expect('<Standard Format,2>', 'ok:abc');
+        O.Expect('<Standard Format,3>', 'err:InvalidStandardFormat');
+        O.Expect('<Standard Format,4>', 'err:InvalidStandardFormat');
+        O.Verify();
     end;
 
     [Test]
@@ -396,6 +577,11 @@ codeunit 72855 "LT FM Text"
         CellS(O, '', V, '');
         CellS(O, '<Precision,2:2>', V, '<Precision,2:2>');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('<Standard Format,9>', 'ok:abc');
+        O.Expect('x<Text>y', 'ok:xabcy');
+        O.Expect('literal', 'ok:literal');
+        O.Expect('', 'ok:');
+        O.Expect('<Precision,2:2>', 'ok:');
+        O.Verify();
     end;
 }

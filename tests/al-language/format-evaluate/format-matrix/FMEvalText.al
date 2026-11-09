@@ -91,7 +91,36 @@ codeunit 72862 "LT FM Eval Text"
         EvB(O, 'ä|b0', 'ä', 0);
         EvB(O, 'ä|b9', 'ä', 9);
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('|b0', 'Yes|');
+        O.Expect('|b9', 'Yes|');
+        O.Expect('|st', 'ok|');
+        O.Expect(' |b0', 'Yes| ');
+        O.Expect(' |b9', 'Yes| ');
+        O.Expect(' |st', 'ok| ');
+        O.Expect('abc|b0', 'Yes|abc');
+        O.Expect('abc|b9', 'Yes|abc');
+        O.Expect('abc|st', 'ok|abc');
+        O.Expect(' abc |b0', 'Yes| abc ');
+        O.Expect(' abc |b9', 'Yes| abc ');
+        O.Expect(' abc |st', 'ok| abc ');
+        O.Expect('a,b|b0', 'Yes|a,b');
+        O.Expect('a,b|b9', 'Yes|a,b');
+        O.Expect('a,b|st', 'ok|a,b');
+        O.Expect('1D|b0', 'Yes|1D');
+        O.Expect('1D|b9', 'Yes|1D');
+        O.Expect('1D|st', 'ok|1D');
+        O.Expect('1T|b0', 'Yes|1T');
+        O.Expect('1T|b9', 'Yes|1T');
+        O.Expect('1T|st', 'ok|1T');
+        O.Expect('?|b0', 'Yes|?');
+        O.Expect('?|b9', 'Yes|?');
+        O.Expect('?|st', 'ok|?');
+        O.Expect('ABCDEFGHIJKLMNOPQRSTUVWXYZ|b0', 'Yes|ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        O.Expect('ABCDEFGHIJKLMNOPQRSTUVWXYZ|b9', 'Yes|ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        O.Expect('ABCDEFGHIJKLMNOPQRSTUVWXYZ|st', 'ok|ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        O.Expect('ä|b0', 'Yes|ä');
+        O.Expect('ä|b9', 'Yes|ä');
+        O.Verify();
     end;
 
     [Test]
@@ -113,7 +142,17 @@ codeunit 72862 "LT FM Eval Text"
         EvB(O, 'NUL|b9', Nul(), 9);
         EvS(O, 'NUL|st', Nul());
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('ä|st', 'ok|ä');
+        O.Expect('"q"|b0', 'Yes|"q"');
+        O.Expect('"q"|b9', 'Yes|"q"');
+        O.Expect('"q"|st', 'ok|"q"');
+        O.Expect('it''s|b0', 'Yes|it''s');
+        O.Expect('it''s|b9', 'Yes|it''s');
+        O.Expect('it''s|st', 'ok|it''s');
+        O.Expect('NUL|b0', 'Yes|\u0000');
+        O.Expect('NUL|b9', 'Yes|\u0000');
+        O.Expect('NUL|st', 'ok|\u0000');
+        O.Verify();
     end;
 
     [Test]
@@ -149,6 +188,30 @@ codeunit 72862 "LT FM Eval Text"
         EvB(O, '?|b9', '?', 9);
         EvS(O, '?|st', '?');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('|b0', 'Ja|');
+        O.Expect('|b9', 'Ja|');
+        O.Expect('|st', 'ok|');
+        O.Expect(' |b0', 'Ja| ');
+        O.Expect(' |b9', 'Ja| ');
+        O.Expect(' |st', 'ok| ');
+        O.Expect('abc|b0', 'Ja|abc');
+        O.Expect('abc|b9', 'Ja|abc');
+        O.Expect('abc|st', 'ok|abc');
+        O.Expect(' abc |b0', 'Ja| abc ');
+        O.Expect(' abc |b9', 'Ja| abc ');
+        O.Expect(' abc |st', 'ok| abc ');
+        O.Expect('a,b|b0', 'Ja|a,b');
+        O.Expect('a,b|b9', 'Ja|a,b');
+        O.Expect('a,b|st', 'ok|a,b');
+        O.Expect('1D|b0', 'Ja|1D');
+        O.Expect('1D|b9', 'Ja|1D');
+        O.Expect('1D|st', 'ok|1D');
+        O.Expect('1T|b0', 'Ja|1T');
+        O.Expect('1T|b9', 'Ja|1T');
+        O.Expect('1T|st', 'ok|1T');
+        O.Expect('?|b0', 'Ja|?');
+        O.Expect('?|b9', 'Ja|?');
+        O.Expect('?|st', 'ok|?');
+        O.Verify();
     end;
 }

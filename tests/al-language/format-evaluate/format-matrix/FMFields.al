@@ -152,7 +152,14 @@ codeunit 72865 "LT FM Fields Tests"
         AfCell(O, 'DecAf2_100', 4, 100);
         AfCell(O, 'DecAf2_0_123456789', 4, 0.123456789);
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('DecAf2_0', '0.00|0.00');
+        O.Expect('DecAf2_1234_5', '1,234.50|1,234.50');
+        O.Expect('DecAf2_1234567_891234', '1,234,567.89123|1,234,567.89123');
+        O.Expect('DecAf2_0_000001', '0.00|0.00');
+        O.Expect('DecAf2_neg0_5', '-0.50|-0.50');
+        O.Expect('DecAf2_100', '100.00|100.00');
+        O.Expect('DecAf2_0_123456789', '0.12346|0.12346');
+        O.Verify();
     end;
 
     [Test]
@@ -171,7 +178,14 @@ codeunit 72865 "LT FM Fields Tests"
         AfCell(O, 'DecPlaces_100', 5, 100);
         AfCell(O, 'DecPlaces_0_123456789', 5, 0.123456789);
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('DecPlaces_0', '0|0');
+        O.Expect('DecPlaces_1234_5', '1,234.5|1,234.5');
+        O.Expect('DecPlaces_1234567_891234', '1,234,567.89123|1,234,567.89123');
+        O.Expect('DecPlaces_0_000001', '0|0');
+        O.Expect('DecPlaces_neg0_5', '-0.5|-0.5');
+        O.Expect('DecPlaces_100', '100|100');
+        O.Expect('DecPlaces_0_123456789', '0.12346|0.12346');
+        O.Verify();
     end;
 
     [Test]
@@ -190,7 +204,14 @@ codeunit 72865 "LT FM Fields Tests"
         AfCell(O, 'DecAf2Places_100', 6, 100);
         AfCell(O, 'DecAf2Places_0_123456789', 6, 0.123456789);
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('DecAf2Places_0', '0.00|0.00');
+        O.Expect('DecAf2Places_1234_5', '1,234.50|1,234.50');
+        O.Expect('DecAf2Places_1234567_891234', '1,234,567.89123|1,234,567.89123');
+        O.Expect('DecAf2Places_0_000001', '0.00|0.00');
+        O.Expect('DecAf2Places_neg0_5', '-0.50|-0.50');
+        O.Expect('DecAf2Places_100', '100.00|100.00');
+        O.Expect('DecAf2Places_0_123456789', '0.12346|0.12346');
+        O.Verify();
     end;
 
     [Test]
@@ -209,7 +230,26 @@ codeunit 72865 "LT FM Fields Tests"
         AfCell(O, 'DecAf1_100', 7, 100);
         AfCell(O, 'DecAf1_0_123456789', 7, 0.123456789);
         GlobalLanguage(Saved);
-        O.Finish();
+        // A field with AutoFormatType = 1: BC 28.5 and 29.0 format the value with two decimals,
+        // BC 27.5 formats the value as it is (CI subset runs 42636879122, 42636918830, 42636961473).
+#if BC28PLUS
+        O.Expect('DecAf1_0', '0.00|0.00');
+        O.Expect('DecAf1_1234_5', '1,234.50|1,234.50');
+        O.Expect('DecAf1_1234567_891234', '1,234,567.89|1,234,567.89');
+        O.Expect('DecAf1_0_000001', '0.00|0.00');
+        O.Expect('DecAf1_neg0_5', '-0.50|-0.50');
+        O.Expect('DecAf1_100', '100.00|100.00');
+        O.Expect('DecAf1_0_123456789', '0.12|0.12');
+#else
+        O.Expect('DecAf1_0', '0|0');
+        O.Expect('DecAf1_1234_5', '1,234.5|1,234.5');
+        O.Expect('DecAf1_1234567_891234', '1,234,567.891234|1,234,567.891234');
+        O.Expect('DecAf1_0_000001', '0.000001|0.000001');
+        O.Expect('DecAf1_neg0_5', '-0.5|-0.5');
+        O.Expect('DecAf1_100', '100|100');
+        O.Expect('DecAf1_0_123456789', '0.123456789|0.123456789');
+#endif
+        O.Verify();
     end;
 
     [Test]
@@ -228,7 +268,26 @@ codeunit 72865 "LT FM Fields Tests"
         AfCell(O, 'DecAf1Places_100', 8, 100);
         AfCell(O, 'DecAf1Places_0_123456789', 8, 0.123456789);
         GlobalLanguage(Saved);
-        O.Finish();
+        // A field with AutoFormatType = 1: BC 28.5 and 29.0 format the value with two decimals,
+        // BC 27.5 formats the value as it is (CI subset runs 42636879122, 42636918830, 42636961473).
+#if BC28PLUS
+        O.Expect('DecAf1Places_0', '0.00|0.00');
+        O.Expect('DecAf1Places_1234_5', '1,234.50|1,234.50');
+        O.Expect('DecAf1Places_1234567_891234', '1,234,567.89|1,234,567.89');
+        O.Expect('DecAf1Places_0_000001', '0.00|0.00');
+        O.Expect('DecAf1Places_neg0_5', '-0.50|-0.50');
+        O.Expect('DecAf1Places_100', '100.00|100.00');
+        O.Expect('DecAf1Places_0_123456789', '0.12|0.12');
+#else
+        O.Expect('DecAf1Places_0', '0|0');
+        O.Expect('DecAf1Places_1234_5', '1,234.5|1,234.5');
+        O.Expect('DecAf1Places_1234567_891234', '1,234,567.891234|1,234,567.891234');
+        O.Expect('DecAf1Places_0_000001', '0.000001|0.000001');
+        O.Expect('DecAf1Places_neg0_5', '-0.5|-0.5');
+        O.Expect('DecAf1Places_100', '100|100');
+        O.Expect('DecAf1Places_0_123456789', '0.123456789|0.123456789');
+#endif
+        O.Verify();
     end;
 
     [Test]
@@ -247,7 +306,14 @@ codeunit 72865 "LT FM Fields Tests"
         AfCell(O, 'DecAf2Expr_100', 9, 100);
         AfCell(O, 'DecAf2Expr_0_123456789', 9, 0.123456789);
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('DecAf2Expr_0', '0.00|0.00');
+        O.Expect('DecAf2Expr_1234_5', '1,234.50|1,234.50');
+        O.Expect('DecAf2Expr_1234567_891234', '1,234,567.89123|1,234,567.89123');
+        O.Expect('DecAf2Expr_0_000001', '0.00|0.00');
+        O.Expect('DecAf2Expr_neg0_5', '-0.50|-0.50');
+        O.Expect('DecAf2Expr_100', '100.00|100.00');
+        O.Expect('DecAf2Expr_0_123456789', '0.12346|0.12346');
+        O.Verify();
     end;
 
     [Test]
@@ -263,7 +329,11 @@ codeunit 72865 "LT FM Fields Tests"
         AfCell(O, 'DecAf2Places_1234567_891234', 6, 1234567.891234);
         AfCell(O, 'DecAf2Places_0_000001', 6, 0.000001);
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('DecAf2Places_0', '0.00|0.00');
+        O.Expect('DecAf2Places_1234_5', '1,234.50|1,234.50');
+        O.Expect('DecAf2Places_1234567_891234', '1,234,567.89123|1,234,567.89123');
+        O.Expect('DecAf2Places_0_000001', '0.00|0.00');
+        O.Verify();
     end;
 
     [Test]
@@ -279,7 +349,11 @@ codeunit 72865 "LT FM Fields Tests"
         AfCell(O, 'DecPlaces_1234567_891234', 5, 1234567.891234);
         AfCell(O, 'DecPlaces_0_000001', 5, 0.000001);
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('DecPlaces_0', '0|0');
+        O.Expect('DecPlaces_1234_5', '1,234.5|1,234.5');
+        O.Expect('DecPlaces_1234567_891234', '1,234,567.89123|1,234,567.89123');
+        O.Expect('DecPlaces_0_000001', '0|0');
+        O.Verify();
     end;
 
     [Test]
@@ -320,7 +394,36 @@ codeunit 72865 "LT FM Fields Tests"
         EvF(O, 'abc', 2, 'abc');
         EvF(O, '1D', 2, '1D');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('empty', 'ok|P0DT0H0M0.0S|');
+        O.Expect('blank', 'ok|P0DT0H0M0.0S|');
+        O.Expect('0', 'ok|P0DT0H0M0.0S|');
+        O.Expect('1', 'ok|P0DT1H0M0.0S|1 hour');
+        O.Expect('-1', 'ok|-P0DT1H0M0.0S|-1 hour');
+        O.Expect('1000', 'ok|P41DT16H0M0.0S|41 days 16 hours');
+        O.Expect('90061001', 'ok|P3752541DT17H0M0.0S|3752541 days 17 hours');
+        O.Expect('1 millisecond', 'ok|P0DT0H0M0.001S|1 millisecond');
+        O.Expect('-1 millisecond', 'ok|-P0DT0H0M0.001S|-1 millisecond');
+        O.Expect('1 milliseconds', 'ok|P0DT0H0M0.001S|1 millisecond');
+        O.Expect('1 second', 'ok|P0DT0H0M1.0S|1 second');
+        O.Expect('2 seconds', 'ok|P0DT0H0M2.0S|2 seconds');
+        O.Expect('1 minute', 'ok|P0DT0H1M0.0S|1 minute');
+        O.Expect('1 hour', 'ok|P0DT1H0M0.0S|1 hour');
+        O.Expect('1 day', 'ok|P1DT0H0M0.0S|1 day');
+        O.Expect('2 days', 'ok|P2DT0H0M0.0S|2 days');
+        O.Expect('1 day 2 hours', 'ok|P1DT2H0M0.0S|1 day 2 hours');
+        O.Expect('1 day 2 hours 3 minutes 4 seconds 5 milliseconds', 'ok|P1DT2H3M4.005S|1 day 2 hours 3 minutes 4 seconds 5 milliseconds');
+        O.Expect('-1 day 2 hours', 'ok|-P1DT2H0M0.0S|-1 day 2 hours');
+        O.Expect('1.5 seconds', 'ok|P0DT0H0M1.5S|1 second 500 milliseconds');
+        O.Expect('1h', 'ok|P0DT1H0M0.0S|1 hour');
+        O.Expect('1h 2m', 'ok|P0DT1H2M0.0S|1 hour 2 minutes');
+        O.Expect('1s', 'ok|P0DT0H0M1.0S|1 second');
+        O.Expect('1 ms', 'err:Evaluate|P0DT0H0M0.0S');
+        O.Expect('1 sec', 'ok|P0DT0H0M1.0S|1 second');
+        O.Expect('1 min', 'ok|P0DT0H1M0.0S|1 minute');
+        O.Expect('1 Second', 'ok|P0DT0H0M1.0S|1 second');
+        O.Expect('abc', 'err:Evaluate|P0DT0H0M0.0S');
+        O.Expect('1D', 'ok|P1DT0H0M0.0S|1 day');
+        O.Verify();
     end;
 
     [Test]
@@ -341,7 +444,16 @@ codeunit 72865 "LT FM Fields Tests"
         EvF(O, '9223372036854775808', 2, '9223372036854775808');
         EvF(O, '999999999999 days', 2, '999999999999 days');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('1T', 'err:Evaluate|P0DT0H0M0.0S');
+        O.Expect('NUL', 'err:Evaluate|P0DT0H0M0.0S');
+        O.Expect('?', 'err:Evaluate|P0DT0H0M0.0S');
+        O.Expect('P1DT2H', 'err:Evaluate|P0DT0H0M0.0S');
+        O.Expect('PT1.5S', 'err:Evaluate|P0DT0H0M0.0S');
+        O.Expect('0 milliseconds', 'ok|P0DT0H0M0.0S|');
+        O.Expect('9223372036854775807', 'err:Evaluate|P0DT0H0M0.0S');
+        O.Expect('9223372036854775808', 'err:Evaluate|P0DT0H0M0.0S');
+        O.Expect('999999999999 days', 'err:Evaluate|P0DT0H0M0.0S');
+        O.Verify();
     end;
 
     [Test]
@@ -380,7 +492,34 @@ codeunit 72865 "LT FM Fields Tests"
         EvF(O, 'NUL', 3, Nul());
         EvF(O, '?', 3, '?');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('', 'ok|0| ');
+        O.Expect(' ', 'ok|0| ');
+        O.Expect('Draft', 'err:InvalidOptionString|0');
+        O.Expect('draft', 'err:InvalidOptionString|0');
+        O.Expect('DRAFT', 'err:InvalidOptionString|0');
+        O.Expect('Active', 'err:InvalidOptionString|0');
+        O.Expect('Closed', 'err:InvalidOptionString|0');
+        O.Expect('1', 'ok|1|male');
+        O.Expect('2', 'ok|2|female');
+        O.Expect('3', 'ok|3|non-binary');
+        O.Expect('0', 'ok|0| ');
+        O.Expect('4', 'ok|4|4');
+        O.Expect('-1', 'err:InvalidOptionString|0');
+        O.Expect('abc', 'err:InvalidOptionString|0');
+        O.Expect('test123', 'err:InvalidOptionString|0');
+        O.Expect('Draft ', 'err:InvalidOptionString|0');
+        O.Expect(' Draft', 'err:InvalidOptionString|0');
+        O.Expect(',', 'err:InvalidOptionString|0');
+        O.Expect('Dra', 'err:InvalidOptionString|0');
+        O.Expect('Draft,Active', 'err:InvalidOptionString|0');
+        O.Expect('1D', 'err:InvalidOptionString|0');
+        O.Expect('1T', 'err:InvalidOptionString|0');
+        O.Expect('male', 'ok|1|male');
+        O.Expect('non-binary', 'ok|3|non-binary');
+        O.Expect('nonbinary', 'ok|3|non-binary');
+        O.Expect('NUL', 'ok|0| ');
+        O.Expect('?', 'err:InvalidOptionString|0');
+        O.Verify();
     end;
 
     [Test]
@@ -421,7 +560,36 @@ codeunit 72865 "LT FM Fields Tests"
         EvF(O, 'CM', 10, 'CM');
         EvF(O, '12-09-26', 10, '12-09-26');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('empty', 'ok||');
+        O.Expect('blank', 'ok||');
+        O.Expect('0D', 'err:Evaluate|');
+        O.Ignore('D'); // depends on today's date or the current time: observed, not asserted
+        O.Ignore('T'); // depends on today's date or the current time: observed, not asserted
+        O.Expect('12/09/26', 'ok|2026-12-09|12/09/26');
+        O.Expect('12/09/26D', 'ok|2026-12-09|12/09/26');
+        O.Expect('12/09/26T', 'ok|2026-12-09|12/09/26');
+        O.Expect('12/09/2026D', 'ok|2026-12-09|12/09/26');
+        O.Expect('12.09.26D', 'ok|2026-12-09|12/09/26');
+        O.Expect('12/09/26 D', 'ok|2026-12-09|12/09/26');
+        O.Expect('32/01/26', 'err:Evaluate|');
+        O.Expect('02/30/26', 'err:Evaluate|');
+        O.Expect('00/00/00', 'err:Evaluate|');
+        O.Expect('13/01/26', 'err:Evaluate|');
+        O.Expect('01/13/26', 'ok|2026-01-13|01/13/26');
+        O.Expect('1/1/1753', 'ok|1753-01-01|01/01/1753');
+        O.Expect('12/31/9999', 'ok|9999-12-31|12/31/9999');
+        O.Expect('1/1/0001', 'ok||');
+        O.Expect('12/31/10000', 'err:Evaluate|');
+        O.Expect('abc', 'err:Evaluate|');
+        O.Expect('<=11/09/26', 'err:Evaluate|');
+        O.Expect('>=11/09/26', 'err:Evaluate|');
+        O.Expect('11/09/26..12/09/26', 'ok|2026-11-09|11/09/26');
+        O.Expect('%today', 'err:Evaluate|');
+        O.Ignore('W'); // depends on today's date or the current time: observed, not asserted
+        O.Ignore('1D'); // depends on today's date or the current time: observed, not asserted
+        O.Expect('CM', 'err:Evaluate|');
+        O.Expect('12-09-26', 'ok|2026-12-09|12/09/26');
+        O.Verify();
     end;
 
     [Test]
@@ -444,7 +612,18 @@ codeunit 72865 "LT FM Fields Tests"
         EvF(O, 'March 9, 2026', 10, 'March 9, 2026');
         EvF(O, '12/09/26 12:00', 10, '12/09/26 12:00');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('2026-12-09', 'ok|2026-12-09|12/09/26');
+        O.Expect('20261209', 'err:Evaluate|');
+        O.Expect('121226', 'ok|2026-12-12|12/12/26');
+        O.Ignore('12/09'); // depends on today's date or the current time: observed, not asserted
+        O.Ignore('12'); // depends on today's date or the current time: observed, not asserted
+        O.Expect('NUL', 'err:Evaluate|');
+        O.Expect('?', 'err:Evaluate|');
+        O.Ignore('Monday'); // depends on today's date or the current time: observed, not asserted
+        O.Expect('9 Mar 2026', 'ok|2026-09-20|09/20/26');
+        O.Expect('March 9, 2026', 'err:Evaluate|');
+        O.Expect('12/09/26 12:00', 'ok|2026-12-09|12/09/26');
+        O.Verify();
     end;
 
     [Test]
@@ -485,7 +664,36 @@ codeunit 72865 "LT FM Fields Tests"
         EvF(O, 'NUL', 11, Nul());
         EvF(O, '?', 11, '?');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('empty', 'ok||');
+        O.Expect('blank', 'ok||');
+        O.Expect('12:00:00', 'ok|12:00:00|12:00:00 PM');
+        O.Expect('12:00', 'ok|12:00:00|12:00:00 PM');
+        O.Expect('12:00 AM', 'ok|00:00:00|12:00:00 AM');
+        O.Expect('12:00 PM', 'ok|12:00:00|12:00:00 PM');
+        O.Expect('12:00:00 AM', 'ok|00:00:00|12:00:00 AM');
+        O.Expect('1:05 pm', 'ok|13:05:00| 1:05:00 PM');
+        O.Expect('0:00', 'ok|00:00:00|12:00:00 AM');
+        O.Expect('24:00:00', 'err:Evaluate|');
+        O.Expect('25:00:00', 'err:Evaluate|');
+        O.Expect('12:60:00', 'err:Evaluate|');
+        O.Expect('12:00:60', 'err:Evaluate|');
+        O.Expect('12:00:00.123', 'ok|12:00:00.123|12:00:00 PM');
+        O.Expect('12:00:00.1234', 'err:Evaluate|');
+        O.Expect('12:00:00,123', 'ok|12:00:00.123|12:00:00 PM');
+        O.Ignore('T'); // depends on today's date or the current time: observed, not asserted
+        O.Expect('0T', 'err:Evaluate|');
+        O.Expect('12:00:00T', 'err:Evaluate|');
+        O.Expect('12:00:00D', 'err:Evaluate|');
+        O.Expect('1200', 'ok|12:00:00|12:00:00 PM');
+        O.Expect('120000', 'ok|12:00:00|12:00:00 PM');
+        O.Expect('abc', 'err:Evaluate|');
+        O.Expect('-1:00', 'err:Evaluate|');
+        O.Expect('12.00.00', 'ok|12:00:00|12:00:00 PM');
+        O.Expect('12:00:00 ', 'ok|12:00:00|12:00:00 PM');
+        O.Expect(' 12:00:00', 'ok|12:00:00|12:00:00 PM');
+        O.Expect('NUL', 'err:Evaluate|');
+        O.Expect('?', 'err:Evaluate|');
+        O.Verify();
     end;
 
     [Test]
@@ -502,7 +710,12 @@ codeunit 72865 "LT FM Fields Tests"
         EvF(O, '1:2:3', 11, '1:2:3');
         EvF(O, '11:59:59.999 PM', 11, '11:59:59.999 PM');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('12', 'ok|12:00:00|12:00:00 PM');
+        O.Expect('12:', 'err:Evaluate|');
+        O.Expect(':30', 'err:Evaluate|');
+        O.Expect('1:2:3', 'ok|01:02:03| 1:02:03 AM');
+        O.Expect('11:59:59.999 PM', 'ok|23:59:59.999|11:59:59 PM');
+        O.Verify();
     end;
 
     [Test]
@@ -541,7 +754,34 @@ codeunit 72865 "LT FM Fields Tests"
         EvF(O, '2026-01-01T12:00:00', 12, '2026-01-01T12:00:00');
         EvF(O, '2026-01-01T12:00:00Z', 12, '2026-01-01T12:00:00Z');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('empty', 'ok||');
+        O.Expect('blank', 'ok||');
+        O.Expect('0DT', 'err:Evaluate|');
+        O.Ignore('T'); // depends on today's date or the current time: observed, not asserted
+        O.Ignore('D'); // depends on today's date or the current time: observed, not asserted
+        O.Expect('01/01/26', 'ok|2026-01-01T00:00:00Z|01/01/26 12:00 AM');
+        O.Expect('01/01/23', 'ok|2023-01-01T00:00:00Z|01/01/23 12:00 AM');
+        O.Expect('11/01/26', 'ok|2026-11-01T00:00:00Z|11/01/26 12:00 AM');
+        O.Expect('01/01/2026', 'ok|2026-01-01T00:00:00Z|01/01/26 12:00 AM');
+        O.Expect('01/01/26D', 'ok|2026-01-01T00:00:00Z|01/01/26 12:00 AM');
+        O.Expect('01/01/26T', 'ok|2026-01-01T00:00:00Z|01/01/26 12:00 AM');
+        O.Expect('01/01/26 12:00', 'ok|2026-01-01T12:00:00Z|01/01/26 12:00 PM');
+        O.Expect('01/01/26 12:00:00', 'ok|2026-01-01T12:00:00Z|01/01/26 12:00 PM');
+        O.Expect('01/01/26 12:00:00 AM', 'ok|2026-01-01T00:00:00Z|01/01/26 12:00 AM');
+        O.Expect('01/01/26 12:00 PM', 'ok|2026-01-01T12:00:00Z|01/01/26 12:00 PM');
+        O.Expect('01/01/26 12:00:00T', 'err:Evaluate|');
+        O.Expect('01/01/26 24:00', 'err:Evaluate|');
+        O.Expect('01/01/26 25:00', 'err:Evaluate|');
+        O.Expect('01/01/26 12:60', 'err:Evaluate|');
+        O.Expect('01/01/26 12:00:00.123', 'ok|2026-01-01T12:00:00.123Z|01/01/26 12:00 PM');
+        O.Expect('13/01/26 12:00', 'err:Evaluate|');
+        O.Expect('02/30/26 12:00', 'err:Evaluate|');
+        O.Expect('12:00:00', 'err:DateInvalid|');
+        O.Expect('12:00 AM', 'err:DateInvalid|');
+        O.Expect('2026-01-01', 'ok|2026-01-01T00:00:00Z|01/01/26 12:00 AM');
+        O.Expect('2026-01-01T12:00:00', 'err:DateInvalid|');
+        O.Expect('2026-01-01T12:00:00Z', 'ok|2026-01-01T12:00:00Z|01/01/26 12:00 PM');
+        O.Verify();
     end;
 
     [Test]
@@ -566,7 +806,20 @@ codeunit 72865 "LT FM Fields Tests"
         EvF(O, 'Mon, 01 Jan 2026 12:00:00 GMT', 12, 'Mon, 01 Jan 2026 12:00:00 GMT');
         EvF(O, '01/01/26 12:00:00 12:00:00', 12, '01/01/26 12:00:00 12:00:00');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('2026-01-01T12:00:00.123Z', 'ok|2026-01-01T12:00:00.123Z|01/01/26 12:00 PM');
+        O.Expect('2026-13-01T00:00:00Z', 'err:Evaluate|');
+        O.Expect('2026-01-01T12:00:00+01:00', 'ok|2026-01-01T11:00:00Z|01/01/26 11:00 AM');
+        O.Expect('2026-01-01T24:00:00Z', 'err:Evaluate|');
+        O.Expect('20260101T120000Z', 'err:Evaluate|');
+        O.Expect('abc', 'err:Evaluate|');
+        O.Expect('NUL', 'err:Evaluate|');
+        O.Expect('?', 'err:Evaluate|');
+        O.Expect('01/01/26 ', 'ok|2026-01-01T00:00:00Z|01/01/26 12:00 AM');
+        O.Expect(' 01/01/26', 'ok|2026-01-01T00:00:00Z|01/01/26 12:00 AM');
+        O.Expect('01/xx/26', 'ok|2026-01-26T00:00:00Z|01/26/26 12:00 AM');
+        O.Expect('Mon, 01 Jan 2026 12:00:00 GMT', 'err:Evaluate|');
+        O.Expect('01/01/26 12:00:00 12:00:00', 'err:Evaluate|');
+        O.Verify();
     end;
 
     [Test]
@@ -607,7 +860,36 @@ codeunit 72865 "LT FM Fields Tests"
         EvF(O, 'NUL', 13, Nul());
         EvF(O, '?', 13, '?');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('', 'err:Evaluate|false');
+        O.Expect(' ', 'err:Evaluate|false');
+        O.Expect('Yes', 'ok|true|Yes');
+        O.Expect('No', 'ok|false|No');
+        O.Expect('yes', 'ok|true|Yes');
+        O.Expect('YES', 'ok|true|Yes');
+        O.Expect('true', 'ok|true|Yes');
+        O.Expect('false', 'ok|false|No');
+        O.Expect('True', 'ok|true|Yes');
+        O.Expect('FALSE', 'ok|false|No');
+        O.Expect('1', 'ok|true|Yes');
+        O.Expect('0', 'ok|false|No');
+        O.Expect('-1', 'err:Evaluate|false');
+        O.Expect('2', 'err:Evaluate|false');
+        O.Expect('Ja', 'err:Evaluate|false');
+        O.Expect('Nein', 'err:Evaluate|false');
+        O.Expect('y', 'ok|true|Yes');
+        O.Expect('n', 'ok|false|No');
+        O.Expect('abc', 'err:Evaluate|false');
+        O.Expect('Yes ', 'ok|true|Yes');
+        O.Expect(' No', 'ok|false|No');
+        O.Expect('Y', 'ok|true|Yes');
+        O.Expect('N', 'ok|false|No');
+        O.Expect('T', 'ok|true|Yes');
+        O.Expect('F', 'ok|false|No');
+        O.Expect('on', 'err:Evaluate|false');
+        O.Expect('off', 'err:Evaluate|false');
+        O.Expect('NUL', 'err:Evaluate|false');
+        O.Expect('?', 'err:Evaluate|false');
+        O.Verify();
     end;
 
     [Test]
@@ -650,7 +932,38 @@ codeunit 72865 "LT FM Fields Tests"
         EvF(O, '-2147483649', 14, '-2147483649');
         EvF(O, '9223372036854775807', 14, '9223372036854775807');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('empty', 'err:Evaluate|0');
+        O.Expect('blank', 'err:Evaluate|0');
+        O.Expect('two blanks', 'err:Evaluate|0');
+        O.Expect('0', 'ok|0|0');
+        O.Expect('-0', 'ok|0|0');
+        O.Expect('+5', 'ok|5|5');
+        O.Expect('1', 'ok|1|1');
+        O.Expect(' 5 ', 'ok|5|5');
+        O.Expect('1,234', 'ok|1234|1234');
+        O.Expect('1.5', 'err:Evaluate|0');
+        O.Expect('1,5', 'ok|15|15');
+        O.Expect('.5', 'err:Evaluate|0');
+        O.Expect('5.', 'ok|5|5');
+        O.Expect('12abc', 'err:Evaluate|0');
+        O.Expect('abc', 'err:Evaluate|0');
+        O.Expect('--1', 'err:Evaluate|0');
+        O.Expect('1e3', 'ok|1000|1000');
+        O.Expect('1E3', 'ok|1000|1000');
+        O.Expect('09e738195', 'err:Evaluate|0');
+        O.Expect('1e-5', 'err:Evaluate|0');
+        O.Expect('0x10', 'err:Evaluate|0');
+        O.Expect('5D', 'err:Evaluate|0');
+        O.Expect('5T', 'err:Evaluate|0');
+        O.Expect('NUL', 'err:Evaluate|0');
+        O.Expect('?', 'err:Evaluate|0');
+        O.Expect('tab 5', 'ok|5|5');
+        O.Expect('2147483647', 'ok|2147483647|2147483647');
+        O.Expect('2147483648', 'ok|2147483648|2147483648');
+        O.Expect('-2147483648', 'ok|-2147483648|-2147483648');
+        O.Expect('-2147483649', 'ok|-2147483649|-2147483649');
+        O.Expect('9223372036854775807', 'ok|9223372036854775807|9223372036854775807');
+        O.Verify();
     end;
 
     [Test]
@@ -670,7 +983,15 @@ codeunit 72865 "LT FM Fields Tests"
         EvF(O, '5-', 14, '5-');
         EvF(O, 'true', 14, 'true');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('9223372036854775808', 'err:Evaluate|0');
+        O.Expect('79228162514264337593543950335', 'err:Evaluate|0');
+        O.Expect('99999999999999999999999999999', 'err:Evaluate|0');
+        O.Expect('1 000', 'err:Evaluate|0');
+        O.Expect('1000', 'err:Evaluate|0');
+        O.Expect('(5)', 'ok|-5|-5');
+        O.Expect('5-', 'ok|-5|-5');
+        O.Expect('true', 'err:Evaluate|0');
+        O.Verify();
     end;
 
     [Test]
@@ -689,6 +1010,26 @@ codeunit 72865 "LT FM Fields Tests"
         EvF(O, '12345678123456789ABCDEF012345678', 15, '12345678123456789ABCDEF012345678');
         EvF(O, '{00000000-0000-0000-0000-000000000000}', 15, '{00000000-0000-0000-0000-000000000000}');
         EvF(O, '00000000-0000-0000-0000-000000000000', 15, '00000000-0000-0000-0000-000000000000');
+        GlobalLanguage(Saved);
+        O.Expect('', 'err:InvalidGuidFormat|{00000000-0000-0000-0000-000000000000}');
+        O.Expect(' ', 'err:InvalidGuidFormat|{00000000-0000-0000-0000-000000000000}');
+        O.Expect('{12345678-1234-5678-9ABC-DEF012345678}', 'ok|{12345678-1234-5678-9ABC-DEF012345678}|{12345678-1234-5678-9ABC-DEF012345678}');
+        O.Expect('12345678-1234-5678-9ABC-DEF012345678', 'ok|{12345678-1234-5678-9ABC-DEF012345678}|{12345678-1234-5678-9ABC-DEF012345678}');
+        O.Expect('{12345678-1234-5678-9abc-def012345678}', 'ok|{12345678-1234-5678-9ABC-DEF012345678}|{12345678-1234-5678-9ABC-DEF012345678}');
+        O.Expect('12345678123456789ABCDEF012345678', 'ok|{12345678-1234-5678-9ABC-DEF012345678}|{12345678-1234-5678-9ABC-DEF012345678}');
+        O.Expect('{00000000-0000-0000-0000-000000000000}', 'ok|{00000000-0000-0000-0000-000000000000}|{00000000-0000-0000-0000-000000000000}');
+        O.Expect('00000000-0000-0000-0000-000000000000', 'ok|{00000000-0000-0000-0000-000000000000}|{00000000-0000-0000-0000-000000000000}');
+        O.Verify();
+    end;
+
+    [Test]
+    procedure FieldRef_Evaluate_Guid_2()
+    var
+        O: Codeunit "Probe Observer";
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
         EvF(O, 'abc', 15, 'abc');
         EvF(O, '{12345678-1234-5678-9ABC-DEF01234567}', 15, '{12345678-1234-5678-9ABC-DEF01234567}');
         EvF(O, '{12345678-1234-5678-9ABC-DEF0123456789}', 15, '{12345678-1234-5678-9ABC-DEF0123456789}');
@@ -745,7 +1086,38 @@ codeunit 72865 "LT FM Fields Tests"
         EvF(O, '-2147483649', 16, '-2147483649');
         EvF(O, '9223372036854775807', 16, '9223372036854775807');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('empty', 'err:Evaluate|0');
+        O.Expect('blank', 'err:Evaluate|0');
+        O.Expect('two blanks', 'err:Evaluate|0');
+        O.Expect('0', 'ok|0|0');
+        O.Expect('-0', 'ok|0|0');
+        O.Expect('+5', 'ok|5|5');
+        O.Expect('1', 'ok|1|1');
+        O.Expect(' 5 ', 'ok|5|5');
+        O.Expect('1,234', 'ok|1234|1,234');
+        O.Expect('1.5', 'ok|1.5|1.5');
+        O.Expect('1,5', 'ok|15|15');
+        O.Expect('.5', 'ok|0.5|0.5');
+        O.Expect('5.', 'ok|5|5');
+        O.Expect('12abc', 'err:Evaluate|0');
+        O.Expect('abc', 'err:Evaluate|0');
+        O.Expect('--1', 'err:Evaluate|0');
+        O.Expect('1e3', 'ok|1000|1,000');
+        O.Expect('1E3', 'ok|1000|1,000');
+        O.Expect('09e738195', 'err:Evaluate|0');
+        O.Expect('1e-5', 'ok|0.00001|0.00001');
+        O.Expect('0x10', 'err:Evaluate|0');
+        O.Expect('5D', 'err:Evaluate|0');
+        O.Expect('5T', 'err:Evaluate|0');
+        O.Expect('NUL', 'err:Evaluate|0');
+        O.Expect('?', 'err:Evaluate|0');
+        O.Expect('tab 5', 'ok|5|5');
+        O.Expect('2147483647', 'ok|2147483647|2,147,483,647');
+        O.Expect('2147483648', 'ok|2147483648|2,147,483,648');
+        O.Expect('-2147483648', 'ok|-2147483648|-2,147,483,648');
+        O.Expect('-2147483649', 'ok|-2147483649|-2,147,483,649');
+        O.Expect('9223372036854775807', 'err:Evaluate|0');
+        O.Verify();
     end;
 
     [Test]
@@ -765,7 +1137,15 @@ codeunit 72865 "LT FM Fields Tests"
         EvF(O, '5-', 16, '5-');
         EvF(O, 'true', 16, 'true');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('9223372036854775808', 'err:Evaluate|0');
+        O.Expect('79228162514264337593543950335', 'err:Evaluate|0');
+        O.Expect('99999999999999999999999999999', 'err:Evaluate|0');
+        O.Expect('1 000', 'err:Evaluate|0');
+        O.Expect('1000', 'err:Evaluate|0');
+        O.Expect('(5)', 'ok|-5|-5');
+        O.Expect('5-', 'ok|-5|-5');
+        O.Expect('true', 'err:Evaluate|0');
+        O.Verify();
     end;
 
     [Test]
@@ -808,7 +1188,38 @@ codeunit 72865 "LT FM Fields Tests"
         EvF(O, '-2147483649', 17, '-2147483649');
         EvF(O, '9223372036854775807', 17, '9223372036854775807');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('empty', 'err:Evaluate|0');
+        O.Expect('blank', 'err:Evaluate|0');
+        O.Expect('two blanks', 'err:Evaluate|0');
+        O.Expect('0', 'ok|0|0');
+        O.Expect('-0', 'ok|0|0');
+        O.Expect('+5', 'ok|5|5');
+        O.Expect('1', 'ok|1|1');
+        O.Expect(' 5 ', 'ok|5|5');
+        O.Expect('1,234', 'ok|1234|1234');
+        O.Expect('1.5', 'err:Evaluate|0');
+        O.Expect('1,5', 'ok|15|15');
+        O.Expect('.5', 'err:Evaluate|0');
+        O.Expect('5.', 'ok|5|5');
+        O.Expect('12abc', 'err:Evaluate|0');
+        O.Expect('abc', 'err:Evaluate|0');
+        O.Expect('--1', 'err:Evaluate|0');
+        O.Expect('1e3', 'ok|1000|1000');
+        O.Expect('1E3', 'ok|1000|1000');
+        O.Expect('09e738195', 'err:Evaluate|0');
+        O.Expect('1e-5', 'err:Evaluate|0');
+        O.Expect('0x10', 'err:Evaluate|0');
+        O.Expect('5D', 'err:Evaluate|0');
+        O.Expect('5T', 'err:Evaluate|0');
+        O.Expect('NUL', 'err:Evaluate|0');
+        O.Expect('?', 'err:Evaluate|0');
+        O.Expect('tab 5', 'ok|5|5');
+        O.Expect('2147483647', 'ok|2147483647|2147483647');
+        O.Expect('2147483648', 'err:Evaluate|0');
+        O.Expect('-2147483648', 'ok|-2147483648|-2147483648');
+        O.Expect('-2147483649', 'err:Evaluate|0');
+        O.Expect('9223372036854775807', 'err:Evaluate|0');
+        O.Verify();
     end;
 
     [Test]
@@ -828,7 +1239,15 @@ codeunit 72865 "LT FM Fields Tests"
         EvF(O, '5-', 17, '5-');
         EvF(O, 'true', 17, 'true');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('9223372036854775808', 'err:Evaluate|0');
+        O.Expect('79228162514264337593543950335', 'err:Evaluate|0');
+        O.Expect('99999999999999999999999999999', 'err:Evaluate|0');
+        O.Expect('1 000', 'err:Evaluate|0');
+        O.Expect('1000', 'err:Evaluate|0');
+        O.Expect('(5)', 'ok|-5|-5');
+        O.Expect('5-', 'ok|-5|-5');
+        O.Expect('true', 'err:Evaluate|0');
+        O.Verify();
     end;
 
     [Test]
@@ -853,7 +1272,20 @@ codeunit 72865 "LT FM Fields Tests"
         EvF(O, 'it''s', 18, 'it''s');
         EvF(O, 'NUL', 18, Nul());
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('', 'ok||');
+        O.Expect(' ', 'ok||');
+        O.Expect('abc', 'ok|ABC|ABC');
+        O.Expect(' abc ', 'ok|ABC|ABC');
+        O.Expect('a,b', 'ok|A,B|A,B');
+        O.Expect('1D', 'ok|1D|1D');
+        O.Expect('1T', 'ok|1T|1T');
+        O.Expect('?', 'ok|?|?');
+        O.Expect('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'err:StringLengthExceeded|');
+        O.Expect('ä', 'ok|Ä|Ä');
+        O.Expect('"q"', 'ok|"Q"|"Q"');
+        O.Expect('it''s', 'ok|IT''S|IT''S');
+        O.Expect('NUL', 'ok|\u0000|\u0000');
+        O.Verify();
     end;
 
     [Test]
@@ -882,7 +1314,24 @@ codeunit 72865 "LT FM Fields Tests"
         Roundtrip(O, 'Time_123456T', 11, 123456T);
         Roundtrip(O, 'Time_235959.999T', 11, 235959.999T);
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('Duration_0', 'text=|back=P0DT0H0M0.0S');
+        O.Expect('Duration_1', 'text=1 millisecond|back=P0DT0H0M0.001S');
+        O.Expect('Duration_-1', 'text=-1 millisecond|back=-P0DT0H0M0.001S');
+        O.Expect('Duration_1000', 'text=1 second|back=P0DT0H0M1.0S');
+        O.Expect('Duration_-1000', 'text=-1 second|back=-P0DT0H0M1.0S');
+        O.Expect('Duration_90061001', 'text=1 day 1 hour 1 minute 1 second 1 millisecond|back=P1DT1H1M1.001S');
+        O.Expect('Duration_-90061001', 'text=-1 day 1 hour 1 minute 1 second 1 millisecond|back=-P1DT1H1M1.001S');
+        O.Expect('Option_0', 'text= |back=0');
+        O.Expect('Option_1', 'text=male|back=1');
+        O.Expect('Option_2', 'text=female|back=2');
+        O.Expect('Option_3', 'text=non-binary|back=3');
+        O.Expect('Date_0D', 'text=|back=');
+        O.Expect('Date_20260309D', 'text=03/09/26|back=2026-03-09');
+        O.Expect('Date_17530101D', 'text=01/01/1753|back=1753-01-01');
+        O.Expect('Time_0T', 'text=|back=');
+        O.Expect('Time_123456T', 'text=12:34:56 PM|back=12:34:56');
+        O.Expect('Time_235959.999T', 'text=11:59:59 PM|back=23:59:59');
+        O.Verify();
     end;
 
     [Test]
@@ -909,6 +1358,21 @@ codeunit 72865 "LT FM Fields Tests"
         Roundtrip(O, 'Integer_-1', 17, -1);
         Roundtrip(O, 'Integer_2147483647', 17, 2147483647);
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('DateTime_0DT', 'text=|back=');
+        O.Expect('DateTime_CreateDateTime20260309D134512.123T', 'text=03/09/26 01:45 PM|back=2026-03-09T13:45:00Z');
+        O.Expect('DateTime_CreateDateTime20260309D0T', 'text=03/09/26 12:00 AM|back=2026-03-09T00:00:00Z');
+        O.Expect('Boolean_true', 'text=Yes|back=true');
+        O.Expect('Boolean_false', 'text=No|back=false');
+        O.Expect('BigInteger_0L', 'text=0|back=0');
+        O.Expect('BigInteger_-1L', 'text=-1|back=-1');
+        O.Expect('BigInteger_1234567890123L', 'text=1234567890123|back=1234567890123');
+        O.Expect('Decimal_0', 'text=0|back=0');
+        O.Expect('Decimal_0.5', 'text=0.5|back=0.5');
+        O.Expect('Decimal_-1234.5', 'text=-1,234.5|back=-1234.5');
+        O.Expect('Decimal_1234567.891', 'text=1,234,567.891|back=1234567.891');
+        O.Expect('Integer_0', 'text=0|back=0');
+        O.Expect('Integer_-1', 'text=-1|back=-1');
+        O.Expect('Integer_2147483647', 'text=2147483647|back=2147483647');
+        O.Verify();
     end;
 }
