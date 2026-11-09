@@ -8,7 +8,7 @@ Event publishers and subscribers, BindSubscription, platform trigger events, sub
 - `binding-senders/`: binding, senders and parameters of subscribers (10 AL files).
 - `extension-events/`: events of extension objects (3 AL files).
 - `page-events/`: page events (4 AL files).
-- `platform-triggers/`: platform trigger events (25 AL files).
+- `platform-triggers/`: platform trigger events (26 AL files).
 - `subscriber-order/`: the order subscribers run in (8 AL files).
 - `table-events/`: table events (2 AL files).
 
