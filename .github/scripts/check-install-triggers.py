@@ -14,6 +14,10 @@ import sys
 from pathlib import Path
 
 ALLOWED = {
+    # al-runner issue 7348: writes inside TryFunctions whose result is used, in install code, with DisableWriteInsideTryFunctions=false. Only the
+    # CI job "BC TryWrites" publishes this app. Every write outside the TryFunctions is `if Insert() then;` or `if Modify() then;` into DataPerCompany =
+    # false tables, and each TryFunction call is used by `Log(..)`, so nothing the install code does can fail the publish. (TryWriteInstall.al)
+    'tests/al-language-trywrite-allowed codeunit 81703',  # "LT TW Install"
     # corpus issue 661 (writer BF): writes only `if Insert() then;` into a DataPerCompany = false log; reads that can fail run in a TryFunction.
     # (BfInstallFixtures.al)
     'tests/al-language codeunit 81254',  # "LT BF Install Late"
