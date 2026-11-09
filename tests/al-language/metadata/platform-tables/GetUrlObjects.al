@@ -272,4 +272,49 @@ codeunit 73981 "LT P95 GetUrl Objects"
         Observer.Observe('default_client_type', Format(DefaultClientType()));
         Observer.Finish();
     end;
+
+    // GetUrl with a page id of 0 or a negative id, with a record and UseFilters (al-runner 7429: ClientType ODataV4, the id comes from a setup row).
+    local procedure ZeroId(Name: Text; CT: ClientType; OT: ObjectType; Id: Integer; UseFilters: Boolean; var Observer: Codeunit "Probe Observer")
+    var
+        Cust: Record Customer;
+        R: Text;
+    begin
+        Cust."No." := 'CYX';
+        Cust.SetRange("No.", 'CYA', 'CYZ');
+        ClearLastError();
+        if TryRecRef(CT, OT, Id, Cust, UseFilters, R) then
+            Observer.Observe(Name, Shape(R) + '|' + Tail(R))
+        else
+            Observer.Observe(Name, Err());
+    end;
+
+    [Test]
+    procedure GetUrl_ObjectIdZero_Record_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ZeroId('odatav4_page0_true', ClientType::ODataV4, ObjectType::Page, 0, true, Observer);
+        ZeroId('odatav4_page0_false', ClientType::ODataV4, ObjectType::Page, 0, false, Observer);
+        ZeroId('odatav4_page21_true', ClientType::ODataV4, ObjectType::Page, 21, true, Observer);
+        ZeroId('odata_page0_true', ClientType::OData, ObjectType::Page, 0, true, Observer);
+        ZeroId('soap_page0_true', ClientType::SOAP, ObjectType::Page, 0, true, Observer);
+        ZeroId('api_page0_true', ClientType::Api, ObjectType::Page, 0, true, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure GetUrl_ObjectIdZero_Record_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ZeroId('web_page0_true', ClientType::Web, ObjectType::Page, 0, true, Observer);
+        ZeroId('web_page0_false', ClientType::Web, ObjectType::Page, 0, false, Observer);
+        ZeroId('web_pageneg1_true', ClientType::Web, ObjectType::Page, -1, true, Observer);
+        ZeroId('web_report0_true', ClientType::Web, ObjectType::Report, 0, true, Observer);
+        ZeroId('web_table0_true', ClientType::Web, ObjectType::Table, 0, true, Observer);
+        ZeroId('default_page0_true', ClientType::Default, ObjectType::Page, 0, true, Observer);
+        ZeroId('windows_page0_true', ClientType::Windows, ObjectType::Page, 0, true, Observer);
+        ZeroId('tablet_page0_true', ClientType::Tablet, ObjectType::Page, 0, true, Observer);
+        Observer.Finish();
+    end;
 }
