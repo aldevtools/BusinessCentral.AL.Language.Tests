@@ -90,7 +90,35 @@ codeunit 72843 "LT FM Eval DateTime"
         EvS(O, '01/01/2026|st', '01/01/2026');
         EvB(O, '01/01/26D|b0', '01/01/26D', 0);
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('empty|b0', 'Yes|');
+        O.Expect('empty|b9', 'Yes|');
+        O.Expect('empty|st', 'ok|');
+        O.Expect('blank|b0', 'Yes|');
+        O.Expect('blank|b9', 'Yes|');
+        O.Expect('blank|st', 'ok|');
+        O.Expect('0DT|b0', 'No|2000-01-01T07:08:09Z');
+        O.Expect('0DT|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('0DT|st', 'err:Evaluate|2000-01-01T07:08:09Z');
+        O.Ignore('T|b0'); // depends on today's date or the current time: observed, not asserted
+        O.Expect('T|b9', 'No|2000-01-01T07:08:09Z');
+        O.Ignore('T|st'); // depends on today's date or the current time: observed, not asserted
+        O.Ignore('D|b0'); // depends on today's date or the current time: observed, not asserted
+        O.Expect('D|b9', 'No|2000-01-01T07:08:09Z');
+        O.Ignore('D|st'); // depends on today's date or the current time: observed, not asserted
+        O.Expect('01/01/26|b0', 'Yes|2026-01-01T00:00:00Z');
+        O.Expect('01/01/26|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26|st', 'ok|2026-01-01T00:00:00Z');
+        O.Expect('01/01/23|b0', 'Yes|2023-01-01T00:00:00Z');
+        O.Expect('01/01/23|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/23|st', 'ok|2023-01-01T00:00:00Z');
+        O.Expect('11/01/26|b0', 'Yes|2026-11-01T00:00:00Z');
+        O.Expect('11/01/26|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('11/01/26|st', 'ok|2026-11-01T00:00:00Z');
+        O.Expect('01/01/2026|b0', 'Yes|2026-01-01T00:00:00Z');
+        O.Expect('01/01/2026|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/2026|st', 'ok|2026-01-01T00:00:00Z');
+        O.Expect('01/01/26D|b0', 'Yes|2026-01-01T00:00:00Z');
+        O.Verify();
     end;
 
     [Test]
@@ -125,7 +153,30 @@ codeunit 72843 "LT FM Eval DateTime"
         EvB(O, '01/01/26 24:00|b9', '01/01/26 24:00', 9);
         EvS(O, '01/01/26 24:00|st', '01/01/26 24:00');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('01/01/26D|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26D|st', 'ok|2026-01-01T00:00:00Z');
+        O.Expect('01/01/26T|b0', 'Yes|2026-01-01T00:00:00Z');
+        O.Expect('01/01/26T|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26T|st', 'ok|2026-01-01T00:00:00Z');
+        O.Expect('01/01/26 12:00|b0', 'Yes|2026-01-01T12:00:00Z');
+        O.Expect('01/01/26 12:00|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 12:00|st', 'ok|2026-01-01T12:00:00Z');
+        O.Expect('01/01/26 12:00:00|b0', 'Yes|2026-01-01T12:00:00Z');
+        O.Expect('01/01/26 12:00:00|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 12:00:00|st', 'ok|2026-01-01T12:00:00Z');
+        O.Expect('01/01/26 12:00:00 AM|b0', 'Yes|2026-01-01T00:00:00Z');
+        O.Expect('01/01/26 12:00:00 AM|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 12:00:00 AM|st', 'ok|2026-01-01T00:00:00Z');
+        O.Expect('01/01/26 12:00 PM|b0', 'Yes|2026-01-01T12:00:00Z');
+        O.Expect('01/01/26 12:00 PM|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 12:00 PM|st', 'ok|2026-01-01T12:00:00Z');
+        O.Expect('01/01/26 12:00:00T|b0', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 12:00:00T|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 12:00:00T|st', 'err:Evaluate|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 24:00|b0', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 24:00|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 24:00|st', 'err:Evaluate|2000-01-01T07:08:09Z');
+        O.Verify();
     end;
 
     [Test]
@@ -161,7 +212,31 @@ codeunit 72843 "LT FM Eval DateTime"
         EvB(O, '2026-01-01|b9', '2026-01-01', 9);
         EvS(O, '2026-01-01|st', '2026-01-01');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('01/01/26 25:00|b0', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 25:00|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 25:00|st', 'err:Evaluate|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 12:60|b0', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 12:60|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 12:60|st', 'err:Evaluate|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 12:00:00.123|b0', 'Yes|2026-01-01T12:00:00.123Z');
+        O.Expect('01/01/26 12:00:00.123|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 12:00:00.123|st', 'ok|2026-01-01T12:00:00.123Z');
+        O.Expect('13/01/26 12:00|b0', 'No|2000-01-01T07:08:09Z');
+        O.Expect('13/01/26 12:00|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('13/01/26 12:00|st', 'err:Evaluate|2000-01-01T07:08:09Z');
+        O.Expect('02/30/26 12:00|b0', 'No|2000-01-01T07:08:09Z');
+        O.Expect('02/30/26 12:00|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('02/30/26 12:00|st', 'err:Evaluate|2000-01-01T07:08:09Z');
+        O.Expect('12:00:00|b0', 'No|2000-01-01T07:08:09Z');
+        O.Ignore('12:00:00|b9'); // depends on today's date or the current time: observed, not asserted
+        O.Expect('12:00:00|st', 'err:DateInvalid|2000-01-01T07:08:09Z');
+        O.Expect('12:00 AM|b0', 'No|2000-01-01T07:08:09Z');
+        O.Expect('12:00 AM|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('12:00 AM|st', 'err:DateInvalid|2000-01-01T07:08:09Z');
+        O.Expect('2026-01-01|b0', 'Yes|2026-01-01T00:00:00Z');
+        O.Expect('2026-01-01|b9', 'Yes|2026-01-01T00:00:00Z');
+        O.Expect('2026-01-01|st', 'ok|2026-01-01T00:00:00Z');
+        O.Verify();
     end;
 
     [Test]
@@ -194,7 +269,28 @@ codeunit 72843 "LT FM Eval DateTime"
         EvB(O, '20260101T120000Z|b9', '20260101T120000Z', 9);
         EvS(O, '20260101T120000Z|st', '20260101T120000Z');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('2026-01-01T12:00:00|b0', 'No|2000-01-01T07:08:09Z');
+        O.Expect('2026-01-01T12:00:00|b9', 'Yes|2026-01-01T12:00:00Z');
+        O.Expect('2026-01-01T12:00:00|st', 'err:DateInvalid|2000-01-01T07:08:09Z');
+        O.Expect('2026-01-01T12:00:00Z|b0', 'Yes|2026-01-01T12:00:00Z');
+        O.Expect('2026-01-01T12:00:00Z|b9', 'Yes|2026-01-01T12:00:00Z');
+        O.Expect('2026-01-01T12:00:00Z|st', 'ok|2026-01-01T12:00:00Z');
+        O.Expect('2026-01-01T12:00:00.123Z|b0', 'Yes|2026-01-01T12:00:00.123Z');
+        O.Expect('2026-01-01T12:00:00.123Z|b9', 'Yes|2026-01-01T12:00:00.123Z');
+        O.Expect('2026-01-01T12:00:00.123Z|st', 'ok|2026-01-01T12:00:00.123Z');
+        O.Expect('2026-13-01T00:00:00Z|b0', 'No|2000-01-01T07:08:09Z');
+        O.Expect('2026-13-01T00:00:00Z|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('2026-13-01T00:00:00Z|st', 'err:Evaluate|2000-01-01T07:08:09Z');
+        O.Expect('2026-01-01T12:00:00+01:00|b0', 'Yes|2026-01-01T11:00:00Z');
+        O.Expect('2026-01-01T12:00:00+01:00|b9', 'Yes|2026-01-01T11:00:00Z');
+        O.Expect('2026-01-01T12:00:00+01:00|st', 'ok|2026-01-01T11:00:00Z');
+        O.Expect('2026-01-01T24:00:00Z|b0', 'No|2000-01-01T07:08:09Z');
+        O.Expect('2026-01-01T24:00:00Z|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('2026-01-01T24:00:00Z|st', 'err:Evaluate|2000-01-01T07:08:09Z');
+        O.Expect('20260101T120000Z|b0', 'No|2000-01-01T07:08:09Z');
+        O.Expect('20260101T120000Z|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('20260101T120000Z|st', 'err:Evaluate|2000-01-01T07:08:09Z');
+        O.Verify();
     end;
 
     [Test]
@@ -230,7 +326,31 @@ codeunit 72843 "LT FM Eval DateTime"
         EvB(O, '01/01/26 12:00:00 12:00:00|b9', '01/01/26 12:00:00 12:00:00', 9);
         EvS(O, '01/01/26 12:00:00 12:00:00|st', '01/01/26 12:00:00 12:00:00');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('abc|b0', 'No|2000-01-01T07:08:09Z');
+        O.Expect('abc|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('abc|st', 'err:Evaluate|2000-01-01T07:08:09Z');
+        O.Expect('NUL|b0', 'No|2000-01-01T07:08:09Z');
+        O.Expect('NUL|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('NUL|st', 'err:Evaluate|2000-01-01T07:08:09Z');
+        O.Expect('?|b0', 'No|2000-01-01T07:08:09Z');
+        O.Expect('?|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('?|st', 'err:Evaluate|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 |b0', 'Yes|2026-01-01T00:00:00Z');
+        O.Expect('01/01/26 |b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 |st', 'ok|2026-01-01T00:00:00Z');
+        O.Expect(' 01/01/26|b0', 'Yes|2026-01-01T00:00:00Z');
+        O.Expect(' 01/01/26|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect(' 01/01/26|st', 'ok|2026-01-01T00:00:00Z');
+        O.Expect('01/xx/26|b0', 'Yes|2026-01-26T00:00:00Z');
+        O.Expect('01/xx/26|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/xx/26|st', 'ok|2026-01-26T00:00:00Z');
+        O.Expect('Mon, 01 Jan 2026 12:00:00 GMT|b0', 'No|2000-01-01T07:08:09Z');
+        O.Expect('Mon, 01 Jan 2026 12:00:00 GMT|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('Mon, 01 Jan 2026 12:00:00 GMT|st', 'err:Evaluate|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 12:00:00 12:00:00|b0', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 12:00:00 12:00:00|b9', 'No|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 12:00:00 12:00:00|st', 'err:Evaluate|2000-01-01T07:08:09Z');
+        O.Verify();
     end;
 
     [Test]
@@ -270,7 +390,35 @@ codeunit 72843 "LT FM Eval DateTime"
         EvS(O, '01/01/2026|st', '01/01/2026');
         EvB(O, '01/01/26D|b0', '01/01/26D', 0);
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('empty|b0', 'Ja|');
+        O.Expect('empty|b9', 'Ja|');
+        O.Expect('empty|st', 'ok|');
+        O.Expect('blank|b0', 'Ja|');
+        O.Expect('blank|b9', 'Ja|');
+        O.Expect('blank|st', 'ok|');
+        O.Expect('0DT|b0', 'Nein|2000-01-01T07:08:09Z');
+        O.Expect('0DT|b9', 'Nein|2000-01-01T07:08:09Z');
+        O.Expect('0DT|st', 'err:Evaluate|2000-01-01T07:08:09Z');
+        O.Expect('T|b0', 'Nein|2000-01-01T07:08:09Z');
+        O.Expect('T|b9', 'Nein|2000-01-01T07:08:09Z');
+        O.Expect('T|st', 'err:Evaluate|2000-01-01T07:08:09Z');
+        O.Ignore('D|b0'); // depends on today's date or the current time: observed, not asserted
+        O.Expect('D|b9', 'Nein|2000-01-01T07:08:09Z');
+        O.Ignore('D|st'); // depends on today's date or the current time: observed, not asserted
+        O.Expect('01/01/26|b0', 'Ja|2026-01-01T00:00:00Z');
+        O.Expect('01/01/26|b9', 'Nein|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26|st', 'ok|2026-01-01T00:00:00Z');
+        O.Expect('01/01/23|b0', 'Ja|2023-01-01T00:00:00Z');
+        O.Expect('01/01/23|b9', 'Nein|2000-01-01T07:08:09Z');
+        O.Expect('01/01/23|st', 'ok|2023-01-01T00:00:00Z');
+        O.Expect('11/01/26|b0', 'Ja|2026-11-01T00:00:00Z');
+        O.Expect('11/01/26|b9', 'Nein|2000-01-01T07:08:09Z');
+        O.Expect('11/01/26|st', 'ok|2026-11-01T00:00:00Z');
+        O.Expect('01/01/2026|b0', 'Ja|2026-01-01T00:00:00Z');
+        O.Expect('01/01/2026|b9', 'Nein|2000-01-01T07:08:09Z');
+        O.Expect('01/01/2026|st', 'ok|2026-01-01T00:00:00Z');
+        O.Expect('01/01/26D|b0', 'Ja|2026-01-01T00:00:00Z');
+        O.Verify();
     end;
 
     [Test]
@@ -296,6 +444,20 @@ codeunit 72843 "LT FM Eval DateTime"
         EvB(O, '01/01/26 12:00:00 12:00:00|b9', '01/01/26 12:00:00 12:00:00', 9);
         EvS(O, '01/01/26 12:00:00 12:00:00|st', '01/01/26 12:00:00 12:00:00');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('01/01/26D|b9', 'Nein|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26D|st', 'ok|2026-01-01T00:00:00Z');
+        O.Expect(' 01/01/26|b0', 'Ja|2026-01-01T00:00:00Z');
+        O.Expect(' 01/01/26|b9', 'Nein|2000-01-01T07:08:09Z');
+        O.Expect(' 01/01/26|st', 'ok|2026-01-01T00:00:00Z');
+        O.Expect('01/xx/26|b0', 'Ja|2026-01-26T00:00:00Z');
+        O.Expect('01/xx/26|b9', 'Nein|2000-01-01T07:08:09Z');
+        O.Expect('01/xx/26|st', 'ok|2026-01-26T00:00:00Z');
+        O.Expect('Mon, 01 Jan 2026 12:00:00 GMT|b0', 'Nein|2000-01-01T07:08:09Z');
+        O.Expect('Mon, 01 Jan 2026 12:00:00 GMT|b9', 'Nein|2000-01-01T07:08:09Z');
+        O.Expect('Mon, 01 Jan 2026 12:00:00 GMT|st', 'err:Evaluate|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 12:00:00 12:00:00|b0', 'Nein|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 12:00:00 12:00:00|b9', 'Nein|2000-01-01T07:08:09Z');
+        O.Expect('01/01/26 12:00:00 12:00:00|st', 'err:Evaluate|2000-01-01T07:08:09Z');
+        O.Verify();
     end;
 }

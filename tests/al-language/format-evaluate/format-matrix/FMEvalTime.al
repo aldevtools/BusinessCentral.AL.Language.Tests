@@ -89,7 +89,34 @@ codeunit 72842 "LT FM Eval Time"
         EvB(O, '0:00|b9', '0:00', 9);
         EvS(O, '0:00|st', '0:00');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('empty|b0', 'Yes|');
+        O.Expect('empty|b9', 'Yes|');
+        O.Expect('empty|st', 'ok|');
+        O.Expect('blank|b0', 'Yes|');
+        O.Expect('blank|b9', 'Yes|');
+        O.Expect('blank|st', 'ok|');
+        O.Expect('12:00:00|b0', 'Yes|12:00:00');
+        O.Expect('12:00:00|b9', 'Yes|12:00:00');
+        O.Expect('12:00:00|st', 'ok|12:00:00');
+        O.Expect('12:00|b0', 'Yes|12:00:00');
+        O.Expect('12:00|b9', 'No|07:08:09');
+        O.Expect('12:00|st', 'ok|12:00:00');
+        O.Expect('12:00 AM|b0', 'Yes|00:00:00');
+        O.Expect('12:00 AM|b9', 'No|07:08:09');
+        O.Expect('12:00 AM|st', 'ok|00:00:00');
+        O.Expect('12:00 PM|b0', 'Yes|12:00:00');
+        O.Expect('12:00 PM|b9', 'No|07:08:09');
+        O.Expect('12:00 PM|st', 'ok|12:00:00');
+        O.Expect('12:00:00 AM|b0', 'Yes|00:00:00');
+        O.Expect('12:00:00 AM|b9', 'No|07:08:09');
+        O.Expect('12:00:00 AM|st', 'ok|00:00:00');
+        O.Expect('1:05 pm|b0', 'Yes|13:05:00');
+        O.Expect('1:05 pm|b9', 'No|07:08:09');
+        O.Expect('1:05 pm|st', 'ok|13:05:00');
+        O.Expect('0:00|b0', 'Yes|00:00:00');
+        O.Expect('0:00|b9', 'No|07:08:09');
+        O.Expect('0:00|st', 'ok|00:00:00');
+        O.Verify();
     end;
 
     [Test]
@@ -128,7 +155,34 @@ codeunit 72842 "LT FM Eval Time"
         EvB(O, '0T|b9', '0T', 9);
         EvS(O, '0T|st', '0T');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('24:00:00|b0', 'No|07:08:09');
+        O.Expect('24:00:00|b9', 'No|07:08:09');
+        O.Expect('24:00:00|st', 'err:Evaluate|07:08:09');
+        O.Expect('25:00:00|b0', 'No|07:08:09');
+        O.Expect('25:00:00|b9', 'No|07:08:09');
+        O.Expect('25:00:00|st', 'err:Evaluate|07:08:09');
+        O.Expect('12:60:00|b0', 'No|07:08:09');
+        O.Expect('12:60:00|b9', 'No|07:08:09');
+        O.Expect('12:60:00|st', 'err:Evaluate|07:08:09');
+        O.Expect('12:00:60|b0', 'No|07:08:09');
+        O.Expect('12:00:60|b9', 'No|07:08:09');
+        O.Expect('12:00:60|st', 'err:Evaluate|07:08:09');
+        O.Expect('12:00:00.123|b0', 'Yes|12:00:00.123');
+        O.Expect('12:00:00.123|b9', 'Yes|12:00:00.123');
+        O.Expect('12:00:00.123|st', 'ok|12:00:00.123');
+        O.Expect('12:00:00.1234|b0', 'No|07:08:09');
+        O.Expect('12:00:00.1234|b9', 'Yes|12:00:00.123');
+        O.Expect('12:00:00.1234|st', 'err:Evaluate|07:08:09');
+        O.Expect('12:00:00,123|b0', 'Yes|12:00:00.123');
+        O.Expect('12:00:00,123|b9', 'No|07:08:09');
+        O.Expect('12:00:00,123|st', 'ok|12:00:00.123');
+        O.Ignore('T|b0'); // depends on today's date or the current time: observed, not asserted
+        O.Expect('T|b9', 'No|07:08:09');
+        O.Ignore('T|st'); // depends on today's date or the current time: observed, not asserted
+        O.Expect('0T|b0', 'No|07:08:09');
+        O.Expect('0T|b9', 'No|07:08:09');
+        O.Expect('0T|st', 'err:Evaluate|07:08:09');
+        O.Verify();
     end;
 
     [Test]
@@ -167,7 +221,34 @@ codeunit 72842 "LT FM Eval Time"
         EvB(O, ' 12:00:00|b9', ' 12:00:00', 9);
         EvS(O, ' 12:00:00|st', ' 12:00:00');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('12:00:00T|b0', 'No|07:08:09');
+        O.Expect('12:00:00T|b9', 'No|07:08:09');
+        O.Expect('12:00:00T|st', 'err:Evaluate|07:08:09');
+        O.Expect('12:00:00D|b0', 'No|07:08:09');
+        O.Expect('12:00:00D|b9', 'No|07:08:09');
+        O.Expect('12:00:00D|st', 'err:Evaluate|07:08:09');
+        O.Expect('1200|b0', 'Yes|12:00:00');
+        O.Expect('1200|b9', 'No|07:08:09');
+        O.Expect('1200|st', 'ok|12:00:00');
+        O.Expect('120000|b0', 'Yes|12:00:00');
+        O.Expect('120000|b9', 'No|07:08:09');
+        O.Expect('120000|st', 'ok|12:00:00');
+        O.Expect('abc|b0', 'No|07:08:09');
+        O.Expect('abc|b9', 'No|07:08:09');
+        O.Expect('abc|st', 'err:Evaluate|07:08:09');
+        O.Expect('-1:00|b0', 'No|07:08:09');
+        O.Expect('-1:00|b9', 'No|07:08:09');
+        O.Expect('-1:00|st', 'err:Evaluate|07:08:09');
+        O.Expect('12.00.00|b0', 'Yes|12:00:00');
+        O.Expect('12.00.00|b9', 'No|07:08:09');
+        O.Expect('12.00.00|st', 'ok|12:00:00');
+        O.Expect('12:00:00 |b0', 'Yes|12:00:00');
+        O.Expect('12:00:00 |b9', 'Yes|12:00:00');
+        O.Expect('12:00:00 |st', 'ok|12:00:00');
+        O.Expect(' 12:00:00|b0', 'Yes|12:00:00');
+        O.Expect(' 12:00:00|b9', 'Yes|12:00:00');
+        O.Expect(' 12:00:00|st', 'ok|12:00:00');
+        O.Verify();
     end;
 
     [Test]
@@ -200,7 +281,28 @@ codeunit 72842 "LT FM Eval Time"
         EvB(O, '11:59:59.999 PM|b9', '11:59:59.999 PM', 9);
         EvS(O, '11:59:59.999 PM|st', '11:59:59.999 PM');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('NUL|b0', 'No|07:08:09');
+        O.Expect('NUL|b9', 'No|07:08:09');
+        O.Expect('NUL|st', 'err:Evaluate|07:08:09');
+        O.Expect('?|b0', 'No|07:08:09');
+        O.Expect('?|b9', 'No|07:08:09');
+        O.Expect('?|st', 'err:Evaluate|07:08:09');
+        O.Expect('12|b0', 'Yes|12:00:00');
+        O.Expect('12|b9', 'No|07:08:09');
+        O.Expect('12|st', 'ok|12:00:00');
+        O.Expect('12:|b0', 'No|07:08:09');
+        O.Expect('12:|b9', 'No|07:08:09');
+        O.Expect('12:|st', 'err:Evaluate|07:08:09');
+        O.Expect(':30|b0', 'No|07:08:09');
+        O.Expect(':30|b9', 'No|07:08:09');
+        O.Expect(':30|st', 'err:Evaluate|07:08:09');
+        O.Expect('1:2:3|b0', 'Yes|01:02:03');
+        O.Expect('1:2:3|b9', 'No|07:08:09');
+        O.Expect('1:2:3|st', 'ok|01:02:03');
+        O.Expect('11:59:59.999 PM|b0', 'Yes|23:59:59.999');
+        O.Expect('11:59:59.999 PM|b9', 'No|07:08:09');
+        O.Expect('11:59:59.999 PM|st', 'ok|23:59:59.999');
+        O.Verify();
     end;
 
     [Test]
@@ -239,7 +341,34 @@ codeunit 72842 "LT FM Eval Time"
         EvB(O, '0:00|b9', '0:00', 9);
         EvS(O, '0:00|st', '0:00');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('empty|b0', 'Ja|');
+        O.Expect('empty|b9', 'Ja|');
+        O.Expect('empty|st', 'ok|');
+        O.Expect('blank|b0', 'Ja|');
+        O.Expect('blank|b9', 'Ja|');
+        O.Expect('blank|st', 'ok|');
+        O.Expect('12:00:00|b0', 'Ja|12:00:00');
+        O.Expect('12:00:00|b9', 'Ja|12:00:00');
+        O.Expect('12:00:00|st', 'ok|12:00:00');
+        O.Expect('12:00|b0', 'Ja|12:00:00');
+        O.Expect('12:00|b9', 'Nein|07:08:09');
+        O.Expect('12:00|st', 'ok|12:00:00');
+        O.Expect('12:00 AM|b0', 'Ja|00:00:00');
+        O.Expect('12:00 AM|b9', 'Nein|07:08:09');
+        O.Expect('12:00 AM|st', 'ok|00:00:00');
+        O.Expect('12:00 PM|b0', 'Ja|12:00:00');
+        O.Expect('12:00 PM|b9', 'Nein|07:08:09');
+        O.Expect('12:00 PM|st', 'ok|12:00:00');
+        O.Expect('12:00:00 AM|b0', 'Ja|00:00:00');
+        O.Expect('12:00:00 AM|b9', 'Nein|07:08:09');
+        O.Expect('12:00:00 AM|st', 'ok|00:00:00');
+        O.Expect('1:05 pm|b0', 'Ja|13:05:00');
+        O.Expect('1:05 pm|b9', 'Nein|07:08:09');
+        O.Expect('1:05 pm|st', 'ok|13:05:00');
+        O.Expect('0:00|b0', 'Ja|00:00:00');
+        O.Expect('0:00|b9', 'Nein|07:08:09');
+        O.Expect('0:00|st', 'ok|00:00:00');
+        O.Verify();
     end;
 
     [Test]
@@ -266,6 +395,21 @@ codeunit 72842 "LT FM Eval Time"
         EvB(O, '11:59:59.999 PM|b9', '11:59:59.999 PM', 9);
         EvS(O, '11:59:59.999 PM|st', '11:59:59.999 PM');
         GlobalLanguage(Saved);
-        O.Finish();
+        O.Expect('24:00:00|b0', 'Nein|07:08:09');
+        O.Expect('24:00:00|b9', 'Nein|07:08:09');
+        O.Expect('24:00:00|st', 'err:Evaluate|07:08:09');
+        O.Expect('12:|b0', 'Nein|07:08:09');
+        O.Expect('12:|b9', 'Nein|07:08:09');
+        O.Expect('12:|st', 'err:Evaluate|07:08:09');
+        O.Expect(':30|b0', 'Nein|07:08:09');
+        O.Expect(':30|b9', 'Nein|07:08:09');
+        O.Expect(':30|st', 'err:Evaluate|07:08:09');
+        O.Expect('1:2:3|b0', 'Ja|01:02:03');
+        O.Expect('1:2:3|b9', 'Nein|07:08:09');
+        O.Expect('1:2:3|st', 'ok|01:02:03');
+        O.Expect('11:59:59.999 PM|b0', 'Ja|23:59:59.999');
+        O.Expect('11:59:59.999 PM|b9', 'Nein|07:08:09');
+        O.Expect('11:59:59.999 PM|st', 'ok|23:59:59.999');
+        O.Verify();
     end;
 }
