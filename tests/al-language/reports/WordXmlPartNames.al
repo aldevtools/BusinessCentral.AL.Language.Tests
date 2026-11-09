@@ -832,178 +832,788 @@ codeunit 95759 "LT WXP Tests"
     end;
 
     [Test]
-    procedure WordXmlPart_Array_Plain()
-    var
-        Observer: Codeunit "Probe Observer";
+    procedure PRB_Array_P_1()
     begin
-        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Array"));
-        Observer.Expect('part', 'TBD');
-        Observer.Verify();
+        Slice(Report.WordXmlPart(Report::"LT WXP Array"), 1);
     end;
 
     [Test]
-    procedure WordXmlPart_Array_Extended()
-    var
-        Observer: Codeunit "Probe Observer";
+    procedure PRB_Array_P_2()
     begin
-        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Array", true));
-        Observer.Expect('part', 'TBD');
-        Observer.Verify();
+        Slice(Report.WordXmlPart(Report::"LT WXP Array"), 2);
     end;
 
     [Test]
-    procedure WordXmlPart_ShipTo_Plain()
-    var
-        Observer: Codeunit "Probe Observer";
+    procedure PRB_Array_P_3()
     begin
-        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Ship To"));
-        Observer.Expect('part', 'TBD');
-        Observer.Verify();
+        Slice(Report.WordXmlPart(Report::"LT WXP Array"), 3);
     end;
 
     [Test]
-    procedure WordXmlPart_ShipTo_Extended()
-    var
-        Observer: Codeunit "Probe Observer";
+    procedure PRB_Array_P_4()
     begin
-        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Ship To", true));
-        Observer.Expect('part', 'TBD');
-        Observer.Verify();
+        Slice(Report.WordXmlPart(Report::"LT WXP Array"), 4);
     end;
 
     [Test]
-    procedure WordXmlPart_EmptyTotal_Plain()
-    var
-        Observer: Codeunit "Probe Observer";
+    procedure PRB_Array_P_5()
     begin
-        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Empty Total"));
-        Observer.Expect('part', 'TBD');
-        Observer.Verify();
+        Slice(Report.WordXmlPart(Report::"LT WXP Array"), 5);
     end;
 
     [Test]
-    procedure WordXmlPart_EmptyTotal_Extended()
-    var
-        Observer: Codeunit "Probe Observer";
+    procedure PRB_Array_P_6()
     begin
-        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Empty Total", true));
-        Observer.Expect('part', 'TBD');
-        Observer.Verify();
+        Slice(Report.WordXmlPart(Report::"LT WXP Array"), 6);
     end;
 
     [Test]
-    procedure WordXmlPart_EmptyOnly_Plain()
-    var
-        Observer: Codeunit "Probe Observer";
+    procedure PRB_Array_P_7()
     begin
-        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Empty Only"));
-        Observer.Expect('part', 'TBD');
-        Observer.Verify();
+        Slice(Report.WordXmlPart(Report::"LT WXP Array"), 7);
     end;
 
     [Test]
-    procedure WordXmlPart_EmptyOnly_Extended()
-    var
-        Observer: Codeunit "Probe Observer";
+    procedure PRB_Array_P_8()
     begin
-        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Empty Only", true));
-        Observer.Expect('part', 'TBD');
-        Observer.Verify();
+        Slice(Report.WordXmlPart(Report::"LT WXP Array"), 8);
     end;
 
     [Test]
-    procedure WordXmlPart_EmptyNested_Plain()
-    var
-        Observer: Codeunit "Probe Observer";
+    procedure PRB_Array_E_1()
     begin
-        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Empty Nested"));
-        Observer.Expect('part', 'TBD');
-        Observer.Verify();
+        Slice(Report.WordXmlPart(Report::"LT WXP Array", true), 1);
     end;
 
     [Test]
-    procedure WordXmlPart_EmptyNested_Extended()
-    var
-        Observer: Codeunit "Probe Observer";
+    procedure PRB_Array_E_2()
     begin
-        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Empty Nested", true));
-        Observer.Expect('part', 'TBD');
-        Observer.Verify();
+        Slice(Report.WordXmlPart(Report::"LT WXP Array", true), 2);
     end;
 
     [Test]
-    procedure WordXmlPart_Order_Plain()
-    var
-        Observer: Codeunit "Probe Observer";
+    procedure PRB_Array_E_3()
     begin
-        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Order"));
-        Observer.Expect('part', 'TBD');
-        Observer.Verify();
+        Slice(Report.WordXmlPart(Report::"LT WXP Array", true), 3);
     end;
 
     [Test]
-    procedure WordXmlPart_Order_Extended()
-    var
-        Observer: Codeunit "Probe Observer";
+    procedure PRB_Array_E_4()
     begin
-        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP Order", true));
-        Observer.Expect('part', 'TBD');
-        Observer.Verify();
+        Slice(Report.WordXmlPart(Report::"LT WXP Array", true), 4);
     end;
 
     [Test]
-    procedure WordXmlPart_CrossApp_Plain()
-    var
-        Observer: Codeunit "Probe Observer";
+    procedure PRB_Array_E_5()
     begin
-        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP XA Report"));
-        Observer.Expect('part', 'TBD');
-        Observer.Verify();
+        Slice(Report.WordXmlPart(Report::"LT WXP Array", true), 5);
     end;
 
     [Test]
-    procedure WordXmlPart_CrossApp_Extended()
-    var
-        Observer: Codeunit "Probe Observer";
+    procedure PRB_Array_E_6()
     begin
-        Observer.Observe('part', Report.WordXmlPart(Report::"LT WXP XA Report", true));
-        Observer.Expect('part', 'TBD');
-        Observer.Verify();
+        Slice(Report.WordXmlPart(Report::"LT WXP Array", true), 6);
     end;
 
     [Test]
-    procedure WordXmlPart_CrossApp_Repeated()
-    var
-        Observer: Codeunit "Probe Observer";
-        First: Text;
-        i: Integer;
-        Same: Boolean;
+    procedure PRB_Array_E_7()
     begin
-        // Repeated calls in one session; the order across independent apps is also compared by the runs of the CI legs.
-        First := Report.WordXmlPart(Report::"LT WXP XA Report", true);
-        Same := true;
-        for i := 1 to 20 do
-            if Report.WordXmlPart(Report::"LT WXP XA Report", true) <> First then
-                Same := false;
-        Observer.Observe('same', Format(Same));
-        Observer.Expect('same', 'TBD');
-        Observer.Verify();
+        Slice(Report.WordXmlPart(Report::"LT WXP Array", true), 7);
     end;
 
     [Test]
-    procedure WordXmlPart_Report1305_ShipToOrder()
+    procedure PRB_Array_E_8()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Array", true), 8);
+    end;
+
+    [Test]
+    procedure PRB_ShipTo_P_1()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Ship To"), 1);
+    end;
+
+    [Test]
+    procedure PRB_ShipTo_P_2()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Ship To"), 2);
+    end;
+
+    [Test]
+    procedure PRB_ShipTo_P_3()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Ship To"), 3);
+    end;
+
+    [Test]
+    procedure PRB_ShipTo_P_4()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Ship To"), 4);
+    end;
+
+    [Test]
+    procedure PRB_ShipTo_P_5()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Ship To"), 5);
+    end;
+
+    [Test]
+    procedure PRB_ShipTo_P_6()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Ship To"), 6);
+    end;
+
+    [Test]
+    procedure PRB_ShipTo_P_7()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Ship To"), 7);
+    end;
+
+    [Test]
+    procedure PRB_ShipTo_P_8()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Ship To"), 8);
+    end;
+
+    [Test]
+    procedure PRB_ShipTo_E_1()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Ship To", true), 1);
+    end;
+
+    [Test]
+    procedure PRB_ShipTo_E_2()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Ship To", true), 2);
+    end;
+
+    [Test]
+    procedure PRB_ShipTo_E_3()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Ship To", true), 3);
+    end;
+
+    [Test]
+    procedure PRB_ShipTo_E_4()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Ship To", true), 4);
+    end;
+
+    [Test]
+    procedure PRB_ShipTo_E_5()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Ship To", true), 5);
+    end;
+
+    [Test]
+    procedure PRB_ShipTo_E_6()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Ship To", true), 6);
+    end;
+
+    [Test]
+    procedure PRB_ShipTo_E_7()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Ship To", true), 7);
+    end;
+
+    [Test]
+    procedure PRB_ShipTo_E_8()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Ship To", true), 8);
+    end;
+
+    [Test]
+    procedure PRB_EmptyTotal_P_1()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Total"), 1);
+    end;
+
+    [Test]
+    procedure PRB_EmptyTotal_P_2()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Total"), 2);
+    end;
+
+    [Test]
+    procedure PRB_EmptyTotal_P_3()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Total"), 3);
+    end;
+
+    [Test]
+    procedure PRB_EmptyTotal_P_4()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Total"), 4);
+    end;
+
+    [Test]
+    procedure PRB_EmptyTotal_P_5()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Total"), 5);
+    end;
+
+    [Test]
+    procedure PRB_EmptyTotal_P_6()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Total"), 6);
+    end;
+
+    [Test]
+    procedure PRB_EmptyTotal_P_7()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Total"), 7);
+    end;
+
+    [Test]
+    procedure PRB_EmptyTotal_P_8()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Total"), 8);
+    end;
+
+    [Test]
+    procedure PRB_EmptyTotal_E_1()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Total", true), 1);
+    end;
+
+    [Test]
+    procedure PRB_EmptyTotal_E_2()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Total", true), 2);
+    end;
+
+    [Test]
+    procedure PRB_EmptyTotal_E_3()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Total", true), 3);
+    end;
+
+    [Test]
+    procedure PRB_EmptyTotal_E_4()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Total", true), 4);
+    end;
+
+    [Test]
+    procedure PRB_EmptyTotal_E_5()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Total", true), 5);
+    end;
+
+    [Test]
+    procedure PRB_EmptyTotal_E_6()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Total", true), 6);
+    end;
+
+    [Test]
+    procedure PRB_EmptyTotal_E_7()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Total", true), 7);
+    end;
+
+    [Test]
+    procedure PRB_EmptyTotal_E_8()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Total", true), 8);
+    end;
+
+    [Test]
+    procedure PRB_EmptyOnly_P_1()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Only"), 1);
+    end;
+
+    [Test]
+    procedure PRB_EmptyOnly_P_2()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Only"), 2);
+    end;
+
+    [Test]
+    procedure PRB_EmptyOnly_P_3()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Only"), 3);
+    end;
+
+    [Test]
+    procedure PRB_EmptyOnly_P_4()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Only"), 4);
+    end;
+
+    [Test]
+    procedure PRB_EmptyOnly_P_5()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Only"), 5);
+    end;
+
+    [Test]
+    procedure PRB_EmptyOnly_P_6()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Only"), 6);
+    end;
+
+    [Test]
+    procedure PRB_EmptyOnly_P_7()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Only"), 7);
+    end;
+
+    [Test]
+    procedure PRB_EmptyOnly_P_8()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Only"), 8);
+    end;
+
+    [Test]
+    procedure PRB_EmptyOnly_E_1()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Only", true), 1);
+    end;
+
+    [Test]
+    procedure PRB_EmptyOnly_E_2()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Only", true), 2);
+    end;
+
+    [Test]
+    procedure PRB_EmptyOnly_E_3()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Only", true), 3);
+    end;
+
+    [Test]
+    procedure PRB_EmptyOnly_E_4()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Only", true), 4);
+    end;
+
+    [Test]
+    procedure PRB_EmptyOnly_E_5()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Only", true), 5);
+    end;
+
+    [Test]
+    procedure PRB_EmptyOnly_E_6()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Only", true), 6);
+    end;
+
+    [Test]
+    procedure PRB_EmptyOnly_E_7()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Only", true), 7);
+    end;
+
+    [Test]
+    procedure PRB_EmptyOnly_E_8()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Only", true), 8);
+    end;
+
+    [Test]
+    procedure PRB_EmptyNested_P_1()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Nested"), 1);
+    end;
+
+    [Test]
+    procedure PRB_EmptyNested_P_2()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Nested"), 2);
+    end;
+
+    [Test]
+    procedure PRB_EmptyNested_P_3()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Nested"), 3);
+    end;
+
+    [Test]
+    procedure PRB_EmptyNested_P_4()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Nested"), 4);
+    end;
+
+    [Test]
+    procedure PRB_EmptyNested_P_5()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Nested"), 5);
+    end;
+
+    [Test]
+    procedure PRB_EmptyNested_P_6()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Nested"), 6);
+    end;
+
+    [Test]
+    procedure PRB_EmptyNested_P_7()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Nested"), 7);
+    end;
+
+    [Test]
+    procedure PRB_EmptyNested_P_8()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Nested"), 8);
+    end;
+
+    [Test]
+    procedure PRB_EmptyNested_E_1()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Nested", true), 1);
+    end;
+
+    [Test]
+    procedure PRB_EmptyNested_E_2()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Nested", true), 2);
+    end;
+
+    [Test]
+    procedure PRB_EmptyNested_E_3()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Nested", true), 3);
+    end;
+
+    [Test]
+    procedure PRB_EmptyNested_E_4()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Nested", true), 4);
+    end;
+
+    [Test]
+    procedure PRB_EmptyNested_E_5()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Nested", true), 5);
+    end;
+
+    [Test]
+    procedure PRB_EmptyNested_E_6()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Nested", true), 6);
+    end;
+
+    [Test]
+    procedure PRB_EmptyNested_E_7()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Nested", true), 7);
+    end;
+
+    [Test]
+    procedure PRB_EmptyNested_E_8()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Empty Nested", true), 8);
+    end;
+
+    [Test]
+    procedure PRB_Order_P_1()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Order"), 1);
+    end;
+
+    [Test]
+    procedure PRB_Order_P_2()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Order"), 2);
+    end;
+
+    [Test]
+    procedure PRB_Order_P_3()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Order"), 3);
+    end;
+
+    [Test]
+    procedure PRB_Order_P_4()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Order"), 4);
+    end;
+
+    [Test]
+    procedure PRB_Order_P_5()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Order"), 5);
+    end;
+
+    [Test]
+    procedure PRB_Order_P_6()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Order"), 6);
+    end;
+
+    [Test]
+    procedure PRB_Order_P_7()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Order"), 7);
+    end;
+
+    [Test]
+    procedure PRB_Order_P_8()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Order"), 8);
+    end;
+
+    [Test]
+    procedure PRB_Order_E_1()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Order", true), 1);
+    end;
+
+    [Test]
+    procedure PRB_Order_E_2()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Order", true), 2);
+    end;
+
+    [Test]
+    procedure PRB_Order_E_3()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Order", true), 3);
+    end;
+
+    [Test]
+    procedure PRB_Order_E_4()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Order", true), 4);
+    end;
+
+    [Test]
+    procedure PRB_Order_E_5()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Order", true), 5);
+    end;
+
+    [Test]
+    procedure PRB_Order_E_6()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Order", true), 6);
+    end;
+
+    [Test]
+    procedure PRB_Order_E_7()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Order", true), 7);
+    end;
+
+    [Test]
+    procedure PRB_Order_E_8()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP Order", true), 8);
+    end;
+
+    [Test]
+    procedure PRB_CrossApp_P_1()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP XA Report"), 1);
+    end;
+
+    [Test]
+    procedure PRB_CrossApp_P_2()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP XA Report"), 2);
+    end;
+
+    [Test]
+    procedure PRB_CrossApp_P_3()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP XA Report"), 3);
+    end;
+
+    [Test]
+    procedure PRB_CrossApp_P_4()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP XA Report"), 4);
+    end;
+
+    [Test]
+    procedure PRB_CrossApp_P_5()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP XA Report"), 5);
+    end;
+
+    [Test]
+    procedure PRB_CrossApp_P_6()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP XA Report"), 6);
+    end;
+
+    [Test]
+    procedure PRB_CrossApp_P_7()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP XA Report"), 7);
+    end;
+
+    [Test]
+    procedure PRB_CrossApp_P_8()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP XA Report"), 8);
+    end;
+
+    [Test]
+    procedure PRB_CrossApp_E_1()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP XA Report", true), 1);
+    end;
+
+    [Test]
+    procedure PRB_CrossApp_E_2()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP XA Report", true), 2);
+    end;
+
+    [Test]
+    procedure PRB_CrossApp_E_3()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP XA Report", true), 3);
+    end;
+
+    [Test]
+    procedure PRB_CrossApp_E_4()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP XA Report", true), 4);
+    end;
+
+    [Test]
+    procedure PRB_CrossApp_E_5()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP XA Report", true), 5);
+    end;
+
+    [Test]
+    procedure PRB_CrossApp_E_6()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP XA Report", true), 6);
+    end;
+
+    [Test]
+    procedure PRB_CrossApp_E_7()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP XA Report", true), 7);
+    end;
+
+    [Test]
+    procedure PRB_CrossApp_E_8()
+    begin
+        Slice(Report.WordXmlPart(Report::"LT WXP XA Report", true), 8);
+    end;
+
+    [Test]
+    procedure PRB_R1305_1()
     var
-        Observer: Codeunit "Probe Observer";
         Part: Text;
     begin
-        // Base Application report 1305 "Standard Sales - Order Conf." (al-runner issue 7367).
         Part := Report.WordXmlPart(Report::"Standard Sales - Order Conf.");
-        Observer.Observe('len', Format(StrLen(Part)));
-        Observer.Observe('addr8 before lbl', Format(StrPos(Part, '<ShipToAddress8>') < StrPos(Part, '<ShipToAddress_Lbl>')));
-        Observer.Observe('addr slice', CopyStr(Part, StrPos(Part, '<ShipToAddress'), 400));
-        Observer.Expect('len', 'TBD');
-        Observer.Expect('addr8 before lbl', 'TBD');
-        Observer.Expect('addr slice', 'TBD');
+        Slice(CopyStr(Part, StrPos(Part, '<ShipToAddress') - 150), 1);
+    end;
+
+    [Test]
+    procedure PRB_R1305_2()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"Standard Sales - Order Conf.");
+        Slice(CopyStr(Part, StrPos(Part, '<ShipToAddress') - 150), 2);
+    end;
+
+    [Test]
+    procedure PRB_R1305_3()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"Standard Sales - Order Conf.");
+        Slice(CopyStr(Part, StrPos(Part, '<ShipToAddress') - 150), 3);
+    end;
+
+    [Test]
+    procedure PRB_R1305_4()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"Standard Sales - Order Conf.");
+        Slice(CopyStr(Part, StrPos(Part, '<ShipToAddress') - 150), 4);
+    end;
+
+    [Test]
+    procedure PRB_R1305_5()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"Standard Sales - Order Conf.");
+        Slice(CopyStr(Part, StrPos(Part, '<ShipToAddress') - 150), 5);
+    end;
+
+    [Test]
+    procedure PRB_R1305_6()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"Standard Sales - Order Conf.");
+        Slice(CopyStr(Part, StrPos(Part, '<ShipToAddress') - 150), 6);
+    end;
+
+    [Test]
+    procedure PRB_R1305_7()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"Standard Sales - Order Conf.");
+        Slice(CopyStr(Part, StrPos(Part, '<ShipToAddress') - 150), 7);
+    end;
+
+    [Test]
+    procedure PRB_R1305_8()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"Standard Sales - Order Conf.");
+        Slice(CopyStr(Part, StrPos(Part, '<ShipToAddress') - 150), 8);
+    end;
+
+    [Test]
+    procedure PRB_R1305_9()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"Standard Sales - Order Conf.");
+        Slice(CopyStr(Part, StrPos(Part, '<ShipToAddress') - 150), 9);
+    end;
+
+    [Test]
+    procedure PRB_R1305_10()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"Standard Sales - Order Conf.");
+        Slice(CopyStr(Part, StrPos(Part, '<ShipToAddress') - 150), 10);
+    end;
+
+    [Test]
+    procedure PRB_R1305_11()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"Standard Sales - Order Conf.");
+        Slice(CopyStr(Part, StrPos(Part, '<ShipToAddress') - 150), 11);
+    end;
+
+    local procedure Slice(Part: Text; K: Integer)
+    var
+        Observer: Codeunit "Probe Observer";
+        CR: Text[1];
+        LF: Text[1];
+        Compact: Text;
+    begin
+        CR[1] := 13;
+        LF[1] := 10;
+        Compact := Part.Replace(CR + LF, '').Replace('  ', '').Replace('<', '[');
+        Observer.Observe('s', CopyStr(Compact, (K - 1) * 160 + 1, 160));
+        Observer.Expect('s', '~');
         Observer.Verify();
     end;
 }
