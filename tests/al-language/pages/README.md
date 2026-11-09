@@ -30,7 +30,7 @@ The page object: page triggers, parts, controls, actions, CurrPage, Run and RunM
 - `list-key-navigation/`: moving through a list page on a key (2 AL files).
 - `list-order/`: row order of list pages (5 AL files).
 - `list-refill-key-order/`: refilling a list on its key and order (1 AL file).
-- `long-list-open/`: opening and moving in long lists (2 AL files).
+- `long-list-open/`: opening and moving in long lists (3 AL files).
 - `lookups/`: Lookup and DrillDown (1 AL file).
 - `missing-object-fqn/`: running a page or report whose fully qualified name does not exist (1 AL file).
 - `modify-denied/`: pages where modify is not allowed (1 AL file).
