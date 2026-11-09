@@ -2256,46 +2256,6 @@ xmlport 97979 "LT X63 Z Table Triggers"
         {
             MaxOccurs = Once;
 
-            trigger OnPreXmlItem()
-            begin
-                Log.Add('orders.OnPreXmlItem');
-            end;
-
-            trigger OnAfterGetRecord()
-            begin
-                Log.Add('orders.OnAfterGetRecord');
-            end;
-
-            trigger OnAfterInitRecord()
-            begin
-                Log.Add('orders.OnAfterInitRecord');
-            end;
-
-            trigger OnBeforeInsertRecord()
-            begin
-                Log.Add('orders.OnBeforeInsertRecord');
-            end;
-
-            trigger OnAfterInsertRecord()
-            begin
-                Log.Add('orders.OnAfterInsertRecord');
-            end;
-
-            trigger OnBeforeModifyRecord()
-            begin
-                Log.Add('orders.OnBeforeModifyRecord');
-            end;
-
-            trigger OnAfterModifyRecord()
-            begin
-                Log.Add('orders.OnAfterModifyRecord');
-            end;
-
-            trigger OnPostXmlItem()
-            begin
-                Log.Add('orders.OnPostXmlItem');
-            end;
-
             textelement(TI)
             {
                 textelement(T1)
@@ -2315,6 +2275,8 @@ xmlport 97979 "LT X63 Z Table Triggers"
                 tableelement(r; "LT X63 Ref")
                 {
                     XmlName = 'r';
+                    fieldelement(Ref; r."Ref") { }
+
                     trigger OnPreXmlItem()
                     begin
                         Log.Add('r.OnPreXmlItem');
@@ -2349,15 +2311,43 @@ xmlport 97979 "LT X63 Z Table Triggers"
                     begin
                         Log.Add('r.OnAfterModifyRecord');
                     end;
-
-                    trigger OnPostXmlItem()
-                    begin
-                        Log.Add('r.OnPostXmlItem');
-                    end;
-
-                    fieldelement(Ref; r."Ref") { }
                 }
             }
+
+            trigger OnPreXmlItem()
+            begin
+                Log.Add('orders.OnPreXmlItem');
+            end;
+
+            trigger OnAfterGetRecord()
+            begin
+                Log.Add('orders.OnAfterGetRecord');
+            end;
+
+            trigger OnAfterInitRecord()
+            begin
+                Log.Add('orders.OnAfterInitRecord');
+            end;
+
+            trigger OnBeforeInsertRecord()
+            begin
+                Log.Add('orders.OnBeforeInsertRecord');
+            end;
+
+            trigger OnAfterInsertRecord()
+            begin
+                Log.Add('orders.OnAfterInsertRecord');
+            end;
+
+            trigger OnBeforeModifyRecord()
+            begin
+                Log.Add('orders.OnBeforeModifyRecord');
+            end;
+
+            trigger OnAfterModifyRecord()
+            begin
+                Log.Add('orders.OnAfterModifyRecord');
+            end;
         }
     }
 
