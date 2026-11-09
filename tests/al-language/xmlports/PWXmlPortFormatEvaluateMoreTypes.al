@@ -525,7 +525,7 @@ codeunit 65221 "LT AI XmlPort Types"
 
     local procedure XmlOne(Element: Text; Value: Text): Text
     begin
-        exit('<?xml version="1.0" encoding="utf-8"?><Root><T><Id>1</Id><' + Element + '>' + Value + '</' + Element + '></T></Root>');
+        exit('<?xml version="1.0" encoding="utf-8"?><Root><T><Id>1</Id><' + Element + '>' + Value.Replace('<', '&lt;').Replace('>', '&gt;') + '</' + Element + '></T></Root>');
     end;
 
     local procedure XmlAttr(AttrName: Text; Value: Text): Text
@@ -537,14 +537,16 @@ codeunit 65221 "LT AI XmlPort Types"
     procedure Export_Xml_PopulatedRow()
     begin
         Observer.Observe('export_xml_populated', ExportText(Xmlport::"LT AI Xml", true, false, TextEncoding::UTF16));
-        Observer.Finish();
+        Observer.Expect('export_xml_populated', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <T>|    <Id>1</Id>|    <Df>CM+1D</Df>|    <Big>9223372036854775807</Big>|    <Rid>LT AI Table: 1</Rid>|    <Bl>*</Bl>|    <Md>{00000000-0000-0000-0000-000000000000}</Md>|    <Ms>{00000000-0000-0000-0000-000000000000}</Ms>|  </T>|</Root>|');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Export_Xml_BlankRow()
     begin
         Observer.Observe('export_xml_blank', ExportText(Xmlport::"LT AI Xml", false, true, TextEncoding::UTF16));
-        Observer.Finish();
+        Observer.Expect('export_xml_blank', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <T>|    <Id>2</Id>|    <Df />|    <Big>0</Big>|    <Rid />|    <Bl> </Bl>|    <Md>{00000000-0000-0000-0000-000000000000}</Md>|    <Ms>{00000000-0000-0000-0000-000000000000}</Ms>|  </T>|</Root>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -552,7 +554,9 @@ codeunit 65221 "LT AI XmlPort Types"
     begin
         Observer.Observe('export_legacy_populated', ExportText(Xmlport::"LT AI Legacy", true, false, TextEncoding::UTF16));
         Observer.Observe('export_legacy_blank', ExportText(Xmlport::"LT AI Legacy", false, true, TextEncoding::UTF16));
-        Observer.Finish();
+        Observer.Expect('export_legacy_populated', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <T>|    <Id>1</Id>|    <Df>CM+1D</Df>|    <Big>9223372036854775807</Big>|    <Rid>LT AI Table: 1</Rid>|    <Bl>*</Bl>|    <Md>{00000000-0000-0000-0000-000000000000}</Md>|    <Ms>{00000000-0000-0000-0000-000000000000}</Ms>|  </T>|</Root>|');
+        Observer.Expect('export_legacy_blank', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <T>|    <Id>2</Id>|    <Df />|    <Big>0</Big>|    <Rid />|    <Bl> </Bl>|    <Md>{00000000-0000-0000-0000-000000000000}</Md>|    <Ms>{00000000-0000-0000-0000-000000000000}</Ms>|  </T>|</Root>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -560,7 +564,9 @@ codeunit 65221 "LT AI XmlPort Types"
     begin
         Observer.Observe('export_attr_populated', ExportText(Xmlport::"LT AI Attr Xml", true, false, TextEncoding::UTF16));
         Observer.Observe('export_attr_blank', ExportText(Xmlport::"LT AI Attr Xml", false, true, TextEncoding::UTF16));
-        Observer.Finish();
+        Observer.Expect('export_attr_populated', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <T Id="1" Df="CM+1D" Big="9223372036854775807" Rid="LT AI Table: 1" />|</Root>|');
+        Observer.Expect('export_attr_blank', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <T Id="2" Big="0" />|</Root>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -570,7 +576,11 @@ codeunit 65221 "LT AI XmlPort Types"
         Observer.Observe('export_vt_xml_blank', ExportText(Xmlport::"LT AI VarText Xml", false, true, TextEncoding::UTF8));
         Observer.Observe('export_vt_legacy_populated', ExportText(Xmlport::"LT AI VarText Legacy", true, false, TextEncoding::UTF8));
         Observer.Observe('export_vt_legacy_blank', ExportText(Xmlport::"LT AI VarText Legacy", false, true, TextEncoding::UTF8));
-        Observer.Finish();
+        Observer.Expect('export_vt_xml_populated', '"1","CM+1D","9223372036854775807","LT AI Table: 1","*"|');
+        Observer.Expect('export_vt_xml_blank', '"2","","0",""," "|');
+        Observer.Expect('export_vt_legacy_populated', '"1","CM+1D","9223372036854775807","LT AI Table: 1","*"|');
+        Observer.Expect('export_vt_legacy_blank', '"2","","0",""," "|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -609,7 +619,15 @@ codeunit 65221 "LT AI XmlPort Types"
         ImportText(Xmlport::"LT AI Imp Big Xml", XmlOne('Big', '12.5'), 'big_decimal');
         ImportText(Xmlport::"LT AI Imp Big Xml", XmlOne('Big', 'abc'), 'big_text');
         ImportText(Xmlport::"LT AI Imp Big Xml", XmlOne('Big', ''), 'big_blank');
-        Observer.Finish();
+        Observer.Expect('big_min', 'imported=Yes error=[] code=[] stored=[Df= Big=-9223372036854775808 Rid= Bl= Md=No Ms=0]');
+        Observer.Expect('big_zero', 'imported=Yes error=[] code=[] stored=[Df= Big=0 Rid= Bl= Md=No Ms=0]');
+        Observer.Expect('big_max', 'imported=Yes error=[] code=[] stored=[Df= Big=9223372036854775807 Rid= Bl= Md=No Ms=0]');
+        Observer.Expect('big_overflow', 'imported=No error=[The value "9223372036854775808" can''t be evaluated into type BigInteger.] code=[Evaluate] stored=[no row]');
+        Observer.Expect('big_thousands', 'imported=No error=[The value "1,234" can''t be evaluated into type BigInteger.] code=[Evaluate] stored=[no row]');
+        Observer.Expect('big_decimal', 'imported=No error=[The value "12.5" can''t be evaluated into type BigInteger.] code=[Evaluate] stored=[no row]');
+        Observer.Expect('big_text', 'imported=No error=[The value "abc" can''t be evaluated into type BigInteger.] code=[Evaluate] stored=[no row]');
+        Observer.Expect('big_blank', 'imported=Yes error=[] code=[] stored=[Df= Big=0 Rid= Bl= Md=No Ms=0]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -620,7 +638,12 @@ codeunit 65221 "LT AI XmlPort Types"
         ImportText(Xmlport::"LT AI Imp Big Legacy", XmlOne('Big', '1,234'), 'big_thousands');
         ImportText(Xmlport::"LT AI Imp Big Legacy", XmlOne('Big', 'abc'), 'big_text');
         ImportText(Xmlport::"LT AI Imp Big Legacy", XmlOne('Big', ''), 'big_blank');
-        Observer.Finish();
+        Observer.Expect('big_min', 'imported=Yes error=[] code=[] stored=[Df= Big=-9223372036854775808 Rid= Bl= Md=No Ms=0]');
+        Observer.Expect('big_max', 'imported=Yes error=[] code=[] stored=[Df= Big=9223372036854775807 Rid= Bl= Md=No Ms=0]');
+        Observer.Expect('big_thousands', 'imported=No error=[Imported XML cannot validate with the schema: The ''Big'' element is invalid - The value ''1,234'' is invalid according to its datatype ''http://www.w3.org/2001/XMLSchema:long'' - The string ''1,234'' is not a valid Int64 value.] code=[XmlPortInvalidXml] stored=[no row]');
+        Observer.Expect('big_text', 'imported=No error=[The value "abc" can''t be evaluated into type BigInteger.] code=[Evaluate] stored=[no row]');
+        Observer.Expect('big_blank', 'imported=Yes error=[] code=[] stored=[Df= Big=0 Rid= Bl= Md=No Ms=0]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -633,7 +656,14 @@ codeunit 65221 "LT AI XmlPort Types"
         ImportText(Xmlport::"LT AI Imp Rid Xml", XmlOne('Rid', 'garbage'), 'rid_garbage');
         ImportText(Xmlport::"LT AI Imp Rid Legacy", XmlOne('Rid', 'LT AI Table: 1'), 'rid_legacy_display');
         ImportText(Xmlport::"LT AI Imp Rid Legacy", XmlOne('Rid', 'garbage'), 'rid_legacy_garbage');
-        Observer.Finish();
+        Observer.Expect('rid_display', 'imported=Yes error=[] code=[] stored=[Df= Big=0 Rid=LT AI Table: 1 Bl= Md=No Ms=0]');
+        Observer.Expect('rid_table_id', 'imported=Yes error=[] code=[] stored=[Df= Big=0 Rid=LT AI Table: 1 Bl= Md=No Ms=0]');
+        Observer.Expect('rid_number', 'imported=Yes error=[] code=[] stored=[Df= Big=0 Rid=LT AI Table: 1 Bl= Md=No Ms=0]');
+        Observer.Expect('rid_blank', 'imported=Yes error=[] code=[] stored=[Df= Big=0 Rid= Bl= Md=No Ms=0]');
+        Observer.Expect('rid_garbage', 'imported=No error=[The value "garbage" can''t be evaluated into type RecordID.] code=[Evaluate] stored=[no row]');
+        Observer.Expect('rid_legacy_display', 'imported=No error=[The type RecordID is not supported.] code=[NotSupportedType] stored=[no row]');
+        Observer.Expect('rid_legacy_garbage', 'imported=No error=[The type RecordID is not supported.] code=[NotSupportedType] stored=[no row]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -646,7 +676,14 @@ codeunit 65221 "LT AI XmlPort Types"
         ImportText(Xmlport::"LT AI Imp Media Xml", XmlOne('Md', '00000000-0000-0000-0000-000000000000'), 'media_empty_guid');
         ImportText(Xmlport::"LT AI Imp MediaSet Xml", XmlOne('Ms', ''), 'mediaset_blank');
         ImportText(Xmlport::"LT AI Imp Blob Legacy", XmlOne('Bl', 'YmxvYiB0ZXh0'), 'blob_legacy_base64');
-        Observer.Finish();
+        Observer.Expect('blob_base64', 'imported=No error=[The type BLOB is not supported.] code=[NotSupportedType] stored=[no row]');
+        Observer.Expect('blob_plain', 'imported=No error=[The type BLOB is not supported.] code=[NotSupportedType] stored=[no row]');
+        Observer.Expect('blob_blank', 'imported=No error=[The type BLOB is not supported.] code=[NotSupportedType] stored=[no row]');
+        Observer.Expect('media_blank', 'imported=No error=[The type Media is not supported.] code=[NotSupportedType] stored=[no row]');
+        Observer.Expect('media_empty_guid', 'imported=No error=[The type Media is not supported.] code=[NotSupportedType] stored=[no row]');
+        Observer.Expect('mediaset_blank', 'imported=No error=[The type MediaSet is not supported.] code=[NotSupportedType] stored=[no row]');
+        Observer.Expect('blob_legacy_base64', 'imported=No error=[The type BLOB is not supported.] code=[NotSupportedType] stored=[no row]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -657,7 +694,12 @@ codeunit 65221 "LT AI XmlPort Types"
         ImportText(Xmlport::"LT AI Attr Xml", XmlAttr('Big', '-5'), 'attr_big');
         ImportText(Xmlport::"LT AI Attr Xml", XmlAttr('Big', 'abc'), 'attr_big_text');
         ImportText(Xmlport::"LT AI Attr Xml", XmlAttr('Rid', 'LT AI Table: 1'), 'attr_rid');
-        Observer.Finish();
+        Observer.Expect('attr_df', 'imported=Yes error=[] code=[] stored=[Df=CM+1D Big=0 Rid= Bl= Md=No Ms=0]');
+        Observer.Expect('attr_df_garbage', 'imported=No error=[The date formula ''GARBAGE'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.] code=[Evaluate] stored=[no row]');
+        Observer.Expect('attr_big', 'imported=Yes error=[] code=[] stored=[Df= Big=-5 Rid= Bl= Md=No Ms=0]');
+        Observer.Expect('attr_big_text', 'imported=No error=[The value "abc" can''t be evaluated into type BigInteger.] code=[Evaluate] stored=[no row]');
+        Observer.Expect('attr_rid', 'imported=Yes error=[] code=[] stored=[Df= Big=0 Rid=LT AI Table: 1 Bl= Md=No Ms=0]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -670,6 +712,13 @@ codeunit 65221 "LT AI XmlPort Types"
         ImportText(Xmlport::"LT AI VT Imp Df Big Legacy", '1,garbage,-5', 'vt_legacy_bad_df');
         ImportText(Xmlport::"LT AI VT Imp Rid Xml", '1,LT AI Table: 1', 'vt_xml_rid');
         ImportText(Xmlport::"LT AI VT Imp Blob Xml", '1,YmxvYiB0ZXh0', 'vt_xml_blob');
-        Observer.Finish();
+        Observer.Expect('vt_xml', 'imported=Yes error=[] code=[] stored=[Df=CM+1D Big=-5 Rid= Bl= Md=No Ms=0]');
+        Observer.Expect('vt_xml_bad_df', 'imported=No error=[The date formula ''GARBAGE'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.] code=[Evaluate] stored=[no row]');
+        Observer.Expect('vt_xml_bad_big', 'imported=No error=[The value "abc" can''t be evaluated into type BigInteger.] code=[Evaluate] stored=[no row]');
+        Observer.Expect('vt_legacy', 'imported=Yes error=[] code=[] stored=[Df=CM+1D Big=-5 Rid= Bl= Md=No Ms=0]');
+        Observer.Expect('vt_legacy_bad_df', 'imported=No error=[The date formula ''GARBAGE'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.] code=[Evaluate] stored=[no row]');
+        Observer.Expect('vt_xml_rid', 'imported=Yes error=[] code=[] stored=[Df= Big=0 Rid=LT AI Table: 1 Bl= Md=No Ms=0]');
+        Observer.Expect('vt_xml_blob', 'imported=No error=[The value "YmxvYiB0ZXh0" can''t be evaluated into type BLOB.] code=[Evaluate] stored=[no row]');
+        Observer.Verify();
     end;
 }
