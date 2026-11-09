@@ -9,8 +9,8 @@ codeunit 61333 "LT RP Runner Logic"
     // OnRun of the runner. Most test codeunits run as Microsoft's "Test Runner - Mgt".RunTests
     // runs them: `Codeunit.Run(id)` without using the return value. The exceptions:
     //   P5 (61340, 61341): `Ok := Codeunit.Run(id)`, recorded as "RUN Yes/No" with the last error.
-    //   P5b (61347): `asserterror Codeunit.Run(id)` with no return value, recorded as "ASSERT" with
-    //   the last error text and code, then "X runner continued".
+    //   P5b (61347): `asserterror Codeunit.Run(id)` with no return value inside a TryFunction, recorded as
+    //   "ASSERT" with the TryFunction's result, the last error text and code, then "X runner continued".
     //   P6 (61342): run twice in a row.
     //   P7 (61343): runs 61343 and then 61344 in this one runner invocation.
     procedure RunTestCodeunit(RunnerId: Integer; CodeunitId: Integer)
@@ -34,9 +34,11 @@ codeunit 61333 "LT RP Runner Logic"
                     Log.ArmOnRunError(true);
                     Commit();
                     ClearLastError();
-                    asserterror Codeunit.Run(CodeunitId);
+                    // The asserterror sits in a TryFunction: when Codeunit.Run raises nothing, the
+                    // asserterror itself fails, and that failure is recorded instead of ending the runner.
+                    Ok := TryAssertRun(CodeunitId);
                     Log.ArmOnRunError(false);
-                    Log.Add(CodeunitId, '', 'ASSERT', GetLastErrorText() + ' code=' + GetLastErrorCode());
+                    Log.Add(CodeunitId, '', 'ASSERT', 'try=' + Format(Ok) + ' ' + GetLastErrorText() + ' code=' + GetLastErrorCode());
                     Log.Add(CodeunitId, '', 'X runner continued', '');
                 end;
             Codeunit::"LT RP P6 Twice":
@@ -53,6 +55,12 @@ codeunit 61333 "LT RP Runner Logic"
                 Codeunit.Run(CodeunitId);
         end;
         Log.SetRunner(0);
+    end;
+
+    [TryFunction]
+    local procedure TryAssertRun(CodeunitId: Integer)
+    begin
+        asserterror Codeunit.Run(CodeunitId);
     end;
 
     // OnBeforeTestRun, first thing. False means the runner answers false without asking
