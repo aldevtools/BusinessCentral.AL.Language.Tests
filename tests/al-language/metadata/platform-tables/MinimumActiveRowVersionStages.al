@@ -1,6 +1,11 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/database/database-minimumactiverowversion-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); table 67516 "LT RV Row" (PlTRowVersionValue.al)
+// Measured on BC 27.5, 28.5 and 29.0 (Linux legs): Min is fixed per test codeunit. Its first read in a codeunit is LastUsedRowVersion() + 1, and
+// it does not move again for the rest of the codeunit: not through an open Insert or Modify, not through Commit, not through a second write, a
+// DeleteAll, or the next test (also under RequiredTestIsolation = Codeunit and = Function). LastUsedRowVersion() grows with each Insert and Modify,
+// so after the first write Min is below LastUsedRowVersion() + 1. The first row inserted after the first read has SystemRowVersion = Min; later rows
+// are above Min; a row's SystemRowVersion is never above LastUsedRowVersion(). The distance Min - Last differs between BC versions and runs and is not asserted.
 // Probe: how Database.MinimumActiveRowVersion() relates to LastUsedRowVersion() and to the SystemRowVersion of a written row, read in a
 // fixed order of stages: the first read of a test (no write yet), an open Insert, an open Modify, after Commit, a second write after Commit,
 // and a DeleteAll with and without Commit. The same sequence runs in a codeunit with the default TestIsolation, with RequiredTestIsolation = Codeunit
@@ -25,7 +30,7 @@ codeunit 97985 "MRV Sequence"
         exit('less');
     end;
 
-    procedure Stage(var Observer: Codeunit "Probe Observer"; Tag: Text; Min0: BigInteger; Last0: BigInteger; var PrevMin: BigInteger; RowVersion: BigInteger)
+    local procedure Stage(var Observer: Codeunit "Probe Observer"; Tag: Text; Min0: BigInteger; Last0: BigInteger; var PrevMin: BigInteger; RowVersion: BigInteger)
     var
         Min: BigInteger;
         Last: BigInteger;
@@ -35,26 +40,41 @@ codeunit 97985 "MRV Sequence"
         Observer.Observe(Tag + ' min/first', Rel(Min, Min0));
         Observer.Observe(Tag + ' min/prev', Rel(Min, PrevMin));
         Observer.Observe(Tag + ' last/first', Rel(Last, Last0));
-        Observer.Observe(Tag + ' min-last', Format(Min - Last));
+        Observer.Observe(Tag + ' min/last+1', Rel(Min, Last + 1));
         if RowVersion <> 0 then begin
             Observer.Observe(Tag + ' row/min', Rel(RowVersion, Min));
-            Observer.Observe(Tag + ' row/last', Rel(RowVersion, Last));
+            Observer.Observe(Tag + ' row<=last', Format(RowVersion <= Last));
         end;
         Observer.Observe(Tag + ' tx', Format(IsInWriteTransaction()));
         PrevMin := Min;
     end;
 
-    procedure Run(var Observer: Codeunit "Probe Observer"; Tag: Text)
+    local procedure Expect(var Observer: Codeunit "Probe Observer"; Tag: Text; HasRow: Boolean; RowVsMin: Text; Tx: Text)
+    begin
+        Observer.Expect(Tag + ' min/first', 'same');
+        Observer.Expect(Tag + ' min/prev', 'same');
+        Observer.Expect(Tag + ' last/first', 'greater');
+        Observer.Expect(Tag + ' min/last+1', 'less');
+        if HasRow then begin
+            Observer.Expect(Tag + ' row/min', RowVsMin);
+            Observer.Expect(Tag + ' row<=last', 'Yes');
+        end;
+        Observer.Expect(Tag + ' tx', Tx);
+    end;
+
+    // FirstTest: the first test of its codeunit (nothing written yet), so Min = Last + 1 at the first read and the first row has SystemRowVersion = Min.
+    procedure Run(var Observer: Codeunit "Probe Observer"; Tag: Text; FirstTest: Boolean)
     var
         Row: Record "LT RV Row";
         Min0: BigInteger;
         Last0: BigInteger;
         PrevMin: BigInteger;
+        FirstRowVsMin: Text;
     begin
         Min0 := MinimumActiveRowVersion();
         Last0 := LastUsedRowVersion();
         PrevMin := Min0;
-        Observer.Observe(Tag + ' first min-last', Format(Min0 - Last0));
+        Observer.Observe(Tag + ' first min/last+1', Rel(Min0, Last0 + 1));
         Observer.Observe(Tag + ' first min>0', Format(Min0 > 0));
         Observer.Observe(Tag + ' first tx', Format(IsInWriteTransaction()));
         Row.Id := 1;
@@ -81,6 +101,24 @@ codeunit 97985 "MRV Sequence"
         Stage(Observer, Tag + ' del', Min0, Last0, PrevMin, 0);
         Commit();
         Stage(Observer, Tag + ' delcom', Min0, Last0, PrevMin, 0);
+
+        if FirstTest then begin
+            Observer.Expect(Tag + ' first min/last+1', 'same');
+            FirstRowVsMin := 'same';
+        end else begin
+            Observer.Expect(Tag + ' first min/last+1', 'less');
+            FirstRowVsMin := 'greater';
+        end;
+        Observer.Expect(Tag + ' first min>0', 'Yes');
+        Observer.Expect(Tag + ' first tx', 'No');
+        Expect(Observer, Tag + ' ins', true, FirstRowVsMin, 'Yes');
+        Expect(Observer, Tag + ' mod', true, 'greater', 'Yes');
+        Expect(Observer, Tag + ' com', true, 'greater', 'No');
+        Expect(Observer, Tag + ' ins2', true, 'greater', 'Yes');
+        Expect(Observer, Tag + ' mod2', true, 'greater', 'Yes');
+        Expect(Observer, Tag + ' com2', true, 'greater', 'No');
+        Expect(Observer, Tag + ' del', false, '', 'Yes');
+        Expect(Observer, Tag + ' delcom', false, '', 'No');
     end;
 }
 
@@ -97,8 +135,8 @@ codeunit 97987 "MRV Default Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Sequence.Run(Observer, 'a');
-        Observer.Finish();
+        Sequence.Run(Observer, 'a', true);
+        Observer.Verify();
     end;
 
     [Test]
@@ -106,8 +144,8 @@ codeunit 97987 "MRV Default Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Sequence.Run(Observer, 'b');
-        Observer.Finish();
+        Sequence.Run(Observer, 'b', false);
+        Observer.Verify();
     end;
 }
 
@@ -125,8 +163,8 @@ codeunit 97988 "MRV Codeunit Isolation Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Sequence.Run(Observer, 'a');
-        Observer.Finish();
+        Sequence.Run(Observer, 'a', true);
+        Observer.Verify();
     end;
 
     [Test]
@@ -134,8 +172,8 @@ codeunit 97988 "MRV Codeunit Isolation Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Sequence.Run(Observer, 'b');
-        Observer.Finish();
+        Sequence.Run(Observer, 'b', false);
+        Observer.Verify();
     end;
 }
 
@@ -153,8 +191,8 @@ codeunit 97989 "MRV Function Isolation Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Sequence.Run(Observer, 'a');
-        Observer.Finish();
+        Sequence.Run(Observer, 'a', true);
+        Observer.Verify();
     end;
 
     [Test]
@@ -162,21 +200,25 @@ codeunit 97989 "MRV Function Isolation Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Sequence.Run(Observer, 'b');
-        Observer.Finish();
+        Sequence.Run(Observer, 'b', false);
+        Observer.Verify();
     end;
 }
 
-codeunit 97990 "MRV Open Write First Tests"
+codeunit 97990 "MRV Open First Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
 
+    // Hypothesis checked here: Min is fixed when the codeunit starts, not at the first read, so after three writes Min is below Last + 1 and
+    // the last written row is above Min.
     [Test]
     procedure MinRowVersion_OpenWriteBeforeFirstRead()
     var
         Observer: Codeunit "Probe Observer";
         Row: Record "LT RV Row";
+        Min: BigInteger;
+        Last: BigInteger;
     begin
         Row.Id := 1;
         Row.Insert();
@@ -185,23 +227,38 @@ codeunit 97990 "MRV Open Write First Tests"
         Row.Id := 3;
         Row.Insert();
         Row.Get(3);
-        Observer.Observe('open first min-last', Format(MinimumActiveRowVersion() - LastUsedRowVersion()));
-        Observer.Observe('open first row/min', Format(Row.SystemRowVersion - MinimumActiveRowVersion()));
-        Observer.Observe('open first tx', Format(IsInWriteTransaction()));
-        Observer.Finish();
+        Min := MinimumActiveRowVersion();
+        Last := LastUsedRowVersion();
+        if Min = Last + 1 then
+            Observer.Observe('open write first min/last+1', 'same')
+        else
+            if Min > Last + 1 then
+                Observer.Observe('open write first min/last+1', 'greater')
+            else
+                Observer.Observe('open write first min/last+1', 'less');
+        Observer.Observe('open write first row/min', Format(Row.SystemRowVersion > Min));
+        Observer.Observe('open write first tx', Format(IsInWriteTransaction()));
+        Observer.Expect('open write first min/last+1', 'less');
+        Observer.Expect('open write first row/min', 'Yes');
+        Observer.Expect('open write first tx', 'Yes');
+        Observer.Verify();
     end;
 }
 
-codeunit 97991 "MRV Committed Write First Tests"
+codeunit 97991 "MRV Committed First Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
 
+    // Hypothesis checked here: Min is fixed when the codeunit starts, not at the first read, so after three writes Min is below Last + 1 and
+    // the last written row is above Min.
     [Test]
     procedure MinRowVersion_CommittedWriteBeforeFirstRead()
     var
         Observer: Codeunit "Probe Observer";
         Row: Record "LT RV Row";
+        Min: BigInteger;
+        Last: BigInteger;
     begin
         Row.Id := 1;
         Row.Insert();
@@ -211,9 +268,20 @@ codeunit 97991 "MRV Committed Write First Tests"
         Row.Insert();
         Commit();
         Row.Get(3);
-        Observer.Observe('committed first min-last', Format(MinimumActiveRowVersion() - LastUsedRowVersion()));
-        Observer.Observe('committed first row/min', Format(Row.SystemRowVersion - MinimumActiveRowVersion()));
-        Observer.Observe('committed first tx', Format(IsInWriteTransaction()));
-        Observer.Finish();
+        Min := MinimumActiveRowVersion();
+        Last := LastUsedRowVersion();
+        if Min = Last + 1 then
+            Observer.Observe('committed write first min/last+1', 'same')
+        else
+            if Min > Last + 1 then
+                Observer.Observe('committed write first min/last+1', 'greater')
+            else
+                Observer.Observe('committed write first min/last+1', 'less');
+        Observer.Observe('committed write first row/min', Format(Row.SystemRowVersion > Min));
+        Observer.Observe('committed write first tx', Format(IsInWriteTransaction()));
+        Observer.Expect('committed write first min/last+1', 'less');
+        Observer.Expect('committed write first row/min', 'Yes');
+        Observer.Expect('committed write first tx', 'No');
+        Observer.Verify();
     end;
 }
