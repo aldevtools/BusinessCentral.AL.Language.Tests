@@ -976,4 +976,53 @@ codeunit 71504 "LT RcA SetFilter"
         Observer.Expect('starPQStar', '|*P?*');
         Observer.Verify();
     end;
+
+    [TryFunction]
+    local procedure TrySetTxFilter(Expr: Text; var R: Record "LT RcA Main" temporary)
+    begin
+        R.SetFilter(Tx, Expr);
+    end;
+
+    local procedure ObserveTxFilter(ObservedName: Text; Expr: Text)
+    var
+        R: Record "LT RcA Main" temporary;
+        Ok: Boolean;
+    begin
+        Ok := TrySetTxFilter(Expr, R);
+        Observer.Observe(ObservedName, Format(Ok) + '|' + GetLastErrorText() + '|' + GetLastErrorCode() + '|filter=' + R.GetFilter(Tx));
+        ClearLastError();
+    end;
+
+    // AL Runner issue 7462: a filter with a quote that is not closed. A quote that starts the filter and is not closed raises the
+    // filter error (inside a TryFunction the call returns false); a lone quote with a case-insensitive prefix, or inside a
+    // wildcard filter, or after other text, is a plain value: SetFilter succeeds and GetFilter shows the text as given.
+    [Test]
+    procedure SetFilter_Text_UnterminatedQuote_ErrorsOnlyWhenTheQuoteStartsTheFilter()
+    begin
+        ObserveTxFilter('apos only', '''');
+        ObserveTxFilter('at apos', '@''');
+        ObserveTxFilter('at star apos star', '@*''*');
+        ObserveTxFilter('star apos star', '*''*');
+        ObserveTxFilter('abc apos', 'abc''');
+        ObserveTxFilter('at abc apos', '@abc''');
+        ObserveTxFilter('apos abc', '''abc');
+        ObserveTxFilter('at apos abc', '@''abc');
+        ObserveTxFilter('two apos', '''''');
+        ObserveTxFilter('three apos', '''''''');
+        ObserveTxFilter('at two apos', '@''''');
+        ObserveTxFilter('at three apos', '@''''''');
+        Observer.Expect('apos only', 'No|The filter "''" is not valid for the Tx field on the LT RcA Main table. An single quote ('') is missing.|Filter:CSide|filter=');
+        Observer.Expect('at apos', 'Yes|||filter=@''');
+        Observer.Expect('at star apos star', 'Yes|||filter=@*''*');
+        Observer.Expect('star apos star', 'Yes|||filter=*''*');
+        Observer.Expect('abc apos', 'Yes|||filter=abc''');
+        Observer.Expect('at abc apos', 'Yes|||filter=@abc''');
+        Observer.Expect('apos abc', 'No|The filter "''abc" is not valid for the Tx field on the LT RcA Main table. An single quote ('') is missing.|Filter:CSide|filter=');
+        Observer.Expect('at apos abc', 'Yes|||filter=@''abc');
+        Observer.Expect('two apos', 'Yes|||filter=''''');
+        Observer.Expect('three apos', 'No|The filter "''''''" is not valid for the Tx field on the LT RcA Main table. An single quote ('') is missing.|Filter:CSide|filter=');
+        Observer.Expect('at two apos', 'Yes|||filter=@''''');
+        Observer.Expect('at three apos', 'Yes|||filter=@''''''');
+        Observer.Verify();
+    end;
 }
