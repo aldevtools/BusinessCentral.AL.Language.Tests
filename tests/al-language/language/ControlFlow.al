@@ -643,6 +643,103 @@ codeunit 72515 "LT SyT Control Flow"
         QxObserver.Verify();
     end;
 
+    var
+        ForLoopGlobal: Integer;
+
+    local procedure ForLoopStartSetsGlobal(): Integer
+    begin
+        ForLoopGlobal := 100;
+        exit(1);
+    end;
+
+    local procedure ForLoopEndReadsGlobal(): Integer
+    begin
+        exit(ForLoopGlobal + 2);
+    end;
+
+    local procedure ForLoopOne(): Integer
+    begin
+        exit(1);
+    end;
+
+    // AL Runner issue 7458: the loop variable already holds the start value when the end bound is evaluated, so an end bound that reads
+    // the variable (or a function that reads a global loop variable) sees the start value, not the value from before the loop.
+    [Test]
+    procedure ForLoop_StartAssignedBeforeEndBoundIsEvaluated()
+    var
+        Observer: Codeunit "Probe Observer";
+        i: Integer;
+        n: Integer;
+        b: BigInteger;
+        d: Decimal;
+        Dt: Date;
+        Visited: Text;
+    begin
+        n := 10;
+        i := 0;
+        for i := ForLoopOne() to i + n - 1 do
+            Visited += Format(i) + ',';
+        Observer.Observe('to, end reads the variable (old value 0)', Visited);
+
+        Visited := '';
+        i := 0;
+        for i := 5 downto i - 2 do
+            Visited += Format(i) + ',';
+        Observer.Observe('downto, end reads the variable (old value 0)', Visited);
+
+        Visited := '';
+        ForLoopGlobal := 0;
+        for ForLoopGlobal := ForLoopStartSetsGlobal() to ForLoopGlobal + 3 do begin
+            Visited += Format(ForLoopGlobal) + ',';
+            if StrLen(Visited) > 60 then
+                break;
+        end;
+        Observer.Observe('start function sets the global to 100, end reads it', Visited);
+
+        Visited := '';
+        ForLoopGlobal := 0;
+        for ForLoopGlobal := ForLoopOne() to ForLoopEndReadsGlobal() do begin
+            Visited += Format(ForLoopGlobal) + ',';
+            if StrLen(Visited) > 60 then
+                break;
+        end;
+        Observer.Observe('end function reads the global', Visited);
+
+        Visited := '';
+        ForLoopGlobal := 7;
+        for ForLoopGlobal := 1 to ForLoopGlobal do
+            Visited += Format(ForLoopGlobal) + ',';
+        Observer.Observe('end is the variable itself (old value 7)', Visited);
+
+        Visited := '';
+        b := 0;
+        for b := 1 to b + 3 do
+            Visited += Format(b) + ',';
+        Observer.Observe('BigInteger', Visited);
+
+        Visited := '';
+        d := 0;
+        for d := 1 to d + 3 do
+            Visited += Format(d) + ',';
+        Observer.Observe('Decimal', Visited);
+
+        Visited := '';
+        Dt := 20240101D;
+        for Dt := 20240110D to Dt + 2 do
+            Visited += Format(Dt, 0, 9) + ',';
+        Observer.Observe('Date (old value 2024-01-01)', Visited);
+
+        Observer.Expect('to, end reads the variable (old value 0)', '1,2,3,4,5,6,7,8,9,10,');
+        Observer.Expect('downto, end reads the variable (old value 0)', '5,4,3,');
+        Observer.Expect('start function sets the global to 100, end reads it', '1,2,3,4,');
+        Observer.Expect('end function reads the global', '1,2,3,');
+        Observer.Expect('end is the variable itself (old value 7)', '1,');
+        Observer.Expect('BigInteger', '1,2,3,4,');
+        Observer.Expect('Decimal', '1,2,3,4,');
+        Observer.Expect('Date (old value 2024-01-01)', '2024-01-10,2024-01-11,2024-01-12,');
+        Observer.Verify();
+    end;
+
 }
 
 codeunit 72516 "LT SyT Exit Recursion"
