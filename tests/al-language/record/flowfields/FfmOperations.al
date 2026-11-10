@@ -154,136 +154,204 @@ codeunit 64503 "FFM Ops Tests"
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "FFM Ops Log";
 
-    [TryFunction]
-    local procedure TryValidateSumF(var H: Record "FFM Ops Header")
+    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    local procedure TryValidateSumF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(SumF, 5.5);
+        exit(true);
     end;
 
-    [TryFunction]
-    local procedure TryValidateNoValueSumF(var H: Record "FFM Ops Header")
+    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    local procedure TryValidateNoValueSumF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(SumF);
+        exit(true);
     end;
 
-    [TryFunction]
-    local procedure TryValidateNSumF(var H: Record "FFM Ops Header")
+    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    local procedure TryValidateNSumF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(NSumF, 5.5);
+        exit(true);
     end;
 
-    [TryFunction]
-    local procedure TryValidateNoValueNSumF(var H: Record "FFM Ops Header")
+    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    local procedure TryValidateNoValueNSumF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(NSumF);
+        exit(true);
     end;
 
-    [TryFunction]
-    local procedure TryValidateAvgF(var H: Record "FFM Ops Header")
+    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    local procedure TryValidateAvgF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(AvgF, 5.5);
+        exit(true);
     end;
 
-    [TryFunction]
-    local procedure TryValidateNoValueAvgF(var H: Record "FFM Ops Header")
+    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    local procedure TryValidateNoValueAvgF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(AvgF);
+        exit(true);
     end;
 
-    [TryFunction]
-    local procedure TryValidateMinF(var H: Record "FFM Ops Header")
+    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    local procedure TryValidateMinF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(MinF, 5.5);
+        exit(true);
     end;
 
-    [TryFunction]
-    local procedure TryValidateNoValueMinF(var H: Record "FFM Ops Header")
+    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    local procedure TryValidateNoValueMinF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(MinF);
+        exit(true);
     end;
 
-    [TryFunction]
-    local procedure TryValidateMaxF(var H: Record "FFM Ops Header")
+    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    local procedure TryValidateMaxF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(MaxF, 5.5);
+        exit(true);
     end;
 
-    [TryFunction]
-    local procedure TryValidateNoValueMaxF(var H: Record "FFM Ops Header")
+    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    local procedure TryValidateNoValueMaxF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(MaxF);
+        exit(true);
     end;
 
-    [TryFunction]
-    local procedure TryValidateCntF(var H: Record "FFM Ops Header")
+    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    local procedure TryValidateCntF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(CntF, 7);
+        exit(true);
     end;
 
-    [TryFunction]
-    local procedure TryValidateNoValueCntF(var H: Record "FFM Ops Header")
+    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    local procedure TryValidateNoValueCntF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(CntF);
+        exit(true);
     end;
 
-    [TryFunction]
-    local procedure TryValidateNCntF(var H: Record "FFM Ops Header")
-    begin
-        H.Validate(NCntF, 7);
-    end;
-
-    [TryFunction]
-    local procedure TryValidateNoValueNCntF(var H: Record "FFM Ops Header")
-    begin
-        H.Validate(NCntF);
-    end;
-
-    [TryFunction]
-    local procedure TryValidateExF(var H: Record "FFM Ops Header")
+    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    local procedure TryValidateExF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(ExF, true);
+        exit(true);
     end;
 
-    [TryFunction]
-    local procedure TryValidateNoValueExF(var H: Record "FFM Ops Header")
+    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    local procedure TryValidateNoValueExF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(ExF);
+        exit(true);
     end;
 
-    [TryFunction]
-    local procedure TryValidateLkF(var H: Record "FFM Ops Header")
+    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    local procedure TryValidateLkF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(LkF, 'zz');
+        exit(true);
     end;
 
-    [TryFunction]
-    local procedure TryValidateNoValueLkF(var H: Record "FFM Ops Header")
+    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    local procedure TryValidateNoValueLkF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(LkF);
+        exit(true);
     end;
 
-    [TryFunction]
-    local procedure TryValidateLkDecF(var H: Record "FFM Ops Header")
+    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    local procedure TryValidateLkDecF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(LkDecF, 5.5);
+        exit(true);
     end;
 
-    [TryFunction]
-    local procedure TryValidateNoValueLkDecF(var H: Record "FFM Ops Header")
+    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    local procedure TryValidateNoValueLkDecF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(LkDecF);
+        exit(true);
     end;
 
-    [TryFunction]
-    local procedure TryValidateNLkDecF(var H: Record "FFM Ops Header")
+    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    local procedure TryValidateNLkDecF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(NLkDecF, 5.5);
+        exit(true);
+    end;
+
+    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    local procedure TryValidateNoValueNLkDecF(var H: Record "FFM Ops Header"): Boolean
+    begin
+        H.Validate(NLkDecF);
+        exit(true);
     end;
 
     [TryFunction]
-    local procedure TryValidateNoValueNLkDecF(var H: Record "FFM Ops Header")
+    local procedure TryCalc_SumF(var H: Record "FFM Ops Header")
     begin
-        H.Validate(NLkDecF);
+        H.CalcFields(SumF);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSumF(var H: Record "FFM Ops Header")
+    begin
+        H.CalcFields(NSumF);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_AvgF(var H: Record "FFM Ops Header")
+    begin
+        H.CalcFields(AvgF);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_MinF(var H: Record "FFM Ops Header")
+    begin
+        H.CalcFields(MinF);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_MaxF(var H: Record "FFM Ops Header")
+    begin
+        H.CalcFields(MaxF);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_CntF(var H: Record "FFM Ops Header")
+    begin
+        H.CalcFields(CntF);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_ExF(var H: Record "FFM Ops Header")
+    begin
+        H.CalcFields(ExF);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_LkF(var H: Record "FFM Ops Header")
+    begin
+        H.CalcFields(LkF);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_LkDecF(var H: Record "FFM Ops Header")
+    begin
+        H.CalcFields(LkDecF);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NLkDecF(var H: Record "FFM Ops Header")
+    begin
+        H.CalcFields(NLkDecF);
     end;
 
     [Test]
@@ -294,7 +362,8 @@ codeunit 64503 "FFM Ops Tests"
     begin
         Initialize();
         H.Get('H1');
-        H.CalcFields(SumF);
+        if not TryCalc_SumF(H) then
+            Observer.ObserveError('SumF.calc1');
         Observer.Observe('SumF.calc', Format(H.SumF));
         Log.Get();
         if TryValidateSumF(H) then
@@ -303,7 +372,8 @@ codeunit 64503 "FFM Ops Tests"
             Observer.Observe('SumF.validate', 'error: ' + GetLastErrorText());
         Observer.Observe('SumF.value', Format(H.SumF));
         Observer.Observe('SumF.log', Log.Get());
-        H.CalcFields(SumF);
+        if not TryCalc_SumF(H) then
+            Observer.ObserveError('SumF.calc2');
         Observer.Observe('SumF.recalc', Format(H.SumF));
         H.Get('H1');
         Log.Get();
@@ -314,10 +384,12 @@ codeunit 64503 "FFM Ops Tests"
         Observer.Observe('SumF.log1', Log.Get());
         H.SumF := 5.5;
         Observer.Observe('SumF.assigned', Format(H.SumF));
-        H.CalcFields(SumF);
+        if not TryCalc_SumF(H) then
+            Observer.ObserveError('SumF.calc3');
         Observer.Observe('SumF.assigned.recalc', Format(H.SumF));
         H.Get('H1');
-        H.CalcFields(NSumF);
+        if not TryCalc_NSumF(H) then
+            Observer.ObserveError('NSumF.calc4');
         Observer.Observe('NSumF.calc', Format(H.NSumF));
         Log.Get();
         if TryValidateNSumF(H) then
@@ -326,7 +398,8 @@ codeunit 64503 "FFM Ops Tests"
             Observer.Observe('NSumF.validate', 'error: ' + GetLastErrorText());
         Observer.Observe('NSumF.value', Format(H.NSumF));
         Observer.Observe('NSumF.log', Log.Get());
-        H.CalcFields(NSumF);
+        if not TryCalc_NSumF(H) then
+            Observer.ObserveError('NSumF.calc5');
         Observer.Observe('NSumF.recalc', Format(H.NSumF));
         H.Get('H1');
         Log.Get();
@@ -337,10 +410,12 @@ codeunit 64503 "FFM Ops Tests"
         Observer.Observe('NSumF.log1', Log.Get());
         H.NSumF := 5.5;
         Observer.Observe('NSumF.assigned', Format(H.NSumF));
-        H.CalcFields(NSumF);
+        if not TryCalc_NSumF(H) then
+            Observer.ObserveError('NSumF.calc6');
         Observer.Observe('NSumF.assigned.recalc', Format(H.NSumF));
         H.Get('H1');
-        H.CalcFields(AvgF);
+        if not TryCalc_AvgF(H) then
+            Observer.ObserveError('AvgF.calc7');
         Observer.Observe('AvgF.calc', Format(H.AvgF));
         Log.Get();
         if TryValidateAvgF(H) then
@@ -349,7 +424,8 @@ codeunit 64503 "FFM Ops Tests"
             Observer.Observe('AvgF.validate', 'error: ' + GetLastErrorText());
         Observer.Observe('AvgF.value', Format(H.AvgF));
         Observer.Observe('AvgF.log', Log.Get());
-        H.CalcFields(AvgF);
+        if not TryCalc_AvgF(H) then
+            Observer.ObserveError('AvgF.calc8');
         Observer.Observe('AvgF.recalc', Format(H.AvgF));
         H.Get('H1');
         Log.Get();
@@ -360,7 +436,8 @@ codeunit 64503 "FFM Ops Tests"
         Observer.Observe('AvgF.log1', Log.Get());
         H.AvgF := 5.5;
         Observer.Observe('AvgF.assigned', Format(H.AvgF));
-        H.CalcFields(AvgF);
+        if not TryCalc_AvgF(H) then
+            Observer.ObserveError('AvgF.calc9');
         Observer.Observe('AvgF.assigned.recalc', Format(H.AvgF));
         Observer.Finish();
     end;
@@ -373,7 +450,8 @@ codeunit 64503 "FFM Ops Tests"
     begin
         Initialize();
         H.Get('H1');
-        H.CalcFields(MinF);
+        if not TryCalc_MinF(H) then
+            Observer.ObserveError('MinF.calc10');
         Observer.Observe('MinF.calc', Format(H.MinF));
         Log.Get();
         if TryValidateMinF(H) then
@@ -382,7 +460,8 @@ codeunit 64503 "FFM Ops Tests"
             Observer.Observe('MinF.validate', 'error: ' + GetLastErrorText());
         Observer.Observe('MinF.value', Format(H.MinF));
         Observer.Observe('MinF.log', Log.Get());
-        H.CalcFields(MinF);
+        if not TryCalc_MinF(H) then
+            Observer.ObserveError('MinF.calc11');
         Observer.Observe('MinF.recalc', Format(H.MinF));
         H.Get('H1');
         Log.Get();
@@ -393,10 +472,12 @@ codeunit 64503 "FFM Ops Tests"
         Observer.Observe('MinF.log1', Log.Get());
         H.MinF := 5.5;
         Observer.Observe('MinF.assigned', Format(H.MinF));
-        H.CalcFields(MinF);
+        if not TryCalc_MinF(H) then
+            Observer.ObserveError('MinF.calc12');
         Observer.Observe('MinF.assigned.recalc', Format(H.MinF));
         H.Get('H1');
-        H.CalcFields(MaxF);
+        if not TryCalc_MaxF(H) then
+            Observer.ObserveError('MaxF.calc13');
         Observer.Observe('MaxF.calc', Format(H.MaxF));
         Log.Get();
         if TryValidateMaxF(H) then
@@ -405,7 +486,8 @@ codeunit 64503 "FFM Ops Tests"
             Observer.Observe('MaxF.validate', 'error: ' + GetLastErrorText());
         Observer.Observe('MaxF.value', Format(H.MaxF));
         Observer.Observe('MaxF.log', Log.Get());
-        H.CalcFields(MaxF);
+        if not TryCalc_MaxF(H) then
+            Observer.ObserveError('MaxF.calc14');
         Observer.Observe('MaxF.recalc', Format(H.MaxF));
         H.Get('H1');
         Log.Get();
@@ -416,10 +498,12 @@ codeunit 64503 "FFM Ops Tests"
         Observer.Observe('MaxF.log1', Log.Get());
         H.MaxF := 5.5;
         Observer.Observe('MaxF.assigned', Format(H.MaxF));
-        H.CalcFields(MaxF);
+        if not TryCalc_MaxF(H) then
+            Observer.ObserveError('MaxF.calc15');
         Observer.Observe('MaxF.assigned.recalc', Format(H.MaxF));
         H.Get('H1');
-        H.CalcFields(CntF);
+        if not TryCalc_CntF(H) then
+            Observer.ObserveError('CntF.calc16');
         Observer.Observe('CntF.calc', Format(H.CntF));
         Log.Get();
         if TryValidateCntF(H) then
@@ -428,7 +512,8 @@ codeunit 64503 "FFM Ops Tests"
             Observer.Observe('CntF.validate', 'error: ' + GetLastErrorText());
         Observer.Observe('CntF.value', Format(H.CntF));
         Observer.Observe('CntF.log', Log.Get());
-        H.CalcFields(CntF);
+        if not TryCalc_CntF(H) then
+            Observer.ObserveError('CntF.calc17');
         Observer.Observe('CntF.recalc', Format(H.CntF));
         H.Get('H1');
         Log.Get();
@@ -439,43 +524,23 @@ codeunit 64503 "FFM Ops Tests"
         Observer.Observe('CntF.log1', Log.Get());
         H.CntF := 7;
         Observer.Observe('CntF.assigned', Format(H.CntF));
-        H.CalcFields(CntF);
+        if not TryCalc_CntF(H) then
+            Observer.ObserveError('CntF.calc18');
         Observer.Observe('CntF.assigned.recalc', Format(H.CntF));
         Observer.Finish();
     end;
 
     [Test]
     procedure FlowFieldValidate_ValueAndTrigger_Group3()
-    // CLAIM: Validate on NCntF, ExF, LkF with a value, with none, and plain assignment: the result, the OnValidate log and what CalcFields does afterwards.
+    // CLAIM: Validate on ExF, LkF with a value, with none, and plain assignment: the result, the OnValidate log and what CalcFields does afterwards.
     var
         H: Record "FFM Ops Header";
     begin
         Initialize();
         H.Get('H1');
-        H.CalcFields(NCntF);
-        Observer.Observe('NCntF.calc', Format(H.NCntF));
-        Log.Get();
-        if TryValidateNCntF(H) then
-            Observer.Observe('NCntF.validate', 'ok')
-        else
-            Observer.Observe('NCntF.validate', 'error: ' + GetLastErrorText());
-        Observer.Observe('NCntF.value', Format(H.NCntF));
-        Observer.Observe('NCntF.log', Log.Get());
-        H.CalcFields(NCntF);
-        Observer.Observe('NCntF.recalc', Format(H.NCntF));
         H.Get('H1');
-        Log.Get();
-        if TryValidateNoValueNCntF(H) then
-            Observer.Observe('NCntF.validate1', 'ok')
-        else
-            Observer.Observe('NCntF.validate1', 'error: ' + GetLastErrorText());
-        Observer.Observe('NCntF.log1', Log.Get());
-        H.NCntF := 7;
-        Observer.Observe('NCntF.assigned', Format(H.NCntF));
-        H.CalcFields(NCntF);
-        Observer.Observe('NCntF.assigned.recalc', Format(H.NCntF));
-        H.Get('H1');
-        H.CalcFields(ExF);
+        if not TryCalc_ExF(H) then
+            Observer.ObserveError('ExF.calc19');
         Observer.Observe('ExF.calc', Format(H.ExF));
         Log.Get();
         if TryValidateExF(H) then
@@ -484,7 +549,8 @@ codeunit 64503 "FFM Ops Tests"
             Observer.Observe('ExF.validate', 'error: ' + GetLastErrorText());
         Observer.Observe('ExF.value', Format(H.ExF));
         Observer.Observe('ExF.log', Log.Get());
-        H.CalcFields(ExF);
+        if not TryCalc_ExF(H) then
+            Observer.ObserveError('ExF.calc20');
         Observer.Observe('ExF.recalc', Format(H.ExF));
         H.Get('H1');
         Log.Get();
@@ -495,10 +561,12 @@ codeunit 64503 "FFM Ops Tests"
         Observer.Observe('ExF.log1', Log.Get());
         H.ExF := true;
         Observer.Observe('ExF.assigned', Format(H.ExF));
-        H.CalcFields(ExF);
+        if not TryCalc_ExF(H) then
+            Observer.ObserveError('ExF.calc21');
         Observer.Observe('ExF.assigned.recalc', Format(H.ExF));
         H.Get('H1');
-        H.CalcFields(LkF);
+        if not TryCalc_LkF(H) then
+            Observer.ObserveError('LkF.calc22');
         Observer.Observe('LkF.calc', Format(H.LkF));
         Log.Get();
         if TryValidateLkF(H) then
@@ -507,7 +575,8 @@ codeunit 64503 "FFM Ops Tests"
             Observer.Observe('LkF.validate', 'error: ' + GetLastErrorText());
         Observer.Observe('LkF.value', Format(H.LkF));
         Observer.Observe('LkF.log', Log.Get());
-        H.CalcFields(LkF);
+        if not TryCalc_LkF(H) then
+            Observer.ObserveError('LkF.calc23');
         Observer.Observe('LkF.recalc', Format(H.LkF));
         H.Get('H1');
         Log.Get();
@@ -518,7 +587,8 @@ codeunit 64503 "FFM Ops Tests"
         Observer.Observe('LkF.log1', Log.Get());
         H.LkF := 'zz';
         Observer.Observe('LkF.assigned', Format(H.LkF));
-        H.CalcFields(LkF);
+        if not TryCalc_LkF(H) then
+            Observer.ObserveError('LkF.calc24');
         Observer.Observe('LkF.assigned.recalc', Format(H.LkF));
         Observer.Finish();
     end;
@@ -531,7 +601,8 @@ codeunit 64503 "FFM Ops Tests"
     begin
         Initialize();
         H.Get('H1');
-        H.CalcFields(LkDecF);
+        if not TryCalc_LkDecF(H) then
+            Observer.ObserveError('LkDecF.calc25');
         Observer.Observe('LkDecF.calc', Format(H.LkDecF));
         Log.Get();
         if TryValidateLkDecF(H) then
@@ -540,7 +611,8 @@ codeunit 64503 "FFM Ops Tests"
             Observer.Observe('LkDecF.validate', 'error: ' + GetLastErrorText());
         Observer.Observe('LkDecF.value', Format(H.LkDecF));
         Observer.Observe('LkDecF.log', Log.Get());
-        H.CalcFields(LkDecF);
+        if not TryCalc_LkDecF(H) then
+            Observer.ObserveError('LkDecF.calc26');
         Observer.Observe('LkDecF.recalc', Format(H.LkDecF));
         H.Get('H1');
         Log.Get();
@@ -551,10 +623,12 @@ codeunit 64503 "FFM Ops Tests"
         Observer.Observe('LkDecF.log1', Log.Get());
         H.LkDecF := 5.5;
         Observer.Observe('LkDecF.assigned', Format(H.LkDecF));
-        H.CalcFields(LkDecF);
+        if not TryCalc_LkDecF(H) then
+            Observer.ObserveError('LkDecF.calc27');
         Observer.Observe('LkDecF.assigned.recalc', Format(H.LkDecF));
         H.Get('H1');
-        H.CalcFields(NLkDecF);
+        if not TryCalc_NLkDecF(H) then
+            Observer.ObserveError('NLkDecF.calc28');
         Observer.Observe('NLkDecF.calc', Format(H.NLkDecF));
         Log.Get();
         if TryValidateNLkDecF(H) then
@@ -563,7 +637,8 @@ codeunit 64503 "FFM Ops Tests"
             Observer.Observe('NLkDecF.validate', 'error: ' + GetLastErrorText());
         Observer.Observe('NLkDecF.value', Format(H.NLkDecF));
         Observer.Observe('NLkDecF.log', Log.Get());
-        H.CalcFields(NLkDecF);
+        if not TryCalc_NLkDecF(H) then
+            Observer.ObserveError('NLkDecF.calc29');
         Observer.Observe('NLkDecF.recalc', Format(H.NLkDecF));
         H.Get('H1');
         Log.Get();
@@ -574,7 +649,8 @@ codeunit 64503 "FFM Ops Tests"
         Observer.Observe('NLkDecF.log1', Log.Get());
         H.NLkDecF := 5.5;
         Observer.Observe('NLkDecF.assigned', Format(H.NLkDecF));
-        H.CalcFields(NLkDecF);
+        if not TryCalc_NLkDecF(H) then
+            Observer.ObserveError('NLkDecF.calc30');
         Observer.Observe('NLkDecF.assigned.recalc', Format(H.NLkDecF));
         Observer.Finish();
     end;
@@ -603,9 +679,9 @@ codeunit 64503 "FFM Ops Tests"
         H.SetAutoCalcFields();
         H.Get('H1');
         Observer.Observe('get.reset', Format(H.SumF) + '|' + Format(H.CntF));
-        H.SetAutoCalcFields(AvgF, MinF, MaxF, LkDecF, NLkDecF, NCntF);
+        H.SetAutoCalcFields(AvgF, MinF, MaxF, LkDecF, NLkDecF);
         H.Get('H2');
-        Observer.Observe('get.more', Format(H.AvgF) + '|' + Format(H.MinF) + '|' + Format(H.MaxF) + '|' + Format(H.LkDecF) + '|' + Format(H.NLkDecF) + '|' + Format(H.NCntF));
+        Observer.Observe('get.more', Format(H.AvgF) + '|' + Format(H.MinF) + '|' + Format(H.MaxF) + '|' + Format(H.LkDecF) + '|' + Format(H.NLkDecF));
         Observer.Finish();
     end;
 
