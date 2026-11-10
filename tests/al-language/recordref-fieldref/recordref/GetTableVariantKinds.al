@@ -6,13 +6,15 @@
 //   - nothing (never assigned), nothing after Clear, the copy of an unassigned Variant, an unassigned Variant received as a parameter;
 //   - a value that is not a record: Integer, Text, Boolean, Guid, Date, RecordId of an existing row;
 //   - a Record (the control case).
-//   For the unassigned Variant the call is written three ways, one test each: as a plain statement, under asserterror, and in a
-//   TryFunction. Only one of the first two can end in Finish(): the other one fails with what BC did, and that failure is the reading.
+//   For the unassigned Variant the call is written two ways, one test each: under asserterror and in a TryFunction. The plain
+//   statement form was measured too (BC 27.5, 28.5 and 29.0, CI batch runs 42826078233, 42826192322, 42826312960): it raises the same
+//   error ("Microsoft.Dynamics.Nav.Runtime.NavVariant variable not initialized.") and ends the test, so its test was removed; the
+//   asserterror test pins that error with its code.
 //   Also read: what a RecordRef that was open on a table holds after a GetTable that failed, and Record := Variant for an unassigned
 //   Variant.
 // Already pinned elsewhere, not repeated: GetTable of a Variant that holds a Record (TestRecordRefVariantGetTable.al) or a RecordRef
 //   (AsRecRefGetTable.al), the temporary flag and the company (TestRecordVariantIsTemporary.al, CwVariantChangeCompany.al).
-// Observation form: every test ends in Finish(); the values are what BC produced.
+// The values are what BC produced.
 // BC versions: 27.5, 28.5, 29.0 (measured by the corpus CI)
 
 codeunit 97435 "RRF GetTable Variant Kinds"
@@ -71,19 +73,6 @@ codeunit 97435 "RRF GetTable Variant Kinds"
     local procedure OutcomeOfParameter(V: Variant): Text
     begin
         exit(Outcome(V));
-    end;
-
-    [Test]
-    procedure GetTable_UnassignedVariant_Statement()
-    var
-        Observer: Codeunit "Probe Observer";
-        RecRef: RecordRef;
-        V: Variant;
-    begin
-        Initialize();
-        RecRef.GetTable(V);
-        Observer.Observe('after statement', State(RecRef));
-        Observer.Finish();
     end;
 
     [Test]
