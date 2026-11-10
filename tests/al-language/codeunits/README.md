@@ -9,7 +9,7 @@ Codeunit.Run, OnRun, SingleInstance, TableNo, interfaces, procedures and overloa
 - `code-coverage/`: code coverage (3 AL files).
 - `interfaces/`: interfaces (12 AL files).
 - `procedures/`: procedures, overloads, var parameters (5 AL files).
-- `run-onrun/`: Codeunit.Run, OnRun and commit behavior (8 AL files).
+- `run-onrun/`: Codeunit.Run, OnRun and commit behavior (9 AL files).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 
