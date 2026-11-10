@@ -130,9 +130,8 @@ codeunit 75118 "LT LSO Language Selection Lang"
         RR.Close();
     end;
 
-    local procedure RunIn(LanguageId: Integer)
+    local procedure RunIn(LanguageId: Integer; var Observer: Codeunit "Probe Observer")
     var
-        Observer: Codeunit "Probe Observer";
         EnglishNames: Dictionary of [Text, Text];
         NamesAfter: Dictionary of [Text, Text];
         Tag: Text;
@@ -154,25 +153,72 @@ codeunit 75118 "LT LSO Language Selection Lang"
         Observer.Observe('back in 1033 count', Format(NamesAfter.Count()));
         Observer.Observe('back in 1033 rows with another name than before', Format(Changed));
         GlobalLanguage(Before);
-        Observer.Finish();
     end;
 
     [Test]
     procedure LanguageSelection_AfterGlobalLanguage1031()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        RunIn(1031);
+        RunIn(1031, Observer);
+        Observer.Expect('GlobalLanguage', '1031');
+        Observer.Expect('in 1031 count', '248');
+        Observer.Expect('in 1031 first three tags in read order', 'af-ZA;sq-AL;gsw-FR;');
+        Observer.Expect('in 1031 rows with another name than in 1033', '0 []');
+        Observer.Expect('in 1031 row de-DE', 'Name=German (Germany)|Language Tag=de-DE|Language ID=1031|Primary Language ID=1031|Abbreviated Name=DEU|Enabled=Ja|');
+        Observer.Expect('in 1031 row en-US', 'Name=English (United States)|Language Tag=en-US|Language ID=1033|Primary Language ID=1033|Abbreviated Name=ENU|Enabled=Ja|');
+        Observer.Expect('in 1031 row fr-FR', 'Name=French (France)|Language Tag=fr-FR|Language ID=1036|Primary Language ID=1036|Abbreviated Name=FRA|Enabled=Ja|');
+        Observer.Expect('in 1031 row de-AT', 'Name=German (Austria)|Language Tag=de-AT|Language ID=3079|Primary Language ID=1031|Abbreviated Name=DEA|Enabled=Ja|');
+        Observer.Expect('in 1031 row da-DK', 'Name=Danish (Denmark)|Language Tag=da-DK|Language ID=1030|Primary Language ID=1030|Abbreviated Name=DAN|Enabled=Ja|');
+        Observer.Expect('in 1031 FindFirst for Language ID 1031', 'de-DE of 1');
+        Observer.Expect('in 1031 FindFirst for Language ID 1033', 'en-US of 1');
+        Observer.Expect('back in 1033 count', '248');
+        Observer.Expect('back in 1033 rows with another name than before', '0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure LanguageSelection_AfterGlobalLanguage1036()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        RunIn(1036);
+        RunIn(1036, Observer);
+        Observer.Expect('GlobalLanguage', '1036');
+        Observer.Expect('in 1036 count', '248');
+        Observer.Expect('in 1036 first three tags in read order', 'af-ZA;sq-AL;gsw-FR;');
+        Observer.Expect('in 1036 rows with another name than in 1033', '0 []');
+        Observer.Expect('in 1036 row de-DE', 'Name=German (Germany)|Language Tag=de-DE|Language ID=1031|Primary Language ID=1031|Abbreviated Name=DEU|Enabled=Oui|');
+        Observer.Expect('in 1036 row en-US', 'Name=English (United States)|Language Tag=en-US|Language ID=1033|Primary Language ID=1033|Abbreviated Name=ENU|Enabled=Oui|');
+        Observer.Expect('in 1036 row fr-FR', 'Name=French (France)|Language Tag=fr-FR|Language ID=1036|Primary Language ID=1036|Abbreviated Name=FRA|Enabled=Oui|');
+        Observer.Expect('in 1036 row de-AT', 'Name=German (Austria)|Language Tag=de-AT|Language ID=3079|Primary Language ID=1031|Abbreviated Name=DEA|Enabled=Oui|');
+        Observer.Expect('in 1036 row da-DK', 'Name=Danish (Denmark)|Language Tag=da-DK|Language ID=1030|Primary Language ID=1030|Abbreviated Name=DAN|Enabled=Oui|');
+        Observer.Expect('in 1036 FindFirst for Language ID 1031', 'de-DE of 1');
+        Observer.Expect('in 1036 FindFirst for Language ID 1033', 'en-US of 1');
+        Observer.Expect('back in 1033 count', '248');
+        Observer.Expect('back in 1033 rows with another name than before', '0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure LanguageSelection_AfterGlobalLanguage1030()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        RunIn(1030);
+        RunIn(1030, Observer);
+        Observer.Expect('GlobalLanguage', '1030');
+        Observer.Expect('in 1030 count', '248');
+        Observer.Expect('in 1030 first three tags in read order', 'af-ZA;sq-AL;gsw-FR;');
+        Observer.Expect('in 1030 rows with another name than in 1033', '0 []');
+        Observer.Expect('in 1030 row de-DE', 'Name=German (Germany)|Language Tag=de-DE|Language ID=1031|Primary Language ID=1031|Abbreviated Name=DEU|Enabled=Ja|');
+        Observer.Expect('in 1030 row en-US', 'Name=English (United States)|Language Tag=en-US|Language ID=1033|Primary Language ID=1033|Abbreviated Name=ENU|Enabled=Ja|');
+        Observer.Expect('in 1030 row fr-FR', 'Name=French (France)|Language Tag=fr-FR|Language ID=1036|Primary Language ID=1036|Abbreviated Name=FRA|Enabled=Ja|');
+        Observer.Expect('in 1030 row de-AT', 'Name=German (Austria)|Language Tag=de-AT|Language ID=3079|Primary Language ID=1031|Abbreviated Name=DEA|Enabled=Ja|');
+        Observer.Expect('in 1030 row da-DK', 'Name=Danish (Denmark)|Language Tag=da-DK|Language ID=1030|Primary Language ID=1030|Abbreviated Name=DAN|Enabled=Ja|');
+        Observer.Expect('in 1030 FindFirst for Language ID 1031', 'de-DE of 1');
+        Observer.Expect('in 1030 FindFirst for Language ID 1033', 'en-US of 1');
+        Observer.Expect('back in 1033 count', '248');
+        Observer.Expect('back in 1033 rows with another name than before', '0');
+        Observer.Verify();
     end;
 
     [Test]
