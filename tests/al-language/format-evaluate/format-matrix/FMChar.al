@@ -1,0 +1,677 @@
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/text/text-format-method
+// Scope: in-scope
+// Fixtures used: Probe Observer (codeunit 69160)
+// Probe: matrix of Format (every standard format number 0..10 and a list of format-string elements) and Evaluate (boolean and statement form, format 0 and 9)
+//        on Boolean, Enum, Option, Guid, Char, Text and Code. Session language 1033 (restored); a de-DE test per type shows what changes under GlobalLanguage 1031.
+//        Cell names are the value or text and the format; an error cell is err:<error code>. Generated; Evaluate texts include empty, blanks, out-of-range and trailing D/T.
+// BC versions: 27, 28, 29
+
+codeunit 72854 "LT FM Char"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    [TryFunction]
+    local procedure TryN(V: Char; N: Integer; var R: Text)
+    begin
+        R := Format(V, 0, N);
+    end;
+
+    [TryFunction]
+    local procedure TryS(V: Char; S: Text; var R: Text)
+    begin
+        R := Format(V, 0, S);
+    end;
+
+    local procedure CellN(var O: Codeunit "Probe Observer"; Name: Text; V: Char; N: Integer)
+    var
+        R: Text;
+    begin
+        ClearLastError();
+        if TryN(V, N, R) then
+            O.Observe(Name, 'ok:' + R)
+        else
+            O.Observe(Name, 'err:' + GetLastErrorCode());
+    end;
+
+    local procedure CellS(var O: Codeunit "Probe Observer"; Name: Text; V: Char; S: Text)
+    var
+        R: Text;
+    begin
+        ClearLastError();
+        if TryS(V, S, R) then
+            O.Observe(Name, 'ok:' + R)
+        else
+            O.Observe(Name, 'err:' + GetLastErrorCode());
+    end;
+
+    [Test]
+    procedure Format_Char_65_1()
+    var
+        O: Codeunit "Probe Observer";
+        Saved: Integer;
+        V: Char;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        V := 65;
+        CellN(O, 'n0', V, 0);
+        CellN(O, 'n1', V, 1);
+        CellN(O, 'n2', V, 2);
+        CellN(O, 'n3', V, 3);
+        CellN(O, 'n4', V, 4);
+        CellN(O, 'n5', V, 5);
+        CellN(O, 'n6', V, 6);
+        CellN(O, 'n7', V, 7);
+        CellN(O, 'n8', V, 8);
+        CellN(O, 'n9', V, 9);
+        CellN(O, 'n10', V, 10);
+        CellS(O, '<Text>', V, '<Text>');
+        CellS(O, '<Text,10>', V, '<Text,10>');
+        CellS(O, '<Text,3>', V, '<Text,3>');
+        CellS(O, '<Filler Character,x><Text,10>', V, '<Filler Character,x><Text,10>');
+        CellS(O, '<Integer>', V, '<Integer>');
+        CellS(O, '<Integer,5>', V, '<Integer,5>');
+        CellS(O, '<Sign>', V, '<Sign>');
+        CellS(O, '<Decimals>', V, '<Decimals>');
+        CellS(O, '<Day>', V, '<Day>');
+        CellS(O, '<Hours24>', V, '<Hours24>');
+        CellS(O, '<Standard Format,0>', V, '<Standard Format,0>');
+        CellS(O, '<Standard Format,1>', V, '<Standard Format,1>');
+        CellS(O, '<Standard Format,2>', V, '<Standard Format,2>');
+        CellS(O, '<Standard Format,3>', V, '<Standard Format,3>');
+        CellS(O, '<Standard Format,4>', V, '<Standard Format,4>');
+        GlobalLanguage(Saved);
+        O.Expect('n0', 'ok:A');
+        O.Expect('n1', 'ok:A');
+        O.Expect('n2', 'ok:A');
+        O.Expect('n3', 'err:InvalidStandardFormat');
+        O.Expect('n4', 'err:InvalidStandardFormat');
+        O.Expect('n5', 'err:InvalidStandardFormat');
+        O.Expect('n6', 'err:InvalidStandardFormat');
+        O.Expect('n7', 'err:InvalidStandardFormat');
+        O.Expect('n8', 'err:InvalidStandardFormat');
+        O.Expect('n9', 'ok:A');
+        O.Expect('n10', 'err:InvalidStandardFormat');
+        O.Expect('<Text>', 'err:InvalidFormatString');
+        O.Expect('<Text,10>', 'err:InvalidFormatString');
+        O.Expect('<Text,3>', 'err:InvalidFormatString');
+        O.Expect('<Filler Character,x><Text,10>', 'err:InvalidFormatString');
+        O.Expect('<Integer>', 'err:InvalidFormatString');
+        O.Expect('<Integer,5>', 'err:InvalidFormatString');
+        O.Expect('<Sign>', 'err:InvalidFormatString');
+        O.Expect('<Decimals>', 'err:InvalidFormatString');
+        O.Expect('<Day>', 'err:InvalidFormatString');
+        O.Expect('<Hours24>', 'err:InvalidFormatString');
+        O.Expect('<Standard Format,0>', 'ok:A');
+        O.Expect('<Standard Format,1>', 'ok:A');
+        O.Expect('<Standard Format,2>', 'ok:A');
+        O.Expect('<Standard Format,3>', 'err:InvalidStandardFormat');
+        O.Expect('<Standard Format,4>', 'err:InvalidStandardFormat');
+        O.Verify();
+    end;
+
+    [Test]
+    procedure Format_Char_65_2()
+    var
+        O: Codeunit "Probe Observer";
+        Saved: Integer;
+        V: Char;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        V := 65;
+        CellS(O, '<Standard Format,9>', V, '<Standard Format,9>');
+        CellS(O, 'x<Text>y', V, 'x<Text>y');
+        CellS(O, 'literal', V, 'literal');
+        CellS(O, '', V, '');
+        CellS(O, '<Precision,2:2>', V, '<Precision,2:2>');
+        GlobalLanguage(Saved);
+        O.Expect('<Standard Format,9>', 'ok:A');
+        O.Expect('x<Text>y', 'err:InvalidFormatString');
+        O.Expect('literal', 'ok:literal');
+        O.Expect('', 'ok:');
+        O.Expect('<Precision,2:2>', 'ok:');
+        O.Verify();
+    end;
+
+    [Test]
+    procedure Format_Char_0_1()
+    var
+        O: Codeunit "Probe Observer";
+        Saved: Integer;
+        V: Char;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        V := 0;
+        CellN(O, 'n0', V, 0);
+        CellN(O, 'n1', V, 1);
+        CellN(O, 'n2', V, 2);
+        CellN(O, 'n3', V, 3);
+        CellN(O, 'n4', V, 4);
+        CellN(O, 'n5', V, 5);
+        CellN(O, 'n6', V, 6);
+        CellN(O, 'n7', V, 7);
+        CellN(O, 'n8', V, 8);
+        CellN(O, 'n9', V, 9);
+        CellN(O, 'n10', V, 10);
+        CellS(O, '<Text>', V, '<Text>');
+        CellS(O, '<Text,10>', V, '<Text,10>');
+        CellS(O, '<Text,3>', V, '<Text,3>');
+        CellS(O, '<Filler Character,x><Text,10>', V, '<Filler Character,x><Text,10>');
+        CellS(O, '<Integer>', V, '<Integer>');
+        CellS(O, '<Integer,5>', V, '<Integer,5>');
+        CellS(O, '<Sign>', V, '<Sign>');
+        CellS(O, '<Decimals>', V, '<Decimals>');
+        CellS(O, '<Day>', V, '<Day>');
+        CellS(O, '<Hours24>', V, '<Hours24>');
+        CellS(O, '<Standard Format,0>', V, '<Standard Format,0>');
+        CellS(O, '<Standard Format,1>', V, '<Standard Format,1>');
+        CellS(O, '<Standard Format,2>', V, '<Standard Format,2>');
+        CellS(O, '<Standard Format,3>', V, '<Standard Format,3>');
+        CellS(O, '<Standard Format,4>', V, '<Standard Format,4>');
+        GlobalLanguage(Saved);
+        O.Expect('n0', 'ok:\u0000');
+        O.Expect('n1', 'ok:\u0000');
+        O.Expect('n2', 'ok:\u0000');
+        O.Expect('n3', 'err:InvalidStandardFormat');
+        O.Expect('n4', 'err:InvalidStandardFormat');
+        O.Expect('n5', 'err:InvalidStandardFormat');
+        O.Expect('n6', 'err:InvalidStandardFormat');
+        O.Expect('n7', 'err:InvalidStandardFormat');
+        O.Expect('n8', 'err:InvalidStandardFormat');
+        O.Expect('n9', 'ok:\u0000');
+        O.Expect('n10', 'err:InvalidStandardFormat');
+        O.Expect('<Text>', 'err:InvalidFormatString');
+        O.Expect('<Text,10>', 'err:InvalidFormatString');
+        O.Expect('<Text,3>', 'err:InvalidFormatString');
+        O.Expect('<Filler Character,x><Text,10>', 'err:InvalidFormatString');
+        O.Expect('<Integer>', 'err:InvalidFormatString');
+        O.Expect('<Integer,5>', 'err:InvalidFormatString');
+        O.Expect('<Sign>', 'err:InvalidFormatString');
+        O.Expect('<Decimals>', 'err:InvalidFormatString');
+        O.Expect('<Day>', 'err:InvalidFormatString');
+        O.Expect('<Hours24>', 'err:InvalidFormatString');
+        O.Expect('<Standard Format,0>', 'ok:\u0000');
+        O.Expect('<Standard Format,1>', 'ok:\u0000');
+        O.Expect('<Standard Format,2>', 'ok:\u0000');
+        O.Expect('<Standard Format,3>', 'err:InvalidStandardFormat');
+        O.Expect('<Standard Format,4>', 'err:InvalidStandardFormat');
+        O.Verify();
+    end;
+
+    [Test]
+    procedure Format_Char_0_2()
+    var
+        O: Codeunit "Probe Observer";
+        Saved: Integer;
+        V: Char;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        V := 0;
+        CellS(O, '<Standard Format,9>', V, '<Standard Format,9>');
+        CellS(O, 'x<Text>y', V, 'x<Text>y');
+        CellS(O, 'literal', V, 'literal');
+        CellS(O, '', V, '');
+        CellS(O, '<Precision,2:2>', V, '<Precision,2:2>');
+        GlobalLanguage(Saved);
+        O.Expect('<Standard Format,9>', 'ok:\u0000');
+        O.Expect('x<Text>y', 'err:InvalidFormatString');
+        O.Expect('literal', 'ok:literal');
+        O.Expect('', 'ok:');
+        O.Expect('<Precision,2:2>', 'ok:');
+        O.Verify();
+    end;
+
+    [Test]
+    procedure Format_Char_32_1()
+    var
+        O: Codeunit "Probe Observer";
+        Saved: Integer;
+        V: Char;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        V := 32;
+        CellN(O, 'n0', V, 0);
+        CellN(O, 'n1', V, 1);
+        CellN(O, 'n2', V, 2);
+        CellN(O, 'n3', V, 3);
+        CellN(O, 'n4', V, 4);
+        CellN(O, 'n5', V, 5);
+        CellN(O, 'n6', V, 6);
+        CellN(O, 'n7', V, 7);
+        CellN(O, 'n8', V, 8);
+        CellN(O, 'n9', V, 9);
+        CellN(O, 'n10', V, 10);
+        CellS(O, '<Text>', V, '<Text>');
+        CellS(O, '<Text,10>', V, '<Text,10>');
+        CellS(O, '<Text,3>', V, '<Text,3>');
+        CellS(O, '<Filler Character,x><Text,10>', V, '<Filler Character,x><Text,10>');
+        CellS(O, '<Integer>', V, '<Integer>');
+        CellS(O, '<Integer,5>', V, '<Integer,5>');
+        CellS(O, '<Sign>', V, '<Sign>');
+        CellS(O, '<Decimals>', V, '<Decimals>');
+        CellS(O, '<Day>', V, '<Day>');
+        CellS(O, '<Hours24>', V, '<Hours24>');
+        CellS(O, '<Standard Format,0>', V, '<Standard Format,0>');
+        CellS(O, '<Standard Format,1>', V, '<Standard Format,1>');
+        CellS(O, '<Standard Format,2>', V, '<Standard Format,2>');
+        CellS(O, '<Standard Format,3>', V, '<Standard Format,3>');
+        CellS(O, '<Standard Format,4>', V, '<Standard Format,4>');
+        GlobalLanguage(Saved);
+        O.Expect('n0', 'ok: ');
+        O.Expect('n1', 'ok: ');
+        O.Expect('n2', 'ok: ');
+        O.Expect('n3', 'err:InvalidStandardFormat');
+        O.Expect('n4', 'err:InvalidStandardFormat');
+        O.Expect('n5', 'err:InvalidStandardFormat');
+        O.Expect('n6', 'err:InvalidStandardFormat');
+        O.Expect('n7', 'err:InvalidStandardFormat');
+        O.Expect('n8', 'err:InvalidStandardFormat');
+        O.Expect('n9', 'ok: ');
+        O.Expect('n10', 'err:InvalidStandardFormat');
+        O.Expect('<Text>', 'err:InvalidFormatString');
+        O.Expect('<Text,10>', 'err:InvalidFormatString');
+        O.Expect('<Text,3>', 'err:InvalidFormatString');
+        O.Expect('<Filler Character,x><Text,10>', 'err:InvalidFormatString');
+        O.Expect('<Integer>', 'err:InvalidFormatString');
+        O.Expect('<Integer,5>', 'err:InvalidFormatString');
+        O.Expect('<Sign>', 'err:InvalidFormatString');
+        O.Expect('<Decimals>', 'err:InvalidFormatString');
+        O.Expect('<Day>', 'err:InvalidFormatString');
+        O.Expect('<Hours24>', 'err:InvalidFormatString');
+        O.Expect('<Standard Format,0>', 'ok: ');
+        O.Expect('<Standard Format,1>', 'ok: ');
+        O.Expect('<Standard Format,2>', 'ok: ');
+        O.Expect('<Standard Format,3>', 'err:InvalidStandardFormat');
+        O.Expect('<Standard Format,4>', 'err:InvalidStandardFormat');
+        O.Verify();
+    end;
+
+    [Test]
+    procedure Format_Char_32_2()
+    var
+        O: Codeunit "Probe Observer";
+        Saved: Integer;
+        V: Char;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        V := 32;
+        CellS(O, '<Standard Format,9>', V, '<Standard Format,9>');
+        CellS(O, 'x<Text>y', V, 'x<Text>y');
+        CellS(O, 'literal', V, 'literal');
+        CellS(O, '', V, '');
+        CellS(O, '<Precision,2:2>', V, '<Precision,2:2>');
+        GlobalLanguage(Saved);
+        O.Expect('<Standard Format,9>', 'ok: ');
+        O.Expect('x<Text>y', 'err:InvalidFormatString');
+        O.Expect('literal', 'ok:literal');
+        O.Expect('', 'ok:');
+        O.Expect('<Precision,2:2>', 'ok:');
+        O.Verify();
+    end;
+
+    [Test]
+    procedure Format_Char_182_1()
+    var
+        O: Codeunit "Probe Observer";
+        Saved: Integer;
+        V: Char;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        V := 182;
+        CellN(O, 'n0', V, 0);
+        CellN(O, 'n1', V, 1);
+        CellN(O, 'n2', V, 2);
+        CellN(O, 'n3', V, 3);
+        CellN(O, 'n4', V, 4);
+        CellN(O, 'n5', V, 5);
+        CellN(O, 'n6', V, 6);
+        CellN(O, 'n7', V, 7);
+        CellN(O, 'n8', V, 8);
+        CellN(O, 'n9', V, 9);
+        CellN(O, 'n10', V, 10);
+        CellS(O, '<Text>', V, '<Text>');
+        CellS(O, '<Text,10>', V, '<Text,10>');
+        CellS(O, '<Text,3>', V, '<Text,3>');
+        CellS(O, '<Filler Character,x><Text,10>', V, '<Filler Character,x><Text,10>');
+        CellS(O, '<Integer>', V, '<Integer>');
+        CellS(O, '<Integer,5>', V, '<Integer,5>');
+        CellS(O, '<Sign>', V, '<Sign>');
+        CellS(O, '<Decimals>', V, '<Decimals>');
+        CellS(O, '<Day>', V, '<Day>');
+        CellS(O, '<Hours24>', V, '<Hours24>');
+        CellS(O, '<Standard Format,0>', V, '<Standard Format,0>');
+        CellS(O, '<Standard Format,1>', V, '<Standard Format,1>');
+        CellS(O, '<Standard Format,2>', V, '<Standard Format,2>');
+        CellS(O, '<Standard Format,3>', V, '<Standard Format,3>');
+        CellS(O, '<Standard Format,4>', V, '<Standard Format,4>');
+        GlobalLanguage(Saved);
+        O.Expect('n0', 'ok:¶');
+        O.Expect('n1', 'ok:¶');
+        O.Expect('n2', 'ok:¶');
+        O.Expect('n3', 'err:InvalidStandardFormat');
+        O.Expect('n4', 'err:InvalidStandardFormat');
+        O.Expect('n5', 'err:InvalidStandardFormat');
+        O.Expect('n6', 'err:InvalidStandardFormat');
+        O.Expect('n7', 'err:InvalidStandardFormat');
+        O.Expect('n8', 'err:InvalidStandardFormat');
+        O.Expect('n9', 'ok:¶');
+        O.Expect('n10', 'err:InvalidStandardFormat');
+        O.Expect('<Text>', 'err:InvalidFormatString');
+        O.Expect('<Text,10>', 'err:InvalidFormatString');
+        O.Expect('<Text,3>', 'err:InvalidFormatString');
+        O.Expect('<Filler Character,x><Text,10>', 'err:InvalidFormatString');
+        O.Expect('<Integer>', 'err:InvalidFormatString');
+        O.Expect('<Integer,5>', 'err:InvalidFormatString');
+        O.Expect('<Sign>', 'err:InvalidFormatString');
+        O.Expect('<Decimals>', 'err:InvalidFormatString');
+        O.Expect('<Day>', 'err:InvalidFormatString');
+        O.Expect('<Hours24>', 'err:InvalidFormatString');
+        O.Expect('<Standard Format,0>', 'ok:¶');
+        O.Expect('<Standard Format,1>', 'ok:¶');
+        O.Expect('<Standard Format,2>', 'ok:¶');
+        O.Expect('<Standard Format,3>', 'err:InvalidStandardFormat');
+        O.Expect('<Standard Format,4>', 'err:InvalidStandardFormat');
+        O.Verify();
+    end;
+
+    [Test]
+    procedure Format_Char_182_2()
+    var
+        O: Codeunit "Probe Observer";
+        Saved: Integer;
+        V: Char;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        V := 182;
+        CellS(O, '<Standard Format,9>', V, '<Standard Format,9>');
+        CellS(O, 'x<Text>y', V, 'x<Text>y');
+        CellS(O, 'literal', V, 'literal');
+        CellS(O, '', V, '');
+        CellS(O, '<Precision,2:2>', V, '<Precision,2:2>');
+        GlobalLanguage(Saved);
+        O.Expect('<Standard Format,9>', 'ok:¶');
+        O.Expect('x<Text>y', 'err:InvalidFormatString');
+        O.Expect('literal', 'ok:literal');
+        O.Expect('', 'ok:');
+        O.Expect('<Precision,2:2>', 'ok:');
+        O.Verify();
+    end;
+
+    [Test]
+    procedure Format_Char_255_1()
+    var
+        O: Codeunit "Probe Observer";
+        Saved: Integer;
+        V: Char;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        V := 255;
+        CellN(O, 'n0', V, 0);
+        CellN(O, 'n1', V, 1);
+        CellN(O, 'n2', V, 2);
+        CellN(O, 'n3', V, 3);
+        CellN(O, 'n4', V, 4);
+        CellN(O, 'n5', V, 5);
+        CellN(O, 'n6', V, 6);
+        CellN(O, 'n7', V, 7);
+        CellN(O, 'n8', V, 8);
+        CellN(O, 'n9', V, 9);
+        CellN(O, 'n10', V, 10);
+        CellS(O, '<Text>', V, '<Text>');
+        CellS(O, '<Text,10>', V, '<Text,10>');
+        CellS(O, '<Text,3>', V, '<Text,3>');
+        CellS(O, '<Filler Character,x><Text,10>', V, '<Filler Character,x><Text,10>');
+        CellS(O, '<Integer>', V, '<Integer>');
+        CellS(O, '<Integer,5>', V, '<Integer,5>');
+        CellS(O, '<Sign>', V, '<Sign>');
+        CellS(O, '<Decimals>', V, '<Decimals>');
+        CellS(O, '<Day>', V, '<Day>');
+        CellS(O, '<Hours24>', V, '<Hours24>');
+        CellS(O, '<Standard Format,0>', V, '<Standard Format,0>');
+        CellS(O, '<Standard Format,1>', V, '<Standard Format,1>');
+        CellS(O, '<Standard Format,2>', V, '<Standard Format,2>');
+        CellS(O, '<Standard Format,3>', V, '<Standard Format,3>');
+        CellS(O, '<Standard Format,4>', V, '<Standard Format,4>');
+        GlobalLanguage(Saved);
+        O.Expect('n0', 'ok:ÿ');
+        O.Expect('n1', 'ok:ÿ');
+        O.Expect('n2', 'ok:ÿ');
+        O.Expect('n3', 'err:InvalidStandardFormat');
+        O.Expect('n4', 'err:InvalidStandardFormat');
+        O.Expect('n5', 'err:InvalidStandardFormat');
+        O.Expect('n6', 'err:InvalidStandardFormat');
+        O.Expect('n7', 'err:InvalidStandardFormat');
+        O.Expect('n8', 'err:InvalidStandardFormat');
+        O.Expect('n9', 'ok:ÿ');
+        O.Expect('n10', 'err:InvalidStandardFormat');
+        O.Expect('<Text>', 'err:InvalidFormatString');
+        O.Expect('<Text,10>', 'err:InvalidFormatString');
+        O.Expect('<Text,3>', 'err:InvalidFormatString');
+        O.Expect('<Filler Character,x><Text,10>', 'err:InvalidFormatString');
+        O.Expect('<Integer>', 'err:InvalidFormatString');
+        O.Expect('<Integer,5>', 'err:InvalidFormatString');
+        O.Expect('<Sign>', 'err:InvalidFormatString');
+        O.Expect('<Decimals>', 'err:InvalidFormatString');
+        O.Expect('<Day>', 'err:InvalidFormatString');
+        O.Expect('<Hours24>', 'err:InvalidFormatString');
+        O.Expect('<Standard Format,0>', 'ok:ÿ');
+        O.Expect('<Standard Format,1>', 'ok:ÿ');
+        O.Expect('<Standard Format,2>', 'ok:ÿ');
+        O.Expect('<Standard Format,3>', 'err:InvalidStandardFormat');
+        O.Expect('<Standard Format,4>', 'err:InvalidStandardFormat');
+        O.Verify();
+    end;
+
+    [Test]
+    procedure Format_Char_255_2()
+    var
+        O: Codeunit "Probe Observer";
+        Saved: Integer;
+        V: Char;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        V := 255;
+        CellS(O, '<Standard Format,9>', V, '<Standard Format,9>');
+        CellS(O, 'x<Text>y', V, 'x<Text>y');
+        CellS(O, 'literal', V, 'literal');
+        CellS(O, '', V, '');
+        CellS(O, '<Precision,2:2>', V, '<Precision,2:2>');
+        GlobalLanguage(Saved);
+        O.Expect('<Standard Format,9>', 'ok:ÿ');
+        O.Expect('x<Text>y', 'err:InvalidFormatString');
+        O.Expect('literal', 'ok:literal');
+        O.Expect('', 'ok:');
+        O.Expect('<Precision,2:2>', 'ok:');
+        O.Verify();
+    end;
+
+    [Test]
+    procedure Format_Char_8364_1()
+    var
+        O: Codeunit "Probe Observer";
+        Saved: Integer;
+        V: Char;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        V := 8364;
+        CellN(O, 'n0', V, 0);
+        CellN(O, 'n1', V, 1);
+        CellN(O, 'n2', V, 2);
+        CellN(O, 'n3', V, 3);
+        CellN(O, 'n4', V, 4);
+        CellN(O, 'n5', V, 5);
+        CellN(O, 'n6', V, 6);
+        CellN(O, 'n7', V, 7);
+        CellN(O, 'n8', V, 8);
+        CellN(O, 'n9', V, 9);
+        CellN(O, 'n10', V, 10);
+        CellS(O, '<Text>', V, '<Text>');
+        CellS(O, '<Text,10>', V, '<Text,10>');
+        CellS(O, '<Text,3>', V, '<Text,3>');
+        CellS(O, '<Filler Character,x><Text,10>', V, '<Filler Character,x><Text,10>');
+        CellS(O, '<Integer>', V, '<Integer>');
+        CellS(O, '<Integer,5>', V, '<Integer,5>');
+        CellS(O, '<Sign>', V, '<Sign>');
+        CellS(O, '<Decimals>', V, '<Decimals>');
+        CellS(O, '<Day>', V, '<Day>');
+        CellS(O, '<Hours24>', V, '<Hours24>');
+        CellS(O, '<Standard Format,0>', V, '<Standard Format,0>');
+        CellS(O, '<Standard Format,1>', V, '<Standard Format,1>');
+        CellS(O, '<Standard Format,2>', V, '<Standard Format,2>');
+        CellS(O, '<Standard Format,3>', V, '<Standard Format,3>');
+        CellS(O, '<Standard Format,4>', V, '<Standard Format,4>');
+        GlobalLanguage(Saved);
+        O.Expect('n0', 'ok:€');
+        O.Expect('n1', 'ok:€');
+        O.Expect('n2', 'ok:€');
+        O.Expect('n3', 'err:InvalidStandardFormat');
+        O.Expect('n4', 'err:InvalidStandardFormat');
+        O.Expect('n5', 'err:InvalidStandardFormat');
+        O.Expect('n6', 'err:InvalidStandardFormat');
+        O.Expect('n7', 'err:InvalidStandardFormat');
+        O.Expect('n8', 'err:InvalidStandardFormat');
+        O.Expect('n9', 'ok:€');
+        O.Expect('n10', 'err:InvalidStandardFormat');
+        O.Expect('<Text>', 'err:InvalidFormatString');
+        O.Expect('<Text,10>', 'err:InvalidFormatString');
+        O.Expect('<Text,3>', 'err:InvalidFormatString');
+        O.Expect('<Filler Character,x><Text,10>', 'err:InvalidFormatString');
+        O.Expect('<Integer>', 'err:InvalidFormatString');
+        O.Expect('<Integer,5>', 'err:InvalidFormatString');
+        O.Expect('<Sign>', 'err:InvalidFormatString');
+        O.Expect('<Decimals>', 'err:InvalidFormatString');
+        O.Expect('<Day>', 'err:InvalidFormatString');
+        O.Expect('<Hours24>', 'err:InvalidFormatString');
+        O.Expect('<Standard Format,0>', 'ok:€');
+        O.Expect('<Standard Format,1>', 'ok:€');
+        O.Expect('<Standard Format,2>', 'ok:€');
+        O.Expect('<Standard Format,3>', 'err:InvalidStandardFormat');
+        O.Expect('<Standard Format,4>', 'err:InvalidStandardFormat');
+        O.Verify();
+    end;
+
+    [Test]
+    procedure Format_Char_8364_2()
+    var
+        O: Codeunit "Probe Observer";
+        Saved: Integer;
+        V: Char;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        V := 8364;
+        CellS(O, '<Standard Format,9>', V, '<Standard Format,9>');
+        CellS(O, 'x<Text>y', V, 'x<Text>y');
+        CellS(O, 'literal', V, 'literal');
+        CellS(O, '', V, '');
+        CellS(O, '<Precision,2:2>', V, '<Precision,2:2>');
+        GlobalLanguage(Saved);
+        O.Expect('<Standard Format,9>', 'ok:€');
+        O.Expect('x<Text>y', 'err:InvalidFormatString');
+        O.Expect('literal', 'ok:literal');
+        O.Expect('', 'ok:');
+        O.Expect('<Precision,2:2>', 'ok:');
+        O.Verify();
+    end;
+
+    [Test]
+    procedure Format_Char_0_de_1()
+    var
+        O: Codeunit "Probe Observer";
+        Saved: Integer;
+        V: Char;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1031);
+        V := 0;
+        CellN(O, 'n0', V, 0);
+        CellN(O, 'n1', V, 1);
+        CellN(O, 'n2', V, 2);
+        CellN(O, 'n3', V, 3);
+        CellN(O, 'n4', V, 4);
+        CellN(O, 'n5', V, 5);
+        CellN(O, 'n6', V, 6);
+        CellN(O, 'n7', V, 7);
+        CellN(O, 'n8', V, 8);
+        CellN(O, 'n9', V, 9);
+        CellN(O, 'n10', V, 10);
+        CellS(O, '<Text>', V, '<Text>');
+        CellS(O, '<Text,10>', V, '<Text,10>');
+        CellS(O, '<Text,3>', V, '<Text,3>');
+        CellS(O, '<Filler Character,x><Text,10>', V, '<Filler Character,x><Text,10>');
+        CellS(O, '<Integer>', V, '<Integer>');
+        CellS(O, '<Integer,5>', V, '<Integer,5>');
+        CellS(O, '<Sign>', V, '<Sign>');
+        CellS(O, '<Decimals>', V, '<Decimals>');
+        CellS(O, '<Day>', V, '<Day>');
+        CellS(O, '<Hours24>', V, '<Hours24>');
+        CellS(O, '<Standard Format,0>', V, '<Standard Format,0>');
+        CellS(O, '<Standard Format,1>', V, '<Standard Format,1>');
+        CellS(O, '<Standard Format,2>', V, '<Standard Format,2>');
+        CellS(O, '<Standard Format,3>', V, '<Standard Format,3>');
+        CellS(O, '<Standard Format,4>', V, '<Standard Format,4>');
+        GlobalLanguage(Saved);
+        O.Expect('n0', 'ok:\u0000');
+        O.Expect('n1', 'ok:\u0000');
+        O.Expect('n2', 'ok:\u0000');
+        O.Expect('n3', 'err:InvalidStandardFormat');
+        O.Expect('n4', 'err:InvalidStandardFormat');
+        O.Expect('n5', 'err:InvalidStandardFormat');
+        O.Expect('n6', 'err:InvalidStandardFormat');
+        O.Expect('n7', 'err:InvalidStandardFormat');
+        O.Expect('n8', 'err:InvalidStandardFormat');
+        O.Expect('n9', 'ok:\u0000');
+        O.Expect('n10', 'err:InvalidStandardFormat');
+        O.Expect('<Text>', 'err:InvalidFormatString');
+        O.Expect('<Text,10>', 'err:InvalidFormatString');
+        O.Expect('<Text,3>', 'err:InvalidFormatString');
+        O.Expect('<Filler Character,x><Text,10>', 'err:InvalidFormatString');
+        O.Expect('<Integer>', 'err:InvalidFormatString');
+        O.Expect('<Integer,5>', 'err:InvalidFormatString');
+        O.Expect('<Sign>', 'err:InvalidFormatString');
+        O.Expect('<Decimals>', 'err:InvalidFormatString');
+        O.Expect('<Day>', 'err:InvalidFormatString');
+        O.Expect('<Hours24>', 'err:InvalidFormatString');
+        O.Expect('<Standard Format,0>', 'ok:\u0000');
+        O.Expect('<Standard Format,1>', 'ok:\u0000');
+        O.Expect('<Standard Format,2>', 'ok:\u0000');
+        O.Expect('<Standard Format,3>', 'err:InvalidStandardFormat');
+        O.Expect('<Standard Format,4>', 'err:InvalidStandardFormat');
+        O.Verify();
+    end;
+
+    [Test]
+    procedure Format_Char_0_de_2()
+    var
+        O: Codeunit "Probe Observer";
+        Saved: Integer;
+        V: Char;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage(1031);
+        V := 0;
+        CellS(O, '<Standard Format,9>', V, '<Standard Format,9>');
+        CellS(O, 'x<Text>y', V, 'x<Text>y');
+        CellS(O, 'literal', V, 'literal');
+        CellS(O, '', V, '');
+        CellS(O, '<Precision,2:2>', V, '<Precision,2:2>');
+        GlobalLanguage(Saved);
+        O.Expect('<Standard Format,9>', 'ok:\u0000');
+        O.Expect('x<Text>y', 'err:InvalidFormatString');
+        O.Expect('literal', 'ok:literal');
+        O.Expect('', 'ok:');
+        O.Expect('<Precision,2:2>', 'ok:');
+        O.Verify();
+    end;
+}

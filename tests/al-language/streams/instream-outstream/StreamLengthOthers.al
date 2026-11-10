@@ -596,4 +596,132 @@ codeunit 67861 "LT Q Stream Len Oth"
         Observer.Expect('l16_rid_bytes', '0:');
         Observer.Verify();
     end;
+
+    // Char above 127 written with a length (al-runner issue 7387: a bitmap written byte by byte; the Char reaches OutStream.Write as a local and as a
+    // parameter), and Write(Text, Length) of non-ASCII text. Char 65 is pinned above, Write(Char) without a length for 128..255 in
+    // types/text-code-char/ByteCharHigh.al.
+    [TryFunction]
+    local procedure W_Text(var O: OutStream; V: Text; WL: Integer; var Ret: Integer)
+    begin
+        Ret := O.Write(V, WL);
+    end;
+
+    local procedure Do_Text(var Observer: Codeunit "Probe Observer"; Id: Text; V: Text; WL: Integer)
+    var
+        Helper: Codeunit "LT OutIn Helper";
+        Rec: Record "LT OutIn Rec";
+        Out: OutStream;
+        Ret: Integer;
+    begin
+        Helper.Fresh(Rec);
+        Rec.Data.CreateOutStream(Out);
+        if W_Text(Out, V, WL, Ret) then
+            Observer.Observe(Id + '_wret', Format(Ret))
+        else
+            Observer.ObserveError(Id + '_w');
+        Rec.Modify();
+        Observer.Observe(Id + '_bytes', Helper.Dump(Rec));
+    end;
+
+    local procedure Do_CharParam(var Observer: Codeunit "Probe Observer"; Id: Text; CharCode: Integer; WL: Integer)
+    var
+        C: Char;
+    begin
+        C := CharCode;
+        Do_Char(Observer, Id, C, WL, WL);
+    end;
+
+    [Test]
+    procedure Char_WriteReadLength_High_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Do_CharParam(Observer, 'c182_w1', 182, 1);
+        Do_CharParam(Observer, 'c182_n', 182, -1);
+        Do_CharParam(Observer, 'c128_w1', 128, 1);
+        Do_CharParam(Observer, 'c255_w1', 255, 1);
+        Observer.Expect('c182_w1_wret', '1');
+        Observer.Expect('c182_w1_bytes', '1:14');
+        Observer.Expect('c182_w1_rd', '1/¶/Yes/2');
+        Observer.Expect('c182_w1_rd2', '0/\u0000/Yes/2');
+        Observer.Expect('c182_n_wret', '1');
+        Observer.Expect('c182_n_bytes', '1:14');
+        Observer.Expect('c182_n_rd', '1/¶/Yes/2');
+        Observer.Expect('c182_n_rd2', '0/\u0000/Yes/2');
+        Observer.Expect('c128_w1_wret', '1');
+        Observer.Expect('c128_w1_bytes', '1:3F');
+        Observer.Expect('c128_w1_rd', '1/?/Yes/2');
+        Observer.Expect('c128_w1_rd2', '0/\u0000/Yes/2');
+        Observer.Expect('c255_w1_wret', '1');
+        Observer.Expect('c255_w1_bytes', '1:98');
+        Observer.Expect('c255_w1_rd', '1/ÿ/Yes/2');
+        Observer.Expect('c255_w1_rd2', '0/\u0000/Yes/2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Char_WriteReadLength_High_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Do_CharParam(Observer, 'c127_w1', 127, 1);
+        Do_CharParam(Observer, 'c256_w1', 256, 1);
+        Do_CharParam(Observer, 'c8364_w1', 8364, 1);
+        Do_CharParam(Observer, 'c182_w2', 182, 2);
+        Observer.Expect('c127_w1_wret', '1');
+        Observer.Expect('c127_w1_bytes', '1:7F');
+        Observer.Expect('c127_w1_rd', '1//Yes/2');
+        Observer.Expect('c127_w1_rd2', '0/\u0000/Yes/2');
+        Observer.Expect('c256_w1_wret', '1');
+        Observer.Expect('c256_w1_bytes', '1:41');
+        Observer.Expect('c256_w1_rd', '1/A/Yes/2');
+        Observer.Expect('c256_w1_rd2', '0/\u0000/Yes/2');
+        Observer.Expect('c8364_w1_wret', '1');
+        Observer.Expect('c8364_w1_bytes', '1:B1');
+        Observer.Expect('c8364_w1_rd', '1/€/Yes/2');
+        Observer.Expect('c8364_w1_rd2', '0/\u0000/Yes/2');
+        Observer.Expect('c182_w2_w|text', 'An invalid length 2 was specified in stream function. 1 was expected.');
+        Observer.Expect('c182_w2_w|code', 'InvalidStreamLength');
+        Observer.Expect('c182_w2_bytes', '0:');
+        Observer.Expect('c182_w2_r|text', 'An invalid length 2 was specified in stream function. 1 was expected.');
+        Observer.Expect('c182_w2_r|code', 'InvalidStreamLength');
+        Observer.Expect('c182_w2_rval', '\u0000/Yes/1');
+        Observer.Expect('c182_w2_r2|text', 'An invalid length 2 was specified in stream function. 1 was expected.');
+        Observer.Expect('c182_w2_r2|code', 'InvalidStreamLength');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Text_WriteLength_NonAscii()
+    var
+        Observer: Codeunit "Probe Observer";
+        T: Text;
+    begin
+        T := 'A';
+        Do_Text(Observer, 't_a_1', T, 1);
+        Do_Text(Observer, 't_pilcrow_1', CopyStr('¶', 1, 1), 1);
+        Do_Text(Observer, 't_pilcrow_2', CopyStr('¶', 1, 1), 2);
+        Do_Text(Observer, 't_eacute_1', CopyStr('é', 1, 1), 1);
+        Do_Text(Observer, 't_euro_1', CopyStr('€', 1, 1), 1);
+        Do_Text(Observer, 't_ab_pilcrow_3', 'a¶b', 3);
+        Do_Text(Observer, 't_ab_pilcrow_4', 'a¶b', 4);
+        Do_Text(Observer, 't_ab_2', 'ab', 2);
+        Observer.Expect('t_a_1_wret', '2');
+        Observer.Expect('t_a_1_bytes', '2:4100');
+        Observer.Expect('t_pilcrow_1_wret', '2');
+        Observer.Expect('t_pilcrow_1_bytes', '2:1400');
+        Observer.Expect('t_pilcrow_2_wret', '2');
+        Observer.Expect('t_pilcrow_2_bytes', '2:1400');
+        Observer.Expect('t_eacute_1_wret', '2');
+        Observer.Expect('t_eacute_1_bytes', '2:8200');
+        Observer.Expect('t_euro_1_wret', '2');
+        Observer.Expect('t_euro_1_bytes', '2:B100');
+        Observer.Expect('t_ab_pilcrow_3_wret', '4');
+        Observer.Expect('t_ab_pilcrow_3_bytes', '4:61146200');
+        Observer.Expect('t_ab_pilcrow_4_wret', '4');
+        Observer.Expect('t_ab_pilcrow_4_bytes', '4:61146200');
+        Observer.Expect('t_ab_2_wret', '3');
+        Observer.Expect('t_ab_2_bytes', '3:616200');
+        Observer.Verify();
+    end;
 }
