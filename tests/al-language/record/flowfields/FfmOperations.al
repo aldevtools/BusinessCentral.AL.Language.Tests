@@ -154,144 +154,128 @@ codeunit 64503 "FFM Ops Tests"
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "FFM Ops Log";
 
-    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    // Not a TryFunction: Validate of a Sum FlowField writes, and a write inside a TryFunction ends the test (INSERT is refused there, and that error is not caught).
     local procedure TryValidateSumF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(SumF, 5.5);
         exit(true);
     end;
 
-    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    // Not a TryFunction: Validate of a Sum FlowField writes, and a write inside a TryFunction ends the test (INSERT is refused there, and that error is not caught).
     local procedure TryValidateNoValueSumF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(SumF);
         exit(true);
     end;
 
-    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    // Not a TryFunction: Validate of a Sum FlowField writes, and a write inside a TryFunction ends the test (INSERT is refused there, and that error is not caught).
     local procedure TryValidateNSumF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(NSumF, 5.5);
         exit(true);
     end;
 
-    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
+    // Not a TryFunction: Validate of a Sum FlowField writes, and a write inside a TryFunction ends the test (INSERT is refused there, and that error is not caught).
     local procedure TryValidateNoValueNSumF(var H: Record "FFM Ops Header"): Boolean
     begin
         H.Validate(NSumF);
         exit(true);
     end;
 
-    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
-    local procedure TryValidateAvgF(var H: Record "FFM Ops Header"): Boolean
+    [TryFunction]
+    local procedure TryValidateAvgF(var H: Record "FFM Ops Header")
     begin
         H.Validate(AvgF, 5.5);
-        exit(true);
     end;
 
-    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
-    local procedure TryValidateNoValueAvgF(var H: Record "FFM Ops Header"): Boolean
+    [TryFunction]
+    local procedure TryValidateNoValueAvgF(var H: Record "FFM Ops Header")
     begin
         H.Validate(AvgF);
-        exit(true);
     end;
 
-    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
-    local procedure TryValidateMinF(var H: Record "FFM Ops Header"): Boolean
+    [TryFunction]
+    local procedure TryValidateMinF(var H: Record "FFM Ops Header")
     begin
         H.Validate(MinF, 5.5);
-        exit(true);
     end;
 
-    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
-    local procedure TryValidateNoValueMinF(var H: Record "FFM Ops Header"): Boolean
+    [TryFunction]
+    local procedure TryValidateNoValueMinF(var H: Record "FFM Ops Header")
     begin
         H.Validate(MinF);
-        exit(true);
     end;
 
-    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
-    local procedure TryValidateMaxF(var H: Record "FFM Ops Header"): Boolean
+    [TryFunction]
+    local procedure TryValidateMaxF(var H: Record "FFM Ops Header")
     begin
         H.Validate(MaxF, 5.5);
-        exit(true);
     end;
 
-    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
-    local procedure TryValidateNoValueMaxF(var H: Record "FFM Ops Header"): Boolean
+    [TryFunction]
+    local procedure TryValidateNoValueMaxF(var H: Record "FFM Ops Header")
     begin
         H.Validate(MaxF);
-        exit(true);
     end;
 
-    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
-    local procedure TryValidateCntF(var H: Record "FFM Ops Header"): Boolean
+    [TryFunction]
+    local procedure TryValidateCntF(var H: Record "FFM Ops Header")
     begin
         H.Validate(CntF, 7);
-        exit(true);
     end;
 
-    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
-    local procedure TryValidateNoValueCntF(var H: Record "FFM Ops Header"): Boolean
+    [TryFunction]
+    local procedure TryValidateNoValueCntF(var H: Record "FFM Ops Header")
     begin
         H.Validate(CntF);
-        exit(true);
     end;
 
-    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
-    local procedure TryValidateExF(var H: Record "FFM Ops Header"): Boolean
+    [TryFunction]
+    local procedure TryValidateExF(var H: Record "FFM Ops Header")
     begin
         H.Validate(ExF, true);
-        exit(true);
     end;
 
-    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
-    local procedure TryValidateNoValueExF(var H: Record "FFM Ops Header"): Boolean
+    [TryFunction]
+    local procedure TryValidateNoValueExF(var H: Record "FFM Ops Header")
     begin
         H.Validate(ExF);
-        exit(true);
     end;
 
-    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
-    local procedure TryValidateLkF(var H: Record "FFM Ops Header"): Boolean
+    [TryFunction]
+    local procedure TryValidateLkF(var H: Record "FFM Ops Header")
     begin
         H.Validate(LkF, 'zz');
-        exit(true);
     end;
 
-    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
-    local procedure TryValidateNoValueLkF(var H: Record "FFM Ops Header"): Boolean
+    [TryFunction]
+    local procedure TryValidateNoValueLkF(var H: Record "FFM Ops Header")
     begin
         H.Validate(LkF);
-        exit(true);
     end;
 
-    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
-    local procedure TryValidateLkDecF(var H: Record "FFM Ops Header"): Boolean
+    [TryFunction]
+    local procedure TryValidateLkDecF(var H: Record "FFM Ops Header")
     begin
         H.Validate(LkDecF, 5.5);
-        exit(true);
     end;
 
-    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
-    local procedure TryValidateNoValueLkDecF(var H: Record "FFM Ops Header"): Boolean
+    [TryFunction]
+    local procedure TryValidateNoValueLkDecF(var H: Record "FFM Ops Header")
     begin
         H.Validate(LkDecF);
-        exit(true);
     end;
 
-    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
-    local procedure TryValidateNLkDecF(var H: Record "FFM Ops Header"): Boolean
+    [TryFunction]
+    local procedure TryValidateNLkDecF(var H: Record "FFM Ops Header")
     begin
         H.Validate(NLkDecF, 5.5);
-        exit(true);
     end;
 
-    // Not a TryFunction: Validate of a FlowField writes, and a write inside a TryFunction is refused by BC.
-    local procedure TryValidateNoValueNLkDecF(var H: Record "FFM Ops Header"): Boolean
+    [TryFunction]
+    local procedure TryValidateNoValueNLkDecF(var H: Record "FFM Ops Header")
     begin
         H.Validate(NLkDecF);
-        exit(true);
     end;
 
     [TryFunction]
