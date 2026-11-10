@@ -927,7 +927,7 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
         O.Expect('log', 'test body end; M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; C-card confirm=No; ');
-        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('rows', 'R1=EDIT/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
 
@@ -959,7 +959,7 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
         O.Expect('log', 'test body end; M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; ');
-        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('rows', 'R1=EDIT/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
 
