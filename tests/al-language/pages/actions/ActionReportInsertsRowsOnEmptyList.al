@@ -14,7 +14,10 @@
 //   the blank new-row line was inserted.
 // Already pinned elsewhere: GoToRecord on a row an action inserted on a page that already shows rows
 //   (pages/actions/Y65GoToRecordActionInsert.al).
-// No test writes to the database before the action runs the report with its request page.
+// Each case deletes the rows of earlier tests first. Before the report with its request page runs, the case also commits, so no
+//   write is pending when the request page opens: in corpus CI run 42841197978 (BC 27.5, 28.5, 29.0) the three cases that deleted
+//   without a commit ended with "An error occurred and the transaction is stopped. Contact your administrator or partner for further
+//   assistance.", while the case that wrote nothing before the report ran got through its request page.
 // BC versions: 27-29
 table 62385 "PAG AddRows Line"
 {
@@ -316,7 +319,10 @@ codeunit 62390 "PAG AddRows Tests"
         Line: Record "PAG AddRows Line";
         Pg: TestPage "PAG AddRows Delayed";
     begin
+        Observer.Discard(); // a test that BC ended with an error left its observations in the codeunit's observer
         Line.DeleteAll(); // the report of an earlier test committed its rows
+        if ActionNo = 1 then
+            Commit(); // no write may be pending when the report's request page opens (see the header)
         Pg.OpenEdit();
         Pg.Filter.SetFilter("Parent No.", 'P1');
         Observer.Observe('row before', ShownDelayed(Pg));
@@ -346,7 +352,10 @@ codeunit 62390 "PAG AddRows Tests"
         Line: Record "PAG AddRows Line";
         Pg: TestPage "PAG AddRows Plain";
     begin
+        Observer.Discard(); // a test that BC ended with an error left its observations in the codeunit's observer
         Line.DeleteAll(); // the report of an earlier test committed its rows
+        if ActionNo = 1 then
+            Commit(); // no write may be pending when the report's request page opens (see the header)
         Pg.OpenEdit();
         Pg.Filter.SetFilter("Parent No.", 'P1');
         Observer.Observe('row before', ShownPlain(Pg));
@@ -396,28 +405,56 @@ codeunit 62390 "PAG AddRows Tests"
     procedure EmptyDelayedInsertList_ActionRunsReportWithoutRequestPage_Ok()
     begin
         RunDelayed(2, 1);
-        Observer.Finish();
+        Observer.Expect('row before', '[P1 0 ]');
+        Observer.Expect('stored after action', '[P1 10000 by report 1][P1 20000 by report 2]');
+        Observer.Expect('row after action', '[P1 0 ]');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('closing|text', '');
+        Observer.Expect('closing|code', '');
+        Observer.Expect('stored after closing', '[P1 10000 by report 1][P1 20000 by report 2]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure EmptyDelayedInsertList_ActionInsertsDirectly_Ok()
     begin
         RunDelayed(3, 1);
-        Observer.Finish();
+        Observer.Expect('row before', '[P1 0 ]');
+        Observer.Expect('stored after action', '[P1 10000 direct 1][P1 20000 direct 2]');
+        Observer.Expect('row after action', '[P1 0 ]');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('closing|text', '');
+        Observer.Expect('closing|code', '');
+        Observer.Expect('stored after closing', '[P1 10000 direct 1][P1 20000 direct 2]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure EmptyDelayedInsertList_ActionInsertsDirectly_Close()
     begin
         RunDelayed(3, 2);
-        Observer.Finish();
+        Observer.Expect('row before', '[P1 0 ]');
+        Observer.Expect('stored after action', '[P1 10000 direct 1][P1 20000 direct 2]');
+        Observer.Expect('row after action', '[P1 0 ]');
+        Observer.Expect('close', 'Yes');
+        Observer.Expect('closing|text', '');
+        Observer.Expect('closing|code', '');
+        Observer.Expect('stored after closing', '[P1 10000 direct 1][P1 20000 direct 2]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure EmptyDelayedInsertList_ActionInsertsDirectlyAndUpdates_Ok()
     begin
         RunDelayed(4, 1);
-        Observer.Finish();
+        Observer.Expect('row before', '[P1 0 ]');
+        Observer.Expect('stored after action', '[P1 10000 direct 1][P1 20000 direct 2]');
+        Observer.Expect('row after action', '[P1 0 ]');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('closing|text', '');
+        Observer.Expect('closing|code', '');
+        Observer.Expect('stored after closing', '[P1 10000 direct 1][P1 20000 direct 2]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -432,21 +469,42 @@ codeunit 62390 "PAG AddRows Tests"
     procedure EmptyPlainList_ActionRunsReportWithoutRequestPage_Ok()
     begin
         RunPlain(2);
-        Observer.Finish();
+        Observer.Expect('row before', '[P1 0 ]');
+        Observer.Expect('stored after action', '[P1 10000 by report 1][P1 20000 by report 2]');
+        Observer.Expect('row after action', '[P1 0 ]');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('closing|text', '');
+        Observer.Expect('closing|code', '');
+        Observer.Expect('stored after closing', '[P1 10000 by report 1][P1 20000 by report 2]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure EmptyPlainList_ActionInsertsDirectly_Ok()
     begin
         RunPlain(3);
-        Observer.Finish();
+        Observer.Expect('row before', '[P1 0 ]');
+        Observer.Expect('stored after action', '[P1 10000 direct 1][P1 20000 direct 2]');
+        Observer.Expect('row after action', '[P1 0 ]');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('closing|text', '');
+        Observer.Expect('closing|code', '');
+        Observer.Expect('stored after closing', '[P1 10000 direct 1][P1 20000 direct 2]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure EmptyPlainList_ActionInsertsDirectlyAndUpdates_Ok()
     begin
         RunPlain(4);
-        Observer.Finish();
+        Observer.Expect('row before', '[P1 0 ]');
+        Observer.Expect('stored after action', '[P1 10000 direct 1][P1 20000 direct 2]');
+        Observer.Expect('row after action', '[P1 0 ]');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('closing|text', '');
+        Observer.Expect('closing|code', '');
+        Observer.Expect('stored after closing', '[P1 10000 direct 1][P1 20000 direct 2]');
+        Observer.Verify();
     end;
 
     // After the action the test reads the rows the page shows (First, Next) before it presses OK.
@@ -458,6 +516,9 @@ codeunit 62390 "PAG AddRows Tests"
         Pg: TestPage "PAG AddRows Delayed";
         Rows: Text;
     begin
+        Observer.Discard(); // a test that BC ended with an error left its observations in the codeunit's observer
+        Line.DeleteAll(); // the report of an earlier test committed its rows
+        Commit(); // no write may be pending when the report's request page opens (see the header)
         Pg.OpenEdit();
         Pg.Filter.SetFilter("Parent No.", 'P1');
         Pg.AddByReport.Invoke();
@@ -470,7 +531,12 @@ codeunit 62390 "PAG AddRows Tests"
         Observer.ObserveError('closing');
         Observer.Observe('stored after closing', Stored());
         Line.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('rows shown', '[P1 10000 by report 1][P1 20000 by report 2][P1 30000 by report 3][P1 0 ]');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('closing|text', '');
+        Observer.Expect('closing|code', '');
+        Observer.Expect('stored after closing', '[P1 10000 by report 1][P1 20000 by report 2][P1 30000 by report 3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]

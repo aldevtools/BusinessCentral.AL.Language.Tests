@@ -295,7 +295,15 @@ codeunit 99621 "LT HS Tests"
         ObserveReach('open', Observer);
         Host.Close();
         ObserveReach('closed', Observer);
-        Observer.Finish();
+        Observer.Expect('open.touch', '1');
+        Observer.Expect('open.read', 'id=1 name=one count=1');
+        Observer.Expect('open.mark', 'm');
+        Observer.Expect('open.host', 'id=1 name=one');
+        Observer.Expect('closed.touch', '2');
+        Observer.Expect('closed.read', 'id=1 name=one count=1');
+        Observer.Expect('closed.mark', 'm');
+        Observer.Expect('closed.host', 'id=1 name=one');
+        Observer.Verify();
     end;
 
     // The next test of the codeunit: the held page is still the instance of the previous test's TestPage (not open, no new open yet).
@@ -305,7 +313,11 @@ codeunit 99621 "LT HS Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveReach('next-test', Observer);
-        Observer.Finish();
+        Observer.Expect('next-test.touch', '3');
+        Observer.Expect('next-test.read', 'id=1 name=one count=0');
+        Observer.Expect('next-test.mark', 'm');
+        Observer.Expect('next-test.host', 'id=1 name=one');
+        Observer.Verify();
     end;
 
     // A second TestPage of the same host opens while the variable holds the first one (not assigned again): the factbox's

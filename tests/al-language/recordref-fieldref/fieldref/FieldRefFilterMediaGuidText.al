@@ -230,14 +230,16 @@ codeunit 66306 "RRF MediaGuid Tests"
     begin
         Initialize();
         FixedForms(Observer, 3);
+        // gt and lt are observed, not asserted: row 2 holds content whose id is new on every run, so whether it sorts above or below
+        // the fixed Guid changes from run to run (corpus CI runs 42824219882 and 42841197978 gave both answers for the same code).
+        Observer.Ignore('gt');
+        Observer.Ignore('lt');
         Observer.Expect('eq', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
         Observer.Expect('eq bare', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
         Observer.Expect('eq lower', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
         Observer.Expect('eq quoted', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
         Observer.Expect('eqsign', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
         Observer.Expect('ne', '<>{11F319D9-C18B-449D-A6BC-6E725A266949} | 1 2 3 ');
-        Observer.Expect('gt', '>{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
-        Observer.Expect('lt', '<{11F319D9-C18B-449D-A6BC-6E725A266949} | 1 2 3 ');
         Observer.Expect('or', '{11F319D9-C18B-449D-A6BC-6E725A266949}|{F1F319D9-C18B-449D-A6BC-6E725A266949} | ');
         Observer.Expect('range', '{11F319D9-C18B-449D-A6BC-6E725A266949}..{F1F319D9-C18B-449D-A6BC-6E725A266949} | ');
         Observer.Expect('ne and ne', '<>{11F319D9-C18B-449D-A6BC-6E725A266949}&<>{F1F319D9-C18B-449D-A6BC-6E725A266949} | 1 2 3 ');
@@ -367,37 +369,22 @@ codeunit 66306 "RRF MediaGuid Tests"
     begin
         Initialize();
         FixedForms(Observer, 2);
-#if BC29PLUS
+        // gt and lt are observed, not asserted: row 2 holds content whose id is new on every run, so whether it sorts above or below
+        // the fixed Guid changes from run to run (corpus CI runs 42824219882 and 42841197978 gave both answers for the same code).
+        Observer.Ignore('gt');
+        Observer.Ignore('lt');
         Observer.Expect('eq', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
         Observer.Expect('eq bare', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
         Observer.Expect('eq lower', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
         Observer.Expect('eq quoted', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
         Observer.Expect('eqsign', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
         Observer.Expect('ne', '<>{11F319D9-C18B-449D-A6BC-6E725A266949} | 1 2 3 ');
-        Observer.Expect('gt', '>{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
-        Observer.Expect('lt', '<{11F319D9-C18B-449D-A6BC-6E725A266949} | 1 2 3 ');
         Observer.Expect('or', '{11F319D9-C18B-449D-A6BC-6E725A266949}|{F1F319D9-C18B-449D-A6BC-6E725A266949} | ');
         Observer.Expect('range', '{11F319D9-C18B-449D-A6BC-6E725A266949}..{F1F319D9-C18B-449D-A6BC-6E725A266949} | ');
         Observer.Expect('ne and ne', '<>{11F319D9-C18B-449D-A6BC-6E725A266949}&<>{F1F319D9-C18B-449D-A6BC-6E725A266949} | 1 2 3 ');
         Observer.Expect('empty guid', '{00000000-0000-0000-0000-000000000000} | 1 3 ');
         Observer.Expect('ne empty guid', '<>{00000000-0000-0000-0000-000000000000} | 2 ');
         Observer.Verify();
-#else
-        Observer.Expect('eq', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
-        Observer.Expect('eq bare', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
-        Observer.Expect('eq lower', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
-        Observer.Expect('eq quoted', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
-        Observer.Expect('eqsign', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
-        Observer.Expect('ne', '<>{11F319D9-C18B-449D-A6BC-6E725A266949} | 1 2 3 ');
-        Observer.Expect('gt', '>{11F319D9-C18B-449D-A6BC-6E725A266949} | 2 ');
-        Observer.Expect('lt', '<{11F319D9-C18B-449D-A6BC-6E725A266949} | 1 3 ');
-        Observer.Expect('or', '{11F319D9-C18B-449D-A6BC-6E725A266949}|{F1F319D9-C18B-449D-A6BC-6E725A266949} | ');
-        Observer.Expect('range', '{11F319D9-C18B-449D-A6BC-6E725A266949}..{F1F319D9-C18B-449D-A6BC-6E725A266949} | ');
-        Observer.Expect('ne and ne', '<>{11F319D9-C18B-449D-A6BC-6E725A266949}&<>{F1F319D9-C18B-449D-A6BC-6E725A266949} | 1 2 3 ');
-        Observer.Expect('empty guid', '{00000000-0000-0000-0000-000000000000} | 1 3 ');
-        Observer.Expect('ne empty guid', '<>{00000000-0000-0000-0000-000000000000} | 2 ');
-        Observer.Verify();
-#endif
     end;
 
     [Test]
