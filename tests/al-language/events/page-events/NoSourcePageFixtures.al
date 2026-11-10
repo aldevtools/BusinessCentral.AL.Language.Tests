@@ -784,6 +784,8 @@ page 97621 "LT PNS Cue Part"
     trigger OnOpenPage()
     begin
         Log.Add('Cue.page.OnOpenPage');
+        if Log.Mode() = 'CueFindFirst' then
+            if Rec.FindFirst() then;
     end;
 
     trigger OnAfterGetCurrRecord()

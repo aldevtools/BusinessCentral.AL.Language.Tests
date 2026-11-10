@@ -155,14 +155,20 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS Card";
         Opened: Boolean;
+        Acted: Boolean;
     begin
         Initialize();
         Opened := TryOpenViewCard(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.OK().Invoke();
+            Acted := TryActOKCard(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after OK', Log.Dump());
+            if not Acted then
+                Pg.Close();
         end;
         Observer.Finish();
     end;
@@ -173,14 +179,20 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS Card";
         Opened: Boolean;
+        Acted: Boolean;
     begin
         Initialize();
         Opened := TryOpenViewCard(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.Cancel().Invoke();
+            Acted := TryActCancelCard(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after Cancel', Log.Dump());
+            if not Acted then
+                Pg.Close();
         end;
         Observer.Finish();
     end;
@@ -314,14 +326,20 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS List";
         Opened: Boolean;
+        Acted: Boolean;
     begin
         Initialize();
         Opened := TryOpenViewList(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.OK().Invoke();
+            Acted := TryActOKList(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after OK', Log.Dump());
+            if not Acted then
+                Pg.Close();
         end;
         Observer.Finish();
     end;
@@ -332,14 +350,20 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS List";
         Opened: Boolean;
+        Acted: Boolean;
     begin
         Initialize();
         Opened := TryOpenViewList(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.Cancel().Invoke();
+            Acted := TryActCancelList(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after Cancel', Log.Dump());
+            if not Acted then
+                Pg.Close();
         end;
         Observer.Finish();
     end;
@@ -473,14 +497,20 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS Worksheet";
         Opened: Boolean;
+        Acted: Boolean;
     begin
         Initialize();
         Opened := TryOpenViewWorksheet(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.OK().Invoke();
+            Acted := TryActOKWorksheet(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after OK', Log.Dump());
+            if not Acted then
+                Pg.Close();
         end;
         Observer.Finish();
     end;
@@ -491,14 +521,20 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS Worksheet";
         Opened: Boolean;
+        Acted: Boolean;
     begin
         Initialize();
         Opened := TryOpenViewWorksheet(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.Cancel().Invoke();
+            Acted := TryActCancelWorksheet(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after Cancel', Log.Dump());
+            if not Acted then
+                Pg.Close();
         end;
         Observer.Finish();
     end;
@@ -632,14 +668,20 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS ListPlus";
         Opened: Boolean;
+        Acted: Boolean;
     begin
         Initialize();
         Opened := TryOpenViewListPlus(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.OK().Invoke();
+            Acted := TryActOKListPlus(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after OK', Log.Dump());
+            if not Acted then
+                Pg.Close();
         end;
         Observer.Finish();
     end;
@@ -650,14 +692,20 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS ListPlus";
         Opened: Boolean;
+        Acted: Boolean;
     begin
         Initialize();
         Opened := TryOpenViewListPlus(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.Cancel().Invoke();
+            Acted := TryActCancelListPlus(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after Cancel', Log.Dump());
+            if not Acted then
+                Pg.Close();
         end;
         Observer.Finish();
     end;
@@ -791,14 +839,20 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS StdDialog";
         Opened: Boolean;
+        Acted: Boolean;
     begin
         Initialize();
         Opened := TryOpenViewStdDialog(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.OK().Invoke();
+            Acted := TryActOKStdDialog(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after OK', Log.Dump());
+            if not Acted then
+                Pg.Close();
         end;
         Observer.Finish();
     end;
@@ -809,14 +863,20 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS StdDialog";
         Opened: Boolean;
+        Acted: Boolean;
     begin
         Initialize();
         Opened := TryOpenViewStdDialog(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.Cancel().Invoke();
+            Acted := TryActCancelStdDialog(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after Cancel', Log.Dump());
+            if not Acted then
+                Pg.Close();
         end;
         Observer.Finish();
     end;
@@ -950,14 +1010,20 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS NavPage";
         Opened: Boolean;
+        Acted: Boolean;
     begin
         Initialize();
         Opened := TryOpenViewNavPage(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.OK().Invoke();
+            Acted := TryActOKNavPage(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after OK', Log.Dump());
+            if not Acted then
+                Pg.Close();
         end;
         Observer.Finish();
     end;
@@ -968,14 +1034,20 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS NavPage";
         Opened: Boolean;
+        Acted: Boolean;
     begin
         Initialize();
         Opened := TryOpenViewNavPage(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.Cancel().Invoke();
+            Acted := TryActCancelNavPage(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after Cancel', Log.Dump());
+            if not Acted then
+                Pg.Close();
         end;
         Observer.Finish();
     end;
@@ -1109,14 +1181,20 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS CardPart";
         Opened: Boolean;
+        Acted: Boolean;
     begin
         Initialize();
         Opened := TryOpenViewCardPart(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.OK().Invoke();
+            Acted := TryActOKCardPart(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after OK', Log.Dump());
+            if not Acted then
+                Pg.Close();
         end;
         Observer.Finish();
     end;
@@ -1127,14 +1205,20 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS CardPart";
         Opened: Boolean;
+        Acted: Boolean;
     begin
         Initialize();
         Opened := TryOpenViewCardPart(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.Cancel().Invoke();
+            Acted := TryActCancelCardPart(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after Cancel', Log.Dump());
+            if not Acted then
+                Pg.Close();
         end;
         Observer.Finish();
     end;
@@ -1268,14 +1352,20 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS ListPart";
         Opened: Boolean;
+        Acted: Boolean;
     begin
         Initialize();
         Opened := TryOpenViewListPart(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.OK().Invoke();
+            Acted := TryActOKListPart(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after OK', Log.Dump());
+            if not Acted then
+                Pg.Close();
         end;
         Observer.Finish();
     end;
@@ -1286,15 +1376,48 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS ListPart";
         Opened: Boolean;
+        Acted: Boolean;
     begin
         Initialize();
         Opened := TryOpenViewListPart(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.Cancel().Invoke();
+            Acted := TryActCancelListPart(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after Cancel', Log.Dump());
+            if not Acted then
+                Pg.Close();
         end;
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoSourceRoleCenter_OpenNew_Asserterror()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: TestPage "LT PNS RoleCenter";
+    begin
+        Initialize();
+        asserterror Pg.OpenNew();
+        Observer.ObserveError('open error');
+        Observer.Observe('log after open', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoSourceRoleCenter_TrapAndPageRun_Asserterror()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: TestPage "LT PNS RoleCenter";
+    begin
+        Initialize();
+        Pg.Trap();
+        asserterror Page.Run(Page::"LT PNS RoleCenter");
+        Observer.ObserveError('run error');
+        Observer.Observe('log after run', Log.Dump());
         Observer.Finish();
     end;
 
@@ -1341,51 +1464,7 @@ codeunit 97690 "LT PNS Events"
     end;
 
     [Test]
-    procedure NoSourceRoleCenter_OpenNew_EventLog()
-    var
-        Observer: Codeunit "Probe Observer";
-        Pg: TestPage "LT PNS RoleCenter";
-        Opened: Boolean;
-    begin
-        Initialize();
-        Opened := TryOpenNewRoleCenter(Pg);
-        Observer.Observe('open ok', Format(Opened));
-        if not Opened then
-            Observer.ObserveError('open error');
-        Observer.Observe('log after open', Log.Dump());
-        if Opened then begin
-            Log.Reset();
-            Pg.Close();
-            Observer.Observe('log after close', Log.Dump());
-        end;
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure NoSourceRoleCenter_TrapAndPageRun_EventLog()
-    var
-        Observer: Codeunit "Probe Observer";
-        Pg: TestPage "LT PNS RoleCenter";
-        Ran: Boolean;
-    begin
-        Initialize();
-        Pg.Trap();
-        Ran := TryRunRoleCenter();
-        Observer.Observe('run ok', Format(Ran));
-        if not Ran then
-            Observer.ObserveError('run error');
-        Observer.Observe('log after run', Log.Dump());
-        if Ran then begin
-            Log.Reset();
-            Pg.Close();
-            Observer.Observe('log after close', Log.Dump());
-        end;
-        Observer.Finish();
-    end;
-
-    [Test]
-    [HandlerFunctions('HandleRoleCenter')]
-    procedure NoSourceRoleCenter_RunModal_OK_EventLog()
+    procedure NoSourceRoleCenter_RunModalWithoutHandler_OK_EventLog()
     var
         Observer: Codeunit "Probe Observer";
         Act: Action;
@@ -1397,26 +1476,6 @@ codeunit 97690 "LT PNS Events"
         Observer.Observe('run ok', Format(Ran));
         if not Ran then
             Observer.ObserveError('run error');
-        Observer.Observe('action', Format(Act));
-        Observer.Observe('log after run', Log.Dump());
-        Observer.Finish();
-    end;
-
-    [Test]
-    [HandlerFunctions('HandleRoleCenter')]
-    procedure NoSourceRoleCenter_RunModal_Cancel_EventLog()
-    var
-        Observer: Codeunit "Probe Observer";
-        Act: Action;
-        Ran: Boolean;
-    begin
-        Initialize();
-        Log.SetMode('Cancel');
-        Ran := TryRunModalRoleCenter(Act);
-        Observer.Observe('run ok', Format(Ran));
-        if not Ran then
-            Observer.ObserveError('run error');
-        Observer.Observe('action', Format(Act));
         Observer.Observe('log after run', Log.Dump());
         Observer.Finish();
     end;
@@ -1427,14 +1486,20 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS RoleCenter";
         Opened: Boolean;
+        Acted: Boolean;
     begin
         Initialize();
         Opened := TryOpenViewRoleCenter(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.OK().Invoke();
+            Acted := TryActOKRoleCenter(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after OK', Log.Dump());
+            if not Acted then
+                Pg.Close();
         end;
         Observer.Finish();
     end;
@@ -1445,14 +1510,20 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS RoleCenter";
         Opened: Boolean;
+        Acted: Boolean;
     begin
         Initialize();
         Opened := TryOpenViewRoleCenter(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.Cancel().Invoke();
+            Acted := TryActCancelRoleCenter(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after Cancel', Log.Dump());
+            if not Acted then
+                Pg.Close();
         end;
         Observer.Finish();
     end;
@@ -1463,16 +1534,24 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS Card";
         Opened: Boolean;
+        Acted: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Opened := TryOpenEditCard(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.UpdateTrue.Invoke();
+            Acted := TryActUpdateTrueCard(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after action', Log.Dump());
             Log.Reset();
-            Pg.Close();
+            Closed := TryCloseCard(Pg);
+            Observer.Observe('close ok', Format(Closed));
+            if not Closed then
+                Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
         Observer.Finish();
@@ -1484,16 +1563,24 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS Card";
         Opened: Boolean;
+        Acted: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Opened := TryOpenEditCard(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.UpdateFalse.Invoke();
+            Acted := TryActUpdateFalseCard(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after action', Log.Dump());
             Log.Reset();
-            Pg.Close();
+            Closed := TryCloseCard(Pg);
+            Observer.Observe('close ok', Format(Closed));
+            if not Closed then
+                Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
         Observer.Finish();
@@ -1505,16 +1592,24 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS Card";
         Opened: Boolean;
+        Acted: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Opened := TryOpenEditCard(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.CloseSelf.Invoke();
+            Acted := TryActCloseSelfCard(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after action', Log.Dump());
             Log.Reset();
-            Pg.Close();
+            Closed := TryCloseCard(Pg);
+            Observer.Observe('close ok', Format(Closed));
+            if not Closed then
+                Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
         Observer.Finish();
@@ -1526,16 +1621,24 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS List";
         Opened: Boolean;
+        Acted: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Opened := TryOpenEditList(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.UpdateTrue.Invoke();
+            Acted := TryActUpdateTrueList(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after action', Log.Dump());
             Log.Reset();
-            Pg.Close();
+            Closed := TryCloseList(Pg);
+            Observer.Observe('close ok', Format(Closed));
+            if not Closed then
+                Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
         Observer.Finish();
@@ -1547,16 +1650,24 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS List";
         Opened: Boolean;
+        Acted: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Opened := TryOpenEditList(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.UpdateFalse.Invoke();
+            Acted := TryActUpdateFalseList(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after action', Log.Dump());
             Log.Reset();
-            Pg.Close();
+            Closed := TryCloseList(Pg);
+            Observer.Observe('close ok', Format(Closed));
+            if not Closed then
+                Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
         Observer.Finish();
@@ -1568,16 +1679,24 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS List";
         Opened: Boolean;
+        Acted: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Opened := TryOpenEditList(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.CloseSelf.Invoke();
+            Acted := TryActCloseSelfList(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after action', Log.Dump());
             Log.Reset();
-            Pg.Close();
+            Closed := TryCloseList(Pg);
+            Observer.Observe('close ok', Format(Closed));
+            if not Closed then
+                Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
         Observer.Finish();
@@ -1589,16 +1708,24 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS Worksheet";
         Opened: Boolean;
+        Acted: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Opened := TryOpenEditWorksheet(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.UpdateTrue.Invoke();
+            Acted := TryActUpdateTrueWorksheet(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after action', Log.Dump());
             Log.Reset();
-            Pg.Close();
+            Closed := TryCloseWorksheet(Pg);
+            Observer.Observe('close ok', Format(Closed));
+            if not Closed then
+                Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
         Observer.Finish();
@@ -1610,16 +1737,24 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS Worksheet";
         Opened: Boolean;
+        Acted: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Opened := TryOpenEditWorksheet(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.UpdateFalse.Invoke();
+            Acted := TryActUpdateFalseWorksheet(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after action', Log.Dump());
             Log.Reset();
-            Pg.Close();
+            Closed := TryCloseWorksheet(Pg);
+            Observer.Observe('close ok', Format(Closed));
+            if not Closed then
+                Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
         Observer.Finish();
@@ -1631,16 +1766,24 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS Worksheet";
         Opened: Boolean;
+        Acted: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Opened := TryOpenEditWorksheet(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.CloseSelf.Invoke();
+            Acted := TryActCloseSelfWorksheet(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after action', Log.Dump());
             Log.Reset();
-            Pg.Close();
+            Closed := TryCloseWorksheet(Pg);
+            Observer.Observe('close ok', Format(Closed));
+            if not Closed then
+                Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
         Observer.Finish();
@@ -1652,16 +1795,24 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS ListPlus";
         Opened: Boolean;
+        Acted: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Opened := TryOpenEditListPlus(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.UpdateTrue.Invoke();
+            Acted := TryActUpdateTrueListPlus(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after action', Log.Dump());
             Log.Reset();
-            Pg.Close();
+            Closed := TryCloseListPlus(Pg);
+            Observer.Observe('close ok', Format(Closed));
+            if not Closed then
+                Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
         Observer.Finish();
@@ -1673,16 +1824,24 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS ListPlus";
         Opened: Boolean;
+        Acted: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Opened := TryOpenEditListPlus(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.UpdateFalse.Invoke();
+            Acted := TryActUpdateFalseListPlus(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after action', Log.Dump());
             Log.Reset();
-            Pg.Close();
+            Closed := TryCloseListPlus(Pg);
+            Observer.Observe('close ok', Format(Closed));
+            if not Closed then
+                Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
         Observer.Finish();
@@ -1694,16 +1853,24 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS ListPlus";
         Opened: Boolean;
+        Acted: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Opened := TryOpenEditListPlus(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.CloseSelf.Invoke();
+            Acted := TryActCloseSelfListPlus(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after action', Log.Dump());
             Log.Reset();
-            Pg.Close();
+            Closed := TryCloseListPlus(Pg);
+            Observer.Observe('close ok', Format(Closed));
+            if not Closed then
+                Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
         Observer.Finish();
@@ -1715,16 +1882,24 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS StdDialog";
         Opened: Boolean;
+        Acted: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Opened := TryOpenEditStdDialog(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.UpdateTrue.Invoke();
+            Acted := TryActUpdateTrueStdDialog(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after action', Log.Dump());
             Log.Reset();
-            Pg.Close();
+            Closed := TryCloseStdDialog(Pg);
+            Observer.Observe('close ok', Format(Closed));
+            if not Closed then
+                Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
         Observer.Finish();
@@ -1736,16 +1911,24 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS StdDialog";
         Opened: Boolean;
+        Acted: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Opened := TryOpenEditStdDialog(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.UpdateFalse.Invoke();
+            Acted := TryActUpdateFalseStdDialog(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after action', Log.Dump());
             Log.Reset();
-            Pg.Close();
+            Closed := TryCloseStdDialog(Pg);
+            Observer.Observe('close ok', Format(Closed));
+            if not Closed then
+                Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
         Observer.Finish();
@@ -1757,16 +1940,24 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS StdDialog";
         Opened: Boolean;
+        Acted: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Opened := TryOpenEditStdDialog(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.CloseSelf.Invoke();
+            Acted := TryActCloseSelfStdDialog(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after action', Log.Dump());
             Log.Reset();
-            Pg.Close();
+            Closed := TryCloseStdDialog(Pg);
+            Observer.Observe('close ok', Format(Closed));
+            if not Closed then
+                Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
         Observer.Finish();
@@ -1778,16 +1969,24 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS NavPage";
         Opened: Boolean;
+        Acted: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Opened := TryOpenEditNavPage(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.UpdateTrue.Invoke();
+            Acted := TryActUpdateTrueNavPage(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after action', Log.Dump());
             Log.Reset();
-            Pg.Close();
+            Closed := TryCloseNavPage(Pg);
+            Observer.Observe('close ok', Format(Closed));
+            if not Closed then
+                Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
         Observer.Finish();
@@ -1799,16 +1998,24 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS NavPage";
         Opened: Boolean;
+        Acted: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Opened := TryOpenEditNavPage(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.UpdateFalse.Invoke();
+            Acted := TryActUpdateFalseNavPage(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after action', Log.Dump());
             Log.Reset();
-            Pg.Close();
+            Closed := TryCloseNavPage(Pg);
+            Observer.Observe('close ok', Format(Closed));
+            if not Closed then
+                Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
         Observer.Finish();
@@ -1820,16 +2027,24 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS NavPage";
         Opened: Boolean;
+        Acted: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Opened := TryOpenEditNavPage(Pg);
         Observer.Observe('open ok', Format(Opened));
         if Opened then begin
             Log.Reset();
-            Pg.CloseSelf.Invoke();
+            Acted := TryActCloseSelfNavPage(Pg);
+            Observer.Observe('action ok', Format(Acted));
+            if not Acted then
+                Observer.ObserveError('action error');
             Observer.Observe('log after action', Log.Dump());
             Log.Reset();
-            Pg.Close();
+            Closed := TryCloseNavPage(Pg);
+            Observer.Observe('close ok', Format(Closed));
+            if not Closed then
+                Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
         Observer.Finish();
@@ -1968,6 +2183,20 @@ codeunit 97690 "LT PNS Events"
     end;
 
     [Test]
+    procedure NoSourceCard_SubscriberError_OnAfterGetCurrRecordEvent()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: TestPage "LT PNS Card";
+    begin
+        Initialize();
+        Log.SetFailAt('Card.OnAfterGetCurrRecordEvent');
+        asserterror Pg.OpenEdit();
+        Observer.ObserveError('open error');
+        Observer.Observe('log after open', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
     procedure NoSourceCard_SubscriberError_OnOpenPageEvent()
     var
         Observer: Codeunit "Probe Observer";
@@ -2055,32 +2284,6 @@ codeunit 97690 "LT PNS Events"
     begin
         Initialize();
         Log.SetFailAt('Card.OnAfterGetRecordEvent');
-        Opened := TryOpenEditCard(Pg);
-        Observer.Observe('open ok', Format(Opened));
-        if not Opened then
-            Observer.ObserveError('open error');
-        Observer.Observe('log after open', Log.Dump());
-        if Opened then begin
-            Log.Reset();
-            Closed := TryCloseCard(Pg);
-            Observer.Observe('close ok', Format(Closed));
-            if not Closed then
-                Observer.ObserveError('close error');
-            Observer.Observe('log after close', Log.Dump());
-        end;
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure NoSourceCard_SubscriberError_OnAfterGetCurrRecordEvent()
-    var
-        Observer: Codeunit "Probe Observer";
-        Pg: TestPage "LT PNS Card";
-        Opened: Boolean;
-        Closed: Boolean;
-    begin
-        Initialize();
-        Log.SetFailAt('Card.OnAfterGetCurrRecordEvent');
         Opened := TryOpenEditCard(Pg);
         Observer.Observe('open ok', Format(Opened));
         if not Opened then
@@ -2207,6 +2410,7 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS Card";
         Opened: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Log.SetMode('CloseInOpen');
@@ -2215,6 +2419,12 @@ codeunit 97690 "LT PNS Events"
         if not Opened then
             Observer.ObserveError('open error');
         Observer.Observe('log after open', Log.Dump());
+        Log.Reset();
+        Closed := TryCloseCard(Pg);
+        Observer.Observe('close ok', Format(Closed));
+        if not Closed then
+            Observer.ObserveError('close error');
+        Observer.Observe('log after close', Log.Dump());
         Observer.Finish();
     end;
 
@@ -2224,6 +2434,7 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS Card";
         Opened: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Log.SetMode('UpdateTrueInOpen');
@@ -2232,6 +2443,12 @@ codeunit 97690 "LT PNS Events"
         if not Opened then
             Observer.ObserveError('open error');
         Observer.Observe('log after open', Log.Dump());
+        Log.Reset();
+        Closed := TryCloseCard(Pg);
+        Observer.Observe('close ok', Format(Closed));
+        if not Closed then
+            Observer.ObserveError('close error');
+        Observer.Observe('log after close', Log.Dump());
         Observer.Finish();
     end;
 
@@ -2241,6 +2458,7 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS Card";
         Opened: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Log.SetMode('UpdateFalseInOpen');
@@ -2249,6 +2467,12 @@ codeunit 97690 "LT PNS Events"
         if not Opened then
             Observer.ObserveError('open error');
         Observer.Observe('log after open', Log.Dump());
+        Log.Reset();
+        Closed := TryCloseCard(Pg);
+        Observer.Observe('close ok', Format(Closed));
+        if not Closed then
+            Observer.ObserveError('close error');
+        Observer.Observe('log after close', Log.Dump());
         Observer.Finish();
     end;
 
@@ -2258,6 +2482,7 @@ codeunit 97690 "LT PNS Events"
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT PNS Card";
         Opened: Boolean;
+        Closed: Boolean;
     begin
         Initialize();
         Log.SetMode('CloseInAgcr');
@@ -2266,6 +2491,12 @@ codeunit 97690 "LT PNS Events"
         if not Opened then
             Observer.ObserveError('open error');
         Observer.Observe('log after open', Log.Dump());
+        Log.Reset();
+        Closed := TryCloseCard(Pg);
+        Observer.Observe('close ok', Format(Closed));
+        if not Closed then
+            Observer.ObserveError('close error');
+        Observer.Observe('log after close', Log.Dump());
         Observer.Finish();
     end;
 
@@ -2399,6 +2630,293 @@ codeunit 97690 "LT PNS Events"
     end;
 
     [Test]
+    procedure NoSourceRoleCenterCue_OpenView_FindFirstInCueOpenPage_ReadCue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: TestPage "LT PNS RoleCenter";
+        Row: Record "LT PNS Row";
+    begin
+        Initialize();
+        Row.Id := 7;
+        Row.Insert();
+        Log.SetMode('CueFindFirst');
+        Pg.OpenView();
+        Observer.Observe('cue value', Pg.CueP.CueId.Value());
+        Observer.Observe('log after open', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoSourceCard_Navigate_New_EventLog()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: TestPage "LT PNS Card";
+        Moved: Boolean;
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Log.Reset();
+        Moved := TryNavNewCard(Pg);
+        Observer.Observe('New ok', Format(Moved));
+        if not Moved then
+            Observer.ObserveError('New error');
+        Observer.Observe('log after New', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoSourceCard_Navigate_Next_EventLog()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: TestPage "LT PNS Card";
+        Moved: Boolean;
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Log.Reset();
+        Moved := TryNavNextCard(Pg);
+        Observer.Observe('Next ok', Format(Moved));
+        if not Moved then
+            Observer.ObserveError('Next error');
+        Observer.Observe('log after Next', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoSourceCard_Navigate_Previous_EventLog()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: TestPage "LT PNS Card";
+        Moved: Boolean;
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Log.Reset();
+        Moved := TryNavPreviousCard(Pg);
+        Observer.Observe('Previous ok', Format(Moved));
+        if not Moved then
+            Observer.ObserveError('Previous error');
+        Observer.Observe('log after Previous', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoSourceCard_Navigate_First_EventLog()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: TestPage "LT PNS Card";
+        Moved: Boolean;
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Log.Reset();
+        Moved := TryNavFirstCard(Pg);
+        Observer.Observe('First ok', Format(Moved));
+        if not Moved then
+            Observer.ObserveError('First error');
+        Observer.Observe('log after First', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoSourceCard_Navigate_Last_EventLog()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: TestPage "LT PNS Card";
+        Moved: Boolean;
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Log.Reset();
+        Moved := TryNavLastCard(Pg);
+        Observer.Observe('Last ok', Format(Moved));
+        if not Moved then
+            Observer.ObserveError('Last error');
+        Observer.Observe('log after Last', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoSourceList_Navigate_New_EventLog()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: TestPage "LT PNS List";
+        Moved: Boolean;
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Log.Reset();
+        Moved := TryNavNewList(Pg);
+        Observer.Observe('New ok', Format(Moved));
+        if not Moved then
+            Observer.ObserveError('New error');
+        Observer.Observe('log after New', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoSourceList_Navigate_Next_EventLog()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: TestPage "LT PNS List";
+        Moved: Boolean;
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Log.Reset();
+        Moved := TryNavNextList(Pg);
+        Observer.Observe('Next ok', Format(Moved));
+        if not Moved then
+            Observer.ObserveError('Next error');
+        Observer.Observe('log after Next', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoSourceList_Navigate_Previous_EventLog()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: TestPage "LT PNS List";
+        Moved: Boolean;
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Log.Reset();
+        Moved := TryNavPreviousList(Pg);
+        Observer.Observe('Previous ok', Format(Moved));
+        if not Moved then
+            Observer.ObserveError('Previous error');
+        Observer.Observe('log after Previous', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoSourceList_Navigate_First_EventLog()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: TestPage "LT PNS List";
+        Moved: Boolean;
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Log.Reset();
+        Moved := TryNavFirstList(Pg);
+        Observer.Observe('First ok', Format(Moved));
+        if not Moved then
+            Observer.ObserveError('First error');
+        Observer.Observe('log after First', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoSourceList_Navigate_Last_EventLog()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: TestPage "LT PNS List";
+        Moved: Boolean;
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Log.Reset();
+        Moved := TryNavLastList(Pg);
+        Observer.Observe('Last ok', Format(Moved));
+        if not Moved then
+            Observer.ObserveError('Last error');
+        Observer.Observe('log after Last', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoSourceWorksheet_Navigate_New_EventLog()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: TestPage "LT PNS Worksheet";
+        Moved: Boolean;
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Log.Reset();
+        Moved := TryNavNewWorksheet(Pg);
+        Observer.Observe('New ok', Format(Moved));
+        if not Moved then
+            Observer.ObserveError('New error');
+        Observer.Observe('log after New', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoSourceWorksheet_Navigate_Next_EventLog()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: TestPage "LT PNS Worksheet";
+        Moved: Boolean;
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Log.Reset();
+        Moved := TryNavNextWorksheet(Pg);
+        Observer.Observe('Next ok', Format(Moved));
+        if not Moved then
+            Observer.ObserveError('Next error');
+        Observer.Observe('log after Next', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoSourceWorksheet_Navigate_Previous_EventLog()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: TestPage "LT PNS Worksheet";
+        Moved: Boolean;
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Log.Reset();
+        Moved := TryNavPreviousWorksheet(Pg);
+        Observer.Observe('Previous ok', Format(Moved));
+        if not Moved then
+            Observer.ObserveError('Previous error');
+        Observer.Observe('log after Previous', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoSourceWorksheet_Navigate_First_EventLog()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: TestPage "LT PNS Worksheet";
+        Moved: Boolean;
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Log.Reset();
+        Moved := TryNavFirstWorksheet(Pg);
+        Observer.Observe('First ok', Format(Moved));
+        if not Moved then
+            Observer.ObserveError('First error');
+        Observer.Observe('log after First', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoSourceWorksheet_Navigate_Last_EventLog()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: TestPage "LT PNS Worksheet";
+        Moved: Boolean;
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Log.Reset();
+        Moved := TryNavLastWorksheet(Pg);
+        Observer.Observe('Last ok', Format(Moved));
+        if not Moved then
+            Observer.ObserveError('Last error');
+        Observer.Observe('log after Last', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
     procedure NoSourceExtBase_OpenView_PageExtensionTriggersAndSubscribers()
     var
         Observer: Codeunit "Probe Observer";
@@ -2475,6 +2993,13 @@ codeunit 97690 "LT PNS Events"
         if not Closed then
             Observer.ObserveError('close error');
         Observer.Observe('log after close', Log.Dump());
+        Log.SetMode('');
+        Log.Reset();
+        Closed := TryCloseArgsCard(Pg);
+        Observer.Observe('second close ok', Format(Closed));
+        if not Closed then
+            Observer.ObserveError('second close error');
+        Observer.Observe('log after second close', Log.Dump());
         Observer.Finish();
     end;
 
@@ -2552,16 +3077,6 @@ codeunit 97690 "LT PNS Events"
     procedure HandleListPart(var P: TestPage "LT PNS ListPart")
     begin
         Log.Add('handler ListPart');
-        if Log.Mode() = 'OK' then
-            P.OK().Invoke();
-        if Log.Mode() = 'Cancel' then
-            P.Cancel().Invoke();
-    end;
-
-    [ModalPageHandler]
-    procedure HandleRoleCenter(var P: TestPage "LT PNS RoleCenter")
-    begin
-        Log.Add('handler RoleCenter');
         if Log.Mode() = 'OK' then
             P.OK().Invoke();
         if Log.Mode() = 'Cancel' then
@@ -2731,6 +3246,36 @@ codeunit 97690 "LT PNS Events"
     end;
 
     [TryFunction]
+    local procedure TryActOKCard(var P: TestPage "LT PNS Card")
+    begin
+        P.OK().Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActCancelCard(var P: TestPage "LT PNS Card")
+    begin
+        P.Cancel().Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActUpdateTrueCard(var P: TestPage "LT PNS Card")
+    begin
+        P.UpdateTrue.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActUpdateFalseCard(var P: TestPage "LT PNS Card")
+    begin
+        P.UpdateFalse.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActCloseSelfCard(var P: TestPage "LT PNS Card")
+    begin
+        P.CloseSelf.Invoke();
+    end;
+
+    [TryFunction]
     local procedure TryRunCard()
     begin
         Page.Run(Page::"LT PNS Card");
@@ -2746,6 +3291,36 @@ codeunit 97690 "LT PNS Events"
     local procedure TryCloseCard(var P: TestPage "LT PNS Card")
     begin
         P.Close();
+    end;
+
+    [TryFunction]
+    local procedure TryActOKList(var P: TestPage "LT PNS List")
+    begin
+        P.OK().Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActCancelList(var P: TestPage "LT PNS List")
+    begin
+        P.Cancel().Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActUpdateTrueList(var P: TestPage "LT PNS List")
+    begin
+        P.UpdateTrue.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActUpdateFalseList(var P: TestPage "LT PNS List")
+    begin
+        P.UpdateFalse.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActCloseSelfList(var P: TestPage "LT PNS List")
+    begin
+        P.CloseSelf.Invoke();
     end;
 
     [TryFunction]
@@ -2767,6 +3342,36 @@ codeunit 97690 "LT PNS Events"
     end;
 
     [TryFunction]
+    local procedure TryActOKWorksheet(var P: TestPage "LT PNS Worksheet")
+    begin
+        P.OK().Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActCancelWorksheet(var P: TestPage "LT PNS Worksheet")
+    begin
+        P.Cancel().Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActUpdateTrueWorksheet(var P: TestPage "LT PNS Worksheet")
+    begin
+        P.UpdateTrue.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActUpdateFalseWorksheet(var P: TestPage "LT PNS Worksheet")
+    begin
+        P.UpdateFalse.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActCloseSelfWorksheet(var P: TestPage "LT PNS Worksheet")
+    begin
+        P.CloseSelf.Invoke();
+    end;
+
+    [TryFunction]
     local procedure TryRunWorksheet()
     begin
         Page.Run(Page::"LT PNS Worksheet");
@@ -2782,6 +3387,36 @@ codeunit 97690 "LT PNS Events"
     local procedure TryCloseWorksheet(var P: TestPage "LT PNS Worksheet")
     begin
         P.Close();
+    end;
+
+    [TryFunction]
+    local procedure TryActOKListPlus(var P: TestPage "LT PNS ListPlus")
+    begin
+        P.OK().Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActCancelListPlus(var P: TestPage "LT PNS ListPlus")
+    begin
+        P.Cancel().Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActUpdateTrueListPlus(var P: TestPage "LT PNS ListPlus")
+    begin
+        P.UpdateTrue.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActUpdateFalseListPlus(var P: TestPage "LT PNS ListPlus")
+    begin
+        P.UpdateFalse.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActCloseSelfListPlus(var P: TestPage "LT PNS ListPlus")
+    begin
+        P.CloseSelf.Invoke();
     end;
 
     [TryFunction]
@@ -2803,6 +3438,36 @@ codeunit 97690 "LT PNS Events"
     end;
 
     [TryFunction]
+    local procedure TryActOKStdDialog(var P: TestPage "LT PNS StdDialog")
+    begin
+        P.OK().Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActCancelStdDialog(var P: TestPage "LT PNS StdDialog")
+    begin
+        P.Cancel().Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActUpdateTrueStdDialog(var P: TestPage "LT PNS StdDialog")
+    begin
+        P.UpdateTrue.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActUpdateFalseStdDialog(var P: TestPage "LT PNS StdDialog")
+    begin
+        P.UpdateFalse.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActCloseSelfStdDialog(var P: TestPage "LT PNS StdDialog")
+    begin
+        P.CloseSelf.Invoke();
+    end;
+
+    [TryFunction]
     local procedure TryRunStdDialog()
     begin
         Page.Run(Page::"LT PNS StdDialog");
@@ -2818,6 +3483,36 @@ codeunit 97690 "LT PNS Events"
     local procedure TryCloseStdDialog(var P: TestPage "LT PNS StdDialog")
     begin
         P.Close();
+    end;
+
+    [TryFunction]
+    local procedure TryActOKNavPage(var P: TestPage "LT PNS NavPage")
+    begin
+        P.OK().Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActCancelNavPage(var P: TestPage "LT PNS NavPage")
+    begin
+        P.Cancel().Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActUpdateTrueNavPage(var P: TestPage "LT PNS NavPage")
+    begin
+        P.UpdateTrue.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActUpdateFalseNavPage(var P: TestPage "LT PNS NavPage")
+    begin
+        P.UpdateFalse.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActCloseSelfNavPage(var P: TestPage "LT PNS NavPage")
+    begin
+        P.CloseSelf.Invoke();
     end;
 
     [TryFunction]
@@ -2839,6 +3534,18 @@ codeunit 97690 "LT PNS Events"
     end;
 
     [TryFunction]
+    local procedure TryActOKCardPart(var P: TestPage "LT PNS CardPart")
+    begin
+        P.OK().Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActCancelCardPart(var P: TestPage "LT PNS CardPart")
+    begin
+        P.Cancel().Invoke();
+    end;
+
+    [TryFunction]
     local procedure TryRunCardPart()
     begin
         Page.Run(Page::"LT PNS CardPart");
@@ -2854,6 +3561,18 @@ codeunit 97690 "LT PNS Events"
     local procedure TryCloseCardPart(var P: TestPage "LT PNS CardPart")
     begin
         P.Close();
+    end;
+
+    [TryFunction]
+    local procedure TryActOKListPart(var P: TestPage "LT PNS ListPart")
+    begin
+        P.OK().Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActCancelListPart(var P: TestPage "LT PNS ListPart")
+    begin
+        P.Cancel().Invoke();
     end;
 
     [TryFunction]
@@ -2875,6 +3594,18 @@ codeunit 97690 "LT PNS Events"
     end;
 
     [TryFunction]
+    local procedure TryActOKRoleCenter(var P: TestPage "LT PNS RoleCenter")
+    begin
+        P.OK().Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryActCancelRoleCenter(var P: TestPage "LT PNS RoleCenter")
+    begin
+        P.Cancel().Invoke();
+    end;
+
+    [TryFunction]
     local procedure TryRunRoleCenter()
     begin
         Page.Run(Page::"LT PNS RoleCenter");
@@ -2890,6 +3621,96 @@ codeunit 97690 "LT PNS Events"
     local procedure TryCloseRoleCenter(var P: TestPage "LT PNS RoleCenter")
     begin
         P.Close();
+    end;
+
+    [TryFunction]
+    local procedure TryNavNewCard(var P: TestPage "LT PNS Card")
+    begin
+        P.New();
+    end;
+
+    [TryFunction]
+    local procedure TryNavNextCard(var P: TestPage "LT PNS Card")
+    begin
+        P.Next();
+    end;
+
+    [TryFunction]
+    local procedure TryNavPreviousCard(var P: TestPage "LT PNS Card")
+    begin
+        P.Previous();
+    end;
+
+    [TryFunction]
+    local procedure TryNavFirstCard(var P: TestPage "LT PNS Card")
+    begin
+        P.First();
+    end;
+
+    [TryFunction]
+    local procedure TryNavLastCard(var P: TestPage "LT PNS Card")
+    begin
+        P.Last();
+    end;
+
+    [TryFunction]
+    local procedure TryNavNewList(var P: TestPage "LT PNS List")
+    begin
+        P.New();
+    end;
+
+    [TryFunction]
+    local procedure TryNavNextList(var P: TestPage "LT PNS List")
+    begin
+        P.Next();
+    end;
+
+    [TryFunction]
+    local procedure TryNavPreviousList(var P: TestPage "LT PNS List")
+    begin
+        P.Previous();
+    end;
+
+    [TryFunction]
+    local procedure TryNavFirstList(var P: TestPage "LT PNS List")
+    begin
+        P.First();
+    end;
+
+    [TryFunction]
+    local procedure TryNavLastList(var P: TestPage "LT PNS List")
+    begin
+        P.Last();
+    end;
+
+    [TryFunction]
+    local procedure TryNavNewWorksheet(var P: TestPage "LT PNS Worksheet")
+    begin
+        P.New();
+    end;
+
+    [TryFunction]
+    local procedure TryNavNextWorksheet(var P: TestPage "LT PNS Worksheet")
+    begin
+        P.Next();
+    end;
+
+    [TryFunction]
+    local procedure TryNavPreviousWorksheet(var P: TestPage "LT PNS Worksheet")
+    begin
+        P.Previous();
+    end;
+
+    [TryFunction]
+    local procedure TryNavFirstWorksheet(var P: TestPage "LT PNS Worksheet")
+    begin
+        P.First();
+    end;
+
+    [TryFunction]
+    local procedure TryNavLastWorksheet(var P: TestPage "LT PNS Worksheet")
+    begin
+        P.Last();
     end;
 
     [TryFunction]

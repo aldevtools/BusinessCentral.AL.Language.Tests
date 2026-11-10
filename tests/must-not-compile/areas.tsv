@@ -1231,3 +1231,5 @@ stem	area
 3130-option-field-quoted-empty-member-has-no-name	format-evaluate
 3131-enum-quoted-empty-value-has-no-name	format-evaluate
 3113-page-action-subscriber-unknown-action	events
+3132-page-event-subscriber-rec-on-page-without-source-table	events
+3133-role-center-page-trigger	pages
