@@ -80,9 +80,8 @@ codeunit 99671 "LT DB Duplicate Buffer"
 
     // Inserts Rows rows, commits after CommitAfter of them (0: no Commit), then inserts the key DupOf again inside an asserterror
     // that reads the table afterwards.
-    local procedure DuplicateAfter(Rows: Integer; CommitAfter: Integer; DupOf: Code[10])
+    local procedure DuplicateAfter(var Observer: Codeunit "Probe Observer"; Rows: Integer; CommitAfter: Integer; DupOf: Code[10])
     var
-        Observer: Codeunit "Probe Observer";
         Row: Record "LT DB Row";
         Dup: Record "LT DB Row";
         i: Integer;
@@ -108,79 +107,161 @@ codeunit 99671 "LT DB Duplicate Buffer"
         Observer.Observe('rows after', Format(Row.Count()));
         Row.DeleteAll();
         Commit();
-        Observer.Finish();
     end;
 
     [Test]
     procedure Dup_2ndInsert_OfFirstRow()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        DuplicateAfter(1, 0, 'K1');
+        DuplicateAfter(Observer, 1, 0, 'K1');
+        Observer.Expect('statement after the duplicate Insert reached', 'yes');
+        Observer.Expect('duplicate|text', 'The record in table LT DB Row already exists. Identification fields and values: Code=''K1''');
+        Observer.Expect('duplicate|code', 'DB:RecordExists');
+        Observer.Expect('rows after', '0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Dup_3rdInsert_OfFirstRow()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        DuplicateAfter(2, 0, 'K1');
+        DuplicateAfter(Observer, 2, 0, 'K1');
+        Observer.Expect('statement after the duplicate Insert reached', 'yes');
+        Observer.Expect('duplicate|text', 'The record in table LT DB Row already exists. Identification fields and values: Code=''K1''');
+        Observer.Expect('duplicate|code', 'DB:RecordExists');
+        Observer.Expect('rows after', '0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Dup_4thInsert_OfFirstRow()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        DuplicateAfter(3, 0, 'K1');
+        DuplicateAfter(Observer, 3, 0, 'K1');
+        Observer.Expect('statement after the duplicate Insert reached', 'yes');
+        Observer.Expect('duplicate|text', 'The record in table LT DB Row already exists. Identification fields and values: Code=''K1''');
+        Observer.Expect('duplicate|code', 'DB:RecordExists');
+        Observer.Expect('rows after', '0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Dup_5thInsert_OfFirstRow()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        DuplicateAfter(4, 0, 'K1');
+        DuplicateAfter(Observer, 4, 0, 'K1');
+        Observer.Expect('duplicate|text', 'The record in table LT DB Row already exists. Identification fields and values: Code=''K1''');
+        Observer.Expect('duplicate|code', 'DB:RecordExists');
+        Observer.Expect('rows after', '0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Dup_6thInsert_OfFirstRow()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        DuplicateAfter(5, 0, 'K1');
+        DuplicateAfter(Observer, 5, 0, 'K1');
+        Observer.Expect('statement after the duplicate Insert reached', 'yes');
+        Observer.Expect('duplicate|text', 'The record in table LT DB Row already exists. Identification fields and values: Code=''K1''');
+        Observer.Expect('duplicate|code', 'DB:RecordExists');
+        Observer.Expect('rows after', '0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Dup_7thInsert_OfFirstRow()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        DuplicateAfter(6, 0, 'K1');
+        DuplicateAfter(Observer, 6, 0, 'K1');
+        Observer.Expect('statement after the duplicate Insert reached', 'yes');
+        Observer.Expect('duplicate|text', 'The record in table LT DB Row already exists. Identification fields and values: Code=''K1''');
+        Observer.Expect('duplicate|code', 'DB:RecordExists');
+        Observer.Expect('rows after', '0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Dup_6thInsert_OfLastRow()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        DuplicateAfter(5, 0, 'K5');
+        DuplicateAfter(Observer, 5, 0, 'K5');
+        Observer.Expect('statement after the duplicate Insert reached', 'yes');
+        Observer.Expect('duplicate|text', 'The record in table LT DB Row already exists. Identification fields and values: Code=''K5''');
+        Observer.Expect('duplicate|code', 'DB:RecordExists');
+        Observer.Expect('rows after', '0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Dup_7thInsert_OfFourthRow()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        DuplicateAfter(6, 0, 'K4');
+        DuplicateAfter(Observer, 6, 0, 'K4');
+        Observer.Expect('statement after the duplicate Insert reached', 'yes');
+        Observer.Expect('duplicate|text', 'The record in table LT DB Row already exists. Identification fields and values: Code=''K4''');
+        Observer.Expect('duplicate|code', 'DB:RecordExists');
+        Observer.Expect('rows after', '0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Dup_3rdInsert_OfCommittedRow()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        DuplicateAfter(2, 1, 'K1');
+        DuplicateAfter(Observer, 2, 1, 'K1');
+        Observer.Expect('statement after the duplicate Insert reached', 'yes');
+        Observer.Expect('duplicate|text', 'The record in table LT DB Row already exists. Identification fields and values: Code=''K1''');
+        Observer.Expect('duplicate|code', 'DB:RecordExists');
+        Observer.Expect('rows after', '1');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Dup_6thInsert_OfCommittedRow_CommitAfter3()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        DuplicateAfter(5, 3, 'K1');
+        DuplicateAfter(Observer, 5, 3, 'K1');
+        Observer.Expect('statement after the duplicate Insert reached', 'yes');
+        Observer.Expect('duplicate|text', 'The record in table LT DB Row already exists. Identification fields and values: Code=''K1''');
+        Observer.Expect('duplicate|code', 'DB:RecordExists');
+        Observer.Expect('rows after', '3');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Dup_6thInsert_OfRowAfterCommit_CommitAfter2()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        DuplicateAfter(5, 2, 'K4');
+        DuplicateAfter(Observer, 5, 2, 'K4');
+        Observer.Expect('statement after the duplicate Insert reached', 'yes');
+        Observer.Expect('duplicate|text', 'The record in table LT DB Row already exists. Identification fields and values: Code=''K4''');
+        Observer.Expect('duplicate|code', 'DB:RecordExists');
+        Observer.Expect('rows after', '2');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Dup_5thInsert_OfCommittedRow_CommitAfter4()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        DuplicateAfter(4, 4, 'K1');
+        DuplicateAfter(Observer, 4, 4, 'K1');
+        Observer.Expect('statement after the duplicate Insert reached', 'yes');
+        Observer.Expect('duplicate|text', 'The record in table LT DB Row already exists. Identification fields and values: Code=''K1''');
+        Observer.Expect('duplicate|code', 'DB:RecordExists');
+        Observer.Expect('rows after', '4');
+        Observer.Verify();
     end;
 
     // The report: one call inserts four rows, the second call inserts the same four keys, no Commit, nothing reads the table in between.
@@ -202,7 +283,10 @@ codeunit 99671 "LT DB Duplicate Buffer"
         Observer.Observe('rows after', Format(Row.Count()));
         Row.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('second call|text', 'The record in table LT DB Row already exists. Identification fields and values: Code=''K1''');
+        Observer.Expect('second call|code', 'DB:RecordExists');
+        Observer.Expect('rows after', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -223,7 +307,10 @@ codeunit 99671 "LT DB Duplicate Buffer"
         Observer.Observe('rows after', Format(Row.Count()));
         Row.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('second call|text', 'The record in table LT DB Row already exists. Identification fields and values: Code=''K1''');
+        Observer.Expect('second call|code', 'DB:RecordExists');
+        Observer.Expect('rows after', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -243,7 +330,11 @@ codeunit 99671 "LT DB Duplicate Buffer"
         Observer.Observe('rows after', Format(Row.Count()));
         Row.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('second call finished without an error', 'yes');
+        Observer.Expect('first read after the second call|text', 'The record in table LT DB Row already exists. Identification fields and values: Code=''K1''');
+        Observer.Expect('first read after the second call|code', 'DB:RecordExists');
+        Observer.Expect('rows after', '4');
+        Observer.Verify();
     end;
 
     // The same cells with an Enum primary key (the report's table).
@@ -277,7 +368,10 @@ codeunit 99671 "LT DB Duplicate Buffer"
         Observer.Observe('rows after', Format(Row.Count()));
         Row.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('second call|text', 'The record in table LT DB Kind Row already exists. Identification fields and values: Kind=''Alpha''');
+        Observer.Expect('second call|code', 'DB:RecordExists');
+        Observer.Expect('rows after', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -298,7 +392,10 @@ codeunit 99671 "LT DB Duplicate Buffer"
         Observer.ObserveError('duplicate');
         Row.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('statement after the duplicate Insert reached', 'yes');
+        Observer.Expect('duplicate|text', 'The record in table LT DB Kind Row already exists. Identification fields and values: Kind=''Alpha''');
+        Observer.Expect('duplicate|code', 'DB:RecordExists');
+        Observer.Verify();
     end;
 
     // Control: a table with a Blob field raises at the Insert itself.
@@ -323,6 +420,8 @@ codeunit 99671 "LT DB Duplicate Buffer"
         Observer.ObserveError('duplicate');
         Row.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('duplicate|text', 'The record in table LT DB Blob Row already exists. Identification fields and values: Code=''B1''');
+        Observer.Expect('duplicate|code', 'DB:RecordExists');
+        Observer.Verify();
     end;
 }

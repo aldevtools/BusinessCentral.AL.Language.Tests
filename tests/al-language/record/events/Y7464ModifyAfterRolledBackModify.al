@@ -139,7 +139,14 @@ codeunit 99674 "LT MRB Modify After Rollback"
         Observer.Observe('second modify log', Log.Take());
         Observer.Observe('stored after second modify', Stored());
         CleanUp();
-        Observer.Finish();
+        Observer.Expect('first modify log', 'B rec=Registered//0 x=Registered//0 run=No;A rec=Registered//0 x=Registered//0 run=No;');
+        Observer.Expect('validate|text', 'other is not allowed');
+        Observer.Expect('validate|code', 'Dialog');
+        Observer.Expect('stored after rollback', 'Open//0');
+        Observer.Expect('buffer after rollback', 'Registered//0');
+        Observer.Expect('second modify log', 'B rec=Registered//0 x=Registered//0 run=No;A rec=Registered//0 x=Registered//0 run=No;');
+        Observer.Expect('stored after second modify', 'Open//0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -159,7 +166,12 @@ codeunit 99674 "LT MRB Modify After Rollback"
         Observer.Observe('second modify log', Log.Take());
         Observer.Observe('stored after second modify', Stored());
         CleanUp();
-        Observer.Finish();
+        Observer.Expect('first modify log', 'B rec=Registered//0 x=Registered//0 run=No;A rec=Registered//0 x=Registered//0 run=No;');
+        Observer.Expect('validate|text', 'other is not allowed');
+        Observer.Expect('validate|code', 'Dialog');
+        Observer.Expect('second modify log', 'B rec=Registered//0 x=Registered//0 run=No;A rec=Registered//0 x=Registered//0 run=No;');
+        Observer.Expect('stored after second modify', 'Open//0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -178,7 +190,12 @@ codeunit 99674 "LT MRB Modify After Rollback"
         Observer.Observe('second modify log', Log.Take());
         Observer.Observe('stored after second modify', Stored());
         CleanUp();
-        Observer.Finish();
+        Observer.Expect('first modify log', 'B rec=Registered//0 x=Registered//0 run=No;A rec=Registered//0 x=Registered//0 run=No;');
+        Observer.Expect('boom|text', 'boom');
+        Observer.Expect('boom|code', 'Dialog');
+        Observer.Expect('second modify log', 'B rec=Registered//0 x=Registered//0 run=No;A rec=Registered//0 x=Registered//0 run=No;');
+        Observer.Expect('stored after second modify', 'Open//0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -198,7 +215,12 @@ codeunit 99674 "LT MRB Modify After Rollback"
         Observer.Observe('second modify log', Log.Take());
         Observer.Observe('stored after second modify', Stored());
         CleanUp();
-        Observer.Finish();
+        Observer.Expect('first modify log', 'B rec=Registered//0 x=Registered//0 run=No;A rec=Registered//0 x=Registered//0 run=No;');
+        Observer.Expect('validate|text', 'other is not allowed');
+        Observer.Expect('validate|code', 'Dialog');
+        Observer.Expect('second modify log', 'B rec=Registered//7 x=Registered//7 run=No;A rec=Registered//7 x=Registered//7 run=No;');
+        Observer.Expect('stored after second modify', 'Registered//7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -218,7 +240,12 @@ codeunit 99674 "LT MRB Modify After Rollback"
         Observer.Observe('second modify log', Log.Take());
         Observer.Observe('stored after second modify', Stored());
         CleanUp();
-        Observer.Finish();
+        Observer.Expect('first modify log', 'B rec=Registered//0 x=Registered//0 run=No;A rec=Registered//0 x=Registered//0 run=No;');
+        Observer.Expect('validate|text', 'other is not allowed');
+        Observer.Expect('validate|code', 'Dialog');
+        Observer.Expect('second modify log', 'B rec=Open//0 x=Open//0 run=No;A rec=Open//0 x=Open//0 run=No;');
+        Observer.Expect('stored after second modify', 'Open//0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -240,7 +267,13 @@ codeunit 99674 "LT MRB Modify After Rollback"
         Observer.Observe('second modify log', Log.Take());
         Observer.Observe('stored after second modify', Stored());
         CleanUp();
-        Observer.Finish();
+        Observer.Expect('first modify log', 'B rec=Registered//0 x=Registered//0 run=No;A rec=Registered//0 x=Registered//0 run=No;B rec=Registered//2 x=Registered//2 run=No;A rec=Registered//2 x=Registered//2 run=No;');
+        Observer.Expect('boom|text', 'boom');
+        Observer.Expect('boom|code', 'Dialog');
+        Observer.Expect('stored after rollback', 'Open//0');
+        Observer.Expect('second modify log', 'B rec=Registered//2 x=Registered//2 run=No;A rec=Registered//2 x=Registered//2 run=No;');
+        Observer.Expect('stored after second modify', 'Open//0');
+        Observer.Verify();
     end;
 
     // No Commit after the Insert: the error rolls the Insert back too, the buffer is a row the table no longer has.
@@ -261,7 +294,13 @@ codeunit 99674 "LT MRB Modify After Rollback"
         Observer.Observe('second modify log', Log.Take());
         Observer.Observe('stored after second modify', Stored());
         CleanUp();
-        Observer.Finish();
+        Observer.Expect('first modify log', 'B rec=Registered//0 x=Registered//0 run=No;A rec=Registered//0 x=Registered//0 run=No;');
+        Observer.Expect('boom|text', 'boom');
+        Observer.Expect('boom|code', 'Dialog');
+        Observer.Expect('stored after rollback', 'gone');
+        Observer.Expect('second modify log', 'B rec=Registered//0 x=Registered//0 run=No;A rec=Registered//0 x=Registered//0 run=No;');
+        Observer.Expect('stored after second modify', 'gone');
+        Observer.Verify();
     end;
 
     // A Modify that is not the first change after the Commit: Commit, Modify, Commit, Modify, error, Modify.
@@ -285,7 +324,13 @@ codeunit 99674 "LT MRB Modify After Rollback"
         Observer.Observe('modify after rollback log', Log.Take());
         Observer.Observe('stored after modify', Stored());
         CleanUp();
-        Observer.Finish();
+        Observer.Expect('modifies log', 'B rec=Registered//0 x=Registered//0 run=No;A rec=Registered//0 x=Registered//0 run=No;B rec=Registered//3 x=Registered//3 run=No;A rec=Registered//3 x=Registered//3 run=No;');
+        Observer.Expect('validate|text', 'other is not allowed');
+        Observer.Expect('validate|code', 'Dialog');
+        Observer.Expect('stored after rollback', 'Registered//0');
+        Observer.Expect('modify after rollback log', 'B rec=Registered//3 x=Registered//3 run=No;A rec=Registered//3 x=Registered//3 run=No;');
+        Observer.Expect('stored after modify', 'Registered//0');
+        Observer.Verify();
     end;
 
     // Modify(true): the OnModify trigger runs as well as the events.
@@ -306,7 +351,12 @@ codeunit 99674 "LT MRB Modify After Rollback"
         Observer.Observe('second modify log', Log.Take());
         Observer.Observe('stored after second modify', Stored());
         CleanUp();
-        Observer.Finish();
+        Observer.Expect('first modify log', 'B rec=Registered//0 x=Registered//0 run=Yes;T rec=Registered//0 x=Registered//0;A rec=Registered//0 x=Registered//0 run=Yes;');
+        Observer.Expect('validate|text', 'other is not allowed');
+        Observer.Expect('validate|code', 'Dialog');
+        Observer.Expect('second modify log', 'B rec=Registered//0 x=Registered//0 run=Yes;T rec=Registered//0 x=Registered//0;A rec=Registered//0 x=Registered//0 run=Yes;');
+        Observer.Expect('stored after second modify', 'Open//0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -326,6 +376,11 @@ codeunit 99674 "LT MRB Modify After Rollback"
         Observer.Observe('second modify log', Log.Take());
         Observer.Observe('stored after second modify', Stored());
         CleanUp();
-        Observer.Finish();
+        Observer.Expect('first modify log', 'B rec=Registered//0 x=Registered//0 run=Yes;T rec=Registered//0 x=Registered//0;A rec=Registered//0 x=Registered//0 run=Yes;');
+        Observer.Expect('validate|text', 'other is not allowed');
+        Observer.Expect('validate|code', 'Dialog');
+        Observer.Expect('second modify log', 'B rec=Registered//7 x=Registered//7 run=Yes;T rec=Registered//7 x=Registered//7;A rec=Registered//7 x=Registered//7 run=Yes;');
+        Observer.Expect('stored after second modify', 'Registered//7');
+        Observer.Verify();
     end;
 }
