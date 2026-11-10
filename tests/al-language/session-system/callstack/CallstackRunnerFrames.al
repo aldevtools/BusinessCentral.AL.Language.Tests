@@ -14,7 +14,7 @@
 //   (RunTests line 26, ...) are lines of Microsoft's test runner source and are asserted as they are; they are the same on 27.5, 28.5 and 29.0.
 // New file with a reason: CallstackFullText.al is line sensitive (its expected lengths) and its objects are reused here, not copied.
 // BC versions: 27, 28, 29
-codeunit 69950 "LT RF Callstack Runner Frames Plain"
+codeunit 69950 "LT RF Callstack Frames Plain"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -336,7 +336,7 @@ codeunit 69950 "LT RF Callstack Runner Frames Plain"
     end;
 }
 
-codeunit 69951 "LT RF Callstack Runner Frames Handler"
+codeunit 69951 "LT RF Callstack Frames Handler"
 {
     Subtype = Test;
     TestPermissions = Disabled;
