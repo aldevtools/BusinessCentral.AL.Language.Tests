@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); tables "LT Y68 XP Parent" (93656) and "LT Y68 XP Child" (93657), log codeunit "LT Y68 XP Log" (93661)
 //   and xmlport "LT Y68 XP Link NoForce" (93658, the control) from Y68XmlPortShapes.al; own xmlports 75073-75079, test codeunit 75080
 // local object: the schemas of the ports are what is under test
-// Probe (observe only): al-runner issue 7441. Y68XmlPortShapes.al pins LinkTableForceInsert = true on a linked table element. This probe asks what the
+// Probe (values pinned): al-runner issue 7441. Y68XmlPortShapes.al pins LinkTableForceInsert = true on a linked table element. This probe asks what the
 //   property does where no LinkTable is set:
 //     Root Force       a table element below the root text element with LinkTableForceInsert = true and no LinkTable; its child table element has
 //                      LinkTable, LinkFields and LinkTableForceInsert = true (the reported shape)
@@ -14,6 +14,9 @@
 //     Text Force       Format = VariableText, the table element with LinkTableForceInsert = true
 //   Import (two parents with children, a parent without children, a parent that exists already, an empty root) and export, each next to the control port without
 //   the property on the parent. The insert triggers log whether the parent row is in the database when the child is inserted.
+// Values measured on BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882). For the Child Unlinked, Root Force Only and Force False ports, an import
+//   into a table that already holds the row does not fail inside TryImport: the "already exists" error comes at the next FindSet on that
+//   table, outside the TryFunction. Those four tests assert that error with asserterror.
 // BC versions: 27, 28, 29
 
 xmlport 75073 "LT XLF Root Force"
@@ -619,8 +622,14 @@ codeunit 75080 "LT XLF Force Insert Unlinked"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        ObserveImports(Observer, Xmlport::"LT XLF Child Unlinked", 1);
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): for the first import ('two parents') TryImport ends without an error that stops the test, and the
+        // "already exists" error for LT Y68 XP Child comes at the next FindSet on that table (ChildRows), outside the TryFunction.
+        // The observations made before it were not measured: Discard drops them.
+        asserterror ObserveImports(Observer, Xmlport::"LT XLF Child Unlinked", 1);
+        Observer.Discard();
+        Observer.Observe('import', GetLastErrorText());
+        Observer.Expect('import', 'The record in table LT Y68 XP Child already exists. Identification fields and values: Parent No.='''',Line No.=''1''');
+        Observer.Verify();
     end;
 
     [Test]
@@ -628,8 +637,14 @@ codeunit 75080 "LT XLF Force Insert Unlinked"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        ObserveImports(Observer, Xmlport::"LT XLF Child Unlinked", 2);
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): for the first import ('parent exists') TryImport ends without an error that stops the test, and the
+        // "already exists" error for LT Y68 XP Parent comes at the next FindSet on that table (ParentRows), outside the TryFunction.
+        // The observations made before it were not measured: Discard drops them.
+        asserterror ObserveImports(Observer, Xmlport::"LT XLF Child Unlinked", 2);
+        Observer.Discard();
+        Observer.Observe('import', GetLastErrorText());
+        Observer.Expect('import', 'The record in table LT Y68 XP Parent already exists. Identification fields and values: No.=''P1''');
+        Observer.Verify();
     end;
 
     [Test]
@@ -638,8 +653,14 @@ codeunit 75080 "LT XLF Force Insert Unlinked"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveImport(Observer, 'two parents', Xmlport::"LT XLF Root Force Only", '<Root><P><No>P1</No><Name>one</Name></P><P><No>P2</No></P></Root>', '');
-        ObserveImport(Observer, 'parent exists already', Xmlport::"LT XLF Root Force Only", '<Root><P><No>P1</No><Name>one</Name></P></Root>', 'P1');
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): for the second import ('parent exists already') TryImport ends without an error that stops the test, and the
+        // "already exists" error for LT Y68 XP Parent comes at the next FindSet on that table (ParentRows), outside the TryFunction.
+        // The observations made before it were not measured: Discard drops them.
+        asserterror ObserveImport(Observer, 'parent exists already', Xmlport::"LT XLF Root Force Only", '<Root><P><No>P1</No><Name>one</Name></P></Root>', 'P1');
+        Observer.Discard();
+        Observer.Observe('import', GetLastErrorText());
+        Observer.Expect('import', 'The record in table LT Y68 XP Parent already exists. Identification fields and values: No.=''P1''');
+        Observer.Verify();
     end;
 
     [Test]
@@ -664,8 +685,14 @@ codeunit 75080 "LT XLF Force Insert Unlinked"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        ObserveImports(Observer, Xmlport::"LT XLF Force False", 2);
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): for the first import ('parent exists') TryImport ends without an error that stops the test, and the
+        // "already exists" error for LT Y68 XP Parent comes at the next FindSet on that table (ParentRows), outside the TryFunction.
+        // The observations made before it were not measured: Discard drops them.
+        asserterror ObserveImports(Observer, Xmlport::"LT XLF Force False", 2);
+        Observer.Discard();
+        Observer.Observe('import', GetLastErrorText());
+        Observer.Expect('import', 'The record in table LT Y68 XP Parent already exists. Identification fields and values: No.=''P1''');
+        Observer.Verify();
     end;
 
     [Test]
