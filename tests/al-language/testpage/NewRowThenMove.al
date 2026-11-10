@@ -437,7 +437,13 @@ codeunit 63419 "PNL New Row Then Move"
         TypeOneRowThenNewList(P);
         MoveList(P, 'FIRST');
         P.Close();
-        Observer.Finish();
+        Observer.Expect('shown after New', '||F:');
+        Observer.Expect('log after New', 'N C: ');
+        Observer.Expect('move FIRST', 'Yes');
+        Observer.Expect('shown after FIRST', 'FORMULA1|2+4|F:2+4');
+        Observer.Expect('log after FIRST', 'R:FORMULA1 R:FORMULA1 C:FORMULA1 ');
+        Observer.Expect('stored after FIRST', 'FORMULA1=2+4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -449,7 +455,13 @@ codeunit 63419 "PNL New Row Then Move"
         TypeOneRowThenNewList(P);
         MoveList(P, 'LAST');
         P.Close();
-        Observer.Finish();
+        Observer.Expect('shown after New', '||F:');
+        Observer.Expect('log after New', 'N C: ');
+        Observer.Expect('move LAST', 'Yes');
+        Observer.Expect('shown after LAST', 'FORMULA1|2+4|F:2+4');
+        Observer.Expect('log after LAST', 'N C: N C: R:FORMULA1 R:FORMULA1 C:FORMULA1 ');
+        Observer.Expect('stored after LAST', 'FORMULA1=2+4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -461,7 +473,13 @@ codeunit 63419 "PNL New Row Then Move"
         TypeOneRowThenNewList(P);
         MoveList(P, 'PREVIOUS');
         P.Close();
-        Observer.Finish();
+        Observer.Expect('shown after New', '||F:');
+        Observer.Expect('log after New', 'N C: ');
+        Observer.Expect('move PREVIOUS', 'Yes');
+        Observer.Expect('shown after PREVIOUS', 'FORMULA1|2+4|F:2+4');
+        Observer.Expect('log after PREVIOUS', 'R:FORMULA1 R:FORMULA1 C:FORMULA1 ');
+        Observer.Expect('stored after PREVIOUS', 'FORMULA1=2+4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -473,7 +491,13 @@ codeunit 63419 "PNL New Row Then Move"
         TypeOneRowThenNewList(P);
         MoveList(P, 'NEXT');
         P.Close();
-        Observer.Finish();
+        Observer.Expect('shown after New', '||F:');
+        Observer.Expect('log after New', 'N C: ');
+        Observer.Expect('move NEXT', 'No');
+        Observer.Expect('shown after NEXT', '||F:');
+        Observer.Expect('log after NEXT', '');
+        Observer.Expect('stored after NEXT', 'FORMULA1=2+4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -485,7 +509,13 @@ codeunit 63419 "PNL New Row Then Move"
         TypeOneRowThenNewList(P);
         MoveList(P, 'FORMULA1');
         P.Close();
-        Observer.Finish();
+        Observer.Expect('shown after New', '||F:');
+        Observer.Expect('log after New', 'N C: ');
+        Observer.Expect('move FORMULA1', 'Yes');
+        Observer.Expect('shown after FORMULA1', 'FORMULA1|2+4|F:2+4');
+        Observer.Expect('log after FORMULA1', 'R:FORMULA1 R:FORMULA1 C:FORMULA1 ');
+        Observer.Expect('stored after FORMULA1', 'FORMULA1=2+4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -503,7 +533,13 @@ codeunit 63419 "PNL New Row Then Move"
         Observer.Observe('log after New', Log.Take());
         MoveList(P, 'FIRST');
         P.Close();
-        Observer.Finish();
+        Observer.Expect('shown after New', '||F:');
+        Observer.Expect('log after New', 'N C: ');
+        Observer.Expect('move FIRST', 'Yes');
+        Observer.Expect('shown after FIRST', 'S1|1+1|F:1+1');
+        Observer.Expect('log after FIRST', 'R:S1 R:S1 C:S1 ');
+        Observer.Expect('stored after FIRST', 'S1=1+1;S2=2+2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -519,7 +555,13 @@ codeunit 63419 "PNL New Row Then Move"
         Observer.Observe('log after New', Log.Take());
         MoveList(P, 'FIRST');
         P.Close();
-        Observer.Finish();
+        Observer.Expect('shown after New', '||F:');
+        Observer.Expect('log after New', 'N C: ');
+        Observer.Expect('move FIRST', 'No');
+        Observer.Expect('shown after FIRST', '||F:');
+        Observer.Expect('log after FIRST', 'N C: ');
+        Observer.Expect('stored after FIRST', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -532,7 +574,13 @@ codeunit 63419 "PNL New Row Then Move"
         TypeOneRowThenNewPlus(P);
         MovePlus(P, 'FIRST');
         P.Close();
-        Observer.Finish();
+        Observer.Expect('shown after New', '||F:');
+        Observer.Expect('log after New', 'N C: ');
+        Observer.Expect('move FIRST', 'Yes');
+        Observer.Expect('shown after FIRST', 'FORMULA1|2+4|F:2+4');
+        Observer.Expect('log after FIRST', 'R:FORMULA1 R:FORMULA1 C:FORMULA1 ');
+        Observer.Expect('stored after FIRST', 'FORMULA1=2+4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -544,7 +592,13 @@ codeunit 63419 "PNL New Row Then Move"
         TypeOneRowThenNewPlus(P);
         MovePlus(P, 'LAST');
         P.Close();
-        Observer.Finish();
+        Observer.Expect('shown after New', '||F:');
+        Observer.Expect('log after New', 'N C: ');
+        Observer.Expect('move LAST', 'Yes');
+        Observer.Expect('shown after LAST', 'FORMULA1|2+4|F:2+4');
+        Observer.Expect('log after LAST', 'N C: N C: R:FORMULA1 R:FORMULA1 C:FORMULA1 ');
+        Observer.Expect('stored after LAST', 'FORMULA1=2+4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -556,7 +610,13 @@ codeunit 63419 "PNL New Row Then Move"
         TypeOneRowThenNewPlus(P);
         MovePlus(P, 'PREVIOUS');
         P.Close();
-        Observer.Finish();
+        Observer.Expect('shown after New', '||F:');
+        Observer.Expect('log after New', 'N C: ');
+        Observer.Expect('move PREVIOUS', 'Yes');
+        Observer.Expect('shown after PREVIOUS', 'FORMULA1|2+4|F:2+4');
+        Observer.Expect('log after PREVIOUS', 'R:FORMULA1 R:FORMULA1 C:FORMULA1 ');
+        Observer.Expect('stored after PREVIOUS', 'FORMULA1=2+4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -572,7 +632,13 @@ codeunit 63419 "PNL New Row Then Move"
         Log.Take();
         MovePlus(P, 'FIRST');
         P.Close();
-        Observer.Finish();
+        Observer.Expect('shown after New', '||F:');
+        Observer.Expect('log after New', 'N C: ');
+        Observer.Expect('move FIRST', 'Yes');
+        Observer.Expect('shown after FIRST', 'FORMULA1|2+4|F:2+4');
+        Observer.Expect('log after FIRST', 'R:FORMULA1 R:FORMULA1 C:FORMULA1 ');
+        Observer.Expect('stored after FIRST', 'FORMULA1=2+4;FORMULA2=3+5;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -590,7 +656,13 @@ codeunit 63419 "PNL New Row Then Move"
         Observer.Observe('log after New', Log.Take());
         MovePlus(P, 'FIRST');
         P.Close();
-        Observer.Finish();
+        Observer.Expect('shown after New', '||F:');
+        Observer.Expect('log after New', 'N C: ');
+        Observer.Expect('move FIRST', 'Yes');
+        Observer.Expect('shown after FIRST', 'S1|1+1|F:1+1');
+        Observer.Expect('log after FIRST', 'R:S1 R:S1 C:S1 ');
+        Observer.Expect('stored after FIRST', 'S1=1+1;S2=2+2;');
+        Observer.Verify();
     end;
 
     // ---- issue 7477: the built-in Edit and View actions on the new-row line of a list that is not editable ----
@@ -648,7 +720,16 @@ codeunit 63419 "PNL New Row Then Move"
         // The reporter's steps of issue 7477.
         Initialize();
         EditOrView(0, true, false);
-        Observer.Finish();
+        Observer.Expect('list editable', 'No');
+        Observer.Expect('New', 'ok');
+        Observer.Expect('list row before', '');
+        Observer.Expect('card row', '');
+        Observer.Expect('card editable', 'Yes');
+        Observer.Expect('invoke', 'ok');
+        Observer.Expect('card handler runs', '1');
+        Observer.Expect('list row after', 'X');
+        Observer.Expect('stored', 'X=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -657,7 +738,13 @@ codeunit 63419 "PNL New Row Then Move"
     begin
         Initialize();
         EditOrView(0, false, false);
-        Observer.Finish();
+        Observer.Expect('list editable', 'No');
+        Observer.Expect('list row before', '');
+        Observer.Expect('invoke', 'ok');
+        Observer.Expect('card handler runs', '0');
+        Observer.Expect('list row after', '');
+        Observer.Expect('stored', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -666,7 +753,16 @@ codeunit 63419 "PNL New Row Then Move"
     begin
         Initialize();
         EditOrView(0, true, true);
-        Observer.Finish();
+        Observer.Expect('list editable', 'No');
+        Observer.Expect('New', 'ok');
+        Observer.Expect('list row before', '');
+        Observer.Expect('card row', '');
+        Observer.Expect('card editable', 'No');
+        Observer.Expect('invoke', 'ok');
+        Observer.Expect('card handler runs', '1');
+        Observer.Expect('list row after', 'X');
+        Observer.Expect('stored', 'X=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -675,7 +771,16 @@ codeunit 63419 "PNL New Row Then Move"
     begin
         Initialize();
         EditOrView(2, true, false);
-        Observer.Finish();
+        Observer.Expect('list editable', 'No');
+        Observer.Expect('New', 'ok');
+        Observer.Expect('list row before', '');
+        Observer.Expect('card row', 'S1');
+        Observer.Expect('card editable', 'Yes');
+        Observer.Expect('invoke', 'ok');
+        Observer.Expect('card handler runs', '1');
+        Observer.Expect('list row after', 'X');
+        Observer.Expect('stored', 'S1=1+1;S2=2+2;X=;');
+        Observer.Verify();
     end;
 
     [PageHandler]

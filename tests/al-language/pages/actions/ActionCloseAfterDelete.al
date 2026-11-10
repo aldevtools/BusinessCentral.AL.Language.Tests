@@ -384,7 +384,16 @@ codeunit 63449 "PNL Action Close After Delete"
         // The reporter's steps of issue 7368.
         Initialize();
         RunModalJournal(2, 'POST');
-        Observer.Finish();
+        Observer.Expect('shown before', '10000');
+        Observer.Expect('invoke', 'ok');
+        Observer.Expect('log of the action', 'A:deleted A:close Q:LookupCancel X A:after-close ');
+        Observer.Expect('read after the action|text', 'The TestPage is not open.');
+        Observer.Expect('read after the action|code', 'TestPageNotOpened');
+        Observer.Expect('log of the end of the handler', '');
+        Observer.Expect('action', 'LookupCancel');
+        Observer.Expect('log after', '');
+        Observer.Expect('stored', 'B2/10000=99/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -393,7 +402,16 @@ codeunit 63449 "PNL Action Close After Delete"
     begin
         Initialize();
         RunModalJournal(1, 'CURRENT');
-        Observer.Finish();
+        Observer.Expect('shown before', '10000');
+        Observer.Expect('invoke', 'ok');
+        Observer.Expect('log of the action', 'A:deleted A:close Q:LookupCancel X A:after-close ');
+        Observer.Expect('read after the action|text', 'The TestPage is not open.');
+        Observer.Expect('read after the action|code', 'TestPageNotOpened');
+        Observer.Expect('log of the end of the handler', '');
+        Observer.Expect('action', 'LookupCancel');
+        Observer.Expect('log after', '');
+        Observer.Expect('stored', 'B2/10000=99/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -402,7 +420,16 @@ codeunit 63449 "PNL Action Close After Delete"
     begin
         Initialize();
         RunModalJournal(3, 'CURRENT');
-        Observer.Finish();
+        Observer.Expect('shown before', '10000');
+        Observer.Expect('invoke', 'ok');
+        Observer.Expect('log of the action', 'A:deleted A:update C:20000 C:20000 ');
+        Observer.Expect('shown after', '20000|2.00');
+        Observer.Expect('OK', 'ok');
+        Observer.Expect('log of the end of the handler', 'Q:LookupOK X ');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('log after', '');
+        Observer.Expect('stored', 'B1/20000=2/;B1/30000=3/;B2/10000=99/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -411,7 +438,16 @@ codeunit 63449 "PNL Action Close After Delete"
     begin
         Initialize();
         RunModalJournal(2, 'REC');
-        Observer.Finish();
+        Observer.Expect('shown before', '10000');
+        Observer.Expect('invoke', 'ok');
+        Observer.Expect('log of the action', 'A:deleted A:close Q:LookupCancel X A:after-close ');
+        Observer.Expect('read after the action|text', 'The TestPage is not open.');
+        Observer.Expect('read after the action|code', 'TestPageNotOpened');
+        Observer.Expect('log of the end of the handler', '');
+        Observer.Expect('action', 'LookupCancel');
+        Observer.Expect('log after', '');
+        Observer.Expect('stored', 'B2/10000=99/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -427,7 +463,15 @@ codeunit 63449 "PNL Action Close After Delete"
         Page.Run(Page::"PNL JA Journal", Line);
         Observer.Observe('log after', Log.Take());
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('shown before', '10000');
+        Observer.Expect('invoke', 'ok');
+        Observer.Expect('log of the action', 'A:deleted A:close Q:OK X A:after-close ');
+        Observer.Expect('read after the action|text', 'The TestPage is not open.');
+        Observer.Expect('read after the action|code', 'TestPageNotOpened');
+        Observer.Expect('log of the end of the handler', '');
+        Observer.Expect('log after', '');
+        Observer.Expect('stored', 'B2/10000=99/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -441,7 +485,14 @@ codeunit 63449 "PNL Action Close After Delete"
         P.OpenEdit();
         DriveJournal(P);
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('shown before', '10000');
+        Observer.Expect('invoke', 'ok');
+        Observer.Expect('log of the action', 'A:deleted A:close Q:OK X A:after-close ');
+        Observer.Expect('read after the action|text', 'The TestPage is not open.');
+        Observer.Expect('read after the action|code', 'TestPageNotOpened');
+        Observer.Expect('log of the end of the handler', '');
+        Observer.Expect('stored', 'B2/10000=99/;');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
@@ -499,7 +550,17 @@ codeunit 63449 "PNL Action Close After Delete"
         // The shape of issue 7425: "Set Applies-to ID", then "Post Application".
         Initialize();
         RunModalEntries('PLAIN');
-        Observer.Finish();
+        Observer.Expect('shown before', '10000|');
+        Observer.Expect('log of the first action', 'R:10000 A:set R:10000 R:10000 R:20000 R:30000 R:10000 R:10000 C:10000 ');
+        Observer.Expect('shown after the first action', '10000|ME');
+        Observer.Expect('log of the read', '');
+        Observer.Expect('log of the second action', 'R:10000 A:post rec=10000/ME stored=1 R:10000 R:10000 R:20000 R:30000 R:10000 R:10000 C:10000 ');
+        Observer.Expect('shown after the second action', '10000|0.00|ME');
+        Observer.Expect('log of the second read', '');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('log after', '');
+        Observer.Expect('stored', 'B1/10000=0/ME;B1/20000=2/;B1/30000=3/;B2/10000=99/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -508,7 +569,17 @@ codeunit 63449 "PNL Action Close After Delete"
     begin
         Initialize();
         RunModalEntries('UPDATE');
-        Observer.Finish();
+        Observer.Expect('shown before', '10000|');
+        Observer.Expect('log of the first action', 'R:10000 A:set R:10000 R:10000 R:20000 R:30000 R:10000 R:10000 C:10000 ');
+        Observer.Expect('shown after the first action', '10000|ME');
+        Observer.Expect('log of the read', '');
+        Observer.Expect('log of the second action', 'R:10000 A:post rec=10000/ME stored=1 R:10000 R:10000 R:20000 R:30000 R:10000 R:10000 C:10000 ');
+        Observer.Expect('shown after the second action', '10000|0.00|ME');
+        Observer.Expect('log of the second read', '');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('log after', '');
+        Observer.Expect('stored', 'B1/10000=0/ME;B1/20000=2/;B1/30000=3/;B2/10000=99/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -517,7 +588,17 @@ codeunit 63449 "PNL Action Close After Delete"
     begin
         Initialize();
         RunModalEntries('FILTER');
-        Observer.Finish();
+        Observer.Expect('shown before', '10000|');
+        Observer.Expect('log of the first action', 'R:10000 A:set R:20000 R:20000 R:30000 R:20000 R:20000 C:20000 ');
+        Observer.Expect('shown after the first action', '20000|');
+        Observer.Expect('log of the read', '');
+        Observer.Expect('log of the second action', 'R:20000 A:post rec=20000/ stored=1 R:20000 R:20000 R:30000 R:20000 R:20000 C:20000 ');
+        Observer.Expect('shown after the second action', '20000|2.00|');
+        Observer.Expect('log of the second read', '');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('log after', '');
+        Observer.Expect('stored', 'B1/10000=0/ME;B1/20000=2/;B1/30000=3/;B2/10000=99/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -526,7 +607,17 @@ codeunit 63449 "PNL Action Close After Delete"
     begin
         Initialize();
         RunModalEntries('FILTER,UPDATE');
-        Observer.Finish();
+        Observer.Expect('shown before', '10000|');
+        Observer.Expect('log of the first action', 'R:10000 A:set R:20000 R:20000 R:30000 R:20000 R:20000 C:20000 ');
+        Observer.Expect('shown after the first action', '20000|');
+        Observer.Expect('log of the read', '');
+        Observer.Expect('log of the second action', 'R:20000 A:post rec=20000/ stored=1 R:20000 R:20000 R:30000 R:20000 R:20000 C:20000 ');
+        Observer.Expect('shown after the second action', '20000|2.00|');
+        Observer.Expect('log of the second read', '');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('log after', '');
+        Observer.Expect('stored', 'B1/10000=0/ME;B1/20000=2/;B1/30000=3/;B2/10000=99/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -543,7 +634,16 @@ codeunit 63449 "PNL Action Close After Delete"
         P.Close();
         Observer.Observe('log after', Log.Take());
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('shown before', '10000|');
+        Observer.Expect('log of the first action', 'R:10000 A:set R:10000 R:10000 R:20000 R:30000 R:10000 R:10000 C:10000 ');
+        Observer.Expect('shown after the first action', '10000|ME');
+        Observer.Expect('log of the read', '');
+        Observer.Expect('log of the second action', 'R:10000 A:post rec=10000/ME stored=1 R:10000 R:10000 R:20000 R:30000 R:10000 R:10000 C:10000 ');
+        Observer.Expect('shown after the second action', '10000|0.00|ME');
+        Observer.Expect('log of the second read', '');
+        Observer.Expect('log after', '');
+        Observer.Expect('stored', 'B1/10000=0/ME;B1/20000=2/;B1/30000=3/;B2/10000=99/;');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]

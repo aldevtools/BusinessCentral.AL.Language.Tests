@@ -176,7 +176,37 @@ codeunit 63479 "PNL Blank Member Captions"
         Member := Member::" ";
         Inputs(P, 1, Format(Member), Member);
         P.Close();
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('Format of the member', '[ ]');
+        Observer.Expect('Value := Format(member)', 'accepted');
+        Observer.Expect('Value := Format(member) shows', '[ ]/0');
+        Observer.Expect('SetValue(space)|text', 'The value " " can''t be evaluated into type Option.');
+        Observer.Expect('SetValue(space)|code', 'Evaluate:Format');
+        Observer.Expect('SetValue(space) shows', '[ ]/0');
+        Observer.Expect('SetValue(empty)|text', 'The value "" can''t be evaluated into type Option.');
+        Observer.Expect('SetValue(empty)|code', 'Evaluate:Format');
+        Observer.Expect('SetValue(empty) shows', '[ ]/0');
+        Observer.Expect('SetValue(member)', 'accepted');
+        Observer.Expect('SetValue(member) shows', '[ ]/0');
+        Observer.Expect('SetValue(0)', 'accepted');
+        Observer.Expect('SetValue(0) shows', '[ ]/0');
+        Observer.Verify();
+#else
+        Observer.Expect('Format of the member', '[ ]');
+        Observer.Expect('Value := Format(member)', 'accepted');
+        Observer.Expect('Value := Format(member) shows', '[ ]/0');
+        Observer.Expect('SetValue(space)|text', 'The type NavOption is unknown.');
+        Observer.Expect('SetValue(space)|code', 'NotSupportedType');
+        Observer.Expect('SetValue(space) shows', '[ ]/0');
+        Observer.Expect('SetValue(empty)|text', 'The type NavOption is unknown.');
+        Observer.Expect('SetValue(empty)|code', 'NotSupportedType');
+        Observer.Expect('SetValue(empty) shows', '[ ]/0');
+        Observer.Expect('SetValue(member)', 'accepted');
+        Observer.Expect('SetValue(member) shows', '[ ]/0');
+        Observer.Expect('SetValue(0)', 'accepted');
+        Observer.Expect('SetValue(0) shows', '[ ]/0');
+        Observer.Verify();
+#endif
     end;
 
     [Test]
@@ -191,7 +221,37 @@ codeunit 63479 "PNL Blank Member Captions"
         Member := Member::" ";
         Inputs(P, 2, Format(Member), Member);
         P.Close();
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('Format of the member', '[ ]');
+        Observer.Expect('Value := Format(member)', 'accepted');
+        Observer.Expect('Value := Format(member) shows', '[ ]/0');
+        Observer.Expect('SetValue(space)|text', 'The value " " can''t be evaluated into type Option.');
+        Observer.Expect('SetValue(space)|code', 'Evaluate:Format');
+        Observer.Expect('SetValue(space) shows', '[ ]/0');
+        Observer.Expect('SetValue(empty)|text', 'The value "" can''t be evaluated into type Option.');
+        Observer.Expect('SetValue(empty)|code', 'Evaluate:Format');
+        Observer.Expect('SetValue(empty) shows', '[ ]/0');
+        Observer.Expect('SetValue(member)', 'accepted');
+        Observer.Expect('SetValue(member) shows', '[ ]/0');
+        Observer.Expect('SetValue(0)', 'accepted');
+        Observer.Expect('SetValue(0) shows', '[ ]/0');
+        Observer.Verify();
+#else
+        Observer.Expect('Format of the member', '[ ]');
+        Observer.Expect('Value := Format(member)', 'accepted');
+        Observer.Expect('Value := Format(member) shows', '[ ]/0');
+        Observer.Expect('SetValue(space)|text', 'The type NavOption is unknown.');
+        Observer.Expect('SetValue(space)|code', 'NotSupportedType');
+        Observer.Expect('SetValue(space) shows', '[ ]/0');
+        Observer.Expect('SetValue(empty)|text', 'The type NavOption is unknown.');
+        Observer.Expect('SetValue(empty)|code', 'NotSupportedType');
+        Observer.Expect('SetValue(empty) shows', '[ ]/0');
+        Observer.Expect('SetValue(member)', 'accepted');
+        Observer.Expect('SetValue(member) shows', '[ ]/0');
+        Observer.Expect('SetValue(0)', 'accepted');
+        Observer.Expect('SetValue(0) shows', '[ ]/0');
+        Observer.Verify();
+#endif
     end;
 
     [Test]
@@ -206,6 +266,42 @@ codeunit 63479 "PNL Blank Member Captions"
         Member := Member::" ";
         Inputs(P, 3, Format(Member), Member);
         P.Close();
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('Format of the member', '[0]');
+        Observer.Expect('Value := Format(member)|text', 'Validation error for Field: Empty Caption,  Message = ''Your entry of ''0'' is not an acceptable value for ''Empty Caption''. (Select Refresh to discard errors)''');
+        Observer.Expect('Value := Format(member)|code', 'TestValidation');
+        Observer.Expect('Value := Format(member) shows', '[1]/0');
+        Observer.Expect('SetValue(space)|text', 'The value " " can''t be evaluated into type Option.');
+        Observer.Expect('SetValue(space)|code', 'Evaluate:Format');
+        Observer.Expect('SetValue(space) shows', '[1]/0');
+        Observer.Expect('SetValue(empty)|text', 'The value "" can''t be evaluated into type Option.');
+        Observer.Expect('SetValue(empty)|code', 'Evaluate:Format');
+        Observer.Expect('SetValue(empty) shows', '[1]/0');
+        Observer.Expect('SetValue(member)|text', 'Validation error for Field: Empty Caption,  Message = ''Your entry of ''1'' is not an acceptable value for ''Empty Caption''. (Select Refresh to discard errors)''');
+        Observer.Expect('SetValue(member)|code', 'TestValidation');
+        Observer.Expect('SetValue(member) shows', '[1]/0');
+        Observer.Expect('SetValue(0)|text', 'Validation error for Field: Empty Caption,  Message = ''Your entry of ''1'' is not an acceptable value for ''Empty Caption''. (Select Refresh to discard errors)''');
+        Observer.Expect('SetValue(0)|code', 'TestValidation');
+        Observer.Expect('SetValue(0) shows', '[1]/0');
+        Observer.Verify();
+#else
+        Observer.Expect('Format of the member', '[0]');
+        Observer.Expect('Value := Format(member)|text', 'Validation error for Field: Empty Caption,  Message = ''Your entry of ''0'' is not an acceptable value for ''Empty Caption''. (Select Refresh to discard errors)''');
+        Observer.Expect('Value := Format(member)|code', 'TestValidation');
+        Observer.Expect('Value := Format(member) shows', '[1]/0');
+        Observer.Expect('SetValue(space)|text', 'The type NavOption is unknown.');
+        Observer.Expect('SetValue(space)|code', 'NotSupportedType');
+        Observer.Expect('SetValue(space) shows', '[1]/0');
+        Observer.Expect('SetValue(empty)|text', 'The type NavOption is unknown.');
+        Observer.Expect('SetValue(empty)|code', 'NotSupportedType');
+        Observer.Expect('SetValue(empty) shows', '[1]/0');
+        Observer.Expect('SetValue(member)|text', 'Validation error for Field: Empty Caption,  Message = ''Your entry of ''1'' is not an acceptable value for ''Empty Caption''. (Select Refresh to discard errors)''');
+        Observer.Expect('SetValue(member)|code', 'TestValidation');
+        Observer.Expect('SetValue(member) shows', '[1]/0');
+        Observer.Expect('SetValue(0)|text', 'Validation error for Field: Empty Caption,  Message = ''Your entry of ''1'' is not an acceptable value for ''Empty Caption''. (Select Refresh to discard errors)''');
+        Observer.Expect('SetValue(0)|code', 'TestValidation');
+        Observer.Expect('SetValue(0) shows', '[1]/0');
+        Observer.Verify();
+#endif
     end;
 }

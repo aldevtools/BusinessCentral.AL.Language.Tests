@@ -105,7 +105,13 @@ codeunit 63402 "PNL Modal First Later Row"
         Mode := 'FIRST,OK';
         Result := Page.RunModal(Page::"PNL Modal Rows", Row);
         ObserveRec(Row, Result);
-        Observer.Finish();
+        Observer.Expect('opened on', 'C');
+        Observer.Expect('move', 'Yes');
+        Observer.Expect('after move', 'A');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('rec', 'A|alpha');
+        Observer.Expect('rec count', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -120,7 +126,13 @@ codeunit 63402 "PNL Modal First Later Row"
         Mode := 'PREVIOUS,OK';
         Result := Page.RunModal(Page::"PNL Modal Rows", Row);
         ObserveRec(Row, Result);
-        Observer.Finish();
+        Observer.Expect('opened on', 'C');
+        Observer.Expect('move', 'Yes');
+        Observer.Expect('after move', 'B');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('rec', 'B|bravo');
+        Observer.Expect('rec count', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -135,7 +147,13 @@ codeunit 63402 "PNL Modal First Later Row"
         Mode := 'FIRST,CANCEL';
         Result := Page.RunModal(Page::"PNL Modal Rows", Row);
         ObserveRec(Row, Result);
-        Observer.Finish();
+        Observer.Expect('opened on', 'C');
+        Observer.Expect('move', 'Yes');
+        Observer.Expect('after move', 'A');
+        Observer.Expect('action', 'LookupCancel');
+        Observer.Expect('rec', 'A|alpha');
+        Observer.Expect('rec count', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -150,7 +168,11 @@ codeunit 63402 "PNL Modal First Later Row"
         Mode := 'OK';
         Result := Page.RunModal(Page::"PNL Modal Rows", Row);
         ObserveRec(Row, Result);
-        Observer.Finish();
+        Observer.Expect('opened on', 'C');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('rec', 'C|charlie');
+        Observer.Expect('rec count', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -166,7 +188,13 @@ codeunit 63402 "PNL Modal First Later Row"
         Mode := 'FIRST,OK';
         Result := Page.RunModal(Page::"PNL Modal Rows", Row);
         ObserveRec(Row, Result);
-        Observer.Finish();
+        Observer.Expect('opened on', 'B');
+        Observer.Expect('move', 'Yes');
+        Observer.Expect('after move', 'A');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('rec', 'A|alpha');
+        Observer.Expect('rec count', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -187,7 +215,13 @@ codeunit 63402 "PNL Modal First Later Row"
         Mode := 'FIRST,OK';
         Result := Page.RunModal(Page::"PNL Modal Rows", Row);
         ObserveRec(Row, Result);
-        Observer.Finish();
+        Observer.Expect('opened on', 'B');
+        Observer.Expect('move', 'Yes');
+        Observer.Expect('after move', 'A');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('rec', 'A|alpha');
+        Observer.Expect('rec count', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -202,7 +236,13 @@ codeunit 63402 "PNL Modal First Later Row"
         Mode := 'FIRST,OK';
         Result := Page.RunModal(Page::"PNL Modal Rows", Row);
         ObserveRec(Row, Result);
-        Observer.Finish();
+        Observer.Expect('opened on', 'C');
+        Observer.Expect('move', 'Yes');
+        Observer.Expect('after move', 'A');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('rec', 'A|alpha');
+        Observer.Expect('rec count', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -217,7 +257,13 @@ codeunit 63402 "PNL Modal First Later Row"
         Mode := 'PREVIOUS,OK';
         Result := Page.RunModal(Page::"PNL Modal Rows", Row);
         ObserveRec(Row, Result);
-        Observer.Finish();
+        Observer.Expect('opened on', 'C');
+        Observer.Expect('move', 'Yes');
+        Observer.Expect('after move', 'B');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('rec', 'B|bravo');
+        Observer.Expect('rec count', '3');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
