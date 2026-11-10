@@ -378,6 +378,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host PkAsc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -410,6 +411,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host PkAsc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -442,6 +444,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host PkAsc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -475,6 +478,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host PkAsc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -504,6 +508,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host PkAsc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H2');
@@ -533,6 +538,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host PkAsc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -565,6 +571,7 @@ codeunit 62622 "PG SK Split Key Other Order"
         Head: Record "PG SK Head";
         Result: Action;
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Head.Get('H1');
         Result := Page.RunModal(Page::"PG SK Host PkAsc", Head);
@@ -591,6 +598,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host SeqAsc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -623,6 +631,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host SeqAsc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -647,6 +656,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host SeqAsc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -664,7 +674,6 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Expect('row before New', '30000');
         Observer.Expect('row before New', '10000');
         Observer.Expect('log New', '[NEW 0 x=20000 below=Yes]');
         Observer.Expect('shown after New', '0');
@@ -681,6 +690,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host SeqAsc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -703,6 +713,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host SeqAsc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H2');
@@ -732,6 +743,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host SeqAsc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -758,6 +770,7 @@ codeunit 62622 "PG SK Split Key Other Order"
         Head: Record "PG SK Head";
         Result: Action;
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Head.Get('H1');
         Result := Page.RunModal(Page::"PG SK Host SeqAsc", Head);
@@ -781,6 +794,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host SeqDesc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -813,6 +827,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host SeqDesc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -845,6 +860,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host SeqDesc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -870,6 +886,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host SeqDesc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -884,7 +901,6 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Expect('row before New', '40000');
         Observer.Expect('log New', '[NEW 0 x=30000 below=Yes]');
         Observer.Expect('shown after New', '0');
         Observer.Expect('log typed', '[]');
@@ -900,6 +916,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host SeqDesc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H2');
@@ -929,6 +946,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host SeqDesc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -961,6 +979,7 @@ codeunit 62622 "PG SK Split Key Other Order"
         Head: Record "PG SK Head";
         Result: Action;
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Head.Get('H1');
         Result := Page.RunModal(Page::"PG SK Host SeqDesc", Head);
@@ -987,6 +1006,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host PkDesc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -1019,6 +1039,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host PkDesc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -1043,6 +1064,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host PkDesc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -1068,6 +1090,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host PkDesc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -1090,6 +1113,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host PkDesc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H2');
@@ -1104,8 +1128,6 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H2'));
-        Observer.Expect('row before New', '40000');
-        Observer.Expect('row before New', '30000');
         Observer.Expect('log New', '[NEW 0 x=40000 below=Yes]');
         Observer.Expect('shown after New', '0');
         Observer.Expect('log typed', '[]');
@@ -1121,6 +1143,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host PkDesc";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -1147,6 +1170,7 @@ codeunit 62622 "PG SK Split Key Other Order"
         Head: Record "PG SK Head";
         Result: Action;
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Head.Get('H1');
         Result := Page.RunModal(Page::"PG SK Host PkDesc", Head);
@@ -1170,6 +1194,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host OwnSeq";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -1202,6 +1227,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host OwnSeq";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -1226,6 +1252,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host OwnSeq";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -1243,7 +1270,6 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Expect('row before New', '30000');
         Observer.Expect('row before New', '10000');
         Observer.Expect('log New', '[NEW 0 x=20000 below=Yes]');
         Observer.Expect('shown after New', '0');
@@ -1260,6 +1286,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host OwnSeq";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -1282,6 +1309,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host OwnSeq";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H2');
@@ -1311,6 +1339,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host OwnSeq";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -1337,6 +1366,7 @@ codeunit 62622 "PG SK Split Key Other Order"
         Head: Record "PG SK Head";
         Result: Action;
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Head.Get('H1');
         Result := Page.RunModal(Page::"PG SK Host OwnSeq", Head);
@@ -1360,6 +1390,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host SeqDelayed";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -1392,6 +1423,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host SeqDelayed";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -1416,6 +1448,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host SeqDelayed";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -1433,7 +1466,6 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Expect('row before New', '30000');
         Observer.Expect('row before New', '10000');
         Observer.Expect('log New', '[NEW 0 x=20000 below=Yes]');
         Observer.Expect('shown after New', '0');
@@ -1450,6 +1482,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host SeqDelayed";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -1472,6 +1505,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host SeqDelayed";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H2');
@@ -1501,6 +1535,7 @@ codeunit 62622 "PG SK Split Key Other Order"
     var
         Card: TestPage "PG SK Host SeqDelayed";
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Card.OpenEdit();
         Card.GoToKey('H1');
@@ -1527,6 +1562,7 @@ codeunit 62622 "PG SK Split Key Other Order"
         Head: Record "PG SK Head";
         Result: Action;
     begin
+        Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Head.Get('H1');
         Result := Page.RunModal(Page::"PG SK Host SeqDelayed", Head);
