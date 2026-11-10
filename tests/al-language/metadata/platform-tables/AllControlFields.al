@@ -192,7 +192,9 @@ codeunit 62686 "MD ACF All Control Fields"
     begin
         Observer.Observe('ref table', Format(Database::"MD ACF Ref"));
         Observer.Observe('row table', Format(Database::"MD ACF Row"));
-        Observer.Finish();
+        Observer.Expect('ref table', '62680');
+        Observer.Expect('row table', '62681');
+        Observer.Verify();
     end;
 
     [Test]
@@ -201,7 +203,8 @@ codeunit 62686 "MD ACF All Control Fields"
         Fields: Record "All Control Fields";
     begin
         Observer.Observe('rows', Rows(Fields."Object Type"::Page, Page::"MD ACF Card"));
-        Observer.Finish();
+        Observer.Expect('rows', '8 [116922656:Amount:12799:0:62681:4:Amount:Amount: | 262320987:ExtRef:31489:10:62681:2:Ref Code:Ref Code: | 470346012:Kind:35583:0:62681:3:Kind:Kind:Small,Very Large | 782389256:ExprCtl:12799:0:0:0:Rec.Amount * 2:: | 991821727:Code:31489:10:62681:1:Code:Code: | 1013851928:Ref Code:31489:10:62681:2:Ref Code:Ref Code: | 1244585919:NoteCtl:31488:40:62681:5:Note:Control Caption: | 1791817698:VarCtl:31488:20:0:0:SomeText:: | ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -210,7 +213,8 @@ codeunit 62686 "MD ACF All Control Fields"
         Fields: Record "All Control Fields";
     begin
         Observer.Observe('rows', Rows(Fields."Object Type"::Page, Page::"MD ACF Lines"));
-        Observer.Finish();
+        Observer.Expect('rows', '2 [242228290:LineRef:31489:10:62681:2:Ref Code:Ref Code: | 702177386:LineCode:31489:10:62681:1:Code:Code: | ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -220,7 +224,9 @@ codeunit 62686 "MD ACF All Control Fields"
     begin
         Observer.Observe('as report', Rows(Fields."Object Type"::Report, Report::"MD ACF Report"));
         Observer.Observe('as page', Rows(Fields."Object Type"::Page, Report::"MD ACF Report"));
-        Observer.Finish();
+        Observer.Expect('as report', '10 [1050324297:ReqCode:31489:10:62681:2:ReqRow."Ref Code":Ref Code: | 1801718289:ReqText:31488:30:0:0:ReqText:: | 2000010021::31488:0:0:0:ParameterSet:: | 2000010031::31488:0:0:0:PrinterName:: | 2000010033::31488:0:0:0:ReportTimeout:: | 2000010034::31488:0:0:0:ReportMaxRows:: | 2000010035::31488:0:0:0:ReportMaxDocuments:: | 2000010036::31488:0:0:0:LayoutName:: | 2000010037::31488:0:0:0:ReportFormatRegion:: | 2000010038::31488:0:0:0:LanguageId:: | ]');
+        Observer.Expect('as page', '0 []');
+        Observer.Verify();
     end;
 
     [Test]
@@ -233,7 +239,10 @@ codeunit 62686 "MD ACF All Control Fields"
         Observer.Observe('empty', Format(Fields.IsEmpty()));
         Observer.Observe('count', Format(Fields.Count()));
         Observer.Observe('findfirst', Format(Fields.FindFirst()));
-        Observer.Finish();
+        Observer.Expect('empty', 'Yes');
+        Observer.Expect('count', '0');
+        Observer.Expect('findfirst', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -260,7 +269,12 @@ codeunit 62686 "MD ACF All Control Fields"
         Fields.SetRange("Control Name", 'Kind');
         Observer.Observe('by control name', Format(Fields.Count()));
         Observer.Observe('row field no of Ref Code', Format(Row.FieldNo("Ref Code")));
-        Observer.Finish();
+        Observer.Expect('empty per field no', '1=No/1 2=No/2 3=No/1 4=No/1 5=No/1 6=Yes/0 ');
+        Observer.Expect('related table = row table', '6');
+        Observer.Expect('related table = ref table', '0');
+        Observer.Expect('by control name', '1');
+        Observer.Expect('row field no of Ref Code', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -278,7 +292,11 @@ codeunit 62686 "MD ACF All Control Fields"
         Observer.Observe('No. empty', Format(Fields.IsEmpty()));
         Fields.SetRange("Related Field ID", 1999999);
         Observer.Observe('unknown field empty', Format(Fields.IsEmpty()));
-        Observer.Finish();
+        Observer.Expect('any row', 'Yes');
+        Observer.Expect('Primary Contact No. empty', 'No');
+        Observer.Expect('No. empty', 'No');
+        Observer.Expect('unknown field empty', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -293,6 +311,9 @@ codeunit 62686 "MD ACF All Control Fields"
         Observer.Observe('get', Format(Fields.Get(First."Object Type", First."Object ID", First."Control ID")));
         Observer.Observe('key', Fields.CurrentKey());
         Observer.Observe('position', Fields.GetPosition());
-        Observer.Finish();
+        Observer.Expect('get', 'Yes');
+        Observer.Expect('key', 'Object Type,Object ID,Control ID');
+        Observer.Expect('position', 'Object Type=CONST(Page),Object ID=CONST(62683),Control ID=CONST(116922656)');
+        Observer.Verify();
     end;
 }

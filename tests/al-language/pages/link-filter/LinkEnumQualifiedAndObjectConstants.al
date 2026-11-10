@@ -287,7 +287,10 @@ codeunit 62607 "PG LV Link Value Forms"
         Observer.Observe('head table', Format(Database::"PG LV Head"));
         Observer.Observe('row table', Format(Database::"PG LV Row"));
         Observer.Observe('rows page', Format(Page::"PG LV Rows"));
-        Observer.Finish();
+        Observer.Expect('head table', '62601');
+        Observer.Expect('row table', '62602');
+        Observer.Expect('rows page', '62603');
+        Observer.Verify();
     end;
 
 
@@ -306,7 +309,10 @@ codeunit 62607 "PG LV Link Value Forms"
         Observer.Observe('filter', '[' + Card.NeQual.Filter.GetFilter("Doc Type") + ']');
         Observer.Observe('head filter', '[' + Card.NeQual.Filter.GetFilter("Head Code") + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '[10 30 40 ]');
+        Observer.Expect('filter', '[<>1]');
+        Observer.Expect('head filter', '[H1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -324,7 +330,10 @@ codeunit 62607 "PG LV Link Value Forms"
         Observer.Observe('filter', '[' + Card.EqQual.Filter.GetFilter("Doc Type") + ']');
         Observer.Observe('head filter', '[' + Card.EqQual.Filter.GetFilter("Head Code") + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '[20 50 ]');
+        Observer.Expect('filter', '[1]');
+        Observer.Expect('head filter', '[H1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -342,7 +351,10 @@ codeunit 62607 "PG LV Link Value Forms"
         Observer.Observe('filter', '[' + Card.OrQual.Filter.GetFilter("Doc Type") + ']');
         Observer.Observe('head filter', '[' + Card.OrQual.Filter.GetFilter("Head Code") + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '[10 30 40 ]');
+        Observer.Expect('filter', '[0|2]');
+        Observer.Expect('head filter', '[H1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -360,7 +372,10 @@ codeunit 62607 "PG LV Link Value Forms"
         Observer.Observe('filter', '[' + Card.NePlain.Filter.GetFilter("Doc Type") + ']');
         Observer.Observe('head filter', '[' + Card.NePlain.Filter.GetFilter("Head Code") + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '[10 30 40 ]');
+        Observer.Expect('filter', '[<>1]');
+        Observer.Expect('head filter', '[H1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -378,7 +393,10 @@ codeunit 62607 "PG LV Link Value Forms"
         Observer.Observe('filter', '[' + Card.ConstQual.Filter.GetFilter("Doc Type") + ']');
         Observer.Observe('head filter', '[' + Card.ConstQual.Filter.GetFilter("Head Code") + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '[30 ]');
+        Observer.Expect('filter', '[2]');
+        Observer.Expect('head filter', '[H1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -396,7 +414,10 @@ codeunit 62607 "PG LV Link Value Forms"
         Observer.Observe('filter', '[' + Card.NeQualView.Filter.GetFilter("Doc Type") + ']');
         Observer.Observe('head filter', '[' + Card.NeQualView.Filter.GetFilter("Head Code") + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '[10 30 40 ]');
+        Observer.Expect('filter', '[<>1]');
+        Observer.Expect('head filter', '[H1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -414,7 +435,10 @@ codeunit 62607 "PG LV Link Value Forms"
         Observer.Observe('filter', '[' + Card.OrQualView.Filter.GetFilter("Doc Type") + ']');
         Observer.Observe('head filter', '[' + Card.OrQualView.Filter.GetFilter("Head Code") + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '[10 30 40 ]');
+        Observer.Expect('filter', '[0|2]');
+        Observer.Expect('head filter', '[H1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -432,7 +456,10 @@ codeunit 62607 "PG LV Link Value Forms"
         Observer.Observe('filter', '[' + Card.DbFilterView.Filter.GetFilter("Record Table No.") + ']');
         Observer.Observe('head filter', '[' + Card.DbFilterView.Filter.GetFilter("Head Code") + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '[10 ]');
+        Observer.Expect('filter', '[62601]');
+        Observer.Expect('head filter', '[H1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -450,7 +477,10 @@ codeunit 62607 "PG LV Link Value Forms"
         Observer.Observe('filter', '[' + Card.DbConstView.Filter.GetFilter("Record Table No.") + ']');
         Observer.Observe('head filter', '[' + Card.DbConstView.Filter.GetFilter("Head Code") + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '[10 ]');
+        Observer.Expect('filter', '[62601]');
+        Observer.Expect('head filter', '[H1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -468,7 +498,10 @@ codeunit 62607 "PG LV Link Value Forms"
         Observer.Observe('filter', '[' + Card.DbNeView.Filter.GetFilter("Record Table No.") + ']');
         Observer.Observe('head filter', '[' + Card.DbNeView.Filter.GetFilter("Head Code") + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '[20 30 40 50 ]');
+        Observer.Expect('filter', '[<>62601]');
+        Observer.Expect('head filter', '[H1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -486,7 +519,10 @@ codeunit 62607 "PG LV Link Value Forms"
         Observer.Observe('filter', '[' + Card.DbOrView.Filter.GetFilter("Record Table No.") + ']');
         Observer.Observe('head filter', '[' + Card.DbOrView.Filter.GetFilter("Head Code") + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '[10 20 40 ]');
+        Observer.Expect('filter', '[62601|62602]');
+        Observer.Expect('head filter', '[H1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -504,7 +540,10 @@ codeunit 62607 "PG LV Link Value Forms"
         Observer.Observe('filter', '[' + Card.DbFilterLink.Filter.GetFilter("Record Table No.") + ']');
         Observer.Observe('head filter', '[' + Card.DbFilterLink.Filter.GetFilter("Head Code") + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '[20 40 ]');
+        Observer.Expect('filter', '[62602]');
+        Observer.Expect('head filter', '[H1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -522,7 +561,10 @@ codeunit 62607 "PG LV Link Value Forms"
         Observer.Observe('filter', '[' + Card.DbConstLink.Filter.GetFilter("Record Table No.") + ']');
         Observer.Observe('head filter', '[' + Card.DbConstLink.Filter.GetFilter("Head Code") + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '[20 40 ]');
+        Observer.Expect('filter', '[62602]');
+        Observer.Expect('head filter', '[H1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -540,7 +582,10 @@ codeunit 62607 "PG LV Link Value Forms"
         Observer.Observe('filter', '[' + Card.PageConstView.Filter.GetFilter("Record Table No.") + ']');
         Observer.Observe('head filter', '[' + Card.PageConstView.Filter.GetFilter("Head Code") + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '[50 ]');
+        Observer.Expect('filter', '[62603]');
+        Observer.Expect('head filter', '[H1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -558,7 +603,10 @@ codeunit 62607 "PG LV Link Value Forms"
         Observer.Observe('filter', '[' + Card.PageFilterView.Filter.GetFilter("Record Table No.") + ']');
         Observer.Observe('head filter', '[' + Card.PageFilterView.Filter.GetFilter("Head Code") + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '[50 ]');
+        Observer.Expect('filter', '[62603]');
+        Observer.Expect('head filter', '[H1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -574,7 +622,10 @@ codeunit 62607 "PG LV Link Value Forms"
         Observer.Observe('type filter', '[' + RunTypeFilter + ']');
         Observer.Observe('table filter', '[' + RunTableFilter + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '[10 30 40 ]');
+        Observer.Expect('type filter', '[<>1]');
+        Observer.Expect('table filter', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -590,7 +641,10 @@ codeunit 62607 "PG LV Link Value Forms"
         Observer.Observe('type filter', '[' + RunTypeFilter + ']');
         Observer.Observe('table filter', '[' + RunTableFilter + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '[20 40 ]');
+        Observer.Expect('type filter', '[]');
+        Observer.Expect('table filter', '[62602]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -606,7 +660,10 @@ codeunit 62607 "PG LV Link Value Forms"
         Observer.Observe('type filter', '[' + RunTypeFilter + ']');
         Observer.Observe('table filter', '[' + RunTableFilter + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '[10 ]');
+        Observer.Expect('type filter', '[]');
+        Observer.Expect('table filter', '[62601]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -622,7 +679,10 @@ codeunit 62607 "PG LV Link Value Forms"
         Observer.Observe('type filter', '[' + RunTypeFilter + ']');
         Observer.Observe('table filter', '[' + RunTableFilter + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '[10 30 40 ]');
+        Observer.Expect('type filter', '[<>1]');
+        Observer.Expect('table filter', '[]');
+        Observer.Verify();
     end;
 
     [PageHandler]

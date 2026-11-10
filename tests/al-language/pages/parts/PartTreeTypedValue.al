@@ -849,7 +849,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H1'));
-        Observer.Finish();
+        Observer.Expect('row after action', '30000:Item');
+        Observer.Expect('log action', '[R20000 ACT I30000 next=1 R30000 R30000 R20000 R10000 R30000 R30000 C30000]');
+        Observer.Expect('row after Type', '30000:Item');
+        Observer.Expect('log Type', '[HC R30000 R20000 R10000 R30000 R30000 C30000]');
+        Observer.Expect('stored after Type', '[10000:0:Item: 20000:1:Item: 30000:1:Item: ]');
+        Observer.Expect('row after No.', '30000:Item:R1');
+        Observer.Expect('log No.', '[NoV30000:Item]');
+        Observer.Expect('log close', '[M30000:Item]');
+        Observer.Expect('stored', '[10000:0:Item: 20000:1:Item: 30000:1:Item:R1 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -876,7 +885,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H1'));
-        Observer.Finish();
+        Observer.Expect('row after action', '20000:Item');
+        Observer.Expect('log action', '[R10000 ACT I30000 next=1 R20000 R20000 R30000 R20000 R10000 R20000 R20000 C20000]');
+        Observer.Expect('row after Type', '20000:Item');
+        Observer.Expect('log Type', '[HC R20000 R30000 R20000 R10000 R20000 R20000 C20000]');
+        Observer.Expect('stored after Type', '[10000:0:Item: 20000:1:Item: 30000:1:Item: ]');
+        Observer.Expect('row after No.', '20000:Item:R1');
+        Observer.Expect('log No.', '[NoV20000:Item]');
+        Observer.Expect('log close', '[M20000:Item]');
+        Observer.Expect('stored', '[10000:0:Item: 20000:1:Item:R1 30000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -902,7 +920,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H2'));
-        Observer.Finish();
+        Observer.Expect('row after action', '10000:Item');
+        Observer.Expect('log action', '[ACT I10000 I20000 next=1 R10000 R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('row after Type', '10000:Item');
+        Observer.Expect('log Type', '[HC R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('stored after Type', '[10000:0:Item: 20000:1:Item: ]');
+        Observer.Expect('row after No.', '10000:Item:R1');
+        Observer.Expect('log No.', '[NoV10000:Item]');
+        Observer.Expect('log close', '[M10000:Item]');
+        Observer.Expect('stored', '[10000:0:Item:R1 20000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -929,7 +956,17 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H2'));
-        Observer.Finish();
+        Observer.Expect('First', 'No');
+        Observer.Expect('row after action', '10000:Item');
+        Observer.Expect('log action', '[ACT I10000 I20000 next=1 R10000 R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('row after Type', '10000:Item');
+        Observer.Expect('log Type', '[HC R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('stored after Type', '[10000:0:Item: 20000:1:Item: ]');
+        Observer.Expect('row after No.', '10000:Item:R1');
+        Observer.Expect('log No.', '[NoV10000:Item]');
+        Observer.Expect('log close', '[M10000:Item]');
+        Observer.Expect('stored', '[10000:0:Item:R1 20000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -956,7 +993,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H1'));
-        Observer.Finish();
+        Observer.Expect('row after action', '20000:Item');
+        Observer.Expect('log action', '[R10000 ACT I30000 next=1 R20000 R20000 R30000 R20000 R10000 R20000 R20000 C20000]');
+        Observer.Expect('row after Type', '20000:Resource');
+        Observer.Expect('log Type', '[HC M20000:Resource R20000 R30000 R20000 R10000 R20000 R20000 C20000]');
+        Observer.Expect('stored after Type', '[10000:0:Item: 20000:1:Resource: 30000:1:Item: ]');
+        Observer.Expect('row after No.', '20000:Resource:R1');
+        Observer.Expect('log No.', '[NoV20000:Resource]');
+        Observer.Expect('log close', '[M20000:Resource]');
+        Observer.Expect('stored', '[10000:0:Item: 20000:1:Resource:R1 30000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -983,7 +1029,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H1'));
-        Observer.Finish();
+        Observer.Expect('row after action', '20000:Item');
+        Observer.Expect('log action', '[R10000 ACT I30000 next=1 R20000 R20000 R30000 R20000 R10000 R20000 R20000 C20000]');
+        Observer.Expect('row after Type', '20000:Resource');
+        Observer.Expect('log Type', '[HC M20000:Resource R20000 R30000 R20000 R10000 R20000 R20000 C20000]');
+        Observer.Expect('stored after Type', '[10000:0:Item: 20000:1:Resource: 30000:1:Item: ]');
+        Observer.Expect('row after No.', '20000:Resource:R1');
+        Observer.Expect('log No.', '[NoV20000:Resource]');
+        Observer.Expect('log close', '[M20000:Resource]');
+        Observer.Expect('stored', '[10000:0:Item: 20000:1:Resource:R1 30000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1009,7 +1064,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H2'));
-        Observer.Finish();
+        Observer.Expect('row after action', '10000:Item');
+        Observer.Expect('log action', '[ACT I10000 I20000 next=1 R10000 R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('row after Type', '10000:Resource');
+        Observer.Expect('log Type', '[HC M10000:Resource R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('stored after Type', '[10000:0:Resource: 20000:1:Item: ]');
+        Observer.Expect('row after No.', '10000:Resource:R1');
+        Observer.Expect('log No.', '[NoV10000:Resource]');
+        Observer.Expect('log close', '[M10000:Resource]');
+        Observer.Expect('stored', '[10000:0:Resource:R1 20000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1036,7 +1100,17 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H2'));
-        Observer.Finish();
+        Observer.Expect('First', 'No');
+        Observer.Expect('row after action', '10000:Item');
+        Observer.Expect('log action', '[ACT I10000 I20000 next=1 R10000 R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('row after Type', '10000:Resource');
+        Observer.Expect('log Type', '[HC M10000:Resource R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('stored after Type', '[10000:0:Resource: 20000:1:Item: ]');
+        Observer.Expect('row after No.', '10000:Resource:R1');
+        Observer.Expect('log No.', '[NoV10000:Resource]');
+        Observer.Expect('log close', '[M10000:Resource]');
+        Observer.Expect('stored', '[10000:0:Resource:R1 20000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1063,7 +1137,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H1'));
-        Observer.Finish();
+        Observer.Expect('row after action', '30000:Item');
+        Observer.Expect('log action', '[R20000 ACT I30000 next=1 R30000 R30000 R20000 R10000 R30000 R30000 C30000]');
+        Observer.Expect('row after Type', '30000:Item');
+        Observer.Expect('log Type', '[HC R30000 R20000 R10000 R30000 R30000 C30000]');
+        Observer.Expect('stored after Type', '[10000:0:Item: 20000:1:Item: 30000:1:Item: ]');
+        Observer.Expect('row after No.', '30000:Item:R1');
+        Observer.Expect('log No.', '[NoV30000:Item]');
+        Observer.Expect('log close', '[M30000:Item]');
+        Observer.Expect('stored', '[10000:0:Item: 20000:1:Item: 30000:1:Item:R1 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1090,7 +1173,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H1'));
-        Observer.Finish();
+        Observer.Expect('row after action', '20000:Item');
+        Observer.Expect('log action', '[R10000 ACT I30000 next=1 R20000 R20000 R30000 R20000 R10000 R20000 R20000 C20000]');
+        Observer.Expect('row after Type', '20000:Item');
+        Observer.Expect('log Type', '[HC R20000 R30000 R20000 R10000 R20000 R20000 C20000]');
+        Observer.Expect('stored after Type', '[10000:0:Item: 20000:1:Item: 30000:1:Item: ]');
+        Observer.Expect('row after No.', '20000:Item:R1');
+        Observer.Expect('log No.', '[NoV20000:Item]');
+        Observer.Expect('log close', '[M20000:Item]');
+        Observer.Expect('stored', '[10000:0:Item: 20000:1:Item:R1 30000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1116,7 +1208,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H2'));
-        Observer.Finish();
+        Observer.Expect('row after action', '10000:Item');
+        Observer.Expect('log action', '[ACT I10000 I20000 next=1 R10000 R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('row after Type', '10000:Item');
+        Observer.Expect('log Type', '[HC R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('stored after Type', '[10000:0:Item: 20000:1:Item: ]');
+        Observer.Expect('row after No.', '10000:Item:R1');
+        Observer.Expect('log No.', '[NoV10000:Item]');
+        Observer.Expect('log close', '[M10000:Item]');
+        Observer.Expect('stored', '[10000:0:Item:R1 20000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1143,7 +1244,17 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H2'));
-        Observer.Finish();
+        Observer.Expect('First', 'No');
+        Observer.Expect('row after action', '10000:Item');
+        Observer.Expect('log action', '[ACT I10000 I20000 next=1 R10000 R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('row after Type', '10000:Item');
+        Observer.Expect('log Type', '[HC R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('stored after Type', '[10000:0:Item: 20000:1:Item: ]');
+        Observer.Expect('row after No.', '10000:Item:R1');
+        Observer.Expect('log No.', '[NoV10000:Item]');
+        Observer.Expect('log close', '[M10000:Item]');
+        Observer.Expect('stored', '[10000:0:Item:R1 20000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1170,7 +1281,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H1'));
-        Observer.Finish();
+        Observer.Expect('row after action', '20000:Item');
+        Observer.Expect('log action', '[R10000 ACT I30000 next=1 R20000 R20000 R30000 R20000 R10000 R20000 R20000 C20000]');
+        Observer.Expect('row after Type', '20000:Resource');
+        Observer.Expect('log Type', '[HC M20000:Resource R20000 R30000 R20000 R10000 R20000 R20000 C20000]');
+        Observer.Expect('stored after Type', '[10000:0:Item: 20000:1:Resource: 30000:1:Item: ]');
+        Observer.Expect('row after No.', '20000:Resource:R1');
+        Observer.Expect('log No.', '[NoV20000:Resource]');
+        Observer.Expect('log close', '[M20000:Resource]');
+        Observer.Expect('stored', '[10000:0:Item: 20000:1:Resource:R1 30000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1197,7 +1317,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H1'));
-        Observer.Finish();
+        Observer.Expect('row after action', '20000:Item');
+        Observer.Expect('log action', '[R10000 ACT I30000 next=1 R20000 R20000 R30000 R20000 R10000 R20000 R20000 C20000]');
+        Observer.Expect('row after Type', '20000:Resource');
+        Observer.Expect('log Type', '[HC M20000:Resource R20000 R30000 R20000 R10000 R20000 R20000 C20000]');
+        Observer.Expect('stored after Type', '[10000:0:Item: 20000:1:Resource: 30000:1:Item: ]');
+        Observer.Expect('row after No.', '20000:Resource:R1');
+        Observer.Expect('log No.', '[NoV20000:Resource]');
+        Observer.Expect('log close', '[M20000:Resource]');
+        Observer.Expect('stored', '[10000:0:Item: 20000:1:Resource:R1 30000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1223,7 +1352,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H2'));
-        Observer.Finish();
+        Observer.Expect('row after action', '10000:Item');
+        Observer.Expect('log action', '[ACT I10000 I20000 next=1 R10000 R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('row after Type', '10000:Resource');
+        Observer.Expect('log Type', '[HC M10000:Resource R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('stored after Type', '[10000:0:Resource: 20000:1:Item: ]');
+        Observer.Expect('row after No.', '10000:Resource:R1');
+        Observer.Expect('log No.', '[NoV10000:Resource]');
+        Observer.Expect('log close', '[M10000:Resource]');
+        Observer.Expect('stored', '[10000:0:Resource:R1 20000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1250,7 +1388,17 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H2'));
-        Observer.Finish();
+        Observer.Expect('First', 'No');
+        Observer.Expect('row after action', '10000:Item');
+        Observer.Expect('log action', '[ACT I10000 I20000 next=1 R10000 R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('row after Type', '10000:Resource');
+        Observer.Expect('log Type', '[HC M10000:Resource R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('stored after Type', '[10000:0:Resource: 20000:1:Item: ]');
+        Observer.Expect('row after No.', '10000:Resource:R1');
+        Observer.Expect('log No.', '[NoV10000:Resource]');
+        Observer.Expect('log close', '[M10000:Resource]');
+        Observer.Expect('stored', '[10000:0:Resource:R1 20000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1277,7 +1425,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H1'));
-        Observer.Finish();
+        Observer.Expect('row after action', '20000:Item');
+        Observer.Expect('log action', '[R10000 ACT I30000 next=1 R20000 R20000 R30000 R20000 R10000 R20000 R20000 C20000]');
+        Observer.Expect('row after Type', '20000:Resource');
+        Observer.Expect('log Type', '[HC M20000:Resource R20000 R30000 R20000 R10000 R20000 R20000 C20000]');
+        Observer.Expect('stored after Type', '[10000:0:Item: 20000:1:Resource: 30000:1:Item: ]');
+        Observer.Expect('row after No.', '20000:Resource:R1');
+        Observer.Expect('log No.', '[NoV20000:Resource]');
+        Observer.Expect('log close', '[M20000:Resource]');
+        Observer.Expect('stored', '[10000:0:Item: 20000:1:Resource:R1 30000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1304,7 +1461,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H1'));
-        Observer.Finish();
+        Observer.Expect('row after action', '20000:Item');
+        Observer.Expect('log action', '[R10000 ACT I30000 next=1 R20000 R20000 R30000 R20000 R10000 R20000 R20000 C20000]');
+        Observer.Expect('row after Type', '20000:Resource');
+        Observer.Expect('log Type', '[HC M20000:Resource R20000 R30000 R20000 R10000 R20000 R20000 C20000]');
+        Observer.Expect('stored after Type', '[10000:0:Item: 20000:1:Resource: 30000:1:Item: ]');
+        Observer.Expect('row after No.', '20000:Resource:R1');
+        Observer.Expect('log No.', '[NoV20000:Resource]');
+        Observer.Expect('log close', '[M20000:Resource]');
+        Observer.Expect('stored', '[10000:0:Item: 20000:1:Resource:R1 30000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1330,7 +1496,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H2'));
-        Observer.Finish();
+        Observer.Expect('row after action', '10000:Item');
+        Observer.Expect('log action', '[ACT I10000 I20000 next=1 R10000 R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('row after Type', '10000:Resource');
+        Observer.Expect('log Type', '[HC M10000:Resource R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('stored after Type', '[10000:0:Resource: 20000:1:Item: ]');
+        Observer.Expect('row after No.', '10000:Resource:R1');
+        Observer.Expect('log No.', '[NoV10000:Resource]');
+        Observer.Expect('log close', '[M10000:Resource]');
+        Observer.Expect('stored', '[10000:0:Resource:R1 20000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1357,7 +1532,17 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H2'));
-        Observer.Finish();
+        Observer.Expect('First', 'No');
+        Observer.Expect('row after action', '10000:Item');
+        Observer.Expect('log action', '[ACT I10000 I20000 next=1 R10000 R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('row after Type', '10000:Resource');
+        Observer.Expect('log Type', '[HC M10000:Resource R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('stored after Type', '[10000:0:Resource: 20000:1:Item: ]');
+        Observer.Expect('row after No.', '10000:Resource:R1');
+        Observer.Expect('log No.', '[NoV10000:Resource]');
+        Observer.Expect('log close', '[M10000:Resource]');
+        Observer.Expect('stored', '[10000:0:Resource:R1 20000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1384,7 +1569,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H1'));
-        Observer.Finish();
+        Observer.Expect('row after action', '30000:Item');
+        Observer.Expect('log action', '[R20000 ACT I30000 next=1 R30000 R30000 R20000 R10000 R30000 R30000 C30000]');
+        Observer.Expect('row after Type', '30000:Item');
+        Observer.Expect('log Type', '[HC R30000 R20000 R10000 R30000 R30000 C30000]');
+        Observer.Expect('stored after Type', '[10000:0:Item: 20000:1:Item: 30000:1:Item: ]');
+        Observer.Expect('row after No.', '30000:Item:R1');
+        Observer.Expect('log No.', '[NoV30000:Item]');
+        Observer.Expect('log close', '[M30000:Item]');
+        Observer.Expect('stored', '[10000:0:Item: 20000:1:Item: 30000:1:Item:R1 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1411,7 +1605,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H1'));
-        Observer.Finish();
+        Observer.Expect('row after action', '20000:Item');
+        Observer.Expect('log action', '[R10000 ACT I30000 next=1 R20000 R20000 R30000 R20000 R10000 R20000 R20000 C20000]');
+        Observer.Expect('row after Type', '20000:Item');
+        Observer.Expect('log Type', '[HC R20000 R30000 R20000 R10000 R20000 R20000 C20000]');
+        Observer.Expect('stored after Type', '[10000:0:Item: 20000:1:Item: 30000:1:Item: ]');
+        Observer.Expect('row after No.', '20000:Item:R1');
+        Observer.Expect('log No.', '[NoV20000:Item]');
+        Observer.Expect('log close', '[M20000:Item]');
+        Observer.Expect('stored', '[10000:0:Item: 20000:1:Item:R1 30000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1437,7 +1640,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H2'));
-        Observer.Finish();
+        Observer.Expect('row after action', '10000:Item');
+        Observer.Expect('log action', '[ACT I10000 I20000 next=1 R10000 R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('row after Type', '10000:Item');
+        Observer.Expect('log Type', '[HC R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('stored after Type', '[10000:0:Item: 20000:1:Item: ]');
+        Observer.Expect('row after No.', '10000:Item:R1');
+        Observer.Expect('log No.', '[NoV10000:Item]');
+        Observer.Expect('log close', '[M10000:Item]');
+        Observer.Expect('stored', '[10000:0:Item:R1 20000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1464,7 +1676,17 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H2'));
-        Observer.Finish();
+        Observer.Expect('First', 'No');
+        Observer.Expect('row after action', '10000:Item');
+        Observer.Expect('log action', '[ACT I10000 I20000 next=1 R10000 R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('row after Type', '10000:Item');
+        Observer.Expect('log Type', '[HC R10000 R20000 R10000 R10000 C10000]');
+        Observer.Expect('stored after Type', '[10000:0:Item: 20000:1:Item: ]');
+        Observer.Expect('row after No.', '10000:Item:R1');
+        Observer.Expect('log No.', '[NoV10000:Item]');
+        Observer.Expect('log close', '[M10000:Item]');
+        Observer.Expect('stored', '[10000:0:Item:R1 20000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1491,7 +1713,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H1'));
-        Observer.Finish();
+        Observer.Expect('row after action', '20000:Item');
+        Observer.Expect('log action', '[R10000 ACT I30000 next=1 R20000 R20000 R20000 R30000 R20000 R10000 R20000 R20000 R20000 C20000]');
+        Observer.Expect('row after Type', '20000:Resource');
+        Observer.Expect('log Type', '[HC M20000:Resource R20000 R20000 R30000 R20000 R10000 R20000 R20000 R20000 C20000]');
+        Observer.Expect('stored after Type', '[10000:0:Item: 20000:1:Resource: 30000:1:Item: ]');
+        Observer.Expect('row after No.', '20000:Resource:R1');
+        Observer.Expect('log No.', '[NoV20000:Resource]');
+        Observer.Expect('log close', '[M20000:Resource]');
+        Observer.Expect('stored', '[10000:0:Item: 20000:1:Resource:R1 30000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1518,7 +1749,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H1'));
-        Observer.Finish();
+        Observer.Expect('row after action', '20000:Item');
+        Observer.Expect('log action', '[R10000 ACT I30000 next=1 R20000 R20000 R20000 R30000 R20000 R10000 R20000 R20000 R20000 C20000]');
+        Observer.Expect('row after Type', '20000:Resource');
+        Observer.Expect('log Type', '[HC M20000:Resource R20000 R20000 R30000 R20000 R10000 R20000 R20000 R20000 C20000]');
+        Observer.Expect('stored after Type', '[10000:0:Item: 20000:1:Resource: 30000:1:Item: ]');
+        Observer.Expect('row after No.', '20000:Resource:R1');
+        Observer.Expect('log No.', '[NoV20000:Resource]');
+        Observer.Expect('log close', '[M20000:Resource]');
+        Observer.Expect('stored', '[10000:0:Item: 20000:1:Resource:R1 30000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1544,7 +1784,16 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H2'));
-        Observer.Finish();
+        Observer.Expect('row after action', '10000:Item');
+        Observer.Expect('log action', '[ACT I10000 I20000 next=1 R10000 R10000 R10000 R20000 R10000 R10000 R10000 C10000]');
+        Observer.Expect('row after Type', '10000:Resource');
+        Observer.Expect('log Type', '[HC M10000:Resource R10000 R10000 R20000 R10000 R10000 R10000 C10000]');
+        Observer.Expect('stored after Type', '[10000:0:Resource: 20000:1:Item: ]');
+        Observer.Expect('row after No.', '10000:Resource:R1');
+        Observer.Expect('log No.', '[NoV10000:Resource]');
+        Observer.Expect('log close', '[M10000:Resource]');
+        Observer.Expect('stored', '[10000:0:Resource:R1 20000:1:Item: ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1571,7 +1820,17 @@ codeunit 62717 "PG TS Tree Typed Value"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('stored', Stored('H2'));
-        Observer.Finish();
+        Observer.Expect('First', 'No');
+        Observer.Expect('row after action', '10000:Item');
+        Observer.Expect('log action', '[ACT I10000 I20000 next=1 R10000 R10000 R10000 R20000 R10000 R10000 R10000 C10000]');
+        Observer.Expect('row after Type', '10000:Resource');
+        Observer.Expect('log Type', '[HC M10000:Resource R10000 R10000 R20000 R10000 R10000 R10000 C10000]');
+        Observer.Expect('stored after Type', '[10000:0:Resource: 20000:1:Item: ]');
+        Observer.Expect('row after No.', '10000:Resource:R1');
+        Observer.Expect('log No.', '[NoV10000:Resource]');
+        Observer.Expect('log close', '[M10000:Resource]');
+        Observer.Expect('stored', '[10000:0:Resource:R1 20000:1:Item: ]');
+        Observer.Verify();
     end;
 
 }
