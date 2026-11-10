@@ -1,12 +1,16 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/report/report-saveas-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); Temp Blob (System Application); own table 97023, reports 97023-97024, codeunits 97025-97026.
+//   Table 97023 gets three rows in the DataItems tests; the report logs how many it reads.
 // Probe: from al-runner issue 7590 (an app builds the parameters XML itself: the XML declaration and a <ReportParameters> root without
 //   the name and id attributes that RunRequestPage writes).
 // Area: a parameters string whose root has no name and id, handed to Report.SaveAs (Xml), Report.Execute and Report.RunRequestPage:
 //   - a Field that sets a Date option, next to a Text option that OnInitReport sets ('init') and no Field names;
 //   - self-closing Fields for both options;
 //   - a Field next to an unknown Field (a name no control shows), with the root with and without name and id;
+//   - under SaveAs with the root without name and id: a Field that names a global no control shows (Hidden), a Field whose name
+//     differs from a shown variable only in letter case (startdate), a Field named by the control (StartCtl);
+//   - a DataItems view under the root without name and id (SaveAs and Execute);
 //   - the same strings without the XML declaration (the error text and code).
 //   Observed in OnPreReport (SaveAs, Execute) or in the request page handler (RunRequestPage): the two options, or the error.
 // Already pinned elsewhere, not repeated: the bare root under SaveAs as Word and Excel (layouts-saveas/AMRdlcOutput.al:153,
@@ -61,6 +65,16 @@ report 97023 "LT RPB Rpt"
         dataitem(Row; "LT RPB Row")
         {
             column(RowId; Id) { }
+
+            trigger OnAfterGetRecord()
+            begin
+                Rows += 1;
+            end;
+
+            trigger OnPostDataItem()
+            begin
+                Log.Add('rows=' + Format(Rows));
+            end;
         }
     }
 
@@ -83,12 +97,14 @@ report 97023 "LT RPB Rpt"
 
     trigger OnPreReport()
     begin
-        Log.Add('pre start=[' + Format(StartDate, 0, 9) + '] note=[' + NoteText + ']');
+        Log.Add('pre start=[' + Format(StartDate, 0, 9) + '] note=[' + NoteText + '] hidden=[' + Hidden + ']');
     end;
 
     var
         StartDate: Date;
         NoteText: Text[30];
+        Hidden: Text[30];
+        Rows: Integer;
         Log: Codeunit "LT RPB Log";
 }
 
@@ -212,6 +228,45 @@ codeunit 97026 "LT RPB Bare Root"
         RunCase(Observer, 'bare self-closing', DeclTxt + Bare('<Field name="StartDate" /><Field name="NoteText" />'), 'saveas');
         RunCase(Observer, 'bare unknown', DeclTxt + Bare(SetStart() + Unknown()), 'saveas');
         RunCase(Observer, 'named unknown', DeclTxt + Named('LT RPB Rpt', 97023, SetStart() + Unknown()), 'saveas');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RPB_SaveAs_BareRoot_NamesTheReportHasOtherwise()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunCase(Observer, 'hidden global', DeclTxt + Bare('<Field name="Hidden">h</Field>'), 'saveas');
+        RunCase(Observer, 'letter case', DeclTxt + Bare('<Field name="startdate">2026-01-15</Field>'), 'saveas');
+        RunCase(Observer, 'control name', DeclTxt + Bare('<Field name="StartCtl">2026-01-15</Field>'), 'saveas');
+        Observer.Finish();
+    end;
+
+    local procedure SeedRows()
+    var
+        R: Record "LT RPB Row";
+        I: Integer;
+    begin
+        R.DeleteAll();
+        for I := 1 to 3 do begin
+            R.Id := I;
+            R.Insert();
+        end;
+    end;
+
+    local procedure BareWithView(): Text
+    begin
+        exit(DeclTxt + '<ReportParameters><Options>' + SetStart() + '</Options><DataItems><DataItem name="Row">VERSION(1) SORTING(Field1) WHERE(Field1=1(2))</DataItem></DataItems></ReportParameters>');
+    end;
+
+    [Test]
+    procedure RPB_BareRoot_DataItemsView()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SeedRows();
+        RunCase(Observer, 'saveas', BareWithView(), 'saveas');
+        RunCase(Observer, 'execute', BareWithView(), 'execute');
         Observer.Finish();
     end;
 
