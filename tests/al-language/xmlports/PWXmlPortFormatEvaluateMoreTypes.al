@@ -593,7 +593,14 @@ codeunit 65221 "LT AI XmlPort Types"
         ImportText(Xmlport::"LT AI Imp Df Xml", XmlOne('Df', '<1T>'), 'df_localized_german');
         ImportText(Xmlport::"LT AI Imp Df Xml", XmlOne('Df', ''), 'df_blank');
         ImportText(Xmlport::"LT AI Imp Df Xml", XmlOne('Df', 'garbage'), 'df_garbage');
-        Observer.Finish();
+        Observer.Expect('df_1d', 'imported=Yes error=[] code=[] stored=[Df=1D Big=0 Rid= Bl= Md=No Ms=0]');
+        Observer.Expect('df_cm_plus_1d', 'imported=Yes error=[] code=[] stored=[Df=CM+1D Big=0 Rid= Bl= Md=No Ms=0]');
+        Observer.Expect('df_minus_1w', 'imported=Yes error=[] code=[] stored=[Df=-1W Big=0 Rid= Bl= Md=No Ms=0]');
+        Observer.Expect('df_no_brackets', 'imported=Yes error=[] code=[] stored=[Df=1D Big=0 Rid= Bl= Md=No Ms=0]');
+        Observer.Expect('df_localized_german', 'imported=No error=[The date formula ''1T'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.] code=[Evaluate] stored=[no row]');
+        Observer.Expect('df_blank', 'imported=Yes error=[] code=[] stored=[Df= Big=0 Rid= Bl= Md=No Ms=0]');
+        Observer.Expect('df_garbage', 'imported=No error=[The date formula ''GARBAGE'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.] code=[Evaluate] stored=[no row]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -605,7 +612,13 @@ codeunit 65221 "LT AI XmlPort Types"
         ImportText(Xmlport::"LT AI Imp Df Legacy", XmlOne('Df', '<1T>'), 'df_localized_german');
         ImportText(Xmlport::"LT AI Imp Df Legacy", XmlOne('Df', ''), 'df_blank');
         ImportText(Xmlport::"LT AI Imp Df Legacy", XmlOne('Df', 'garbage'), 'df_garbage');
-        Observer.Finish();
+        Observer.Expect('df_1d', 'imported=Yes error=[] code=[] stored=[Df=1D Big=0 Rid= Bl= Md=No Ms=0]');
+        Observer.Expect('df_cm_plus_1d', 'imported=Yes error=[] code=[] stored=[Df=CM+1D Big=0 Rid= Bl= Md=No Ms=0]');
+        Observer.Expect('df_minus_1w', 'imported=Yes error=[] code=[] stored=[Df=-1W Big=0 Rid= Bl= Md=No Ms=0]');
+        Observer.Expect('df_localized_german', 'imported=No error=[The date formula ''1T'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.] code=[Evaluate] stored=[no row]');
+        Observer.Expect('df_blank', 'imported=Yes error=[] code=[] stored=[Df= Big=0 Rid= Bl= Md=No Ms=0]');
+        Observer.Expect('df_garbage', 'imported=No error=[The date formula ''GARBAGE'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.] code=[Evaluate] stored=[no row]');
+        Observer.Verify();
     end;
 
     [Test]
