@@ -422,7 +422,11 @@ codeunit 61825 "PAG ExtVis Tests"
         Observer.Observe('fields on R2 (Flag false)', CardFields(P));
         P.GoToKey('R1');
         Observer.Observe('fields back on R1', CardFields(P));
-        Observer.Finish();
+        Observer.Expect('fields on R1 (Flag true)', 'CtlPlain=Yes CtlOpen=Yes CtlNever=No CtlNot=Yes CtlCurr=No CtlRow=No CtlToggled=No CtlBaseFalse=Yes CtlBaseVarFalse=Yes CtlBaseVarTrue=No CtlInGroup=No ');
+        Observer.Expect('actions on R1', 'ActPlain=Yes ActOpen=Yes ActNever=No ActCurr=Yes ActToggled=No ');
+        Observer.Expect('fields on R2 (Flag false)', 'CtlPlain=Yes CtlOpen=Yes CtlNever=No CtlNot=Yes CtlCurr=No CtlRow=No CtlToggled=No CtlBaseFalse=Yes CtlBaseVarFalse=Yes CtlBaseVarTrue=No CtlInGroup=No ');
+        Observer.Expect('fields back on R1', 'CtlPlain=Yes CtlOpen=Yes CtlNever=No CtlNot=Yes CtlCurr=No CtlRow=No CtlToggled=No CtlBaseFalse=Yes CtlBaseVarFalse=Yes CtlBaseVarTrue=No CtlInGroup=No ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -436,7 +440,9 @@ codeunit 61825 "PAG ExtVis Tests"
         P.GoToKey('R1');
         Observer.Observe('fields on R1 (Flag true)', CardFields(P));
         Observer.Observe('actions on R1', CardActions(P));
-        Observer.Finish();
+        Observer.Expect('fields on R1 (Flag true)', 'CtlPlain=Yes CtlOpen=Yes CtlNever=No CtlNot=Yes CtlCurr=No CtlRow=No CtlToggled=No CtlBaseFalse=Yes CtlBaseVarFalse=Yes CtlBaseVarTrue=No CtlInGroup=No ');
+        Observer.Expect('actions on R1', 'ActPlain=Yes ActOpen=Yes ActNever=No ActCurr=Yes ActToggled=No ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -449,7 +455,9 @@ codeunit 61825 "PAG ExtVis Tests"
         P.OpenEdit();
         Observer.Observe('fields right after OpenEdit', CardFields(P));
         Observer.Observe('actions right after OpenEdit', CardActions(P));
-        Observer.Finish();
+        Observer.Expect('fields right after OpenEdit', 'CtlPlain=Yes CtlOpen=Yes CtlNever=No CtlNot=Yes CtlCurr=No CtlRow=No CtlToggled=No CtlBaseFalse=Yes CtlBaseVarFalse=Yes CtlBaseVarTrue=No CtlInGroup=No ');
+        Observer.Expect('actions right after OpenEdit', 'ActPlain=Yes ActOpen=Yes ActNever=No ActCurr=Yes ActToggled=No ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -462,7 +470,9 @@ codeunit 61825 "PAG ExtVis Tests"
         P.OpenNew();
         Observer.Observe('fields on the new record', CardFields(P));
         Observer.Observe('actions on the new record', CardActions(P));
-        Observer.Finish();
+        Observer.Expect('fields on the new record', 'CtlPlain=Yes CtlOpen=Yes CtlNever=No CtlNot=Yes CtlCurr=No CtlRow=No CtlToggled=No CtlBaseFalse=Yes CtlBaseVarFalse=Yes CtlBaseVarTrue=No CtlInGroup=No ');
+        Observer.Expect('actions on the new record', 'ActPlain=Yes ActOpen=Yes ActNever=No ActCurr=Yes ActToggled=No ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -479,7 +489,10 @@ codeunit 61825 "PAG ExtVis Tests"
         Observer.Observe('actions after the action set the variable to true', CardActions(P));
         P.ExtToggle.Invoke();
         Observer.Observe('fields after the action set it back to false', CardFields(P));
-        Observer.Finish();
+        Observer.Expect('fields after the action set the variable to true', 'CtlPlain=Yes CtlOpen=Yes CtlNever=No CtlNot=Yes CtlCurr=No CtlRow=No CtlToggled=No CtlBaseFalse=Yes CtlBaseVarFalse=Yes CtlBaseVarTrue=No CtlInGroup=No ');
+        Observer.Expect('actions after the action set the variable to true', 'ActPlain=Yes ActOpen=Yes ActNever=No ActCurr=Yes ActToggled=Yes ');
+        Observer.Expect('fields after the action set it back to false', 'CtlPlain=Yes CtlOpen=Yes CtlNever=No CtlNot=Yes CtlCurr=No CtlRow=No CtlToggled=No CtlBaseFalse=Yes CtlBaseVarFalse=Yes CtlBaseVarTrue=No CtlInGroup=No ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -496,7 +509,10 @@ codeunit 61825 "PAG ExtVis Tests"
         Observer.Observe('actions after the action', CardActions(P));
         P.ExtToggleAndUpdate.Invoke();
         Observer.Observe('fields after the action set it back to false', CardFields(P));
-        Observer.Finish();
+        Observer.Expect('fields after the action set the variable to true and ran CurrPage.Update(false)', 'CtlPlain=Yes CtlOpen=Yes CtlNever=No CtlNot=Yes CtlCurr=No CtlRow=No CtlToggled=No CtlBaseFalse=Yes CtlBaseVarFalse=Yes CtlBaseVarTrue=No CtlInGroup=No ');
+        Observer.Expect('actions after the action', 'ActPlain=Yes ActOpen=Yes ActNever=No ActCurr=Yes ActToggled=Yes ');
+        Observer.Expect('fields after the action set it back to false', 'CtlPlain=Yes CtlOpen=Yes CtlNever=No CtlNot=Yes CtlCurr=No CtlRow=No CtlToggled=No CtlBaseFalse=Yes CtlBaseVarFalse=Yes CtlBaseVarTrue=No CtlInGroup=No ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -510,7 +526,9 @@ codeunit 61825 "PAG ExtVis Tests"
         Observer.Observe('columns right after OpenEdit', ListColumns(P));
         P.GoToKey('R2');
         Observer.Observe('columns on R2', ListColumns(P));
-        Observer.Finish();
+        Observer.Expect('columns right after OpenEdit', 'ColPlain=Yes ColOpen=Yes ColNever=No ColCurr=No ColRec=Yes ');
+        Observer.Expect('columns on R2', 'ColPlain=Yes ColOpen=Yes ColNever=No ColCurr=No ColRec=Yes ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -524,6 +542,8 @@ codeunit 61825 "PAG ExtVis Tests"
         Observer.Observe('columns right after OpenView', ListColumns(P));
         P.Last();
         Observer.Observe('columns on the last row', ListColumns(P));
-        Observer.Finish();
+        Observer.Expect('columns right after OpenView', 'ColPlain=Yes ColOpen=Yes ColNever=No ColCurr=No ColRec=Yes ');
+        Observer.Expect('columns on the last row', 'ColPlain=Yes ColOpen=Yes ColNever=No ColCurr=No ColRec=Yes ');
+        Observer.Verify();
     end;
 }
