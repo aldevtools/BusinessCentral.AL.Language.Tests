@@ -3,7 +3,7 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own tables 62610 62611, log codeunit 62612, part pages 62613..62615, host pages
 //   62616..62621, test codeunit 62622
-// Probe: observe-only. Area: the line number AutoSplitKey gives a new row of a ListPart that is not read in primary key order.
+// Probe (values pinned). Area: the line number AutoSplitKey gives a new row of a ListPart that is not read in primary key order.
 //   TpmDelayedInsertAutoSplitKey.al pins the number at the end, between two lines and before the first line of a list in primary key
 //   order. Not pinned (al-runner issue 7402): a part whose SubPageView sorts by a secondary key (ascending and descending), by the
 //   primary key descending, a part page with its own SourceTableView in the secondary key, and the same with DelayedInsert.
@@ -13,6 +13,8 @@
 // Steps per host: New after Last, after First, after First and Next, with no move, on the empty part, two new rows in a row, and
 //   the reported shape (RunModal, the handler adds a row and invokes OK).
 // Observed: the part triggers with Rec and xRec line numbers (log), the Line No. the new row shows, and the stored lines.
+// Values measured on BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882). Where BC raises "The line cannot be split." at New(), the test
+//   asserts that error with asserterror and ends there. The values a test read before that New() were not measured and are not asserted.
 // local object: the part properties AutoSplitKey, DelayedInsert, SourceTableView and the SubPageView of each host are what the test checks
 // BC versions: 27, 28, 29
 
@@ -636,19 +638,12 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.OpenEdit();
         Card.GoToKey('H1');
         Card.Lines.First();
-        Observer.Observe('row before New', Card.Lines."Line No.".Value);
         Log.Take();
-        Card.Lines.New();
-        Observer.Observe('log New', Log.Take());
-        Observer.Observe('shown after New', Card.Lines."Line No.".Value);
-        Card.Lines.Descr.SetValue('new');
-        Observer.Observe('log typed', Log.Take());
-        Observer.Observe('shown after typed', Card.Lines."Line No.".Value);
-        Observer.Observe('lines after typed', Lines('H1'));
-        Card.Close();
-        Observer.Observe('log close', Log.Take());
-        Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): this New() raises "The line cannot be split."
+        asserterror Card.Lines.New();
+        Observer.Observe('New', GetLastErrorText());
+        Observer.Expect('New', 'The line cannot be split.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -695,17 +690,11 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.OpenEdit();
         Card.GoToKey('H1');
         Log.Take();
-        Card.Lines.New();
-        Observer.Observe('log New', Log.Take());
-        Observer.Observe('shown after New', Card.Lines."Line No.".Value);
-        Card.Lines.Descr.SetValue('new');
-        Observer.Observe('log typed', Log.Take());
-        Observer.Observe('shown after typed', Card.Lines."Line No.".Value);
-        Observer.Observe('lines after typed', Lines('H1'));
-        Card.Close();
-        Observer.Observe('log close', Log.Take());
-        Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): this New() raises "The line cannot be split."
+        asserterror Card.Lines.New();
+        Observer.Observe('New', GetLastErrorText());
+        Observer.Expect('New', 'The line cannot be split.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -748,19 +737,11 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.OpenEdit();
         Card.GoToKey('H1');
         Log.Take();
-        Card.Lines.New();
-        Card.Lines.Descr.SetValue('new1');
-        Observer.Observe('log first', Log.Take());
-        Card.Lines.New();
-        Observer.Observe('log second New', Log.Take());
-        Card.Lines.Descr.SetValue('new2');
-        Card.Lines."Seq No.".SetValue(15);
-        Observer.Observe('log second typed', Log.Take());
-        Observer.Observe('shown', Card.Lines."Line No.".Value);
-        Card.Close();
-        Observer.Observe('log close', Log.Take());
-        Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): this New() raises "The line cannot be split."
+        asserterror Card.Lines.New();
+        Observer.Observe('New', GetLastErrorText());
+        Observer.Expect('New', 'The line cannot be split.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -773,11 +754,12 @@ codeunit 62622 "PG SK Split Key Other Order"
         Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Head.Get('H1');
-        Result := Page.RunModal(Page::"PG SK Host SeqAsc", Head);
-        Observer.Observe('result', Format(Result));
-        Observer.Observe('log', Log.Take());
-        Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): Card.Lines.New() in the handler raises "The line cannot be split.";
+        // the error leaves the handler and RunModal raises it here.
+        asserterror Result := Page.RunModal(Page::"PG SK Host SeqAsc", Head);
+        Observer.Observe('RunModal', GetLastErrorText());
+        Observer.Expect('RunModal', 'The line cannot be split.');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
@@ -866,19 +848,12 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.GoToKey('H1');
         Card.Lines.First();
         Card.Lines.Next();
-        Observer.Observe('row before New', Card.Lines."Line No.".Value);
         Log.Take();
-        Card.Lines.New();
-        Observer.Observe('log New', Log.Take());
-        Observer.Observe('shown after New', Card.Lines."Line No.".Value);
-        Card.Lines.Descr.SetValue('new');
-        Observer.Observe('log typed', Log.Take());
-        Observer.Observe('shown after typed', Card.Lines."Line No.".Value);
-        Observer.Observe('lines after typed', Lines('H1'));
-        Card.Close();
-        Observer.Observe('log close', Log.Take());
-        Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): this New() raises "The line cannot be split."
+        asserterror Card.Lines.New();
+        Observer.Observe('New', GetLastErrorText());
+        Observer.Expect('New', 'The line cannot be split.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1044,19 +1019,12 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.OpenEdit();
         Card.GoToKey('H1');
         Card.Lines.First();
-        Observer.Observe('row before New', Card.Lines."Line No.".Value);
         Log.Take();
-        Card.Lines.New();
-        Observer.Observe('log New', Log.Take());
-        Observer.Observe('shown after New', Card.Lines."Line No.".Value);
-        Card.Lines.Descr.SetValue('new');
-        Observer.Observe('log typed', Log.Take());
-        Observer.Observe('shown after typed', Card.Lines."Line No.".Value);
-        Observer.Observe('lines after typed', Lines('H1'));
-        Card.Close();
-        Observer.Observe('log close', Log.Take());
-        Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): this New() raises "The line cannot be split."
+        asserterror Card.Lines.New();
+        Observer.Observe('New', GetLastErrorText());
+        Observer.Expect('New', 'The line cannot be split.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1070,19 +1038,12 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.GoToKey('H1');
         Card.Lines.First();
         Card.Lines.Next();
-        Observer.Observe('row before New', Card.Lines."Line No.".Value);
         Log.Take();
-        Card.Lines.New();
-        Observer.Observe('log New', Log.Take());
-        Observer.Observe('shown after New', Card.Lines."Line No.".Value);
-        Card.Lines.Descr.SetValue('new');
-        Observer.Observe('log typed', Log.Take());
-        Observer.Observe('shown after typed', Card.Lines."Line No.".Value);
-        Observer.Observe('lines after typed', Lines('H1'));
-        Card.Close();
-        Observer.Observe('log close', Log.Take());
-        Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): this New() raises "The line cannot be split."
+        asserterror Card.Lines.New();
+        Observer.Observe('New', GetLastErrorText());
+        Observer.Expect('New', 'The line cannot be split.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1095,17 +1056,11 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.OpenEdit();
         Card.GoToKey('H1');
         Log.Take();
-        Card.Lines.New();
-        Observer.Observe('log New', Log.Take());
-        Observer.Observe('shown after New', Card.Lines."Line No.".Value);
-        Card.Lines.Descr.SetValue('new');
-        Observer.Observe('log typed', Log.Take());
-        Observer.Observe('shown after typed', Card.Lines."Line No.".Value);
-        Observer.Observe('lines after typed', Lines('H1'));
-        Card.Close();
-        Observer.Observe('log close', Log.Take());
-        Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): this New() raises "The line cannot be split."
+        asserterror Card.Lines.New();
+        Observer.Observe('New', GetLastErrorText());
+        Observer.Expect('New', 'The line cannot be split.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1148,19 +1103,11 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.OpenEdit();
         Card.GoToKey('H1');
         Log.Take();
-        Card.Lines.New();
-        Card.Lines.Descr.SetValue('new1');
-        Observer.Observe('log first', Log.Take());
-        Card.Lines.New();
-        Observer.Observe('log second New', Log.Take());
-        Card.Lines.Descr.SetValue('new2');
-        Card.Lines."Seq No.".SetValue(15);
-        Observer.Observe('log second typed', Log.Take());
-        Observer.Observe('shown', Card.Lines."Line No.".Value);
-        Card.Close();
-        Observer.Observe('log close', Log.Take());
-        Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): this New() raises "The line cannot be split."
+        asserterror Card.Lines.New();
+        Observer.Observe('New', GetLastErrorText());
+        Observer.Expect('New', 'The line cannot be split.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1173,11 +1120,12 @@ codeunit 62622 "PG SK Split Key Other Order"
         Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Head.Get('H1');
-        Result := Page.RunModal(Page::"PG SK Host PkDesc", Head);
-        Observer.Observe('result', Format(Result));
-        Observer.Observe('log', Log.Take());
-        Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): Card.Lines.New() in the handler raises "The line cannot be split.";
+        // the error leaves the handler and RunModal raises it here.
+        asserterror Result := Page.RunModal(Page::"PG SK Host PkDesc", Head);
+        Observer.Observe('RunModal', GetLastErrorText());
+        Observer.Expect('RunModal', 'The line cannot be split.');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
@@ -1232,19 +1180,12 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.OpenEdit();
         Card.GoToKey('H1');
         Card.Lines.First();
-        Observer.Observe('row before New', Card.Lines."Line No.".Value);
         Log.Take();
-        Card.Lines.New();
-        Observer.Observe('log New', Log.Take());
-        Observer.Observe('shown after New', Card.Lines."Line No.".Value);
-        Card.Lines.Descr.SetValue('new');
-        Observer.Observe('log typed', Log.Take());
-        Observer.Observe('shown after typed', Card.Lines."Line No.".Value);
-        Observer.Observe('lines after typed', Lines('H1'));
-        Card.Close();
-        Observer.Observe('log close', Log.Take());
-        Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): this New() raises "The line cannot be split."
+        asserterror Card.Lines.New();
+        Observer.Observe('New', GetLastErrorText());
+        Observer.Expect('New', 'The line cannot be split.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1291,17 +1232,11 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.OpenEdit();
         Card.GoToKey('H1');
         Log.Take();
-        Card.Lines.New();
-        Observer.Observe('log New', Log.Take());
-        Observer.Observe('shown after New', Card.Lines."Line No.".Value);
-        Card.Lines.Descr.SetValue('new');
-        Observer.Observe('log typed', Log.Take());
-        Observer.Observe('shown after typed', Card.Lines."Line No.".Value);
-        Observer.Observe('lines after typed', Lines('H1'));
-        Card.Close();
-        Observer.Observe('log close', Log.Take());
-        Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): this New() raises "The line cannot be split."
+        asserterror Card.Lines.New();
+        Observer.Observe('New', GetLastErrorText());
+        Observer.Expect('New', 'The line cannot be split.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1344,19 +1279,11 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.OpenEdit();
         Card.GoToKey('H1');
         Log.Take();
-        Card.Lines.New();
-        Card.Lines.Descr.SetValue('new1');
-        Observer.Observe('log first', Log.Take());
-        Card.Lines.New();
-        Observer.Observe('log second New', Log.Take());
-        Card.Lines.Descr.SetValue('new2');
-        Card.Lines."Seq No.".SetValue(15);
-        Observer.Observe('log second typed', Log.Take());
-        Observer.Observe('shown', Card.Lines."Line No.".Value);
-        Card.Close();
-        Observer.Observe('log close', Log.Take());
-        Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): this New() raises "The line cannot be split."
+        asserterror Card.Lines.New();
+        Observer.Observe('New', GetLastErrorText());
+        Observer.Expect('New', 'The line cannot be split.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1369,11 +1296,12 @@ codeunit 62622 "PG SK Split Key Other Order"
         Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Head.Get('H1');
-        Result := Page.RunModal(Page::"PG SK Host OwnSeq", Head);
-        Observer.Observe('result', Format(Result));
-        Observer.Observe('log', Log.Take());
-        Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): Card.Lines.New() in the handler raises "The line cannot be split.";
+        // the error leaves the handler and RunModal raises it here.
+        asserterror Result := Page.RunModal(Page::"PG SK Host OwnSeq", Head);
+        Observer.Observe('RunModal', GetLastErrorText());
+        Observer.Expect('RunModal', 'The line cannot be split.');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
@@ -1428,19 +1356,12 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.OpenEdit();
         Card.GoToKey('H1');
         Card.Lines.First();
-        Observer.Observe('row before New', Card.Lines."Line No.".Value);
         Log.Take();
-        Card.Lines.New();
-        Observer.Observe('log New', Log.Take());
-        Observer.Observe('shown after New', Card.Lines."Line No.".Value);
-        Card.Lines.Descr.SetValue('new');
-        Observer.Observe('log typed', Log.Take());
-        Observer.Observe('shown after typed', Card.Lines."Line No.".Value);
-        Observer.Observe('lines after typed', Lines('H1'));
-        Card.Close();
-        Observer.Observe('log close', Log.Take());
-        Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): this New() raises "The line cannot be split."
+        asserterror Card.Lines.New();
+        Observer.Observe('New', GetLastErrorText());
+        Observer.Expect('New', 'The line cannot be split.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1487,17 +1408,11 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.OpenEdit();
         Card.GoToKey('H1');
         Log.Take();
-        Card.Lines.New();
-        Observer.Observe('log New', Log.Take());
-        Observer.Observe('shown after New', Card.Lines."Line No.".Value);
-        Card.Lines.Descr.SetValue('new');
-        Observer.Observe('log typed', Log.Take());
-        Observer.Observe('shown after typed', Card.Lines."Line No.".Value);
-        Observer.Observe('lines after typed', Lines('H1'));
-        Card.Close();
-        Observer.Observe('log close', Log.Take());
-        Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): this New() raises "The line cannot be split."
+        asserterror Card.Lines.New();
+        Observer.Observe('New', GetLastErrorText());
+        Observer.Expect('New', 'The line cannot be split.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1540,19 +1455,11 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.OpenEdit();
         Card.GoToKey('H1');
         Log.Take();
-        Card.Lines.New();
-        Card.Lines.Descr.SetValue('new1');
-        Observer.Observe('log first', Log.Take());
-        Card.Lines.New();
-        Observer.Observe('log second New', Log.Take());
-        Card.Lines.Descr.SetValue('new2');
-        Card.Lines."Seq No.".SetValue(15);
-        Observer.Observe('log second typed', Log.Take());
-        Observer.Observe('shown', Card.Lines."Line No.".Value);
-        Card.Close();
-        Observer.Observe('log close', Log.Take());
-        Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): this New() raises "The line cannot be split."
+        asserterror Card.Lines.New();
+        Observer.Observe('New', GetLastErrorText());
+        Observer.Expect('New', 'The line cannot be split.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1565,11 +1472,12 @@ codeunit 62622 "PG SK Split Key Other Order"
         Observer.Discard(); // an earlier test that stopped before its end must not leave observations here
         Seed();
         Head.Get('H1');
-        Result := Page.RunModal(Page::"PG SK Host SeqDelayed", Head);
-        Observer.Observe('result', Format(Result));
-        Observer.Observe('log', Log.Take());
-        Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): Card.Lines.New() in the handler raises "The line cannot be split.";
+        // the error leaves the handler and RunModal raises it here.
+        asserterror Result := Page.RunModal(Page::"PG SK Host SeqDelayed", Head);
+        Observer.Observe('RunModal', GetLastErrorText());
+        Observer.Expect('RunModal', 'The line cannot be split.');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
