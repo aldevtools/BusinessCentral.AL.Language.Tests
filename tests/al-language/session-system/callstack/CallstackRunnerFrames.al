@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/sessioninformation/sessioninformation-callstack-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); objects of CallstackFullText.al: Holder 65101, Runner 65103
+// Fixtures used: Probe Observer (codeunit 69160); codeunit 69953, 69954 (own copies of the holder and runner of CallstackFullText.al, which are SingleInstance and may be used by one test codeunit only)
 // Probe: the exact text of the frames of Microsoft's test runner below the last frame of this app (the runner frames), frame by frame.
 //   CallstackFullText.al counts them (six frames that name "Test Runner by Microsoft" on BC 27.5, none on 28.5 and 29.0); this file pins every character.
 // Two shapes: a test without [HandlerFunctions] (on BC 28 and 29 the corpus CI runs it through its own hybrid runner, which adds no AL frame; BC 27.5 shows six
@@ -23,10 +23,9 @@ codeunit 69950 "LT RF Callstack Frames Plain"
     procedure CallstackRunnerFrames_Plain_Test_session()
     var
         Observer: Codeunit "Probe Observer";
-        Holder: Codeunit "LT AG Cs Holder";
         Helper: Codeunit "LT RF Callstack Helper";
+        Holder: Codeunit "LT RF Callstack Holder";
     begin
-        Holder.ResetSeen();
         Holder.Capture('test');
         Helper.ObserveOne('test.session', Holder.Get('test.session'), false, Observer);
 #if BC28PLUS
@@ -62,10 +61,9 @@ codeunit 69950 "LT RF Callstack Frames Plain"
     procedure CallstackRunnerFrames_Plain_Test_collected()
     var
         Observer: Codeunit "Probe Observer";
-        Holder: Codeunit "LT AG Cs Holder";
         Helper: Codeunit "LT RF Callstack Helper";
+        Holder: Codeunit "LT RF Callstack Holder";
     begin
-        Holder.ResetSeen();
         Holder.Capture('test');
         Helper.ObserveOne('test.collected', Holder.Get('test.collected'), true, Observer);
 #if BC28PLUS
@@ -101,10 +99,9 @@ codeunit 69950 "LT RF Callstack Frames Plain"
     procedure CallstackRunnerFrames_Plain_Test_lasttry()
     var
         Observer: Codeunit "Probe Observer";
-        Holder: Codeunit "LT AG Cs Holder";
         Helper: Codeunit "LT RF Callstack Helper";
+        Holder: Codeunit "LT RF Callstack Holder";
     begin
-        Holder.ResetSeen();
         Holder.Capture('test');
         Helper.ObserveOne('test.lasttry', Holder.Get('test.lasttry'), false, Observer);
 #if BC28PLUS
@@ -140,10 +137,9 @@ codeunit 69950 "LT RF Callstack Frames Plain"
     procedure CallstackRunnerFrames_Plain_Test_lastassert()
     var
         Observer: Codeunit "Probe Observer";
-        Holder: Codeunit "LT AG Cs Holder";
         Helper: Codeunit "LT RF Callstack Helper";
+        Holder: Codeunit "LT RF Callstack Holder";
     begin
-        Holder.ResetSeen();
         Holder.Capture('test');
         Helper.ObserveOne('test.lastassert', Holder.Get('test.lastassert'), false, Observer);
 #if BC28PLUS
@@ -179,13 +175,11 @@ codeunit 69950 "LT RF Callstack Frames Plain"
     procedure CallstackRunnerFrames_Plain_Run_session()
     var
         Observer: Codeunit "Probe Observer";
-        Holder: Codeunit "LT AG Cs Holder";
         Helper: Codeunit "LT RF Callstack Helper";
-        Runner: Codeunit "LT AG Cs Runner";
+        Runner: Codeunit "LT RF Callstack Runner";
     begin
-        Holder.ResetSeen();
         Runner.Run();
-        Helper.ObserveOne('run.session', Holder.Get('run.session'), false, Observer);
+        Helper.ObserveOne('run.session', Runner.Get('run.session'), false, Observer);
 #if BC28PLUS
         Observer.Expect('run.session.whole.len', '380');
         Observer.Expect('run.session.tail.len', '1');
@@ -219,13 +213,11 @@ codeunit 69950 "LT RF Callstack Frames Plain"
     procedure CallstackRunnerFrames_Plain_Run_collected()
     var
         Observer: Codeunit "Probe Observer";
-        Holder: Codeunit "LT AG Cs Holder";
         Helper: Codeunit "LT RF Callstack Helper";
-        Runner: Codeunit "LT AG Cs Runner";
+        Runner: Codeunit "LT RF Callstack Runner";
     begin
-        Holder.ResetSeen();
         Runner.Run();
-        Helper.ObserveOne('run.collected', Holder.Get('run.collected'), true, Observer);
+        Helper.ObserveOne('run.collected', Runner.Get('run.collected'), true, Observer);
 #if BC28PLUS
         Observer.Expect('run.collected.whole.len', '617');
         Observer.Expect('run.collected.tail.len', '2');
@@ -259,13 +251,11 @@ codeunit 69950 "LT RF Callstack Frames Plain"
     procedure CallstackRunnerFrames_Plain_Run_lasttry()
     var
         Observer: Codeunit "Probe Observer";
-        Holder: Codeunit "LT AG Cs Holder";
         Helper: Codeunit "LT RF Callstack Helper";
-        Runner: Codeunit "LT AG Cs Runner";
+        Runner: Codeunit "LT RF Callstack Runner";
     begin
-        Holder.ResetSeen();
         Runner.Run();
-        Helper.ObserveOne('run.lasttry', Holder.Get('run.lasttry'), false, Observer);
+        Helper.ObserveOne('run.lasttry', Runner.Get('run.lasttry'), false, Observer);
 #if BC28PLUS
         Observer.Expect('run.lasttry.whole.len', '489');
         Observer.Expect('run.lasttry.tail.len', '1');
@@ -299,13 +289,11 @@ codeunit 69950 "LT RF Callstack Frames Plain"
     procedure CallstackRunnerFrames_Plain_Run_lastassert()
     var
         Observer: Codeunit "Probe Observer";
-        Holder: Codeunit "LT AG Cs Holder";
         Helper: Codeunit "LT RF Callstack Helper";
-        Runner: Codeunit "LT AG Cs Runner";
+        Runner: Codeunit "LT RF Callstack Runner";
     begin
-        Holder.ResetSeen();
         Runner.Run();
-        Helper.ObserveOne('run.lastassert', Holder.Get('run.lastassert'), false, Observer);
+        Helper.ObserveOne('run.lastassert', Runner.Get('run.lastassert'), false, Observer);
 #if BC28PLUS
         Observer.Expect('run.lastassert.whole.len', '500');
         Observer.Expect('run.lastassert.tail.len', '1');
@@ -351,11 +339,10 @@ codeunit 69951 "LT RF Callstack Frames Handler"
     procedure CallstackRunnerFrames_Handler_Test_session()
     var
         Observer: Codeunit "Probe Observer";
-        Holder: Codeunit "LT AG Cs Holder";
         Helper: Codeunit "LT RF Callstack Helper";
+        Holder: Codeunit "LT RF Callstack Holder";
     begin
         Message('runner frames');
-        Holder.ResetSeen();
         Holder.Capture('test');
         Helper.ObserveOne('test.session', Holder.Get('test.session'), false, Observer);
         Observer.Expect('test.session.whole.len', '948');
@@ -380,11 +367,10 @@ codeunit 69951 "LT RF Callstack Frames Handler"
     procedure CallstackRunnerFrames_Handler_Test_collected()
     var
         Observer: Codeunit "Probe Observer";
-        Holder: Codeunit "LT AG Cs Holder";
         Helper: Codeunit "LT RF Callstack Helper";
+        Holder: Codeunit "LT RF Callstack Holder";
     begin
         Message('runner frames');
-        Holder.ResetSeen();
         Holder.Capture('test');
         Helper.ObserveOne('test.collected', Holder.Get('test.collected'), true, Observer);
         Observer.Expect('test.collected.whole.len', '1190');
@@ -409,11 +395,10 @@ codeunit 69951 "LT RF Callstack Frames Handler"
     procedure CallstackRunnerFrames_Handler_Test_lasttry()
     var
         Observer: Codeunit "Probe Observer";
-        Holder: Codeunit "LT AG Cs Holder";
         Helper: Codeunit "LT RF Callstack Helper";
+        Holder: Codeunit "LT RF Callstack Holder";
     begin
         Message('runner frames');
-        Holder.ResetSeen();
         Holder.Capture('test');
         Helper.ObserveOne('test.lasttry', Holder.Get('test.lasttry'), false, Observer);
         Observer.Expect('test.lasttry.whole.len', '1057');
@@ -438,11 +423,10 @@ codeunit 69951 "LT RF Callstack Frames Handler"
     procedure CallstackRunnerFrames_Handler_Test_lastassert()
     var
         Observer: Codeunit "Probe Observer";
-        Holder: Codeunit "LT AG Cs Holder";
         Helper: Codeunit "LT RF Callstack Helper";
+        Holder: Codeunit "LT RF Callstack Holder";
     begin
         Message('runner frames');
-        Holder.ResetSeen();
         Holder.Capture('test');
         Helper.ObserveOne('test.lastassert', Holder.Get('test.lastassert'), false, Observer);
         Observer.Expect('test.lastassert.whole.len', '1068');
@@ -467,14 +451,12 @@ codeunit 69951 "LT RF Callstack Frames Handler"
     procedure CallstackRunnerFrames_Handler_Run_session()
     var
         Observer: Codeunit "Probe Observer";
-        Holder: Codeunit "LT AG Cs Holder";
         Helper: Codeunit "LT RF Callstack Helper";
-        Runner: Codeunit "LT AG Cs Runner";
+        Runner: Codeunit "LT RF Callstack Runner";
     begin
         Message('runner frames');
-        Holder.ResetSeen();
         Runner.Run();
-        Helper.ObserveOne('run.session', Holder.Get('run.session'), false, Observer);
+        Helper.ObserveOne('run.session', Runner.Get('run.session'), false, Observer);
         Observer.Expect('run.session.whole.len', '1063');
         Observer.Expect('run.session.tail.len', '682');
         Observer.Expect('run.session.tail.separator-first-and-last', 'Yes Yes');
@@ -497,14 +479,12 @@ codeunit 69951 "LT RF Callstack Frames Handler"
     procedure CallstackRunnerFrames_Handler_Run_collected()
     var
         Observer: Codeunit "Probe Observer";
-        Holder: Codeunit "LT AG Cs Holder";
         Helper: Codeunit "LT RF Callstack Helper";
-        Runner: Codeunit "LT AG Cs Runner";
+        Runner: Codeunit "LT RF Callstack Runner";
     begin
         Message('runner frames');
-        Holder.ResetSeen();
         Runner.Run();
-        Helper.ObserveOne('run.collected', Holder.Get('run.collected'), true, Observer);
+        Helper.ObserveOne('run.collected', Runner.Get('run.collected'), true, Observer);
         Observer.Expect('run.collected.whole.len', '1306');
         Observer.Expect('run.collected.tail.len', '689');
         Observer.Expect('run.collected.tail.separator-first-and-last', 'Yes Yes');
@@ -527,14 +507,12 @@ codeunit 69951 "LT RF Callstack Frames Handler"
     procedure CallstackRunnerFrames_Handler_Run_lasttry()
     var
         Observer: Codeunit "Probe Observer";
-        Holder: Codeunit "LT AG Cs Holder";
         Helper: Codeunit "LT RF Callstack Helper";
-        Runner: Codeunit "LT AG Cs Runner";
+        Runner: Codeunit "LT RF Callstack Runner";
     begin
         Message('runner frames');
-        Holder.ResetSeen();
         Runner.Run();
-        Helper.ObserveOne('run.lasttry', Holder.Get('run.lasttry'), false, Observer);
+        Helper.ObserveOne('run.lasttry', Runner.Get('run.lasttry'), false, Observer);
         Observer.Expect('run.lasttry.whole.len', '1172');
         Observer.Expect('run.lasttry.tail.len', '682');
         Observer.Expect('run.lasttry.tail.separator-first-and-last', 'Yes Yes');
@@ -557,14 +535,12 @@ codeunit 69951 "LT RF Callstack Frames Handler"
     procedure CallstackRunnerFrames_Handler_Run_lastassert()
     var
         Observer: Codeunit "Probe Observer";
-        Holder: Codeunit "LT AG Cs Holder";
         Helper: Codeunit "LT RF Callstack Helper";
-        Runner: Codeunit "LT AG Cs Runner";
+        Runner: Codeunit "LT RF Callstack Runner";
     begin
         Message('runner frames');
-        Holder.ResetSeen();
         Runner.Run();
-        Helper.ObserveOne('run.lastassert', Holder.Get('run.lastassert'), false, Observer);
+        Helper.ObserveOne('run.lastassert', Runner.Get('run.lastassert'), false, Observer);
         Observer.Expect('run.lastassert.whole.len', '1183');
         Observer.Expect('run.lastassert.tail.len', '682');
         Observer.Expect('run.lastassert.tail.separator-first-and-last', 'Yes Yes');
@@ -580,6 +556,78 @@ codeunit 69951 "LT RF Callstack Frames Handler"
         Observer.Expect('run.lastassert.tail.has99903', 'No');
         Observer.Expect('run.lastassert.tail.runner-version-prefix', 'Yes');
         Observer.Verify();
+    end;
+}
+
+// local object: the holder keeps what it read in the state of its own instance (no SingleInstance: a SingleInstance fixture may be used by one test
+// codeunit only), and the runner runs it from Codeunit.Run. Same reads as codeunits 65101 and 65103 of CallstackFullText.al.
+codeunit 69953 "LT RF Callstack Holder"
+{
+    var
+        Seen: Dictionary of [Text, Text];
+
+    procedure Capture(ContextName: Text)
+    var
+        Info: ErrorInfo;
+        Worker: Codeunit "LT AG Cs Worker";
+    begin
+        Put(ContextName + '.session', SessionInformation.Callstack);
+        CollectOne(Info);
+        Put(ContextName + '.collected', Info.Callstack);
+        if not Worker.TryFail() then
+            Put(ContextName + '.lasttry', GetLastErrorCallStack());
+        ClearLastError();
+        AssertErrorOne();
+        Put(ContextName + '.lastassert', GetLastErrorCallStack());
+        ClearLastError();
+    end;
+
+    [ErrorBehavior(ErrorBehavior::Collect)]
+    local procedure CollectOne(var Info: ErrorInfo)
+    var
+        Errors: List of [ErrorInfo];
+        Worker: Codeunit "LT AG Cs Worker";
+    begin
+        Worker.RaiseCollectible();
+        Errors := GetCollectedErrors(true);
+        Errors.Get(1, Info);
+    end;
+
+    local procedure AssertErrorOne()
+    begin
+        asserterror Error('raised for the call stack');
+    end;
+
+    local procedure Put(KeyName: Text; Stack: Text)
+    begin
+        if Seen.ContainsKey(KeyName) then
+            Seen.Set(KeyName, Stack)
+        else
+            Seen.Add(KeyName, Stack);
+    end;
+
+    procedure Get(KeyName: Text): Text
+    begin
+        if Seen.ContainsKey(KeyName) then
+            exit(Seen.Get(KeyName));
+        exit('<not set>');
+    end;
+}
+
+// local object: see codeunit 69953.
+codeunit 69954 "LT RF Callstack Runner"
+{
+    var
+        Holder: Codeunit "LT RF Callstack Holder";
+
+    trigger OnRun()
+    begin
+        Holder.Capture('run');
+    end;
+
+    procedure Get(KeyName: Text): Text
+    begin
+        exit(Holder.Get(KeyName));
     end;
 }
 
