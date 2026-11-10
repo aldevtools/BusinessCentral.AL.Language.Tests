@@ -209,7 +209,11 @@ codeunit 61802 "REC Audit Assign Tests"
         Observer.Observe('buffer after Insert', Kinds(Row, Before));
         Stored.Get('A');
         Observer.Observe('stored row', Kinds(Stored, Before));
-        Observer.Finish();
+        Observer.Expect('buffer before Insert', 'assigned / assigned / assigned / assigned');
+        Observer.Expect('Insert returned', 'Yes');
+        Observer.Expect('buffer after Insert', 'clock / user / clock / user');
+        Observer.Expect('stored row', 'clock / user / clock / user');
+        Observer.Verify();
     end;
 
     [Test]
@@ -229,7 +233,10 @@ codeunit 61802 "REC Audit Assign Tests"
         Observer.Observe('buffer after Insert', Kinds(Row, Before));
         Stored.Get('A');
         Observer.Observe('stored row', Kinds(Stored, Before));
-        Observer.Finish();
+        Observer.Expect('Insert(true) returned', 'Yes');
+        Observer.Expect('buffer after Insert', 'clock / user / clock / user');
+        Observer.Expect('stored row', 'clock / user / clock / user');
+        Observer.Verify();
     end;
 
     // ---- Modify: one audit field assigned, nothing else changed
@@ -315,7 +322,13 @@ codeunit 61802 "REC Audit Assign Tests"
         Observer.Observe('blank, Name changed: buffer', Kinds(Row, Before));
         Stored.Get('A');
         Observer.Observe('blank, Name changed: stored row', Kinds(Stored, Before));
-        Observer.Finish();
+        Observer.Expect('blank, nothing else: Modify returned', 'Yes');
+        Observer.Expect('blank, nothing else: buffer', 'blank / blank / same as before / user');
+        Observer.Expect('blank, nothing else: stored row', 'same as before / user / same as before / user');
+        Observer.Expect('blank, Name changed: Modify returned', 'Yes');
+        Observer.Expect('blank, Name changed: buffer', 'blank / blank / clock / user');
+        Observer.Expect('blank, Name changed: stored row', 'same as before / user / clock / user');
+        Observer.Verify();
     end;
 
     [Test]
@@ -338,7 +351,10 @@ codeunit 61802 "REC Audit Assign Tests"
         Observer.Observe('buffer after Modify', Kinds(Row, Before));
         Stored.Get('A');
         Observer.Observe('stored row', Kinds(Stored, Before));
-        Observer.Finish();
+        Observer.Expect('Modify(true) returned', 'Yes');
+        Observer.Expect('buffer after Modify', 'assigned / user / clock / user');
+        Observer.Expect('stored row', 'same as before / user / clock / user');
+        Observer.Verify();
     end;
 
     [Test]
@@ -380,7 +396,11 @@ codeunit 61802 "REC Audit Assign Tests"
         Observer.Observe('three fields, Name changed: Modify returned', Format(Done));
         Stored.Get('A');
         Observer.Observe('three fields, Name changed: stored row', Kinds(Stored, Before));
-        Observer.Finish();
+        Observer.Expect('created pair, nothing else: Modify returned', 'Yes');
+        Observer.Expect('created pair, nothing else: stored row', 'same as before / user / same as before / user');
+        Observer.Expect('three fields, Name changed: Modify returned', 'Yes');
+        Observer.Expect('three fields, Name changed: stored row', 'same as before / user / clock / user');
+        Observer.Verify();
     end;
 
     [Test]
@@ -410,7 +430,9 @@ codeunit 61802 "REC Audit Assign Tests"
         Observer.Observe('Insert returned', Format(Done));
         Stored.Get('A');
         Observer.Observe('stored row', Kinds(Stored, Before));
-        Observer.Finish();
+        Observer.Expect('Insert returned', 'Yes');
+        Observer.Expect('stored row', 'clock / user / clock / user');
+        Observer.Verify();
     end;
 
     // ---- The buffer of another row: Rec := other row and TransferFields, then Modify of the target row
@@ -454,7 +476,15 @@ codeunit 61802 "REC Audit Assign Tests"
         Stored.Get('B');
         Observer.Observe('TransferFields(Source, false): created at', WhoseValue(Stored.SystemCreatedAt, Source.SystemCreatedAt, TargetBefore.SystemCreatedAt));
         Observer.Observe('TransferFields(Source, false): modified at', WhoseValue(Stored.SystemModifiedAt, Source.SystemModifiedAt, TargetBefore.SystemModifiedAt));
-        Observer.Finish();
+        Observer.Expect('Rec := other row: Modify returned', 'Yes');
+        Observer.Expect('Rec := other row: created at', 'the target row''s, as before');
+        Observer.Expect('Rec := other row: modified at', 'a new stamp');
+        Observer.Expect('Rec := other row: stored Name', 'first');
+        Observer.Expect('Rec := other row: SystemId is the target''s', 'Yes');
+        Observer.Expect('TransferFields(Source, false): Modify returned', 'Yes');
+        Observer.Expect('TransferFields(Source, false): created at', 'the target row''s, as before');
+        Observer.Expect('TransferFields(Source, false): modified at', 'a new stamp');
+        Observer.Verify();
     end;
 
     local procedure WhoseValue(Value: DateTime; OfSource: DateTime; OfTarget: DateTime): Text
@@ -491,7 +521,11 @@ codeunit 61802 "REC Audit Assign Tests"
         Observer.Observe('buffer after Rename', Kinds(Row, Before));
         Observer.Observe('row B exists', Format(Stored.Get('B')));
         Observer.Observe('stored row', Kinds(Stored, Before));
-        Observer.Finish();
+        Observer.Expect('Rename returned', 'Yes');
+        Observer.Expect('buffer after Rename', 'assigned / assigned / clock / user');
+        Observer.Expect('row B exists', 'Yes');
+        Observer.Expect('stored row', 'same as before / user / clock / user');
+        Observer.Verify();
     end;
 
     [Test]
@@ -527,7 +561,13 @@ codeunit 61802 "REC Audit Assign Tests"
             Error('no error; stored row: %1', Kinds(Stored, Before));
         end;
         Observer.ObserveError('ModifyAll(SystemCreatedBy)');
-        Observer.Finish();
+        Observer.Expect('ModifyAll(SystemCreatedAt)|text', 'You cannot change the value of the SystemCreatedAt field.\\Table: REC Audit Assign Row');
+        Observer.Expect('ModifyAll(SystemCreatedAt)|code', 'DB:Ok');
+        Observer.Expect('ModifyAll(SystemModifiedAt)|text', 'You cannot change the value of the SystemModifiedAt field.\\Table: REC Audit Assign Row');
+        Observer.Expect('ModifyAll(SystemModifiedAt)|code', 'DB:Ok');
+        Observer.Expect('ModifyAll(SystemCreatedBy)|text', 'You cannot change the value of the SystemCreatedBy field.\\Table: REC Audit Assign Row');
+        Observer.Expect('ModifyAll(SystemCreatedBy)|code', 'DB:Ok');
+        Observer.Verify();
     end;
 
     // ---- A temporary record
@@ -557,7 +597,11 @@ codeunit 61802 "REC Audit Assign Tests"
         Clear(TempRow);
         TempRow.Get('A');
         Observer.Observe('row after created at set blank, Modify and Get', Kinds(TempRow, TempBefore));
-        Observer.Finish();
+        Observer.Expect('Insert returned', 'Yes');
+        Observer.Expect('row after Insert and Get', 'assigned / assigned / assigned / assigned');
+        Observer.Expect('Modify returned', 'Yes');
+        Observer.Expect('row after created at set blank, Modify and Get', 'blank / assigned / assigned / assigned');
+        Observer.Verify();
     end;
 
     // ---- The table's own triggers assign the fields
@@ -586,7 +630,12 @@ codeunit 61802 "REC Audit Assign Tests"
         Observer.Observe('stored row (created at / modified at)', TrigKinds(Stored, Before));
         Observer.Observe('Rec at the start of OnInsert', Stored."Seen Rec");
         Observer.Observe('xRec at the start of OnInsert', Stored."Seen xRec");
-        Observer.Finish();
+        Observer.Expect('Insert(true) returned', 'Yes');
+        Observer.Expect('buffer after Insert (created at / modified at)', 'clock / clock');
+        Observer.Expect('stored row (created at / modified at)', 'clock / clock');
+        Observer.Expect('Rec at the start of OnInsert', 'insert blank/blank');
+        Observer.Expect('xRec at the start of OnInsert', 'insert blank/blank');
+        Observer.Verify();
     end;
 
     [Test]
@@ -612,7 +661,12 @@ codeunit 61802 "REC Audit Assign Tests"
         Observer.Observe('stored row (created at / modified at)', TrigKinds(Stored, Before));
         Observer.Observe('Rec at the start of OnModify', Stored."Seen Rec");
         Observer.Observe('xRec at the start of OnModify', Stored."Seen xRec");
-        Observer.Finish();
+        Observer.Expect('Modify(true) returned', 'Yes');
+        Observer.Expect('buffer after Modify (created at / modified at)', 'assigned / clock');
+        Observer.Expect('stored row (created at / modified at)', 'same as before / clock');
+        Observer.Expect('Rec at the start of OnModify', 'modify clock/clock');
+        Observer.Expect('xRec at the start of OnModify', 'modify clock/clock');
+        Observer.Verify();
     end;
 
     [Test]
@@ -642,6 +696,13 @@ codeunit 61802 "REC Audit Assign Tests"
         Observer.Observe('stored created at is as before', Format(Stored.SystemCreatedAt = Before.SystemCreatedAt));
         Observer.Observe('stored modified at is the caller''s value', Format(Stored.SystemModifiedAt = Row.OtherAt()));
         Observer.Observe('stored modified at is later than before', Format(Stored.SystemModifiedAt > Before.SystemModifiedAt));
-        Observer.Finish();
+        Observer.Expect('Modify(true) returned', 'Yes');
+        Observer.Expect('Rec at the start of OnModify', 'modify assigned by the test/assigned by the test');
+        Observer.Expect('xRec at the start of OnModify', 'modify assigned by the test/assigned by the test');
+        Observer.Expect('stored created at is the caller''s value', 'No');
+        Observer.Expect('stored created at is as before', 'Yes');
+        Observer.Expect('stored modified at is the caller''s value', 'No');
+        Observer.Expect('stored modified at is later than before', 'Yes');
+        Observer.Verify();
     end;
 }
