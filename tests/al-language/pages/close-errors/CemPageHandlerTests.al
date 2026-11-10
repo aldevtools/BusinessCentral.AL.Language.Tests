@@ -42,7 +42,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; C-card; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler OK.Invoke, no error anywhere.
@@ -65,7 +70,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; C-card; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler Cancel.Invoke, no error anywhere.
@@ -88,7 +98,11 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'The built-in action = Cancel is not found on the page.');
+        O.Expect('end|code', 'TestActionNotFound');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler Close(), no error anywhere.
@@ -111,7 +125,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; C-card; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler raises Error, no error anywhere.
@@ -134,7 +153,11 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM handler error');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler edits Name then returns, no error anywhere.
@@ -157,7 +180,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler edits Name then OK, no error anywhere.
@@ -180,7 +208,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler sets the Name the table refuses then returns, no error anywhere.
@@ -203,7 +236,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'M-card FAILMOD; T-mod R1 FAILMOD; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler returns without closing, OnQueryClosePage raises an error.
@@ -226,7 +264,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler OK.Invoke, OnQueryClosePage raises an error.
@@ -249,7 +292,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; Q-card OK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; Q-card OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler Cancel.Invoke, OnQueryClosePage raises an error.
@@ -272,7 +320,11 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'The built-in action = Cancel is not found on the page.');
+        O.Expect('end|code', 'TestActionNotFound');
+        O.Expect('log', 'Q-card OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler Close(), OnQueryClosePage raises an error.
@@ -295,7 +347,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler raises Error, OnQueryClosePage raises an error.
@@ -318,7 +375,11 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM handler error');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; Q-card OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler edits Name then returns, OnQueryClosePage raises an error.
@@ -341,7 +402,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; M-card EDIT; T-mod R1 EDIT; Q-card OK; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; M-card EDIT; T-mod R1 EDIT; Q-card OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler edits Name then OK, OnQueryClosePage raises an error.
@@ -364,7 +430,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; M-card EDIT; T-mod R1 EDIT; Q-card OK; Q-card OK; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; M-card EDIT; T-mod R1 EDIT; Q-card OK; Q-card OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler sets the Name the table refuses then returns, OnQueryClosePage raises an error.
@@ -387,7 +458,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; M-card FAILMOD; T-mod R1 FAILMOD; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; M-card FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler returns without closing, OnClosePage raises an error.
@@ -410,7 +486,11 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler OK.Invoke, OnClosePage raises an error.
@@ -433,7 +513,11 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler Close(), OnClosePage raises an error.
@@ -456,7 +540,11 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler edits Name then OK, OnClosePage raises an error.
@@ -479,7 +567,11 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler returns without closing, OnClosePage asks a Confirm nobody handles.
@@ -502,7 +594,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; C-card; C-card confirm=No; Q-card OK; C-card; C-card confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; C-card; C-card confirm=No; Q-card OK; C-card; C-card confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler OK.Invoke, OnClosePage asks a Confirm nobody handles.
@@ -525,7 +622,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; C-card; C-card confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; C-card; C-card confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler Close(), OnClosePage asks a Confirm nobody handles.
@@ -548,7 +650,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; C-card; C-card confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; C-card; C-card confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler edits Name then OK, OnClosePage asks a Confirm nobody handles.
@@ -571,7 +678,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; C-card confirm=No; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; C-card confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler edits Name then returns, OnModifyRecord of the page raises an error.
@@ -594,7 +706,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'M-card EDIT; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler edits Name then OK, OnModifyRecord of the page raises an error.
@@ -617,7 +734,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'M-card EDIT; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRun: handler sets the Name the table refuses then returns, OnModifyRecord of the page raises an error.
@@ -640,7 +762,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'M-card FAILMOD; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRun: handler returns without closing, no error anywhere.
@@ -663,7 +790,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; C-card; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRun: handler OK.Invoke, no error anywhere.
@@ -686,7 +818,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; C-card; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRun: handler Close(), no error anywhere.
@@ -709,7 +846,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; C-card; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRun: handler edits Name then returns, no error anywhere.
@@ -732,7 +874,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRun: handler returns without closing, OnQueryClosePage raises an error.
@@ -755,7 +902,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRun: handler OK.Invoke, OnQueryClosePage raises an error.
@@ -778,7 +930,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; Q-card OK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; Q-card OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRun: handler Close(), OnQueryClosePage raises an error.
@@ -801,7 +958,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRun: handler edits Name then returns, OnQueryClosePage raises an error.
@@ -824,7 +986,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; M-card EDIT; T-mod R1 EDIT; Q-card OK; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; M-card EDIT; T-mod R1 EDIT; Q-card OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRun: handler returns without closing, OnClosePage raises an error.
@@ -847,7 +1014,11 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRun: handler OK.Invoke, OnClosePage raises an error.
@@ -870,7 +1041,11 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRun: handler returns without closing, OnClosePage asks a Confirm nobody handles.
@@ -893,7 +1068,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; C-card; C-card confirm=No; Q-card OK; C-card; C-card confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; C-card; C-card confirm=No; Q-card OK; C-card; C-card confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRun: handler OK.Invoke, OnClosePage asks a Confirm nobody handles.
@@ -916,7 +1096,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; C-card; C-card confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; C-card; C-card confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRun: handler returns without closing, no error anywhere.
@@ -939,7 +1124,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-list OK; C-list; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list OK; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRun: handler OK.Invoke, no error anywhere.
@@ -962,7 +1152,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-list OK; C-list; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list OK; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRun: handler Close(), no error anywhere.
@@ -985,7 +1180,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-list OK; C-list; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list OK; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRun: handler raises Error, no error anywhere.
@@ -1008,7 +1208,11 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM handler error');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list OK; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRun: handler returns without closing, OnQueryClosePage raises an error.
@@ -1031,7 +1235,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-list OK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRun: handler OK.Invoke, OnQueryClosePage raises an error.
@@ -1054,7 +1263,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-list OK; Q-list OK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list OK; Q-list OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRun: handler Close(), OnQueryClosePage raises an error.
@@ -1077,7 +1291,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-list OK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRun: handler raises Error, OnQueryClosePage raises an error.
@@ -1100,7 +1319,11 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM handler error');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRun: handler returns without closing, OnClosePage raises an error.
@@ -1123,7 +1346,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-list OK; C-list; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list OK; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRun: handler OK.Invoke, OnClosePage raises an error.
@@ -1146,7 +1374,11 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-list OK; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRun: handler returns without closing, OnClosePage asks a Confirm nobody handles.
@@ -1169,7 +1401,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-list OK; C-list; C-list confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list OK; C-list; C-list confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRun: handler OK.Invoke, OnClosePage asks a Confirm nobody handles.
@@ -1192,7 +1429,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-list OK; C-list; C-list confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list OK; C-list; C-list confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: WizardRun: handler returns without closing, no error anywhere.
@@ -1215,7 +1457,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-wizard OK; C-wizard; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-wizard OK; C-wizard; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: WizardRun: handler OK.Invoke, no error anywhere.
@@ -1238,7 +1485,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-wizard OK; C-wizard; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-wizard OK; C-wizard; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: WizardRun: handler Cancel.Invoke, no error anywhere.
@@ -1261,7 +1513,11 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'The built-in action = Cancel is not found on the page.');
+        O.Expect('end|code', 'TestActionNotFound');
+        O.Expect('log', 'Q-wizard OK; C-wizard; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: WizardRun: handler Close(), no error anywhere.
@@ -1284,7 +1540,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-wizard OK; C-wizard; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-wizard OK; C-wizard; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: WizardRun: handler raises Error, no error anywhere.
@@ -1307,7 +1568,11 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM handler error');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-wizard OK; C-wizard; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: WizardRun: handler returns without closing, OnQueryClosePage raises an error.
@@ -1330,7 +1595,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-wizard OK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-wizard OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: WizardRun: handler OK.Invoke, OnQueryClosePage raises an error.
@@ -1353,7 +1623,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-wizard OK; Q-wizard OK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-wizard OK; Q-wizard OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: WizardRun: handler returns without closing, OnClosePage raises an error.
@@ -1376,7 +1651,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-wizard OK; C-wizard; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-wizard OK; C-wizard; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: WizardRun: handler OK.Invoke, OnClosePage raises an error.
@@ -1399,7 +1679,11 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-wizard OK; C-wizard; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: WizardRun: handler returns without closing, OnClosePage asks a Confirm nobody handles.
@@ -1422,7 +1706,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-wizard OK; C-wizard; C-wizard confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-wizard OK; C-wizard; C-wizard confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: WizardRun: handler OK.Invoke, OnClosePage asks a Confirm nobody handles.
@@ -1445,7 +1734,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-wizard OK; C-wizard; C-wizard confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-wizard OK; C-wizard; C-wizard confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: WizardRun: handler Cancel.Invoke, OnClosePage asks a Confirm nobody handles.
@@ -1468,7 +1762,11 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'The built-in action = Cancel is not found on the page.');
+        O.Expect('end|code', 'TestActionNotFound');
+        O.Expect('log', 'Q-wizard OK; C-wizard; C-wizard confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: WizardRun: handler Close(), OnClosePage asks a Confirm nobody handles.
@@ -1491,7 +1789,12 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-wizard OK; C-wizard; C-wizard confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-wizard OK; C-wizard; C-wizard confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: WizardRun: handler raises Error, OnClosePage asks a Confirm nobody handles.
@@ -1514,7 +1817,11 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM handler error');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-wizard OK; C-wizard; C-wizard confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     [PageHandler]

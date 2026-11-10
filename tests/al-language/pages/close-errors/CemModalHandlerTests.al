@@ -42,7 +42,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupCancel | Q-card LookupCancel; C-card; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card LookupCancel; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler OK.Invoke, no error anywhere.
@@ -65,7 +70,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupOK | Q-card LookupOK; C-card; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card LookupOK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler Cancel.Invoke, no error anywhere.
@@ -88,7 +98,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupCancel | Q-card LookupCancel; C-card; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card LookupCancel; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler Close(), no error anywhere.
@@ -111,7 +126,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'The RunModal procedure could not close the page 99504 as it has already been closed.');
+        O.Expect('end|code', 'TestCodeUnit');
+        O.Expect('log', 'Q-card LookupCancel; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler raises Error, no error anywhere.
@@ -134,7 +153,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM handler error');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card LookupCancel; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler edits Name then returns, no error anywhere.
@@ -157,7 +180,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupCancel | M-card EDIT; T-mod R1 EDIT; Q-card LookupCancel; C-card; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card LookupCancel; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler edits Name then OK, no error anywhere.
@@ -180,7 +208,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupOK | M-card EDIT; T-mod R1 EDIT; Q-card LookupOK; C-card; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card LookupOK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler edits Name then Cancel, no error anywhere.
@@ -203,7 +236,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupCancel | M-card EDIT; T-mod R1 EDIT; Q-card LookupCancel; C-card; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card LookupCancel; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler sets the Name the table refuses then returns, no error anywhere.
@@ -226,7 +264,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM table modify refused');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-card FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler sets the Name the table refuses then OK, no error anywhere.
@@ -249,7 +291,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | M-card FAILMOD; T-mod R1 FAILMOD; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler edits Name then Close(), no error anywhere.
@@ -272,7 +319,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'The RunModal procedure could not close the page 99504 as it has already been closed.');
+        O.Expect('end|code', 'TestCodeUnit');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card LookupCancel; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler returns without closing, OnQueryClosePage raises an error.
@@ -295,7 +346,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | Q-card LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler OK.Invoke, OnQueryClosePage raises an error.
@@ -318,7 +374,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | Q-card LookupOK; Q-card LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card LookupOK; Q-card LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler Cancel.Invoke, OnQueryClosePage raises an error.
@@ -341,7 +402,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | Q-card LookupCancel; Q-card LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card LookupCancel; Q-card LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler Close(), OnQueryClosePage raises an error.
@@ -364,7 +430,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'The RunModal procedure could not close the page 99504 as it has already been closed.');
+        O.Expect('end|code', 'TestCodeUnit');
+        O.Expect('log', 'Q-card LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler raises Error, OnQueryClosePage raises an error.
@@ -387,7 +457,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM query close error');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler edits Name then returns, OnQueryClosePage raises an error.
@@ -410,7 +484,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | M-card EDIT; T-mod R1 EDIT; Q-card LookupCancel; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler edits Name then OK, OnQueryClosePage raises an error.
@@ -433,7 +512,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | M-card EDIT; T-mod R1 EDIT; Q-card LookupOK; Q-card LookupCancel; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card LookupOK; Q-card LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler edits Name then Cancel, OnQueryClosePage raises an error.
@@ -456,7 +540,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | M-card EDIT; T-mod R1 EDIT; Q-card LookupCancel; Q-card LookupCancel; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card LookupCancel; Q-card LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler sets the Name the table refuses then returns, OnQueryClosePage raises an error.
@@ -479,7 +568,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM table modify refused');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-card FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler sets the Name the table refuses then OK, OnQueryClosePage raises an error.
@@ -502,7 +595,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | M-card FAILMOD; T-mod R1 FAILMOD; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler edits Name then Close(), OnQueryClosePage raises an error.
@@ -525,7 +623,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'The RunModal procedure could not close the page 99504 as it has already been closed.');
+        O.Expect('end|code', 'TestCodeUnit');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler returns without closing, OnClosePage raises an error.
@@ -548,7 +650,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-card LookupCancel; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler OK.Invoke, OnClosePage raises an error.
@@ -571,7 +677,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-card LookupOK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler Close(), OnClosePage raises an error.
@@ -594,7 +704,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-card LookupCancel; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler edits Name then OK, OnClosePage raises an error.
@@ -617,7 +731,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card LookupOK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler raises Error, OnClosePage raises an error.
@@ -640,7 +758,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-card LookupCancel; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler returns without closing, OnClosePage asks a Confirm nobody handles.
@@ -663,7 +785,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupCancel | Q-card LookupCancel; C-card; C-card confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card LookupCancel; C-card; C-card confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler OK.Invoke, OnClosePage asks a Confirm nobody handles.
@@ -686,7 +813,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupOK | Q-card LookupOK; C-card; C-card confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card LookupOK; C-card; C-card confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler Close(), OnClosePage asks a Confirm nobody handles.
@@ -709,7 +841,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'The RunModal procedure could not close the page 99504 as it has already been closed.');
+        O.Expect('end|code', 'TestCodeUnit');
+        O.Expect('log', 'Q-card LookupCancel; C-card; C-card confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler edits Name then OK, OnClosePage asks a Confirm nobody handles.
@@ -732,7 +868,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupOK | M-card EDIT; T-mod R1 EDIT; Q-card LookupOK; C-card; C-card confirm=No; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card LookupOK; C-card; C-card confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler raises Error, OnClosePage asks a Confirm nobody handles.
@@ -755,7 +896,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM handler error');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card LookupCancel; C-card; C-card confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler edits Name then returns, OnModifyRecord of the page raises an error.
@@ -778,7 +923,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM page modify error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-card EDIT; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler edits Name then OK, OnModifyRecord of the page raises an error.
@@ -801,7 +950,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | M-card EDIT; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler edits Name then Cancel, OnModifyRecord of the page raises an error.
@@ -824,7 +978,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupCancel | M-card EDIT; Q-card LookupCancel; C-card; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; Q-card LookupCancel; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler sets the Name the table refuses then returns, OnModifyRecord of the page raises an error.
@@ -847,7 +1006,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM page modify error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-card FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler sets the Name the table refuses then OK, OnModifyRecord of the page raises an error.
@@ -870,7 +1033,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | M-card FAILMOD; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardStaticRunModal: handler edits Name then Close(), OnModifyRecord of the page raises an error.
@@ -893,7 +1061,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM page modify error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-card EDIT; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler returns without closing, no error anywhere.
@@ -917,7 +1089,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupCancel | Q-list LookupCancel; C-list; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list LookupCancel; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler OK.Invoke, no error anywhere.
@@ -941,7 +1118,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupOK | Q-list LookupOK; C-list; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list LookupOK; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler Cancel.Invoke, no error anywhere.
@@ -965,7 +1147,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupCancel | Q-list LookupCancel; C-list; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list LookupCancel; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler Close(), no error anywhere.
@@ -989,7 +1176,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'The RunModal procedure could not close the page 99505 as it has already been closed.');
+        O.Expect('end|code', 'TestCodeUnit');
+        O.Expect('log', 'Q-list LookupCancel; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler raises Error, no error anywhere.
@@ -1013,7 +1204,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM handler error');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list LookupCancel; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler edits Name then returns, no error anywhere.
@@ -1037,7 +1232,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupCancel | M-list EDIT; T-mod R1 EDIT; Q-list LookupCancel; C-list; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-list EDIT; T-mod R1 EDIT; Q-list LookupCancel; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler edits Name then OK, no error anywhere.
@@ -1061,7 +1261,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupOK | M-list EDIT; T-mod R1 EDIT; Q-list LookupOK; C-list; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-list EDIT; T-mod R1 EDIT; Q-list LookupOK; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler edits Name then Cancel, no error anywhere.
@@ -1085,7 +1290,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupCancel | M-list EDIT; T-mod R1 EDIT; Q-list LookupCancel; C-list; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-list EDIT; T-mod R1 EDIT; Q-list LookupCancel; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler sets the Name the table refuses then returns, no error anywhere.
@@ -1109,7 +1319,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM table modify refused');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-list FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler returns without closing, OnQueryClosePage raises an error.
@@ -1133,7 +1347,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | Q-list LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler OK.Invoke, OnQueryClosePage raises an error.
@@ -1157,7 +1376,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | Q-list LookupOK; Q-list LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list LookupOK; Q-list LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler Cancel.Invoke, OnQueryClosePage raises an error.
@@ -1181,7 +1405,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | Q-list LookupCancel; Q-list LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list LookupCancel; Q-list LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler Close(), OnQueryClosePage raises an error.
@@ -1205,7 +1434,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'The RunModal procedure could not close the page 99505 as it has already been closed.');
+        O.Expect('end|code', 'TestCodeUnit');
+        O.Expect('log', 'Q-list LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler raises Error, OnQueryClosePage raises an error.
@@ -1229,7 +1462,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM query close error');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler edits Name then returns, OnQueryClosePage raises an error.
@@ -1253,7 +1490,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | M-list EDIT; T-mod R1 EDIT; Q-list LookupCancel; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-list EDIT; T-mod R1 EDIT; Q-list LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler edits Name then OK, OnQueryClosePage raises an error.
@@ -1277,7 +1519,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | M-list EDIT; T-mod R1 EDIT; Q-list LookupOK; Q-list LookupCancel; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-list EDIT; T-mod R1 EDIT; Q-list LookupOK; Q-list LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler edits Name then Cancel, OnQueryClosePage raises an error.
@@ -1301,7 +1548,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | M-list EDIT; T-mod R1 EDIT; Q-list LookupCancel; Q-list LookupCancel; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-list EDIT; T-mod R1 EDIT; Q-list LookupCancel; Q-list LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler sets the Name the table refuses then returns, OnQueryClosePage raises an error.
@@ -1325,7 +1577,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM table modify refused');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-list FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler returns without closing, OnClosePage raises an error.
@@ -1349,7 +1605,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-list LookupCancel; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler OK.Invoke, OnClosePage raises an error.
@@ -1373,7 +1633,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-list LookupOK; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler edits Name then OK, OnClosePage raises an error.
@@ -1397,7 +1661,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-list EDIT; T-mod R1 EDIT; Q-list LookupOK; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler returns without closing, OnClosePage asks a Confirm nobody handles.
@@ -1421,7 +1689,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupCancel | Q-list LookupCancel; C-list; C-list confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list LookupCancel; C-list; C-list confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler OK.Invoke, OnClosePage asks a Confirm nobody handles.
@@ -1445,7 +1718,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupOK | Q-list LookupOK; C-list; C-list confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list LookupOK; C-list; C-list confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler edits Name then OK, OnClosePage asks a Confirm nobody handles.
@@ -1469,7 +1747,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupOK | M-list EDIT; T-mod R1 EDIT; Q-list LookupOK; C-list; C-list confirm=No; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-list EDIT; T-mod R1 EDIT; Q-list LookupOK; C-list; C-list confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler edits Name then returns, OnModifyRecord of the page raises an error.
@@ -1493,7 +1776,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM page modify error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-list EDIT; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler edits Name then OK, OnModifyRecord of the page raises an error.
@@ -1517,7 +1804,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | M-list EDIT; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-list EDIT; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler edits Name then Cancel, OnModifyRecord of the page raises an error.
@@ -1541,7 +1833,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupCancel | M-list EDIT; Q-list LookupCancel; C-list; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-list EDIT; Q-list LookupCancel; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListStaticRunModal: handler sets the Name the table refuses then returns, OnModifyRecord of the page raises an error.
@@ -1565,7 +1862,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM page modify error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-list FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRunModal: handler returns without closing, no error anywhere.
@@ -1588,7 +1889,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'OK | Q-card OK; C-card; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRunModal: handler OK.Invoke, no error anywhere.
@@ -1611,7 +1917,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'OK | Q-card OK; C-card; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRunModal: handler edits Name then OK, no error anywhere.
@@ -1634,7 +1945,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'OK | M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRunModal: handler sets the Name the table refuses then returns, no error anywhere.
@@ -1657,7 +1973,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM table modify refused');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-card FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRunModal: handler returns without closing, OnQueryClosePage raises an error.
@@ -1680,7 +2000,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | Q-card OK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRunModal: handler OK.Invoke, OnQueryClosePage raises an error.
@@ -1703,7 +2028,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | Q-card OK; Q-card OK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; Q-card OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRunModal: handler edits Name then OK, OnQueryClosePage raises an error.
@@ -1726,7 +2056,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | M-card EDIT; T-mod R1 EDIT; Q-card OK; Q-card OK; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; Q-card OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRunModal: handler sets the Name the table refuses then returns, OnQueryClosePage raises an error.
@@ -1749,7 +2084,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM table modify refused');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-card FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRunModal: handler returns without closing, OnClosePage raises an error.
@@ -1772,7 +2111,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRunModal: handler OK.Invoke, OnClosePage raises an error.
@@ -1795,7 +2138,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRunModal: handler edits Name then OK, OnClosePage raises an error.
@@ -1818,7 +2165,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardVariableRunModal: handler sets the Name the table refuses then returns, OnClosePage raises an error.
@@ -1841,7 +2192,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM table modify refused');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-card FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListVariableRunModal: handler returns without closing, no error anywhere.
@@ -1865,7 +2220,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'OK | Q-list OK; C-list; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list OK; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListVariableRunModal: handler OK.Invoke, no error anywhere.
@@ -1889,7 +2249,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'OK | Q-list OK; C-list; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list OK; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListVariableRunModal: handler edits Name then OK, no error anywhere.
@@ -1913,7 +2278,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'OK | M-list EDIT; T-mod R1 EDIT; Q-list OK; C-list; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-list EDIT; T-mod R1 EDIT; Q-list OK; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListVariableRunModal: handler sets the Name the table refuses then returns, no error anywhere.
@@ -1937,7 +2307,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM table modify refused');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-list FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListVariableRunModal: handler returns without closing, OnQueryClosePage raises an error.
@@ -1961,7 +2335,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | Q-list OK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListVariableRunModal: handler OK.Invoke, OnQueryClosePage raises an error.
@@ -1985,7 +2364,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | Q-list OK; Q-list OK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list OK; Q-list OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListVariableRunModal: handler edits Name then OK, OnQueryClosePage raises an error.
@@ -2009,7 +2393,12 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | M-list EDIT; T-mod R1 EDIT; Q-list OK; Q-list OK; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-list EDIT; T-mod R1 EDIT; Q-list OK; Q-list OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListVariableRunModal: handler sets the Name the table refuses then returns, OnQueryClosePage raises an error.
@@ -2033,7 +2422,11 @@ codeunit 99521 "CEM Modal Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM table modify refused');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-list FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     [ModalPageHandler]

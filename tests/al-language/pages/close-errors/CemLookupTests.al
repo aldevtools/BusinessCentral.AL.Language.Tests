@@ -50,7 +50,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value=C1 | Q-codes LookupCancel; C-codes; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupCancel; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler OK.Invoke on the first row, no error anywhere.
@@ -75,7 +80,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value=C1 | Q-codes LookupOK; C-codes; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupOK; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler Cancel.Invoke, no error anywhere.
@@ -100,7 +110,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value= | Q-codes LookupCancel; C-codes; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupCancel; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler Close(), no error anywhere.
@@ -125,7 +140,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value=C1 | Q-codes LookupCancel; C-codes; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupCancel; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler raises Error, no error anywhere.
@@ -150,7 +170,11 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM handler error');
+        O.Expect('end|code', 'TestWrapped:Dialog');
+        O.Expect('log', 'Q-codes LookupCancel; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler picks C2 then OK, no error anywhere.
@@ -175,7 +199,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value=C2 | Q-codes LookupOK; C-codes; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupOK; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler picks C2 then returns, no error anywhere.
@@ -200,7 +229,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value=C2 | Q-codes LookupCancel; C-codes; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupCancel; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler picks C2 then Close(), no error anywhere.
@@ -225,7 +259,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value=C2 | Q-codes LookupCancel; C-codes; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupCancel; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler returns without closing, OnQueryClosePage raises an error.
@@ -250,7 +289,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value= | Q-codes LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler OK.Invoke on the first row, OnQueryClosePage raises an error.
@@ -275,7 +319,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value= | Q-codes LookupOK; Q-codes LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupOK; Q-codes LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler Cancel.Invoke, OnQueryClosePage raises an error.
@@ -300,7 +349,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value= | Q-codes LookupCancel; Q-codes LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupCancel; Q-codes LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler Close(), OnQueryClosePage raises an error.
@@ -325,7 +379,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value= | Q-codes LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler raises Error, OnQueryClosePage raises an error.
@@ -350,7 +409,11 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM handler error');
+        O.Expect('end|code', 'TestWrapped:Dialog');
+        O.Expect('log', 'Q-codes LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler picks C2 then OK, OnQueryClosePage raises an error.
@@ -375,7 +438,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value= | Q-codes LookupOK; Q-codes LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupOK; Q-codes LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler picks C2 then returns, OnQueryClosePage raises an error.
@@ -400,7 +468,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value= | Q-codes LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler picks C2 then Close(), OnQueryClosePage raises an error.
@@ -425,7 +498,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value= | Q-codes LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler returns without closing, OnClosePage raises an error.
@@ -450,7 +528,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value= | Q-codes LookupCancel; C-codes; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupCancel; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler OK.Invoke on the first row, OnClosePage raises an error.
@@ -475,7 +558,11 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-codes LookupOK; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler Close(), OnClosePage raises an error.
@@ -500,7 +587,11 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-codes LookupCancel; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler picks C2 then OK, OnClosePage raises an error.
@@ -525,7 +616,11 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-codes LookupOK; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler returns without closing, OnClosePage asks a Confirm nobody handles.
@@ -550,7 +645,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value=C1 | Q-codes LookupCancel; C-codes; C-codes confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupCancel; C-codes; C-codes confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler OK.Invoke on the first row, OnClosePage asks a Confirm nobody handles.
@@ -575,7 +675,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value=C1 | Q-codes LookupOK; C-codes; C-codes confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupOK; C-codes; C-codes confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler Close(), OnClosePage asks a Confirm nobody handles.
@@ -600,7 +705,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value=C1 | Q-codes LookupCancel; C-codes; C-codes confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupCancel; C-codes; C-codes confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: CardField: lookup handler picks C2 then OK, OnClosePage asks a Confirm nobody handles.
@@ -625,7 +735,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value=C2 | Q-codes LookupOK; C-codes; C-codes confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupOK; C-codes; C-codes confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListPartField: lookup handler returns without closing, no error anywhere.
@@ -651,7 +766,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value= | Q-codes LookupOK; C-codes; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupOK; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListPartField: lookup handler OK.Invoke on the first row, no error anywhere.
@@ -677,7 +797,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value=C1 | Q-codes LookupOK; C-codes; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupOK; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListPartField: lookup handler Cancel.Invoke, no error anywhere.
@@ -703,7 +828,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value= | Q-codes LookupOK; C-codes; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupOK; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListPartField: lookup handler Close(), no error anywhere.
@@ -729,7 +859,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value= | Q-codes LookupOK; C-codes; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupOK; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListPartField: lookup handler raises Error, no error anywhere.
@@ -755,7 +890,11 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM handler error');
+        O.Expect('end|code', 'TestWrapped:Dialog');
+        O.Expect('log', 'Q-codes LookupOK; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListPartField: lookup handler picks C2 then OK, no error anywhere.
@@ -781,7 +920,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value=C2 | Q-codes LookupOK; C-codes; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupOK; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListPartField: lookup handler returns without closing, OnQueryClosePage raises an error.
@@ -807,7 +951,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value= | Q-codes LookupOK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupOK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListPartField: lookup handler OK.Invoke on the first row, OnQueryClosePage raises an error.
@@ -833,7 +982,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value= | Q-codes LookupOK; Q-codes LookupOK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupOK; Q-codes LookupOK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListPartField: lookup handler Cancel.Invoke, OnQueryClosePage raises an error.
@@ -859,7 +1013,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value= | Q-codes LookupOK; Q-codes LookupOK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupOK; Q-codes LookupOK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListPartField: lookup handler Close(), OnQueryClosePage raises an error.
@@ -885,7 +1044,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value= | Q-codes LookupOK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupOK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListPartField: lookup handler raises Error, OnQueryClosePage raises an error.
@@ -911,7 +1075,11 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM handler error');
+        O.Expect('end|code', 'TestWrapped:Dialog');
+        O.Expect('log', 'Q-codes LookupOK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListPartField: lookup handler picks C2 then OK, OnQueryClosePage raises an error.
@@ -937,7 +1105,12 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value= | Q-codes LookupOK; Q-codes LookupOK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupOK; Q-codes LookupOK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListPartField: lookup handler returns without closing, OnClosePage raises an error.
@@ -965,7 +1138,12 @@ codeunit 99524 "CEM Lookup Tests"
         if not TryCloseDoc(Doc) then
             O.ObserveError('close after');
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'value= | Q-codes LookupOK; C-codes; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-codes LookupOK; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListPartField: lookup handler OK.Invoke on the first row, OnClosePage raises an error.
@@ -991,7 +1169,11 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-codes LookupOK; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListPartField: lookup handler Cancel.Invoke, OnClosePage raises an error.
@@ -1017,7 +1199,11 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-codes LookupOK; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListPartField: lookup handler Close(), OnClosePage raises an error.
@@ -1043,7 +1229,11 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-codes LookupOK; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListPartField: lookup handler raises Error, OnClosePage raises an error.
@@ -1069,7 +1259,11 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM handler error');
+        O.Expect('end|code', 'TestWrapped:Dialog');
+        O.Expect('log', 'Q-codes LookupOK; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: ListPartField: lookup handler picks C2 then OK, OnClosePage raises an error.
@@ -1095,7 +1289,11 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-codes LookupOK; C-codes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     [ModalPageHandler]

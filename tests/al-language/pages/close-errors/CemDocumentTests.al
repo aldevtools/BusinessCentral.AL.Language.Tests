@@ -42,7 +42,12 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupCancel | Q-doc LookupCancel; C-doc; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-doc LookupCancel; C-doc; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler OK.Invoke, no error anywhere.
@@ -65,7 +70,12 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupOK | Q-doc LookupOK; C-doc; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-doc LookupOK; C-doc; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler Cancel.Invoke, no error anywhere.
@@ -88,7 +98,12 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupCancel | Q-doc LookupCancel; C-doc; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-doc LookupCancel; C-doc; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler edits Name then returns, no error anywhere.
@@ -111,7 +126,12 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupCancel | M-doc EDIT; T-mod R1 EDIT; Q-doc LookupCancel; C-doc; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-doc EDIT; T-mod R1 EDIT; Q-doc LookupCancel; C-doc; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler edits Name then OK, no error anywhere.
@@ -134,7 +154,12 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'LookupOK | M-doc EDIT; T-mod R1 EDIT; Q-doc LookupOK; C-doc; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-doc EDIT; T-mod R1 EDIT; Q-doc LookupOK; C-doc; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler raises Error, no error anywhere.
@@ -157,7 +182,11 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM handler error');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-doc LookupCancel; C-doc; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler sets the Name the table refuses then returns, no error anywhere.
@@ -180,7 +209,11 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'Validation error for Field: Name,  Message = ''CEM table modify refused (Select Refresh to discard errors)''');
+        O.Expect('end|code', 'TestValidation');
+        O.Expect('log', 'M-doc FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler sets the Name the table refuses then OK, no error anywhere.
@@ -203,7 +236,11 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'Validation error for Field: Name,  Message = ''CEM table modify refused (Select Refresh to discard errors)''');
+        O.Expect('end|code', 'TestValidation');
+        O.Expect('log', 'M-doc FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler sets a line Qty the line table refuses then returns, no error anywhere.
@@ -226,7 +263,11 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM line modify refused');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'L-mod R1 1 -1; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler sets a line Qty the line table refuses then OK, no error anywhere.
@@ -249,7 +290,12 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | L-mod R1 1 -1; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'L-mod R1 1 -1; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler returns without closing, OnQueryClosePage raises an error.
@@ -272,7 +318,12 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | Q-doc LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-doc LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler OK.Invoke, OnQueryClosePage raises an error.
@@ -295,7 +346,12 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | Q-doc LookupOK; Q-doc LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-doc LookupOK; Q-doc LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler Cancel.Invoke, OnQueryClosePage raises an error.
@@ -318,7 +374,12 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | Q-doc LookupCancel; Q-doc LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-doc LookupCancel; Q-doc LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler edits Name then returns, OnQueryClosePage raises an error.
@@ -341,7 +402,12 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | M-doc EDIT; T-mod R1 EDIT; Q-doc LookupCancel; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-doc EDIT; T-mod R1 EDIT; Q-doc LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler edits Name then OK, OnQueryClosePage raises an error.
@@ -364,7 +430,12 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | M-doc EDIT; T-mod R1 EDIT; Q-doc LookupOK; Q-doc LookupCancel; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-doc EDIT; T-mod R1 EDIT; Q-doc LookupOK; Q-doc LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler raises Error, OnQueryClosePage raises an error.
@@ -387,7 +458,11 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM query close error');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-doc LookupCancel; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler sets the Name the table refuses then returns, OnQueryClosePage raises an error.
@@ -410,7 +485,11 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'Validation error for Field: Name,  Message = ''CEM table modify refused (Select Refresh to discard errors)''');
+        O.Expect('end|code', 'TestValidation');
+        O.Expect('log', 'M-doc FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler sets the Name the table refuses then OK, OnQueryClosePage raises an error.
@@ -433,7 +512,11 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'Validation error for Field: Name,  Message = ''CEM table modify refused (Select Refresh to discard errors)''');
+        O.Expect('end|code', 'TestValidation');
+        O.Expect('log', 'M-doc FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler sets a line Qty the line table refuses then returns, OnQueryClosePage raises an error.
@@ -456,7 +539,11 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM line modify refused');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'L-mod R1 1 -1; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler sets a line Qty the line table refuses then OK, OnQueryClosePage raises an error.
@@ -479,7 +566,12 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | L-mod R1 1 -1; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'L-mod R1 1 -1; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler returns without closing, OnClosePage raises an error.
@@ -502,7 +594,11 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-doc LookupCancel; C-doc; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler OK.Invoke, OnClosePage raises an error.
@@ -525,7 +621,11 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-doc LookupOK; C-doc; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler Cancel.Invoke, OnClosePage raises an error.
@@ -548,7 +648,11 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-doc LookupCancel; C-doc; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler edits Name then returns, OnClosePage raises an error.
@@ -571,7 +675,11 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-doc EDIT; T-mod R1 EDIT; Q-doc LookupCancel; C-doc; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler edits Name then OK, OnClosePage raises an error.
@@ -594,7 +702,11 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-doc EDIT; T-mod R1 EDIT; Q-doc LookupOK; C-doc; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler raises Error, OnClosePage raises an error.
@@ -617,7 +729,11 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-doc LookupCancel; C-doc; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler sets the Name the table refuses then returns, OnClosePage raises an error.
@@ -640,7 +756,11 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'Validation error for Field: Name,  Message = ''CEM table modify refused (Select Refresh to discard errors)''');
+        O.Expect('end|code', 'TestValidation');
+        O.Expect('log', 'M-doc FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler sets the Name the table refuses then OK, OnClosePage raises an error.
@@ -663,7 +783,11 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'Validation error for Field: Name,  Message = ''CEM table modify refused (Select Refresh to discard errors)''');
+        O.Expect('end|code', 'TestValidation');
+        O.Expect('log', 'M-doc FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler sets a line Qty the line table refuses then returns, OnClosePage raises an error.
@@ -686,7 +810,11 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM line modify refused');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'L-mod R1 1 -1; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler sets a line Qty the line table refuses then OK, OnClosePage raises an error.
@@ -709,7 +837,12 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'None | L-mod R1 1 -1; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'L-mod R1 1 -1; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler edits Name then returns, OnModifyRecord of the page raises an error.
@@ -732,7 +865,11 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'Validation error for Field: Name,  Message = ''CEM page modify error (Select Refresh to discard errors)''');
+        O.Expect('end|code', 'TestValidation');
+        O.Expect('log', 'M-doc EDIT; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler edits Name then OK, OnModifyRecord of the page raises an error.
@@ -755,7 +892,11 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'Validation error for Field: Name,  Message = ''CEM page modify error (Select Refresh to discard errors)''');
+        O.Expect('end|code', 'TestValidation');
+        O.Expect('log', 'M-doc EDIT; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: DocumentStaticRunModal: handler sets the Name the table refuses then returns, OnModifyRecord of the page raises an error.
@@ -778,7 +919,11 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'Validation error for Field: Name,  Message = ''CEM page modify error (Select Refresh to discard errors)''');
+        O.Expect('end|code', 'TestValidation');
+        O.Expect('log', 'M-doc FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     [ModalPageHandler]

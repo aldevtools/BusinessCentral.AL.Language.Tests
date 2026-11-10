@@ -49,7 +49,12 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; C-card; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a Card after Name was edited: no error anywhere.
@@ -74,7 +79,12 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a Card with no edit: OnQueryClosePage raises an error.
@@ -98,7 +108,12 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a Card after Name was edited: OnQueryClosePage raises an error.
@@ -123,7 +138,12 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a Card with no edit: OnClosePage raises an error.
@@ -147,7 +167,11 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a Card after Name was edited: OnClosePage raises an error.
@@ -172,7 +196,11 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a Card with no edit: OnClosePage asks a Confirm nobody handles.
@@ -196,7 +224,12 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-card OK; C-card; C-card confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-card OK; C-card; C-card confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a Card after Name was edited: OnClosePage asks a Confirm nobody handles.
@@ -221,7 +254,12 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; C-card confirm=No; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; C-card confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a Card after Name was edited: OnModifyRecord of the page raises an error.
@@ -246,7 +284,11 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM page modify error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-card EDIT; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a List with no edit: no error anywhere.
@@ -270,7 +312,12 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-list OK; C-list; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list OK; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a List after Name was edited: no error anywhere.
@@ -295,7 +342,12 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'M-list EDIT; T-mod R1 EDIT; Q-list OK; C-list; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-list EDIT; T-mod R1 EDIT; Q-list OK; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a List with no edit: OnQueryClosePage raises an error.
@@ -319,7 +371,12 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-list OK; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a List after Name was edited: OnQueryClosePage raises an error.
@@ -344,7 +401,12 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'M-list EDIT; T-mod R1 EDIT; Q-list OK; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-list EDIT; T-mod R1 EDIT; Q-list OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a List with no edit: OnClosePage raises an error.
@@ -368,7 +430,11 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'Q-list OK; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a List after Name was edited: OnClosePage raises an error.
@@ -393,7 +459,11 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-list EDIT; T-mod R1 EDIT; Q-list OK; C-list; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a List with no edit: OnClosePage asks a Confirm nobody handles.
@@ -417,7 +487,12 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'Q-list OK; C-list; C-list confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'Q-list OK; C-list; C-list confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a List after Name was edited: OnClosePage asks a Confirm nobody handles.
@@ -442,7 +517,12 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'M-list EDIT; T-mod R1 EDIT; Q-list OK; C-list; C-list confirm=No; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-list EDIT; T-mod R1 EDIT; Q-list OK; C-list; C-list confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a List after Name was edited: OnModifyRecord of the page raises an error.
@@ -467,7 +547,11 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM page modify error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-list EDIT; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a card after Name was set to a value the table's OnModify refuses.
@@ -492,7 +576,11 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM table modify refused');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-card FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a list after Name was set to a value the table's OnModify refuses.
@@ -517,7 +605,11 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'CEM table modify refused');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'M-list FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a card whose OnClosePage asks a Confirm that a ConfirmHandler answers true.
@@ -543,7 +635,12 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; H-confirm CEM close confirm?; C-card confirm=Yes; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; H-confirm CEM close confirm?; C-card confirm=Yes; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a card whose OnClosePage asks a Confirm that a ConfirmHandler answers false.
@@ -569,7 +666,12 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; H-confirm CEM close confirm?; C-card confirm=No; | R1=EDIT/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; H-confirm CEM close confirm?; C-card confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a new card (OpenNew, key and Name set): no error anywhere.
@@ -593,7 +695,12 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'I-card ; T-ins N1 ; M-card NEW; T-mod N1 NEW; Q-card OK; C-card; | N1=NEW/ R1=start/ (2 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'I-card ; T-ins N1 ; M-card NEW; T-mod N1 NEW; Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a new card (OpenNew, key and Name set): OnInsertRecord of the page raises an error.
@@ -619,7 +726,12 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('after key', '| R1=start/ (1 rows) L1=1 L2=2');
+        O.Expect('end|text', 'Validation error for Field: ,  Message = ''CEM page insert error''');
+        O.Expect('end|code', 'TestValidation');
+        O.Expect('log', 'I-card ; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a new card (OpenNew, key and Name set): OnQueryClosePage raises an error.
@@ -643,7 +755,12 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'I-card ; T-ins N1 ; M-card NEW; T-mod N1 NEW; Q-card OK; | N1=NEW/ R1=start/ (2 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'I-card ; T-ins N1 ; M-card NEW; T-mod N1 NEW; Q-card OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a new card (OpenNew, key and Name set): OnClosePage raises an error.
@@ -667,7 +784,11 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
+        O.Expect('end|code', 'TestWrapped');
+        O.Expect('log', 'I-card ; T-ins N1 ; M-card NEW; T-mod N1 NEW; Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: TestPage.Close() on a new card whose Name the table's OnInsert refuses.
@@ -691,7 +812,12 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('returned', 'I-card ; T-ins N1 ; M-card FAILINS; T-mod N1 FAILINS; Q-card OK; C-card; | N1=FAILINS/ R1=start/ (2 rows) L1=1 L2=2');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'I-card ; T-ins N1 ; M-card FAILINS; T-mod N1 FAILINS; Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: Card.Close() with no asserterror around it: OnQueryClosePage raises an error; what GetLastErrorText and GetLastErrorCode hold afterwards (al-runner 7457).
@@ -712,7 +838,10 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('last error', 'CEM query close error|Dialog');
+        O.Expect('log', 'Q-card OK; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: Card.Close() with no asserterror around it: OnClosePage raises an error; what GetLastErrorText and GetLastErrorCode hold afterwards (al-runner 7457).
@@ -734,7 +863,11 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('close ok', 'No');
+        O.Expect('last error', 'One or more errors occurred while closing the page.\\CEM close page error|TestWrapped');
+        O.Expect('log', 'Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: Card.Close() with no asserterror around it: OnModifyRecord of the page raises an error; what GetLastErrorText and GetLastErrorCode hold afterwards (al-runner 7457).
@@ -757,7 +890,11 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('close ok', 'No');
+        O.Expect('last error', 'CEM page modify error|TestWrapped');
+        O.Expect('log', 'M-card EDIT; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // Card_LeftOpenAtTestEnd_QueryCloseError: a card edited and left open at the end of the test, whose close raises at the end of the test: the test then ends in a failure (real BC), which CI cannot hold, so it is not pinned here.
@@ -776,7 +913,7 @@ codeunit 99520 "CEM TestPage Close Tests"
         Card.GoToRecord(Row);
         Card.Name.SetValue('EDIT');
         Cfg.Add('test body end');
-        O.Finish();
+        O.Verify();
     end;
 
     // CLAIM: What the test end of the previous test did (log) and whether the edit was saved (rows): OnClosePage asks a Confirm nobody handles.
@@ -789,7 +926,9 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('log', 'test body end; M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; C-card confirm=No; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     // CLAIM: A card edited and left open at the end of the test: no error anywhere. This test only leaves the page open and keeps the log; the next test reads it.
@@ -806,7 +945,7 @@ codeunit 99520 "CEM TestPage Close Tests"
         Card.GoToRecord(Row);
         Card.Name.SetValue('EDIT');
         Cfg.Add('test body end');
-        O.Finish();
+        O.Verify();
     end;
 
     // CLAIM: What the test end of the previous test did (log) and whether the edit was saved (rows): no error anywhere.
@@ -819,7 +958,9 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-        O.Finish();
+        O.Expect('log', 'test body end; M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; ');
+        O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
+        O.Verify();
     end;
 
     [ConfirmHandler]
