@@ -16,7 +16,7 @@
 // value written back to a `var` parameter (Integer and Record), same TryFunction result and error, same subscriber call, same
 // implementation of an interface, same order (receiver, right side, call), same conversion errors (StringLengthExceeded, ConversionCast).
 // A local variable or a parameter with the name of the procedure takes the assignment: the procedure does not run.
-// Observation form (ends in Finish(), not measured yet): U16 and U17, and U15 on BC 28.5 and 29.0 (see the comment in the test).
+// U15 to U17 (page part procedure, xmlport Filename): measured on BC 27.5, 28.5 and 29.0, identical on all three (corpus CI runs 42882150245, 42882195650, 42882238278).
 // local object: every object below is the subject of the probe (the kind of object that declares the procedure is the question), and the
 // log codeunit 96400 must be SingleInstance so a page, a table and a subscriber write to the log the test reads.
 
@@ -850,15 +850,9 @@ codeunit 96410 "CU AssignCall Rule"
         Host.CallForm.Invoke();
         Observer.Observe('call', Log.Take());
         Host.Close();
-#if BC28PLUS
-        // BC 28.5 and 29.0 ended the first run of this test at the first action ("The action with ID = n is not found on the page.",
-        // corpus CI runs 42876712578 and 42876759234): the page stated no ApplicationArea then. Not measured again yet.
-        Observer.Finish();
-#else
         Observer.Expect('assign', 'Part.SetX(5);');
         Observer.Expect('call', 'Part.SetX(6);');
         Observer.Verify();
-#endif
     end;
 
     local procedure XpSeedRows()
@@ -926,7 +920,18 @@ codeunit 96410 "CU AssignCall Rule"
         end;
         Observer.Observe('assign content equals plain', Format(Content[2] = Content[1]));
         Observer.Observe('call content equals plain', Format(Content[3] = Content[1]));
-        Observer.Finish();
+        Observer.Expect('plain export', 'ok');
+        Observer.Expect('plain log', 'pre: ;post: ;');
+        Observer.Expect('plain content', '"1","10"\r\n"2","20"');
+        Observer.Expect('assign export', 'ok');
+        Observer.Expect('assign log', 'pre: ;pre, after assign: probe.txt;post: probe.txt;');
+        Observer.Expect('assign content', '"1","10"\r\n"2","20"');
+        Observer.Expect('call export', 'ok');
+        Observer.Expect('call log', 'pre: ;pre, after call: probe.txt;post: probe.txt;');
+        Observer.Expect('call content', '"1","10"\r\n"2","20"');
+        Observer.Expect('assign content equals plain', 'Yes');
+        Observer.Expect('call content equals plain', 'Yes');
+        Observer.Verify();
     end;
 
     // U17 (al-runner 7714): the assignment on an XmlPort variable, before SetDestination and Export.
@@ -951,6 +956,12 @@ codeunit 96410 "CU AssignCall Rule"
         Observer.Observe('after Export', Xp.Filename());
         Observer.Observe('log', Log.Take());
         Observer.Observe('content', XpContent(TempBlob));
-        Observer.Finish();
+        Observer.Expect('at start', '');
+        Observer.Expect('after assign', 'var.txt');
+        Observer.Expect('after call', 'var2.txt');
+        Observer.Expect('after Export', 'var2.txt');
+        Observer.Expect('log', 'pre: var2.txt;post: var2.txt;');
+        Observer.Expect('content', '"1","10"\r\n"2","20"');
+        Observer.Verify();
     end;
 }

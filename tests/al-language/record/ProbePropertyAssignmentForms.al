@@ -1118,17 +1118,11 @@ codeunit 69451 "Probe Property Assign Forms"
         Card.CallCaption.Invoke();
         Observer.Observe('CurrPage.Caption()', Card.Shown.Value() + ' | ' + Card.Caption());
         Card.Close();
-#if BC28PLUS
-        // BC 28.5 and 29.0 ended the first run of this test at the first action ("The action with ID = n is not found on the page.",
-        // corpus CI runs 42876712578 and 42876759234): the page stated no ApplicationArea then. Not measured again yet.
-        Observer.Finish();
-#else
         Observer.Expect('caption at open', 'Designed Caption - 1');
         Observer.Expect('bare Caption :=', 'bare y | bare y - 1');
         Observer.Expect('CurrPage.Caption :=', 'curr x | curr x - 1');
         Observer.Expect('CurrPage.Caption()', 'call z | call z - 1');
         Observer.Verify();
-#endif
     end;
 
     [Test]
@@ -1155,17 +1149,11 @@ codeunit 69451 "Probe Property Assign Forms"
         Row.Get(1);
         Observer.Observe('CurrPage.Update(false)', Row.Txt + ' | ' + Card.Txt.Value());
         Card.Close();
-#if BC28PLUS
-        // BC 28.5 and 29.0 ended the first run of this test at the first action ("The action with ID = n is not found on the page.",
-        // corpus CI runs 42876712578 and 42876759234): the page stated no ApplicationArea then. Not measured again yet.
-        Observer.Finish();
-#else
         Observer.Expect('CurrPage.Update := true', 'assign-true | assign-true');
         Observer.Expect('CurrPage.Update(true)', 'call-true | call-true');
         Observer.Expect('bare Update := false', 'call-true | call-true');
         Observer.Expect('CurrPage.Update(false)', 'call-true | call-true');
         Observer.Verify();
-#endif
     end;
 
     [Test]
