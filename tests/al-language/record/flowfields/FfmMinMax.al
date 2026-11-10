@@ -751,7 +751,25 @@ codeunit 64303 "FFM MinMax Tests"
         if not TryCalc_Min_filterenum(H) then
             Observer.ObserveError('Min_filterenum.calc18');
         Observer.Observe('H3.filterenum', Format(H.Min_filterenum));
-        Observer.Finish();
+        Observer.Expect('H1.const', '7');
+        Observer.Expect('H1.field', '10.5');
+        Observer.Expect('H1.filter', '7');
+        Observer.Expect('H1.constopt', '10.5');
+        Observer.Expect('H1.constenum', '7');
+        Observer.Expect('H1.filterenum', '10.5');
+        Observer.Expect('H2.const', '7');
+        Observer.Expect('H2.field', '7');
+        Observer.Expect('H2.filter', '7');
+        Observer.Expect('H2.constopt', '10.5');
+        Observer.Expect('H2.constenum', '7');
+        Observer.Expect('H2.filterenum', '10.5');
+        Observer.Expect('H3.const', '7');
+        Observer.Expect('H3.field', '0');
+        Observer.Expect('H3.filter', '7');
+        Observer.Expect('H3.constopt', '10.5');
+        Observer.Expect('H3.constenum', '7');
+        Observer.Expect('H3.filterenum', '10.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -818,7 +836,21 @@ codeunit 64303 "FFM MinMax Tests"
         if not TryCalc_Min_fftext(H) then
             Observer.ObserveError('Min_fftext.calc32');
         Observer.Observe('fftext.set', Format(H.Min_fftext));
-        Observer.Finish();
+        Observer.Expect('ffint.unset', '7');
+        Observer.Expect('ffint.set', '14');
+        Observer.Expect('ffdec.unset', '7');
+        Observer.Expect('ffdec.set', '14');
+        Observer.Expect('ffdate.unset', '7');
+        Observer.Expect('ffdate.set', '20');
+        Observer.Expect('ffcode.unset', '7');
+        Observer.Expect('ffcode.set', '7');
+        Observer.Expect('ffopt.unset', '7');
+        Observer.Expect('ffopt.set', '10.5');
+        Observer.Expect('ffenum.unset', '7');
+        Observer.Expect('ffenum.set', '7');
+        Observer.Expect('fftext.unset', '7');
+        Observer.Expect('fftext.set', '10.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -885,7 +917,23 @@ codeunit 64303 "FFM MinMax Tests"
         if not TryCalc_Min_ulfdate(H) then
             Observer.ObserveError('Min_ulfdate.calc46');
         Observer.Observe('ulfdate.set', Format(H.Min_ulfdate));
-        Observer.Finish();
+        Observer.Expect('uldate.unset', '7');
+        Observer.Expect('uldate.set', '7');
+        Observer.Expect('ulint.unset', '7');
+        Observer.Expect('ulint.set', '7');
+        Observer.Expect('uldec.unset', '7');
+        Observer.Expect('Min_uldec.calc38|text', 'The filter expression ">=14" applied to the field DecF in the FFM MinMax Header table results in more than one range.');
+        Observer.Expect('Min_uldec.calc38|code', 'DB:NotIntervalFilter');
+        Observer.Expect('uldec.set', '7');
+        Observer.Expect('ulcode.unset', '7');
+        Observer.Expect('ulcode.set', '7');
+        Observer.Expect('ulopt.unset', '7');
+        Observer.Expect('ulopt.set', '10.5');
+        Observer.Expect('ulenum.unset', '7');
+        Observer.Expect('ulenum.set', '7');
+        Observer.Expect('ulfdate.unset', '7');
+        Observer.Expect('ulfdate.set', '7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -912,7 +960,11 @@ codeunit 64303 "FFM MinMax Tests"
         if not TryCalc_Min_ffboth(H) then
             Observer.ObserveError('Min_ffboth.calc50');
         Observer.Observe('ffboth.set', Format(H.Min_ffboth));
-        Observer.Finish();
+        Observer.Expect('ffmismatch.unset', '7');
+        Observer.Expect('ffmismatch.set', '0');
+        Observer.Expect('ffboth.unset', '10.5');
+        Observer.Expect('ffboth.set', '20');
+        Observer.Verify();
     end;
 
     [Test]
@@ -989,7 +1041,29 @@ codeunit 64303 "FFM MinMax Tests"
         if not TryCalc_Min_ffboth(H) then
             Observer.ObserveError('Min_ffboth.calc72');
         Observer.Observe('ffboth.h3', Format(H.Min_ffboth));
-        Observer.Finish();
+        Observer.Expect('const.h3', '7');
+        Observer.Expect('field.h3', '0');
+        Observer.Expect('filter.h3', '7');
+        Observer.Expect('constopt.h3', '10.5');
+        Observer.Expect('constenum.h3', '7');
+        Observer.Expect('filterenum.h3', '10.5');
+        Observer.Expect('ffint.h3', '7');
+        Observer.Expect('ffdec.h3', '7');
+        Observer.Expect('ffdate.h3', '7');
+        Observer.Expect('ffcode.h3', '7');
+        Observer.Expect('ffopt.h3', '7');
+        Observer.Expect('ffenum.h3', '7');
+        Observer.Expect('fftext.h3', '7');
+        Observer.Expect('uldate.h3', '7');
+        Observer.Expect('ulint.h3', '7');
+        Observer.Expect('uldec.h3', '7');
+        Observer.Expect('ulcode.h3', '7');
+        Observer.Expect('ulopt.h3', '7');
+        Observer.Expect('ulenum.h3', '7');
+        Observer.Expect('ulfdate.h3', '7');
+        Observer.Expect('ffmismatch.h3', '7');
+        Observer.Expect('ffboth.h3', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1056,7 +1130,25 @@ codeunit 64303 "FFM MinMax Tests"
         if not TryCalc_NMin_filterenum(H) then
             Observer.ObserveError('NMin_filterenum.calc90');
         Observer.Observe('H3.filterenum', Format(H.NMin_filterenum));
-        Observer.Finish();
+        Observer.Expect('H1.const', '-7');
+        Observer.Expect('H1.field', '-10.5');
+        Observer.Expect('H1.filter', '-7');
+        Observer.Expect('H1.constopt', '-10.5');
+        Observer.Expect('H1.constenum', '-7');
+        Observer.Expect('H1.filterenum', '-10.5');
+        Observer.Expect('H2.const', '-7');
+        Observer.Expect('H2.field', '-7');
+        Observer.Expect('H2.filter', '-7');
+        Observer.Expect('H2.constopt', '-10.5');
+        Observer.Expect('H2.constenum', '-7');
+        Observer.Expect('H2.filterenum', '-10.5');
+        Observer.Expect('H3.const', '-7');
+        Observer.Expect('H3.field', '0');
+        Observer.Expect('H3.filter', '-7');
+        Observer.Expect('H3.constopt', '-10.5');
+        Observer.Expect('H3.constenum', '-7');
+        Observer.Expect('H3.filterenum', '-10.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1123,7 +1215,21 @@ codeunit 64303 "FFM MinMax Tests"
         if not TryCalc_NMin_fftext(H) then
             Observer.ObserveError('NMin_fftext.calc104');
         Observer.Observe('fftext.set', Format(H.NMin_fftext));
-        Observer.Finish();
+        Observer.Expect('ffint.unset', '-7');
+        Observer.Expect('ffint.set', '-14');
+        Observer.Expect('ffdec.unset', '-7');
+        Observer.Expect('ffdec.set', '-14');
+        Observer.Expect('ffdate.unset', '-7');
+        Observer.Expect('ffdate.set', '-20');
+        Observer.Expect('ffcode.unset', '-7');
+        Observer.Expect('ffcode.set', '-7');
+        Observer.Expect('ffopt.unset', '-7');
+        Observer.Expect('ffopt.set', '-10.5');
+        Observer.Expect('ffenum.unset', '-7');
+        Observer.Expect('ffenum.set', '-7');
+        Observer.Expect('fftext.unset', '-7');
+        Observer.Expect('fftext.set', '-10.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1190,7 +1296,23 @@ codeunit 64303 "FFM MinMax Tests"
         if not TryCalc_NMin_ulfdate(H) then
             Observer.ObserveError('NMin_ulfdate.calc118');
         Observer.Observe('ulfdate.set', Format(H.NMin_ulfdate));
-        Observer.Finish();
+        Observer.Expect('uldate.unset', '-7');
+        Observer.Expect('uldate.set', '-7');
+        Observer.Expect('ulint.unset', '-7');
+        Observer.Expect('ulint.set', '-7');
+        Observer.Expect('uldec.unset', '-7');
+        Observer.Expect('NMin_uldec.calc110|text', 'The filter expression ">=14" applied to the field DecF in the FFM MinMax Header table results in more than one range.');
+        Observer.Expect('NMin_uldec.calc110|code', 'DB:NotIntervalFilter');
+        Observer.Expect('uldec.set', '-7');
+        Observer.Expect('ulcode.unset', '-7');
+        Observer.Expect('ulcode.set', '-7');
+        Observer.Expect('ulopt.unset', '-7');
+        Observer.Expect('ulopt.set', '-10.5');
+        Observer.Expect('ulenum.unset', '-7');
+        Observer.Expect('ulenum.set', '-7');
+        Observer.Expect('ulfdate.unset', '-7');
+        Observer.Expect('ulfdate.set', '-7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1217,7 +1339,11 @@ codeunit 64303 "FFM MinMax Tests"
         if not TryCalc_NMin_ffboth(H) then
             Observer.ObserveError('NMin_ffboth.calc122');
         Observer.Observe('ffboth.set', Format(H.NMin_ffboth));
-        Observer.Finish();
+        Observer.Expect('ffmismatch.unset', '-7');
+        Observer.Expect('ffmismatch.set', '0');
+        Observer.Expect('ffboth.unset', '-10.5');
+        Observer.Expect('ffboth.set', '-20');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1294,7 +1420,29 @@ codeunit 64303 "FFM MinMax Tests"
         if not TryCalc_NMin_ffboth(H) then
             Observer.ObserveError('NMin_ffboth.calc144');
         Observer.Observe('ffboth.h3', Format(H.NMin_ffboth));
-        Observer.Finish();
+        Observer.Expect('const.h3', '-7');
+        Observer.Expect('field.h3', '0');
+        Observer.Expect('filter.h3', '-7');
+        Observer.Expect('constopt.h3', '-10.5');
+        Observer.Expect('constenum.h3', '-7');
+        Observer.Expect('filterenum.h3', '-10.5');
+        Observer.Expect('ffint.h3', '-7');
+        Observer.Expect('ffdec.h3', '-7');
+        Observer.Expect('ffdate.h3', '-7');
+        Observer.Expect('ffcode.h3', '-7');
+        Observer.Expect('ffopt.h3', '-7');
+        Observer.Expect('ffenum.h3', '-7');
+        Observer.Expect('fftext.h3', '-7');
+        Observer.Expect('uldate.h3', '-7');
+        Observer.Expect('ulint.h3', '-7');
+        Observer.Expect('uldec.h3', '-7');
+        Observer.Expect('ulcode.h3', '-7');
+        Observer.Expect('ulopt.h3', '-7');
+        Observer.Expect('ulenum.h3', '-7');
+        Observer.Expect('ulfdate.h3', '-7');
+        Observer.Expect('ffmismatch.h3', '-7');
+        Observer.Expect('ffboth.h3', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1361,7 +1509,25 @@ codeunit 64303 "FFM MinMax Tests"
         if not TryCalc_Max_filterenum(H) then
             Observer.ObserveError('Max_filterenum.calc162');
         Observer.Observe('H3.filterenum', Format(H.Max_filterenum));
-        Observer.Finish();
+        Observer.Expect('H1.const', '40.25');
+        Observer.Expect('H1.field', '80');
+        Observer.Expect('H1.filter', '40.25');
+        Observer.Expect('H1.constopt', '80');
+        Observer.Expect('H1.constenum', '20');
+        Observer.Expect('H1.filterenum', '80');
+        Observer.Expect('H2.const', '40.25');
+        Observer.Expect('H2.field', '14');
+        Observer.Expect('H2.filter', '40.25');
+        Observer.Expect('H2.constopt', '80');
+        Observer.Expect('H2.constenum', '20');
+        Observer.Expect('H2.filterenum', '80');
+        Observer.Expect('H3.const', '40.25');
+        Observer.Expect('H3.field', '0');
+        Observer.Expect('H3.filter', '40.25');
+        Observer.Expect('H3.constopt', '80');
+        Observer.Expect('H3.constenum', '20');
+        Observer.Expect('H3.filterenum', '80');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1428,7 +1594,21 @@ codeunit 64303 "FFM MinMax Tests"
         if not TryCalc_Max_fftext(H) then
             Observer.ObserveError('Max_fftext.calc176');
         Observer.Observe('fftext.set', Format(H.Max_fftext));
-        Observer.Finish();
+        Observer.Expect('ffint.unset', '80');
+        Observer.Expect('ffint.set', '40.25');
+        Observer.Expect('ffdec.unset', '80');
+        Observer.Expect('ffdec.set', '80');
+        Observer.Expect('ffdate.unset', '80');
+        Observer.Expect('ffdate.set', '80');
+        Observer.Expect('ffcode.unset', '80');
+        Observer.Expect('ffcode.set', '40.25');
+        Observer.Expect('ffopt.unset', '80');
+        Observer.Expect('ffopt.set', '80');
+        Observer.Expect('ffenum.unset', '80');
+        Observer.Expect('ffenum.set', '40.25');
+        Observer.Expect('fftext.unset', '80');
+        Observer.Expect('fftext.set', '40.25');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1495,7 +1675,23 @@ codeunit 64303 "FFM MinMax Tests"
         if not TryCalc_Max_ulfdate(H) then
             Observer.ObserveError('Max_ulfdate.calc190');
         Observer.Observe('ulfdate.set', Format(H.Max_ulfdate));
-        Observer.Finish();
+        Observer.Expect('uldate.unset', '80');
+        Observer.Expect('uldate.set', '80');
+        Observer.Expect('ulint.unset', '80');
+        Observer.Expect('ulint.set', '40.25');
+        Observer.Expect('uldec.unset', '80');
+        Observer.Expect('Max_uldec.calc182|text', 'The filter expression ">=14" applied to the field DecF in the FFM MinMax Header table results in more than one range.');
+        Observer.Expect('Max_uldec.calc182|code', 'DB:NotIntervalFilter');
+        Observer.Expect('uldec.set', '80');
+        Observer.Expect('ulcode.unset', '80');
+        Observer.Expect('ulcode.set', '40.25');
+        Observer.Expect('ulopt.unset', '80');
+        Observer.Expect('ulopt.set', '80');
+        Observer.Expect('ulenum.unset', '80');
+        Observer.Expect('ulenum.set', '80');
+        Observer.Expect('ulfdate.unset', '80');
+        Observer.Expect('ulfdate.set', '80');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1522,7 +1718,11 @@ codeunit 64303 "FFM MinMax Tests"
         if not TryCalc_Max_ffboth(H) then
             Observer.ObserveError('Max_ffboth.calc194');
         Observer.Observe('ffboth.set', Format(H.Max_ffboth));
-        Observer.Finish();
+        Observer.Expect('ffmismatch.unset', '80');
+        Observer.Expect('ffmismatch.set', '0');
+        Observer.Expect('ffboth.unset', '80');
+        Observer.Expect('ffboth.set', '40.25');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1599,7 +1799,29 @@ codeunit 64303 "FFM MinMax Tests"
         if not TryCalc_Max_ffboth(H) then
             Observer.ObserveError('Max_ffboth.calc216');
         Observer.Observe('ffboth.h3', Format(H.Max_ffboth));
-        Observer.Finish();
+        Observer.Expect('const.h3', '40.25');
+        Observer.Expect('field.h3', '0');
+        Observer.Expect('filter.h3', '40.25');
+        Observer.Expect('constopt.h3', '80');
+        Observer.Expect('constenum.h3', '20');
+        Observer.Expect('filterenum.h3', '80');
+        Observer.Expect('ffint.h3', '80');
+        Observer.Expect('ffdec.h3', '80');
+        Observer.Expect('ffdate.h3', '80');
+        Observer.Expect('ffcode.h3', '80');
+        Observer.Expect('ffopt.h3', '80');
+        Observer.Expect('ffenum.h3', '80');
+        Observer.Expect('fftext.h3', '80');
+        Observer.Expect('uldate.h3', '80');
+        Observer.Expect('ulint.h3', '80');
+        Observer.Expect('uldec.h3', '80');
+        Observer.Expect('ulcode.h3', '80');
+        Observer.Expect('ulopt.h3', '80');
+        Observer.Expect('ulenum.h3', '80');
+        Observer.Expect('ulfdate.h3', '80');
+        Observer.Expect('ffmismatch.h3', '80');
+        Observer.Expect('ffboth.h3', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1666,7 +1888,25 @@ codeunit 64303 "FFM MinMax Tests"
         if not TryCalc_NMax_filterenum(H) then
             Observer.ObserveError('NMax_filterenum.calc234');
         Observer.Observe('H3.filterenum', Format(H.NMax_filterenum));
-        Observer.Finish();
+        Observer.Expect('H1.const', '-40.25');
+        Observer.Expect('H1.field', '-80');
+        Observer.Expect('H1.filter', '-40.25');
+        Observer.Expect('H1.constopt', '-80');
+        Observer.Expect('H1.constenum', '-20');
+        Observer.Expect('H1.filterenum', '-80');
+        Observer.Expect('H2.const', '-40.25');
+        Observer.Expect('H2.field', '-14');
+        Observer.Expect('H2.filter', '-40.25');
+        Observer.Expect('H2.constopt', '-80');
+        Observer.Expect('H2.constenum', '-20');
+        Observer.Expect('H2.filterenum', '-80');
+        Observer.Expect('H3.const', '-40.25');
+        Observer.Expect('H3.field', '0');
+        Observer.Expect('H3.filter', '-40.25');
+        Observer.Expect('H3.constopt', '-80');
+        Observer.Expect('H3.constenum', '-20');
+        Observer.Expect('H3.filterenum', '-80');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1733,7 +1973,21 @@ codeunit 64303 "FFM MinMax Tests"
         if not TryCalc_NMax_fftext(H) then
             Observer.ObserveError('NMax_fftext.calc248');
         Observer.Observe('fftext.set', Format(H.NMax_fftext));
-        Observer.Finish();
+        Observer.Expect('ffint.unset', '-80');
+        Observer.Expect('ffint.set', '-40.25');
+        Observer.Expect('ffdec.unset', '-80');
+        Observer.Expect('ffdec.set', '-80');
+        Observer.Expect('ffdate.unset', '-80');
+        Observer.Expect('ffdate.set', '-80');
+        Observer.Expect('ffcode.unset', '-80');
+        Observer.Expect('ffcode.set', '-40.25');
+        Observer.Expect('ffopt.unset', '-80');
+        Observer.Expect('ffopt.set', '-80');
+        Observer.Expect('ffenum.unset', '-80');
+        Observer.Expect('ffenum.set', '-40.25');
+        Observer.Expect('fftext.unset', '-80');
+        Observer.Expect('fftext.set', '-40.25');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1800,7 +2054,23 @@ codeunit 64303 "FFM MinMax Tests"
         if not TryCalc_NMax_ulfdate(H) then
             Observer.ObserveError('NMax_ulfdate.calc262');
         Observer.Observe('ulfdate.set', Format(H.NMax_ulfdate));
-        Observer.Finish();
+        Observer.Expect('uldate.unset', '-80');
+        Observer.Expect('uldate.set', '-80');
+        Observer.Expect('ulint.unset', '-80');
+        Observer.Expect('ulint.set', '-40.25');
+        Observer.Expect('uldec.unset', '-80');
+        Observer.Expect('NMax_uldec.calc254|text', 'The filter expression ">=14" applied to the field DecF in the FFM MinMax Header table results in more than one range.');
+        Observer.Expect('NMax_uldec.calc254|code', 'DB:NotIntervalFilter');
+        Observer.Expect('uldec.set', '-80');
+        Observer.Expect('ulcode.unset', '-80');
+        Observer.Expect('ulcode.set', '-40.25');
+        Observer.Expect('ulopt.unset', '-80');
+        Observer.Expect('ulopt.set', '-80');
+        Observer.Expect('ulenum.unset', '-80');
+        Observer.Expect('ulenum.set', '-80');
+        Observer.Expect('ulfdate.unset', '-80');
+        Observer.Expect('ulfdate.set', '-80');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1827,7 +2097,11 @@ codeunit 64303 "FFM MinMax Tests"
         if not TryCalc_NMax_ffboth(H) then
             Observer.ObserveError('NMax_ffboth.calc266');
         Observer.Observe('ffboth.set', Format(H.NMax_ffboth));
-        Observer.Finish();
+        Observer.Expect('ffmismatch.unset', '-80');
+        Observer.Expect('ffmismatch.set', '0');
+        Observer.Expect('ffboth.unset', '-80');
+        Observer.Expect('ffboth.set', '-40.25');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1904,7 +2178,29 @@ codeunit 64303 "FFM MinMax Tests"
         if not TryCalc_NMax_ffboth(H) then
             Observer.ObserveError('NMax_ffboth.calc288');
         Observer.Observe('ffboth.h3', Format(H.NMax_ffboth));
-        Observer.Finish();
+        Observer.Expect('const.h3', '-40.25');
+        Observer.Expect('field.h3', '0');
+        Observer.Expect('filter.h3', '-40.25');
+        Observer.Expect('constopt.h3', '-80');
+        Observer.Expect('constenum.h3', '-20');
+        Observer.Expect('filterenum.h3', '-80');
+        Observer.Expect('ffint.h3', '-80');
+        Observer.Expect('ffdec.h3', '-80');
+        Observer.Expect('ffdate.h3', '-80');
+        Observer.Expect('ffcode.h3', '-80');
+        Observer.Expect('ffopt.h3', '-80');
+        Observer.Expect('ffenum.h3', '-80');
+        Observer.Expect('fftext.h3', '-80');
+        Observer.Expect('uldate.h3', '-80');
+        Observer.Expect('ulint.h3', '-80');
+        Observer.Expect('uldec.h3', '-80');
+        Observer.Expect('ulcode.h3', '-80');
+        Observer.Expect('ulopt.h3', '-80');
+        Observer.Expect('ulenum.h3', '-80');
+        Observer.Expect('ulfdate.h3', '-80');
+        Observer.Expect('ffmismatch.h3', '-80');
+        Observer.Expect('ffboth.h3', '0');
+        Observer.Verify();
     end;
 
     local procedure Initialize()
