@@ -500,7 +500,20 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('name_o0', '0');
+        Observer.Expect('cmp_S_o0', 'Yes');
+        Observer.Expect('cmp_S_o1', 'No');
+        Observer.Expect('cmp_S_o2', 'No');
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[Cap0]4:67,97,112,48');
+        Observer.Expect('t1_o0', '[Cap0]4:67,97,112,48');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[A]1:65');
+        Observer.Expect('t1_o1', '[A]1:65');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[B]1:66');
+        Observer.Expect('t1_o2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -961,7 +974,20 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('name_o1', '1');
+        Observer.Expect('cmp_S_o0', 'No');
+        Observer.Expect('cmp_S_o1', 'Yes');
+        Observer.Expect('cmp_S_o2', 'No');
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[A]1:65');
+        Observer.Expect('t1_o0', '[A]1:65');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[Cap1]4:67,97,112,49');
+        Observer.Expect('t1_o1', '[Cap1]4:67,97,112,49');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[B]1:66');
+        Observer.Expect('t1_o2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1422,7 +1448,20 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('name_o2', '2');
+        Observer.Expect('cmp_S_o0', 'No');
+        Observer.Expect('cmp_S_o1', 'No');
+        Observer.Expect('cmp_S_o2', 'Yes');
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[A]1:65');
+        Observer.Expect('t1_o0', '[A]1:65');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[B]1:66');
+        Observer.Expect('t1_o1', '[B]1:66');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[Cap2]4:67,97,112,50');
+        Observer.Expect('t1_o2', '[Cap2]4:67,97,112,50');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1721,7 +1760,7 @@ codeunit 67805 "LT OB Enum"
         Observer.Expect('st_nul', 'err:InvalidOptionString|1');
         Observer.Expect('st_nul_text', '''\u0000'' is not an option. The existing options are: Cap0,A,B');
         Observer.Expect('st_zzz', 'err:InvalidOptionString|1');
-        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: C');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: Cap0,A,B');
         Observer.Verify();
     end;
 
@@ -1864,7 +1903,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[Cap0]4:67,97,112,48');
+        Observer.Expect('t1_o0', '[Cap0]4:67,97,112,48');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[A]1:65');
+        Observer.Expect('t1_o1', '[A]1:65');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[B]1:66');
+        Observer.Expect('t1_o2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -2163,7 +2211,7 @@ codeunit 67805 "LT OB Enum"
         Observer.Expect('st_nul', 'err:InvalidOptionString|0');
         Observer.Expect('st_nul_text', '''\u0000'' is not an option. The existing options are: A,Cap1,B');
         Observer.Expect('st_zzz', 'err:InvalidOptionString|0');
-        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: A');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: A,Cap1,B');
         Observer.Verify();
     end;
 
@@ -2306,7 +2354,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[A]1:65');
+        Observer.Expect('t1_o0', '[A]1:65');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[Cap1]4:67,97,112,49');
+        Observer.Expect('t1_o1', '[Cap1]4:67,97,112,49');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[B]1:66');
+        Observer.Expect('t1_o2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -2605,7 +2662,7 @@ codeunit 67805 "LT OB Enum"
         Observer.Expect('st_nul', 'err:InvalidOptionString|0');
         Observer.Expect('st_nul_text', '''\u0000'' is not an option. The existing options are: A,B,Cap2');
         Observer.Expect('st_zzz', 'err:InvalidOptionString|0');
-        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: A');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: A,B,Cap2');
         Observer.Verify();
     end;
 
@@ -2748,7 +2805,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[A]1:65');
+        Observer.Expect('t1_o0', '[A]1:65');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[B]1:66');
+        Observer.Expect('t1_o1', '[B]1:66');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[Cap2]4:67,97,112,50');
+        Observer.Expect('t1_o2', '[Cap2]4:67,97,112,50');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -3209,7 +3275,20 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('name_o0', '0');
+        Observer.Expect('cmp_S_o0', 'Yes');
+        Observer.Expect('cmp_S_o1', 'No');
+        Observer.Expect('cmp_S_o2', 'No');
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[Cap0]4:67,97,112,48');
+        Observer.Expect('t1_o0', '[Cap0]4:67,97,112,48');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[A]1:65');
+        Observer.Expect('t1_o1', '[A]1:65');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[Cap2]4:67,97,112,50');
+        Observer.Expect('t1_o2', '[Cap2]4:67,97,112,50');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -3670,7 +3749,20 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('name_o2', '2');
+        Observer.Expect('cmp_S_o0', 'No');
+        Observer.Expect('cmp_S_o1', 'No');
+        Observer.Expect('cmp_S_o2', 'Yes');
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[Cap0]4:67,97,112,48');
+        Observer.Expect('t1_o0', '[Cap0]4:67,97,112,48');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[A]1:65');
+        Observer.Expect('t1_o1', '[A]1:65');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[Cap2]4:67,97,112,50');
+        Observer.Expect('t1_o2', '[Cap2]4:67,97,112,50');
+        Observer.Verify();
     end;
 
 }

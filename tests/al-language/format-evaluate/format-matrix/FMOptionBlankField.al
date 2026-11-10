@@ -334,7 +334,8 @@ codeunit 67804 "LT OB Field"
         Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row FS table. ''""'' is not an option. The existing options are:  ,A,B');
         Observer.Expect('flt_z', 'ok|1|0,|'' ''');
         Observer.Expect('flt_A', 'ok|1|1,|A');
-        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row FS table. A valu');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row FS table. A value is expected after the ''<>''.');
+        Observer.Expect('rng_o0', '1|0,|'' ''');
         Observer.Verify();
     end;
 
@@ -598,7 +599,8 @@ codeunit 67804 "LT OB Field"
         Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row MS table. ''""'' is not an option. The existing options are: A, ,B');
         Observer.Expect('flt_z', 'ok|1|0,|A');
         Observer.Expect('flt_A', 'ok|1|0,|A');
-        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row MS table. A value ');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row MS table. A value is expected after the ''<>''.');
+        Observer.Expect('rng_o1', '1|1,|'' ''');
         Observer.Verify();
     end;
 
@@ -862,7 +864,8 @@ codeunit 67804 "LT OB Field"
         Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row LS table. ''""'' is not an option. The existing options are: A,B, ');
         Observer.Expect('flt_z', 'ok|1|0,|A');
         Observer.Expect('flt_A', 'ok|1|0,|A');
-        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row LS table. A value ');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row LS table. A value is expected after the ''<>''.');
+        Observer.Expect('rng_o2', '1|2,|'' ''');
         Observer.Verify();
     end;
 
@@ -1123,7 +1126,7 @@ codeunit 67804 "LT OB Field"
         Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row FQ table. ''""'' is not an option. The existing options are: ,A,B');
         Observer.Expect('flt_z', 'ok|1|0,|0');
         Observer.Expect('flt_A', 'ok|1|1,|A');
-        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row FQ table. A value is');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row FQ table. A value is expected after the ''<>''.');
         Observer.Verify();
     end;
 
@@ -1384,7 +1387,7 @@ codeunit 67804 "LT OB Field"
         Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row MQ table. ''""'' is not an option. The existing options are: A,,B');
         Observer.Expect('flt_z', 'ok|1|0,|A');
         Observer.Expect('flt_A', 'ok|1|0,|A');
-        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row MQ table. A value is');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row MQ table. A value is expected after the ''<>''.');
         Observer.Verify();
     end;
 
@@ -1645,7 +1648,7 @@ codeunit 67804 "LT OB Field"
         Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row LQ table. ''""'' is not an option. The existing options are: A,B,');
         Observer.Expect('flt_z', 'ok|1|0,|A');
         Observer.Expect('flt_A', 'ok|1|0,|A');
-        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row LQ table. A value is');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row LQ table. A value is expected after the ''<>''.');
         Observer.Verify();
     end;
 
@@ -1906,7 +1909,7 @@ codeunit 67804 "LT OB Field"
         Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row FU table. ''""'' is not an option. The existing options are: ,A,B');
         Observer.Expect('flt_z', 'ok|1|0,|0');
         Observer.Expect('flt_A', 'ok|1|1,|A');
-        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row FU table. A value is');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row FU table. A value is expected after the ''<>''.');
         Observer.Verify();
     end;
 
@@ -2167,7 +2170,7 @@ codeunit 67804 "LT OB Field"
         Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row MU table. ''""'' is not an option. The existing options are: A,,B');
         Observer.Expect('flt_z', 'ok|1|0,|A');
         Observer.Expect('flt_A', 'ok|1|0,|A');
-        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row MU table. A value is');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row MU table. A value is expected after the ''<>''.');
         Observer.Verify();
     end;
 
@@ -2428,7 +2431,7 @@ codeunit 67804 "LT OB Field"
         Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row LU table. ''""'' is not an option. The existing options are: A,B,');
         Observer.Expect('flt_z', 'ok|1|0,|A');
         Observer.Expect('flt_A', 'ok|1|0,|A');
-        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row LU table. A value is');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row LU table. A value is expected after the ''<>''.');
         Observer.Verify();
     end;
 
@@ -2692,7 +2695,8 @@ codeunit 67804 "LT OB Field"
         Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row QS1 table. ''""'' is not an option. The existing options are:  ,A,');
         Observer.Expect('flt_z', 'ok|1|0,|'' ''');
         Observer.Expect('flt_A', 'ok|1|1,|A');
-        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row QS1 table. A val');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row QS1 table. A value is expected after the ''<>''.');
+        Observer.Expect('rng_o0', '1|0,|'' ''');
         Observer.Verify();
     end;
 
@@ -2956,7 +2960,8 @@ codeunit 67804 "LT OB Field"
         Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row QS2 table. ''""'' is not an option. The existing options are: ,A, ');
         Observer.Expect('flt_z', 'ok|1|0,|0');
         Observer.Expect('flt_A', 'ok|1|1,|A');
-        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row QS2 table. A value');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row QS2 table. A value is expected after the ''<>''.');
+        Observer.Expect('rng_o2', '1|2,|'' ''');
         Observer.Verify();
     end;
 
