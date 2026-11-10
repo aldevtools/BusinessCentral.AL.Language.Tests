@@ -229,7 +229,18 @@ codeunit 63489 "PNL No Source Array Wizard"
         Result := Dlg.RunModal();
         Observer.Observe('action', Format(Result));
         Observer.Observe('variables after', Dlg.Dump());
-        Observer.Finish();
+        Observer.Expect('text control, Decimal', 'accepted, shows [12.5]');
+        Observer.Expect('text control, Integer', 'accepted, shows [7]');
+        Observer.Expect('text control, Boolean', 'accepted, shows [Yes]');
+        Observer.Expect('text control, Date', 'accepted, shows [01/15/26]');
+        Observer.Expect('text control, Text', 'accepted, shows [plain]');
+        Observer.Expect('text control, Decimal again', 'accepted, shows [12.5]');
+        Observer.Expect('date control, Date', 'accepted, is the date=Yes');
+        Observer.Expect('decimal control, Text', 'accepted, shows [3.00]');
+        Observer.Expect('decimal control, Integer', 'accepted, shows [7.00]');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('variables after', 'text1=12.5 text2=2026-01-15 date2=2026-01-15 decimal1=7 trace=T1;T1;T1;T1;T1;T1;D2;N1;N1;');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
@@ -309,7 +320,11 @@ codeunit 63489 "PNL No Source Array Wizard"
             Observer.ObserveError('next error');
         WizardState(Wizard, 'after next');
         Wizard.Close();
-        Observer.Finish();
+        Observer.Expect('after open', 'next enabled=Yes finish enabled=No DocNo visible=Yes DocDescription visible=No ContactNo= DocNo= DocDescription=');
+        Observer.Expect('after SetValue', 'next enabled=Yes finish enabled=No DocNo visible=Yes DocDescription visible=No ContactNo=C1 DocNo=D1 DocDescription=');
+        Observer.Expect('next', 'ok');
+        Observer.Expect('after next', 'next enabled=No finish enabled=Yes DocNo visible=No DocDescription visible=Yes ContactNo=C1 DocNo=D1 DocDescription=first document');
+        Observer.Verify();
     end;
 
     [Test]
@@ -332,7 +347,12 @@ codeunit 63489 "PNL No Source Array Wizard"
             Observer.ObserveError('second next error');
         WizardState(Wizard, 'after the second next');
         Wizard.Close();
-        Observer.Finish();
+        Observer.Expect('first next error|text', 'Doc No. is missing.');
+        Observer.Expect('first next error|code', 'TestWrapped:Dialog');
+        Observer.Expect('after the failed next', 'next enabled=Yes finish enabled=No DocNo visible=Yes DocDescription visible=No ContactNo=C1 DocNo= DocDescription=');
+        Observer.Expect('second next', 'ok');
+        Observer.Expect('after the second next', 'next enabled=No finish enabled=Yes DocNo visible=No DocDescription visible=Yes ContactNo=C1 DocNo=D1 DocDescription=first document');
+        Observer.Verify();
     end;
 
     [Test]
@@ -341,7 +361,10 @@ codeunit 63489 "PNL No Source Array Wizard"
     begin
         Initialize();
         Page.RunModal(Page::"PNL NS Wizard");
-        Observer.Finish();
+        Observer.Expect('after SetValue', 'next enabled=Yes finish enabled=No DocNo visible=Yes DocDescription visible=No ContactNo=C1 DocNo=D1 DocDescription=');
+        Observer.Expect('next', 'ok');
+        Observer.Expect('after next', 'next enabled=No finish enabled=Yes DocNo visible=No DocDescription visible=Yes ContactNo=C1 DocNo=D1 DocDescription=first document');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]

@@ -171,7 +171,11 @@ codeunit 63459 "PNL Lookup Editable Types"
         PlainPage.LookupMode(false);
         Result := PlainPage.RunModal();
         Observer.Observe('plain action', Format(Result));
-        Observer.Finish();
+        Observer.Expect('lookup', 'page=No rec control=No variable control=No row=alpha');
+        Observer.Expect('lookup action', 'OK');
+        Observer.Expect('plain', 'page=Yes rec control=Yes variable control=Yes row=alpha');
+        Observer.Expect('plain action', 'OK');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
@@ -197,7 +201,11 @@ codeunit 63459 "PNL Lookup Editable Types"
         PlainPage.LookupMode(false);
         Result := PlainPage.RunModal();
         Observer.Observe('plain action', Format(Result));
-        Observer.Finish();
+        Observer.Expect('lookup', 'page=No rec control=No variable control=Yes row=alpha');
+        Observer.Expect('lookup action', 'OK');
+        Observer.Expect('plain', 'page=Yes rec control=Yes variable control=Yes row=alpha');
+        Observer.Expect('plain action', 'OK');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
@@ -223,7 +231,11 @@ codeunit 63459 "PNL Lookup Editable Types"
         PlainPage.LookupMode(false);
         Result := PlainPage.RunModal();
         Observer.Observe('plain action', Format(Result));
-        Observer.Finish();
+        Observer.Expect('lookup', 'page=Yes rec control=Yes variable control=Yes row=alpha');
+        Observer.Expect('lookup action', 'LookupCancel');
+        Observer.Expect('plain', 'page=Yes rec control=Yes variable control=Yes row=alpha');
+        Observer.Expect('plain action', 'Cancel');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
@@ -249,7 +261,11 @@ codeunit 63459 "PNL Lookup Editable Types"
         PlainPage.LookupMode(false);
         Result := PlainPage.RunModal();
         Observer.Observe('plain action', Format(Result));
-        Observer.Finish();
+        Observer.Expect('lookup', 'page=Yes rec control=Yes variable control=Yes row=alpha');
+        Observer.Expect('lookup action', 'OK');
+        Observer.Expect('plain', 'page=Yes rec control=Yes variable control=Yes row=alpha');
+        Observer.Expect('plain action', 'OK');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
@@ -275,7 +291,11 @@ codeunit 63459 "PNL Lookup Editable Types"
         PlainPage.LookupMode(false);
         Result := PlainPage.RunModal();
         Observer.Observe('plain action', Format(Result));
-        Observer.Finish();
+        Observer.Expect('lookup', 'page=Yes rec control=Yes variable control=Yes row=alpha');
+        Observer.Expect('lookup action', 'Cancel');
+        Observer.Expect('plain', 'page=Yes rec control=Yes variable control=Yes row=alpha');
+        Observer.Expect('plain action', 'Cancel');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]

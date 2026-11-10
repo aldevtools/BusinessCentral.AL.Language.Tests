@@ -246,7 +246,15 @@ codeunit 63439 "PNL Last On Long List"
     begin
         Initialize();
         OpenViewLast(41);
-        Observer.Finish();
+        Observer.Expect('opened on', '1');
+        Observer.Expect('reads of the open', '21: 1..20,1');
+        Observer.Expect('Last', 'Yes');
+        Observer.Expect('shown after Last', '41');
+        Observer.Expect('reads of Last', '22: 20..41');
+        Observer.Expect('Previous', 'Yes');
+        Observer.Expect('shown after Previous', '40');
+        Observer.Expect('reads of Previous', '0: ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -254,7 +262,15 @@ codeunit 63439 "PNL Last On Long List"
     begin
         Initialize();
         OpenViewLast(61);
-        Observer.Finish();
+        Observer.Expect('opened on', '1');
+        Observer.Expect('reads of the open', '21: 1..20,1');
+        Observer.Expect('Last', 'Yes');
+        Observer.Expect('shown after Last', '61');
+        Observer.Expect('reads of Last', '42: 20..61');
+        Observer.Expect('Previous', 'Yes');
+        Observer.Expect('shown after Previous', '60');
+        Observer.Expect('reads of Previous', '0: ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -262,7 +278,15 @@ codeunit 63439 "PNL Last On Long List"
     begin
         Initialize();
         OpenViewLast(100);
-        Observer.Finish();
+        Observer.Expect('opened on', '1');
+        Observer.Expect('reads of the open', '21: 1..20,1');
+        Observer.Expect('Last', 'Yes');
+        Observer.Expect('shown after Last', '100');
+        Observer.Expect('reads of Last', '81: 20..100');
+        Observer.Expect('Previous', 'Yes');
+        Observer.Expect('shown after Previous', '99');
+        Observer.Expect('reads of Previous', '0: ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -275,7 +299,15 @@ codeunit 63439 "PNL Last On Long List"
         P.OpenEdit();
         LastAndPrevious(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('opened on', '1');
+        Observer.Expect('reads of the open', '21: 1..20,1');
+        Observer.Expect('Last', 'Yes');
+        Observer.Expect('shown after Last', '100');
+        Observer.Expect('reads of Last', '81: 20..100');
+        Observer.Expect('Previous', 'Yes');
+        Observer.Expect('shown after Previous', '99');
+        Observer.Expect('reads of Previous', '0: ');
+        Observer.Verify();
     end;
 
     local procedure LookupVariableLast(Count: Integer)
@@ -301,7 +333,19 @@ codeunit 63439 "PNL Last On Long List"
     begin
         Initialize();
         LookupVariableLast(41);
-        Observer.Finish();
+        Observer.Expect('editable', 'No');
+        Observer.Expect('opened on', '1');
+        Observer.Expect('reads of the open', '21: 1..20,1');
+        Observer.Expect('Last', 'Yes');
+        Observer.Expect('shown after Last', '41');
+        Observer.Expect('reads of Last', '22: 20..41');
+        Observer.Expect('Previous', 'Yes');
+        Observer.Expect('shown after Previous', '40');
+        Observer.Expect('reads of Previous', '0: ');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('GetRecord', '41');
+        Observer.Expect('reads after the handler', '0: ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -310,7 +354,19 @@ codeunit 63439 "PNL Last On Long List"
     begin
         Initialize();
         LookupVariableLast(61);
-        Observer.Finish();
+        Observer.Expect('editable', 'No');
+        Observer.Expect('opened on', '1');
+        Observer.Expect('reads of the open', '21: 1..20,1');
+        Observer.Expect('Last', 'Yes');
+        Observer.Expect('shown after Last', '61');
+        Observer.Expect('reads of Last', '42: 20..61');
+        Observer.Expect('Previous', 'Yes');
+        Observer.Expect('shown after Previous', '60');
+        Observer.Expect('reads of Previous', '0: ');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('GetRecord', '61');
+        Observer.Expect('reads after the handler', '0: ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -319,7 +375,19 @@ codeunit 63439 "PNL Last On Long List"
     begin
         Initialize();
         LookupVariableLast(100);
-        Observer.Finish();
+        Observer.Expect('editable', 'No');
+        Observer.Expect('opened on', '1');
+        Observer.Expect('reads of the open', '21: 1..20,1');
+        Observer.Expect('Last', 'Yes');
+        Observer.Expect('shown after Last', '100');
+        Observer.Expect('reads of Last', '81: 20..100');
+        Observer.Expect('Previous', 'Yes');
+        Observer.Expect('shown after Previous', '99');
+        Observer.Expect('reads of Previous', '0: ');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('GetRecord', '100');
+        Observer.Expect('reads after the handler', '0: ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -335,7 +403,19 @@ codeunit 63439 "PNL Last On Long List"
         Observer.Observe('action', Format(Result));
         Observer.Observe('rec after', Format(Row.Id));
         Observer.Observe('reads after the handler', Log.Take());
-        Observer.Finish();
+        Observer.Expect('editable', 'No');
+        Observer.Expect('opened on', '1');
+        Observer.Expect('reads of the open', '21: 1..20,1');
+        Observer.Expect('Last', 'Yes');
+        Observer.Expect('shown after Last', '100');
+        Observer.Expect('reads of Last', '81: 20..100');
+        Observer.Expect('Previous', 'Yes');
+        Observer.Expect('shown after Previous', '99');
+        Observer.Expect('reads of Previous', '0: ');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('rec after', '100');
+        Observer.Expect('reads after the handler', '0: ');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
@@ -385,7 +465,12 @@ codeunit 63439 "PNL Last On Long List"
     begin
         Initialize();
         OpenTree(15);
-        Observer.Finish();
+        Observer.Expect('opened on', '1');
+        Observer.Expect('reads of the open', '16: 1..15,1');
+        Observer.Expect('rows walked', '3');
+        Observer.Expect('last row walked', '11');
+        Observer.Expect('reads of the walk', '0: ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -393,6 +478,11 @@ codeunit 63439 "PNL Last On Long List"
     begin
         Initialize();
         OpenTree(60);
-        Observer.Finish();
+        Observer.Expect('opened on', '1');
+        Observer.Expect('reads of the open', '62: 1..20,1,20..60');
+        Observer.Expect('rows walked', '12');
+        Observer.Expect('last row walked', '56');
+        Observer.Expect('reads of the walk', '0: ');
+        Observer.Verify();
     end;
 }

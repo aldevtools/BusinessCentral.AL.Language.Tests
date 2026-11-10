@@ -523,7 +523,12 @@ codeunit 63429 "PNL Page Var Open Row"
         Observer.Observe('action', Format(Result));
         Observer.Observe('values after', Dlg.GetValues());
         Observer.Observe('log after', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log at handler', 'O:C R:C C:C ');
+        Observer.Expect('shown', 'C|name C|7.00');
+        Observer.Expect('action', 'OK');
+        Observer.Expect('values after', 'C|name C|51');
+        Observer.Expect('log after', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -540,7 +545,12 @@ codeunit 63429 "PNL Page Var Open Row"
         Observer.Observe('action', Format(Result));
         Observer.Observe('values after', Dlg.GetValues());
         Observer.Observe('log after', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log at handler', 'O:A R:A C:A ');
+        Observer.Expect('shown', 'A|name A|7.00');
+        Observer.Expect('action', 'OK');
+        Observer.Expect('values after', 'A|name A|51');
+        Observer.Expect('log after', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -559,7 +569,12 @@ codeunit 63429 "PNL Page Var Open Row"
         Observer.Observe('action', Format(Result));
         Observer.Observe('values after', Dlg.GetValues());
         Observer.Observe('log after', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log at handler', 'O:C R:C C:C ');
+        Observer.Expect('shown', 'C|name C|0.00');
+        Observer.Expect('action', 'OK');
+        Observer.Expect('values after', 'C|name C|51');
+        Observer.Expect('log after', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -575,7 +590,12 @@ codeunit 63429 "PNL Page Var Open Row"
         Observer.Observe('action', Format(Result));
         Observer.Observe('values after', Dlg.GetValues());
         Observer.Observe('log after', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log at handler', 'O: R:A C:A ');
+        Observer.Expect('shown', 'A|name A|0.00');
+        Observer.Expect('action', 'OK');
+        Observer.Expect('values after', 'A|name A|51');
+        Observer.Expect('log after', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -592,7 +612,12 @@ codeunit 63429 "PNL Page Var Open Row"
         Observer.Observe('action', Format(Result));
         Observer.Observe('values after', Card.GetValues());
         Observer.Observe('log after', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log at handler', 'O:C R:C C:C ');
+        Observer.Expect('shown', 'C|name C|7.00');
+        Observer.Expect('action', 'OK');
+        Observer.Expect('values after', 'C|name C|51');
+        Observer.Expect('log after', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -609,7 +634,12 @@ codeunit 63429 "PNL Page Var Open Row"
         Observer.Observe('action', Format(Result));
         Observer.Observe('values after', List.GetValues());
         Observer.Observe('log after', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log at handler', 'O:C R:C R:D R:C R:B R:A R:C R:C C:C ');
+        Observer.Expect('shown', 'C|name C|7.00');
+        Observer.Expect('action', 'OK');
+        Observer.Expect('values after', 'C|name C|51');
+        Observer.Expect('log after', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -623,7 +653,12 @@ codeunit 63429 "PNL Page Var Open Row"
         List.SetRow('C');
         List.Run();
         Observer.Observe('log after', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log at handler', 'O:C R:C R:D R:C R:B R:A R:C R:C C:C ');
+        Observer.Expect('shown', 'C|name C|7.00');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('shown after next', 'D');
+        Observer.Expect('log after', 'R:D R:D C:D ');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
@@ -689,7 +724,13 @@ codeunit 63429 "PNL Page Var Open Row"
         Pick.RunPick('doc');
         Observer.Observe('log after', Log.Take());
         Observer.Observe('page rec after', Pick.Dump());
-        Observer.Finish();
+        Observer.Expect('log at handler', 'O: N C: N C: ');
+        Observer.Expect('opened on', '|new');
+        Observer.Expect('typed, next', 'Yes');
+        Observer.Expect('log after typing', 'I:T1 N C: ');
+        Observer.Expect('log after', 'X ');
+        Observer.Expect('page rec after', 'on : T1=new;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -703,7 +744,13 @@ codeunit 63429 "PNL Page Var Open Row"
         Pick.Run();
         Observer.Observe('log after', Log.Take());
         Observer.Observe('page rec after', Pick.Dump());
-        Observer.Finish();
+        Observer.Expect('log at handler', 'O: N C: N C: ');
+        Observer.Expect('opened on', '|new');
+        Observer.Expect('typed, next', 'Yes');
+        Observer.Expect('log after typing', 'I:T1 N C: ');
+        Observer.Expect('log after', 'X ');
+        Observer.Expect('page rec after', 'on : ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -716,7 +763,13 @@ codeunit 63429 "PNL Page Var Open Row"
         Pick.RunPickModal('doc');
         Observer.Observe('log after', Log.Take());
         Observer.Observe('page rec after', Pick.Dump());
-        Observer.Finish();
+        Observer.Expect('log at handler', 'O: N C: N C: ');
+        Observer.Expect('opened on', '|new');
+        Observer.Expect('typed, next', 'Yes');
+        Observer.Expect('log after typing', 'I:T1 N C: ');
+        Observer.Expect('log after', 'X ');
+        Observer.Expect('page rec after', 'on : T1=new;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -730,7 +783,13 @@ codeunit 63429 "PNL Page Var Open Row"
         Pick.RunPick('doc');
         Observer.Observe('log after', Log.Take());
         Observer.Observe('page rec after', Pick.Dump());
-        Observer.Finish();
+        Observer.Expect('log at handler', 'O:P2 C:P2 ');
+        Observer.Expect('opened on', 'P2|preloaded');
+        Observer.Expect('typed, next', 'Yes');
+        Observer.Expect('log after typing', 'N C: ');
+        Observer.Expect('log after', 'X ');
+        Observer.Expect('page rec after', 'on : P1=preloaded;P2=preloaded;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -742,7 +801,10 @@ codeunit 63429 "PNL Page Var Open Row"
         asserterror Pick.RunPick('');
         Observer.ObserveError('run');
         Observer.Observe('log after', Log.Take());
-        Observer.Finish();
+        Observer.Expect('run|text', 'Unhandled UI: Page 63425');
+        Observer.Expect('run|code', 'MissingUIHandler');
+        Observer.Expect('log after', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -756,7 +818,14 @@ codeunit 63429 "PNL Page Var Open Row"
         Observer.Observe('log after', Log.Take());
         Observer.Observe('page rec after', Pick.Dump());
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('log at handler', 'O: N C: N C: ');
+        Observer.Expect('opened on', '|new');
+        Observer.Expect('typed, next', 'Yes');
+        Observer.Expect('log after typing', 'I:T1 N C: ');
+        Observer.Expect('log after', 'X ');
+        Observer.Expect('page rec after', 'on : T1=new;');
+        Observer.Expect('stored', 'T1=new;');
+        Observer.Verify();
     end;
 
     [PageHandler]
@@ -870,7 +939,16 @@ codeunit 63429 "PNL Page Var Open Row"
         Ws.Run();
         Observer.Observe('log after', Log.Take());
         Observer.Observe('page rec after', Ws.Dump());
-        Observer.Finish();
+        Observer.Expect('log at handler', 'R:D R:D R:A R:C R:D R:B ');
+        Observer.Expect('opened on', 'D');
+        Observer.Expect('rows', 'B,D,A,C,');
+        Observer.Expect('log of the walk', '');
+        Observer.Expect('row edited', 'B|name B');
+        Observer.Expect('log of the edit', 'R:B R:B R:D R:A R:C R:B ');
+        Observer.Expect('OK', 'ok');
+        Observer.Expect('log after', '');
+        Observer.Expect('page rec after', 'on : ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -889,7 +967,17 @@ codeunit 63429 "PNL Page Var Open Row"
         Observer.Observe('action', Format(Result));
         Observer.Observe('log after', Log.Take());
         Observer.Observe('page rec after', Ws.Dump());
-        Observer.Finish();
+        Observer.Expect('log at handler', 'R:D R:D R:A R:C R:D R:B ');
+        Observer.Expect('opened on', 'D');
+        Observer.Expect('rows', 'B,D,A,C,');
+        Observer.Expect('log of the walk', '');
+        Observer.Expect('row edited', 'B|name B');
+        Observer.Expect('log of the edit', 'R:B R:B R:D R:A R:C R:B ');
+        Observer.Expect('OK', 'ok');
+        Observer.Expect('action', 'OK');
+        Observer.Expect('log after', '');
+        Observer.Expect('page rec after', 'on B: B=name B;D=name D;A=name A;C=name C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -907,7 +995,16 @@ codeunit 63429 "PNL Page Var Open Row"
         Ws.Run();
         Observer.Observe('log after', Log.Take());
         Observer.Observe('page rec after', Ws.Dump());
-        Observer.Finish();
+        Observer.Expect('log at handler', 'R:B R:B R:A R:B ');
+        Observer.Expect('opened on', 'B');
+        Observer.Expect('rows', 'B,A,');
+        Observer.Expect('log of the walk', '');
+        Observer.Expect('row edited', 'B|name B');
+        Observer.Expect('log of the edit', 'R:B R:B R:A R:B ');
+        Observer.Expect('OK', 'ok');
+        Observer.Expect('log after', '');
+        Observer.Expect('page rec after', 'on : ');
+        Observer.Verify();
     end;
 
     [PageHandler]
