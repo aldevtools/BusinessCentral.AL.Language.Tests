@@ -983,4 +983,45 @@ codeunit 95454 "LT R6951 Tests"
             Error('Expected last selected key 202; actual %1.', Field.Value());
         Ref.Close();
     end;
+
+    [Test]
+    procedure TableFilter_Evaluate_CodeExclusionsWithSpaces_LeavesOtherRow()
+    var
+        Row: Record "ALT Universal";
+        Holder: Record "ALT TableFilter Holder";
+        Fields: Record "Table Filter" temporary;
+        FilterPage: Page "Table Filter";
+        Ref: RecordRef;
+        Fld: FieldRef;
+    begin
+        Initialize();
+        Row."Entry No." := 101;
+        Row."Code Field" := 'BIN EAST';
+        Row.Insert(false);
+        Row."Entry No." := 202;
+        Row."Code Field" := 'BIN WEST';
+        Row.Insert(false);
+        Row."Entry No." := 303;
+        Row."Code Field" := 'BIN NORTH';
+        Row.Insert(false);
+
+        Evaluate(Holder."Filter Value", 'ALT Universal: Code Field=<>BIN EAST&<>BIN WEST');
+        FilterPage.SetSourceTable(Format(Holder."Filter Value"), Database::"ALT Universal", Row.TableCaption());
+        FilterPage.GetFilterFieldsList(Fields);
+        if (Fields.Count() <> 1) or not Fields.FindFirst() then
+            Error('Expected one Code filter.');
+        if Fields."Field Number" <> Row.FieldNo("Code Field") then
+            Error('Expected the Code Field filter.');
+
+        Ref.Open(Database::"ALT Universal");
+        Fld := Ref.Field(Fields."Field Number");
+        Fld.SetFilter(Fields."Field Filter");
+        if Ref.Count() <> 1 then
+            Error('Expected one selected row; actual %1.', Ref.Count());
+        Ref.FindFirst();
+        Fld := Ref.Field(Row.FieldNo("Entry No."));
+        if Format(Fld.Value()) <> '303' then
+            Error('Expected selected key 303; actual %1.', Fld.Value());
+        Ref.Close();
+    end;
 }
