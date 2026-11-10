@@ -261,16 +261,14 @@ codeunit 66412 "TP TmpExpr Tests"
         Observer.Observe('last', Format(Moved, 0, 9) + ' ' + Current(H));
     end;
 
-    local procedure ViewCase(ActionName: Text; FilterValue: Text)
+    local procedure ViewCase(ActionName: Text; FilterValue: Text; var Observer: Codeunit "Probe Observer")
     var
-        Observer: Codeunit "Probe Observer";
         H: TestPage "TP TmpExpr List";
     begin
         Initialize();
         H.OpenView();
         Steps(Observer, H, ActionName, FilterValue);
         H.Close();
-        Observer.Finish();
     end;
 
     local procedure ModalCase(ActionName: Text; FilterValue: Text)
@@ -281,7 +279,6 @@ codeunit 66412 "TP TmpExpr Tests"
         ModalAction := ActionName;
         ModalFilter := FilterValue;
         P.RunModal();
-        ModalObserver.Finish();
     end;
 
     [ModalPageHandler]
@@ -293,62 +290,162 @@ codeunit 66412 "TP TmpExpr Tests"
 
     [Test]
     procedure OpenView_NoAction_FilterAndFirst()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ViewCase('none', '7');
+        ViewCase('none', '7', Observer);
+        Observer.Expect('opened', '2 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 format=8 concat=a2>b2 fill=open');
+        Observer.Expect('after action', '2 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 format=8 concat=a2>b2 fill=open');
+        Observer.Expect('after filter 7', '1 f=7 old=a1 oldlocal=L:a1 newlocal=L:b1 format=7 concat=a1>b1 fill=open');
+        Observer.Expect('first', 'true 1 f=7 old=a1 oldlocal=L:a1 newlocal=L:b1 format=7 concat=a1>b1 fill=open');
+        Observer.Expect('next', 'false 1 f=7 old=a1 oldlocal=L:a1 newlocal=L:b1 format=7 concat=a1>b1 fill=open');
+        Observer.Expect('filter removed, first', 'true 1 f=7 old=a1 oldlocal=L:a1 newlocal=L:b1 format=7 concat=a1>b1 fill=open');
+        Observer.Expect('last', 'true 2 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 format=8 concat=a2>b2 fill=open');
+        Observer.Verify();
     end;
 
     [Test]
     procedure OpenView_ThreeOtherRows_FilterAndFirst()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ViewCase('ThreeOther', '7');
+        ViewCase('ThreeOther', '7', Observer);
+        Observer.Expect('opened', '2 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 format=8 concat=a2>b2 fill=open');
+        Observer.Expect('after action', '13 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 format=7 concat=m3>n3 fill=three other');
+        Observer.Expect('after filter 7', '11 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 format=7 concat=m1>n1 fill=three other');
+        Observer.Expect('first', 'true 11 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 format=7 concat=m1>n1 fill=three other');
+        Observer.Expect('next', 'true 13 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 format=7 concat=m3>n3 fill=three other');
+        Observer.Expect('filter removed, first', 'true 11 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 format=7 concat=m1>n1 fill=three other');
+        Observer.Expect('last', 'true 13 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 format=7 concat=m3>n3 fill=three other');
+        Observer.Verify();
     end;
 
     [Test]
     procedure OpenView_ThreeOtherRows_FilterOnSecondRow()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ViewCase('ThreeOther', '9');
+        ViewCase('ThreeOther', '9', Observer);
+        Observer.Expect('opened', '2 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 format=8 concat=a2>b2 fill=open');
+        Observer.Expect('after action', '13 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 format=7 concat=m3>n3 fill=three other');
+        Observer.Expect('after filter 9', '12 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 format=9 concat=m2>n2 fill=three other');
+        Observer.Expect('first', 'true 12 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 format=9 concat=m2>n2 fill=three other');
+        Observer.Expect('next', 'false 12 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 format=9 concat=m2>n2 fill=three other');
+        Observer.Expect('filter removed, first', 'true 11 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 format=7 concat=m1>n1 fill=three other');
+        Observer.Expect('last', 'true 13 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 format=7 concat=m3>n3 fill=three other');
+        Observer.Verify();
     end;
 
     [Test]
     procedure OpenView_ThreeOtherRows_FilterWithoutMatch()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ViewCase('ThreeOther', '5');
+        ViewCase('ThreeOther', '5', Observer);
+        Observer.Expect('opened', '2 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 format=8 concat=a2>b2 fill=open');
+        Observer.Expect('after action', '13 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 format=7 concat=m3>n3 fill=three other');
+        Observer.Expect('after filter 5', ' f= old= oldlocal= newlocal= format= concat= fill=');
+        Observer.Expect('first', 'false  f= old= oldlocal= newlocal= format= concat= fill=');
+        Observer.Expect('next', 'false  f= old= oldlocal= newlocal= format= concat= fill=');
+        Observer.Expect('filter removed, first', 'true 11 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 format=7 concat=m1>n1 fill=three other');
+        Observer.Expect('last', 'true 13 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 format=7 concat=m3>n3 fill=three other');
+        Observer.Verify();
     end;
 
     [Test]
     procedure OpenView_ThreeOtherRowsWithUpdate_FilterAndFirst()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ViewCase('ThreeOtherUpdate', '7');
+        ViewCase('ThreeOtherUpdate', '7', Observer);
+        Observer.Expect('opened', '2 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 format=8 concat=a2>b2 fill=open');
+        Observer.Expect('after action', '13 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 format=7 concat=m3>n3 fill=three other');
+        Observer.Expect('after filter 7', '11 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 format=7 concat=m1>n1 fill=three other');
+        Observer.Expect('first', 'true 11 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 format=7 concat=m1>n1 fill=three other');
+        Observer.Expect('next', 'true 13 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 format=7 concat=m3>n3 fill=three other');
+        Observer.Expect('filter removed, first', 'true 11 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 format=7 concat=m1>n1 fill=three other');
+        Observer.Expect('last', 'true 13 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 format=7 concat=m3>n3 fill=three other');
+        Observer.Verify();
     end;
 
     [Test]
     procedure OpenView_ThreeOtherRowsFindFirst_FilterAndFirst()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ViewCase('ThreeOtherFindFirst', '7');
+        ViewCase('ThreeOtherFindFirst', '7', Observer);
+        Observer.Expect('opened', '2 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 format=8 concat=a2>b2 fill=open');
+        Observer.Expect('after action', '11 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 format=7 concat=m1>n1 fill=three other');
+        Observer.Expect('after filter 7', '11 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 format=7 concat=m1>n1 fill=three other');
+        Observer.Expect('first', 'true 11 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 format=7 concat=m1>n1 fill=three other');
+        Observer.Expect('next', 'true 13 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 format=7 concat=m3>n3 fill=three other');
+        Observer.Expect('filter removed, first', 'true 11 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 format=7 concat=m1>n1 fill=three other');
+        Observer.Expect('last', 'true 13 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 format=7 concat=m3>n3 fill=three other');
+        Observer.Verify();
     end;
 
     [Test]
     procedure OpenView_SameKeysOtherValues_FilterAndFirst()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ViewCase('SameKeys', '7');
+        ViewCase('SameKeys', '7', Observer);
+        Observer.Expect('opened', '2 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 format=8 concat=a2>b2 fill=open');
+        Observer.Expect('after action', '2 f=8 old=x2 oldlocal=L:x2 newlocal=L:y2 format=8 concat=x2>y2 fill=same keys');
+        Observer.Expect('after filter 7', '1 f=7 old=x1 oldlocal=L:x1 newlocal=L:y1 format=7 concat=x1>y1 fill=same keys');
+        Observer.Expect('first', 'true 1 f=7 old=x1 oldlocal=L:x1 newlocal=L:y1 format=7 concat=x1>y1 fill=same keys');
+        Observer.Expect('next', 'false 1 f=7 old=x1 oldlocal=L:x1 newlocal=L:y1 format=7 concat=x1>y1 fill=same keys');
+        Observer.Expect('filter removed, first', 'true 1 f=7 old=x1 oldlocal=L:x1 newlocal=L:y1 format=7 concat=x1>y1 fill=same keys');
+        Observer.Expect('last', 'true 2 f=8 old=x2 oldlocal=L:x2 newlocal=L:y2 format=8 concat=x2>y2 fill=same keys');
+        Observer.Verify();
     end;
 
     [Test]
     procedure OpenView_OneRow_FilterAndFirst()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ViewCase('OneRow', '7');
+        ViewCase('OneRow', '7', Observer);
+        Observer.Expect('opened', '2 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 format=8 concat=a2>b2 fill=open');
+        Observer.Expect('after action', '21 f=7 old=o1 oldlocal=L:o1 newlocal=L:p1 format=7 concat=o1>p1 fill=one row');
+        Observer.Expect('after filter 7', '21 f=7 old=o1 oldlocal=L:o1 newlocal=L:p1 format=7 concat=o1>p1 fill=one row');
+        Observer.Expect('first', 'true 21 f=7 old=o1 oldlocal=L:o1 newlocal=L:p1 format=7 concat=o1>p1 fill=one row');
+        Observer.Expect('next', 'false 21 f=7 old=o1 oldlocal=L:o1 newlocal=L:p1 format=7 concat=o1>p1 fill=one row');
+        Observer.Expect('filter removed, first', 'true 21 f=7 old=o1 oldlocal=L:o1 newlocal=L:p1 format=7 concat=o1>p1 fill=one row');
+        Observer.Expect('last', 'true 21 f=7 old=o1 oldlocal=L:o1 newlocal=L:p1 format=7 concat=o1>p1 fill=one row');
+        Observer.Verify();
     end;
 
     [Test]
     procedure OpenView_NoRow_FilterAndFirst()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ViewCase('NoRow', '7');
+        ViewCase('NoRow', '7', Observer);
+        Observer.Expect('opened', '2 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 format=8 concat=a2>b2 fill=open');
+        Observer.Expect('after action', ' f= old= oldlocal= newlocal= format= concat= fill=');
+        Observer.Expect('after filter 7', ' f= old= oldlocal= newlocal= format= concat= fill=');
+        Observer.Expect('first', 'false  f= old= oldlocal= newlocal= format= concat= fill=');
+        Observer.Expect('next', 'false  f= old= oldlocal= newlocal= format= concat= fill=');
+        Observer.Expect('filter removed, first', 'false  f= old= oldlocal= newlocal= format= concat= fill=');
+        Observer.Expect('last', 'false  f= old= oldlocal= newlocal= format= concat= fill=');
+        Observer.Verify();
     end;
 
     [Test]
     procedure OpenView_NoRowWithUpdate_FilterAndFirst()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ViewCase('NoRowUpdate', '7');
+        ViewCase('NoRowUpdate', '7', Observer);
+        Observer.Expect('opened', '2 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 format=8 concat=a2>b2 fill=open');
+        Observer.Expect('after action', ' f= old= oldlocal= newlocal= format= concat= fill=');
+        Observer.Expect('after filter 7', ' f= old= oldlocal= newlocal= format= concat= fill=');
+        Observer.Expect('first', 'false  f= old= oldlocal= newlocal= format= concat= fill=');
+        Observer.Expect('next', 'false  f= old= oldlocal= newlocal= format= concat= fill=');
+        Observer.Expect('filter removed, first', 'false  f= old= oldlocal= newlocal= format= concat= fill=');
+        Observer.Expect('last', 'false  f= old= oldlocal= newlocal= format= concat= fill=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -356,6 +453,14 @@ codeunit 66412 "TP TmpExpr Tests"
     procedure RunModal_NoAction_FilterAndFirst()
     begin
         ModalCase('none', '7');
+        ModalObserver.Expect('opened', '2 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 format=8 concat=a2>b2 fill=open');
+        ModalObserver.Expect('after action', '2 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 format=8 concat=a2>b2 fill=open');
+        ModalObserver.Expect('after filter 7', '1 f=7 old=a1 oldlocal=L:a1 newlocal=L:b1 format=7 concat=a1>b1 fill=open');
+        ModalObserver.Expect('first', 'true 1 f=7 old=a1 oldlocal=L:a1 newlocal=L:b1 format=7 concat=a1>b1 fill=open');
+        ModalObserver.Expect('next', 'false 1 f=7 old=a1 oldlocal=L:a1 newlocal=L:b1 format=7 concat=a1>b1 fill=open');
+        ModalObserver.Expect('filter removed, first', 'true 1 f=7 old=a1 oldlocal=L:a1 newlocal=L:b1 format=7 concat=a1>b1 fill=open');
+        ModalObserver.Expect('last', 'true 2 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 format=8 concat=a2>b2 fill=open');
+        ModalObserver.Verify();
     end;
 
     [Test]
@@ -363,6 +468,14 @@ codeunit 66412 "TP TmpExpr Tests"
     procedure RunModal_ThreeOtherRows_FilterAndFirst()
     begin
         ModalCase('ThreeOther', '7');
+        ModalObserver.Expect('opened', '2 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 format=8 concat=a2>b2 fill=open');
+        ModalObserver.Expect('after action', '13 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 format=7 concat=m3>n3 fill=three other');
+        ModalObserver.Expect('after filter 7', '11 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 format=7 concat=m1>n1 fill=three other');
+        ModalObserver.Expect('first', 'true 11 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 format=7 concat=m1>n1 fill=three other');
+        ModalObserver.Expect('next', 'true 13 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 format=7 concat=m3>n3 fill=three other');
+        ModalObserver.Expect('filter removed, first', 'true 11 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 format=7 concat=m1>n1 fill=three other');
+        ModalObserver.Expect('last', 'true 13 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 format=7 concat=m3>n3 fill=three other');
+        ModalObserver.Verify();
     end;
 
     [Test]
@@ -370,6 +483,14 @@ codeunit 66412 "TP TmpExpr Tests"
     procedure RunModal_ThreeOtherRows_FilterWithoutMatch()
     begin
         ModalCase('ThreeOther', '5');
+        ModalObserver.Expect('opened', '2 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 format=8 concat=a2>b2 fill=open');
+        ModalObserver.Expect('after action', '13 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 format=7 concat=m3>n3 fill=three other');
+        ModalObserver.Expect('after filter 5', ' f= old= oldlocal= newlocal= format= concat= fill=');
+        ModalObserver.Expect('first', 'false  f= old= oldlocal= newlocal= format= concat= fill=');
+        ModalObserver.Expect('next', 'false  f= old= oldlocal= newlocal= format= concat= fill=');
+        ModalObserver.Expect('filter removed, first', 'true 11 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 format=7 concat=m1>n1 fill=three other');
+        ModalObserver.Expect('last', 'true 13 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 format=7 concat=m3>n3 fill=three other');
+        ModalObserver.Verify();
     end;
 
     [Test]
@@ -377,6 +498,14 @@ codeunit 66412 "TP TmpExpr Tests"
     procedure RunModal_ThreeOtherRowsWithUpdate_FilterAndFirst()
     begin
         ModalCase('ThreeOtherUpdate', '7');
+        ModalObserver.Expect('opened', '2 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 format=8 concat=a2>b2 fill=open');
+        ModalObserver.Expect('after action', '13 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 format=7 concat=m3>n3 fill=three other');
+        ModalObserver.Expect('after filter 7', '11 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 format=7 concat=m1>n1 fill=three other');
+        ModalObserver.Expect('first', 'true 11 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 format=7 concat=m1>n1 fill=three other');
+        ModalObserver.Expect('next', 'true 13 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 format=7 concat=m3>n3 fill=three other');
+        ModalObserver.Expect('filter removed, first', 'true 11 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 format=7 concat=m1>n1 fill=three other');
+        ModalObserver.Expect('last', 'true 13 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 format=7 concat=m3>n3 fill=three other');
+        ModalObserver.Verify();
     end;
 
     [Test]
@@ -384,6 +513,14 @@ codeunit 66412 "TP TmpExpr Tests"
     procedure RunModal_SameKeysOtherValues_FilterAndFirst()
     begin
         ModalCase('SameKeys', '8');
+        ModalObserver.Expect('opened', '2 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 format=8 concat=a2>b2 fill=open');
+        ModalObserver.Expect('after action', '2 f=8 old=x2 oldlocal=L:x2 newlocal=L:y2 format=8 concat=x2>y2 fill=same keys');
+        ModalObserver.Expect('after filter 8', '2 f=8 old=x2 oldlocal=L:x2 newlocal=L:y2 format=8 concat=x2>y2 fill=same keys');
+        ModalObserver.Expect('first', 'true 2 f=8 old=x2 oldlocal=L:x2 newlocal=L:y2 format=8 concat=x2>y2 fill=same keys');
+        ModalObserver.Expect('next', 'false 2 f=8 old=x2 oldlocal=L:x2 newlocal=L:y2 format=8 concat=x2>y2 fill=same keys');
+        ModalObserver.Expect('filter removed, first', 'true 1 f=7 old=x1 oldlocal=L:x1 newlocal=L:y1 format=7 concat=x1>y1 fill=same keys');
+        ModalObserver.Expect('last', 'true 2 f=8 old=x2 oldlocal=L:x2 newlocal=L:y2 format=8 concat=x2>y2 fill=same keys');
+        ModalObserver.Verify();
     end;
 
     [Test]
@@ -391,5 +528,13 @@ codeunit 66412 "TP TmpExpr Tests"
     procedure RunModal_NoRow_FilterAndFirst()
     begin
         ModalCase('NoRow', '7');
+        ModalObserver.Expect('opened', '2 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 format=8 concat=a2>b2 fill=open');
+        ModalObserver.Expect('after action', ' f= old= oldlocal= newlocal= format= concat= fill=');
+        ModalObserver.Expect('after filter 7', ' f= old= oldlocal= newlocal= format= concat= fill=');
+        ModalObserver.Expect('first', 'false  f= old= oldlocal= newlocal= format= concat= fill=');
+        ModalObserver.Expect('next', 'false  f= old= oldlocal= newlocal= format= concat= fill=');
+        ModalObserver.Expect('filter removed, first', 'false  f= old= oldlocal= newlocal= format= concat= fill=');
+        ModalObserver.Expect('last', 'false  f= old= oldlocal= newlocal= format= concat= fill=');
+        ModalObserver.Verify();
     end;
 }
