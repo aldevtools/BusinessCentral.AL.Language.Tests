@@ -159,6 +159,534 @@ codeunit 64103 "FFM SumAvg Tests"
     var
         Observer: Codeunit "Probe Observer";
 
+    [TryFunction]
+    local procedure TryCalc_Sum_const(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_const);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_field(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_field);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_filter(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_filter);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_constopt(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_constopt);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_constenum(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_constenum);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_filterenum(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_filterenum);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_ffint(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_ffint);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_ffdec(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_ffdec);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_ffdate(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_ffdate);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_ffcode(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_ffcode);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_ffopt(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_ffopt);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_ffenum(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_ffenum);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_fftext(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_fftext);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_uldate(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_uldate);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_ulint(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_ulint);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_uldec(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_uldec);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_ulcode(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_ulcode);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_ulopt(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_ulopt);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_ulenum(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_ulenum);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_ulfdate(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_ulfdate);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_ffmismatch(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_ffmismatch);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Sum_ffboth(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Sum_ffboth);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_const(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_const);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_field(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_field);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_filter(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_filter);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_constopt(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_constopt);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_constenum(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_constenum);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_filterenum(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_filterenum);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_ffint(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_ffint);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_ffdec(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_ffdec);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_ffdate(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_ffdate);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_ffcode(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_ffcode);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_ffopt(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_ffopt);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_ffenum(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_ffenum);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_fftext(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_fftext);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_uldate(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_uldate);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_ulint(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_ulint);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_uldec(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_uldec);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_ulcode(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_ulcode);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_ulopt(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_ulopt);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_ulenum(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_ulenum);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_ulfdate(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_ulfdate);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_ffmismatch(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_ffmismatch);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NSum_ffboth(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NSum_ffboth);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_const(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_const);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_field(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_field);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_filter(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_filter);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_constopt(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_constopt);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_constenum(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_constenum);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_filterenum(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_filterenum);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_ffint(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_ffint);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_ffdec(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_ffdec);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_ffdate(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_ffdate);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_ffcode(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_ffcode);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_ffopt(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_ffopt);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_ffenum(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_ffenum);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_fftext(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_fftext);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_uldate(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_uldate);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_ulint(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_ulint);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_uldec(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_uldec);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_ulcode(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_ulcode);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_ulopt(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_ulopt);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_ulenum(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_ulenum);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_ulfdate(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_ulfdate);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_ffmismatch(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_ffmismatch);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_Avg_ffboth(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(Avg_ffboth);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_const(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_const);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_field(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_field);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_filter(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_filter);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_constopt(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_constopt);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_constenum(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_constenum);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_filterenum(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_filterenum);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_ffint(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_ffint);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_ffdec(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_ffdec);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_ffdate(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_ffdate);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_ffcode(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_ffcode);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_ffopt(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_ffopt);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_ffenum(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_ffenum);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_fftext(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_fftext);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_uldate(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_uldate);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_ulint(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_ulint);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_uldec(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_uldec);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_ulcode(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_ulcode);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_ulopt(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_ulopt);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_ulenum(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_ulenum);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_ulfdate(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_ulfdate);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_ffmismatch(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_ffmismatch);
+    end;
+
+    [TryFunction]
+    local procedure TryCalc_NAvg_ffboth(var H: Record "FFM SumAvg Header")
+    begin
+        H.CalcFields(NAvg_ffboth);
+    end;
+
     [Test]
     procedure FlowFieldSum_WhereConstFieldFilter_Values()
     // CLAIM: FlowFieldSum with const, field and filter conditions, on a header with rows, one with others rows and one without rows.
@@ -167,43 +695,61 @@ codeunit 64103 "FFM SumAvg Tests"
     begin
         Initialize();
         H.Get('H1');
-        H.CalcFields(Sum_const);
+        if not TryCalc_Sum_const(H) then
+            Observer.ObserveError('Sum_const.calc1');
         Observer.Observe('H1.const', Format(H.Sum_const));
-        H.CalcFields(Sum_field);
+        if not TryCalc_Sum_field(H) then
+            Observer.ObserveError('Sum_field.calc2');
         Observer.Observe('H1.field', Format(H.Sum_field));
-        H.CalcFields(Sum_filter);
+        if not TryCalc_Sum_filter(H) then
+            Observer.ObserveError('Sum_filter.calc3');
         Observer.Observe('H1.filter', Format(H.Sum_filter));
-        H.CalcFields(Sum_constopt);
+        if not TryCalc_Sum_constopt(H) then
+            Observer.ObserveError('Sum_constopt.calc4');
         Observer.Observe('H1.constopt', Format(H.Sum_constopt));
-        H.CalcFields(Sum_constenum);
+        if not TryCalc_Sum_constenum(H) then
+            Observer.ObserveError('Sum_constenum.calc5');
         Observer.Observe('H1.constenum', Format(H.Sum_constenum));
-        H.CalcFields(Sum_filterenum);
+        if not TryCalc_Sum_filterenum(H) then
+            Observer.ObserveError('Sum_filterenum.calc6');
         Observer.Observe('H1.filterenum', Format(H.Sum_filterenum));
         H.Get('H2');
-        H.CalcFields(Sum_const);
+        if not TryCalc_Sum_const(H) then
+            Observer.ObserveError('Sum_const.calc7');
         Observer.Observe('H2.const', Format(H.Sum_const));
-        H.CalcFields(Sum_field);
+        if not TryCalc_Sum_field(H) then
+            Observer.ObserveError('Sum_field.calc8');
         Observer.Observe('H2.field', Format(H.Sum_field));
-        H.CalcFields(Sum_filter);
+        if not TryCalc_Sum_filter(H) then
+            Observer.ObserveError('Sum_filter.calc9');
         Observer.Observe('H2.filter', Format(H.Sum_filter));
-        H.CalcFields(Sum_constopt);
+        if not TryCalc_Sum_constopt(H) then
+            Observer.ObserveError('Sum_constopt.calc10');
         Observer.Observe('H2.constopt', Format(H.Sum_constopt));
-        H.CalcFields(Sum_constenum);
+        if not TryCalc_Sum_constenum(H) then
+            Observer.ObserveError('Sum_constenum.calc11');
         Observer.Observe('H2.constenum', Format(H.Sum_constenum));
-        H.CalcFields(Sum_filterenum);
+        if not TryCalc_Sum_filterenum(H) then
+            Observer.ObserveError('Sum_filterenum.calc12');
         Observer.Observe('H2.filterenum', Format(H.Sum_filterenum));
         H.Get('H3');
-        H.CalcFields(Sum_const);
+        if not TryCalc_Sum_const(H) then
+            Observer.ObserveError('Sum_const.calc13');
         Observer.Observe('H3.const', Format(H.Sum_const));
-        H.CalcFields(Sum_field);
+        if not TryCalc_Sum_field(H) then
+            Observer.ObserveError('Sum_field.calc14');
         Observer.Observe('H3.field', Format(H.Sum_field));
-        H.CalcFields(Sum_filter);
+        if not TryCalc_Sum_filter(H) then
+            Observer.ObserveError('Sum_filter.calc15');
         Observer.Observe('H3.filter', Format(H.Sum_filter));
-        H.CalcFields(Sum_constopt);
+        if not TryCalc_Sum_constopt(H) then
+            Observer.ObserveError('Sum_constopt.calc16');
         Observer.Observe('H3.constopt', Format(H.Sum_constopt));
-        H.CalcFields(Sum_constenum);
+        if not TryCalc_Sum_constenum(H) then
+            Observer.ObserveError('Sum_constenum.calc17');
         Observer.Observe('H3.constenum', Format(H.Sum_constenum));
-        H.CalcFields(Sum_filterenum);
+        if not TryCalc_Sum_filterenum(H) then
+            Observer.ObserveError('Sum_filterenum.calc18');
         Observer.Observe('H3.filterenum', Format(H.Sum_filterenum));
         Observer.Finish();
     end;
@@ -217,46 +763,60 @@ codeunit 64103 "FFM SumAvg Tests"
         Initialize();
         H.Get('H1');
         H.Reset();
-        H.CalcFields(Sum_ffint);
+        if not TryCalc_Sum_ffint(H) then
+            Observer.ObserveError('Sum_ffint.calc19');
         Observer.Observe('ffint.unset', Format(H.Sum_ffint));
         H.SetFilter(IntF, '3..5');
-        H.CalcFields(Sum_ffint);
+        if not TryCalc_Sum_ffint(H) then
+            Observer.ObserveError('Sum_ffint.calc20');
         Observer.Observe('ffint.set', Format(H.Sum_ffint));
         H.Reset();
-        H.CalcFields(Sum_ffdec);
+        if not TryCalc_Sum_ffdec(H) then
+            Observer.ObserveError('Sum_ffdec.calc21');
         Observer.Observe('ffdec.unset', Format(H.Sum_ffdec));
         H.SetFilter(DecF, '>=14');
-        H.CalcFields(Sum_ffdec);
+        if not TryCalc_Sum_ffdec(H) then
+            Observer.ObserveError('Sum_ffdec.calc22');
         Observer.Observe('ffdec.set', Format(H.Sum_ffdec));
         H.Reset();
-        H.CalcFields(Sum_ffdate);
+        if not TryCalc_Sum_ffdate(H) then
+            Observer.ObserveError('Sum_ffdate.calc23');
         Observer.Observe('ffdate.unset', Format(H.Sum_ffdate));
         H.SetRange(DateF, 20260201D, 20260430D);
-        H.CalcFields(Sum_ffdate);
+        if not TryCalc_Sum_ffdate(H) then
+            Observer.ObserveError('Sum_ffdate.calc24');
         Observer.Observe('ffdate.set', Format(H.Sum_ffdate));
         H.Reset();
-        H.CalcFields(Sum_ffcode);
+        if not TryCalc_Sum_ffcode(H) then
+            Observer.ObserveError('Sum_ffcode.calc25');
         Observer.Observe('ffcode.unset', Format(H.Sum_ffcode));
         H.SetFilter(CodeF, 'K1');
-        H.CalcFields(Sum_ffcode);
+        if not TryCalc_Sum_ffcode(H) then
+            Observer.ObserveError('Sum_ffcode.calc26');
         Observer.Observe('ffcode.set', Format(H.Sum_ffcode));
         H.Reset();
-        H.CalcFields(Sum_ffopt);
+        if not TryCalc_Sum_ffopt(H) then
+            Observer.ObserveError('Sum_ffopt.calc27');
         Observer.Observe('ffopt.unset', Format(H.Sum_ffopt));
         H.SetRange(OptF, H.OptF::B);
-        H.CalcFields(Sum_ffopt);
+        if not TryCalc_Sum_ffopt(H) then
+            Observer.ObserveError('Sum_ffopt.calc28');
         Observer.Observe('ffopt.set', Format(H.Sum_ffopt));
         H.Reset();
-        H.CalcFields(Sum_ffenum);
+        if not TryCalc_Sum_ffenum(H) then
+            Observer.ObserveError('Sum_ffenum.calc29');
         Observer.Observe('ffenum.unset', Format(H.Sum_ffenum));
         H.SetFilter(EnumF, '%1|%2', H.EnumF::Closed, H.EnumF::Held);
-        H.CalcFields(Sum_ffenum);
+        if not TryCalc_Sum_ffenum(H) then
+            Observer.ObserveError('Sum_ffenum.calc30');
         Observer.Observe('ffenum.set', Format(H.Sum_ffenum));
         H.Reset();
-        H.CalcFields(Sum_fftext);
+        if not TryCalc_Sum_fftext(H) then
+            Observer.ObserveError('Sum_fftext.calc31');
         Observer.Observe('fftext.unset', Format(H.Sum_fftext));
         H.SetFilter(TextF, 'alpha|charlie');
-        H.CalcFields(Sum_fftext);
+        if not TryCalc_Sum_fftext(H) then
+            Observer.ObserveError('Sum_fftext.calc32');
         Observer.Observe('fftext.set', Format(H.Sum_fftext));
         Observer.Finish();
     end;
@@ -270,46 +830,60 @@ codeunit 64103 "FFM SumAvg Tests"
         Initialize();
         H.Get('H1');
         H.Reset();
-        H.CalcFields(Sum_uldate);
+        if not TryCalc_Sum_uldate(H) then
+            Observer.ObserveError('Sum_uldate.calc33');
         Observer.Observe('uldate.unset', Format(H.Sum_uldate));
         H.SetRange(DateF, 20260201D, 20260430D);
-        H.CalcFields(Sum_uldate);
+        if not TryCalc_Sum_uldate(H) then
+            Observer.ObserveError('Sum_uldate.calc34');
         Observer.Observe('uldate.set', Format(H.Sum_uldate));
         H.Reset();
-        H.CalcFields(Sum_ulint);
+        if not TryCalc_Sum_ulint(H) then
+            Observer.ObserveError('Sum_ulint.calc35');
         Observer.Observe('ulint.unset', Format(H.Sum_ulint));
         H.SetFilter(IntF, '3..5');
-        H.CalcFields(Sum_ulint);
+        if not TryCalc_Sum_ulint(H) then
+            Observer.ObserveError('Sum_ulint.calc36');
         Observer.Observe('ulint.set', Format(H.Sum_ulint));
         H.Reset();
-        H.CalcFields(Sum_uldec);
+        if not TryCalc_Sum_uldec(H) then
+            Observer.ObserveError('Sum_uldec.calc37');
         Observer.Observe('uldec.unset', Format(H.Sum_uldec));
         H.SetFilter(DecF, '>=14');
-        H.CalcFields(Sum_uldec);
+        if not TryCalc_Sum_uldec(H) then
+            Observer.ObserveError('Sum_uldec.calc38');
         Observer.Observe('uldec.set', Format(H.Sum_uldec));
         H.Reset();
-        H.CalcFields(Sum_ulcode);
+        if not TryCalc_Sum_ulcode(H) then
+            Observer.ObserveError('Sum_ulcode.calc39');
         Observer.Observe('ulcode.unset', Format(H.Sum_ulcode));
         H.SetFilter(CodeF, 'K1');
-        H.CalcFields(Sum_ulcode);
+        if not TryCalc_Sum_ulcode(H) then
+            Observer.ObserveError('Sum_ulcode.calc40');
         Observer.Observe('ulcode.set', Format(H.Sum_ulcode));
         H.Reset();
-        H.CalcFields(Sum_ulopt);
+        if not TryCalc_Sum_ulopt(H) then
+            Observer.ObserveError('Sum_ulopt.calc41');
         Observer.Observe('ulopt.unset', Format(H.Sum_ulopt));
         H.SetRange(OptF, H.OptF::B);
-        H.CalcFields(Sum_ulopt);
+        if not TryCalc_Sum_ulopt(H) then
+            Observer.ObserveError('Sum_ulopt.calc42');
         Observer.Observe('ulopt.set', Format(H.Sum_ulopt));
         H.Reset();
-        H.CalcFields(Sum_ulenum);
+        if not TryCalc_Sum_ulenum(H) then
+            Observer.ObserveError('Sum_ulenum.calc43');
         Observer.Observe('ulenum.unset', Format(H.Sum_ulenum));
         H.SetFilter(EnumF, '%1|%2', H.EnumF::Closed, H.EnumF::Held);
-        H.CalcFields(Sum_ulenum);
+        if not TryCalc_Sum_ulenum(H) then
+            Observer.ObserveError('Sum_ulenum.calc44');
         Observer.Observe('ulenum.set', Format(H.Sum_ulenum));
         H.Reset();
-        H.CalcFields(Sum_ulfdate);
+        if not TryCalc_Sum_ulfdate(H) then
+            Observer.ObserveError('Sum_ulfdate.calc45');
         Observer.Observe('ulfdate.unset', Format(H.Sum_ulfdate));
         H.SetRange(DateF, 20260201D, 20260430D);
-        H.CalcFields(Sum_ulfdate);
+        if not TryCalc_Sum_ulfdate(H) then
+            Observer.ObserveError('Sum_ulfdate.calc46');
         Observer.Observe('ulfdate.set', Format(H.Sum_ulfdate));
         Observer.Finish();
     end;
@@ -323,16 +897,20 @@ codeunit 64103 "FFM SumAvg Tests"
         Initialize();
         H.Get('H1');
         H.Reset();
-        H.CalcFields(Sum_ffmismatch);
+        if not TryCalc_Sum_ffmismatch(H) then
+            Observer.ObserveError('Sum_ffmismatch.calc47');
         Observer.Observe('ffmismatch.unset', Format(H.Sum_ffmismatch));
         H.SetRange(DateF, 20260201D, 20260430D);
-        H.CalcFields(Sum_ffmismatch);
+        if not TryCalc_Sum_ffmismatch(H) then
+            Observer.ObserveError('Sum_ffmismatch.calc48');
         Observer.Observe('ffmismatch.set', Format(H.Sum_ffmismatch));
         H.Reset();
-        H.CalcFields(Sum_ffboth);
+        if not TryCalc_Sum_ffboth(H) then
+            Observer.ObserveError('Sum_ffboth.calc49');
         Observer.Observe('ffboth.unset', Format(H.Sum_ffboth));
         H.SetFilter(IntF, '3..5');
-        H.CalcFields(Sum_ffboth);
+        if not TryCalc_Sum_ffboth(H) then
+            Observer.ObserveError('Sum_ffboth.calc50');
         Observer.Observe('ffboth.set', Format(H.Sum_ffboth));
         Observer.Finish();
     end;
@@ -345,49 +923,71 @@ codeunit 64103 "FFM SumAvg Tests"
     begin
         Initialize();
         H.Get('H3');
-        H.CalcFields(Sum_const);
+        if not TryCalc_Sum_const(H) then
+            Observer.ObserveError('Sum_const.calc51');
         Observer.Observe('const.h3', Format(H.Sum_const));
-        H.CalcFields(Sum_field);
+        if not TryCalc_Sum_field(H) then
+            Observer.ObserveError('Sum_field.calc52');
         Observer.Observe('field.h3', Format(H.Sum_field));
-        H.CalcFields(Sum_filter);
+        if not TryCalc_Sum_filter(H) then
+            Observer.ObserveError('Sum_filter.calc53');
         Observer.Observe('filter.h3', Format(H.Sum_filter));
-        H.CalcFields(Sum_constopt);
+        if not TryCalc_Sum_constopt(H) then
+            Observer.ObserveError('Sum_constopt.calc54');
         Observer.Observe('constopt.h3', Format(H.Sum_constopt));
-        H.CalcFields(Sum_constenum);
+        if not TryCalc_Sum_constenum(H) then
+            Observer.ObserveError('Sum_constenum.calc55');
         Observer.Observe('constenum.h3', Format(H.Sum_constenum));
-        H.CalcFields(Sum_filterenum);
+        if not TryCalc_Sum_filterenum(H) then
+            Observer.ObserveError('Sum_filterenum.calc56');
         Observer.Observe('filterenum.h3', Format(H.Sum_filterenum));
-        H.CalcFields(Sum_ffint);
+        if not TryCalc_Sum_ffint(H) then
+            Observer.ObserveError('Sum_ffint.calc57');
         Observer.Observe('ffint.h3', Format(H.Sum_ffint));
-        H.CalcFields(Sum_ffdec);
+        if not TryCalc_Sum_ffdec(H) then
+            Observer.ObserveError('Sum_ffdec.calc58');
         Observer.Observe('ffdec.h3', Format(H.Sum_ffdec));
-        H.CalcFields(Sum_ffdate);
+        if not TryCalc_Sum_ffdate(H) then
+            Observer.ObserveError('Sum_ffdate.calc59');
         Observer.Observe('ffdate.h3', Format(H.Sum_ffdate));
-        H.CalcFields(Sum_ffcode);
+        if not TryCalc_Sum_ffcode(H) then
+            Observer.ObserveError('Sum_ffcode.calc60');
         Observer.Observe('ffcode.h3', Format(H.Sum_ffcode));
-        H.CalcFields(Sum_ffopt);
+        if not TryCalc_Sum_ffopt(H) then
+            Observer.ObserveError('Sum_ffopt.calc61');
         Observer.Observe('ffopt.h3', Format(H.Sum_ffopt));
-        H.CalcFields(Sum_ffenum);
+        if not TryCalc_Sum_ffenum(H) then
+            Observer.ObserveError('Sum_ffenum.calc62');
         Observer.Observe('ffenum.h3', Format(H.Sum_ffenum));
-        H.CalcFields(Sum_fftext);
+        if not TryCalc_Sum_fftext(H) then
+            Observer.ObserveError('Sum_fftext.calc63');
         Observer.Observe('fftext.h3', Format(H.Sum_fftext));
-        H.CalcFields(Sum_uldate);
+        if not TryCalc_Sum_uldate(H) then
+            Observer.ObserveError('Sum_uldate.calc64');
         Observer.Observe('uldate.h3', Format(H.Sum_uldate));
-        H.CalcFields(Sum_ulint);
+        if not TryCalc_Sum_ulint(H) then
+            Observer.ObserveError('Sum_ulint.calc65');
         Observer.Observe('ulint.h3', Format(H.Sum_ulint));
-        H.CalcFields(Sum_uldec);
+        if not TryCalc_Sum_uldec(H) then
+            Observer.ObserveError('Sum_uldec.calc66');
         Observer.Observe('uldec.h3', Format(H.Sum_uldec));
-        H.CalcFields(Sum_ulcode);
+        if not TryCalc_Sum_ulcode(H) then
+            Observer.ObserveError('Sum_ulcode.calc67');
         Observer.Observe('ulcode.h3', Format(H.Sum_ulcode));
-        H.CalcFields(Sum_ulopt);
+        if not TryCalc_Sum_ulopt(H) then
+            Observer.ObserveError('Sum_ulopt.calc68');
         Observer.Observe('ulopt.h3', Format(H.Sum_ulopt));
-        H.CalcFields(Sum_ulenum);
+        if not TryCalc_Sum_ulenum(H) then
+            Observer.ObserveError('Sum_ulenum.calc69');
         Observer.Observe('ulenum.h3', Format(H.Sum_ulenum));
-        H.CalcFields(Sum_ulfdate);
+        if not TryCalc_Sum_ulfdate(H) then
+            Observer.ObserveError('Sum_ulfdate.calc70');
         Observer.Observe('ulfdate.h3', Format(H.Sum_ulfdate));
-        H.CalcFields(Sum_ffmismatch);
+        if not TryCalc_Sum_ffmismatch(H) then
+            Observer.ObserveError('Sum_ffmismatch.calc71');
         Observer.Observe('ffmismatch.h3', Format(H.Sum_ffmismatch));
-        H.CalcFields(Sum_ffboth);
+        if not TryCalc_Sum_ffboth(H) then
+            Observer.ObserveError('Sum_ffboth.calc72');
         Observer.Observe('ffboth.h3', Format(H.Sum_ffboth));
         Observer.Finish();
     end;
@@ -400,43 +1000,61 @@ codeunit 64103 "FFM SumAvg Tests"
     begin
         Initialize();
         H.Get('H1');
-        H.CalcFields(NSum_const);
+        if not TryCalc_NSum_const(H) then
+            Observer.ObserveError('NSum_const.calc73');
         Observer.Observe('H1.const', Format(H.NSum_const));
-        H.CalcFields(NSum_field);
+        if not TryCalc_NSum_field(H) then
+            Observer.ObserveError('NSum_field.calc74');
         Observer.Observe('H1.field', Format(H.NSum_field));
-        H.CalcFields(NSum_filter);
+        if not TryCalc_NSum_filter(H) then
+            Observer.ObserveError('NSum_filter.calc75');
         Observer.Observe('H1.filter', Format(H.NSum_filter));
-        H.CalcFields(NSum_constopt);
+        if not TryCalc_NSum_constopt(H) then
+            Observer.ObserveError('NSum_constopt.calc76');
         Observer.Observe('H1.constopt', Format(H.NSum_constopt));
-        H.CalcFields(NSum_constenum);
+        if not TryCalc_NSum_constenum(H) then
+            Observer.ObserveError('NSum_constenum.calc77');
         Observer.Observe('H1.constenum', Format(H.NSum_constenum));
-        H.CalcFields(NSum_filterenum);
+        if not TryCalc_NSum_filterenum(H) then
+            Observer.ObserveError('NSum_filterenum.calc78');
         Observer.Observe('H1.filterenum', Format(H.NSum_filterenum));
         H.Get('H2');
-        H.CalcFields(NSum_const);
+        if not TryCalc_NSum_const(H) then
+            Observer.ObserveError('NSum_const.calc79');
         Observer.Observe('H2.const', Format(H.NSum_const));
-        H.CalcFields(NSum_field);
+        if not TryCalc_NSum_field(H) then
+            Observer.ObserveError('NSum_field.calc80');
         Observer.Observe('H2.field', Format(H.NSum_field));
-        H.CalcFields(NSum_filter);
+        if not TryCalc_NSum_filter(H) then
+            Observer.ObserveError('NSum_filter.calc81');
         Observer.Observe('H2.filter', Format(H.NSum_filter));
-        H.CalcFields(NSum_constopt);
+        if not TryCalc_NSum_constopt(H) then
+            Observer.ObserveError('NSum_constopt.calc82');
         Observer.Observe('H2.constopt', Format(H.NSum_constopt));
-        H.CalcFields(NSum_constenum);
+        if not TryCalc_NSum_constenum(H) then
+            Observer.ObserveError('NSum_constenum.calc83');
         Observer.Observe('H2.constenum', Format(H.NSum_constenum));
-        H.CalcFields(NSum_filterenum);
+        if not TryCalc_NSum_filterenum(H) then
+            Observer.ObserveError('NSum_filterenum.calc84');
         Observer.Observe('H2.filterenum', Format(H.NSum_filterenum));
         H.Get('H3');
-        H.CalcFields(NSum_const);
+        if not TryCalc_NSum_const(H) then
+            Observer.ObserveError('NSum_const.calc85');
         Observer.Observe('H3.const', Format(H.NSum_const));
-        H.CalcFields(NSum_field);
+        if not TryCalc_NSum_field(H) then
+            Observer.ObserveError('NSum_field.calc86');
         Observer.Observe('H3.field', Format(H.NSum_field));
-        H.CalcFields(NSum_filter);
+        if not TryCalc_NSum_filter(H) then
+            Observer.ObserveError('NSum_filter.calc87');
         Observer.Observe('H3.filter', Format(H.NSum_filter));
-        H.CalcFields(NSum_constopt);
+        if not TryCalc_NSum_constopt(H) then
+            Observer.ObserveError('NSum_constopt.calc88');
         Observer.Observe('H3.constopt', Format(H.NSum_constopt));
-        H.CalcFields(NSum_constenum);
+        if not TryCalc_NSum_constenum(H) then
+            Observer.ObserveError('NSum_constenum.calc89');
         Observer.Observe('H3.constenum', Format(H.NSum_constenum));
-        H.CalcFields(NSum_filterenum);
+        if not TryCalc_NSum_filterenum(H) then
+            Observer.ObserveError('NSum_filterenum.calc90');
         Observer.Observe('H3.filterenum', Format(H.NSum_filterenum));
         Observer.Finish();
     end;
@@ -450,46 +1068,60 @@ codeunit 64103 "FFM SumAvg Tests"
         Initialize();
         H.Get('H1');
         H.Reset();
-        H.CalcFields(NSum_ffint);
+        if not TryCalc_NSum_ffint(H) then
+            Observer.ObserveError('NSum_ffint.calc91');
         Observer.Observe('ffint.unset', Format(H.NSum_ffint));
         H.SetFilter(IntF, '3..5');
-        H.CalcFields(NSum_ffint);
+        if not TryCalc_NSum_ffint(H) then
+            Observer.ObserveError('NSum_ffint.calc92');
         Observer.Observe('ffint.set', Format(H.NSum_ffint));
         H.Reset();
-        H.CalcFields(NSum_ffdec);
+        if not TryCalc_NSum_ffdec(H) then
+            Observer.ObserveError('NSum_ffdec.calc93');
         Observer.Observe('ffdec.unset', Format(H.NSum_ffdec));
         H.SetFilter(DecF, '>=14');
-        H.CalcFields(NSum_ffdec);
+        if not TryCalc_NSum_ffdec(H) then
+            Observer.ObserveError('NSum_ffdec.calc94');
         Observer.Observe('ffdec.set', Format(H.NSum_ffdec));
         H.Reset();
-        H.CalcFields(NSum_ffdate);
+        if not TryCalc_NSum_ffdate(H) then
+            Observer.ObserveError('NSum_ffdate.calc95');
         Observer.Observe('ffdate.unset', Format(H.NSum_ffdate));
         H.SetRange(DateF, 20260201D, 20260430D);
-        H.CalcFields(NSum_ffdate);
+        if not TryCalc_NSum_ffdate(H) then
+            Observer.ObserveError('NSum_ffdate.calc96');
         Observer.Observe('ffdate.set', Format(H.NSum_ffdate));
         H.Reset();
-        H.CalcFields(NSum_ffcode);
+        if not TryCalc_NSum_ffcode(H) then
+            Observer.ObserveError('NSum_ffcode.calc97');
         Observer.Observe('ffcode.unset', Format(H.NSum_ffcode));
         H.SetFilter(CodeF, 'K1');
-        H.CalcFields(NSum_ffcode);
+        if not TryCalc_NSum_ffcode(H) then
+            Observer.ObserveError('NSum_ffcode.calc98');
         Observer.Observe('ffcode.set', Format(H.NSum_ffcode));
         H.Reset();
-        H.CalcFields(NSum_ffopt);
+        if not TryCalc_NSum_ffopt(H) then
+            Observer.ObserveError('NSum_ffopt.calc99');
         Observer.Observe('ffopt.unset', Format(H.NSum_ffopt));
         H.SetRange(OptF, H.OptF::B);
-        H.CalcFields(NSum_ffopt);
+        if not TryCalc_NSum_ffopt(H) then
+            Observer.ObserveError('NSum_ffopt.calc100');
         Observer.Observe('ffopt.set', Format(H.NSum_ffopt));
         H.Reset();
-        H.CalcFields(NSum_ffenum);
+        if not TryCalc_NSum_ffenum(H) then
+            Observer.ObserveError('NSum_ffenum.calc101');
         Observer.Observe('ffenum.unset', Format(H.NSum_ffenum));
         H.SetFilter(EnumF, '%1|%2', H.EnumF::Closed, H.EnumF::Held);
-        H.CalcFields(NSum_ffenum);
+        if not TryCalc_NSum_ffenum(H) then
+            Observer.ObserveError('NSum_ffenum.calc102');
         Observer.Observe('ffenum.set', Format(H.NSum_ffenum));
         H.Reset();
-        H.CalcFields(NSum_fftext);
+        if not TryCalc_NSum_fftext(H) then
+            Observer.ObserveError('NSum_fftext.calc103');
         Observer.Observe('fftext.unset', Format(H.NSum_fftext));
         H.SetFilter(TextF, 'alpha|charlie');
-        H.CalcFields(NSum_fftext);
+        if not TryCalc_NSum_fftext(H) then
+            Observer.ObserveError('NSum_fftext.calc104');
         Observer.Observe('fftext.set', Format(H.NSum_fftext));
         Observer.Finish();
     end;
@@ -503,46 +1135,60 @@ codeunit 64103 "FFM SumAvg Tests"
         Initialize();
         H.Get('H1');
         H.Reset();
-        H.CalcFields(NSum_uldate);
+        if not TryCalc_NSum_uldate(H) then
+            Observer.ObserveError('NSum_uldate.calc105');
         Observer.Observe('uldate.unset', Format(H.NSum_uldate));
         H.SetRange(DateF, 20260201D, 20260430D);
-        H.CalcFields(NSum_uldate);
+        if not TryCalc_NSum_uldate(H) then
+            Observer.ObserveError('NSum_uldate.calc106');
         Observer.Observe('uldate.set', Format(H.NSum_uldate));
         H.Reset();
-        H.CalcFields(NSum_ulint);
+        if not TryCalc_NSum_ulint(H) then
+            Observer.ObserveError('NSum_ulint.calc107');
         Observer.Observe('ulint.unset', Format(H.NSum_ulint));
         H.SetFilter(IntF, '3..5');
-        H.CalcFields(NSum_ulint);
+        if not TryCalc_NSum_ulint(H) then
+            Observer.ObserveError('NSum_ulint.calc108');
         Observer.Observe('ulint.set', Format(H.NSum_ulint));
         H.Reset();
-        H.CalcFields(NSum_uldec);
+        if not TryCalc_NSum_uldec(H) then
+            Observer.ObserveError('NSum_uldec.calc109');
         Observer.Observe('uldec.unset', Format(H.NSum_uldec));
         H.SetFilter(DecF, '>=14');
-        H.CalcFields(NSum_uldec);
+        if not TryCalc_NSum_uldec(H) then
+            Observer.ObserveError('NSum_uldec.calc110');
         Observer.Observe('uldec.set', Format(H.NSum_uldec));
         H.Reset();
-        H.CalcFields(NSum_ulcode);
+        if not TryCalc_NSum_ulcode(H) then
+            Observer.ObserveError('NSum_ulcode.calc111');
         Observer.Observe('ulcode.unset', Format(H.NSum_ulcode));
         H.SetFilter(CodeF, 'K1');
-        H.CalcFields(NSum_ulcode);
+        if not TryCalc_NSum_ulcode(H) then
+            Observer.ObserveError('NSum_ulcode.calc112');
         Observer.Observe('ulcode.set', Format(H.NSum_ulcode));
         H.Reset();
-        H.CalcFields(NSum_ulopt);
+        if not TryCalc_NSum_ulopt(H) then
+            Observer.ObserveError('NSum_ulopt.calc113');
         Observer.Observe('ulopt.unset', Format(H.NSum_ulopt));
         H.SetRange(OptF, H.OptF::B);
-        H.CalcFields(NSum_ulopt);
+        if not TryCalc_NSum_ulopt(H) then
+            Observer.ObserveError('NSum_ulopt.calc114');
         Observer.Observe('ulopt.set', Format(H.NSum_ulopt));
         H.Reset();
-        H.CalcFields(NSum_ulenum);
+        if not TryCalc_NSum_ulenum(H) then
+            Observer.ObserveError('NSum_ulenum.calc115');
         Observer.Observe('ulenum.unset', Format(H.NSum_ulenum));
         H.SetFilter(EnumF, '%1|%2', H.EnumF::Closed, H.EnumF::Held);
-        H.CalcFields(NSum_ulenum);
+        if not TryCalc_NSum_ulenum(H) then
+            Observer.ObserveError('NSum_ulenum.calc116');
         Observer.Observe('ulenum.set', Format(H.NSum_ulenum));
         H.Reset();
-        H.CalcFields(NSum_ulfdate);
+        if not TryCalc_NSum_ulfdate(H) then
+            Observer.ObserveError('NSum_ulfdate.calc117');
         Observer.Observe('ulfdate.unset', Format(H.NSum_ulfdate));
         H.SetRange(DateF, 20260201D, 20260430D);
-        H.CalcFields(NSum_ulfdate);
+        if not TryCalc_NSum_ulfdate(H) then
+            Observer.ObserveError('NSum_ulfdate.calc118');
         Observer.Observe('ulfdate.set', Format(H.NSum_ulfdate));
         Observer.Finish();
     end;
@@ -556,16 +1202,20 @@ codeunit 64103 "FFM SumAvg Tests"
         Initialize();
         H.Get('H1');
         H.Reset();
-        H.CalcFields(NSum_ffmismatch);
+        if not TryCalc_NSum_ffmismatch(H) then
+            Observer.ObserveError('NSum_ffmismatch.calc119');
         Observer.Observe('ffmismatch.unset', Format(H.NSum_ffmismatch));
         H.SetRange(DateF, 20260201D, 20260430D);
-        H.CalcFields(NSum_ffmismatch);
+        if not TryCalc_NSum_ffmismatch(H) then
+            Observer.ObserveError('NSum_ffmismatch.calc120');
         Observer.Observe('ffmismatch.set', Format(H.NSum_ffmismatch));
         H.Reset();
-        H.CalcFields(NSum_ffboth);
+        if not TryCalc_NSum_ffboth(H) then
+            Observer.ObserveError('NSum_ffboth.calc121');
         Observer.Observe('ffboth.unset', Format(H.NSum_ffboth));
         H.SetFilter(IntF, '3..5');
-        H.CalcFields(NSum_ffboth);
+        if not TryCalc_NSum_ffboth(H) then
+            Observer.ObserveError('NSum_ffboth.calc122');
         Observer.Observe('ffboth.set', Format(H.NSum_ffboth));
         Observer.Finish();
     end;
@@ -578,49 +1228,71 @@ codeunit 64103 "FFM SumAvg Tests"
     begin
         Initialize();
         H.Get('H3');
-        H.CalcFields(NSum_const);
+        if not TryCalc_NSum_const(H) then
+            Observer.ObserveError('NSum_const.calc123');
         Observer.Observe('const.h3', Format(H.NSum_const));
-        H.CalcFields(NSum_field);
+        if not TryCalc_NSum_field(H) then
+            Observer.ObserveError('NSum_field.calc124');
         Observer.Observe('field.h3', Format(H.NSum_field));
-        H.CalcFields(NSum_filter);
+        if not TryCalc_NSum_filter(H) then
+            Observer.ObserveError('NSum_filter.calc125');
         Observer.Observe('filter.h3', Format(H.NSum_filter));
-        H.CalcFields(NSum_constopt);
+        if not TryCalc_NSum_constopt(H) then
+            Observer.ObserveError('NSum_constopt.calc126');
         Observer.Observe('constopt.h3', Format(H.NSum_constopt));
-        H.CalcFields(NSum_constenum);
+        if not TryCalc_NSum_constenum(H) then
+            Observer.ObserveError('NSum_constenum.calc127');
         Observer.Observe('constenum.h3', Format(H.NSum_constenum));
-        H.CalcFields(NSum_filterenum);
+        if not TryCalc_NSum_filterenum(H) then
+            Observer.ObserveError('NSum_filterenum.calc128');
         Observer.Observe('filterenum.h3', Format(H.NSum_filterenum));
-        H.CalcFields(NSum_ffint);
+        if not TryCalc_NSum_ffint(H) then
+            Observer.ObserveError('NSum_ffint.calc129');
         Observer.Observe('ffint.h3', Format(H.NSum_ffint));
-        H.CalcFields(NSum_ffdec);
+        if not TryCalc_NSum_ffdec(H) then
+            Observer.ObserveError('NSum_ffdec.calc130');
         Observer.Observe('ffdec.h3', Format(H.NSum_ffdec));
-        H.CalcFields(NSum_ffdate);
+        if not TryCalc_NSum_ffdate(H) then
+            Observer.ObserveError('NSum_ffdate.calc131');
         Observer.Observe('ffdate.h3', Format(H.NSum_ffdate));
-        H.CalcFields(NSum_ffcode);
+        if not TryCalc_NSum_ffcode(H) then
+            Observer.ObserveError('NSum_ffcode.calc132');
         Observer.Observe('ffcode.h3', Format(H.NSum_ffcode));
-        H.CalcFields(NSum_ffopt);
+        if not TryCalc_NSum_ffopt(H) then
+            Observer.ObserveError('NSum_ffopt.calc133');
         Observer.Observe('ffopt.h3', Format(H.NSum_ffopt));
-        H.CalcFields(NSum_ffenum);
+        if not TryCalc_NSum_ffenum(H) then
+            Observer.ObserveError('NSum_ffenum.calc134');
         Observer.Observe('ffenum.h3', Format(H.NSum_ffenum));
-        H.CalcFields(NSum_fftext);
+        if not TryCalc_NSum_fftext(H) then
+            Observer.ObserveError('NSum_fftext.calc135');
         Observer.Observe('fftext.h3', Format(H.NSum_fftext));
-        H.CalcFields(NSum_uldate);
+        if not TryCalc_NSum_uldate(H) then
+            Observer.ObserveError('NSum_uldate.calc136');
         Observer.Observe('uldate.h3', Format(H.NSum_uldate));
-        H.CalcFields(NSum_ulint);
+        if not TryCalc_NSum_ulint(H) then
+            Observer.ObserveError('NSum_ulint.calc137');
         Observer.Observe('ulint.h3', Format(H.NSum_ulint));
-        H.CalcFields(NSum_uldec);
+        if not TryCalc_NSum_uldec(H) then
+            Observer.ObserveError('NSum_uldec.calc138');
         Observer.Observe('uldec.h3', Format(H.NSum_uldec));
-        H.CalcFields(NSum_ulcode);
+        if not TryCalc_NSum_ulcode(H) then
+            Observer.ObserveError('NSum_ulcode.calc139');
         Observer.Observe('ulcode.h3', Format(H.NSum_ulcode));
-        H.CalcFields(NSum_ulopt);
+        if not TryCalc_NSum_ulopt(H) then
+            Observer.ObserveError('NSum_ulopt.calc140');
         Observer.Observe('ulopt.h3', Format(H.NSum_ulopt));
-        H.CalcFields(NSum_ulenum);
+        if not TryCalc_NSum_ulenum(H) then
+            Observer.ObserveError('NSum_ulenum.calc141');
         Observer.Observe('ulenum.h3', Format(H.NSum_ulenum));
-        H.CalcFields(NSum_ulfdate);
+        if not TryCalc_NSum_ulfdate(H) then
+            Observer.ObserveError('NSum_ulfdate.calc142');
         Observer.Observe('ulfdate.h3', Format(H.NSum_ulfdate));
-        H.CalcFields(NSum_ffmismatch);
+        if not TryCalc_NSum_ffmismatch(H) then
+            Observer.ObserveError('NSum_ffmismatch.calc143');
         Observer.Observe('ffmismatch.h3', Format(H.NSum_ffmismatch));
-        H.CalcFields(NSum_ffboth);
+        if not TryCalc_NSum_ffboth(H) then
+            Observer.ObserveError('NSum_ffboth.calc144');
         Observer.Observe('ffboth.h3', Format(H.NSum_ffboth));
         Observer.Finish();
     end;
@@ -633,43 +1305,61 @@ codeunit 64103 "FFM SumAvg Tests"
     begin
         Initialize();
         H.Get('H1');
-        H.CalcFields(Avg_const);
+        if not TryCalc_Avg_const(H) then
+            Observer.ObserveError('Avg_const.calc145');
         Observer.Observe('H1.const', Format(H.Avg_const));
-        H.CalcFields(Avg_field);
+        if not TryCalc_Avg_field(H) then
+            Observer.ObserveError('Avg_field.calc146');
         Observer.Observe('H1.field', Format(H.Avg_field));
-        H.CalcFields(Avg_filter);
+        if not TryCalc_Avg_filter(H) then
+            Observer.ObserveError('Avg_filter.calc147');
         Observer.Observe('H1.filter', Format(H.Avg_filter));
-        H.CalcFields(Avg_constopt);
+        if not TryCalc_Avg_constopt(H) then
+            Observer.ObserveError('Avg_constopt.calc148');
         Observer.Observe('H1.constopt', Format(H.Avg_constopt));
-        H.CalcFields(Avg_constenum);
+        if not TryCalc_Avg_constenum(H) then
+            Observer.ObserveError('Avg_constenum.calc149');
         Observer.Observe('H1.constenum', Format(H.Avg_constenum));
-        H.CalcFields(Avg_filterenum);
+        if not TryCalc_Avg_filterenum(H) then
+            Observer.ObserveError('Avg_filterenum.calc150');
         Observer.Observe('H1.filterenum', Format(H.Avg_filterenum));
         H.Get('H2');
-        H.CalcFields(Avg_const);
+        if not TryCalc_Avg_const(H) then
+            Observer.ObserveError('Avg_const.calc151');
         Observer.Observe('H2.const', Format(H.Avg_const));
-        H.CalcFields(Avg_field);
+        if not TryCalc_Avg_field(H) then
+            Observer.ObserveError('Avg_field.calc152');
         Observer.Observe('H2.field', Format(H.Avg_field));
-        H.CalcFields(Avg_filter);
+        if not TryCalc_Avg_filter(H) then
+            Observer.ObserveError('Avg_filter.calc153');
         Observer.Observe('H2.filter', Format(H.Avg_filter));
-        H.CalcFields(Avg_constopt);
+        if not TryCalc_Avg_constopt(H) then
+            Observer.ObserveError('Avg_constopt.calc154');
         Observer.Observe('H2.constopt', Format(H.Avg_constopt));
-        H.CalcFields(Avg_constenum);
+        if not TryCalc_Avg_constenum(H) then
+            Observer.ObserveError('Avg_constenum.calc155');
         Observer.Observe('H2.constenum', Format(H.Avg_constenum));
-        H.CalcFields(Avg_filterenum);
+        if not TryCalc_Avg_filterenum(H) then
+            Observer.ObserveError('Avg_filterenum.calc156');
         Observer.Observe('H2.filterenum', Format(H.Avg_filterenum));
         H.Get('H3');
-        H.CalcFields(Avg_const);
+        if not TryCalc_Avg_const(H) then
+            Observer.ObserveError('Avg_const.calc157');
         Observer.Observe('H3.const', Format(H.Avg_const));
-        H.CalcFields(Avg_field);
+        if not TryCalc_Avg_field(H) then
+            Observer.ObserveError('Avg_field.calc158');
         Observer.Observe('H3.field', Format(H.Avg_field));
-        H.CalcFields(Avg_filter);
+        if not TryCalc_Avg_filter(H) then
+            Observer.ObserveError('Avg_filter.calc159');
         Observer.Observe('H3.filter', Format(H.Avg_filter));
-        H.CalcFields(Avg_constopt);
+        if not TryCalc_Avg_constopt(H) then
+            Observer.ObserveError('Avg_constopt.calc160');
         Observer.Observe('H3.constopt', Format(H.Avg_constopt));
-        H.CalcFields(Avg_constenum);
+        if not TryCalc_Avg_constenum(H) then
+            Observer.ObserveError('Avg_constenum.calc161');
         Observer.Observe('H3.constenum', Format(H.Avg_constenum));
-        H.CalcFields(Avg_filterenum);
+        if not TryCalc_Avg_filterenum(H) then
+            Observer.ObserveError('Avg_filterenum.calc162');
         Observer.Observe('H3.filterenum', Format(H.Avg_filterenum));
         Observer.Finish();
     end;
@@ -683,46 +1373,60 @@ codeunit 64103 "FFM SumAvg Tests"
         Initialize();
         H.Get('H1');
         H.Reset();
-        H.CalcFields(Avg_ffint);
+        if not TryCalc_Avg_ffint(H) then
+            Observer.ObserveError('Avg_ffint.calc163');
         Observer.Observe('ffint.unset', Format(H.Avg_ffint));
         H.SetFilter(IntF, '3..5');
-        H.CalcFields(Avg_ffint);
+        if not TryCalc_Avg_ffint(H) then
+            Observer.ObserveError('Avg_ffint.calc164');
         Observer.Observe('ffint.set', Format(H.Avg_ffint));
         H.Reset();
-        H.CalcFields(Avg_ffdec);
+        if not TryCalc_Avg_ffdec(H) then
+            Observer.ObserveError('Avg_ffdec.calc165');
         Observer.Observe('ffdec.unset', Format(H.Avg_ffdec));
         H.SetFilter(DecF, '>=14');
-        H.CalcFields(Avg_ffdec);
+        if not TryCalc_Avg_ffdec(H) then
+            Observer.ObserveError('Avg_ffdec.calc166');
         Observer.Observe('ffdec.set', Format(H.Avg_ffdec));
         H.Reset();
-        H.CalcFields(Avg_ffdate);
+        if not TryCalc_Avg_ffdate(H) then
+            Observer.ObserveError('Avg_ffdate.calc167');
         Observer.Observe('ffdate.unset', Format(H.Avg_ffdate));
         H.SetRange(DateF, 20260201D, 20260430D);
-        H.CalcFields(Avg_ffdate);
+        if not TryCalc_Avg_ffdate(H) then
+            Observer.ObserveError('Avg_ffdate.calc168');
         Observer.Observe('ffdate.set', Format(H.Avg_ffdate));
         H.Reset();
-        H.CalcFields(Avg_ffcode);
+        if not TryCalc_Avg_ffcode(H) then
+            Observer.ObserveError('Avg_ffcode.calc169');
         Observer.Observe('ffcode.unset', Format(H.Avg_ffcode));
         H.SetFilter(CodeF, 'K1');
-        H.CalcFields(Avg_ffcode);
+        if not TryCalc_Avg_ffcode(H) then
+            Observer.ObserveError('Avg_ffcode.calc170');
         Observer.Observe('ffcode.set', Format(H.Avg_ffcode));
         H.Reset();
-        H.CalcFields(Avg_ffopt);
+        if not TryCalc_Avg_ffopt(H) then
+            Observer.ObserveError('Avg_ffopt.calc171');
         Observer.Observe('ffopt.unset', Format(H.Avg_ffopt));
         H.SetRange(OptF, H.OptF::B);
-        H.CalcFields(Avg_ffopt);
+        if not TryCalc_Avg_ffopt(H) then
+            Observer.ObserveError('Avg_ffopt.calc172');
         Observer.Observe('ffopt.set', Format(H.Avg_ffopt));
         H.Reset();
-        H.CalcFields(Avg_ffenum);
+        if not TryCalc_Avg_ffenum(H) then
+            Observer.ObserveError('Avg_ffenum.calc173');
         Observer.Observe('ffenum.unset', Format(H.Avg_ffenum));
         H.SetFilter(EnumF, '%1|%2', H.EnumF::Closed, H.EnumF::Held);
-        H.CalcFields(Avg_ffenum);
+        if not TryCalc_Avg_ffenum(H) then
+            Observer.ObserveError('Avg_ffenum.calc174');
         Observer.Observe('ffenum.set', Format(H.Avg_ffenum));
         H.Reset();
-        H.CalcFields(Avg_fftext);
+        if not TryCalc_Avg_fftext(H) then
+            Observer.ObserveError('Avg_fftext.calc175');
         Observer.Observe('fftext.unset', Format(H.Avg_fftext));
         H.SetFilter(TextF, 'alpha|charlie');
-        H.CalcFields(Avg_fftext);
+        if not TryCalc_Avg_fftext(H) then
+            Observer.ObserveError('Avg_fftext.calc176');
         Observer.Observe('fftext.set', Format(H.Avg_fftext));
         Observer.Finish();
     end;
@@ -736,46 +1440,60 @@ codeunit 64103 "FFM SumAvg Tests"
         Initialize();
         H.Get('H1');
         H.Reset();
-        H.CalcFields(Avg_uldate);
+        if not TryCalc_Avg_uldate(H) then
+            Observer.ObserveError('Avg_uldate.calc177');
         Observer.Observe('uldate.unset', Format(H.Avg_uldate));
         H.SetRange(DateF, 20260201D, 20260430D);
-        H.CalcFields(Avg_uldate);
+        if not TryCalc_Avg_uldate(H) then
+            Observer.ObserveError('Avg_uldate.calc178');
         Observer.Observe('uldate.set', Format(H.Avg_uldate));
         H.Reset();
-        H.CalcFields(Avg_ulint);
+        if not TryCalc_Avg_ulint(H) then
+            Observer.ObserveError('Avg_ulint.calc179');
         Observer.Observe('ulint.unset', Format(H.Avg_ulint));
         H.SetFilter(IntF, '3..5');
-        H.CalcFields(Avg_ulint);
+        if not TryCalc_Avg_ulint(H) then
+            Observer.ObserveError('Avg_ulint.calc180');
         Observer.Observe('ulint.set', Format(H.Avg_ulint));
         H.Reset();
-        H.CalcFields(Avg_uldec);
+        if not TryCalc_Avg_uldec(H) then
+            Observer.ObserveError('Avg_uldec.calc181');
         Observer.Observe('uldec.unset', Format(H.Avg_uldec));
         H.SetFilter(DecF, '>=14');
-        H.CalcFields(Avg_uldec);
+        if not TryCalc_Avg_uldec(H) then
+            Observer.ObserveError('Avg_uldec.calc182');
         Observer.Observe('uldec.set', Format(H.Avg_uldec));
         H.Reset();
-        H.CalcFields(Avg_ulcode);
+        if not TryCalc_Avg_ulcode(H) then
+            Observer.ObserveError('Avg_ulcode.calc183');
         Observer.Observe('ulcode.unset', Format(H.Avg_ulcode));
         H.SetFilter(CodeF, 'K1');
-        H.CalcFields(Avg_ulcode);
+        if not TryCalc_Avg_ulcode(H) then
+            Observer.ObserveError('Avg_ulcode.calc184');
         Observer.Observe('ulcode.set', Format(H.Avg_ulcode));
         H.Reset();
-        H.CalcFields(Avg_ulopt);
+        if not TryCalc_Avg_ulopt(H) then
+            Observer.ObserveError('Avg_ulopt.calc185');
         Observer.Observe('ulopt.unset', Format(H.Avg_ulopt));
         H.SetRange(OptF, H.OptF::B);
-        H.CalcFields(Avg_ulopt);
+        if not TryCalc_Avg_ulopt(H) then
+            Observer.ObserveError('Avg_ulopt.calc186');
         Observer.Observe('ulopt.set', Format(H.Avg_ulopt));
         H.Reset();
-        H.CalcFields(Avg_ulenum);
+        if not TryCalc_Avg_ulenum(H) then
+            Observer.ObserveError('Avg_ulenum.calc187');
         Observer.Observe('ulenum.unset', Format(H.Avg_ulenum));
         H.SetFilter(EnumF, '%1|%2', H.EnumF::Closed, H.EnumF::Held);
-        H.CalcFields(Avg_ulenum);
+        if not TryCalc_Avg_ulenum(H) then
+            Observer.ObserveError('Avg_ulenum.calc188');
         Observer.Observe('ulenum.set', Format(H.Avg_ulenum));
         H.Reset();
-        H.CalcFields(Avg_ulfdate);
+        if not TryCalc_Avg_ulfdate(H) then
+            Observer.ObserveError('Avg_ulfdate.calc189');
         Observer.Observe('ulfdate.unset', Format(H.Avg_ulfdate));
         H.SetRange(DateF, 20260201D, 20260430D);
-        H.CalcFields(Avg_ulfdate);
+        if not TryCalc_Avg_ulfdate(H) then
+            Observer.ObserveError('Avg_ulfdate.calc190');
         Observer.Observe('ulfdate.set', Format(H.Avg_ulfdate));
         Observer.Finish();
     end;
@@ -789,16 +1507,20 @@ codeunit 64103 "FFM SumAvg Tests"
         Initialize();
         H.Get('H1');
         H.Reset();
-        H.CalcFields(Avg_ffmismatch);
+        if not TryCalc_Avg_ffmismatch(H) then
+            Observer.ObserveError('Avg_ffmismatch.calc191');
         Observer.Observe('ffmismatch.unset', Format(H.Avg_ffmismatch));
         H.SetRange(DateF, 20260201D, 20260430D);
-        H.CalcFields(Avg_ffmismatch);
+        if not TryCalc_Avg_ffmismatch(H) then
+            Observer.ObserveError('Avg_ffmismatch.calc192');
         Observer.Observe('ffmismatch.set', Format(H.Avg_ffmismatch));
         H.Reset();
-        H.CalcFields(Avg_ffboth);
+        if not TryCalc_Avg_ffboth(H) then
+            Observer.ObserveError('Avg_ffboth.calc193');
         Observer.Observe('ffboth.unset', Format(H.Avg_ffboth));
         H.SetFilter(IntF, '3..5');
-        H.CalcFields(Avg_ffboth);
+        if not TryCalc_Avg_ffboth(H) then
+            Observer.ObserveError('Avg_ffboth.calc194');
         Observer.Observe('ffboth.set', Format(H.Avg_ffboth));
         Observer.Finish();
     end;
@@ -811,49 +1533,71 @@ codeunit 64103 "FFM SumAvg Tests"
     begin
         Initialize();
         H.Get('H3');
-        H.CalcFields(Avg_const);
+        if not TryCalc_Avg_const(H) then
+            Observer.ObserveError('Avg_const.calc195');
         Observer.Observe('const.h3', Format(H.Avg_const));
-        H.CalcFields(Avg_field);
+        if not TryCalc_Avg_field(H) then
+            Observer.ObserveError('Avg_field.calc196');
         Observer.Observe('field.h3', Format(H.Avg_field));
-        H.CalcFields(Avg_filter);
+        if not TryCalc_Avg_filter(H) then
+            Observer.ObserveError('Avg_filter.calc197');
         Observer.Observe('filter.h3', Format(H.Avg_filter));
-        H.CalcFields(Avg_constopt);
+        if not TryCalc_Avg_constopt(H) then
+            Observer.ObserveError('Avg_constopt.calc198');
         Observer.Observe('constopt.h3', Format(H.Avg_constopt));
-        H.CalcFields(Avg_constenum);
+        if not TryCalc_Avg_constenum(H) then
+            Observer.ObserveError('Avg_constenum.calc199');
         Observer.Observe('constenum.h3', Format(H.Avg_constenum));
-        H.CalcFields(Avg_filterenum);
+        if not TryCalc_Avg_filterenum(H) then
+            Observer.ObserveError('Avg_filterenum.calc200');
         Observer.Observe('filterenum.h3', Format(H.Avg_filterenum));
-        H.CalcFields(Avg_ffint);
+        if not TryCalc_Avg_ffint(H) then
+            Observer.ObserveError('Avg_ffint.calc201');
         Observer.Observe('ffint.h3', Format(H.Avg_ffint));
-        H.CalcFields(Avg_ffdec);
+        if not TryCalc_Avg_ffdec(H) then
+            Observer.ObserveError('Avg_ffdec.calc202');
         Observer.Observe('ffdec.h3', Format(H.Avg_ffdec));
-        H.CalcFields(Avg_ffdate);
+        if not TryCalc_Avg_ffdate(H) then
+            Observer.ObserveError('Avg_ffdate.calc203');
         Observer.Observe('ffdate.h3', Format(H.Avg_ffdate));
-        H.CalcFields(Avg_ffcode);
+        if not TryCalc_Avg_ffcode(H) then
+            Observer.ObserveError('Avg_ffcode.calc204');
         Observer.Observe('ffcode.h3', Format(H.Avg_ffcode));
-        H.CalcFields(Avg_ffopt);
+        if not TryCalc_Avg_ffopt(H) then
+            Observer.ObserveError('Avg_ffopt.calc205');
         Observer.Observe('ffopt.h3', Format(H.Avg_ffopt));
-        H.CalcFields(Avg_ffenum);
+        if not TryCalc_Avg_ffenum(H) then
+            Observer.ObserveError('Avg_ffenum.calc206');
         Observer.Observe('ffenum.h3', Format(H.Avg_ffenum));
-        H.CalcFields(Avg_fftext);
+        if not TryCalc_Avg_fftext(H) then
+            Observer.ObserveError('Avg_fftext.calc207');
         Observer.Observe('fftext.h3', Format(H.Avg_fftext));
-        H.CalcFields(Avg_uldate);
+        if not TryCalc_Avg_uldate(H) then
+            Observer.ObserveError('Avg_uldate.calc208');
         Observer.Observe('uldate.h3', Format(H.Avg_uldate));
-        H.CalcFields(Avg_ulint);
+        if not TryCalc_Avg_ulint(H) then
+            Observer.ObserveError('Avg_ulint.calc209');
         Observer.Observe('ulint.h3', Format(H.Avg_ulint));
-        H.CalcFields(Avg_uldec);
+        if not TryCalc_Avg_uldec(H) then
+            Observer.ObserveError('Avg_uldec.calc210');
         Observer.Observe('uldec.h3', Format(H.Avg_uldec));
-        H.CalcFields(Avg_ulcode);
+        if not TryCalc_Avg_ulcode(H) then
+            Observer.ObserveError('Avg_ulcode.calc211');
         Observer.Observe('ulcode.h3', Format(H.Avg_ulcode));
-        H.CalcFields(Avg_ulopt);
+        if not TryCalc_Avg_ulopt(H) then
+            Observer.ObserveError('Avg_ulopt.calc212');
         Observer.Observe('ulopt.h3', Format(H.Avg_ulopt));
-        H.CalcFields(Avg_ulenum);
+        if not TryCalc_Avg_ulenum(H) then
+            Observer.ObserveError('Avg_ulenum.calc213');
         Observer.Observe('ulenum.h3', Format(H.Avg_ulenum));
-        H.CalcFields(Avg_ulfdate);
+        if not TryCalc_Avg_ulfdate(H) then
+            Observer.ObserveError('Avg_ulfdate.calc214');
         Observer.Observe('ulfdate.h3', Format(H.Avg_ulfdate));
-        H.CalcFields(Avg_ffmismatch);
+        if not TryCalc_Avg_ffmismatch(H) then
+            Observer.ObserveError('Avg_ffmismatch.calc215');
         Observer.Observe('ffmismatch.h3', Format(H.Avg_ffmismatch));
-        H.CalcFields(Avg_ffboth);
+        if not TryCalc_Avg_ffboth(H) then
+            Observer.ObserveError('Avg_ffboth.calc216');
         Observer.Observe('ffboth.h3', Format(H.Avg_ffboth));
         Observer.Finish();
     end;
@@ -866,43 +1610,61 @@ codeunit 64103 "FFM SumAvg Tests"
     begin
         Initialize();
         H.Get('H1');
-        H.CalcFields(NAvg_const);
+        if not TryCalc_NAvg_const(H) then
+            Observer.ObserveError('NAvg_const.calc217');
         Observer.Observe('H1.const', Format(H.NAvg_const));
-        H.CalcFields(NAvg_field);
+        if not TryCalc_NAvg_field(H) then
+            Observer.ObserveError('NAvg_field.calc218');
         Observer.Observe('H1.field', Format(H.NAvg_field));
-        H.CalcFields(NAvg_filter);
+        if not TryCalc_NAvg_filter(H) then
+            Observer.ObserveError('NAvg_filter.calc219');
         Observer.Observe('H1.filter', Format(H.NAvg_filter));
-        H.CalcFields(NAvg_constopt);
+        if not TryCalc_NAvg_constopt(H) then
+            Observer.ObserveError('NAvg_constopt.calc220');
         Observer.Observe('H1.constopt', Format(H.NAvg_constopt));
-        H.CalcFields(NAvg_constenum);
+        if not TryCalc_NAvg_constenum(H) then
+            Observer.ObserveError('NAvg_constenum.calc221');
         Observer.Observe('H1.constenum', Format(H.NAvg_constenum));
-        H.CalcFields(NAvg_filterenum);
+        if not TryCalc_NAvg_filterenum(H) then
+            Observer.ObserveError('NAvg_filterenum.calc222');
         Observer.Observe('H1.filterenum', Format(H.NAvg_filterenum));
         H.Get('H2');
-        H.CalcFields(NAvg_const);
+        if not TryCalc_NAvg_const(H) then
+            Observer.ObserveError('NAvg_const.calc223');
         Observer.Observe('H2.const', Format(H.NAvg_const));
-        H.CalcFields(NAvg_field);
+        if not TryCalc_NAvg_field(H) then
+            Observer.ObserveError('NAvg_field.calc224');
         Observer.Observe('H2.field', Format(H.NAvg_field));
-        H.CalcFields(NAvg_filter);
+        if not TryCalc_NAvg_filter(H) then
+            Observer.ObserveError('NAvg_filter.calc225');
         Observer.Observe('H2.filter', Format(H.NAvg_filter));
-        H.CalcFields(NAvg_constopt);
+        if not TryCalc_NAvg_constopt(H) then
+            Observer.ObserveError('NAvg_constopt.calc226');
         Observer.Observe('H2.constopt', Format(H.NAvg_constopt));
-        H.CalcFields(NAvg_constenum);
+        if not TryCalc_NAvg_constenum(H) then
+            Observer.ObserveError('NAvg_constenum.calc227');
         Observer.Observe('H2.constenum', Format(H.NAvg_constenum));
-        H.CalcFields(NAvg_filterenum);
+        if not TryCalc_NAvg_filterenum(H) then
+            Observer.ObserveError('NAvg_filterenum.calc228');
         Observer.Observe('H2.filterenum', Format(H.NAvg_filterenum));
         H.Get('H3');
-        H.CalcFields(NAvg_const);
+        if not TryCalc_NAvg_const(H) then
+            Observer.ObserveError('NAvg_const.calc229');
         Observer.Observe('H3.const', Format(H.NAvg_const));
-        H.CalcFields(NAvg_field);
+        if not TryCalc_NAvg_field(H) then
+            Observer.ObserveError('NAvg_field.calc230');
         Observer.Observe('H3.field', Format(H.NAvg_field));
-        H.CalcFields(NAvg_filter);
+        if not TryCalc_NAvg_filter(H) then
+            Observer.ObserveError('NAvg_filter.calc231');
         Observer.Observe('H3.filter', Format(H.NAvg_filter));
-        H.CalcFields(NAvg_constopt);
+        if not TryCalc_NAvg_constopt(H) then
+            Observer.ObserveError('NAvg_constopt.calc232');
         Observer.Observe('H3.constopt', Format(H.NAvg_constopt));
-        H.CalcFields(NAvg_constenum);
+        if not TryCalc_NAvg_constenum(H) then
+            Observer.ObserveError('NAvg_constenum.calc233');
         Observer.Observe('H3.constenum', Format(H.NAvg_constenum));
-        H.CalcFields(NAvg_filterenum);
+        if not TryCalc_NAvg_filterenum(H) then
+            Observer.ObserveError('NAvg_filterenum.calc234');
         Observer.Observe('H3.filterenum', Format(H.NAvg_filterenum));
         Observer.Finish();
     end;
@@ -916,46 +1678,60 @@ codeunit 64103 "FFM SumAvg Tests"
         Initialize();
         H.Get('H1');
         H.Reset();
-        H.CalcFields(NAvg_ffint);
+        if not TryCalc_NAvg_ffint(H) then
+            Observer.ObserveError('NAvg_ffint.calc235');
         Observer.Observe('ffint.unset', Format(H.NAvg_ffint));
         H.SetFilter(IntF, '3..5');
-        H.CalcFields(NAvg_ffint);
+        if not TryCalc_NAvg_ffint(H) then
+            Observer.ObserveError('NAvg_ffint.calc236');
         Observer.Observe('ffint.set', Format(H.NAvg_ffint));
         H.Reset();
-        H.CalcFields(NAvg_ffdec);
+        if not TryCalc_NAvg_ffdec(H) then
+            Observer.ObserveError('NAvg_ffdec.calc237');
         Observer.Observe('ffdec.unset', Format(H.NAvg_ffdec));
         H.SetFilter(DecF, '>=14');
-        H.CalcFields(NAvg_ffdec);
+        if not TryCalc_NAvg_ffdec(H) then
+            Observer.ObserveError('NAvg_ffdec.calc238');
         Observer.Observe('ffdec.set', Format(H.NAvg_ffdec));
         H.Reset();
-        H.CalcFields(NAvg_ffdate);
+        if not TryCalc_NAvg_ffdate(H) then
+            Observer.ObserveError('NAvg_ffdate.calc239');
         Observer.Observe('ffdate.unset', Format(H.NAvg_ffdate));
         H.SetRange(DateF, 20260201D, 20260430D);
-        H.CalcFields(NAvg_ffdate);
+        if not TryCalc_NAvg_ffdate(H) then
+            Observer.ObserveError('NAvg_ffdate.calc240');
         Observer.Observe('ffdate.set', Format(H.NAvg_ffdate));
         H.Reset();
-        H.CalcFields(NAvg_ffcode);
+        if not TryCalc_NAvg_ffcode(H) then
+            Observer.ObserveError('NAvg_ffcode.calc241');
         Observer.Observe('ffcode.unset', Format(H.NAvg_ffcode));
         H.SetFilter(CodeF, 'K1');
-        H.CalcFields(NAvg_ffcode);
+        if not TryCalc_NAvg_ffcode(H) then
+            Observer.ObserveError('NAvg_ffcode.calc242');
         Observer.Observe('ffcode.set', Format(H.NAvg_ffcode));
         H.Reset();
-        H.CalcFields(NAvg_ffopt);
+        if not TryCalc_NAvg_ffopt(H) then
+            Observer.ObserveError('NAvg_ffopt.calc243');
         Observer.Observe('ffopt.unset', Format(H.NAvg_ffopt));
         H.SetRange(OptF, H.OptF::B);
-        H.CalcFields(NAvg_ffopt);
+        if not TryCalc_NAvg_ffopt(H) then
+            Observer.ObserveError('NAvg_ffopt.calc244');
         Observer.Observe('ffopt.set', Format(H.NAvg_ffopt));
         H.Reset();
-        H.CalcFields(NAvg_ffenum);
+        if not TryCalc_NAvg_ffenum(H) then
+            Observer.ObserveError('NAvg_ffenum.calc245');
         Observer.Observe('ffenum.unset', Format(H.NAvg_ffenum));
         H.SetFilter(EnumF, '%1|%2', H.EnumF::Closed, H.EnumF::Held);
-        H.CalcFields(NAvg_ffenum);
+        if not TryCalc_NAvg_ffenum(H) then
+            Observer.ObserveError('NAvg_ffenum.calc246');
         Observer.Observe('ffenum.set', Format(H.NAvg_ffenum));
         H.Reset();
-        H.CalcFields(NAvg_fftext);
+        if not TryCalc_NAvg_fftext(H) then
+            Observer.ObserveError('NAvg_fftext.calc247');
         Observer.Observe('fftext.unset', Format(H.NAvg_fftext));
         H.SetFilter(TextF, 'alpha|charlie');
-        H.CalcFields(NAvg_fftext);
+        if not TryCalc_NAvg_fftext(H) then
+            Observer.ObserveError('NAvg_fftext.calc248');
         Observer.Observe('fftext.set', Format(H.NAvg_fftext));
         Observer.Finish();
     end;
@@ -969,46 +1745,60 @@ codeunit 64103 "FFM SumAvg Tests"
         Initialize();
         H.Get('H1');
         H.Reset();
-        H.CalcFields(NAvg_uldate);
+        if not TryCalc_NAvg_uldate(H) then
+            Observer.ObserveError('NAvg_uldate.calc249');
         Observer.Observe('uldate.unset', Format(H.NAvg_uldate));
         H.SetRange(DateF, 20260201D, 20260430D);
-        H.CalcFields(NAvg_uldate);
+        if not TryCalc_NAvg_uldate(H) then
+            Observer.ObserveError('NAvg_uldate.calc250');
         Observer.Observe('uldate.set', Format(H.NAvg_uldate));
         H.Reset();
-        H.CalcFields(NAvg_ulint);
+        if not TryCalc_NAvg_ulint(H) then
+            Observer.ObserveError('NAvg_ulint.calc251');
         Observer.Observe('ulint.unset', Format(H.NAvg_ulint));
         H.SetFilter(IntF, '3..5');
-        H.CalcFields(NAvg_ulint);
+        if not TryCalc_NAvg_ulint(H) then
+            Observer.ObserveError('NAvg_ulint.calc252');
         Observer.Observe('ulint.set', Format(H.NAvg_ulint));
         H.Reset();
-        H.CalcFields(NAvg_uldec);
+        if not TryCalc_NAvg_uldec(H) then
+            Observer.ObserveError('NAvg_uldec.calc253');
         Observer.Observe('uldec.unset', Format(H.NAvg_uldec));
         H.SetFilter(DecF, '>=14');
-        H.CalcFields(NAvg_uldec);
+        if not TryCalc_NAvg_uldec(H) then
+            Observer.ObserveError('NAvg_uldec.calc254');
         Observer.Observe('uldec.set', Format(H.NAvg_uldec));
         H.Reset();
-        H.CalcFields(NAvg_ulcode);
+        if not TryCalc_NAvg_ulcode(H) then
+            Observer.ObserveError('NAvg_ulcode.calc255');
         Observer.Observe('ulcode.unset', Format(H.NAvg_ulcode));
         H.SetFilter(CodeF, 'K1');
-        H.CalcFields(NAvg_ulcode);
+        if not TryCalc_NAvg_ulcode(H) then
+            Observer.ObserveError('NAvg_ulcode.calc256');
         Observer.Observe('ulcode.set', Format(H.NAvg_ulcode));
         H.Reset();
-        H.CalcFields(NAvg_ulopt);
+        if not TryCalc_NAvg_ulopt(H) then
+            Observer.ObserveError('NAvg_ulopt.calc257');
         Observer.Observe('ulopt.unset', Format(H.NAvg_ulopt));
         H.SetRange(OptF, H.OptF::B);
-        H.CalcFields(NAvg_ulopt);
+        if not TryCalc_NAvg_ulopt(H) then
+            Observer.ObserveError('NAvg_ulopt.calc258');
         Observer.Observe('ulopt.set', Format(H.NAvg_ulopt));
         H.Reset();
-        H.CalcFields(NAvg_ulenum);
+        if not TryCalc_NAvg_ulenum(H) then
+            Observer.ObserveError('NAvg_ulenum.calc259');
         Observer.Observe('ulenum.unset', Format(H.NAvg_ulenum));
         H.SetFilter(EnumF, '%1|%2', H.EnumF::Closed, H.EnumF::Held);
-        H.CalcFields(NAvg_ulenum);
+        if not TryCalc_NAvg_ulenum(H) then
+            Observer.ObserveError('NAvg_ulenum.calc260');
         Observer.Observe('ulenum.set', Format(H.NAvg_ulenum));
         H.Reset();
-        H.CalcFields(NAvg_ulfdate);
+        if not TryCalc_NAvg_ulfdate(H) then
+            Observer.ObserveError('NAvg_ulfdate.calc261');
         Observer.Observe('ulfdate.unset', Format(H.NAvg_ulfdate));
         H.SetRange(DateF, 20260201D, 20260430D);
-        H.CalcFields(NAvg_ulfdate);
+        if not TryCalc_NAvg_ulfdate(H) then
+            Observer.ObserveError('NAvg_ulfdate.calc262');
         Observer.Observe('ulfdate.set', Format(H.NAvg_ulfdate));
         Observer.Finish();
     end;
@@ -1022,16 +1812,20 @@ codeunit 64103 "FFM SumAvg Tests"
         Initialize();
         H.Get('H1');
         H.Reset();
-        H.CalcFields(NAvg_ffmismatch);
+        if not TryCalc_NAvg_ffmismatch(H) then
+            Observer.ObserveError('NAvg_ffmismatch.calc263');
         Observer.Observe('ffmismatch.unset', Format(H.NAvg_ffmismatch));
         H.SetRange(DateF, 20260201D, 20260430D);
-        H.CalcFields(NAvg_ffmismatch);
+        if not TryCalc_NAvg_ffmismatch(H) then
+            Observer.ObserveError('NAvg_ffmismatch.calc264');
         Observer.Observe('ffmismatch.set', Format(H.NAvg_ffmismatch));
         H.Reset();
-        H.CalcFields(NAvg_ffboth);
+        if not TryCalc_NAvg_ffboth(H) then
+            Observer.ObserveError('NAvg_ffboth.calc265');
         Observer.Observe('ffboth.unset', Format(H.NAvg_ffboth));
         H.SetFilter(IntF, '3..5');
-        H.CalcFields(NAvg_ffboth);
+        if not TryCalc_NAvg_ffboth(H) then
+            Observer.ObserveError('NAvg_ffboth.calc266');
         Observer.Observe('ffboth.set', Format(H.NAvg_ffboth));
         Observer.Finish();
     end;
@@ -1044,49 +1838,71 @@ codeunit 64103 "FFM SumAvg Tests"
     begin
         Initialize();
         H.Get('H3');
-        H.CalcFields(NAvg_const);
+        if not TryCalc_NAvg_const(H) then
+            Observer.ObserveError('NAvg_const.calc267');
         Observer.Observe('const.h3', Format(H.NAvg_const));
-        H.CalcFields(NAvg_field);
+        if not TryCalc_NAvg_field(H) then
+            Observer.ObserveError('NAvg_field.calc268');
         Observer.Observe('field.h3', Format(H.NAvg_field));
-        H.CalcFields(NAvg_filter);
+        if not TryCalc_NAvg_filter(H) then
+            Observer.ObserveError('NAvg_filter.calc269');
         Observer.Observe('filter.h3', Format(H.NAvg_filter));
-        H.CalcFields(NAvg_constopt);
+        if not TryCalc_NAvg_constopt(H) then
+            Observer.ObserveError('NAvg_constopt.calc270');
         Observer.Observe('constopt.h3', Format(H.NAvg_constopt));
-        H.CalcFields(NAvg_constenum);
+        if not TryCalc_NAvg_constenum(H) then
+            Observer.ObserveError('NAvg_constenum.calc271');
         Observer.Observe('constenum.h3', Format(H.NAvg_constenum));
-        H.CalcFields(NAvg_filterenum);
+        if not TryCalc_NAvg_filterenum(H) then
+            Observer.ObserveError('NAvg_filterenum.calc272');
         Observer.Observe('filterenum.h3', Format(H.NAvg_filterenum));
-        H.CalcFields(NAvg_ffint);
+        if not TryCalc_NAvg_ffint(H) then
+            Observer.ObserveError('NAvg_ffint.calc273');
         Observer.Observe('ffint.h3', Format(H.NAvg_ffint));
-        H.CalcFields(NAvg_ffdec);
+        if not TryCalc_NAvg_ffdec(H) then
+            Observer.ObserveError('NAvg_ffdec.calc274');
         Observer.Observe('ffdec.h3', Format(H.NAvg_ffdec));
-        H.CalcFields(NAvg_ffdate);
+        if not TryCalc_NAvg_ffdate(H) then
+            Observer.ObserveError('NAvg_ffdate.calc275');
         Observer.Observe('ffdate.h3', Format(H.NAvg_ffdate));
-        H.CalcFields(NAvg_ffcode);
+        if not TryCalc_NAvg_ffcode(H) then
+            Observer.ObserveError('NAvg_ffcode.calc276');
         Observer.Observe('ffcode.h3', Format(H.NAvg_ffcode));
-        H.CalcFields(NAvg_ffopt);
+        if not TryCalc_NAvg_ffopt(H) then
+            Observer.ObserveError('NAvg_ffopt.calc277');
         Observer.Observe('ffopt.h3', Format(H.NAvg_ffopt));
-        H.CalcFields(NAvg_ffenum);
+        if not TryCalc_NAvg_ffenum(H) then
+            Observer.ObserveError('NAvg_ffenum.calc278');
         Observer.Observe('ffenum.h3', Format(H.NAvg_ffenum));
-        H.CalcFields(NAvg_fftext);
+        if not TryCalc_NAvg_fftext(H) then
+            Observer.ObserveError('NAvg_fftext.calc279');
         Observer.Observe('fftext.h3', Format(H.NAvg_fftext));
-        H.CalcFields(NAvg_uldate);
+        if not TryCalc_NAvg_uldate(H) then
+            Observer.ObserveError('NAvg_uldate.calc280');
         Observer.Observe('uldate.h3', Format(H.NAvg_uldate));
-        H.CalcFields(NAvg_ulint);
+        if not TryCalc_NAvg_ulint(H) then
+            Observer.ObserveError('NAvg_ulint.calc281');
         Observer.Observe('ulint.h3', Format(H.NAvg_ulint));
-        H.CalcFields(NAvg_uldec);
+        if not TryCalc_NAvg_uldec(H) then
+            Observer.ObserveError('NAvg_uldec.calc282');
         Observer.Observe('uldec.h3', Format(H.NAvg_uldec));
-        H.CalcFields(NAvg_ulcode);
+        if not TryCalc_NAvg_ulcode(H) then
+            Observer.ObserveError('NAvg_ulcode.calc283');
         Observer.Observe('ulcode.h3', Format(H.NAvg_ulcode));
-        H.CalcFields(NAvg_ulopt);
+        if not TryCalc_NAvg_ulopt(H) then
+            Observer.ObserveError('NAvg_ulopt.calc284');
         Observer.Observe('ulopt.h3', Format(H.NAvg_ulopt));
-        H.CalcFields(NAvg_ulenum);
+        if not TryCalc_NAvg_ulenum(H) then
+            Observer.ObserveError('NAvg_ulenum.calc285');
         Observer.Observe('ulenum.h3', Format(H.NAvg_ulenum));
-        H.CalcFields(NAvg_ulfdate);
+        if not TryCalc_NAvg_ulfdate(H) then
+            Observer.ObserveError('NAvg_ulfdate.calc286');
         Observer.Observe('ulfdate.h3', Format(H.NAvg_ulfdate));
-        H.CalcFields(NAvg_ffmismatch);
+        if not TryCalc_NAvg_ffmismatch(H) then
+            Observer.ObserveError('NAvg_ffmismatch.calc287');
         Observer.Observe('ffmismatch.h3', Format(H.NAvg_ffmismatch));
-        H.CalcFields(NAvg_ffboth);
+        if not TryCalc_NAvg_ffboth(H) then
+            Observer.ObserveError('NAvg_ffboth.calc288');
         Observer.Observe('ffboth.h3', Format(H.NAvg_ffboth));
         Observer.Finish();
     end;
