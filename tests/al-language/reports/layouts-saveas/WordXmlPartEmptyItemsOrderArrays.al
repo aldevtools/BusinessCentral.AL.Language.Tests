@@ -225,42 +225,48 @@ codeunit 62357 "RPT WXP2 Tests"
     procedure WordXmlPart_EmptyDataItemAlone_Plain()
     begin
         Observer.Observe('part', Report.WordXmlPart(Report::"RPT WXP2 Empty Alone"));
-        Observer.Finish();
+        Observer.Ignore('part'); // a dump or environment data: observed, not asserted
+        Observer.Verify();
     end;
 
     [Test]
     procedure WordXmlPart_EmptyDataItemAlone_Extended()
     begin
         Observer.Observe('part', Report.WordXmlPart(Report::"RPT WXP2 Empty Alone", true));
-        Observer.Finish();
+        Observer.Ignore('part'); // a dump or environment data: observed, not asserted
+        Observer.Verify();
     end;
 
     [Test]
     procedure WordXmlPart_EmptyDataItemAfterOneWithColumns_Plain()
     begin
         Observer.Observe('part', Report.WordXmlPart(Report::"RPT WXP2 Empty After"));
-        Observer.Finish();
+        Observer.Ignore('part'); // a dump or environment data: observed, not asserted
+        Observer.Verify();
     end;
 
     [Test]
     procedure WordXmlPart_EmptyDataItemAfterOneWithColumns_Extended()
     begin
         Observer.Observe('part', Report.WordXmlPart(Report::"RPT WXP2 Empty After", true));
-        Observer.Finish();
+        Observer.Ignore('part'); // a dump or environment data: observed, not asserted
+        Observer.Verify();
     end;
 
     [Test]
     procedure WordXmlPart_EmptyDataItemsMixed_Plain()
     begin
         Observer.Observe('part', Report.WordXmlPart(Report::"RPT WXP2 Empty Mixed"));
-        Observer.Finish();
+        Observer.Ignore('part'); // a dump or environment data: observed, not asserted
+        Observer.Verify();
     end;
 
     [Test]
     procedure WordXmlPart_EmptyDataItemsMixed_Extended()
     begin
         Observer.Observe('part', Report.WordXmlPart(Report::"RPT WXP2 Empty Mixed", true));
-        Observer.Finish();
+        Observer.Ignore('part'); // a dump or environment data: observed, not asserted
+        Observer.Verify();
     end;
 
     [Test]
@@ -273,14 +279,16 @@ codeunit 62357 "RPT WXP2 Tests"
     procedure WordXmlPart_NameOrderDigitUnderscoreCase_Plain()
     begin
         Observer.Observe('part', Report.WordXmlPart(Report::"RPT WXP2 Name Order"));
-        Observer.Finish();
+        Observer.Ignore('part'); // a dump or environment data: observed, not asserted
+        Observer.Verify();
     end;
 
     [Test]
     procedure WordXmlPart_NameOrderDigitUnderscoreCase_Extended()
     begin
         Observer.Observe('part', Report.WordXmlPart(Report::"RPT WXP2 Name Order", true));
-        Observer.Finish();
+        Observer.Ignore('part'); // a dump or environment data: observed, not asserted
+        Observer.Verify();
     end;
 
     [Test]
@@ -299,14 +307,16 @@ codeunit 62357 "RPT WXP2 Tests"
     procedure WordXmlPart_ArrayElements_FirstTypes_Plain()
     begin
         Observer.Observe('part', Report.WordXmlPart(Report::"RPT WXP2 Arrays A"));
-        Observer.Finish();
+        Observer.Ignore('part'); // a dump or environment data: observed, not asserted
+        Observer.Verify();
     end;
 
     [Test]
     procedure WordXmlPart_ArrayElements_FirstTypes_Extended()
     begin
         Observer.Observe('part', Report.WordXmlPart(Report::"RPT WXP2 Arrays A", true));
-        Observer.Finish();
+        Observer.Ignore('part'); // a dump or environment data: observed, not asserted
+        Observer.Verify();
     end;
 
     [Test]
@@ -319,14 +329,16 @@ codeunit 62357 "RPT WXP2 Tests"
     procedure WordXmlPart_ArrayElements_OtherTypes_Plain()
     begin
         Observer.Observe('part', Report.WordXmlPart(Report::"RPT WXP2 Arrays B"));
-        Observer.Finish();
+        Observer.Ignore('part'); // a dump or environment data: observed, not asserted
+        Observer.Verify();
     end;
 
     [Test]
     procedure WordXmlPart_ArrayElements_OtherTypes_Extended()
     begin
         Observer.Observe('part', Report.WordXmlPart(Report::"RPT WXP2 Arrays B", true));
-        Observer.Finish();
+        Observer.Ignore('part'); // a dump or environment data: observed, not asserted
+        Observer.Verify();
     end;
 
     [Test]

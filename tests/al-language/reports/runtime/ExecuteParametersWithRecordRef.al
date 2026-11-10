@@ -303,7 +303,11 @@ codeunit 62343 "RPT ExecRef Tests"
         Observer.Observe('ok', Format(TryExecute(Report::"RPT ExecRef Proc", P, RecRef)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('log', 'request page opened;pre opt=0;Row filters=[Id: 3..5] key=[Id] asc=Yes;row 3;row 4;row 5;Child filters=[];child 11;child 12;child 13;child 14;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -320,7 +324,11 @@ codeunit 62343 "RPT ExecRef Tests"
         Observer.Observe('ok', Format(TryExecute(Report::"RPT ExecRef Proc", P, RecRef)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('log', 'request page opened;pre opt=8;Row filters=[] key=[Id] asc=Yes;row 1;row 2;row 3;row 4;row 5;row 6;Child filters=[];child 11;child 12;child 13;child 14;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -337,7 +345,11 @@ codeunit 62343 "RPT ExecRef Tests"
         Observer.Observe('ok', Format(TryExecute(Report::"RPT ExecRef Proc", P, RecRef)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('log', 'request page opened;pre opt=8;Row filters=[Id: 3..5] key=[Id] asc=Yes;row 3;row 4;row 5;Child filters=[];child 11;child 12;child 13;child 14;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -354,7 +366,11 @@ codeunit 62343 "RPT ExecRef Tests"
         Observer.Observe('ok', Format(TryExecute(Report::"RPT ExecRef Proc", P, RecRef)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('log', 'request page opened;pre opt=8;Row filters=[Name: n1|n3|n5] key=[Id] asc=Yes;row 1;row 3;row 5;Child filters=[];child 11;child 12;child 13;child 14;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -375,7 +391,11 @@ codeunit 62343 "RPT ExecRef Tests"
         Observer.Observe('ok', Format(TryExecute(Report::"RPT ExecRef Proc", P, RecRef)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('log', 'request page opened;pre opt=8;Row filters=[Flag: Yes] key=[Name,Id] asc=No;row 6;row 4;row 2;Child filters=[];child 11;child 12;child 13;child 14;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -394,7 +414,11 @@ codeunit 62343 "RPT ExecRef Tests"
         Observer.Observe('ok', Format(TryExecute(Report::"RPT ExecRef Proc", P, RecRef)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('log', 'request page opened;pre opt=8;Row filters=[Id: 2..4] key=[Id] asc=Yes;row 2;row 3;row 4;Child filters=[Id: 13..14];child 13;child 14;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -413,7 +437,11 @@ codeunit 62343 "RPT ExecRef Tests"
         Observer.Observe('ok', Format(TryExecute(Report::"RPT ExecRef Proc", P, RecRef)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('log', 'request page opened;pre opt=9;Row filters=[Id: 2..4] key=[Id] asc=Yes;row 2;row 3;row 4;Child filters=[Id: 13..14];child 13;child 14;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -432,7 +460,11 @@ codeunit 62343 "RPT ExecRef Tests"
         Observer.Observe('ok', Format(TryExecute(Report::"RPT ExecRef Proc", P, RecRef)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'No');
+        Observer.Expect('error|text', 'The RPT ExecRef Proc report does not have a DataItem that uses the table (Table 67700 W3 Marker) specified in the function SetTableView.');
+        Observer.Expect('error|code', 'ReportNoDataItem');
+        Observer.Expect('log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -448,7 +480,11 @@ codeunit 62343 "RPT ExecRef Tests"
         Observer.Observe('ok', Format(TryExecute(Report::"RPT ExecRef Proc", P, RecRef)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('log', 'request page opened;pre opt=8;Row filters=[Id: 2..4] key=[Id] asc=Yes;row 2;row 3;row 4;Child filters=[];child 11;child 12;child 13;child 14;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -466,7 +502,11 @@ codeunit 62343 "RPT ExecRef Tests"
         Observer.Observe('ok', Format(TryExecute(Report::"RPT ExecRef Proc", '', RecRef)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('log', 'pre opt=0;Row filters=[Flag: Yes] key=[Name,Id] asc=No;row 6;row 4;row 2;Child filters=[];child 11;child 12;child 13;child 14;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -483,7 +523,11 @@ codeunit 62343 "RPT ExecRef Tests"
         Observer.Observe('ok', Format(TryExecuteVariable(P, RecRef, false)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('log', 'request page opened;pre opt=8;Row filters=[Id: 3..5] key=[Id] asc=Yes;row 3;row 4;row 5;Child filters=[];child 11;child 12;child 13;child 14;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -500,7 +544,11 @@ codeunit 62343 "RPT ExecRef Tests"
         Observer.Observe('ok', Format(TryExecuteVariable(P, RecRef, true)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('log', 'request page opened;pre opt=8;Row filters=[Id: 3..5] key=[Id] asc=Yes;row 3;row 4;row 5;Child filters=[];child 11;child 12;child 13;child 14;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -517,7 +565,11 @@ codeunit 62343 "RPT ExecRef Tests"
         Observer.Observe('ok', Format(TrySaveAs(P, RecRef, false)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('log', 'request page opened;pre opt=8;Row filters=[Id: 3..5] key=[Id] asc=Yes;row 3;row 4;row 5;Child filters=[];child 11;child 12;child 13;child 14;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -534,7 +586,11 @@ codeunit 62343 "RPT ExecRef Tests"
         Observer.Observe('ok', Format(TrySaveAs(P, RecRef, true)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('log', 'request page opened;pre opt=8;Row filters=[Id: 3..5] key=[Id] asc=Yes;row 3;row 4;row 5;Child filters=[];child 11;child 12;child 13;child 14;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -553,7 +609,11 @@ codeunit 62343 "RPT ExecRef Tests"
         Observer.Observe('ok', Format(TrySaveAs(P, RecRef, false)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('log', 'request page opened;pre opt=8;Row filters=[Id: 2..4] key=[Id] asc=Yes;row 2;row 3;row 4;Child filters=[Id: 13..14];child 13;child 14;');
+        Observer.Verify();
     end;
 
     // The text of the parameters the three handler modes produce (the data item views are part of what Execute gets).
@@ -570,7 +630,10 @@ codeunit 62343 "RPT ExecRef Tests"
         Observer.Observe('row filter and option', P.Substring(P.IndexOf('<Options>')));
         P := Parameters(Report::"RPT ExecRef Proc", 2);
         Observer.Observe('both filters and option', P.Substring(P.IndexOf('<Options>')));
-        Observer.Finish();
+        Observer.Expect('ok only', '<Options><Field name="OptVal">0</Field></Options><DataItems><DataItem name="Row">VERSION(1) SORTING(Field1)</DataItem><DataItem name="Child">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Expect('row filter and option', '<Options><Field name="OptVal">8</Field></Options><DataItems><DataItem name="Row">VERSION(1) SORTING(Field1) WHERE(Field1=1(2..4))</DataItem><DataItem name="Child">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Expect('both filters and option', '<Options><Field name="OptVal">9</Field></Options><DataItems><DataItem name="Row">VERSION(1) SORTING(Field1) WHERE(Field1=1(2..4))</DataItem><DataItem name="Child">VERSION(1) SORTING(Field1) WHERE(Field1=1(12..13))</DataItem></DataItems></ReportParameters>');
+        Observer.Verify();
     end;
 
     local procedure Fill(Mode: Integer; var RowFilterSet: Boolean; var ChildFilterSet: Boolean; var Opt: Integer)

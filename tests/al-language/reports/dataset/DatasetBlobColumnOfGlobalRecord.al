@@ -225,7 +225,11 @@ codeunit 62323 "RPT BlobCol Tests"
         Observer.Observe('saved', Format(Ok));
         Observer.ObserveError('error');
         Observer.Observe('columns', Dataset.ColumnLines(Xml));
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('columns', '<Column name="Num">1</Column>|<Column name="GetOnly"></Column>|<Column name="GetOnlyHas">True</Column>|<Column name="GetOnlyBitmap"></Column>|<Column name="GetCalc">SGVsbG8gQkM=</Column>|<Column name="GetCalcHas">True</Column>|<Column name="NeverRead"></Column>|<Column name="NeverReadHas">False</Column>|<Column name="FindOnly"></Column>|<Column name="FindOnlyHas">True</Column>|<Column name="LoadFields"></Column>|<Column name="LoadFieldsHas">True</Column>|<Column name="AutoCalc">SGVsbG8gQkM=</Column>|<Column name="AutoCalcHas">True</Column>|<Column name="InMemory">SW4gbWVtb3J5</Column>|<Column name="InMemoryHas">True</Column>|<Column name="EmptyGet"></Column>|<Column name="EmptyGetHas">False</Column>|<Column name="TempGet"></Column>|<Column name="TempGetHas">True</Column>|<Column name="MediaGetOnly"></Column>|<Column name="MediaNeverRead"></Column>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -241,7 +245,11 @@ codeunit 62323 "RPT BlobCol Tests"
         Observer.Observe('saved', Format(Ok));
         Observer.ObserveError('error');
         Observer.Observe('columns', WithoutCompany(Dataset.ColumnLines(Xml)));
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('columns', '<Column name="Id">1</Column>|<Column name="OwnData"></Column>|<Column name="OtherData"></Column>|<Column name="OtherHas">False</Column>|<Column name="CompanyGetOnlyHas">True</Column>|<Column name="CompanyCalcHas">True</Column>|<Column name="Id">2</Column>|<Column name="OwnData">SGVsbG8gQkM=</Column>|<Column name="OtherData"></Column>|<Column name="OtherHas">True</Column>|<Column name="CompanyGetOnlyHas">True</Column>|<Column name="CompanyCalcHas">True</Column>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -266,7 +274,15 @@ codeunit 62323 "RPT BlobCol Tests"
         Observer.Observe('Get only HasValue column', Format(Lines.Contains('<Column name="CompanyGetOnlyHas">true</Column>')));
         Observer.Observe('Get and CalcFields', ClassifyCompany(Lines, 'CompanyCalc'));
         Observer.Observe('Get and CalcFields HasValue column', Format(Lines.Contains('<Column name="CompanyCalcHas">true</Column>')));
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('company has a picture', 'Yes');
+        Observer.Expect('Get only', 'empty');
+        Observer.Expect('Get only HasValue column', 'No');
+        Observer.Expect('Get and CalcFields', 'picture');
+        Observer.Expect('Get and CalcFields HasValue column', 'No');
+        Observer.Verify();
     end;
 
     // The company picture is empty on some databases, so the same question with a picture the test stores first.
@@ -295,6 +311,13 @@ codeunit 62323 "RPT BlobCol Tests"
         Observer.Observe('Get only HasValue column', Format(Lines.Contains('<Column name="CompanyGetOnlyHas">true</Column>')));
         Observer.Observe('Get and CalcFields', ClassifyCompany(Lines, 'CompanyCalc'));
         Observer.Observe('Get and CalcFields HasValue column', Format(Lines.Contains('<Column name="CompanyCalcHas">true</Column>')));
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('Get only', 'empty');
+        Observer.Expect('Get only HasValue column', 'No');
+        Observer.Expect('Get and CalcFields', 'picture');
+        Observer.Expect('Get and CalcFields HasValue column', 'No');
+        Observer.Verify();
     end;
 }

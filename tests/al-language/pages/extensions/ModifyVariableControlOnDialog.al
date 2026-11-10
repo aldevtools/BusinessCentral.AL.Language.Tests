@@ -185,7 +185,12 @@ codeunit 62383 "PAG ModVar Tests"
         Result := Page.RunModal(Page::"PAG ModVar Dialog");
         Observer.Observe('close log', L.Take());
         Observer.Observe('result', Format(Result));
-        Observer.Finish();
+        Observer.Expect('set true', 'ext.before.AddWord enabled=No;page.AddWord(Yes);ext.after.AddWord enabled=Yes;');
+        Observer.Expect('set false', 'ext.before.AddWord enabled=Yes;page.AddWord(No);ext.after.AddWord enabled=Yes;');
+        Observer.Expect('set false again', 'ext.before.AddWord enabled=Yes;page.AddWord(No);ext.after.AddWord enabled=Yes;');
+        Observer.Expect('close log', 'page.queryclose(LookupOK) word=No rdlc=No;');
+        Observer.Expect('result', 'LookupOK');
+        Observer.Verify();
     end;
 
     [Test]
@@ -199,7 +204,11 @@ codeunit 62383 "PAG ModVar Tests"
         Result := Page.RunModal(Page::"PAG ModVar Dialog");
         Observer.Observe('close log', L.Take());
         Observer.Observe('result', Format(Result));
-        Observer.Finish();
+        Observer.Expect('set AddRdlc', 'ext.before.AddRdlc;ext.after.AddRdlc;');
+        Observer.Expect('state', 'flag enabled=No note editable=Yes shown=set by AddRdlc');
+        Observer.Expect('close log', 'page.queryclose(LookupOK) word=No rdlc=Yes;');
+        Observer.Expect('result', 'LookupOK');
+        Observer.Verify();
     end;
 
     [Test]
@@ -213,7 +222,26 @@ codeunit 62383 "PAG ModVar Tests"
         Result := Page.RunModal(Page::"PAG ModVar Dialog");
         Observer.Observe('close log', L.Take());
         Observer.Observe('result', Format(Result));
-        Observer.Finish();
+        Observer.Expect('state before', 'flag enabled=No note editable=No shown=');
+        Observer.Expect('set MyFlag before ok', 'Yes');
+        Observer.Expect('set MyFlag before|text', '');
+        Observer.Expect('set MyFlag before|code', '');
+        Observer.Expect('set MyNote before ok', 'Yes');
+        Observer.Expect('set MyNote before|text', '');
+        Observer.Expect('set MyNote before|code', '');
+        Observer.Expect('set AddWord', 'ext.before.AddWord enabled=No;page.AddWord(Yes);ext.after.AddWord enabled=Yes;');
+        Observer.Expect('state after AddWord', 'flag enabled=Yes note editable=No shown=set by AddWord');
+        Observer.Expect('set MyFlag after ok', 'Yes');
+        Observer.Expect('set MyFlag after|text', '');
+        Observer.Expect('set MyFlag after|code', '');
+        Observer.Expect('set MyFlag log', 'ext.MyFlag(Yes);');
+        Observer.Expect('state after AddRdlc', 'flag enabled=Yes note editable=Yes shown=set by AddRdlc');
+        Observer.Expect('set MyNote after ok', 'Yes');
+        Observer.Expect('set MyNote after|text', '');
+        Observer.Expect('set MyNote after|code', '');
+        Observer.Expect('close log', 'page.queryclose(LookupOK) word=Yes rdlc=Yes;');
+        Observer.Expect('result', 'LookupOK');
+        Observer.Verify();
     end;
 
     [Test]
@@ -227,7 +255,10 @@ codeunit 62383 "PAG ModVar Tests"
         Result := Page.RunModal(Page::"PAG ModVar Dialog");
         Observer.Observe('close log', L.Take());
         Observer.Observe('result', Format(Result));
-        Observer.Finish();
+        Observer.Expect('set true', 'ext.before.AddWord enabled=No;page.AddWord(Yes);ext.after.AddWord enabled=Yes;');
+        Observer.Expect('close log', 'page.queryclose(LookupCancel) word=Yes rdlc=No;');
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Verify();
     end;
 
     // The same page opened as a TestPage, not modally.
@@ -247,7 +278,13 @@ codeunit 62383 "PAG ModVar Tests"
         Observer.Observe('state after AddRdlc', State(Dialog));
         Dialog.Close();
         Observer.Observe('close log', L.Take());
-        Observer.Finish();
+        Observer.Expect('state before', 'flag enabled=No note editable=No shown=');
+        Observer.Expect('set AddWord', 'ext.before.AddWord enabled=No;page.AddWord(Yes);ext.after.AddWord enabled=Yes;');
+        Observer.Expect('state after AddWord', 'flag enabled=Yes note editable=No shown=set by AddWord');
+        Observer.Expect('set AddRdlc', 'ext.before.AddRdlc;ext.after.AddRdlc;');
+        Observer.Expect('state after AddRdlc', 'flag enabled=Yes note editable=Yes shown=set by AddRdlc');
+        Observer.Expect('close log', 'page.queryclose(Cancel) word=Yes rdlc=Yes;');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
