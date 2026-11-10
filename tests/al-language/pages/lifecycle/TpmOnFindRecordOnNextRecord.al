@@ -328,6 +328,31 @@ codeunit 97466 "TPM FR Tests"
     end;
 
     [TryFunction]
+    local procedure TryGoToGenKey(var P: TestPage "TPM FR Generated"; Key: Integer)
+    begin
+        if not P.GoToKey(Key) then
+            Error('GoToKey returned false');
+    end;
+
+    [TryFunction]
+    local procedure TryOpenGenEdit(var P: TestPage "TPM FR Generated")
+    begin
+        P.OpenEdit();
+    end;
+
+    [TryFunction]
+    local procedure TryNextGen(var P: TestPage "TPM FR Generated")
+    begin
+        P.Next();
+    end;
+
+    [TryFunction]
+    local procedure TryPreviousGen(var P: TestPage "TPM FR Generated")
+    begin
+        P.Previous();
+    end;
+
+    [TryFunction]
     local procedure TrySetName(var P: TestPage "TPM FR Passthrough"; Value: Text)
     begin
         P.Name.SetValue(Value);
@@ -567,14 +592,18 @@ codeunit 97466 "TPM FR Tests"
         P: TestPage "TPM FR Generated";
     begin
         Log.SetTotal(30);
-        P.OpenEdit();
-        P.GoToKey(5);
+        if not TryOpenGenEdit(P) then
+            Observer.ObserveError('OpenEdit');
+        if not TryGoToGenKey(P, 5) then
+            Observer.ObserveError('GoToKey 5');
         Log.Take();
         Observer.Observe('Name ok', Format(TrySetGenName(P, 'typed')));
         Observer.Observe('shown after SetValue', ShownGen(P));
         Observer.Observe('log after SetValue', Log.Take());
-        P.Next();
-        P.Previous();
+        if not TryNextGen(P) then
+            Observer.ObserveError('Next');
+        if not TryPreviousGen(P) then
+            Observer.ObserveError('Previous');
         Observer.Observe('shown after Next and Previous', ShownGen(P));
         P.Close();
         Observer.Finish();
@@ -586,8 +615,10 @@ codeunit 97466 "TPM FR Tests"
         P: TestPage "TPM FR Generated";
     begin
         Log.SetTotal(30);
-        P.OpenEdit();
-        P.GoToKey(5);
+        if not TryOpenGenEdit(P) then
+            Observer.ObserveError('OpenEdit');
+        if not TryGoToGenKey(P, 5) then
+            Observer.ObserveError('GoToKey 5');
         Log.Take();
         if not TrySetGenNumber(P, '9') then
             Observer.ObserveError('SetValue Number 9');
