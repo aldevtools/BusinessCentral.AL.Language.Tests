@@ -346,9 +346,8 @@ codeunit 61817 "PAG XRec Part Tests"
         end;
     end;
 
-    local procedure StoredLine(FieldIndex: Integer)
+    local procedure StoredLine(FieldIndex: Integer; var Observer: Codeunit "Probe Observer")
     var
-        Observer: Codeunit "Probe Observer";
         Doc: TestPage "PAG XRec Part Doc";
     begin
         Seed();
@@ -362,12 +361,10 @@ codeunit 61817 "PAG XRec Part Tests"
         SetPartField(Doc, FieldIndex, 6);
         Observer.Observe('stored line 10000, set 5 -> 6', Log.Take());
         Observer.Observe('lines after the second set', Stored('H1'));
-        Observer.Finish();
     end;
 
-    local procedure NewLineFieldFirst(FieldIndex: Integer)
+    local procedure NewLineFieldFirst(FieldIndex: Integer; var Observer: Codeunit "Probe Observer")
     var
-        Observer: Codeunit "Probe Observer";
         Doc: TestPage "PAG XRec Part Doc";
     begin
         Seed();
@@ -382,13 +379,11 @@ codeunit 61817 "PAG XRec Part Tests"
         SetPartField(Doc, FieldIndex, 6);
         Observer.Observe('new line, set 5 -> 6', Log.Take());
         Observer.Observe('lines after the second set', Stored('H1'));
-        Observer.Finish();
     end;
 
     // The reporter's order: one field of the new line runs CurrPage.Update() (as "No." does on a purchase invoice line), then another field is set.
-    local procedure NewLineAfterUpdateField(FieldIndex: Integer)
+    local procedure NewLineAfterUpdateField(FieldIndex: Integer; var Observer: Codeunit "Probe Observer")
     var
-        Observer: Codeunit "Probe Observer";
         Doc: TestPage "PAG XRec Part Doc";
     begin
         Seed();
@@ -402,12 +397,10 @@ codeunit 61817 "PAG XRec Part Tests"
         SetPartField(Doc, FieldIndex, 5);
         Observer.Observe('same line, set 0 -> 5', Log.Take());
         Observer.Observe('lines after the set', Stored('H1'));
-        Observer.Finish();
     end;
 
-    local procedure FirstLineOfEmptyDocument(FirstIndex: Integer; SecondIndex: Integer)
+    local procedure FirstLineOfEmptyDocument(FirstIndex: Integer; SecondIndex: Integer; var Observer: Codeunit "Probe Observer")
     var
-        Observer: Codeunit "Probe Observer";
         Doc: TestPage "PAG XRec Part Doc";
     begin
         Seed();
@@ -420,121 +413,253 @@ codeunit 61817 "PAG XRec Part Tests"
         SetPartField(Doc, SecondIndex, 5);
         Observer.Observe('first line, second field set 0 -> 5', Log.Take());
         Observer.Observe('lines after the second field', Stored('H2'));
-        Observer.Finish();
     end;
 
     [Test]
     procedure Part_StoredLine_F0()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        StoredLine(0);
+        StoredLine(0, Observer);
+        Observer.Expect('stored line 10000, set 1 -> 5', 'table F0 rec=5 xrec=1 xline=10000; before F0 rec=5 xrec=1 xline=10000; base F0 rec=5 xrec=1 xline=10000; after F0 rec=5 xrec=1 xline=10000 line=10000; ');
+        Observer.Expect('lines after the first set', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; ');
+        Observer.Expect('stored line 10000, set 5 -> 6', 'table F0 rec=6 xrec=5 xline=10000; before F0 rec=6 xrec=5 xline=10000; base F0 rec=6 xrec=5 xline=10000; after F0 rec=6 xrec=5 xline=10000 line=10000; ');
+        Observer.Expect('lines after the second set', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Part_StoredLine_F1()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        StoredLine(1);
+        StoredLine(1, Observer);
+        Observer.Expect('stored line 10000, set 1 -> 5', 'table F1 rec=5 xrec=1 xline=10000; before F1 rec=5 xrec=1 xline=10000; base F1 rec=5 xrec=1 xline=10000; after F1 rec=5 xrec=1 xline=10000 line=10000; ');
+        Observer.Expect('lines after the first set', '10000: 1 5 1 1 1; 20000: 2 2 2 2 2; ');
+        Observer.Expect('stored line 10000, set 5 -> 6', 'table F1 rec=6 xrec=5 xline=10000; before F1 rec=6 xrec=5 xline=10000; base F1 rec=6 xrec=5 xline=10000; after F1 rec=6 xrec=5 xline=10000 line=10000; ');
+        Observer.Expect('lines after the second set', '10000: 1 6 1 1 1; 20000: 2 2 2 2 2; ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Part_StoredLine_F2()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        StoredLine(2);
+        StoredLine(2, Observer);
+        Observer.Expect('stored line 10000, set 1 -> 5', 'table F2 rec=5 xrec=1 xline=10000; before F2 rec=5 xrec=1 xline=10000; base F2 rec=5 xrec=1 xline=10000; after F2 rec=5 xrec=1 xline=10000 line=10000; ');
+        Observer.Expect('lines after the first set', '10000: 1 1 5 1 1; 20000: 2 2 2 2 2; ');
+        Observer.Expect('stored line 10000, set 5 -> 6', 'table F2 rec=6 xrec=5 xline=10000; before F2 rec=6 xrec=5 xline=10000; base F2 rec=6 xrec=5 xline=10000; after F2 rec=6 xrec=5 xline=10000 line=10000; ');
+        Observer.Expect('lines after the second set', '10000: 1 1 6 1 1; 20000: 2 2 2 2 2; ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Part_StoredLine_F3()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        StoredLine(3);
+        StoredLine(3, Observer);
+        Observer.Expect('stored line 10000, set 1 -> 5', 'table F3 rec=5 xrec=1 xline=10000; before F3 rec=5 xrec=1 xline=10000; base F3 rec=5 xrec=1 xline=10000; after F3 rec=5 xrec=1 xline=10000 line=10000; ');
+        Observer.Expect('lines after the first set', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; ');
+        Observer.Expect('stored line 10000, set 5 -> 6', 'table F3 rec=6 xrec=1 xline=10000; before F3 rec=6 xrec=1 xline=10000; base F3 rec=6 xrec=1 xline=10000; after F3 rec=6 xrec=1 xline=10000 line=10000; ');
+        Observer.Expect('lines after the second set', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Part_StoredLine_F4()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        StoredLine(4);
+        StoredLine(4, Observer);
+        Observer.Expect('stored line 10000, set 1 -> 5', 'table F4 rec=5 xrec=1 xline=10000; before F4 rec=5 xrec=1 xline=10000; base F4 rec=5 xrec=1 xline=10000; after F4 rec=5 xrec=1 xline=10000 line=10000; ');
+        Observer.Expect('lines after the first set', '10000: 1 1 1 1 5; 20000: 2 2 2 2 2; ');
+        Observer.Expect('stored line 10000, set 5 -> 6', 'table F4 rec=6 xrec=5 xline=10000; before F4 rec=6 xrec=5 xline=10000; base F4 rec=6 xrec=5 xline=10000; after F4 rec=6 xrec=5 xline=10000 line=10000; ');
+        Observer.Expect('lines after the second set', '10000: 1 1 1 1 6; 20000: 2 2 2 2 2; ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Part_NewLine_FieldFirst_F0()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        NewLineFieldFirst(0);
+        NewLineFieldFirst(0, Observer);
+        Observer.Expect('new line, set 0 -> 5', 'table F0 rec=5 xrec=0 xline=0; before F0 rec=5 xrec=0 xline=0; base F0 rec=5 xrec=0 xline=0; after F0 rec=5 xrec=0 xline=0 line=0; ');
+        Observer.Expect('lines after the first set', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; ');
+        Observer.Expect('new line, set 5 -> 6', 'table F0 rec=6 xrec=5 xline=0; before F0 rec=6 xrec=5 xline=0; base F0 rec=6 xrec=5 xline=0; after F0 rec=6 xrec=5 xline=0 line=0; ');
+        Observer.Expect('lines after the second set', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Part_NewLine_FieldFirst_F1()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        NewLineFieldFirst(1);
+        NewLineFieldFirst(1, Observer);
+        Observer.Expect('new line, set 0 -> 5', 'table F1 rec=5 xrec=0 xline=0; before F1 rec=5 xrec=0 xline=0; base F1 rec=5 xrec=0 xline=0; after F1 rec=5 xrec=0 xline=0 line=30000; ');
+        Observer.Expect('lines after the first set', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; 30000: 0 5 0 0 0; ');
+        Observer.Expect('new line, set 5 -> 6', 'table F1 rec=6 xrec=5 xline=30000; before F1 rec=6 xrec=5 xline=30000; base F1 rec=6 xrec=5 xline=30000; after F1 rec=6 xrec=5 xline=30000 line=30000; ');
+        Observer.Expect('lines after the second set', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; 30000: 0 6 0 0 0; ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Part_NewLine_FieldFirst_F2()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        NewLineFieldFirst(2);
+        NewLineFieldFirst(2, Observer);
+        Observer.Expect('new line, set 0 -> 5', 'table F2 rec=5 xrec=0 xline=0; before F2 rec=5 xrec=0 xline=0; base F2 rec=5 xrec=0 xline=0; after F2 rec=5 xrec=0 xline=0 line=30000; ');
+        Observer.Expect('lines after the first set', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; 30000: 0 0 5 0 0; ');
+        Observer.Expect('new line, set 5 -> 6', 'table F2 rec=6 xrec=5 xline=30000; before F2 rec=6 xrec=5 xline=30000; base F2 rec=6 xrec=5 xline=30000; after F2 rec=6 xrec=5 xline=30000 line=30000; ');
+        Observer.Expect('lines after the second set', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; 30000: 0 0 6 0 0; ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Part_NewLine_FieldFirst_F3()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        NewLineFieldFirst(3);
+        NewLineFieldFirst(3, Observer);
+        Observer.Expect('new line, set 0 -> 5', 'table F3 rec=5 xrec=0 xline=0; before F3 rec=5 xrec=0 xline=0; base F3 rec=5 xrec=0 xline=0; after F3 rec=5 xrec=0 xline=0 line=0; ');
+        Observer.Expect('lines after the first set', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; ');
+        Observer.Expect('new line, set 5 -> 6', 'table F3 rec=6 xrec=0 xline=0; before F3 rec=6 xrec=0 xline=0; base F3 rec=6 xrec=0 xline=0; after F3 rec=6 xrec=0 xline=0 line=0; ');
+        Observer.Expect('lines after the second set', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Part_NewLine_FieldFirst_F4()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        NewLineFieldFirst(4);
+        NewLineFieldFirst(4, Observer);
+        Observer.Expect('new line, set 0 -> 5', 'table F4 rec=5 xrec=0 xline=0; before F4 rec=5 xrec=0 xline=0; base F4 rec=5 xrec=0 xline=0; after F4 rec=5 xrec=0 xline=0 line=30000; ');
+        Observer.Expect('lines after the first set', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; 30000: 0 0 0 0 5; ');
+        Observer.Expect('new line, set 5 -> 6', 'table F4 rec=6 xrec=5 xline=30000; before F4 rec=6 xrec=5 xline=30000; base F4 rec=6 xrec=5 xline=30000; after F4 rec=6 xrec=5 xline=30000 line=30000; ');
+        Observer.Expect('lines after the second set', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; 30000: 0 0 0 0 6; ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Part_NewLine_AfterF1Update_F0()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        NewLineAfterUpdateField(0);
+        NewLineAfterUpdateField(0, Observer);
+        Observer.Expect('new line, F1 set first', 'table F1 rec=7 xrec=0 xline=0; before F1 rec=7 xrec=0 xline=0; base F1 rec=7 xrec=0 xline=0; after F1 rec=7 xrec=0 xline=0 line=30000; ');
+        Observer.Expect('lines after F1', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; 30000: 0 7 0 0 0; ');
+        Observer.Expect('same line, set 0 -> 5', 'table F0 rec=5 xrec=0 xline=30000; before F0 rec=5 xrec=0 xline=30000; base F0 rec=5 xrec=0 xline=30000; after F0 rec=5 xrec=0 xline=30000 line=30000; ');
+        Observer.Expect('lines after the set', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; 30000: 0 7 0 0 0; ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Part_NewLine_AfterF1Update_F2()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        NewLineAfterUpdateField(2);
+        NewLineAfterUpdateField(2, Observer);
+        Observer.Expect('new line, F1 set first', 'table F1 rec=7 xrec=0 xline=0; before F1 rec=7 xrec=0 xline=0; base F1 rec=7 xrec=0 xline=0; after F1 rec=7 xrec=0 xline=0 line=30000; ');
+        Observer.Expect('lines after F1', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; 30000: 0 7 0 0 0; ');
+        Observer.Expect('same line, set 0 -> 5', 'table F2 rec=5 xrec=0 xline=30000; before F2 rec=5 xrec=0 xline=30000; base F2 rec=5 xrec=0 xline=30000; after F2 rec=5 xrec=0 xline=30000 line=30000; ');
+        Observer.Expect('lines after the set', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; 30000: 0 7 5 0 0; ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Part_NewLine_AfterF1Update_F3()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        NewLineAfterUpdateField(3);
+        NewLineAfterUpdateField(3, Observer);
+        Observer.Expect('new line, F1 set first', 'table F1 rec=7 xrec=0 xline=0; before F1 rec=7 xrec=0 xline=0; base F1 rec=7 xrec=0 xline=0; after F1 rec=7 xrec=0 xline=0 line=30000; ');
+        Observer.Expect('lines after F1', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; 30000: 0 7 0 0 0; ');
+        Observer.Expect('same line, set 0 -> 5', 'table F3 rec=5 xrec=0 xline=30000; before F3 rec=5 xrec=0 xline=30000; base F3 rec=5 xrec=0 xline=30000; after F3 rec=5 xrec=0 xline=30000 line=30000; ');
+        Observer.Expect('lines after the set', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; 30000: 0 7 0 0 0; ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Part_NewLine_AfterF1Update_F4()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        NewLineAfterUpdateField(4);
+        NewLineAfterUpdateField(4, Observer);
+        Observer.Expect('new line, F1 set first', 'table F1 rec=7 xrec=0 xline=0; before F1 rec=7 xrec=0 xline=0; base F1 rec=7 xrec=0 xline=0; after F1 rec=7 xrec=0 xline=0 line=30000; ');
+        Observer.Expect('lines after F1', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; 30000: 0 7 0 0 0; ');
+        Observer.Expect('same line, set 0 -> 5', 'table F4 rec=5 xrec=0 xline=30000; before F4 rec=5 xrec=0 xline=30000; base F4 rec=5 xrec=0 xline=30000; after F4 rec=5 xrec=0 xline=30000 line=30000; ');
+        Observer.Expect('lines after the set', '10000: 1 1 1 1 1; 20000: 2 2 2 2 2; 30000: 0 7 0 0 5; ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Part_EmptyDocument_F1_Then_F2()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        FirstLineOfEmptyDocument(1, 2);
+        FirstLineOfEmptyDocument(1, 2, Observer);
+        Observer.Expect('first line, first field set 0 -> 7', 'table F1 rec=7 xrec=0 xline=0; before F1 rec=7 xrec=0 xline=0; base F1 rec=7 xrec=0 xline=0; after F1 rec=7 xrec=0 xline=0 line=10000; ');
+        Observer.Expect('lines after the first field', '10000: 0 7 0 0 0; ');
+        Observer.Expect('first line, second field set 0 -> 5', 'table F2 rec=5 xrec=0 xline=10000; before F2 rec=5 xrec=0 xline=10000; base F2 rec=5 xrec=0 xline=10000; after F2 rec=5 xrec=0 xline=10000 line=10000; ');
+        Observer.Expect('lines after the second field', '10000: 0 7 5 0 0; ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Part_EmptyDocument_F2_Then_F1()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        FirstLineOfEmptyDocument(2, 1);
+        FirstLineOfEmptyDocument(2, 1, Observer);
+        Observer.Expect('first line, first field set 0 -> 7', 'table F2 rec=7 xrec=0 xline=0; before F2 rec=7 xrec=0 xline=0; base F2 rec=7 xrec=0 xline=0; after F2 rec=7 xrec=0 xline=0 line=10000; ');
+        Observer.Expect('lines after the first field', '10000: 0 0 7 0 0; ');
+        Observer.Expect('first line, second field set 0 -> 5', 'table F1 rec=5 xrec=0 xline=10000; before F1 rec=5 xrec=0 xline=10000; base F1 rec=5 xrec=0 xline=10000; after F1 rec=5 xrec=0 xline=10000 line=10000; ');
+        Observer.Expect('lines after the second field', '10000: 0 5 7 0 0; ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Part_EmptyDocument_F0_Then_F2()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        FirstLineOfEmptyDocument(0, 2);
+        FirstLineOfEmptyDocument(0, 2, Observer);
+        Observer.Expect('first line, first field set 0 -> 7', 'table F0 rec=7 xrec=0 xline=0; before F0 rec=7 xrec=0 xline=0; base F0 rec=7 xrec=0 xline=0; after F0 rec=7 xrec=0 xline=0 line=0; ');
+        Observer.Expect('lines after the first field', 'no lines');
+        Observer.Expect('first line, second field set 0 -> 5', 'table F2 rec=5 xrec=0 xline=0; before F2 rec=5 xrec=0 xline=0; base F2 rec=5 xrec=0 xline=0; after F2 rec=5 xrec=0 xline=0 line=10000; ');
+        Observer.Expect('lines after the second field', '10000: 7 0 5 0 0; ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Part_EmptyDocument_F3_Then_F2()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        FirstLineOfEmptyDocument(3, 2);
+        FirstLineOfEmptyDocument(3, 2, Observer);
+        Observer.Expect('first line, first field set 0 -> 7', 'table F3 rec=7 xrec=0 xline=0; before F3 rec=7 xrec=0 xline=0; base F3 rec=7 xrec=0 xline=0; after F3 rec=7 xrec=0 xline=0 line=0; ');
+        Observer.Expect('lines after the first field', 'no lines');
+        Observer.Expect('first line, second field set 0 -> 5', 'table F2 rec=5 xrec=0 xline=0; before F2 rec=5 xrec=0 xline=0; base F2 rec=5 xrec=0 xline=0; after F2 rec=5 xrec=0 xline=0 line=10000; ');
+        Observer.Expect('lines after the second field', '10000: 0 0 5 0 0; ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Part_EmptyDocument_F4_Then_F2()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        FirstLineOfEmptyDocument(4, 2);
+        FirstLineOfEmptyDocument(4, 2, Observer);
+        Observer.Expect('first line, first field set 0 -> 7', 'table F4 rec=7 xrec=0 xline=0; before F4 rec=7 xrec=0 xline=0; base F4 rec=7 xrec=0 xline=0; after F4 rec=7 xrec=0 xline=0 line=10000; ');
+        Observer.Expect('lines after the first field', '10000: 0 0 0 0 7; ');
+        Observer.Expect('first line, second field set 0 -> 5', 'table F2 rec=5 xrec=0 xline=10000; before F2 rec=5 xrec=0 xline=10000; base F2 rec=5 xrec=0 xline=10000; after F2 rec=5 xrec=0 xline=10000 line=10000; ');
+        Observer.Expect('lines after the second field', '10000: 0 0 5 0 7; ');
+        Observer.Verify();
     end;
 
     // The part page opened alone as its own TestPage (no document page, no SubPageLink).

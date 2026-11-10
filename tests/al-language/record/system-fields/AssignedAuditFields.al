@@ -162,9 +162,8 @@ codeunit 61802 "REC Audit Assign Tests"
     end;
 
     // One cell of the Modify matrix: assign one audit field, change Name or not, Modify, read the buffer and the stored row.
-    local procedure ModifyCell(Which: Integer; ChangeName: Boolean)
+    local procedure ModifyCell(Which: Integer; ChangeName: Boolean; var Observer: Codeunit "Probe Observer")
     var
-        Observer: Codeunit "Probe Observer";
         Row: Record "REC Audit Assign Row";
         Before: Record "REC Audit Assign Row";
         Stored: Record "REC Audit Assign Row";
@@ -183,7 +182,6 @@ codeunit 61802 "REC Audit Assign Tests"
         Stored.Get('A');
         Observer.Observe('stored row', Kinds(Stored, Before));
         Observer.Observe('stored Name', Stored.Name);
-        Observer.Finish();
     end;
 
     // ---- Insert
@@ -243,52 +241,116 @@ codeunit 61802 "REC Audit Assign Tests"
 
     [Test]
     procedure Modify_CreatedAtAssigned_NothingElse()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ModifyCell(1, false);
+        ModifyCell(1, false, Observer);
+        Observer.Expect('buffer before Modify', 'assigned / user / same as before / user');
+        Observer.Expect('Modify returned', 'Yes');
+        Observer.Expect('buffer after Modify', 'assigned / user / same as before / user');
+        Observer.Expect('stored row', 'same as before / user / same as before / user');
+        Observer.Expect('stored Name', 'first');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Modify_CreatedByAssigned_NothingElse()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ModifyCell(2, false);
+        ModifyCell(2, false, Observer);
+        Observer.Expect('buffer before Modify', 'same as before / assigned / same as before / user');
+        Observer.Expect('Modify returned', 'Yes');
+        Observer.Expect('buffer after Modify', 'same as before / assigned / same as before / user');
+        Observer.Expect('stored row', 'same as before / user / same as before / user');
+        Observer.Expect('stored Name', 'first');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Modify_ModifiedAtAssigned_NothingElse()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ModifyCell(3, false);
+        ModifyCell(3, false, Observer);
+        Observer.Expect('buffer before Modify', 'same as before / user / assigned / user');
+        Observer.Expect('Modify returned', 'Yes');
+        Observer.Expect('buffer after Modify', 'same as before / user / assigned / user');
+        Observer.Expect('stored row', 'same as before / user / same as before / user');
+        Observer.Expect('stored Name', 'first');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Modify_ModifiedByAssigned_NothingElse()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ModifyCell(4, false);
+        ModifyCell(4, false, Observer);
+        Observer.Expect('buffer before Modify', 'same as before / user / same as before / assigned');
+        Observer.Expect('Modify returned', 'Yes');
+        Observer.Expect('buffer after Modify', 'same as before / user / same as before / assigned');
+        Observer.Expect('stored row', 'same as before / user / same as before / user');
+        Observer.Expect('stored Name', 'first');
+        Observer.Verify();
     end;
 
     // ---- Modify: one audit field assigned and Name changed
 
     [Test]
     procedure Modify_CreatedAtAssigned_NameChanged()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ModifyCell(1, true);
+        ModifyCell(1, true, Observer);
+        Observer.Expect('buffer before Modify', 'assigned / user / same as before / user');
+        Observer.Expect('Modify returned', 'Yes');
+        Observer.Expect('buffer after Modify', 'assigned / user / clock / user');
+        Observer.Expect('stored row', 'same as before / user / clock / user');
+        Observer.Expect('stored Name', 'second');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Modify_CreatedByAssigned_NameChanged()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ModifyCell(2, true);
+        ModifyCell(2, true, Observer);
+        Observer.Expect('buffer before Modify', 'same as before / assigned / same as before / user');
+        Observer.Expect('Modify returned', 'Yes');
+        Observer.Expect('buffer after Modify', 'same as before / assigned / clock / user');
+        Observer.Expect('stored row', 'same as before / user / clock / user');
+        Observer.Expect('stored Name', 'second');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Modify_ModifiedAtAssigned_NameChanged()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ModifyCell(3, true);
+        ModifyCell(3, true, Observer);
+        Observer.Expect('buffer before Modify', 'same as before / user / assigned / user');
+        Observer.Expect('Modify returned', 'Yes');
+        Observer.Expect('buffer after Modify', 'same as before / user / clock / user');
+        Observer.Expect('stored row', 'same as before / user / clock / user');
+        Observer.Expect('stored Name', 'second');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Modify_ModifiedByAssigned_NameChanged()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ModifyCell(4, true);
+        ModifyCell(4, true, Observer);
+        Observer.Expect('buffer before Modify', 'same as before / user / same as before / assigned');
+        Observer.Expect('Modify returned', 'Yes');
+        Observer.Expect('buffer after Modify', 'same as before / user / clock / user');
+        Observer.Expect('stored row', 'same as before / user / clock / user');
+        Observer.Expect('stored Name', 'second');
+        Observer.Verify();
     end;
 
     // ---- Modify: other values and other ways to assign
