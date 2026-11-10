@@ -383,7 +383,10 @@ codeunit 97466 "TPM FR Tests"
         Observer.Observe('log after OpenEdit', Log.Take());
         P.Close();
         Observer.Observe('log after Close', Log.Take());
-        Observer.Finish();
+        Observer.Expect('shown', 'R1|name1');
+        Observer.Expect('log after OpenEdit', 'P-AGC:R1 Find x2 [=><,=,] Next x4 [1,1,1,-1,]');
+        Observer.Expect('log after Close', 'Find x0 [] Next x0 []');
+        Observer.Verify();
     end;
 
     [Test]
@@ -403,7 +406,12 @@ codeunit 97466 "TPM FR Tests"
         Observer.Observe('OpenNew log', Log.Take());
         P.Close();
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('OpenView shown', 'R1|name1');
+        Observer.Expect('OpenView log', 'P-AGC:R1 Find x2 [=><,=,] Next x4 [1,1,1,-1,]');
+        Observer.Expect('OpenNew shown', '|');
+        Observer.Expect('OpenNew log', 'T-M:R1 P-NEW: P-AGC: Find x0 [] Next x0 []');
+        Observer.Expect('rows', 'R1=viewed R2=name2 R3=name3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -424,7 +432,16 @@ codeunit 97466 "TPM FR Tests"
         Observer.Observe('First', Format(P.First()) + ' ' + Shown(P));
         Observer.Observe('log after the rest', Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('Last', 'Yes R3|name3');
+        Observer.Expect('log after Last', 'P-NEW: P-AGC: P-AGC:R3 Find x1 [=,] Next x0 []');
+        Observer.Expect('Next past the end', 'Yes |');
+        Observer.Expect('log after Next', 'P-NEW: P-AGC: Find x0 [] Next x0 []');
+        Observer.Expect('Previous', 'Yes R3|name3');
+        Observer.Expect('Previous', 'Yes R2|name2');
+        Observer.Expect('Previous before the start', 'Yes R1|name1');
+        Observer.Expect('First', 'Yes R1|name1');
+        Observer.Expect('log after the rest', 'P-AGC:R3 P-AGC:R2 P-AGC:R1 Find x3 [=,=,=,] Next x0 []');
+        Observer.Verify();
     end;
 
     [Test]
@@ -444,7 +461,13 @@ codeunit 97466 "TPM FR Tests"
         Observer.Observe('GoToRecord R2', Format(P.GoToRecord(Row)) + ' ' + Shown(P));
         Observer.Observe('log', Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('GoToKey R3', 'Yes R3|name3');
+        Observer.Expect('log', 'P-AGC:R2 P-AGC:R3 Find x2 [=,=,] Next x0 []');
+        Observer.Expect('GoToKey missing', 'No R3|name3');
+        Observer.Expect('log', 'P-AGC:R1 P-AGC:R2 P-AGC:R3 P-NEW: P-AGC: P-AGC:R3 Find x4 [=,=,=,=,] Next x0 []');
+        Observer.Expect('GoToRecord R2', 'Yes R2|name2');
+        Observer.Expect('log', 'P-AGC:R1 P-AGC:R2 Find x2 [=,=,] Next x0 []');
+        Observer.Verify();
     end;
 
     [Test]
@@ -462,7 +485,11 @@ codeunit 97466 "TPM FR Tests"
         P.Next();
         Observer.Observe('log after Next', Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('Name ok', 'Yes');
+        Observer.Expect('log after SetValue', 'Find x0 [] Next x0 []');
+        Observer.Expect('rows after SetValue', 'R1=name1 R2=name2 R3=name3');
+        Observer.Expect('log after Next', 'T-M:R2 P-AGC:R3 Find x1 [=,] Next x0 []');
+        Observer.Verify();
     end;
 
     [Test]
@@ -485,7 +512,15 @@ codeunit 97466 "TPM FR Tests"
         Observer.Observe('Next', Format(P.Next()) + ' ' + Shown(P));
         Observer.Observe('rows', Rows());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('log after AddRow', 'T-I:R2A P-AGC:R2 Find x2 [=>,=,] Next x5 [1,1,1,-1,-1,]');
+        Observer.Expect('shown', 'R2|name2');
+        Observer.Expect('GoToKey R2A', 'Yes R2A|added');
+        Observer.Expect('log', 'P-AGC:R1 P-AGC:R2 P-AGC:R2A Find x3 [=,=,=,] Next x0 []');
+        Observer.Expect('shown after delete', 'R3|name3');
+        Observer.Expect('log after delete', 'P-AGC:R2 P-AGC:R3 Find x3 [=,=>,=,] Next x5 [1,1,-1,-1,-1,]');
+        Observer.Expect('Next', 'Yes |');
+        Observer.Expect('rows', 'R1=name1 R2=name2 R3=name3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -509,7 +544,15 @@ codeunit 97466 "TPM FR Tests"
             Count += 1;
         Observer.Observe('rows walked with Next', Format(Count));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('shown', 'R1|name1');
+        Observer.Expect('log after OpenEdit', 'P-AGC:R1 Find x2 [=><,=,] Next x20 [1,1,1,1,1,1,1,1,]');
+        Observer.Expect('Last', 'Yes R9|name9');
+        Observer.Expect('log after Last', 'P-NEW: P-AGC: P-AGC:R9 Find x1 [=,] Next x6 [1,1,1,1,1,1,]');
+        Observer.Expect('GoToKey R12', 'Yes R12|name12');
+        Observer.Expect('log after GoToKey', 'P-AGC:R1 P-AGC:R10 P-AGC:R11 P-AGC:R12 Find x4 [=,=,=,=,] Next x0 []');
+        Observer.Expect('GoToKey R25', 'Yes R25|name25');
+        Observer.Expect('rows walked with Next', '26');
+        Observer.Verify();
     end;
 
     [Test]
@@ -528,7 +571,12 @@ codeunit 97466 "TPM FR Tests"
         Observer.Observe('log', Log.Take());
         Observer.Observe('GoToKey R22', Format(P.GoToKey('R22')) + ' ' + Shown(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('log after AddRow', 'T-I:R2A P-AGC:R22 Find x2 [=>,=,] Next x27 [1,1,1,1,1,1,1,1,]');
+        Observer.Expect('shown', 'R22|name22');
+        Observer.Expect('GoToKey R2A', 'Yes R2A|added');
+        Observer.Expect('log', 'P-AGC:R1 P-AGC:R10 P-AGC:R11 P-AGC:R12 P-AGC:R13 P-AGC:R14 P-AGC:R15 P-AGC:R16 P-AGC:R17 P-AGC:R18 P-AGC:R19 P-AGC:R2 P-AGC:R20 P-AGC:R21 P-AGC:R22 P-AGC:R23 P-AGC:R24 P-AGC:R25 P-AGC:R2A Find x19 [=,=,=,=,=,=,=,=,] Next x0 []');
+        Observer.Expect('GoToKey R22', 'Yes R22|name22');
+        Observer.Verify();
     end;
 
     // Generated list: 30 rows made by OnFindRecord and OnNextRecord, temporary source table
@@ -545,7 +593,10 @@ codeunit 97466 "TPM FR Tests"
         Observer.Observe('log after OpenEdit', Log.Take());
         P.Close();
         Observer.Observe('log after Close', Log.Take());
-        Observer.Finish();
+        Observer.Expect('shown', '0|');
+        Observer.Expect('log after OpenEdit', 'P-NEW:0 P-NEW:0 Find x1 [=><,] Next x0 []');
+        Observer.Expect('log after Close', 'Find x0 [] Next x0 []');
+        Observer.Verify();
     end;
 
     [Test]
@@ -565,7 +616,15 @@ codeunit 97466 "TPM FR Tests"
         Observer.Observe('Previous before the start', Format(P.Previous()) + ' ' + ShownGen(P));
         Observer.Observe('log', Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('Next', 'No 0|');
+        Observer.Expect('Last', 'No 0|');
+        Observer.Expect('log after Last', 'P-NEW:0 P-NEW:0 Find x0 [] Next x0 []');
+        Observer.Expect('Next past the end', 'No 0|');
+        Observer.Expect('Previous', 'No 0|');
+        Observer.Expect('First', 'No 0|');
+        Observer.Expect('Previous before the start', 'No 0|');
+        Observer.Expect('log', 'Find x0 [] Next x0 []');
+        Observer.Verify();
     end;
 
     [Test]
@@ -583,7 +642,13 @@ codeunit 97466 "TPM FR Tests"
         Observer.Observe('GoToKey 0', Format(P.GoToKey(0)) + ' ' + ShownGen(P));
         Observer.Observe('log', Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('GoToKey 17', 'No 0|');
+        Observer.Expect('log', 'Find x0 [] Next x0 []');
+        Observer.Expect('GoToKey 30', 'No 0|');
+        Observer.Expect('GoToKey 31', 'No 0|');
+        Observer.Expect('GoToKey 0', 'Yes 0|');
+        Observer.Expect('log', 'Find x0 [] Next x0 []');
+        Observer.Verify();
     end;
 
     [Test]
@@ -606,7 +671,13 @@ codeunit 97466 "TPM FR Tests"
             Observer.ObserveError('Previous');
         Observer.Observe('shown after Next and Previous', ShownGen(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('GoToKey 5|text', 'GoToKey returned false');
+        Observer.Expect('GoToKey 5|code', 'Dialog');
+        Observer.Expect('Name ok', 'Yes');
+        Observer.Expect('shown after SetValue', '0|typed');
+        Observer.Expect('log after SetValue', 'Find x0 [] Next x0 []');
+        Observer.Expect('shown after Next and Previous', '0|typed');
+        Observer.Verify();
     end;
 
     [Test]
@@ -625,7 +696,11 @@ codeunit 97466 "TPM FR Tests"
         Observer.Observe('shown', ShownGen(P));
         Observer.Observe('log', Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('GoToKey 5|text', 'GoToKey returned false');
+        Observer.Expect('GoToKey 5|code', 'Dialog');
+        Observer.Expect('shown', '9|');
+        Observer.Expect('log', 'Find x0 [] Next x0 []');
+        Observer.Verify();
     end;
 
     [Test]
@@ -648,7 +723,15 @@ codeunit 97466 "TPM FR Tests"
         Observer.Observe('Last', Format(P.Last()) + ' ' + ShownGen(P));
         Observer.Observe('GoToKey 40', Format(P.GoToKey(40)) + ' ' + ShownGen(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('shown after GrowNoUpdate', '0|');
+        Observer.Expect('log after GrowNoUpdate', 'P-NEW:0 P-NEW:0 Find x1 [=><,] Next x0 []');
+        Observer.Expect('Next', 'No 0|');
+        Observer.Expect('log after Next', 'Find x0 [] Next x0 []');
+        Observer.Expect('shown after Grow', '0|');
+        Observer.Expect('log after Grow', 'P-NEW:0 P-NEW:0 Find x1 [=><,] Next x0 []');
+        Observer.Expect('Last', 'No 0|');
+        Observer.Expect('GoToKey 40', 'No 0|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -667,7 +750,11 @@ codeunit 97466 "TPM FR Tests"
         Observer.Observe('New shown', ShownGen(P));
         Observer.Observe('New log', Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('OpenNew shown', '0|');
+        Observer.Expect('OpenNew log', 'P-NEW:0 P-NEW:0 P-NEW:0 Find x0 [] Next x0 []');
+        Observer.Expect('New shown', '0|');
+        Observer.Expect('New log', 'P-NEW:0 Find x0 [] Next x0 []');
+        Observer.Verify();
     end;
 
     [Test]
@@ -681,6 +768,9 @@ codeunit 97466 "TPM FR Tests"
         if not TrySetGenName(P, 'viewed') then
             Observer.ObserveError('SetValue in view mode');
         P.Close();
-        Observer.Finish();
+        Observer.Expect('shown', '|');
+        Observer.Expect('SetValue in view mode|text', 'The row does not exist on the TestPage.');
+        Observer.Expect('SetValue in view mode|code', 'TestRowNotFound');
+        Observer.Verify();
     end;
 }
