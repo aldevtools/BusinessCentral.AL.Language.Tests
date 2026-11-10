@@ -118,7 +118,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[ ]1:32');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[ ]1:32');
+        Observer.Expect('fmt1', '[A]1:65');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[A]1:65');
+        Observer.Expect('fmt2', '[B]1:66');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[B]1:66');
+        Observer.Expect('members', '[ ,A,B]');
+        Observer.Expect('caption', '[ ,A,B]');
+        Observer.Expect('string', '[ ,A,B]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[ ]');
+        Observer.Expect('cap1', '[ ]');
+        Observer.Expect('name2', '[A]');
+        Observer.Expect('cap2', '[A]');
+        Observer.Expect('name3', '[B]');
+        Observer.Expect('cap3', '[B]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -165,7 +186,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[Blank0]6:66,108,97,110');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[Blank0]6:66,108,97,110');
+        Observer.Expect('fmt1', '[A]1:65');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[A]1:65');
+        Observer.Expect('fmt2', '[B]1:66');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[B]1:66');
+        Observer.Expect('members', '[ ,A,B]');
+        Observer.Expect('caption', '[Blank0,A,B]');
+        Observer.Expect('string', '[ ,A,B]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[ ]');
+        Observer.Expect('cap1', '[Blank0]');
+        Observer.Expect('name2', '[A]');
+        Observer.Expect('cap2', '[A]');
+        Observer.Expect('name3', '[B]');
+        Observer.Expect('cap3', '[B]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -209,7 +251,22 @@ codeunit 67804 "LT OB Field"
             Observer.Observe('fr_A', 'ok|' + Format(R.Opt, 0, 2));
         end else
             Observer.Observe('fr_A', 'err:' + GetLastErrorCode() + ':' + GetLastErrorText());
-        Observer.Finish();
+#if BC28PLUS // assigning text to an Option FieldRef.Value raises NotSupportedType in BC 27 and an Evaluate:Format error from BC 28
+        Observer.Expect('ev_empty', 'Yes|0');
+        Observer.Expect('fr_empty', 'err:Evaluate:Format:The value "" can''t be evaluated into type Option.');
+        Observer.Expect('ev_sp', 'Yes|0');
+        Observer.Expect('fr_sp', 'err:Evaluate:Format:The value " " can''t be evaluated into type Option.');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('fr_A', 'err:Evaluate:Format:The value "A" can''t be evaluated into type Option.');
+#else
+        Observer.Expect('ev_empty', 'Yes|0');
+        Observer.Expect('fr_empty', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_sp', 'Yes|0');
+        Observer.Expect('fr_sp', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('fr_A', 'err:NotSupportedType:The type NavOption is unknown.');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -271,7 +328,14 @@ codeunit 67804 "LT OB Field"
         R.Reset();
         R.SetRange(Opt, R.Opt::" ");
         Observer.Observe('rng_o0', Format(R.Count()) + '|' + OrdsFS(R) + '|' + R.GetFilter(Opt));
-        Observer.Finish();
+        Observer.Expect('flt_empty', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_sp', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_qsp', 'err:Filter:CSide:The filter "" "" is not valid for the Opt field on the LT OB Row FS table. ''" "'' is not an option. The existing options are:  ,A,B');
+        Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row FS table. ''""'' is not an option. The existing options are:  ,A,B');
+        Observer.Expect('flt_z', 'ok|1|0,|'' ''');
+        Observer.Expect('flt_A', 'ok|1|1,|A');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row FS table. A valu');
+        Observer.Verify();
     end;
 
     [Test]
@@ -318,7 +382,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[A]1:65');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[A]1:65');
+        Observer.Expect('fmt1', '[ ]1:32');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[ ]1:32');
+        Observer.Expect('fmt2', '[B]1:66');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[B]1:66');
+        Observer.Expect('members', '[A, ,B]');
+        Observer.Expect('caption', '[A, ,B]');
+        Observer.Expect('string', '[A, ,B]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[A]');
+        Observer.Expect('cap1', '[A]');
+        Observer.Expect('name2', '[ ]');
+        Observer.Expect('cap2', '[ ]');
+        Observer.Expect('name3', '[B]');
+        Observer.Expect('cap3', '[B]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -365,7 +450,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[A]1:65');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[A]1:65');
+        Observer.Expect('fmt1', '[Blank1]6:66,108,97,110');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[Blank1]6:66,108,97,110');
+        Observer.Expect('fmt2', '[B]1:66');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[B]1:66');
+        Observer.Expect('members', '[A, ,B]');
+        Observer.Expect('caption', '[A,Blank1,B]');
+        Observer.Expect('string', '[A, ,B]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[A]');
+        Observer.Expect('cap1', '[A]');
+        Observer.Expect('name2', '[ ]');
+        Observer.Expect('cap2', '[Blank1]');
+        Observer.Expect('name3', '[B]');
+        Observer.Expect('cap3', '[B]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -409,7 +515,22 @@ codeunit 67804 "LT OB Field"
             Observer.Observe('fr_A', 'ok|' + Format(R.Opt, 0, 2));
         end else
             Observer.Observe('fr_A', 'err:' + GetLastErrorCode() + ':' + GetLastErrorText());
-        Observer.Finish();
+#if BC28PLUS // assigning text to an Option FieldRef.Value raises NotSupportedType in BC 27 and an Evaluate:Format error from BC 28
+        Observer.Expect('ev_empty', 'Yes|1');
+        Observer.Expect('fr_empty', 'err:Evaluate:Format:The value "" can''t be evaluated into type Option.');
+        Observer.Expect('ev_sp', 'Yes|1');
+        Observer.Expect('fr_sp', 'err:Evaluate:Format:The value " " can''t be evaluated into type Option.');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('fr_A', 'err:Evaluate:Format:The value "A" can''t be evaluated into type Option.');
+#else
+        Observer.Expect('ev_empty', 'Yes|1');
+        Observer.Expect('fr_empty', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_sp', 'Yes|1');
+        Observer.Expect('fr_sp', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('fr_A', 'err:NotSupportedType:The type NavOption is unknown.');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -471,7 +592,14 @@ codeunit 67804 "LT OB Field"
         R.Reset();
         R.SetRange(Opt, R.Opt::" ");
         Observer.Observe('rng_o1', Format(R.Count()) + '|' + OrdsMS(R) + '|' + R.GetFilter(Opt));
-        Observer.Finish();
+        Observer.Expect('flt_empty', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_sp', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_qsp', 'err:Filter:CSide:The filter "" "" is not valid for the Opt field on the LT OB Row MS table. ''" "'' is not an option. The existing options are: A, ,B');
+        Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row MS table. ''""'' is not an option. The existing options are: A, ,B');
+        Observer.Expect('flt_z', 'ok|1|0,|A');
+        Observer.Expect('flt_A', 'ok|1|0,|A');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row MS table. A value ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -518,7 +646,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[A]1:65');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[A]1:65');
+        Observer.Expect('fmt1', '[B]1:66');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[B]1:66');
+        Observer.Expect('fmt2', '[ ]1:32');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[ ]1:32');
+        Observer.Expect('members', '[A,B, ]');
+        Observer.Expect('caption', '[A,B, ]');
+        Observer.Expect('string', '[A,B, ]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[A]');
+        Observer.Expect('cap1', '[A]');
+        Observer.Expect('name2', '[B]');
+        Observer.Expect('cap2', '[B]');
+        Observer.Expect('name3', '[ ]');
+        Observer.Expect('cap3', '[ ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -565,7 +714,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[A]1:65');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[A]1:65');
+        Observer.Expect('fmt1', '[B]1:66');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[B]1:66');
+        Observer.Expect('fmt2', '[Blank2]6:66,108,97,110');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[Blank2]6:66,108,97,110');
+        Observer.Expect('members', '[A,B, ]');
+        Observer.Expect('caption', '[A,B,Blank2]');
+        Observer.Expect('string', '[A,B, ]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[A]');
+        Observer.Expect('cap1', '[A]');
+        Observer.Expect('name2', '[B]');
+        Observer.Expect('cap2', '[B]');
+        Observer.Expect('name3', '[ ]');
+        Observer.Expect('cap3', '[Blank2]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -609,7 +779,22 @@ codeunit 67804 "LT OB Field"
             Observer.Observe('fr_A', 'ok|' + Format(R.Opt, 0, 2));
         end else
             Observer.Observe('fr_A', 'err:' + GetLastErrorCode() + ':' + GetLastErrorText());
-        Observer.Finish();
+#if BC28PLUS // assigning text to an Option FieldRef.Value raises NotSupportedType in BC 27 and an Evaluate:Format error from BC 28
+        Observer.Expect('ev_empty', 'Yes|2');
+        Observer.Expect('fr_empty', 'err:Evaluate:Format:The value "" can''t be evaluated into type Option.');
+        Observer.Expect('ev_sp', 'Yes|2');
+        Observer.Expect('fr_sp', 'err:Evaluate:Format:The value " " can''t be evaluated into type Option.');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('fr_A', 'err:Evaluate:Format:The value "A" can''t be evaluated into type Option.');
+#else
+        Observer.Expect('ev_empty', 'Yes|2');
+        Observer.Expect('fr_empty', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_sp', 'Yes|2');
+        Observer.Expect('fr_sp', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('fr_A', 'err:NotSupportedType:The type NavOption is unknown.');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -671,7 +856,14 @@ codeunit 67804 "LT OB Field"
         R.Reset();
         R.SetRange(Opt, R.Opt::" ");
         Observer.Observe('rng_o2', Format(R.Count()) + '|' + OrdsLS(R) + '|' + R.GetFilter(Opt));
-        Observer.Finish();
+        Observer.Expect('flt_empty', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_sp', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_qsp', 'err:Filter:CSide:The filter "" "" is not valid for the Opt field on the LT OB Row LS table. ''" "'' is not an option. The existing options are: A,B, ');
+        Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row LS table. ''""'' is not an option. The existing options are: A,B, ');
+        Observer.Expect('flt_z', 'ok|1|0,|A');
+        Observer.Expect('flt_A', 'ok|1|0,|A');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row LS table. A value ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -718,7 +910,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[0]1:48');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[0]1:48');
+        Observer.Expect('fmt1', '[A]1:65');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[A]1:65');
+        Observer.Expect('fmt2', '[B]1:66');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[B]1:66');
+        Observer.Expect('members', '[,A,B]');
+        Observer.Expect('caption', '[,A,B]');
+        Observer.Expect('string', '[,A,B]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[]');
+        Observer.Expect('cap1', '[]');
+        Observer.Expect('name2', '[A]');
+        Observer.Expect('cap2', '[A]');
+        Observer.Expect('name3', '[B]');
+        Observer.Expect('cap3', '[B]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -765,7 +978,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[Blank0]6:66,108,97,110');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[Blank0]6:66,108,97,110');
+        Observer.Expect('fmt1', '[A]1:65');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[A]1:65');
+        Observer.Expect('fmt2', '[B]1:66');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[B]1:66');
+        Observer.Expect('members', '[,A,B]');
+        Observer.Expect('caption', '[Blank0,A,B]');
+        Observer.Expect('string', '[,A,B]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[]');
+        Observer.Expect('cap1', '[Blank0]');
+        Observer.Expect('name2', '[A]');
+        Observer.Expect('cap2', '[A]');
+        Observer.Expect('name3', '[B]');
+        Observer.Expect('cap3', '[B]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -809,7 +1043,22 @@ codeunit 67804 "LT OB Field"
             Observer.Observe('fr_A', 'ok|' + Format(R.Opt, 0, 2));
         end else
             Observer.Observe('fr_A', 'err:' + GetLastErrorCode() + ':' + GetLastErrorText());
-        Observer.Finish();
+#if BC28PLUS // assigning text to an Option FieldRef.Value raises NotSupportedType in BC 27 and an Evaluate:Format error from BC 28
+        Observer.Expect('ev_empty', 'No|3');
+        Observer.Expect('fr_empty', 'err:Evaluate:Format:The value "" can''t be evaluated into type Option.');
+        Observer.Expect('ev_sp', 'No|3');
+        Observer.Expect('fr_sp', 'err:Evaluate:Format:The value " " can''t be evaluated into type Option.');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('fr_A', 'err:Evaluate:Format:The value "A" can''t be evaluated into type Option.');
+#else
+        Observer.Expect('ev_empty', 'No|3');
+        Observer.Expect('fr_empty', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_sp', 'No|3');
+        Observer.Expect('fr_sp', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('fr_A', 'err:NotSupportedType:The type NavOption is unknown.');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -868,7 +1117,14 @@ codeunit 67804 "LT OB Field"
             Observer.Observe('flt_neg', 'ok|' + Format(R.Count()) + '|' + OrdsFQ(R) + '|' + R.GetFilter(Opt))
         else
             Observer.Observe('flt_neg', 'err:' + GetLastErrorCode() + ':' + GetLastErrorText());
-        Observer.Finish();
+        Observer.Expect('flt_empty', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_sp', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_qsp', 'err:Filter:CSide:The filter "" "" is not valid for the Opt field on the LT OB Row FQ table. ''" "'' is not an option. The existing options are: ,A,B');
+        Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row FQ table. ''""'' is not an option. The existing options are: ,A,B');
+        Observer.Expect('flt_z', 'ok|1|0,|0');
+        Observer.Expect('flt_A', 'ok|1|1,|A');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row FQ table. A value is');
+        Observer.Verify();
     end;
 
     [Test]
@@ -915,7 +1171,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[A]1:65');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[A]1:65');
+        Observer.Expect('fmt1', '[1]1:49');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[1]1:49');
+        Observer.Expect('fmt2', '[B]1:66');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[B]1:66');
+        Observer.Expect('members', '[A,,B]');
+        Observer.Expect('caption', '[A,,B]');
+        Observer.Expect('string', '[A,,B]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[A]');
+        Observer.Expect('cap1', '[A]');
+        Observer.Expect('name2', '[]');
+        Observer.Expect('cap2', '[]');
+        Observer.Expect('name3', '[B]');
+        Observer.Expect('cap3', '[B]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -962,7 +1239,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[A]1:65');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[A]1:65');
+        Observer.Expect('fmt1', '[Blank1]6:66,108,97,110');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[Blank1]6:66,108,97,110');
+        Observer.Expect('fmt2', '[B]1:66');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[B]1:66');
+        Observer.Expect('members', '[A,,B]');
+        Observer.Expect('caption', '[A,Blank1,B]');
+        Observer.Expect('string', '[A,,B]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[A]');
+        Observer.Expect('cap1', '[A]');
+        Observer.Expect('name2', '[]');
+        Observer.Expect('cap2', '[Blank1]');
+        Observer.Expect('name3', '[B]');
+        Observer.Expect('cap3', '[B]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1006,7 +1304,22 @@ codeunit 67804 "LT OB Field"
             Observer.Observe('fr_A', 'ok|' + Format(R.Opt, 0, 2));
         end else
             Observer.Observe('fr_A', 'err:' + GetLastErrorCode() + ':' + GetLastErrorText());
-        Observer.Finish();
+#if BC28PLUS // assigning text to an Option FieldRef.Value raises NotSupportedType in BC 27 and an Evaluate:Format error from BC 28
+        Observer.Expect('ev_empty', 'No|3');
+        Observer.Expect('fr_empty', 'err:Evaluate:Format:The value "" can''t be evaluated into type Option.');
+        Observer.Expect('ev_sp', 'No|3');
+        Observer.Expect('fr_sp', 'err:Evaluate:Format:The value " " can''t be evaluated into type Option.');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('fr_A', 'err:Evaluate:Format:The value "A" can''t be evaluated into type Option.');
+#else
+        Observer.Expect('ev_empty', 'No|3');
+        Observer.Expect('fr_empty', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_sp', 'No|3');
+        Observer.Expect('fr_sp', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('fr_A', 'err:NotSupportedType:The type NavOption is unknown.');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -1065,7 +1378,14 @@ codeunit 67804 "LT OB Field"
             Observer.Observe('flt_neg', 'ok|' + Format(R.Count()) + '|' + OrdsMQ(R) + '|' + R.GetFilter(Opt))
         else
             Observer.Observe('flt_neg', 'err:' + GetLastErrorCode() + ':' + GetLastErrorText());
-        Observer.Finish();
+        Observer.Expect('flt_empty', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_sp', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_qsp', 'err:Filter:CSide:The filter "" "" is not valid for the Opt field on the LT OB Row MQ table. ''" "'' is not an option. The existing options are: A,,B');
+        Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row MQ table. ''""'' is not an option. The existing options are: A,,B');
+        Observer.Expect('flt_z', 'ok|1|0,|A');
+        Observer.Expect('flt_A', 'ok|1|0,|A');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row MQ table. A value is');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1112,7 +1432,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[A]1:65');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[A]1:65');
+        Observer.Expect('fmt1', '[B]1:66');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[B]1:66');
+        Observer.Expect('fmt2', '[2]1:50');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[2]1:50');
+        Observer.Expect('members', '[A,B,]');
+        Observer.Expect('caption', '[A,B,]');
+        Observer.Expect('string', '[A,B,]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[A]');
+        Observer.Expect('cap1', '[A]');
+        Observer.Expect('name2', '[B]');
+        Observer.Expect('cap2', '[B]');
+        Observer.Expect('name3', '[]');
+        Observer.Expect('cap3', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1159,7 +1500,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[A]1:65');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[A]1:65');
+        Observer.Expect('fmt1', '[B]1:66');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[B]1:66');
+        Observer.Expect('fmt2', '[Blank2]6:66,108,97,110');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[Blank2]6:66,108,97,110');
+        Observer.Expect('members', '[A,B,]');
+        Observer.Expect('caption', '[A,B,Blank2]');
+        Observer.Expect('string', '[A,B,]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[A]');
+        Observer.Expect('cap1', '[A]');
+        Observer.Expect('name2', '[B]');
+        Observer.Expect('cap2', '[B]');
+        Observer.Expect('name3', '[]');
+        Observer.Expect('cap3', '[Blank2]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1203,7 +1565,22 @@ codeunit 67804 "LT OB Field"
             Observer.Observe('fr_A', 'ok|' + Format(R.Opt, 0, 2));
         end else
             Observer.Observe('fr_A', 'err:' + GetLastErrorCode() + ':' + GetLastErrorText());
-        Observer.Finish();
+#if BC28PLUS // assigning text to an Option FieldRef.Value raises NotSupportedType in BC 27 and an Evaluate:Format error from BC 28
+        Observer.Expect('ev_empty', 'No|3');
+        Observer.Expect('fr_empty', 'err:Evaluate:Format:The value "" can''t be evaluated into type Option.');
+        Observer.Expect('ev_sp', 'No|3');
+        Observer.Expect('fr_sp', 'err:Evaluate:Format:The value " " can''t be evaluated into type Option.');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('fr_A', 'err:Evaluate:Format:The value "A" can''t be evaluated into type Option.');
+#else
+        Observer.Expect('ev_empty', 'No|3');
+        Observer.Expect('fr_empty', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_sp', 'No|3');
+        Observer.Expect('fr_sp', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('fr_A', 'err:NotSupportedType:The type NavOption is unknown.');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -1262,7 +1639,14 @@ codeunit 67804 "LT OB Field"
             Observer.Observe('flt_neg', 'ok|' + Format(R.Count()) + '|' + OrdsLQ(R) + '|' + R.GetFilter(Opt))
         else
             Observer.Observe('flt_neg', 'err:' + GetLastErrorCode() + ':' + GetLastErrorText());
-        Observer.Finish();
+        Observer.Expect('flt_empty', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_sp', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_qsp', 'err:Filter:CSide:The filter "" "" is not valid for the Opt field on the LT OB Row LQ table. ''" "'' is not an option. The existing options are: A,B,');
+        Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row LQ table. ''""'' is not an option. The existing options are: A,B,');
+        Observer.Expect('flt_z', 'ok|1|0,|A');
+        Observer.Expect('flt_A', 'ok|1|0,|A');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row LQ table. A value is');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1309,7 +1693,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[0]1:48');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[0]1:48');
+        Observer.Expect('fmt1', '[A]1:65');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[A]1:65');
+        Observer.Expect('fmt2', '[B]1:66');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[B]1:66');
+        Observer.Expect('members', '[,A,B]');
+        Observer.Expect('caption', '[,A,B]');
+        Observer.Expect('string', '[,A,B]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[]');
+        Observer.Expect('cap1', '[]');
+        Observer.Expect('name2', '[A]');
+        Observer.Expect('cap2', '[A]');
+        Observer.Expect('name3', '[B]');
+        Observer.Expect('cap3', '[B]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1356,7 +1761,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[Blank0]6:66,108,97,110');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[Blank0]6:66,108,97,110');
+        Observer.Expect('fmt1', '[A]1:65');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[A]1:65');
+        Observer.Expect('fmt2', '[B]1:66');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[B]1:66');
+        Observer.Expect('members', '[,A,B]');
+        Observer.Expect('caption', '[Blank0,A,B]');
+        Observer.Expect('string', '[,A,B]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[]');
+        Observer.Expect('cap1', '[Blank0]');
+        Observer.Expect('name2', '[A]');
+        Observer.Expect('cap2', '[A]');
+        Observer.Expect('name3', '[B]');
+        Observer.Expect('cap3', '[B]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1400,7 +1826,22 @@ codeunit 67804 "LT OB Field"
             Observer.Observe('fr_A', 'ok|' + Format(R.Opt, 0, 2));
         end else
             Observer.Observe('fr_A', 'err:' + GetLastErrorCode() + ':' + GetLastErrorText());
-        Observer.Finish();
+#if BC28PLUS // assigning text to an Option FieldRef.Value raises NotSupportedType in BC 27 and an Evaluate:Format error from BC 28
+        Observer.Expect('ev_empty', 'No|3');
+        Observer.Expect('fr_empty', 'err:Evaluate:Format:The value "" can''t be evaluated into type Option.');
+        Observer.Expect('ev_sp', 'No|3');
+        Observer.Expect('fr_sp', 'err:Evaluate:Format:The value " " can''t be evaluated into type Option.');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('fr_A', 'err:Evaluate:Format:The value "A" can''t be evaluated into type Option.');
+#else
+        Observer.Expect('ev_empty', 'No|3');
+        Observer.Expect('fr_empty', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_sp', 'No|3');
+        Observer.Expect('fr_sp', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('fr_A', 'err:NotSupportedType:The type NavOption is unknown.');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -1459,7 +1900,14 @@ codeunit 67804 "LT OB Field"
             Observer.Observe('flt_neg', 'ok|' + Format(R.Count()) + '|' + OrdsFU(R) + '|' + R.GetFilter(Opt))
         else
             Observer.Observe('flt_neg', 'err:' + GetLastErrorCode() + ':' + GetLastErrorText());
-        Observer.Finish();
+        Observer.Expect('flt_empty', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_sp', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_qsp', 'err:Filter:CSide:The filter "" "" is not valid for the Opt field on the LT OB Row FU table. ''" "'' is not an option. The existing options are: ,A,B');
+        Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row FU table. ''""'' is not an option. The existing options are: ,A,B');
+        Observer.Expect('flt_z', 'ok|1|0,|0');
+        Observer.Expect('flt_A', 'ok|1|1,|A');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row FU table. A value is');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1506,7 +1954,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[A]1:65');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[A]1:65');
+        Observer.Expect('fmt1', '[1]1:49');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[1]1:49');
+        Observer.Expect('fmt2', '[B]1:66');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[B]1:66');
+        Observer.Expect('members', '[A,,B]');
+        Observer.Expect('caption', '[A,,B]');
+        Observer.Expect('string', '[A,,B]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[A]');
+        Observer.Expect('cap1', '[A]');
+        Observer.Expect('name2', '[]');
+        Observer.Expect('cap2', '[]');
+        Observer.Expect('name3', '[B]');
+        Observer.Expect('cap3', '[B]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1553,7 +2022,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[A]1:65');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[A]1:65');
+        Observer.Expect('fmt1', '[Blank1]6:66,108,97,110');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[Blank1]6:66,108,97,110');
+        Observer.Expect('fmt2', '[B]1:66');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[B]1:66');
+        Observer.Expect('members', '[A,,B]');
+        Observer.Expect('caption', '[A,Blank1,B]');
+        Observer.Expect('string', '[A,,B]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[A]');
+        Observer.Expect('cap1', '[A]');
+        Observer.Expect('name2', '[]');
+        Observer.Expect('cap2', '[Blank1]');
+        Observer.Expect('name3', '[B]');
+        Observer.Expect('cap3', '[B]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1597,7 +2087,22 @@ codeunit 67804 "LT OB Field"
             Observer.Observe('fr_A', 'ok|' + Format(R.Opt, 0, 2));
         end else
             Observer.Observe('fr_A', 'err:' + GetLastErrorCode() + ':' + GetLastErrorText());
-        Observer.Finish();
+#if BC28PLUS // assigning text to an Option FieldRef.Value raises NotSupportedType in BC 27 and an Evaluate:Format error from BC 28
+        Observer.Expect('ev_empty', 'No|3');
+        Observer.Expect('fr_empty', 'err:Evaluate:Format:The value "" can''t be evaluated into type Option.');
+        Observer.Expect('ev_sp', 'No|3');
+        Observer.Expect('fr_sp', 'err:Evaluate:Format:The value " " can''t be evaluated into type Option.');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('fr_A', 'err:Evaluate:Format:The value "A" can''t be evaluated into type Option.');
+#else
+        Observer.Expect('ev_empty', 'No|3');
+        Observer.Expect('fr_empty', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_sp', 'No|3');
+        Observer.Expect('fr_sp', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('fr_A', 'err:NotSupportedType:The type NavOption is unknown.');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -1656,7 +2161,14 @@ codeunit 67804 "LT OB Field"
             Observer.Observe('flt_neg', 'ok|' + Format(R.Count()) + '|' + OrdsMU(R) + '|' + R.GetFilter(Opt))
         else
             Observer.Observe('flt_neg', 'err:' + GetLastErrorCode() + ':' + GetLastErrorText());
-        Observer.Finish();
+        Observer.Expect('flt_empty', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_sp', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_qsp', 'err:Filter:CSide:The filter "" "" is not valid for the Opt field on the LT OB Row MU table. ''" "'' is not an option. The existing options are: A,,B');
+        Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row MU table. ''""'' is not an option. The existing options are: A,,B');
+        Observer.Expect('flt_z', 'ok|1|0,|A');
+        Observer.Expect('flt_A', 'ok|1|0,|A');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row MU table. A value is');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1703,7 +2215,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[A]1:65');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[A]1:65');
+        Observer.Expect('fmt1', '[B]1:66');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[B]1:66');
+        Observer.Expect('fmt2', '[2]1:50');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[2]1:50');
+        Observer.Expect('members', '[A,B,]');
+        Observer.Expect('caption', '[A,B,]');
+        Observer.Expect('string', '[A,B,]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[A]');
+        Observer.Expect('cap1', '[A]');
+        Observer.Expect('name2', '[B]');
+        Observer.Expect('cap2', '[B]');
+        Observer.Expect('name3', '[]');
+        Observer.Expect('cap3', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1750,7 +2283,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[A]1:65');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[A]1:65');
+        Observer.Expect('fmt1', '[B]1:66');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[B]1:66');
+        Observer.Expect('fmt2', '[Blank2]6:66,108,97,110');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[Blank2]6:66,108,97,110');
+        Observer.Expect('members', '[A,B,]');
+        Observer.Expect('caption', '[A,B,Blank2]');
+        Observer.Expect('string', '[A,B,]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[A]');
+        Observer.Expect('cap1', '[A]');
+        Observer.Expect('name2', '[B]');
+        Observer.Expect('cap2', '[B]');
+        Observer.Expect('name3', '[]');
+        Observer.Expect('cap3', '[Blank2]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1794,7 +2348,22 @@ codeunit 67804 "LT OB Field"
             Observer.Observe('fr_A', 'ok|' + Format(R.Opt, 0, 2));
         end else
             Observer.Observe('fr_A', 'err:' + GetLastErrorCode() + ':' + GetLastErrorText());
-        Observer.Finish();
+#if BC28PLUS // assigning text to an Option FieldRef.Value raises NotSupportedType in BC 27 and an Evaluate:Format error from BC 28
+        Observer.Expect('ev_empty', 'No|3');
+        Observer.Expect('fr_empty', 'err:Evaluate:Format:The value "" can''t be evaluated into type Option.');
+        Observer.Expect('ev_sp', 'No|3');
+        Observer.Expect('fr_sp', 'err:Evaluate:Format:The value " " can''t be evaluated into type Option.');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('fr_A', 'err:Evaluate:Format:The value "A" can''t be evaluated into type Option.');
+#else
+        Observer.Expect('ev_empty', 'No|3');
+        Observer.Expect('fr_empty', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_sp', 'No|3');
+        Observer.Expect('fr_sp', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('fr_A', 'err:NotSupportedType:The type NavOption is unknown.');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -1853,7 +2422,14 @@ codeunit 67804 "LT OB Field"
             Observer.Observe('flt_neg', 'ok|' + Format(R.Count()) + '|' + OrdsLU(R) + '|' + R.GetFilter(Opt))
         else
             Observer.Observe('flt_neg', 'err:' + GetLastErrorCode() + ':' + GetLastErrorText());
-        Observer.Finish();
+        Observer.Expect('flt_empty', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_sp', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_qsp', 'err:Filter:CSide:The filter "" "" is not valid for the Opt field on the LT OB Row LU table. ''" "'' is not an option. The existing options are: A,B,');
+        Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row LU table. ''""'' is not an option. The existing options are: A,B,');
+        Observer.Expect('flt_z', 'ok|1|0,|A');
+        Observer.Expect('flt_A', 'ok|1|0,|A');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row LU table. A value is');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1900,7 +2476,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[ ]1:32');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[ ]1:32');
+        Observer.Expect('fmt1', '[A]1:65');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[A]1:65');
+        Observer.Expect('fmt2', '[2]1:50');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[2]1:50');
+        Observer.Expect('members', '[ ,A,]');
+        Observer.Expect('caption', '[ ,A,]');
+        Observer.Expect('string', '[ ,A,]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[ ]');
+        Observer.Expect('cap1', '[ ]');
+        Observer.Expect('name2', '[A]');
+        Observer.Expect('cap2', '[A]');
+        Observer.Expect('name3', '[]');
+        Observer.Expect('cap3', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1947,7 +2544,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[Blank0]6:66,108,97,110');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[Blank0]6:66,108,97,110');
+        Observer.Expect('fmt1', '[A]1:65');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[A]1:65');
+        Observer.Expect('fmt2', '[Blank2]6:66,108,97,110');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[Blank2]6:66,108,97,110');
+        Observer.Expect('members', '[ ,A,]');
+        Observer.Expect('caption', '[Blank0,A,Blank2]');
+        Observer.Expect('string', '[ ,A,]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[ ]');
+        Observer.Expect('cap1', '[Blank0]');
+        Observer.Expect('name2', '[A]');
+        Observer.Expect('cap2', '[A]');
+        Observer.Expect('name3', '[]');
+        Observer.Expect('cap3', '[Blank2]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1991,7 +2609,22 @@ codeunit 67804 "LT OB Field"
             Observer.Observe('fr_A', 'ok|' + Format(R.Opt, 0, 2));
         end else
             Observer.Observe('fr_A', 'err:' + GetLastErrorCode() + ':' + GetLastErrorText());
-        Observer.Finish();
+#if BC28PLUS // assigning text to an Option FieldRef.Value raises NotSupportedType in BC 27 and an Evaluate:Format error from BC 28
+        Observer.Expect('ev_empty', 'Yes|0');
+        Observer.Expect('fr_empty', 'err:Evaluate:Format:The value "" can''t be evaluated into type Option.');
+        Observer.Expect('ev_sp', 'Yes|0');
+        Observer.Expect('fr_sp', 'err:Evaluate:Format:The value " " can''t be evaluated into type Option.');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('fr_A', 'err:Evaluate:Format:The value "A" can''t be evaluated into type Option.');
+#else
+        Observer.Expect('ev_empty', 'Yes|0');
+        Observer.Expect('fr_empty', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_sp', 'Yes|0');
+        Observer.Expect('fr_sp', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('fr_A', 'err:NotSupportedType:The type NavOption is unknown.');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -2053,7 +2686,14 @@ codeunit 67804 "LT OB Field"
         R.Reset();
         R.SetRange(Opt, R.Opt::" ");
         Observer.Observe('rng_o0', Format(R.Count()) + '|' + OrdsQS1(R) + '|' + R.GetFilter(Opt));
-        Observer.Finish();
+        Observer.Expect('flt_empty', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_sp', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_qsp', 'err:Filter:CSide:The filter "" "" is not valid for the Opt field on the LT OB Row QS1 table. ''" "'' is not an option. The existing options are:  ,A,');
+        Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row QS1 table. ''""'' is not an option. The existing options are:  ,A,');
+        Observer.Expect('flt_z', 'ok|1|0,|'' ''');
+        Observer.Expect('flt_A', 'ok|1|1,|A');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row QS1 table. A val');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2100,7 +2740,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[0]1:48');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[0]1:48');
+        Observer.Expect('fmt1', '[A]1:65');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[A]1:65');
+        Observer.Expect('fmt2', '[ ]1:32');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[ ]1:32');
+        Observer.Expect('members', '[,A, ]');
+        Observer.Expect('caption', '[,A, ]');
+        Observer.Expect('string', '[,A, ]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[]');
+        Observer.Expect('cap1', '[]');
+        Observer.Expect('name2', '[A]');
+        Observer.Expect('cap2', '[A]');
+        Observer.Expect('name3', '[ ]');
+        Observer.Expect('cap3', '[ ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2147,7 +2808,28 @@ codeunit 67804 "LT OB Field"
         Observer.Observe('cap2', Info(FR, 5, 2));
         Observer.Observe('name3', Info(FR, 4, 3));
         Observer.Observe('cap3', Info(FR, 5, 3));
-        Observer.Finish();
+        Observer.Expect('fmt0', '[Blank0]6:66,108,97,110');
+        Observer.Expect('fmt0_9', '[0]1:48');
+        Observer.Expect('frv0', '[Blank0]6:66,108,97,110');
+        Observer.Expect('fmt1', '[A]1:65');
+        Observer.Expect('fmt1_9', '[1]1:49');
+        Observer.Expect('frv1', '[A]1:65');
+        Observer.Expect('fmt2', '[Blank2]6:66,108,97,110');
+        Observer.Expect('fmt2_9', '[2]1:50');
+        Observer.Expect('frv2', '[Blank2]6:66,108,97,110');
+        Observer.Expect('members', '[,A, ]');
+        Observer.Expect('caption', '[Blank0,A,Blank2]');
+        Observer.Expect('string', '[,A, ]');
+        Observer.Expect('count', '[3]');
+        Observer.Expect('name0', '[]');
+        Observer.Expect('cap0', '[]');
+        Observer.Expect('name1', '[]');
+        Observer.Expect('cap1', '[Blank0]');
+        Observer.Expect('name2', '[A]');
+        Observer.Expect('cap2', '[A]');
+        Observer.Expect('name3', '[ ]');
+        Observer.Expect('cap3', '[Blank2]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2191,7 +2873,22 @@ codeunit 67804 "LT OB Field"
             Observer.Observe('fr_A', 'ok|' + Format(R.Opt, 0, 2));
         end else
             Observer.Observe('fr_A', 'err:' + GetLastErrorCode() + ':' + GetLastErrorText());
-        Observer.Finish();
+#if BC28PLUS // assigning text to an Option FieldRef.Value raises NotSupportedType in BC 27 and an Evaluate:Format error from BC 28
+        Observer.Expect('ev_empty', 'Yes|2');
+        Observer.Expect('fr_empty', 'err:Evaluate:Format:The value "" can''t be evaluated into type Option.');
+        Observer.Expect('ev_sp', 'Yes|2');
+        Observer.Expect('fr_sp', 'err:Evaluate:Format:The value " " can''t be evaluated into type Option.');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('fr_A', 'err:Evaluate:Format:The value "A" can''t be evaluated into type Option.');
+#else
+        Observer.Expect('ev_empty', 'Yes|2');
+        Observer.Expect('fr_empty', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_sp', 'Yes|2');
+        Observer.Expect('fr_sp', 'err:NotSupportedType:The type NavOption is unknown.');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('fr_A', 'err:NotSupportedType:The type NavOption is unknown.');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -2253,7 +2950,14 @@ codeunit 67804 "LT OB Field"
         R.Reset();
         R.SetRange(Opt, R.Opt::" ");
         Observer.Observe('rng_o2', Format(R.Count()) + '|' + OrdsQS2(R) + '|' + R.GetFilter(Opt));
-        Observer.Finish();
+        Observer.Expect('flt_empty', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_sp', 'ok|3|0,1,2,|');
+        Observer.Expect('flt_qsp', 'err:Filter:CSide:The filter "" "" is not valid for the Opt field on the LT OB Row QS2 table. ''" "'' is not an option. The existing options are: ,A, ');
+        Observer.Expect('flt_qq', 'err:Filter:CSide:The filter """" is not valid for the Opt field on the LT OB Row QS2 table. ''""'' is not an option. The existing options are: ,A, ');
+        Observer.Expect('flt_z', 'ok|1|0,|0');
+        Observer.Expect('flt_A', 'ok|1|1,|A');
+        Observer.Expect('flt_neg', 'err:Filter:CSide:The filter "<> " is not valid for the Opt field on the LT OB Row QS2 table. A value');
+        Observer.Verify();
     end;
 
     [TryFunction]

@@ -101,7 +101,19 @@ codeunit 67803 "LT OB Var"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'Yes|0');
+        Observer.Expect('ev_sp', 'Yes|0');
+        Observer.Expect('ev_sp2', 'Yes|0');
+        Observer.Expect('ev_nul', 'Yes|0');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('st_empty', 'ok|0');
+        Observer.Expect('st_sp', 'ok|0');
+        Observer.Expect('st_nul', 'ok|0');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|3');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are:  ,A,B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -128,7 +140,16 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := 3;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'Yes|0');
+        Observer.Expect('evf2_empty', 'Yes|0');
+        Observer.Expect('evf9_empty', 'Yes|0');
+        Observer.Expect('evf0_sp', 'Yes|0');
+        Observer.Expect('evf2_sp', 'Yes|0');
+        Observer.Expect('evf9_sp', 'Yes|0');
+        Observer.Expect('evf0_A', 'Yes|1');
+        Observer.Expect('evf2_A', 'Yes|1');
+        Observer.Expect('evf9_A', 'Yes|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -161,7 +182,17 @@ codeunit 67803 "LT OB Var"
         O := 2;
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[ ]1:32');
+        Observer.Expect('f1', '[A]1:65');
+        Observer.Expect('f2', '[B]1:66');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[ ][ ][0][0]');
+        Observer.Expect('f1_n', '[A][A][1][1]');
+        Observer.Expect('f2_n', '[B][B][2][2]');
+        Observer.Expect('de0', '[ ]1:32');
+        Observer.Expect('de1', '[A]1:65');
+        Observer.Expect('de2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [Test]
@@ -195,7 +226,20 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('name_o0', '0');
+        Observer.Expect('cmp_S_o0', 'Yes');
+        Observer.Expect('cmp_S_o1', 'No');
+        Observer.Expect('cmp_S_o2', 'No');
+        Observer.Expect('blank_o0', 'NoYes');
+        Observer.Expect('subst_o0', '[ ]1:32');
+        Observer.Expect('t1_o0', '[ ]1:32');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[A]1:65');
+        Observer.Expect('t1_o1', '[A]1:65');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[B]1:66');
+        Observer.Expect('t1_o2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -256,7 +300,19 @@ codeunit 67803 "LT OB Var"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'Yes|1');
+        Observer.Expect('ev_sp', 'Yes|1');
+        Observer.Expect('ev_sp2', 'Yes|1');
+        Observer.Expect('ev_nul', 'Yes|1');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('st_empty', 'ok|1');
+        Observer.Expect('st_sp', 'ok|1');
+        Observer.Expect('st_nul', 'ok|1');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|3');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: A, ,B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -283,7 +339,16 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := 3;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'Yes|1');
+        Observer.Expect('evf2_empty', 'Yes|1');
+        Observer.Expect('evf9_empty', 'Yes|1');
+        Observer.Expect('evf0_sp', 'Yes|1');
+        Observer.Expect('evf2_sp', 'Yes|1');
+        Observer.Expect('evf9_sp', 'Yes|1');
+        Observer.Expect('evf0_A', 'Yes|0');
+        Observer.Expect('evf2_A', 'Yes|0');
+        Observer.Expect('evf9_A', 'Yes|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -316,7 +381,17 @@ codeunit 67803 "LT OB Var"
         O := 2;
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[A]1:65');
+        Observer.Expect('f1', '[ ]1:32');
+        Observer.Expect('f2', '[B]1:66');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[A][A][0][0]');
+        Observer.Expect('f1_n', '[ ][ ][1][1]');
+        Observer.Expect('f2_n', '[B][B][2][2]');
+        Observer.Expect('de0', '[A]1:65');
+        Observer.Expect('de1', '[ ]1:32');
+        Observer.Expect('de2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [Test]
@@ -350,7 +425,20 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('name_o1', '1');
+        Observer.Expect('cmp_S_o0', 'No');
+        Observer.Expect('cmp_S_o1', 'Yes');
+        Observer.Expect('cmp_S_o2', 'No');
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[A]1:65');
+        Observer.Expect('t1_o0', '[A]1:65');
+        Observer.Expect('blank_o1', 'NoYes');
+        Observer.Expect('subst_o1', '[ ]1:32');
+        Observer.Expect('t1_o1', '[ ]1:32');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[B]1:66');
+        Observer.Expect('t1_o2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -411,7 +499,19 @@ codeunit 67803 "LT OB Var"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'Yes|2');
+        Observer.Expect('ev_sp', 'Yes|2');
+        Observer.Expect('ev_sp2', 'Yes|2');
+        Observer.Expect('ev_nul', 'Yes|2');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('st_empty', 'ok|2');
+        Observer.Expect('st_sp', 'ok|2');
+        Observer.Expect('st_nul', 'ok|2');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|3');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: A,B, ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -438,7 +538,16 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := 3;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'Yes|2');
+        Observer.Expect('evf2_empty', 'Yes|2');
+        Observer.Expect('evf9_empty', 'Yes|2');
+        Observer.Expect('evf0_sp', 'Yes|2');
+        Observer.Expect('evf2_sp', 'Yes|2');
+        Observer.Expect('evf9_sp', 'Yes|2');
+        Observer.Expect('evf0_A', 'Yes|0');
+        Observer.Expect('evf2_A', 'Yes|0');
+        Observer.Expect('evf9_A', 'Yes|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -471,7 +580,17 @@ codeunit 67803 "LT OB Var"
         O := 2;
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[A]1:65');
+        Observer.Expect('f1', '[B]1:66');
+        Observer.Expect('f2', '[ ]1:32');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[A][A][0][0]');
+        Observer.Expect('f1_n', '[B][B][1][1]');
+        Observer.Expect('f2_n', '[ ][ ][2][2]');
+        Observer.Expect('de0', '[A]1:65');
+        Observer.Expect('de1', '[B]1:66');
+        Observer.Expect('de2', '[ ]1:32');
+        Observer.Verify();
     end;
 
     [Test]
@@ -505,7 +624,20 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('name_o2', '2');
+        Observer.Expect('cmp_S_o0', 'No');
+        Observer.Expect('cmp_S_o1', 'No');
+        Observer.Expect('cmp_S_o2', 'Yes');
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[A]1:65');
+        Observer.Expect('t1_o0', '[A]1:65');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[B]1:66');
+        Observer.Expect('t1_o1', '[B]1:66');
+        Observer.Expect('blank_o2', 'NoYes');
+        Observer.Expect('subst_o2', '[ ]1:32');
+        Observer.Expect('t1_o2', '[ ]1:32');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -566,7 +698,22 @@ codeunit 67803 "LT OB Var"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'No|3');
+        Observer.Expect('ev_sp', 'No|3');
+        Observer.Expect('ev_sp2', 'No|3');
+        Observer.Expect('ev_nul', 'No|3');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('st_empty', 'err:InvalidOptionString|3');
+        Observer.Expect('st_empty_text', ''''' is not an option. The existing options are: ,A,B');
+        Observer.Expect('st_sp', 'err:InvalidOptionString|3');
+        Observer.Expect('st_sp_text', ''' '' is not an option. The existing options are: ,A,B');
+        Observer.Expect('st_nul', 'err:InvalidOptionString|3');
+        Observer.Expect('st_nul_text', '''\u0000'' is not an option. The existing options are: ,A,B');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|3');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: ,A,B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -593,7 +740,16 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := 3;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'No|3');
+        Observer.Expect('evf2_empty', 'No|3');
+        Observer.Expect('evf9_empty', 'No|3');
+        Observer.Expect('evf0_sp', 'No|3');
+        Observer.Expect('evf2_sp', 'No|3');
+        Observer.Expect('evf9_sp', 'No|3');
+        Observer.Expect('evf0_A', 'Yes|1');
+        Observer.Expect('evf2_A', 'Yes|1');
+        Observer.Expect('evf9_A', 'Yes|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -626,7 +782,17 @@ codeunit 67803 "LT OB Var"
         O := 2;
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[0]1:48');
+        Observer.Expect('f1', '[A]1:65');
+        Observer.Expect('f2', '[B]1:66');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[0][0][0][0]');
+        Observer.Expect('f1_n', '[A][A][1][1]');
+        Observer.Expect('f2_n', '[B][B][2][2]');
+        Observer.Expect('de0', '[0]1:48');
+        Observer.Expect('de1', '[A]1:65');
+        Observer.Expect('de2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [Test]
@@ -651,7 +817,16 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[0]1:48');
+        Observer.Expect('t1_o0', '[0]1:48');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[A]1:65');
+        Observer.Expect('t1_o1', '[A]1:65');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[B]1:66');
+        Observer.Expect('t1_o2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -712,7 +887,22 @@ codeunit 67803 "LT OB Var"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'No|3');
+        Observer.Expect('ev_sp', 'No|3');
+        Observer.Expect('ev_sp2', 'No|3');
+        Observer.Expect('ev_nul', 'No|3');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('st_empty', 'err:InvalidOptionString|3');
+        Observer.Expect('st_empty_text', ''''' is not an option. The existing options are: A,,B');
+        Observer.Expect('st_sp', 'err:InvalidOptionString|3');
+        Observer.Expect('st_sp_text', ''' '' is not an option. The existing options are: A,,B');
+        Observer.Expect('st_nul', 'err:InvalidOptionString|3');
+        Observer.Expect('st_nul_text', '''\u0000'' is not an option. The existing options are: A,,B');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|3');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: A,,B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -739,7 +929,16 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := 3;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'No|3');
+        Observer.Expect('evf2_empty', 'No|3');
+        Observer.Expect('evf9_empty', 'No|3');
+        Observer.Expect('evf0_sp', 'No|3');
+        Observer.Expect('evf2_sp', 'No|3');
+        Observer.Expect('evf9_sp', 'No|3');
+        Observer.Expect('evf0_A', 'Yes|0');
+        Observer.Expect('evf2_A', 'Yes|0');
+        Observer.Expect('evf9_A', 'Yes|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -772,7 +971,17 @@ codeunit 67803 "LT OB Var"
         O := 2;
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[A]1:65');
+        Observer.Expect('f1', '[1]1:49');
+        Observer.Expect('f2', '[B]1:66');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[A][A][0][0]');
+        Observer.Expect('f1_n', '[1][1][1][1]');
+        Observer.Expect('f2_n', '[B][B][2][2]');
+        Observer.Expect('de0', '[A]1:65');
+        Observer.Expect('de1', '[1]1:49');
+        Observer.Expect('de2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [Test]
@@ -797,7 +1006,16 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[A]1:65');
+        Observer.Expect('t1_o0', '[A]1:65');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[1]1:49');
+        Observer.Expect('t1_o1', '[1]1:49');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[B]1:66');
+        Observer.Expect('t1_o2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -858,7 +1076,22 @@ codeunit 67803 "LT OB Var"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'No|3');
+        Observer.Expect('ev_sp', 'No|3');
+        Observer.Expect('ev_sp2', 'No|3');
+        Observer.Expect('ev_nul', 'No|3');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('st_empty', 'err:InvalidOptionString|3');
+        Observer.Expect('st_empty_text', ''''' is not an option. The existing options are: A,B,');
+        Observer.Expect('st_sp', 'err:InvalidOptionString|3');
+        Observer.Expect('st_sp_text', ''' '' is not an option. The existing options are: A,B,');
+        Observer.Expect('st_nul', 'err:InvalidOptionString|3');
+        Observer.Expect('st_nul_text', '''\u0000'' is not an option. The existing options are: A,B,');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|3');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: A,B,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -885,7 +1118,16 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := 3;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'No|3');
+        Observer.Expect('evf2_empty', 'No|3');
+        Observer.Expect('evf9_empty', 'No|3');
+        Observer.Expect('evf0_sp', 'No|3');
+        Observer.Expect('evf2_sp', 'No|3');
+        Observer.Expect('evf9_sp', 'No|3');
+        Observer.Expect('evf0_A', 'Yes|0');
+        Observer.Expect('evf2_A', 'Yes|0');
+        Observer.Expect('evf9_A', 'Yes|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -918,7 +1160,17 @@ codeunit 67803 "LT OB Var"
         O := 2;
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[A]1:65');
+        Observer.Expect('f1', '[B]1:66');
+        Observer.Expect('f2', '[2]1:50');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[A][A][0][0]');
+        Observer.Expect('f1_n', '[B][B][1][1]');
+        Observer.Expect('f2_n', '[2][2][2][2]');
+        Observer.Expect('de0', '[A]1:65');
+        Observer.Expect('de1', '[B]1:66');
+        Observer.Expect('de2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -943,7 +1195,16 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[A]1:65');
+        Observer.Expect('t1_o0', '[A]1:65');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[B]1:66');
+        Observer.Expect('t1_o1', '[B]1:66');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[2]1:50');
+        Observer.Expect('t1_o2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1004,7 +1265,22 @@ codeunit 67803 "LT OB Var"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'No|3');
+        Observer.Expect('ev_sp', 'No|3');
+        Observer.Expect('ev_sp2', 'No|3');
+        Observer.Expect('ev_nul', 'No|3');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('st_empty', 'err:InvalidOptionString|3');
+        Observer.Expect('st_empty_text', ''''' is not an option. The existing options are: ,A,B');
+        Observer.Expect('st_sp', 'err:InvalidOptionString|3');
+        Observer.Expect('st_sp_text', ''' '' is not an option. The existing options are: ,A,B');
+        Observer.Expect('st_nul', 'err:InvalidOptionString|3');
+        Observer.Expect('st_nul_text', '''\u0000'' is not an option. The existing options are: ,A,B');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|3');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: ,A,B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1031,7 +1307,16 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := 3;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'No|3');
+        Observer.Expect('evf2_empty', 'No|3');
+        Observer.Expect('evf9_empty', 'No|3');
+        Observer.Expect('evf0_sp', 'No|3');
+        Observer.Expect('evf2_sp', 'No|3');
+        Observer.Expect('evf9_sp', 'No|3');
+        Observer.Expect('evf0_A', 'Yes|1');
+        Observer.Expect('evf2_A', 'Yes|1');
+        Observer.Expect('evf9_A', 'Yes|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1064,7 +1349,17 @@ codeunit 67803 "LT OB Var"
         O := 2;
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[0]1:48');
+        Observer.Expect('f1', '[A]1:65');
+        Observer.Expect('f2', '[B]1:66');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[0][0][0][0]');
+        Observer.Expect('f1_n', '[A][A][1][1]');
+        Observer.Expect('f2_n', '[B][B][2][2]');
+        Observer.Expect('de0', '[0]1:48');
+        Observer.Expect('de1', '[A]1:65');
+        Observer.Expect('de2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1089,7 +1384,16 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[0]1:48');
+        Observer.Expect('t1_o0', '[0]1:48');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[A]1:65');
+        Observer.Expect('t1_o1', '[A]1:65');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[B]1:66');
+        Observer.Expect('t1_o2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1150,7 +1454,22 @@ codeunit 67803 "LT OB Var"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'No|3');
+        Observer.Expect('ev_sp', 'No|3');
+        Observer.Expect('ev_sp2', 'No|3');
+        Observer.Expect('ev_nul', 'No|3');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('st_empty', 'err:InvalidOptionString|3');
+        Observer.Expect('st_empty_text', ''''' is not an option. The existing options are: A,,B');
+        Observer.Expect('st_sp', 'err:InvalidOptionString|3');
+        Observer.Expect('st_sp_text', ''' '' is not an option. The existing options are: A,,B');
+        Observer.Expect('st_nul', 'err:InvalidOptionString|3');
+        Observer.Expect('st_nul_text', '''\u0000'' is not an option. The existing options are: A,,B');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|3');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: A,,B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1177,7 +1496,16 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := 3;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'No|3');
+        Observer.Expect('evf2_empty', 'No|3');
+        Observer.Expect('evf9_empty', 'No|3');
+        Observer.Expect('evf0_sp', 'No|3');
+        Observer.Expect('evf2_sp', 'No|3');
+        Observer.Expect('evf9_sp', 'No|3');
+        Observer.Expect('evf0_A', 'Yes|0');
+        Observer.Expect('evf2_A', 'Yes|0');
+        Observer.Expect('evf9_A', 'Yes|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1210,7 +1538,17 @@ codeunit 67803 "LT OB Var"
         O := 2;
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[A]1:65');
+        Observer.Expect('f1', '[1]1:49');
+        Observer.Expect('f2', '[B]1:66');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[A][A][0][0]');
+        Observer.Expect('f1_n', '[1][1][1][1]');
+        Observer.Expect('f2_n', '[B][B][2][2]');
+        Observer.Expect('de0', '[A]1:65');
+        Observer.Expect('de1', '[1]1:49');
+        Observer.Expect('de2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1235,7 +1573,16 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[A]1:65');
+        Observer.Expect('t1_o0', '[A]1:65');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[1]1:49');
+        Observer.Expect('t1_o1', '[1]1:49');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[B]1:66');
+        Observer.Expect('t1_o2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1296,7 +1643,22 @@ codeunit 67803 "LT OB Var"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'No|3');
+        Observer.Expect('ev_sp', 'No|3');
+        Observer.Expect('ev_sp2', 'No|3');
+        Observer.Expect('ev_nul', 'No|3');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('st_empty', 'err:InvalidOptionString|3');
+        Observer.Expect('st_empty_text', ''''' is not an option. The existing options are: A,B,');
+        Observer.Expect('st_sp', 'err:InvalidOptionString|3');
+        Observer.Expect('st_sp_text', ''' '' is not an option. The existing options are: A,B,');
+        Observer.Expect('st_nul', 'err:InvalidOptionString|3');
+        Observer.Expect('st_nul_text', '''\u0000'' is not an option. The existing options are: A,B,');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|3');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: A,B,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1323,7 +1685,16 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := 3;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'No|3');
+        Observer.Expect('evf2_empty', 'No|3');
+        Observer.Expect('evf9_empty', 'No|3');
+        Observer.Expect('evf0_sp', 'No|3');
+        Observer.Expect('evf2_sp', 'No|3');
+        Observer.Expect('evf9_sp', 'No|3');
+        Observer.Expect('evf0_A', 'Yes|0');
+        Observer.Expect('evf2_A', 'Yes|0');
+        Observer.Expect('evf9_A', 'Yes|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1356,7 +1727,17 @@ codeunit 67803 "LT OB Var"
         O := 2;
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[A]1:65');
+        Observer.Expect('f1', '[B]1:66');
+        Observer.Expect('f2', '[2]1:50');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[A][A][0][0]');
+        Observer.Expect('f1_n', '[B][B][1][1]');
+        Observer.Expect('f2_n', '[2][2][2][2]');
+        Observer.Expect('de0', '[A]1:65');
+        Observer.Expect('de1', '[B]1:66');
+        Observer.Expect('de2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1381,7 +1762,16 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[A]1:65');
+        Observer.Expect('t1_o0', '[A]1:65');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[B]1:66');
+        Observer.Expect('t1_o1', '[B]1:66');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[2]1:50');
+        Observer.Expect('t1_o2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1442,7 +1832,19 @@ codeunit 67803 "LT OB Var"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'Yes|0');
+        Observer.Expect('ev_sp', 'Yes|0');
+        Observer.Expect('ev_sp2', 'Yes|0');
+        Observer.Expect('ev_nul', 'Yes|0');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('st_empty', 'ok|0');
+        Observer.Expect('st_sp', 'ok|0');
+        Observer.Expect('st_nul', 'ok|0');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|3');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are:  ,A,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1469,7 +1871,16 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := 3;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'Yes|0');
+        Observer.Expect('evf2_empty', 'Yes|0');
+        Observer.Expect('evf9_empty', 'Yes|0');
+        Observer.Expect('evf0_sp', 'Yes|0');
+        Observer.Expect('evf2_sp', 'Yes|0');
+        Observer.Expect('evf9_sp', 'Yes|0');
+        Observer.Expect('evf0_A', 'Yes|1');
+        Observer.Expect('evf2_A', 'Yes|1');
+        Observer.Expect('evf9_A', 'Yes|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1502,7 +1913,17 @@ codeunit 67803 "LT OB Var"
         O := 2;
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[ ]1:32');
+        Observer.Expect('f1', '[A]1:65');
+        Observer.Expect('f2', '[2]1:50');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[ ][ ][0][0]');
+        Observer.Expect('f1_n', '[A][A][1][1]');
+        Observer.Expect('f2_n', '[2][2][2][2]');
+        Observer.Expect('de0', '[ ]1:32');
+        Observer.Expect('de1', '[A]1:65');
+        Observer.Expect('de2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1536,7 +1957,20 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('name_o0', '0');
+        Observer.Expect('cmp_S_o0', 'Yes');
+        Observer.Expect('cmp_S_o1', 'No');
+        Observer.Expect('cmp_S_o2', 'No');
+        Observer.Expect('blank_o0', 'NoYes');
+        Observer.Expect('subst_o0', '[ ]1:32');
+        Observer.Expect('t1_o0', '[ ]1:32');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[A]1:65');
+        Observer.Expect('t1_o1', '[A]1:65');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[2]1:50');
+        Observer.Expect('t1_o2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1597,7 +2031,19 @@ codeunit 67803 "LT OB Var"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'Yes|2');
+        Observer.Expect('ev_sp', 'Yes|2');
+        Observer.Expect('ev_sp2', 'Yes|2');
+        Observer.Expect('ev_nul', 'Yes|2');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('st_empty', 'ok|2');
+        Observer.Expect('st_sp', 'ok|2');
+        Observer.Expect('st_nul', 'ok|2');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|3');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: ,A, ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1624,7 +2070,16 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := 3;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'Yes|2');
+        Observer.Expect('evf2_empty', 'Yes|2');
+        Observer.Expect('evf9_empty', 'Yes|2');
+        Observer.Expect('evf0_sp', 'Yes|2');
+        Observer.Expect('evf2_sp', 'Yes|2');
+        Observer.Expect('evf9_sp', 'Yes|2');
+        Observer.Expect('evf0_A', 'Yes|1');
+        Observer.Expect('evf2_A', 'Yes|1');
+        Observer.Expect('evf9_A', 'Yes|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1657,7 +2112,17 @@ codeunit 67803 "LT OB Var"
         O := 2;
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[0]1:48');
+        Observer.Expect('f1', '[A]1:65');
+        Observer.Expect('f2', '[ ]1:32');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[0][0][0][0]');
+        Observer.Expect('f1_n', '[A][A][1][1]');
+        Observer.Expect('f2_n', '[ ][ ][2][2]');
+        Observer.Expect('de0', '[0]1:48');
+        Observer.Expect('de1', '[A]1:65');
+        Observer.Expect('de2', '[ ]1:32');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1691,7 +2156,20 @@ codeunit 67803 "LT OB Var"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('name_o2', '2');
+        Observer.Expect('cmp_S_o0', 'No');
+        Observer.Expect('cmp_S_o1', 'No');
+        Observer.Expect('cmp_S_o2', 'Yes');
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[0]1:48');
+        Observer.Expect('t1_o0', '[0]1:48');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[A]1:65');
+        Observer.Expect('t1_o1', '[A]1:65');
+        Observer.Expect('blank_o2', 'NoYes');
+        Observer.Expect('subst_o2', '[ ]1:32');
+        Observer.Expect('t1_o2', '[ ]1:32');
+        Observer.Verify();
     end;
 
 }

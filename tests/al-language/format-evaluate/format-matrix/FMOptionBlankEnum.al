@@ -100,7 +100,19 @@ codeunit 67805 "LT OB Enum"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'Yes|0');
+        Observer.Expect('ev_sp', 'Yes|0');
+        Observer.Expect('ev_sp2', 'Yes|0');
+        Observer.Expect('ev_nul', 'Yes|0');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('st_empty', 'ok|0');
+        Observer.Expect('st_sp', 'ok|0');
+        Observer.Expect('st_nul', 'ok|0');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|1');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are:  ,A,B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -127,7 +139,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := O::A;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'Yes|0');
+        Observer.Expect('evf2_empty', 'Yes|0');
+        Observer.Expect('evf9_empty', 'Yes|0');
+        Observer.Expect('evf0_sp', 'Yes|0');
+        Observer.Expect('evf2_sp', 'Yes|0');
+        Observer.Expect('evf9_sp', 'Yes|0');
+        Observer.Expect('evf0_A', 'Yes|1');
+        Observer.Expect('evf2_A', 'Yes|1');
+        Observer.Expect('evf9_A', 'Yes|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -160,7 +181,17 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum FS".FromInteger(2);
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[ ]1:32');
+        Observer.Expect('f1', '[A]1:65');
+        Observer.Expect('f2', '[B]1:66');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[ ][ ][0][0]');
+        Observer.Expect('f1_n', '[A][A][1][1]');
+        Observer.Expect('f2_n', '[B][B][2][2]');
+        Observer.Expect('de0', '[ ]1:32');
+        Observer.Expect('de1', '[A]1:65');
+        Observer.Expect('de2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [Test]
@@ -189,7 +220,16 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum FS".FromInteger(2);
         Observer.Observe('as_int_2', Format(O.AsInteger()));
         Observer.Observe('fmt9_2', Desc(Format(O, 0, 9)));
-        Observer.Finish();
+        Observer.Expect('names', '[ ][A][B]');
+        Observer.Expect('names_count', '3');
+        Observer.Expect('ordinals', '0,1,2,');
+        Observer.Expect('as_int_0', '0');
+        Observer.Expect('fmt9_0', '[0]1:48');
+        Observer.Expect('as_int_1', '1');
+        Observer.Expect('fmt9_1', '[1]1:49');
+        Observer.Expect('as_int_2', '2');
+        Observer.Expect('fmt9_2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -223,7 +263,20 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('name_o0', '0');
+        Observer.Expect('cmp_S_o0', 'Yes');
+        Observer.Expect('cmp_S_o1', 'No');
+        Observer.Expect('cmp_S_o2', 'No');
+        Observer.Expect('blank_o0', 'NoYes');
+        Observer.Expect('subst_o0', '[ ]1:32');
+        Observer.Expect('t1_o0', '[ ]1:32');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[A]1:65');
+        Observer.Expect('t1_o1', '[A]1:65');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[B]1:66');
+        Observer.Expect('t1_o2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -284,7 +337,19 @@ codeunit 67805 "LT OB Enum"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'Yes|0');
+        Observer.Expect('ev_sp', 'Yes|0');
+        Observer.Expect('ev_sp2', 'Yes|0');
+        Observer.Expect('ev_nul', 'Yes|0');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('st_empty', 'ok|0');
+        Observer.Expect('st_sp', 'ok|0');
+        Observer.Expect('st_nul', 'ok|0');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|1');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: Cap0,A,B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -311,7 +376,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := O::A;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'Yes|0');
+        Observer.Expect('evf2_empty', 'Yes|0');
+        Observer.Expect('evf9_empty', 'Yes|0');
+        Observer.Expect('evf0_sp', 'Yes|0');
+        Observer.Expect('evf2_sp', 'Yes|0');
+        Observer.Expect('evf9_sp', 'Yes|0');
+        Observer.Expect('evf0_A', 'Yes|1');
+        Observer.Expect('evf2_A', 'Yes|1');
+        Observer.Expect('evf9_A', 'Yes|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -344,7 +418,17 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum FS Cap".FromInteger(2);
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[Cap0]4:67,97,112,48');
+        Observer.Expect('f1', '[A]1:65');
+        Observer.Expect('f2', '[B]1:66');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[Cap0][Cap0][0][0]');
+        Observer.Expect('f1_n', '[A][A][1][1]');
+        Observer.Expect('f2_n', '[B][B][2][2]');
+        Observer.Expect('de0', '[Cap0]4:67,97,112,48');
+        Observer.Expect('de1', '[A]1:65');
+        Observer.Expect('de2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [Test]
@@ -373,7 +457,16 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum FS Cap".FromInteger(2);
         Observer.Observe('as_int_2', Format(O.AsInteger()));
         Observer.Observe('fmt9_2', Desc(Format(O, 0, 9)));
-        Observer.Finish();
+        Observer.Expect('names', '[ ][A][B]');
+        Observer.Expect('names_count', '3');
+        Observer.Expect('ordinals', '0,1,2,');
+        Observer.Expect('as_int_0', '0');
+        Observer.Expect('fmt9_0', '[0]1:48');
+        Observer.Expect('as_int_1', '1');
+        Observer.Expect('fmt9_1', '[1]1:49');
+        Observer.Expect('as_int_2', '2');
+        Observer.Expect('fmt9_2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -381,7 +474,7 @@ codeunit 67805 "LT OB Enum"
     var
         Observer: Codeunit "Probe Observer";
         O: Enum "LT OB Enum FS Cap";
-        T1: Text[1];
+        T1: Text;
     begin
         O := O::A;
         O := O::" ";
@@ -468,7 +561,19 @@ codeunit 67805 "LT OB Enum"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'Yes|1');
+        Observer.Expect('ev_sp', 'Yes|1');
+        Observer.Expect('ev_sp2', 'Yes|1');
+        Observer.Expect('ev_nul', 'Yes|1');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('st_empty', 'ok|1');
+        Observer.Expect('st_sp', 'ok|1');
+        Observer.Expect('st_nul', 'ok|1');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|0');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: A, ,B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -495,7 +600,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := O::A;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'Yes|1');
+        Observer.Expect('evf2_empty', 'Yes|1');
+        Observer.Expect('evf9_empty', 'Yes|1');
+        Observer.Expect('evf0_sp', 'Yes|1');
+        Observer.Expect('evf2_sp', 'Yes|1');
+        Observer.Expect('evf9_sp', 'Yes|1');
+        Observer.Expect('evf0_A', 'Yes|0');
+        Observer.Expect('evf2_A', 'Yes|0');
+        Observer.Expect('evf9_A', 'Yes|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -528,7 +642,17 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum MS".FromInteger(2);
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[A]1:65');
+        Observer.Expect('f1', '[ ]1:32');
+        Observer.Expect('f2', '[B]1:66');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[A][A][0][0]');
+        Observer.Expect('f1_n', '[ ][ ][1][1]');
+        Observer.Expect('f2_n', '[B][B][2][2]');
+        Observer.Expect('de0', '[A]1:65');
+        Observer.Expect('de1', '[ ]1:32');
+        Observer.Expect('de2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [Test]
@@ -557,7 +681,16 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum MS".FromInteger(2);
         Observer.Observe('as_int_2', Format(O.AsInteger()));
         Observer.Observe('fmt9_2', Desc(Format(O, 0, 9)));
-        Observer.Finish();
+        Observer.Expect('names', '[A][ ][B]');
+        Observer.Expect('names_count', '3');
+        Observer.Expect('ordinals', '0,1,2,');
+        Observer.Expect('as_int_0', '0');
+        Observer.Expect('fmt9_0', '[0]1:48');
+        Observer.Expect('as_int_1', '1');
+        Observer.Expect('fmt9_1', '[1]1:49');
+        Observer.Expect('as_int_2', '2');
+        Observer.Expect('fmt9_2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -591,7 +724,20 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('name_o1', '1');
+        Observer.Expect('cmp_S_o0', 'No');
+        Observer.Expect('cmp_S_o1', 'Yes');
+        Observer.Expect('cmp_S_o2', 'No');
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[A]1:65');
+        Observer.Expect('t1_o0', '[A]1:65');
+        Observer.Expect('blank_o1', 'NoYes');
+        Observer.Expect('subst_o1', '[ ]1:32');
+        Observer.Expect('t1_o1', '[ ]1:32');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[B]1:66');
+        Observer.Expect('t1_o2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -652,7 +798,19 @@ codeunit 67805 "LT OB Enum"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'Yes|1');
+        Observer.Expect('ev_sp', 'Yes|1');
+        Observer.Expect('ev_sp2', 'Yes|1');
+        Observer.Expect('ev_nul', 'Yes|1');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('st_empty', 'ok|1');
+        Observer.Expect('st_sp', 'ok|1');
+        Observer.Expect('st_nul', 'ok|1');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|0');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: A,Cap1,B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -679,7 +837,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := O::A;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'Yes|1');
+        Observer.Expect('evf2_empty', 'Yes|1');
+        Observer.Expect('evf9_empty', 'Yes|1');
+        Observer.Expect('evf0_sp', 'Yes|1');
+        Observer.Expect('evf2_sp', 'Yes|1');
+        Observer.Expect('evf9_sp', 'Yes|1');
+        Observer.Expect('evf0_A', 'Yes|0');
+        Observer.Expect('evf2_A', 'Yes|0');
+        Observer.Expect('evf9_A', 'Yes|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -712,7 +879,17 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum MS Cap".FromInteger(2);
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[A]1:65');
+        Observer.Expect('f1', '[Cap1]4:67,97,112,49');
+        Observer.Expect('f2', '[B]1:66');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[A][A][0][0]');
+        Observer.Expect('f1_n', '[Cap1][Cap1][1][1]');
+        Observer.Expect('f2_n', '[B][B][2][2]');
+        Observer.Expect('de0', '[A]1:65');
+        Observer.Expect('de1', '[Cap1]4:67,97,112,49');
+        Observer.Expect('de2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [Test]
@@ -741,7 +918,16 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum MS Cap".FromInteger(2);
         Observer.Observe('as_int_2', Format(O.AsInteger()));
         Observer.Observe('fmt9_2', Desc(Format(O, 0, 9)));
-        Observer.Finish();
+        Observer.Expect('names', '[A][ ][B]');
+        Observer.Expect('names_count', '3');
+        Observer.Expect('ordinals', '0,1,2,');
+        Observer.Expect('as_int_0', '0');
+        Observer.Expect('fmt9_0', '[0]1:48');
+        Observer.Expect('as_int_1', '1');
+        Observer.Expect('fmt9_1', '[1]1:49');
+        Observer.Expect('as_int_2', '2');
+        Observer.Expect('fmt9_2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -749,7 +935,7 @@ codeunit 67805 "LT OB Enum"
     var
         Observer: Codeunit "Probe Observer";
         O: Enum "LT OB Enum MS Cap";
-        T1: Text[1];
+        T1: Text;
     begin
         O := O::A;
         O := O::" ";
@@ -836,7 +1022,19 @@ codeunit 67805 "LT OB Enum"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'Yes|2');
+        Observer.Expect('ev_sp', 'Yes|2');
+        Observer.Expect('ev_sp2', 'Yes|2');
+        Observer.Expect('ev_nul', 'Yes|2');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('st_empty', 'ok|2');
+        Observer.Expect('st_sp', 'ok|2');
+        Observer.Expect('st_nul', 'ok|2');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|0');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: A,B, ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -863,7 +1061,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := O::A;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'Yes|2');
+        Observer.Expect('evf2_empty', 'Yes|2');
+        Observer.Expect('evf9_empty', 'Yes|2');
+        Observer.Expect('evf0_sp', 'Yes|2');
+        Observer.Expect('evf2_sp', 'Yes|2');
+        Observer.Expect('evf9_sp', 'Yes|2');
+        Observer.Expect('evf0_A', 'Yes|0');
+        Observer.Expect('evf2_A', 'Yes|0');
+        Observer.Expect('evf9_A', 'Yes|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -896,7 +1103,17 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum LS".FromInteger(2);
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[A]1:65');
+        Observer.Expect('f1', '[B]1:66');
+        Observer.Expect('f2', '[ ]1:32');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[A][A][0][0]');
+        Observer.Expect('f1_n', '[B][B][1][1]');
+        Observer.Expect('f2_n', '[ ][ ][2][2]');
+        Observer.Expect('de0', '[A]1:65');
+        Observer.Expect('de1', '[B]1:66');
+        Observer.Expect('de2', '[ ]1:32');
+        Observer.Verify();
     end;
 
     [Test]
@@ -925,7 +1142,16 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum LS".FromInteger(2);
         Observer.Observe('as_int_2', Format(O.AsInteger()));
         Observer.Observe('fmt9_2', Desc(Format(O, 0, 9)));
-        Observer.Finish();
+        Observer.Expect('names', '[A][B][ ]');
+        Observer.Expect('names_count', '3');
+        Observer.Expect('ordinals', '0,1,2,');
+        Observer.Expect('as_int_0', '0');
+        Observer.Expect('fmt9_0', '[0]1:48');
+        Observer.Expect('as_int_1', '1');
+        Observer.Expect('fmt9_1', '[1]1:49');
+        Observer.Expect('as_int_2', '2');
+        Observer.Expect('fmt9_2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -959,7 +1185,20 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('name_o2', '2');
+        Observer.Expect('cmp_S_o0', 'No');
+        Observer.Expect('cmp_S_o1', 'No');
+        Observer.Expect('cmp_S_o2', 'Yes');
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[A]1:65');
+        Observer.Expect('t1_o0', '[A]1:65');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[B]1:66');
+        Observer.Expect('t1_o1', '[B]1:66');
+        Observer.Expect('blank_o2', 'NoYes');
+        Observer.Expect('subst_o2', '[ ]1:32');
+        Observer.Expect('t1_o2', '[ ]1:32');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1020,7 +1259,19 @@ codeunit 67805 "LT OB Enum"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'Yes|2');
+        Observer.Expect('ev_sp', 'Yes|2');
+        Observer.Expect('ev_sp2', 'Yes|2');
+        Observer.Expect('ev_nul', 'Yes|2');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('st_empty', 'ok|2');
+        Observer.Expect('st_sp', 'ok|2');
+        Observer.Expect('st_nul', 'ok|2');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|0');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: A,B,Cap2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1047,7 +1298,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := O::A;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'Yes|2');
+        Observer.Expect('evf2_empty', 'Yes|2');
+        Observer.Expect('evf9_empty', 'Yes|2');
+        Observer.Expect('evf0_sp', 'Yes|2');
+        Observer.Expect('evf2_sp', 'Yes|2');
+        Observer.Expect('evf9_sp', 'Yes|2');
+        Observer.Expect('evf0_A', 'Yes|0');
+        Observer.Expect('evf2_A', 'Yes|0');
+        Observer.Expect('evf9_A', 'Yes|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1080,7 +1340,17 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum LS Cap".FromInteger(2);
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[A]1:65');
+        Observer.Expect('f1', '[B]1:66');
+        Observer.Expect('f2', '[Cap2]4:67,97,112,50');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[A][A][0][0]');
+        Observer.Expect('f1_n', '[B][B][1][1]');
+        Observer.Expect('f2_n', '[Cap2][Cap2][2][2]');
+        Observer.Expect('de0', '[A]1:65');
+        Observer.Expect('de1', '[B]1:66');
+        Observer.Expect('de2', '[Cap2]4:67,97,112,50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1109,7 +1379,16 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum LS Cap".FromInteger(2);
         Observer.Observe('as_int_2', Format(O.AsInteger()));
         Observer.Observe('fmt9_2', Desc(Format(O, 0, 9)));
-        Observer.Finish();
+        Observer.Expect('names', '[A][B][ ]');
+        Observer.Expect('names_count', '3');
+        Observer.Expect('ordinals', '0,1,2,');
+        Observer.Expect('as_int_0', '0');
+        Observer.Expect('fmt9_0', '[0]1:48');
+        Observer.Expect('as_int_1', '1');
+        Observer.Expect('fmt9_1', '[1]1:49');
+        Observer.Expect('as_int_2', '2');
+        Observer.Expect('fmt9_2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1117,7 +1396,7 @@ codeunit 67805 "LT OB Enum"
     var
         Observer: Codeunit "Probe Observer";
         O: Enum "LT OB Enum LS Cap";
-        T1: Text[1];
+        T1: Text;
     begin
         O := O::A;
         O := O::" ";
@@ -1204,7 +1483,19 @@ codeunit 67805 "LT OB Enum"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'Yes|0');
+        Observer.Expect('ev_sp', 'Yes|0');
+        Observer.Expect('ev_sp2', 'Yes|0');
+        Observer.Expect('ev_nul', 'Yes|0');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('st_empty', 'ok|0');
+        Observer.Expect('st_sp', 'ok|0');
+        Observer.Expect('st_nul', 'ok|0');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|1');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: ,A,B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1231,7 +1522,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := O::A;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'Yes|0');
+        Observer.Expect('evf2_empty', 'Yes|0');
+        Observer.Expect('evf9_empty', 'Yes|0');
+        Observer.Expect('evf0_sp', 'Yes|0');
+        Observer.Expect('evf2_sp', 'Yes|0');
+        Observer.Expect('evf9_sp', 'Yes|0');
+        Observer.Expect('evf0_A', 'Yes|1');
+        Observer.Expect('evf2_A', 'Yes|1');
+        Observer.Expect('evf9_A', 'Yes|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1264,7 +1564,17 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum FQ".FromInteger(2);
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[0]1:48');
+        Observer.Expect('f1', '[A]1:65');
+        Observer.Expect('f2', '[B]1:66');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[0][0][0][0]');
+        Observer.Expect('f1_n', '[A][A][1][1]');
+        Observer.Expect('f2_n', '[B][B][2][2]');
+        Observer.Expect('de0', '[0]1:48');
+        Observer.Expect('de1', '[A]1:65');
+        Observer.Expect('de2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1293,7 +1603,16 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum FQ".FromInteger(2);
         Observer.Observe('as_int_2', Format(O.AsInteger()));
         Observer.Observe('fmt9_2', Desc(Format(O, 0, 9)));
-        Observer.Finish();
+        Observer.Expect('names', '[][A][B]');
+        Observer.Expect('names_count', '3');
+        Observer.Expect('ordinals', '0,1,2,');
+        Observer.Expect('as_int_0', '0');
+        Observer.Expect('fmt9_0', '[0]1:48');
+        Observer.Expect('as_int_1', '1');
+        Observer.Expect('fmt9_1', '[1]1:49');
+        Observer.Expect('as_int_2', '2');
+        Observer.Expect('fmt9_2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1318,7 +1637,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[0]1:48');
+        Observer.Expect('t1_o0', '[0]1:48');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[A]1:65');
+        Observer.Expect('t1_o1', '[A]1:65');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[B]1:66');
+        Observer.Expect('t1_o2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1379,7 +1707,22 @@ codeunit 67805 "LT OB Enum"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'No|1');
+        Observer.Expect('ev_sp', 'No|1');
+        Observer.Expect('ev_sp2', 'No|1');
+        Observer.Expect('ev_nul', 'No|1');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('st_empty', 'err:InvalidOptionString|1');
+        Observer.Expect('st_empty_text', ''''' is not an option. The existing options are: Cap0,A,B');
+        Observer.Expect('st_sp', 'err:InvalidOptionString|1');
+        Observer.Expect('st_sp_text', ''' '' is not an option. The existing options are: Cap0,A,B');
+        Observer.Expect('st_nul', 'err:InvalidOptionString|1');
+        Observer.Expect('st_nul_text', '''\u0000'' is not an option. The existing options are: Cap0,A,B');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|1');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: C');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1406,7 +1749,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := O::A;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'No|1');
+        Observer.Expect('evf2_empty', 'No|1');
+        Observer.Expect('evf9_empty', 'No|1');
+        Observer.Expect('evf0_sp', 'No|1');
+        Observer.Expect('evf2_sp', 'No|1');
+        Observer.Expect('evf9_sp', 'No|1');
+        Observer.Expect('evf0_A', 'Yes|1');
+        Observer.Expect('evf2_A', 'Yes|1');
+        Observer.Expect('evf9_A', 'Yes|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1439,7 +1791,17 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum FQ Cap".FromInteger(2);
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[Cap0]4:67,97,112,48');
+        Observer.Expect('f1', '[A]1:65');
+        Observer.Expect('f2', '[B]1:66');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[Cap0][Cap0][0][0]');
+        Observer.Expect('f1_n', '[A][A][1][1]');
+        Observer.Expect('f2_n', '[B][B][2][2]');
+        Observer.Expect('de0', '[Cap0]4:67,97,112,48');
+        Observer.Expect('de1', '[A]1:65');
+        Observer.Expect('de2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1468,7 +1830,16 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum FQ Cap".FromInteger(2);
         Observer.Observe('as_int_2', Format(O.AsInteger()));
         Observer.Observe('fmt9_2', Desc(Format(O, 0, 9)));
-        Observer.Finish();
+        Observer.Expect('names', '[][A][B]');
+        Observer.Expect('names_count', '3');
+        Observer.Expect('ordinals', '0,1,2,');
+        Observer.Expect('as_int_0', '0');
+        Observer.Expect('fmt9_0', '[0]1:48');
+        Observer.Expect('as_int_1', '1');
+        Observer.Expect('fmt9_1', '[1]1:49');
+        Observer.Expect('as_int_2', '2');
+        Observer.Expect('fmt9_2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1476,7 +1847,7 @@ codeunit 67805 "LT OB Enum"
     var
         Observer: Codeunit "Probe Observer";
         O: Enum "LT OB Enum FQ Cap";
-        T1: Text[1];
+        T1: Text;
     begin
         O := Enum::"LT OB Enum FQ Cap".FromInteger(0);
         Observer.Observe('blank_o0', Format(Format(O) = '') + Format(Format(O) = ' '));
@@ -1554,7 +1925,19 @@ codeunit 67805 "LT OB Enum"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'Yes|1');
+        Observer.Expect('ev_sp', 'Yes|1');
+        Observer.Expect('ev_sp2', 'Yes|1');
+        Observer.Expect('ev_nul', 'Yes|1');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('st_empty', 'ok|1');
+        Observer.Expect('st_sp', 'ok|1');
+        Observer.Expect('st_nul', 'ok|1');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|0');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: A,,B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1581,7 +1964,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := O::A;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'Yes|1');
+        Observer.Expect('evf2_empty', 'Yes|1');
+        Observer.Expect('evf9_empty', 'Yes|1');
+        Observer.Expect('evf0_sp', 'Yes|1');
+        Observer.Expect('evf2_sp', 'Yes|1');
+        Observer.Expect('evf9_sp', 'Yes|1');
+        Observer.Expect('evf0_A', 'Yes|0');
+        Observer.Expect('evf2_A', 'Yes|0');
+        Observer.Expect('evf9_A', 'Yes|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1614,7 +2006,17 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum MQ".FromInteger(2);
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[A]1:65');
+        Observer.Expect('f1', '[1]1:49');
+        Observer.Expect('f2', '[B]1:66');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[A][A][0][0]');
+        Observer.Expect('f1_n', '[1][1][1][1]');
+        Observer.Expect('f2_n', '[B][B][2][2]');
+        Observer.Expect('de0', '[A]1:65');
+        Observer.Expect('de1', '[1]1:49');
+        Observer.Expect('de2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1643,7 +2045,16 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum MQ".FromInteger(2);
         Observer.Observe('as_int_2', Format(O.AsInteger()));
         Observer.Observe('fmt9_2', Desc(Format(O, 0, 9)));
-        Observer.Finish();
+        Observer.Expect('names', '[A][][B]');
+        Observer.Expect('names_count', '3');
+        Observer.Expect('ordinals', '0,1,2,');
+        Observer.Expect('as_int_0', '0');
+        Observer.Expect('fmt9_0', '[0]1:48');
+        Observer.Expect('as_int_1', '1');
+        Observer.Expect('fmt9_1', '[1]1:49');
+        Observer.Expect('as_int_2', '2');
+        Observer.Expect('fmt9_2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1668,7 +2079,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[A]1:65');
+        Observer.Expect('t1_o0', '[A]1:65');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[1]1:49');
+        Observer.Expect('t1_o1', '[1]1:49');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[B]1:66');
+        Observer.Expect('t1_o2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1729,7 +2149,22 @@ codeunit 67805 "LT OB Enum"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'No|0');
+        Observer.Expect('ev_sp', 'No|0');
+        Observer.Expect('ev_sp2', 'No|0');
+        Observer.Expect('ev_nul', 'No|0');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('st_empty', 'err:InvalidOptionString|0');
+        Observer.Expect('st_empty_text', ''''' is not an option. The existing options are: A,Cap1,B');
+        Observer.Expect('st_sp', 'err:InvalidOptionString|0');
+        Observer.Expect('st_sp_text', ''' '' is not an option. The existing options are: A,Cap1,B');
+        Observer.Expect('st_nul', 'err:InvalidOptionString|0');
+        Observer.Expect('st_nul_text', '''\u0000'' is not an option. The existing options are: A,Cap1,B');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|0');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1756,7 +2191,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := O::A;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'No|0');
+        Observer.Expect('evf2_empty', 'No|0');
+        Observer.Expect('evf9_empty', 'No|0');
+        Observer.Expect('evf0_sp', 'No|0');
+        Observer.Expect('evf2_sp', 'No|0');
+        Observer.Expect('evf9_sp', 'No|0');
+        Observer.Expect('evf0_A', 'Yes|0');
+        Observer.Expect('evf2_A', 'Yes|0');
+        Observer.Expect('evf9_A', 'Yes|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1789,7 +2233,17 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum MQ Cap".FromInteger(2);
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[A]1:65');
+        Observer.Expect('f1', '[Cap1]4:67,97,112,49');
+        Observer.Expect('f2', '[B]1:66');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[A][A][0][0]');
+        Observer.Expect('f1_n', '[Cap1][Cap1][1][1]');
+        Observer.Expect('f2_n', '[B][B][2][2]');
+        Observer.Expect('de0', '[A]1:65');
+        Observer.Expect('de1', '[Cap1]4:67,97,112,49');
+        Observer.Expect('de2', '[B]1:66');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1818,7 +2272,16 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum MQ Cap".FromInteger(2);
         Observer.Observe('as_int_2', Format(O.AsInteger()));
         Observer.Observe('fmt9_2', Desc(Format(O, 0, 9)));
-        Observer.Finish();
+        Observer.Expect('names', '[A][][B]');
+        Observer.Expect('names_count', '3');
+        Observer.Expect('ordinals', '0,1,2,');
+        Observer.Expect('as_int_0', '0');
+        Observer.Expect('fmt9_0', '[0]1:48');
+        Observer.Expect('as_int_1', '1');
+        Observer.Expect('fmt9_1', '[1]1:49');
+        Observer.Expect('as_int_2', '2');
+        Observer.Expect('fmt9_2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1826,7 +2289,7 @@ codeunit 67805 "LT OB Enum"
     var
         Observer: Codeunit "Probe Observer";
         O: Enum "LT OB Enum MQ Cap";
-        T1: Text[1];
+        T1: Text;
     begin
         O := Enum::"LT OB Enum MQ Cap".FromInteger(0);
         Observer.Observe('blank_o0', Format(Format(O) = '') + Format(Format(O) = ' '));
@@ -1904,7 +2367,19 @@ codeunit 67805 "LT OB Enum"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'Yes|2');
+        Observer.Expect('ev_sp', 'Yes|2');
+        Observer.Expect('ev_sp2', 'Yes|2');
+        Observer.Expect('ev_nul', 'Yes|2');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('st_empty', 'ok|2');
+        Observer.Expect('st_sp', 'ok|2');
+        Observer.Expect('st_nul', 'ok|2');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|0');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: A,B,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1931,7 +2406,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := O::A;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'Yes|2');
+        Observer.Expect('evf2_empty', 'Yes|2');
+        Observer.Expect('evf9_empty', 'Yes|2');
+        Observer.Expect('evf0_sp', 'Yes|2');
+        Observer.Expect('evf2_sp', 'Yes|2');
+        Observer.Expect('evf9_sp', 'Yes|2');
+        Observer.Expect('evf0_A', 'Yes|0');
+        Observer.Expect('evf2_A', 'Yes|0');
+        Observer.Expect('evf9_A', 'Yes|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1964,7 +2448,17 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum LQ".FromInteger(2);
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[A]1:65');
+        Observer.Expect('f1', '[B]1:66');
+        Observer.Expect('f2', '[2]1:50');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[A][A][0][0]');
+        Observer.Expect('f1_n', '[B][B][1][1]');
+        Observer.Expect('f2_n', '[2][2][2][2]');
+        Observer.Expect('de0', '[A]1:65');
+        Observer.Expect('de1', '[B]1:66');
+        Observer.Expect('de2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1993,7 +2487,16 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum LQ".FromInteger(2);
         Observer.Observe('as_int_2', Format(O.AsInteger()));
         Observer.Observe('fmt9_2', Desc(Format(O, 0, 9)));
-        Observer.Finish();
+        Observer.Expect('names', '[A][B][]');
+        Observer.Expect('names_count', '3');
+        Observer.Expect('ordinals', '0,1,2,');
+        Observer.Expect('as_int_0', '0');
+        Observer.Expect('fmt9_0', '[0]1:48');
+        Observer.Expect('as_int_1', '1');
+        Observer.Expect('fmt9_1', '[1]1:49');
+        Observer.Expect('as_int_2', '2');
+        Observer.Expect('fmt9_2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2018,7 +2521,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[A]1:65');
+        Observer.Expect('t1_o0', '[A]1:65');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[B]1:66');
+        Observer.Expect('t1_o1', '[B]1:66');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[2]1:50');
+        Observer.Expect('t1_o2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -2079,7 +2591,22 @@ codeunit 67805 "LT OB Enum"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'No|0');
+        Observer.Expect('ev_sp', 'No|0');
+        Observer.Expect('ev_sp2', 'No|0');
+        Observer.Expect('ev_nul', 'No|0');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|0');
+        Observer.Expect('st_empty', 'err:InvalidOptionString|0');
+        Observer.Expect('st_empty_text', ''''' is not an option. The existing options are: A,B,Cap2');
+        Observer.Expect('st_sp', 'err:InvalidOptionString|0');
+        Observer.Expect('st_sp_text', ''' '' is not an option. The existing options are: A,B,Cap2');
+        Observer.Expect('st_nul', 'err:InvalidOptionString|0');
+        Observer.Expect('st_nul_text', '''\u0000'' is not an option. The existing options are: A,B,Cap2');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|0');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2106,7 +2633,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := O::A;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'No|0');
+        Observer.Expect('evf2_empty', 'No|0');
+        Observer.Expect('evf9_empty', 'No|0');
+        Observer.Expect('evf0_sp', 'No|0');
+        Observer.Expect('evf2_sp', 'No|0');
+        Observer.Expect('evf9_sp', 'No|0');
+        Observer.Expect('evf0_A', 'Yes|0');
+        Observer.Expect('evf2_A', 'Yes|0');
+        Observer.Expect('evf9_A', 'Yes|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2139,7 +2675,17 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum LQ Cap".FromInteger(2);
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[A]1:65');
+        Observer.Expect('f1', '[B]1:66');
+        Observer.Expect('f2', '[Cap2]4:67,97,112,50');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[A][A][0][0]');
+        Observer.Expect('f1_n', '[B][B][1][1]');
+        Observer.Expect('f2_n', '[Cap2][Cap2][2][2]');
+        Observer.Expect('de0', '[A]1:65');
+        Observer.Expect('de1', '[B]1:66');
+        Observer.Expect('de2', '[Cap2]4:67,97,112,50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2168,7 +2714,16 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum LQ Cap".FromInteger(2);
         Observer.Observe('as_int_2', Format(O.AsInteger()));
         Observer.Observe('fmt9_2', Desc(Format(O, 0, 9)));
-        Observer.Finish();
+        Observer.Expect('names', '[A][B][]');
+        Observer.Expect('names_count', '3');
+        Observer.Expect('ordinals', '0,1,2,');
+        Observer.Expect('as_int_0', '0');
+        Observer.Expect('fmt9_0', '[0]1:48');
+        Observer.Expect('as_int_1', '1');
+        Observer.Expect('fmt9_1', '[1]1:49');
+        Observer.Expect('as_int_2', '2');
+        Observer.Expect('fmt9_2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2176,7 +2731,7 @@ codeunit 67805 "LT OB Enum"
     var
         Observer: Codeunit "Probe Observer";
         O: Enum "LT OB Enum LQ Cap";
-        T1: Text[1];
+        T1: Text;
     begin
         O := Enum::"LT OB Enum LQ Cap".FromInteger(0);
         Observer.Observe('blank_o0', Format(Format(O) = '') + Format(Format(O) = ' '));
@@ -2254,7 +2809,19 @@ codeunit 67805 "LT OB Enum"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'Yes|0');
+        Observer.Expect('ev_sp', 'Yes|0');
+        Observer.Expect('ev_sp2', 'Yes|0');
+        Observer.Expect('ev_nul', 'Yes|0');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('st_empty', 'ok|0');
+        Observer.Expect('st_sp', 'ok|0');
+        Observer.Expect('st_nul', 'ok|0');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|1');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are:  ,A,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2281,7 +2848,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := O::A;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'Yes|0');
+        Observer.Expect('evf2_empty', 'Yes|0');
+        Observer.Expect('evf9_empty', 'Yes|0');
+        Observer.Expect('evf0_sp', 'Yes|0');
+        Observer.Expect('evf2_sp', 'Yes|0');
+        Observer.Expect('evf9_sp', 'Yes|0');
+        Observer.Expect('evf0_A', 'Yes|1');
+        Observer.Expect('evf2_A', 'Yes|1');
+        Observer.Expect('evf9_A', 'Yes|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2314,7 +2890,17 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum QS1".FromInteger(2);
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[ ]1:32');
+        Observer.Expect('f1', '[A]1:65');
+        Observer.Expect('f2', '[2]1:50');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[ ][ ][0][0]');
+        Observer.Expect('f1_n', '[A][A][1][1]');
+        Observer.Expect('f2_n', '[2][2][2][2]');
+        Observer.Expect('de0', '[ ]1:32');
+        Observer.Expect('de1', '[A]1:65');
+        Observer.Expect('de2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2343,7 +2929,16 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum QS1".FromInteger(2);
         Observer.Observe('as_int_2', Format(O.AsInteger()));
         Observer.Observe('fmt9_2', Desc(Format(O, 0, 9)));
-        Observer.Finish();
+        Observer.Expect('names', '[ ][A][]');
+        Observer.Expect('names_count', '3');
+        Observer.Expect('ordinals', '0,1,2,');
+        Observer.Expect('as_int_0', '0');
+        Observer.Expect('fmt9_0', '[0]1:48');
+        Observer.Expect('as_int_1', '1');
+        Observer.Expect('fmt9_1', '[1]1:49');
+        Observer.Expect('as_int_2', '2');
+        Observer.Expect('fmt9_2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2377,7 +2972,20 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('name_o0', '0');
+        Observer.Expect('cmp_S_o0', 'Yes');
+        Observer.Expect('cmp_S_o1', 'No');
+        Observer.Expect('cmp_S_o2', 'No');
+        Observer.Expect('blank_o0', 'NoYes');
+        Observer.Expect('subst_o0', '[ ]1:32');
+        Observer.Expect('t1_o0', '[ ]1:32');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[A]1:65');
+        Observer.Expect('t1_o1', '[A]1:65');
+        Observer.Expect('blank_o2', 'NoNo');
+        Observer.Expect('subst_o2', '[2]1:50');
+        Observer.Expect('t1_o2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -2438,7 +3046,19 @@ codeunit 67805 "LT OB Enum"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'Yes|0');
+        Observer.Expect('ev_sp', 'Yes|0');
+        Observer.Expect('ev_sp2', 'Yes|0');
+        Observer.Expect('ev_nul', 'Yes|0');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('st_empty', 'ok|0');
+        Observer.Expect('st_sp', 'ok|0');
+        Observer.Expect('st_nul', 'ok|0');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|1');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: Cap0,A,Cap2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2465,7 +3085,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := O::A;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'Yes|0');
+        Observer.Expect('evf2_empty', 'Yes|0');
+        Observer.Expect('evf9_empty', 'Yes|0');
+        Observer.Expect('evf0_sp', 'Yes|0');
+        Observer.Expect('evf2_sp', 'Yes|0');
+        Observer.Expect('evf9_sp', 'Yes|0');
+        Observer.Expect('evf0_A', 'Yes|1');
+        Observer.Expect('evf2_A', 'Yes|1');
+        Observer.Expect('evf9_A', 'Yes|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2498,7 +3127,17 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum QS1 Cap".FromInteger(2);
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[Cap0]4:67,97,112,48');
+        Observer.Expect('f1', '[A]1:65');
+        Observer.Expect('f2', '[Cap2]4:67,97,112,50');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[Cap0][Cap0][0][0]');
+        Observer.Expect('f1_n', '[A][A][1][1]');
+        Observer.Expect('f2_n', '[Cap2][Cap2][2][2]');
+        Observer.Expect('de0', '[Cap0]4:67,97,112,48');
+        Observer.Expect('de1', '[A]1:65');
+        Observer.Expect('de2', '[Cap2]4:67,97,112,50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2527,7 +3166,16 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum QS1 Cap".FromInteger(2);
         Observer.Observe('as_int_2', Format(O.AsInteger()));
         Observer.Observe('fmt9_2', Desc(Format(O, 0, 9)));
-        Observer.Finish();
+        Observer.Expect('names', '[ ][A][]');
+        Observer.Expect('names_count', '3');
+        Observer.Expect('ordinals', '0,1,2,');
+        Observer.Expect('as_int_0', '0');
+        Observer.Expect('fmt9_0', '[0]1:48');
+        Observer.Expect('as_int_1', '1');
+        Observer.Expect('fmt9_1', '[1]1:49');
+        Observer.Expect('as_int_2', '2');
+        Observer.Expect('fmt9_2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2535,7 +3183,7 @@ codeunit 67805 "LT OB Enum"
     var
         Observer: Codeunit "Probe Observer";
         O: Enum "LT OB Enum QS1 Cap";
-        T1: Text[1];
+        T1: Text;
     begin
         O := O::A;
         O := O::" ";
@@ -2622,7 +3270,19 @@ codeunit 67805 "LT OB Enum"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'Yes|0');
+        Observer.Expect('ev_sp', 'Yes|0');
+        Observer.Expect('ev_sp2', 'Yes|0');
+        Observer.Expect('ev_nul', 'Yes|0');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('st_empty', 'ok|0');
+        Observer.Expect('st_sp', 'ok|0');
+        Observer.Expect('st_nul', 'ok|0');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|1');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: ,A, ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2649,7 +3309,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := O::A;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'Yes|0');
+        Observer.Expect('evf2_empty', 'Yes|0');
+        Observer.Expect('evf9_empty', 'Yes|0');
+        Observer.Expect('evf0_sp', 'Yes|0');
+        Observer.Expect('evf2_sp', 'Yes|0');
+        Observer.Expect('evf9_sp', 'Yes|0');
+        Observer.Expect('evf0_A', 'Yes|1');
+        Observer.Expect('evf2_A', 'Yes|1');
+        Observer.Expect('evf9_A', 'Yes|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2682,7 +3351,17 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum QS2".FromInteger(2);
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[0]1:48');
+        Observer.Expect('f1', '[A]1:65');
+        Observer.Expect('f2', '[ ]1:32');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[0][0][0][0]');
+        Observer.Expect('f1_n', '[A][A][1][1]');
+        Observer.Expect('f2_n', '[ ][ ][2][2]');
+        Observer.Expect('de0', '[0]1:48');
+        Observer.Expect('de1', '[A]1:65');
+        Observer.Expect('de2', '[ ]1:32');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2711,7 +3390,16 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum QS2".FromInteger(2);
         Observer.Observe('as_int_2', Format(O.AsInteger()));
         Observer.Observe('fmt9_2', Desc(Format(O, 0, 9)));
-        Observer.Finish();
+        Observer.Expect('names', '[][A][ ]');
+        Observer.Expect('names_count', '3');
+        Observer.Expect('ordinals', '0,1,2,');
+        Observer.Expect('as_int_0', '0');
+        Observer.Expect('fmt9_0', '[0]1:48');
+        Observer.Expect('as_int_1', '1');
+        Observer.Expect('fmt9_1', '[1]1:49');
+        Observer.Expect('as_int_2', '2');
+        Observer.Expect('fmt9_2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2745,7 +3433,20 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('subst_o2', Desc(StrSubstNo('%1', O)));
         T1 := Format(O);
         Observer.Observe('t1_o2', Desc(T1));
-        Observer.Finish();
+        Observer.Expect('name_o2', '2');
+        Observer.Expect('cmp_S_o0', 'No');
+        Observer.Expect('cmp_S_o1', 'No');
+        Observer.Expect('cmp_S_o2', 'Yes');
+        Observer.Expect('blank_o0', 'NoNo');
+        Observer.Expect('subst_o0', '[0]1:48');
+        Observer.Expect('t1_o0', '[0]1:48');
+        Observer.Expect('blank_o1', 'NoNo');
+        Observer.Expect('subst_o1', '[A]1:65');
+        Observer.Expect('t1_o1', '[A]1:65');
+        Observer.Expect('blank_o2', 'NoYes');
+        Observer.Expect('subst_o2', '[ ]1:32');
+        Observer.Expect('t1_o2', '[ ]1:32');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -2806,7 +3507,19 @@ codeunit 67805 "LT OB Enum"
             Observer.Observe('st_zzz', 'err:' + GetLastErrorCode() + '|' + Format(O, 0, 2));
             Observer.Observe('st_zzz_text', GetLastErrorText());
         end;
-        Observer.Finish();
+        Observer.Expect('ev_empty', 'Yes|2');
+        Observer.Expect('ev_sp', 'Yes|2');
+        Observer.Expect('ev_sp2', 'Yes|2');
+        Observer.Expect('ev_nul', 'Yes|2');
+        Observer.Expect('ev_z', 'Yes|0');
+        Observer.Expect('ev_one', 'Yes|1');
+        Observer.Expect('ev_A', 'Yes|1');
+        Observer.Expect('st_empty', 'ok|2');
+        Observer.Expect('st_sp', 'ok|2');
+        Observer.Expect('st_nul', 'ok|2');
+        Observer.Expect('st_zzz', 'err:InvalidOptionString|1');
+        Observer.Expect('st_zzz_text', '''zzz'' is not an option. The existing options are: Cap0,A,Cap2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2833,7 +3546,16 @@ codeunit 67805 "LT OB Enum"
         Observer.Observe('evf2_A', Format(Evaluate(O, 'A', 2)) + '|' + Format(O, 0, 2));
         O := O::A;
         Observer.Observe('evf9_A', Format(Evaluate(O, 'A', 9)) + '|' + Format(O, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evf0_empty', 'Yes|2');
+        Observer.Expect('evf2_empty', 'Yes|2');
+        Observer.Expect('evf9_empty', 'Yes|2');
+        Observer.Expect('evf0_sp', 'Yes|2');
+        Observer.Expect('evf2_sp', 'Yes|2');
+        Observer.Expect('evf9_sp', 'Yes|2');
+        Observer.Expect('evf0_A', 'Yes|1');
+        Observer.Expect('evf2_A', 'Yes|1');
+        Observer.Expect('evf9_A', 'Yes|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2866,7 +3588,17 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum QS2 Cap".FromInteger(2);
         Observer.Observe('de2', Desc(Format(O)));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('f0', '[Cap0]4:67,97,112,48');
+        Observer.Expect('f1', '[A]1:65');
+        Observer.Expect('f2', '[Cap2]4:67,97,112,50');
+        Observer.Expect('f3', '[3]1:51');
+        Observer.Expect('f0_n', '[Cap0][Cap0][0][0]');
+        Observer.Expect('f1_n', '[A][A][1][1]');
+        Observer.Expect('f2_n', '[Cap2][Cap2][2][2]');
+        Observer.Expect('de0', '[Cap0]4:67,97,112,48');
+        Observer.Expect('de1', '[A]1:65');
+        Observer.Expect('de2', '[Cap2]4:67,97,112,50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2895,7 +3627,16 @@ codeunit 67805 "LT OB Enum"
         O := Enum::"LT OB Enum QS2 Cap".FromInteger(2);
         Observer.Observe('as_int_2', Format(O.AsInteger()));
         Observer.Observe('fmt9_2', Desc(Format(O, 0, 9)));
-        Observer.Finish();
+        Observer.Expect('names', '[][A][ ]');
+        Observer.Expect('names_count', '3');
+        Observer.Expect('ordinals', '0,1,2,');
+        Observer.Expect('as_int_0', '0');
+        Observer.Expect('fmt9_0', '[0]1:48');
+        Observer.Expect('as_int_1', '1');
+        Observer.Expect('fmt9_1', '[1]1:49');
+        Observer.Expect('as_int_2', '2');
+        Observer.Expect('fmt9_2', '[2]1:50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2903,7 +3644,7 @@ codeunit 67805 "LT OB Enum"
     var
         Observer: Codeunit "Probe Observer";
         O: Enum "LT OB Enum QS2 Cap";
-        T1: Text[1];
+        T1: Text;
     begin
         O := O::A;
         O := O::" ";
