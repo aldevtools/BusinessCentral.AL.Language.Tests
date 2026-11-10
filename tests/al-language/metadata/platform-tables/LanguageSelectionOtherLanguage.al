@@ -208,6 +208,17 @@ codeunit 75118 "LT LSO Language Selection Lang"
             else
                 Observer.Observe('1031 name of ' + LanguageKey, '<absent>');
         end;
-        Observer.Finish();
+        Observer.Expect('count in 1033', '248');
+        Observer.Expect('count in 1031', '248');
+        Observer.Expect('rows with another name in 1031', '0');
+        Observer.Expect('1033 name of 1031', 'German (Germany)');
+        Observer.Expect('1031 name of 1031', 'German (Germany)');
+        Observer.Expect('1033 name of 1033', 'English (United States)');
+        Observer.Expect('1031 name of 1033', 'English (United States)');
+        Observer.Expect('1033 name of 1036', 'French (France)');
+        Observer.Expect('1031 name of 1036', 'French (France)');
+        Observer.Expect('1033 name of 3079', 'German (Austria)');
+        Observer.Expect('1031 name of 3079', 'German (Austria)');
+        Observer.Verify();
     end;
 }

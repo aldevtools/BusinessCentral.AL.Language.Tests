@@ -206,7 +206,9 @@ codeunit 75108 "LT ISB No Write"
     begin
         RunWorker(Observer, 'function form, Module', 'function', 'LTISBnobody', 'Module');
         RunWorker(Observer, 'function form, Company', 'function', 'LTISBnobody', 'Company');
-        Observer.Finish();
+        Observer.Expect('function form, Module', 'ok Contains=false Ret=false Value= ');
+        Observer.Expect('function form, Company', 'ok Contains=false Ret=false Value= ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -216,7 +218,9 @@ codeunit 75108 "LT ISB No Write"
         Row: Record "LT CN TF Row";
     begin
         RunWorker(Observer, 'statement form, Module', 'statement', 'LTISBnobody', 'Module');
-        Observer.Finish();
+        Observer.Expect('statement form, Module|text', 'The Isolated Storage does not exist. Identification fields and values: App Id=''{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}'',Scope=''Module'',Company Name='''',User Id=''{00000000-0000-0000-0000-000000000000}'',Key=''LTISBnobody''');
+        Observer.Expect('statement form, Module|code', 'DB:RecordNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -227,7 +231,11 @@ codeunit 75108 "LT ISB No Write"
     begin
         RunWorker(Observer, 'statement form, Company', 'statement', 'LTISBnobody', 'Company');
         RunWorker(Observer, 'Contains then statement form, Company', 'contains then statement', 'LTISBnobody', 'Company');
-        Observer.Finish();
+        Observer.Expect('statement form, Company|text', 'The Isolated Storage does not exist. Identification fields and values: App Id=''{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}'',Scope=''Company'',Company Name=''<Company>'',User Id=''{00000000-0000-0000-0000-000000000000}'',Key=''LTISBnobody''');
+        Observer.Expect('statement form, Company|code', 'DB:RecordNotFound');
+        Observer.Expect('Contains then statement form, Company|text', 'The Isolated Storage does not exist. Identification fields and values: App Id=''{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}'',Scope=''Company'',Company Name=''<Company>'',User Id=''{00000000-0000-0000-0000-000000000000}'',Key=''LTISBnobody''');
+        Observer.Expect('Contains then statement form, Company|code', 'DB:RecordNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -238,7 +246,8 @@ codeunit 75108 "LT ISB No Write"
     begin
         OpenHostOn(751081, 'LTISBnobody');
         Observer.Observe('notifications', NotificationText);
-        Observer.Finish();
+        Observer.Expect('notifications', 'error [DB:RecordNotFound] [The Isolated Storage does not exist. Identification fields and values: App Id=''{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}'',Scope=''Company'',Company Name=''<Company>'',User Id=''{00000000-0000-0000-0000-000000000000}'',Key=''LTISBnobody''];');
+        Observer.Verify();
     end;
 }
 
@@ -283,7 +292,9 @@ codeunit 75109 "LT ISB Written In Test"
     begin
         Observer.Observe('caller set', Format(IsolatedStorage.Set('LTISBk1', 'fromcaller', DataScope::Module), 0, 9));
         RunWorker(Observer, 'same key', 'function', 'LTISBk1', 'Module');
-        Observer.Finish();
+        Observer.Expect('caller set', 'true');
+        Observer.Expect('same key', 'ok Contains=false Ret=false Value= ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -294,7 +305,9 @@ codeunit 75109 "LT ISB Written In Test"
     begin
         Observer.Observe('caller set', Format(IsolatedStorage.Set('LTISBk1', 'fromcaller', DataScope::Module), 0, 9));
         RunWorker(Observer, 'other key', 'function', 'LTISBk2', 'Module');
-        Observer.Finish();
+        Observer.Expect('caller set', 'true');
+        Observer.Expect('other key', 'ok Contains=false Ret=false Value= ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -306,7 +319,12 @@ codeunit 75109 "LT ISB Written In Test"
         Observer.Observe('caller set', Format(IsolatedStorage.Set('LTISBk1', 'fromcaller', DataScope::Module), 0, 9));
         RunWorker(Observer, 'statement, same key', 'statement', 'LTISBk1', 'Module');
         RunWorker(Observer, 'statement, other key', 'statement', 'LTISBk2', 'Module');
-        Observer.Finish();
+        Observer.Expect('caller set', 'true');
+        Observer.Expect('statement, same key|text', 'The Isolated Storage does not exist. Identification fields and values: App Id=''{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}'',Scope=''Module'',Company Name='''',User Id=''{00000000-0000-0000-0000-000000000000}'',Key=''LTISBk1''');
+        Observer.Expect('statement, same key|code', 'DB:RecordNotFound');
+        Observer.Expect('statement, other key|text', 'The Isolated Storage does not exist. Identification fields and values: App Id=''{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}'',Scope=''Module'',Company Name='''',User Id=''{00000000-0000-0000-0000-000000000000}'',Key=''LTISBk2''');
+        Observer.Expect('statement, other key|code', 'DB:RecordNotFound');
+        Observer.Verify();
     end;
 }
 
@@ -354,7 +372,9 @@ codeunit 75110 "LT ISB Committed In Test"
         RunWorker(Observer, 'other key', 'function', 'LTISBk2', 'Module');
         IsolatedStorage.Delete('LTISBk1', DataScope::Module);
         Commit();
-        Observer.Finish();
+        Observer.Expect('caller set', 'true');
+        Observer.Expect('other key', 'ok Contains=false Ret=false Value= ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -368,7 +388,9 @@ codeunit 75110 "LT ISB Committed In Test"
         RunWorker(Observer, 'contains, same key', 'contains', 'LTISBk1', 'Module');
         IsolatedStorage.Delete('LTISBk1', DataScope::Module);
         Commit();
-        Observer.Finish();
+        Observer.Expect('caller set', 'true');
+        Observer.Expect('contains, same key', 'ok Contains=true ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -382,7 +404,10 @@ codeunit 75110 "LT ISB Committed In Test"
         RunWorker(Observer, 'statement, other key', 'statement', 'LTISBk2', 'Module');
         IsolatedStorage.Delete('LTISBk1', DataScope::Module);
         Commit();
-        Observer.Finish();
+        Observer.Expect('caller set', 'true');
+        Observer.Expect('statement, other key|text', 'The Isolated Storage does not exist. Identification fields and values: App Id=''{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}'',Scope=''Module'',Company Name='''',User Id=''{00000000-0000-0000-0000-000000000000}'',Key=''LTISBk2''');
+        Observer.Expect('statement, other key|code', 'DB:RecordNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -396,7 +421,9 @@ codeunit 75110 "LT ISB Committed In Test"
         RunWorker(Observer, 'function form, Company scope, same key name', 'function', 'LTISBk1', 'Company');
         IsolatedStorage.Delete('LTISBk1', DataScope::Module);
         Commit();
-        Observer.Finish();
+        Observer.Expect('caller set', 'true');
+        Observer.Expect('function form, Company scope, same key name', 'ok Contains=false Ret=false Value= ');
+        Observer.Verify();
     end;
 }
 
@@ -452,7 +479,9 @@ codeunit 75111 "LT ISB Earlier Test Committed"
         Row: Record "LT CN TF Row";
     begin
         RunWorker(Observer, 'same key', 'function', 'LTISBk1', 'Module');
-        Observer.Finish();
+        Observer.Expect('same key|text', 'We can''t save your changes right now, because a record in table ''Isolated Storage'' is being updated in a transaction done by another session.\\You''ll have to wait until the other transaction has completed, which may take a while. Please try again later.');
+        Observer.Expect('same key|code', 'NDBCS:LockTimeout');
+        Observer.Verify();
     end;
 
     [Test]
@@ -462,7 +491,8 @@ codeunit 75111 "LT ISB Earlier Test Committed"
         Row: Record "LT CN TF Row";
     begin
         RunWorker(Observer, 'other key', 'function', 'LTISBk2', 'Module');
-        Observer.Finish();
+        Observer.Expect('other key', 'ok Contains=false Ret=false Value= ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -472,7 +502,9 @@ codeunit 75111 "LT ISB Earlier Test Committed"
         Row: Record "LT CN TF Row";
     begin
         RunWorker(Observer, 'statement, other key', 'statement', 'LTISBk2', 'Module');
-        Observer.Finish();
+        Observer.Expect('statement, other key|text', 'The Isolated Storage does not exist. Identification fields and values: App Id=''{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}'',Scope=''Module'',Company Name='''',User Id=''{00000000-0000-0000-0000-000000000000}'',Key=''LTISBk2''');
+        Observer.Expect('statement, other key|code', 'DB:RecordNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -484,7 +516,9 @@ codeunit 75111 "LT ISB Earlier Test Committed"
         Observer.Observe('caller delete', Format(IsolatedStorage.Delete('LTISBk1', DataScope::Module), 0, 9));
         Commit();
         RunWorker(Observer, 'deleted key', 'function', 'LTISBk1', 'Module');
-        Observer.Finish();
+        Observer.Expect('caller delete', 'true');
+        Observer.Expect('deleted key', 'ok Contains=false Ret=false Value= ');
+        Observer.Verify();
     end;
 }
 
@@ -543,7 +577,13 @@ codeunit 75112 "LT ISB Earlier Uncommitted"
         RunWorker(Observer, 'same key', 'function', 'LTISBk3', 'Module');
         RunWorker(Observer, 'other key', 'function', 'LTISBk2', 'Module');
         RunWorker(Observer, 'statement, other key', 'statement', 'LTISBk2', 'Module');
-        Observer.Finish();
+        Observer.Expect('caller still has the key', 'true');
+        Observer.Expect('same key|text', 'We can''t save your changes right now, because a record in table ''Isolated Storage'' is being updated in a transaction done by another session.\\You''ll have to wait until the other transaction has completed, which may take a while. Please try again later.');
+        Observer.Expect('same key|code', 'NDBCS:LockTimeout');
+        Observer.Expect('other key', 'ok Contains=false Ret=false Value= ');
+        Observer.Expect('statement, other key|text', 'The Isolated Storage does not exist. Identification fields and values: App Id=''{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}'',Scope=''Module'',Company Name='''',User Id=''{00000000-0000-0000-0000-000000000000}'',Key=''LTISBk2''');
+        Observer.Expect('statement, other key|code', 'DB:RecordNotFound');
+        Observer.Verify();
     end;
 }
 
@@ -595,7 +635,8 @@ codeunit 75113 "LT ISB Other Table Committed"
         RunWorker(Observer, 'function form', 'function', 'LTISBnobody', 'Module');
         Row.Delete();
         Commit();
-        Observer.Finish();
+        Observer.Expect('function form', 'ok Contains=false Ret=false Value= ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -613,7 +654,9 @@ codeunit 75113 "LT ISB Other Table Committed"
         RunWorker(Observer, 'statement form', 'statement', 'LTISBnobody', 'Module');
         Row.Delete();
         Commit();
-        Observer.Finish();
+        Observer.Expect('statement form|text', 'The Isolated Storage does not exist. Identification fields and values: App Id=''{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}'',Scope=''Module'',Company Name='''',User Id=''{00000000-0000-0000-0000-000000000000}'',Key=''LTISBnobody''');
+        Observer.Expect('statement form|code', 'DB:RecordNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -625,7 +668,9 @@ codeunit 75113 "LT ISB Other Table Committed"
         Observer.Observe('caller contains', Format(IsolatedStorage.Contains('LTISBnobody', DataScope::Module), 0, 9));
         Commit();
         RunWorker(Observer, 'function form', 'function', 'LTISBnobody', 'Module');
-        Observer.Finish();
+        Observer.Expect('caller contains', 'false');
+        Observer.Expect('function form', 'ok Contains=false Ret=false Value= ');
+        Observer.Verify();
     end;
 }
 
@@ -673,7 +718,9 @@ codeunit 75114 "LT ISB Enqueued After Write"
         Commit();
         OpenHostOn(751141, 'LTISBk4');
         Observer.Observe('notifications', NotificationText);
-        Observer.Finish();
+        Observer.Expect('caller set', 'true');
+        Observer.Expect('notifications', 'error [NDBCS:LockTimeout] [We can''t save your changes right now, because a record in table ''Isolated Storage'' is being updated in a transaction done by another session.\\You''ll have to wait until the other transaction has completed, which may take a while. Please try again later.];');
+        Observer.Verify();
     end;
 
     [Test]
@@ -684,7 +731,8 @@ codeunit 75114 "LT ISB Enqueued After Write"
     begin
         OpenHostOn(751142, 'LTISBnobody');
         Observer.Observe('notifications', NotificationText);
-        Observer.Finish();
+        Observer.Expect('notifications', 'error [DB:RecordNotFound] [The Isolated Storage does not exist. Identification fields and values: App Id=''{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}'',Scope=''Company'',Company Name=''<Company>'',User Id=''{00000000-0000-0000-0000-000000000000}'',Key=''LTISBnobody''];');
+        Observer.Verify();
     end;
 
     [Test]
@@ -697,6 +745,8 @@ codeunit 75114 "LT ISB Enqueued After Write"
         Commit();
         OpenHostOn(751143, 'LTISBk4');
         Observer.Observe('notifications', NotificationText);
-        Observer.Finish();
+        Observer.Expect('caller delete', 'true');
+        Observer.Expect('notifications', 'error [DB:RecordNotFound] [The Isolated Storage does not exist. Identification fields and values: App Id=''{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}'',Scope=''Company'',Company Name=''<Company>'',User Id=''{00000000-0000-0000-0000-000000000000}'',Key=''LTISBk4''];');
+        Observer.Verify();
     end;
 }
