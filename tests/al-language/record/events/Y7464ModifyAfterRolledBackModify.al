@@ -257,8 +257,7 @@ codeunit 99674 "LT MRB Modify After Rollback"
         asserterror Error('boom');
         Observer.ObserveError('boom');
         Observer.Observe('stored after rollback', Stored());
-        asserterror Line.Modify();
-        Observer.ObserveError('second modify');
+        Line.Modify();
         Observer.Observe('second modify log', Log.Take());
         Observer.Observe('stored after second modify', Stored());
         CleanUp();
@@ -285,6 +284,47 @@ codeunit 99674 "LT MRB Modify After Rollback"
         Line.Modify();
         Observer.Observe('modify after rollback log', Log.Take());
         Observer.Observe('stored after modify', Stored());
+        CleanUp();
+        Observer.Finish();
+    end;
+
+    // Modify(true): the OnModify trigger runs as well as the events.
+    [Test]
+    procedure ModifyTrue_AfterRolledBackModify_BufferUnchanged()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "LT MRB Line";
+    begin
+        Seed(Line, true);
+        Line.Status := Line.Status::Registered;
+        Line.Modify(true);
+        Observer.Observe('first modify log', Log.Take());
+        asserterror Line.Validate(Other, 'X');
+        Observer.ObserveError('validate');
+        Line.Status := Line.Status::Registered;
+        Line.Modify(true);
+        Observer.Observe('second modify log', Log.Take());
+        Observer.Observe('stored after second modify', Stored());
+        CleanUp();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ModifyTrue_AfterRolledBackModify_FieldChanged()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "LT MRB Line";
+    begin
+        Seed(Line, true);
+        Line.Status := Line.Status::Registered;
+        Line.Modify(true);
+        Observer.Observe('first modify log', Log.Take());
+        asserterror Line.Validate(Other, 'X');
+        Observer.ObserveError('validate');
+        Line.Counter := 7;
+        Line.Modify(true);
+        Observer.Observe('second modify log', Log.Take());
+        Observer.Observe('stored after second modify', Stored());
         CleanUp();
         Observer.Finish();
     end;

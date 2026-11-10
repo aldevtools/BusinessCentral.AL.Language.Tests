@@ -184,7 +184,6 @@ codeunit 99671 "LT DB Duplicate Buffer"
     end;
 
     // The report: one call inserts four rows, the second call inserts the same four keys, no Commit, nothing reads the table in between.
-    // If BC does not raise anywhere inside the asserterror, the test fails with "An error was expected inside an ASSERTERROR statement".
     [Test]
     procedure Report_FourRowsTwice_NoRead()
     var
@@ -237,12 +236,10 @@ codeunit 99671 "LT DB Duplicate Buffer"
         Commit();
         InsertRows(4);
         Commit();
-        asserterror
-        begin
-            InsertRows(4);
-            Observer.Observe('second call finished without an error', 'yes');
-        end;
-        Observer.ObserveError('second call');
+        InsertRows(4);
+        Observer.Observe('second call finished without an error', 'yes');
+        asserterror Row.Count();
+        Observer.ObserveError('first read after the second call');
         Observer.Observe('rows after', Format(Row.Count()));
         Row.DeleteAll();
         Commit();
