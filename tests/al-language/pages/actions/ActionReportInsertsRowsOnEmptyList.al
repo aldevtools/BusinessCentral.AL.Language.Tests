@@ -316,6 +316,7 @@ codeunit 62390 "PAG AddRows Tests"
         Line: Record "PAG AddRows Line";
         Pg: TestPage "PAG AddRows Delayed";
     begin
+        Line.DeleteAll(); // the report of an earlier test committed its rows
         Pg.OpenEdit();
         Pg.Filter.SetFilter("Parent No.", 'P1');
         Observer.Observe('row before', ShownDelayed(Pg));
@@ -345,6 +346,7 @@ codeunit 62390 "PAG AddRows Tests"
         Line: Record "PAG AddRows Line";
         Pg: TestPage "PAG AddRows Plain";
     begin
+        Line.DeleteAll(); // the report of an earlier test committed its rows
         Pg.OpenEdit();
         Pg.Filter.SetFilter("Parent No.", 'P1');
         Observer.Observe('row before', ShownPlain(Pg));
