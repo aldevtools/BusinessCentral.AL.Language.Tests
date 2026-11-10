@@ -133,7 +133,12 @@ codeunit 99695 "RecordRef In Variant Close"
         Observer.Observe('format_is_empty_after_close', FormatIsEmpty(V));
         Observer.Observe('format_same_as_before_close', Format(Format(V) = Before));
         Observer.Observe('original_after_close', RefInfo(RR));
-        Observer.Finish();
+        Observer.Expect('format_is_empty_before_close', 'No');
+        Observer.Expect('kind_after_close', 'RecordRef');
+        Observer.Expect('format_is_empty_after_close', 'No');
+        Observer.Expect('format_same_as_before_close', 'Yes');
+        Observer.Expect('original_after_close', 'error:The record is not open.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -160,7 +165,16 @@ codeunit 99695 "RecordRef In Variant Close"
             Observer.Observe('entry_no_after_next', Format(Back.Field(1).Value()));
         end else
             Observer.Observe('assign_error', GetLastErrorText());
-        Observer.Finish();
+        Observer.Expect('taken_out', '60000|1|one');
+        Observer.Expect('number', '60000');
+        Observer.Expect('is_empty', 'No');
+        Observer.Expect('count', '2');
+        Observer.Expect('find_same', 'Yes');
+        Observer.Expect('entry_no', '1');
+        Observer.Expect('text', 'one');
+        Observer.Expect('next', '1');
+        Observer.Expect('entry_no_after_next', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -178,7 +192,9 @@ codeunit 99695 "RecordRef In Variant Close"
         RR.Close();
         Observer.Observe('taken_out_before_close', RefInfo(Back));
         Observer.Observe('taken_out_after_close', TakenOutInfo(V));
-        Observer.Finish();
+        Observer.Expect('taken_out_before_close', '60000|1|one');
+        Observer.Expect('taken_out_after_close', '60000|1|one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -199,7 +215,12 @@ codeunit 99695 "RecordRef In Variant Close"
         Observer.Observe('variant_kind', Kind(V));
         Observer.Observe('variant_format_is_empty', FormatIsEmpty(V));
         Observer.Observe('taken_out_again', TakenOutInfo(V));
-        Observer.Finish();
+        Observer.Expect('closed_one', 'error:The record is not open.');
+        Observer.Expect('original', '60000|1|one');
+        Observer.Expect('variant_kind', 'RecordRef');
+        Observer.Expect('variant_format_is_empty', 'No');
+        Observer.Expect('taken_out_again', '60000|1|one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -219,7 +240,11 @@ codeunit 99695 "RecordRef In Variant Close"
         Observer.Observe('taken_out_after_field_write', TakenOutInfo(V));
         RR.Field(1).SetRange(2);
         Observer.Observe('taken_out_filters', TakenOutFilters(V));
-        Observer.Finish();
+        Observer.Expect('original_after_next', '60000|2|two');
+        Observer.Expect('taken_out_after_next', '60000|2|two');
+        Observer.Expect('taken_out_after_field_write', '60000|2|changed');
+        Observer.Expect('taken_out_filters', 'Entry No.: 2');
+        Observer.Verify();
     end;
 
     local procedure TakenOutFilters(V: Variant): Text
@@ -246,7 +271,9 @@ codeunit 99695 "RecordRef In Variant Close"
         RR.FindLast();
         Observer.Observe('original_opened_again', RefInfo(RR));
         Observer.Observe('taken_out', TakenOutInfo(V));
-        Observer.Finish();
+        Observer.Expect('original_opened_again', '60000|2|two');
+        Observer.Expect('taken_out', '60000|1|one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -264,7 +291,11 @@ codeunit 99695 "RecordRef In Variant Close"
         Observer.Observe('variant_kind', Kind(V));
         Observer.Observe('variant_format_is_empty', FormatIsEmpty(V));
         Observer.Observe('taken_out', TakenOutInfo(V));
-        Observer.Finish();
+        Observer.Expect('original_after_clear', 'error:The record is not open.');
+        Observer.Expect('variant_kind', 'RecordRef');
+        Observer.Expect('variant_format_is_empty', 'No');
+        Observer.Expect('taken_out', '60000|1|one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -300,7 +331,9 @@ codeunit 99695 "RecordRef In Variant Close"
         Observer.Observe('second_variant', DescribeByValue(V2));
         CloseTakenOutByValue(V);
         Observer.Observe('second_variant_after_first_taken_out_closed', DescribeByValue(V2));
-        Observer.Finish();
+        Observer.Expect('second_variant', 'RecordRef/No/60000|1|one');
+        Observer.Expect('second_variant_after_first_taken_out_closed', 'RecordRef/No/60000|1|one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -316,7 +349,9 @@ codeunit 99695 "RecordRef In Variant Close"
         Observer.Observe('by_value_before_close', DescribeByValue(V));
         RR.Close();
         Observer.Observe('by_value_after_close', DescribeByValue(V));
-        Observer.Finish();
+        Observer.Expect('by_value_before_close', 'RecordRef/No/60000|1|one');
+        Observer.Expect('by_value_after_close', 'RecordRef/No/60000|1|one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -332,7 +367,9 @@ codeunit 99695 "RecordRef In Variant Close"
         CloseTakenOutByValue(V);
         Observer.Observe('original', RefInfo(RR));
         Observer.Observe('variant', DescribeByValue(V));
-        Observer.Finish();
+        Observer.Expect('original', '60000|1|one');
+        Observer.Expect('variant', 'RecordRef/No/60000|1|one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -348,7 +385,9 @@ codeunit 99695 "RecordRef In Variant Close"
         Observer.Observe('by_var_before_close', DescribeByVar(V));
         RR.Close();
         Observer.Observe('by_var_after_close', DescribeByVar(V));
-        Observer.Finish();
+        Observer.Expect('by_var_before_close', 'RecordRef/No/60000|1|one');
+        Observer.Expect('by_var_after_close', 'RecordRef/No/60000|1|one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -364,7 +403,9 @@ codeunit 99695 "RecordRef In Variant Close"
         CloseTakenOutByVar(V);
         Observer.Observe('original', RefInfo(RR));
         Observer.Observe('variant', DescribeByVar(V));
-        Observer.Finish();
+        Observer.Expect('original', '60000|1|one');
+        Observer.Expect('variant', 'RecordRef/No/60000|1|one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -384,7 +425,10 @@ codeunit 99695 "RecordRef In Variant Close"
         RR.Close();
         Observer.Observe('kept_after_original_closed', DescribeByValue(KeptVariant));
         Clear(KeptVariant);
-        Observer.Finish();
+        Observer.Expect('callee_sees', 'RecordRef/No/60000|1|one');
+        Observer.Expect('original_after_callee_closed_taken_out', '60000|1|one');
+        Observer.Expect('kept_after_original_closed', 'RecordRef/No/60000|1|one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -400,7 +444,9 @@ codeunit 99695 "RecordRef In Variant Close"
         RR.Close();
         Observer.Observe('original', RefInfo(RR));
         Observer.Observe('copy', RefInfo(RR2));
-        Observer.Finish();
+        Observer.Expect('original', 'error:The record is not open.');
+        Observer.Expect('copy', '60000|1|one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -416,7 +462,9 @@ codeunit 99695 "RecordRef In Variant Close"
         RR2.Close();
         Observer.Observe('copy', RefInfo(RR2));
         Observer.Observe('original', RefInfo(RR));
-        Observer.Finish();
+        Observer.Expect('copy', 'error:The record is not open.');
+        Observer.Expect('original', '60000|1|one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -437,7 +485,10 @@ codeunit 99695 "RecordRef In Variant Close"
         RR.Open(Database::"ALT Universal");
         RR.FindFirst();
         Observer.Observe('copy_after_original_opened_again', RefInfo(RR2));
-        Observer.Finish();
+        Observer.Expect('copy_after_next', '60000|2|two');
+        Observer.Expect('copy_after_field_write', '60000|2|changed');
+        Observer.Expect('copy_after_original_opened_again', '60000|2|changed');
+        Observer.Verify();
     end;
 
     [Test]
@@ -450,7 +501,8 @@ codeunit 99695 "RecordRef In Variant Close"
         OpenOnFirst(RR);
         CloseByValue(RR);
         Observer.Observe('original', RefInfo(RR));
-        Observer.Finish();
+        Observer.Expect('original', '60000|1|one');
+        Observer.Verify();
     end;
 
     local procedure CloseByValue(RR: RecordRef)
@@ -479,7 +531,12 @@ codeunit 99695 "RecordRef In Variant Close"
         Observer.Observe('variant_format_is_empty_after_close', FormatIsEmpty(V));
         Back.GetTable(V);
         Observer.Observe('gettable_again', RefInfo(Back));
-        Observer.Finish();
+        Observer.Expect('variant_kind', 'Record');
+        Observer.Expect('variant_format_is_empty', 'No');
+        Observer.Expect('gettable', '60000|1|one');
+        Observer.Expect('variant_format_is_empty_after_close', 'No');
+        Observer.Expect('gettable_again', '60000|1|one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -503,7 +560,11 @@ codeunit 99695 "RecordRef In Variant Close"
         Ok := DataTypeManagement.GetRecordRef(V, Back);
         Observer.Observe('after_close_result', Format(Ok));
         Observer.Observe('after_close', RefInfo(Back));
-        Observer.Finish();
+        Observer.Expect('before_close_result', 'Yes');
+        Observer.Expect('before_close', '60000|1|one');
+        Observer.Expect('after_close_result', 'Yes');
+        Observer.Expect('after_close', '60000|1|one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -522,7 +583,9 @@ codeunit 99695 "RecordRef In Variant Close"
         Ok := DataTypeManagement.GetRecordRef(V, Back);
         Observer.Observe('record_result', Format(Ok));
         Observer.Observe('record', RefInfo(Back));
-        Observer.Finish();
+        Observer.Expect('record_result', 'Yes');
+        Observer.Expect('record', '60000|2|two');
+        Observer.Verify();
     end;
 
     local procedure FormatCell(V: Variant; Expected: Text): Text
@@ -556,7 +619,13 @@ codeunit 99695 "RecordRef In Variant Close"
         Temp.DeleteAll();
         V := Temp;
         Observer.Observe('record_temporary_no_rows', FormatCell(V, Format(Temp)));
-        Observer.Finish();
+        Observer.Expect('record_with_row', 'empty=No same as record=Yes');
+        Observer.Expect('record_with_row_by_var', 'Yes');
+        Observer.Expect('record_initialized', 'empty=No same as record=Yes');
+        Observer.Expect('record_initialized_format_is_empty', 'No');
+        Observer.Expect('record_temporary', 'empty=No same as record=Yes');
+        Observer.Expect('record_temporary_no_rows', 'empty=No same as record=Yes');
+        Observer.Verify();
     end;
 
     local procedure FormatByVar(var V: Variant): Text
