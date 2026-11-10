@@ -423,7 +423,34 @@ codeunit 64503 "FFM Ops Tests"
         if not TryCalc_AvgF(H) then
             Observer.ObserveError('AvgF.calc9');
         Observer.Observe('AvgF.assigned.recalc', Format(H.AvgF));
-        Observer.Finish();
+        Observer.Expect('SumF.calc', '150.75');
+        Observer.Expect('SumF.validate', 'ok');
+        Observer.Expect('SumF.value', '5.5');
+        Observer.Expect('SumF.log', 'SumF=5.5;');
+        Observer.Expect('SumF.recalc', '5.5');
+        Observer.Expect('SumF.validate1', 'ok');
+        Observer.Expect('SumF.log1', 'SumF=0;');
+        Observer.Expect('SumF.assigned', '5.5');
+        Observer.Expect('SumF.assigned.recalc', '0');
+        Observer.Expect('NSumF.calc', '0');
+        Observer.Expect('NSumF.validate', 'ok');
+        Observer.Expect('NSumF.value', '5.5');
+        Observer.Expect('NSumF.log', 'NSumF=5.5;');
+        Observer.Expect('NSumF.recalc', '5.5');
+        Observer.Expect('NSumF.validate1', 'ok');
+        Observer.Expect('NSumF.log1', 'NSumF=0;');
+        Observer.Expect('NSumF.assigned', '5.5');
+        Observer.Expect('NSumF.assigned.recalc', '0');
+        Observer.Expect('AvgF.calc', '0');
+        Observer.Expect('AvgF.validate', 'error: The Calculation formula for the AvgF FlowField in the FFM Ops Header table must start with ''Sum(...''.');
+        Observer.Expect('AvgF.value', '0');
+        Observer.Expect('AvgF.log', '');
+        Observer.Expect('AvgF.recalc', '0');
+        Observer.Expect('AvgF.validate1', 'error: The Calculation formula for the AvgF FlowField in the FFM Ops Header table must start with ''Sum(...''.');
+        Observer.Expect('AvgF.log1', '');
+        Observer.Expect('AvgF.assigned', '5.5');
+        Observer.Expect('AvgF.assigned.recalc', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -511,7 +538,34 @@ codeunit 64503 "FFM Ops Tests"
         if not TryCalc_CntF(H) then
             Observer.ObserveError('CntF.calc18');
         Observer.Observe('CntF.assigned.recalc', Format(H.CntF));
-        Observer.Finish();
+        Observer.Expect('MinF.calc', '10.5');
+        Observer.Expect('MinF.validate', 'error: The Calculation formula for the MinF FlowField in the FFM Ops Header table must start with ''Sum(...''.');
+        Observer.Expect('MinF.value', '10.5');
+        Observer.Expect('MinF.log', '');
+        Observer.Expect('MinF.recalc', '10.5');
+        Observer.Expect('MinF.validate1', 'error: The Calculation formula for the MinF FlowField in the FFM Ops Header table must start with ''Sum(...''.');
+        Observer.Expect('MinF.log1', '');
+        Observer.Expect('MinF.assigned', '5.5');
+        Observer.Expect('MinF.assigned.recalc', '10.5');
+        Observer.Expect('MaxF.calc', '80');
+        Observer.Expect('MaxF.validate', 'error: The Calculation formula for the MaxF FlowField in the FFM Ops Header table must start with ''Sum(...''.');
+        Observer.Expect('MaxF.value', '80');
+        Observer.Expect('MaxF.log', '');
+        Observer.Expect('MaxF.recalc', '80');
+        Observer.Expect('MaxF.validate1', 'error: The Calculation formula for the MaxF FlowField in the FFM Ops Header table must start with ''Sum(...''.');
+        Observer.Expect('MaxF.log1', '');
+        Observer.Expect('MaxF.assigned', '5.5');
+        Observer.Expect('MaxF.assigned.recalc', '80');
+        Observer.Expect('CntF.calc', '4');
+        Observer.Expect('CntF.validate', 'error: The type of the CntF FlowField in the FFM Ops Header table must be Decimal.');
+        Observer.Expect('CntF.value', '4');
+        Observer.Expect('CntF.log', 'CntF=7;');
+        Observer.Expect('CntF.recalc', '4');
+        Observer.Expect('CntF.validate1', 'error: The type of the CntF FlowField in the FFM Ops Header table must be Decimal.');
+        Observer.Expect('CntF.log1', 'CntF=0;');
+        Observer.Expect('CntF.assigned', '7');
+        Observer.Expect('CntF.assigned.recalc', '4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -574,7 +628,25 @@ codeunit 64503 "FFM Ops Tests"
         if not TryCalc_LkF(H) then
             Observer.ObserveError('LkF.calc24');
         Observer.Observe('LkF.assigned.recalc', Format(H.LkF));
-        Observer.Finish();
+        Observer.Expect('ExF.calc', 'Yes');
+        Observer.Expect('ExF.validate', 'error: The type of the ExF FlowField in the FFM Ops Header table must be Decimal.');
+        Observer.Expect('ExF.value', 'Yes');
+        Observer.Expect('ExF.log', 'ExF=Yes;');
+        Observer.Expect('ExF.recalc', 'Yes');
+        Observer.Expect('ExF.validate1', 'error: The type of the ExF FlowField in the FFM Ops Header table must be Decimal.');
+        Observer.Expect('ExF.log1', 'ExF=No;');
+        Observer.Expect('ExF.assigned', 'Yes');
+        Observer.Expect('ExF.assigned.recalc', 'Yes');
+        Observer.Expect('LkF.calc', 'alpha');
+        Observer.Expect('LkF.validate', 'error: The type of the LkF FlowField in the FFM Ops Header table must be Decimal.');
+        Observer.Expect('LkF.value', 'alpha');
+        Observer.Expect('LkF.log', 'LkF=zz;');
+        Observer.Expect('LkF.recalc', 'alpha');
+        Observer.Expect('LkF.validate1', 'error: The type of the LkF FlowField in the FFM Ops Header table must be Decimal.');
+        Observer.Expect('LkF.log1', 'LkF=;');
+        Observer.Expect('LkF.assigned', 'zz');
+        Observer.Expect('LkF.assigned.recalc', 'alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -636,7 +708,25 @@ codeunit 64503 "FFM Ops Tests"
         if not TryCalc_NLkDecF(H) then
             Observer.ObserveError('NLkDecF.calc30');
         Observer.Observe('NLkDecF.assigned.recalc', Format(H.NLkDecF));
-        Observer.Finish();
+        Observer.Expect('LkDecF.calc', '10.5');
+        Observer.Expect('LkDecF.validate', 'error: The Calculation formula for the LkDecF FlowField in the FFM Ops Header table must start with ''Sum(...''.');
+        Observer.Expect('LkDecF.value', '10.5');
+        Observer.Expect('LkDecF.log', '');
+        Observer.Expect('LkDecF.recalc', '10.5');
+        Observer.Expect('LkDecF.validate1', 'error: The Calculation formula for the LkDecF FlowField in the FFM Ops Header table must start with ''Sum(...''.');
+        Observer.Expect('LkDecF.log1', '');
+        Observer.Expect('LkDecF.assigned', '5.5');
+        Observer.Expect('LkDecF.assigned.recalc', '10.5');
+        Observer.Expect('NLkDecF.calc', '10.5');
+        Observer.Expect('NLkDecF.validate', 'error: The Calculation formula for the NLkDecF FlowField in the FFM Ops Header table must start with ''Sum(...''.');
+        Observer.Expect('NLkDecF.value', '10.5');
+        Observer.Expect('NLkDecF.log', '');
+        Observer.Expect('NLkDecF.recalc', '10.5');
+        Observer.Expect('NLkDecF.validate1', 'error: The Calculation formula for the NLkDecF FlowField in the FFM Ops Header table must start with ''Sum(...''.');
+        Observer.Expect('NLkDecF.log1', '');
+        Observer.Expect('NLkDecF.assigned', '5.5');
+        Observer.Expect('NLkDecF.assigned.recalc', '10.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -666,7 +756,16 @@ codeunit 64503 "FFM Ops Tests"
         H.SetAutoCalcFields(AvgF, MinF, MaxF, LkDecF, NLkDecF);
         H.Get('H2');
         Observer.Observe('get.more', Format(H.AvgF) + '|' + Format(H.MinF) + '|' + Format(H.MaxF) + '|' + Format(H.LkDecF) + '|' + Format(H.NLkDecF));
-        Observer.Finish();
+        Observer.Expect('get', '150.75|-150.75|4|Yes|alpha');
+        Observer.Expect('get.empty', '0|0|0|No|');
+        Observer.Expect('findfirst', 'H1:150.75|4|Yes|alpha');
+        Observer.Expect('findset.H1', '150.75|-150.75|4|Yes|alpha');
+        Observer.Expect('findset.H2', '21|-21|2|Yes|echo');
+        Observer.Expect('findset.H3', '0|0|0|No|');
+        Observer.Expect('get.dateF', '150.75|4');
+        Observer.Expect('get.reset', '0|0');
+        Observer.Expect('get.more', '10.5|7|14|7|7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -712,7 +811,19 @@ codeunit 64503 "FFM Ops Tests"
         H.Reset();
         H.SetRange(MinF, 0);
         Observer.Observe('MinF.setrange.zero', Format(H.Count()) + ':' + Rows(H));
-        Observer.Finish();
+        Observer.Expect('SumF.setfilter', '1:H1,:>100');
+        Observer.Expect('SumF.setrange.value', '0:');
+        Observer.Expect('SumF.setrange.zero', '1:H3,');
+        Observer.Expect('NSumF.setfilter', '1:H1,:<-100');
+        Observer.Expect('NSumF.setrange.value', '0:');
+        Observer.Expect('NSumF.setrange.zero', '1:H3,');
+        Observer.Expect('AvgF.setfilter', '1:H1,:>30');
+        Observer.Expect('AvgF.setrange.value', '0:');
+        Observer.Expect('AvgF.setrange.zero', '1:H3,');
+        Observer.Expect('MinF.setfilter', '3:H1,H2,H3,:<=10.5');
+        Observer.Expect('MinF.setrange.value', '0:');
+        Observer.Expect('MinF.setrange.zero', '1:H3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -755,7 +866,18 @@ codeunit 64503 "FFM Ops Tests"
         H.Reset();
         H.SetRange(ExF, false);
         Observer.Observe('ExF.setrange.false', Format(H.Count()) + ':' + Rows(H));
-        Observer.Finish();
+        Observer.Expect('MaxF.setfilter', '1:H1,:>=80');
+        Observer.Expect('MaxF.setrange.value', '0:');
+        Observer.Expect('MaxF.setrange.zero', '1:H3,');
+        Observer.Expect('CntF.setfilter', '1:H1,:>2');
+        Observer.Expect('CntF.setrange.value', '0:');
+        Observer.Expect('CntF.setrange.zero', '1:H3,');
+        Observer.Expect('NCntF.setfilter', '1:H1,:<-2');
+        Observer.Expect('NCntF.setrange.value', '0:');
+        Observer.Expect('NCntF.setrange.zero', '1:H3,');
+        Observer.Expect('ExF.setrange.true', '2:H1,H2,');
+        Observer.Expect('ExF.setrange.false', '1:H3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -792,7 +914,16 @@ codeunit 64503 "FFM Ops Tests"
         H.Reset();
         H.SetRange(NLkDecF, 0);
         Observer.Observe('NLkDecF.setrange.zero', Format(H.Count()) + ':' + Rows(H));
-        Observer.Finish();
+        Observer.Expect('LkF.setfilter', '1:H1,:a*');
+        Observer.Expect('LkF.setrange.value', '0:');
+        Observer.Expect('LkF.setrange.empty', '1:H3,');
+        Observer.Expect('LkDecF.setfilter', '1:H1,:>10');
+        Observer.Expect('LkDecF.setrange.value', '0:');
+        Observer.Expect('LkDecF.setrange.zero', '1:H3,');
+        Observer.Expect('NLkDecF.setfilter', '1:H1,:<-10');
+        Observer.Expect('NLkDecF.setrange.value', '0:');
+        Observer.Expect('NLkDecF.setrange.zero', '1:H3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -836,7 +967,18 @@ codeunit 64503 "FFM Ops Tests"
         H.Reset();
         H.SetCurrentKey(NLkDecF);
         Observer.Observe('NLkDecF.key', H.CurrentKey() + ':' + Rows(H));
-        Observer.Finish();
+        Observer.Expect('SumF.key', 'SumF:H3,H2,H1,');
+        Observer.Expect('NSumF.key', 'NSumF:H1,H2,H3,');
+        Observer.Expect('AvgF.key', 'AvgF:H3,H2,H1,');
+        Observer.Expect('MinF.key', 'MinF:H3,H2,H1,');
+        Observer.Expect('MaxF.key', 'MaxF:H3,H2,H1,');
+        Observer.Expect('CntF.key', 'CntF:H3,H2,H1,');
+        Observer.Expect('NCntF.key', 'NCntF:H1,H2,H3,');
+        Observer.Expect('ExF.key', 'ExF:H3,H1,H2,');
+        Observer.Expect('LkF.key', 'LkF:H3,H1,H2,');
+        Observer.Expect('LkDecF.key', 'LkDecF:H3,H2,H1,');
+        Observer.Expect('NLkDecF.key', 'NLkDecF:H1,H2,H3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -923,7 +1065,29 @@ codeunit 64503 "FFM Ops Tests"
         H.SetCurrentKey(NLkDecF, Rank);
         H.Ascending(false);
         Observer.Observe('NLkDecF.key.desc', Rows(H));
-        Observer.Finish();
+        Observer.Expect('SumF.key.rank', 'SumF,Rank:H3,H2,H1,');
+        Observer.Expect('SumF.key.desc', 'H1,H2,H3,');
+        Observer.Expect('NSumF.key.rank', 'NSumF,Rank:H1,H2,H3,');
+        Observer.Expect('NSumF.key.desc', 'H3,H2,H1,');
+        Observer.Expect('AvgF.key.rank', 'AvgF,Rank:H3,H2,H1,');
+        Observer.Expect('AvgF.key.desc', 'H1,H2,H3,');
+        Observer.Expect('MinF.key.rank', 'MinF,Rank:H3,H2,H1,');
+        Observer.Expect('MinF.key.desc', 'H1,H2,H3,');
+        Observer.Expect('MaxF.key.rank', 'MaxF,Rank:H3,H2,H1,');
+        Observer.Expect('MaxF.key.desc', 'H1,H2,H3,');
+        Observer.Expect('CntF.key.rank', 'CntF,Rank:H3,H2,H1,');
+        Observer.Expect('CntF.key.desc', 'H1,H2,H3,');
+        Observer.Expect('NCntF.key.rank', 'NCntF,Rank:H1,H2,H3,');
+        Observer.Expect('NCntF.key.desc', 'H3,H2,H1,');
+        Observer.Expect('ExF.key.rank', 'ExF,Rank:H3,H2,H1,');
+        Observer.Expect('ExF.key.desc', 'H1,H2,H3,');
+        Observer.Expect('LkF.key.rank', 'LkF,Rank:H3,H1,H2,');
+        Observer.Expect('LkF.key.desc', 'H2,H1,H3,');
+        Observer.Expect('LkDecF.key.rank', 'LkDecF,Rank:H3,H2,H1,');
+        Observer.Expect('LkDecF.key.desc', 'H1,H2,H3,');
+        Observer.Expect('NLkDecF.key.rank', 'NLkDecF,Rank:H1,H2,H3,');
+        Observer.Expect('NLkDecF.key.desc', 'H3,H2,H1,');
+        Observer.Verify();
     end;
 
     local procedure Rows(var H: Record "FFM Ops Header"): Text
