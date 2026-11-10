@@ -364,7 +364,12 @@ codeunit 62657 "TP PF Part Filter Expression"
         SayPeriods('row', Host);
         Observer.Observe('filter text', Host.Periods.Filter.GetFilter("Period Start"));
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('filter log', '[P.find(-)=1 P.agr=2 calc=5 P.next=1 P.find(=)=1 P.agcr=1 ]');
+        Observer.Expect('First', 'Yes');
+        Observer.Expect('row', 'start=3/15/2025 expr=120 var=120 item=I2');
+        Observer.Expect('row log', '[]');
+        Observer.Expect('filter text', '03/15/25');
+        Observer.Verify();
     end;
 
     [Test]
@@ -377,7 +382,10 @@ codeunit 62657 "TP PF Part Filter Expression"
         Observer.Observe('filter log', Calc.Take());
         SayPeriods('row', Host);
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('filter log', '[P.find(-)=1 P.agr=2 calc=5 P.next=1 P.find(=)=1 P.agcr=1 ]');
+        Observer.Expect('row', 'start=3/15/2025 expr=120 var=120 item=I2');
+        Observer.Expect('row log', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -392,7 +400,14 @@ codeunit 62657 "TP PF Part Filter Expression"
         Observer.Observe('First', Format(Host.Periods.First()));
         SayPeriods('after First', Host);
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('before', 'expr=0 var=0 item=I1');
+        Observer.Expect('before log', '[]');
+        Observer.Expect('after filter', 'start=3/16/2025 expr=7 var=7 item=I2');
+        Observer.Expect('after filter log', '[P.find(-)=1 P.agr=2 calc=5 P.next=1 P.find(=)=1 P.agcr=1 ]');
+        Observer.Expect('First', 'Yes');
+        Observer.Expect('after First', 'start=3/16/2025 expr=7 var=7 item=I2');
+        Observer.Expect('after First log', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -413,7 +428,22 @@ codeunit 62657 "TP PF Part Filter Expression"
         Observer.Observe('Last', Format(Host.Periods.Last()));
         SayPeriods('last row', Host);
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('First', 'Yes');
+        Observer.Expect('row 1', 'start=3/15/2025 expr=120 var=120 item=I2');
+        Observer.Expect('row 1 log', '[P.find(-)=1 P.agr=5 calc=10 P.next=3 P.find(=)=1 P.agcr=1 ]');
+        Observer.Expect('Next 1', 'Yes');
+        Observer.Expect('row 2', 'start=3/16/2025 expr=7 var=7 item=I2');
+        Observer.Expect('row 2 log', '[P.agr=2 calc=4 P.find(=)=1 P.agcr=1 ]');
+        Observer.Expect('Next 2', 'Yes');
+        Observer.Expect('row 3', 'start=3/17/2025 expr=11 var=11 item=I2');
+        Observer.Expect('row 3 log', '[P.agr=2 calc=4 P.find(=)=1 P.agcr=1 ]');
+        Observer.Expect('Next 3', 'No');
+        Observer.Expect('row after end', 'start=3/17/2025 expr=11 var=11 item=I2');
+        Observer.Expect('row after end log', '[]');
+        Observer.Expect('Last', 'Yes');
+        Observer.Expect('last row', 'start=3/17/2025 expr=11 var=11 item=I2');
+        Observer.Expect('last row log', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -431,7 +461,16 @@ codeunit 62657 "TP PF Part Filter Expression"
         Observer.Observe('First', Format(Host.Periods.First()));
         SayPeriods('I3 after First', Host);
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('I2', 'start=3/15/2025 expr=120 var=120 item=I2');
+        Observer.Expect('I2 log', '[P.find(-)=1 P.agr=2 calc=5 P.next=1 P.find(=)=1 P.agcr=1 ]');
+        Observer.Expect('host Next', 'Yes');
+        Observer.Expect('I3 no move', 'start=3/15/2025 expr=120 var=120 item=I2');
+        Observer.Expect('I3 no move log', '[E.agr=4 calc=8 E.agcr=1 F.find(=><)=1 F.agr=4 F.next=3 F.find(=)=1 F.agcr=1 ]');
+        Observer.Expect('filter text', '03/15/25');
+        Observer.Expect('First', 'Yes');
+        Observer.Expect('I3 after First', 'start=3/15/2025 expr=120 var=120 item=I2');
+        Observer.Expect('I3 after First log', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -444,7 +483,10 @@ codeunit 62657 "TP PF Part Filter Expression"
         Observer.Observe('First', Format(Host.Periods.First()));
         SayPeriods('row', Host);
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('First', 'Yes');
+        Observer.Expect('row', 'start=3/20/2025 expr=0 var=0 item=I2');
+        Observer.Expect('row log', '[P.find(-)=1 P.agr=2 calc=5 P.next=1 P.find(=)=1 P.agcr=1 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -460,7 +502,12 @@ codeunit 62657 "TP PF Part Filter Expression"
         SayPeriods('cleared', Host);
         Observer.Observe('filter text', '[' + Host.Periods.Filter.GetFilter("Period Start") + ']');
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('filtered', 'start=3/15/2025 expr=120 var=120 item=I2');
+        Observer.Expect('filtered log', '[P.find(-)=1 P.agr=2 calc=5 P.next=1 P.find(=)=1 P.agcr=1 ]');
+        Observer.Expect('cleared', 'start=1/3/0001 expr=0 var=0 item=I2');
+        Observer.Expect('cleared log', '[P.find(-)=1 P.agr=22 calc=44 P.next=19 P.find(=)=1 P.agcr=1 ]');
+        Observer.Expect('filter text', '[]');
+        Observer.Verify();
     end;
 
     local procedure SayEntries(Name: Text; var Host: TestPage "TP PF Host")
@@ -480,7 +527,11 @@ codeunit 62657 "TP PF Part Filter Expression"
         Observer.Observe('First', Format(Host.Entries.First()));
         SayEntries('row', Host);
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('filter log', '[E.agr=2 calc=3 E.agcr=1 ]');
+        Observer.Expect('First', 'Yes');
+        Observer.Expect('row', 'date=3/16/2025 qty=7 expr=14 var=21');
+        Observer.Expect('row log', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -493,7 +544,10 @@ codeunit 62657 "TP PF Part Filter Expression"
         Observer.Observe('filter log', Calc.Take());
         SayEntries('row', Host);
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('filter log', '[E.agr=2 calc=3 E.agcr=1 ]');
+        Observer.Expect('row', 'date=3/16/2025 qty=7 expr=14 var=21');
+        Observer.Expect('row log', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -508,7 +562,14 @@ codeunit 62657 "TP PF Part Filter Expression"
         Observer.Observe('First', Format(Host.Entries.First()));
         SayEntries('after First', Host);
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('before', 'date=3/15/2025 qty=120 expr=240 var=360');
+        Observer.Expect('before log', '[]');
+        Observer.Expect('after filter', 'date=3/17/2025 qty=11 expr=22 var=33');
+        Observer.Expect('after filter log', '[E.agr=2 calc=3 E.agcr=1 ]');
+        Observer.Expect('First', 'Yes');
+        Observer.Expect('after First', 'date=3/17/2025 qty=11 expr=22 var=33');
+        Observer.Expect('after First log', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -525,7 +586,16 @@ codeunit 62657 "TP PF Part Filter Expression"
         Observer.Observe('Next 2', Format(Host.Entries.Next()));
         SayEntries('row after end', Host);
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('First', 'Yes');
+        Observer.Expect('row 1', 'date=3/16/2025 qty=7 expr=14 var=21');
+        Observer.Expect('row 1 log', '[E.agr=4 calc=4 E.agcr=1 ]');
+        Observer.Expect('Next 1', 'Yes');
+        Observer.Expect('row 2', 'date=3/17/2025 qty=11 expr=22 var=33');
+        Observer.Expect('row 2 log', '[E.agr=2 calc=2 E.agcr=1 ]');
+        Observer.Expect('Next 2', 'No');
+        Observer.Expect('row after end', 'date=3/17/2025 qty=11 expr=22 var=33');
+        Observer.Expect('row after end log', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -543,7 +613,16 @@ codeunit 62657 "TP PF Part Filter Expression"
         Observer.Observe('First', Format(Host.Entries.First()));
         SayEntries('I3 after First', Host);
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('I2', 'date=3/16/2025 qty=7 expr=14 var=21');
+        Observer.Expect('I2 log', '[E.agr=2 calc=3 E.agcr=1 ]');
+        Observer.Expect('host Next', 'Yes');
+        Observer.Expect('I3 no move', 'date=3/16/2025 qty=13 expr=26 var=39');
+        Observer.Expect('I3 no move log', '[E.agr=2 calc=7 E.agcr=1 F.find(=><)=1 F.agr=4 F.next=3 F.find(=)=1 F.agcr=1 ]');
+        Observer.Expect('filter text', '03/16/25');
+        Observer.Expect('First', 'Yes');
+        Observer.Expect('I3 after First', 'date=3/16/2025 qty=13 expr=26 var=39');
+        Observer.Expect('I3 after First log', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -557,7 +636,10 @@ codeunit 62657 "TP PF Part Filter Expression"
         Observer.Observe('First', Format(Host.Entries.First()));
         Observer.Observe('First log', Calc.Take());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('filter log', '[E.agcr=1 calc=1 ]');
+        Observer.Expect('First', 'No');
+        Observer.Expect('First log', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -574,7 +656,14 @@ codeunit 62657 "TP PF Part Filter Expression"
         Observer.Observe('First', Format(Host.Entries.First()));
         SayEntries('cleared after First', Host);
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('filtered', 'date=3/17/2025 qty=11 expr=22 var=33');
+        Observer.Expect('filtered log', '[E.agr=2 calc=3 E.agcr=1 ]');
+        Observer.Expect('cleared', 'date=3/15/2025 qty=120 expr=240 var=360');
+        Observer.Expect('cleared log', '[E.agr=5 calc=5 E.agcr=1 ]');
+        Observer.Expect('First', 'Yes');
+        Observer.Expect('cleared after First', 'date=3/15/2025 qty=120 expr=240 var=360');
+        Observer.Expect('cleared after First log', '[]');
+        Observer.Verify();
     end;
 
     local procedure SayEntriesFind(Name: Text; var Host: TestPage "TP PF Host")
@@ -594,7 +683,11 @@ codeunit 62657 "TP PF Part Filter Expression"
         Observer.Observe('First', Format(Host.EntriesFind.First()));
         SayEntriesFind('row', Host);
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('filter log', '[F.find(-)=1 F.agr=2 calc=3 F.next=1 F.find(=)=1 F.agcr=1 ]');
+        Observer.Expect('First', 'Yes');
+        Observer.Expect('row', 'date=3/16/2025 qty=7 expr=14 var=21');
+        Observer.Expect('row log', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -607,7 +700,10 @@ codeunit 62657 "TP PF Part Filter Expression"
         Observer.Observe('filter log', Calc.Take());
         SayEntriesFind('row', Host);
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('filter log', '[F.find(-)=1 F.agr=2 calc=3 F.next=1 F.find(=)=1 F.agcr=1 ]');
+        Observer.Expect('row', 'date=3/16/2025 qty=7 expr=14 var=21');
+        Observer.Expect('row log', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -622,7 +718,14 @@ codeunit 62657 "TP PF Part Filter Expression"
         Observer.Observe('First', Format(Host.EntriesFind.First()));
         SayEntriesFind('after First', Host);
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('before', 'date=3/15/2025 qty=120 expr=240 var=360');
+        Observer.Expect('before log', '[]');
+        Observer.Expect('after filter', 'date=3/17/2025 qty=11 expr=22 var=33');
+        Observer.Expect('after filter log', '[F.find(-)=1 F.agr=2 calc=3 F.next=1 F.find(=)=1 F.agcr=1 ]');
+        Observer.Expect('First', 'Yes');
+        Observer.Expect('after First', 'date=3/17/2025 qty=11 expr=22 var=33');
+        Observer.Expect('after First log', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -639,7 +742,16 @@ codeunit 62657 "TP PF Part Filter Expression"
         Observer.Observe('Next 2', Format(Host.EntriesFind.Next()));
         SayEntriesFind('row after end', Host);
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('First', 'Yes');
+        Observer.Expect('row 1', 'date=3/16/2025 qty=7 expr=14 var=21');
+        Observer.Expect('row 1 log', '[F.find(-)=1 F.agr=4 calc=4 F.next=2 F.find(=)=1 F.agcr=1 ]');
+        Observer.Expect('Next 1', 'Yes');
+        Observer.Expect('row 2', 'date=3/17/2025 qty=11 expr=22 var=33');
+        Observer.Expect('row 2 log', '[F.agr=2 F.find(=)=1 calc=2 F.agcr=1 ]');
+        Observer.Expect('Next 2', 'No');
+        Observer.Expect('row after end', 'date=3/17/2025 qty=11 expr=22 var=33');
+        Observer.Expect('row after end log', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -657,7 +769,16 @@ codeunit 62657 "TP PF Part Filter Expression"
         Observer.Observe('First', Format(Host.EntriesFind.First()));
         SayEntriesFind('I3 after First', Host);
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('I2', 'date=3/16/2025 qty=7 expr=14 var=21');
+        Observer.Expect('I2 log', '[F.find(-)=1 F.agr=2 calc=3 F.next=1 F.find(=)=1 F.agcr=1 ]');
+        Observer.Expect('host Next', 'Yes');
+        Observer.Expect('I3 no move', 'date=3/16/2025 qty=13 expr=26 var=39');
+        Observer.Expect('I3 no move log', '[E.agr=4 calc=7 E.agcr=1 F.find(=><)=1 F.agr=2 F.next=2 F.find(=)=1 F.agcr=1 ]');
+        Observer.Expect('filter text', '03/16/25');
+        Observer.Expect('First', 'Yes');
+        Observer.Expect('I3 after First', 'date=3/16/2025 qty=13 expr=26 var=39');
+        Observer.Expect('I3 after First log', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -671,7 +792,10 @@ codeunit 62657 "TP PF Part Filter Expression"
         Observer.Observe('First', Format(Host.EntriesFind.First()));
         Observer.Observe('First log', Calc.Take());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('filter log', '[F.find(-)=1 F.agcr=1 calc=1 ]');
+        Observer.Expect('First', 'No');
+        Observer.Expect('First log', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -688,7 +812,14 @@ codeunit 62657 "TP PF Part Filter Expression"
         Observer.Observe('First', Format(Host.EntriesFind.First()));
         SayEntriesFind('cleared after First', Host);
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('filtered', 'date=3/17/2025 qty=11 expr=22 var=33');
+        Observer.Expect('filtered log', '[F.find(-)=1 F.agr=2 calc=3 F.next=1 F.find(=)=1 F.agcr=1 ]');
+        Observer.Expect('cleared', 'date=3/15/2025 qty=120 expr=240 var=360');
+        Observer.Expect('cleared log', '[F.find(-)=1 F.agr=5 calc=5 F.next=3 F.find(=)=1 F.agcr=1 ]');
+        Observer.Expect('First', 'Yes');
+        Observer.Expect('cleared after First', 'date=3/15/2025 qty=120 expr=240 var=360');
+        Observer.Expect('cleared after First log', '[]');
+        Observer.Verify();
     end;
 
 }

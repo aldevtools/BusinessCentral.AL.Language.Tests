@@ -427,7 +427,11 @@ codeunit 62678 "TP HX Hidden Ext Part"
         Say('named');
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('new', '2 [fb-init host-open ext-open fb-open host-agcr() ext-agcr() fb-agcr()]');
+        Observer.Expect('keyed', '2 []');
+        Observer.Expect('named', '3 [fb-agr(H3) fb-agcr(H3)]');
+        Observer.Expect('closed', '3 [fb-query fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -447,7 +451,11 @@ codeunit 62678 "TP HX Hidden Ext Part"
         Say('save');
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('plain', '3 [act-plain host-agcr(H3) ext-agcr(H3) fb-agr(H3) fb-agcr(H3)]');
+        Observer.Expect('upd', '3 [act-upd host-agcr(H3) ext-agcr(H3) fb-agr(H3) fb-agcr(H3)]');
+        Observer.Expect('save', '3 [act-save host-agcr(H3) ext-agcr(H3) fb-agr(H3) fb-agcr(H3)]');
+        Observer.Expect('closed', '3 [fb-query fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -467,7 +475,11 @@ codeunit 62678 "TP HX Hidden Ext Part"
         Say('plain');
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('peek', '3 [act-peek fb-peek() host-agcr(H3) ext-agcr(H3) fb-agr(H3) fb-agcr(H3)]');
+        Observer.Expect('touch', '3 [act-touch fb-touch(H3) host-agcr(H3) ext-agcr(H3) fb-agr(H3) fb-agcr(H3)]');
+        Observer.Expect('plain', '3 [act-plain host-agcr(H3) ext-agcr(H3) fb-agr(H3) fb-agcr(H3)]');
+        Observer.Expect('closed', '3 [fb-query fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -486,7 +498,12 @@ codeunit 62678 "TP HX Hidden Ext Part"
         Say('touch');
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('new', '2 [fb-init host-open ext-open fb-open host-agcr() ext-agcr() fb-agcr()]');
+        Observer.Expect('plain', '2 [act-plain]');
+        Observer.Expect('peek', '2 [act-peek fb-peek()]');
+        Observer.Expect('touch', '2 [act-touch fb-touch()]');
+        Observer.Expect('closed', '2 [fb-query fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -510,7 +527,13 @@ codeunit 62678 "TP HX Hidden Ext Part"
         Say('next');
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('plain', '2 [act-plain host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('upd', '2 [act-upd host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('save', '2 [act-save host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('named', '2 []');
+        Observer.Expect('next', '2 [host-agcr(H2) ext-agcr(H2) fb-agr(H2) fb-agcr(H2)]');
+        Observer.Expect('closed', '2 [fb-query fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -532,7 +555,12 @@ codeunit 62678 "TP HX Hidden Ext Part"
         Say('next');
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('peek', '2 [act-peek fb-peek(H1) host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('touch', '2 [act-touch fb-touch(H1) host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('plain', '2 [act-plain host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('next', '2 [host-agcr(H2) ext-agcr(H2) fb-agr(H2) fb-agcr(H2)]');
+        Observer.Expect('closed', '2 [fb-query fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -547,7 +575,10 @@ codeunit 62678 "TP HX Hidden Ext Part"
         Say('gotokey');
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('opened', '2 [fb-init host-open ext-open fb-open host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('gotokey', '2 [host-agcr(H1) ext-agcr(H1) host-agcr(H2) ext-agcr(H2) fb-agr(H2) fb-agcr(H2)]');
+        Observer.Expect('closed', '2 [fb-query fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -569,7 +600,12 @@ codeunit 62678 "TP HX Hidden Ext Part"
         Say('touch');
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('plain', '2 [act-plain host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('upd', '2 [act-upd host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('peek', '2 [act-peek fb-peek(H1) host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('touch', '2 [act-touch fb-touch(H1) host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('closed', '2 [fb-query fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -593,7 +629,13 @@ codeunit 62678 "TP HX Hidden Ext Part"
         Say('next');
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('flip', '2 [act-flip(Yes) fb-agr(H1) fb-agcr(H1) host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('plain', '2 [act-plain host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('upd', '2 [act-upd host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('peek', '2 [act-peek fb-peek(H1) host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('next', '2 [host-agcr(H2) ext-agcr(H2) fb-agr(H2) fb-agcr(H2)]');
+        Observer.Expect('closed', '2 [fb-query fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -610,7 +652,11 @@ codeunit 62678 "TP HX Hidden Ext Part"
         Say('named');
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('new', '2 [fb-init host-open ext-open fb-open host-agcr() ext-agcr() fb-agcr()]');
+        Observer.Expect('keyed', '2 []');
+        Observer.Expect('named', '3 [fb-agr(H3) fb-agcr(H3)]');
+        Observer.Expect('closed', '3 [fb-query fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -630,7 +676,11 @@ codeunit 62678 "TP HX Hidden Ext Part"
         Say('save');
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('plain', '3 [act-plain host-agcr(H3) ext-agcr(H3) fb-agr(H3) fb-agcr(H3)]');
+        Observer.Expect('upd', '3 [act-upd host-agcr(H3) ext-agcr(H3) fb-agr(H3) fb-agcr(H3)]');
+        Observer.Expect('save', '3 [act-save host-agcr(H3) ext-agcr(H3) fb-agr(H3) fb-agcr(H3)]');
+        Observer.Expect('closed', '3 [fb-query fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -650,7 +700,11 @@ codeunit 62678 "TP HX Hidden Ext Part"
         Say('plain');
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('peek', '3 [act-peek fb-peek() host-agcr(H3) ext-agcr(H3) fb-agr(H3) fb-agcr(H3)]');
+        Observer.Expect('touch', '3 [act-touch fb-touch(H3) host-agcr(H3) ext-agcr(H3) fb-agr(H3) fb-agcr(H3)]');
+        Observer.Expect('plain', '3 [act-plain host-agcr(H3) ext-agcr(H3) fb-agr(H3) fb-agcr(H3)]');
+        Observer.Expect('closed', '3 [fb-query fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -669,7 +723,12 @@ codeunit 62678 "TP HX Hidden Ext Part"
         Say('touch');
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('new', '2 [fb-init host-open ext-open fb-open host-agcr() ext-agcr() fb-agcr()]');
+        Observer.Expect('plain', '2 [act-plain]');
+        Observer.Expect('peek', '2 [act-peek fb-peek()]');
+        Observer.Expect('touch', '2 [act-touch fb-touch()]');
+        Observer.Expect('closed', '2 [fb-query fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -693,7 +752,13 @@ codeunit 62678 "TP HX Hidden Ext Part"
         Say('next');
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('plain', '2 [act-plain host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('upd', '2 [act-upd host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('save', '2 [act-save host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('named', '2 []');
+        Observer.Expect('next', '2 [host-agcr(H2) ext-agcr(H2) fb-agr(H2) fb-agcr(H2)]');
+        Observer.Expect('closed', '2 [fb-query fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -715,7 +780,12 @@ codeunit 62678 "TP HX Hidden Ext Part"
         Say('next');
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('peek', '2 [act-peek fb-peek(H1) host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('touch', '2 [act-touch fb-touch(H1) host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('plain', '2 [act-plain host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('next', '2 [host-agcr(H2) ext-agcr(H2) fb-agr(H2) fb-agcr(H2)]');
+        Observer.Expect('closed', '2 [fb-query fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -730,7 +800,10 @@ codeunit 62678 "TP HX Hidden Ext Part"
         Say('gotokey');
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('opened', '2 [fb-init host-open ext-open fb-open host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('gotokey', '2 [host-agcr(H1) ext-agcr(H1) host-agcr(H2) ext-agcr(H2) fb-agr(H2) fb-agcr(H2)]');
+        Observer.Expect('closed', '2 [fb-query fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -752,7 +825,12 @@ codeunit 62678 "TP HX Hidden Ext Part"
         Say('touch');
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('plain', '2 [act-plain host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('upd', '2 [act-upd host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('peek', '2 [act-peek fb-peek(H1) host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('touch', '2 [act-touch fb-touch(H1) host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('closed', '2 [fb-query fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -776,7 +854,13 @@ codeunit 62678 "TP HX Hidden Ext Part"
         Say('next');
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('flip', '2 [act-flip(No) host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('plain', '2 [act-plain host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('upd', '2 [act-upd host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('peek', '2 [act-peek fb-peek(H1) host-agcr(H1) ext-agcr(H1) fb-agr(H1) fb-agcr(H1)]');
+        Observer.Expect('next', '2 [host-agcr(H2) ext-agcr(H2) fb-agr(H2) fb-agcr(H2)]');
+        Observer.Expect('closed', '2 [fb-query fb-close]');
+        Observer.Verify();
     end;
 
 }
