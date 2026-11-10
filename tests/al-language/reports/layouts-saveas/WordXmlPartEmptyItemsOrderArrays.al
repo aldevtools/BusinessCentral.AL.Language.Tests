@@ -14,7 +14,7 @@
 //      an element.
 // Already pinned elsewhere: name legalizing, the DataType of fields, variables and literals, labels, one and two report
 //   extensions, and the order of names that differ in case or in an underscore between letters (reports/WordXmlPartNames.al).
-// A long text is raised in pieces: the test <Name>_More1 raises the piece after <Name>.
+// The WordXmlPart of the Extended tests is observed, not asserted (Ignore), so they have no continuation tests.
 // BC versions: 27-29
 enum 62350 "RPT WXP2 Kind"
 {
@@ -270,12 +270,6 @@ codeunit 62357 "RPT WXP2 Tests"
     end;
 
     [Test]
-    procedure WordXmlPart_EmptyDataItemsMixed_Extended_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
     procedure WordXmlPart_NameOrderDigitUnderscoreCase_Plain()
     begin
         Observer.Observe('part', Report.WordXmlPart(Report::"RPT WXP2 Name Order"));
@@ -289,18 +283,6 @@ codeunit 62357 "RPT WXP2 Tests"
         Observer.Observe('part', Report.WordXmlPart(Report::"RPT WXP2 Name Order", true));
         Observer.Ignore('part'); // a dump or environment data: observed, not asserted
         Observer.Verify();
-    end;
-
-    [Test]
-    procedure WordXmlPart_NameOrderDigitUnderscoreCase_Extended_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure WordXmlPart_NameOrderDigitUnderscoreCase_Extended_More2()
-    begin
-        Observer.More();
     end;
 
     [Test]
@@ -320,12 +302,6 @@ codeunit 62357 "RPT WXP2 Tests"
     end;
 
     [Test]
-    procedure WordXmlPart_ArrayElements_FirstTypes_Extended_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
     procedure WordXmlPart_ArrayElements_OtherTypes_Plain()
     begin
         Observer.Observe('part', Report.WordXmlPart(Report::"RPT WXP2 Arrays B"));
@@ -341,9 +317,4 @@ codeunit 62357 "RPT WXP2 Tests"
         Observer.Verify();
     end;
 
-    [Test]
-    procedure WordXmlPart_ArrayElements_OtherTypes_Extended_More1()
-    begin
-        Observer.More();
-    end;
 }
