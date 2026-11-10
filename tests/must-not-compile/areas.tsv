@@ -1217,6 +1217,7 @@ stem	area
 3109-calcformula-option-value-not-defined	table-objects
 3110-flowfield-lookup-type-mismatch	table-objects
 3111-calcsums-count-exist-lookup-average-min-flowfield	table-objects
+3112-table-field-type-char-and-byte	xmlports
 3120-option-variable-duplicate-blank-quoted-empty	format-evaluate
 3121-option-variable-duplicate-blank-space	format-evaluate
 3122-option-field-duplicate-blank-quoted-empty	format-evaluate
@@ -1230,3 +1231,5 @@ stem	area
 3130-option-field-quoted-empty-member-has-no-name	format-evaluate
 3131-enum-quoted-empty-value-has-no-name	format-evaluate
 3113-page-action-subscriber-unknown-action	events
+3132-page-event-subscriber-rec-on-page-without-source-table	events
+3133-role-center-page-trigger	pages
