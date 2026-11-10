@@ -10,16 +10,20 @@
 //     inserts and then fails;
 //   - the inner codeunit marks the table itself and inserts (and the same with Consistent(true) before it ends);
 //   - the mark is set on one variable and taken back on another variable of the same table before the run;
-//   - the run is not guarded (a statement), then Consistent(true) and Commit;
-//   - after a guarded run that inserted, the caller writes once more and calls Commit without Consistent(true).
+//   - the run is not guarded (a statement), then Consistent(true) and Commit.
 //   Each test reads what the guarded run returned, the last error text and code, and the rows that are still there after an unrelated
 //   error (the rows a commit made durable).
-//   A test whose guarded run raises instead of returning false fails with that error: the failure is the reading.
+// Measured on BC 27.5, 28.5 and 29.0 (CI batch runs 42826078233, 42826192322, 42826312960): while ERR Consist Row is marked with
+//   Consistent(false), by the caller or by the inner codeunit, a guarded Codeunit.Run (Ok := Codeunit.Run(...)) does not return false:
+//   it raises the inconsistency error, also when the inner codeunit writes nothing or fails, and also when another variable of the
+//   table called Consistent(true) before the run. Those tests assert the error with asserterror. Only an inner codeunit that calls
+//   Consistent(true) before it ends lets the guarded run return Yes. Two tests were removed: after Consistent(false) the caller wrote
+//   again and committed after the guarded run, but the guarded run already raises, so that question cannot be reached.
 // Already pinned elsewhere, not repeated: Consistent(false) then Commit, and Consistent(false), Consistent(true), Commit
 //   (CuCommitTests.al, Consistent_False_ThenCommit and Consistent_FalseThenTrue_ThenCommit); the commit of a guarded Codeunit.Run
 //   without a mark (CuCommitTests.al, item 36).
 // local object: the tests must commit (a guarded Codeunit.Run commits), and the inner codeunits are the code under test.
-// Observation form: every test ends in Finish(); the values are what BC produced.
+// The values are what BC produced.
 // BC versions: 27.5, 28.5, 29.0 (measured by the corpus CI)
 
 table 97436 "ERR Consist Row"
@@ -162,21 +166,6 @@ codeunit 97444 "ERR Consist Run Tests"
         exit(Rows());
     end;
 
-    local procedure InsertRow(Id: Integer)
-    var
-        Row: Record "ERR Consist Row";
-    begin
-        Row.Init();
-        Row.Id := Id;
-        Row.Insert();
-    end;
-
-    local procedure CommitAfterRun()
-    begin
-        InsertRow(50);
-        Commit();
-    end;
-
     [Test]
     procedure Consistent_False_GuardedRun_InsertsMarkedTable()
     var
@@ -186,13 +175,12 @@ codeunit 97444 "ERR Consist Run Tests"
     begin
         Initialize();
         Row.Consistent(false);
-        Ok := Codeunit.Run(Codeunit::"ERR Consist Insert");
-        Observer.Observe('run', Format(Ok));
-        Observer.ObserveError('last error');
-        Observer.Observe('rows after run', Rows());
-        Row.Consistent(true);
-        Observer.Observe('durable rows', DurableRows());
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (CI batch runs 42826078233, 42826192322, 42826312960): this guarded Codeunit.Run does not return;
+        // it raises the inconsistency error of ERR Consist Row, and the Ok := form does not catch it.
+        asserterror Ok := Codeunit.Run(Codeunit::"ERR Consist Insert");
+        Observer.Observe('guarded run', GetLastErrorText());
+        Observer.Expect('guarded run', 'The transaction cannot be completed because it will cause inconsistencies in the ERR Consist Row table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -204,13 +192,12 @@ codeunit 97444 "ERR Consist Run Tests"
     begin
         Initialize();
         Row.Consistent(false);
-        Ok := Codeunit.Run(Codeunit::"ERR Consist Insert Other");
-        Observer.Observe('run', Format(Ok));
-        Observer.ObserveError('last error');
-        Observer.Observe('rows after run', Rows());
-        Row.Consistent(true);
-        Observer.Observe('durable rows', DurableRows());
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (CI batch runs 42826078233, 42826192322, 42826312960): this guarded Codeunit.Run does not return;
+        // it raises the inconsistency error of ERR Consist Row, and the Ok := form does not catch it.
+        asserterror Ok := Codeunit.Run(Codeunit::"ERR Consist Insert Other");
+        Observer.Observe('guarded run', GetLastErrorText());
+        Observer.Expect('guarded run', 'The transaction cannot be completed because it will cause inconsistencies in the ERR Consist Row table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -222,12 +209,12 @@ codeunit 97444 "ERR Consist Run Tests"
     begin
         Initialize();
         Row.Consistent(false);
-        Ok := Codeunit.Run(Codeunit::"ERR Consist Nothing");
-        Observer.Observe('run', Format(Ok));
-        Observer.ObserveError('last error');
-        Row.Consistent(true);
-        Observer.Observe('durable rows', DurableRows());
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (CI batch runs 42826078233, 42826192322, 42826312960): this guarded Codeunit.Run does not return;
+        // it raises the inconsistency error of ERR Consist Row, and the Ok := form does not catch it.
+        asserterror Ok := Codeunit.Run(Codeunit::"ERR Consist Nothing");
+        Observer.Observe('guarded run', GetLastErrorText());
+        Observer.Expect('guarded run', 'The transaction cannot be completed because it will cause inconsistencies in the ERR Consist Row table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -239,13 +226,12 @@ codeunit 97444 "ERR Consist Run Tests"
     begin
         Initialize();
         Row.Consistent(false);
-        Ok := Codeunit.Run(Codeunit::"ERR Consist Insert Fail");
-        Observer.Observe('run', Format(Ok));
-        Observer.ObserveError('last error');
-        Observer.Observe('rows after run', Rows());
-        Row.Consistent(true);
-        Observer.Observe('durable rows', DurableRows());
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (CI batch runs 42826078233, 42826192322, 42826312960): this guarded Codeunit.Run does not return;
+        // it raises the inconsistency error of ERR Consist Row, and the Ok := form does not catch it.
+        asserterror Ok := Codeunit.Run(Codeunit::"ERR Consist Insert Fail");
+        Observer.Observe('guarded run', GetLastErrorText());
+        Observer.Expect('guarded run', 'The transaction cannot be completed because it will cause inconsistencies in the ERR Consist Row table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -256,13 +242,12 @@ codeunit 97444 "ERR Consist Run Tests"
         Ok: Boolean;
     begin
         Initialize();
-        Ok := Codeunit.Run(Codeunit::"ERR Consist Mark Insert");
-        Observer.Observe('run', Format(Ok));
-        Observer.ObserveError('last error');
-        Observer.Observe('rows after run', Rows());
-        Row.Consistent(true);
-        Observer.Observe('durable rows', DurableRows());
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (CI batch runs 42826078233, 42826192322, 42826312960): this guarded Codeunit.Run does not return;
+        // it raises the inconsistency error of ERR Consist Row, and the Ok := form does not catch it.
+        asserterror Ok := Codeunit.Run(Codeunit::"ERR Consist Mark Insert");
+        Observer.Observe('guarded run', GetLastErrorText());
+        Observer.Expect('guarded run', 'The transaction cannot be completed because it will cause inconsistencies in the ERR Consist Row table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -294,12 +279,12 @@ codeunit 97444 "ERR Consist Run Tests"
         Initialize();
         Marker.Consistent(false);
         Unmarker.Consistent(true);
-        Ok := Codeunit.Run(Codeunit::"ERR Consist Insert");
-        Observer.Observe('run', Format(Ok));
-        Observer.ObserveError('last error');
-        Marker.Consistent(true);
-        Observer.Observe('durable rows', DurableRows());
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (CI batch runs 42826078233, 42826192322, 42826312960): this guarded Codeunit.Run does not return;
+        // it raises the inconsistency error of ERR Consist Row, and the Ok := form does not catch it.
+        asserterror Ok := Codeunit.Run(Codeunit::"ERR Consist Insert");
+        Observer.Observe('guarded run', GetLastErrorText());
+        Observer.Expect('guarded run', 'The transaction cannot be completed because it will cause inconsistencies in the ERR Consist Row table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -318,43 +303,5 @@ codeunit 97444 "ERR Consist Run Tests"
         Observer.Expect('rows after run', '[77;] other=0');
         Observer.Expect('durable rows', '[77;] other=0');
         Observer.Verify();
-    end;
-
-    [Test]
-    procedure Consistent_False_GuardedRun_ThenWriteAndCommit()
-    var
-        Observer: Codeunit "Probe Observer";
-        Row: Record "ERR Consist Row";
-        Ok: Boolean;
-    begin
-        // Does the mark outlive the guarded run? The caller writes once more and commits without Consistent(true).
-        Initialize();
-        Row.Consistent(false);
-        Ok := Codeunit.Run(Codeunit::"ERR Consist Insert");
-        Observer.Observe('run', Format(Ok));
-        ClearLastError();
-        asserterror CommitAfterRun();
-        Observer.ObserveError('commit');
-        Row.Consistent(true);
-        Observer.Observe('durable rows', DurableRows());
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Consistent_False_GuardedRun_ThenWriteAndCommit_Statement()
-    var
-        Observer: Codeunit "Probe Observer";
-        Row: Record "ERR Consist Row";
-        Ok: Boolean;
-    begin
-        // The same as the test before, with the commit as a plain statement: only one of the two can end in Finish().
-        Initialize();
-        Row.Consistent(false);
-        Ok := Codeunit.Run(Codeunit::"ERR Consist Insert");
-        Observer.Observe('run', Format(Ok));
-        CommitAfterRun();
-        Row.Consistent(true);
-        Observer.Observe('durable rows', DurableRows());
-        Observer.Finish();
     end;
 }
