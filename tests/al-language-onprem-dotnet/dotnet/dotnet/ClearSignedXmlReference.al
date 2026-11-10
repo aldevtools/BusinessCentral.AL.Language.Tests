@@ -147,7 +147,10 @@ codeunit 99004 "LT CSR Clear Xml Reference"
     begin
         ObserveStep(Observer, 1, 'add, Clear, ComputeSignature');
         ObserveStep(Observer, 6, 'Clear of the transform and the key too');
-        Observer.Finish();
+        Observer.Expect('add, Clear, ComputeSignature', 'null before add=No null after Clear=Yes references=1 computed check=No signature element=Signature');
+        Observer.Expect('Clear of the transform and the key too|text', 'A call to System.Security.Cryptography.Xml.SignedXml.ComputeSignature failed with this message: Cannot access a disposed object.\nObject name: ''System.Security.Cryptography.RSAOpenSsl''.');
+        Observer.Expect('Clear of the transform and the key too|code', 'DotNetInvoke:ObjectDisposed');
+        Observer.Verify();
     end;
 
     [Test]
@@ -157,7 +160,9 @@ codeunit 99004 "LT CSR Clear Xml Reference"
     begin
         ObserveStep(Observer, 2, 'second variable holds the Reference');
         ObserveStep(Observer, 5, 'Clear of the SignedXml variable, second variable holds it');
-        Observer.Finish();
+        Observer.Expect('second variable holds the Reference', 'first null=Yes second null=No second uri=#x second transforms=1');
+        Observer.Expect('Clear of the SignedXml variable, second variable holds it', 'first null=Yes second references=1 check=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -168,6 +173,10 @@ codeunit 99004 "LT CSR Clear Xml Reference"
         ObserveStep(Observer, 3, 'never added');
         ObserveStep(Observer, 4, 'never assigned');
         ObserveStep(Observer, 7, 'Clear twice, then a property read');
-        Observer.Finish();
+        Observer.Expect('never added', 'null after Clear=Yes references=0 assigned again and added, check=No');
+        Observer.Expect('never assigned', 'null before=Yes null after Clear=Yes');
+        Observer.Expect('Clear twice, then a property read|text', 'A DotNet variable has not been instantiated. Attempting to call System.Security.Cryptography.Xml.Reference.Uri in CodeUnit LT CSR Clear Xml Reference: TryStep');
+        Observer.Expect('Clear twice, then a property read|code', 'DotNetVariableNotCreated');
+        Observer.Verify();
     end;
 }

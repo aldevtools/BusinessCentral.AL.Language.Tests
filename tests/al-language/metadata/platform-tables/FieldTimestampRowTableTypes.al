@@ -156,7 +156,20 @@ codeunit 75117 "LT FTS Timestamp Row Types"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveTable(Observer, Database::"LT FTS Temporary Type");
-        Observer.Finish();
+        Observer.Expect('table type', 'Temporary');
+        Observer.Expect('Get(table, 0)', 'No');
+        Observer.Expect('by name timestamp', '[0:timestamp:BigInteger:Normal:8:Yes:No;]');
+        Observer.Expect('by name @TIMESTAMP count', '0');
+        Observer.Expect('by name *stamp* count', '0');
+        Observer.Expect('by name timestamp|Id', '[1:Id:Integer:Normal:4:Yes:No;]');
+        Observer.Expect('No. = 0 count', '0');
+        Observer.Expect('BigInteger of length 8 named timestamp count', '1');
+        Observer.Expect('first row', '1:Id:Integer:Normal:4:Yes:No');
+        Observer.Expect('dimension field filters', '[2:Global Dimension 1 Code:Code:Normal:20:Yes:No;]');
+        Observer.Expect('dimension set relation filters', '[3:Dimension Set ID:Integer:Normal:4:Yes:No;]');
+        Observer.Expect('normal and not removed, named timestamp count', '1');
+        Observer.Expect('RecordRef', 'FieldExist(0)=No walk=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -170,7 +183,21 @@ codeunit 75117 "LT FTS Timestamp Row Types"
         else
             Observer.Observe('table 33 name', 'no such table');
         ObserveTable(Observer, 33);
-        Observer.Finish();
+        Observer.Expect('table 33 name', 'Intercompany Setup Diagnostic');
+        Observer.Expect('table type', 'Temporary');
+        Observer.Expect('Get(table, 0)', 'No');
+        Observer.Expect('by name timestamp', '[0:timestamp:BigInteger:Normal:8:Yes:No;]');
+        Observer.Expect('by name @TIMESTAMP count', '0');
+        Observer.Expect('by name *stamp* count', '0');
+        Observer.Expect('by name timestamp|Id', '[1:Id:Code:Normal:20:Yes:No;]');
+        Observer.Expect('No. = 0 count', '0');
+        Observer.Expect('BigInteger of length 8 named timestamp count', '1');
+        Observer.Expect('first row', '1:Id:Code:Normal:20:Yes:No');
+        Observer.Expect('dimension field filters', '[]');
+        Observer.Expect('dimension set relation filters', '[]');
+        Observer.Expect('normal and not removed, named timestamp count', '1');
+        Observer.Expect('RecordRef', 'FieldExist(0)=No walk=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -179,7 +206,20 @@ codeunit 75117 "LT FTS Timestamp Row Types"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveTable(Observer, Database::"CRM Account");
-        Observer.Finish();
+        Observer.Expect('table type', 'CRM');
+        Observer.Expect('Get(table, 0)', 'No');
+        Observer.Expect('by name timestamp', '[0:timestamp:BigInteger:Normal:8:Yes:No;]');
+        Observer.Expect('by name @TIMESTAMP count', '0');
+        Observer.Expect('by name *stamp* count', '0');
+        Observer.Expect('by name timestamp|Id', '[]');
+        Observer.Expect('No. = 0 count', '0');
+        Observer.Expect('BigInteger of length 8 named timestamp count', '1');
+        Observer.Expect('first row', '1:AccountId:GUID:Normal:16:Yes:No');
+        Observer.Expect('dimension field filters', '[]');
+        Observer.Expect('dimension set relation filters', '[]');
+        Observer.Expect('normal and not removed, named timestamp count', '1');
+        Observer.Expect('RecordRef', 'FieldExist(0)=No walk=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -188,7 +228,20 @@ codeunit 75117 "LT FTS Timestamp Row Types"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveTable(Observer, Database::User);
-        Observer.Finish();
+        Observer.Expect('table type', 'Normal');
+        Observer.Expect('Get(table, 0)', 'No');
+        Observer.Expect('by name timestamp', '[0:timestamp:BigInteger:Normal:8:Yes:No;]');
+        Observer.Expect('by name @TIMESTAMP count', '0');
+        Observer.Expect('by name *stamp* count', '0');
+        Observer.Expect('by name timestamp|Id', '[]');
+        Observer.Expect('No. = 0 count', '0');
+        Observer.Expect('BigInteger of length 8 named timestamp count', '1');
+        Observer.Expect('first row', '1:User Security ID:GUID:Normal:16:Yes:No');
+        Observer.Expect('dimension field filters', '[]');
+        Observer.Expect('dimension set relation filters', '[]');
+        Observer.Expect('normal and not removed, named timestamp count', '1');
+        Observer.Expect('RecordRef', 'FieldExist(0)=No walk=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -197,7 +250,20 @@ codeunit 75117 "LT FTS Timestamp Row Types"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveTable(Observer, Database::Field);
-        Observer.Finish();
+        Observer.Expect('table type', 'Normal');
+        Observer.Expect('Get(table, 0)', 'No');
+        Observer.Expect('by name timestamp', '[0:timestamp:BigInteger:Normal:8:Yes:No;]');
+        Observer.Expect('by name @TIMESTAMP count', '0');
+        Observer.Expect('by name *stamp* count', '0');
+        Observer.Expect('by name timestamp|Id', '[]');
+        Observer.Expect('No. = 0 count', '0');
+        Observer.Expect('BigInteger of length 8 named timestamp count', '1');
+        Observer.Expect('first row', '1:TableNo:Integer:Normal:4:Yes:No');
+        Observer.Expect('dimension field filters', '[]');
+        Observer.Expect('dimension set relation filters', '[]');
+        Observer.Expect('normal and not removed, named timestamp count', '1');
+        Observer.Expect('RecordRef', 'FieldExist(0)=No walk=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -206,7 +272,20 @@ codeunit 75117 "LT FTS Timestamp Row Types"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveTable(Observer, Database::Integer);
-        Observer.Finish();
+        Observer.Expect('table type', 'Normal');
+        Observer.Expect('Get(table, 0)', 'No');
+        Observer.Expect('by name timestamp', '[0:timestamp:BigInteger:Normal:8:Yes:No;]');
+        Observer.Expect('by name @TIMESTAMP count', '0');
+        Observer.Expect('by name *stamp* count', '0');
+        Observer.Expect('by name timestamp|Id', '[]');
+        Observer.Expect('No. = 0 count', '0');
+        Observer.Expect('BigInteger of length 8 named timestamp count', '1');
+        Observer.Expect('first row', '1:Number:Integer:Normal:4:Yes:No');
+        Observer.Expect('dimension field filters', '[]');
+        Observer.Expect('dimension set relation filters', '[]');
+        Observer.Expect('normal and not removed, named timestamp count', '1');
+        Observer.Expect('RecordRef', 'FieldExist(0)=No walk=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -215,7 +294,20 @@ codeunit 75117 "LT FTS Timestamp Row Types"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveTable(Observer, Database::Date);
-        Observer.Finish();
+        Observer.Expect('table type', 'Normal');
+        Observer.Expect('Get(table, 0)', 'No');
+        Observer.Expect('by name timestamp', '[0:timestamp:BigInteger:Normal:8:Yes:No;]');
+        Observer.Expect('by name @TIMESTAMP count', '0');
+        Observer.Expect('by name *stamp* count', '0');
+        Observer.Expect('by name timestamp|Id', '[]');
+        Observer.Expect('No. = 0 count', '0');
+        Observer.Expect('BigInteger of length 8 named timestamp count', '1');
+        Observer.Expect('first row', '1:Period Type:Option:Normal:4:Yes:No');
+        Observer.Expect('dimension field filters', '[]');
+        Observer.Expect('dimension set relation filters', '[]');
+        Observer.Expect('normal and not removed, named timestamp count', '1');
+        Observer.Expect('RecordRef', 'FieldExist(0)=No walk=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -224,7 +316,20 @@ codeunit 75117 "LT FTS Timestamp Row Types"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveTable(Observer, Database::Customer);
-        Observer.Finish();
+        Observer.Expect('table type', 'Normal');
+        Observer.Expect('Get(table, 0)', 'No');
+        Observer.Expect('by name timestamp', '[0:timestamp:BigInteger:Normal:8:Yes:No;]');
+        Observer.Expect('by name @TIMESTAMP count', '0');
+        Observer.Expect('by name *stamp* count', '0');
+        Observer.Expect('by name timestamp|Id', '[]');
+        Observer.Expect('No. = 0 count', '0');
+        Observer.Expect('BigInteger of length 8 named timestamp count', '1');
+        Observer.Expect('first row', '1:No.:Code:Normal:20:Yes:No');
+        Observer.Expect('dimension field filters', '[16:Global Dimension 1 Code:Code:Normal:20:Yes:No;17:Global Dimension 2 Code:Code:Normal:20:Yes:No;]');
+        Observer.Expect('dimension set relation filters', '[]');
+        Observer.Expect('normal and not removed, named timestamp count', '1');
+        Observer.Expect('RecordRef', 'FieldExist(0)=No walk=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -257,6 +362,9 @@ codeunit 75117 "LT FTS Timestamp Row Types"
                 Result += Format(Fld.TableNo) + ':' + Fld.FieldName + ';';
             until Fld.Next() = 0;
         Observer.Observe('dimension field filters over these tables', '[' + Result + ']');
-        Observer.Finish();
+        Observer.Expect('tables with a timestamp row by name', '[18;33;5341;75116;2000000026;2000000120;]');
+        Observer.Expect('No. = 0 count over these tables', '0');
+        Observer.Expect('dimension field filters over these tables', '[18:Global Dimension 1 Code;18:Global Dimension 2 Code;75116:Global Dimension 1 Code;]');
+        Observer.Verify();
     end;
 }

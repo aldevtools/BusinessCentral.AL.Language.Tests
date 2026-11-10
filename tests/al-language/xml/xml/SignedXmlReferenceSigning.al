@@ -176,7 +176,10 @@ codeunit 75104 "LT SXR SignedXml Reference"
         ObserveStep(Observer, 1, 'reference added, then key, then ComputeSignature');
         ObserveStep(Observer, 2, 'reference not added before ComputeSignature');
         ObserveStep(Observer, 3, 'AddReferenceToSignedXML twice');
-        Observer.Finish();
+        Observer.Expect('reference added, then key, then ComputeSignature', 'root=:Signature ns=http://www.w3.org/2000/09/xmldsig# c14n=http://www.w3.org/TR/2001/REC-xml-c14n-20010315 method=http://www.w3.org/2001/04/xmldsig-more#rsa-sha256 references=1 [uri= transforms=http://www.w3.org/2001/10/xml-exc-c14n#, digest method=http://www.w3.org/2001/04/xmlenc#sha256, digest=EqWbCBAs3bfcRdcZ6yh4t2OXEmNPK2CFDUEM3YlTR74=] signature value length=344 key info=No check=No');
+        Observer.Expect('reference not added before ComputeSignature', 'root=:Signature ns=http://www.w3.org/2000/09/xmldsig# c14n=http://www.w3.org/TR/2001/REC-xml-c14n-20010315 method=http://www.w3.org/2001/04/xmldsig-more#rsa-sha256 references=1 [uri= transforms=http://www.w3.org/2001/10/xml-exc-c14n#, digest method=http://www.w3.org/2001/04/xmlenc#sha256, digest=EqWbCBAs3bfcRdcZ6yh4t2OXEmNPK2CFDUEM3YlTR74=] signature value length=344 key info=No check=No');
+        Observer.Expect('AddReferenceToSignedXML twice', 'root=:Signature ns=http://www.w3.org/2000/09/xmldsig# c14n=http://www.w3.org/TR/2001/REC-xml-c14n-20010315 method=http://www.w3.org/2001/04/xmldsig-more#rsa-sha256 references=1 [uri= transforms=http://www.w3.org/2001/10/xml-exc-c14n#, digest method=http://www.w3.org/2001/04/xmlenc#sha256, digest=EqWbCBAs3bfcRdcZ6yh4t2OXEmNPK2CFDUEM3YlTR74=] signature value length=344 key info=No check=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -187,7 +190,10 @@ codeunit 75104 "LT SXR SignedXml Reference"
         ObserveStep(Observer, 4, 'two references by id');
         ObserveStep(Observer, 5, 'enveloped signature and C14N transforms, SHA1 digest');
         ObserveStep(Observer, 7, 'InitializeReference twice, then add');
-        Observer.Finish();
+        Observer.Expect('two references by id', 'root=:Signature ns=http://www.w3.org/2000/09/xmldsig# c14n=http://www.w3.org/TR/2001/REC-xml-c14n-20010315 method=http://www.w3.org/2001/04/xmldsig-more#rsa-sha256 references=2 [uri=#d1 transforms=http://www.w3.org/2001/10/xml-exc-c14n#, digest method=http://www.w3.org/2001/04/xmlenc#sha256, digest=zro6v3waKxtez9qcsDFWB0SZmQ43+rx0MS6+YtMtGLA=] [uri=#d2 transforms=http://www.w3.org/2001/10/xml-exc-c14n#, digest method=http://www.w3.org/2001/04/xmlenc#sha256, digest=Jsq5V6S2uwFIzxhoObHpLaOymNKcqpUY0iyzmiJuWC8=] signature value length=344 key info=No check=No');
+        Observer.Expect('enveloped signature and C14N transforms, SHA1 digest', 'root=:Signature ns=http://www.w3.org/2000/09/xmldsig# c14n=http://www.w3.org/TR/2001/REC-xml-c14n-20010315 method=http://www.w3.org/2001/04/xmldsig-more#rsa-sha256 references=1 [uri= transforms=http://www.w3.org/2000/09/xmldsig#enveloped-signature,http://www.w3.org/2001/10/xml-exc-c14n#, digest method=http://www.w3.org/2000/09/xmldsig#sha1, digest=gPC+WCwT6GGgD4SthnopOwaMgyQ=] signature value length=344 key info=No check=No');
+        Observer.Expect('InitializeReference twice, then add', 'root=:Signature ns=http://www.w3.org/2000/09/xmldsig# c14n=http://www.w3.org/TR/2001/REC-xml-c14n-20010315 method=http://www.w3.org/2001/04/xmldsig-more#rsa-sha256 references=1 [uri=#d2 transforms= digest method=http://www.w3.org/2001/04/xmlenc#sha256, digest=Jsq5V6S2uwFIzxhoObHpLaOymNKcqpUY0iyzmiJuWC8=] signature value length=344 key info=No check=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -197,6 +203,10 @@ codeunit 75104 "LT SXR SignedXml Reference"
     begin
         ObserveStep(Observer, 6, 'no reference');
         ObserveStep(Observer, 8, 'no signing key');
-        Observer.Finish();
+        Observer.Expect('no reference|text', 'A call to System.Security.Cryptography.Xml.SignedXml.ComputeSignature failed with this message: At least one Reference element is required.');
+        Observer.Expect('no reference|code', 'DotNetInvoke:Cryptographic');
+        Observer.Expect('no signing key|text', 'A call to System.Security.Cryptography.Xml.SignedXml.ComputeSignature failed with this message: Signing key is not loaded.');
+        Observer.Expect('no signing key|code', 'DotNetInvoke:Cryptographic');
+        Observer.Verify();
     end;
 }

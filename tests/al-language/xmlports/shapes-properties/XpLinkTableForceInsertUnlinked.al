@@ -550,7 +550,15 @@ codeunit 75080 "LT XLF Force Insert Unlinked"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveImports(Observer, Xmlport::"LT XLF Root Force", 1);
-        Observer.Finish();
+        Observer.Expect('two parents', 'ok');
+        Observer.Expect('two parents log', 'parent bir P1 in db=No;parent air P1;child bir P1/1 parent in db=Yes;child air P1/1;child bir P1/2 parent in db=Yes;child air P1/2;parent bir P2 in db=No;parent air P2;child bir P2/1 parent in db=Yes;child air P2/1;');
+        Observer.Expect('two parents parents', '[P1|one][P2|two]');
+        Observer.Expect('two parents children', '[P1/1/5][P1/2/6][P2/1/7]');
+        Observer.Expect('no children', 'ok');
+        Observer.Expect('no children log', 'parent bir P1 in db=No;parent air P1;');
+        Observer.Expect('no children parents', '[P1|one]');
+        Observer.Expect('no children children', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -559,7 +567,16 @@ codeunit 75080 "LT XLF Force Insert Unlinked"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveImports(Observer, Xmlport::"LT XLF Root Force", 2);
-        Observer.Finish();
+        Observer.Expect('parent exists|text', 'The record in table LT Y68 XP Parent already exists. Identification fields and values: No.=''P1''');
+        Observer.Expect('parent exists|code', 'DB:RecordExists');
+        Observer.Expect('parent exists log', 'parent bir P1 in db=Yes;parent air P1;');
+        Observer.Expect('parent exists parents', '[P1|stored]');
+        Observer.Expect('parent exists children', '');
+        Observer.Expect('empty root', 'ok');
+        Observer.Expect('empty root log', '');
+        Observer.Expect('empty root parents', '');
+        Observer.Expect('empty root children', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -568,7 +585,15 @@ codeunit 75080 "LT XLF Force Insert Unlinked"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveImports(Observer, Xmlport::"LT XLF Root Force Plain", 1);
-        Observer.Finish();
+        Observer.Expect('two parents', 'ok');
+        Observer.Expect('two parents log', 'parent bir P1 in db=No;parent air P1;child bir P1/1 parent in db=Yes;child air P1/1;child bir P1/2 parent in db=Yes;child air P1/2;parent bir P2 in db=No;parent air P2;child bir P2/1 parent in db=Yes;child air P2/1;');
+        Observer.Expect('two parents parents', '[P1|one][P2|two]');
+        Observer.Expect('two parents children', '[P1/1/5][P1/2/6][P2/1/7]');
+        Observer.Expect('no children', 'ok');
+        Observer.Expect('no children log', 'parent bir P1 in db=No;parent air P1;');
+        Observer.Expect('no children parents', '[P1|one]');
+        Observer.Expect('no children children', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -577,7 +602,16 @@ codeunit 75080 "LT XLF Force Insert Unlinked"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveImports(Observer, Xmlport::"LT XLF Root Force Plain", 2);
-        Observer.Finish();
+        Observer.Expect('parent exists|text', 'The record in table LT Y68 XP Parent already exists. Identification fields and values: No.=''P1''');
+        Observer.Expect('parent exists|code', 'DB:RecordExists');
+        Observer.Expect('parent exists log', 'parent bir P1 in db=Yes;parent air P1;');
+        Observer.Expect('parent exists parents', '[P1|stored]');
+        Observer.Expect('parent exists children', '');
+        Observer.Expect('empty root', 'ok');
+        Observer.Expect('empty root log', '');
+        Observer.Expect('empty root parents', '');
+        Observer.Expect('empty root children', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -614,7 +648,15 @@ codeunit 75080 "LT XLF Force Insert Unlinked"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveImports(Observer, Xmlport::"LT XLF Force False", 1);
-        Observer.Finish();
+        Observer.Expect('two parents', 'ok');
+        Observer.Expect('two parents log', 'child bir P1/1 parent in db=No;child air P1/1;child bir P1/2 parent in db=No;child air P1/2;parent bir P1 in db=No;parent air P1;child bir P2/1 parent in db=No;child air P2/1;parent bir P2 in db=No;parent air P2;');
+        Observer.Expect('two parents parents', '[P1|one][P2|two]');
+        Observer.Expect('two parents children', '[P1/1/5][P1/2/6][P2/1/7]');
+        Observer.Expect('no children', 'ok');
+        Observer.Expect('no children log', 'parent bir P1 in db=No;parent air P1;');
+        Observer.Expect('no children parents', '[P1|one]');
+        Observer.Expect('no children children', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -632,7 +674,15 @@ codeunit 75080 "LT XLF Force Insert Unlinked"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveImports(Observer, Xmlport::"LT XLF Control", 1);
-        Observer.Finish();
+        Observer.Expect('two parents', 'ok');
+        Observer.Expect('two parents log', 'parent bir P1 in db=No;parent air P1;child bir P1/1 parent in db=Yes;child air P1/1;child bir P1/2 parent in db=Yes;child air P1/2;parent bir P2 in db=No;parent air P2;child bir P2/1 parent in db=Yes;child air P2/1;');
+        Observer.Expect('two parents parents', '[P1|one][P2|two]');
+        Observer.Expect('two parents children', '[P1/1/5][P1/2/6][P2/1/7]');
+        Observer.Expect('no children', 'ok');
+        Observer.Expect('no children log', 'parent bir P1 in db=No;parent air P1;');
+        Observer.Expect('no children parents', '[P1|one]');
+        Observer.Expect('no children children', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -641,7 +691,16 @@ codeunit 75080 "LT XLF Force Insert Unlinked"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveImports(Observer, Xmlport::"LT XLF Control", 2);
-        Observer.Finish();
+        Observer.Expect('parent exists|text', 'The record in table LT Y68 XP Parent already exists. Identification fields and values: No.=''P1''');
+        Observer.Expect('parent exists|code', 'DB:RecordExists');
+        Observer.Expect('parent exists log', 'parent bir P1 in db=Yes;parent air P1;');
+        Observer.Expect('parent exists parents', '[P1|stored]');
+        Observer.Expect('parent exists children', '');
+        Observer.Expect('empty root', 'ok');
+        Observer.Expect('empty root log', '');
+        Observer.Expect('empty root parents', '');
+        Observer.Expect('empty root children', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -652,7 +711,13 @@ codeunit 75080 "LT XLF Force Insert Unlinked"
         ObserveExport(Observer, 'root force', Xmlport::"LT XLF Root Force");
         ObserveExport(Observer, 'root force plain child', Xmlport::"LT XLF Root Force Plain");
         ObserveExport(Observer, 'child unlinked', Xmlport::"LT XLF Child Unlinked");
-        Observer.Finish();
+        Observer.Expect('root force', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <P>|    <No>P1</No>|    <Name>one</Name>|    <C>|      <Line>10</Line>|      <Amount>1.50</Amount>|    </C>|    <C>|      <Line>20</Line>|      <Amount>2.00</Amount>|    </C>|  </P>|  <P>|    <No>P2</No>|    <Name>two</Name>|  </P>|</Root>|');
+        Observer.Expect('root force log', '');
+        Observer.Expect('root force plain child', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <P>|    <No>P1</No>|    <Name>one</Name>|    <C>|      <Line>10</Line>|      <Amount>1.50</Amount>|    </C>|    <C>|      <Line>20</Line>|      <Amount>2.00</Amount>|    </C>|  </P>|  <P>|    <No>P2</No>|    <Name>two</Name>|  </P>|</Root>|');
+        Observer.Expect('root force plain child log', '');
+        Observer.Expect('child unlinked', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <P>|    <No>P1</No>|    <Name>one</Name>|    <C>|      <Line>10</Line>|      <Amount>1.50</Amount>|    </C>|    <C>|      <Line>20</Line>|      <Amount>2.00</Amount>|    </C>|    <C>|      <Line>10</Line>|      <Amount>9.00</Amount>|    </C>|  </P>|  <P>|    <No>P2</No>|    <Name>two</Name>|    <C>|      <Line>10</Line>|      <Amount>1.50</Amount>|    </C>|    <C>|      <Line>20</Line>|      <Amount>2.00</Amount>|    </C>|    <C>|      <Line>10</Line>|      <Amount>9.00</Amount>|    </C>|  </P>|</Root>|');
+        Observer.Expect('child unlinked log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -663,7 +728,13 @@ codeunit 75080 "LT XLF Force Insert Unlinked"
         ObserveExport(Observer, 'root force only', Xmlport::"LT XLF Root Force Only");
         ObserveExport(Observer, 'force false', Xmlport::"LT XLF Force False");
         ObserveExport(Observer, 'control', Xmlport::"LT XLF Control");
-        Observer.Finish();
+        Observer.Expect('root force only', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <P>|    <No>P1</No>|    <Name>one</Name>|  </P>|  <P>|    <No>P2</No>|    <Name>two</Name>|  </P>|</Root>|');
+        Observer.Expect('root force only log', '');
+        Observer.Expect('force false', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <P>|    <No>P1</No>|    <Name>one</Name>|    <C>|      <Line>10</Line>|      <Amount>1.50</Amount>|    </C>|    <C>|      <Line>20</Line>|      <Amount>2.00</Amount>|    </C>|  </P>|  <P>|    <No>P2</No>|    <Name>two</Name>|  </P>|</Root>|');
+        Observer.Expect('force false log', '');
+        Observer.Expect('control', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <P>|    <No>P1</No>|    <Name>one</Name>|    <C>|      <Line>10</Line>|      <Amount>1.50</Amount>|    </C>|    <C>|      <Line>20</Line>|      <Amount>2.00</Amount>|    </C>|  </P>|  <P>|    <No>P2</No>|    <Name>two</Name>|  </P>|</Root>|');
+        Observer.Expect('control log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -677,6 +748,18 @@ codeunit 75080 "LT XLF Force Insert Unlinked"
         ObserveImport(Observer, 'text import', Xmlport::"LT XLF Text Force", '"P1","one"' + CrLf + '"P2","two"' + CrLf, '');
         ObserveImport(Observer, 'text import parent exists', Xmlport::"LT XLF Text Force", '"P1","one"' + CrLf, 'P1');
         ObserveExport(Observer, 'text export', Xmlport::"LT XLF Text Force");
-        Observer.Finish();
+        Observer.Expect('text import|text', '''.'', hexadecimal value 0x00, is an invalid character. Line 1, position 70.');
+        Observer.Expect('text import|code', 'XmlPortImport:Xml');
+        Observer.Expect('text import log', '');
+        Observer.Expect('text import parents', '');
+        Observer.Expect('text import children', '');
+        Observer.Expect('text import parent exists|text', '''.'', hexadecimal value 0x00, is an invalid character. Line 1, position 70.');
+        Observer.Expect('text import parent exists|code', 'XmlPortImport:Xml');
+        Observer.Expect('text import parent exists log', '');
+        Observer.Expect('text import parent exists parents', '[P1|stored]');
+        Observer.Expect('text import parent exists children', '');
+        Observer.Expect('text export', '"P1","one"|"P2","two"|');
+        Observer.Expect('text export log', '');
+        Observer.Verify();
     end;
 }

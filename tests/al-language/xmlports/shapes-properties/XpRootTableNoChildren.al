@@ -304,7 +304,11 @@ codeunit 75070 "LT XRT Root Table No Children"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveAllExports(Observer, Xmlport::"LT XRT Prefix");
-        Observer.Finish();
+        Observer.Expect('0 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<v1:MyRequest xmlns:v1="http://example.com/v1" />|');
+        Observer.Expect('1 row', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<v1:MyRequest xmlns:v1="http://example.com/v1" />|');
+        Observer.Expect('2 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<v1:MyRequest xmlns:v1="http://example.com/v1" />|<v1:MyRequest xmlns:v1="http://example.com/v1" />|');
+        Observer.Expect('record filtered to P2 of 2 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<v1:MyRequest xmlns:v1="http://example.com/v1" />|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -313,7 +317,11 @@ codeunit 75070 "LT XRT Root Table No Children"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveAllExports(Observer, Xmlport::"LT XRT Plain");
-        Observer.Finish();
+        Observer.Expect('0 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest />|');
+        Observer.Expect('1 row', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest />|');
+        Observer.Expect('2 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest />|<MyRequest />|');
+        Observer.Expect('record filtered to P2 of 2 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest />|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -322,7 +330,11 @@ codeunit 75070 "LT XRT Root Table No Children"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveAllExports(Observer, Xmlport::"LT XRT Default Ns");
-        Observer.Finish();
+        Observer.Expect('0 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest xmlns="http://example.com/default" />|');
+        Observer.Expect('1 row', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest xmlns="http://example.com/default" />|');
+        Observer.Expect('2 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest xmlns="http://example.com/default" />|<MyRequest xmlns="http://example.com/default" />|');
+        Observer.Expect('record filtered to P2 of 2 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest xmlns="http://example.com/default" />|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -331,7 +343,11 @@ codeunit 75070 "LT XRT Root Table No Children"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveAllExports(Observer, Xmlport::"LT XRT Once");
-        Observer.Finish();
+        Observer.Expect('0 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest />|');
+        Observer.Expect('1 row', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest />|');
+        Observer.Expect('2 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest />|');
+        Observer.Expect('record filtered to P2 of 2 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest />|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -340,7 +356,11 @@ codeunit 75070 "LT XRT Root Table No Children"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveAllExports(Observer, Xmlport::"LT XRT Min Zero");
-        Observer.Finish();
+        Observer.Expect('0 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|');
+        Observer.Expect('1 row', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest />|');
+        Observer.Expect('2 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest />|<MyRequest />|');
+        Observer.Expect('record filtered to P2 of 2 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest />|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -356,7 +376,15 @@ codeunit 75070 "LT XRT Root Table No Children"
         Observer.Observe('2 rows log', Log.Take());
         ObserveExportFiltered(Observer, 'record filtered to P2 of 2 rows', Xmlport::"LT XRT Triggers");
         Observer.Observe('filtered log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('0 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest />|');
+        Observer.Expect('0 rows log', 'pre port;pre;post port;');
+        Observer.Expect('1 row', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest />|');
+        Observer.Expect('1 row log', 'pre port;pre;get P1;post port;');
+        Observer.Expect('2 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest />|<MyRequest />|');
+        Observer.Expect('2 rows log', 'pre port;pre;get P1;get P2;post port;');
+        Observer.Expect('record filtered to P2 of 2 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest />|');
+        Observer.Expect('filtered log', 'pre port;pre;get P2;post port;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -365,7 +393,11 @@ codeunit 75070 "LT XRT Root Table No Children"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveAllExports(Observer, Xmlport::"LT XRT Attribute");
-        Observer.Finish();
+        Observer.Expect('0 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest No="" />|');
+        Observer.Expect('1 row', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest No="P1" />|');
+        Observer.Expect('2 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest No="P1" />|<MyRequest No="P2" />|');
+        Observer.Expect('record filtered to P2 of 2 rows', 'returned Yes: <?xml version="1.0" encoding="UTF-8" standalone="no"?>|<MyRequest No="P2" />|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -376,7 +408,13 @@ codeunit 75070 "LT XRT Root Table No Children"
         ObserveImport(Observer, 'plain empty root', Xmlport::"LT XRT Plain", '<MyRequest />');
         ObserveImport(Observer, 'plain root with text', Xmlport::"LT XRT Plain", '<MyRequest>x</MyRequest>');
         ObserveImport(Observer, 'plain other root name', Xmlport::"LT XRT Plain", '<Other />');
-        Observer.Finish();
+        Observer.Expect('plain empty root', 'returned No');
+        Observer.Expect('plain empty root rows', '');
+        Observer.Expect('plain root with text', 'returned No');
+        Observer.Expect('plain root with text rows', '');
+        Observer.Expect('plain other root name', 'returned No');
+        Observer.Expect('plain other root name rows', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -387,7 +425,13 @@ codeunit 75070 "LT XRT Root Table No Children"
         ObserveImport(Observer, 'prefix empty root', Xmlport::"LT XRT Prefix", '<v1:MyRequest xmlns:v1="http://example.com/v1" />');
         ObserveImport(Observer, 'prefix root without namespace', Xmlport::"LT XRT Prefix", '<MyRequest />');
         ObserveImport(Observer, 'default namespace empty root', Xmlport::"LT XRT Default Ns", '<MyRequest xmlns="http://example.com/default" />');
-        Observer.Finish();
+        Observer.Expect('prefix empty root', 'returned No');
+        Observer.Expect('prefix empty root rows', '');
+        Observer.Expect('prefix root without namespace', 'returned No');
+        Observer.Expect('prefix root without namespace rows', '');
+        Observer.Expect('default namespace empty root', 'returned No');
+        Observer.Expect('default namespace empty root rows', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -399,6 +443,13 @@ codeunit 75070 "LT XRT Root Table No Children"
         ObserveImport(Observer, 'triggers empty root', Xmlport::"LT XRT Triggers", '<MyRequest />');
         Observer.Observe('triggers import log', Log.Take());
         ObserveImport(Observer, 'attribute root', Xmlport::"LT XRT Attribute", '<MyRequest No="A1" />');
-        Observer.Finish();
+        Observer.Expect('min zero empty root', 'returned No');
+        Observer.Expect('min zero empty root rows', '');
+        Observer.Expect('triggers empty root', 'returned No');
+        Observer.Expect('triggers empty root rows', '');
+        Observer.Expect('triggers import log', '');
+        Observer.Expect('attribute root', 'returned No');
+        Observer.Expect('attribute root rows', '');
+        Observer.Verify();
     end;
 }

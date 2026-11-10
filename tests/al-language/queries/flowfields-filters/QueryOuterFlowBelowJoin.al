@@ -643,7 +643,12 @@ codeunit 75097 "LT QOJ Outer Flow Below Join"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveSteps(Observer, 1, 1, 5);
-        Observer.Finish();
+        Observer.Expect('no filter', 'filters [] rows C1/1/H1 C1/2/H2 C1/3/ C2/4/H3 ');
+        Observer.Expect('name Alpha', 'filters [Name: Alpha] rows C1/1/H1 ');
+        Observer.Expect('name blank', 'filters [Name: ''''] rows C1/3/ C2/4/H3 ');
+        Observer.Expect('name <>Alpha', 'filters [Name: <>Alpha] rows C1/2/H2 C1/3/ C2/4/H3 ');
+        Observer.Expect('name @*a', 'filters [Name: @*a] rows C1/1/H1 C1/2/H2 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -652,7 +657,13 @@ codeunit 75097 "LT QOJ Outer Flow Below Join"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveSteps(Observer, 1, 6, 11);
-        Observer.Finish();
+        Observer.Expect('count 1', 'filters [Line No.: 1] rows C1/1/H1 C1/2/H2 C2/4/H3 ');
+        Observer.Expect('count 0', 'filters [Line No.: 0] rows C1/3/ ');
+        Observer.Expect('count >0', 'filters [Line No.: >0] rows C1/1/H1 C1/2/H2 C2/4/H3 ');
+        Observer.Expect('has customer true', 'filters [timestamp: Yes] rows C1/1/H1 C1/2/H2 ');
+        Observer.Expect('has customer false', 'filters [timestamp: No] rows C1/3/ C2/4/H3 ');
+        Observer.Expect('name Alpha|Beta and contact C1', 'filters [Name: Alpha|Beta, No.: C1] rows C1/1/H1 C1/2/H2 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -661,7 +672,12 @@ codeunit 75097 "LT QOJ Outer Flow Below Join"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveSteps(Observer, 2, 1, 5);
-        Observer.Finish();
+        Observer.Expect('no filter', 'filters [] rows C1/1/H1[Alpha|1|Yes] C1/2/H2[Beta|1|Yes] C1/3/[|0|No] C2/4/H3[|1|No] ');
+        Observer.Expect('name Alpha', 'filters [Name: Alpha] rows C1/1/H1[Alpha|1|Yes] ');
+        Observer.Expect('name blank', 'filters [Name: ''''] rows C1/3/[|0|No] C2/4/H3[|1|No] ');
+        Observer.Expect('name <>Alpha', 'filters [Name: <>Alpha] rows C1/2/H2[Beta|1|Yes] C1/3/[|0|No] C2/4/H3[|1|No] ');
+        Observer.Expect('name @*a', 'filters [Name: @*a] rows C1/1/H1[Alpha|1|Yes] C1/2/H2[Beta|1|Yes] ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -670,7 +686,13 @@ codeunit 75097 "LT QOJ Outer Flow Below Join"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveSteps(Observer, 2, 6, 11);
-        Observer.Finish();
+        Observer.Expect('count 1', 'filters [Line No.: 1] rows C1/1/H1[Alpha|1|Yes] C1/2/H2[Beta|1|Yes] C2/4/H3[|1|No] ');
+        Observer.Expect('count 0', 'filters [Line No.: 0] rows C1/3/[|0|No] ');
+        Observer.Expect('count >0', 'filters [Line No.: >0] rows C1/1/H1[Alpha|1|Yes] C1/2/H2[Beta|1|Yes] C2/4/H3[|1|No] ');
+        Observer.Expect('has customer true', 'filters [timestamp: Yes] rows C1/1/H1[Alpha|1|Yes] C1/2/H2[Beta|1|Yes] ');
+        Observer.Expect('has customer false', 'filters [timestamp: No] rows C1/3/[|0|No] C2/4/H3[|1|No] ');
+        Observer.Expect('name Alpha|Beta and contact C1', 'filters [No.: C1, Name: Alpha|Beta] rows C1/1/H1[Alpha|1|Yes] C1/2/H2[Beta|1|Yes] ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -679,7 +701,12 @@ codeunit 75097 "LT QOJ Outer Flow Below Join"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveSteps(Observer, 3, 1, 5);
-        Observer.Finish();
+        Observer.Expect('no filter', 'filters [] rows C1/1/H1 C1/2/H2 C1/3/ C2/4/H3 C3/0/ ');
+        Observer.Expect('name Alpha', 'filters [Name: Alpha] rows C1/1/H1 ');
+        Observer.Expect('name blank', 'filters [Name: ''''] rows C1/3/ C2/4/H3 C3/0/ ');
+        Observer.Expect('name <>Alpha', 'filters [Name: <>Alpha] rows C1/2/H2 C1/3/ C2/4/H3 C3/0/ ');
+        Observer.Expect('name @*a', 'filters [Name: @*a] rows C1/1/H1 C1/2/H2 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -688,7 +715,13 @@ codeunit 75097 "LT QOJ Outer Flow Below Join"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveSteps(Observer, 3, 6, 11);
-        Observer.Finish();
+        Observer.Expect('count 1', 'filters [Line No.: 1] rows C1/1/H1 C1/2/H2 C2/4/H3 ');
+        Observer.Expect('count 0', 'filters [Line No.: 0] rows C1/3/ C3/0/ ');
+        Observer.Expect('count >0', 'filters [Line No.: >0] rows C1/1/H1 C1/2/H2 C2/4/H3 ');
+        Observer.Expect('has customer true', 'filters [timestamp: Yes] rows C1/1/H1 C1/2/H2 ');
+        Observer.Expect('has customer false', 'filters [timestamp: No] rows C1/3/ C2/4/H3 C3/0/ ');
+        Observer.Expect('name Alpha|Beta and contact C1', 'filters [Name: Alpha|Beta, No.: C1] rows C1/1/H1 C1/2/H2 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -697,7 +730,12 @@ codeunit 75097 "LT QOJ Outer Flow Below Join"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveSteps(Observer, 4, 1, 5);
-        Observer.Finish();
+        Observer.Expect('no filter', 'filters [] rows C1/1/H1[Alpha|1|Yes] C1/2/H2[Beta|1|Yes] C1/3/[|0|No] C2/4/H3[|1|No] C3/0/[|0|No] ');
+        Observer.Expect('name Alpha', 'filters [Name: Alpha] rows C1/1/H1[Alpha|1|Yes] ');
+        Observer.Expect('name blank', 'filters [Name: ''''] rows C1/3/[|0|No] C2/4/H3[|1|No] C3/0/[|0|No] ');
+        Observer.Expect('name <>Alpha', 'filters [Name: <>Alpha] rows C1/2/H2[Beta|1|Yes] C1/3/[|0|No] C2/4/H3[|1|No] C3/0/[|0|No] ');
+        Observer.Expect('name @*a', 'filters [Name: @*a] rows C1/1/H1[Alpha|1|Yes] C1/2/H2[Beta|1|Yes] ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -706,7 +744,13 @@ codeunit 75097 "LT QOJ Outer Flow Below Join"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveSteps(Observer, 4, 6, 11);
-        Observer.Finish();
+        Observer.Expect('count 1', 'filters [Line No.: 1] rows C1/1/H1[Alpha|1|Yes] C1/2/H2[Beta|1|Yes] C2/4/H3[|1|No] ');
+        Observer.Expect('count 0', 'filters [Line No.: 0] rows C1/3/[|0|No] C3/0/[|0|No] ');
+        Observer.Expect('count >0', 'filters [Line No.: >0] rows C1/1/H1[Alpha|1|Yes] C1/2/H2[Beta|1|Yes] C2/4/H3[|1|No] ');
+        Observer.Expect('has customer true', 'filters [timestamp: Yes] rows C1/1/H1[Alpha|1|Yes] C1/2/H2[Beta|1|Yes] ');
+        Observer.Expect('has customer false', 'filters [timestamp: No] rows C1/3/[|0|No] C2/4/H3[|1|No] C3/0/[|0|No] ');
+        Observer.Expect('name Alpha|Beta and contact C1', 'filters [No.: C1, Name: Alpha|Beta] rows C1/1/H1[Alpha|1|Yes] C1/2/H2[Beta|1|Yes] ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -715,7 +759,12 @@ codeunit 75097 "LT QOJ Outer Flow Below Join"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveSteps(Observer, 5, 1, 5);
-        Observer.Finish();
+        Observer.Expect('no filter', 'filters [] rows C1/1/H1 C1/2/H2 C1/3/ C2/4/H3 C3/0/ ');
+        Observer.Expect('name Alpha', 'filters [Name: Alpha] rows C1/1/H1 ');
+        Observer.Expect('name blank', 'filters [Name: ''''] rows C1/3/ C2/4/H3 C3/0/ ');
+        Observer.Expect('name <>Alpha', 'filters [Name: <>Alpha] rows C1/2/H2 C1/3/ C2/4/H3 C3/0/ ');
+        Observer.Expect('name @*a', 'filters [Name: @*a] rows C1/1/H1 C1/2/H2 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -724,7 +773,13 @@ codeunit 75097 "LT QOJ Outer Flow Below Join"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveSteps(Observer, 5, 6, 11);
-        Observer.Finish();
+        Observer.Expect('count 1', 'filters [Line No.: 1] rows C1/1/H1 C1/2/H2 C2/4/H3 ');
+        Observer.Expect('count 0', 'filters [Line No.: 0] rows C1/3/ C3/0/ ');
+        Observer.Expect('count >0', 'filters [Line No.: >0] rows C1/1/H1 C1/2/H2 C2/4/H3 ');
+        Observer.Expect('has customer true', 'filters [timestamp: Yes] rows C1/1/H1 C1/2/H2 ');
+        Observer.Expect('has customer false', 'filters [timestamp: No] rows C1/3/ C2/4/H3 C3/0/ ');
+        Observer.Expect('name Alpha|Beta and contact C1', 'filters [Name: Alpha|Beta, No.: C1] rows C1/1/H1 C1/2/H2 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -733,7 +788,12 @@ codeunit 75097 "LT QOJ Outer Flow Below Join"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveSteps(Observer, 6, 1, 5);
-        Observer.Finish();
+        Observer.Expect('no filter', 'filters [] rows C1/1/H1 C1/2/H2 C2/4/H3 ');
+        Observer.Expect('name Alpha', 'filters [Name: Alpha] rows C1/1/H1 ');
+        Observer.Expect('name blank', 'filters [Name: ''''] rows C2/4/H3 ');
+        Observer.Expect('name <>Alpha', 'filters [Name: <>Alpha] rows C1/2/H2 C2/4/H3 ');
+        Observer.Expect('name @*a', 'filters [Name: @*a] rows C1/1/H1 C1/2/H2 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -742,6 +802,12 @@ codeunit 75097 "LT QOJ Outer Flow Below Join"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveSteps(Observer, 6, 6, 11);
-        Observer.Finish();
+        Observer.Expect('count 1', 'filters [Line No.: 1] rows C1/1/H1 C1/2/H2 C2/4/H3 ');
+        Observer.Expect('count 0', 'filters [Line No.: 0] rows ');
+        Observer.Expect('count >0', 'filters [Line No.: >0] rows C1/1/H1 C1/2/H2 C2/4/H3 ');
+        Observer.Expect('has customer true', 'filters [timestamp: Yes] rows C1/1/H1 C1/2/H2 ');
+        Observer.Expect('has customer false', 'filters [timestamp: No] rows C2/4/H3 ');
+        Observer.Expect('name Alpha|Beta and contact C1', 'filters [Name: Alpha|Beta, No.: C1] rows C1/1/H1 C1/2/H2 ');
+        Observer.Verify();
     end;
 }

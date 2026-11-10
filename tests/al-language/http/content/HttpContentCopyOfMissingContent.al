@@ -206,7 +206,14 @@ codeunit 75103 "LT HCM Copy Of Missing Content"
         ObserveStep(Observer, 7, 'ReadAs twice, GetHeaders, ReadAs stream');
         ObserveStep(Observer, 15, 'POST request');
         ObserveStep(Observer, 16, 'ReadAs stream then EOS');
-        Observer.Finish();
+        Observer.Expect('GET request with a URI, if ReadAs', 'ok read false text=kept');
+        Observer.Expect('ReadAs as a statement|text', 'Microsoft.Dynamics.Nav.Runtime.NavHttpContent variable not initialized.');
+        Observer.Expect('ReadAs as a statement|code', 'NotInitialized');
+        Observer.Expect('ReadAs twice, GetHeaders, ReadAs stream', 'ok first No second No headers No stream No');
+        Observer.Expect('POST request', 'ok POST request copy read No text=kept');
+        Observer.Expect('ReadAs stream then EOS|text', 'Microsoft.Dynamics.Nav.Runtime.NavInStream variable not initialized.');
+        Observer.Expect('ReadAs stream then EOS|code', 'NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -218,7 +225,12 @@ codeunit 75103 "LT HCM Copy Of Missing Content"
         ObserveStep(Observer, 3, 'GetHeaders assigned');
         ObserveStep(Observer, 4, 'GetHeaders in exit');
         ObserveStep(Observer, 5, 'GetHeaders as a statement');
-        Observer.Finish();
+        Observer.Expect('if GetHeaders', 'ok headers false []');
+        Observer.Expect('GetHeaders assigned', 'ok headers No []');
+        Observer.Expect('GetHeaders in exit', 'ok headers No []');
+        Observer.Expect('GetHeaders as a statement|text', 'Microsoft.Dynamics.Nav.Runtime.NavHttpContent variable not initialized.');
+        Observer.Expect('GetHeaders as a statement|code', 'NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -231,7 +243,12 @@ codeunit 75103 "LT HCM Copy Of Missing Content"
         ObserveStep(Observer, 10, 'copy of the copy');
         ObserveStep(Observer, 11, 'handed to a procedure');
         ObserveStep(Observer, 12, 'assigned back to the request');
-        Observer.Finish();
+        Observer.Expect('WriteFrom on the copy', 'ok copy Yes text=written to the copy request No text=kept');
+        Observer.Expect('Clear of the copy', 'ok after Clear Yes text= headers Yes [Content-Type;Content-Length;]');
+        Observer.Expect('copy of the copy', 'ok copy of the copy No text=kept headers No');
+        Observer.Expect('handed to a procedure', 'ok by value No text=kept by var No text=kept');
+        Observer.Expect('assigned back to the request', 'ok request after the copy is assigned back No text=kept');
+        Observer.Verify();
     end;
 
     [Test]
@@ -241,6 +258,8 @@ codeunit 75103 "LT HCM Copy Of Missing Content"
     begin
         ObserveStep(Observer, 13, 'copy of the content of a fresh response');
         ObserveStep(Observer, 14, 'content variable never written');
-        Observer.Finish();
+        Observer.Expect('copy of the content of a fresh response', 'ok response copy read Yes text= headers Yes [Content-Length;]');
+        Observer.Expect('content variable never written', 'ok never written read Yes text= headers Yes [Content-Type;Content-Length;]');
+        Observer.Verify();
     end;
 }
