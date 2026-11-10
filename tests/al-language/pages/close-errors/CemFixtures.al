@@ -1,3 +1,4 @@
+// singleinstance-shared-on-purpose: the Write/Read test pairs read what the previous test's page close logged, and every other test resets the shared log with Help.Setup first.
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-page-triggers
 // Scope: in-scope
 // Fixtures used: none (this file defines them)
