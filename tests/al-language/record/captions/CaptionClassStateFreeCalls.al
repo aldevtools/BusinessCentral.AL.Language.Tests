@@ -586,7 +586,9 @@ codeunit 62419 "CCF State Free Tests"
         Observer.Observe('empty record', FieldCaptions(Row));
         Row.Id := 5;
         Observer.Observe('record with an Id', FieldCaptions(Row));
-        Observer.Finish();
+        Observer.Expect('empty record', 'cue=[Cue 1] nottaken=[Not taken text] helper=[All] refcopy=[CCFAREA,0,62411,13]');
+        Observer.Expect('record with an Id', 'cue=[Cue 1] nottaken=[Not taken text] helper=[All] refcopy=[CCFAREA,0,62411,13]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -601,7 +603,9 @@ codeunit 62419 "CCF State Free Tests"
         Observer.Observe('empty record', FieldCaptions(Row));
         Row.Id := 5;
         Observer.Observe('record with an Id', FieldCaptions(Row));
-        Observer.Finish();
+        Observer.Expect('empty record', 'cue=[CcfCueArea,My cue] nottaken=[Not taken text] helper=[Street] refcopy=[CCFAREA,1,62411,13]');
+        Observer.Expect('record with an Id', 'cue=[CcfCueArea,My cue] nottaken=[Not taken text] helper=[Street] refcopy=[CCFAREA,1,62411,13]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -627,7 +631,9 @@ codeunit 62419 "CCF State Free Tests"
         for FieldNumber := 10 to 13 do
             Got += Format(FieldNumber) + '=[' + RecRef.Field(FieldNumber).Caption() + '] ';
         Observer.Observe('RecordRef.Open', Got);
-        Observer.Finish();
+        Observer.Expect('GetTable of the record', '10=[CcfCueArea,My cue] 11=[Not taken text] 12=[Street] 13=[CCFAREA,1,62411,13] ');
+        Observer.Expect('RecordRef.Open', '10=[CcfCueArea,My cue] 11=[Not taken text] 12=[All] 13=[CCFAREA,0,62411,13] ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -646,7 +652,12 @@ codeunit 62419 "CCF State Free Tests"
         Observer.Observe('refcopy', '[' + Card.RefCopy.Caption() + ']');
         Observer.Observe('cue again', '[' + Card.Cue1.Caption() + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('cue', '[CcfCueArea,My cue]');
+        Observer.Expect('nottaken', '[Not taken text]');
+        Observer.Expect('helper', '[Street]');
+        Observer.Expect('refcopy', '[CCFAREA,1,62411,13]');
+        Observer.Expect('cue again', '[CcfCueArea,My cue]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -663,7 +674,11 @@ codeunit 62419 "CCF State Free Tests"
         Observer.Observe('helper', '[' + Card.HelperKind.Caption() + ']');
         Observer.Observe('refcopy', '[' + Card.RefCopy.Caption() + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('cue', '[]');
+        Observer.Expect('nottaken', '[Not taken text]');
+        Observer.Expect('helper', '[All]');
+        Observer.Expect('refcopy', '[CCFAREA,0,62411,13]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -680,7 +695,11 @@ codeunit 62419 "CCF State Free Tests"
         Observer.Observe('helper', '[' + Card.HelperKind.Caption() + ']');
         Observer.Observe('refcopy', '[' + Card.RefCopy.Caption() + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('cue', '[CcfCueArea,My cue]');
+        Observer.Expect('nottaken', '[Not taken text]');
+        Observer.Expect('helper', '[All]');
+        Observer.Expect('refcopy', '[CCFAREA,0,62411,13]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -702,7 +721,13 @@ codeunit 62419 "CCF State Free Tests"
         Observer.Observe('helper on row 2', '[' + List.HelperKind.Caption() + ']');
         Observer.Observe('refcopy on row 2', '[' + List.RefCopy.Caption() + ']');
         List.Close();
-        Observer.Finish();
+        Observer.Expect('cue', '[CcfCueArea,My cue]');
+        Observer.Expect('nottaken', '[Not taken text]');
+        Observer.Expect('helper', '[Street]');
+        Observer.Expect('refcopy', '[CCFAREA,1,62411,13]');
+        Observer.Expect('helper on row 2', '[Street]');
+        Observer.Expect('refcopy on row 2', '[CCFAREA,1,62411,13]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -722,7 +747,12 @@ codeunit 62419 "CCF State Free Tests"
         Observer.Observe('part refcopy', '[' + Host.Lines.RefCopy.Caption() + ']');
         Observer.Observe('cue part cue', '[' + Host.Cues.Cue1.Caption() + ']');
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('host address 2', '[CCFADDR,1,62413,3]');
+        Observer.Expect('part nottaken', '[Not taken text]');
+        Observer.Expect('part helper', '[Street]');
+        Observer.Expect('part refcopy', '[CCFAREA,1,62411,13]');
+        Observer.Expect('cue part cue', '[CcfCueArea,My cue]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -737,7 +767,8 @@ codeunit 62419 "CCF State Free Tests"
         SeedAddr(Enum::"CCF Kind"::Street);
         Page.Run(Page::"CCF Host");
         Observer.Observe('captions the page handler read', Log.TakeKept());
-        Observer.Finish();
+        Observer.Expect('captions the page handler read', 'host address 2=[CCFADDR,1,62413,3] part nottaken=[Not taken text] part helper=[Street] part refcopy=[CCFAREA,1,62411,13] cue part cue=[CcfCueArea,My cue]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -752,7 +783,8 @@ codeunit 62419 "CCF State Free Tests"
         Cues.OpenView();
         Observer.Observe('cue', '[' + Cues.Cue1.Caption() + ']');
         Cues.Close();
-        Observer.Finish();
+        Observer.Expect('cue', '[CcfCueArea,My cue]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -766,7 +798,8 @@ codeunit 62419 "CCF State Free Tests"
         Cues.OpenView();
         Observer.Observe('cue', '[' + Cues.Cue1.Caption() + ']');
         Cues.Close();
-        Observer.Finish();
+        Observer.Expect('cue', '[]');
+        Observer.Verify();
     end;
 
     // al-runner issue 7467: the expression lives in the table extension.
@@ -785,7 +818,11 @@ codeunit 62419 "CCF State Free Tests"
         RecRef.GetTable(Addr);
         Observer.Observe('street, FieldRef.Caption', '[' + RecRef.Field(2).Caption() + ']');
         Observer.Observe('field without a CaptionClass', '[' + Addr.FieldCaption("Sell Address 2") + ']');
-        Observer.Finish();
+        Observer.Expect('postal', '[CCFADDR,0,62413,3]');
+        Observer.Expect('street', '[CCFADDR,1,62413,3]');
+        Observer.Expect('street, FieldRef.Caption', '[CCFADDR,1,62413,3]');
+        Observer.Expect('field without a CaptionClass', '[Sell Address 2]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -804,7 +841,10 @@ codeunit 62419 "CCF State Free Tests"
         Card.OpenView();
         Observer.Observe('second open, postal row', '[' + Card.Address2.Caption() + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('street row', '[CCFADDR,1,62413,3]');
+        Observer.Expect('after SetValue of the type to Postal', '[CCFADDR,1,62413,3]');
+        Observer.Expect('second open, postal row', '[CCFADDR,0,62413,3]');
+        Observer.Verify();
     end;
 
     // al-runner issue 7391: the branch is taken. FieldCaption with a record whose Id is 777 shows the message.
@@ -821,7 +861,9 @@ codeunit 62419 "CCF State Free Tests"
         Got := Row.FieldCaption("Not Taken");
         Observer.Observe('caption', '[' + Got + ']');
         Observer.Observe('messages', Format(Log.TakeMessages()));
-        Observer.Finish();
+        Observer.Expect('caption', '[Not taken text]');
+        Observer.Expect('messages', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -838,7 +880,9 @@ codeunit 62419 "CCF State Free Tests"
             Error('no error, caption [%1]', Got);
         end;
         Observer.ObserveError('FieldCaption');
-        Observer.Finish();
+        Observer.Expect('FieldCaption|text', 'CCF error branch');
+        Observer.Expect('FieldCaption|code', 'Dialog');
+        Observer.Verify();
     end;
 
     // The row of the card takes the Message branch, the empty record of the open does not.
@@ -860,7 +904,14 @@ codeunit 62419 "CCF State Free Tests"
         Card.Close();
         Observer.Observe('close runs', Log.Take());
         Observer.Observe('close messages', Format(Log.TakeMessages()));
-        Observer.Finish();
+        Observer.Expect('open runs', 'f10:11/1 f11:11/1 f12:11/1 f13:11/1');
+        Observer.Expect('open messages', '1');
+        Observer.Expect('caption', '[Not taken text]');
+        Observer.Expect('read runs', 'none');
+        Observer.Expect('read messages', '0');
+        Observer.Expect('close runs', 'none');
+        Observer.Expect('close messages', '0');
+        Observer.Verify();
     end;
 
     // The row of the card takes the Error branch.
@@ -878,7 +929,10 @@ codeunit 62419 "CCF State Free Tests"
         end;
         Observer.ObserveError('open');
         Observer.Observe('runs', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open|text', 'CCF error branch');
+        Observer.Expect('open|code', 'Dialog');
+        Observer.Expect('runs', 'f10:11/1 f11:11/1 f12:11/0 f13:11/0');
+        Observer.Verify();
     end;
 
     // A row that takes no branch: no message handler is declared, so a message would fail the test.
@@ -918,7 +972,15 @@ codeunit 62419 "CCF State Free Tests"
         Observer.Observe('open', Opens);
         Observer.Observe('GoToRecord', Moves);
         Observer.Observe('close', Closes);
-        Observer.Finish();
+        Observer.Expect('cue', '[CcfCueArea,My cue]');
+        Observer.Expect('nottaken', '[Not taken text]');
+        Observer.Expect('helper', '[Street]');
+        Observer.Expect('refcopy', '[CCFAREA,1,62412,13]');
+        Observer.Expect('runs of the four Caption() reads', 'none');
+        Observer.Expect('open', 'f10:11/1 f11:11/1 f12:11/1 f13:11/1|f10:11/1 f11:11/1 f12:11/1 f13:11/1|f10:11/1 f11:11/1 f12:11/1 f13:11/1|');
+        Observer.Expect('GoToRecord', 'f10:0/1 f11:0/1 f12:0/1 f13:0/1|f10:0/1 f11:0/1 f12:0/1 f13:0/1|f10:0/1 f11:0/1 f12:0/1 f13:0/1|');
+        Observer.Expect('close', 'none|none|none|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -946,7 +1008,11 @@ codeunit 62419 "CCF State Free Tests"
         end;
         Observer.Observe('open', Opens);
         Observer.Observe('close', Closes);
-        Observer.Finish();
+        Observer.Expect('cue', '[CcfCueArea,My cue]');
+        Observer.Expect('runs of the Caption() read', 'none');
+        Observer.Expect('open', 'f10:6/1 f11:6/0 f12:6/0 f13:6/0|f10:6/1 f11:6/0 f12:6/0 f13:6/0|f10:6/1 f11:6/0 f12:6/0 f13:6/0|');
+        Observer.Expect('close', 'none|none|none|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -972,7 +1038,13 @@ codeunit 62419 "CCF State Free Tests"
         Observer.Observe('refcopy again', '[' + Got + '] ' + Log.Take());
         Got := CountRow.FieldCaption("Not Taken");
         Observer.Observe('nottaken', '[' + Got + '] ' + Log.Take());
-        Observer.Finish();
+        Observer.Expect('cue', '[CcfCueArea,My cue] f10:0/1');
+        Observer.Expect('cue again', '[CcfCueArea,My cue] f10:0/1');
+        Observer.Expect('helper', '[Street] f12:0/1');
+        Observer.Expect('refcopy', '[CCFAREA,1,62412,13] f13:0/1');
+        Observer.Expect('refcopy again', '[CCFAREA,1,62412,13] f13:0/1');
+        Observer.Expect('nottaken', '[Not taken text] f11:0/1');
+        Observer.Verify();
     end;
 
     [PageHandler]

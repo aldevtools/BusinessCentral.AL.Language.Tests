@@ -363,7 +363,21 @@ codeunit 62409 "CCA Own Area Tests"
     begin
         for Index := 1 to 14 do
             Observer.Observe(Format(Index), ReadFieldCaption(Index, 'A'));
-        Observer.Finish();
+        Observer.Expect('1', 'cap=[R[2,1,, mandatory]] ev=(CCAOCA|2,1,, mandatory|s)');
+        Observer.Expect('2', 'cap=[R[2,1, Fixed ]] ev=(CCAOCA|2,1, Fixed |s)');
+        Observer.Expect('3', 'cap=[R[]] ev=(CCAOCA||s)');
+        Observer.Expect('4', 'cap=[CCAOCA] ev=none');
+        Observer.Expect('5', 'cap=[R[,x]] ev=(CCAOCA|,x|s)');
+        Observer.Expect('6', 'cap=[R[lead]] ev=( CCAOCA|lead|s)');
+        Observer.Expect('7', 'cap=[R[trail]] ev=(CCAOCA |trail|s)');
+        Observer.Expect('8', 'cap=[R[lower]] ev=(ccaocA|lower|s)');
+        Observer.Expect('9', 'cap=[CCAOUA,2,1, unclaimed ] ev=(CCAOUA|2,1, unclaimed |s)');
+        Observer.Expect('10', 'cap=[Dyn Caption] ev=(CCAOEA|empty|s)');
+        Observer.Expect('11', 'cap=[  padded spaces  ] ev=(CCAOSA|spaces|s)');
+        Observer.Expect('12', 'cap=[,ccaoA noarea] ev=(|ccaoA noarea|s)');
+        Observer.Expect('13', 'cap=[R[%1 percent]] ev=(CCAOCA|%1 percent|s)');
+        Observer.Expect('14', 'cap=[CCAO CA,space in area] ev=(CCAO CA|space in area|s)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -375,7 +389,11 @@ codeunit 62409 "CCA Own Area Tests"
         Observer.Observe('second', ReadFieldCaption(1, 'H'));
         Observer.Observe('unclaimed first', ReadFieldCaption(9, 'H'));
         Observer.Observe('unclaimed second', ReadFieldCaption(9, 'H'));
-        Observer.Finish();
+        Observer.Expect('first', 'cap=[R[2,1,, mandatory]] ev=(CCAOCH|2,1,, mandatory|s)');
+        Observer.Expect('second', 'cap=[R[2,1,, mandatory]] ev=none');
+        Observer.Expect('unclaimed first', 'cap=[CCAOUH,2,1, unclaimed ] ev=(CCAOUH|2,1, unclaimed |s)');
+        Observer.Expect('unclaimed second', 'cap=[CCAOUH,2,1, unclaimed ] ev=none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -386,7 +404,21 @@ codeunit 62409 "CCA Own Area Tests"
     begin
         for Index := 1 to 14 do
             Observer.Observe(Format(Index), ReadFieldRefCaption(Index, 'E'));
-        Observer.Finish();
+        Observer.Expect('1', 'cap=[R[2,1,, mandatory]] ev=(CCAOCE|2,1,, mandatory|s)');
+        Observer.Expect('2', 'cap=[R[2,1, Fixed ]] ev=(CCAOCE|2,1, Fixed |s)');
+        Observer.Expect('3', 'cap=[R[]] ev=(CCAOCE||s)');
+        Observer.Expect('4', 'cap=[CCAOCE] ev=none');
+        Observer.Expect('5', 'cap=[R[,x]] ev=(CCAOCE|,x|s)');
+        Observer.Expect('6', 'cap=[R[lead]] ev=( CCAOCE|lead|s)');
+        Observer.Expect('7', 'cap=[R[trail]] ev=(CCAOCE |trail|s)');
+        Observer.Expect('8', 'cap=[R[lower]] ev=(ccaocE|lower|s)');
+        Observer.Expect('9', 'cap=[CCAOUE,2,1, unclaimed ] ev=(CCAOUE|2,1, unclaimed |s)');
+        Observer.Expect('10', 'cap=[Dyn Caption] ev=(CCAOEE|empty|s)');
+        Observer.Expect('11', 'cap=[  padded spaces  ] ev=(CCAOSE|spaces|s)');
+        Observer.Expect('12', 'cap=[,ccaoE noarea] ev=(|ccaoE noarea|s)');
+        Observer.Expect('13', 'cap=[R[%1 percent]] ev=(CCAOCE|%1 percent|s)');
+        Observer.Expect('14', 'cap=[CCAO CE,space in area] ev=(CCAO CE|space in area|s)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -397,7 +429,21 @@ codeunit 62409 "CCA Own Area Tests"
     begin
         for Index := 1 to 14 do
             Observer.Observe(Format(Index), ReadTranslate(Index, 'B'));
-        Observer.Finish();
+        Observer.Expect('1', 'cap=[R[2,1,, mandatory]] ev=(CCAOCB|2,1,, mandatory|s)');
+        Observer.Expect('2', 'cap=[R[2,1, Fixed ]] ev=(CCAOCB|2,1, Fixed |s)');
+        Observer.Expect('3', 'cap=[R[]] ev=(CCAOCB||s)');
+        Observer.Expect('4', 'cap=[CCAOCB] ev=none');
+        Observer.Expect('5', 'cap=[R[,x]] ev=(CCAOCB|,x|s)');
+        Observer.Expect('6', 'cap=[R[lead]] ev=( CCAOCB|lead|s)');
+        Observer.Expect('7', 'cap=[R[trail]] ev=(CCAOCB |trail|s)');
+        Observer.Expect('8', 'cap=[R[lower]] ev=(ccaocB|lower|s)');
+        Observer.Expect('9', 'cap=[CCAOUB,2,1, unclaimed ] ev=(CCAOUB|2,1, unclaimed |s)');
+        Observer.Expect('10', 'cap=[] ev=(CCAOEB|empty|s)');
+        Observer.Expect('11', 'cap=[  padded spaces  ] ev=(CCAOSB|spaces|s)');
+        Observer.Expect('12', 'cap=[,ccaoB noarea] ev=(|ccaoB noarea|s)');
+        Observer.Expect('13', 'cap=[R[%1 percent]] ev=(CCAOCB|%1 percent|s)');
+        Observer.Expect('14', 'cap=[CCAO CB,space in area] ev=(CCAO CB|space in area|s)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -408,7 +454,12 @@ codeunit 62409 "CCA Own Area Tests"
     begin
         for Index := 1 to 5 do
             Observer.Observe(Format(Index), ReadCard(Index, 'C'));
-        Observer.Finish();
+        Observer.Expect('1', 'open=(CCAOCC|2,1,, mandatory|s) cap1=[R[2,1,, mandatory]] ev=none cap2=[R[2,1,, mandatory]] ev=none close=none fc=[R[2,1,, mandatory]] ev=none');
+        Observer.Expect('2', 'open=(CCAOCC|2,1, Fixed |s) cap1=[R[2,1, Fixed ]] ev=none cap2=[R[2,1, Fixed ]] ev=none close=none fc=[R[2,1, Fixed ]] ev=none');
+        Observer.Expect('3', 'open=(CCAOCC||s) cap1=[R[]] ev=none cap2=[R[]] ev=none close=none fc=[R[]] ev=none');
+        Observer.Expect('4', 'open=none cap1=[CCAOCC] ev=none cap2=[CCAOCC] ev=none close=none fc=[CCAOCC] ev=none');
+        Observer.Expect('5', 'open=(CCAOCC|,x|s) cap1=[R[,x]] ev=none cap2=[R[,x]] ev=none close=none fc=[R[,x]] ev=none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -419,7 +470,12 @@ codeunit 62409 "CCA Own Area Tests"
     begin
         for Index := 6 to 10 do
             Observer.Observe(Format(Index), ReadCard(Index, 'C'));
-        Observer.Finish();
+        Observer.Expect('6', 'open=( CCAOCC|lead|s) cap1=[R[lead]] ev=none cap2=[R[lead]] ev=none close=none fc=[R[lead]] ev=none');
+        Observer.Expect('7', 'open=(CCAOCC |trail|s) cap1=[R[trail]] ev=none cap2=[R[trail]] ev=none close=none fc=[R[trail]] ev=none');
+        Observer.Expect('8', 'open=(ccaocC|lower|s) cap1=[R[lower]] ev=none cap2=[R[lower]] ev=none close=none fc=[R[lower]] ev=none');
+        Observer.Expect('9', 'open=(CCAOUC|2,1, unclaimed |s) cap1=[CCAOUC,2,1, unclaimed ] ev=none cap2=[CCAOUC,2,1, unclaimed ] ev=none close=none fc=[CCAOUC,2,1, unclaimed ] ev=none');
+        Observer.Expect('10', 'open=(CCAOEC|empty|s) cap1=[] ev=none cap2=[] ev=none close=none fc=[Dyn Caption] ev=none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -430,7 +486,11 @@ codeunit 62409 "CCA Own Area Tests"
     begin
         for Index := 11 to 14 do
             Observer.Observe(Format(Index), ReadCard(Index, 'C'));
-        Observer.Finish();
+        Observer.Expect('11', 'open=(CCAOSC|spaces|s) cap1=[  padded spaces  ] ev=none cap2=[  padded spaces  ] ev=none close=none fc=[  padded spaces  ] ev=none');
+        Observer.Expect('12', 'open=(|ccaoC noarea|s) cap1=[,ccaoC noarea] ev=none cap2=[,ccaoC noarea] ev=none close=none fc=[,ccaoC noarea] ev=none');
+        Observer.Expect('13', 'open=(CCAOCC|%1 percent|s) cap1=[R[%1 percent]] ev=none cap2=[R[%1 percent]] ev=none close=none fc=[R[%1 percent]] ev=none');
+        Observer.Expect('14', 'open=(CCAO CC|space in area|s) cap1=[CCAO CC,space in area] ev=none cap2=[CCAO CC,space in area] ev=none close=none fc=[CCAO CC,space in area] ev=none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -444,7 +504,13 @@ codeunit 62409 "CCA Own Area Tests"
         Observer.Observe('4', ReadList(4, 'D'));
         Observer.Observe('9', ReadList(9, 'D'));
         Observer.Observe('10', ReadList(10, 'D'));
-        Observer.Finish();
+        Observer.Expect('1', 'open=(CCAOCD|2,1,, mandatory|s) cap1=[R[2,1,, mandatory]] ev=none cap2=[R[2,1,, mandatory]] ev=none close=none');
+        Observer.Expect('2', 'open=(CCAOCD|2,1, Fixed |s) cap1=[R[2,1, Fixed ]] ev=none cap2=[R[2,1, Fixed ]] ev=none close=none');
+        Observer.Expect('3', 'open=(CCAOCD||s) cap1=[R[]] ev=none cap2=[R[]] ev=none close=none');
+        Observer.Expect('4', 'open=none cap1=[CCAOCD] ev=none cap2=[CCAOCD] ev=none close=none');
+        Observer.Expect('9', 'open=(CCAOUD|2,1, unclaimed |s) cap1=[CCAOUD,2,1, unclaimed ] ev=none cap2=[CCAOUD,2,1, unclaimed ] ev=none close=none');
+        Observer.Expect('10', 'open=(CCAOED|empty|s) cap1=[] ev=none cap2=[] ev=none close=none');
+        Observer.Verify();
     end;
 
     // al-runner issue 7431: FieldCaption of the two fields, read twice.
@@ -465,7 +531,11 @@ codeunit 62409 "CCA Own Area Tests"
         Observer.Observe('mandatory again', '[' + Got + '] ev=' + Log.Take());
         Got := Row.FieldCaption("Fixed Value");
         Observer.Observe('fixed again', '[' + Got + '] ev=' + Log.Take());
-        Observer.Finish();
+        Observer.Expect('mandatory', '[R[2,1,, mandatory]] ev=(CCAOCF|2,1,, mandatory|s)');
+        Observer.Expect('fixed', '[R[2,1, Fixed ]] ev=(CCAOCF|2,1, Fixed |s)');
+        Observer.Expect('mandatory again', '[R[2,1,, mandatory]] ev=none');
+        Observer.Expect('fixed again', '[R[2,1, Fixed ]] ev=none');
+        Observer.Verify();
     end;
 
     // al-runner issue 7431: a card that shows the two fields.
@@ -500,7 +570,16 @@ codeunit 62409 "CCA Own Area Tests"
         Observer.Observe('close', Log.Take());
         Got := Row.FieldCaption(Mandatory);
         Observer.Observe('FieldCaption after the page', '[' + Got + '] ev=' + Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', '(CCAOCG|2,1,, mandatory|s)(CCAOCG|2,1, Fixed |s)');
+        Observer.Expect('mandatory', '[R[2,1,, mandatory]] ev=none');
+        Observer.Expect('fixed', '[R[2,1, Fixed ]] ev=none');
+        Observer.Expect('mandatory again', '[R[2,1,, mandatory]] ev=none');
+        Observer.Expect('fixed again', '[R[2,1, Fixed ]] ev=none');
+        Observer.Expect('after SetValue', 'none');
+        Observer.Expect('mandatory after SetValue', '[R[2,1,, mandatory]] ev=none');
+        Observer.Expect('close', 'none');
+        Observer.Expect('FieldCaption after the page', '[R[2,1,, mandatory]] ev=none');
+        Observer.Verify();
     end;
 
     // al-runner issue 7410: Caption() read twice on the control of a field with a literal own area.
@@ -540,6 +619,17 @@ codeunit 62409 "CCA Own Area Tests"
         Observer.Observe('FieldCaption of the field without a control', '[' + Got + '] ev=' + Log.Take());
         Got := CaptionClassTranslate('CCAOCL,2,1');
         Observer.Observe('CaptionClassTranslate of the same text', '[' + Got + '] ev=' + Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', '(CCAOCL|2,1|s)(CCAOCM|2,1|s)');
+        Observer.Expect('first read', '[R[2,1]] ev=none');
+        Observer.Expect('second read', '[R[2,1]] ev=none');
+        Observer.Expect('after SetValue', 'none');
+        Observer.Expect('read after SetValue', '[R[2,1]] ev=none');
+        Observer.Expect('close', 'none');
+        Observer.Expect('second open', 'none');
+        Observer.Expect('read on the second open', '[R[2,1]] ev=none');
+        Observer.Expect('FieldCaption after the page', '[R[2,1]] ev=none');
+        Observer.Expect('FieldCaption of the field without a control', '[R[2,1]] ev=none');
+        Observer.Expect('CaptionClassTranslate of the same text', '[R[2,1]] ev=none');
+        Observer.Verify();
     end;
 }
