@@ -238,7 +238,7 @@ codeunit 99671 "LT DB Duplicate Buffer"
         Commit();
         InsertRows(4);
         Observer.Observe('second call finished without an error', 'yes');
-        asserterror Row.Count();
+        asserterror if Row.Count() = 0 then;
         Observer.ObserveError('first read after the second call');
         Observer.Observe('rows after', Format(Row.Count()));
         Row.DeleteAll();
