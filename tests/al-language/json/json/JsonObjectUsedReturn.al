@@ -61,7 +61,18 @@ codeunit 99690 "JSON Object Used Return"
         Observer.Observe('format', Format(R.Add('a', 2)));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', '');
+        Observer.Expect('assign_last_code', '');
+        Observer.Expect('assign_state', '{"a":1,"b":"x"}');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', '');
+        Observer.Expect('end_state', '{"a":1,"b":"x"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -75,7 +86,10 @@ codeunit 99690 "JSON Object Used Return"
         asserterror R.Add('a', 2);
         Observer.ObserveError('statement');
         Observer.Observe('state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('statement|text', 'The JSON object already contains the key ''a''.');
+        Observer.Expect('statement|code', 'DuplicateJsonProperty');
+        Observer.Expect('state', '{"a":1,"b":"x"}');
+        Observer.Verify();
     end;
 
     local procedure ObjectAdd_DuplicateKeyText_Exit(var R: JsonObject): Boolean
@@ -111,7 +125,18 @@ codeunit 99690 "JSON Object Used Return"
         Observer.Observe('format', Format(R.Add('b', 'other')));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', '');
+        Observer.Expect('assign_last_code', '');
+        Observer.Expect('assign_state', '{"a":1,"b":"x"}');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', '');
+        Observer.Expect('end_state', '{"a":1,"b":"x"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -125,7 +150,10 @@ codeunit 99690 "JSON Object Used Return"
         asserterror R.Add('b', 'other');
         Observer.ObserveError('statement');
         Observer.Observe('state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('statement|text', 'The JSON object already contains the key ''b''.');
+        Observer.Expect('statement|code', 'DuplicateJsonProperty');
+        Observer.Expect('state', '{"a":1,"b":"x"}');
+        Observer.Verify();
     end;
 
     local procedure ObjectAdd_DuplicateKeyObject_Exit(var R: JsonObject): Boolean
@@ -164,7 +192,18 @@ codeunit 99690 "JSON Object Used Return"
         Observer.Observe('format', Format(R.Add('a', Inner)));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', '');
+        Observer.Expect('assign_last_code', '');
+        Observer.Expect('assign_state', '{"a":1,"b":"x"}');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', '');
+        Observer.Expect('end_state', '{"a":1,"b":"x"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -179,7 +218,10 @@ codeunit 99690 "JSON Object Used Return"
         asserterror R.Add('a', Inner);
         Observer.ObserveError('statement');
         Observer.Observe('state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('statement|text', 'The JSON object already contains the key ''a''.');
+        Observer.Expect('statement|code', 'DuplicateJsonProperty');
+        Observer.Expect('state', '{"a":1,"b":"x"}');
+        Observer.Verify();
     end;
 
     local procedure ObjectReplace_MissingKey_Exit(var R: JsonObject): Boolean
@@ -215,7 +257,18 @@ codeunit 99690 "JSON Object Used Return"
         Observer.Observe('format', Format(R.Replace('zz', 2)));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', '');
+        Observer.Expect('assign_last_code', '');
+        Observer.Expect('assign_state', '{"a":1,"b":"x"}');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', '');
+        Observer.Expect('end_state', '{"a":1,"b":"x"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -229,7 +282,10 @@ codeunit 99690 "JSON Object Used Return"
         asserterror R.Replace('zz', 2);
         Observer.ObserveError('statement');
         Observer.Observe('state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('statement|text', 'There is no property with the ''zz'' key on the JSON object.');
+        Observer.Expect('statement|code', 'JsonPropertyNotFound');
+        Observer.Expect('state', '{"a":1,"b":"x"}');
+        Observer.Verify();
     end;
 
     local procedure ObjectGet_MissingKey_Exit(var R: JsonObject): Boolean
@@ -271,7 +327,18 @@ codeunit 99690 "JSON Object Used Return"
         Observer.Observe('format', Format(R.Get('zz', T)));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R.AsToken()) + ' / ' + Txt(T));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', '');
+        Observer.Expect('assign_last_code', '');
+        Observer.Expect('assign_state', '{"a":1,"b":"x"} / "marker"');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', '');
+        Observer.Expect('end_state', '{"a":1,"b":"x"} / "marker"');
+        Observer.Verify();
     end;
 
     [Test]
@@ -289,7 +356,10 @@ codeunit 99690 "JSON Object Used Return"
         asserterror R.Get('zz', T);
         Observer.ObserveError('statement');
         Observer.Observe('state', Txt(R.AsToken()) + ' / ' + Txt(T));
-        Observer.Finish();
+        Observer.Expect('statement|text', 'There is no property with the ''zz'' key on the JSON object.');
+        Observer.Expect('statement|code', 'JsonPropertyNotFound');
+        Observer.Expect('state', '{"a":1,"b":"x"} / "marker"');
+        Observer.Verify();
     end;
 
     local procedure ObjectRemove_MissingKey_Exit(var R: JsonObject): Boolean
@@ -325,7 +395,18 @@ codeunit 99690 "JSON Object Used Return"
         Observer.Observe('format', Format(R.Remove('zz')));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', '');
+        Observer.Expect('assign_last_code', '');
+        Observer.Expect('assign_state', '{"a":1,"b":"x"}');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', '');
+        Observer.Expect('end_state', '{"a":1,"b":"x"}');
+        Observer.Verify();
     end;
 
     local procedure ObjectSelectToken_MissingPath_Exit(var R: JsonObject): Boolean
@@ -367,7 +448,18 @@ codeunit 99690 "JSON Object Used Return"
         Observer.Observe('format', Format(R.SelectToken('zz', T)));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R.AsToken()) + ' / ' + Txt(T));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', '');
+        Observer.Expect('assign_last_code', '');
+        Observer.Expect('assign_state', '{"a":1,"b":"x"} / "marker"');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', '');
+        Observer.Expect('end_state', '{"a":1,"b":"x"} / "marker"');
+        Observer.Verify();
     end;
 
     [Test]
@@ -385,7 +477,10 @@ codeunit 99690 "JSON Object Used Return"
         asserterror R.SelectToken('zz', T);
         Observer.ObserveError('statement');
         Observer.Observe('state', Txt(R.AsToken()) + ' / ' + Txt(T));
-        Observer.Finish();
+        Observer.Expect('statement|text', 'The JSON path ''zz'' does not match any tokens.');
+        Observer.Expect('statement|code', 'InvalidJsonPathSelection');
+        Observer.Expect('state', '{"a":1,"b":"x"} / "marker"');
+        Observer.Verify();
     end;
 
     local procedure ObjectSelectToken_UnclosedPath_Exit(var R: JsonObject): Boolean
@@ -427,7 +522,18 @@ codeunit 99690 "JSON Object Used Return"
         Observer.Observe('format', Format(R.SelectToken('a[', T)));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R.AsToken()) + ' / ' + Txt(T));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('assign_last_code', 'InvalidOperation');
+        Observer.Expect('assign_state', '{"a":1,"b":"x"} / "marker"');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('end_state', '{"a":1,"b":"x"} / "marker"');
+        Observer.Verify();
     end;
 
     [Test]
@@ -445,7 +551,10 @@ codeunit 99690 "JSON Object Used Return"
         asserterror R.SelectToken('a[', T);
         Observer.ObserveError('statement');
         Observer.Observe('state', Txt(R.AsToken()) + ' / ' + Txt(T));
-        Observer.Finish();
+        Observer.Expect('statement|text', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('statement|code', 'InvalidOperation');
+        Observer.Expect('state', '{"a":1,"b":"x"} / "marker"');
+        Observer.Verify();
     end;
 
     local procedure ObjectReadFrom_InvalidText_Exit(var R: JsonObject): Boolean
@@ -481,7 +590,18 @@ codeunit 99690 "JSON Object Used Return"
         Observer.Observe('format', Format(R.ReadFrom('{"a":')));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', 'The data does not represent a valid JSON token.');
+        Observer.Expect('assign_last_code', 'InvalidJsonData');
+        Observer.Expect('assign_state', '{"a":1,"b":"x"}');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', 'The data does not represent a valid JSON token.');
+        Observer.Expect('end_state', '{"a":1,"b":"x"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -495,7 +615,10 @@ codeunit 99690 "JSON Object Used Return"
         asserterror R.ReadFrom('{"a":');
         Observer.ObserveError('statement');
         Observer.Observe('state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('statement|text', 'The data does not represent a valid JSON token.');
+        Observer.Expect('statement|code', 'InvalidJsonData');
+        Observer.Expect('state', '{"a":1,"b":"x"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -520,6 +643,13 @@ codeunit 99690 "JSON Object Used Return"
         Ok := R.Remove('c');
         Observer.Observe('remove_assign', Format(Ok));
         Observer.Observe('state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('add_assign', 'Yes');
+        Observer.Expect('add_if', 'then branch');
+        Observer.Expect('add_argument', 'true');
+        Observer.Expect('replace_assign', 'Yes');
+        Observer.Expect('replace_argument', 'true');
+        Observer.Expect('remove_assign', 'Yes');
+        Observer.Expect('state', '{"a":5,"b":6}');
+        Observer.Verify();
     end;
 }
