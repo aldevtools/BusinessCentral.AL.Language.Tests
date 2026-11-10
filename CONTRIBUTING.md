@@ -127,7 +127,7 @@ batch, and the old rules "one claim per codeunit" and "never define an object in
    Existing names stay. Id blocks stay per writer: they are only a way to hand out ids.
 8. **README.** A pull request that adds a topic, a shared fixture or a must-not-compile case updates the area README. A new
    must-not-compile case also adds its line `<file stem><TAB><area>` to `tests/must-not-compile/areas.tsv`.
-9. **No build outputs.** Do not commit build outputs or generated layouts (`.app` files, `bc-full-results.json`).
+9. **No build outputs.** Do not commit build outputs or generated layouts (`.app` files, `bc-full-results.json`). Microsoft's symbol packages are not committed either; `.alpackages/` folders are git-ignored.
    One claim per test procedure; many test procedures per codeunit of a topic.
 
 ---
@@ -364,7 +364,7 @@ Every test codeunit runs when one of these is true:
     - not an object of the test apps (a platform, System Application or Base Application object, for example `Global Triggers`, `Company Triggers`, `Caption Class`, or a table event of `Customer`);
     - an install or upgrade event (the event name contains `Install` or `Upgrade`);
     - an object of the test apps that more than 40 test codeunits use. Shared fixture publishers such as `ALT Triggered` or `ALT Event Publisher` are used by more than 250; a subscriber there changes the behavior of many unrelated tests;
-    - named the same as a Microsoft object in the symbol packages, so the scan cannot tell which one is meant;
+    - named the same as a Microsoft object in the symbol packages, so the scan cannot tell which one is meant. The packages are not in the repository, so when the tree has none, every such subscriber runs in any test;
     - written in a way the scan cannot read;
   - an `Install` or `Upgrade` codeunit that uses an object the change touches;
   - a codeunit with `Subtype = Install`, `Upgrade` or `TestRunner`;

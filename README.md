@@ -115,3 +115,7 @@ end;
 
 - [StefanMaron/MsDyn365Bc.On.Linux](https://github.com/StefanMaron/MsDyn365Bc.On.Linux) — BC runtime on Linux; powers local dev and CI
 - [StefanMaron/al-runtime-rs](https://github.com/StefanMaron/al-runtime-rs) — AL runtime in Rust; uses this repository as its oracle
+
+## License
+
+MIT. See [LICENSE](LICENSE). Microsoft's apps and symbol packages are not part of this repository and are not covered by this license. CI downloads them.
