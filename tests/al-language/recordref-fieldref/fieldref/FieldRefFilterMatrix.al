@@ -1593,11 +1593,11 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.Cell('prefix.Date', 16, '{a}*');
         Probe.Cell('nstar.Date', 16, '<>*');
         Probe.Cell('suffix.Date', 16, '*{a}');
-        Probe.Expect('star.Date', '11/09/26 | FDate: 11/09/26 | ');
-        Probe.Expect('q.Date', '11/09/26 | FDate: 11/09/26 | ');
+        Probe.Expect('star.Date', Format(Today()) + ' | FDate: ' + Format(Today()) + ' | '); // '*' on a Date field means today
+        Probe.Expect('q.Date', Format(Today()) + ' | FDate: ' + Format(Today()) + ' | ');
         Probe.Expect('at.Date', 'E: The filter "@01/01/24" is not valid for the FDate field on the LT FRM Row table. The format of the Date ''@01/01/24'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
         Probe.Expect('prefix.Date', '01/01/24 | FDate: 01/01/24 | 2');
-        Probe.Expect('nstar.Date', '<>11/09/26 | FDate: <>11/09/26 | 1,2,3,4');
+        Probe.Expect('nstar.Date', '<>' + Format(Today()) + ' | FDate: <>' + Format(Today()) + ' | 1,2,3,4');
         Probe.Expect('suffix.Date', 'E: The filter "*01/01/24" is not valid for the FDate field on the LT FRM Row table. The format of the Date ''*01/01/24'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
         Probe.Verify();
     end;
