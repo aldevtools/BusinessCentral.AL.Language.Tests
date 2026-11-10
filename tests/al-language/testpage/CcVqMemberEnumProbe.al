@@ -341,7 +341,8 @@ codeunit 97300 "LT VQP Probe"
     var
         OkTxt: Label 'LT VQP step ok', Locked = true;
 
-    // Rows 1, 2, 3 with Kind Alpha, Beta, Gamma.
+    // Rows 1, 2, 3 with Kind Alpha, Beta, Gamma. Called again after each asserterror: the error rolls the rows back
+    // (CI run of ecf9c828: GoToKey failed with "The row does not exist on the TestPage" on every version).
     local procedure Prepare()
     var
         Row: Record "LT VQP Row";
@@ -389,6 +390,7 @@ codeunit 97300 "LT VQP Probe"
         Observer.Observe('open', Res);
         if Res = 'ok' then begin
             P.Close();
+            Prepare();
             P.OpenEdit();
             for Idx := 1 to 3 do begin
                 P.GoToKey(Idx);
@@ -426,6 +428,7 @@ codeunit 97300 "LT VQP Probe"
         Observer.Observe('open', Res);
         if Res = 'ok' then begin
             P.Close();
+            Prepare();
             P.OpenEdit();
             for Idx := 1 to 3 do begin
                 P.GoToKey(Idx);
@@ -465,6 +468,7 @@ codeunit 97300 "LT VQP Probe"
         Observer.Observe('open', Res);
         if Res = 'ok' then begin
             P.Close();
+            Prepare();
             P.OpenEdit();
             for Idx := 1 to 3 do begin
                 P.GoToKey(Idx);
@@ -504,6 +508,7 @@ codeunit 97300 "LT VQP Probe"
         Observer.Observe('open', Res);
         if Res = 'ok' then begin
             P.Close();
+            Prepare();
             P.OpenEdit();
             Observer.Observe('first_rep_editable', Format(P.RepEdt.Editable()));
             Observer.Observe('first_rep_editable_dir', Format(P.RepEdtDir.Editable()));
@@ -541,6 +546,7 @@ codeunit 97300 "LT VQP Probe"
         Observer.Observe('open', Res);
         if Res = 'ok' then begin
             P.Close();
+            Prepare();
             P.OpenEdit();
             for Idx := 1 to 3 do begin
                 P.GoToKey(Idx);
