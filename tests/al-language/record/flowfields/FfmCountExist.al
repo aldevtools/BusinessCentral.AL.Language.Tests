@@ -619,7 +619,25 @@ codeunit 64203 "FFM CountExist Tests"
         if not TryCalc_Cnt_filterenum(H) then
             Observer.ObserveError('Cnt_filterenum.calc18');
         Observer.Observe('H3.filterenum', Format(H.Cnt_filterenum));
-        Observer.Finish();
+        Observer.Expect('H1.const', '3');
+        Observer.Expect('H1.field', '4');
+        Observer.Expect('H1.filter', '4');
+        Observer.Expect('H1.constopt', '2');
+        Observer.Expect('H1.constenum', '2');
+        Observer.Expect('H1.filterenum', '4');
+        Observer.Expect('H2.const', '3');
+        Observer.Expect('H2.field', '2');
+        Observer.Expect('H2.filter', '4');
+        Observer.Expect('H2.constopt', '2');
+        Observer.Expect('H2.constenum', '2');
+        Observer.Expect('H2.filterenum', '4');
+        Observer.Expect('H3.const', '3');
+        Observer.Expect('H3.field', '0');
+        Observer.Expect('H3.filter', '4');
+        Observer.Expect('H3.constopt', '2');
+        Observer.Expect('H3.constenum', '2');
+        Observer.Expect('H3.filterenum', '4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -686,7 +704,21 @@ codeunit 64203 "FFM CountExist Tests"
         if not TryCalc_Cnt_fftext(H) then
             Observer.ObserveError('Cnt_fftext.calc32');
         Observer.Observe('fftext.set', Format(H.Cnt_fftext));
-        Observer.Finish();
+        Observer.Expect('ffint.unset', '6');
+        Observer.Expect('ffint.set', '3');
+        Observer.Expect('ffdec.unset', '6');
+        Observer.Expect('ffdec.set', '4');
+        Observer.Expect('ffdate.unset', '6');
+        Observer.Expect('ffdate.set', '3');
+        Observer.Expect('ffcode.unset', '6');
+        Observer.Expect('ffcode.set', '3');
+        Observer.Expect('ffopt.unset', '6');
+        Observer.Expect('ffopt.set', '2');
+        Observer.Expect('ffenum.unset', '6');
+        Observer.Expect('ffenum.set', '4');
+        Observer.Expect('fftext.unset', '6');
+        Observer.Expect('fftext.set', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -753,7 +785,23 @@ codeunit 64203 "FFM CountExist Tests"
         if not TryCalc_Cnt_ulfdate(H) then
             Observer.ObserveError('Cnt_ulfdate.calc46');
         Observer.Observe('ulfdate.set', Format(H.Cnt_ulfdate));
-        Observer.Finish();
+        Observer.Expect('uldate.unset', '6');
+        Observer.Expect('uldate.set', '5');
+        Observer.Expect('ulint.unset', '6');
+        Observer.Expect('ulint.set', '5');
+        Observer.Expect('uldec.unset', '6');
+        Observer.Expect('Cnt_uldec.calc38|text', 'The filter expression ">=14" applied to the field DecF in the FFM CountExist Header table results in more than one range.');
+        Observer.Expect('Cnt_uldec.calc38|code', 'DB:NotIntervalFilter');
+        Observer.Expect('uldec.set', '6');
+        Observer.Expect('ulcode.unset', '6');
+        Observer.Expect('ulcode.set', '3');
+        Observer.Expect('ulopt.unset', '6');
+        Observer.Expect('ulopt.set', '2');
+        Observer.Expect('ulenum.unset', '6');
+        Observer.Expect('ulenum.set', '6');
+        Observer.Expect('ulfdate.unset', '6');
+        Observer.Expect('ulfdate.set', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -780,7 +828,11 @@ codeunit 64203 "FFM CountExist Tests"
         if not TryCalc_Cnt_ffboth(H) then
             Observer.ObserveError('Cnt_ffboth.calc50');
         Observer.Observe('ffboth.set', Format(H.Cnt_ffboth));
-        Observer.Finish();
+        Observer.Expect('ffmismatch.unset', '6');
+        Observer.Expect('ffmismatch.set', '0');
+        Observer.Expect('ffboth.unset', '4');
+        Observer.Expect('ffboth.set', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -857,7 +909,29 @@ codeunit 64203 "FFM CountExist Tests"
         if not TryCalc_Cnt_ffboth(H) then
             Observer.ObserveError('Cnt_ffboth.calc72');
         Observer.Observe('ffboth.h3', Format(H.Cnt_ffboth));
-        Observer.Finish();
+        Observer.Expect('const.h3', '3');
+        Observer.Expect('field.h3', '0');
+        Observer.Expect('filter.h3', '4');
+        Observer.Expect('constopt.h3', '2');
+        Observer.Expect('constenum.h3', '2');
+        Observer.Expect('filterenum.h3', '4');
+        Observer.Expect('ffint.h3', '6');
+        Observer.Expect('ffdec.h3', '6');
+        Observer.Expect('ffdate.h3', '6');
+        Observer.Expect('ffcode.h3', '6');
+        Observer.Expect('ffopt.h3', '6');
+        Observer.Expect('ffenum.h3', '6');
+        Observer.Expect('fftext.h3', '6');
+        Observer.Expect('uldate.h3', '6');
+        Observer.Expect('ulint.h3', '6');
+        Observer.Expect('uldec.h3', '6');
+        Observer.Expect('ulcode.h3', '6');
+        Observer.Expect('ulopt.h3', '6');
+        Observer.Expect('ulenum.h3', '6');
+        Observer.Expect('ulfdate.h3', '6');
+        Observer.Expect('ffmismatch.h3', '6');
+        Observer.Expect('ffboth.h3', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -924,7 +998,25 @@ codeunit 64203 "FFM CountExist Tests"
         if not TryCalc_Ex_filterenum(H) then
             Observer.ObserveError('Ex_filterenum.calc162');
         Observer.Observe('H3.filterenum', Format(H.Ex_filterenum));
-        Observer.Finish();
+        Observer.Expect('H1.const', 'Yes');
+        Observer.Expect('H1.field', 'Yes');
+        Observer.Expect('H1.filter', 'Yes');
+        Observer.Expect('H1.constopt', 'Yes');
+        Observer.Expect('H1.constenum', 'Yes');
+        Observer.Expect('H1.filterenum', 'Yes');
+        Observer.Expect('H2.const', 'Yes');
+        Observer.Expect('H2.field', 'Yes');
+        Observer.Expect('H2.filter', 'Yes');
+        Observer.Expect('H2.constopt', 'Yes');
+        Observer.Expect('H2.constenum', 'Yes');
+        Observer.Expect('H2.filterenum', 'Yes');
+        Observer.Expect('H3.const', 'Yes');
+        Observer.Expect('H3.field', 'No');
+        Observer.Expect('H3.filter', 'Yes');
+        Observer.Expect('H3.constopt', 'Yes');
+        Observer.Expect('H3.constenum', 'Yes');
+        Observer.Expect('H3.filterenum', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -991,7 +1083,21 @@ codeunit 64203 "FFM CountExist Tests"
         if not TryCalc_Ex_fftext(H) then
             Observer.ObserveError('Ex_fftext.calc176');
         Observer.Observe('fftext.set', Format(H.Ex_fftext));
-        Observer.Finish();
+        Observer.Expect('ffint.unset', 'Yes');
+        Observer.Expect('ffint.set', 'Yes');
+        Observer.Expect('ffdec.unset', 'Yes');
+        Observer.Expect('ffdec.set', 'Yes');
+        Observer.Expect('ffdate.unset', 'Yes');
+        Observer.Expect('ffdate.set', 'Yes');
+        Observer.Expect('ffcode.unset', 'Yes');
+        Observer.Expect('ffcode.set', 'Yes');
+        Observer.Expect('ffopt.unset', 'Yes');
+        Observer.Expect('ffopt.set', 'Yes');
+        Observer.Expect('ffenum.unset', 'Yes');
+        Observer.Expect('ffenum.set', 'Yes');
+        Observer.Expect('fftext.unset', 'Yes');
+        Observer.Expect('fftext.set', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1058,7 +1164,23 @@ codeunit 64203 "FFM CountExist Tests"
         if not TryCalc_Ex_ulfdate(H) then
             Observer.ObserveError('Ex_ulfdate.calc190');
         Observer.Observe('ulfdate.set', Format(H.Ex_ulfdate));
-        Observer.Finish();
+        Observer.Expect('uldate.unset', 'Yes');
+        Observer.Expect('uldate.set', 'Yes');
+        Observer.Expect('ulint.unset', 'Yes');
+        Observer.Expect('ulint.set', 'Yes');
+        Observer.Expect('uldec.unset', 'Yes');
+        Observer.Expect('Ex_uldec.calc182|text', 'The filter expression ">=14" applied to the field DecF in the FFM CountExist Header table results in more than one range.');
+        Observer.Expect('Ex_uldec.calc182|code', 'DB:NotIntervalFilter');
+        Observer.Expect('uldec.set', 'Yes');
+        Observer.Expect('ulcode.unset', 'Yes');
+        Observer.Expect('ulcode.set', 'Yes');
+        Observer.Expect('ulopt.unset', 'Yes');
+        Observer.Expect('ulopt.set', 'Yes');
+        Observer.Expect('ulenum.unset', 'Yes');
+        Observer.Expect('ulenum.set', 'Yes');
+        Observer.Expect('ulfdate.unset', 'Yes');
+        Observer.Expect('ulfdate.set', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1085,7 +1207,11 @@ codeunit 64203 "FFM CountExist Tests"
         if not TryCalc_Ex_ffboth(H) then
             Observer.ObserveError('Ex_ffboth.calc194');
         Observer.Observe('ffboth.set', Format(H.Ex_ffboth));
-        Observer.Finish();
+        Observer.Expect('ffmismatch.unset', 'Yes');
+        Observer.Expect('ffmismatch.set', 'No');
+        Observer.Expect('ffboth.unset', 'Yes');
+        Observer.Expect('ffboth.set', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1162,7 +1288,29 @@ codeunit 64203 "FFM CountExist Tests"
         if not TryCalc_Ex_ffboth(H) then
             Observer.ObserveError('Ex_ffboth.calc216');
         Observer.Observe('ffboth.h3', Format(H.Ex_ffboth));
-        Observer.Finish();
+        Observer.Expect('const.h3', 'Yes');
+        Observer.Expect('field.h3', 'No');
+        Observer.Expect('filter.h3', 'Yes');
+        Observer.Expect('constopt.h3', 'Yes');
+        Observer.Expect('constenum.h3', 'Yes');
+        Observer.Expect('filterenum.h3', 'Yes');
+        Observer.Expect('ffint.h3', 'Yes');
+        Observer.Expect('ffdec.h3', 'Yes');
+        Observer.Expect('ffdate.h3', 'Yes');
+        Observer.Expect('ffcode.h3', 'Yes');
+        Observer.Expect('ffopt.h3', 'Yes');
+        Observer.Expect('ffenum.h3', 'Yes');
+        Observer.Expect('fftext.h3', 'Yes');
+        Observer.Expect('uldate.h3', 'Yes');
+        Observer.Expect('ulint.h3', 'Yes');
+        Observer.Expect('uldec.h3', 'Yes');
+        Observer.Expect('ulcode.h3', 'Yes');
+        Observer.Expect('ulopt.h3', 'Yes');
+        Observer.Expect('ulenum.h3', 'Yes');
+        Observer.Expect('ulfdate.h3', 'Yes');
+        Observer.Expect('ffmismatch.h3', 'Yes');
+        Observer.Expect('ffboth.h3', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1229,7 +1377,25 @@ codeunit 64203 "FFM CountExist Tests"
         if not TryCalc_NEx_filterenum(H) then
             Observer.ObserveError('NEx_filterenum.calc234');
         Observer.Observe('H3.filterenum', Format(H.NEx_filterenum));
-        Observer.Finish();
+        Observer.Expect('H1.const', 'No');
+        Observer.Expect('H1.field', 'No');
+        Observer.Expect('H1.filter', 'No');
+        Observer.Expect('H1.constopt', 'No');
+        Observer.Expect('H1.constenum', 'No');
+        Observer.Expect('H1.filterenum', 'No');
+        Observer.Expect('H2.const', 'No');
+        Observer.Expect('H2.field', 'No');
+        Observer.Expect('H2.filter', 'No');
+        Observer.Expect('H2.constopt', 'No');
+        Observer.Expect('H2.constenum', 'No');
+        Observer.Expect('H2.filterenum', 'No');
+        Observer.Expect('H3.const', 'No');
+        Observer.Expect('H3.field', 'Yes');
+        Observer.Expect('H3.filter', 'No');
+        Observer.Expect('H3.constopt', 'No');
+        Observer.Expect('H3.constenum', 'No');
+        Observer.Expect('H3.filterenum', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1296,7 +1462,21 @@ codeunit 64203 "FFM CountExist Tests"
         if not TryCalc_NEx_fftext(H) then
             Observer.ObserveError('NEx_fftext.calc248');
         Observer.Observe('fftext.set', Format(H.NEx_fftext));
-        Observer.Finish();
+        Observer.Expect('ffint.unset', 'No');
+        Observer.Expect('ffint.set', 'No');
+        Observer.Expect('ffdec.unset', 'No');
+        Observer.Expect('ffdec.set', 'No');
+        Observer.Expect('ffdate.unset', 'No');
+        Observer.Expect('ffdate.set', 'No');
+        Observer.Expect('ffcode.unset', 'No');
+        Observer.Expect('ffcode.set', 'No');
+        Observer.Expect('ffopt.unset', 'No');
+        Observer.Expect('ffopt.set', 'No');
+        Observer.Expect('ffenum.unset', 'No');
+        Observer.Expect('ffenum.set', 'No');
+        Observer.Expect('fftext.unset', 'No');
+        Observer.Expect('fftext.set', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1363,7 +1543,23 @@ codeunit 64203 "FFM CountExist Tests"
         if not TryCalc_NEx_ulfdate(H) then
             Observer.ObserveError('NEx_ulfdate.calc262');
         Observer.Observe('ulfdate.set', Format(H.NEx_ulfdate));
-        Observer.Finish();
+        Observer.Expect('uldate.unset', 'No');
+        Observer.Expect('uldate.set', 'No');
+        Observer.Expect('ulint.unset', 'No');
+        Observer.Expect('ulint.set', 'No');
+        Observer.Expect('uldec.unset', 'No');
+        Observer.Expect('NEx_uldec.calc254|text', 'The filter expression ">=14" applied to the field DecF in the FFM CountExist Header table results in more than one range.');
+        Observer.Expect('NEx_uldec.calc254|code', 'DB:NotIntervalFilter');
+        Observer.Expect('uldec.set', 'No');
+        Observer.Expect('ulcode.unset', 'No');
+        Observer.Expect('ulcode.set', 'No');
+        Observer.Expect('ulopt.unset', 'No');
+        Observer.Expect('ulopt.set', 'No');
+        Observer.Expect('ulenum.unset', 'No');
+        Observer.Expect('ulenum.set', 'No');
+        Observer.Expect('ulfdate.unset', 'No');
+        Observer.Expect('ulfdate.set', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1390,7 +1586,11 @@ codeunit 64203 "FFM CountExist Tests"
         if not TryCalc_NEx_ffboth(H) then
             Observer.ObserveError('NEx_ffboth.calc266');
         Observer.Observe('ffboth.set', Format(H.NEx_ffboth));
-        Observer.Finish();
+        Observer.Expect('ffmismatch.unset', 'No');
+        Observer.Expect('ffmismatch.set', 'Yes');
+        Observer.Expect('ffboth.unset', 'No');
+        Observer.Expect('ffboth.set', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1467,7 +1667,29 @@ codeunit 64203 "FFM CountExist Tests"
         if not TryCalc_NEx_ffboth(H) then
             Observer.ObserveError('NEx_ffboth.calc288');
         Observer.Observe('ffboth.h3', Format(H.NEx_ffboth));
-        Observer.Finish();
+        Observer.Expect('const.h3', 'No');
+        Observer.Expect('field.h3', 'Yes');
+        Observer.Expect('filter.h3', 'No');
+        Observer.Expect('constopt.h3', 'No');
+        Observer.Expect('constenum.h3', 'No');
+        Observer.Expect('filterenum.h3', 'No');
+        Observer.Expect('ffint.h3', 'No');
+        Observer.Expect('ffdec.h3', 'No');
+        Observer.Expect('ffdate.h3', 'No');
+        Observer.Expect('ffcode.h3', 'No');
+        Observer.Expect('ffopt.h3', 'No');
+        Observer.Expect('ffenum.h3', 'No');
+        Observer.Expect('fftext.h3', 'No');
+        Observer.Expect('uldate.h3', 'No');
+        Observer.Expect('ulint.h3', 'No');
+        Observer.Expect('uldec.h3', 'No');
+        Observer.Expect('ulcode.h3', 'No');
+        Observer.Expect('ulopt.h3', 'No');
+        Observer.Expect('ulenum.h3', 'No');
+        Observer.Expect('ulfdate.h3', 'No');
+        Observer.Expect('ffmismatch.h3', 'No');
+        Observer.Expect('ffboth.h3', 'Yes');
+        Observer.Verify();
     end;
 
     local procedure Initialize()
