@@ -114,6 +114,30 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LT R7187 Row Card - Control RowIdCtl - Property Caption</note>
         </trans-unit>
+        <trans-unit id="PageExtension 3724456405 - Change 824028820 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 2805771090">
+          <source>LPX Type Modified</source>
+          <target>LPX type gewijzigd</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PageExtension LPX Payment Methods Ext - Change Bal. Account Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 3724456405 - Control 1199767492 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 2805771090">
+          <source>LPX Added</source>
+          <target>LPX toegevoegd</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PageExtension LPX Payment Methods Ext - Control LpxAddedWithUnit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 3557175637 - Action 4281565345 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 1817973778">
+          <source>LPX count</source>
+          <target>LPX aantal</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PageExtension LPX Territories Ext - Action LpxCount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 3557175637 - Action 4281565345 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 1817973778">
+          <source>Counts the territories.</source>
+          <target>Telt de gebieden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PageExtension LPX Territories Ext - Action LpxCount - Property ToolTip</note>
+        </trans-unit>
       </group>
     </body>
   </file>
