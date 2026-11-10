@@ -437,8 +437,16 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.Expect('p1.Int', '10 | FInt: 10 | 2');
         Probe.Expect('pne.Int', '<>10 | FInt: <>10 | 1,3,4');
         Probe.Expect('pge.Int', '>=10 | FInt: >=10 | 2,3,4');
+#if BC28PLUS
         Probe.Expect('pstar.Int', 'E: The value "a*b?" can''t be evaluated into type Integer.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pstar.Int', 'E: The type NavInteger is unknown.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnestar.Int', 'E: The value "a*b?" can''t be evaluated into type Integer.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnestar.Int', 'E: The type NavInteger is unknown.');
+#endif
         Probe.Expect('pq.Int', '63 | FInt: 63 | ');
         Probe.Expect('pnq.Int', '<>63 | FInt: <>63 | 1,2,3,4');
         Probe.Verify();
@@ -607,8 +615,16 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.Expect('p1.Big', '10 | FBig: 10 | 2');
         Probe.Expect('pne.Big', '<>10 | FBig: <>10 | 1,3,4');
         Probe.Expect('pge.Big', '>=10 | FBig: >=10 | 2,3,4');
+#if BC28PLUS
         Probe.Expect('pstar.Big', 'E: The value "a*b?" can''t be evaluated into type BigInteger.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pstar.Big', 'E: The type NavBigInteger is unknown.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnestar.Big', 'E: The value "a*b?" can''t be evaluated into type BigInteger.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnestar.Big', 'E: The type NavBigInteger is unknown.');
+#endif
         Probe.Expect('pq.Big', '63 | FBig: 63 | ');
         Probe.Expect('pnq.Big', '<>63 | FBig: <>63 | 1,2,3,4');
         Probe.Verify();
@@ -777,8 +793,16 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.Expect('p1.Dec', '1.5 | FDec: 1.5 | 2');
         Probe.Expect('pne.Dec', '<>1.5 | FDec: <>1.5 | 1,3,4');
         Probe.Expect('pge.Dec', '>=1.5 | FDec: >=1.5 | 2,3,4');
+#if BC28PLUS
         Probe.Expect('pstar.Dec', 'E: The value "a*b?" can''t be evaluated into type Decimal.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pstar.Dec', 'E: The type NavDecimal is unknown.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnestar.Dec', 'E: The value "a*b?" can''t be evaluated into type Decimal.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnestar.Dec', 'E: The type NavDecimal is unknown.');
+#endif
         Probe.Expect('pq.Dec', '63 | FDec: 63 | ');
         Probe.Expect('pnq.Dec', '<>63 | FDec: <>63 | 1,2,3,4');
         Probe.Verify();
@@ -947,8 +971,16 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.Expect('p1.Dur', '1 second | FDur: 1 second | 2');
         Probe.Expect('pne.Dur', '<>1 second | FDur: <>1 second | 1,3,4');
         Probe.Expect('pge.Dur', '>=1 second | FDur: >=1 second | 2,3,4');
+#if BC28PLUS
         Probe.Expect('pstar.Dur', 'E: The value "a*b?" can''t be evaluated into type Duration.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pstar.Dur', 'E: The type NavDuration is unknown.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnestar.Dur', 'E: The value "a*b?" can''t be evaluated into type Duration.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnestar.Dur', 'E: The type NavDuration is unknown.');
+#endif
         Probe.Expect('pq.Dur', '63 milliseconds | FDur: 63 milliseconds | ');
         Probe.Expect('pnq.Dur', '<>63 milliseconds | FDur: <>63 milliseconds | 1,2,3,4');
         Probe.Verify();
@@ -965,7 +997,11 @@ codeunit 70044 "LT FRM Numeric Tests"
         Probe.CellRange('rtext.Dur', 13, 'rt');
         Probe.Expect('r1.Dur', '1 second | FDur: 1 second | 2');
         Probe.Expect('r2.Dur', '1 second | FDur: 1 second | 2');
+#if BC28PLUS
         Probe.Expect('rtext.Dur', 'E: The value "1 second" can''t be evaluated into type Duration.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('rtext.Dur', 'E: The type NavDuration is unknown.');
+#endif
         Probe.Verify();
     end;
 
@@ -1464,10 +1500,26 @@ codeunit 70045 "LT FRM Text Tests"
         Probe.Expect('p1.Guid', '{00000001-0000-0000-0000-000000000000} | FGuid: {00000001-0000-0000-0000-000000000000} | 2');
         Probe.Expect('pne.Guid', '<>{00000001-0000-0000-0000-000000000000} | FGuid: <>{00000001-0000-0000-0000-000000000000} | 1,3,4');
         Probe.Expect('pge.Guid', '>={00000001-0000-0000-0000-000000000000} | FGuid: >={00000001-0000-0000-0000-000000000000} | 2,3,4');
+#if BC28PLUS
         Probe.Expect('pstar.Guid', 'E: The value "a*b?" can''t be evaluated into type GUID.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pstar.Guid', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnestar.Guid', 'E: The value "a*b?" can''t be evaluated into type GUID.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnestar.Guid', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid.');
+#endif
+#if BC28PLUS
         Probe.Expect('pq.Guid', 'E: The value "?" can''t be evaluated into type GUID.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pq.Guid', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnq.Guid', 'E: The value "?" can''t be evaluated into type GUID.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnq.Guid', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid.');
+#endif
         Probe.Verify();
     end;
 
@@ -1482,7 +1534,11 @@ codeunit 70045 "LT FRM Text Tests"
         Probe.CellRange('rtext.Guid', 23, 'rt');
         Probe.Expect('r1.Guid', '{00000001-0000-0000-0000-000000000000} | FGuid: {00000001-0000-0000-0000-000000000000} | 2');
         Probe.Expect('r2.Guid', '{00000001-0000-0000-0000-000000000000} | FGuid: {00000001-0000-0000-0000-000000000000} | 2');
+#if BC28PLUS
         Probe.Expect('rtext.Guid', 'E: The value "{00000001-0000-0000-0000-000000000000}" can''t be evaluated into type GUID.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('rtext.Guid', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid.');
+#endif
         Probe.Verify();
     end;
 
@@ -1641,10 +1697,26 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.Expect('p1.Date', '01/01/24 | FDate: 01/01/24 | 2');
         Probe.Expect('pne.Date', '<>01/01/24 | FDate: <>01/01/24 | 1,3,4');
         Probe.Expect('pge.Date', '>=01/01/24 | FDate: >=01/01/24 | 2,3,4');
+#if BC28PLUS
         Probe.Expect('pstar.Date', 'E: The format of the Date ''a*b?'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pstar.Date', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnestar.Date', 'E: The format of the Date ''a*b?'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnestar.Date', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+#if BC28PLUS
         Probe.Expect('pq.Date', 'E: The format of the Date ''?'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pq.Date', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavChar to System.DateTime.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnq.Date', 'E: The format of the Date ''?'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnq.Date', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavChar to System.DateTime.');
+#endif
         Probe.Verify();
     end;
 
@@ -1659,7 +1731,11 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.CellRange('rtext.Date', 16, 'rt');
         Probe.Expect('r1.Date', '01/01/24 | FDate: 01/01/24 | 2');
         Probe.Expect('r2.Date', '01/01/24 | FDate: 01/01/24 | 2');
+#if BC28PLUS
         Probe.Expect('rtext.Date', 'E: The format of the Date ''01/01/24'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('rtext.Date', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
         Probe.Verify();
     end;
 
@@ -1811,10 +1887,26 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.Expect('p1.Time', '10:00:00 AM | FTime: 10:00:00 AM | 2');
         Probe.Expect('pne.Time', '<>10:00:00 AM | FTime: <>10:00:00 AM | 1,3,4');
         Probe.Expect('pge.Time', '>=10:00:00 AM | FTime: >=10:00:00 AM | 2,3,4');
+#if BC28PLUS
         Probe.Expect('pstar.Time', 'E: The value "a*b?" can''t be evaluated into type Time.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pstar.Time', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnestar.Time', 'E: The value "a*b?" can''t be evaluated into type Time.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnestar.Time', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+#if BC28PLUS
         Probe.Expect('pq.Time', 'E: The value "?" can''t be evaluated into type Time.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pq.Time', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavChar to System.DateTime.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnq.Time', 'E: The value "?" can''t be evaluated into type Time.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnq.Time', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavChar to System.DateTime.');
+#endif
         Probe.Verify();
     end;
 
@@ -1829,7 +1921,11 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.CellRange('rtext.Time', 17, 'rt');
         Probe.Expect('r1.Time', '10:00:00 AM | FTime: 10:00:00 AM | 2');
         Probe.Expect('r2.Time', '10:00:00 AM | FTime: 10:00:00 AM | 2');
+#if BC28PLUS
         Probe.Expect('rtext.Time', 'E: The value "10:00:00 AM" can''t be evaluated into type Time.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('rtext.Time', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
         Probe.Verify();
     end;
 
@@ -1981,10 +2077,26 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.Expect('p1.DateTime', '01/01/24 10:00 AM | FDateTime: 01/01/24 10:00 AM | 2');
         Probe.Expect('pne.DateTime', '<>01/01/24 10:00 AM | FDateTime: <>01/01/24 10:00 AM | 1,3,4');
         Probe.Expect('pge.DateTime', '>=01/01/24 10:00 AM | FDateTime: >=01/01/24 10:00 AM | 2,3,4');
+#if BC28PLUS
         Probe.Expect('pstar.DateTime', 'E: The value "a*b?" can''t be evaluated into type DateTime.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pstar.DateTime', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnestar.DateTime', 'E: The value "a*b?" can''t be evaluated into type DateTime.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnestar.DateTime', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+#if BC28PLUS
         Probe.Expect('pq.DateTime', 'E: The value "?" can''t be evaluated into type DateTime.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pq.DateTime', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavChar to System.DateTime.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnq.DateTime', 'E: The value "?" can''t be evaluated into type DateTime.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnq.DateTime', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavChar to System.DateTime.');
+#endif
         Probe.Verify();
     end;
 
@@ -1999,7 +2111,11 @@ codeunit 70046 "LT FRM DateTime Tests"
         Probe.CellRange('rtext.DateTime', 18, 'rt');
         Probe.Expect('r1.DateTime', '01/01/24 10:00 AM | FDateTime: 01/01/24 10:00 AM | 2');
         Probe.Expect('r2.DateTime', '01/01/24 10:00 AM | FDateTime: 01/01/24 10:00 AM | 2');
+#if BC28PLUS
         Probe.Expect('rtext.DateTime', 'E: The value "01/01/24 10:00 AM" can''t be evaluated into type DateTime.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('rtext.DateTime', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
         Probe.Verify();
     end;
 
@@ -2328,8 +2444,16 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.Expect('p1.Bool', 'No | FBool: No | 1,2');
         Probe.Expect('pne.Bool', '<>No | FBool: <>No | 3,4');
         Probe.Expect('pge.Bool', '>=No | FBool: >=No | 1,2,3,4');
+#if BC28PLUS
         Probe.Expect('pstar.Bool', 'E: The value "a*b?" can''t be evaluated into type Boolean.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pstar.Bool', 'E: The type NavBoolean is unknown.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnestar.Bool', 'E: The value "a*b?" can''t be evaluated into type Boolean.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnestar.Bool', 'E: The type NavBoolean is unknown.');
+#endif
         Probe.Expect('pq.Bool', 'Yes | FBool: Yes | 3,4');
         Probe.Expect('pnq.Bool', '<>Yes | FBool: <>Yes | 1,2');
         Probe.Verify();
@@ -2346,7 +2470,11 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.CellRange('rtext.Bool', 20, 'rt');
         Probe.Expect('r1.Bool', 'No | FBool: No | 1,2');
         Probe.Expect('r2.Bool', 'No | FBool: No | 1,2');
+#if BC28PLUS
         Probe.Expect('rtext.Bool', 'E: The value "No" can''t be evaluated into type Boolean.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('rtext.Bool', 'E: The type NavBoolean is unknown.');
+#endif
         Probe.Verify();
     end;
 
@@ -2498,8 +2626,16 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.Expect('p1.Opt', 'Alpha | FOpt: Alpha | 1,2');
         Probe.Expect('pne.Opt', '<>Alpha | FOpt: <>Alpha | 3,4');
         Probe.Expect('pge.Opt', '>=Alpha | FOpt: >=Alpha | 1,2,3,4');
+#if BC28PLUS
         Probe.Expect('pstar.Opt', 'E: The value "a*b?" can''t be evaluated into type Option.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pstar.Opt', 'E: The type NavOption is unknown.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnestar.Opt', 'E: The value "a*b?" can''t be evaluated into type Option.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnestar.Opt', 'E: The type NavOption is unknown.');
+#endif
         Probe.Expect('pq.Opt', '63 | FOpt: 63 | ');
         Probe.Expect('pnq.Opt', '<>63 | FOpt: <>63 | 1,2,3,4');
         Probe.Verify();
@@ -2516,7 +2652,11 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.CellRange('rtext.Opt', 21, 'rt');
         Probe.Expect('r1.Opt', 'Alpha | FOpt: Alpha | 1,2');
         Probe.Expect('r2.Opt', 'Alpha | FOpt: Alpha | 1,2');
+#if BC28PLUS
         Probe.Expect('rtext.Opt', 'E: The value "Alpha" can''t be evaluated into type Option.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('rtext.Opt', 'E: The type NavOption is unknown.');
+#endif
         Probe.Verify();
     end;
 
@@ -2668,8 +2808,16 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.Expect('p1.Enum', 'Alpha | FEnum: Alpha | 1,2');
         Probe.Expect('pne.Enum', '<>Alpha | FEnum: <>Alpha | 3,4');
         Probe.Expect('pge.Enum', '>=Alpha | FEnum: >=Alpha | 1,2,3,4');
+#if BC28PLUS
         Probe.Expect('pstar.Enum', 'E: The value "a*b?" can''t be evaluated into type Option.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pstar.Enum', 'E: The type NavOption is unknown.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnestar.Enum', 'E: The value "a*b?" can''t be evaluated into type Option.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnestar.Enum', 'E: The type NavOption is unknown.');
+#endif
         Probe.Expect('pq.Enum', '63 | FEnum: 63 | ');
         Probe.Expect('pnq.Enum', '<>63 | FEnum: <>63 | 1,2,3,4');
         Probe.Verify();
@@ -2686,7 +2834,11 @@ codeunit 70047 "LT FRM Scalar Tests"
         Probe.CellRange('rtext.Enum', 22, 'rt');
         Probe.Expect('r1.Enum', 'Alpha | FEnum: Alpha | 1,2');
         Probe.Expect('r2.Enum', 'Alpha | FEnum: Alpha | 1,2');
+#if BC28PLUS
         Probe.Expect('rtext.Enum', 'E: The value "Alpha" can''t be evaluated into type Option.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('rtext.Enum', 'E: The type NavOption is unknown.');
+#endif
         Probe.Verify();
     end;
 
@@ -3011,13 +3163,41 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.CellArg('pnestar.Blob', 25, '<>%1', 'w');
         Probe.CellArg('pq.Blob', 25, '%1', 'q');
         Probe.CellArg('pnq.Blob', 25, '<>%1', 'q');
+#if BC28PLUS
         Probe.Expect('p1.Blob', 'E: The value "abc" can''t be evaluated into type BLOB.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('p1.Blob', 'E: Invalid Conversion. Source: NavVariant, Destination: NavBLOB.');
+#endif
+#if BC28PLUS
         Probe.Expect('pne.Blob', 'E: The value "abc" can''t be evaluated into type BLOB.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pne.Blob', 'E: Invalid Conversion. Source: NavVariant, Destination: NavBLOB.');
+#endif
+#if BC28PLUS
         Probe.Expect('pge.Blob', 'E: The value "abc" can''t be evaluated into type BLOB.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pge.Blob', 'E: Invalid Conversion. Source: NavVariant, Destination: NavBLOB.');
+#endif
+#if BC28PLUS
         Probe.Expect('pstar.Blob', 'E: The value "a*b?" can''t be evaluated into type BLOB.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pstar.Blob', 'E: Invalid Conversion. Source: NavVariant, Destination: NavBLOB.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnestar.Blob', 'E: The value "a*b?" can''t be evaluated into type BLOB.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnestar.Blob', 'E: Invalid Conversion. Source: NavVariant, Destination: NavBLOB.');
+#endif
+#if BC28PLUS
         Probe.Expect('pq.Blob', 'E: The value "?" can''t be evaluated into type BLOB.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pq.Blob', 'E: Invalid Conversion. Source: NavVariant, Destination: NavBLOB.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnq.Blob', 'E: The value "?" can''t be evaluated into type BLOB.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnq.Blob', 'E: Invalid Conversion. Source: NavVariant, Destination: NavBLOB.');
+#endif
         Probe.Verify();
     end;
 
@@ -3030,9 +3210,21 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.CellRange('r1.Blob', 25, 'r1');
         Probe.CellRange('r2.Blob', 25, 'r2');
         Probe.CellRange('rtext.Blob', 25, 'rt');
+#if BC28PLUS
         Probe.Expect('r1.Blob', 'E: The value "abc" can''t be evaluated into type BLOB.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('r1.Blob', 'E: Invalid Conversion. Source: NavVariant, Destination: NavBLOB.');
+#endif
+#if BC28PLUS
         Probe.Expect('r2.Blob', 'E: The value "abc" can''t be evaluated into type BLOB.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('r2.Blob', 'E: Invalid Conversion. Source: NavVariant, Destination: NavBLOB.');
+#endif
+#if BC28PLUS
         Probe.Expect('rtext.Blob', 'E: The value "abc" can''t be evaluated into type BLOB.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('rtext.Blob', 'E: Invalid Conversion. Source: NavVariant, Destination: NavBLOB.');
+#endif
         Probe.Verify();
     end;
 
@@ -3190,10 +3382,26 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.Ignore('p1.Media'); // the value holds a GUID that is new on every run (a Media id or CreateGuid()): observed, not asserted
         Probe.Ignore('pne.Media'); // the value holds a GUID that is new on every run (a Media id or CreateGuid()): observed, not asserted
         Probe.Ignore('pge.Media'); // the value holds a GUID that is new on every run (a Media id or CreateGuid()): observed, not asserted
+#if BC28PLUS
         Probe.Expect('pstar.Media', 'E: The value "a*b?" can''t be evaluated into type Media.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pstar.Media', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnestar.Media', 'E: The value "a*b?" can''t be evaluated into type Media.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnestar.Media', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia.');
+#endif
+#if BC28PLUS
         Probe.Expect('pq.Media', 'E: The value "?" can''t be evaluated into type Media.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pq.Media', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnq.Media', 'E: The value "?" can''t be evaluated into type Media.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnq.Media', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia.');
+#endif
         Probe.Verify();
     end;
 
@@ -3366,10 +3574,26 @@ codeunit 70048 "LT FRM Binary Tests"
         Probe.Ignore('p1.MediaSet'); // the value holds a GUID that is new on every run (a Media id or CreateGuid()): observed, not asserted
         Probe.Ignore('pne.MediaSet'); // the value holds a GUID that is new on every run (a Media id or CreateGuid()): observed, not asserted
         Probe.Ignore('pge.MediaSet'); // the value holds a GUID that is new on every run (a Media id or CreateGuid()): observed, not asserted
+#if BC28PLUS
         Probe.Expect('pstar.MediaSet', 'E: The value "a*b?" can''t be evaluated into type MediaSet.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pstar.MediaSet', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnestar.MediaSet', 'E: The value "a*b?" can''t be evaluated into type MediaSet.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnestar.MediaSet', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet.');
+#endif
+#if BC28PLUS
         Probe.Expect('pq.MediaSet', 'E: The value "?" can''t be evaluated into type MediaSet.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pq.MediaSet', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet.');
+#endif
+#if BC28PLUS
         Probe.Expect('pnq.MediaSet', 'E: The value "?" can''t be evaluated into type MediaSet.');
+#else // BC 27.5 words this result differently
+        Probe.Expect('pnq.MediaSet', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet.');
+#endif
         Probe.Verify();
     end;
 
