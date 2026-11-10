@@ -320,8 +320,11 @@ codeunit 75109 "LT ISB Written In Test"
         RunWorker(Observer, 'statement, same key', 'statement', 'LTISBk1', 'Module');
         RunWorker(Observer, 'statement, other key', 'statement', 'LTISBk2', 'Module');
         Observer.Expect('caller set', 'true');
-        Observer.Expect('statement, same key|text', 'The Isolated Storage does not exist. Identification fields and values: App Id=''{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}'',Scope=''Module'',Company Name='''',User Id=''{00000000-0000-0000-0000-000000000000}'',Key=''LTISBk1''');
-        Observer.Expect('statement, same key|code', 'DB:RecordNotFound');
+        // The two earlier tests of this codeunit passed, so their uncommitted Set of LTISBk1 is still held when this test runs (as in
+        // 75112): the worker's statement Get of that key meets the lock (corpus CI run 42841197978, BC 27.5, 28.5, 29.0). In run 42824219882
+        // the earlier tests were still in observation form, failed and rolled their write back, and the same Get gave DB:RecordNotFound.
+        Observer.Expect('statement, same key|text', 'We can''t save your changes right now, because a record in table ''Isolated Storage'' is being updated in a transaction done by another session.\\You''ll have to wait until the other transaction has completed, which may take a while. Please try again later.');
+        Observer.Expect('statement, same key|code', 'NDBCS:LockTimeout');
         Observer.Expect('statement, other key|text', 'The Isolated Storage does not exist. Identification fields and values: App Id=''{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}'',Scope=''Module'',Company Name='''',User Id=''{00000000-0000-0000-0000-000000000000}'',Key=''LTISBk2''');
         Observer.Expect('statement, other key|code', 'DB:RecordNotFound');
         Observer.Verify();

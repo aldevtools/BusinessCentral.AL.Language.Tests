@@ -733,9 +733,10 @@ codeunit 63419 "PNL New Row Then Move"
     end;
 
     [Test]
-    [HandlerFunctions('CardHandler')]
     procedure ReadOnlyList_EmptyTable_NoNew_Edit()
     begin
+        // No CardHandler: without New the Edit action opens no card (card handler runs 0), and BC fails a test whose declared
+        // handler never ran ("The following UI handlers were not executed: CardHandler", corpus CI run 42841197978).
         Initialize();
         EditOrView(0, false, false);
         Observer.Expect('list editable', 'No');

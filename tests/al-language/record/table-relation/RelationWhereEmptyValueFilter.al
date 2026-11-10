@@ -93,8 +93,8 @@ codeunit 66333 "REC WhEmpty Tests"
     Subtype = Test;
 
     var
-        // Codeunit global: the observation of WhereDate_ConstAndTwoConditions_RecordValidate is longer than one failure message, and its
-        // continuation tests (_More1, _More2) read the rest from this variable.
+        // The observer of WhereDate_ConstAndTwoConditions_RecordValidate (its observation was longer than one failure message, so it was
+        // read through continuation tests; the values are now pinned).
         LongObserver: Codeunit "Probe Observer";
 
     local procedure Initialize()
@@ -249,19 +249,19 @@ codeunit 66333 "REC WhEmpty Tests"
         DateCells(LongObserver, 'const 0D', R.FieldNo(DateConst));
         DateCells(LongObserver, 'eq and code not empty', R.FieldNo(DateEqAndCode));
         DateCells(LongObserver, 'eq, table.field form', R.FieldNo(DateEqField));
-        LongObserver.Finish();
-    end;
-
-    [Test]
-    procedure WhereDate_ConstAndTwoConditions_RecordValidate_More1()
-    begin
-        LongObserver.More();
-    end;
-
-    [Test]
-    procedure WhereDate_ConstAndTwoConditions_RecordValidate_More2()
-    begin
-        LongObserver.More();
+        LongObserver.Expect('const 0D EMPTY', 'The format of the Date ''0001-01-01T00:00:00.0000000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. [Evaluate]');
+        LongObserver.Expect('const 0D SET', 'The format of the Date ''0001-01-01T00:00:00.0000000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. [Evaluate]');
+        LongObserver.Expect('const 0D NOPE', 'The format of the Date ''0001-01-01T00:00:00.0000000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. [Evaluate]');
+        LongObserver.Expect('const 0D blank', 'ok');
+        LongObserver.Expect('eq and code not empty EMPTY', 'The field DateEqAndCode of table REC WhEmpty Response contains a value (EMPTY) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        LongObserver.Expect('eq and code not empty SET', 'The field DateEqAndCode of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        LongObserver.Expect('eq and code not empty NOPE', 'The field DateEqAndCode of table REC WhEmpty Response contains a value (NOPE) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        LongObserver.Expect('eq and code not empty blank', 'ok');
+        LongObserver.Expect('eq, table.field form EMPTY', 'ok');
+        LongObserver.Expect('eq, table.field form SET', 'The field DateEqField of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        LongObserver.Expect('eq, table.field form NOPE', 'The field DateEqField of table REC WhEmpty Response contains a value (NOPE) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        LongObserver.Expect('eq, table.field form blank', 'ok');
+        LongObserver.Verify();
     end;
 
     [Test]
