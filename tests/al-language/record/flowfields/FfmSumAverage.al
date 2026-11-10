@@ -751,7 +751,25 @@ codeunit 64103 "FFM SumAvg Tests"
         if not TryCalc_Sum_filterenum(H) then
             Observer.ObserveError('Sum_filterenum.calc18');
         Observer.Observe('H3.filterenum', Format(H.Sum_filterenum));
-        Observer.Finish();
+        Observer.Expect('H1.const', '57.75');
+        Observer.Expect('H1.field', '150.75');
+        Observer.Expect('H1.filter', '81.25');
+        Observer.Expect('H1.constopt', '90.5');
+        Observer.Expect('H1.constenum', '27');
+        Observer.Expect('H1.filterenum', '144.75');
+        Observer.Expect('H2.const', '57.75');
+        Observer.Expect('H2.field', '21');
+        Observer.Expect('H2.filter', '81.25');
+        Observer.Expect('H2.constopt', '90.5');
+        Observer.Expect('H2.constenum', '27');
+        Observer.Expect('H2.filterenum', '144.75');
+        Observer.Expect('H3.const', '57.75');
+        Observer.Expect('H3.field', '0');
+        Observer.Expect('H3.filter', '81.25');
+        Observer.Expect('H3.constopt', '90.5');
+        Observer.Expect('H3.constenum', '27');
+        Observer.Expect('H3.filterenum', '144.75');
+        Observer.Verify();
     end;
 
     [Test]
@@ -818,7 +836,21 @@ codeunit 64103 "FFM SumAvg Tests"
         if not TryCalc_Sum_fftext(H) then
             Observer.ObserveError('Sum_fftext.calc32');
         Observer.Observe('fftext.set', Format(H.Sum_fftext));
-        Observer.Finish();
+        Observer.Expect('ffint.unset', '171.75');
+        Observer.Expect('ffint.set', '74.25');
+        Observer.Expect('ffdec.unset', '171.75');
+        Observer.Expect('ffdec.set', '154.25');
+        Observer.Expect('ffdate.unset', '171.75');
+        Observer.Expect('ffdate.set', '140.25');
+        Observer.Expect('ffcode.unset', '171.75');
+        Observer.Expect('ffcode.set', '57.75');
+        Observer.Expect('ffopt.unset', '171.75');
+        Observer.Expect('ffopt.set', '90.5');
+        Observer.Expect('ffenum.unset', '171.75');
+        Observer.Expect('ffenum.set', '81.25');
+        Observer.Expect('fftext.unset', '171.75');
+        Observer.Expect('fftext.set', '50.75');
+        Observer.Verify();
     end;
 
     [Test]
@@ -885,7 +917,23 @@ codeunit 64103 "FFM SumAvg Tests"
         if not TryCalc_Sum_ulfdate(H) then
             Observer.ObserveError('Sum_ulfdate.calc46');
         Observer.Observe('ulfdate.set', Format(H.Sum_ulfdate));
-        Observer.Finish();
+        Observer.Expect('uldate.unset', '171.75');
+        Observer.Expect('uldate.set', '157.75');
+        Observer.Expect('ulint.unset', '171.75');
+        Observer.Expect('ulint.set', '91.75');
+        Observer.Expect('uldec.unset', '171.75');
+        Observer.Expect('Sum_uldec.calc38|text', 'The filter expression ">=14" applied to the field DecF in the FFM SumAvg Header table results in more than one range.');
+        Observer.Expect('Sum_uldec.calc38|code', 'DB:NotIntervalFilter');
+        Observer.Expect('uldec.set', '171.75');
+        Observer.Expect('ulcode.unset', '171.75');
+        Observer.Expect('ulcode.set', '57.75');
+        Observer.Expect('ulopt.unset', '171.75');
+        Observer.Expect('ulopt.set', '90.5');
+        Observer.Expect('ulenum.unset', '171.75');
+        Observer.Expect('ulenum.set', '171.75');
+        Observer.Expect('ulfdate.unset', '171.75');
+        Observer.Expect('ulfdate.set', '157.75');
+        Observer.Verify();
     end;
 
     [Test]
@@ -912,7 +960,11 @@ codeunit 64103 "FFM SumAvg Tests"
         if not TryCalc_Sum_ffboth(H) then
             Observer.ObserveError('Sum_ffboth.calc50');
         Observer.Observe('ffboth.set', Format(H.Sum_ffboth));
-        Observer.Finish();
+        Observer.Expect('ffmismatch.unset', '171.75');
+        Observer.Expect('ffmismatch.set', '0');
+        Observer.Expect('ffboth.unset', '150.75');
+        Observer.Expect('ffboth.set', '60.25');
+        Observer.Verify();
     end;
 
     [Test]
@@ -989,7 +1041,29 @@ codeunit 64103 "FFM SumAvg Tests"
         if not TryCalc_Sum_ffboth(H) then
             Observer.ObserveError('Sum_ffboth.calc72');
         Observer.Observe('ffboth.h3', Format(H.Sum_ffboth));
-        Observer.Finish();
+        Observer.Expect('const.h3', '57.75');
+        Observer.Expect('field.h3', '0');
+        Observer.Expect('filter.h3', '81.25');
+        Observer.Expect('constopt.h3', '90.5');
+        Observer.Expect('constenum.h3', '27');
+        Observer.Expect('filterenum.h3', '144.75');
+        Observer.Expect('ffint.h3', '171.75');
+        Observer.Expect('ffdec.h3', '171.75');
+        Observer.Expect('ffdate.h3', '171.75');
+        Observer.Expect('ffcode.h3', '171.75');
+        Observer.Expect('ffopt.h3', '171.75');
+        Observer.Expect('ffenum.h3', '171.75');
+        Observer.Expect('fftext.h3', '171.75');
+        Observer.Expect('uldate.h3', '171.75');
+        Observer.Expect('ulint.h3', '171.75');
+        Observer.Expect('uldec.h3', '171.75');
+        Observer.Expect('ulcode.h3', '171.75');
+        Observer.Expect('ulopt.h3', '171.75');
+        Observer.Expect('ulenum.h3', '171.75');
+        Observer.Expect('ulfdate.h3', '171.75');
+        Observer.Expect('ffmismatch.h3', '171.75');
+        Observer.Expect('ffboth.h3', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1056,7 +1130,25 @@ codeunit 64103 "FFM SumAvg Tests"
         if not TryCalc_NSum_filterenum(H) then
             Observer.ObserveError('NSum_filterenum.calc90');
         Observer.Observe('H3.filterenum', Format(H.NSum_filterenum));
-        Observer.Finish();
+        Observer.Expect('H1.const', '-57.75');
+        Observer.Expect('H1.field', '-150.75');
+        Observer.Expect('H1.filter', '-81.25');
+        Observer.Expect('H1.constopt', '-90.5');
+        Observer.Expect('H1.constenum', '-27');
+        Observer.Expect('H1.filterenum', '-144.75');
+        Observer.Expect('H2.const', '-57.75');
+        Observer.Expect('H2.field', '-21');
+        Observer.Expect('H2.filter', '-81.25');
+        Observer.Expect('H2.constopt', '-90.5');
+        Observer.Expect('H2.constenum', '-27');
+        Observer.Expect('H2.filterenum', '-144.75');
+        Observer.Expect('H3.const', '-57.75');
+        Observer.Expect('H3.field', '0');
+        Observer.Expect('H3.filter', '-81.25');
+        Observer.Expect('H3.constopt', '-90.5');
+        Observer.Expect('H3.constenum', '-27');
+        Observer.Expect('H3.filterenum', '-144.75');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1123,7 +1215,21 @@ codeunit 64103 "FFM SumAvg Tests"
         if not TryCalc_NSum_fftext(H) then
             Observer.ObserveError('NSum_fftext.calc104');
         Observer.Observe('fftext.set', Format(H.NSum_fftext));
-        Observer.Finish();
+        Observer.Expect('ffint.unset', '-171.75');
+        Observer.Expect('ffint.set', '-74.25');
+        Observer.Expect('ffdec.unset', '-171.75');
+        Observer.Expect('ffdec.set', '-154.25');
+        Observer.Expect('ffdate.unset', '-171.75');
+        Observer.Expect('ffdate.set', '-140.25');
+        Observer.Expect('ffcode.unset', '-171.75');
+        Observer.Expect('ffcode.set', '-57.75');
+        Observer.Expect('ffopt.unset', '-171.75');
+        Observer.Expect('ffopt.set', '-90.5');
+        Observer.Expect('ffenum.unset', '-171.75');
+        Observer.Expect('ffenum.set', '-81.25');
+        Observer.Expect('fftext.unset', '-171.75');
+        Observer.Expect('fftext.set', '-50.75');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1190,7 +1296,23 @@ codeunit 64103 "FFM SumAvg Tests"
         if not TryCalc_NSum_ulfdate(H) then
             Observer.ObserveError('NSum_ulfdate.calc118');
         Observer.Observe('ulfdate.set', Format(H.NSum_ulfdate));
-        Observer.Finish();
+        Observer.Expect('uldate.unset', '-171.75');
+        Observer.Expect('uldate.set', '-157.75');
+        Observer.Expect('ulint.unset', '-171.75');
+        Observer.Expect('ulint.set', '-91.75');
+        Observer.Expect('uldec.unset', '-171.75');
+        Observer.Expect('NSum_uldec.calc110|text', 'The filter expression ">=14" applied to the field DecF in the FFM SumAvg Header table results in more than one range.');
+        Observer.Expect('NSum_uldec.calc110|code', 'DB:NotIntervalFilter');
+        Observer.Expect('uldec.set', '-171.75');
+        Observer.Expect('ulcode.unset', '-171.75');
+        Observer.Expect('ulcode.set', '-57.75');
+        Observer.Expect('ulopt.unset', '-171.75');
+        Observer.Expect('ulopt.set', '-90.5');
+        Observer.Expect('ulenum.unset', '-171.75');
+        Observer.Expect('ulenum.set', '-171.75');
+        Observer.Expect('ulfdate.unset', '-171.75');
+        Observer.Expect('ulfdate.set', '-157.75');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1217,7 +1339,11 @@ codeunit 64103 "FFM SumAvg Tests"
         if not TryCalc_NSum_ffboth(H) then
             Observer.ObserveError('NSum_ffboth.calc122');
         Observer.Observe('ffboth.set', Format(H.NSum_ffboth));
-        Observer.Finish();
+        Observer.Expect('ffmismatch.unset', '-171.75');
+        Observer.Expect('ffmismatch.set', '0');
+        Observer.Expect('ffboth.unset', '-150.75');
+        Observer.Expect('ffboth.set', '-60.25');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1294,7 +1420,29 @@ codeunit 64103 "FFM SumAvg Tests"
         if not TryCalc_NSum_ffboth(H) then
             Observer.ObserveError('NSum_ffboth.calc144');
         Observer.Observe('ffboth.h3', Format(H.NSum_ffboth));
-        Observer.Finish();
+        Observer.Expect('const.h3', '-57.75');
+        Observer.Expect('field.h3', '0');
+        Observer.Expect('filter.h3', '-81.25');
+        Observer.Expect('constopt.h3', '-90.5');
+        Observer.Expect('constenum.h3', '-27');
+        Observer.Expect('filterenum.h3', '-144.75');
+        Observer.Expect('ffint.h3', '-171.75');
+        Observer.Expect('ffdec.h3', '-171.75');
+        Observer.Expect('ffdate.h3', '-171.75');
+        Observer.Expect('ffcode.h3', '-171.75');
+        Observer.Expect('ffopt.h3', '-171.75');
+        Observer.Expect('ffenum.h3', '-171.75');
+        Observer.Expect('fftext.h3', '-171.75');
+        Observer.Expect('uldate.h3', '-171.75');
+        Observer.Expect('ulint.h3', '-171.75');
+        Observer.Expect('uldec.h3', '-171.75');
+        Observer.Expect('ulcode.h3', '-171.75');
+        Observer.Expect('ulopt.h3', '-171.75');
+        Observer.Expect('ulenum.h3', '-171.75');
+        Observer.Expect('ulfdate.h3', '-171.75');
+        Observer.Expect('ffmismatch.h3', '-171.75');
+        Observer.Expect('ffboth.h3', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1361,7 +1509,25 @@ codeunit 64103 "FFM SumAvg Tests"
         if not TryCalc_Avg_filterenum(H) then
             Observer.ObserveError('Avg_filterenum.calc162');
         Observer.Observe('H3.filterenum', Format(H.Avg_filterenum));
-        Observer.Finish();
+        Observer.Expect('H1.const', '19.25');
+        Observer.Expect('H1.field', '37.6875');
+        Observer.Expect('H1.filter', '20.3125');
+        Observer.Expect('H1.constopt', '45.25');
+        Observer.Expect('H1.constenum', '13.5');
+        Observer.Expect('H1.filterenum', '36.1875');
+        Observer.Expect('H2.const', '19.25');
+        Observer.Expect('H2.field', '10.5');
+        Observer.Expect('H2.filter', '20.3125');
+        Observer.Expect('H2.constopt', '45.25');
+        Observer.Expect('H2.constenum', '13.5');
+        Observer.Expect('H2.filterenum', '36.1875');
+        Observer.Expect('H3.const', '19.25');
+        Observer.Expect('H3.field', '0');
+        Observer.Expect('H3.filter', '20.3125');
+        Observer.Expect('H3.constopt', '45.25');
+        Observer.Expect('H3.constenum', '13.5');
+        Observer.Expect('H3.filterenum', '36.1875');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1428,7 +1594,21 @@ codeunit 64103 "FFM SumAvg Tests"
         if not TryCalc_Avg_fftext(H) then
             Observer.ObserveError('Avg_fftext.calc176');
         Observer.Observe('fftext.set', Format(H.Avg_fftext));
-        Observer.Finish();
+        Observer.Expect('ffint.unset', '28.625');
+        Observer.Expect('ffint.set', '24.75');
+        Observer.Expect('ffdec.unset', '28.625');
+        Observer.Expect('ffdec.set', '38.5625');
+        Observer.Expect('ffdate.unset', '28.625');
+        Observer.Expect('ffdate.set', '46.75');
+        Observer.Expect('ffcode.unset', '28.625');
+        Observer.Expect('ffcode.set', '19.25');
+        Observer.Expect('ffopt.unset', '28.625');
+        Observer.Expect('ffopt.set', '45.25');
+        Observer.Expect('ffenum.unset', '28.625');
+        Observer.Expect('ffenum.set', '20.3125');
+        Observer.Expect('fftext.unset', '28.625');
+        Observer.Expect('fftext.set', '25.375');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1495,7 +1675,23 @@ codeunit 64103 "FFM SumAvg Tests"
         if not TryCalc_Avg_ulfdate(H) then
             Observer.ObserveError('Avg_ulfdate.calc190');
         Observer.Observe('ulfdate.set', Format(H.Avg_ulfdate));
-        Observer.Finish();
+        Observer.Expect('uldate.unset', '28.625');
+        Observer.Expect('uldate.set', '31.55');
+        Observer.Expect('ulint.unset', '28.625');
+        Observer.Expect('ulint.set', '18.35');
+        Observer.Expect('uldec.unset', '28.625');
+        Observer.Expect('Avg_uldec.calc182|text', 'The filter expression ">=14" applied to the field DecF in the FFM SumAvg Header table results in more than one range.');
+        Observer.Expect('Avg_uldec.calc182|code', 'DB:NotIntervalFilter');
+        Observer.Expect('uldec.set', '28.625');
+        Observer.Expect('ulcode.unset', '28.625');
+        Observer.Expect('ulcode.set', '19.25');
+        Observer.Expect('ulopt.unset', '28.625');
+        Observer.Expect('ulopt.set', '45.25');
+        Observer.Expect('ulenum.unset', '28.625');
+        Observer.Expect('ulenum.set', '28.625');
+        Observer.Expect('ulfdate.unset', '28.625');
+        Observer.Expect('ulfdate.set', '31.55');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1522,7 +1718,11 @@ codeunit 64103 "FFM SumAvg Tests"
         if not TryCalc_Avg_ffboth(H) then
             Observer.ObserveError('Avg_ffboth.calc194');
         Observer.Observe('ffboth.set', Format(H.Avg_ffboth));
-        Observer.Finish();
+        Observer.Expect('ffmismatch.unset', '28.625');
+        Observer.Expect('ffmismatch.set', '0');
+        Observer.Expect('ffboth.unset', '37.6875');
+        Observer.Expect('ffboth.set', '30.125');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1599,7 +1799,29 @@ codeunit 64103 "FFM SumAvg Tests"
         if not TryCalc_Avg_ffboth(H) then
             Observer.ObserveError('Avg_ffboth.calc216');
         Observer.Observe('ffboth.h3', Format(H.Avg_ffboth));
-        Observer.Finish();
+        Observer.Expect('const.h3', '19.25');
+        Observer.Expect('field.h3', '0');
+        Observer.Expect('filter.h3', '20.3125');
+        Observer.Expect('constopt.h3', '45.25');
+        Observer.Expect('constenum.h3', '13.5');
+        Observer.Expect('filterenum.h3', '36.1875');
+        Observer.Expect('ffint.h3', '28.625');
+        Observer.Expect('ffdec.h3', '28.625');
+        Observer.Expect('ffdate.h3', '28.625');
+        Observer.Expect('ffcode.h3', '28.625');
+        Observer.Expect('ffopt.h3', '28.625');
+        Observer.Expect('ffenum.h3', '28.625');
+        Observer.Expect('fftext.h3', '28.625');
+        Observer.Expect('uldate.h3', '28.625');
+        Observer.Expect('ulint.h3', '28.625');
+        Observer.Expect('uldec.h3', '28.625');
+        Observer.Expect('ulcode.h3', '28.625');
+        Observer.Expect('ulopt.h3', '28.625');
+        Observer.Expect('ulenum.h3', '28.625');
+        Observer.Expect('ulfdate.h3', '28.625');
+        Observer.Expect('ffmismatch.h3', '28.625');
+        Observer.Expect('ffboth.h3', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1666,7 +1888,25 @@ codeunit 64103 "FFM SumAvg Tests"
         if not TryCalc_NAvg_filterenum(H) then
             Observer.ObserveError('NAvg_filterenum.calc234');
         Observer.Observe('H3.filterenum', Format(H.NAvg_filterenum));
-        Observer.Finish();
+        Observer.Expect('H1.const', '-19.25');
+        Observer.Expect('H1.field', '-37.6875');
+        Observer.Expect('H1.filter', '-20.3125');
+        Observer.Expect('H1.constopt', '-45.25');
+        Observer.Expect('H1.constenum', '-13.5');
+        Observer.Expect('H1.filterenum', '-36.1875');
+        Observer.Expect('H2.const', '-19.25');
+        Observer.Expect('H2.field', '-10.5');
+        Observer.Expect('H2.filter', '-20.3125');
+        Observer.Expect('H2.constopt', '-45.25');
+        Observer.Expect('H2.constenum', '-13.5');
+        Observer.Expect('H2.filterenum', '-36.1875');
+        Observer.Expect('H3.const', '-19.25');
+        Observer.Expect('H3.field', '0');
+        Observer.Expect('H3.filter', '-20.3125');
+        Observer.Expect('H3.constopt', '-45.25');
+        Observer.Expect('H3.constenum', '-13.5');
+        Observer.Expect('H3.filterenum', '-36.1875');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1733,7 +1973,21 @@ codeunit 64103 "FFM SumAvg Tests"
         if not TryCalc_NAvg_fftext(H) then
             Observer.ObserveError('NAvg_fftext.calc248');
         Observer.Observe('fftext.set', Format(H.NAvg_fftext));
-        Observer.Finish();
+        Observer.Expect('ffint.unset', '-28.625');
+        Observer.Expect('ffint.set', '-24.75');
+        Observer.Expect('ffdec.unset', '-28.625');
+        Observer.Expect('ffdec.set', '-38.5625');
+        Observer.Expect('ffdate.unset', '-28.625');
+        Observer.Expect('ffdate.set', '-46.75');
+        Observer.Expect('ffcode.unset', '-28.625');
+        Observer.Expect('ffcode.set', '-19.25');
+        Observer.Expect('ffopt.unset', '-28.625');
+        Observer.Expect('ffopt.set', '-45.25');
+        Observer.Expect('ffenum.unset', '-28.625');
+        Observer.Expect('ffenum.set', '-20.3125');
+        Observer.Expect('fftext.unset', '-28.625');
+        Observer.Expect('fftext.set', '-25.375');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1800,7 +2054,23 @@ codeunit 64103 "FFM SumAvg Tests"
         if not TryCalc_NAvg_ulfdate(H) then
             Observer.ObserveError('NAvg_ulfdate.calc262');
         Observer.Observe('ulfdate.set', Format(H.NAvg_ulfdate));
-        Observer.Finish();
+        Observer.Expect('uldate.unset', '-28.625');
+        Observer.Expect('uldate.set', '-31.55');
+        Observer.Expect('ulint.unset', '-28.625');
+        Observer.Expect('ulint.set', '-18.35');
+        Observer.Expect('uldec.unset', '-28.625');
+        Observer.Expect('NAvg_uldec.calc254|text', 'The filter expression ">=14" applied to the field DecF in the FFM SumAvg Header table results in more than one range.');
+        Observer.Expect('NAvg_uldec.calc254|code', 'DB:NotIntervalFilter');
+        Observer.Expect('uldec.set', '-28.625');
+        Observer.Expect('ulcode.unset', '-28.625');
+        Observer.Expect('ulcode.set', '-19.25');
+        Observer.Expect('ulopt.unset', '-28.625');
+        Observer.Expect('ulopt.set', '-45.25');
+        Observer.Expect('ulenum.unset', '-28.625');
+        Observer.Expect('ulenum.set', '-28.625');
+        Observer.Expect('ulfdate.unset', '-28.625');
+        Observer.Expect('ulfdate.set', '-31.55');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1827,7 +2097,11 @@ codeunit 64103 "FFM SumAvg Tests"
         if not TryCalc_NAvg_ffboth(H) then
             Observer.ObserveError('NAvg_ffboth.calc266');
         Observer.Observe('ffboth.set', Format(H.NAvg_ffboth));
-        Observer.Finish();
+        Observer.Expect('ffmismatch.unset', '-28.625');
+        Observer.Expect('ffmismatch.set', '0');
+        Observer.Expect('ffboth.unset', '-37.6875');
+        Observer.Expect('ffboth.set', '-30.125');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1904,7 +2178,29 @@ codeunit 64103 "FFM SumAvg Tests"
         if not TryCalc_NAvg_ffboth(H) then
             Observer.ObserveError('NAvg_ffboth.calc288');
         Observer.Observe('ffboth.h3', Format(H.NAvg_ffboth));
-        Observer.Finish();
+        Observer.Expect('const.h3', '-19.25');
+        Observer.Expect('field.h3', '0');
+        Observer.Expect('filter.h3', '-20.3125');
+        Observer.Expect('constopt.h3', '-45.25');
+        Observer.Expect('constenum.h3', '-13.5');
+        Observer.Expect('filterenum.h3', '-36.1875');
+        Observer.Expect('ffint.h3', '-28.625');
+        Observer.Expect('ffdec.h3', '-28.625');
+        Observer.Expect('ffdate.h3', '-28.625');
+        Observer.Expect('ffcode.h3', '-28.625');
+        Observer.Expect('ffopt.h3', '-28.625');
+        Observer.Expect('ffenum.h3', '-28.625');
+        Observer.Expect('fftext.h3', '-28.625');
+        Observer.Expect('uldate.h3', '-28.625');
+        Observer.Expect('ulint.h3', '-28.625');
+        Observer.Expect('uldec.h3', '-28.625');
+        Observer.Expect('ulcode.h3', '-28.625');
+        Observer.Expect('ulopt.h3', '-28.625');
+        Observer.Expect('ulenum.h3', '-28.625');
+        Observer.Expect('ulfdate.h3', '-28.625');
+        Observer.Expect('ffmismatch.h3', '-28.625');
+        Observer.Expect('ffboth.h3', '0');
+        Observer.Verify();
     end;
 
     local procedure Initialize()
