@@ -29,7 +29,7 @@ codeunit 69950 "LT RF Callstack Frames Plain"
         Holder.Capture('test');
         Helper.ObserveOne('test.session', Holder.Get('test.session'), false, Observer);
 #if BC28PLUS
-        Observer.Expect('test.session.whole.len', '265');
+        Observer.Expect('test.session.whole.len', '271');
         Observer.Expect('test.session.tail.len', '1');
         Observer.Expect('test.session.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('test.session.tail.nframes', '0');
@@ -39,7 +39,7 @@ codeunit 69950 "LT RF Callstack Frames Plain"
         Observer.Expect('test.session.tail.has99903', 'No');
         Observer.Expect('test.session.tail.runner-version-prefix', 'Yes');
 #else
-        Observer.Expect('test.session.whole.len', '946');
+        Observer.Expect('test.session.whole.len', '952');
         Observer.Expect('test.session.tail.len', '682');
         Observer.Expect('test.session.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('test.session.tail.frame1', '"Test Runner - Mgt"(CodeUnit 130454).RunTests line 26 - Test Runner by Microsoft version <RunnerVersion>');
@@ -67,7 +67,7 @@ codeunit 69950 "LT RF Callstack Frames Plain"
         Holder.Capture('test');
         Helper.ObserveOne('test.collected', Holder.Get('test.collected'), true, Observer);
 #if BC28PLUS
-        Observer.Expect('test.collected.whole.len', '501');
+        Observer.Expect('test.collected.whole.len', '514');
         Observer.Expect('test.collected.tail.len', '2');
         Observer.Expect('test.collected.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('test.collected.tail.nframes', '0');
@@ -77,7 +77,7 @@ codeunit 69950 "LT RF Callstack Frames Plain"
         Observer.Expect('test.collected.tail.has99903', 'No');
         Observer.Expect('test.collected.tail.runner-version-prefix', 'Yes');
 #else
-        Observer.Expect('test.collected.whole.len', '1188');
+        Observer.Expect('test.collected.whole.len', '1201');
         Observer.Expect('test.collected.tail.len', '689');
         Observer.Expect('test.collected.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('test.collected.tail.frame1', '"Test Runner - Mgt"(CodeUnit 130454).RunTests line 26 - Test Runner by Microsoft version <RunnerVersion>');
@@ -105,7 +105,7 @@ codeunit 69950 "LT RF Callstack Frames Plain"
         Holder.Capture('test');
         Helper.ObserveOne('test.lasttry', Holder.Get('test.lasttry'), false, Observer);
 #if BC28PLUS
-        Observer.Expect('test.lasttry.whole.len', '374');
+        Observer.Expect('test.lasttry.whole.len', '380');
         Observer.Expect('test.lasttry.tail.len', '1');
         Observer.Expect('test.lasttry.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('test.lasttry.tail.nframes', '0');
@@ -115,7 +115,7 @@ codeunit 69950 "LT RF Callstack Frames Plain"
         Observer.Expect('test.lasttry.tail.has99903', 'No');
         Observer.Expect('test.lasttry.tail.runner-version-prefix', 'Yes');
 #else
-        Observer.Expect('test.lasttry.whole.len', '1055');
+        Observer.Expect('test.lasttry.whole.len', '1061');
         Observer.Expect('test.lasttry.tail.len', '682');
         Observer.Expect('test.lasttry.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('test.lasttry.tail.frame1', '"Test Runner - Mgt"(CodeUnit 130454).RunTests line 26 - Test Runner by Microsoft version <RunnerVersion>');
@@ -143,7 +143,7 @@ codeunit 69950 "LT RF Callstack Frames Plain"
         Holder.Capture('test');
         Helper.ObserveOne('test.lastassert', Holder.Get('test.lastassert'), false, Observer);
 #if BC28PLUS
-        Observer.Expect('test.lastassert.whole.len', '385');
+        Observer.Expect('test.lastassert.whole.len', '398');
         Observer.Expect('test.lastassert.tail.len', '1');
         Observer.Expect('test.lastassert.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('test.lastassert.tail.nframes', '0');
@@ -153,7 +153,7 @@ codeunit 69950 "LT RF Callstack Frames Plain"
         Observer.Expect('test.lastassert.tail.has99903', 'No');
         Observer.Expect('test.lastassert.tail.runner-version-prefix', 'Yes');
 #else
-        Observer.Expect('test.lastassert.whole.len', '1066');
+        Observer.Expect('test.lastassert.whole.len', '1079');
         Observer.Expect('test.lastassert.tail.len', '682');
         Observer.Expect('test.lastassert.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('test.lastassert.tail.frame1', '"Test Runner - Mgt"(CodeUnit 130454).RunTests line 26 - Test Runner by Microsoft version <RunnerVersion>');
@@ -181,7 +181,7 @@ codeunit 69950 "LT RF Callstack Frames Plain"
         Runner.Run();
         Helper.ObserveOne('run.session', Runner.Get('run.session'), false, Observer);
 #if BC28PLUS
-        Observer.Expect('run.session.whole.len', '380');
+        Observer.Expect('run.session.whole.len', '393');
         Observer.Expect('run.session.tail.len', '1');
         Observer.Expect('run.session.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('run.session.tail.nframes', '0');
@@ -191,7 +191,7 @@ codeunit 69950 "LT RF Callstack Frames Plain"
         Observer.Expect('run.session.tail.has99903', 'No');
         Observer.Expect('run.session.tail.runner-version-prefix', 'Yes');
 #else
-        Observer.Expect('run.session.whole.len', '1061');
+        Observer.Expect('run.session.whole.len', '1074');
         Observer.Expect('run.session.tail.len', '682');
         Observer.Expect('run.session.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('run.session.tail.frame1', '"Test Runner - Mgt"(CodeUnit 130454).RunTests line 26 - Test Runner by Microsoft version <RunnerVersion>');
@@ -219,7 +219,7 @@ codeunit 69950 "LT RF Callstack Frames Plain"
         Runner.Run();
         Helper.ObserveOne('run.collected', Runner.Get('run.collected'), true, Observer);
 #if BC28PLUS
-        Observer.Expect('run.collected.whole.len', '617');
+        Observer.Expect('run.collected.whole.len', '637');
         Observer.Expect('run.collected.tail.len', '2');
         Observer.Expect('run.collected.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('run.collected.tail.nframes', '0');
@@ -229,7 +229,7 @@ codeunit 69950 "LT RF Callstack Frames Plain"
         Observer.Expect('run.collected.tail.has99903', 'No');
         Observer.Expect('run.collected.tail.runner-version-prefix', 'Yes');
 #else
-        Observer.Expect('run.collected.whole.len', '1304');
+        Observer.Expect('run.collected.whole.len', '1324');
         Observer.Expect('run.collected.tail.len', '689');
         Observer.Expect('run.collected.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('run.collected.tail.frame1', '"Test Runner - Mgt"(CodeUnit 130454).RunTests line 26 - Test Runner by Microsoft version <RunnerVersion>');
@@ -257,7 +257,7 @@ codeunit 69950 "LT RF Callstack Frames Plain"
         Runner.Run();
         Helper.ObserveOne('run.lasttry', Runner.Get('run.lasttry'), false, Observer);
 #if BC28PLUS
-        Observer.Expect('run.lasttry.whole.len', '489');
+        Observer.Expect('run.lasttry.whole.len', '502');
         Observer.Expect('run.lasttry.tail.len', '1');
         Observer.Expect('run.lasttry.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('run.lasttry.tail.nframes', '0');
@@ -267,7 +267,7 @@ codeunit 69950 "LT RF Callstack Frames Plain"
         Observer.Expect('run.lasttry.tail.has99903', 'No');
         Observer.Expect('run.lasttry.tail.runner-version-prefix', 'Yes');
 #else
-        Observer.Expect('run.lasttry.whole.len', '1170');
+        Observer.Expect('run.lasttry.whole.len', '1183');
         Observer.Expect('run.lasttry.tail.len', '682');
         Observer.Expect('run.lasttry.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('run.lasttry.tail.frame1', '"Test Runner - Mgt"(CodeUnit 130454).RunTests line 26 - Test Runner by Microsoft version <RunnerVersion>');
@@ -295,7 +295,7 @@ codeunit 69950 "LT RF Callstack Frames Plain"
         Runner.Run();
         Helper.ObserveOne('run.lastassert', Runner.Get('run.lastassert'), false, Observer);
 #if BC28PLUS
-        Observer.Expect('run.lastassert.whole.len', '500');
+        Observer.Expect('run.lastassert.whole.len', '520');
         Observer.Expect('run.lastassert.tail.len', '1');
         Observer.Expect('run.lastassert.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('run.lastassert.tail.nframes', '0');
@@ -305,7 +305,7 @@ codeunit 69950 "LT RF Callstack Frames Plain"
         Observer.Expect('run.lastassert.tail.has99903', 'No');
         Observer.Expect('run.lastassert.tail.runner-version-prefix', 'Yes');
 #else
-        Observer.Expect('run.lastassert.whole.len', '1181');
+        Observer.Expect('run.lastassert.whole.len', '1201');
         Observer.Expect('run.lastassert.tail.len', '682');
         Observer.Expect('run.lastassert.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('run.lastassert.tail.frame1', '"Test Runner - Mgt"(CodeUnit 130454).RunTests line 26 - Test Runner by Microsoft version <RunnerVersion>');
@@ -345,7 +345,7 @@ codeunit 69951 "LT RF Callstack Frames Handler"
         Message('runner frames');
         Holder.Capture('test');
         Helper.ObserveOne('test.session', Holder.Get('test.session'), false, Observer);
-        Observer.Expect('test.session.whole.len', '948');
+        Observer.Expect('test.session.whole.len', '956');
         Observer.Expect('test.session.tail.len', '682');
         Observer.Expect('test.session.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('test.session.tail.frame1', '"Test Runner - Mgt"(CodeUnit 130454).RunTests line 26 - Test Runner by Microsoft version <RunnerVersion>');
@@ -373,7 +373,7 @@ codeunit 69951 "LT RF Callstack Frames Handler"
         Message('runner frames');
         Holder.Capture('test');
         Helper.ObserveOne('test.collected', Holder.Get('test.collected'), true, Observer);
-        Observer.Expect('test.collected.whole.len', '1190');
+        Observer.Expect('test.collected.whole.len', '1205');
         Observer.Expect('test.collected.tail.len', '689');
         Observer.Expect('test.collected.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('test.collected.tail.frame1', '"Test Runner - Mgt"(CodeUnit 130454).RunTests line 26 - Test Runner by Microsoft version <RunnerVersion>');
@@ -401,7 +401,7 @@ codeunit 69951 "LT RF Callstack Frames Handler"
         Message('runner frames');
         Holder.Capture('test');
         Helper.ObserveOne('test.lasttry', Holder.Get('test.lasttry'), false, Observer);
-        Observer.Expect('test.lasttry.whole.len', '1057');
+        Observer.Expect('test.lasttry.whole.len', '1065');
         Observer.Expect('test.lasttry.tail.len', '682');
         Observer.Expect('test.lasttry.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('test.lasttry.tail.frame1', '"Test Runner - Mgt"(CodeUnit 130454).RunTests line 26 - Test Runner by Microsoft version <RunnerVersion>');
@@ -429,7 +429,7 @@ codeunit 69951 "LT RF Callstack Frames Handler"
         Message('runner frames');
         Holder.Capture('test');
         Helper.ObserveOne('test.lastassert', Holder.Get('test.lastassert'), false, Observer);
-        Observer.Expect('test.lastassert.whole.len', '1068');
+        Observer.Expect('test.lastassert.whole.len', '1083');
         Observer.Expect('test.lastassert.tail.len', '682');
         Observer.Expect('test.lastassert.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('test.lastassert.tail.frame1', '"Test Runner - Mgt"(CodeUnit 130454).RunTests line 26 - Test Runner by Microsoft version <RunnerVersion>');
@@ -457,7 +457,7 @@ codeunit 69951 "LT RF Callstack Frames Handler"
         Message('runner frames');
         Runner.Run();
         Helper.ObserveOne('run.session', Runner.Get('run.session'), false, Observer);
-        Observer.Expect('run.session.whole.len', '1063');
+        Observer.Expect('run.session.whole.len', '1078');
         Observer.Expect('run.session.tail.len', '682');
         Observer.Expect('run.session.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('run.session.tail.frame1', '"Test Runner - Mgt"(CodeUnit 130454).RunTests line 26 - Test Runner by Microsoft version <RunnerVersion>');
@@ -485,7 +485,7 @@ codeunit 69951 "LT RF Callstack Frames Handler"
         Message('runner frames');
         Runner.Run();
         Helper.ObserveOne('run.collected', Runner.Get('run.collected'), true, Observer);
-        Observer.Expect('run.collected.whole.len', '1306');
+        Observer.Expect('run.collected.whole.len', '1328');
         Observer.Expect('run.collected.tail.len', '689');
         Observer.Expect('run.collected.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('run.collected.tail.frame1', '"Test Runner - Mgt"(CodeUnit 130454).RunTests line 26 - Test Runner by Microsoft version <RunnerVersion>');
@@ -513,7 +513,7 @@ codeunit 69951 "LT RF Callstack Frames Handler"
         Message('runner frames');
         Runner.Run();
         Helper.ObserveOne('run.lasttry', Runner.Get('run.lasttry'), false, Observer);
-        Observer.Expect('run.lasttry.whole.len', '1172');
+        Observer.Expect('run.lasttry.whole.len', '1187');
         Observer.Expect('run.lasttry.tail.len', '682');
         Observer.Expect('run.lasttry.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('run.lasttry.tail.frame1', '"Test Runner - Mgt"(CodeUnit 130454).RunTests line 26 - Test Runner by Microsoft version <RunnerVersion>');
@@ -541,7 +541,7 @@ codeunit 69951 "LT RF Callstack Frames Handler"
         Message('runner frames');
         Runner.Run();
         Helper.ObserveOne('run.lastassert', Runner.Get('run.lastassert'), false, Observer);
-        Observer.Expect('run.lastassert.whole.len', '1183');
+        Observer.Expect('run.lastassert.whole.len', '1205');
         Observer.Expect('run.lastassert.tail.len', '682');
         Observer.Expect('run.lastassert.tail.separator-first-and-last', 'Yes Yes');
         Observer.Expect('run.lastassert.tail.frame1', '"Test Runner - Mgt"(CodeUnit 130454).RunTests line 26 - Test Runner by Microsoft version <RunnerVersion>');
