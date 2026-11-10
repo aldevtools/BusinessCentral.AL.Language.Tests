@@ -7,6 +7,7 @@ Format and Evaluate of every type, format strings and AutoFormat.
 - (area folder itself): 85 AL files that are about the area as a whole or were not given a topic yet.
 - `autoformat/`: AutoFormatType and AutoFormatExpression (7 AL files).
 - `record-format/`: Format of a Record, RecordRef and FieldRef, also as a %n argument of StrSubstNo, Message and Error (1 AL file).
+- `format-matrix/`: Format with every standard format number and a list of format-string elements, and Evaluate (boolean and statement form, format 0 and 9), for every simple type, also through FieldRef (28 AL files). `FMOptionBlank*.al` (4 files) cover blank option members (" ", "" and an unquoted empty member at the first, middle and last position and two blanks) as an Option variable, an Option table field and an Enum.
 
 - `SoEvaluateSystemOptions.al` (in the area folder itself): Evaluate into the system option types ObjectType, Verbosity, TelemetryScope, DataClassification, TransactionType, ReportFormat, ErrorType, DefaultLayout, TestPermissions, DataScope, ExecutionContext, NotificationScope, WebServiceActionResultCode and FieldClass.
 - `SoEvaluateSystemOptionsHidden.al` (in the area folder itself): the part of the system option Evaluate probe that `SoEvaluateSystemOptions.al` left open: the numbers of WebServiceActionResultCode (200, 201, 204 and around), the names of members AL cannot name (ObjectType Form and Enum, ReportFormat None, Jpeg, Xps, Meta, ExcelDataset, Custom, Zip, ExecutionContext Uninstall, FieldClass KeyFieldReference on BC 27), and rejected texts with blanks or TABs around them in the statement form.
@@ -22,7 +23,7 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 ## Other apps
 
 - Same area in other apps (only what cannot compile in the Cloud app): none.
-- Must-not-compile cases (5, in `tests/must-not-compile/cases/`, listed by `tests/must-not-compile/areas.tsv`): `0252-evaluate-one-arg`, `0257-format-four-args`, `1312-database-datafileinformation-cloud`, `1393-continue-statement-with-variable-named-continue`, `1437-autoformattype-enum-value`.
+- Must-not-compile cases (17, in `tests/must-not-compile/cases/`, listed by `tests/must-not-compile/areas.tsv`): `0252-evaluate-one-arg`, `0257-format-four-args`, `1312-database-datafileinformation-cloud`, `1393-continue-statement-with-variable-named-continue`, `1437-autoformattype-enum-value`, `3120-option-variable-duplicate-blank-quoted-empty`, `3121-option-variable-duplicate-blank-space`, `3122-option-field-duplicate-blank-quoted-empty`, `3123-option-field-duplicate-blank-space`, `3124-enum-duplicate-blank-quoted-empty`, `3125-enum-duplicate-blank-space`, `3126-option-quoted-empty-member-has-no-name`, `3127-option-unquoted-empty-member-has-no-name`, `3128-option-space-member-is-not-the-empty-name`, `3129-option-quoted-empty-member-is-not-the-space-name`, `3130-option-field-quoted-empty-member-has-no-name`, `3131-enum-quoted-empty-value-has-no-name`.
 
 ## Adding a test
 

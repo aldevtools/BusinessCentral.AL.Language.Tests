@@ -10,7 +10,7 @@ The page object: page triggers, parts, controls, actions, CurrPage, Run and RunM
 - `application-area/`: ApplicationArea (13 AL files).
 - `array-element-fields/`: page fields that are array elements (1 AL file).
 - `assistedit-refresh/`: AssistEdit and the refresh of the page afterwards (1 AL file).
-- `background-tasks/`: page background tasks (2 AL files).
+- `background-tasks/`: page background tasks (3 AL files).
 - `bare-page-methods/`: page methods called without CurrPage (2 AL files).
 - `client-features/`: client-only features seen in a test session (role centers, camera) (1 AL file).
 - `controls/`: page controls and their properties (26 AL files).
@@ -43,7 +43,7 @@ The page object: page triggers, parts, controls, actions, CurrPage, Run and RunM
 - `page-property-metadata/`: page properties read as metadata (search terms, captions, prompt modes) (2 AL files).
 - `page-summary/`: page summary (1 AL file).
 - `pages-xmlports-upload-members/`: members of pages, xmlports, reports and Upload (7 AL files).
-- `parts/`: page parts and subpages (45 AL files).
+- `parts/`: page parts and subpages (46 AL files).
 - `properties/`: page properties (80 AL files).
 - `readonly-repeater/`: read-only repeaters (1 AL file).
 - `record-changed-by-other-user/`: the error when another user changed the record (asserterror on save and edit) (3 AL files).
