@@ -6,6 +6,10 @@
 //   reporter's if/else shape, and the assignment in a procedure of another codeunit (the shape of a login subscriber's body). Each test
 //   clears the application area at its end with the call form.
 // Facts: the text ApplicationArea() returns after each form.
+// Measured on BC 27.5, 28.5 and 29.0 (corpus CI runs 42852007063, 42852095520, 42852195813; identical): `ApplicationArea := <text>` sets
+//   the application area exactly as `ApplicationArea(<text>)` does. ApplicationArea() reads back the assigned text unchanged ('#All,#Basic'
+//   for the literal, the append and the call form), a blank assignment clears it, and the assignment in a procedure of another codeunit
+//   changes the session's value the test reads.
 // BC versions: 27, 28, 29
 codeunit 93460 "LT AA Assign Setter"
 {
@@ -37,7 +41,8 @@ codeunit 93461 "LT AA Assign Form"
         ApplicationArea := '#All,#Basic';
         Observer.Observe('literal', ApplicationArea());
         ApplicationArea('');
-        Observer.Finish();
+        Observer.Expect('literal', '#All,#Basic');
+        Observer.Verify();
     end;
 
     [Test]
@@ -49,7 +54,8 @@ codeunit 93461 "LT AA Assign Form"
         ApplicationArea := ApplicationArea() + ',#Basic';
         Observer.Observe('append', ApplicationArea());
         ApplicationArea('');
-        Observer.Finish();
+        Observer.Expect('append', '#All,#Basic');
+        Observer.Verify();
     end;
 
     [Test]
@@ -61,7 +67,8 @@ codeunit 93461 "LT AA Assign Form"
         ApplicationArea('#All,#Basic');
         Observer.Observe('call', ApplicationArea());
         ApplicationArea('');
-        Observer.Finish();
+        Observer.Expect('call', '#All,#Basic');
+        Observer.Verify();
     end;
 
     [Test]
@@ -73,7 +80,8 @@ codeunit 93461 "LT AA Assign Form"
         ApplicationArea := '';
         Observer.Observe('blank', ApplicationArea());
         ApplicationArea('');
-        Observer.Finish();
+        Observer.Expect('blank', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -91,6 +99,9 @@ codeunit 93461 "LT AA Assign Form"
         Setter.AddAreas('#Service');
         Observer.Observe('add to set', ApplicationArea());
         ApplicationArea('');
-        Observer.Finish();
+        Observer.Expect('other codeunit', '#Suite');
+        Observer.Expect('add to blank', '#All,#Basic,#Suite');
+        Observer.Expect('add to set', '#All,#Basic,#Suite,#Service');
+        Observer.Verify();
     end;
 }
