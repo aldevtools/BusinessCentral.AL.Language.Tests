@@ -209,7 +209,15 @@ codeunit 62449 "LPX Base Page Caption"
         Observer: Codeunit "Probe Observer";
     begin
         ObservePaymentMethodsCaptions(Observer, 1043);
-        Observer.Finish();
+        Observer.Expect('Code (not touched)', 'Code');
+        Observer.Expect('Description (not touched)', 'Description');
+        Observer.Expect('Direct Debit (not touched)', 'Direct Debit');
+        Observer.Expect('Bal. Account Type (modify, unit)', 'LPX type gewijzigd');
+        Observer.Expect('Bal. Account No. (modify, no unit)', 'LPX No Modified');
+        Observer.Expect('added control with a Caption and a unit', 'LPX toegevoegd');
+        Observer.Expect('added control with a Caption and no unit', 'LPX Added No Unit');
+        Observer.Expect('added control without a Caption', 'Direct Debit');
+        Observer.Verify();
     end;
 
     [Test]
@@ -218,7 +226,15 @@ codeunit 62449 "LPX Base Page Caption"
         Observer: Codeunit "Probe Observer";
     begin
         ObservePaymentMethodsCaptions(Observer, 1033);
-        Observer.Finish();
+        Observer.Expect('Code (not touched)', 'Code');
+        Observer.Expect('Description (not touched)', 'Description');
+        Observer.Expect('Direct Debit (not touched)', 'Direct Debit');
+        Observer.Expect('Bal. Account Type (modify, unit)', 'LPX Type Modified');
+        Observer.Expect('Bal. Account No. (modify, no unit)', 'LPX No Modified');
+        Observer.Expect('added control with a Caption and a unit', 'LPX Added');
+        Observer.Expect('added control with a Caption and no unit', 'LPX Added No Unit');
+        Observer.Expect('added control without a Caption', 'Direct Debit');
+        Observer.Verify();
     end;
 
     [Test]
@@ -227,7 +243,11 @@ codeunit 62449 "LPX Base Page Caption"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveOtherPagesCaptions(Observer, 1043);
-        Observer.Finish();
+        Observer.Expect('Territories Code (extension adds an action only)', 'Code');
+        Observer.Expect('Territories Name (extension adds an action only)', 'Name');
+        Observer.Expect('Countries/Regions Code (page not extended)', 'Code');
+        Observer.Expect('Countries/Regions Name (page not extended)', 'Name');
+        Observer.Verify();
     end;
 
     [Test]
@@ -236,7 +256,11 @@ codeunit 62449 "LPX Base Page Caption"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveOtherPagesCaptions(Observer, 1033);
-        Observer.Finish();
+        Observer.Expect('Territories Code (extension adds an action only)', 'Code');
+        Observer.Expect('Territories Name (extension adds an action only)', 'Name');
+        Observer.Expect('Countries/Regions Code (page not extended)', 'Code');
+        Observer.Expect('Countries/Regions Name (page not extended)', 'Name');
+        Observer.Verify();
     end;
 
     [Test]
@@ -247,7 +271,10 @@ codeunit 62449 "LPX Base Page Caption"
         Observer.Observe('untouched Boolean control', SetValueError(1, 1043));
         Observer.Observe('modified control with a unit', SetValueError(2, 1043));
         Observer.Observe('modified control without a unit', SetValueError(3, 1043));
-        Observer.Finish();
+        Observer.Expect('untouched Boolean control', 'Validatiefout voor veld: Direct Debit, bericht = ''Your entry of ''abc'' is not an acceptable value for ''Direct Debit''.'' {TestValidation}');
+        Observer.Expect('modified control with a unit', 'Validatiefout voor veld: Bal. Account Type, bericht = ''Your entry of ''abc'' is not an acceptable value for ''LPX type gewijzigd''.'' {TestValidation}');
+        Observer.Expect('modified control without a unit', 'Validatiefout voor veld: Bal. Account No., bericht = ''Het veld Bal. Account No. van tabel Payment Method bevat een waarde (ABC) die niet is gevonden in de gerelateerde tabel (G/L Account).'' {TestValidation}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -258,7 +285,10 @@ codeunit 62449 "LPX Base Page Caption"
         Observer.Observe('added control with a unit', SetValueError(4, 1043));
         Observer.Observe('added control without a unit', SetValueError(5, 1043));
         Observer.Observe('added control without a Caption', SetValueError(6, 1043));
-        Observer.Finish();
+        Observer.Expect('added control with a unit', 'Validatiefout voor veld: LpxAddedWithUnit, bericht = ''Your entry of ''abc'' is not an acceptable value for ''LPX toegevoegd''.'' {TestValidation}');
+        Observer.Expect('added control without a unit', 'Validatiefout voor veld: LpxAddedNoUnit, bericht = ''Your entry of ''abc'' is not an acceptable value for ''LPX Added No Unit''.'' {TestValidation}');
+        Observer.Expect('added control without a Caption', 'Validatiefout voor veld: LpxAddedPlain, bericht = ''Your entry of ''abc'' is not an acceptable value for ''Direct Debit''.'' {TestValidation}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -269,7 +299,10 @@ codeunit 62449 "LPX Base Page Caption"
         Observer.Observe('untouched Boolean control', SetValueError(1, 1033));
         Observer.Observe('modified control with a unit', SetValueError(2, 1033));
         Observer.Observe('modified control without a unit', SetValueError(3, 1033));
-        Observer.Finish();
+        Observer.Expect('untouched Boolean control', 'Validation error for Field: Direct Debit,  Message = ''Your entry of ''abc'' is not an acceptable value for ''Direct Debit''.'' {TestValidation}');
+        Observer.Expect('modified control with a unit', 'Validation error for Field: Bal. Account Type,  Message = ''Your entry of ''abc'' is not an acceptable value for ''LPX Type Modified''.'' {TestValidation}');
+        Observer.Expect('modified control without a unit', 'Validation error for Field: Bal. Account No.,  Message = ''The field Bal. Account No. of table Payment Method contains a value (ABC) that cannot be found in the related table (G/L Account).'' {TestValidation}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -280,7 +313,10 @@ codeunit 62449 "LPX Base Page Caption"
         Observer.Observe('added control with a unit', SetValueError(4, 1033));
         Observer.Observe('added control without a unit', SetValueError(5, 1033));
         Observer.Observe('added control without a Caption', SetValueError(6, 1033));
-        Observer.Finish();
+        Observer.Expect('added control with a unit', 'Validation error for Field: LpxAddedWithUnit,  Message = ''Your entry of ''abc'' is not an acceptable value for ''LPX Added''.'' {TestValidation}');
+        Observer.Expect('added control without a unit', 'Validation error for Field: LpxAddedNoUnit,  Message = ''Your entry of ''abc'' is not an acceptable value for ''LPX Added No Unit''.'' {TestValidation}');
+        Observer.Expect('added control without a Caption', 'Validation error for Field: LpxAddedPlain,  Message = ''Your entry of ''abc'' is not an acceptable value for ''Direct Debit''.'' {TestValidation}');
+        Observer.Verify();
     end;
 
     // The third test of al-runner issue 7327: a value typed into a control of the extended page in a Dutch session.
@@ -306,6 +342,8 @@ codeunit 62449 "LPX Base Page Caption"
         Observer.Observe('value the control took', Got);
         Territory.Get('LPX');
         Observer.Observe('stored name', Territory.Name);
-        Observer.Finish();
+        Observer.Expect('value the control took', 'LPX gebied');
+        Observer.Expect('stored name', 'LPX gebied');
+        Observer.Verify();
     end;
 }
