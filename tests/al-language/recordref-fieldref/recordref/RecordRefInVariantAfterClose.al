@@ -1,14 +1,20 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/recordref/recordref-close-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160), ALT Universal (table 60000), Data Type Management (Base Application codeunit 701)
-// Probe: observation form. Every test ends in Finish(), so it fails on purpose and its message carries what BC produced.
+// Probe: values measured by the corpus CI and pinned.
 // Facts: what a Variant that was assigned a RecordRef holds after the original RecordRef is closed, cleared or opened again
 //   (Format of the Variant, IsRecordRef, and Number, IsEmpty, Find, Count and field values of the RecordRef taken back out with
 //   R := V and with Data Type Management.GetRecordRef), what a Close of the taken-out RecordRef does to the Variant and to the
 //   original, the same through a Variant parameter by value and by var, RecordRef := RecordRef followed by a Close of either
 //   side, Variant := Record for contrast, and Format of a Variant that holds a Record (with a row, initialized, temporary) or a
-//   RecordRef (positioned, open with no row, closed, never opened), with no Close after the assignment.
+//   RecordRef, with no Close after the assignment (see Removed below).
 //   types/variant/CxVariants.al pins only that the two share the buffer while both are open.
+// Removed (BC 27.5, 28.5 and 29.0, CI batch runs 42826078233, 42826192322, 42826312960): Format of a Variant that holds a RecordRef
+//   that is not open ends the test with "Unexpected CLR exception thrown.: System.ArgumentNullException: Value cannot be null. (Parameter
+//   'value')". Measured for V := RR before RR was ever opened (test Variant_AssignedBeforeOpen_TakenOutRecordRef, at the first Format(V))
+//   and for V := RR after RR.Open, FindFirst and Close (test VariantFormat_HoldsRecordRef_Cells, cell recordref_closed; the
+//   never-opened cell after it was not reached). An uncatchable CLR exception cannot be asserted, so both tests were removed; the
+//   positioned and open-with-no-row cells of the second test were not measured either.
 // BC versions: 27, 28 and 29 by the corpus CI matrix
 
 codeunit 99695 "RecordRef In Variant Close"
@@ -296,23 +302,6 @@ codeunit 99695 "RecordRef In Variant Close"
         Observer.Expect('variant_format_is_empty', 'No');
         Observer.Expect('taken_out', '60000|1|one');
         Observer.Verify();
-    end;
-
-    [Test]
-    procedure Variant_AssignedBeforeOpen_TakenOutRecordRef()
-    var
-        Observer: Codeunit "Probe Observer";
-        RR: RecordRef;
-        V: Variant;
-    begin
-        Seed();
-        V := RR;
-        Observer.Observe('variant_kind', Kind(V));
-        Observer.Observe('format_is_empty_before_open', FormatIsEmpty(V));
-        OpenOnFirst(RR);
-        Observer.Observe('format_is_empty_after_open', FormatIsEmpty(V));
-        Observer.Observe('taken_out_after_open', TakenOutInfo(V));
-        Observer.Finish();
     end;
 
     [Test]
@@ -631,37 +620,5 @@ codeunit 99695 "RecordRef In Variant Close"
     local procedure FormatByVar(var V: Variant): Text
     begin
         exit(Format(V));
-    end;
-
-    [Test]
-    procedure VariantFormat_HoldsRecordRef_Cells()
-    var
-        Observer: Codeunit "Probe Observer";
-        Row: Record "ALT Universal";
-        Blank: Record "ALT Universal";
-        Positioned: RecordRef;
-        NoRow: RecordRef;
-        Closed: RecordRef;
-        NeverOpened: RecordRef;
-        V: Variant;
-    begin
-        Seed();
-        Row.FindFirst();
-        Positioned.Open(Database::"ALT Universal");
-        Positioned.FindFirst();
-        V := Positioned;
-        Observer.Observe('recordref_positioned', FormatCell(V, Format(Row)));
-        Observer.Observe('recordref_positioned_by_var', Format(FormatByVar(V) = Format(Row)));
-        NoRow.Open(Database::"ALT Universal");
-        V := NoRow;
-        Observer.Observe('recordref_open_no_row', FormatCell(V, Format(Blank)));
-        Closed.Open(Database::"ALT Universal");
-        Closed.FindFirst();
-        Closed.Close();
-        V := Closed;
-        Observer.Observe('recordref_closed', FormatCell(V, Format(Row)));
-        V := NeverOpened;
-        Observer.Observe('recordref_never_opened', FormatCell(V, Format(Row)));
-        Observer.Finish();
     end;
 }
