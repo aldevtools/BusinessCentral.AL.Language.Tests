@@ -16,7 +16,7 @@
 // Already pinned elsewhere, not repeated: the bare root under SaveAs as Word and Excel (layouts-saveas/AMRdlcOutput.al:153,
 //   AMReportOutputTests.al:24), Execute with a bare root (extensions/Y64XappRunOrder.al:156, triggers only), self-closing Fields under a
 //   named root (runtime/Y68SelfClosingParams.al), an unknown Field under Execute with a named root (WdReportExecuteParams.al).
-// Observation form: every test ends in Finish(); the values are what BC produced.
+// Values: what BC produced in corpus CI runs 42852007063, 42852095520, 42852195813 (BC 27.5, 28.5, 29.0; the same on all three).
 // BC versions: 27.5, 28.5, 29.0 (measured by the corpus CI)
 
 table 97023 "LT RPB Row"
@@ -228,7 +228,17 @@ codeunit 97026 "LT RPB Bare Root"
         RunCase(Observer, 'bare self-closing', DeclTxt + Bare('<Field name="StartDate" /><Field name="NoteText" />'), 'saveas');
         RunCase(Observer, 'bare unknown', DeclTxt + Bare(SetStart() + Unknown()), 'saveas');
         RunCase(Observer, 'named unknown', DeclTxt + Named('LT RPB Rpt', 97023, SetStart() + Unknown()), 'saveas');
-        Observer.Finish();
+        Observer.Expect('empty ok', 'Yes');
+        Observer.Expect('empty log', 'pre start=[] note=[init] hidden=[];rows=0;');
+        Observer.Expect('bare set ok', 'Yes');
+        Observer.Expect('bare set log', 'pre start=[2026-01-15] note=[init] hidden=[];rows=0;');
+        Observer.Expect('bare self-closing ok', 'Yes');
+        Observer.Expect('bare self-closing log', 'pre start=[] note=[] hidden=[];rows=0;');
+        Observer.Expect('bare unknown ok', 'Yes');
+        Observer.Expect('bare unknown log', 'pre start=[2026-01-15] note=[init] hidden=[];rows=0;');
+        Observer.Expect('named unknown ok', 'Yes');
+        Observer.Expect('named unknown log', 'pre start=[2026-01-15] note=[init] hidden=[];rows=0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -239,7 +249,13 @@ codeunit 97026 "LT RPB Bare Root"
         RunCase(Observer, 'hidden global', DeclTxt + Bare('<Field name="Hidden">h</Field>'), 'saveas');
         RunCase(Observer, 'letter case', DeclTxt + Bare('<Field name="startdate">2026-01-15</Field>'), 'saveas');
         RunCase(Observer, 'control name', DeclTxt + Bare('<Field name="StartCtl">2026-01-15</Field>'), 'saveas');
-        Observer.Finish();
+        Observer.Expect('hidden global ok', 'Yes');
+        Observer.Expect('hidden global log', 'pre start=[] note=[init] hidden=[];rows=0;');
+        Observer.Expect('letter case ok', 'Yes');
+        Observer.Expect('letter case log', 'pre start=[] note=[init] hidden=[];rows=0;');
+        Observer.Expect('control name ok', 'Yes');
+        Observer.Expect('control name log', 'pre start=[] note=[init] hidden=[];rows=0;');
+        Observer.Verify();
     end;
 
     local procedure SeedRows()
@@ -267,7 +283,11 @@ codeunit 97026 "LT RPB Bare Root"
         SeedRows();
         RunCase(Observer, 'saveas', BareWithView(), 'saveas');
         RunCase(Observer, 'execute', BareWithView(), 'execute');
-        Observer.Finish();
+        Observer.Expect('saveas ok', 'Yes');
+        Observer.Expect('saveas log', 'pre start=[2026-01-15] note=[init] hidden=[];rows=1;');
+        Observer.Expect('execute ok', 'Yes');
+        Observer.Expect('execute log', 'pre start=[2026-01-15] note=[init];');
+        Observer.Verify();
     end;
 
     [Test]
@@ -277,7 +297,15 @@ codeunit 97026 "LT RPB Bare Root"
     begin
         RunCase(Observer, 'bare no declaration', Bare(SetStart()), 'saveas');
         RunCase(Observer, 'named no declaration', Named('LT RPB Rpt', 97023, SetStart()), 'saveas');
-        Observer.Finish();
+        Observer.Expect('bare no declaration ok', 'No');
+        Observer.Expect('bare no declaration error', 'The filter "<ReportParameters><Options><Field name="StartDate">2026-01-15</Field></Options></ReportParameters>" is not valid for the Parameter Name field on the Object Options table. An error occurred while interpreting the filter: Did not expect ''>''.\\For more information, see https://go.microsoft.com/fwlink/?linkid=2158058.');
+        Observer.Expect('bare no declaration code', 'Filter:CSide');
+        Observer.Expect('bare no declaration log', '');
+        Observer.Expect('named no declaration ok', 'No');
+        Observer.Expect('named no declaration error', 'The filter "<ReportParameters name="LT RPB Rpt" id="97023"><Options><Field name="StartDate">2026-01-15</Field></Options></ReportParameters>" is not valid for the Parameter Name field on the Object Options table. An error occurred while interpreting the filter: Did not expect ''=''.\\For more information, see https://go.microsoft.com/fwlink/?linkid=2158058.');
+        Observer.Expect('named no declaration code', 'Filter:CSide');
+        Observer.Expect('named no declaration log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -288,7 +316,13 @@ codeunit 97026 "LT RPB Bare Root"
         RunCase(Observer, 'bare set', DeclTxt + Bare(SetStart()), 'execute');
         RunCase(Observer, 'bare self-closing', DeclTxt + Bare('<Field name="StartDate" /><Field name="NoteText" />'), 'execute');
         RunCase(Observer, 'bare unknown', DeclTxt + Bare(SetStart() + Unknown()), 'execute');
-        Observer.Finish();
+        Observer.Expect('bare set ok', 'Yes');
+        Observer.Expect('bare set log', 'pre start=[2026-01-15] note=[init];');
+        Observer.Expect('bare self-closing ok', 'Yes');
+        Observer.Expect('bare self-closing log', 'pre start=[] note=[];');
+        Observer.Expect('bare unknown ok', 'Yes');
+        Observer.Expect('bare unknown log', 'pre start=[2026-01-15] note=[init];');
+        Observer.Verify();
     end;
 
     [Test]
@@ -297,7 +331,11 @@ codeunit 97026 "LT RPB Bare Root"
         Observer: Codeunit "Probe Observer";
     begin
         RunCase(Observer, 'bare no declaration', Bare(SetStart()), 'execute');
-        Observer.Finish();
+        Observer.Expect('bare no declaration ok', 'No');
+        Observer.Expect('bare no declaration error', 'The filter "<ReportParameters><Options><Field name="StartDate">2026-01-15</Field></Options></ReportParameters>" is not valid for the Parameter Name field on the Object Options table. An error occurred while interpreting the filter: Did not expect ''>''.\\For more information, see https://go.microsoft.com/fwlink/?linkid=2158058.');
+        Observer.Expect('bare no declaration code', 'Filter:CSide');
+        Observer.Expect('bare no declaration log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -309,17 +347,32 @@ codeunit 97026 "LT RPB Bare Root"
         RunCase(Observer, 'bare set', DeclTxt + Bare(SetStart()), 'runrequestpage');
         RunCase(Observer, 'bare self-closing', DeclTxt + Bare('<Field name="StartDate" /><Field name="NoteText" />'), 'runrequestpage');
         RunCase(Observer, 'bare unknown', DeclTxt + Bare(SetStart() + Unknown()), 'runrequestpage');
-        Observer.Finish();
+        Observer.Expect('bare set ok', 'Yes');
+        Observer.Expect('bare set log', 'handler start=[1/15/2026] note=[init];');
+        Observer.Expect('bare set returned', '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT RPB Rpt" id="97023"><Options><Field name="StartDate">2026-01-15</Field><Field name="NoteText">init</Field></Options><DataItems><DataItem name="Row">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Expect('bare self-closing ok', 'Yes');
+        Observer.Expect('bare self-closing log', 'handler start=[] note=[];');
+        Observer.Expect('bare self-closing returned', '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT RPB Rpt" id="97023"><Options><Field name="StartDate" /><Field name="NoteText" /></Options><DataItems><DataItem name="Row">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Expect('bare unknown ok', 'Yes');
+        Observer.Expect('bare unknown log', 'handler start=[1/15/2026] note=[init];');
+        Observer.Expect('bare unknown returned', '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT RPB Rpt" id="97023"><Options><Field name="StartDate">2026-01-15</Field><Field name="NoteText">init</Field></Options><DataItems><DataItem name="Row">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Verify();
     end;
 
+    // No handler: the error comes before the request page opens (the handler did not run in the measuring runs), and a declared handler
+    // that does not run makes BC fail the test.
     [Test]
-    [HandlerFunctions('OkHandler')]
     procedure RPB_RunRequestPage_NoDeclaration()
     var
         Observer: Codeunit "Probe Observer";
     begin
         RunCase(Observer, 'bare no declaration', Bare(SetStart()), 'runrequestpage');
-        Observer.Finish();
+        Observer.Expect('bare no declaration ok', 'No');
+        Observer.Expect('bare no declaration error', 'The filter "<ReportParameters><Options><Field name="StartDate">2026-01-15</Field></Options></ReportParameters>" is not valid for the Parameter Name field on the Object Options table. An error occurred while interpreting the filter: Did not expect ''>''.\\For more information, see https://go.microsoft.com/fwlink/?linkid=2158058.');
+        Observer.Expect('bare no declaration code', 'Filter:CSide');
+        Observer.Expect('bare no declaration log', '');
+        Observer.Expect('bare no declaration returned', '');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
