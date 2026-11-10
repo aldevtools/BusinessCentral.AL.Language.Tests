@@ -787,7 +787,8 @@ SYMBOL_KINDS = {'Tables': 'table', 'Codeunits': 'codeunit', 'Pages': 'page', 'Re
 
 def microsoft_names(git, rev, files, ci_apps):
     """{(kind, lower-case name)} of the objects in the symbol packages (.alpackages/*.app) of the CI apps. A package
-    that cannot be read raises, and the caller makes that a full run."""
+    that cannot be read raises, and the caller makes that a full run. The packages are not committed (they are
+    Microsoft's), so a tree without any raises too: an empty set would narrow the selection without knowing."""
     names = set()
 
     def walk(d):
@@ -797,6 +798,8 @@ def microsoft_names(git, rev, files, ci_apps):
         for ns in d.get('Namespaces') or []:
             walk(ns)
     apps = [f for f in files if f.endswith('.app') and '/.alpackages/' in f and app_of(f, ci_apps)]
+    if not apps:
+        raise RuntimeError('no Microsoft symbol packages in the tree')
     for f in apps:
         data = git.run('cat-file', 'blob', '%s:%s' % (rev, f), binary=True)
         z = zipfile.ZipFile(io.BytesIO(data[data.find(b'PK\x03\x04'):]))
