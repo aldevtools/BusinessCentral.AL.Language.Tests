@@ -9,6 +9,18 @@
 //   a subscriber that raises; CurrPage.Update and CurrPage.Close in triggers and actions; manual binding; a page extension; parts of a host
 //   page; a Role Center with a cue part that has a SourceTable. Existing pins: testpage/P146PageExprSetValue.al QG_NoSource_* (a card without
 //   a source table), events/platform-triggers/PageTriggerEventRows.al (with a source table).
+// Result (BC 29, Windows service tier, then the corpus CI legs):
+//   - Every page type without SourceTable opens with OpenView, OpenEdit, Trap plus Page.Run and RunModal. Only these events fire, in this order:
+//     page trigger, then its event: OnOpenPage, OnOpenPageEvent, OnAfterGetCurrRecord, OnAfterGetCurrRecordEvent on open; on close OnQueryClosePage,
+//     OnQueryClosePageEvent, OnClosePage, OnClosePageEvent. OnAfterGetRecordEvent, OnNewRecordEvent, OnInsertRecordEvent, OnModifyRecordEvent and
+//     OnDeleteRecordEvent never fire (no record), not even for TestPage.New, which fails (DB:ClientInsertDenied).
+//   - OpenNew: Card, List, ListPlus, CardPart, ListPart fail with DB:ClientInsertDenied after OnOpenPage and OnOpenPageEvent; Worksheet fails with
+//     NotSupportedPageViewMode; StandardDialog and NavigatePage open as with OpenView.
+//   - A subscriber with a Rec or xRec parameter does not compile (AL0441, must-not-compile case 3132); a Role Center cannot have triggers (AL0378, case 3133).
+//   - In a part host, the host's triggers and events come first, then each part's; on close the parts close first, the host last. A Role Center
+//     logs its parts the same way; its cue part with a SourceTable reads 0 through the TestPage even after the cue part found a record.
+//   - Not covered because BC raises an unhandled CLR exception (NullReferenceException) that no AL statement can catch: OpenNew and Trap plus Page.Run
+//     of a Role Center; RunModal of a Role Center returns without calling a page handler.
 // BC versions: 27 to 29 (CI matrix)
 
 codeunit 97690 "LT PNS Events"
@@ -44,7 +56,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -65,7 +80,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -86,7 +104,11 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'No');
+        Observer.Expect('open error|text', 'Sorry, the current permissions prevented the action. (Page 97610 LT PNS Card Insert: AL Language Coverage Tests)');
+        Observer.Expect('open error|code', 'DB:ClientInsertDenied');
+        Observer.Expect('log after open', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -108,7 +130,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('log after run', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -127,7 +152,10 @@ codeunit 97690 "LT PNS Events"
             Observer.ObserveError('run error');
         Observer.Observe('action', Format(Act));
         Observer.Observe('log after run', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('log after run', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;handler Card;Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -146,7 +174,10 @@ codeunit 97690 "LT PNS Events"
             Observer.ObserveError('run error');
         Observer.Observe('action', Format(Act));
         Observer.Observe('log after run', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('action', 'LookupCancel');
+        Observer.Expect('log after run', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;handler Card;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -170,7 +201,10 @@ codeunit 97690 "LT PNS Events"
             if not Acted then
                 Pg.Close();
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after OK', 'Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -194,7 +228,12 @@ codeunit 97690 "LT PNS Events"
             if not Acted then
                 Pg.Close();
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'No');
+        Observer.Expect('action error|text', 'The built-in action = Cancel is not found on the page.');
+        Observer.Expect('action error|code', 'TestActionNotFound');
+        Observer.Expect('log after Cancel', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -215,7 +254,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'List.page.OnOpenPage;List.OnOpenPageEvent;List.page.OnAfterGetCurrRecord;List.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'List.page.OnQueryClosePage;List.OnQueryClosePageEvent;List.page.OnClosePage;List.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -236,7 +278,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'List.page.OnOpenPage;List.OnOpenPageEvent;List.page.OnAfterGetCurrRecord;List.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'List.page.OnQueryClosePage;List.OnQueryClosePageEvent;List.page.OnClosePage;List.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -257,7 +302,11 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'No');
+        Observer.Expect('open error|text', 'Sorry, the current permissions prevented the action. (Page 97611 LT PNS List Insert: AL Language Coverage Tests)');
+        Observer.Expect('open error|code', 'DB:ClientInsertDenied');
+        Observer.Expect('log after open', 'List.page.OnOpenPage;List.OnOpenPageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -279,7 +328,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('log after run', 'List.page.OnOpenPage;List.OnOpenPageEvent;List.page.OnAfterGetCurrRecord;List.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'List.page.OnQueryClosePage;List.OnQueryClosePageEvent;List.page.OnClosePage;List.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -298,7 +350,10 @@ codeunit 97690 "LT PNS Events"
             Observer.ObserveError('run error');
         Observer.Observe('action', Format(Act));
         Observer.Observe('log after run', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('log after run', 'List.page.OnOpenPage;List.OnOpenPageEvent;List.page.OnAfterGetCurrRecord;List.OnAfterGetCurrRecordEvent;handler List;List.page.OnQueryClosePage;List.OnQueryClosePageEvent;List.page.OnClosePage;List.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -317,7 +372,10 @@ codeunit 97690 "LT PNS Events"
             Observer.ObserveError('run error');
         Observer.Observe('action', Format(Act));
         Observer.Observe('log after run', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('action', 'LookupCancel');
+        Observer.Expect('log after run', 'List.page.OnOpenPage;List.OnOpenPageEvent;List.page.OnAfterGetCurrRecord;List.OnAfterGetCurrRecordEvent;handler List;List.page.OnAfterGetCurrRecord;List.OnAfterGetCurrRecordEvent;List.page.OnQueryClosePage;List.OnQueryClosePageEvent;List.page.OnClosePage;List.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -341,7 +399,10 @@ codeunit 97690 "LT PNS Events"
             if not Acted then
                 Pg.Close();
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after OK', 'List.page.OnQueryClosePage;List.OnQueryClosePageEvent;List.page.OnClosePage;List.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -365,7 +426,12 @@ codeunit 97690 "LT PNS Events"
             if not Acted then
                 Pg.Close();
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'No');
+        Observer.Expect('action error|text', 'The built-in action = Cancel is not found on the page.');
+        Observer.Expect('action error|code', 'TestActionNotFound');
+        Observer.Expect('log after Cancel', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -386,7 +452,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'Worksheet.page.OnOpenPage;Worksheet.OnOpenPageEvent;Worksheet.page.OnAfterGetCurrRecord;Worksheet.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'Worksheet.page.OnQueryClosePage;Worksheet.OnQueryClosePageEvent;Worksheet.page.OnClosePage;Worksheet.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -407,7 +476,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'Worksheet.page.OnOpenPage;Worksheet.OnOpenPageEvent;Worksheet.page.OnAfterGetCurrRecord;Worksheet.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'Worksheet.page.OnQueryClosePage;Worksheet.OnQueryClosePageEvent;Worksheet.page.OnClosePage;Worksheet.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -428,7 +500,11 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'No');
+        Observer.Expect('open error|text', 'The view mode ''Create'' is not supported by the page ID ''97612''.');
+        Observer.Expect('open error|code', 'NotSupportedPageViewMode');
+        Observer.Expect('log after open', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -450,7 +526,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('log after run', 'Worksheet.page.OnOpenPage;Worksheet.OnOpenPageEvent;Worksheet.page.OnAfterGetCurrRecord;Worksheet.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'Worksheet.page.OnQueryClosePage;Worksheet.OnQueryClosePageEvent;Worksheet.page.OnClosePage;Worksheet.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -469,7 +548,10 @@ codeunit 97690 "LT PNS Events"
             Observer.ObserveError('run error');
         Observer.Observe('action', Format(Act));
         Observer.Observe('log after run', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('log after run', 'Worksheet.page.OnOpenPage;Worksheet.OnOpenPageEvent;Worksheet.page.OnAfterGetCurrRecord;Worksheet.OnAfterGetCurrRecordEvent;handler Worksheet;Worksheet.page.OnQueryClosePage;Worksheet.OnQueryClosePageEvent;Worksheet.page.OnClosePage;Worksheet.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -488,7 +570,10 @@ codeunit 97690 "LT PNS Events"
             Observer.ObserveError('run error');
         Observer.Observe('action', Format(Act));
         Observer.Observe('log after run', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('action', 'LookupCancel');
+        Observer.Expect('log after run', 'Worksheet.page.OnOpenPage;Worksheet.OnOpenPageEvent;Worksheet.page.OnAfterGetCurrRecord;Worksheet.OnAfterGetCurrRecordEvent;handler Worksheet;Worksheet.page.OnAfterGetCurrRecord;Worksheet.OnAfterGetCurrRecordEvent;Worksheet.page.OnQueryClosePage;Worksheet.OnQueryClosePageEvent;Worksheet.page.OnClosePage;Worksheet.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -512,7 +597,10 @@ codeunit 97690 "LT PNS Events"
             if not Acted then
                 Pg.Close();
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after OK', 'Worksheet.page.OnQueryClosePage;Worksheet.OnQueryClosePageEvent;Worksheet.page.OnClosePage;Worksheet.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -536,7 +624,12 @@ codeunit 97690 "LT PNS Events"
             if not Acted then
                 Pg.Close();
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'No');
+        Observer.Expect('action error|text', 'The built-in action = Cancel is not found on the page.');
+        Observer.Expect('action error|code', 'TestActionNotFound');
+        Observer.Expect('log after Cancel', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -557,7 +650,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'ListPlus.page.OnOpenPage;ListPlus.OnOpenPageEvent;ListPlus.page.OnAfterGetCurrRecord;ListPlus.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'ListPlus.page.OnQueryClosePage;ListPlus.OnQueryClosePageEvent;ListPlus.page.OnClosePage;ListPlus.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -578,7 +674,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'ListPlus.page.OnOpenPage;ListPlus.OnOpenPageEvent;ListPlus.page.OnAfterGetCurrRecord;ListPlus.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'ListPlus.page.OnQueryClosePage;ListPlus.OnQueryClosePageEvent;ListPlus.page.OnClosePage;ListPlus.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -599,7 +698,11 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'No');
+        Observer.Expect('open error|text', 'Sorry, the current permissions prevented the action. (Page 97613 LT PNS ListPlus Insert: AL Language Coverage Tests)');
+        Observer.Expect('open error|code', 'DB:ClientInsertDenied');
+        Observer.Expect('log after open', 'ListPlus.page.OnOpenPage;ListPlus.OnOpenPageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -621,7 +724,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('log after run', 'ListPlus.page.OnOpenPage;ListPlus.OnOpenPageEvent;ListPlus.page.OnAfterGetCurrRecord;ListPlus.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'ListPlus.page.OnQueryClosePage;ListPlus.OnQueryClosePageEvent;ListPlus.page.OnClosePage;ListPlus.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -640,7 +746,10 @@ codeunit 97690 "LT PNS Events"
             Observer.ObserveError('run error');
         Observer.Observe('action', Format(Act));
         Observer.Observe('log after run', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('log after run', 'ListPlus.page.OnOpenPage;ListPlus.OnOpenPageEvent;ListPlus.page.OnAfterGetCurrRecord;ListPlus.OnAfterGetCurrRecordEvent;handler ListPlus;ListPlus.page.OnQueryClosePage;ListPlus.OnQueryClosePageEvent;ListPlus.page.OnClosePage;ListPlus.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -659,7 +768,10 @@ codeunit 97690 "LT PNS Events"
             Observer.ObserveError('run error');
         Observer.Observe('action', Format(Act));
         Observer.Observe('log after run', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('action', 'LookupCancel');
+        Observer.Expect('log after run', 'ListPlus.page.OnOpenPage;ListPlus.OnOpenPageEvent;ListPlus.page.OnAfterGetCurrRecord;ListPlus.OnAfterGetCurrRecordEvent;handler ListPlus;ListPlus.page.OnAfterGetCurrRecord;ListPlus.OnAfterGetCurrRecordEvent;ListPlus.page.OnQueryClosePage;ListPlus.OnQueryClosePageEvent;ListPlus.page.OnClosePage;ListPlus.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -683,7 +795,10 @@ codeunit 97690 "LT PNS Events"
             if not Acted then
                 Pg.Close();
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after OK', 'ListPlus.page.OnQueryClosePage;ListPlus.OnQueryClosePageEvent;ListPlus.page.OnClosePage;ListPlus.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -707,7 +822,12 @@ codeunit 97690 "LT PNS Events"
             if not Acted then
                 Pg.Close();
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'No');
+        Observer.Expect('action error|text', 'The built-in action = Cancel is not found on the page.');
+        Observer.Expect('action error|code', 'TestActionNotFound');
+        Observer.Expect('log after Cancel', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -728,7 +848,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'StdDialog.page.OnOpenPage;StdDialog.OnOpenPageEvent;StdDialog.page.OnAfterGetCurrRecord;StdDialog.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'StdDialog.page.OnQueryClosePage;StdDialog.OnQueryClosePageEvent;StdDialog.page.OnClosePage;StdDialog.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -749,7 +872,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'StdDialog.page.OnOpenPage;StdDialog.OnOpenPageEvent;StdDialog.page.OnAfterGetCurrRecord;StdDialog.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'StdDialog.page.OnQueryClosePage;StdDialog.OnQueryClosePageEvent;StdDialog.page.OnClosePage;StdDialog.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -770,7 +896,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'StdDialog.page.OnOpenPage;StdDialog.OnOpenPageEvent;StdDialog.page.OnAfterGetCurrRecord;StdDialog.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'StdDialog.page.OnQueryClosePage;StdDialog.OnQueryClosePageEvent;StdDialog.page.OnClosePage;StdDialog.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -792,7 +921,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('log after run', 'StdDialog.page.OnOpenPage;StdDialog.OnOpenPageEvent;StdDialog.page.OnAfterGetCurrRecord;StdDialog.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'StdDialog.page.OnQueryClosePage;StdDialog.OnQueryClosePageEvent;StdDialog.page.OnClosePage;StdDialog.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -811,7 +943,10 @@ codeunit 97690 "LT PNS Events"
             Observer.ObserveError('run error');
         Observer.Observe('action', Format(Act));
         Observer.Observe('log after run', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('log after run', 'StdDialog.page.OnOpenPage;StdDialog.OnOpenPageEvent;StdDialog.page.OnAfterGetCurrRecord;StdDialog.OnAfterGetCurrRecordEvent;handler StdDialog;StdDialog.page.OnQueryClosePage;StdDialog.OnQueryClosePageEvent;StdDialog.page.OnClosePage;StdDialog.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -830,7 +965,10 @@ codeunit 97690 "LT PNS Events"
             Observer.ObserveError('run error');
         Observer.Observe('action', Format(Act));
         Observer.Observe('log after run', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('action', 'LookupCancel');
+        Observer.Expect('log after run', 'StdDialog.page.OnOpenPage;StdDialog.OnOpenPageEvent;StdDialog.page.OnAfterGetCurrRecord;StdDialog.OnAfterGetCurrRecordEvent;handler StdDialog;StdDialog.page.OnAfterGetCurrRecord;StdDialog.OnAfterGetCurrRecordEvent;StdDialog.page.OnQueryClosePage;StdDialog.OnQueryClosePageEvent;StdDialog.page.OnClosePage;StdDialog.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -854,7 +992,10 @@ codeunit 97690 "LT PNS Events"
             if not Acted then
                 Pg.Close();
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after OK', 'StdDialog.page.OnQueryClosePage;StdDialog.OnQueryClosePageEvent;StdDialog.page.OnClosePage;StdDialog.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -878,7 +1019,10 @@ codeunit 97690 "LT PNS Events"
             if not Acted then
                 Pg.Close();
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after Cancel', 'StdDialog.page.OnQueryClosePage;StdDialog.OnQueryClosePageEvent;StdDialog.page.OnClosePage;StdDialog.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -899,7 +1043,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'NavPage.page.OnOpenPage;NavPage.OnOpenPageEvent;NavPage.page.OnAfterGetCurrRecord;NavPage.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'NavPage.page.OnQueryClosePage;NavPage.OnQueryClosePageEvent;NavPage.page.OnClosePage;NavPage.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -920,7 +1067,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'NavPage.page.OnOpenPage;NavPage.OnOpenPageEvent;NavPage.page.OnAfterGetCurrRecord;NavPage.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'NavPage.page.OnQueryClosePage;NavPage.OnQueryClosePageEvent;NavPage.page.OnClosePage;NavPage.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -941,7 +1091,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'NavPage.page.OnOpenPage;NavPage.OnOpenPageEvent;NavPage.page.OnAfterGetCurrRecord;NavPage.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'NavPage.page.OnQueryClosePage;NavPage.OnQueryClosePageEvent;NavPage.page.OnClosePage;NavPage.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -963,7 +1116,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('log after run', 'NavPage.page.OnOpenPage;NavPage.OnOpenPageEvent;NavPage.page.OnAfterGetCurrRecord;NavPage.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'NavPage.page.OnQueryClosePage;NavPage.OnQueryClosePageEvent;NavPage.page.OnClosePage;NavPage.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -982,7 +1138,10 @@ codeunit 97690 "LT PNS Events"
             Observer.ObserveError('run error');
         Observer.Observe('action', Format(Act));
         Observer.Observe('log after run', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('action', 'OK');
+        Observer.Expect('log after run', 'NavPage.page.OnOpenPage;NavPage.OnOpenPageEvent;NavPage.page.OnAfterGetCurrRecord;NavPage.OnAfterGetCurrRecordEvent;handler NavPage;NavPage.page.OnQueryClosePage;NavPage.OnQueryClosePageEvent;NavPage.page.OnClosePage;NavPage.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1001,7 +1160,12 @@ codeunit 97690 "LT PNS Events"
             Observer.ObserveError('run error');
         Observer.Observe('action', Format(Act));
         Observer.Observe('log after run', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('run ok', 'No');
+        Observer.Expect('run error|text', 'The built-in action = Cancel is not found on the page.');
+        Observer.Expect('run error|code', 'TestActionNotFound');
+        Observer.Expect('action', 'None');
+        Observer.Expect('log after run', 'NavPage.page.OnOpenPage;NavPage.OnOpenPageEvent;NavPage.page.OnAfterGetCurrRecord;NavPage.OnAfterGetCurrRecordEvent;handler NavPage;NavPage.page.OnQueryClosePage;NavPage.OnQueryClosePageEvent;NavPage.page.OnClosePage;NavPage.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1025,7 +1189,10 @@ codeunit 97690 "LT PNS Events"
             if not Acted then
                 Pg.Close();
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after OK', 'NavPage.page.OnQueryClosePage;NavPage.OnQueryClosePageEvent;NavPage.page.OnClosePage;NavPage.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1049,7 +1216,12 @@ codeunit 97690 "LT PNS Events"
             if not Acted then
                 Pg.Close();
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'No');
+        Observer.Expect('action error|text', 'The built-in action = Cancel is not found on the page.');
+        Observer.Expect('action error|code', 'TestActionNotFound');
+        Observer.Expect('log after Cancel', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1070,7 +1242,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'CardPart.page.OnOpenPage;CardPart.OnOpenPageEvent;CardPart.page.OnAfterGetCurrRecord;CardPart.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'CardPart.page.OnQueryClosePage;CardPart.OnQueryClosePageEvent;CardPart.page.OnClosePage;CardPart.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1091,7 +1266,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'CardPart.page.OnOpenPage;CardPart.OnOpenPageEvent;CardPart.page.OnAfterGetCurrRecord;CardPart.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'CardPart.page.OnQueryClosePage;CardPart.OnQueryClosePageEvent;CardPart.page.OnClosePage;CardPart.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1112,7 +1290,11 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'No');
+        Observer.Expect('open error|text', 'Sorry, the current permissions prevented the action. (Page 97616 LT PNS CardPart Insert: AL Language Coverage Tests)');
+        Observer.Expect('open error|code', 'DB:ClientInsertDenied');
+        Observer.Expect('log after open', 'CardPart.page.OnOpenPage;CardPart.OnOpenPageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1134,7 +1316,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('log after run', 'CardPart.page.OnOpenPage;CardPart.OnOpenPageEvent;CardPart.page.OnAfterGetCurrRecord;CardPart.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'CardPart.page.OnQueryClosePage;CardPart.OnQueryClosePageEvent;CardPart.page.OnClosePage;CardPart.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1153,7 +1338,10 @@ codeunit 97690 "LT PNS Events"
             Observer.ObserveError('run error');
         Observer.Observe('action', Format(Act));
         Observer.Observe('log after run', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('action', 'OK');
+        Observer.Expect('log after run', 'CardPart.page.OnOpenPage;CardPart.OnOpenPageEvent;CardPart.page.OnAfterGetCurrRecord;CardPart.OnAfterGetCurrRecordEvent;handler CardPart;CardPart.page.OnQueryClosePage;CardPart.OnQueryClosePageEvent;CardPart.page.OnClosePage;CardPart.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1172,7 +1360,12 @@ codeunit 97690 "LT PNS Events"
             Observer.ObserveError('run error');
         Observer.Observe('action', Format(Act));
         Observer.Observe('log after run', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('run ok', 'No');
+        Observer.Expect('run error|text', 'The built-in action = Cancel is not found on the page.');
+        Observer.Expect('run error|code', 'TestActionNotFound');
+        Observer.Expect('action', 'None');
+        Observer.Expect('log after run', 'CardPart.page.OnOpenPage;CardPart.OnOpenPageEvent;CardPart.page.OnAfterGetCurrRecord;CardPart.OnAfterGetCurrRecordEvent;handler CardPart;CardPart.page.OnQueryClosePage;CardPart.OnQueryClosePageEvent;CardPart.page.OnClosePage;CardPart.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1196,7 +1389,10 @@ codeunit 97690 "LT PNS Events"
             if not Acted then
                 Pg.Close();
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after OK', 'CardPart.page.OnQueryClosePage;CardPart.OnQueryClosePageEvent;CardPart.page.OnClosePage;CardPart.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1220,7 +1416,12 @@ codeunit 97690 "LT PNS Events"
             if not Acted then
                 Pg.Close();
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'No');
+        Observer.Expect('action error|text', 'The built-in action = Cancel is not found on the page.');
+        Observer.Expect('action error|code', 'TestActionNotFound');
+        Observer.Expect('log after Cancel', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1241,7 +1442,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'ListPart.page.OnOpenPage;ListPart.OnOpenPageEvent;ListPart.page.OnAfterGetCurrRecord;ListPart.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'ListPart.page.OnQueryClosePage;ListPart.OnQueryClosePageEvent;ListPart.page.OnClosePage;ListPart.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1262,7 +1466,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'ListPart.page.OnOpenPage;ListPart.OnOpenPageEvent;ListPart.page.OnAfterGetCurrRecord;ListPart.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'ListPart.page.OnQueryClosePage;ListPart.OnQueryClosePageEvent;ListPart.page.OnClosePage;ListPart.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1283,7 +1490,11 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'No');
+        Observer.Expect('open error|text', 'Sorry, the current permissions prevented the action. (Page 97617 LT PNS ListPart Insert: AL Language Coverage Tests)');
+        Observer.Expect('open error|code', 'DB:ClientInsertDenied');
+        Observer.Expect('log after open', 'ListPart.page.OnOpenPage;ListPart.OnOpenPageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1305,7 +1516,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('log after run', 'ListPart.page.OnOpenPage;ListPart.OnOpenPageEvent;ListPart.page.OnAfterGetCurrRecord;ListPart.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'ListPart.page.OnQueryClosePage;ListPart.OnQueryClosePageEvent;ListPart.page.OnClosePage;ListPart.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1324,7 +1538,10 @@ codeunit 97690 "LT PNS Events"
             Observer.ObserveError('run error');
         Observer.Observe('action', Format(Act));
         Observer.Observe('log after run', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('action', 'OK');
+        Observer.Expect('log after run', 'ListPart.page.OnOpenPage;ListPart.OnOpenPageEvent;ListPart.page.OnAfterGetCurrRecord;ListPart.OnAfterGetCurrRecordEvent;handler ListPart;ListPart.page.OnQueryClosePage;ListPart.OnQueryClosePageEvent;ListPart.page.OnClosePage;ListPart.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1343,7 +1560,12 @@ codeunit 97690 "LT PNS Events"
             Observer.ObserveError('run error');
         Observer.Observe('action', Format(Act));
         Observer.Observe('log after run', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('run ok', 'No');
+        Observer.Expect('run error|text', 'The built-in action = Cancel is not found on the page.');
+        Observer.Expect('run error|code', 'TestActionNotFound');
+        Observer.Expect('action', 'None');
+        Observer.Expect('log after run', 'ListPart.page.OnOpenPage;ListPart.OnOpenPageEvent;ListPart.page.OnAfterGetCurrRecord;ListPart.OnAfterGetCurrRecordEvent;handler ListPart;ListPart.page.OnQueryClosePage;ListPart.OnQueryClosePageEvent;ListPart.page.OnClosePage;ListPart.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1367,7 +1589,10 @@ codeunit 97690 "LT PNS Events"
             if not Acted then
                 Pg.Close();
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after OK', 'ListPart.page.OnQueryClosePage;ListPart.OnQueryClosePageEvent;ListPart.page.OnClosePage;ListPart.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1391,34 +1616,12 @@ codeunit 97690 "LT PNS Events"
             if not Acted then
                 Pg.Close();
         end;
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure NoSourceRoleCenter_OpenNew_Asserterror()
-    var
-        Observer: Codeunit "Probe Observer";
-        Pg: TestPage "LT PNS RoleCenter";
-    begin
-        Initialize();
-        asserterror Pg.OpenNew();
-        Observer.ObserveError('open error');
-        Observer.Observe('log after open', Log.Dump());
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure NoSourceRoleCenter_TrapAndPageRun_Asserterror()
-    var
-        Observer: Codeunit "Probe Observer";
-        Pg: TestPage "LT PNS RoleCenter";
-    begin
-        Initialize();
-        Pg.Trap();
-        asserterror Page.Run(Page::"LT PNS RoleCenter");
-        Observer.ObserveError('run error');
-        Observer.Observe('log after run', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'No');
+        Observer.Expect('action error|text', 'The built-in action = Cancel is not found on the page.');
+        Observer.Expect('action error|code', 'TestActionNotFound');
+        Observer.Expect('log after Cancel', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1439,7 +1642,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'CardPart.page.OnOpenPage;CardPart.OnOpenPageEvent;Cue.page.OnOpenPage;Cue.OnOpenPageEvent 0;');
+        Observer.Expect('log after close', 'CardPart.page.OnQueryClosePage;CardPart.OnQueryClosePageEvent;Cue.OnClosePageEvent 0;CardPart.page.OnClosePage;CardPart.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1460,24 +1666,10 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure NoSourceRoleCenter_RunModalWithoutHandler_OK_EventLog()
-    var
-        Observer: Codeunit "Probe Observer";
-        Act: Action;
-        Ran: Boolean;
-    begin
-        Initialize();
-        Log.SetMode('OK');
-        Ran := TryRunModalRoleCenter(Act);
-        Observer.Observe('run ok', Format(Ran));
-        if not Ran then
-            Observer.ObserveError('run error');
-        Observer.Observe('log after run', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'CardPart.page.OnOpenPage;CardPart.OnOpenPageEvent;Cue.page.OnOpenPage;Cue.OnOpenPageEvent 0;');
+        Observer.Expect('log after close', 'CardPart.page.OnQueryClosePage;CardPart.OnQueryClosePageEvent;Cue.OnClosePageEvent 0;CardPart.page.OnClosePage;CardPart.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1501,7 +1693,12 @@ codeunit 97690 "LT PNS Events"
             if not Acted then
                 Pg.Close();
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'No');
+        Observer.Expect('action error|text', 'The built-in action = OK is not found on the page.');
+        Observer.Expect('action error|code', 'TestActionNotFound');
+        Observer.Expect('log after OK', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1525,7 +1722,12 @@ codeunit 97690 "LT PNS Events"
             if not Acted then
                 Pg.Close();
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'No');
+        Observer.Expect('action error|text', 'The built-in action = Cancel is not found on the page.');
+        Observer.Expect('action error|code', 'TestActionNotFound');
+        Observer.Expect('log after Cancel', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1554,7 +1756,12 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after action', 'Card.action.UpdateTrue;Card.action.UpdateTrue done;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1583,7 +1790,12 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after action', 'Card.action.UpdateFalse;Card.action.UpdateFalse done;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1612,7 +1824,14 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after action', 'Card.action.CloseSelf;Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;Card.action.CloseSelf done;');
+        Observer.Expect('close ok', 'No');
+        Observer.Expect('close error|text', 'The TestPage is not open.');
+        Observer.Expect('close error|code', 'TestPageNotOpened');
+        Observer.Expect('log after close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1641,7 +1860,12 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after action', 'List.action.UpdateTrue;List.action.UpdateTrue done;List.page.OnAfterGetCurrRecord;List.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'List.page.OnQueryClosePage;List.OnQueryClosePageEvent;List.page.OnClosePage;List.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1670,7 +1894,12 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after action', 'List.action.UpdateFalse;List.action.UpdateFalse done;List.page.OnAfterGetCurrRecord;List.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'List.page.OnQueryClosePage;List.OnQueryClosePageEvent;List.page.OnClosePage;List.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1699,7 +1928,14 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after action', 'List.action.CloseSelf;List.page.OnQueryClosePage;List.OnQueryClosePageEvent;List.page.OnClosePage;List.OnClosePageEvent;List.action.CloseSelf done;');
+        Observer.Expect('close ok', 'No');
+        Observer.Expect('close error|text', 'The TestPage is not open.');
+        Observer.Expect('close error|code', 'TestPageNotOpened');
+        Observer.Expect('log after close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1728,7 +1964,12 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after action', 'Worksheet.action.UpdateTrue;Worksheet.action.UpdateTrue done;Worksheet.page.OnAfterGetCurrRecord;Worksheet.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'Worksheet.page.OnQueryClosePage;Worksheet.OnQueryClosePageEvent;Worksheet.page.OnClosePage;Worksheet.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1757,7 +1998,12 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after action', 'Worksheet.action.UpdateFalse;Worksheet.action.UpdateFalse done;Worksheet.page.OnAfterGetCurrRecord;Worksheet.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'Worksheet.page.OnQueryClosePage;Worksheet.OnQueryClosePageEvent;Worksheet.page.OnClosePage;Worksheet.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1786,7 +2032,14 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after action', 'Worksheet.action.CloseSelf;Worksheet.page.OnQueryClosePage;Worksheet.OnQueryClosePageEvent;Worksheet.page.OnClosePage;Worksheet.OnClosePageEvent;Worksheet.action.CloseSelf done;');
+        Observer.Expect('close ok', 'No');
+        Observer.Expect('close error|text', 'The TestPage is not open.');
+        Observer.Expect('close error|code', 'TestPageNotOpened');
+        Observer.Expect('log after close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1815,7 +2068,12 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after action', 'ListPlus.action.UpdateTrue;ListPlus.action.UpdateTrue done;ListPlus.page.OnAfterGetCurrRecord;ListPlus.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'ListPlus.page.OnQueryClosePage;ListPlus.OnQueryClosePageEvent;ListPlus.page.OnClosePage;ListPlus.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1844,7 +2102,12 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after action', 'ListPlus.action.UpdateFalse;ListPlus.action.UpdateFalse done;ListPlus.page.OnAfterGetCurrRecord;ListPlus.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'ListPlus.page.OnQueryClosePage;ListPlus.OnQueryClosePageEvent;ListPlus.page.OnClosePage;ListPlus.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1873,7 +2136,14 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after action', 'ListPlus.action.CloseSelf;ListPlus.page.OnQueryClosePage;ListPlus.OnQueryClosePageEvent;ListPlus.page.OnClosePage;ListPlus.OnClosePageEvent;ListPlus.action.CloseSelf done;');
+        Observer.Expect('close ok', 'No');
+        Observer.Expect('close error|text', 'The TestPage is not open.');
+        Observer.Expect('close error|code', 'TestPageNotOpened');
+        Observer.Expect('log after close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1902,7 +2172,14 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'No');
+        Observer.Expect('action error|text', 'The action with ID = n is not found on the page.');
+        Observer.Expect('action error|code', 'TestActionNotFound');
+        Observer.Expect('log after action', '');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'StdDialog.page.OnQueryClosePage;StdDialog.OnQueryClosePageEvent;StdDialog.page.OnClosePage;StdDialog.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1931,7 +2208,14 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'No');
+        Observer.Expect('action error|text', 'The action with ID = n is not found on the page.');
+        Observer.Expect('action error|code', 'TestActionNotFound');
+        Observer.Expect('log after action', '');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'StdDialog.page.OnQueryClosePage;StdDialog.OnQueryClosePageEvent;StdDialog.page.OnClosePage;StdDialog.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1960,7 +2244,14 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'No');
+        Observer.Expect('action error|text', 'The action with ID = n is not found on the page.');
+        Observer.Expect('action error|code', 'TestActionNotFound');
+        Observer.Expect('log after action', '');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'StdDialog.page.OnQueryClosePage;StdDialog.OnQueryClosePageEvent;StdDialog.page.OnClosePage;StdDialog.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1989,7 +2280,12 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after action', 'NavPage.action.UpdateTrue;NavPage.action.UpdateTrue done;NavPage.page.OnAfterGetCurrRecord;NavPage.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'NavPage.page.OnQueryClosePage;NavPage.OnQueryClosePageEvent;NavPage.page.OnClosePage;NavPage.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2018,7 +2314,12 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after action', 'NavPage.action.UpdateFalse;NavPage.action.UpdateFalse done;NavPage.page.OnAfterGetCurrRecord;NavPage.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'NavPage.page.OnQueryClosePage;NavPage.OnQueryClosePageEvent;NavPage.page.OnClosePage;NavPage.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2047,7 +2348,14 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('log after action', 'NavPage.action.CloseSelf;NavPage.page.OnQueryClosePage;NavPage.OnQueryClosePageEvent;NavPage.page.OnClosePage;NavPage.OnClosePageEvent;NavPage.action.CloseSelf done;');
+        Observer.Expect('close ok', 'No');
+        Observer.Expect('close error|text', 'The TestPage is not open.');
+        Observer.Expect('close error|code', 'TestPageNotOpened');
+        Observer.Expect('log after close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2069,7 +2377,11 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after setvalue', 'Card.field.OnValidate;');
+        Observer.Expect('value', 'typed');
+        Observer.Expect('log after close', 'Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2091,7 +2403,11 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after setvalue', 'List.field.OnValidate;');
+        Observer.Expect('value', 'typed');
+        Observer.Expect('log after close', 'List.page.OnQueryClosePage;List.OnQueryClosePageEvent;List.page.OnClosePage;List.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2113,7 +2429,11 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after setvalue', 'Worksheet.field.OnValidate;');
+        Observer.Expect('value', 'typed');
+        Observer.Expect('log after close', 'Worksheet.page.OnQueryClosePage;Worksheet.OnQueryClosePageEvent;Worksheet.page.OnClosePage;Worksheet.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2135,7 +2455,11 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after setvalue', 'ListPlus.field.OnValidate;');
+        Observer.Expect('value', 'typed');
+        Observer.Expect('log after close', 'ListPlus.page.OnQueryClosePage;ListPlus.OnQueryClosePageEvent;ListPlus.page.OnClosePage;ListPlus.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2157,7 +2481,11 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after setvalue', 'StdDialog.field.OnValidate;');
+        Observer.Expect('value', 'typed');
+        Observer.Expect('log after close', 'StdDialog.page.OnQueryClosePage;StdDialog.OnQueryClosePageEvent;StdDialog.page.OnClosePage;StdDialog.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2179,7 +2507,11 @@ codeunit 97690 "LT PNS Events"
             Pg.Close();
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after setvalue', 'NavPage.field.OnValidate;');
+        Observer.Expect('value', 'typed');
+        Observer.Expect('log after close', 'NavPage.page.OnQueryClosePage;NavPage.OnQueryClosePageEvent;NavPage.page.OnClosePage;NavPage.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2193,7 +2525,10 @@ codeunit 97690 "LT PNS Events"
         asserterror Pg.OpenEdit();
         Observer.ObserveError('open error');
         Observer.Observe('log after open', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('open error|text', 'PNS boom at Card.OnAfterGetCurrRecordEvent');
+        Observer.Expect('open error|code', 'Dialog:TargetInvocation');
+        Observer.Expect('log after open', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2219,7 +2554,11 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'No');
+        Observer.Expect('open error|text', 'PNS boom at Card.OnOpenPageEvent');
+        Observer.Expect('open error|code', 'Dialog');
+        Observer.Expect('log after open', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2245,7 +2584,13 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'No');
+        Observer.Expect('close error|text', 'One or more errors occurred while closing the page.\\PNS boom at Card.OnClosePageEvent');
+        Observer.Expect('close error|code', 'TestWrapped');
+        Observer.Expect('log after close', 'Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2271,7 +2616,11 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2297,7 +2646,11 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2323,7 +2676,11 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2349,7 +2706,11 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2375,7 +2736,11 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2401,7 +2766,11 @@ codeunit 97690 "LT PNS Events"
                 Observer.ObserveError('close error');
             Observer.Observe('log after close', Log.Dump());
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2425,7 +2794,11 @@ codeunit 97690 "LT PNS Events"
         if not Closed then
             Observer.ObserveError('close error');
         Observer.Observe('log after close', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2449,7 +2822,11 @@ codeunit 97690 "LT PNS Events"
         if not Closed then
             Observer.ObserveError('close error');
         Observer.Observe('log after close', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2473,7 +2850,11 @@ codeunit 97690 "LT PNS Events"
         if not Closed then
             Observer.ObserveError('close error');
         Observer.Observe('log after close', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2497,7 +2878,13 @@ codeunit 97690 "LT PNS Events"
         if not Closed then
             Observer.ObserveError('close error');
         Observer.Observe('log after close', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;Card.page.OnAfterGetCurrRecord;Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('close ok', 'No');
+        Observer.Expect('close error|text', 'The TestPage is not open.');
+        Observer.Expect('close error|code', 'TestPageNotOpened');
+        Observer.Expect('log after close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2519,7 +2906,10 @@ codeunit 97690 "LT PNS Events"
             Observer.Observe('log after close', Log.Dump());
         end;
         UnbindSubscription(Manual);
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;CardManual.OnOpenPageEvent;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;CardManual.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;CardManual.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;CardManual.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2541,7 +2931,10 @@ codeunit 97690 "LT PNS Events"
             Observer.Observe('log after close', Log.Dump());
             UnbindSubscription(Manual);
         end;
-        Observer.Finish();
+        Observer.Expect('open ok', 'Yes');
+        Observer.Expect('log after open', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'Card.page.OnQueryClosePage;Card.OnQueryClosePageEvent;CardManual.OnQueryClosePageEvent;Card.page.OnClosePage;Card.OnClosePageEvent;CardManual.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2558,7 +2951,9 @@ codeunit 97690 "LT PNS Events"
         Observer.Observe('log after open', Log.Dump());
         if Opened then
             Pg.Close();
-        Observer.Finish();
+        Observer.Expect('manual subscriber instance exists', 'Yes');
+        Observer.Expect('log after open', 'Card.page.OnOpenPage;Card.OnOpenPageEvent;Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2573,7 +2968,9 @@ codeunit 97690 "LT PNS Events"
         Log.Reset();
         Pg.Close();
         Observer.Observe('log after close', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('log after open', 'Host.page.OnOpenPage;Host.OnOpenPageEvent;CardPart.page.OnOpenPage;CardPart.OnOpenPageEvent;ListPart.page.OnOpenPage;ListPart.OnOpenPageEvent;Host.page.OnAfterGetCurrRecord;Host.OnAfterGetCurrRecordEvent;CardPart.page.OnAfterGetCurrRecord;CardPart.OnAfterGetCurrRecordEvent;ListPart.page.OnAfterGetCurrRecord;ListPart.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'ListPart.page.OnQueryClosePage;ListPart.OnQueryClosePageEvent;CardPart.page.OnQueryClosePage;CardPart.OnQueryClosePageEvent;Host.OnQueryClosePageEvent;ListPart.page.OnClosePage;ListPart.OnClosePageEvent;CardPart.page.OnClosePage;CardPart.OnClosePageEvent;Host.page.OnClosePage;Host.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2591,7 +2988,10 @@ codeunit 97690 "LT PNS Events"
         Log.Reset();
         Pg.Close();
         Observer.Observe('log after close', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('log after part setvalue', 'CardPart.field.OnValidate;');
+        Observer.Expect('part value', 'typed');
+        Observer.Expect('log after close', 'ListPart.page.OnQueryClosePage;ListPart.OnQueryClosePageEvent;CardPart.page.OnQueryClosePage;CardPart.OnQueryClosePageEvent;Host.OnQueryClosePageEvent;ListPart.page.OnClosePage;ListPart.OnClosePageEvent;CardPart.page.OnClosePage;CardPart.OnClosePageEvent;Host.page.OnClosePage;Host.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2610,7 +3010,10 @@ codeunit 97690 "LT PNS Events"
         Log.Reset();
         Pg.Close();
         Observer.Observe('log after close', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('cue value', '0');
+        Observer.Expect('log after open', 'CardPart.page.OnOpenPage;CardPart.OnOpenPageEvent;Cue.page.OnOpenPage;Cue.OnOpenPageEvent 0;');
+        Observer.Expect('log after close', 'CardPart.page.OnQueryClosePage;CardPart.OnQueryClosePageEvent;Cue.OnClosePageEvent 0;CardPart.page.OnClosePage;CardPart.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2626,7 +3029,10 @@ codeunit 97690 "LT PNS Events"
         Log.Reset();
         Pg.Close();
         Observer.Observe('log after close', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('cue value', '0');
+        Observer.Expect('log after open', 'CardPart.page.OnOpenPage;CardPart.OnOpenPageEvent;Cue.page.OnOpenPage;Cue.OnOpenPageEvent 0;');
+        Observer.Expect('log after close', 'CardPart.page.OnQueryClosePage;CardPart.OnQueryClosePageEvent;Cue.OnClosePageEvent 0;CardPart.page.OnClosePage;CardPart.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2643,7 +3049,9 @@ codeunit 97690 "LT PNS Events"
         Pg.OpenView();
         Observer.Observe('cue value', Pg.CueP.CueId.Value());
         Observer.Observe('log after open', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('cue value', '0');
+        Observer.Expect('log after open', 'CardPart.page.OnOpenPage;CardPart.OnOpenPageEvent;Cue.page.OnOpenPage;Cue.OnOpenPageEvent 7;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2661,7 +3069,11 @@ codeunit 97690 "LT PNS Events"
         if not Moved then
             Observer.ObserveError('New error');
         Observer.Observe('log after New', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('New ok', 'No');
+        Observer.Expect('New error|text', 'New method failed because Insert is not allowed. Page = LT PNS Card, Id = 97610.');
+        Observer.Expect('New error|code', 'DB:ClientInsertDenied');
+        Observer.Expect('log after New', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2679,7 +3091,9 @@ codeunit 97690 "LT PNS Events"
         if not Moved then
             Observer.ObserveError('Next error');
         Observer.Observe('log after Next', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('Next ok', 'Yes');
+        Observer.Expect('log after Next', 'Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2697,7 +3111,9 @@ codeunit 97690 "LT PNS Events"
         if not Moved then
             Observer.ObserveError('Previous error');
         Observer.Observe('log after Previous', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('Previous ok', 'Yes');
+        Observer.Expect('log after Previous', 'Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2715,7 +3131,9 @@ codeunit 97690 "LT PNS Events"
         if not Moved then
             Observer.ObserveError('First error');
         Observer.Observe('log after First', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('First ok', 'Yes');
+        Observer.Expect('log after First', 'Card.page.OnAfterGetCurrRecord;Card.OnAfterGetCurrRecordEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2733,7 +3151,9 @@ codeunit 97690 "LT PNS Events"
         if not Moved then
             Observer.ObserveError('Last error');
         Observer.Observe('log after Last', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('Last ok', 'Yes');
+        Observer.Expect('log after Last', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2751,7 +3171,11 @@ codeunit 97690 "LT PNS Events"
         if not Moved then
             Observer.ObserveError('New error');
         Observer.Observe('log after New', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('New ok', 'No');
+        Observer.Expect('New error|text', 'New method failed because Insert is not allowed. Page = LT PNS List, Id = 97611.');
+        Observer.Expect('New error|code', 'DB:ClientInsertDenied');
+        Observer.Expect('log after New', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2769,7 +3193,9 @@ codeunit 97690 "LT PNS Events"
         if not Moved then
             Observer.ObserveError('Next error');
         Observer.Observe('log after Next', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('Next ok', 'Yes');
+        Observer.Expect('log after Next', 'List.page.OnAfterGetCurrRecord;List.OnAfterGetCurrRecordEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2787,7 +3213,9 @@ codeunit 97690 "LT PNS Events"
         if not Moved then
             Observer.ObserveError('Previous error');
         Observer.Observe('log after Previous', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('Previous ok', 'Yes');
+        Observer.Expect('log after Previous', 'List.page.OnAfterGetCurrRecord;List.OnAfterGetCurrRecordEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2805,7 +3233,9 @@ codeunit 97690 "LT PNS Events"
         if not Moved then
             Observer.ObserveError('First error');
         Observer.Observe('log after First', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('First ok', 'Yes');
+        Observer.Expect('log after First', 'List.page.OnAfterGetCurrRecord;List.OnAfterGetCurrRecordEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2823,7 +3253,9 @@ codeunit 97690 "LT PNS Events"
         if not Moved then
             Observer.ObserveError('Last error');
         Observer.Observe('log after Last', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('Last ok', 'Yes');
+        Observer.Expect('log after Last', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2841,7 +3273,11 @@ codeunit 97690 "LT PNS Events"
         if not Moved then
             Observer.ObserveError('New error');
         Observer.Observe('log after New', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('New ok', 'No');
+        Observer.Expect('New error|text', 'New method failed because Insert is not allowed. Page = LT PNS Worksheet, Id = 97612.');
+        Observer.Expect('New error|code', 'DB:ClientInsertDenied');
+        Observer.Expect('log after New', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2859,7 +3295,9 @@ codeunit 97690 "LT PNS Events"
         if not Moved then
             Observer.ObserveError('Next error');
         Observer.Observe('log after Next', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('Next ok', 'Yes');
+        Observer.Expect('log after Next', 'Worksheet.page.OnAfterGetCurrRecord;Worksheet.OnAfterGetCurrRecordEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2877,7 +3315,9 @@ codeunit 97690 "LT PNS Events"
         if not Moved then
             Observer.ObserveError('Previous error');
         Observer.Observe('log after Previous', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('Previous ok', 'Yes');
+        Observer.Expect('log after Previous', 'Worksheet.page.OnAfterGetCurrRecord;Worksheet.OnAfterGetCurrRecordEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2895,7 +3335,9 @@ codeunit 97690 "LT PNS Events"
         if not Moved then
             Observer.ObserveError('First error');
         Observer.Observe('log after First', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('First ok', 'Yes');
+        Observer.Expect('log after First', 'Worksheet.page.OnAfterGetCurrRecord;Worksheet.OnAfterGetCurrRecordEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2913,7 +3355,9 @@ codeunit 97690 "LT PNS Events"
         if not Moved then
             Observer.ObserveError('Last error');
         Observer.Observe('log after Last', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('Last ok', 'Yes');
+        Observer.Expect('log after Last', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2928,7 +3372,9 @@ codeunit 97690 "LT PNS Events"
         Log.Reset();
         Pg.Close();
         Observer.Observe('log after close', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('log after open', 'ExtBase.page.OnOpenPage;ExtBase.ext.OnOpenPage;ExtBase.OnOpenPageEvent;ExtBase.page.OnAfterGetCurrRecord;ExtBase.ext.OnAfterGetCurrRecord;ExtBase.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'ExtBase.OnQueryClosePageEvent;ExtBase.page.OnClosePage;ExtBase.ext.OnClosePage;ExtBase.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2943,7 +3389,9 @@ codeunit 97690 "LT PNS Events"
         Log.Reset();
         Pg.Close();
         Observer.Observe('log after close', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('log after open', 'ExtBase.page.OnOpenPage;ExtBase.ext.OnOpenPage;ExtBase.OnOpenPageEvent;ExtBase.page.OnAfterGetCurrRecord;ExtBase.ext.OnAfterGetCurrRecord;ExtBase.OnAfterGetCurrRecordEvent;');
+        Observer.Expect('log after close', 'ExtBase.OnQueryClosePageEvent;ExtBase.page.OnClosePage;ExtBase.ext.OnClosePage;ExtBase.OnClosePageEvent;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2958,7 +3406,9 @@ codeunit 97690 "LT PNS Events"
         Log.Reset();
         Pg.Close();
         Observer.Observe('log after close', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('log after open', '');
+        Observer.Expect('log after close', 'ArgsCard.page.OnQueryClosePage;CardArgs.OnQueryClosePageEvent Yes;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2974,7 +3424,11 @@ codeunit 97690 "LT PNS Events"
         if not Opened then
             Observer.ObserveError('open error');
         Observer.Observe('log after open', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('open ok', 'No');
+        Observer.Expect('open error|text', 'Sorry, the current permissions prevented the action. (Page 97623 LT PNS ArgsCard Insert: AL Language Coverage Tests)');
+        Observer.Expect('open error|code', 'DB:ClientInsertDenied');
+        Observer.Expect('log after open', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3000,7 +3454,13 @@ codeunit 97690 "LT PNS Events"
         if not Closed then
             Observer.ObserveError('second close error');
         Observer.Observe('log after second close', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('log after close', 'ArgsCard.page.OnQueryClosePage;CardArgs.OnQueryClosePageEvent Yes;');
+        Observer.Expect('second close ok', 'No');
+        Observer.Expect('second close error|text', 'The TestPage is not open.');
+        Observer.Expect('second close error|code', 'TestPageNotOpened');
+        Observer.Expect('log after second close', '');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
