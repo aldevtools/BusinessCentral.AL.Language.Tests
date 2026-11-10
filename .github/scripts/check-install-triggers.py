@@ -77,6 +77,10 @@ ALLOWED = {
     # al-runner issue 6638 (writer Y56): install code creates the number sequences SeqCarry.al restarts and deletes; only NumberSequence
     # calls behind an Exists check of the same name, no table writes. (SeqCarryInstall.al)
     'tests/al-language codeunit 93600',  # "LT Y56 Seq Install"
+    # al-runner issue 7582: reads Table Synch. Setup and calls Data Upgrade Mgt.SetTableSyncSetup at install, each inside a TryFunction;
+    # writes only `if Insert() then;` into a DataPerCompany = false log. Not published on a local container before the pull request:
+    # the staging batch run is its first publish. (TableSynchSetupRows.al)
+    'tests/al-language-onprem codeunit 98207',  # "MD TableSync Install"
     # Not a corpus app: the helper app that nightly-windows.yml publishes to create the tenant encryption key (#282), and
     # unpublishes again. ci.yml never compiles it. Its install trigger cannot raise (TryFunction); measured on Windows
     # BC 27.5 onprem, 29.0 onprem and 29.0 sandbox (runs 39223208230, 39223203793, 39223200014). (EncryptionKeySetup.al)
