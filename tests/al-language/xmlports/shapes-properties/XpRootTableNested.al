@@ -15,6 +15,17 @@
 //   elements missing); a character beyond ASCII under Windows; UTF-8 without a declaration and without TextEncoding; Decimal values
 //   under FormatEvaluate = Xml, valid and with a comma; a header without lines; a header without a required field; the unguarded call;
 //   GetLastErrorText after a successful import with and without ClearLastError in OnPreXmlPort.
+// Facts (BC 29.0 on the corpus CI, run 42911094711; then checked on 27.5 and 28.5): BC imports this shape. The root table element
+//   inserts one row with its key blank (Id 0, temporary or real). Each header: OnAfterInitRecord runs first, before any of its child
+//   elements is read; then its line rows are inserted (OnBeforeInsertRecord sees the header's text elements and fields already set from
+//   the document); then the header row is inserted and OnAfterInsertRecord runs. Text element variables are not cleared between
+//   headers: the second header's OnAfterInitRecord sees the first header's values, and a MinOccurs = Zero text element the second header
+//   lacks keeps the first header's value. The text element that wraps the lines reads as empty. An empty element and a missing one
+//   both leave a Code field blank; a Code value is upper-cased. The ISO-8859-1 document written with TextEncoding::Windows imports with
+//   or without the port's TextEncoding set, and `Größe ü` arrives unchanged. FormatEvaluate = Xml: `1234.5678`, `-0.001`, `0050.50`,
+//   `.5` import; `1,5` fails with `The value "1,5" can't be evaluated into type Decimal.` (code Evaluate). A failed import returns false
+//   and leaves every temporary table of the port empty, the root's too. Schema errors (code XmlPortInvalidXml) come after the header's
+//   OnAfterInitRecord. After a successful `if not Import()` the last error is what was set before, unless a trigger clears it.
 // BC versions: 27, 28, 29 (corpus CI)
 
 table 75120 "XP Root Table Header"
@@ -465,7 +476,13 @@ codeunit 75125 "XP Root Table Tests"
     begin
         Initialize();
         ImportFull('', IssueDoc(), TextEncoding::Windows, true);
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('last error after', '');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/lines=[];L.bins:ITEM001/hdr=1/kind=[Order]/cust=[C10000];L.bins:ITEM002/hdr=1/kind=[Order]/cust=[C10000];H.ains:1/kind=[Order]/od=[20200326]/dd=[20200327]/lines=[];post;');
+        Observer.Expect('roots', '1:0;');
+        Observer.Expect('headers', '1:1/C10000/[]/REF-04/[];');
+        Observer.Expect('lines', '2:1/1/ITEM001/2/first line/6.32/100;2/1/ITEM002/10/second line/1.5/0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -477,7 +494,13 @@ codeunit 75125 "XP Root Table Tests"
         Doc := IssueDoc();
         Doc := Doc.Replace('<?xml version=''1.0'' encoding=''ISO-8859-1''?>' + Nl(), '');
         ImportFull('', Doc, TextEncoding::UTF8, false);
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('last error after', '');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/lines=[];L.bins:ITEM001/hdr=1/kind=[Order]/cust=[C10000];L.bins:ITEM002/hdr=1/kind=[Order]/cust=[C10000];H.ains:1/kind=[Order]/od=[20200326]/dd=[20200327]/lines=[];post;');
+        Observer.Expect('roots', '1:0;');
+        Observer.Expect('headers', '1:1/C10000/[]/REF-04/[];');
+        Observer.Expect('lines', '2:1/1/ITEM001/2/first line/6.32/100;2/1/ITEM002/10/second line/1.5/0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -495,7 +518,10 @@ codeunit 75125 "XP Root Table Tests"
         Observer.Observe('log', Port.GetLog());
         Observer.Observe('headers', Port.Headers());
         Observer.Observe('lines', Port.LinesDump());
-        Observer.Finish();
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/lines=[];L.bins:ITEM001/hdr=1/kind=[Order]/cust=[C10000];L.bins:ITEM002/hdr=1/kind=[Order]/cust=[C10000];H.ains:1/kind=[Order]/od=[20200326]/dd=[20200327]/lines=[];post;');
+        Observer.Expect('headers', '1:1/C10000/[]/REF-04/[];');
+        Observer.Expect('lines', '2:1/1/ITEM001/2/first line/6.32/100;2/1/ITEM002/10/second line/1.5/0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -507,7 +533,13 @@ codeunit 75125 "XP Root Table Tests"
         Doc := IssueDoc();
         Doc := Doc.Replace('first line', 'Größe ü');
         ImportFull('', Doc, TextEncoding::Windows, true);
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('last error after', '');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/lines=[];L.bins:ITEM001/hdr=1/kind=[Order]/cust=[C10000];L.bins:ITEM002/hdr=1/kind=[Order]/cust=[C10000];H.ains:1/kind=[Order]/od=[20200326]/dd=[20200327]/lines=[];post;');
+        Observer.Expect('roots', '1:0;');
+        Observer.Expect('headers', '1:1/C10000/[]/REF-04/[];');
+        Observer.Expect('lines', '2:1/1/ITEM001/2/Größe ü/6.32/100;2/1/ITEM002/10/second line/1.5/0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -528,7 +560,13 @@ codeunit 75125 "XP Root Table Tests"
         Doc := IssueDoc();
         Doc := Doc.Replace('</Message>', Second + '</Message>');
         ImportFull('', Doc, TextEncoding::Windows, true);
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('last error after', '');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/lines=[];L.bins:ITEM001/hdr=1/kind=[Order]/cust=[C10000];L.bins:ITEM002/hdr=1/kind=[Order]/cust=[C10000];H.ains:1/kind=[Order]/od=[20200326]/dd=[20200327]/lines=[];H.init:2/kind=[Order]/od=[20200326]/dd=[20200327]/lines=[];L.bins:ITEM003/hdr=2/kind=[Return]/cust=[C20000];H.ains:2/kind=[Return]/od=[20200326]/dd=[20200327]/lines=[];post;');
+        Observer.Expect('roots', '1:0;');
+        Observer.Expect('headers', '2:1/C10000/[]/REF-04/[];2/C20000/[]/REF-05/[BLUE];');
+        Observer.Expect('lines', '3:1/1/ITEM001/2/first line/6.32/100;2/1/ITEM002/10/second line/1.5/0;3/2/ITEM003/3/third line/2/5;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -542,7 +580,13 @@ codeunit 75125 "XP Root Table Tests"
           '<Line><Item>B</Item><Qty>7</Qty><Descr></Descr><Price>.5</Price></Line>' +
           '</Lines></Header></Message>';
         ImportFull('', Doc, TextEncoding::UTF8, false);
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('last error after', '');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/lines=[];L.bins:A/hdr=1/kind=[Order]/cust=[C1];L.bins:B/hdr=1/kind=[Order]/cust=[C1];H.ains:1/kind=[Order]/od=[]/dd=[]/lines=[];post;');
+        Observer.Expect('roots', '1:0;');
+        Observer.Expect('headers', '1:1/C1/[]/R1/[];');
+        Observer.Expect('lines', '2:1/1/A/1234.5678//-0.001/50.5;2/1/B/7//0.5/0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -554,7 +598,14 @@ codeunit 75125 "XP Root Table Tests"
         Doc := '<Message><Header><Kind>Order</Kind><Customer>C1</Customer><Reference>R1</Reference><Lines>' +
           '<Line><Item>A</Item><Qty>1,5</Qty></Line></Lines></Header></Message>';
         ImportFull('', Doc, TextEncoding::UTF8, false);
-        Observer.Finish();
+        Observer.Expect('import', 'false');
+        Observer.Expect('error|text', 'The value "1,5" can''t be evaluated into type Decimal.');
+        Observer.Expect('error|code', 'Evaluate');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/lines=[];');
+        Observer.Expect('roots', '0:');
+        Observer.Expect('headers', '0:');
+        Observer.Expect('lines', '0:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -565,7 +616,14 @@ codeunit 75125 "XP Root Table Tests"
         Initialize();
         Doc := '<Message><Header><Kind>Order</Kind><Customer>C1</Customer><Reference>R1</Reference><Lines></Lines></Header></Message>';
         ImportFull('', Doc, TextEncoding::UTF8, false);
-        Observer.Finish();
+        Observer.Expect('import', 'false');
+        Observer.Expect('error|text', 'Imported XML cannot validate with the schema: The element ''Lines'' has incomplete content. List of possible elements expected: ''Line''.');
+        Observer.Expect('error|code', 'XmlPortInvalidXml');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/lines=[];');
+        Observer.Expect('roots', '0:');
+        Observer.Expect('headers', '0:');
+        Observer.Expect('lines', '0:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -576,7 +634,14 @@ codeunit 75125 "XP Root Table Tests"
         Initialize();
         Doc := '<Message><Header><Kind>Order</Kind><Customer>C1</Customer><Lines><Line><Item>A</Item><Qty>1</Qty></Line></Lines></Header></Message>';
         ImportFull('', Doc, TextEncoding::UTF8, false);
-        Observer.Finish();
+        Observer.Expect('import', 'false');
+        Observer.Expect('error|text', 'Imported XML cannot validate with the schema: The element ''Header'' has invalid child element ''Lines''. List of possible elements expected: ''ShipTo, OrderDate, DueDate, Reference''.');
+        Observer.Expect('error|code', 'XmlPortInvalidXml');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/lines=[];');
+        Observer.Expect('roots', '0:');
+        Observer.Expect('headers', '0:');
+        Observer.Expect('lines', '0:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -601,7 +666,11 @@ codeunit 75125 "XP Root Table Tests"
         Observer.Observe('real root rows', Format(Shape.Count()));
         if Shape.FindFirst() then
             Observer.Observe('real root id', Format(Shape.Id));
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('counts', 'headers=1/lines=2');
+        Observer.Expect('real root rows', '1');
+        Observer.Expect('real root id', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -624,6 +693,9 @@ codeunit 75125 "XP Root Table Tests"
             Observer.ObserveError('error');
         end;
         Observer.Observe('dump', Port.Dump());
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('last error after', 'an earlier error');
+        Observer.Expect('dump', 'roots=1/0 headers=5/C5/[];6/C6/[];');
+        Observer.Verify();
     end;
 }
