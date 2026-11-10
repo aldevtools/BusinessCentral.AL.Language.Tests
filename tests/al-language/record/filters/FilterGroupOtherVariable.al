@@ -627,7 +627,23 @@ codeunit 97452 "REC FG1 Other Variable"
         Observer.Observe('a count after a took the filter back', Format(A.Count()));
         Observer.Observe('fresh after a took the filter back', Fresh1());
         Observer.Observe('fresh group 1 filter at the end', FreshGroup1Filter1());
-        Observer.Finish();
+        Observer.Expect('base', '4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Expect('a filters in group 0', '');
+        Observer.Expect('a count', '2');
+        Observer.Expect('b count', '2');
+        Observer.Expect('b isempty', 'No');
+        Observer.Expect('b filters in group 0', '');
+        Observer.Expect('fresh group 1 filter', 'Tag: 1');
+        Observer.Expect('b get 2', 'Yes');
+        Observer.Expect('b get 1', 'Yes');
+        Observer.Expect('b count after reset', '2');
+        Observer.Expect('b count after clear', '2');
+        Observer.Expect('b count after deleteall', '0');
+        Observer.Expect('a count after deleteall', '0');
+        Observer.Expect('a count after a took the filter back', '2');
+        Observer.Expect('fresh after a took the filter back', '2 [2:2 4:2 ]');
+        Observer.Expect('fresh group 1 filter at the end', '');
+        Observer.Verify();
     end;
 
     local procedure OtherGroup(GroupNo: Integer): Text
@@ -661,7 +677,17 @@ codeunit 97452 "REC FG1 Other Variable"
         Observer.Observe('group 7', OtherGroup(7));
         Observer.Observe('group -1', OtherGroup(-1));
         Observer.Observe('group 1', OtherGroup(1));
-        Observer.Finish();
+        Observer.Expect('base', '4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Expect('group 0', 'setter 2 | other 4 [1:1 2:2 3:1 4:2 ] | after 4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Expect('group 2', 'setter 2 | other 4 [1:1 2:2 3:1 4:2 ] | after 4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Expect('group 3', 'setter 2 | other 4 [1:1 2:2 3:1 4:2 ] | after 4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Expect('group 4', 'setter 2 | other 4 [1:1 2:2 3:1 4:2 ] | after 4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Expect('group 5', 'setter 2 | other 4 [1:1 2:2 3:1 4:2 ] | after 4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Expect('group 6', 'setter 2 | other 4 [1:1 2:2 3:1 4:2 ] | after 4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Expect('group 7', 'setter 2 | other 4 [1:1 2:2 3:1 4:2 ] | after 4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Expect('group -1', 'setter 2 | other 4 [1:1 2:2 3:1 4:2 ] | after 4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Expect('group 1', 'setter 2 | other 2 [1:1 3:1 ] | after 4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -684,7 +710,11 @@ codeunit 97452 "REC FG1 Other Variable"
         A.SetRange(Tag);
         A.FilterGroup(0);
         Observer.Observe('fresh after', Fresh2());
-        Observer.Finish();
+        Observer.Expect('base', '4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Expect('b count', '4');
+        Observer.Expect('a count after deleteall', '0');
+        Observer.Expect('fresh after', '0 []');
+        Observer.Verify();
     end;
 
     [Test]
@@ -718,7 +748,20 @@ codeunit 97452 "REC FG1 Other Variable"
         ClearGroup1In3();
         Observer.Observe('fresh after a third variable took the filter back', Fresh3());
         Observer.Observe('fresh group 1 filter at the end', FreshGroup1Filter3());
-        Observer.Finish();
+        Observer.Expect('base', '4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Expect('fresh', '2 [1:1 3:1 ]');
+        Observer.Expect('fresh group 1 filter', 'Tag: 1');
+        Observer.Expect('get 2', 'Yes');
+        Observer.Expect('get 1', 'Yes');
+        Observer.Expect('insert 5 with tag 2', 'Yes');
+        Observer.Expect('get 5', 'Yes');
+        Observer.Expect('fresh after insert', '2 [1:1 3:1 ]');
+        Observer.Expect('modify 1 to tag 2', 'Yes');
+        Observer.Expect('fresh after modify', '1 [3:1 ]');
+        Observer.Expect('fresh after modifyall', '0 []');
+        Observer.Expect('fresh after a third variable took the filter back', '5 [1:2 2:2 3:7 4:2 5:2 ]');
+        Observer.Expect('fresh group 1 filter at the end', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -731,7 +774,9 @@ codeunit 97452 "REC FG1 Other Variable"
         Observer.Observe('base', Fresh4());
         SetGroup1In4(1);
         Observer.Observe('fresh', Fresh4());
-        Observer.Finish();
+        Observer.Expect('base', '4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Expect('fresh', '2 [1:1 3:1 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -747,7 +792,10 @@ codeunit 97452 "REC FG1 Other Variable"
         Observer.Observe('fresh after the four rows were added again', Fresh4());
         ClearGroup1In4();
         Observer.Observe('fresh after the filter was taken back', Fresh4());
-        Observer.Finish();
+        Observer.Expect('fresh group 1 filter at start', 'Tag: 1');
+        Observer.Expect('fresh after the four rows were added again', '2 [1:1 3:1 ]');
+        Observer.Expect('fresh after the filter was taken back', '4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -782,7 +830,13 @@ codeunit 97452 "REC FG1 Other Variable"
         T1.SetRange(Tag);
         T1.FilterGroup(0);
         Observer.Observe('database after', Fresh5());
-        Observer.Finish();
+        Observer.Expect('base', '4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Expect('setter temporary count', '1');
+        Observer.Expect('other temporary count', '1');
+        Observer.Expect('database', '2 [1:1 3:1 ]');
+        Observer.Expect('database group 1 filter', 'Tag: 1');
+        Observer.Expect('database after', '4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -810,7 +864,13 @@ codeunit 97452 "REC FG1 Other Variable"
         TagRef.SetRange();
         Setter.FilterGroup(0);
         Observer.Observe('record variable after', Fresh6());
-        Observer.Finish();
+        Observer.Expect('base', '4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Expect('setter recordref count', '2');
+        Observer.Expect('other recordref count', '2');
+        Observer.Expect('record variable', '2 [1:1 3:1 ]');
+        Observer.Expect('record variable group 1 filter', 'Tag: 1');
+        Observer.Expect('record variable after', '4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -842,6 +902,11 @@ codeunit 97452 "REC FG1 Other Variable"
         A.SetRange(Tag);
         A.FilterGroup(0);
         Observer.Observe('record variable after', Fresh7());
-        Observer.Finish();
+        Observer.Expect('base', '4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Expect('recordref count', '2');
+        Observer.Expect('recordref group 1 filter', 'Tag: 1');
+        Observer.Expect('temporary count', '1');
+        Observer.Expect('record variable after', '4 [1:1 2:2 3:1 4:2 ]');
+        Observer.Verify();
     end;
 }

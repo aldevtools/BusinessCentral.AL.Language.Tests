@@ -246,7 +246,14 @@ codeunit 98208 "MD TableSync Tests"
         Observer: Codeunit "Probe Observer";
     begin
         InstallSteps(Observer, 'DB');
-        Observer.Finish();
+        Observer.Expect('source', 'no row');
+        Observer.Expect('target', 'no row');
+        Observer.Expect('company row', 'no row');
+        Observer.Expect('set', 'ok');
+        Observer.Expect('source after set', 'no row');
+        Observer.Expect('set back', 'ok');
+        Observer.Expect('source after set back', 'no row');
+        Observer.Verify();
     end;
 
     [Test]
@@ -255,7 +262,14 @@ codeunit 98208 "MD TableSync Tests"
         Observer: Codeunit "Probe Observer";
     begin
         InstallSteps(Observer, 'CO');
-        Observer.Finish();
+        Observer.Expect('source', 'no row');
+        Observer.Expect('target', 'no row');
+        Observer.Expect('company row', 'no row');
+        Observer.Expect('set', 'ok');
+        Observer.Expect('source after set', 'no row');
+        Observer.Expect('set back', 'ok');
+        Observer.Expect('source after set back', 'no row');
+        Observer.Verify();
     end;
 
     [Test]
@@ -275,7 +289,18 @@ codeunit 98208 "MD TableSync Tests"
         Observer.Observe('table synch setup itself', Reader.Read(Database::"Table Synch. Setup"));
         Observer.Observe('id 0', Reader.Read(0));
         Observer.Observe('id with no table', Reader.Read(1999999999));
-        Observer.Finish();
+        Observer.Expect('isempty', 'Yes');
+        Observer.Expect('source', 'no row');
+        Observer.Expect('source count', '0');
+        Observer.Expect('target', 'no row');
+        Observer.Expect('company row', 'no row');
+        Observer.Expect('log table', 'no row');
+        Observer.Expect('cloud app table', 'no row');
+        Observer.Expect('customer', 'no row');
+        Observer.Expect('table synch setup itself', 'no row');
+        Observer.Expect('id 0', 'no row');
+        Observer.Expect('id with no table', 'no row');
+        Observer.Verify();
     end;
 
     [Test]
@@ -293,7 +318,11 @@ codeunit 98208 "MD TableSync Tests"
         Observer.Observe('target after set', Reader.Read(Database::"MD TableSync Target"));
         DataUpgradeMgt.SetTableSyncSetup(Database::"MD TableSync Source", 0, Mode::Check);
         Observer.Observe('after set back', Reader.Read(Database::"MD TableSync Source"));
-        Observer.Finish();
+        Observer.Expect('before', 'no row');
+        Observer.Expect('after set', 'no row');
+        Observer.Expect('target after set', 'no row');
+        Observer.Expect('after set back', 'no row');
+        Observer.Verify();
     end;
 
     [Test]
@@ -314,7 +343,12 @@ codeunit 98208 "MD TableSync Tests"
         Observer.Observe('check, upgrade table id with no table', Reader.Read(Database::"MD TableSync Source"));
         DataUpgradeMgt.SetTableSyncSetup(Database::"MD TableSync Source", 0, Mode::Check);
         Observer.Observe('after set back', Reader.Read(Database::"MD TableSync Source"));
-        Observer.Finish();
+        Observer.Expect('copy', 'no row');
+        Observer.Expect('move', 'no row');
+        Observer.Expect('check, itself as upgrade table', 'no row');
+        Observer.Expect('check, upgrade table id with no table', 'no row');
+        Observer.Expect('after set back', 'no row');
+        Observer.Verify();
     end;
 
     [Test]
@@ -327,7 +361,8 @@ codeunit 98208 "MD TableSync Tests"
     begin
         DataUpgradeMgt.SetTableSyncSetup(1999999999, Database::"MD TableSync Target", Mode::Force);
         Observer.Observe('after set', Reader.Read(1999999999));
-        Observer.Finish();
+        Observer.Expect('after set', 'no row');
+        Observer.Verify();
     end;
 
     [Test]
@@ -342,7 +377,12 @@ codeunit 98208 "MD TableSync Tests"
         Observer.Observe('set back', Reader.SetInTryFunction(Database::"MD TableSync Source", 0, Mode::Check));
         Observer.Observe('after set back', Reader.Read(Database::"MD TableSync Source"));
         Observer.Observe('id with no table', Reader.SetInTryFunction(1999999999, Database::"MD TableSync Target", Mode::Force));
-        Observer.Finish();
+        Observer.Expect('table of this app', 'ok');
+        Observer.Expect('after', 'no row');
+        Observer.Expect('set back', 'ok');
+        Observer.Expect('after set back', 'no row');
+        Observer.Expect('id with no table', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -364,6 +404,7 @@ codeunit 98208 "MD TableSync Tests"
             Observer.Observe('after modify back', Reader.Read(Database::"MD TableSync Source"));
         end else
             Observer.Observe('get', 'no row');
-        Observer.Finish();
+        Observer.Expect('get', 'no row');
+        Observer.Verify();
     end;
 }

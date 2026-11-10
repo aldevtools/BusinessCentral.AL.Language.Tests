@@ -250,7 +250,16 @@ codeunit 97434 "COL List Index Types"
         Observer.Observe('getrange count', Dec('getrange count', 2));
         Observer.Observe('removerange index', Dec('removerange index', 2));
         Observer.Observe('removerange count', Dec('removerange count', 2));
-        Observer.Finish();
+        Observer.Expect('get', 'ok:b|list=a,b,c,d,');
+        Observer.Expect('get var', 'ok:true:b|list=a,b,c,d,');
+        Observer.Expect('set', 'ok:|list=a,X,c,d,');
+        Observer.Expect('insert', 'ok:|list=a,X,b,c,d,');
+        Observer.Expect('removeat', 'ok:Yes|list=a,c,d,');
+        Observer.Expect('getrange index', 'ok:b,c,|list=a,b,c,d,');
+        Observer.Expect('getrange count', 'ok:b,c,|list=a,b,c,d,');
+        Observer.Expect('removerange index', 'ok:Yes|list=a,d,');
+        Observer.Expect('removerange count', 'ok:Yes|list=c,d,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -267,7 +276,16 @@ codeunit 97434 "COL List Index Types"
         Observer.Observe('getrange count', Dec('getrange count', 2.5));
         Observer.Observe('removerange index', Dec('removerange index', 2.5));
         Observer.Observe('removerange count', Dec('removerange count', 2.5));
-        Observer.Finish();
+        Observer.Expect('get', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.|list=a,b,c,d,');
+        Observer.Expect('get var', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.|list=a,b,c,d,');
+        Observer.Expect('set', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.|list=a,b,c,d,');
+        Observer.Expect('insert', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.|list=a,b,c,d,');
+        Observer.Expect('removeat', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.|list=a,b,c,d,');
+        Observer.Expect('getrange index', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.|list=a,b,c,d,');
+        Observer.Expect('getrange count', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.|list=a,b,c,d,');
+        Observer.Expect('removerange index', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.|list=a,b,c,d,');
+        Observer.Expect('removerange count', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.|list=a,b,c,d,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -287,7 +305,19 @@ codeunit 97434 "COL List Index Types"
         Observer.Observe('-1', Dec('get', -1));
         Observer.Observe('3000000000', Dec('get', 3000000000.0));
         Observer.Observe('2.0000000001', Dec('get', 2.0000000001));
-        Observer.Finish();
+        Observer.Expect('2.4', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.4 to System.Int32.|list=a,b,c,d,');
+        Observer.Expect('2.6', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.6 to System.Int32.|list=a,b,c,d,');
+        Observer.Expect('1.5', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.|list=a,b,c,d,');
+        Observer.Expect('3.5', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 3.5 to System.Int32.|list=a,b,c,d,');
+        Observer.Expect('0.4', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.4 to System.Int32.|list=a,b,c,d,');
+        Observer.Expect('4.4', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 4.4 to System.Int32.|list=a,b,c,d,');
+        Observer.Expect('4.5', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 4.5 to System.Int32.|list=a,b,c,d,');
+        Observer.Expect('0', 'error:ArgumentOutOfRange|An invalid argument was passed to a ''List'' data type method.|list=a,b,c,d,');
+        Observer.Expect('5', 'error:ArgumentOutOfRange|An invalid argument was passed to a ''List'' data type method.|list=a,b,c,d,');
+        Observer.Expect('-1', 'error:ArgumentOutOfRange|An invalid argument was passed to a ''List'' data type method.|list=a,b,c,d,');
+        Observer.Expect('3000000000', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 3000000000.0 to System.Int32.|list=a,b,c,d,');
+        Observer.Expect('2.0000000001', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.0000000001 to System.Int32.|list=a,b,c,d,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -304,7 +334,16 @@ codeunit 97434 "COL List Index Types"
         Observer.Observe('getrange count', Big('getrange count', 2));
         Observer.Observe('removerange index', Big('removerange index', 2));
         Observer.Observe('removerange count', Big('removerange count', 2));
-        Observer.Finish();
+        Observer.Expect('get', 'ok:b|list=a,b,c,d,');
+        Observer.Expect('get var', 'ok:true:b|list=a,b,c,d,');
+        Observer.Expect('set', 'ok:|list=a,X,c,d,');
+        Observer.Expect('insert', 'ok:|list=a,X,b,c,d,');
+        Observer.Expect('removeat', 'ok:Yes|list=a,c,d,');
+        Observer.Expect('getrange index', 'ok:b,c,|list=a,b,c,d,');
+        Observer.Expect('getrange count', 'ok:b,c,|list=a,b,c,d,');
+        Observer.Expect('removerange index', 'ok:Yes|list=a,d,');
+        Observer.Expect('removerange count', 'ok:Yes|list=c,d,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -318,7 +357,13 @@ codeunit 97434 "COL List Index Types"
         Observer.Observe('3000000000', Big('get', 3000000000L));
         Observer.Observe('get var 5', Big('get var', 5));
         Observer.Observe('get var 3000000000', Big('get var', 3000000000L));
-        Observer.Finish();
+        Observer.Expect('0', 'error:ArgumentOutOfRange|An invalid argument was passed to a ''List'' data type method.|list=a,b,c,d,');
+        Observer.Expect('5', 'error:ArgumentOutOfRange|An invalid argument was passed to a ''List'' data type method.|list=a,b,c,d,');
+        Observer.Expect('-1', 'error:ArgumentOutOfRange|An invalid argument was passed to a ''List'' data type method.|list=a,b,c,d,');
+        Observer.Expect('3000000000', 'error:ConversionCast|Overflow under conversion of System.Int64 value 3000000000 to System.Int32.|list=a,b,c,d,');
+        Observer.Expect('get var 5', 'ok:false|list=a,b,c,d,');
+        Observer.Expect('get var 3000000000', 'error:ConversionCast|Overflow under conversion of System.Int64 value 3000000000 to System.Int32.|list=a,b,c,d,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -336,7 +381,17 @@ codeunit 97434 "COL List Index Types"
         Observer.Observe('set round up half count', Direct('set round up half count'));
         Observer.Observe('insert count / 2', Direct('insert count / 2'));
         Observer.Observe('removeat literal 2.0', Direct('removeat literal 2.0'));
-        Observer.Finish();
+        Observer.Expect('round up half count', 'ok:b|list=a,b,c,d,');
+        Observer.Expect('count / 2', 'ok:b|list=a,b,c,d,');
+        Observer.Expect('5 / 2', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.|list=a,b,c,d,');
+        Observer.Expect('literal 2.0', 'ok:b|list=a,b,c,d,');
+        Observer.Expect('literal 2.5', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.|list=a,b,c,d,');
+        Observer.Expect('indexof * 1.0', 'ok:c|list=a,b,c,d,');
+        Observer.Expect('round nearest 2.5', 'ok:c|list=a,b,c,d,');
+        Observer.Expect('set round up half count', 'ok:|list=a,X,c,d,');
+        Observer.Expect('insert count / 2', 'ok:|list=a,X,b,c,d,');
+        Observer.Expect('removeat literal 2.0', 'ok:Yes|list=a,c,d,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -354,7 +409,10 @@ codeunit 97434 "COL List Index Types"
         Observer.Observe('round directly', Lines.Get(Round(Lines.Count() / 2, 1, '>')));
         I := Round(Lines.Count() / 2, 1, '>');
         Observer.Observe('round through integer', Lines.Get(I));
-        Observer.Finish();
+        Observer.Expect('decimal variable', 'b');
+        Observer.Expect('round directly', 'b');
+        Observer.Expect('round through integer', 'b');
+        Observer.Verify();
     end;
 
     [Test]
@@ -365,7 +423,10 @@ codeunit 97434 "COL List Index Types"
         Observer.Observe('char', Other('char'));
         Observer.Observe('option', Other('option'));
         Observer.Observe('byte', Other('byte'));
-        Observer.Finish();
+        Observer.Expect('char', 'ok:b');
+        Observer.Expect('option', 'ok:b');
+        Observer.Expect('byte', 'ok:b');
+        Observer.Verify();
     end;
 
     [Test]
@@ -380,6 +441,13 @@ codeunit 97434 "COL List Index Types"
         Observer.Observe('biginteger 2', ArrayBig(2));
         Observer.Observe('biginteger 5', ArrayBig(5));
         Observer.Observe('biginteger 3000000000', ArrayBig(3000000000L));
-        Observer.Finish();
+        Observer.Expect('decimal 2', 'ok:b');
+        Observer.Expect('decimal 2.5', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.');
+        Observer.Expect('decimal 2.4', 'error:ConversionCast|Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.4 to System.Int32.');
+        Observer.Expect('decimal 5', 'error:IndexOutOfBounds|Index out of bounds.');
+        Observer.Expect('biginteger 2', 'ok:b');
+        Observer.Expect('biginteger 5', 'error:IndexOutOfBounds|Index out of bounds.');
+        Observer.Expect('biginteger 3000000000', 'error:ConversionCast|Overflow under conversion of System.Int64 value 3000000000 to System.Int32.');
+        Observer.Verify();
     end;
 }
