@@ -556,6 +556,10 @@ codeunit 61817 "PAG XRec Part Tests"
         Lines.F2.SetValue(6);
         Observer.Observe('line 10000, F2 set 5 -> 6', Log.Take());
         Observer.Observe('lines', Stored('H1'));
-        Observer.Finish();
+        Observer.Expect('line 10000, F1 set 1 -> 5', 'table F1 rec=5 xrec=1 xline=10000; before F1 rec=5 xrec=1 xline=10000; base F1 rec=5 xrec=1 xline=10000; after F1 rec=5 xrec=1 xline=10000 line=10000; ');
+        Observer.Expect('line 10000, F2 set 1 -> 5', 'table F2 rec=5 xrec=1 xline=10000; before F2 rec=5 xrec=1 xline=10000; base F2 rec=5 xrec=1 xline=10000; after F2 rec=5 xrec=1 xline=10000 line=10000; ');
+        Observer.Expect('line 10000, F2 set 5 -> 6', 'table F2 rec=6 xrec=5 xline=10000; before F2 rec=6 xrec=5 xline=10000; base F2 rec=6 xrec=5 xline=10000; after F2 rec=6 xrec=5 xline=10000 line=10000; ');
+        Observer.Expect('lines', '10000: 1 5 6 1 1; 20000: 2 2 2 2 2; ');
+        Observer.Verify();
     end;
 }

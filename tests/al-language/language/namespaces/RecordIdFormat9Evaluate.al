@@ -114,7 +114,25 @@ codeunit 61806 "R7326 RecordId Evaluate 9"
         RoundTrip(Observer, 'dot', Dot.RecordId);
         RoundTrip(Observer, 'slash', Slash.RecordId);
         RoundTrip(Observer, 'words', Words.RecordId);
-        Observer.Finish();
+        Observer.Expect('one word 9 text', 'Yes 95680 same');
+        Observer.Expect('one word 9 text, number 9', 'Yes 95680 same');
+        Observer.Expect('one word 0 text', 'Yes 95680 same');
+        Observer.Expect('underscore 9 text', 'Yes 95681 same');
+        Observer.Expect('underscore 9 text, number 9', 'Yes 95681 same');
+        Observer.Expect('underscore 0 text', 'Yes 95681 same');
+        Observer.Expect('hyphen 9 text', 'Yes 95682 same');
+        Observer.Expect('hyphen 9 text, number 9', 'Yes 95682 same');
+        Observer.Expect('hyphen 0 text', 'Yes 95682 same');
+        Observer.Expect('dot 9 text', 'Yes 95683 same');
+        Observer.Expect('dot 9 text, number 9', 'Yes 95683 same');
+        Observer.Expect('dot 0 text', 'Yes 95683 same');
+        Observer.Expect('slash 9 text', 'Yes 95684 same');
+        Observer.Expect('slash 9 text, number 9', 'Yes 95684 same');
+        Observer.Expect('slash 0 text', 'Yes 95684 same');
+        Observer.Expect('words 9 text', 'Yes 95689 same');
+        Observer.Expect('words 9 text, number 9', 'Yes 95689 same');
+        Observer.Expect('words 0 text', 'Yes 95689 same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -131,7 +149,16 @@ codeunit 61806 "R7326 RecordId Evaluate 9"
         RoundTrip(Observer, 'one word', Plain.RecordId);
         RoundTrip(Observer, 'words', Words.RecordId);
         RoundTrip(Observer, 'hyphen', Hyphen.RecordId);
-        Observer.Finish();
+        Observer.Expect('one word 9 text', 'Yes 95685 same');
+        Observer.Expect('one word 9 text, number 9', 'Yes 95685 same');
+        Observer.Expect('one word 0 text', 'Yes 95685 same');
+        Observer.Expect('words 9 text', 'Yes 95686 same');
+        Observer.Expect('words 9 text, number 9', 'Yes 95686 same');
+        Observer.Expect('words 0 text', 'Yes 95686 same');
+        Observer.Expect('hyphen 9 text', 'Yes 95687 same');
+        Observer.Expect('hyphen 9 text, number 9', 'Yes 95687 same');
+        Observer.Expect('hyphen 0 text', 'Yes 95687 same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -155,7 +182,23 @@ codeunit 61806 "R7326 RecordId Evaluate 9"
         RoundTrip(Observer, 'slash and space', Account.RecordId);
         Observer.Observe('period text', Format(Entry.RecordId, 0, 9));
         RoundTrip(Observer, 'period', Entry.RecordId);
-        Observer.Finish();
+        Observer.Expect('contact text', '[Microsoft.CRM.Contact.Contact]: CT7326');
+        Observer.Expect('contact 9 text', 'Yes 5050 same');
+        Observer.Expect('contact 9 text, number 9', 'Yes 5050 same');
+        Observer.Expect('contact 0 text', 'Yes 5050 same');
+        Observer.Expect('item text', '[Microsoft.Inventory.Item.Item]: IT7326');
+        Observer.Expect('item 9 text', 'Yes 27 same');
+        Observer.Expect('item 9 text, number 9', 'Yes 27 same');
+        Observer.Expect('item 0 text', 'Yes 27 same');
+        Observer.Expect('slash and space text', '[Microsoft.Finance.GeneralLedger.Account.G/L Account]: GL7326');
+        Observer.Expect('slash and space 9 text', 'Yes 15 same');
+        Observer.Expect('slash and space 9 text, number 9', 'Yes 15 same');
+        Observer.Expect('slash and space 0 text', 'Yes 15 same');
+        Observer.Expect('period text', '[Microsoft.Sales.Receivables."Cust. Ledger Entry"]: 7326');
+        Observer.Expect('period 9 text', 'Yes 21 same');
+        Observer.Expect('period 9 text, number 9', 'Yes 21 same');
+        Observer.Expect('period 0 text', 'Yes 21 same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -181,7 +224,19 @@ codeunit 61806 "R7326 RecordId Evaluate 9"
         RoundTrip(Observer, 'words, two key fields', MoveLine.RecordId);
         Observer.Observe('words, enum key field text', Format(SalesLine.RecordId, 0, 9));
         RoundTrip(Observer, 'words, enum key field', SalesLine.RecordId);
-        Observer.Finish();
+        Observer.Expect('period, four key fields text', '[Microsoft.Warehouse.Worksheet."Whse. Worksheet Line"]: TPL,BATCH,LOC,10000');
+        Observer.Expect('period, four key fields 9 text', 'Yes 7326 same');
+        Observer.Expect('period, four key fields 9 text, number 9', 'Yes 7326 same');
+        Observer.Expect('period, four key fields 0 text', 'Yes 7326 same');
+        Observer.Expect('words, two key fields text', '[Microsoft.Warehouse.InternalDocument.Internal Movement Line]: IM7326,10000');
+        Observer.Expect('words, two key fields 9 text', 'Yes 7347 same');
+        Observer.Expect('words, two key fields 9 text, number 9', 'Yes 7347 same');
+        Observer.Expect('words, two key fields 0 text', 'Yes 7347 same');
+        Observer.Expect('words, enum key field text', '[Microsoft.Sales.Document.Sales Line]: 1,SO7326,10000');
+        Observer.Expect('words, enum key field 9 text', 'Yes 37 same');
+        Observer.Expect('words, enum key field 9 text, number 9', 'Yes 37 same');
+        Observer.Expect('words, enum key field 0 text', 'Yes 37 same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -207,7 +262,17 @@ codeunit 61806 "R7326 RecordId Evaluate 9"
         ReadAsStatement(Observer, Format(Words.RecordId, 0, 9));
         ReadAsStatement(Observer, Format(WhseLine.RecordId, 0, 9));
         ReadAsStatement(Observer, Format(It.RecordId, 0, 9));
-        Observer.Finish();
+        Observer.Expect('[LT.R7003.Data.R7003Row]: 7|text', 'no error: 95680 [[LT.R7003.Data.R7003Row]: 7]');
+        Observer.Expect('[LT.R7003.Data.R7003Row]: 7|code', 'Dialog');
+        Observer.Expect('[LT.R7003.Data."R7003.Dot"]: 7|text', 'no error: 95683 [[LT.R7003.Data."R7003.Dot"]: 7]');
+        Observer.Expect('[LT.R7003.Data."R7003.Dot"]: 7|code', 'Dialog');
+        Observer.Expect('[LT.R7003.Data.R7003 Ns Words]: 7|text', 'no error: 95689 [[LT.R7003.Data.R7003 Ns Words]: 7]');
+        Observer.Expect('[LT.R7003.Data.R7003 Ns Words]: 7|code', 'Dialog');
+        Observer.Expect('[Microsoft.Warehouse.Worksheet."Whse. Worksheet Line"]: TPL,BATCH,LOC,10000|text', 'no error: 7326 [[Microsoft.Warehouse.Worksheet."Whse. Worksheet Line"]: TPL,BATCH,LOC,10000]');
+        Observer.Expect('[Microsoft.Warehouse.Worksheet."Whse. Worksheet Line"]: TPL,BATCH,LOC,10000|code', 'Dialog');
+        Observer.Expect('[Microsoft.Inventory.Item.Item]: IT7326|text', 'no error: 27 [[Microsoft.Inventory.Item.Item]: IT7326]');
+        Observer.Expect('[Microsoft.Inventory.Item.Item]: IT7326|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -229,7 +294,15 @@ codeunit 61806 "R7326 RecordId Evaluate 9"
         Read(Observer, '[LT.R7003.Data."R7003.Dot"]:7', Dot.RecordId);
         Read(Observer, '[LT.R7003.Data."R7003.Dot"]', Dot.RecordId);
         Read(Observer, '[LT.R7003.Data."R7003.Dot"]: ', Dot.RecordId);
-        Observer.Finish();
+        Observer.Expect('[LT.R7003.Data."R7003Row"]: 7', 'Yes 95680 same');
+        Observer.Expect('[LT.R7003.Data."R7003 Ns Words"]: 7', 'Yes 95689 same');
+        Observer.Expect('[LT.R7003.Data.R7003.Dot]: 7', 'No 0 []');
+        Observer.Expect('["LT.R7003.Data.R7003Row"]: 7', 'No 0 []');
+        Observer.Expect('["LT.R7003.Data"."R7003Row"]: 7', 'No 0 []');
+        Observer.Expect('[LT.R7003.Data."R7003.Dot"]:7', 'Yes 95683 same');
+        Observer.Expect('[LT.R7003.Data."R7003.Dot"]', 'Yes 95683 [[LT.R7003.Data."R7003.Dot"]]');
+        Observer.Expect('[LT.R7003.Data."R7003.Dot"]: ', 'Yes 95683 [[LT.R7003.Data."R7003.Dot"]]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -252,7 +325,29 @@ codeunit 61806 "R7326 RecordId Evaluate 9"
         Read(Observer, '[R7003Plain]: 7', Plain.RecordId);
         Read(Observer, '[LT.R7003.Data.R7003Plain]: 7', Plain.RecordId);
         Read(Observer, '"R7003Plain": 7', Plain.RecordId);
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('[R7003Row]: 7', 'Yes 95680 same');
+        Observer.Expect('["R7003.Dot"]: 7', 'No 0 []');
+        Observer.Expect('[LT.Wrong.R7003Row]: 7', 'No 0 []');
+        Observer.Expect('[Data.R7003Row]: 7', 'No 0 []');
+        Observer.Expect('[lt.r7003.data.r7003row]: 7', 'No 0 []');
+        Observer.Expect('LT.R7003.Data.R7003Row: 7', 'No 0 []');
+        Observer.Expect('[R7003Plain]: 7', 'Yes 95685 same');
+        Observer.Expect('[LT.R7003.Data.R7003Plain]: 7', 'No 0 []');
+        Observer.Expect('"R7003Plain": 7', 'Yes 95685 same');
+        Observer.Verify();
+#else
+        Observer.Expect('[R7003Row]: 7', 'No 0 []');
+        Observer.Expect('["R7003.Dot"]: 7', 'No 0 []');
+        Observer.Expect('[LT.Wrong.R7003Row]: 7', 'No 0 []');
+        Observer.Expect('[Data.R7003Row]: 7', 'No 0 []');
+        Observer.Expect('[lt.r7003.data.r7003row]: 7', 'No 0 []');
+        Observer.Expect('LT.R7003.Data.R7003Row: 7', 'No 0 []');
+        Observer.Expect('[R7003Plain]: 7', 'No 0 []');
+        Observer.Expect('[LT.R7003.Data.R7003Plain]: 7', 'No 0 []');
+        Observer.Expect('"R7003Plain": 7', 'Yes 95685 same');
+        Observer.Verify();
+#endif
     end;
 
     [Test]
@@ -264,7 +359,27 @@ codeunit 61806 "R7326 RecordId Evaluate 9"
         ReadAsStatement(Observer, '[LT.R7003.Data.R7003.Dot]: 7');
         ReadAsStatement(Observer, '[R7003Row]: 7');
         ReadAsStatement(Observer, '[LT.R7003.Data.NoSuchTable]: 7');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('[LT.Wrong.R7003Row]: 7|text', 'The value "[LT.Wrong.R7003Row]: 7" can''t be evaluated into type RecordID.');
+        Observer.Expect('[LT.Wrong.R7003Row]: 7|code', 'Evaluate');
+        Observer.Expect('[LT.R7003.Data.R7003.Dot]: 7|text', 'The value "[LT.R7003.Data.R7003.Dot]: 7" can''t be evaluated into type RecordID.');
+        Observer.Expect('[LT.R7003.Data.R7003.Dot]: 7|code', 'Evaluate');
+        Observer.Expect('[R7003Row]: 7|text', 'no error: 95680 [[LT.R7003.Data.R7003Row]: 7]');
+        Observer.Expect('[R7003Row]: 7|code', 'Dialog');
+        Observer.Expect('[LT.R7003.Data.NoSuchTable]: 7|text', 'The value "[LT.R7003.Data.NoSuchTable]: 7" can''t be evaluated into type RecordID.');
+        Observer.Expect('[LT.R7003.Data.NoSuchTable]: 7|code', 'Evaluate');
+        Observer.Verify();
+#else
+        Observer.Expect('[LT.Wrong.R7003Row]: 7|text', 'The value "[LT.Wrong.R7003Row]: 7" can''t be evaluated into type RecordID.');
+        Observer.Expect('[LT.Wrong.R7003Row]: 7|code', 'Evaluate');
+        Observer.Expect('[LT.R7003.Data.R7003.Dot]: 7|text', 'The value "[LT.R7003.Data.R7003.Dot]: 7" can''t be evaluated into type RecordID.');
+        Observer.Expect('[LT.R7003.Data.R7003.Dot]: 7|code', 'Evaluate');
+        Observer.Expect('[R7003Row]: 7|text', 'The value "[R7003Row]: 7" can''t be evaluated into type RecordID.');
+        Observer.Expect('[R7003Row]: 7|code', 'Evaluate');
+        Observer.Expect('[LT.R7003.Data.NoSuchTable]: 7|text', 'The value "[LT.R7003.Data.NoSuchTable]: 7" can''t be evaluated into type RecordID.');
+        Observer.Expect('[LT.R7003.Data.NoSuchTable]: 7|code', 'Evaluate');
+        Observer.Verify();
+#endif
     end;
 
     [Test]
@@ -296,7 +411,11 @@ codeunit 61806 "R7326 RecordId Evaluate 9"
         Clear(Holder);
         Ok := Evaluate(Holder.Ref, Format(WhseLine.RecordId, 0, 9));
         Observer.Observe('Base Application, period', Outcome(Ok, Holder.Ref, WhseLine.RecordId));
-        Observer.Finish();
+        Observer.Expect('one word', 'Yes 95680 same');
+        Observer.Expect('dot', 'Yes 95683 same');
+        Observer.Expect('words', 'Yes 95689 same');
+        Observer.Expect('Base Application, period', 'Yes 7326 same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -322,7 +441,17 @@ codeunit 61806 "R7326 RecordId Evaluate 9"
         ThroughFieldRef(Observer, 'words', Words.RecordId);
         ThroughFieldRef(Observer, 'Base Application, period', WhseLine.RecordId);
         ThroughFieldRef(Observer, 'Base Application, one word', It.RecordId);
-        Observer.Finish();
+        Observer.Expect('one word', 'Yes 95680 same');
+        Observer.Expect('one word, number 9', 'Yes 95680 same');
+        Observer.Expect('dot', 'Yes 95683 same');
+        Observer.Expect('dot, number 9', 'Yes 95683 same');
+        Observer.Expect('words', 'Yes 95689 same');
+        Observer.Expect('words, number 9', 'Yes 95689 same');
+        Observer.Expect('Base Application, period', 'Yes 7326 same');
+        Observer.Expect('Base Application, period, number 9', 'Yes 7326 same');
+        Observer.Expect('Base Application, one word', 'Yes 27 same');
+        Observer.Expect('Base Application, one word, number 9', 'Yes 27 same');
+        Observer.Verify();
     end;
 
     local procedure ThroughFieldRef(var Observer: Codeunit "Probe Observer"; Name: Text; Id: RecordId)
