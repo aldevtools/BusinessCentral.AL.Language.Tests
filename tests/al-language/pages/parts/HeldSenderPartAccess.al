@@ -9,6 +9,9 @@
 //   page is still the first instance), and from the factbox's OnAfterGetCurrRecord event while a second TestPage of the same host opens. Also the shape
 //   where the variable was never assigned (pinned by NeverRanReadRec.al, observed again here as the control).
 // BC versions: 27, 28, 29
+// singleinstance-shared-on-purpose: "LT HS Shape Log" (99628) and "LT HS Shape Subs" (99627) serve the four shape test codeunits 99629-99632;
+//   the first test of each calls Subs.Reset() and ShapeLog.Setup(), which clear every global of both, so nothing carries from one of them to
+//   the next (measured on 27.5, 28.5 and 29.0: each starts again at h1). The held page within one codeunit is the measurement.
 
 table 99620 "LT HS Row"
 {

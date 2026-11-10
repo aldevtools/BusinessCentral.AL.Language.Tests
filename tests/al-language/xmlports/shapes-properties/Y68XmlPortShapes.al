@@ -8,6 +8,8 @@
 //       export: blank and filled).
 //   Q6  LinkTableForceInsert = true on a linked table element (import and export) against the same port without it.
 // Probe: values recorded on the BC 29 SaaS sandbox; other BC versions are checked by the corpus CI matrix.
+// singleinstance-shared-on-purpose: "LT Y68 XP Log" (93661) is the trigger log of the LT Y68 XP tables; every test codeunit that reads it
+//   (this file, XpLinkTableForceInsertUnlinked.al, XpRootTableNoChildren.al) empties it with Take() before each step, so nothing carries over.
 
 table 93656 "LT Y68 XP Parent"
 {
