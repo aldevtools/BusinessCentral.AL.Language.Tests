@@ -126,7 +126,7 @@ page 99621 "LT HS Part"
 
     var
         Touches: Integer;
-        Mark: Text;
+        MarkText: Text;
 
     procedure ReadRec(): Text
     begin
@@ -141,12 +141,12 @@ page 99621 "LT HS Part"
 
     procedure SetMark(NewMark: Text)
     begin
-        Mark := NewMark;
+        MarkText := NewMark;
     end;
 
     procedure GetMark(): Text
     begin
-        exit(Mark);
+        exit(MarkText);
     end;
 }
 
