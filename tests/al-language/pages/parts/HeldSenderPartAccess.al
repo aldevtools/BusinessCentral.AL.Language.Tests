@@ -314,7 +314,9 @@ codeunit 99621 "LT HS Tests"
     begin
         ObserveReach('next-test', Observer);
         Observer.Expect('next-test.touch', '3');
-        Observer.Expect('next-test.read', 'id=1 name=one count=0');
+        // count=1: HS01 passed, so the row its Seed inserted is still there (corpus CI runs 42852051955, 42852147350, 42852238076: BC 27.5,
+        // 28.5, 29.0). While HS01 was still in observation form it failed, its row was rolled back, and this read gave count=0.
+        Observer.Expect('next-test.read', 'id=1 name=one count=1');
         Observer.Expect('next-test.mark', 'm');
         Observer.Expect('next-test.host', 'id=1 name=one');
         Observer.Verify();

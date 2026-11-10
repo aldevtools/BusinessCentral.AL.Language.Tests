@@ -398,7 +398,14 @@ codeunit 62390 "PAG AddRows Tests"
     procedure EmptyDelayedInsertList_ActionRunsReportWithRequestPage_Close()
     begin
         RunDelayed(1, 2);
-        Observer.Finish();
+        Observer.Expect('row before', '[P1 0 ]');
+        Observer.Expect('stored after action', '[P1 10000 by report 1][P1 20000 by report 2][P1 30000 by report 3]');
+        Observer.Expect('row after action', '[P1 0 ]');
+        Observer.Expect('close', 'Yes');
+        Observer.Expect('closing|text', '');
+        Observer.Expect('closing|code', '');
+        Observer.Expect('stored after closing', '[P1 10000 by report 1][P1 20000 by report 2][P1 30000 by report 3]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -462,7 +469,14 @@ codeunit 62390 "PAG AddRows Tests"
     procedure EmptyPlainList_ActionRunsReportWithRequestPage_Ok()
     begin
         RunPlain(1);
-        Observer.Finish();
+        Observer.Expect('row before', '[P1 0 ]');
+        Observer.Expect('stored after action', '[P1 10000 by report 1][P1 20000 by report 2][P1 30000 by report 3]');
+        Observer.Expect('row after action', '[P1 0 ]');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('closing|text', '');
+        Observer.Expect('closing|code', '');
+        Observer.Expect('stored after closing', '[P1 10000 by report 1][P1 20000 by report 2][P1 30000 by report 3]');
+        Observer.Verify();
     end;
 
     [Test]
