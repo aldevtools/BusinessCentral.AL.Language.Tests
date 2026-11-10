@@ -316,7 +316,10 @@ codeunit 70498 "LT HO Outside Chain"
         Seed();
         Log.Reset(false);
         NewDoc(Card);
-        Observer.Finish();
+        Observer.Expect('new', 'docs=2 log=[host-open | fb-open() | host-row() | fb-row()]');
+        Observer.Expect('keyed', 'docs=2 log=[fb-row()]');
+        Observer.Expect('closed', 'docs=3 log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -327,7 +330,10 @@ codeunit 70498 "LT HO Outside Chain"
         Seed();
         Log.Reset(true);
         NewDoc(Card);
-        Observer.Finish();
+        Observer.Expect('new', 'docs=2 log=[host-open | fb-open() | host-row() | fb-row()]');
+        Observer.Expect('keyed', 'docs=2 log=[fb-row()]');
+        Observer.Expect('closed', 'docs=3 log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -338,7 +344,10 @@ codeunit 70498 "LT HO Outside Chain"
         Seed();
         Log.Reset(false);
         NewDocPlain(Card);
-        Observer.Finish();
+        Observer.Expect('new', 'docs=2 log=[host-open | fb-open() | host-row() | fb-row()]');
+        Observer.Expect('keyed', 'docs=2 log=[fb-row()]');
+        Observer.Expect('closed', 'docs=3 log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -349,7 +358,10 @@ codeunit 70498 "LT HO Outside Chain"
         Seed();
         Log.Reset(true);
         NewDocPlain(Card);
-        Observer.Finish();
+        Observer.Expect('new', 'docs=2 log=[host-open | fb-open() | host-row() | fb-row()]');
+        Observer.Expect('keyed', 'docs=2 log=[fb-row()]');
+        Observer.Expect('closed', 'docs=3 log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -368,7 +380,11 @@ codeunit 70498 "LT HO Outside Chain"
         Card.Next();
         Say('next');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'docs=2 log=[host-open | fb-open() | host-row(H1) | fb-row(H1)]');
+        Observer.Expect('gotokey_h2', 'docs=2 log=[host-row(H1) | host-row(H2) | fb-row(H2)]');
+        Observer.Expect('previous', 'docs=2 log=[host-row(H1) | fb-row(H1)]');
+        Observer.Expect('next', 'docs=2 log=[host-row(H2) | fb-row(H2)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -387,7 +403,11 @@ codeunit 70498 "LT HO Outside Chain"
         Card.Next();
         Say('next');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'docs=2 log=[host-open | fb-open() | host-row(H1) | fb-row(H1)]');
+        Observer.Expect('gotokey_h2', 'docs=2 log=[host-row(H1) | host-row(H2) | fb-row(H2)]');
+        Observer.Expect('previous', 'docs=2 log=[host-row(H1) | fb-row(H1)]');
+        Observer.Expect('next', 'docs=2 log=[host-row(H2) | fb-row(H2)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -406,7 +426,11 @@ codeunit 70498 "LT HO Outside Chain"
         Card.Next();
         Say('next');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'docs=2 log=[host-open | fb-open() | host-row(H1) | fb-row(H1)]');
+        Observer.Expect('gotokey_h2', 'docs=2 log=[host-row(H1) | host-row(H2) | fb-row(H2)]');
+        Observer.Expect('previous', 'docs=2 log=[host-row(H1) | fb-row(H1)]');
+        Observer.Expect('next', 'docs=2 log=[host-row(H2) | fb-row(H2)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -425,6 +449,10 @@ codeunit 70498 "LT HO Outside Chain"
         Card.Next();
         Say('next');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'docs=2 log=[host-open | fb-open() | host-row(H1) | fb-row(H1)]');
+        Observer.Expect('gotokey_h2', 'docs=2 log=[host-row(H1) | host-row(H2) | fb-row(H2)]');
+        Observer.Expect('previous', 'docs=2 log=[host-row(H1) | fb-row(H1)]');
+        Observer.Expect('next', 'docs=2 log=[host-row(H2) | fb-row(H2)]');
+        Observer.Verify();
     end;
 }
