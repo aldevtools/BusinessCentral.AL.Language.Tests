@@ -180,7 +180,8 @@ codeunit 66394 "RRF EnVar Tests"
             Observer.Observe('GetEnumValueNameFromOrdinalValue(FRef.Value())', Result)
         else
             Observer.ObserveError('GetEnumValueNameFromOrdinalValue(FRef.Value())');
-        Observer.Finish();
+        Observer.Expect('GetEnumValueNameFromOrdinalValue(FRef.Value())', 'First');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -204,7 +205,22 @@ codeunit 66394 "RRF EnVar Tests"
         FieldRefMethods(Observer, 'First', Fld, Fld.Value());
         OpenKind(Ref, Fld, Kind::Fifth);
         FieldRefMethods(Observer, 'Fifth', Fld, Fld.Value());
-        Observer.Finish();
+        Observer.Expect('None name from ordinal', 'None');
+        Observer.Expect('None caption from ordinal', 'None');
+        Observer.Expect('None name by index', '');
+        Observer.Expect('None caption by index', '');
+        Observer.Expect('None ordinal by index', '-1');
+        Observer.Expect('First name from ordinal', 'First');
+        Observer.Expect('First caption from ordinal', 'First');
+        Observer.Expect('First name by index', 'None');
+        Observer.Expect('First caption by index', 'None');
+        Observer.Expect('First ordinal by index', '0');
+        Observer.Expect('Fifth name from ordinal', 'Fifth');
+        Observer.Expect('Fifth caption from ordinal', 'Fifth');
+        Observer.Expect('Fifth name by index', 'Ext Value');
+        Observer.Expect('Fifth caption by index', 'Ext Cap');
+        Observer.Expect('Fifth ordinal by index', '66392');
+        Observer.Verify();
     end;
 
     [Test]
@@ -220,7 +236,17 @@ codeunit 66394 "RRF EnVar Tests"
         FieldRefMethods(Observer, 'Twenty', Fld, Fld.Value());
         OpenKind(Ref, Fld, Kind::"Ext Value");
         FieldRefMethods(Observer, 'Ext', Fld, Fld.Value());
-        Observer.Finish();
+        Observer.Expect('Twenty name from ordinal', 'Twenty Name');
+        Observer.Expect('Twenty caption from ordinal', 'Twenty Cap');
+        Observer.Expect('Twenty name by index', '');
+        Observer.Expect('Twenty caption by index', '');
+        Observer.Expect('Twenty ordinal by index', '-1');
+        Observer.Expect('Ext name from ordinal', 'Ext Value');
+        Observer.Expect('Ext caption from ordinal', 'Ext Cap');
+        Observer.Expect('Ext name by index', '');
+        Observer.Expect('Ext caption by index', '');
+        Observer.Expect('Ext ordinal by index', '-1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -234,7 +260,15 @@ codeunit 66394 "RRF EnVar Tests"
         Initialize();
         OpenKind(Ref, Fld, Kind::First);
         OwnParameters(Observer, 'First', Fld, Fld.Value());
-        Observer.Finish();
+        Observer.Expect('First integer parameter', '1');
+        Observer.Expect('First biginteger parameter', '1');
+        Observer.Expect('First decimal parameter', '1');
+        Observer.Expect('First text parameter', 'E: The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value. [TypeConversion]');
+        Observer.Expect('First option parameter', 'One/1');
+        Observer.Expect('First integer variable', '1');
+        Observer.Expect('First format', 'First|1|1');
+        Observer.Expect('First kind', 'IsInteger=No IsOption=Yes IsText=No IsCode=No IsDecimal=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -248,7 +282,15 @@ codeunit 66394 "RRF EnVar Tests"
         Initialize();
         OpenKind(Ref, Fld, Kind::Fifth);
         OwnParameters(Observer, 'Fifth', Fld, Fld.Value());
-        Observer.Finish();
+        Observer.Expect('Fifth integer parameter', '5');
+        Observer.Expect('Fifth biginteger parameter', '5');
+        Observer.Expect('Fifth decimal parameter', '5');
+        Observer.Expect('Fifth text parameter', 'E: The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value. [TypeConversion]');
+        Observer.Expect('Fifth option parameter', '5/5');
+        Observer.Expect('Fifth integer variable', '5');
+        Observer.Expect('Fifth format', 'Fifth|5|5');
+        Observer.Expect('Fifth kind', 'IsInteger=No IsOption=Yes IsText=No IsCode=No IsDecimal=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -262,7 +304,15 @@ codeunit 66394 "RRF EnVar Tests"
         Initialize();
         OpenKind(Ref, Fld, Kind::"Ext Value");
         OwnParameters(Observer, 'Ext', Fld, Fld.Value());
-        Observer.Finish();
+        Observer.Expect('Ext integer parameter', '66392');
+        Observer.Expect('Ext biginteger parameter', '66392');
+        Observer.Expect('Ext decimal parameter', '66392');
+        Observer.Expect('Ext text parameter', 'E: The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value. [TypeConversion]');
+        Observer.Expect('Ext option parameter', '66392/66392');
+        Observer.Expect('Ext integer variable', '66392');
+        Observer.Expect('Ext format', 'Ext Cap|66392|66392');
+        Observer.Expect('Ext kind', 'IsInteger=No IsOption=Yes IsText=No IsCode=No IsDecimal=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -279,7 +329,12 @@ codeunit 66394 "RRF EnVar Tests"
         Kind := Kind::Fifth;
         V := Kind;
         FieldRefMethods(Observer, 'variable Fifth', Fld, V);
-        Observer.Finish();
+        Observer.Expect('variable Fifth name from ordinal', 'Fifth');
+        Observer.Expect('variable Fifth caption from ordinal', 'Fifth');
+        Observer.Expect('variable Fifth name by index', 'Ext Value');
+        Observer.Expect('variable Fifth caption by index', 'Ext Cap');
+        Observer.Expect('variable Fifth ordinal by index', '66392');
+        Observer.Verify();
     end;
 
     [Test]
@@ -296,7 +351,15 @@ codeunit 66394 "RRF EnVar Tests"
         Kind := Kind::Fifth;
         V := Kind;
         OwnParameters(Observer, 'variable Fifth', Fld, V);
-        Observer.Finish();
+        Observer.Expect('variable Fifth integer parameter', '5');
+        Observer.Expect('variable Fifth biginteger parameter', '5');
+        Observer.Expect('variable Fifth decimal parameter', '5');
+        Observer.Expect('variable Fifth text parameter', 'E: The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value. [TypeConversion]');
+        Observer.Expect('variable Fifth option parameter', '5/5');
+        Observer.Expect('variable Fifth integer variable', '5');
+        Observer.Expect('variable Fifth format', 'Fifth|5|5');
+        Observer.Expect('variable Fifth kind', 'IsInteger=No IsOption=Yes IsText=No IsCode=No IsDecimal=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -314,7 +377,12 @@ codeunit 66394 "RRF EnVar Tests"
         R.Kind := R.Kind::"Twenty Name";
         V := R.Kind;
         FieldRefMethods(Observer, 'field Twenty', Fld, V);
-        Observer.Finish();
+        Observer.Expect('field Twenty name from ordinal', 'Twenty Name');
+        Observer.Expect('field Twenty caption from ordinal', 'Twenty Cap');
+        Observer.Expect('field Twenty name by index', '');
+        Observer.Expect('field Twenty caption by index', '');
+        Observer.Expect('field Twenty ordinal by index', '-1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -332,7 +400,15 @@ codeunit 66394 "RRF EnVar Tests"
         R.Kind := R.Kind::"Twenty Name";
         V := R.Kind;
         OwnParameters(Observer, 'field Twenty', Fld, V);
-        Observer.Finish();
+        Observer.Expect('field Twenty integer parameter', '20');
+        Observer.Expect('field Twenty biginteger parameter', '20');
+        Observer.Expect('field Twenty decimal parameter', '20');
+        Observer.Expect('field Twenty text parameter', 'E: The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value. [TypeConversion]');
+        Observer.Expect('field Twenty option parameter', '20/20');
+        Observer.Expect('field Twenty integer variable', '20');
+        Observer.Expect('field Twenty format', 'Twenty Cap|20|20');
+        Observer.Expect('field Twenty kind', 'IsInteger=No IsOption=Yes IsText=No IsCode=No IsDecimal=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -355,7 +431,14 @@ codeunit 66394 "RRF EnVar Tests"
         OptFld.Value := 1;
         Cell(Observer, 'option FieldRef.Value', 'name from ordinal', Fld, OptFld.Value());
         Cell(Observer, 'option FieldRef.Value', 'integer parameter', Fld, OptFld.Value());
-        Observer.Finish();
+        Observer.Expect('option One name from ordinal', 'First');
+        Observer.Expect('option One caption from ordinal', 'First');
+        Observer.Expect('option One name by index', 'None');
+        Observer.Expect('option One caption by index', 'None');
+        Observer.Expect('option One ordinal by index', '0');
+        Observer.Expect('option FieldRef.Value name from ordinal', 'First');
+        Observer.Expect('option FieldRef.Value integer parameter', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -374,7 +457,14 @@ codeunit 66394 "RRF EnVar Tests"
         V := 7;
         Cell(Observer, 'integer 7 (no member)', 'name from ordinal', Fld, V);
         Cell(Observer, 'integer 7 (no member)', 'caption from ordinal', Fld, V);
-        Observer.Finish();
+        Observer.Expect('integer 5 name from ordinal', 'Fifth');
+        Observer.Expect('integer 5 caption from ordinal', 'Fifth');
+        Observer.Expect('integer 5 name by index', 'Ext Value');
+        Observer.Expect('integer 5 caption by index', 'Ext Cap');
+        Observer.Expect('integer 5 ordinal by index', '66392');
+        Observer.Expect('integer 7 (no member) name from ordinal', '');
+        Observer.Expect('integer 7 (no member) caption from ordinal', '7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -392,6 +482,12 @@ codeunit 66394 "RRF EnVar Tests"
         OptFld := Ref.Field(R.FieldNo(Opt));
         FieldRefMethods(Observer, 'enum First on the option field', OptFld, KindFld.Value());
         Cell(Observer, 'enum First', 'option parameter', OptFld, KindFld.Value());
-        Observer.Finish();
+        Observer.Expect('enum First on the option field name from ordinal', 'One');
+        Observer.Expect('enum First on the option field caption from ordinal', 'One');
+        Observer.Expect('enum First on the option field name by index', 'Zero');
+        Observer.Expect('enum First on the option field caption by index', 'Zero');
+        Observer.Expect('enum First on the option field ordinal by index', '0');
+        Observer.Expect('enum First option parameter', 'One/1');
+        Observer.Verify();
     end;
 }

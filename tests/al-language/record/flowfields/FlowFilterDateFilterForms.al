@@ -161,7 +161,14 @@ codeunit 66352 "REC FfDate Tests"
         Fresh(C);
         C.SetRange("Date Filter", 20260116D);
         State(Observer, 'one date without rows', C);
-        Observer.Finish();
+        Observer.Expect('not set', 'typeff=6 typef=6 ff=6 f=6 sum=63 exist=true min= lookup=1');
+        Observer.Expect('SetRange one date', 'typeff=2 typef=2 ff=2 f=2 sum=6 exist=true min=2026-01-15 lookup=2');
+        Observer.Expect('SetFilter %1 one date', 'typeff=2 typef=2 ff=2 f=2 sum=6 exist=true min=2026-01-15 lookup=2');
+        Observer.Expect('text of the date is the filter text', 'Yes');
+        Observer.Expect('SetFilter text of the date', 'typeff=2 typef=2 ff=2 f=2 sum=6 exist=true min=2026-01-15 lookup=2');
+        Observer.Expect('SetFilter =%1', 'typeff=2 typef=2 ff=2 f=2 sum=6 exist=true min=2026-01-15 lookup=2');
+        Observer.Expect('one date without rows', 'typeff=0 typef=0 ff=0 f=0 sum=0 exist=false min= lookup=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -189,7 +196,13 @@ codeunit 66352 "REC FfDate Tests"
         Fresh(C);
         C.SetFilter("Date Filter", '%1..%2', 20260120D, 20260110D);
         State(Observer, 'reversed range', C);
-        Observer.Finish();
+        Observer.Expect('closed range', 'typeff=3 typef=3 ff=3 f=3 sum=7 exist=true min=2026-01-10 lookup=1');
+        Observer.Expect('from', 'typeff=4 typef=4 ff=4 f=4 sum=46 exist=true min=2026-01-15 lookup=2');
+        Observer.Expect('up to', 'typeff=4 typef=4 ff=4 f=4 sum=23 exist=true min= lookup=1');
+        Observer.Expect('greater', 'typeff=2 typef=2 ff=2 f=2 sum=40 exist=true min=2026-01-20 lookup=4');
+        Observer.Expect('less', 'typeff=2 typef=2 ff=2 f=2 sum=17 exist=true min= lookup=1');
+        Observer.Expect('reversed range', 'typeff=0 typef=0 ff=0 f=0 sum=0 exist=false min= lookup=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -222,7 +235,16 @@ codeunit 66352 "REC FfDate Tests"
         Fresh(C);
         C.SetFilter("Date Filter", '%1..%2|%3', 20260110D, 20260115D, 20260201D);
         State(Observer, 'range or date', C);
-        Observer.Finish();
+        Observer.Expect('two dates', 'typeff=2 typef=2 ff=2 f=2 sum=33 exist=true min=2026-01-10 lookup=1');
+        Observer.Expect('not equal', 'typeff=4 typef=4 ff=4 f=4 sum=57 exist=true min= lookup=1');
+        Observer.Expect('GetFilter after SetRange 0D', '''''');
+        Observer.Expect('SetRange blank date', 'typeff=1 typef=1 ff=1 f=1 sum=16 exist=true min= lookup=5');
+        Observer.Expect('GetFilter after <>%1 0D', '<>''''');
+        Observer.Expect('not blank date', 'typeff=5 typef=5 ff=5 f=5 sum=47 exist=true min=2026-01-10 lookup=1');
+        Observer.Expect('GetFilter after two quotes', '''''');
+        Observer.Expect('two quotes', 'typeff=1 typef=1 ff=1 f=1 sum=16 exist=true min= lookup=5');
+        Observer.Expect('range or date', 'typeff=4 typef=4 ff=4 f=4 sum=39 exist=true min=2026-01-10 lookup=1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -247,7 +269,14 @@ codeunit 66352 "REC FfDate Tests"
         State(Observer, 'type Z, closed range', C);
         C.SetRange("Date Filter");
         State(Observer, 'type Z, date cleared', C);
-        Observer.Finish();
+        Observer.Expect('type A, date not set', 'typeff=4 typef=4 ff=6 f=6 sum=63 exist=true min= lookup=1');
+        Observer.Expect('type A, one date as text', 'typeff=1 typef=1 ff=2 f=2 sum=6 exist=true min=2026-01-15 lookup=2');
+        Observer.Expect('type A, closed range', 'typeff=3 typef=3 ff=4 f=4 sum=15 exist=true min=2026-01-10 lookup=1');
+        Observer.Expect('type B, closed range', 'typeff=1 typef=1 ff=4 f=4 sum=15 exist=true min=2026-01-10 lookup=1');
+        Observer.Expect('type A or B, closed range', 'typeff=4 typef=4 ff=4 f=4 sum=15 exist=true min=2026-01-10 lookup=1');
+        Observer.Expect('type Z, closed range', 'typeff=0 typef=0 ff=4 f=4 sum=15 exist=true min=2026-01-10 lookup=1');
+        Observer.Expect('type Z, date cleared', 'typeff=0 typef=0 ff=6 f=6 sum=63 exist=true min= lookup=1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -278,7 +307,15 @@ codeunit 66352 "REC FfDate Tests"
             Observer.Observe('value 16 Jan, saved', StrSubstNo('ff=%1 f=%2', C.CntValueFf, C.CntValueF))
         else
             Observer.ObserveError('value 16 Jan, saved');
-        Observer.Finish();
+        Observer.Expect('value blank|text', 'The following field must be a code or text field:\\Field: Date Value\Type: Date\Table: REC FfDate Cue');
+        Observer.Expect('value blank|code', 'DB:ValueIsFilterNotStr');
+        Observer.Expect('value 15 Jan, not saved|text', 'The following field must be a code or text field:\\Field: Date Value\Type: Date\Table: REC FfDate Cue');
+        Observer.Expect('value 15 Jan, not saved|code', 'DB:ValueIsFilterNotStr');
+        Observer.Expect('value 15 Jan, saved|text', 'The following field must be a code or text field:\\Field: Date Value\Type: Date\Table: REC FfDate Cue');
+        Observer.Expect('value 15 Jan, saved|code', 'DB:ValueIsFilterNotStr');
+        Observer.Expect('value 16 Jan, saved|text', 'The following field must be a code or text field:\\Field: Date Value\Type: Date\Table: REC FfDate Cue');
+        Observer.Expect('value 16 Jan, saved|code', 'DB:ValueIsFilterNotStr');
+        Observer.Verify();
     end;
 
     local procedure TextState(var Observer: Codeunit "Probe Observer"; Name: Text; Value: Text[30])
@@ -308,6 +345,12 @@ codeunit 66352 "REC FfDate Tests"
         TextState(Observer, 'from', CopyStr(Format(20260115D) + '..', 1, 30));
         TextState(Observer, 'two quotes', '''''');
         TextState(Observer, 'not a date', 'abc');
-        Observer.Finish();
+        Observer.Expect('blank text', '6');
+        Observer.Expect('one date', '2');
+        Observer.Expect('range', '3');
+        Observer.Expect('from', '4');
+        Observer.Expect('two quotes', '1');
+        Observer.Expect('not a date', 'E: The format of the Date ''abc'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. [InvalidFilterExpression:Evaluate]');
+        Observer.Verify();
     end;
 }

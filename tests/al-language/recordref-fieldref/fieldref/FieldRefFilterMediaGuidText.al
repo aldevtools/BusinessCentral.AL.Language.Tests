@@ -230,7 +230,20 @@ codeunit 66306 "RRF MediaGuid Tests"
     begin
         Initialize();
         FixedForms(Observer, 3);
-        Observer.Finish();
+        Observer.Expect('eq', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('eq bare', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('eq lower', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('eq quoted', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('eqsign', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('ne', '<>{11F319D9-C18B-449D-A6BC-6E725A266949} | 1 2 3 ');
+        Observer.Expect('gt', '>{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('lt', '<{11F319D9-C18B-449D-A6BC-6E725A266949} | 1 2 3 ');
+        Observer.Expect('or', '{11F319D9-C18B-449D-A6BC-6E725A266949}|{F1F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('range', '{11F319D9-C18B-449D-A6BC-6E725A266949}..{F1F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('ne and ne', '<>{11F319D9-C18B-449D-A6BC-6E725A266949}&<>{F1F319D9-C18B-449D-A6BC-6E725A266949} | 1 2 3 ');
+        Observer.Expect('empty guid', '{00000000-0000-0000-0000-000000000000} | 1 3 ');
+        Observer.Expect('ne empty guid', '<>{00000000-0000-0000-0000-000000000000} | 2 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -240,7 +253,33 @@ codeunit 66306 "RRF MediaGuid Tests"
     begin
         Initialize();
         ArgForms(Observer, 3);
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('text arg eq', 'E: The value "{11F319D9-C18B-449D-A6BC-6E725A266949}" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Expect('text arg ne', 'E: The value "{11F319D9-C18B-449D-A6BC-6E725A266949}" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Expect('guid arg eq', 'E: The value "{11F319D9-C18B-449D-A6BC-6E725A266949}" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Expect('guid arg ne', 'E: The value "{11F319D9-C18B-449D-A6BC-6E725A266949}" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Expect('guid arg ge', 'E: The value "{11F319D9-C18B-449D-A6BC-6E725A266949}" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Expect('empty guid arg eq', 'E: The value "{00000000-0000-0000-0000-000000000000}" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Expect('empty guid arg ne', 'E: The value "{00000000-0000-0000-0000-000000000000}" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Expect('range guid', 'E: The value "{11F319D9-C18B-449D-A6BC-6E725A266949}" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Expect('range text', 'E: The value "{11F319D9-C18B-449D-A6BC-6E725A266949}" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Expect('range two guids', 'E: The value "{11F319D9-C18B-449D-A6BC-6E725A266949}" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Expect('range empty guid', 'E: The value "{00000000-0000-0000-0000-000000000000}" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Verify();
+#else
+        Observer.Expect('text arg eq', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Expect('text arg ne', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Expect('guid arg eq', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Expect('guid arg ne', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Expect('guid arg ge', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Expect('empty guid arg eq', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Expect('empty guid arg ne', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Expect('range guid', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Expect('range text', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Expect('range two guids', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Expect('range empty guid', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Verify();
+#endif
     end;
 
     [Test]
@@ -252,7 +291,37 @@ codeunit 66306 "RRF MediaGuid Tests"
         Observer.Observe('set id is empty', Format(SetId = EmptyG));
         Observer.Observe('item id equals set id', Format(ItemId = SetId));
         StoredForms(Observer, 3, SetId, 'set');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('set id is empty', 'No');
+        Observer.Expect('item id equals set id', 'No');
+        Observer.Expect('set eq', '<set id> | 2 ');
+        Observer.Expect('set eq bare', '<set id> | 2 ');
+        Observer.Expect('set eq lower', '<set id> | 2 ');
+        Observer.Expect('set ne', '<><set id> | 1 3 ');
+        Observer.Expect('set or fixed', '<set id>|{11F319D9-C18B-449D-A6BC-6E725A266949} | 2 ');
+        Observer.Expect('set text arg eq', 'E: The value "<set id>" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Expect('set text arg ne', 'E: The value "<set id>" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Expect('set guid arg eq', 'E: The value "<set id>" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Expect('set guid arg ne', 'E: The value "<set id>" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Expect('set range guid', 'E: The value "<set id>" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Expect('set range text', 'E: The value "<set id>" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Verify();
+#else
+        Observer.Expect('set id is empty', 'No');
+        Observer.Expect('item id equals set id', 'No');
+        Observer.Expect('set eq', '<set id> | 2 ');
+        Observer.Expect('set eq bare', '<set id> | 2 ');
+        Observer.Expect('set eq lower', '<set id> | 2 ');
+        Observer.Expect('set ne', '<><set id> | 1 3 ');
+        Observer.Expect('set or fixed', '<set id>|{11F319D9-C18B-449D-A6BC-6E725A266949} | 2 ');
+        Observer.Expect('set text arg eq', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Expect('set text arg ne', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Expect('set guid arg eq', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Expect('set guid arg ne', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Expect('set range guid', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Expect('set range text', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Verify();
+#endif
     end;
 
     [Test]
@@ -262,7 +331,33 @@ codeunit 66306 "RRF MediaGuid Tests"
     begin
         Initialize();
         StoredForms(Observer, 3, ItemId, 'item');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('item eq', '<item id> | ');
+        Observer.Expect('item eq bare', '<item id> | ');
+        Observer.Expect('item eq lower', '<item id> | ');
+        Observer.Expect('item ne', '<><item id> | 1 2 3 ');
+        Observer.Expect('item or fixed', '<item id>|{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('item text arg eq', 'E: The value "<item id>" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Expect('item text arg ne', 'E: The value "<item id>" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Expect('item guid arg eq', 'E: The value "<item id>" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Expect('item guid arg ne', 'E: The value "<item id>" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Expect('item range guid', 'E: The value "<item id>" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Expect('item range text', 'E: The value "<item id>" can''t be evaluated into type MediaSet. [Evaluate:Argument]');
+        Observer.Verify();
+#else
+        Observer.Expect('item eq', '<item id> | ');
+        Observer.Expect('item eq bare', '<item id> | ');
+        Observer.Expect('item eq lower', '<item id> | ');
+        Observer.Expect('item ne', '<><item id> | 1 2 3 ');
+        Observer.Expect('item or fixed', '<item id>|{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('item text arg eq', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Expect('item text arg ne', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Expect('item guid arg eq', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Expect('item guid arg ne', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Expect('item range guid', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Expect('item range text', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMediaSet. [Argument]');
+        Observer.Verify();
+#endif
     end;
 
     [Test]
@@ -272,7 +367,37 @@ codeunit 66306 "RRF MediaGuid Tests"
     begin
         Initialize();
         FixedForms(Observer, 2);
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('eq', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('eq bare', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('eq lower', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('eq quoted', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('eqsign', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('ne', '<>{11F319D9-C18B-449D-A6BC-6E725A266949} | 1 2 3 ');
+        Observer.Expect('gt', '>{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('lt', '<{11F319D9-C18B-449D-A6BC-6E725A266949} | 1 2 3 ');
+        Observer.Expect('or', '{11F319D9-C18B-449D-A6BC-6E725A266949}|{F1F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('range', '{11F319D9-C18B-449D-A6BC-6E725A266949}..{F1F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('ne and ne', '<>{11F319D9-C18B-449D-A6BC-6E725A266949}&<>{F1F319D9-C18B-449D-A6BC-6E725A266949} | 1 2 3 ');
+        Observer.Expect('empty guid', '{00000000-0000-0000-0000-000000000000} | 1 3 ');
+        Observer.Expect('ne empty guid', '<>{00000000-0000-0000-0000-000000000000} | 2 ');
+        Observer.Verify();
+#else
+        Observer.Expect('eq', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('eq bare', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('eq lower', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('eq quoted', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('eqsign', '{11F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('ne', '<>{11F319D9-C18B-449D-A6BC-6E725A266949} | 1 2 3 ');
+        Observer.Expect('gt', '>{11F319D9-C18B-449D-A6BC-6E725A266949} | 2 ');
+        Observer.Expect('lt', '<{11F319D9-C18B-449D-A6BC-6E725A266949} | 1 3 ');
+        Observer.Expect('or', '{11F319D9-C18B-449D-A6BC-6E725A266949}|{F1F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('range', '{11F319D9-C18B-449D-A6BC-6E725A266949}..{F1F319D9-C18B-449D-A6BC-6E725A266949} | ');
+        Observer.Expect('ne and ne', '<>{11F319D9-C18B-449D-A6BC-6E725A266949}&<>{F1F319D9-C18B-449D-A6BC-6E725A266949} | 1 2 3 ');
+        Observer.Expect('empty guid', '{00000000-0000-0000-0000-000000000000} | 1 3 ');
+        Observer.Expect('ne empty guid', '<>{00000000-0000-0000-0000-000000000000} | 2 ');
+        Observer.Verify();
+#endif
     end;
 
     [Test]
@@ -282,7 +407,33 @@ codeunit 66306 "RRF MediaGuid Tests"
     begin
         Initialize();
         ArgForms(Observer, 2);
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('text arg eq', 'E: The value "{11F319D9-C18B-449D-A6BC-6E725A266949}" can''t be evaluated into type Media. [Evaluate:Argument]');
+        Observer.Expect('text arg ne', 'E: The value "{11F319D9-C18B-449D-A6BC-6E725A266949}" can''t be evaluated into type Media. [Evaluate:Argument]');
+        Observer.Expect('guid arg eq', 'E: The value "{11F319D9-C18B-449D-A6BC-6E725A266949}" can''t be evaluated into type Media. [Evaluate:Argument]');
+        Observer.Expect('guid arg ne', 'E: The value "{11F319D9-C18B-449D-A6BC-6E725A266949}" can''t be evaluated into type Media. [Evaluate:Argument]');
+        Observer.Expect('guid arg ge', 'E: The value "{11F319D9-C18B-449D-A6BC-6E725A266949}" can''t be evaluated into type Media. [Evaluate:Argument]');
+        Observer.Expect('empty guid arg eq', 'E: The value "{00000000-0000-0000-0000-000000000000}" can''t be evaluated into type Media. [Evaluate:Argument]');
+        Observer.Expect('empty guid arg ne', 'E: The value "{00000000-0000-0000-0000-000000000000}" can''t be evaluated into type Media. [Evaluate:Argument]');
+        Observer.Expect('range guid', 'E: The value "{11F319D9-C18B-449D-A6BC-6E725A266949}" can''t be evaluated into type Media. [Evaluate:Argument]');
+        Observer.Expect('range text', 'E: The value "{11F319D9-C18B-449D-A6BC-6E725A266949}" can''t be evaluated into type Media. [Evaluate:Argument]');
+        Observer.Expect('range two guids', 'E: The value "{11F319D9-C18B-449D-A6BC-6E725A266949}" can''t be evaluated into type Media. [Evaluate:Argument]');
+        Observer.Expect('range empty guid', 'E: The value "{00000000-0000-0000-0000-000000000000}" can''t be evaluated into type Media. [Evaluate:Argument]');
+        Observer.Verify();
+#else
+        Observer.Expect('text arg eq', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia. [Argument]');
+        Observer.Expect('text arg ne', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia. [Argument]');
+        Observer.Expect('guid arg eq', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia. [Argument]');
+        Observer.Expect('guid arg ne', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia. [Argument]');
+        Observer.Expect('guid arg ge', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia. [Argument]');
+        Observer.Expect('empty guid arg eq', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia. [Argument]');
+        Observer.Expect('empty guid arg ne', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia. [Argument]');
+        Observer.Expect('range guid', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia. [Argument]');
+        Observer.Expect('range text', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia. [Argument]');
+        Observer.Expect('range two guids', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia. [Argument]');
+        Observer.Expect('range empty guid', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia. [Argument]');
+        Observer.Verify();
+#endif
     end;
 
     [Test]
@@ -293,6 +444,34 @@ codeunit 66306 "RRF MediaGuid Tests"
         Initialize();
         Observer.Observe('media id is empty', Format(MediaId = EmptyG));
         StoredForms(Observer, 2, MediaId, 'media');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('media id is empty', 'No');
+        Observer.Expect('media eq', '<media id> | 2 ');
+        Observer.Expect('media eq bare', '<media id> | 2 ');
+        Observer.Expect('media eq lower', '<media id> | 2 ');
+        Observer.Expect('media ne', '<><media id> | 1 3 ');
+        Observer.Expect('media or fixed', '<media id>|{11F319D9-C18B-449D-A6BC-6E725A266949} | 2 ');
+        Observer.Expect('media text arg eq', 'E: The value "<media id>" can''t be evaluated into type Media. [Evaluate:Argument]');
+        Observer.Expect('media text arg ne', 'E: The value "<media id>" can''t be evaluated into type Media. [Evaluate:Argument]');
+        Observer.Expect('media guid arg eq', 'E: The value "<media id>" can''t be evaluated into type Media. [Evaluate:Argument]');
+        Observer.Expect('media guid arg ne', 'E: The value "<media id>" can''t be evaluated into type Media. [Evaluate:Argument]');
+        Observer.Expect('media range guid', 'E: The value "<media id>" can''t be evaluated into type Media. [Evaluate:Argument]');
+        Observer.Expect('media range text', 'E: The value "<media id>" can''t be evaluated into type Media. [Evaluate:Argument]');
+        Observer.Verify();
+#else
+        Observer.Expect('media id is empty', 'No');
+        Observer.Expect('media eq', '<media id> | 2 ');
+        Observer.Expect('media eq bare', '<media id> | 2 ');
+        Observer.Expect('media eq lower', '<media id> | 2 ');
+        Observer.Expect('media ne', '<><media id> | 1 3 ');
+        Observer.Expect('media or fixed', '<media id>|{11F319D9-C18B-449D-A6BC-6E725A266949} | 2 ');
+        Observer.Expect('media text arg eq', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia. [Argument]');
+        Observer.Expect('media text arg ne', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia. [Argument]');
+        Observer.Expect('media guid arg eq', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia. [Argument]');
+        Observer.Expect('media guid arg ne', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia. [Argument]');
+        Observer.Expect('media range guid', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia. [Argument]');
+        Observer.Expect('media range text', 'E: Invalid Conversion. Source: NavVariant, Destination: NavMedia. [Argument]');
+        Observer.Verify();
+#endif
     end;
 }

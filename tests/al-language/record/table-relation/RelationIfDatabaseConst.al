@@ -204,7 +204,17 @@ codeunit 66326 "REC IfDb Tests"
         Initialize();
         State(Observer, 'cust', L.FieldNo("Source No."), Database::"REC IfDb Cust");
         State(Observer, 'vend', L.FieldNo("Source No."), Database::"REC IfDb Vend");
-        Observer.Finish();
+        Observer.Expect('cust relation', 'Cust');
+        Observer.Expect('cust C1', 'ok');
+        Observer.Expect('cust V1', 'The field Source No. of table REC IfDb Line contains a value (V1) that cannot be found in the related table (REC IfDb Cust). [DB:PrimRecordNotFound]');
+        Observer.Expect('cust NOPE', 'The field Source No. of table REC IfDb Line contains a value (NOPE) that cannot be found in the related table (REC IfDb Cust). [DB:PrimRecordNotFound]');
+        Observer.Expect('cust blank', 'ok');
+        Observer.Expect('vend relation', 'Vend');
+        Observer.Expect('vend C1', 'The field Source No. of table REC IfDb Line contains a value (C1) that cannot be found in the related table (REC IfDb Vend). [DB:PrimRecordNotFound]');
+        Observer.Expect('vend V1', 'ok');
+        Observer.Expect('vend NOPE', 'The field Source No. of table REC IfDb Line contains a value (NOPE) that cannot be found in the related table (REC IfDb Vend). [DB:PrimRecordNotFound]');
+        Observer.Expect('vend blank', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -217,7 +227,22 @@ codeunit 66326 "REC IfDb Tests"
         State(Observer, 'zero', L.FieldNo("Source No."), 0);
         State(Observer, 'order', L.FieldNo("Source No."), Database::"REC IfDb Order");
         State(Observer, 'customer 18', L.FieldNo("Source No."), Database::Customer);
-        Observer.Finish();
+        Observer.Expect('zero relation', 'none');
+        Observer.Expect('zero C1', 'ok');
+        Observer.Expect('zero V1', 'ok');
+        Observer.Expect('zero NOPE', 'ok');
+        Observer.Expect('zero blank', 'ok');
+        Observer.Expect('order relation', 'none');
+        Observer.Expect('order C1', 'ok');
+        Observer.Expect('order V1', 'ok');
+        Observer.Expect('order NOPE', 'ok');
+        Observer.Expect('order blank', 'ok');
+        Observer.Expect('customer 18 relation', 'none');
+        Observer.Expect('customer 18 C1', 'ok');
+        Observer.Expect('customer 18 V1', 'ok');
+        Observer.Expect('customer 18 NOPE', 'ok');
+        Observer.Expect('customer 18 blank', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -239,7 +264,18 @@ codeunit 66326 "REC IfDb Tests"
         One(Observer, 'cust O1', L.FieldNo("Source Id"), Database::"REC IfDb Cust", Subtype::Open, 'O1');
         One(Observer, 'cust NOPE', L.FieldNo("Source Id"), Database::"REC IfDb Cust", Subtype::Open, 'NOPE');
         One(Observer, 'zero NOPE', L.FieldNo("Source Id"), 0, Subtype::Open, 'NOPE');
-        Observer.Finish();
+        Observer.Expect('order relation', 'Order');
+        Observer.Expect('order open O1', 'ok');
+        Observer.Expect('order open O2', 'The field Source Id of table REC IfDb Line contains a value (O2) that cannot be found in the related table (REC IfDb Order). [DB:RecordNotFound]');
+        Observer.Expect('order released O2', 'ok');
+        Observer.Expect('order released O1', 'The field Source Id of table REC IfDb Line contains a value (O1) that cannot be found in the related table (REC IfDb Order). [DB:RecordNotFound]');
+        Observer.Expect('order open NOPE', 'The field Source Id of table REC IfDb Line contains a value (NOPE) that cannot be found in the related table (REC IfDb Order). [DB:RecordNotFound]');
+        Observer.Expect('order open blank', 'ok');
+        Observer.Expect('cust relation', 'none');
+        Observer.Expect('cust O1', 'ok');
+        Observer.Expect('cust NOPE', 'ok');
+        Observer.Expect('zero NOPE', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -251,7 +287,17 @@ codeunit 66326 "REC IfDb Tests"
         Initialize();
         State(Observer, 'cust', L.FieldNo("By Filter"), Database::"REC IfDb Cust");
         State(Observer, 'order', L.FieldNo("By Filter"), Database::"REC IfDb Order");
-        Observer.Finish();
+        Observer.Expect('cust relation', 'Cust');
+        Observer.Expect('cust C1', 'ok');
+        Observer.Expect('cust V1', 'The field By Filter of table REC IfDb Line contains a value (V1) that cannot be found in the related table (REC IfDb Cust). [DB:PrimRecordNotFound]');
+        Observer.Expect('cust NOPE', 'The field By Filter of table REC IfDb Line contains a value (NOPE) that cannot be found in the related table (REC IfDb Cust). [DB:PrimRecordNotFound]');
+        Observer.Expect('cust blank', 'ok');
+        Observer.Expect('order relation', 'Cust');
+        Observer.Expect('order C1', 'ok');
+        Observer.Expect('order V1', 'The field By Filter of table REC IfDb Line contains a value (V1) that cannot be found in the related table (REC IfDb Cust). [DB:PrimRecordNotFound]');
+        Observer.Expect('order NOPE', 'The field By Filter of table REC IfDb Line contains a value (NOPE) that cannot be found in the related table (REC IfDb Cust). [DB:PrimRecordNotFound]');
+        Observer.Expect('order blank', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -263,7 +309,17 @@ codeunit 66326 "REC IfDb Tests"
         Initialize();
         State(Observer, 'vend', L.FieldNo("By Filter"), Database::"REC IfDb Vend");
         State(Observer, 'zero', L.FieldNo("By Filter"), 0);
-        Observer.Finish();
+        Observer.Expect('vend relation', 'Vend');
+        Observer.Expect('vend C1', 'The field By Filter of table REC IfDb Line contains a value (C1) that cannot be found in the related table (REC IfDb Vend). [DB:PrimRecordNotFound]');
+        Observer.Expect('vend V1', 'ok');
+        Observer.Expect('vend NOPE', 'The field By Filter of table REC IfDb Line contains a value (NOPE) that cannot be found in the related table (REC IfDb Vend). [DB:PrimRecordNotFound]');
+        Observer.Expect('vend blank', 'ok');
+        Observer.Expect('zero relation', 'none');
+        Observer.Expect('zero C1', 'ok');
+        Observer.Expect('zero V1', 'ok');
+        Observer.Expect('zero NOPE', 'ok');
+        Observer.Expect('zero blank', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -276,7 +332,22 @@ codeunit 66326 "REC IfDb Tests"
         State(Observer, 'cust', L.FieldNo("By Number"), Database::"REC IfDb Cust");
         State(Observer, 'vend', L.FieldNo("By Number"), Database::"REC IfDb Vend");
         State(Observer, 'zero', L.FieldNo("By Number"), 0);
-        Observer.Finish();
+        Observer.Expect('cust relation', 'Cust');
+        Observer.Expect('cust C1', 'ok');
+        Observer.Expect('cust V1', 'The field By Number of table REC IfDb Line contains a value (V1) that cannot be found in the related table (REC IfDb Cust). [DB:PrimRecordNotFound]');
+        Observer.Expect('cust NOPE', 'The field By Number of table REC IfDb Line contains a value (NOPE) that cannot be found in the related table (REC IfDb Cust). [DB:PrimRecordNotFound]');
+        Observer.Expect('cust blank', 'ok');
+        Observer.Expect('vend relation', 'Vend');
+        Observer.Expect('vend C1', 'The field By Number of table REC IfDb Line contains a value (C1) that cannot be found in the related table (REC IfDb Vend). [DB:PrimRecordNotFound]');
+        Observer.Expect('vend V1', 'ok');
+        Observer.Expect('vend NOPE', 'The field By Number of table REC IfDb Line contains a value (NOPE) that cannot be found in the related table (REC IfDb Vend). [DB:PrimRecordNotFound]');
+        Observer.Expect('vend blank', 'ok');
+        Observer.Expect('zero relation', 'none');
+        Observer.Expect('zero C1', 'ok');
+        Observer.Expect('zero V1', 'ok');
+        Observer.Expect('zero NOPE', 'ok');
+        Observer.Expect('zero blank', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -289,7 +360,22 @@ codeunit 66326 "REC IfDb Tests"
         State(Observer, 'cust', L.FieldNo("With Else"), Database::"REC IfDb Cust");
         State(Observer, 'vend', L.FieldNo("With Else"), Database::"REC IfDb Vend");
         State(Observer, 'zero', L.FieldNo("With Else"), 0);
-        Observer.Finish();
+        Observer.Expect('cust relation', 'Cust');
+        Observer.Expect('cust C1', 'ok');
+        Observer.Expect('cust V1', 'The field With Else of table REC IfDb Line contains a value (V1) that cannot be found in the related table (REC IfDb Cust). [DB:PrimRecordNotFound]');
+        Observer.Expect('cust NOPE', 'The field With Else of table REC IfDb Line contains a value (NOPE) that cannot be found in the related table (REC IfDb Cust). [DB:PrimRecordNotFound]');
+        Observer.Expect('cust blank', 'ok');
+        Observer.Expect('vend relation', 'Vend');
+        Observer.Expect('vend C1', 'The field With Else of table REC IfDb Line contains a value (C1) that cannot be found in the related table (REC IfDb Vend). [DB:PrimRecordNotFound]');
+        Observer.Expect('vend V1', 'ok');
+        Observer.Expect('vend NOPE', 'The field With Else of table REC IfDb Line contains a value (NOPE) that cannot be found in the related table (REC IfDb Vend). [DB:PrimRecordNotFound]');
+        Observer.Expect('vend blank', 'ok');
+        Observer.Expect('zero relation', 'Vend');
+        Observer.Expect('zero C1', 'The field With Else of table REC IfDb Line contains a value (C1) that cannot be found in the related table (REC IfDb Vend). [DB:PrimRecordNotFound]');
+        Observer.Expect('zero V1', 'ok');
+        Observer.Expect('zero NOPE', 'The field With Else of table REC IfDb Line contains a value (NOPE) that cannot be found in the related table (REC IfDb Vend). [DB:PrimRecordNotFound]');
+        Observer.Expect('zero blank', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -302,7 +388,22 @@ codeunit 66326 "REC IfDb Tests"
         State(Observer, 'customer 18', L.FieldNo("Other App"), Database::Customer);
         State(Observer, 'vend', L.FieldNo("Other App"), Database::"REC IfDb Vend");
         State(Observer, 'cust', L.FieldNo("Other App"), Database::"REC IfDb Cust");
-        Observer.Finish();
+        Observer.Expect('customer 18 relation', 'Cust');
+        Observer.Expect('customer 18 C1', 'ok');
+        Observer.Expect('customer 18 V1', 'The field Other App of table REC IfDb Line contains a value (V1) that cannot be found in the related table (REC IfDb Cust). [DB:PrimRecordNotFound]');
+        Observer.Expect('customer 18 NOPE', 'The field Other App of table REC IfDb Line contains a value (NOPE) that cannot be found in the related table (REC IfDb Cust). [DB:PrimRecordNotFound]');
+        Observer.Expect('customer 18 blank', 'ok');
+        Observer.Expect('vend relation', 'Vend');
+        Observer.Expect('vend C1', 'The field Other App of table REC IfDb Line contains a value (C1) that cannot be found in the related table (REC IfDb Vend). [DB:PrimRecordNotFound]');
+        Observer.Expect('vend V1', 'ok');
+        Observer.Expect('vend NOPE', 'The field Other App of table REC IfDb Line contains a value (NOPE) that cannot be found in the related table (REC IfDb Vend). [DB:PrimRecordNotFound]');
+        Observer.Expect('vend blank', 'ok');
+        Observer.Expect('cust relation', 'none');
+        Observer.Expect('cust C1', 'ok');
+        Observer.Expect('cust V1', 'ok');
+        Observer.Expect('cust NOPE', 'ok');
+        Observer.Expect('cust blank', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -315,7 +416,22 @@ codeunit 66326 "REC IfDb Tests"
         State(Observer, 'cust', L.FieldNo("Table Form"), Database::"REC IfDb Cust");
         State(Observer, 'vend', L.FieldNo("Table Form"), Database::"REC IfDb Vend");
         State(Observer, 'zero', L.FieldNo("Table Form"), 0);
-        Observer.Finish();
+        Observer.Expect('cust relation', 'Cust');
+        Observer.Expect('cust C1', 'ok');
+        Observer.Expect('cust V1', 'The field Table Form of table REC IfDb Line contains a value (V1) that cannot be found in the related table (REC IfDb Cust). [DB:PrimRecordNotFound]');
+        Observer.Expect('cust NOPE', 'The field Table Form of table REC IfDb Line contains a value (NOPE) that cannot be found in the related table (REC IfDb Cust). [DB:PrimRecordNotFound]');
+        Observer.Expect('cust blank', 'ok');
+        Observer.Expect('vend relation', 'Vend');
+        Observer.Expect('vend C1', 'The field Table Form of table REC IfDb Line contains a value (C1) that cannot be found in the related table (REC IfDb Vend). [DB:PrimRecordNotFound]');
+        Observer.Expect('vend V1', 'ok');
+        Observer.Expect('vend NOPE', 'The field Table Form of table REC IfDb Line contains a value (NOPE) that cannot be found in the related table (REC IfDb Vend). [DB:PrimRecordNotFound]');
+        Observer.Expect('vend blank', 'ok');
+        Observer.Expect('zero relation', 'none');
+        Observer.Expect('zero C1', 'ok');
+        Observer.Expect('zero V1', 'ok');
+        Observer.Expect('zero NOPE', 'ok');
+        Observer.Expect('zero blank', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -343,6 +459,11 @@ codeunit 66326 "REC IfDb Tests"
             Observer.Observe('validate C1 as vend', 'ok')
         else
             Observer.ObserveError('validate C1 as vend');
-        Observer.Finish();
+        Observer.Expect('validate C1 as cust', 'ok');
+        Observer.Expect('value after the type changed', 'C1');
+        Observer.Expect('modify', 'ok');
+        Observer.Expect('validate C1 as vend|text', 'The field Source No. of table REC IfDb Line contains a value (C1) that cannot be found in the related table (REC IfDb Vend).');
+        Observer.Expect('validate C1 as vend|code', 'DB:PrimRecordNotFound');
+        Observer.Verify();
     end;
 }

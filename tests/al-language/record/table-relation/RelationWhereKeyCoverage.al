@@ -228,7 +228,12 @@ codeunit 66344 "REC WhKey Tests"
     begin
         Initialize();
         VariantCells(Observer, L.FieldNo(ArmKeyNonKey), L.Type::Item);
-        Observer.Finish();
+        Observer.Expect('accepted V1', 'ok');
+        Observer.Expect('blocked VB', 'DB:NothingInsideFilter | The field ArmKeyNonKey of table REC WhKey Line contains a value (VB) that cannot be found in the related table (REC WhKey Variant).');
+        Observer.Expect('other item V2', 'DB:NothingInsideFilter | The field ArmKeyNonKey of table REC WhKey Line contains a value (V2) that cannot be found in the related table (REC WhKey Variant).');
+        Observer.Expect('missing NOPE', 'DB:NothingInsideFilter | The field ArmKeyNonKey of table REC WhKey Line contains a value (NOPE) that cannot be found in the related table (REC WhKey Variant).');
+        Observer.Expect('blank', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -239,7 +244,12 @@ codeunit 66344 "REC WhKey Tests"
     begin
         Initialize();
         VariantCells(Observer, L.FieldNo(ArmKeyNonKey), L.Type::Resource);
-        Observer.Finish();
+        Observer.Expect('accepted V1', 'ok');
+        Observer.Expect('blocked VB', 'ok');
+        Observer.Expect('other item V2', 'ok');
+        Observer.Expect('missing NOPE', 'ok');
+        Observer.Expect('blank', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -250,7 +260,12 @@ codeunit 66344 "REC WhKey Tests"
     begin
         Initialize();
         VariantCells(Observer, L.FieldNo(PlainKeyNonKey), L.Type::Item);
-        Observer.Finish();
+        Observer.Expect('accepted V1', 'ok');
+        Observer.Expect('blocked VB', 'DB:NothingInsideFilter | The field PlainKeyNonKey of table REC WhKey Line contains a value (VB) that cannot be found in the related table (REC WhKey Variant).');
+        Observer.Expect('other item V2', 'DB:NothingInsideFilter | The field PlainKeyNonKey of table REC WhKey Line contains a value (V2) that cannot be found in the related table (REC WhKey Variant).');
+        Observer.Expect('missing NOPE', 'DB:NothingInsideFilter | The field PlainKeyNonKey of table REC WhKey Line contains a value (NOPE) that cannot be found in the related table (REC WhKey Variant).');
+        Observer.Expect('blank', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -261,7 +276,12 @@ codeunit 66344 "REC WhKey Tests"
     begin
         Initialize();
         VariantCells(Observer, L.FieldNo(ArmKeyOnly), L.Type::Item);
-        Observer.Finish();
+        Observer.Expect('accepted V1', 'ok');
+        Observer.Expect('blocked VB', 'ok');
+        Observer.Expect('other item V2', 'DB:RecordNotFound | The field ArmKeyOnly of table REC WhKey Line contains a value (V2) that cannot be found in the related table (REC WhKey Variant).');
+        Observer.Expect('missing NOPE', 'DB:RecordNotFound | The field ArmKeyOnly of table REC WhKey Line contains a value (NOPE) that cannot be found in the related table (REC WhKey Variant).');
+        Observer.Expect('blank', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -272,7 +292,12 @@ codeunit 66344 "REC WhKey Tests"
     begin
         Initialize();
         VariantCells(Observer, L.FieldNo(PlainKeyOnly), L.Type::Item);
-        Observer.Finish();
+        Observer.Expect('accepted V1', 'ok');
+        Observer.Expect('blocked VB', 'ok');
+        Observer.Expect('other item V2', 'DB:RecordNotFound | The field PlainKeyOnly of table REC WhKey Line contains a value (V2) that cannot be found in the related table (REC WhKey Variant).');
+        Observer.Expect('missing NOPE', 'DB:RecordNotFound | The field PlainKeyOnly of table REC WhKey Line contains a value (NOPE) that cannot be found in the related table (REC WhKey Variant).');
+        Observer.Expect('blank', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -283,7 +308,12 @@ codeunit 66344 "REC WhKey Tests"
     begin
         Initialize();
         VariantCells(Observer, L.FieldNo(NonKeyOnly), L.Type::Item);
-        Observer.Finish();
+        Observer.Expect('accepted V1', 'ok');
+        Observer.Expect('blocked VB', 'DB:NothingInsideFilter | The field NonKeyOnly of table REC WhKey Line contains a value (VB) that cannot be found in the related table (REC WhKey Variant).');
+        Observer.Expect('other item V2', 'ok');
+        Observer.Expect('missing NOPE', 'DB:NothingInsideFilter | The field NonKeyOnly of table REC WhKey Line contains a value (NOPE) that cannot be found in the related table (REC WhKey Variant).');
+        Observer.Expect('blank', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -294,7 +324,12 @@ codeunit 66344 "REC WhKey Tests"
     begin
         Initialize();
         VariantCells(Observer, L.FieldNo(SelfAndKey), L.Type::Item);
-        Observer.Finish();
+        Observer.Expect('accepted V1', 'ok');
+        Observer.Expect('blocked VB', 'ok');
+        Observer.Expect('other item V2', 'DB:RecordNotFound | The field SelfAndKey of table REC WhKey Line contains a value (V2) that cannot be found in the related table (REC WhKey Variant).');
+        Observer.Expect('missing NOPE', 'DB:RecordNotFound | The field SelfAndKey of table REC WhKey Line contains a value (NOPE) that cannot be found in the related table (REC WhKey Variant).');
+        Observer.Expect('blank', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -305,7 +340,12 @@ codeunit 66344 "REC WhKey Tests"
     begin
         Initialize();
         BinCells(Observer, L.FieldNo(BinPartialKey));
-        Observer.Finish();
+        Observer.Expect('accepted B1', 'ok');
+        Observer.Expect('blocked BB', 'ok');
+        Observer.Expect('other zone B2', 'ok');
+        Observer.Expect('other location B3', 'DB:NothingInsideFilter | The field BinPartialKey of table REC WhKey Line contains a value (B3) that cannot be found in the related table (REC WhKey Bin).');
+        Observer.Expect('missing NOPE', 'DB:NothingInsideFilter | The field BinPartialKey of table REC WhKey Line contains a value (NOPE) that cannot be found in the related table (REC WhKey Bin).');
+        Observer.Verify();
     end;
 
     [Test]
@@ -316,7 +356,12 @@ codeunit 66344 "REC WhKey Tests"
     begin
         Initialize();
         BinCells(Observer, L.FieldNo(BinPartialKeyNonKey));
-        Observer.Finish();
+        Observer.Expect('accepted B1', 'ok');
+        Observer.Expect('blocked BB', 'DB:NothingInsideFilter | The field BinPartialKeyNonKey of table REC WhKey Line contains a value (BB) that cannot be found in the related table (REC WhKey Bin).');
+        Observer.Expect('other zone B2', 'ok');
+        Observer.Expect('other location B3', 'DB:NothingInsideFilter | The field BinPartialKeyNonKey of table REC WhKey Line contains a value (B3) that cannot be found in the related table (REC WhKey Bin).');
+        Observer.Expect('missing NOPE', 'DB:NothingInsideFilter | The field BinPartialKeyNonKey of table REC WhKey Line contains a value (NOPE) that cannot be found in the related table (REC WhKey Bin).');
+        Observer.Verify();
     end;
 
     [Test]
@@ -327,7 +372,12 @@ codeunit 66344 "REC WhKey Tests"
     begin
         Initialize();
         BinCells(Observer, L.FieldNo(BinNoWhere));
-        Observer.Finish();
+        Observer.Expect('accepted B1', 'ok');
+        Observer.Expect('blocked BB', 'ok');
+        Observer.Expect('other zone B2', 'ok');
+        Observer.Expect('other location B3', 'ok');
+        Observer.Expect('missing NOPE', 'DB:NothingInsideFilter | The field BinNoWhere of table REC WhKey Line contains a value (NOPE) that cannot be found in the related table (REC WhKey Bin).');
+        Observer.Verify();
     end;
 
     [Test]
@@ -338,7 +388,12 @@ codeunit 66344 "REC WhKey Tests"
     begin
         Initialize();
         BinCells(Observer, L.FieldNo(BinWholeKey));
-        Observer.Finish();
+        Observer.Expect('accepted B1', 'ok');
+        Observer.Expect('blocked BB', 'ok');
+        Observer.Expect('other zone B2', 'DB:RecordNotFound | The field BinWholeKey of table REC WhKey Line contains a value (B2) that cannot be found in the related table (REC WhKey Bin).');
+        Observer.Expect('other location B3', 'DB:RecordNotFound | The field BinWholeKey of table REC WhKey Line contains a value (B3) that cannot be found in the related table (REC WhKey Bin).');
+        Observer.Expect('missing NOPE', 'DB:RecordNotFound | The field BinWholeKey of table REC WhKey Line contains a value (NOPE) that cannot be found in the related table (REC WhKey Bin).');
+        Observer.Verify();
     end;
 
     [Test]
@@ -349,7 +404,12 @@ codeunit 66344 "REC WhKey Tests"
     begin
         Initialize();
         BinCells(Observer, L.FieldNo(BinSecondKeyFieldOnly));
-        Observer.Finish();
+        Observer.Expect('accepted B1', 'ok');
+        Observer.Expect('blocked BB', 'ok');
+        Observer.Expect('other zone B2', 'DB:NothingInsideFilter | The field BinSecondKeyFieldOnly of table REC WhKey Line contains a value (B2) that cannot be found in the related table (REC WhKey Bin).');
+        Observer.Expect('other location B3', 'ok');
+        Observer.Expect('missing NOPE', 'DB:NothingInsideFilter | The field BinSecondKeyFieldOnly of table REC WhKey Line contains a value (NOPE) that cannot be found in the related table (REC WhKey Bin).');
+        Observer.Verify();
     end;
 
     [Test]
@@ -360,6 +420,11 @@ codeunit 66344 "REC WhKey Tests"
     begin
         Initialize();
         BinCells(Observer, L.FieldNo(BinWholeKeyNonKey));
-        Observer.Finish();
+        Observer.Expect('accepted B1', 'ok');
+        Observer.Expect('blocked BB', 'DB:NothingInsideFilter | The field BinWholeKeyNonKey of table REC WhKey Line contains a value (BB) that cannot be found in the related table (REC WhKey Bin).');
+        Observer.Expect('other zone B2', 'DB:NothingInsideFilter | The field BinWholeKeyNonKey of table REC WhKey Line contains a value (B2) that cannot be found in the related table (REC WhKey Bin).');
+        Observer.Expect('other location B3', 'DB:NothingInsideFilter | The field BinWholeKeyNonKey of table REC WhKey Line contains a value (B3) that cannot be found in the related table (REC WhKey Bin).');
+        Observer.Expect('missing NOPE', 'DB:NothingInsideFilter | The field BinWholeKeyNonKey of table REC WhKey Line contains a value (NOPE) that cannot be found in the related table (REC WhKey Bin).');
+        Observer.Verify();
     end;
 }

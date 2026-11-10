@@ -195,7 +195,19 @@ codeunit 66333 "REC WhEmpty Tests"
         DateCells(Observer, 'eq', R.FieldNo(DateEq));
         DateCells(Observer, 'ne', R.FieldNo(DateNe));
         DateCells(Observer, 'quotes', R.FieldNo(DateQ));
-        Observer.Finish();
+        Observer.Expect('eq EMPTY', 'ok');
+        Observer.Expect('eq SET', 'The field DateEq of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('eq NOPE', 'The field DateEq of table REC WhEmpty Response contains a value (NOPE) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('eq blank', 'ok');
+        Observer.Expect('ne EMPTY', 'The field DateNe of table REC WhEmpty Response contains a value (EMPTY) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('ne SET', 'ok');
+        Observer.Expect('ne NOPE', 'The field DateNe of table REC WhEmpty Response contains a value (NOPE) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('ne blank', 'ok');
+        Observer.Expect('quotes EMPTY', 'ok');
+        Observer.Expect('quotes SET', 'The field DateQ of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('quotes NOPE', 'The field DateQ of table REC WhEmpty Response contains a value (NOPE) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('quotes blank', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -208,7 +220,19 @@ codeunit 66333 "REC WhEmpty Tests"
         DateCells(Observer, 'blank text', R.FieldNo(DateBlank));
         DateCells(Observer, 'filter 0D', R.FieldNo(DateZero));
         DateCells(Observer, 'filter ne 0D', R.FieldNo(DateNotZero));
-        Observer.Finish();
+        Observer.Expect('blank text EMPTY', 'ok');
+        Observer.Expect('blank text SET', 'The field DateBlank of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('blank text NOPE', 'The field DateBlank of table REC WhEmpty Response contains a value (NOPE) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('blank text blank', 'ok');
+        Observer.Expect('filter 0D EMPTY', 'ok');
+        Observer.Expect('filter 0D SET', 'The field DateZero of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('filter 0D NOPE', 'The field DateZero of table REC WhEmpty Response contains a value (NOPE) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('filter 0D blank', 'ok');
+        Observer.Expect('filter ne 0D EMPTY', 'The field DateNotZero of table REC WhEmpty Response contains a value (EMPTY) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('filter ne 0D SET', 'ok');
+        Observer.Expect('filter ne 0D NOPE', 'The field DateNotZero of table REC WhEmpty Response contains a value (NOPE) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('filter ne 0D blank', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -221,7 +245,18 @@ codeunit 66333 "REC WhEmpty Tests"
         DateCells(Observer, 'const 0D', R.FieldNo(DateConst));
         DateCells(Observer, 'eq and code not empty', R.FieldNo(DateEqAndCode));
         DateCells(Observer, 'eq, table.field form', R.FieldNo(DateEqField));
-        Observer.Finish();
+        Observer.Expect('const 0D EMPTY', 'The format of the Date ''0001-01-01T00:00:00.0000000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. [Evaluate]');
+        Observer.Expect('const 0D SET', 'The format of the Date ''0001-01-01T00:00:00.0000000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. [Evaluate]');
+        Observer.Expect('const 0D NOPE', 'The format of the Date ''0001-01-01T00:00:00.0000000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. [Evaluate]');
+        Observer.Expect('const 0D blank', 'ok');
+        Observer.Expect('eq and code not empty EMPTY', 'The field DateEqAndCode of table REC WhEmpty Response contains a value (EMPTY) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('eq and code not empty SET', 'The field DateEqAndCode of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('eq and code not empty NOPE', 'The field DateEqAndCode of table REC WhEmpty Response contains a value (NOPE) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('eq and code not empty blank', 'ok');
+        Observer.Expect('eq, table.field form EMPTY', 'ok');
+        Observer.Expect('eq, table.field form SET', 'The field DateEqField of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('eq, table.field form NOPE', 'The field DateEqField of table REC WhEm');
+        Observer.Verify();
     end;
 
     [Test]
@@ -235,7 +270,14 @@ codeunit 66333 "REC WhEmpty Tests"
         RefCells(Observer, 'ne', R.FieldNo(DateNe));
         RefCells(Observer, 'quotes', R.FieldNo(DateQ));
         Show(Observer, 'eq NOPE', TryValidateRef(R.FieldNo(DateEq), 'NOPE'));
-        Observer.Finish();
+        Observer.Expect('eq EMPTY', 'ok');
+        Observer.Expect('eq SET', 'The field DateEq of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('ne EMPTY', 'The field DateNe of table REC WhEmpty Response contains a value (EMPTY) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('ne SET', 'ok');
+        Observer.Expect('quotes EMPTY', 'ok');
+        Observer.Expect('quotes SET', 'The field DateQ of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('eq NOPE', 'The field DateEq of table REC WhEmpty Response contains a value (NOPE) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -249,7 +291,14 @@ codeunit 66333 "REC WhEmpty Tests"
         RefCells(Observer, 'ne', R.FieldNo(TimeNe));
         RefCells(Observer, 'quotes', R.FieldNo(TimeQ));
         Show(Observer, 'eq NOPE', TryValidateRef(R.FieldNo(TimeEq), 'NOPE'));
-        Observer.Finish();
+        Observer.Expect('eq EMPTY', 'ok');
+        Observer.Expect('eq SET', 'The field TimeEq of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('ne EMPTY', 'The field TimeNe of table REC WhEmpty Response contains a value (EMPTY) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('ne SET', 'ok');
+        Observer.Expect('quotes EMPTY', 'ok');
+        Observer.Expect('quotes SET', 'The field TimeQ of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('eq NOPE', 'The field TimeEq of table REC WhEmpty Response contains a value (NOPE) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -263,7 +312,14 @@ codeunit 66333 "REC WhEmpty Tests"
         RefCells(Observer, 'ne', R.FieldNo(DateTimeNe));
         RefCells(Observer, 'quotes', R.FieldNo(DateTimeQ));
         Show(Observer, 'eq NOPE', TryValidateRef(R.FieldNo(DateTimeEq), 'NOPE'));
-        Observer.Finish();
+        Observer.Expect('eq EMPTY', 'ok');
+        Observer.Expect('eq SET', 'The field DateTimeEq of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('ne EMPTY', 'The field DateTimeNe of table REC WhEmpty Response contains a value (EMPTY) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('ne SET', 'ok');
+        Observer.Expect('quotes EMPTY', 'ok');
+        Observer.Expect('quotes SET', 'The field DateTimeQ of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('eq NOPE', 'The field DateTimeEq of table REC WhEmpty Response contains a value (NOPE) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -277,7 +333,14 @@ codeunit 66333 "REC WhEmpty Tests"
         RefCells(Observer, 'ne', R.FieldNo(IntNe));
         RefCells(Observer, 'quotes', R.FieldNo(IntQ));
         Show(Observer, 'eq NOPE', TryValidateRef(R.FieldNo(IntEq), 'NOPE'));
-        Observer.Finish();
+        Observer.Expect('eq EMPTY', 'The value "" can''t be evaluated into type Integer. [InvalidFilterExpression:Evaluate]');
+        Observer.Expect('eq SET', 'The value "" can''t be evaluated into type Integer. [InvalidFilterExpression:Evaluate]');
+        Observer.Expect('ne EMPTY', 'The value "" can''t be evaluated into type Integer. [InvalidFilterExpression:Evaluate]');
+        Observer.Expect('ne SET', 'The value "" can''t be evaluated into type Integer. [InvalidFilterExpression:Evaluate]');
+        Observer.Expect('quotes EMPTY', 'The value "" can''t be evaluated into type Integer. [InvalidFilterExpression:Evaluate]');
+        Observer.Expect('quotes SET', 'The value "" can''t be evaluated into type Integer. [InvalidFilterExpression:Evaluate]');
+        Observer.Expect('eq NOPE', 'The value "" can''t be evaluated into type Integer. [InvalidFilterExpression:Evaluate]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -291,7 +354,14 @@ codeunit 66333 "REC WhEmpty Tests"
         RefCells(Observer, 'ne', R.FieldNo(DecNe));
         RefCells(Observer, 'quotes', R.FieldNo(DecQ));
         Show(Observer, 'eq NOPE', TryValidateRef(R.FieldNo(DecEq), 'NOPE'));
-        Observer.Finish();
+        Observer.Expect('eq EMPTY', 'The value "" can''t be evaluated into type Decimal. [InvalidFilterExpression:Evaluate]');
+        Observer.Expect('eq SET', 'The value "" can''t be evaluated into type Decimal. [InvalidFilterExpression:Evaluate]');
+        Observer.Expect('ne EMPTY', 'The value "" can''t be evaluated into type Decimal. [InvalidFilterExpression:Evaluate]');
+        Observer.Expect('ne SET', 'The value "" can''t be evaluated into type Decimal. [InvalidFilterExpression:Evaluate]');
+        Observer.Expect('quotes EMPTY', 'The value "" can''t be evaluated into type Decimal. [InvalidFilterExpression:Evaluate]');
+        Observer.Expect('quotes SET', 'The value "" can''t be evaluated into type Decimal. [InvalidFilterExpression:Evaluate]');
+        Observer.Expect('eq NOPE', 'The value "" can''t be evaluated into type Decimal. [InvalidFilterExpression:Evaluate]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -305,7 +375,14 @@ codeunit 66333 "REC WhEmpty Tests"
         RefCells(Observer, 'ne', R.FieldNo(CodeNe));
         RefCells(Observer, 'quotes', R.FieldNo(CodeQ));
         Show(Observer, 'eq NOPE', TryValidateRef(R.FieldNo(CodeEq), 'NOPE'));
-        Observer.Finish();
+        Observer.Expect('eq EMPTY', 'ok');
+        Observer.Expect('eq SET', 'The field CodeEq of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('ne EMPTY', 'The field CodeNe of table REC WhEmpty Response contains a value (EMPTY) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('ne SET', 'ok');
+        Observer.Expect('quotes EMPTY', 'ok');
+        Observer.Expect('quotes SET', 'The field CodeQ of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('eq NOPE', 'The field CodeEq of table REC WhEmpty Response contains a value (NOPE) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -319,7 +396,14 @@ codeunit 66333 "REC WhEmpty Tests"
         RefCells(Observer, 'ne', R.FieldNo(TextNe));
         RefCells(Observer, 'quotes', R.FieldNo(TextQ));
         Show(Observer, 'eq NOPE', TryValidateRef(R.FieldNo(TextEq), 'NOPE'));
-        Observer.Finish();
+        Observer.Expect('eq EMPTY', 'ok');
+        Observer.Expect('eq SET', 'The field TextEq of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('ne EMPTY', 'The field TextNe of table REC WhEmpty Response contains a value (EMPTY) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('ne SET', 'ok');
+        Observer.Expect('quotes EMPTY', 'ok');
+        Observer.Expect('quotes SET', 'The field TextQ of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('eq NOPE', 'The field TextEq of table REC WhEmpty Response contains a value (NOPE) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -333,7 +417,14 @@ codeunit 66333 "REC WhEmpty Tests"
         RefCells(Observer, 'ne', R.FieldNo(GuidNe));
         RefCells(Observer, 'quotes', R.FieldNo(GuidQ));
         Show(Observer, 'eq NOPE', TryValidateRef(R.FieldNo(GuidEq), 'NOPE'));
-        Observer.Finish();
+        Observer.Expect('eq EMPTY', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. [InvalidFilterExpression:InvalidGuidFormat]');
+        Observer.Expect('eq SET', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. [InvalidFilterExpression:InvalidGuidFormat]');
+        Observer.Expect('ne EMPTY', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. [InvalidFilterExpression:InvalidGuidFormat]');
+        Observer.Expect('ne SET', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. [InvalidFilterExpression:InvalidGuidFormat]');
+        Observer.Expect('quotes EMPTY', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. [InvalidFilterExpression:InvalidGuidFormat]');
+        Observer.Expect('quotes SET', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. [InvalidFilterExpression:InvalidGuidFormat]');
+        Observer.Expect('eq NOPE', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. [InvalidFilterExpression:InvalidGuidFormat]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -347,7 +438,14 @@ codeunit 66333 "REC WhEmpty Tests"
         RefCells(Observer, 'ne', R.FieldNo(DurNe));
         RefCells(Observer, 'quotes', R.FieldNo(DurQ));
         Show(Observer, 'eq NOPE', TryValidateRef(R.FieldNo(DurEq), 'NOPE'));
-        Observer.Finish();
+        Observer.Expect('eq EMPTY', 'ok');
+        Observer.Expect('eq SET', 'The field DurEq of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('ne EMPTY', 'The field DurNe of table REC WhEmpty Response contains a value (EMPTY) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('ne SET', 'ok');
+        Observer.Expect('quotes EMPTY', 'ok');
+        Observer.Expect('quotes SET', 'The field DurQ of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('eq NOPE', 'The field DurEq of table REC WhEmpty Response contains a value (NOPE) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -361,7 +459,14 @@ codeunit 66333 "REC WhEmpty Tests"
         RefCells(Observer, 'ne', R.FieldNo(DfNe));
         RefCells(Observer, 'quotes', R.FieldNo(DfQ));
         Show(Observer, 'eq NOPE', TryValidateRef(R.FieldNo(DfEq), 'NOPE'));
-        Observer.Finish();
+        Observer.Expect('eq EMPTY', 'ok');
+        Observer.Expect('eq SET', 'The field DfEq of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('ne EMPTY', 'The field DfNe of table REC WhEmpty Response contains a value (EMPTY) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('ne SET', 'ok');
+        Observer.Expect('quotes EMPTY', 'ok');
+        Observer.Expect('quotes SET', 'The field DfQ of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Expect('eq NOPE', 'The field DfEq of table REC WhEmpty Response contains a value (NOPE) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -375,6 +480,13 @@ codeunit 66333 "REC WhEmpty Tests"
         RefCells(Observer, 'ne', R.FieldNo(OptNe));
         RefCells(Observer, 'quotes', R.FieldNo(OptQ));
         Show(Observer, 'eq NOPE', TryValidateRef(R.FieldNo(OptEq), 'NOPE'));
-        Observer.Finish();
+        Observer.Expect('eq EMPTY', ''''' is not an option. The existing options are: A,B,C [InvalidFilterExpression:InvalidOptionString]');
+        Observer.Expect('eq SET', ''''' is not an option. The existing options are: A,B,C [InvalidFilterExpression:InvalidOptionString]');
+        Observer.Expect('ne EMPTY', ''''' is not an option. The existing options are: A,B,C [InvalidFilterExpression:InvalidOptionString]');
+        Observer.Expect('ne SET', ''''' is not an option. The existing options are: A,B,C [InvalidFilterExpression:InvalidOptionString]');
+        Observer.Expect('quotes EMPTY', ''''' is not an option. The existing options are: A,B,C [InvalidFilterExpression:InvalidOptionString]');
+        Observer.Expect('quotes SET', ''''' is not an option. The existing options are: A,B,C [InvalidFilterExpression:InvalidOptionString]');
+        Observer.Expect('eq NOPE', ''''' is not an option. The existing options are: A,B,C [InvalidFilterExpression:InvalidOptionString]');
+        Observer.Verify();
     end;
 }
