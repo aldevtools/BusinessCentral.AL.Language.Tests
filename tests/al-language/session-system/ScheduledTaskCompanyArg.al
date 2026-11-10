@@ -13,8 +13,13 @@
 //   (STC_AfterCommit_Create leaves two tasks of worker 97029 committed; STC_AfterCommit_NextTest reads and cancels them).
 // Already pinned elsewhere, not repeated: Company without a company argument is the current company (CnSessionLeads.al:34, :42); an
 //   unknown company raises nothing at CreateTask (metadata/platform-tables/PlTTaskScheduler.al:189-196).
-// Observation form: STC_Company_OwnCompanyForms and STC_Company_OtherAndUnknownCompany end in Finish() (not measured yet). The other
-//   tests assert what BC produced in the corpus CI runs named above.
+// Measured (corpus CI runs 42862333619 and its 28.5 and 29.0 legs for STC_Company_OwnCompanyForms and
+//   STC_Company_OtherAndUnknownCompany, the runs named above for the other tests; identical on BC 27.5, 28.5 and 29.0): the Company
+//   column holds the company argument as written, without changing its case and without checking that the company exists. A blank
+//   argument stores CompanyName(). SetRange(Company, CompanyName()) finds the row only when the argument was CompanyName() or blank:
+//   it does not find the row of UpperCase(CompanyName()), LowerCase(CompanyName()), another company or an unknown company.
+//   The lengths are those of the names: 25 for the current company of the corpus CI database and for the unknown name, 10 for the
+//   other company that database holds.
 // BC versions: 27.5, 28.5, 29.0 (measured by the corpus CI)
 
 codeunit 97027 "LT STC Worker"
@@ -78,7 +83,42 @@ codeunit 97028 "LT STC Company Arg"
         RunCase(Observer, 'blank', '', false);
         RunCase(Observer, 'upper', UpperCase(CompanyName()), false);
         RunCase(Observer, 'lower', LowerCase(CompanyName()), false);
-        Observer.Finish();
+        Observer.Expect('CompanyName row', 'Yes');
+        Observer.Expect('CompanyName company is argument', 'Yes');
+        Observer.Expect('CompanyName company is CompanyName', 'Yes');
+        Observer.Expect('CompanyName company is upper CompanyName', 'No');
+        Observer.Expect('CompanyName company blank', 'No');
+        Observer.Expect('CompanyName company length', '25');
+        Observer.Expect('CompanyName found by CompanyName filter', 'Yes');
+        Observer.Expect('CompanyName with NotBefore row', 'Yes');
+        Observer.Expect('CompanyName with NotBefore company is argument', 'Yes');
+        Observer.Expect('CompanyName with NotBefore company is CompanyName', 'Yes');
+        Observer.Expect('CompanyName with NotBefore company is upper CompanyName', 'No');
+        Observer.Expect('CompanyName with NotBefore company blank', 'No');
+        Observer.Expect('CompanyName with NotBefore company length', '25');
+        Observer.Expect('CompanyName with NotBefore found by CompanyName filter', 'Yes');
+        Observer.Expect('blank row', 'Yes');
+        Observer.Expect('blank company is argument', 'No');
+        Observer.Expect('blank company is CompanyName', 'Yes');
+        Observer.Expect('blank company is upper CompanyName', 'No');
+        Observer.Expect('blank company blank', 'No');
+        Observer.Expect('blank company length', '25');
+        Observer.Expect('blank found by CompanyName filter', 'Yes');
+        Observer.Expect('upper row', 'Yes');
+        Observer.Expect('upper company is argument', 'Yes');
+        Observer.Expect('upper company is CompanyName', 'No');
+        Observer.Expect('upper company is upper CompanyName', 'Yes');
+        Observer.Expect('upper company blank', 'No');
+        Observer.Expect('upper company length', '25');
+        Observer.Expect('upper found by CompanyName filter', 'No');
+        Observer.Expect('lower row', 'Yes');
+        Observer.Expect('lower company is argument', 'Yes');
+        Observer.Expect('lower company is CompanyName', 'No');
+        Observer.Expect('lower company is upper CompanyName', 'No');
+        Observer.Expect('lower company blank', 'No');
+        Observer.Expect('lower company length', '25');
+        Observer.Expect('lower found by CompanyName filter', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -92,7 +132,22 @@ codeunit 97028 "LT STC Company Arg"
         if Other <> '' then
             RunCase(Observer, 'another company', Other, false);
         RunCase(Observer, 'unknown company', 'No Such Company For Probe', false);
-        Observer.Finish();
+        Observer.Expect('another company exists', 'Yes');
+        Observer.Expect('another company row', 'Yes');
+        Observer.Expect('another company company is argument', 'Yes');
+        Observer.Expect('another company company is CompanyName', 'No');
+        Observer.Expect('another company company is upper CompanyName', 'No');
+        Observer.Expect('another company company blank', 'No');
+        Observer.Expect('another company company length', '10');
+        Observer.Expect('another company found by CompanyName filter', 'No');
+        Observer.Expect('unknown company row', 'Yes');
+        Observer.Expect('unknown company company is argument', 'Yes');
+        Observer.Expect('unknown company company is CompanyName', 'No');
+        Observer.Expect('unknown company company is upper CompanyName', 'No');
+        Observer.Expect('unknown company company blank', 'No');
+        Observer.Expect('unknown company company length', '25');
+        Observer.Expect('unknown company found by CompanyName filter', 'No');
+        Observer.Verify();
     end;
 
     [Test]
