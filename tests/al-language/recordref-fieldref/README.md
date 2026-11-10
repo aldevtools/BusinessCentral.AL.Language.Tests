@@ -28,7 +28,7 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 ## Other apps
 
 - Same area in other apps (only what cannot compile in the Cloud app): none.
-- Must-not-compile cases (18, in `tests/must-not-compile/cases/`, listed by `tests/must-not-compile/areas.tsv`): `0230-recordref-no-fieldd`, `0566-database-alterkey-is-onprem`, `1140-recordref-gettable-of-recordref`, `1341-page-run-fqn-fieldref`, `1633-page-run-recordref-bc27`, `1634-page-run-recordref`, `1786-codeunit-run-recordref`, `1787-codeunit-run-recordref-bc27`, `1792-fieldref-value-equals-text`, `1793-fieldref-value-equals-integer`, `2184-too-few-arguments-complex-parameters`, `2501-recordref-locktable-assign`, `2502-recordref-readconsistency-assign`, `2503-fieldref-setrange-assign`, `2504-fieldref-setfilter-assign`, `2548-record-validate-fieldref-value`, `2549-record-field-assign-fieldref`, `2556-fieldref-value-ordered-compare`.
+- Must-not-compile cases (19, in `tests/must-not-compile/cases/`, listed by `tests/must-not-compile/areas.tsv`): `0230-recordref-no-fieldd`, `0566-database-alterkey-is-onprem`, `1140-recordref-gettable-of-recordref`, `1341-page-run-fqn-fieldref`, `1633-page-run-recordref-bc27`, `1634-page-run-recordref`, `1786-codeunit-run-recordref`, `1787-codeunit-run-recordref-bc27`, `1792-fieldref-value-equals-text`, `1793-fieldref-value-equals-integer`, `2184-too-few-arguments-complex-parameters`, `2396-recordref-settable-assign`, `2501-recordref-locktable-assign`, `2502-recordref-readconsistency-assign`, `2503-fieldref-setrange-assign`, `2504-fieldref-setfilter-assign`, `2548-record-validate-fieldref-value`, `2549-record-field-assign-fieldref`, `2556-fieldref-value-ordered-compare`.
 
 ## Adding a test
 

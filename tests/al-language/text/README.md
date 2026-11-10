@@ -18,7 +18,7 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 ## Other apps
 
 - Same area in other apps (only what cannot compile in the Cloud app): none.
-- Must-not-compile cases (10, in `tests/must-not-compile/cases/`, listed by `tests/must-not-compile/areas.tsv`): `0236-textbuilder-no-add`, `0238-strlen-no-args`, `0239-strlen-two-args`, `0241-copystr-four-args`, `0254-replace-one-arg`, `0255-copystr-text-position`, `0490-secretstrsubstno-text-literal`, `0491-secretstrsubstno-integer-argument`, `1832-base64-frombase64-bigtext`, `1833-bigtext-to-text-assignment`.
+- Must-not-compile cases (12, in `tests/must-not-compile/cases/`, listed by `tests/must-not-compile/areas.tsv`): `0236-textbuilder-no-add`, `0238-strlen-no-args`, `0239-strlen-two-args`, `0241-copystr-four-args`, `0254-replace-one-arg`, `0255-copystr-text-position`, `0490-secretstrsubstno-text-literal`, `0491-secretstrsubstno-integer-argument`, `1832-base64-frombase64-bigtext`, `1833-bigtext-to-text-assignment`, `2389-text-padleft-assign`, `2394-boolean-totext-assign`.
 
 ## Adding a test
 

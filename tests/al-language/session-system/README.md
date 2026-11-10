@@ -30,7 +30,7 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 ## Other apps
 
 - Same area in other apps (only what cannot compile in the Cloud app): `tests/al-language-onprem/session-system/`.
-- Must-not-compile cases (12, in `tests/must-not-compile/cases/`, listed by `tests/must-not-compile/areas.tsv`): `0560-navapp-getcallstackmoduleinfos`, `0565-session-aitokensused-is-onprem`, `0567-database-changeuserpassword-is-onprem`, `0568-database-setuserpassword-is-onprem`, `0569-database-exportdata-is-onprem`, `0570-database-importdata-is-onprem`, `0575-session-logsecurityaudit-is-onprem`, `0963-isolatedstorage-get-isolationlevel`, `0965-navapp-resources-appid`, `2791-loadpackagedata-no-argument`, `2792-loadpackagedata-two-arguments`, `2793-loadpackagedata-used-as-value`.
+- Must-not-compile cases (16, in `tests/must-not-compile/cases/`, listed by `tests/must-not-compile/areas.tsv`): `0560-navapp-getcallstackmoduleinfos`, `0565-session-aitokensused-is-onprem`, `0567-database-changeuserpassword-is-onprem`, `0568-database-setuserpassword-is-onprem`, `0569-database-exportdata-is-onprem`, `0570-database-importdata-is-onprem`, `0575-session-logsecurityaudit-is-onprem`, `0963-isolatedstorage-get-isolationlevel`, `0965-navapp-resources-appid`, `2390-message-assign`, `2392-commit-assign`, `2397-workdate-compound-assign`, `2398-applicationarea-compound-assign`, `2791-loadpackagedata-no-argument`, `2792-loadpackagedata-two-arguments`, `2793-loadpackagedata-used-as-value`.
 
 ## Adding a test
 

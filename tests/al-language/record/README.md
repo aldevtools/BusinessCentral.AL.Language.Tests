@@ -7,7 +7,7 @@ The Record type: insert, modify, delete, get and find; filters; keys and sorting
 - (area folder itself): 293 AL files that are about the area as a whole or were not given a topic yet.
 - `builtin-name-procedures/`: procedures named like built-in methods (2 AL files).
 - `captions/`: captions and CaptionClass of fields and records (2 AL files).
-- `crud/`: Insert, Modify, Delete, Rename, Get, Find*, TransferFields, Copy and Init (44 AL files).
+- `crud/`: Insert, Modify, Delete, Rename, Get, Find*, TransferFields, Copy and Init (45 AL files).
 - `curr-field-no/`: CurrFieldNo passed on (1 AL file).
 - `events/`: record and table events seen from the record (2 AL files).
 - `filters/`: SetRange, SetFilter, filter syntax and GetFilter(s) (35 AL files).
@@ -29,7 +29,7 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 
 ## Shared fixtures used here
 
-- codeunit 69160 "Probe Observer": 257 files
+- codeunit 69160 "Probe Observer": 258 files
 - table 60000 "ALT Universal": 51 files
 - table 60003 "ALT Trigger Log": 19 files
 - table 60002 "ALT Triggered": 15 files
@@ -45,7 +45,7 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 ## Other apps
 
 - Same area in other apps (only what cannot compile in the Cloud app): `tests/al-language-onprem/record/`.
-- Must-not-compile cases (28, in `tests/must-not-compile/cases/`, listed by `tests/must-not-compile/areas.tsv`): `0014-cloud-app-api-webhook-entity`, `0060-record-field-does-not-exist`, `0061-record-method-does-not-exist`, `0227-record-no-insertt`, `0253-setrange-no-args`, `0256-record-insert-text-arg`, `0266-record-to-integer`, `0277-record-plus-record`, `0284-record-equals-integer`, `0363-file-copy-cloud`, `0620-record-fullyqualifiedname-runtime-16`, `0621-record-fullyqualifiedname-runtime-16-al17`, `0722-subscribe-globaltriggers-insert-wrong-type`, `0960-record-isdirty`, `1141-record-testfield-byte-value`, `1361-setfilter-text-placeholder-decimal-field`, `1426-removed-field-of-dependency`, `1442-geturl-variant-record-ambiguous`, `1450-setrange-value-without-field`, `1770-case-over-record`, `1784-record-to-var-variant`, `2081-namespace-record-integer-without-using`, `2168-too-few-arguments-record-method`, `2174-too-few-arguments-record-parameter`, `2175-too-few-arguments-var-record-parameter`, `2176-too-few-arguments-temporary-record-parameter`, `2719-record-method-on-this-keyword-with-record-variable-named-this`, `2794-loadpackagedata-record-argument`.
+- Must-not-compile cases (30, in `tests/must-not-compile/cases/`, listed by `tests/must-not-compile/areas.tsv`): `0014-cloud-app-api-webhook-entity`, `0060-record-field-does-not-exist`, `0061-record-method-does-not-exist`, `0227-record-no-insertt`, `0253-setrange-no-args`, `0256-record-insert-text-arg`, `0266-record-to-integer`, `0277-record-plus-record`, `0284-record-equals-integer`, `0363-file-copy-cloud`, `0620-record-fullyqualifiedname-runtime-16`, `0621-record-fullyqualifiedname-runtime-16-al17`, `0722-subscribe-globaltriggers-insert-wrong-type`, `0960-record-isdirty`, `1141-record-testfield-byte-value`, `1361-setfilter-text-placeholder-decimal-field`, `1426-removed-field-of-dependency`, `1442-geturl-variant-record-ambiguous`, `1450-setrange-value-without-field`, `1770-case-over-record`, `1784-record-to-var-variant`, `2081-namespace-record-integer-without-using`, `2168-too-few-arguments-record-method`, `2174-too-few-arguments-record-parameter`, `2175-too-few-arguments-var-record-parameter`, `2176-too-few-arguments-temporary-record-parameter`, `2387-record-insert-assign`, `2395-record-setrange-assign`, `2719-record-method-on-this-keyword-with-record-variable-named-this`, `2794-loadpackagedata-record-argument`.
 
 ## Line-sensitive files
 

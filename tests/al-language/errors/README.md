@@ -27,7 +27,7 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 ## Other apps
 
 - Same area in other apps (only what cannot compile in the Cloud app): none.
-- Must-not-compile cases (6, in `tests/must-not-compile/cases/`, listed by `tests/must-not-compile/areas.tsv`): `0068-trigger-function-with-return-value`, `0110-getlasterrorobject-is-onprem`, `1372-tryfunction-explicit-return-value`, `1384-tryfunction-implements-interface`, `1752-tryfunction-implements-interface-method`, `1760-tryfunction-explicit-exit-value`.
+- Must-not-compile cases (8, in `tests/must-not-compile/cases/`, listed by `tests/must-not-compile/areas.tsv`): `0068-trigger-function-with-return-value`, `0110-getlasterrorobject-is-onprem`, `1372-tryfunction-explicit-return-value`, `1384-tryfunction-implements-interface`, `1752-tryfunction-implements-interface-method`, `1760-tryfunction-explicit-exit-value`, `2391-error-assign`, `2393-getlasterrortext-assign`.
 
 ## Adding a test
 
