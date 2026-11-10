@@ -182,19 +182,21 @@ codeunit 81973 "LT BJ NoClient Tests"
         foreach ResultKey in Results.Keys() do
             Observer.Observe(ResultKey, Results.Get(ResultKey));
         Pg.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure RunPageBackgroundTask_Dialogs_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure RunPageBackgroundTask_Dialogs_More2()
-    begin
-        Observer.More();
+        Observer.Expect('01 StrMenu with instruction', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to show a selection menu: LT BJ pick one (CodeUnit 81970 LT BJ NoClient Worker). Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('02 StrMenu without instruction', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to show a selection menu:  (CodeUnit 81970 LT BJ NoClient Worker). Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('03 Page.RunModal by id', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81971 LT BJ NC Dialog Page as modal. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('04 Page.Run by id', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81971 LT BJ NC Dialog Page. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('05 Dialog Open Update Close', 'returned: done');
+        Observer.Expect('06 Hyperlink', 'returned: ran');
+        Observer.Expect('07 Notification.Send', 'returned: Yes');
+        Observer.Expect('08 Report.RunModal', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81972 RequestOptionsPage as modal. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('09 Report.Run', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81972 RequestOptionsPage as modal. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('10 FilterPageBuilder.RunModal', 'returned: No');
+        Observer.Expect('11 UploadIntoStream', 'returned: No');
+        Observer.Expect('12 SessionSettings.RequestSessionUpdate', 'returned: ran');
+        Observer.Expect('13 Page.RunModal on a variable', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81971 LT BJ NC Dialog Page as modal. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('14 Dialog Open only', 'returned: open returned');
+        Observer.Verify();
     end;
 }
 
@@ -238,20 +240,26 @@ codeunit 81974 "LT BJ NoClient Tests Handlers"
         Note.Send();
         Observer.Observe('handlers after the test calls', HandlerLog);
         Pg.Close();
-        Observer.Finish();
+        Observer.Expect('01 StrMenu with instruction', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to show a selection menu: LT BJ pick one (CodeUnit 81970 LT BJ NoClient Worker). Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('02 StrMenu without instruction', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to show a selection menu:  (CodeUnit 81970 LT BJ NoClient Worker). Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('03 Page.RunModal by id', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81971 LT BJ NC Dialog Page as modal. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('04 Page.Run by id', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81971 LT BJ NC Dialog Page. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('05 Dialog Open Update Close', 'returned: done');
+        Observer.Expect('06 Hyperlink', 'returned: ran');
+        Observer.Expect('07 Notification.Send', 'returned: Yes');
+        Observer.Expect('08 Report.RunModal', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81972 RequestOptionsPage as modal. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('09 Report.Run', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81972 RequestOptionsPage as modal. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('10 FilterPageBuilder.RunModal', 'returned: No');
+        Observer.Expect('11 UploadIntoStream', 'returned: No');
+        Observer.Expect('12 SessionSettings.RequestSessionUpdate', 'returned: ran');
+        Observer.Expect('13 Page.RunModal on a variable', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81971 LT BJ NC Dialog Page as modal. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('14 Dialog Open only', 'returned: open returned');
+        Observer.Expect('handlers after the task', '');
+        Observer.Expect('handlers after the test calls', 'strmenu handler: One,Two|LT BJ pick from the test;modal page handler;hyperlink handler: https://example.com/lt-bj-nc-test;notification handler: LT BJ notification from the test;');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure RunPageBackgroundTask_Dialogs_WithHandlers_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure RunPageBackgroundTask_Dialogs_WithHandlers_More2()
-    begin
-        Observer.More();
-    end;
 
     [StrMenuHandler]
     procedure StrMenuH(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
