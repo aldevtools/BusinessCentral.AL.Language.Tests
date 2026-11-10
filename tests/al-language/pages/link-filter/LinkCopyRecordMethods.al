@@ -369,7 +369,6 @@ codeunit 62666 "PG RC Link Copy Methods"
         Observer.Observe('log', Mgt.Take());
         Observer.Observe('zones', Zones());
         Card.Close();
-        Observer.Finish();
     end;
 
     local procedure ViaPart(Place: Text; NewStep: Text; WithModify: Boolean)
@@ -413,7 +412,6 @@ codeunit 62666 "PG RC Link Copy Methods"
         Observer.Observe('log', Mgt.Take());
         Observer.Observe('zones', Zones());
         Card.Close();
-        Observer.Finish();
     end;
 
     [PageHandler]
@@ -454,12 +452,18 @@ codeunit 62666 "PG RC Link Copy Methods"
     procedure RunPageLinkList_OnOpenPage()
     begin
         ViaAction('open', 'first', false);
+        Observer.Expect('log', '[open key=L2/ pick=No filters=[] g4=[] count=4 empty=No first=L1/Z1 set=[Z1 Z2 Z3 Z4 ] find=No next=1:L2/Z3 get-outside=Yes own-range=2 testfield=[Pick must have a value in PG RC Zone: Loc Code=L2, Code=. It cannot be zero or empty.]]');
+        Observer.Expect('zones', '[L1/Z1:No:No L1/Z2:No:No L2/Z3:No:No L2/Z4:Yes:No ]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure SubPageLinkPart_OnOpenPage()
     begin
         ViaPart('part-open', 'first', false);
+        Observer.Expect('log', '[part-open key=/ pick=No filters=[] g4=[] count=4 empty=No first=L1/Z1 set=[Z1 Z2 Z3 Z4 ] find=No next=1:L1/Z1 get-outside=Yes own-range=2 testfield=[Pick must have a value in PG RC Zone: Loc Code=, Code=. It cannot be zero or empty.]]');
+        Observer.Expect('zones', '[L1/Z1:No:No L1/Z2:No:No L2/Z3:No:No L2/Z4:Yes:No ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -467,12 +471,18 @@ codeunit 62666 "PG RC Link Copy Methods"
     procedure RunPageLinkList_OnAfterGetCurrRecord()
     begin
         ViaAction('agcr', 'first', false);
+        Observer.Expect('log', '[agcr key=L2/Z3 pick=No filters=[] g4=[] count=4 empty=No first=L1/Z1 set=[Z1 Z2 Z3 Z4 ] find=Yes next=1:L2/Z4 get-outside=Yes own-range=2 testfield=[Pick must have a value in PG RC Zone: Loc Code=L2, Code=Z3. It cannot be zero or empty.]]');
+        Observer.Expect('zones', '[L1/Z1:No:No L1/Z2:No:No L2/Z3:No:No L2/Z4:Yes:No ]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure SubPageLinkPart_OnAfterGetCurrRecord()
     begin
         ViaPart('part-agcr', 'first', false);
+        Observer.Expect('log', '[]');
+        Observer.Expect('zones', '[L1/Z1:No:No L1/Z2:No:No L2/Z3:No:No L2/Z4:Yes:No ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -480,12 +490,18 @@ codeunit 62666 "PG RC Link Copy Methods"
     procedure RunPageLinkList_TableFieldOnValidate_StoredRow()
     begin
         ViaAction('table-validate', 'multi-stored', false);
+        Observer.Expect('log', '[table-validate key=L2/Z3 pick=No filters=[] g4=[] count=4 empty=No first=L1/Z1 set=[Z1 Z2 Z3 Z4 ] find=Yes next=1:L2/Z4 get-outside=Yes own-range=2 testfield=[Pick must have a value in PG RC Zone: Loc Code=L2, Code=Z3. It cannot be zero or empty.]]');
+        Observer.Expect('zones', '[L1/Z1:No:No L1/Z2:No:No L2/Z3:No:Yes L2/Z4:Yes:No ]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure SubPageLinkPart_TableFieldOnValidate_StoredRow()
     begin
         ViaPart('table-validate', 'multi-stored', false);
+        Observer.Expect('log', '[table-validate key=L2/Z3 pick=No filters=[] g4=[] count=4 empty=No first=L1/Z1 set=[Z1 Z2 Z3 Z4 ] find=Yes next=1:L2/Z4 get-outside=Yes own-range=2 testfield=[Pick must have a value in PG RC Zone: Loc Code=L2, Code=Z3. It cannot be zero or empty.]]');
+        Observer.Expect('zones', '[L1/Z1:No:No L1/Z2:No:No L2/Z3:No:No L2/Z4:Yes:No ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -493,12 +509,18 @@ codeunit 62666 "PG RC Link Copy Methods"
     procedure RunPageLinkList_TableFieldOnValidate_NewRow()
     begin
         ViaAction('table-validate', 'multi-new', false);
+        Observer.Expect('log', '[table-validate key=L2/Z9 pick=No filters=[] g4=[] count=5 empty=No first=L1/Z1 set=[Z1 Z2 Z3 Z4 Z9 ] find=Yes next=0:L2/Z9 get-outside=Yes own-range=2 testfield=[Pick must have a value in PG RC Zone: Loc Code=L2, Code=Z9. It cannot be zero or empty.]]');
+        Observer.Expect('zones', '[L1/Z1:No:No L1/Z2:No:No L2/Z3:No:No L2/Z4:Yes:No L2/Z9:No:Yes ]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure SubPageLinkPart_TableFieldOnValidate_NewRow()
     begin
         ViaPart('table-validate', 'multi-new', false);
+        Observer.Expect('log', '[table-validate key=L2/Z9 pick=No filters=[] g4=[] count=5 empty=No first=L1/Z1 set=[Z1 Z2 Z3 Z4 Z9 ] find=Yes next=0:L2/Z9 get-outside=Yes own-range=2 testfield=[Pick must have a value in PG RC Zone: Loc Code=L2, Code=Z9. It cannot be zero or empty.]]');
+        Observer.Expect('zones', '[L1/Z1:No:No L1/Z2:No:No L2/Z3:No:No L2/Z4:Yes:No L2/Z9:No:No ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -506,12 +528,18 @@ codeunit 62666 "PG RC Link Copy Methods"
     procedure RunPageLinkList_PageFieldOnValidate_StoredRow()
     begin
         ViaAction('page-validate', 'pick-stored', false);
+        Observer.Expect('log', '[page-validate key=L2/Z3 pick=Yes filters=[] g4=[] count=4 empty=No first=L1/Z1 set=[Z1 Z2 Z3 Z4 ] find=Yes next=1:L2/Z4 get-outside=Yes own-range=2 testfield=ok]');
+        Observer.Expect('zones', '[L1/Z1:No:No L1/Z2:No:No L2/Z3:Yes:No L2/Z4:Yes:No ]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure SubPageLinkPart_PageFieldOnValidate_StoredRow()
     begin
         ViaPart('part-page-validate', 'pick-stored', false);
+        Observer.Expect('log', '[part-page-validate key=L2/Z3 pick=Yes filters=[] g4=[] count=4 empty=No first=L1/Z1 set=[Z1 Z2 Z3 Z4 ] find=Yes next=1:L2/Z4 get-outside=Yes own-range=2 testfield=ok]');
+        Observer.Expect('zones', '[L1/Z1:No:No L1/Z2:No:No L2/Z3:No:No L2/Z4:Yes:No ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -519,12 +547,18 @@ codeunit 62666 "PG RC Link Copy Methods"
     procedure RunPageLinkList_Action_OnLastRow()
     begin
         ViaAction('action', 'check', false);
+        Observer.Expect('log', '[action key=L2/Z4 pick=Yes filters=[] g4=[] count=4 empty=No first=L1/Z1 set=[Z1 Z2 Z3 Z4 ] find=Yes next=0:L2/Z4 get-outside=Yes own-range=2 testfield=ok]');
+        Observer.Expect('zones', '[L1/Z1:No:No L1/Z2:No:No L2/Z3:No:No L2/Z4:Yes:No ]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure SubPageLinkPart_Action_OnLastRow()
     begin
         ViaPart('part-action', 'check', false);
+        Observer.Expect('log', '[part-action key=L2/Z4 pick=Yes filters=[] g4=[] count=4 empty=No first=L1/Z1 set=[Z1 Z2 Z3 Z4 ] find=Yes next=0:L2/Z4 get-outside=Yes own-range=2 testfield=ok]');
+        Observer.Expect('zones', '[L1/Z1:No:No L1/Z2:No:No L2/Z3:No:No L2/Z4:Yes:No ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -532,12 +566,18 @@ codeunit 62666 "PG RC Link Copy Methods"
     procedure RunPageLinkList_OnNewRecord()
     begin
         ViaAction('new', 'new', false);
+        Observer.Expect('log', '[new key=L2/ pick=No filters=[] g4=[] count=4 empty=No first=L1/Z1 set=[Z1 Z2 Z3 Z4 ] find=No next=1:L2/Z3 get-outside=Yes own-range=2 testfield=[Pick must have a value in PG RC Zone: Loc Code=L2, Code=. It cannot be zero or empty.]]');
+        Observer.Expect('zones', '[L1/Z1:No:No L1/Z2:No:No L2/Z3:No:No L2/Z4:Yes:No ]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure SubPageLinkPart_OnNewRecord()
     begin
         ViaPart('part-new', 'new', false);
+        Observer.Expect('log', '[part-new key=L2/ pick=No filters=[] g4=[] count=4 empty=No first=L1/Z1 set=[Z1 Z2 Z3 Z4 ] find=No next=1:L2/Z3 get-outside=Yes own-range=2 testfield=[Pick must have a value in PG RC Zone: Loc Code=L2, Code=. It cannot be zero or empty.]]');
+        Observer.Expect('zones', '[L1/Z1:No:No L1/Z2:No:No L2/Z3:No:No L2/Z4:Yes:No ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -545,12 +585,18 @@ codeunit 62666 "PG RC Link Copy Methods"
     procedure RunPageLinkList_TableFieldOnValidate_StoredRow_ModifyOnTheCopy()
     begin
         ViaAction('table-validate', 'multi-stored', true);
+        Observer.Expect('log', '[table-validate key=L2/Z3 modify=Yes]');
+        Observer.Expect('zones', '[L1/Z1:No:No L1/Z2:No:No L2/Z3:No:Yes L2/Z4:Yes:No ]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure SubPageLinkPart_TableFieldOnValidate_StoredRow_ModifyOnTheCopy()
     begin
         ViaPart('table-validate', 'multi-stored', true);
+        Observer.Expect('log', '[table-validate key=L2/Z3 modify=Yes]');
+        Observer.Expect('zones', '[L1/Z1:No:No L1/Z2:No:No L2/Z3:Yes:Yes L2/Z4:Yes:No ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -558,12 +604,18 @@ codeunit 62666 "PG RC Link Copy Methods"
     procedure RunPageLinkList_Action_OnLastRow_ModifyOnTheCopy()
     begin
         ViaAction('action', 'check', true);
+        Observer.Expect('log', '[action key=L2/Z4 modify=Yes]');
+        Observer.Expect('zones', '[L1/Z1:No:No L1/Z2:No:No L2/Z3:No:No L2/Z4:No:No ]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure SubPageLinkPart_Action_OnLastRow_ModifyOnTheCopy()
     begin
         ViaPart('part-action', 'check', true);
+        Observer.Expect('log', '[part-action key=L2/Z4 modify=Yes]');
+        Observer.Expect('zones', '[L1/Z1:No:No L1/Z2:No:No L2/Z3:No:No L2/Z4:No:No ]');
+        Observer.Verify();
     end;
 
 }
