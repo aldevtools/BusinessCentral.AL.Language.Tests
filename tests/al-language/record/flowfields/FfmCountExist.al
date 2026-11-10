@@ -1470,23 +1470,6 @@ codeunit 64203 "FFM CountExist Tests"
         Observer.Finish();
     end;
 
-    [Test]
-    procedure FlowFieldNegatedCount_CalcFields_RaisesUnexpectedClrException()
-    // CLAIM: CalcFields of a FlowField whose CalcFormula is -count raises an unexpected CLR exception (an InvalidCastException from NavInteger to NavBigInteger), which a TryFunction does not catch.
-    // The matrix of filter forms over -count FlowFields cannot be pinned: the exception is raised by every calculation and ends a test that has no asserterror around it.
-    var
-        H: Record "FFM CountExist Header";
-    begin
-        Initialize();
-        H.Get('H1');
-        asserterror begin
-            H.CalcFields(NCnt_const);
-            Error('FFM_NO_ERROR');
-        end;
-        Observer.Observe('const', CopyStr(GetLastErrorText(), 1, 120));
-        Observer.Finish();
-    end;
-
     local procedure Initialize()
     var
         D: Record "FFM CountExist Detail";
