@@ -8,7 +8,14 @@
 // rows with a non-blank rest exist, a filter is set on the omitted field, the omitted field is an Option, an Enum without ordinal 0, a
 // Guid or one of eight more types, the field has an InitValue, the record is temporary, a RecordId holds fewer values, and the texts of
 // the errors. No cell reads rows after an asserterror (it would roll the rows back): an error is observed through a TryFunction.
-// Observe-only: every value is recorded through "Probe Observer", the test then fails with OBSERVE:name=value;...
+// Values measured on BC 27.5, 28.5 and 29.0 (corpus CI runs 42876663156, 42876712578, 42876759234; identical on all three).
+// Measured: Get with fewer values searches every omitted key field with the blank value of its type (Code '', Integer 0, Option and Enum
+// ordinal 0 even when the enum has no member 0, Boolean false, zero Guid, blank Date, Time, DateFormula and Duration). An omitted field
+// with InitValue = 5 is searched with 5, also on a cleared record variable: the row with 5 is found, the row with 0 is not. It ignores the value the record variable holds in the omitted field, a filter on that field or on another field (any
+// filter group; the filters stay), and the current key. A row whose omitted fields are not blank is not found: the used form answers
+// false, the unused form raises DB:RecordNotFound and names every key field, the omitted ones with their blank value. After a miss the
+// record variable keeps its values when the Get was used (false) and after a TryFunction error; a cleared variable stays cleared.
+// A temporary record, a RecordId with fewer values (Record.Get and RecordRef.Get) and the assignment form behave the same.
 // local object: every table below has the primary key (field types, InitValue, captions) that is the subject of the probe.
 
 table 96450 "REC GetFewer Two"
@@ -281,7 +288,9 @@ codeunit 96460 "REC GetFewer Key Values"
         Clear(Two);
         Ok := TwoGet0(Two);
         Observer.Observe('unused', Unused(Ok, Two));
-        Observer.Finish();
+        Observer.Expect('used', 'Yes //all-blank');
+        Observer.Expect('unused', 'ok //all-blank');
+        Observer.Verify();
     end;
 
     // G2: Get('Q') when only a row with a non-blank second key field exists: no row, or the first row that starts with Q?
@@ -298,7 +307,9 @@ codeunit 96460 "REC GetFewer Key Values"
         Clear(Two);
         Ok := TwoGet1(Two, 'Q');
         Observer.Observe('unused', Unused(Ok, Two));
-        Observer.Finish();
+        Observer.Expect('used', 'No //');
+        Observer.Expect('unused', 'error:The REC GetFewer Two does not exist. Identification fields and values: A=''Q'',B=''''|DB:RecordNotFound record //');
+        Observer.Verify();
     end;
 
     // G3: the record variable holds 'X' in the omitted field (assigned, no read): blank or the held value is searched?
@@ -332,7 +343,12 @@ codeunit 96460 "REC GetFewer Key Values"
         Two.A := 'Q';
         Two.B := 'X';
         Observer.Observe('only the X row, no values', Used(Two.Get(), Two));
-        Observer.Finish();
+        Observer.Expect('both rows, used', 'Yes Q//q-blank');
+        Observer.Expect('both rows, unused', 'ok Q//q-blank');
+        Observer.Expect('only the X row, used', 'No Q/X/');
+        Observer.Expect('only the X row, unused', 'error:The REC GetFewer Two does not exist. Identification fields and values: A=''Q'',B=''''|DB:RecordNotFound record Q/X/');
+        Observer.Expect('only the X row, no values', 'No Q/X/');
+        Observer.Verify();
     end;
 
     // G4: the same question after a successful full-key Get of the X row.
@@ -351,7 +367,12 @@ codeunit 96460 "REC GetFewer Key Values"
         Observer.Observe('only the X row, full key', Used(Two.Get('Q', 'X'), Two));
         Observer.Observe('only the X row', Used(Two.Get('Q'), Two));
         Observer.Observe('only the X row, no values', Used(Two.Get(), Two));
-        Observer.Finish();
+        Observer.Expect('full key', 'Yes Q/X/q-x');
+        Observer.Expect('both rows', 'Yes Q//q-blank');
+        Observer.Expect('only the X row, full key', 'Yes Q/X/q-x');
+        Observer.Expect('only the X row', 'No Q/X/q-x');
+        Observer.Expect('only the X row, no values', 'No Q/X/q-x');
+        Observer.Verify();
     end;
 
     // G5: a filter on the omitted key field: it supplies the value, hides the blank row, or is ignored?
@@ -379,7 +400,12 @@ codeunit 96460 "REC GetFewer Key Values"
         Two.SetRange(A, 'Q');
         Two.SetRange(B, 'X');
         Observer.Observe('only the X row, both filtered, no values', Used(Two.Get(), Two));
-        Observer.Finish();
+        Observer.Expect('both rows, used', 'Yes Q//q-blank');
+        Observer.Expect('filters after', 'B: X');
+        Observer.Expect('both rows, unused', 'ok Q//q-blank');
+        Observer.Expect('only the X row, used', 'No //');
+        Observer.Expect('only the X row, both filtered, no values', 'No //');
+        Observer.Verify();
     end;
 
     // G6: a filter on a field outside the key, in filter group 0 and in filter group 2.
@@ -406,7 +432,12 @@ codeunit 96460 "REC GetFewer Key Values"
         Observer.Observe('group 2 on the omitted field', Used(Two.Get('Q'), Two));
         Two.FilterGroup(2);
         Observer.Observe('group 2 filters after', Two.GetFilters());
-        Observer.Finish();
+        Observer.Expect('group 0', 'Yes Q//q-blank');
+        Observer.Expect('group 0 filters after', 'Info: none');
+        Observer.Expect('group 2', 'Yes Q//q-blank');
+        Observer.Expect('group 2 on the omitted field', 'Yes Q//q-blank');
+        Observer.Expect('group 2 filters after', 'B: X');
+        Observer.Verify();
     end;
 
     // G7: the current key is a secondary key.
@@ -422,7 +453,9 @@ codeunit 96460 "REC GetFewer Key Values"
         Two.Ascending(false);
         Observer.Observe('used', Used(Two.Get('Q'), Two));
         Observer.Observe('key after', Two.CurrentKey());
-        Observer.Finish();
+        Observer.Expect('used', 'Yes Q//q-blank');
+        Observer.Expect('key after', 'Info');
+        Observer.Verify();
     end;
 
     local procedure AddMixed(A: Code[10]; N: Integer; O: Option; G: Guid; Info: Text[30])
@@ -484,7 +517,11 @@ codeunit 96460 "REC GetFewer Key Values"
         Mixed.O := Mixed.O::One;
         Mixed.G := SomeGuid();
         Observer.Observe('one value, record holds the rest', Used(Mixed.Get('Q'), Mixed));
-        Observer.Finish();
+        Observer.Expect('one value', 'Yes Q/0/0/{00000000-0000-0000-0000-000000000000}/blank');
+        Observer.Expect('two values', 'Yes Q/1/0/{00000000-0000-0000-0000-000000000000}/n1');
+        Observer.Expect('three values', 'Yes Q/1/1/{00000000-0000-0000-0000-000000000000}/n1-one');
+        Observer.Expect('one value, record holds the rest', 'Yes Q/0/0/{00000000-0000-0000-0000-000000000000}/blank');
+        Observer.Verify();
     end;
 
     // G8, G12: only the row with a non-blank rest exists; the error text for each number of values.
@@ -505,7 +542,12 @@ codeunit 96460 "REC GetFewer Key Values"
             Ok := MixedGet(Mixed, 'Q', Values);
             Observer.Observe(Format(Values) + ' value(s), unused', Unused(Ok, Mixed));
         end;
-        Observer.Finish();
+        Observer.Expect('three values, used', 'No /0/0/{00000000-0000-0000-0000-000000000000}/');
+        Observer.Expect('0 value(s), unused', 'error:The REC GetFewer Mixed does not exist. Identification fields and values: A='''',N=''0'',O='' '',G=''{00000000-0000-0000-0000-000000000000}''|DB:RecordNotFound record /0/0/{00000000-0000-0000-0000-000000000000}/');
+        Observer.Expect('1 value(s), unused', 'error:The REC GetFewer Mixed does not exist. Identification fields and values: A=''Q'',N=''0'',O='' '',G=''{00000000-0000-0000-0000-000000000000}''|DB:RecordNotFound record /0/0/{00000000-0000-0000-0000-000000000000}/');
+        Observer.Expect('2 value(s), unused', 'error:The REC GetFewer Mixed does not exist. Identification fields and values: A=''Q'',N=''1'',O='' '',G=''{00000000-0000-0000-0000-000000000000}''|DB:RecordNotFound record /0/0/{00000000-0000-0000-0000-000000000000}/');
+        Observer.Expect('3 value(s), unused', 'error:The REC GetFewer Mixed does not exist. Identification fields and values: A=''Q'',N=''1'',O=''One'',G=''{00000000-0000-0000-0000-000000000000}''|DB:RecordNotFound record /0/0/{00000000-0000-0000-0000-000000000000}/');
+        Observer.Verify();
     end;
 
     local procedure AddTypes(A: Code[10]; Full: Boolean; Info: Text[30])
@@ -559,7 +601,12 @@ codeunit 96460 "REC GetFewer Key Values"
         Clear(Types);
         Ok := TypesGet1(Types, 'P');
         Observer.Observe('only the full row, unused', Unused(Ok, Types));
-        Observer.Finish();
+        Observer.Expect('blank row present', 'Yes Q/false/0/0////P0DT0H0M0.0S/q-blank');
+        Observer.Expect('two values, false', 'Yes Q/false/0/0////P0DT0H0M0.0S/q-blank');
+        Observer.Expect('two values, true', 'Yes Q/true/0/0////P0DT0H0M0.0S/q-true');
+        Observer.Expect('only the full row', 'No /false/0/0////P0DT0H0M0.0S/');
+        Observer.Expect('only the full row, unused', 'error:The REC GetFewer Types does not exist. Identification fields and values: A=''P'',Bo=''No'',De=''0'',Bi=''0'',Dt='''',Ti='''',Tx='''',Du=''''|DB:RecordNotFound record /false/0/0////P0DT0H0M0.0S/');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -595,7 +642,10 @@ codeunit 96460 "REC GetFewer Key Values"
         Clear(Formula);
         Ok := FormulaGet1(Formula, 'P');
         Observer.Observe('only the full row, unused', Unused(Ok, Formula));
-        Observer.Finish();
+        Observer.Expect('blank row present', 'Yes Q///q-blank');
+        Observer.Expect('only the full row', 'No ///');
+        Observer.Expect('only the full row, unused', 'error:The REC GetFewer Formula does not exist. Identification fields and values: A=''P'',Df='''',Da=''''|DB:RecordNotFound record ///');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -635,7 +685,11 @@ codeunit 96460 "REC GetFewer Key Values"
         Clear(EnumRow);
         Ok := EnumGet1(EnumRow, 'P');
         Observer.Observe('only the row with One, unused', Unused(Ok, EnumRow));
-        Observer.Finish();
+        Observer.Expect('ordinal after Init', '0');
+        Observer.Expect('row with ordinal 0 present', 'Yes Q/0/q-init');
+        Observer.Expect('only the row with One', 'No /0/');
+        Observer.Expect('only the row with One, unused', 'error:The REC GetFewer Enum Row does not exist. Identification fields and values: A=''P'',E=''0''|DB:RecordNotFound record /0/');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -670,7 +724,10 @@ codeunit 96460 "REC GetFewer Key Values"
         Clear(OptionRow);
         Ok := OptionGet1(OptionRow, 'P');
         Observer.Observe('only the row with One, unused', Unused(Ok, OptionRow));
-        Observer.Finish();
+        Observer.Expect('row with Zero present', 'Yes Q/0/q-zero');
+        Observer.Expect('only the row with One', 'No /0/');
+        Observer.Expect('only the row with One, unused', 'error:The REC GetFewer Option Row does not exist. Identification fields and values: A=''P'',O=''Zero''|DB:RecordNotFound record /0/');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -710,7 +767,12 @@ codeunit 96460 "REC GetFewer Key Values"
         Clear(InitRow);
         Ok := InitGet1(InitRow, 'P');
         Observer.Observe('only row 5, unused', Unused(Ok, InitRow));
-        Observer.Finish();
+        Observer.Expect('rows 0 and 5, cleared record', 'Yes Q/5/q-5');
+        Observer.Expect('rows 0 and 5, after Init', 'Yes Q/5/q-5');
+        Observer.Expect('only row 5, cleared record', 'Yes P/5/p-5');
+        Observer.Expect('only row 5, after Init', 'Yes P/5/p-5');
+        Observer.Expect('only row 5, unused', 'ok P/5/p-5');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -741,7 +803,11 @@ codeunit 96460 "REC GetFewer Key Values"
         Observer.Observe('captions, no values', Unused(Ok, Cap));
         Ok := CapGet(Cap, 'R', 1);
         Observer.Observe('captions, one value', Unused(Ok, Cap));
-        Observer.Finish();
+        Observer.Expect('no caption, no values', 'error:The REC GetFewer Two does not exist. Identification fields and values: A='''',B=''''|DB:RecordNotFound record //');
+        Observer.Expect('no caption, one value', 'error:The REC GetFewer Two does not exist. Identification fields and values: A=''R'',B=''''|DB:RecordNotFound record //');
+        Observer.Expect('captions, no values', 'error:The GF Captioned does not exist. Identification fields and values: First Part='''',Second Part=''''|DB:RecordNotFound record //');
+        Observer.Expect('captions, one value', 'error:The GF Captioned does not exist. Identification fields and values: First Part=''R'',Second Part=''''|DB:RecordNotFound record //');
+        Observer.Verify();
     end;
 
     // G13: the record variable holds values and no row matches: the record after the miss.
@@ -762,7 +828,10 @@ codeunit 96460 "REC GetFewer Key Values"
         Observer.Observe('unused', Unused(Ok, Two));
         Two.Get('Q', 'X');
         Observer.Observe('used, after a read', Used(Two.Get('R'), Two));
-        Observer.Finish();
+        Observer.Expect('used', 'No Z/Y/held');
+        Observer.Expect('unused', 'error:The REC GetFewer Two does not exist. Identification fields and values: A=''R'',B=''''|DB:RecordNotFound record Z/Y/held');
+        Observer.Expect('used, after a read', 'No Q/X/q-x');
+        Observer.Verify();
     end;
 
     // G14: a temporary record: the cells G1 to G3.
@@ -804,7 +873,12 @@ codeunit 96460 "REC GetFewer Key Values"
         Temp.SetRange(B, 'X');
         Found := Temp.Get('Q');
         Observer.Observe('one value, both rows, filter on X', Format(Found) + ' ' + Temp.A + '/' + Temp.B + '/' + Temp.Info);
-        Observer.Finish();
+        Observer.Expect('no values, all-blank row present', 'Yes //all-blank');
+        Observer.Expect('one value, only the X row', 'No //');
+        Observer.Expect('one value, record holds X', 'No Q/X/');
+        Observer.Expect('one value, both rows, record holds X', 'Yes Q//q-blank');
+        Observer.Expect('one value, both rows, filter on X', 'Yes Q//q-blank');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -875,7 +949,15 @@ codeunit 96460 "REC GetFewer Key Values"
             Observer.Observe('recordref, only the X row, used', RefRecordIdOutcome(RecId, true));
             Observer.Observe('recordref, only the X row, unused', RefRecordIdOutcome(RecId, false));
         end;
-        Observer.Finish();
+        Observer.Expect('evaluate', 'Yes REC GetFewer Two: Q');
+        Observer.Expect('record, both rows, used', 'Yes Q//q-blank');
+        Observer.Expect('record holds X, both rows, used', 'Yes Q//q-blank');
+        Observer.Expect('recordref, both rows, used', 'Yes Q//q-blank');
+        Observer.Expect('record, only the X row, used', 'No //');
+        Observer.Expect('record, only the X row, unused', 'error:The REC GetFewer Two does not exist. Identification fields and values: A=''Q'',B=''''|DB:RecordNotFound record //');
+        Observer.Expect('recordref, only the X row, used', 'No //');
+        Observer.Expect('recordref, only the X row, unused', 'error:The REC GetFewer Two does not exist. Identification fields and values: A=''Q'',B=''''|DB:RecordNotFound record //');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -907,6 +989,10 @@ codeunit 96460 "REC GetFewer Key Values"
         Clear(Two);
         Ok := TwoGet1(Two, 'Q');
         Observer.Observe('only the X row, call form', Unused(Ok, Two));
-        Observer.Finish();
+        Observer.Expect('both rows', 'Q//q-blank');
+        Observer.Expect('both rows, record holds X', 'ok Q//q-blank');
+        Observer.Expect('only the X row', 'error:The REC GetFewer Two does not exist. Identification fields and values: A=''Q'',B=''''|DB:RecordNotFound record //');
+        Observer.Expect('only the X row, call form', 'error:The REC GetFewer Two does not exist. Identification fields and values: A=''Q'',B=''''|DB:RecordNotFound record //');
+        Observer.Verify();
     end;
 }

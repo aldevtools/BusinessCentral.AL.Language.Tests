@@ -8,7 +8,15 @@
 // the order of receiver, right side and call. Already pinned and not repeated: a bare procedure with one value parameter, a member of a
 // codeunit variable, a procedure with a return value (ProcedureAssignmentOneParameter.al, record/ProbePropertyAssignmentForms.al
 // Y29_OwnProcedure_AssignForms). The shapes the compiler refuses are must-not-compile cases 2373 to 2399.
-// Observe-only: every value is recorded through "Probe Observer", the test then fails with OBSERVE:name=value;...
+// U16 and U17 (al-runner 7714, reporter's shape): `currXMLport.Filename := 'probe.txt'` in OnPreXmlPort of an export that is given an
+// OutStream, next to the call form and to an xmlport that does not touch Filename: what Filename() reads before and after, in OnPostXmlPort,
+// and whether the exported text is the same; and the same assignment on an XmlPort variable before SetDestination and Export.
+// Values measured on BC 27.5, 28.5 and 29.0 (corpus CI runs 42876663156, 42876712578, 42876759234; identical on all three unless a test
+// says otherwise). Measured: the assignment form runs the procedure exactly as the call form does in every cell: same log line, same
+// value written back to a `var` parameter (Integer and Record), same TryFunction result and error, same subscriber call, same
+// implementation of an interface, same order (receiver, right side, call), same conversion errors (StringLengthExceeded, ConversionCast).
+// A local variable or a parameter with the name of the procedure takes the assignment: the procedure does not run.
+// Observation form (ends in Finish(), not measured yet): U16 and U17, and U15 on BC 28.5 and 29.0 (see the comment in the test).
 // local object: every object below is the subject of the probe (the kind of object that declares the procedure is the question), and the
 // log codeunit 96400 must be SingleInstance so a page, a table and a subscriber write to the log the test reads.
 
@@ -214,6 +222,7 @@ page 96405 "CU AssignCall Card"
 page 96408 "CU AssignCall Part"
 {
     PageType = ListPart;
+    ApplicationArea = All;
     SourceTable = "CU AssignCall Row";
 
     layout
@@ -238,6 +247,7 @@ page 96408 "CU AssignCall Part"
 page 96409 "CU AssignCall Host"
 {
     PageType = Card;
+    ApplicationArea = All;
     SourceTable = "CU AssignCall Row";
     UsageCategory = None;
 
@@ -270,6 +280,109 @@ page 96409 "CU AssignCall Host"
             }
         }
     }
+}
+
+xmlport 96404 "CU AssignCall Xp Plain"
+{
+    Direction = Export;
+    Format = VariableText;
+    TextEncoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "CU AssignCall Row")
+            {
+                fieldelement(Id; Row.Id) { }
+                fieldelement(Val; Row.Val) { }
+            }
+        }
+    }
+
+    trigger OnPreXmlPort()
+    begin
+        Log.Add('pre: ' + currXMLport.Filename());
+    end;
+
+    trigger OnPostXmlPort()
+    begin
+        Log.Add('post: ' + currXMLport.Filename());
+    end;
+
+    var
+        Log: Codeunit "CU AssignCall Log";
+}
+
+xmlport 96406 "CU AssignCall Xp Assign"
+{
+    Direction = Export;
+    Format = VariableText;
+    TextEncoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "CU AssignCall Row")
+            {
+                fieldelement(Id; Row.Id) { }
+                fieldelement(Val; Row.Val) { }
+            }
+        }
+    }
+
+    trigger OnPreXmlPort()
+    begin
+        Log.Add('pre: ' + currXMLport.Filename());
+        currXMLport.Filename := 'probe.txt';
+        Log.Add('pre, after assign: ' + currXMLport.Filename());
+    end;
+
+    trigger OnPostXmlPort()
+    begin
+        Log.Add('post: ' + currXMLport.Filename());
+    end;
+
+    var
+        Log: Codeunit "CU AssignCall Log";
+}
+
+xmlport 96412 "CU AssignCall Xp Call"
+{
+    Direction = Export;
+    Format = VariableText;
+    TextEncoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "CU AssignCall Row")
+            {
+                fieldelement(Id; Row.Id) { }
+                fieldelement(Val; Row.Val) { }
+            }
+        }
+    }
+
+    trigger OnPreXmlPort()
+    begin
+        Log.Add('pre: ' + currXMLport.Filename());
+        currXMLport.Filename('probe.txt');
+        Log.Add('pre, after call: ' + currXMLport.Filename());
+    end;
+
+    trigger OnPostXmlPort()
+    begin
+        Log.Add('post: ' + currXMLport.Filename());
+    end;
+
+    var
+        Log: Codeunit "CU AssignCall Log";
 }
 
 interface "CU AssignCall IFace"
@@ -333,7 +446,8 @@ codeunit 96410 "CU AssignCall Rule"
         Log.Take();
         Target.RunLocal();
         Observer.Observe('assign then call', Log.Take());
-        Observer.Finish();
+        Observer.Expect('assign then call', 'PLocal(1);PLocal(2);');
+        Observer.Verify();
     end;
 
     // U2: a `var` parameter, bare name.
@@ -350,7 +464,10 @@ codeunit 96410 "CU AssignCall Rule"
         Bump(I);
         Observer.Observe('I after call', Format(I));
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('I after assign', '11');
+        Observer.Expect('I after call', '21');
+        Observer.Expect('log', 'Bump(1);Bump(11);');
+        Observer.Verify();
     end;
 
     // U3: a `var` parameter, member of a codeunit variable.
@@ -368,7 +485,10 @@ codeunit 96410 "CU AssignCall Rule"
         Target.BumpVar(I);
         Observer.Observe('I after call', Format(I));
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('I after assign', '11');
+        Observer.Expect('I after call', '21');
+        Observer.Expect('log', 'BumpVar(1);BumpVar(11);');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -420,7 +540,17 @@ codeunit 96410 "CU AssignCall Rule"
         Ok := TrySetBare(-2);
         Observer.Observe('bare assign raises', Outcome(Ok));
         Observer.Observe('bare assign raises log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('assign passes', 'ok');
+        Observer.Expect('assign passes log', 'TrySet(1);after assign;');
+        Observer.Expect('call passes', 'ok');
+        Observer.Expect('call passes log', 'TrySet(1);after call;');
+        Observer.Expect('assign raises', 'error:TrySet refuses -1|Dialog');
+        Observer.Expect('assign raises log', 'TrySet(-1);');
+        Observer.Expect('call raises', 'error:TrySet refuses -1|Dialog');
+        Observer.Expect('call raises log', 'TrySet(-1);');
+        Observer.Expect('bare assign raises', 'error:TrySet refuses -2|Dialog');
+        Observer.Expect('bare assign raises log', 'TrySet(-2);');
+        Observer.Verify();
     end;
 
     // U5: an event publisher; a manual subscriber is bound.
@@ -442,7 +572,11 @@ codeunit 96410 "CU AssignCall Rule"
         UnbindSubscription(Sub);
         Target.OnEv := 5;
         Observer.Observe('unbound assign', Log.Take());
-        Observer.Finish();
+        Observer.Expect('member assign', 'subscriber(7);');
+        Observer.Expect('member call', 'subscriber(6);');
+        Observer.Expect('bare assign then call', 'subscriber(8);subscriber(9);');
+        Observer.Expect('unbound assign', '');
+        Observer.Verify();
     end;
 
     // U6: a procedure of a table, on a Record variable and bare inside the table.
@@ -462,7 +596,11 @@ codeunit 96410 "CU AssignCall Rule"
         Observer.Observe('bare in table', Format(Row.Val) + ' ' + Log.Take());
         Row.RunRec(7);
         Observer.Observe('Rec. in table', Format(Row.Val) + ' ' + Log.Take());
-        Observer.Finish();
+        Observer.Expect('record variable assign', '5 TableProc(5) on 1;');
+        Observer.Expect('record variable call', '4 TableProc(4) on 1;');
+        Observer.Expect('bare in table', '6 TableProc(6) on 1;');
+        Observer.Expect('Rec. in table', '7 TableProc(7) on 1;');
+        Observer.Verify();
     end;
 
     // U7: a procedure of a page, on a Page variable.
@@ -477,7 +615,9 @@ codeunit 96410 "CU AssignCall Rule"
         Observer.Observe('assign', Log.Take());
         Card.PageProc(6);
         Observer.Observe('call', Log.Take());
-        Observer.Finish();
+        Observer.Expect('assign', 'PageProc(5);');
+        Observer.Expect('call', 'PageProc(6);');
+        Observer.Verify();
     end;
 
     // U8: a procedure of an interface: which implementation runs.
@@ -498,7 +638,10 @@ codeunit 96410 "CU AssignCall Rule"
         Observer.Observe('B assign', Log.Take());
         IFace.IProc(7);
         Observer.Observe('B call', Log.Take());
-        Observer.Finish();
+        Observer.Expect('A assign', 'A.IProc(5);');
+        Observer.Expect('B assign', 'B.IProc(6);');
+        Observer.Expect('B call', 'B.IProc(7);');
+        Observer.Verify();
     end;
 
     // U9: `this.P1 := v`.
@@ -511,7 +654,8 @@ codeunit 96410 "CU AssignCall Rule"
         Log.Take();
         Target.RunThis();
         Observer.Observe('assign then call', Log.Take());
-        Observer.Finish();
+        Observer.Expect('assign then call', 'P1(5);P1(6);');
+        Observer.Verify();
     end;
 
     // U10: a local variable or a parameter named like the procedure: the variable is written, or the procedure is called?
@@ -526,7 +670,11 @@ codeunit 96410 "CU AssignCall Rule"
         Observer.Observe('local variable log', Log.Take());
         Observer.Observe('parameter', Format(Target.RunShadowParameter(4)));
         Observer.Observe('parameter log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('local variable', '1');
+        Observer.Expect('local variable log', '');
+        Observer.Expect('parameter', '5');
+        Observer.Expect('parameter log', '');
+        Observer.Verify();
     end;
 
     local procedure Index(): Integer
@@ -552,7 +700,9 @@ codeunit 96410 "CU AssignCall Rule"
         Observer.Observe('assign', Log.Take());
         Targets[Index()].P1(NextValue());
         Observer.Observe('call', Log.Take());
-        Observer.Finish();
+        Observer.Expect('assign', 'receiver;right side;P1(4);');
+        Observer.Expect('call', 'receiver;right side;P1(4);');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -601,7 +751,10 @@ codeunit 96410 "CU AssignCall Rule"
         Observer.Observe('too long assign', Outcome(Ok) + ' ' + Log.Take());
         Ok := ShortCall('longer than five');
         Observer.Observe('too long call', Outcome(Ok) + ' ' + Log.Take());
-        Observer.Finish();
+        Observer.Expect('fits assign', 'ok SetShort(abcde);');
+        Observer.Expect('too long assign', 'error:The length of the string is 16, but it must be less than or equal to 5 characters. Value: longer than five|StringLengthExceeded ');
+        Observer.Expect('too long call', 'error:The length of the string is 16, but it must be less than or equal to 5 characters. Value: longer than five|StringLengthExceeded ');
+        Observer.Verify();
     end;
 
     // U12: a Decimal for an Integer parameter, and a lower-case text for a Code parameter.
@@ -627,7 +780,14 @@ codeunit 96410 "CU AssignCall Rule"
         Observer.Observe('code assign', Log.Take());
         Target.SetCode('abc');
         Observer.Observe('code call', Log.Take());
-        Observer.Finish();
+        Observer.Expect('whole decimal assign', 'ok P1(3);');
+        Observer.Expect('1.5 assign', 'error:Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.|ConversionCast ');
+        Observer.Expect('1.5 call', 'error:Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.|ConversionCast ');
+        Observer.Expect('2.5 assign', 'error:Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.|ConversionCast ');
+        Observer.Expect('2.5 call', 'error:Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.|ConversionCast ');
+        Observer.Expect('code assign', 'SetCode(ABC);');
+        Observer.Expect('code call', 'SetCode(ABC);');
+        Observer.Verify();
     end;
 
     // U13: a Record passed by value and by `var`.
@@ -650,7 +810,11 @@ codeunit 96410 "CU AssignCall Rule"
         Row.Val := 2;
         Target.SetRecVar(Row);
         Observer.Observe('var call', Format(Row.Val) + ' ' + Log.Take());
-        Observer.Finish();
+        Observer.Expect('by value assign', '1 SetRec(3/1);');
+        Observer.Expect('by value call', '1 SetRec(3/1);');
+        Observer.Expect('var assign', '77 SetRecVar(3/1);');
+        Observer.Expect('var call', '77 SetRecVar(3/2);');
+        Observer.Verify();
     end;
 
     // U14: the assignment to the procedure's own name inside the procedure.
@@ -663,7 +827,9 @@ codeunit 96410 "CU AssignCall Rule"
         Log.Take();
         Observer.Observe('result', Format(Target.CountDown(3)));
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('result', '300');
+        Observer.Expect('log', 'CountDown(3);CountDown(2);CountDown(1);CountDown(0);');
+        Observer.Verify();
     end;
 
     // U15: a procedure of a part's page, from the host page: `CurrPage.Sub.PAGE.SetX := 5`.
@@ -684,6 +850,107 @@ codeunit 96410 "CU AssignCall Rule"
         Host.CallForm.Invoke();
         Observer.Observe('call', Log.Take());
         Host.Close();
+#if BC28PLUS
+        // BC 28.5 and 29.0 ended the first run of this test at the first action ("The action with ID = n is not found on the page.",
+        // corpus CI runs 42876712578 and 42876759234): the page stated no ApplicationArea then. Not measured again yet.
+        Observer.Finish();
+#else
+        Observer.Expect('assign', 'Part.SetX(5);');
+        Observer.Expect('call', 'Part.SetX(6);');
+        Observer.Verify();
+#endif
+    end;
+
+    local procedure XpSeedRows()
+    var
+        Row: Record "CU AssignCall Row";
+    begin
+        Row.DeleteAll();
+        Row.Id := 1;
+        Row.Val := 10;
+        Row.Insert();
+        Row.Id := 2;
+        Row.Val := 20;
+        Row.Insert();
+    end;
+
+    [TryFunction]
+    local procedure XpTryExport(Which: Integer; var TempBlob: Codeunit "Temp Blob")
+    var
+        Out: OutStream;
+    begin
+        TempBlob.CreateOutStream(Out, TextEncoding::UTF8);
+        case Which of
+            1:
+                Xmlport.Export(Xmlport::"CU AssignCall Xp Plain", Out);
+            2:
+                Xmlport.Export(Xmlport::"CU AssignCall Xp Assign", Out);
+            3:
+                Xmlport.Export(Xmlport::"CU AssignCall Xp Call", Out);
+        end;
+    end;
+
+    local procedure XpContent(var TempBlob: Codeunit "Temp Blob"): Text
+    var
+        InStr: InStream;
+        Result: Text;
+    begin
+        if not TempBlob.HasValue() then
+            exit('<no data>');
+        TempBlob.CreateInStream(InStr, TextEncoding::UTF8);
+        InStr.Read(Result);
+        exit(Result);
+    end;
+
+    // U16 (al-runner 7714): `currXMLport.Filename := 'probe.txt'` in OnPreXmlPort of an export to an OutStream, next to the call form and
+    // to an xmlport that leaves Filename alone.
+    [Test]
+    procedure AssignCall_XmlPortFilename_ExportToStream()
+    var
+        Blobs: array[3] of Codeunit "Temp Blob";
+        Observer: Codeunit "Probe Observer";
+        Names: array[3] of Text;
+        Content: array[3] of Text;
+        I: Integer;
+    begin
+        XpSeedRows();
+        Names[1] := 'plain';
+        Names[2] := 'assign';
+        Names[3] := 'call';
+        Log.Take();
+        for I := 1 to 3 do begin
+            Observer.Observe(Names[I] + ' export', Outcome(XpTryExport(I, Blobs[I])));
+            Observer.Observe(Names[I] + ' log', Log.Take());
+            Content[I] := XpContent(Blobs[I]);
+            Observer.Observe(Names[I] + ' content', Content[I]);
+        end;
+        Observer.Observe('assign content equals plain', Format(Content[2] = Content[1]));
+        Observer.Observe('call content equals plain', Format(Content[3] = Content[1]));
+        Observer.Finish();
+    end;
+
+    // U17 (al-runner 7714): the assignment on an XmlPort variable, before SetDestination and Export.
+    [Test]
+    procedure AssignCall_XmlPortFilename_Variable()
+    var
+        Xp: XmlPort "CU AssignCall Xp Plain";
+        TempBlob: Codeunit "Temp Blob";
+        Observer: Codeunit "Probe Observer";
+        Out: OutStream;
+    begin
+        XpSeedRows();
+        Log.Take();
+        TempBlob.CreateOutStream(Out, TextEncoding::UTF8);
+        Observer.Observe('at start', Xp.Filename());
+        Xp.Filename := 'var.txt';
+        Observer.Observe('after assign', Xp.Filename());
+        Xp.Filename('var2.txt');
+        Observer.Observe('after call', Xp.Filename());
+        Xp.SetDestination(Out);
+        Xp.Export();
+        Observer.Observe('after Export', Xp.Filename());
+        Observer.Observe('log', Log.Take());
+        Observer.Observe('content', XpContent(TempBlob));
         Observer.Finish();
     end;
 }

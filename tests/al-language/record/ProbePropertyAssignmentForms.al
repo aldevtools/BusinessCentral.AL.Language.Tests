@@ -880,7 +880,12 @@ codeunit 69451 "Probe Property Assign Forms"
     // al-runner 7597: assignment forms of builtins the right side or the place decides, next to the call form: an overload set whose
     // call without arguments picks an overload with one optional parameter (FindSet, FieldError, Split), Codeunit.Run (an optional `var`
     // parameter), GlobalLanguage, a static member with its type prefix, a bare member in page code, and a field or variable that has the
-    // name of a method. Observe-only until the CI run gives the values. Objects 96420 to 96422 are at the end of the file.
+    // name of a method. Objects 96420 to 96422 are at the end of the file.
+    // Values measured on BC 27.5, 28.5 and 29.0 (corpus CI runs 42876663156, 42876712578, 42876759234; identical). The assignment form
+    // equals the call form in every cell, with two exceptions that are not calls at all: on a record whose table has a FIELD named Mark,
+    // `Mark := true` (bare in table code and on a record variable) writes the field and does not mark the row, while `Mark(true)` marks
+    // the row and leaves the field; and a variable named Sleep, Abs or WorkDate takes the assignment. The two page tests are measured on
+    // BC 27.5 only (see the comment in each).
     local procedure AcOutcome(Ok: Boolean): Text
     var
         Result: Text;
@@ -928,7 +933,12 @@ codeunit 69451 "Probe Property Assign Forms"
         Clear(Row);
         Ok := AcFindSetCall(Row, true);
         Observer.Observe('empty, call', AcOutcome(Ok));
-        Observer.Finish();
+        Observer.Expect('rows, assign true', 'ok 1 row1');
+        Observer.Expect('rows descending, assign false', 'ok 3 row3');
+        Observer.Expect('next after assign', '1 2');
+        Observer.Expect('empty, assign', 'error:The Probe Pf Row table is empty.|DB:TableIsEmpty');
+        Observer.Expect('empty, call', 'error:The Probe Pf Row table is empty.|DB:TableIsEmpty');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -967,7 +977,11 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Observe('errorinfo, assign', AcOutcome(Ok));
         Ok := AcFieldError(4);
         Observer.Observe('errorinfo, call', AcOutcome(Ok));
-        Observer.Finish();
+        Observer.Expect('text, assign', 'error:Txt must be probed in Probe Pf Row Id=''0''.|NCLCSRTS:TableErrorStr');
+        Observer.Expect('text, call', 'error:Txt must be probed in Probe Pf Row Id=''0''.|NCLCSRTS:TableErrorStr');
+        Observer.Expect('errorinfo, assign', 'error:Txt info text in Probe Pf Row Id=''0''.|NCLCSRTS:TableErrorStr');
+        Observer.Expect('errorinfo, call', 'error:Txt info text in Probe Pf Row Id=''0''.|NCLCSRTS:TableErrorStr');
+        Observer.Verify();
     end;
 
     [Test]
@@ -985,7 +999,10 @@ codeunit 69451 "Probe Property Assign Forms"
         Txt.Split := Separators;
         Observer.Observe('after list of separators', Txt);
         Observer.Observe('call form parts', Format(Txt.Split(Separators).Count()));
-        Observer.Finish();
+        Observer.Expect('after text separator', 'a,b;c');
+        Observer.Expect('after list of separators', 'a,b;c');
+        Observer.Expect('call form parts', '3');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1026,7 +1043,11 @@ codeunit 69451 "Probe Property Assign Forms"
         Row.Txt := 'before';
         Ok := AcRunCall(Row);
         Observer.Observe('OnRun raises, call', AcOutcome(Ok) + ' ' + Row.Txt);
-        Observer.Finish();
+        Observer.Expect('assign', 'ok ran 1');
+        Observer.Expect('call', 'ok ran 2');
+        Observer.Expect('OnRun raises, assign', 'error:runner refuses 99|Dialog before');
+        Observer.Expect('OnRun raises, call', 'error:runner refuses 99|Dialog before');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1044,7 +1065,11 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Observe('after a second assign 1031', Format(GlobalLanguage()));
         GlobalLanguage := Saved;
         Observer.Observe('restored', Format(GlobalLanguage() = Saved));
-        Observer.Finish();
+        Observer.Expect('after assign 1031', '1031');
+        Observer.Expect('after call 1033', '1033');
+        Observer.Expect('after a second assign 1031', '1031');
+        Observer.Expect('restored', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1067,7 +1092,11 @@ codeunit 69451 "Probe Property Assign Forms"
         UnbindSubscription := BareSub;
         Publisher.TriggerBefore(4);
         Observer.Observe('after UnbindSubscription :=', Format(BareSub.GetFireCount()));
-        Observer.Finish();
+        Observer.Expect('bound by Session.BindSubscription :=', '1');
+        Observer.Expect('after Session.UnbindSubscription :=', '1');
+        Observer.Expect('bound by BindSubscription :=', '1 3');
+        Observer.Expect('after UnbindSubscription :=', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1089,7 +1118,17 @@ codeunit 69451 "Probe Property Assign Forms"
         Card.CallCaption.Invoke();
         Observer.Observe('CurrPage.Caption()', Card.Shown.Value() + ' | ' + Card.Caption());
         Card.Close();
+#if BC28PLUS
+        // BC 28.5 and 29.0 ended the first run of this test at the first action ("The action with ID = n is not found on the page.",
+        // corpus CI runs 42876712578 and 42876759234): the page stated no ApplicationArea then. Not measured again yet.
         Observer.Finish();
+#else
+        Observer.Expect('caption at open', 'Designed Caption - 1');
+        Observer.Expect('bare Caption :=', 'bare y | bare y - 1');
+        Observer.Expect('CurrPage.Caption :=', 'curr x | curr x - 1');
+        Observer.Expect('CurrPage.Caption()', 'call z | call z - 1');
+        Observer.Verify();
+#endif
     end;
 
     [Test]
@@ -1116,7 +1155,17 @@ codeunit 69451 "Probe Property Assign Forms"
         Row.Get(1);
         Observer.Observe('CurrPage.Update(false)', Row.Txt + ' | ' + Card.Txt.Value());
         Card.Close();
+#if BC28PLUS
+        // BC 28.5 and 29.0 ended the first run of this test at the first action ("The action with ID = n is not found on the page.",
+        // corpus CI runs 42876712578 and 42876759234): the page stated no ApplicationArea then. Not measured again yet.
         Observer.Finish();
+#else
+        Observer.Expect('CurrPage.Update := true', 'assign-true | assign-true');
+        Observer.Expect('CurrPage.Update(true)', 'call-true | call-true');
+        Observer.Expect('bare Update := false', 'call-true | call-true');
+        Observer.Expect('CurrPage.Update(false)', 'call-true | call-true');
+        Observer.Verify();
+#endif
     end;
 
     [Test]
@@ -1135,7 +1184,10 @@ codeunit 69451 "Probe Property Assign Forms"
         Called.Id := 3;
         Called.Mark(true);
         Observer.Observe('Called.Mark(true)', Called.FieldAndMark());
-        Observer.Finish();
+        Observer.Expect('bare Mark := true in table code', 'field Yes marked No');
+        Observer.Expect('Assigned.Mark := true on a record variable', 'field Yes marked No');
+        Observer.Expect('Called.Mark(true)', 'field No marked Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1155,7 +1207,11 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Observe('Abs', Format(Abs));
         Observer.Observe('WorkDate variable', Format(WorkDate, 0, 9));
         Observer.Observe('System.WorkDate unchanged', Format(System.WorkDate() = Before));
-        Observer.Finish();
+        Observer.Expect('Sleep', '5');
+        Observer.Expect('Abs', '-1');
+        Observer.Expect('WorkDate variable', '2031-04-03');
+        Observer.Expect('System.WorkDate unchanged', 'Yes');
+        Observer.Verify();
     end;
 }
 
@@ -1205,6 +1261,7 @@ codeunit 96420 "REC AssignCall Runner"
 page 96421 "REC AssignCall Card"
 {
     PageType = Card;
+    ApplicationArea = All;
     SourceTable = "Probe Pf Row";
     Caption = 'Designed Caption';
     UsageCategory = None;
