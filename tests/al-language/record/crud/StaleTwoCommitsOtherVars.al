@@ -2,8 +2,8 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own tables 97280 and 97281, codeunits 97280 and 97281
 // local object: the tests must commit (Commit and Codeunit.Run with a return value) and need a secondary key on a Guid field.
-// Probe: al-runner issue 6924 (reporter waldo, the shape behind 56 refused scanner posting tests). Observation form: every test ends with
-// Observer.Finish(); the values come from the CI legs 27.5, 28.5 and 29.0.
+// Probe: al-runner issue 6924 (reporter waldo, the shape behind 56 refused scanner posting tests). Values measured on BC 27.5, 28.5 and 29.0
+// (corpus CI run 42841136221 and its 28.5 and 29.0 legs, identical on all three).
 // The sequence, on own table "REC Stale2C User" (PK Code, Guid "Session Key" with a secondary key, DateTime "Last Action", option
 // "Post Mode", OnModify and OnValidate triggers that do nothing):
 //   1. U (the test's variable): Init, Validate("Location Code"), Insert(true), Validate(Enabled, true), Modify(true).
@@ -12,8 +12,10 @@
 //      in its own transaction (commit B on success). Then U3: SetCurrentKey("Session Key"), SetRange on the key the Login codeunit wrote,
 //      FindFirst, "Last Action" := a fixed DateTime, Modify(true). The log row is modified.
 //   3. Back on U (its buffer predates commits A and B): "Post Mode" := Yes, Modify(true).
-// Each test observes whether the final Modify raises (the _Plain test runs it bare, the _AssertError test runs it under asserterror and
-// records GetLastErrorText and GetLastErrorCode), then the stored row and U's buffer as SessionKey|LastAction|PostMode|Enabled|Location.
+// Each test observes whether the final Modify raises (a _Plain test runs it bare: the write is accepted; an _AssertError test runs it under
+// asserterror and records GetLastErrorText and GetLastErrorCode: the write is refused), then U's buffer and the stored row as
+// SessionKey|LastAction|PostMode|Enabled|Location. Each case keeps only the form that matches what BC did (the other form fails by
+// construction).
 // SessionKey: empty, login (the key the Login codeunit or the inline U2 wrote) or other. LastAction: blank, U3 (the value U3 wrote) or other.
 // Variants: without commit A; without commit A with Codeunit.Run without return value and an explicit Commit after it; without the
 // Codeunit.Run (U2 written inline, with and without a Commit after it); only U2 writes; only U3 writes; the final write with Modify(false);
@@ -28,6 +30,13 @@
 //     own Insert and Modify, one Commit, other rows and other tables.
 // New here: Codeunit.Run WITH a return value (its own transaction), a log row inserted before commit A and modified after U3, and U3
 // found through a secondary key on the value U2 wrote.
+// Measured: the final Modify through U is ACCEPTED and writes U's whole buffer (the stored row loses the key U2 wrote and the time U3 wrote)
+//   whenever another variable wrote the row in the transaction that is still open (Full, the Run without return value then a Commit, U2
+//   inline with and without a Commit after it, only U3, Modify(false)). It is REFUSED with DB:RecordChanged when only U2 wrote the row,
+//   inside `if Codeunit.Run`, and nothing wrote it afterwards: `if Codeunit.Run` commits U2's write when it returns (RunWithReturnCommits).
+//   Without commit A, `if Codeunit.Run` inside the open write transaction ends the test with an error before the final write (NoCommitA).
+//   This is the rule of record/crud/Y27StaleOwnInsertMore.al: refused when the row was written in a transaction that a Commit closed and
+//   nothing wrote it in the open one; `if Codeunit.Run` counts as such a closed transaction, Codeunit.Run without return value does not.
 // BC versions: 27+
 
 table 97280 "REC Stale2C User"
@@ -296,134 +305,150 @@ codeunit 97281 "REC Stale2C Probe"
         Reset();
     end;
 
-    local procedure RunPlain(CommitA: Boolean; Mode: Integer; U2Writes: Boolean; CommitAfterLogin: Boolean; U3Writes: Boolean; RunTrigger: Boolean)
+    local procedure RunPlain(var Observer: Codeunit "Probe Observer"; CommitA: Boolean; Mode: Integer; U2Writes: Boolean; CommitAfterLogin: Boolean; U3Writes: Boolean; RunTrigger: Boolean)
     var
         U: Record "REC Stale2C User";
-        Observer: Codeunit "Probe Observer";
         KeyAfter: Guid;
     begin
         Prepare(U, KeyAfter, Observer, CommitA, Mode, U2Writes, CommitAfterLogin, U3Writes);
         FinalWrite(U, RunTrigger);
         Observer.Observe('write', 'ok');
         ObserveRow(Observer, U, KeyAfter);
-        Observer.Finish();
     end;
 
-    local procedure RunAssertError(CommitA: Boolean; Mode: Integer; U2Writes: Boolean; CommitAfterLogin: Boolean; U3Writes: Boolean; RunTrigger: Boolean)
+    local procedure RunAssertError(var Observer: Codeunit "Probe Observer"; CommitA: Boolean; Mode: Integer; U2Writes: Boolean; CommitAfterLogin: Boolean; U3Writes: Boolean; RunTrigger: Boolean)
     var
         U: Record "REC Stale2C User";
-        Observer: Codeunit "Probe Observer";
         KeyAfter: Guid;
     begin
         Prepare(U, KeyAfter, Observer, CommitA, Mode, U2Writes, CommitAfterLogin, U3Writes);
         asserterror FinalWrite(U, RunTrigger);
         Observer.ObserveError('write');
         ObserveRow(Observer, U, KeyAfter);
-        Observer.Finish();
     end;
 
     // The reporter's full sequence.
     [Test]
     procedure Stale2C_Full_Plain()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        RunPlain(true, 1, true, false, true, true);
+        RunPlain(Observer, true, 1, true, false, true, true);
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('argkey', 'Yes');
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'empty|blank|Yes|Yes|MAIN');
+        Observer.Expect('stored', 'empty|blank|Yes|Yes|MAIN');
+        Observer.Verify();
     end;
 
+    // Without commit A: `if Codeunit.Run` inside the open write transaction of step 1 and the log row raises an error that the return
+    // value does not catch (measured: both forms of this case ended at the Run, before the final write). Error code not measured.
     [Test]
-    procedure Stale2C_Full_AssertError()
+    procedure Stale2C_NoCommitA_RunInWriteTransaction()
+    var
+        U: Record "REC Stale2C User";
+        Observer: Codeunit "Probe Observer";
+        KeyAfter: Guid;
     begin
-        RunAssertError(true, 1, true, false, true, true);
-    end;
-
-    // Without commit A: `if Codeunit.Run` runs inside the open write transaction of step 1 and the log row.
-    [Test]
-    procedure Stale2C_NoCommitA_Plain()
-    begin
-        RunPlain(false, 1, true, false, true, true);
-    end;
-
-    [Test]
-    procedure Stale2C_NoCommitA_AssertError()
-    begin
-        RunAssertError(false, 1, true, false, true, true);
+        Reset();
+        CreateUser(U);
+        InsertLog();
+        asserterror Login(1, true, KeyAfter);
+        Observer.Observe('run|text', GetLastErrorText());
+        Observer.Expect('run|text', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.');
+        Observer.Verify();
     end;
 
     // Without commit A, Codeunit.Run without a return value, an explicit Commit after it (one Commit, between U2 and U3).
     [Test]
     procedure Stale2C_NoCommitA_RunNoReturnThenCommit_Plain()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        RunPlain(false, 2, true, true, true, true);
-    end;
-
-    [Test]
-    procedure Stale2C_NoCommitA_RunNoReturnThenCommit_AssertError()
-    begin
-        RunAssertError(false, 2, true, true, true, true);
+        RunPlain(Observer, false, 2, true, true, true, true);
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('argkey', 'Yes');
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'empty|blank|Yes|Yes|MAIN');
+        Observer.Expect('stored', 'empty|blank|Yes|Yes|MAIN');
+        Observer.Verify();
     end;
 
     // Without the Codeunit.Run: U2 written inline after commit A, no Commit after it (one Commit since the Insert).
     [Test]
     procedure Stale2C_InlineNoCommitB_Plain()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        RunPlain(true, 3, true, false, true, true);
-    end;
-
-    [Test]
-    procedure Stale2C_InlineNoCommitB_AssertError()
-    begin
-        RunAssertError(true, 3, true, false, true, true);
+        RunPlain(Observer, true, 3, true, false, true, true);
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('argkey', 'Yes');
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'empty|blank|Yes|Yes|MAIN');
+        Observer.Expect('stored', 'empty|blank|Yes|Yes|MAIN');
+        Observer.Verify();
     end;
 
     // Without the Codeunit.Run: U2 written inline after commit A, an explicit Commit after it (two Commits since the Insert).
     [Test]
     procedure Stale2C_InlineCommitB_Plain()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        RunPlain(true, 3, true, true, true, true);
-    end;
-
-    [Test]
-    procedure Stale2C_InlineCommitB_AssertError()
-    begin
-        RunAssertError(true, 3, true, true, true, true);
+        RunPlain(Observer, true, 3, true, true, true, true);
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('argkey', 'Yes');
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'empty|blank|Yes|Yes|MAIN');
+        Observer.Expect('stored', 'empty|blank|Yes|Yes|MAIN');
+        Observer.Verify();
     end;
 
     // Only U2 writes the row (U3 finds it and does not modify).
     [Test]
-    procedure Stale2C_OnlyU2_Plain()
-    begin
-        RunPlain(true, 1, true, false, false, true);
-    end;
-
-    [Test]
     procedure Stale2C_OnlyU2_AssertError()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        RunAssertError(true, 1, true, false, false, true);
+        RunAssertError(Observer, true, 1, true, false, false, true);
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('argkey', 'Yes');
+        Observer.Expect('write|text', 'The changes to the REC Stale2C User record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Code=''U6924''');
+        Observer.Expect('write|code', 'DB:RecordChanged');
+        Observer.Expect('buffer', 'empty|blank|Yes|Yes|MAIN');
+        Observer.Expect('stored', 'login|blank|Blank|Yes|MAIN');
+        Observer.Verify();
     end;
 
     // Only U3 writes the row (the Login codeunit only gets it; U3 finds it by the empty "Session Key").
     [Test]
     procedure Stale2C_OnlyU3_Plain()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        RunPlain(true, 1, false, false, true, true);
-    end;
-
-    [Test]
-    procedure Stale2C_OnlyU3_AssertError()
-    begin
-        RunAssertError(true, 1, false, false, true, true);
+        RunPlain(Observer, true, 1, false, false, true, true);
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('argkey', 'Yes');
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'empty|blank|Yes|Yes|MAIN');
+        Observer.Expect('stored', 'empty|blank|Yes|Yes|MAIN');
+        Observer.Verify();
     end;
 
     // The full sequence, the final write of U with Modify(false).
     [Test]
     procedure Stale2C_FinalModifyFalse_Plain()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        RunPlain(true, 1, true, false, true, false);
-    end;
-
-    [Test]
-    procedure Stale2C_FinalModifyFalse_AssertError()
-    begin
-        RunAssertError(true, 1, true, false, true, false);
+        RunPlain(Observer, true, 1, true, false, true, false);
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('argkey', 'Yes');
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'empty|blank|Yes|Yes|MAIN');
+        Observer.Expect('stored', 'empty|blank|Yes|Yes|MAIN');
+        Observer.Verify();
     end;
 
     // Contrast: the full sequence, then U.Get before step 3 (the buffer is fresh).
@@ -440,7 +465,13 @@ codeunit 97281 "REC Stale2C Probe"
         FinalWrite(U, true);
         Observer.Observe('write', 'ok');
         ObserveRow(Observer, U, KeyAfter);
-        Observer.Finish();
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('argkey', 'Yes');
+        Observer.Expect('afterget', 'login|U3|Blank|Yes|MAIN');
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'login|U3|Yes|Yes|MAIN');
+        Observer.Expect('stored', 'login|U3|Yes|Yes|MAIN');
+        Observer.Verify();
     end;
 
     // Does `if Codeunit.Run` commit U2's write? Commit A, the Run, then asserterror Error rolls back what is not committed.
@@ -464,6 +495,8 @@ codeunit 97281 "REC Stale2C Probe"
         else
             Observer.Observe('stored', 'missing');
         Reset();
-        Observer.Finish();
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('stored', 'login|blank|Blank|Yes|MAIN');
+        Observer.Verify();
     end;
 }
