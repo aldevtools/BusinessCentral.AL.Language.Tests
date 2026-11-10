@@ -89,12 +89,6 @@ codeunit 62360 "RPT Indep Ext Tests"
     end;
 
     [Test]
-    procedure IndependentApps_ReportOne_WordXmlPart_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
     procedure IndependentApps_ReportOne_DatasetAndTriggerOrder()
     begin
         ObserveDataset(Report::"RPT XA Indep One");
@@ -104,12 +98,6 @@ codeunit 62360 "RPT Indep Ext Tests"
         Observer.Expect('dataset names', ' Head[HeadNo,HeadText,BCol,DCol, DFirst[DFirstNo,] BFirst[BFirstNo,] BBefore[BBeforeNo,] DBefore[DBeforeNo,] Inner[InnerNo,] DAfter[DAfterNo,] BAfter[BAfterNo,] BLast[BLastNo,] DLast[DLastNo,]] Tail[TailNo,]');
         Observer.Expect('log', 'A:init;A:pre;B:pre;D:pre;B:Head OnBeforePreDataItem;D:Head OnBeforePreDataItem;A:Head pre;B:Head OnAfterPreDataItem;D:Head OnAfterPreDataItem;B:Head OnBeforeAfterGetRecord;D:Head OnBeforeAfterGetRecord;A:Head row;B:Head OnAfterAfterGetRecord;D:Head OnAfterAfterGetRecord;D:First row;B:First row;B:Before row;D:Before row;A:Inner row;D:After row;B:After row;B:Last row;D:Last row;B:Head OnBeforePostDataItem;D:Head OnBeforePostDataItem;A:Head post;B:Head OnAfterPostDataItem;D:Head OnAfterPostDataItem;A:Tail row;A:post;B:post;D:post;');
         Observer.Verify();
-    end;
-
-    [Test]
-    procedure IndependentApps_ReportOne_DatasetAndTriggerOrder_More1()
-    begin
-        Observer.More();
     end;
 
     [Test]
@@ -131,12 +119,6 @@ codeunit 62360 "RPT Indep Ext Tests"
     end;
 
     [Test]
-    procedure IndependentApps_ReportTwo_WordXmlPart_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
     procedure IndependentApps_ReportTwo_DatasetAndTriggerOrder()
     begin
         ObserveDataset(Report::"RPT XA Indep Two");
@@ -146,12 +128,6 @@ codeunit 62360 "RPT Indep Ext Tests"
         Observer.Expect('dataset names', ' Head[HeadNo,HeadText,BCol,DCol, DFirst[DFirstNo,] BFirst[BFirstNo,] BBefore[BBeforeNo,] DBefore[DBeforeNo,] Inner[InnerNo,] DAfter[DAfterNo,] BAfter[BAfterNo,] BLast[BLastNo,] DLast[DLastNo,]] Tail[TailNo,]');
         Observer.Expect('log', 'A:init;A:pre;B:pre;D:pre;B:Head OnBeforePreDataItem;D:Head OnBeforePreDataItem;A:Head pre;B:Head OnAfterPreDataItem;D:Head OnAfterPreDataItem;B:Head OnBeforeAfterGetRecord;D:Head OnBeforeAfterGetRecord;A:Head row;B:Head OnAfterAfterGetRecord;D:Head OnAfterAfterGetRecord;D:First row;B:First row;B:Before row;D:Before row;A:Inner row;D:After row;B:After row;B:Last row;D:Last row;B:Head OnBeforePostDataItem;D:Head OnBeforePostDataItem;A:Head post;B:Head OnAfterPostDataItem;D:Head OnAfterPostDataItem;A:Tail row;A:post;B:post;D:post;');
         Observer.Verify();
-    end;
-
-    [Test]
-    procedure IndependentApps_ReportTwo_DatasetAndTriggerOrder_More1()
-    begin
-        Observer.More();
     end;
 
     [Test]
