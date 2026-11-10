@@ -84,7 +84,8 @@ codeunit 62360 "RPT Indep Ext Tests"
     procedure IndependentApps_ReportOne_WordXmlPart()
     begin
         Observer.Observe('part', Report.WordXmlPart(Report::"RPT XA Indep One"));
-        Observer.Finish();
+        Observer.Ignore('part'); // a dump or environment data: observed, not asserted
+        Observer.Verify();
     end;
 
     [Test]
@@ -97,7 +98,12 @@ codeunit 62360 "RPT Indep Ext Tests"
     procedure IndependentApps_ReportOne_DatasetAndTriggerOrder()
     begin
         ObserveDataset(Report::"RPT XA Indep One");
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('dataset names', ' Head[HeadNo,HeadText,BCol,DCol, DFirst[DFirstNo,] BFirst[BFirstNo,] BBefore[BBeforeNo,] DBefore[DBeforeNo,] Inner[InnerNo,] DAfter[DAfterNo,] BAfter[BAfterNo,] BLast[BLastNo,] DLast[DLastNo,]] Tail[TailNo,]');
+        Observer.Expect('log', 'A:init;A:pre;B:pre;D:pre;B:Head OnBeforePreDataItem;D:Head OnBeforePreDataItem;A:Head pre;B:Head OnAfterPreDataItem;D:Head OnAfterPreDataItem;B:Head OnBeforeAfterGetRecord;D:Head OnBeforeAfterGetRecord;A:Head row;B:Head OnAfterAfterGetRecord;D:Head OnAfterAfterGetRecord;D:First row;B:First row;B:Before row;D:Before row;A:Inner row;D:After row;B:After row;B:Last row;D:Last row;B:Head OnBeforePostDataItem;D:Head OnBeforePostDataItem;A:Head post;B:Head OnAfterPostDataItem;D:Head OnAfterPostDataItem;A:Tail row;A:post;B:post;D:post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -111,14 +117,17 @@ codeunit 62360 "RPT Indep Ext Tests"
     procedure IndependentApps_ReportOne_RequestPageOrder()
     begin
         ObserveRequestPage(Report::"RPT XA Indep One");
-        Observer.Finish();
+        Observer.Expect('log', 'A:init;A:rp open;B:rp open;D:rp open;A:rp close;B:rp close;D:rp close;');
+        Observer.Expect('options', '<Field name="BaseOptionValue">false</Field><Field name="BFieldValue">false</Field><Field name="DFieldValue">false</Field>');
+        Observer.Verify();
     end;
 
     [Test]
     procedure IndependentApps_ReportTwo_WordXmlPart()
     begin
         Observer.Observe('part', Report.WordXmlPart(Report::"RPT XA Indep Two"));
-        Observer.Finish();
+        Observer.Ignore('part'); // a dump or environment data: observed, not asserted
+        Observer.Verify();
     end;
 
     [Test]
@@ -131,7 +140,12 @@ codeunit 62360 "RPT Indep Ext Tests"
     procedure IndependentApps_ReportTwo_DatasetAndTriggerOrder()
     begin
         ObserveDataset(Report::"RPT XA Indep Two");
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('dataset names', ' Head[HeadNo,HeadText,BCol,DCol, DFirst[DFirstNo,] BFirst[BFirstNo,] BBefore[BBeforeNo,] DBefore[DBeforeNo,] Inner[InnerNo,] DAfter[DAfterNo,] BAfter[BAfterNo,] BLast[BLastNo,] DLast[DLastNo,]] Tail[TailNo,]');
+        Observer.Expect('log', 'A:init;A:pre;B:pre;D:pre;B:Head OnBeforePreDataItem;D:Head OnBeforePreDataItem;A:Head pre;B:Head OnAfterPreDataItem;D:Head OnAfterPreDataItem;B:Head OnBeforeAfterGetRecord;D:Head OnBeforeAfterGetRecord;A:Head row;B:Head OnAfterAfterGetRecord;D:Head OnAfterAfterGetRecord;D:First row;B:First row;B:Before row;D:Before row;A:Inner row;D:After row;B:After row;B:Last row;D:Last row;B:Head OnBeforePostDataItem;D:Head OnBeforePostDataItem;A:Head post;B:Head OnAfterPostDataItem;D:Head OnAfterPostDataItem;A:Tail row;A:post;B:post;D:post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -145,7 +159,9 @@ codeunit 62360 "RPT Indep Ext Tests"
     procedure IndependentApps_ReportTwo_RequestPageOrder()
     begin
         ObserveRequestPage(Report::"RPT XA Indep Two");
-        Observer.Finish();
+        Observer.Expect('log', 'A:init;A:rp open;B:rp open;D:rp open;A:rp close;B:rp close;D:rp close;');
+        Observer.Expect('options', '<Field name="BaseOptionValue">false</Field><Field name="BFieldValue">false</Field><Field name="DFieldValue">false</Field>');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
