@@ -3,6 +3,8 @@
 // Fixtures used: Probe Observer (codeunit 69160); objects of CallstackFullText.al: Holder 65101, Runner 65103
 // Probe: the exact text of the frames of Microsoft's test runner below the last frame of this app (the runner frames), frame by frame.
 //   CallstackFullText.al counts them (six frames that name "Test Runner by Microsoft" on BC 27.5, none on 28.5 and 29.0); this file pins every character.
+// Two shapes: a test without [HandlerFunctions] (on BC 28 and 29 the corpus CI runs it through its own hybrid runner, which adds no AL frame; BC 27.5 shows six
+//   frames of Microsoft's runner) and a test with [HandlerFunctions] and a Message (routed to Microsoft's test runner page 130455 on every version).
 // Facts: for SessionInformation.Callstack, the Callstack of a collected ErrorInfo, GetLastErrorCallStack after a failed TryFunction and
 //   GetLastErrorCallStack after asserterror, each read in a test procedure and in a codeunit run with Codeunit.Run: the number of runner
 //   frames, each frame, the separator and trailing separator, StrLen of the whole text and of the tail, and whether the runner codeunits
@@ -14,20 +16,65 @@ codeunit 69950 "LT RF Callstack Runner Frames"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [MessageHandler]
+    procedure AcceptMessage(Text: Text[1024])
+    begin
+    end;
+
     [Test]
-    procedure CallstackRunnerFrames_ReadInTestProcedure()
+    procedure CallstackRunnerFrames_Plain_Test_session()
     var
         Observer: Codeunit "Probe Observer";
         Holder: Codeunit "LT AG Cs Holder";
+        Runner: Codeunit "LT AG Cs Runner";
     begin
         Holder.ResetSeen();
         Holder.Capture('test');
-        ObserveAll('test', Holder, Observer);
+        ObserveOne('test.session', Holder.Get('test.session'), false, Observer);
         Observer.Finish();
     end;
 
     [Test]
-    procedure CallstackRunnerFrames_ReadInCodeunitRun()
+    procedure CallstackRunnerFrames_Plain_Test_collected()
+    var
+        Observer: Codeunit "Probe Observer";
+        Holder: Codeunit "LT AG Cs Holder";
+        Runner: Codeunit "LT AG Cs Runner";
+    begin
+        Holder.ResetSeen();
+        Holder.Capture('test');
+        ObserveOne('test.collected', Holder.Get('test.collected'), true, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure CallstackRunnerFrames_Plain_Test_lasttry()
+    var
+        Observer: Codeunit "Probe Observer";
+        Holder: Codeunit "LT AG Cs Holder";
+        Runner: Codeunit "LT AG Cs Runner";
+    begin
+        Holder.ResetSeen();
+        Holder.Capture('test');
+        ObserveOne('test.lasttry', Holder.Get('test.lasttry'), false, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure CallstackRunnerFrames_Plain_Test_lastassert()
+    var
+        Observer: Codeunit "Probe Observer";
+        Holder: Codeunit "LT AG Cs Holder";
+        Runner: Codeunit "LT AG Cs Runner";
+    begin
+        Holder.ResetSeen();
+        Holder.Capture('test');
+        ObserveOne('test.lastassert', Holder.Get('test.lastassert'), false, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure CallstackRunnerFrames_Plain_Run_session()
     var
         Observer: Codeunit "Probe Observer";
         Holder: Codeunit "LT AG Cs Holder";
@@ -35,24 +82,167 @@ codeunit 69950 "LT RF Callstack Runner Frames"
     begin
         Holder.ResetSeen();
         Runner.Run();
-        ObserveAll('run', Holder, Observer);
+        ObserveOne('run.session', Holder.Get('run.session'), false, Observer);
         Observer.Finish();
     end;
 
-    local procedure ObserveAll(ContextName: Text; var Holder: Codeunit "LT AG Cs Holder"; var Observer: Codeunit "Probe Observer")
+    [Test]
+    procedure CallstackRunnerFrames_Plain_Run_collected()
     var
-        Source: Text;
+        Observer: Codeunit "Probe Observer";
+        Holder: Codeunit "LT AG Cs Holder";
+        Runner: Codeunit "LT AG Cs Runner";
     begin
-        foreach Source in Sources() do
-            ObserveOne(ContextName + '.' + Source, Holder.Get(ContextName + '.' + Source), Source = 'collected', Observer);
+        Holder.ResetSeen();
+        Runner.Run();
+        ObserveOne('run.collected', Holder.Get('run.collected'), true, Observer);
+        Observer.Finish();
     end;
 
-    local procedure Sources() Result: List of [Text]
+    [Test]
+    procedure CallstackRunnerFrames_Plain_Run_lasttry()
+    var
+        Observer: Codeunit "Probe Observer";
+        Holder: Codeunit "LT AG Cs Holder";
+        Runner: Codeunit "LT AG Cs Runner";
     begin
-        Result.Add('session');
-        Result.Add('collected');
-        Result.Add('lasttry');
-        Result.Add('lastassert');
+        Holder.ResetSeen();
+        Runner.Run();
+        ObserveOne('run.lasttry', Holder.Get('run.lasttry'), false, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure CallstackRunnerFrames_Plain_Run_lastassert()
+    var
+        Observer: Codeunit "Probe Observer";
+        Holder: Codeunit "LT AG Cs Holder";
+        Runner: Codeunit "LT AG Cs Runner";
+    begin
+        Holder.ResetSeen();
+        Runner.Run();
+        ObserveOne('run.lastassert', Holder.Get('run.lastassert'), false, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('AcceptMessage')]
+    procedure CallstackRunnerFrames_Handler_Test_session()
+    var
+        Observer: Codeunit "Probe Observer";
+        Holder: Codeunit "LT AG Cs Holder";
+        Runner: Codeunit "LT AG Cs Runner";
+    begin
+        Message('runner frames');
+        Holder.ResetSeen();
+        Holder.Capture('test');
+        ObserveOne('test.session', Holder.Get('test.session'), false, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('AcceptMessage')]
+    procedure CallstackRunnerFrames_Handler_Test_collected()
+    var
+        Observer: Codeunit "Probe Observer";
+        Holder: Codeunit "LT AG Cs Holder";
+        Runner: Codeunit "LT AG Cs Runner";
+    begin
+        Message('runner frames');
+        Holder.ResetSeen();
+        Holder.Capture('test');
+        ObserveOne('test.collected', Holder.Get('test.collected'), true, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('AcceptMessage')]
+    procedure CallstackRunnerFrames_Handler_Test_lasttry()
+    var
+        Observer: Codeunit "Probe Observer";
+        Holder: Codeunit "LT AG Cs Holder";
+        Runner: Codeunit "LT AG Cs Runner";
+    begin
+        Message('runner frames');
+        Holder.ResetSeen();
+        Holder.Capture('test');
+        ObserveOne('test.lasttry', Holder.Get('test.lasttry'), false, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('AcceptMessage')]
+    procedure CallstackRunnerFrames_Handler_Test_lastassert()
+    var
+        Observer: Codeunit "Probe Observer";
+        Holder: Codeunit "LT AG Cs Holder";
+        Runner: Codeunit "LT AG Cs Runner";
+    begin
+        Message('runner frames');
+        Holder.ResetSeen();
+        Holder.Capture('test');
+        ObserveOne('test.lastassert', Holder.Get('test.lastassert'), false, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('AcceptMessage')]
+    procedure CallstackRunnerFrames_Handler_Run_session()
+    var
+        Observer: Codeunit "Probe Observer";
+        Holder: Codeunit "LT AG Cs Holder";
+        Runner: Codeunit "LT AG Cs Runner";
+    begin
+        Message('runner frames');
+        Holder.ResetSeen();
+        Runner.Run();
+        ObserveOne('run.session', Holder.Get('run.session'), false, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('AcceptMessage')]
+    procedure CallstackRunnerFrames_Handler_Run_collected()
+    var
+        Observer: Codeunit "Probe Observer";
+        Holder: Codeunit "LT AG Cs Holder";
+        Runner: Codeunit "LT AG Cs Runner";
+    begin
+        Message('runner frames');
+        Holder.ResetSeen();
+        Runner.Run();
+        ObserveOne('run.collected', Holder.Get('run.collected'), true, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('AcceptMessage')]
+    procedure CallstackRunnerFrames_Handler_Run_lasttry()
+    var
+        Observer: Codeunit "Probe Observer";
+        Holder: Codeunit "LT AG Cs Holder";
+        Runner: Codeunit "LT AG Cs Runner";
+    begin
+        Message('runner frames');
+        Holder.ResetSeen();
+        Runner.Run();
+        ObserveOne('run.lasttry', Holder.Get('run.lasttry'), false, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('AcceptMessage')]
+    procedure CallstackRunnerFrames_Handler_Run_lastassert()
+    var
+        Observer: Codeunit "Probe Observer";
+        Holder: Codeunit "LT AG Cs Holder";
+        Runner: Codeunit "LT AG Cs Runner";
+    begin
+        Message('runner frames');
+        Holder.ResetSeen();
+        Runner.Run();
+        ObserveOne('run.lastassert', Holder.Get('run.lastassert'), false, Observer);
+        Observer.Finish();
     end;
 
     local procedure ObserveOne(KeyName: Text; Value: Text; CrLf: Boolean; var Observer: Codeunit "Probe Observer")
@@ -60,11 +250,8 @@ codeunit 69950 "LT RF Callstack Runner Frames"
         Marker: Text;
         Separator: Text;
         Tail: Text;
-        Frames: List of [Text];
-        Frame: Text;
         At: Integer;
         Last: Integer;
-        Index: Integer;
         Cr: Text[1];
         Lf: Text[1];
     begin
@@ -89,12 +276,5 @@ codeunit 69950 "LT RF Callstack Runner Frames"
         Observer.Observe(KeyName + '.tail.has99903', Format(Tail.Contains('(CodeUnit 99903)')));
         Observer.Observe(KeyName + '.tail.has130450', Format(Tail.Contains('(CodeUnit 130450)')));
         Observer.Observe(KeyName + '.tail.has130454', Format(Tail.Contains('(CodeUnit 130454)')));
-        Frames := Tail.Split(Separator);
-        Observer.Observe(KeyName + '.tail.pieces', Format(Frames.Count()));
-        Index := 0;
-        foreach Frame in Frames do begin
-            Index += 1;
-            Observer.Observe(KeyName + '.tail.piece' + Format(Index), Frame);
-        end;
     end;
 }
