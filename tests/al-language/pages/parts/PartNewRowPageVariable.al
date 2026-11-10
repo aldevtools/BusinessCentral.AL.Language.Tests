@@ -731,7 +731,13 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('Type', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code', 'lines=[D1/0:B:: D1/10000:A:C0:old ] log=[INS 0  | T-I 0 ]');
+        Observer.Expect('ActUpd', 'lines=[D1/0:B:C1:1 D1/10000:A:C0:old ] log=[MOD 0  | T-M 0  | V-UPD 0 | T-V 0 1 | MOD 0 1 | T-M 0 1 | AGR 0 | AGR 10000 | AGR 0]');
+        Observer.Expect('shown', '0:C1:upd=1:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/0:B:C1:1 D1/10000:A:C0:old ] log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -753,7 +759,12 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('ActUpd', 'lines=[D1/0:A::1 D1/10000:A:C0:old ] log=[V-UPD 0 | T-V 0 1 | INS 0 1 | T-I 0 1 | AGR 0 | AGR 10000 | AGR 0]');
+        Observer.Expect('Code', 'lines=[D1/0:A::1 D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('shown', '0:C1:upd=1:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/0:A:C1:1 D1/10000:A:C0:old ] log=[MOD 0 1 | T-M 0 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -777,7 +788,13 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('Type', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActKeep', 'lines=[D1/0:B:: D1/10000:A:C0:old ] log=[INS 0  | T-I 0  | V-KEEP 0 | T-V 0 1]');
+        Observer.Expect('Code', 'lines=[D1/0:B:: D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('shown', '0:C1:upd=old:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/0:B:C1:1 D1/10000:A:C0:old ] log=[MOD 0 1 | T-M 0 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -799,7 +816,12 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('ActKeep', 'lines=[D1/10000:A:C0:old ] log=[V-KEEP 0 | T-V 0 1]');
+        Observer.Expect('Code', 'lines=[D1/0:A::1 D1/10000:A:C0:old ] log=[INS 0 1 | T-I 0 1]');
+        Observer.Expect('shown', '0:C1:upd=old:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/0:A:C1:1 D1/10000:A:C0:old ] log=[MOD 0 1 | T-M 0 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -823,7 +845,13 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('Type', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('PlainVar', 'lines=[D1/0:B:: D1/10000:A:C0:old ] log=[INS 0  | T-I 0 ]');
+        Observer.Expect('Code', 'lines=[D1/0:B:: D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('shown', '0:C1:upd=old:keep=old:plain=p:stored=');
+        Observer.Expect('closed', 'lines=[D1/0:B:C1: D1/10000:A:C0:old ] log=[MOD 0  | T-M 0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -845,7 +873,12 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('PlainVar', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code', 'lines=[D1/0:A:: D1/10000:A:C0:old ] log=[INS 0  | T-I 0 ]');
+        Observer.Expect('shown', '0:C1:upd=old:keep=old:plain=p:stored=');
+        Observer.Expect('closed', 'lines=[D1/0:A:C1: D1/10000:A:C0:old ] log=[MOD 0  | T-M 0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -867,7 +900,12 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('First', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code same', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:2 ] log=[V-UPD 10000 | T-V 10000 2 | MOD 10000 2 | T-M 10000 2 | AGR 10000]');
+        Observer.Expect('shown', '10000:C0:upd=2:keep=2:plain=:stored=2');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:2 ] log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -887,7 +925,11 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('First', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:2 ] log=[V-UPD 10000 | T-V 10000 2 | MOD 10000 2 | T-M 10000 2 | AGR 10000]');
+        Observer.Expect('shown', '10000:C0:upd=2:keep=2:plain=:stored=2');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:2 ] log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -911,7 +953,13 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0 | NEW 0 | NEW 0 | NEW 0]');
+        Observer.Expect('Type', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old D2/0:B:: ] log=[INS 0  | T-I 0 ]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:old D2/0:B:C1:1 ] log=[MOD 0  | T-M 0  | V-UPD 0 | T-V 0 1 | MOD 0 1 | T-M 0 1 | AGR 0]');
+        Observer.Expect('shown', '0:C1:upd=1:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D2/0:B:C1:1 ] log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -935,7 +983,13 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('Type', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActUpd', 'lines=[D1/0:B:C1:1 D1/10000:A:C0:old ] log=[V-UPD 0 | T-V 0 1 | INS 0 1 | T-I 0 1 | AGR 0 | AGR 10000 | AGR 0]');
+        Observer.Expect('shown', '0:C1:upd=1:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/0:B:C1:1 D1/10000:A:C0:old ] log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -957,7 +1011,12 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('ActUpd', 'lines=[D1/0:A::1 D1/10000:A:C0:old ] log=[V-UPD 0 | T-V 0 1 | INS 0 1 | T-I 0 1 | AGR 0 | AGR 10000 | AGR 0]');
+        Observer.Expect('Code', 'lines=[D1/0:A::1 D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('shown', '0:C1:upd=1:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/0:A:C1:1 D1/10000:A:C0:old ] log=[MOD 0 1 | T-M 0 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -981,7 +1040,13 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('Type', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActKeep', 'lines=[D1/10000:A:C0:old ] log=[V-KEEP 0 | T-V 0 1]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('shown', '0:C1:upd=old:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/0:B:C1:1 D1/10000:A:C0:old ] log=[INS 0 1 | T-I 0 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1003,7 +1068,12 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('ActKeep', 'lines=[D1/10000:A:C0:old ] log=[V-KEEP 0 | T-V 0 1]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('shown', '0:C1:upd=old:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/0:A:C1:1 D1/10000:A:C0:old ] log=[INS 0 1 | T-I 0 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1027,7 +1097,13 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('Type', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('PlainVar', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('shown', '0:C1:upd=old:keep=old:plain=p:stored=');
+        Observer.Expect('closed', 'lines=[D1/0:B:C1: D1/10000:A:C0:old ] log=[INS 0  | T-I 0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1049,7 +1125,12 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('PlainVar', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('shown', '0:C1:upd=old:keep=old:plain=p:stored=');
+        Observer.Expect('closed', 'lines=[D1/0:A:C1: D1/10000:A:C0:old ] log=[INS 0  | T-I 0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1071,7 +1152,12 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('First', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code same', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:2 ] log=[V-UPD 10000 | T-V 10000 2 | MOD 10000 2 | T-M 10000 2 | AGR 10000]');
+        Observer.Expect('shown', '10000:C0:upd=2:keep=2:plain=:stored=2');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:2 ] log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1091,7 +1177,11 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('First', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:2 ] log=[V-UPD 10000 | T-V 10000 2 | MOD 10000 2 | T-M 10000 2 | AGR 10000]');
+        Observer.Expect('shown', '10000:C0:upd=2:keep=2:plain=:stored=2');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:2 ] log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1115,7 +1205,13 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0 | NEW 0 | NEW 0 | NEW 0]');
+        Observer.Expect('Type', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:old D2/0:B:C1:1 ] log=[V-UPD 0 | T-V 0 1 | INS 0 1 | T-I 0 1 | AGR 0]');
+        Observer.Expect('shown', '0:C1:upd=1:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D2/0:B:C1:1 ] log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1139,7 +1235,13 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('Type', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old D1/20000:B:: ] log=[INS 20000  | T-I 20000 ]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:old D1/20000:B:C1:1 ] log=[MOD 20000  | T-M 20000  | V-UPD 20000 | T-V 20000 1 | MOD 20000 1 | T-M 20000 1 | AGR 20000 | AGR 10000]');
+        Observer.Expect('shown', '20000:C1:upd=1:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D1/20000:B:C1:1 ] log=[AGR 20000]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1161,7 +1263,12 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:old D1/20000:A::1 ] log=[V-UPD 0 | T-V 0 1 | INS 20000 1 | T-I 20000 1 | AGR 20000 | AGR 10000]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old D1/20000:A::1 ] log=[]');
+        Observer.Expect('shown', '20000:C1:upd=1:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D1/20000:A:C1:1 ] log=[AGR 20000 | MOD 20000 1 | T-M 20000 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1185,7 +1292,13 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('Type', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActKeep', 'lines=[D1/10000:A:C0:old D1/20000:B:: ] log=[INS 20000  | T-I 20000  | V-KEEP 20000 | T-V 20000 1]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old D1/20000:B:: ] log=[]');
+        Observer.Expect('shown', '20000:C1:upd=old:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D1/20000:B:C1:1 ] log=[MOD 20000 1 | T-M 20000 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1207,7 +1320,12 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('ActKeep', 'lines=[D1/10000:A:C0:old ] log=[V-KEEP 0 | T-V 0 1]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old D1/20000:A::1 ] log=[INS 20000 1 | T-I 20000 1]');
+        Observer.Expect('shown', '20000:C1:upd=old:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D1/20000:A:C1:1 ] log=[MOD 20000 1 | T-M 20000 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1231,7 +1349,13 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('Type', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('PlainVar', 'lines=[D1/10000:A:C0:old D1/20000:B:: ] log=[INS 20000  | T-I 20000 ]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old D1/20000:B:: ] log=[]');
+        Observer.Expect('shown', '20000:C1:upd=old:keep=old:plain=p:stored=');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D1/20000:B:C1: ] log=[MOD 20000  | T-M 20000 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1253,7 +1377,12 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('PlainVar', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old D1/20000:A:: ] log=[INS 20000  | T-I 20000 ]');
+        Observer.Expect('shown', '20000:C1:upd=old:keep=old:plain=p:stored=');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D1/20000:A:C1: ] log=[MOD 20000  | T-M 20000 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1275,7 +1404,12 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('First', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code same', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:2 ] log=[V-UPD 10000 | T-V 10000 2 | MOD 10000 2 | T-M 10000 2 | AGR 10000]');
+        Observer.Expect('shown', '10000:C0:upd=2:keep=2:plain=:stored=2');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:2 ] log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1295,7 +1429,11 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('First', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:2 ] log=[V-UPD 10000 | T-V 10000 2 | MOD 10000 2 | T-M 10000 2 | AGR 10000]');
+        Observer.Expect('shown', '10000:C0:upd=2:keep=2:plain=:stored=2');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:2 ] log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1319,7 +1457,13 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0 | NEW 0 | NEW 0 | NEW 0]');
+        Observer.Expect('Type', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old D2/20000:B:: ] log=[INS 20000  | T-I 20000 ]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:old D2/20000:B:C1:1 ] log=[MOD 20000  | T-M 20000  | V-UPD 20000 | T-V 20000 1 | MOD 20000 1 | T-M 20000 1 | AGR 20000]');
+        Observer.Expect('shown', '20000:C1:upd=1:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D2/20000:B:C1:1 ] log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1343,7 +1487,13 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('Type', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:old D1/20000:B:C1:1 ] log=[V-UPD 0 | T-V 0 1 | INS 20000 1 | T-I 20000 1 | AGR 20000 | AGR 10000]');
+        Observer.Expect('shown', '20000:C1:upd=1:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D1/20000:B:C1:1 ] log=[AGR 20000]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1365,7 +1515,12 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:old D1/20000:A::1 ] log=[V-UPD 0 | T-V 0 1 | INS 20000 1 | T-I 20000 1 | AGR 20000 | AGR 10000]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old D1/20000:A::1 ] log=[]');
+        Observer.Expect('shown', '20000:C1:upd=1:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D1/20000:A:C1:1 ] log=[AGR 20000 | MOD 20000 1 | T-M 20000 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1389,7 +1544,13 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('Type', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActKeep', 'lines=[D1/10000:A:C0:old ] log=[V-KEEP 0 | T-V 0 1]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('shown', '0:C1:upd=old:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D1/20000:B:C1:1 ] log=[INS 20000 1 | T-I 20000 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1411,7 +1572,12 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('ActKeep', 'lines=[D1/10000:A:C0:old ] log=[V-KEEP 0 | T-V 0 1]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('shown', '0:C1:upd=old:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D1/20000:A:C1:1 ] log=[INS 20000 1 | T-I 20000 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1435,7 +1601,13 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('Type', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('PlainVar', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('shown', '0:C1:upd=old:keep=old:plain=p:stored=');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D1/20000:B:C1: ] log=[INS 20000  | T-I 20000 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1457,7 +1629,12 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('PlainVar', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('shown', '0:C1:upd=old:keep=old:plain=p:stored=');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D1/20000:A:C1: ] log=[INS 20000  | T-I 20000 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1479,7 +1656,12 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('First', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code same', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:2 ] log=[V-UPD 10000 | T-V 10000 2 | MOD 10000 2 | T-M 10000 2 | AGR 10000]');
+        Observer.Expect('shown', '10000:C0:upd=2:keep=2:plain=:stored=2');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:2 ] log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1499,7 +1681,11 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('First', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:2 ] log=[V-UPD 10000 | T-V 10000 2 | MOD 10000 2 | T-M 10000 2 | AGR 10000]');
+        Observer.Expect('shown', '10000:C0:upd=2:keep=2:plain=:stored=2');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:2 ] log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1523,7 +1709,13 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0 | NEW 0 | NEW 0 | NEW 0]');
+        Observer.Expect('Type', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:old D2/20000:B:C1:1 ] log=[V-UPD 0 | T-V 0 1 | INS 20000 1 | T-I 20000 1 | AGR 20000]');
+        Observer.Expect('shown', '20000:C1:upd=1:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D2/20000:B:C1:1 ] log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1547,7 +1739,13 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('Type', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:old D1/20000:B:C1:1 ] log=[V-UPD 0 | T-V 0 1 | INS 20000 1 | T-I 20000 1 | AGR 20000 | AGR 10000]');
+        Observer.Expect('shown', '20000:C1:upd=1:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D1/20000:B:C1:1 ] log=[AGR 20000]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1569,7 +1767,12 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:old D1/20000:A::1 ] log=[V-UPD 0 | T-V 0 1 | INS 20000 1 | T-I 20000 1 | AGR 20000 | AGR 10000]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old D1/20000:A::1 ] log=[]');
+        Observer.Expect('shown', '20000:C1:upd=1:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D1/20000:A:C1:1 ] log=[AGR 20000 | MOD 20000 1 | T-M 20000 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1593,7 +1796,13 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('Type', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActKeep', 'lines=[D1/10000:A:C0:old ] log=[V-KEEP 0 | T-V 0 1]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('shown', '0:C1:upd=old:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D1/20000:B:C1:1 ] log=[INS 20000 1 | T-I 20000 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1615,7 +1824,12 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('ActKeep', 'lines=[D1/10000:A:C0:old ] log=[V-KEEP 0 | T-V 0 1]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('shown', '0:C1:upd=old:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D1/20000:A:C1:1 ] log=[INS 20000 1 | T-I 20000 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1639,7 +1853,13 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('Type', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('PlainVar', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('shown', '0:C1:upd=old:keep=old:plain=p:stored=');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D1/20000:B:C1: ] log=[INS 20000  | T-I 20000 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1661,7 +1881,12 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0]');
+        Observer.Expect('PlainVar', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('shown', '0:C1:upd=old:keep=old:plain=p:stored=');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D1/20000:A:C1: ] log=[INS 20000  | T-I 20000 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1683,7 +1908,12 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('First', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code same', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:2 ] log=[V-UPD 10000 | T-V 10000 2 | MOD 10000 2 | T-M 10000 2 | AGR 10000]');
+        Observer.Expect('shown', '10000:C0:upd=2:keep=2:plain=:stored=2');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:2 ] log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1703,7 +1933,11 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('First', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:2 ] log=[V-UPD 10000 | T-V 10000 2 | MOD 10000 2 | T-M 10000 2 | AGR 10000]');
+        Observer.Expect('shown', '10000:C0:upd=2:keep=2:plain=:stored=2');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:2 ] log=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1727,7 +1961,13 @@ codeunit 62643 "PG NV New Row Page Variable"
         Log.Take();
         Card.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('New', 'lines=[D1/10000:A:C0:old ] log=[NEW 0 | NEW 0 | NEW 0 | NEW 0]');
+        Observer.Expect('Type', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('Code', 'lines=[D1/10000:A:C0:old ] log=[]');
+        Observer.Expect('ActUpd', 'lines=[D1/10000:A:C0:old D2/20000:B:C1:1 ] log=[V-UPD 0 | T-V 0 1 | INS 20000 1 | T-I 20000 1 | AGR 20000]');
+        Observer.Expect('shown', '20000:C1:upd=1:keep=1:plain=:stored=1');
+        Observer.Expect('closed', 'lines=[D1/10000:A:C0:old D2/20000:B:C1:1 ] log=[]');
+        Observer.Verify();
     end;
 
 }

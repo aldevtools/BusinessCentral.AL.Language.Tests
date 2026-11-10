@@ -394,7 +394,15 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('row before New', '40000');
+        Observer.Expect('log New', '[NEW 0 x=40000 below=Yes]');
+        Observer.Expect('shown after New', '0');
+        Observer.Expect('log typed', '[]');
+        Observer.Expect('shown after typed', '0');
+        Observer.Expect('lines after typed', '[10000/20=old 20000/40=old 30000/10=old 40000/30=old ]');
+        Observer.Expect('log close', '[INS 50000 x=40000 below=Yes | T-I 50000]');
+        Observer.Expect('lines', '[10000/20=old 20000/40=old 30000/10=old 40000/30=old 50000/0=new ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -418,7 +426,15 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('row before New', '10000');
+        Observer.Expect('log New', '[NEW 0 x=40000 below=Yes]');
+        Observer.Expect('shown after New', '0');
+        Observer.Expect('log typed', '[]');
+        Observer.Expect('shown after typed', '0');
+        Observer.Expect('lines after typed', '[10000/20=old 20000/40=old 30000/10=old 40000/30=old ]');
+        Observer.Expect('log close', '[INS 15000 x=10000 below=Yes | T-I 15000]');
+        Observer.Expect('lines', '[10000/20=old 15000/0=new 20000/40=old 30000/10=old 40000/30=old ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -443,7 +459,15 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('row before New', '20000');
+        Observer.Expect('log New', '[NEW 0 x=40000 below=Yes]');
+        Observer.Expect('shown after New', '0');
+        Observer.Expect('log typed', '[]');
+        Observer.Expect('shown after typed', '0');
+        Observer.Expect('lines after typed', '[10000/20=old 20000/40=old 30000/10=old 40000/30=old ]');
+        Observer.Expect('log close', '[INS 25000 x=20000 below=Yes | T-I 25000]');
+        Observer.Expect('lines', '[10000/20=old 20000/40=old 25000/0=new 30000/10=old 40000/30=old ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -465,7 +489,14 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('log New', '[NEW 0 x=40000 below=Yes]');
+        Observer.Expect('shown after New', '0');
+        Observer.Expect('log typed', '[]');
+        Observer.Expect('shown after typed', '0');
+        Observer.Expect('lines after typed', '[10000/20=old 20000/40=old 30000/10=old 40000/30=old ]');
+        Observer.Expect('log close', '[INS 15000 x=10000 below=Yes | T-I 15000]');
+        Observer.Expect('lines', '[10000/20=old 15000/0=new 20000/40=old 30000/10=old 40000/30=old ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -487,7 +518,14 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H2'));
-        Observer.Finish();
+        Observer.Expect('log New', '[NEW 0 x=10000 below=Yes]');
+        Observer.Expect('shown after New', '0');
+        Observer.Expect('log typed', '[]');
+        Observer.Expect('shown after typed', '0');
+        Observer.Expect('lines after typed', '[]');
+        Observer.Expect('log close', '[INS 20000 x=10000 below=Yes | T-I 20000]');
+        Observer.Expect('lines', '[20000/0=new ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -511,7 +549,13 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('log first', '[NEW 0 x=40000 below=Yes]');
+        Observer.Expect('log second New', '[INS 15000 x=10000 below=Yes | T-I 15000 | NEW 0 x=40000 below=Yes]');
+        Observer.Expect('log second typed', '[]');
+        Observer.Expect('shown', '0');
+        Observer.Expect('log close', '[INS 17500 x=15000 below=Yes | T-I 17500]');
+        Observer.Expect('lines', '[10000/20=old 15000/0=new1 17500/15=new2 20000/40=old 30000/10=old 40000/30=old ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -527,7 +571,10 @@ codeunit 62622 "PG SK Split Key Other Order"
         Observer.Observe('result', Format(Result));
         Observer.Observe('log', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('log', '[NEW 0 x=40000 below=Yes | INS 15000 x=10000 below=Yes | T-I 15000]');
+        Observer.Expect('lines', '[10000/20=old 15000/25=modal 20000/40=old 30000/10=old 40000/30=old ]');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
@@ -560,7 +607,15 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('row before New', '20000');
+        Observer.Expect('log New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('shown after New', '0');
+        Observer.Expect('log typed', '[]');
+        Observer.Expect('shown after typed', '0');
+        Observer.Expect('lines after typed', '[10000/20=old 20000/40=old 30000/10=old 40000/30=old ]');
+        Observer.Expect('log close', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('lines', '[10000/20=old 20000/40=old 30000/10=old 35000/0=new 40000/30=old ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -609,7 +664,16 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('row before New', '30000');
+        Observer.Expect('row before New', '10000');
+        Observer.Expect('log New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('shown after New', '0');
+        Observer.Expect('log typed', '[]');
+        Observer.Expect('shown after typed', '0');
+        Observer.Expect('lines after typed', '[10000/20=old 20000/40=old 30000/10=old 40000/30=old ]');
+        Observer.Expect('log close', '[INS 25000 x=10000 below=Yes | T-I 25000]');
+        Observer.Expect('lines', '[10000/20=old 20000/40=old 25000/0=new 30000/10=old 40000/30=old ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -653,7 +717,14 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H2'));
-        Observer.Finish();
+        Observer.Expect('log New', '[NEW 0 x=30000 below=Yes]');
+        Observer.Expect('shown after New', '0');
+        Observer.Expect('log typed', '[]');
+        Observer.Expect('shown after typed', '0');
+        Observer.Expect('lines after typed', '[]');
+        Observer.Expect('log close', '[INS 20000 x=30000 below=Yes | T-I 20000]');
+        Observer.Expect('lines', '[20000/0=new ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -726,7 +797,15 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('row before New', '30000');
+        Observer.Expect('log New', '[NEW 0 x=30000 below=Yes]');
+        Observer.Expect('shown after New', '0');
+        Observer.Expect('log typed', '[]');
+        Observer.Expect('shown after typed', '0');
+        Observer.Expect('lines after typed', '[10000/20=old 20000/40=old 30000/10=old 40000/30=old ]');
+        Observer.Expect('log close', '[INS 50000 x=30000 below=Yes | T-I 50000]');
+        Observer.Expect('lines', '[10000/20=old 20000/40=old 30000/10=old 40000/30=old 50000/0=new ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -750,7 +829,15 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('row before New', '20000');
+        Observer.Expect('log New', '[NEW 0 x=30000 below=Yes]');
+        Observer.Expect('shown after New', '0');
+        Observer.Expect('log typed', '[]');
+        Observer.Expect('shown after typed', '0');
+        Observer.Expect('lines after typed', '[10000/20=old 20000/40=old 30000/10=old 40000/30=old ]');
+        Observer.Expect('log close', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('lines', '[10000/20=old 20000/40=old 30000/10=old 35000/0=new 40000/30=old ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -797,7 +884,15 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('row before New', '40000');
+        Observer.Expect('log New', '[NEW 0 x=30000 below=Yes]');
+        Observer.Expect('shown after New', '0');
+        Observer.Expect('log typed', '[]');
+        Observer.Expect('shown after typed', '0');
+        Observer.Expect('lines after typed', '[10000/20=old 20000/40=old 30000/10=old 40000/30=old ]');
+        Observer.Expect('log close', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('lines', '[10000/20=old 20000/40=old 30000/10=old 35000/0=new 40000/30=old ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -819,7 +914,14 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H2'));
-        Observer.Finish();
+        Observer.Expect('log New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('shown after New', '0');
+        Observer.Expect('log typed', '[]');
+        Observer.Expect('shown after typed', '0');
+        Observer.Expect('lines after typed', '[]');
+        Observer.Expect('log close', '[INS 20000 x=20000 below=Yes | T-I 20000]');
+        Observer.Expect('lines', '[20000/0=new ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -843,7 +945,13 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('log first', '[NEW 0 x=30000 below=Yes]');
+        Observer.Expect('log second New', '[INS 35000 x=20000 below=Yes | T-I 35000 | NEW 0 x=35000 below=Yes]');
+        Observer.Expect('log second typed', '[]');
+        Observer.Expect('shown', '0');
+        Observer.Expect('log close', '[INS 37500 x=35000 below=Yes | T-I 37500]');
+        Observer.Expect('lines', '[10000/20=old 20000/40=old 30000/10=old 35000/0=new1 37500/15=new2 40000/30=old ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -859,7 +967,10 @@ codeunit 62622 "PG SK Split Key Other Order"
         Observer.Observe('result', Format(Result));
         Observer.Observe('log', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('log', '[NEW 0 x=30000 below=Yes | INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('lines', '[10000/20=old 20000/40=old 30000/10=old 35000/25=modal 40000/30=old ]');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
@@ -892,7 +1003,15 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('row before New', '10000');
+        Observer.Expect('log New', '[NEW 0 x=10000 below=Yes]');
+        Observer.Expect('shown after New', '0');
+        Observer.Expect('log typed', '[]');
+        Observer.Expect('shown after typed', '0');
+        Observer.Expect('lines after typed', '[10000/20=old 20000/40=old 30000/10=old 40000/30=old ]');
+        Observer.Expect('log close', '[INS 25000 x=10000 below=Yes | T-I 25000]');
+        Observer.Expect('lines', '[10000/20=old 20000/40=old 25000/0=new 30000/10=old 40000/30=old ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -985,7 +1104,16 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H2'));
-        Observer.Finish();
+        Observer.Expect('row before New', '40000');
+        Observer.Expect('row before New', '30000');
+        Observer.Expect('log New', '[NEW 0 x=40000 below=Yes]');
+        Observer.Expect('shown after New', '0');
+        Observer.Expect('log typed', '[]');
+        Observer.Expect('shown after typed', '0');
+        Observer.Expect('lines after typed', '[]');
+        Observer.Expect('log close', '[INS 20000 x=40000 below=Yes | T-I 20000]');
+        Observer.Expect('lines', '[20000/0=new ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1058,7 +1186,15 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('row before New', '20000');
+        Observer.Expect('log New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('shown after New', '0');
+        Observer.Expect('log typed', '[]');
+        Observer.Expect('shown after typed', '0');
+        Observer.Expect('lines after typed', '[10000/20=old 20000/40=old 30000/10=old 40000/30=old ]');
+        Observer.Expect('log close', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('lines', '[10000/20=old 20000/40=old 30000/10=old 35000/0=new 40000/30=old ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1107,7 +1243,16 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('row before New', '30000');
+        Observer.Expect('row before New', '10000');
+        Observer.Expect('log New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('shown after New', '0');
+        Observer.Expect('log typed', '[]');
+        Observer.Expect('shown after typed', '0');
+        Observer.Expect('lines after typed', '[10000/20=old 20000/40=old 30000/10=old 40000/30=old ]');
+        Observer.Expect('log close', '[INS 25000 x=10000 below=Yes | T-I 25000]');
+        Observer.Expect('lines', '[10000/20=old 20000/40=old 25000/0=new 30000/10=old 40000/30=old ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1151,7 +1296,14 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H2'));
-        Observer.Finish();
+        Observer.Expect('log New', '[NEW 0 x=30000 below=Yes]');
+        Observer.Expect('shown after New', '0');
+        Observer.Expect('log typed', '[]');
+        Observer.Expect('shown after typed', '0');
+        Observer.Expect('lines after typed', '[]');
+        Observer.Expect('log close', '[INS 20000 x=30000 below=Yes | T-I 20000]');
+        Observer.Expect('lines', '[20000/0=new ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1224,7 +1376,15 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('row before New', '20000');
+        Observer.Expect('log New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('shown after New', '0');
+        Observer.Expect('log typed', '[]');
+        Observer.Expect('shown after typed', '0');
+        Observer.Expect('lines after typed', '[10000/20=old 20000/40=old 30000/10=old 40000/30=old ]');
+        Observer.Expect('log close', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('lines', '[10000/20=old 20000/40=old 30000/10=old 35000/0=new 40000/30=old ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1273,7 +1433,16 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('row before New', '30000');
+        Observer.Expect('row before New', '10000');
+        Observer.Expect('log New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('shown after New', '0');
+        Observer.Expect('log typed', '[]');
+        Observer.Expect('shown after typed', '0');
+        Observer.Expect('lines after typed', '[10000/20=old 20000/40=old 30000/10=old 40000/30=old ]');
+        Observer.Expect('log close', '[INS 25000 x=10000 below=Yes | T-I 25000]');
+        Observer.Expect('lines', '[10000/20=old 20000/40=old 25000/0=new 30000/10=old 40000/30=old ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1317,7 +1486,14 @@ codeunit 62622 "PG SK Split Key Other Order"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H2'));
-        Observer.Finish();
+        Observer.Expect('log New', '[NEW 0 x=30000 below=Yes]');
+        Observer.Expect('shown after New', '0');
+        Observer.Expect('log typed', '[]');
+        Observer.Expect('shown after typed', '0');
+        Observer.Expect('lines after typed', '[]');
+        Observer.Expect('log close', '[INS 20000 x=30000 below=Yes | T-I 20000]');
+        Observer.Expect('lines', '[20000/0=new ]');
+        Observer.Verify();
     end;
 
     [Test]
