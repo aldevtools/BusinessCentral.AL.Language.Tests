@@ -9,7 +9,7 @@
 //   130451 and 99903 are in the tail. The tail is the text after the version of the last frame of this app.
 // New file with a reason: CallstackFullText.al is line sensitive (its expected lengths) and its objects are reused here, not copied.
 // BC versions: 27, 28, 29
-codeunit 69943 "LT RF Callstack Runner Frames"
+codeunit 69950 "LT RF Callstack Runner Frames"
 {
     Subtype = Test;
     TestPermissions = Disabled;
