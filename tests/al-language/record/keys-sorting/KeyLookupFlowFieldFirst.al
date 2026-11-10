@@ -204,7 +204,16 @@ codeunit 66363 "REC LkKey Tests"
     begin
         Initialize();
         KeyCells(Observer, 'flag');
-        Observer.Finish();
+        Observer.Expect('flag SetCurrentKey', 'true');
+        Observer.Expect('flag CurrentKey', 'Flag,My Type,My Date');
+        Observer.Expect('flag all rows', '2 6 4 8 5 1 7 3 ');
+        Observer.Expect('flag type A and date range', '2 6 1 7 ');
+        Observer.Expect('flag type A', '2 6 4 5 1 7 ');
+        Observer.Expect('flag type A descending', '7 1 5 4 6 2 ');
+        Observer.Expect('flag FindFirst', '2');
+        Observer.Expect('flag FindLast', '7');
+        Observer.Expect('flag Next(-1) from the last', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -214,7 +223,16 @@ codeunit 66363 "REC LkKey Tests"
     begin
         Initialize();
         KeyCells(Observer, 'rank');
-        Observer.Finish();
+        Observer.Expect('rank SetCurrentKey', 'true');
+        Observer.Expect('rank CurrentKey', 'Rank,Id');
+        Observer.Expect('rank all rows', '6 2 4 8 3 7 1 5 ');
+        Observer.Expect('rank type A and date range', '6 2 7 1 ');
+        Observer.Expect('rank type A', '6 2 4 7 1 5 ');
+        Observer.Expect('rank type A descending', '5 1 7 4 2 6 ');
+        Observer.Expect('rank FindFirst', '6');
+        Observer.Expect('rank FindLast', '5');
+        Observer.Expect('rank Next(-1) from the last', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -224,7 +242,16 @@ codeunit 66363 "REC LkKey Tests"
     begin
         Initialize();
         KeyCells(Observer, 'name');
-        Observer.Finish();
+        Observer.Expect('name SetCurrentKey', 'true');
+        Observer.Expect('name CurrentKey', 'SetupName,My Type,My Date');
+        Observer.Expect('name all rows', '6 2 4 8 7 3 5 1 ');
+        Observer.Expect('name type A and date range', '6 2 7 1 ');
+        Observer.Expect('name type A', '6 2 4 7 5 1 ');
+        Observer.Expect('name type A descending', '1 5 7 4 2 6 ');
+        Observer.Expect('name FindFirst', '6');
+        Observer.Expect('name FindLast', '1');
+        Observer.Expect('name Next(-1) from the last', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -234,7 +261,16 @@ codeunit 66363 "REC LkKey Tests"
     begin
         Initialize();
         KeyCells(Observer, 'day');
-        Observer.Finish();
+        Observer.Expect('day SetCurrentKey', 'true');
+        Observer.Expect('day CurrentKey', 'SetupDay,My Type,My Date');
+        Observer.Expect('day all rows', '6 2 4 8 7 3 5 1 ');
+        Observer.Expect('day type A and date range', '6 2 7 1 ');
+        Observer.Expect('day type A', '6 2 4 7 5 1 ');
+        Observer.Expect('day type A descending', '1 5 7 4 2 6 ');
+        Observer.Expect('day FindFirst', '6');
+        Observer.Expect('day FindLast', '1');
+        Observer.Expect('day Next(-1) from the last', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -257,7 +293,20 @@ codeunit 66363 "REC LkKey Tests"
             Observer.Observe('type, date all rows', Order(P));
         P.Reset();
         Observer.Observe('primary key all rows', Order(P));
-        Observer.Finish();
+        Observer.Expect('flag only SetCurrentKey', 'true');
+        Observer.Expect('flag only CurrentKey', 'Flag');
+        Observer.Expect('flag only all rows', '2 4 6 8 1 3 5 7 ');
+        Observer.Expect('flag, date SetCurrentKey', 'true');
+        Observer.Expect('flag, date CurrentKey', 'Flag,My Date');
+        Observer.Expect('flag, date all rows', '8 2 6 4 3 5 1 7 ');
+        Observer.Expect('rank only SetCurrentKey', 'true');
+        Observer.Expect('rank only CurrentKey', 'Rank');
+        Observer.Expect('rank only all rows', '6 2 4 8 3 7 1 5 ');
+        Observer.Expect('type, date SetCurrentKey', 'true');
+        Observer.Expect('type, date CurrentKey', 'My Type,My Date');
+        Observer.Expect('type, date all rows', '5 2 6 1 7 4 8 3 ');
+        Observer.Expect('primary key all rows', '1 2 3 4 5 6 7 8 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -282,7 +331,9 @@ codeunit 66363 "REC LkKey Tests"
                 Line += Format(P.Id) + ':' + Format(P.Flag, 0, 9) + '/' + Format(P.Rank) + ' ';
             until P.Next() = 0;
         Observer.Observe('values with SetAutoCalcFields', Line);
-        Observer.Finish();
+        Observer.Expect('values without CalcFields', '2:false/0 6:false/0 4:false/0 5:true/0 1:true/0 7:true/0 ');
+        Observer.Expect('values with SetAutoCalcFields', '2:false/1 6:false/0 4:false/1 5:true/3 1:true/3 7:true/2 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -299,7 +350,10 @@ codeunit 66363 "REC LkKey Tests"
         Observer.Observe('flag false', Order(P));
         P.SetRange("My Type", P."My Type"::A);
         Observer.Observe('flag false, type A', Order(P));
-        Observer.Finish();
+        Observer.Expect('flag true', '5 1 7 3 ');
+        Observer.Expect('flag false', '2 6 4 8 ');
+        Observer.Expect('flag false, type A', '2 6 4 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -333,7 +387,11 @@ codeunit 66363 "REC LkKey Tests"
             else
                 Observer.ObserveError('type A and date range');
         end;
-        Observer.Finish();
+        Observer.Expect('SetCurrentKey', 'false');
+        Observer.Expect('CurrentKey', 'Id');
+        Observer.Expect('all rows', '1 2 3 4 5 6 7 8 ');
+        Observer.Expect('type A and date range', '1 2 6 7 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -353,6 +411,8 @@ codeunit 66363 "REC LkKey Tests"
         S.Flag := false;
         S.Modify();
         Observer.Observe('after S1 and S2 swapped flags', Order(P));
-        Observer.Finish();
+        Observer.Expect('before', '2 6 4 8 5 1 7 3 ');
+        Observer.Expect('after S1 and S2 swapped flags', '5 6 1 2 7 4 8 3 ');
+        Observer.Verify();
     end;
 }

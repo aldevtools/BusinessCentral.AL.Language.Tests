@@ -218,7 +218,14 @@ codeunit 66301 "REC PhWild Tests"
     begin
         Initialize();
         WildValues(Observer, false, '<>%1');
-        Observer.Finish();
+        Observer.Expect('A*B', '<>A*B | 6 7 8 9 10 14 15 17 18 19 20 ');
+        Observer.Expect('A?B', '<>A?B | 3 5 6 7 8 9 10 13 14 15 17 18 19 20 ');
+        Observer.Expect('A*', '<>A* | 6 7 8 9 10 14 15 18 19 20 ');
+        Observer.Expect('*B', '<>*B | 6 9 10 14 15 17 19 20 ');
+        Observer.Expect('?', '<>''?'' | 1 2 3 4 5 6 7 8 9 11 12 13 14 15 16 17 18 19 20 ');
+        Observer.Expect('A*B?', '<>A*B? | 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 ');
+        Observer.Expect('reported', '<>8+LI^IBY*]#8?~A^;ZCB | 1 2 3 4 5 6 9 10 11 12 13 14 15 16 17 18 19 20 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -228,7 +235,14 @@ codeunit 66301 "REC PhWild Tests"
     begin
         Initialize();
         WildValues(Observer, false, '%1');
-        Observer.Finish();
+        Observer.Expect('A*B', 'A*B | 1 2 3 4 5 11 12 13 16 ');
+        Observer.Expect('A?B', 'A?B | 1 2 4 11 12 16 ');
+        Observer.Expect('A*', 'A* | 1 2 3 4 5 11 12 13 16 17 ');
+        Observer.Expect('*B', '*B | 1 2 3 4 5 7 8 11 12 13 16 18 ');
+        Observer.Expect('?', '=''?'' | 10 ');
+        Observer.Expect('A*B?', 'A*B? | ');
+        Observer.Expect('reported', '8+LI^IBY*]#8?~A^;ZCB | 7 8 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -238,7 +252,14 @@ codeunit 66301 "REC PhWild Tests"
     begin
         Initialize();
         WildValues(Observer, false, '=%1');
-        Observer.Finish();
+        Observer.Expect('A*B', '=''A*B'' | 1 ');
+        Observer.Expect('A?B', '=''A?B'' | 4 ');
+        Observer.Expect('A*', '=''A*'' | ');
+        Observer.Expect('*B', '=''*B'' | ');
+        Observer.Expect('?', '=''?'' | 10 ');
+        Observer.Expect('A*B?', '=''A*B?'' | ');
+        Observer.Expect('reported', '=''8+LI^IBY*]#8?~A^;ZCB'' | 7 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -248,7 +269,14 @@ codeunit 66301 "REC PhWild Tests"
     begin
         Initialize();
         WildValues(Observer, false, '>%1');
-        Observer.Finish();
+        Observer.Expect('A*B', '>''A*B'' | 2 3 4 5 12 13 16 18 ');
+        Observer.Expect('A?B', '>''A?B'' | 2 3 5 12 16 18 ');
+        Observer.Expect('A*', '>''A*'' | 1 2 3 4 5 12 13 16 18 ');
+        Observer.Expect('*B', '>''*B'' | 1 2 3 4 5 7 8 10 11 12 13 15 16 17 18 19 20 ');
+        Observer.Expect('?', '>''?'' | 1 2 3 4 5 7 8 11 12 13 15 16 17 18 19 20 ');
+        Observer.Expect('A*B?', '>''A*B?'' | 2 3 4 5 12 13 16 18 ');
+        Observer.Expect('reported', '>''8+LI^IBY*]#8?~A^;ZCB'' | 1 2 3 4 5 8 11 12 13 16 17 18 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -258,7 +286,14 @@ codeunit 66301 "REC PhWild Tests"
     begin
         Initialize();
         WildValues(Observer, false, '<=%1');
-        Observer.Finish();
+        Observer.Expect('A*B', '<=''A*B'' | 1 6 7 8 9 10 11 14 15 17 19 20 ');
+        Observer.Expect('A?B', '<=''A?B'' | 1 4 6 7 8 9 10 11 13 14 15 17 19 20 ');
+        Observer.Expect('A*', '<=''A*'' | 6 7 8 9 10 11 14 15 17 19 20 ');
+        Observer.Expect('*B', '<=''*B'' | 6 9 14 ');
+        Observer.Expect('?', '<=''?'' | 6 9 10 14 ');
+        Observer.Expect('A*B?', '<=''A*B?'' | 1 6 7 8 9 10 11 14 15 17 19 20 ');
+        Observer.Expect('reported', '<=''8+LI^IBY*]#8?~A^;ZCB'' | 6 7 9 10 14 15 19 20 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -276,7 +311,16 @@ codeunit 66301 "REC PhWild Tests"
         Cell(Observer, 'range A A?B', false, '%1..%2', 2, 'A', 'A?B');
         Cell(Observer, 'A*B and ne AXB', false, '%1&<>%2', 2, 'A*B', 'AXB');
         Cell(Observer, 'ne reported and ne A', false, '<>%1&<>%2', 2, '8+LI^IBY*]#8?~A^;ZCB', 'A');
-        Observer.Finish();
+        Observer.Expect('or A*B AB', 'A*B|AB | 1 2 3 4 5 11 12 13 16 ');
+        Observer.Expect('or AB A?B', 'AB|A?B | 1 2 3 4 11 12 16 ');
+        Observer.Expect('ne A*B and ne AB', '<>A*B&<>AB | 6 7 8 9 10 14 15 17 18 19 20 ');
+        Observer.Expect('ne AB and ne A?B', '<>AB&<>A?B | 5 6 7 8 9 10 13 14 15 17 18 19 20 ');
+        Observer.Expect('ne A*B and ne A?B', '<>A*B&<>A?B | 6 7 8 9 10 14 15 17 18 19 20 ');
+        Observer.Expect('range A*B AXB', '''A*B''..AXB | 1 2 3 4 12 13 16 ');
+        Observer.Expect('range A A?B', 'A..''A?B'' | 1 4 11 13 17 ');
+        Observer.Expect('A*B and ne AXB', 'A*B&<>AXB | 1 3 4 5 11 12 13 16 ');
+        Observer.Expect('ne reported and ne A', '<>8+LI^IBY*]#8?~A^;ZCB&<>A | 1 2 3 4 5 6 9 10 11 12 13 14 15 16 18 19 20 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -286,7 +330,15 @@ codeunit 66301 "REC PhWild Tests"
     begin
         Initialize();
         OperatorValues(Observer, false, '<>%1');
-        Observer.Finish();
+        Observer.Expect('A&B', '<>''A&B'' | 1 2 3 4 5 6 7 8 9 10 12 13 14 15 16 17 18 19 20 ');
+        Observer.Expect('A|B', '<>''A|B'' | 1 2 3 4 5 6 7 8 9 10 11 13 14 15 16 17 18 19 20 ');
+        Observer.Expect('A..B', '<>''A..B'' | 1 2 3 4 5 6 7 8 9 10 11 12 14 15 16 17 18 19 20 ');
+        Observer.Expect('(A)', '<>''(A)'' | 1 2 3 4 5 6 7 8 9 10 11 12 13 15 16 17 18 19 20 ');
+        Observer.Expect('<A', '<>''<A'' | 1 2 3 4 5 6 7 8 9 10 11 12 13 14 16 17 18 19 20 ');
+        Observer.Expect('>A', '<>''>A'' | 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 20 ');
+        Observer.Expect('=A', '<>''=A'' | 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 ');
+        Observer.Expect('A''B', '<>A''B | 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 17 18 19 20 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -296,7 +348,15 @@ codeunit 66301 "REC PhWild Tests"
     begin
         Initialize();
         OperatorValues(Observer, false, '%1');
-        Observer.Finish();
+        Observer.Expect('A&B', '''A&B'' | 11 ');
+        Observer.Expect('A|B', '''A|B'' | 12 ');
+        Observer.Expect('A..B', '''A..B'' | 13 ');
+        Observer.Expect('(A)', '''(A)'' | 14 ');
+        Observer.Expect('<A', '''<A'' | 15 ');
+        Observer.Expect('>A', '''>A'' | 19 ');
+        Observer.Expect('=A', '''=A'' | 20 ');
+        Observer.Expect('A''B', 'A''B | 16 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -306,7 +366,16 @@ codeunit 66301 "REC PhWild Tests"
     begin
         Initialize();
         LiteralValues(Observer, false, '<>');
-        Observer.Finish();
+        Observer.Expect('A*B', '<>A*B | 6 7 8 9 10 14 15 17 18 19 20 ');
+        Observer.Expect('A?B', '<>A?B | 3 5 6 7 8 9 10 13 14 15 17 18 19 20 ');
+        Observer.Expect('A*', '<>A* | 6 7 8 9 10 14 15 18 19 20 ');
+        Observer.Expect('*B', '<>*B | 6 9 10 14 15 17 19 20 ');
+        Observer.Expect('?', '<>? | 1 2 3 4 5 6 7 8 11 12 13 14 15 16 19 20 ');
+        Observer.Expect('A*B?', '<>A*B? | 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 ');
+        Observer.Expect('reported', '<>8+LI^IBY*]#8?~A^;ZCB | 1 2 3 4 5 6 9 10 11 12 13 14 15 16 17 18 19 20 ');
+        Observer.Expect('quoted A*B', '<>A*B | 6 7 8 9 10 14 15 17 18 19 20 ');
+        Observer.Expect('quoted A?B', '<>A?B | 3 5 6 7 8 9 10 13 14 15 17 18 19 20 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -316,7 +385,16 @@ codeunit 66301 "REC PhWild Tests"
     begin
         Initialize();
         LiteralValues(Observer, false, '');
-        Observer.Finish();
+        Observer.Expect('A*B', 'A*B | 1 2 3 4 5 11 12 13 16 ');
+        Observer.Expect('A?B', 'A?B | 1 2 4 11 12 16 ');
+        Observer.Expect('A*', 'A* | 1 2 3 4 5 11 12 13 16 17 ');
+        Observer.Expect('*B', '*B | 1 2 3 4 5 7 8 11 12 13 16 18 ');
+        Observer.Expect('?', '? | 9 10 17 18 ');
+        Observer.Expect('A*B?', 'A*B? | ');
+        Observer.Expect('reported', '8+LI^IBY*]#8?~A^;ZCB | 7 8 ');
+        Observer.Expect('quoted A*B', 'A*B | 1 2 3 4 5 11 12 13 16 ');
+        Observer.Expect('quoted A?B', 'A?B | 1 2 4 11 12 16 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -332,7 +410,14 @@ codeunit 66301 "REC PhWild Tests"
         RangeCell(Observer, 'reported', false, '8+LI^IBY*]#8?~A^;ZCB');
         RangeCell(Observer, 'A|B', false, 'A|B');
         RangeCell(Observer, 'A..B', false, 'A..B');
-        Observer.Finish();
+        Observer.Expect('A*B', '=''A*B'' | 1 ');
+        Observer.Expect('A?B', '=''A?B'' | 4 ');
+        Observer.Expect('A*', '=''A*'' | ');
+        Observer.Expect('?', '=''?'' | 10 ');
+        Observer.Expect('reported', '=''8+LI^IBY*]#8?~A^;ZCB'' | 7 ');
+        Observer.Expect('A|B', '''A|B'' | 12 ');
+        Observer.Expect('A..B', '''A..B'' | 13 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -342,7 +427,14 @@ codeunit 66301 "REC PhWild Tests"
     begin
         Initialize();
         WildValues(Observer, true, '<>%1');
-        Observer.Finish();
+        Observer.Expect('A*B', '<>A*B | 6 7 8 9 10 14 15 17 18 19 20 ');
+        Observer.Expect('A?B', '<>A?B | 3 5 6 7 8 9 10 13 14 15 17 18 19 20 ');
+        Observer.Expect('A*', '<>A* | 6 7 8 9 10 14 15 18 19 20 ');
+        Observer.Expect('*B', '<>*B | 6 9 10 14 15 17 19 20 ');
+        Observer.Expect('?', '<>''?'' | 1 2 3 4 5 6 7 8 9 11 12 13 14 15 16 17 18 19 20 ');
+        Observer.Expect('A*B?', '<>A*B? | 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 ');
+        Observer.Expect('reported', '<>8+LI^IBY*]#8?~A^;ZCB | 1 2 3 4 5 6 9 10 11 12 13 14 15 16 17 18 19 20 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -352,7 +444,14 @@ codeunit 66301 "REC PhWild Tests"
     begin
         Initialize();
         WildValues(Observer, true, '%1');
-        Observer.Finish();
+        Observer.Expect('A*B', 'A*B | 1 2 3 4 5 11 12 13 16 ');
+        Observer.Expect('A?B', 'A?B | 1 2 4 11 12 16 ');
+        Observer.Expect('A*', 'A* | 1 2 3 4 5 11 12 13 16 17 ');
+        Observer.Expect('*B', '*B | 1 2 3 4 5 7 8 11 12 13 16 18 ');
+        Observer.Expect('?', '=''?'' | 10 ');
+        Observer.Expect('A*B?', 'A*B? | ');
+        Observer.Expect('reported', '8+LI^IBY*]#8?~A^;ZCB | 7 8 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -362,7 +461,14 @@ codeunit 66301 "REC PhWild Tests"
     begin
         Initialize();
         WildValues(Observer, true, '=%1');
-        Observer.Finish();
+        Observer.Expect('A*B', '=''A*B'' | 1 ');
+        Observer.Expect('A?B', '=''A?B'' | 4 ');
+        Observer.Expect('A*', '=''A*'' | ');
+        Observer.Expect('*B', '=''*B'' | ');
+        Observer.Expect('?', '=''?'' | 10 ');
+        Observer.Expect('A*B?', '=''A*B?'' | ');
+        Observer.Expect('reported', '=''8+LI^IBY*]#8?~A^;ZCB'' | 7 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -372,7 +478,14 @@ codeunit 66301 "REC PhWild Tests"
     begin
         Initialize();
         WildValues(Observer, true, '>%1');
-        Observer.Finish();
+        Observer.Expect('A*B', '>''A*B'' | 2 3 4 5 12 13 16 18 ');
+        Observer.Expect('A?B', '>''A?B'' | 2 3 5 12 16 18 ');
+        Observer.Expect('A*', '>''A*'' | 1 2 3 4 5 12 13 16 18 ');
+        Observer.Expect('*B', '>''*B'' | 1 2 3 4 5 7 8 10 11 12 13 15 16 17 18 19 20 ');
+        Observer.Expect('?', '>''?'' | 1 2 3 4 5 7 8 11 12 13 15 16 17 18 19 20 ');
+        Observer.Expect('A*B?', '>''A*B?'' | 2 3 4 5 12 13 16 18 ');
+        Observer.Expect('reported', '>''8+LI^IBY*]#8?~A^;ZCB'' | 1 2 3 4 5 8 11 12 13 16 17 18 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -382,7 +495,14 @@ codeunit 66301 "REC PhWild Tests"
     begin
         Initialize();
         WildValues(Observer, true, '<=%1');
-        Observer.Finish();
+        Observer.Expect('A*B', '<=''A*B'' | 1 6 7 8 9 10 11 14 15 17 19 20 ');
+        Observer.Expect('A?B', '<=''A?B'' | 1 4 6 7 8 9 10 11 13 14 15 17 19 20 ');
+        Observer.Expect('A*', '<=''A*'' | 6 7 8 9 10 11 14 15 17 19 20 ');
+        Observer.Expect('*B', '<=''*B'' | 6 9 14 ');
+        Observer.Expect('?', '<=''?'' | 6 9 10 14 ');
+        Observer.Expect('A*B?', '<=''A*B?'' | 1 6 7 8 9 10 11 14 15 17 19 20 ');
+        Observer.Expect('reported', '<=''8+LI^IBY*]#8?~A^;ZCB'' | 6 7 9 10 14 15 19 20 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -400,7 +520,16 @@ codeunit 66301 "REC PhWild Tests"
         Cell(Observer, 'range A A?B', true, '%1..%2', 2, 'A', 'A?B');
         Cell(Observer, 'A*B and ne AXB', true, '%1&<>%2', 2, 'A*B', 'AXB');
         Cell(Observer, 'ne reported and ne A', true, '<>%1&<>%2', 2, '8+LI^IBY*]#8?~A^;ZCB', 'A');
-        Observer.Finish();
+        Observer.Expect('or A*B AB', 'A*B|AB | 1 2 3 4 5 11 12 13 16 ');
+        Observer.Expect('or AB A?B', 'AB|A?B | 1 2 3 4 11 12 16 ');
+        Observer.Expect('ne A*B and ne AB', '<>A*B&<>AB | 6 7 8 9 10 14 15 17 18 19 20 ');
+        Observer.Expect('ne AB and ne A?B', '<>AB&<>A?B | 5 6 7 8 9 10 13 14 15 17 18 19 20 ');
+        Observer.Expect('ne A*B and ne A?B', '<>A*B&<>A?B | 6 7 8 9 10 14 15 17 18 19 20 ');
+        Observer.Expect('range A*B AXB', '''A*B''..AXB | 1 2 3 4 12 13 16 ');
+        Observer.Expect('range A A?B', 'A..''A?B'' | 1 4 11 13 17 ');
+        Observer.Expect('A*B and ne AXB', 'A*B&<>AXB | 1 3 4 5 11 12 13 16 ');
+        Observer.Expect('ne reported and ne A', '<>8+LI^IBY*]#8?~A^;ZCB&<>A | 1 2 3 4 5 6 9 10 11 12 13 14 15 16 18 19 20 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -410,7 +539,15 @@ codeunit 66301 "REC PhWild Tests"
     begin
         Initialize();
         OperatorValues(Observer, true, '<>%1');
-        Observer.Finish();
+        Observer.Expect('A&B', '<>''A&B'' | 1 2 3 4 5 6 7 8 9 10 12 13 14 15 16 17 18 19 20 ');
+        Observer.Expect('A|B', '<>''A|B'' | 1 2 3 4 5 6 7 8 9 10 11 13 14 15 16 17 18 19 20 ');
+        Observer.Expect('A..B', '<>''A..B'' | 1 2 3 4 5 6 7 8 9 10 11 12 14 15 16 17 18 19 20 ');
+        Observer.Expect('(A)', '<>''(A)'' | 1 2 3 4 5 6 7 8 9 10 11 12 13 15 16 17 18 19 20 ');
+        Observer.Expect('<A', '<>''<A'' | 1 2 3 4 5 6 7 8 9 10 11 12 13 14 16 17 18 19 20 ');
+        Observer.Expect('>A', '<>''>A'' | 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 20 ');
+        Observer.Expect('=A', '<>''=A'' | 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 ');
+        Observer.Expect('A''B', '<>A''B | 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 17 18 19 20 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -420,7 +557,15 @@ codeunit 66301 "REC PhWild Tests"
     begin
         Initialize();
         OperatorValues(Observer, true, '%1');
-        Observer.Finish();
+        Observer.Expect('A&B', '''A&B'' | 11 ');
+        Observer.Expect('A|B', '''A|B'' | 12 ');
+        Observer.Expect('A..B', '''A..B'' | 13 ');
+        Observer.Expect('(A)', '''(A)'' | 14 ');
+        Observer.Expect('<A', '''<A'' | 15 ');
+        Observer.Expect('>A', '''>A'' | 19 ');
+        Observer.Expect('=A', '''=A'' | 20 ');
+        Observer.Expect('A''B', 'A''B | 16 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -430,7 +575,16 @@ codeunit 66301 "REC PhWild Tests"
     begin
         Initialize();
         LiteralValues(Observer, true, '<>');
-        Observer.Finish();
+        Observer.Expect('A*B', '<>A*B | 6 7 8 9 10 14 15 17 18 19 20 ');
+        Observer.Expect('A?B', '<>A?B | 3 5 6 7 8 9 10 13 14 15 17 18 19 20 ');
+        Observer.Expect('A*', '<>A* | 6 7 8 9 10 14 15 18 19 20 ');
+        Observer.Expect('*B', '<>*B | 6 9 10 14 15 17 19 20 ');
+        Observer.Expect('?', '<>? | 1 2 3 4 5 6 7 8 11 12 13 14 15 16 19 20 ');
+        Observer.Expect('A*B?', '<>A*B? | 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 ');
+        Observer.Expect('reported', '<>8+LI^IBY*]#8?~A^;ZCB | 1 2 3 4 5 6 9 10 11 12 13 14 15 16 17 18 19 20 ');
+        Observer.Expect('quoted A*B', '<>A*B | 6 7 8 9 10 14 15 17 18 19 20 ');
+        Observer.Expect('quoted A?B', '<>A?B | 3 5 6 7 8 9 10 13 14 15 17 18 19 20 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -440,7 +594,16 @@ codeunit 66301 "REC PhWild Tests"
     begin
         Initialize();
         LiteralValues(Observer, true, '');
-        Observer.Finish();
+        Observer.Expect('A*B', 'A*B | 1 2 3 4 5 11 12 13 16 ');
+        Observer.Expect('A?B', 'A?B | 1 2 4 11 12 16 ');
+        Observer.Expect('A*', 'A* | 1 2 3 4 5 11 12 13 16 17 ');
+        Observer.Expect('*B', '*B | 1 2 3 4 5 7 8 11 12 13 16 18 ');
+        Observer.Expect('?', '? | 9 10 17 18 ');
+        Observer.Expect('A*B?', 'A*B? | ');
+        Observer.Expect('reported', '8+LI^IBY*]#8?~A^;ZCB | 7 8 ');
+        Observer.Expect('quoted A*B', 'A*B | 1 2 3 4 5 11 12 13 16 ');
+        Observer.Expect('quoted A?B', 'A?B | 1 2 4 11 12 16 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -456,7 +619,14 @@ codeunit 66301 "REC PhWild Tests"
         RangeCell(Observer, 'reported', true, '8+LI^IBY*]#8?~A^;ZCB');
         RangeCell(Observer, 'A|B', true, 'A|B');
         RangeCell(Observer, 'A..B', true, 'A..B');
-        Observer.Finish();
+        Observer.Expect('A*B', '=''A*B'' | 1 ');
+        Observer.Expect('A?B', '=''A?B'' | 4 ');
+        Observer.Expect('A*', '=''A*'' | ');
+        Observer.Expect('?', '=''?'' | 10 ');
+        Observer.Expect('reported', '=''8+LI^IBY*]#8?~A^;ZCB'' | 7 ');
+        Observer.Expect('A|B', '''A|B'' | 12 ');
+        Observer.Expect('A..B', '''A..B'' | 13 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -475,7 +645,17 @@ codeunit 66301 "REC PhWild Tests"
         RefCell(Observer, 'eqsign A*B', false, '=%1', 1, 'A*B', '');
         RefCell(Observer, 'ne A*B and ne AB', false, '<>%1&<>%2', 2, 'A*B', 'AB');
         RefCell(Observer, 'written ne A*B', false, '<>A*B', 0, '', '');
-        Observer.Finish();
+        Observer.Expect('ne A*B', '<>A*B | 6 7 8 9 10 14 15 17 18 19 20 ');
+        Observer.Expect('ne A?B', '<>A?B | 3 5 6 7 8 9 10 13 14 15 17 18 19 20 ');
+        Observer.Expect('ne ?', '<>''?'' | 1 2 3 4 5 6 7 8 9 11 12 13 14 15 16 17 18 19 20 ');
+        Observer.Expect('ne reported', '<>8+LI^IBY*]#8?~A^;ZCB | 1 2 3 4 5 6 9 10 11 12 13 14 15 16 17 18 19 20 ');
+        Observer.Expect('eq A*B', 'A*B | 1 2 3 4 5 11 12 13 16 ');
+        Observer.Expect('eq A?B', 'A?B | 1 2 4 11 12 16 ');
+        Observer.Expect('eq reported', '8+LI^IBY*]#8?~A^;ZCB | 7 8 ');
+        Observer.Expect('eqsign A*B', '=''A*B'' | 1 ');
+        Observer.Expect('ne A*B and ne AB', '<>A*B&<>AB | 6 7 8 9 10 14 15 17 18 19 20 ');
+        Observer.Expect('written ne A*B', '<>A*B | 6 7 8 9 10 14 15 17 18 19 20 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -494,6 +674,16 @@ codeunit 66301 "REC PhWild Tests"
         RefCell(Observer, 'eqsign A*B', true, '=%1', 1, 'A*B', '');
         RefCell(Observer, 'ne A*B and ne AB', true, '<>%1&<>%2', 2, 'A*B', 'AB');
         RefCell(Observer, 'written ne A*B', true, '<>A*B', 0, '', '');
-        Observer.Finish();
+        Observer.Expect('ne A*B', '<>A*B | 6 7 8 9 10 14 15 17 18 19 20 ');
+        Observer.Expect('ne A?B', '<>A?B | 3 5 6 7 8 9 10 13 14 15 17 18 19 20 ');
+        Observer.Expect('ne ?', '<>''?'' | 1 2 3 4 5 6 7 8 9 11 12 13 14 15 16 17 18 19 20 ');
+        Observer.Expect('ne reported', '<>8+LI^IBY*]#8?~A^;ZCB | 1 2 3 4 5 6 9 10 11 12 13 14 15 16 17 18 19 20 ');
+        Observer.Expect('eq A*B', 'A*B | 1 2 3 4 5 11 12 13 16 ');
+        Observer.Expect('eq A?B', 'A?B | 1 2 4 11 12 16 ');
+        Observer.Expect('eq reported', '8+LI^IBY*]#8?~A^;ZCB | 7 8 ');
+        Observer.Expect('eqsign A*B', '=''A*B'' | 1 ');
+        Observer.Expect('ne A*B and ne AB', '<>A*B&<>AB | 6 7 8 9 10 14 15 17 18 19 20 ');
+        Observer.Expect('written ne A*B', '<>A*B | 6 7 8 9 10 14 15 17 18 19 20 ');
+        Observer.Verify();
     end;
 }

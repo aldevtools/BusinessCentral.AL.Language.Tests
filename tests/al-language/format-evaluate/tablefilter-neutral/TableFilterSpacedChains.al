@@ -172,7 +172,13 @@ codeunit 66311 "FE TfChain Tests"
     begin
         Initialize();
         Chains(Observer, 'Code Field');
-        Observer.Finish();
+        Observer.Expect('ne and ne', 'FE TfChain Row: Code Field=<>BIN EAST&<>BIN WEST | 2=<>BIN EAST&<>BIN WEST; | 3 4 5 6 7 ');
+        Observer.Expect('three ne', 'FE TfChain Row: Code Field=<>BIN EAST&<>BIN WEST&<>BIN NORTH | 2=<>BIN EAST&<>BIN WEST&<>BIN NORTH; | 4 5 6 7 ');
+        Observer.Expect('or', 'FE TfChain Row: Code Field=BIN EAST|BIN WEST | 2=BIN EAST|BIN WEST; | 1 2 ');
+        Observer.Expect('three or', 'FE TfChain Row: Code Field=BIN EAST|BIN WEST|BIN | 2=BIN EAST|BIN WEST|BIN; | 1 2 4 ');
+        Observer.Expect('gt and lt', 'FE TfChain Row: Code Field=>BIN EAST&<BIN WEST | 2=>BIN EAST&<BIN WEST; | 3 7 ');
+        Observer.Expect('or with ne', 'FE TfChain Row: Code Field=BIN EAST|<>BIN WEST | 2=BIN EAST|<>BIN WEST; | 1 3 4 5 6 7 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -182,7 +188,14 @@ codeunit 66311 "FE TfChain Tests"
     begin
         Initialize();
         RangesAndSingles(Observer, 'Code Field');
-        Observer.Finish();
+        Observer.Expect('single', 'FE TfChain Row: Code Field=BIN EAST | 2=BIN EAST; | 1 ');
+        Observer.Expect('ne', 'FE TfChain Row: Code Field=<>BIN EAST | 2=<>BIN EAST; | 2 3 4 5 6 7 ');
+        Observer.Expect('range', 'FE TfChain Row: Code Field=BIN EAST..BIN NORTH | 2=BIN EAST..BIN NORTH; | 1 3 7 ');
+        Observer.Expect('up to', 'FE TfChain Row: Code Field=..BIN NORTH | 2=..BIN NORTH; | 1 3 4 6 7 ');
+        Observer.Expect('from', 'FE TfChain Row: Code Field=BIN NORTH.. | 2=BIN NORTH..; | 2 3 5 ');
+        Observer.Expect('range or single', 'FE TfChain Row: Code Field=BIN EAST..BIN NORTH|EAST | 2=BIN EAST..BIN NORTH|EAST; | 1 3 5 7 ');
+        Observer.Expect('three words', 'FE TfChain Row: Code Field=BIN EAST WEST | 2=BIN EAST WEST; | 7 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -192,7 +205,14 @@ codeunit 66311 "FE TfChain Tests"
     begin
         Initialize();
         Wildcards(Observer, 'Code Field');
-        Observer.Finish();
+        Observer.Expect('prefix', 'FE TfChain Row: Code Field=BIN E* | 2=BIN E*; | 1 7 ');
+        Observer.Expect('ne prefix', 'FE TfChain Row: Code Field=<>BIN E* | 2=<>BIN E*; | 2 3 4 5 6 ');
+        Observer.Expect('suffix', 'FE TfChain Row: Code Field=* EAST | 2=* EAST; | 1 ');
+        Observer.Expect('inner', 'FE TfChain Row: Code Field=BIN*WEST | 2=BIN*WEST; | 2 7 ');
+        Observer.Expect('ne prefix and ne', 'FE TfChain Row: Code Field=<>BIN E*&<>BIN WEST | 2=<>BIN E*&<>BIN WEST; | 3 4 5 6 ');
+        Observer.Expect('at sign', 'FE TfChain Row: Code Field=@BIN EAST | 2=@BIN EAST; | 1 ');
+        Observer.Expect('question mark', 'FE TfChain Row: Code Field=BIN ?AST | 2=BIN ?AST; | 1 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -202,7 +222,14 @@ codeunit 66311 "FE TfChain Tests"
     begin
         Initialize();
         Quoted(Observer, 'Code Field');
-        Observer.Finish();
+        Observer.Expect('quoted single', 'FE TfChain Row: Code Field=BIN EAST | 2=BIN EAST; | 1 ');
+        Observer.Expect('quoted ne and ne', 'FE TfChain Row: Code Field=<>BIN EAST&<>BIN WEST | 2=<>BIN EAST&<>BIN WEST; | 3 4 5 6 7 ');
+        Observer.Expect('quoted or', 'FE TfChain Row: Code Field=BIN EAST|BIN WEST | 2=BIN EAST|BIN WEST; | 1 2 ');
+        Observer.Expect('quoted range', 'FE TfChain Row: Code Field=BIN EAST..BIN NORTH | 2=BIN EAST..BIN NORTH; | 1 3 7 ');
+        Observer.Expect('quoted and plain', 'FE TfChain Row: Code Field=<>BIN EAST&<>BIN WEST | 2=<>BIN EAST&<>BIN WEST; | 3 4 5 6 7 ');
+        Observer.Expect('plain and quoted', 'FE TfChain Row: Code Field=BIN EAST|BIN WEST | 2=BIN EAST|BIN WEST; | 1 2 ');
+        Observer.Expect('quoted blank or value', 'FE TfChain Row: Code Field=''''|BIN EAST | 2=''''|BIN EAST; | 1 6 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -212,7 +239,13 @@ codeunit 66311 "FE TfChain Tests"
     begin
         Initialize();
         Chains(Observer, 'Text Field');
-        Observer.Finish();
+        Observer.Expect('ne and ne', 'FE TfChain Row: Text Field=<>BIN EAST&<>BIN WEST | 3=<>BIN EAST&<>BIN WEST; | 3 4 5 6 7 ');
+        Observer.Expect('three ne', 'FE TfChain Row: Text Field=<>BIN EAST&<>BIN WEST&<>BIN NORTH | 3=<>BIN EAST&<>BIN WEST&<>BIN NORTH; | 4 5 6 7 ');
+        Observer.Expect('or', 'FE TfChain Row: Text Field=BIN EAST|BIN WEST | 3=BIN EAST|BIN WEST; | 1 2 ');
+        Observer.Expect('three or', 'FE TfChain Row: Text Field=BIN EAST|BIN WEST|BIN | 3=BIN EAST|BIN WEST|BIN; | 1 2 4 ');
+        Observer.Expect('gt and lt', 'FE TfChain Row: Text Field=>BIN EAST&<BIN WEST | 3=>BIN EAST&<BIN WEST; | 3 7 ');
+        Observer.Expect('or with ne', 'FE TfChain Row: Text Field=BIN EAST|<>BIN WEST | 3=BIN EAST|<>BIN WEST; | 1 3 4 5 6 7 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -222,7 +255,14 @@ codeunit 66311 "FE TfChain Tests"
     begin
         Initialize();
         RangesAndSingles(Observer, 'Text Field');
-        Observer.Finish();
+        Observer.Expect('single', 'FE TfChain Row: Text Field=BIN EAST | 3=BIN EAST; | 1 ');
+        Observer.Expect('ne', 'FE TfChain Row: Text Field=<>BIN EAST | 3=<>BIN EAST; | 2 3 4 5 6 7 ');
+        Observer.Expect('range', 'FE TfChain Row: Text Field=BIN EAST..BIN NORTH | 3=BIN EAST..BIN NORTH; | 1 3 7 ');
+        Observer.Expect('up to', 'FE TfChain Row: Text Field=..BIN NORTH | 3=..BIN NORTH; | 1 3 4 6 7 ');
+        Observer.Expect('from', 'FE TfChain Row: Text Field=BIN NORTH.. | 3=BIN NORTH..; | 2 3 5 ');
+        Observer.Expect('range or single', 'FE TfChain Row: Text Field=BIN EAST..BIN NORTH|EAST | 3=BIN EAST..BIN NORTH|EAST; | 1 3 5 7 ');
+        Observer.Expect('three words', 'FE TfChain Row: Text Field=BIN EAST WEST | 3=BIN EAST WEST; | 7 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -232,7 +272,14 @@ codeunit 66311 "FE TfChain Tests"
     begin
         Initialize();
         Wildcards(Observer, 'Text Field');
-        Observer.Finish();
+        Observer.Expect('prefix', 'FE TfChain Row: Text Field=BIN E* | 3=BIN E*; | 1 7 ');
+        Observer.Expect('ne prefix', 'FE TfChain Row: Text Field=<>BIN E* | 3=<>BIN E*; | 2 3 4 5 6 ');
+        Observer.Expect('suffix', 'FE TfChain Row: Text Field=* EAST | 3=* EAST; | 1 ');
+        Observer.Expect('inner', 'FE TfChain Row: Text Field=BIN*WEST | 3=BIN*WEST; | 2 7 ');
+        Observer.Expect('ne prefix and ne', 'FE TfChain Row: Text Field=<>BIN E*&<>BIN WEST | 3=<>BIN E*&<>BIN WEST; | 3 4 5 6 ');
+        Observer.Expect('at sign', 'FE TfChain Row: Text Field=@bin east | 3=@bin east; | 1 ');
+        Observer.Expect('question mark', 'FE TfChain Row: Text Field=BIN ?AST | 3=BIN ?AST; | 1 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -242,7 +289,14 @@ codeunit 66311 "FE TfChain Tests"
     begin
         Initialize();
         Quoted(Observer, 'Text Field');
-        Observer.Finish();
+        Observer.Expect('quoted single', 'FE TfChain Row: Text Field=BIN EAST | 3=BIN EAST; | 1 ');
+        Observer.Expect('quoted ne and ne', 'FE TfChain Row: Text Field=<>BIN EAST&<>BIN WEST | 3=<>BIN EAST&<>BIN WEST; | 3 4 5 6 7 ');
+        Observer.Expect('quoted or', 'FE TfChain Row: Text Field=BIN EAST|BIN WEST | 3=BIN EAST|BIN WEST; | 1 2 ');
+        Observer.Expect('quoted range', 'FE TfChain Row: Text Field=BIN EAST..BIN NORTH | 3=BIN EAST..BIN NORTH; | 1 3 7 ');
+        Observer.Expect('quoted and plain', 'FE TfChain Row: Text Field=<>BIN EAST&<>BIN WEST | 3=<>BIN EAST&<>BIN WEST; | 3 4 5 6 7 ');
+        Observer.Expect('plain and quoted', 'FE TfChain Row: Text Field=BIN EAST|BIN WEST | 3=BIN EAST|BIN WEST; | 1 2 ');
+        Observer.Expect('quoted blank or value', 'FE TfChain Row: Text Field=''''|BIN EAST | 3=''''|BIN EAST; | 1 6 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -255,6 +309,10 @@ codeunit 66311 "FE TfChain Tests"
         Cell(Observer, 'chain then single', 'Code Field=BIN EAST|BIN WEST,Text Field=BIN EAST');
         Cell(Observer, 'single then chain', 'Code Field=BIN EAST,Text Field=<>BIN WEST&<>BIN');
         Cell(Observer, 'text first', 'Text Field=BIN EAST|BIN WEST,Code Field=<>BIN WEST');
-        Observer.Finish();
+        Observer.Expect('two chains', 'FE TfChain Row: Code Field=<>BIN EAST&<>BIN WEST,Text Field=BIN NORTH|BIN | 2=<>BIN EAST&<>BIN WEST;3=BIN NORTH|BIN; | 3 4 ');
+        Observer.Expect('chain then single', 'FE TfChain Row: Code Field=BIN EAST|BIN WEST,Text Field=BIN EAST | 2=BIN EAST|BIN WEST;3=BIN EAST; | 1 ');
+        Observer.Expect('single then chain', 'FE TfChain Row: Code Field=BIN EAST,Text Field=<>BIN WEST&<>BIN | 2=BIN EAST;3=<>BIN WEST&<>BIN; | 1 ');
+        Observer.Expect('text first', 'FE TfChain Row: Code Field=<>BIN WEST,Text Field=BIN EAST|BIN WEST | 2=<>BIN WEST;3=BIN EAST|BIN WEST; | 1 ');
+        Observer.Verify();
     end;
 }

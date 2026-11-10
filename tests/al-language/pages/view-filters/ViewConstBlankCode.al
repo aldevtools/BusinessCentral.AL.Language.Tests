@@ -451,7 +451,9 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('rows before the error', Rows);
             Observer.ObserveError('open or read');
         end;
-        Observer.Finish();
+        Observer.Expect('rows', '1 2 3 4 5 6 ');
+        Observer.Expect('filters', 'Doc Type=[] C20=[] C10=[] T=[] Kind=[] Table Id=[]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -484,7 +486,9 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('rows before the error', Rows);
             Observer.ObserveError('open or read');
         end;
-        Observer.Finish();
+        Observer.Expect('rows', '1 2 5 6 ');
+        Observer.Expect('filters', 'Doc Type=[1] C20=[] C10=[] T=[] Kind=[1] Table Id=[]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -517,7 +521,9 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('rows before the error', Rows);
             Observer.ObserveError('open or read');
         end;
-        Observer.Finish();
+        Observer.Expect('rows', '1 2 3 4 5 6 ');
+        Observer.Expect('filters', 'Doc Type=[] C20=[] C10=[] T=[] Kind=[] Table Id=[]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -550,7 +556,9 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('rows before the error', Rows);
             Observer.ObserveError('open or read');
         end;
-        Observer.Finish();
+        Observer.Expect('rows', '1 3 4 6 ');
+        Observer.Expect('filters', 'Doc Type=[] C20=[''''] C10=[] T=[] Kind=[] Table Id=[]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -583,7 +591,9 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('rows before the error', Rows);
             Observer.ObserveError('open or read');
         end;
-        Observer.Finish();
+        Observer.Expect('rows', '2 5 ');
+        Observer.Expect('filters', 'Doc Type=[] C20=[<>''''] C10=[] T=[] Kind=[] Table Id=[]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -616,7 +626,9 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('rows before the error', Rows);
             Observer.ObserveError('open or read');
         end;
-        Observer.Finish();
+        Observer.Expect('rows', '1 2 3 4 5 6 ');
+        Observer.Expect('filters', 'Doc Type=[] C20=[] C10=[] T=[] Kind=[] Table Id=[]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -649,7 +661,9 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('rows before the error', Rows);
             Observer.ObserveError('open or read');
         end;
-        Observer.Finish();
+        Observer.Expect('rows', '1 2 3 4 5 6 ');
+        Observer.Expect('filters', 'Doc Type=[] C20=[] C10=[] T=[] Kind=[] Table Id=[]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -682,7 +696,9 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('rows before the error', Rows);
             Observer.ObserveError('open or read');
         end;
-        Observer.Finish();
+        Observer.Expect('rows', '2 4 ');
+        Observer.Expect('filters', 'Doc Type=[] C20=[] C10=[X] T=[] Kind=[] Table Id=[]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -715,7 +731,9 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('rows before the error', Rows);
             Observer.ObserveError('open or read');
         end;
-        Observer.Finish();
+        Observer.Expect('rows', '1 3 4 ');
+        Observer.Expect('filters', 'Doc Type=[] C20=[] C10=[] T=[] Kind=[] Table Id=[<own table>]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -748,7 +766,9 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('rows before the error', Rows);
             Observer.ObserveError('open or read');
         end;
-        Observer.Finish();
+        Observer.Expect('rows', '1 3 4 5 ');
+        Observer.Expect('filters', 'Doc Type=[] C20=[] C10=[] T=[] Kind=[] Table Id=[<own table>|18]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -781,7 +801,9 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('rows before the error', Rows);
             Observer.ObserveError('open or read');
         end;
-        Observer.Finish();
+        Observer.Expect('rows', '1 2 4 5 6 ');
+        Observer.Expect('filters', 'Doc Type=[1] C20=[] C10=[] T=[] Kind=[] Table Id=[]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -814,7 +836,9 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('rows before the error', Rows);
             Observer.ObserveError('open or read');
         end;
-        Observer.Finish();
+        Observer.Expect('rows', '1 3 4 6 2 5 ');
+        Observer.Expect('filters', 'Doc Type=[] C20=[] C10=[] T=[] Kind=[] Table Id=[]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -853,7 +877,9 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('host row 2 rows before the error', Rows);
             Observer.ObserveError('host row 2');
         end;
-        Observer.Finish();
+        Observer.Expect('host row 1 (C10 blank)', '1 3 4 6 ');
+        Observer.Expect('host row 2 (C10 X)', '1 3 4 6 ');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -892,7 +918,9 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('host row 2 rows before the error', Rows);
             Observer.ObserveError('host row 2');
         end;
-        Observer.Finish();
+        Observer.Expect('host row 1 (C10 blank)', '1 6 ');
+        Observer.Expect('host row 2 (C10 X)', '1 6 ');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -931,7 +959,9 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('host row 2 rows before the error', Rows);
             Observer.ObserveError('host row 2');
         end;
-        Observer.Finish();
+        Observer.Expect('host row 1 (C10 blank)', '1 3 5 6 ');
+        Observer.Expect('host row 2 (C10 X)', '1 3 5 6 ');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -970,7 +1000,9 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('host row 2 rows before the error', Rows);
             Observer.ObserveError('host row 2');
         end;
-        Observer.Finish();
+        Observer.Expect('host row 1 (C10 blank)', '1 3 4 ');
+        Observer.Expect('host row 2 (C10 X)', '1 3 4 ');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1009,7 +1041,9 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('host row 2 rows before the error', Rows);
             Observer.ObserveError('host row 2');
         end;
-        Observer.Finish();
+        Observer.Expect('host row 1 (C10 blank)', '1 3 6 ');
+        Observer.Expect('host row 2 (C10 X)', '4 ');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1048,7 +1082,9 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('host row 2 rows before the error', Rows);
             Observer.ObserveError('host row 2');
         end;
-        Observer.Finish();
+        Observer.Expect('host row 1 (C10 blank)', '1 4 6 ');
+        Observer.Expect('host row 2 (C10 X)', '1 4 6 ');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1087,7 +1123,9 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('host row 2 rows before the error', Rows);
             Observer.ObserveError('host row 2');
         end;
-        Observer.Finish();
+        Observer.Expect('host row 1 (C10 blank)', '1 4 6 ');
+        Observer.Expect('host row 2 (C10 X)', '1 4 6 ');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1126,7 +1164,9 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('host row 2 rows before the error', Rows);
             Observer.ObserveError('host row 2');
         end;
-        Observer.Finish();
+        Observer.Expect('host row 1 (C10 blank)', '1 2 5 6 ');
+        Observer.Expect('host row 2 (C10 X)', '1 2 5 6 ');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1165,6 +1205,8 @@ codeunit 66389 "PG VwBlank Tests"
             Observer.Observe('host row 2 rows before the error', Rows);
             Observer.ObserveError('host row 2');
         end;
-        Observer.Finish();
+        Observer.Expect('host row 1 (C10 blank)', '1 5 6 ');
+        Observer.Expect('host row 2 (C10 X)', '2 ');
+        Observer.Verify();
     end;
 }
