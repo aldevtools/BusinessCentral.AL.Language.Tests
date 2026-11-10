@@ -40,12 +40,23 @@ jobs:
       codeunit_range:       ${{ fromJson(needs.prepare.outputs.subset)['tests/onprem'] || '60000..60099' }}
 """
 
+def fake_app(names):
+    """A symbol package: the 40-byte NAVX header, then a zip with SymbolReference.json."""
+    import io
+    import zipfile
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, 'w') as z:
+        z.writestr('SymbolReference.json', json.dumps({'Namespaces': [{'Tables': [{'Id': 18, 'Name': n} for n in names]}]}))
+    return b'NAVX' + b' ' * 36 + buf.getvalue()
+
+
 BASE_FILES = {
     '.github/workflows/ci.yml': CI,
     'README.md': '# corpus\n',
     'tests/fixture/app.json': '{}',
     'tests/fixture/Fix.al': 'codeunit 70000 "Fix Helper"\n{\n}\n',
     'tests/main/app.json': json.dumps({'resourceFolders': ['res']}),
+    'tests/main/.alpackages/Base Application.app': fake_app(['Some Microsoft Table']),
     'tests/main/res/a.txt': 'hello',
     'tests/main/Assert.al': 'codeunit 50000 Assert\n{\n    procedure IsTrue(b: Boolean) begin end;\n}\n',
     'tests/main/Probe.Table.al': 'table 50001 "Probe Rec"\n{\n    fields { field(1; "No."; Integer) { } }\n}\n',
@@ -99,7 +110,7 @@ def make(changes, base_files=None):
             f.unlink()
         else:
             f.parent.mkdir(parents=True, exist_ok=True)
-            f.write_text(t)
+            f.write_bytes(t) if isinstance(t, bytes) else f.write_text(t)
     git(repo, 'add', '-A')
     git(repo, 'commit', '-q', '--allow-empty', '-m', 'change')
     return st.select(st.Git(repo), base, 'HEAD')
@@ -121,16 +132,6 @@ def subscriber(cid, publisher, event='OnAfterInsertEvent', props='', body='', na
 def binder(cid, sub_name):
     return ('codeunit %d "Binds %d"\n{\n    Subtype = Test;\n    [Test]\n    procedure A()\n    var S: Codeunit "%s";\n'
             '    begin BindSubscription(S); end;\n}\n') % (cid, cid, sub_name)
-
-
-def fake_app(names):
-    """A symbol package: the 40-byte NAVX header, then a zip with SymbolReference.json."""
-    import io
-    import zipfile
-    buf = io.BytesIO()
-    with zipfile.ZipFile(buf, 'w') as z:
-        z.writestr('SymbolReference.json', json.dumps({'Namespaces': [{'Tables': [{'Id': 18, 'Name': n} for n in names]}]}))
-    return b'NAVX' + b' ' * 36 + buf.getvalue()
 
 
 def subscribers():
@@ -185,6 +186,10 @@ def subscribers():
     r = make({'tests/main/Subs.al': subscriber(50020, own)}, named)
     check('full run: a Microsoft object has the publisher\'s name too', r['mode'] == 'full'
           and any('a Microsoft object has that name too' in x for x in r['reasons']), r['reasons'])
+    nopkg = {p: t for p, t in BASE_FILES.items() if '/.alpackages/' not in p}
+    r = make({'tests/main/Subs.al': subscriber(50020, own)}, nopkg)
+    check('full run: no symbol packages in the tree', r['mode'] == 'full'
+          and any('no Microsoft symbol packages in the tree' in x for x in r['reasons']), r['reasons'])
     named['tests/main/.alpackages/Base Application.app'] = 'not a package'
     r = make({'tests/main/Subs.al': subscriber(50020, own)}, named)
     check('full run: symbol packages that cannot be read', r['mode'] == 'full'
@@ -261,7 +266,7 @@ def given_cases():
     for p, t in BASE_FILES.items():
         f = Path(repo, p)
         f.parent.mkdir(parents=True, exist_ok=True)
-        f.write_text(t)
+        f.write_bytes(t) if isinstance(t, bytes) else f.write_text(t)
     git(repo, 'add', '-A')
     git(repo, 'commit', '-q', '-m', 'base')
     g = st.Git(repo)
@@ -460,7 +465,7 @@ def main():
     for p_, t in BASE_FILES.items():
         f = Path(repo, p_)
         f.parent.mkdir(parents=True, exist_ok=True)
-        f.write_text(t)
+        f.write_bytes(t) if isinstance(t, bytes) else f.write_text(t)
     git(repo, 'add', '-A')
     git(repo, 'commit', '-q', '-m', 'base')
     git(repo, 'checkout', '-q', '-b', 'topic')

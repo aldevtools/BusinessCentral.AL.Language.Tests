@@ -5,7 +5,7 @@ Session, Company, User, NavApp, IsolatedStorage, TaskScheduler, StartSession and
 ## Topics
 
 - (area folder itself): 83 AL files that are about the area as a whole or were not given a topic yet.
-- `callstack/`: SessionInformation.Callstack read in triggers, procedures and events of every object type (5 AL files).
+- `callstack/`: SessionInformation.Callstack read in triggers, procedures and events of every object type (7 AL files, CallstackFullText.al reads the whole text including the frames below the test procedure, CallstackRunnerFrames.al pins every frame of Microsoft's test runner below it).
 - `company/`: Company and CompanyName (6 AL files).
 - `isolated-storage/`: IsolatedStorage and encryption (9 AL files).
 - `session/`: Session, User and system functions (11 AL files).

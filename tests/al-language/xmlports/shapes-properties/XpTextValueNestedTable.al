@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-xmlport-object
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); LT Y83 Helper (Y83XpFixtures.al); own objects: tables 97940-97942, xmlports 97943-97949 and 97951-97964, test codeunit 97950
+// Fixtures used: Probe Observer (69160); LT Y83 Helper (Y83XpFixtures.al); own objects: tables 97940-97942, xmlports 97943-97949, 97951-97979 and 97982-97989, codeunit 97981 (trigger log), test codeunit 97950
 // Probe: al-runner issue 7263 (follow-up to 7130 and 7131, XpTableRootNestedText.al). Export (Format = Xml) of
 //   A: a root table element (MaxOccurs = Once, XmlName Envelope) > text element L1 > text element L0 > a table element (orders, field element
 //      No) and a text element with a value (username, set in OnBeforePassVariable), the text element after and before the table element, and
@@ -28,6 +28,17 @@
 //   Issue 7309 (BC 29.0 measured first): the same at every depth and with several value elements: BC writes the plain tree in
 //   schema order, each text element once around the next, each value element once where the schema has it (before the first row,
 //   between the rows and the next element, or after the last row), and with namespaces L2, L1 and L0 keep tem: as in A.
+// Probe: al-runner issue 7355 (follow-up to 7349). Export of a value text element with OnAfterAssignVariable only and with OnBeforePassVariable
+//   and OnAfterAssignVariable, next to a table element in a row (TI > [value, table], [table, value], no TI), at a root text element and at a
+//   root table element, a field element with OnBeforePassField and OnAfterAssignField, and a table element with every table trigger; a
+//   SingleInstance log codeunit records which triggers run.
+// Readings (BC 27.5, 28.5 and 29.0 identical, CI subset runs 42625890377, 42625924631, 42625958537): on export, OnBeforePassVariable of a
+//   value text element runs once per element instance, before the element is written, in every position (before or after the table
+//   element in TI, at the root, at a root table element), also when the table element has 0 rows; OnAfterAssignVariable and
+//   OnAfterAssignField never run on export. A value element with only OnAfterAssignVariable writes its variable as it is (an empty element
+//   <T1 /> for an empty text, 'pre' when the variable was set before). The table triggers OnPreXmlItem and OnAfterGetRecord run in document
+//   order around the value element's OnBeforePassVariable. A nested table element with 0 rows (default MinOccurs) writes one empty row element.
+// local object: the schemas of the ports are what is under test
 // BC versions: 27, 28, 29
 
 table 97940 "LT X63 Comm"
@@ -913,6 +924,7 @@ codeunit 97950 "LT X63 Tests"
     var
         Observer: Codeunit "Probe Observer";
         Helper: Codeunit "LT Y83 Helper";
+        Log: Codeunit "LT X63 Trigger Log";
 
     // A: one root row, Orders rows O1, O2 (as many as given), no rows of Ref.
     local procedure SeedA(Orders: Integer)
@@ -1248,5 +1260,1531 @@ codeunit 97950 "LT X63 Tests"
         Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <No>O1</No>\r\n      <T1>x</T1>\r\n      <T2>y</T2>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
         Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <No>O1</No>\r\n      <T1>x</T1>\r\n      <T2>y</T2>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
         Observer.Verify();
+    end;
+
+    // Issue 7349: TI > [RD > [value], table element] (issue 7349 R1).
+    [Test]
+    procedure XTN_R1_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97965, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97965, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97965, TextEncoding::UTF8));
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Issue 7349: TI > [table element, RD > [value]] (R2).
+    [Test]
+    procedure XTN_R2_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97966, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97966, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97966, TextEncoding::UTF8));
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Issue 7349: TI > [RD > [field element, value], table element] (R3).
+    [Test]
+    procedure XTN_R3_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97967, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97967, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97967, TextEncoding::UTF8));
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <D>O1</D>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <D>O1</D>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <D>O1</D>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Issue 7349: TI > [RD > [value], table element, RE > [value]].
+    [Test]
+    procedure XTN_Around_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97968, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97968, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97968, TextEncoding::UTF8));
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n      <RE>\r\n        <TU>y</TU>\r\n      </RE>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <RE>\r\n        <TU>y</TU>\r\n      </RE>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n      <RE>\r\n        <TU>y</TU>\r\n      </RE>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Issue 7349: TI > [RD > [value], RE > [value], table element].
+    [Test]
+    procedure XTN_TwoTexts_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97969, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97969, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97969, TextEncoding::UTF8));
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <RE>\r\n        <TU>y</TU>\r\n      </RE>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <RE>\r\n        <TU>y</TU>\r\n      </RE>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <RE>\r\n        <TU>y</TU>\r\n      </RE>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Issue 7349: TI > [RD > [field element, value], table element r, table element q].
+    [Test]
+    procedure XTN_TwoTables_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97970, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97970, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97970, TextEncoding::UTF8));
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <D>O1</D>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n      <q>\r\n        <Ref />\r\n      </q>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <D>O1</D>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <q>\r\n        <Ref>R1</Ref>\r\n      </q>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <D>O1</D>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n      <q>\r\n        <Ref>R1</Ref>\r\n      </q>\r\n      <q>\r\n        <Ref>R2</Ref>\r\n      </q>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Issue 7349: TI > [value, RD > [value], table element, value].
+    [Test]
+    procedure XTN_Mixed_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97971, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97971, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97971, TextEncoding::UTF8));
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1>a</T1>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n      <T2>b</T2>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1>a</T1>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <T2>b</T2>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <T1>a</T1>\r\n      <RD>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n      <T2>b</T2>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Issue 7349: TI > TJ > [RD > [value], table element].
+    [Test]
+    procedure XTN_DeepTable_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97972, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97972, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97972, TextEncoding::UTF8));
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <TJ>\r\n        <RD>\r\n          <TT>x</TT>\r\n        </RD>\r\n        <r>\r\n          <Ref />\r\n        </r>\r\n      </TJ>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <TJ>\r\n        <RD>\r\n          <TT>x</TT>\r\n        </RD>\r\n        <r>\r\n          <Ref>R1</Ref>\r\n        </r>\r\n      </TJ>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <TJ>\r\n        <RD>\r\n          <TT>x</TT>\r\n        </RD>\r\n        <r>\r\n          <Ref>R1</Ref>\r\n        </r>\r\n        <r>\r\n          <Ref>R2</Ref>\r\n        </r>\r\n      </TJ>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Issue 7349: TI > [RD > RC > [value], table element].
+    [Test]
+    procedure XTN_DeepValue_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97973, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97973, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97973, TextEncoding::UTF8));
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <RC>\r\n          <TT>x</TT>\r\n        </RC>\r\n      </RD>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <RC>\r\n          <TT>x</TT>\r\n        </RC>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <RD>\r\n        <RC>\r\n          <TT>x</TT>\r\n        </RC>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Issue 7349: TI > [field element, value, RD > [field element, value], table element, RE > [field element, value]].
+    [Test]
+    procedure XTN_FieldValueAround_Export()
+    begin
+        SeedB(0);
+        Observer.Observe('0 rows', Helper.TryExportRaw(97974, TextEncoding::UTF8));
+        SeedB(1);
+        Observer.Observe('1 rows', Helper.TryExportRaw(97974, TextEncoding::UTF8));
+        SeedB(2);
+        Observer.Observe('2 rows', Helper.TryExportRaw(97974, TextEncoding::UTF8));
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <D1>O1</D1>\r\n      <T1>a</T1>\r\n      <RD>\r\n        <D2>O1</D2>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref />\r\n      </r>\r\n      <RE>\r\n        <D3>O1</D3>\r\n        <TU>y</TU>\r\n      </RE>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <D1>O1</D1>\r\n      <T1>a</T1>\r\n      <RD>\r\n        <D2>O1</D2>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <RE>\r\n        <D3>O1</D3>\r\n        <TU>y</TU>\r\n      </RE>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <orders>\r\n    <TI>\r\n      <D1>O1</D1>\r\n      <T1>a</T1>\r\n      <RD>\r\n        <D2>O1</D2>\r\n        <TT>x</TT>\r\n      </RD>\r\n      <r>\r\n        <Ref>R1</Ref>\r\n      </r>\r\n      <r>\r\n        <Ref>R2</Ref>\r\n      </r>\r\n      <RE>\r\n        <D3>O1</D3>\r\n        <TU>y</TU>\r\n      </RE>\r\n    </TI>\r\n  </orders>\r\n</Envelope>');
+        Observer.Verify();
+    end;
+
+    // Issue 7355: export triggers of value, field and table elements, see the probe comment at the top of the file.
+    [Test]
+    procedure XTT_AfterOnly_Export()
+    begin
+        SeedB(1);
+        Log.Reset();
+        Observer.Observe('1 row', Helper.TryExportRaw(97975, TextEncoding::UTF8));
+        Observer.Observe('1 row log', Log.Take());
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <T1 />\r\n    <r>\r\n      <Ref>R1</Ref>\r\n    </r>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('1 row log', 'Pre;Post;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure XTT_BothValueTable_Export()
+    begin
+        SeedB(0);
+        Log.Reset();
+        Observer.Observe('0 rows', Helper.TryExportRaw(97976, TextEncoding::UTF8));
+        Observer.Observe('0 rows log', Log.Take());
+        SeedB(1);
+        Log.Reset();
+        Observer.Observe('1 row', Helper.TryExportRaw(97976, TextEncoding::UTF8));
+        Observer.Observe('1 row log', Log.Take());
+        SeedB(2);
+        Log.Reset();
+        Observer.Observe('2 rows', Helper.TryExportRaw(97976, TextEncoding::UTF8));
+        Observer.Observe('2 rows log', Log.Take());
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <T1>x</T1>\r\n    <r>\r\n      <Ref />\r\n    </r>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('0 rows log', 'Pre;T1.BeforePass;Post;');
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <T1>x</T1>\r\n    <r>\r\n      <Ref>R1</Ref>\r\n    </r>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('1 row log', 'Pre;T1.BeforePass;Post;');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <T1>x</T1>\r\n    <r>\r\n      <Ref>R1</Ref>\r\n    </r>\r\n    <r>\r\n      <Ref>R2</Ref>\r\n    </r>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('2 rows log', 'Pre;T1.BeforePass;Post;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure XTT_BothTableValue_Export()
+    begin
+        SeedB(0);
+        Log.Reset();
+        Observer.Observe('0 rows', Helper.TryExportRaw(97977, TextEncoding::UTF8));
+        Observer.Observe('0 rows log', Log.Take());
+        SeedB(1);
+        Log.Reset();
+        Observer.Observe('1 row', Helper.TryExportRaw(97977, TextEncoding::UTF8));
+        Observer.Observe('1 row log', Log.Take());
+        SeedB(2);
+        Log.Reset();
+        Observer.Observe('2 rows', Helper.TryExportRaw(97977, TextEncoding::UTF8));
+        Observer.Observe('2 rows log', Log.Take());
+        Observer.Expect('0 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <r>\r\n      <Ref />\r\n    </r>\r\n    <T1>x</T1>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('0 rows log', 'Pre;T1.BeforePass;Post;');
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <r>\r\n      <Ref>R1</Ref>\r\n    </r>\r\n    <T1>x</T1>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('1 row log', 'Pre;T1.BeforePass;Post;');
+        Observer.Expect('2 rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <r>\r\n      <Ref>R1</Ref>\r\n    </r>\r\n    <r>\r\n      <Ref>R2</Ref>\r\n    </r>\r\n    <T1>x</T1>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('2 rows log', 'Pre;T1.BeforePass;Post;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure XTT_FieldTriggers_Export()
+    begin
+        SeedB(1);
+        Log.Reset();
+        Observer.Observe('1 row', Helper.TryExportRaw(97978, TextEncoding::UTF8));
+        Observer.Observe('1 row log', Log.Take());
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <D1>O1</D1>\r\n    <r>\r\n      <Ref>R1</Ref>\r\n    </r>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('1 row log', 'Pre;D1.BeforePass;Post;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure XTT_TableTriggers_Export()
+    begin
+        SeedB(1);
+        Log.Reset();
+        Observer.Observe('1 row', Helper.TryExportRaw(97979, TextEncoding::UTF8));
+        Observer.Observe('1 row log', Log.Take());
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <T1>x</T1>\r\n    <r>\r\n      <Ref>R1</Ref>\r\n    </r>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('1 row log', 'Pre;orders.OnPreXmlItem;orders.OnAfterGetRecord;T1.BeforePass;r.OnPreXmlItem;r.OnAfterGetRecord;Post;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure XTT_RootTextValue_Export()
+    begin
+        SeedB(1);
+        Log.Reset();
+        Observer.Observe('1 row', Helper.TryExportRaw(97982, TextEncoding::UTF8));
+        Observer.Observe('1 row log', Log.Take());
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <T1>x</T1>\r\n  <orders>\r\n    <No>O1</No>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 row log', 'Pre;T1.BeforePass;Post;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure XTT_RootTableValue_Export()
+    begin
+        SeedA(1);
+        Log.Reset();
+        Observer.Observe('1 row', Helper.TryExportRaw(97983, TextEncoding::UTF8));
+        Observer.Observe('1 row log', Log.Take());
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <T1>x</T1>\r\n  <orders>\r\n    <No>O1</No>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 row log', 'Pre;T1.BeforePass;Post;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure XTT_RootTextAfterOnly_Export()
+    begin
+        SeedB(1);
+        Log.Reset();
+        Observer.Observe('1 row', Helper.TryExportRaw(97984, TextEncoding::UTF8));
+        Observer.Observe('1 row log', Log.Take());
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <T1 />\r\n  <orders>\r\n    <No>O1</No>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 row log', 'Pre;Post;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure XTT_RowDirect_Export()
+    begin
+        SeedB(1);
+        Log.Reset();
+        Observer.Observe('1 row', Helper.TryExportRaw(97985, TextEncoding::UTF8));
+        Observer.Observe('1 row log', Log.Take());
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <T1>x</T1>\r\n  <r>\r\n    <Ref>R1</Ref>\r\n  </r>\r\n</orders>');
+        Observer.Expect('1 row log', 'Pre;T1.BeforePass;Post;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure XTT_RootTableAfterOnly_Export()
+    begin
+        SeedA(1);
+        Log.Reset();
+        Observer.Observe('1 row', Helper.TryExportRaw(97986, TextEncoding::UTF8));
+        Observer.Observe('1 row log', Log.Take());
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <T1 />\r\n  <orders>\r\n    <No>O1</No>\r\n  </orders>\r\n</Envelope>');
+        Observer.Expect('1 row log', 'Pre;Post;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure XTT_RootValueOnly_Export()
+    begin
+        SeedB(1);
+        Log.Reset();
+        Observer.Observe('1 row', Helper.TryExportRaw(97987, TextEncoding::UTF8));
+        Observer.Observe('1 row log', Log.Take());
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Envelope>\r\n  <T1>x</T1>\r\n</Envelope>');
+        Observer.Expect('1 row log', 'Pre;T1.BeforePass;Post;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure XTT_AfterOnlyPreset_Export()
+    begin
+        SeedB(1);
+        Log.Reset();
+        Observer.Observe('1 row', Helper.TryExportRaw(97988, TextEncoding::UTF8));
+        Observer.Observe('1 row log', Log.Take());
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <T1>pre</T1>\r\n    <r>\r\n      <Ref>R1</Ref>\r\n    </r>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('1 row log', 'Pre;Post;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure XTT_FieldInnerTriggers_Export()
+    begin
+        SeedB(1);
+        Log.Reset();
+        Observer.Observe('1 row', Helper.TryExportRaw(97989, TextEncoding::UTF8));
+        Observer.Observe('1 row log', Log.Take());
+        Observer.Expect('1 row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<orders>\r\n  <TI>\r\n    <T1>x</T1>\r\n    <r>\r\n      <Ref>R1</Ref>\r\n    </r>\r\n  </TI>\r\n</orders>');
+        Observer.Expect('1 row log', 'Pre;T1.BeforePass;Ref.BeforePass;Post;');
+        Observer.Verify();
+    end;
+}
+
+// Probe: al-runner issue 7349 (follow-up to 7309). Export of a row text element TI that holds a text element with content (a value
+//   element, or a field element and a value element) and a table element, in several orders, with 0, 1 and 2 rows of the inner table
+//   element. Objects xmlport 97965-97974; the tests are XTN_*.
+// Facts (BC 27.5, 28.5 and 29.0 write the same text for every shape; the issue's own 29.0 reading agrees): BC writes the plain tree in schema
+//   order. The text element RD with content (a value element, or a field element and a value element) is written once, whole, before the
+//   first `r`, between the elements around it, or after the last `r`, as the schema places it. The table element writes one `r` per row, and
+//   with no row one `r` with the record as it stands (`<Ref />`). Two table elements write all `r` rows, then all `q` rows. The field
+//   elements of the outer row (`<D>O1</D>`) are written next to the value element inside RD, RE and TI. A text element with content nested
+//   one level deeper (TJ > RD, RD > RC) is written the same way.
+
+// TI > [RD > [value], table element] (issue 7349 R1)
+xmlport 97965 "LT X63 Y R1"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(RD)
+                    {
+                        textelement(TT)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TT := 'x';
+                            end;
+                        }
+                    }
+                    tableelement(r; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; r."Ref") { }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// TI > [table element, RD > [value]] (R2)
+xmlport 97966 "LT X63 Y R2"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    tableelement(r; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; r."Ref") { }
+                    }
+                    textelement(RD)
+                    {
+                        textelement(TT)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TT := 'x';
+                            end;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// TI > [RD > [field element, value], table element] (R3)
+xmlport 97967 "LT X63 Y R3"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(RD)
+                    {
+                        fieldelement(D; orders."No.") { }
+                        textelement(TT)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TT := 'x';
+                            end;
+                        }
+                    }
+                    tableelement(r; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; r."Ref") { }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// TI > [RD > [value], table element, RE > [value]]
+xmlport 97968 "LT X63 Y Around"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(RD)
+                    {
+                        textelement(TT)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TT := 'x';
+                            end;
+                        }
+                    }
+                    tableelement(r; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; r."Ref") { }
+                    }
+                    textelement(RE)
+                    {
+                        textelement(TU)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TU := 'y';
+                            end;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// TI > [RD > [value], RE > [value], table element]
+xmlport 97969 "LT X63 Y Two Texts"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(RD)
+                    {
+                        textelement(TT)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TT := 'x';
+                            end;
+                        }
+                    }
+                    textelement(RE)
+                    {
+                        textelement(TU)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TU := 'y';
+                            end;
+                        }
+                    }
+                    tableelement(r; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; r."Ref") { }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// TI > [RD > [field element, value], table element r, table element q]
+xmlport 97970 "LT X63 Y Two Tables"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(RD)
+                    {
+                        fieldelement(D; orders."No.") { }
+                        textelement(TT)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TT := 'x';
+                            end;
+                        }
+                    }
+                    tableelement(r; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; r."Ref") { }
+                    }
+                    tableelement(q; "LT X63 Ref")
+                    {
+                        XmlName = 'q';
+                        fieldelement(Ref; q."Ref") { }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// TI > [value, RD > [value], table element, value]
+xmlport 97971 "LT X63 Y Mixed"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(T1)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            T1 := 'a';
+                        end;
+                    }
+                    textelement(RD)
+                    {
+                        textelement(TT)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TT := 'x';
+                            end;
+                        }
+                    }
+                    tableelement(r; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; r."Ref") { }
+                    }
+                    textelement(T2)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            T2 := 'b';
+                        end;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// TI > TJ > [RD > [value], table element]
+xmlport 97972 "LT X63 Y Deep Table"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(TJ)
+                    {
+                        textelement(RD)
+                        {
+                            textelement(TT)
+                            {
+                                trigger OnBeforePassVariable()
+                                begin
+                                    TT := 'x';
+                                end;
+                            }
+                        }
+                        tableelement(r; "LT X63 Ref")
+                        {
+                            XmlName = 'r';
+                            fieldelement(Ref; r."Ref") { }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// TI > [RD > RC > [value], table element]
+xmlport 97973 "LT X63 Y Deep Value"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    textelement(RD)
+                    {
+                        textelement(RC)
+                        {
+                            textelement(TT)
+                            {
+                                trigger OnBeforePassVariable()
+                                begin
+                                    TT := 'x';
+                                end;
+                            }
+                        }
+                    }
+                    tableelement(r; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; r."Ref") { }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// TI > [field element, value, RD > [field element, value], table element, RE > [field element, value]]
+xmlport 97974 "LT X63 Y Field Value Around"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            tableelement(orders; "LT X63 Order")
+            {
+                MaxOccurs = Once;
+                textelement(TI)
+                {
+                    fieldelement(D1; orders."No.") { }
+                    textelement(T1)
+                    {
+                        trigger OnBeforePassVariable()
+                        begin
+                            T1 := 'a';
+                        end;
+                    }
+                    textelement(RD)
+                    {
+                        fieldelement(D2; orders."No.") { }
+                        textelement(TT)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TT := 'x';
+                            end;
+                        }
+                    }
+                    tableelement(r; "LT X63 Ref")
+                    {
+                        XmlName = 'r';
+                        fieldelement(Ref; r."Ref") { }
+                    }
+                    textelement(RE)
+                    {
+                        fieldelement(D3; orders."No.") { }
+                        textelement(TU)
+                        {
+                            trigger OnBeforePassVariable()
+                            begin
+                                TU := 'y';
+                            end;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+codeunit 97981 "LT X63 Trigger Log"
+{
+    SingleInstance = true;
+
+    var
+        Entries: Text;
+
+    procedure Add(Entry: Text)
+    begin
+        Entries += Entry + ';';
+    end;
+
+    procedure Reset()
+    begin
+        Entries := '';
+    end;
+
+    procedure Take(): Text
+    begin
+        exit(Entries);
+    end;
+}
+
+xmlport 97975 "LT X63 Z After Only"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        tableelement(orders; "LT X63 Order")
+        {
+            MaxOccurs = Once;
+
+            textelement(TI)
+            {
+                textelement(T1)
+                {
+                    trigger OnAfterAssignVariable()
+                    begin
+                        Log.Add('T1.AfterAssign');
+                        T1 := 'y';
+                    end;
+                }
+                tableelement(r; "LT X63 Ref")
+                {
+                    XmlName = 'r';
+                    fieldelement(Ref; r."Ref") { }
+                }
+            }
+        }
+    }
+
+    var
+        Log: Codeunit "LT X63 Trigger Log";
+
+    trigger OnPreXmlPort()
+    begin
+        Log.Add('Pre');
+    end;
+
+    trigger OnPostXmlPort()
+    begin
+        Log.Add('Post');
+    end;
+}
+
+xmlport 97976 "LT X63 Z Both Value Table"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        tableelement(orders; "LT X63 Order")
+        {
+            MaxOccurs = Once;
+
+            textelement(TI)
+            {
+                textelement(T1)
+                {
+                    trigger OnBeforePassVariable()
+                    begin
+                        Log.Add('T1.BeforePass');
+                        T1 := 'x';
+                    end;
+
+                    trigger OnAfterAssignVariable()
+                    begin
+                        Log.Add('T1.AfterAssign');
+                        T1 := 'y';
+                    end;
+                }
+                tableelement(r; "LT X63 Ref")
+                {
+                    XmlName = 'r';
+                    fieldelement(Ref; r."Ref") { }
+                }
+            }
+        }
+    }
+
+    var
+        Log: Codeunit "LT X63 Trigger Log";
+
+    trigger OnPreXmlPort()
+    begin
+        Log.Add('Pre');
+    end;
+
+    trigger OnPostXmlPort()
+    begin
+        Log.Add('Post');
+    end;
+}
+
+xmlport 97977 "LT X63 Z Both Table Value"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        tableelement(orders; "LT X63 Order")
+        {
+            MaxOccurs = Once;
+
+            textelement(TI)
+            {
+                tableelement(r; "LT X63 Ref")
+                {
+                    XmlName = 'r';
+                    fieldelement(Ref; r."Ref") { }
+                }
+                textelement(T1)
+                {
+                    trigger OnBeforePassVariable()
+                    begin
+                        Log.Add('T1.BeforePass');
+                        T1 := 'x';
+                    end;
+
+                    trigger OnAfterAssignVariable()
+                    begin
+                        Log.Add('T1.AfterAssign');
+                        T1 := 'y';
+                    end;
+                }
+            }
+        }
+    }
+
+    var
+        Log: Codeunit "LT X63 Trigger Log";
+
+    trigger OnPreXmlPort()
+    begin
+        Log.Add('Pre');
+    end;
+
+    trigger OnPostXmlPort()
+    begin
+        Log.Add('Post');
+    end;
+}
+
+xmlport 97978 "LT X63 Z Field Triggers"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        tableelement(orders; "LT X63 Order")
+        {
+            MaxOccurs = Once;
+
+            textelement(TI)
+            {
+                fieldelement(D1; orders."No.")
+                {
+                    trigger OnBeforePassField()
+                    begin
+                        Log.Add('D1.BeforePass');
+                    end;
+
+                    trigger OnAfterAssignField()
+                    begin
+                        Log.Add('D1.AfterAssign');
+                    end;
+                }
+                tableelement(r; "LT X63 Ref")
+                {
+                    XmlName = 'r';
+                    fieldelement(Ref; r."Ref") { }
+                }
+            }
+        }
+    }
+
+    var
+        Log: Codeunit "LT X63 Trigger Log";
+
+    trigger OnPreXmlPort()
+    begin
+        Log.Add('Pre');
+    end;
+
+    trigger OnPostXmlPort()
+    begin
+        Log.Add('Post');
+    end;
+}
+
+xmlport 97979 "LT X63 Z Table Triggers"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        tableelement(orders; "LT X63 Order")
+        {
+            MaxOccurs = Once;
+
+            textelement(TI)
+            {
+                textelement(T1)
+                {
+                    trigger OnBeforePassVariable()
+                    begin
+                        Log.Add('T1.BeforePass');
+                        T1 := 'x';
+                    end;
+
+                    trigger OnAfterAssignVariable()
+                    begin
+                        Log.Add('T1.AfterAssign');
+                        T1 := 'y';
+                    end;
+                }
+                tableelement(r; "LT X63 Ref")
+                {
+                    XmlName = 'r';
+                    fieldelement(Ref; r."Ref") { }
+
+                    trigger OnPreXmlItem()
+                    begin
+                        Log.Add('r.OnPreXmlItem');
+                    end;
+
+                    trigger OnAfterGetRecord()
+                    begin
+                        Log.Add('r.OnAfterGetRecord');
+                    end;
+
+                    trigger OnAfterInitRecord()
+                    begin
+                        Log.Add('r.OnAfterInitRecord');
+                    end;
+
+                    trigger OnBeforeInsertRecord()
+                    begin
+                        Log.Add('r.OnBeforeInsertRecord');
+                    end;
+
+                    trigger OnAfterInsertRecord()
+                    begin
+                        Log.Add('r.OnAfterInsertRecord');
+                    end;
+
+                    trigger OnBeforeModifyRecord()
+                    begin
+                        Log.Add('r.OnBeforeModifyRecord');
+                    end;
+
+                    trigger OnAfterModifyRecord()
+                    begin
+                        Log.Add('r.OnAfterModifyRecord');
+                    end;
+                }
+            }
+
+            trigger OnPreXmlItem()
+            begin
+                Log.Add('orders.OnPreXmlItem');
+            end;
+
+            trigger OnAfterGetRecord()
+            begin
+                Log.Add('orders.OnAfterGetRecord');
+            end;
+
+            trigger OnAfterInitRecord()
+            begin
+                Log.Add('orders.OnAfterInitRecord');
+            end;
+
+            trigger OnBeforeInsertRecord()
+            begin
+                Log.Add('orders.OnBeforeInsertRecord');
+            end;
+
+            trigger OnAfterInsertRecord()
+            begin
+                Log.Add('orders.OnAfterInsertRecord');
+            end;
+
+            trigger OnBeforeModifyRecord()
+            begin
+                Log.Add('orders.OnBeforeModifyRecord');
+            end;
+
+            trigger OnAfterModifyRecord()
+            begin
+                Log.Add('orders.OnAfterModifyRecord');
+            end;
+        }
+    }
+
+    var
+        Log: Codeunit "LT X63 Trigger Log";
+
+    trigger OnPreXmlPort()
+    begin
+        Log.Add('Pre');
+    end;
+
+    trigger OnPostXmlPort()
+    begin
+        Log.Add('Post');
+    end;
+}
+
+xmlport 97982 "LT X63 Z Root Text Value"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            textelement(T1)
+            {
+                trigger OnBeforePassVariable()
+                begin
+                    Log.Add('T1.BeforePass');
+                    T1 := 'x';
+                end;
+
+                trigger OnAfterAssignVariable()
+                begin
+                    Log.Add('T1.AfterAssign');
+                    T1 := 'y';
+                end;
+            }
+            tableelement(orders; "LT X63 Order")
+            {
+
+                fieldelement(No; orders."No.") { }
+            }
+        }
+    }
+
+    var
+        Log: Codeunit "LT X63 Trigger Log";
+
+    trigger OnPreXmlPort()
+    begin
+        Log.Add('Pre');
+    end;
+
+    trigger OnPostXmlPort()
+    begin
+        Log.Add('Post');
+    end;
+}
+
+xmlport 97983 "LT X63 Z Root Table Value"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        tableelement(comm; "LT X63 Comm")
+        {
+            MaxOccurs = Once;
+            XmlName = 'Envelope';
+
+            textelement(T1)
+            {
+                trigger OnBeforePassVariable()
+                begin
+                    Log.Add('T1.BeforePass');
+                    T1 := 'x';
+                end;
+
+                trigger OnAfterAssignVariable()
+                begin
+                    Log.Add('T1.AfterAssign');
+                    T1 := 'y';
+                end;
+            }
+            tableelement(orders; "LT X63 Order")
+            {
+
+                fieldelement(No; orders."No.") { }
+            }
+        }
+    }
+
+    var
+        Log: Codeunit "LT X63 Trigger Log";
+
+    trigger OnPreXmlPort()
+    begin
+        Log.Add('Pre');
+    end;
+
+    trigger OnPostXmlPort()
+    begin
+        Log.Add('Post');
+    end;
+}
+
+xmlport 97984 "LT X63 Z Root Text After Only"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            textelement(T1)
+            {
+                trigger OnAfterAssignVariable()
+                begin
+                    Log.Add('T1.AfterAssign');
+                    T1 := 'y';
+                end;
+            }
+            tableelement(orders; "LT X63 Order")
+            {
+
+                fieldelement(No; orders."No.") { }
+            }
+        }
+    }
+
+    var
+        Log: Codeunit "LT X63 Trigger Log";
+
+    trigger OnPreXmlPort()
+    begin
+        Log.Add('Pre');
+    end;
+
+    trigger OnPostXmlPort()
+    begin
+        Log.Add('Post');
+    end;
+}
+
+xmlport 97985 "LT X63 Z Row Direct"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        tableelement(orders; "LT X63 Order")
+        {
+            MaxOccurs = Once;
+
+            textelement(T1)
+            {
+                trigger OnBeforePassVariable()
+                begin
+                    Log.Add('T1.BeforePass');
+                    T1 := 'x';
+                end;
+
+                trigger OnAfterAssignVariable()
+                begin
+                    Log.Add('T1.AfterAssign');
+                    T1 := 'y';
+                end;
+            }
+            tableelement(r; "LT X63 Ref")
+            {
+                XmlName = 'r';
+                fieldelement(Ref; r."Ref") { }
+            }
+        }
+    }
+
+    var
+        Log: Codeunit "LT X63 Trigger Log";
+
+    trigger OnPreXmlPort()
+    begin
+        Log.Add('Pre');
+    end;
+
+    trigger OnPostXmlPort()
+    begin
+        Log.Add('Post');
+    end;
+}
+
+xmlport 97986 "LT X63 Z Root Table After Only"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        tableelement(comm; "LT X63 Comm")
+        {
+            MaxOccurs = Once;
+            XmlName = 'Envelope';
+
+            textelement(T1)
+            {
+                trigger OnAfterAssignVariable()
+                begin
+                    Log.Add('T1.AfterAssign');
+                    T1 := 'y';
+                end;
+            }
+            tableelement(orders; "LT X63 Order")
+            {
+
+                fieldelement(No; orders."No.") { }
+            }
+        }
+    }
+
+    var
+        Log: Codeunit "LT X63 Trigger Log";
+
+    trigger OnPreXmlPort()
+    begin
+        Log.Add('Pre');
+    end;
+
+    trigger OnPostXmlPort()
+    begin
+        Log.Add('Post');
+    end;
+}
+
+xmlport 97987 "LT X63 Z Root Value Only"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Envelope)
+        {
+            textelement(T1)
+            {
+                trigger OnBeforePassVariable()
+                begin
+                    Log.Add('T1.BeforePass');
+                    T1 := 'x';
+                end;
+
+                trigger OnAfterAssignVariable()
+                begin
+                    Log.Add('T1.AfterAssign');
+                    T1 := 'y';
+                end;
+            }
+        }
+    }
+
+    var
+        Log: Codeunit "LT X63 Trigger Log";
+
+    trigger OnPreXmlPort()
+    begin
+        Log.Add('Pre');
+    end;
+
+    trigger OnPostXmlPort()
+    begin
+        Log.Add('Post');
+    end;
+}
+
+xmlport 97988 "LT X63 Z After Only Preset"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        tableelement(orders; "LT X63 Order")
+        {
+            MaxOccurs = Once;
+
+            textelement(TI)
+            {
+                textelement(T1)
+                {
+                    trigger OnAfterAssignVariable()
+                    begin
+                        Log.Add('T1.AfterAssign');
+                        T1 := 'y';
+                    end;
+                }
+                tableelement(r; "LT X63 Ref")
+                {
+                    XmlName = 'r';
+                    fieldelement(Ref; r."Ref") { }
+                }
+            }
+        }
+    }
+
+    var
+        Log: Codeunit "LT X63 Trigger Log";
+
+    trigger OnPreXmlPort()
+    begin
+        Log.Add('Pre');
+        T1 := 'pre';
+    end;
+
+    trigger OnPostXmlPort()
+    begin
+        Log.Add('Post');
+    end;
+}
+
+xmlport 97989 "LT X63 Z Field Inner Triggers"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        tableelement(orders; "LT X63 Order")
+        {
+            MaxOccurs = Once;
+
+            textelement(TI)
+            {
+                textelement(T1)
+                {
+                    trigger OnBeforePassVariable()
+                    begin
+                        Log.Add('T1.BeforePass');
+                        T1 := 'x';
+                    end;
+
+                    trigger OnAfterAssignVariable()
+                    begin
+                        Log.Add('T1.AfterAssign');
+                        T1 := 'y';
+                    end;
+                }
+                tableelement(r; "LT X63 Ref")
+                {
+                    XmlName = 'r';
+                    fieldelement(Ref; r."Ref")
+                {
+                    trigger OnBeforePassField()
+                    begin
+                        Log.Add('Ref.BeforePass');
+                    end;
+
+                    trigger OnAfterAssignField()
+                    begin
+                        Log.Add('Ref.AfterAssign');
+                    end;
+                }
+                }
+            }
+        }
+    }
+
+    var
+        Log: Codeunit "LT X63 Trigger Log";
+
+    trigger OnPreXmlPort()
+    begin
+        Log.Add('Pre');
+    end;
+
+    trigger OnPostXmlPort()
+    begin
+        Log.Add('Post');
     end;
 }

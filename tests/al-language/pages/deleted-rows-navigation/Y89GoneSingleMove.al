@@ -4421,4 +4421,583 @@ codeunit 94730 "LT Y89 Gone Single Move"
         Observer.Expect('rows', '2');
         Observer.Verify();
     end;
+
+    local procedure SeedNQ(Count: Integer)
+    var
+        NQLog: Record "LT Y89 NQ Log";
+    begin
+        Seed(Count);
+        NQLog.DeleteAll();
+    end;
+
+    local procedure TakeNQLog(): Text
+    var
+        Log: Record "LT Y89 NQ Log";
+        Result: Text;
+    begin
+        if Log.FindSet() then
+            repeat
+                if Result <> '' then
+                    Result += ';';
+                Result += Log.Entry;
+            until Log.Next() = 0;
+        Log.DeleteAll();
+        exit(Result);
+    end;
+
+    [TryFunction]
+    local procedure TryCardNQ(var P: TestPage "LT Y89 Card NoQuery"; Which: Text; var Result: Text)
+    begin
+        case Which of
+            'delcur':
+                begin
+                    P.DeleteCurrentAct.Invoke();
+                    Result := 'acted';
+                end;
+            'delall':
+                begin
+                    P.DeleteAllAct.Invoke();
+                    Result := 'acted';
+                end;
+            'close':
+                begin
+                    P.Close();
+                    Result := 'closed';
+                end;
+            'shown':
+                Result := 'shown';
+        end;
+        Result += '|' + P.IdCtl.Value();
+    end;
+
+    local procedure DoCardNQ(var P: TestPage "LT Y89 Card NoQuery"; Which: Text): Text
+    var
+        Result: Text;
+    begin
+        if TryCardNQ(P, Which, Result) then
+            exit(Result);
+        Result := 'err|' + GetLastErrorCode() + '|' + GetLastErrorText();
+        ClearLastError();
+        exit(Result);
+    end;
+
+    [ModalPageHandler]
+    procedure DeleteCurrentModalNQ(var P: TestPage "LT Y89 Card NoQuery")
+    begin
+        P.DeleteCurrentAct.Invoke();
+        ModalAction := 'acted';
+    end;
+
+    [ModalPageHandler]
+    procedure DeleteAllModalNQ(var P: TestPage "LT Y89 Card NoQuery")
+    begin
+        P.DeleteAllAct.Invoke();
+        ModalAction := 'acted';
+    end;
+
+    [Test]
+    procedure Y89_NQ_OpenEdit_On20_delcur()
+    var
+        P: TestPage "LT Y89 Card NoQuery";
+    begin
+        SeedNQ(3);
+        P.OpenEdit();
+        P.GoToKey(20);
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('action', DoCardNQ(P, 'delcur'));
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('shown', DoCardNQ(P, 'shown'));
+        Observer.Observe('rows', Rows());
+        Observer.Observe('close', DoCardNQ(P, 'close'));
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
+        Observer.Expect('open log', '/R:10;R:10;R:20');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:20/R:20;R:30;X:30');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '2');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y89_NQ_OpenEdit_On20_delall()
+    var
+        P: TestPage "LT Y89 Card NoQuery";
+    begin
+        SeedNQ(3);
+        P.OpenEdit();
+        P.GoToKey(20);
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('action', DoCardNQ(P, 'delall'));
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('shown', DoCardNQ(P, 'shown'));
+        Observer.Observe('rows', Rows());
+        Observer.Observe('close', DoCardNQ(P, 'close'));
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
+        Observer.Expect('open log', '/R:10;R:10;R:20');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10;D:20;D:30/R:20;X:0');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y89_NQ_OpenEdit_On30_delcur()
+    var
+        P: TestPage "LT Y89 Card NoQuery";
+    begin
+        SeedNQ(3);
+        P.OpenEdit();
+        P.GoToKey(30);
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('action', DoCardNQ(P, 'delcur'));
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('shown', DoCardNQ(P, 'shown'));
+        Observer.Observe('rows', Rows());
+        Observer.Observe('close', DoCardNQ(P, 'close'));
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
+        Observer.Expect('open log', '/R:10;R:10;R:20;R:30');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:30/R:30;R:20;X:20');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '2');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y89_NQ_OpenEdit_On30_delall()
+    var
+        P: TestPage "LT Y89 Card NoQuery";
+    begin
+        SeedNQ(3);
+        P.OpenEdit();
+        P.GoToKey(30);
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('action', DoCardNQ(P, 'delall'));
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('shown', DoCardNQ(P, 'shown'));
+        Observer.Observe('rows', Rows());
+        Observer.Observe('close', DoCardNQ(P, 'close'));
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
+        Observer.Expect('open log', '/R:10;R:10;R:20;R:30');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10;D:20;D:30/R:30;X:0');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y89_NQ_OpenEdit_Only_delcur()
+    var
+        P: TestPage "LT Y89 Card NoQuery";
+    begin
+        SeedNQ(1);
+        P.OpenEdit();
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('action', DoCardNQ(P, 'delcur'));
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('shown', DoCardNQ(P, 'shown'));
+        Observer.Observe('rows', Rows());
+        Observer.Observe('close', DoCardNQ(P, 'close'));
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
+        Observer.Expect('open log', '/R:10');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10/R:10;X:0');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y89_NQ_OpenEdit_Only_delall()
+    var
+        P: TestPage "LT Y89 Card NoQuery";
+    begin
+        SeedNQ(1);
+        P.OpenEdit();
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('action', DoCardNQ(P, 'delall'));
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('shown', DoCardNQ(P, 'shown'));
+        Observer.Observe('rows', Rows());
+        Observer.Observe('close', DoCardNQ(P, 'close'));
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
+        Observer.Expect('open log', '/R:10');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10/R:10;X:0');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y89_NQ_OpenView_On20_delcur()
+    var
+        P: TestPage "LT Y89 Card NoQuery";
+    begin
+        SeedNQ(3);
+        P.OpenView();
+        P.GoToKey(20);
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('action', DoCardNQ(P, 'delcur'));
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('shown', DoCardNQ(P, 'shown'));
+        Observer.Observe('rows', Rows());
+        Observer.Observe('close', DoCardNQ(P, 'close'));
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
+        Observer.Expect('open log', '/R:10;R:10;R:20');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:20/R:20;R:30;X:30');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '2');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y89_NQ_OpenView_On20_delall()
+    var
+        P: TestPage "LT Y89 Card NoQuery";
+    begin
+        SeedNQ(3);
+        P.OpenView();
+        P.GoToKey(20);
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('action', DoCardNQ(P, 'delall'));
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('shown', DoCardNQ(P, 'shown'));
+        Observer.Observe('rows', Rows());
+        Observer.Observe('close', DoCardNQ(P, 'close'));
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
+        Observer.Expect('open log', '/R:10;R:10;R:20');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10;D:20;D:30/R:20;X:0');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y89_NQ_OpenView_On30_delcur()
+    var
+        P: TestPage "LT Y89 Card NoQuery";
+    begin
+        SeedNQ(3);
+        P.OpenView();
+        P.GoToKey(30);
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('action', DoCardNQ(P, 'delcur'));
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('shown', DoCardNQ(P, 'shown'));
+        Observer.Observe('rows', Rows());
+        Observer.Observe('close', DoCardNQ(P, 'close'));
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
+        Observer.Expect('open log', '/R:10;R:10;R:20;R:30');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:30/R:30;R:20;X:20');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '2');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y89_NQ_OpenView_On30_delall()
+    var
+        P: TestPage "LT Y89 Card NoQuery";
+    begin
+        SeedNQ(3);
+        P.OpenView();
+        P.GoToKey(30);
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('action', DoCardNQ(P, 'delall'));
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('shown', DoCardNQ(P, 'shown'));
+        Observer.Observe('rows', Rows());
+        Observer.Observe('close', DoCardNQ(P, 'close'));
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
+        Observer.Expect('open log', '/R:10;R:10;R:20;R:30');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10;D:20;D:30/R:30;X:0');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y89_NQ_OpenView_Only_delcur()
+    var
+        P: TestPage "LT Y89 Card NoQuery";
+    begin
+        SeedNQ(1);
+        P.OpenView();
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('action', DoCardNQ(P, 'delcur'));
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('shown', DoCardNQ(P, 'shown'));
+        Observer.Observe('rows', Rows());
+        Observer.Observe('close', DoCardNQ(P, 'close'));
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
+        Observer.Expect('open log', '/R:10');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10/R:10;X:0');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y89_NQ_OpenView_Only_delall()
+    var
+        P: TestPage "LT Y89 Card NoQuery";
+    begin
+        SeedNQ(1);
+        P.OpenView();
+        Observer.Observe('open log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('action', DoCardNQ(P, 'delall'));
+        Observer.Observe('action log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('shown', DoCardNQ(P, 'shown'));
+        Observer.Observe('rows', Rows());
+        Observer.Observe('close', DoCardNQ(P, 'close'));
+        Observer.Observe('close log', TakeLog() + '/' + TakeNQLog());
+        Observer.Expect('open log', '/R:10');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'D:10/R:10;X:0');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '/');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('DeleteCurrentModalNQ')]
+    procedure Y89_NQ_Modal_On20_delcur()
+    var
+        Row: Record "LT Y80 Row";
+        Result: Action;
+    begin
+        SeedNQ(3);
+        Row.Get(20);
+        ModalAction := '';
+        Result := Page.RunModal(Page::"LT Y89 Card NoQuery", Row);
+        Observer.Observe('result', Format(Result));
+        Observer.Observe('handler', ModalAction);
+        Observer.Observe('log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('rows', Rows());
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:20/R:20;R:20;R:30;X:30');
+        Observer.Expect('rows', '2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('DeleteAllModalNQ')]
+    procedure Y89_NQ_Modal_On20_delall()
+    var
+        Row: Record "LT Y80 Row";
+        Result: Action;
+    begin
+        SeedNQ(3);
+        Row.Get(20);
+        ModalAction := '';
+        Result := Page.RunModal(Page::"LT Y89 Card NoQuery", Row);
+        Observer.Observe('result', Format(Result));
+        Observer.Observe('handler', ModalAction);
+        Observer.Observe('log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('rows', Rows());
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:10;D:20;D:30/R:20;R:20;X:0');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('DeleteCurrentModalNQ')]
+    procedure Y89_NQ_Modal_On30_delcur()
+    var
+        Row: Record "LT Y80 Row";
+        Result: Action;
+    begin
+        SeedNQ(3);
+        Row.Get(30);
+        ModalAction := '';
+        Result := Page.RunModal(Page::"LT Y89 Card NoQuery", Row);
+        Observer.Observe('result', Format(Result));
+        Observer.Observe('handler', ModalAction);
+        Observer.Observe('log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('rows', Rows());
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:30/R:30;R:30;R:20;X:20');
+        Observer.Expect('rows', '2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('DeleteAllModalNQ')]
+    procedure Y89_NQ_Modal_On30_delall()
+    var
+        Row: Record "LT Y80 Row";
+        Result: Action;
+    begin
+        SeedNQ(3);
+        Row.Get(30);
+        ModalAction := '';
+        Result := Page.RunModal(Page::"LT Y89 Card NoQuery", Row);
+        Observer.Observe('result', Format(Result));
+        Observer.Observe('handler', ModalAction);
+        Observer.Observe('log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('rows', Rows());
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:10;D:20;D:30/R:30;R:30;X:0');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('DeleteCurrentModalNQ')]
+    procedure Y89_NQ_Modal_Only_delcur()
+    var
+        Row: Record "LT Y80 Row";
+        Result: Action;
+    begin
+        SeedNQ(1);
+        Row.Get(10);
+        ModalAction := '';
+        Result := Page.RunModal(Page::"LT Y89 Card NoQuery", Row);
+        Observer.Observe('result', Format(Result));
+        Observer.Observe('handler', ModalAction);
+        Observer.Observe('log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('rows', Rows());
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:10/R:10;R:10;X:0');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('DeleteAllModalNQ')]
+    procedure Y89_NQ_Modal_Only_delall()
+    var
+        Row: Record "LT Y80 Row";
+        Result: Action;
+    begin
+        SeedNQ(1);
+        Row.Get(10);
+        ModalAction := '';
+        Result := Page.RunModal(Page::"LT Y89 Card NoQuery", Row);
+        Observer.Observe('result', Format(Result));
+        Observer.Observe('handler', ModalAction);
+        Observer.Observe('log', TakeLog() + '/' + TakeNQLog());
+        Observer.Observe('rows', Rows());
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler', 'acted');
+        Observer.Expect('log', 'D:10/R:10;R:10;X:0');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
+    end;
+}
+
+page 94734 "LT Y89 Card NoQuery"
+{
+    // The card of gap probe 1: OnAfterGetRecord and OnClosePage log, there is no OnQueryClosePage.
+    PageType = Card;
+    SourceTable = "LT Y80 Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(G)
+            {
+                field(IdCtl; Rec.Id) { ApplicationArea = All; }
+                field(TxtCtl; Rec.Txt) { ApplicationArea = All; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(DeleteAllAct)
+            {
+                ApplicationArea = All;
+                trigger OnAction()
+                var
+                    Row: Record "LT Y80 Row";
+                begin
+                    Row.DeleteAll(true);
+                end;
+            }
+            action(DeleteCurrentAct)
+            {
+                ApplicationArea = All;
+                trigger OnAction()
+                begin
+                    Rec.Delete(true);
+                end;
+            }
+        }
+    }
+
+    trigger OnAfterGetRecord()
+    var
+        Log: Record "LT Y89 NQ Log";
+    begin
+        Log.Init();
+        Log.Entry := 'R:' + Format(Rec.Id);
+        Log.Insert();
+    end;
+
+    trigger OnClosePage()
+    var
+        Log: Record "LT Y89 NQ Log";
+    begin
+        Log.Init();
+        Log.Entry := 'X:' + Format(Rec.Id);
+        Log.Insert();
+    end;
+}
+
+table 94735 "LT Y89 NQ Log"
+{
+    // The log of the card without OnQueryClosePage: its own table, because cards of earlier tests of the codeunit that are still open
+    // log their OnQueryClosePage into "LT Y89 Close Log" when the rows disappear.
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Line No."; Integer) { AutoIncrement = true; }
+        field(2; Entry; Text[250]) { }
+    }
+    keys { key(PK; "Line No.") { Clustered = true; } }
 }

@@ -991,7 +991,10 @@ jobs:
             @{ runner = '61300'; range = '61300..61329'; out = 'xunit-isolation-function.xml' },
             @{ runner = '61301'; range = '61300..61329'; out = 'xunit-isolation-codeunit.xml' },
             @{ runner = '61330'; range = '61330..61349'; out = 'xunit-runner-probe-codeunit.xml' },
-            @{ runner = '61331'; range = '61330..61349'; out = 'xunit-runner-probe-function.xml' }
+            @{ runner = '61331'; range = '61330..61349'; out = 'xunit-runner-probe-function.xml' },
+            # Microsoft's own Test Runner (130450), for "LT SW OnRun ..." (97010..97019): what it
+            # reports for a test codeunit's OnRun (al-runtime-rs assumption test-codeunit-onrun-rows).
+            @{ runner = '130450'; range = '97010..97019'; out = 'xunit-onrun-runner.xml' }
           )
           foreach ($r in $runs) {
             Write-Host "::group::isolation probe under runner $($r.runner), test codeunits $($r.range)"
@@ -1044,6 +1047,20 @@ jobs:
             --run "TestIsolation = Codeunit (runner 61330)=xunit-runner-probe-codeunit.xml" \
             --run "TestIsolation = Function (runner 61331)=xunit-runner-probe-function.xml" \
             --outdir test-results/runner-probe
+
+      # What Microsoft's Test Runner (130450) reports for a test codeunit's OnRun: the three tests of
+      # "LT SW OnRun Reader" (97018) read the runner's own rows (SwOnRunRunner.al).
+      - name: OnRun under Microsoft's Test Runner -- per-test rows
+        if: always()
+        continue-on-error: true
+        shell: bash
+        run: |
+          python .github/scripts/isolation-probe-results.py \
+            --title "OnRun rows under Microsoft's Test Runner (130450)" \
+            --note "Not part of the headline above. Each test of LT SW OnRun Reader (97018) states what Microsoft's Test Runner reports for a test codeunit's OnRun; a failure message carries the observed rows." \
+            --fixture tests/al-language-isolation-probe/src/SwOnRunRunner.al \
+            --run "Runner 130450=xunit-onrun-runner.xml" \
+            --outdir test-results/onrun-runner
 
       # Fails the job, loudly, when a test codeunit is silently missing: neither reported nor
       # recorded as a runner stop. It

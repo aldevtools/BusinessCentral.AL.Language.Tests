@@ -6,6 +6,7 @@ XmlDocument, XmlElement, XmlNode, XmlAttribute, namespaces and XPath.
 
 - (area folder itself): 33 AL files that are about the area as a whole or were not given a topic yet.
 - `xml/`: the XML types (74 AL files).
+- `xml-buffer/`: the Base Application XML Buffer table loaded from text and stream (1 AL file).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 

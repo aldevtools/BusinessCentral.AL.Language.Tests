@@ -33,6 +33,9 @@
     }
   ],
   "screenshots": [],
+  "resourceFolders": [
+    "res"
+  ],
   "idRanges": [
     {
       "from": 81700,

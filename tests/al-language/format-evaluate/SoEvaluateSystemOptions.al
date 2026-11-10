@@ -3753,5 +3753,122 @@ codeunit 99613 "LT SO Eval FieldClass"
         Observer.Expect('f2 garbage', 'No/FlowFilter/FlowFilter');
         Observer.Verify();
     end;
-}
 
+    // Gap probe 2: Format of a FieldClass value and of the Class column of the Field table.
+    local procedure ShowFormats(V: FieldClass): Text
+    begin
+        exit(Format(V) + '|' + Format(V, 0, 0) + '|' + Format(V, 0, 1) + '|' + Format(V, 0, 2) + '|' + Format(V, 0, 9));
+    end;
+
+    local procedure ShowClass(var FieldRec: Record Field): Text
+    begin
+        exit(Format(FieldRec.Class) + '|' + Format(FieldRec.Class, 0, 0) + '|' + Format(FieldRec.Class, 0, 1) + '|' + Format(FieldRec.Class, 0, 2) + '|' + Format(FieldRec.Class, 0, 9));
+    end;
+
+    [Test]
+    procedure FormatOfVariable_Members()
+    var
+        Observer: Codeunit "Probe Observer";
+        V: FieldClass;
+    begin
+        V := FieldClass::Normal;
+        Observer.Observe('Normal', ShowFormats(V));
+        V := FieldClass::FlowField;
+        Observer.Observe('FlowField', ShowFormats(V));
+        V := FieldClass::FlowFilter;
+        Observer.Observe('FlowFilter', ShowFormats(V));
+        Observer.Expect('Normal', 'Normal|Normal|Normal|Normal|Normal');
+        Observer.Expect('FlowField', 'FlowField|FlowField|FlowField|FlowField|FlowField');
+        Observer.Expect('FlowFilter', 'FlowFilter|FlowFilter|FlowFilter|FlowFilter|FlowFilter');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FormatOfVariable_Default()
+    var
+        Observer: Codeunit "Probe Observer";
+        V: FieldClass;
+    begin
+        Observer.Observe('default', ShowFormats(V));
+        Observer.Observe('default length 3', Format(V, 3));
+        asserterror Observer.Observe('default text', Format(V, 0, '<Text>'));
+        Observer.Observe('default text error', GetLastErrorText());
+        Observer.Observe('default text error code', GetLastErrorCode());
+        ClearLastError();
+        Observer.Expect('default', 'Normal|Normal|Normal|Normal|Normal');
+        Observer.Expect('default length 3', 'Nor');
+        Observer.Expect('default text error', 'An invalid field or attribute has been specified for the ''Format'' property.\\<Text>');
+        Observer.Expect('default text error code', 'InvalidFormatString');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FormatOfVariable_FromEvaluate()
+    var
+        Observer: Codeunit "Probe Observer";
+        V: FieldClass;
+        Ok: Boolean;
+    begin
+        Ok := Evaluate(V, '3');
+        Observer.Observe('evaluate 3', Format(Ok) + '/' + ShowFormats(V));
+        Ok := Evaluate(V, '2');
+        Observer.Observe('evaluate 2', Format(Ok) + '/' + ShowFormats(V));
+#if BC28PLUS
+        Observer.Expect('evaluate 3', 'Yes/KeyFieldReference|KeyFieldReference|KeyFieldReference|KeyFieldReference|KeyFieldReference');
+        Observer.Expect('evaluate 2', 'Yes/FlowFilter|FlowFilter|FlowFilter|FlowFilter|FlowFilter');
+#else
+        Observer.Expect('evaluate 3', 'No/Normal|Normal|Normal|Normal|Normal');
+        Observer.Expect('evaluate 2', 'Yes/FlowFilter|FlowFilter|FlowFilter|FlowFilter|FlowFilter');
+#endif
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FormatOfFieldTableClassColumn()
+    var
+        Observer: Codeunit "Probe Observer";
+        FieldRec: Record Field;
+    begin
+        // The Field rows come from table 67307 "W6 FK Types" (metadata/W6FieldKeyRows.al): field 2 FText Normal, 17 FNormalSum FlowField, 18 FFilter FlowFilter
+        FieldRec.Get(67307, 2);
+        Observer.Observe('Normal', ShowClass(FieldRec));
+        FieldRec.Get(67307, 17);
+        Observer.Observe('FlowField', ShowClass(FieldRec));
+        FieldRec.Get(67307, 18);
+        Observer.Observe('FlowFilter', ShowClass(FieldRec));
+        Observer.Expect('Normal', 'Normal|Normal|Normal|0|0');
+        Observer.Expect('FlowField', 'FlowField|FlowField|FlowField|1|1');
+        Observer.Expect('FlowFilter', 'FlowFilter|FlowFilter|FlowFilter|2|2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FieldTableClassColumn_Evaluate()
+    var
+        Observer: Codeunit "Probe Observer";
+        FieldRec: Record Field;
+        Ok: Boolean;
+    begin
+        FieldRec.Get(67307, 2);
+        Ok := Evaluate(FieldRec.Class, 'KeyFieldReference');
+        Observer.Observe('evaluate name', Format(Ok) + '/' + ShowClass(FieldRec));
+        Ok := Evaluate(FieldRec.Class, '3');
+        Observer.Observe('evaluate 3', Format(Ok) + '/' + ShowClass(FieldRec));
+        Ok := Evaluate(FieldRec.Class, 'FlowField');
+        Observer.Observe('evaluate FlowField', Format(Ok) + '/' + ShowClass(FieldRec));
+        Ok := Evaluate(FieldRec.Class, '2', 9);
+        Observer.Observe('evaluate 2 f9', Format(Ok) + '/' + ShowClass(FieldRec));
+        FieldRec.Get(67307, 2);
+        asserterror Evaluate(FieldRec.Class, 'zzz');
+        Observer.Observe('error', GetLastErrorText());
+        Observer.Observe('error code', GetLastErrorCode());
+        ClearLastError();
+        Observer.Expect('evaluate name', 'No/Normal|Normal|Normal|0|0');
+        Observer.Expect('evaluate 3', 'Yes/3|3|3|3|3');
+        Observer.Expect('evaluate FlowField', 'Yes/FlowField|FlowField|FlowField|1|1');
+        Observer.Expect('evaluate 2 f9', 'Yes/FlowFilter|FlowFilter|FlowFilter|2|2');
+        Observer.Expect('error', '''zzz'' is not an option. The existing options are: Normal,FlowField,FlowFilter');
+        Observer.Expect('error code', 'InvalidOptionString');
+        Observer.Verify();
+    end;
+}
