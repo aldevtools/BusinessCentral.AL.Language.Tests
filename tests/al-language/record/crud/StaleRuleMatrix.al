@@ -2,8 +2,8 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own tables 97290 and 97291, codeunits 97290 and 97291
 // local object: the tests must commit and call Codeunit.Run with a used return value, and the row table needs an OnModify trigger that counts.
-// Probe: al-runner issue 6924, the matrix behind one rule for the stale record buffer. Observation form: every test ends with
-// Observer.Finish(); the values come from the CI legs 27.5, 28.5 and 29.0.
+// Probe: al-runner issue 6924, the matrix behind one rule for the stale record buffer. Every value is the one BC 27.5, 28.5 and 29.0
+// produced (the same on all three), pinned with Observer.Expect and Observer.Verify.
 // A buffer is a record variable and the row version it holds. It is stale when the committed row is newer. Each cell builds a buffer,
 // lets other record variables make it stale across one or more Commits, lets the open transaction (everything since the last Commit) do
 // something, and then writes through the stale buffer. Each cell observes: 'ok' or 'error' (with GetLastErrorText and GetLastErrorCode),
@@ -422,7 +422,15 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, '3c_each_tx', 'insert_modify', 'C rm C rm C rm', 'modify_true');
         Cell(Observer, '4c', 'insert_modify', 'C ki C ki C rm C rm', 'modify_true');
         Cell(Observer, '6c', 'insert_modify', 'C ki C ki C ki C ki C rm C rm', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('base_2c', 'ok');
+        Observer.Expect('base_2c|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('3c_each_tx', 'ok');
+        Observer.Expect('3c_each_tx|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('4c', 'ok');
+        Observer.Expect('4c|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('6c', 'ok');
+        Observer.Expect('6c|stored', 'start|5|1|2 buf=2');
+        Observer.Verify();
     end;
 
     // Which closed transaction wrote the row, with an empty transaction (two Commits in a row); the open transaction modified the row.
@@ -434,7 +442,13 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'own_tx_empty', 'insert_modify', 'rm C C rm', 'modify_true');
         Cell(Observer, 'two_back_empty', 'insert_modify', 'C rm C C rm', 'modify_true');
         Cell(Observer, 'empty_then_last', 'insert_modify', 'C C rm C rm', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('own_tx_empty', 'ok');
+        Observer.Expect('own_tx_empty|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('two_back_empty', 'ok');
+        Observer.Expect('two_back_empty|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('empty_then_last', 'ok');
+        Observer.Expect('empty_then_last|stored', 'start|5|1|2 buf=2');
+        Observer.Verify();
     end;
 
     // Two Commits, the open transaction modified the row and did one more thing beside it.
@@ -447,7 +461,15 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'rm_om', 'insert_modify', 'C rm C rm om', 'modify_true');
         Cell(Observer, 'rm_od', 'insert_modify', 'C rm C rm od', 'modify_true');
         Cell(Observer, 'rm_on', 'insert_modify', 'C rm C rm on', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('rm_oi', 'ok');
+        Observer.Expect('rm_oi|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('rm_om', 'ok');
+        Observer.Expect('rm_om|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('rm_od', 'ok');
+        Observer.Expect('rm_od|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('rm_on', 'ok');
+        Observer.Expect('rm_on|stored', 'start|5|1|2 buf=2');
+        Observer.Verify();
     end;
 
     // Two Commits, the open transaction modified the row and did one more thing beside it.
@@ -460,7 +482,15 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'rm_km', 'insert_modify', 'C rm C rm km', 'modify_true');
         Cell(Observer, 'rm_kd', 'insert_modify', 'C rm C rm kd', 'modify_true');
         Cell(Observer, 'rm_kim', 'insert_modify', 'C rm C rm kim', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('rm_ki', 'ok');
+        Observer.Expect('rm_ki|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('rm_km', 'ok');
+        Observer.Expect('rm_km|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('rm_kd', 'ok');
+        Observer.Expect('rm_kd|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('rm_kim', 'ok');
+        Observer.Expect('rm_kim|stored', 'start|5|1|2 buf=2');
+        Observer.Verify();
     end;
 
     // Two Commits, the open transaction modified the row and did one more thing beside it.
@@ -471,7 +501,11 @@ codeunit 97291 "REC StaleMx Probe"
     begin
         Cell(Observer, 'rm_kda', 'insert_modify', 'C rm C rm kda', 'modify_true');
         Cell(Observer, 'rm_kma', 'insert_modify', 'C rm C rm kma', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('rm_kda', 'ok');
+        Observer.Expect('rm_kda|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('rm_kma', 'ok');
+        Observer.Expect('rm_kma|stored', 'start|5|1|2 buf=2');
+        Observer.Verify();
     end;
 
     // Two Commits, the open transaction modified the row and did one more thing beside it.
@@ -483,7 +517,13 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'rm_lk', 'insert_modify', 'C rm C rm lk', 'modify_true');
         Cell(Observer, 'rm_kl', 'insert_modify', 'C rm C rm kl', 'modify_true');
         Cell(Observer, 'rm_kr', 'insert_modify', 'C rm C rm kr', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('rm_lk', 'ok');
+        Observer.Expect('rm_lk|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('rm_kl', 'ok');
+        Observer.Expect('rm_kl|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('rm_kr', 'ok');
+        Observer.Expect('rm_kr|stored', 'start|5|1|2 buf=2');
+        Observer.Verify();
     end;
 
     // Two Commits, the open transaction modified the row and did one more thing beside it.
@@ -496,7 +536,15 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'rm_om', 'insert', 'C rm C rm om', 'modify_true');
         Cell(Observer, 'rm_od', 'insert', 'C rm C rm od', 'modify_true');
         Cell(Observer, 'rm_on', 'insert', 'C rm C rm on', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('rm_oi', 'ok');
+        Observer.Expect('rm_oi|stored', 'start|5|0|1 buf=1');
+        Observer.Expect('rm_om', 'ok');
+        Observer.Expect('rm_om|stored', 'start|5|0|1 buf=1');
+        Observer.Expect('rm_od', 'ok');
+        Observer.Expect('rm_od|stored', 'start|5|0|1 buf=1');
+        Observer.Expect('rm_on', 'ok');
+        Observer.Expect('rm_on|stored', 'start|5|0|1 buf=1');
+        Observer.Verify();
     end;
 
     // Two Commits, the open transaction modified the row and did one more thing beside it.
@@ -509,7 +557,15 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'rm_km', 'insert', 'C rm C rm km', 'modify_true');
         Cell(Observer, 'rm_kd', 'insert', 'C rm C rm kd', 'modify_true');
         Cell(Observer, 'rm_kim', 'insert', 'C rm C rm kim', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('rm_ki', 'ok');
+        Observer.Expect('rm_ki|stored', 'start|5|0|1 buf=1');
+        Observer.Expect('rm_km', 'ok');
+        Observer.Expect('rm_km|stored', 'start|5|0|1 buf=1');
+        Observer.Expect('rm_kd', 'ok');
+        Observer.Expect('rm_kd|stored', 'start|5|0|1 buf=1');
+        Observer.Expect('rm_kim', 'ok');
+        Observer.Expect('rm_kim|stored', 'start|5|0|1 buf=1');
+        Observer.Verify();
     end;
 
     // Two Commits, the open transaction modified the row and did one more thing beside it.
@@ -520,7 +576,11 @@ codeunit 97291 "REC StaleMx Probe"
     begin
         Cell(Observer, 'rm_kda', 'insert', 'C rm C rm kda', 'modify_true');
         Cell(Observer, 'rm_kma', 'insert', 'C rm C rm kma', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('rm_kda', 'ok');
+        Observer.Expect('rm_kda|stored', 'start|5|0|1 buf=1');
+        Observer.Expect('rm_kma', 'ok');
+        Observer.Expect('rm_kma|stored', 'start|5|0|1 buf=1');
+        Observer.Verify();
     end;
 
     // Two Commits, the open transaction modified the row and did one more thing beside it.
@@ -532,7 +592,13 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'rm_lk', 'insert', 'C rm C rm lk', 'modify_true');
         Cell(Observer, 'rm_kl', 'insert', 'C rm C rm kl', 'modify_true');
         Cell(Observer, 'rm_kr', 'insert', 'C rm C rm kr', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('rm_lk', 'ok');
+        Observer.Expect('rm_lk|stored', 'start|5|0|1 buf=1');
+        Observer.Expect('rm_kl', 'ok');
+        Observer.Expect('rm_kl|stored', 'start|5|0|1 buf=1');
+        Observer.Expect('rm_kr', 'ok');
+        Observer.Expect('rm_kr|stored', 'start|5|0|1 buf=1');
+        Observer.Verify();
     end;
 
     // The open transaction read the row under LockTable and wrote nothing.
@@ -545,7 +611,15 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'lg_3c', 'insert_modify', 'C ki C rm C lg', 'modify_true');
         Cell(Observer, 'lf_2c', 'insert_modify', 'C rm C lf', 'modify_true');
         Cell(Observer, 'ins_lg_2c', 'insert', 'C rm C lg', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('lg_2c', 'ok');
+        Observer.Expect('lg_2c|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('lg_3c', 'ok');
+        Observer.Expect('lg_3c|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('lf_2c', 'ok');
+        Observer.Expect('lf_2c|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('ins_lg_2c', 'ok');
+        Observer.Expect('ins_lg_2c|stored', 'start|5|0|1 buf=1');
+        Observer.Verify();
     end;
 
     // 1 Commit(s); the open transaction did not touch the row, it wrote other rows of the table or locked the table.
@@ -558,7 +632,15 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'om_ki', 'insert_modify', 'rm C om ki', 'modify_true');
         Cell(Observer, 'om_km', 'insert_modify', 'rm C om km', 'modify_true');
         Cell(Observer, 'lk_ki', 'insert_modify', 'rm C lk ki', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('om_od', 'ok');
+        Observer.Expect('om_od|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('om_ki', 'ok');
+        Observer.Expect('om_ki|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('om_km', 'ok');
+        Observer.Expect('om_km|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('lk_ki', 'ok');
+        Observer.Expect('lk_ki|stored', 'start|5|1|2 buf=2');
+        Observer.Verify();
     end;
 
     // 1 Commit(s); the open transaction did not touch the row, it wrote other rows of the table or locked the table.
@@ -571,7 +653,15 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'kl_om', 'insert_modify', 'rm C kl om', 'modify_true');
         Cell(Observer, 'oi_od_on', 'insert_modify', 'rm C oi od on', 'modify_true');
         Cell(Observer, 'oi_kma', 'insert_modify', 'rm C oi kma', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('lk_om', 'ok');
+        Observer.Expect('lk_om|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('kl_om', 'ok');
+        Observer.Expect('kl_om|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('oi_od_on', 'ok');
+        Observer.Expect('oi_od_on|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('oi_kma', 'ok');
+        Observer.Expect('oi_kma|stored', 'start|5|1|2 buf=2');
+        Observer.Verify();
     end;
 
     // 2 Commit(s); the open transaction did not touch the row, it wrote other rows of the table or locked the table.
@@ -584,7 +674,15 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'om_ki', 'insert_modify', 'C rm C om ki', 'modify_true');
         Cell(Observer, 'om_km', 'insert_modify', 'C rm C om km', 'modify_true');
         Cell(Observer, 'lk_ki', 'insert_modify', 'C rm C lk ki', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('om_od', 'ok');
+        Observer.Expect('om_od|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('om_ki', 'ok');
+        Observer.Expect('om_ki|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('om_km', 'ok');
+        Observer.Expect('om_km|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('lk_ki', 'ok');
+        Observer.Expect('lk_ki|stored', 'start|5|1|2 buf=2');
+        Observer.Verify();
     end;
 
     // 2 Commit(s); the open transaction did not touch the row, it wrote other rows of the table or locked the table.
@@ -597,7 +695,15 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'kl_om', 'insert_modify', 'C rm C kl om', 'modify_true');
         Cell(Observer, 'oi_od_on', 'insert_modify', 'C rm C oi od on', 'modify_true');
         Cell(Observer, 'oi_kma', 'insert_modify', 'C rm C oi kma', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('lk_om', 'ok');
+        Observer.Expect('lk_om|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('kl_om', 'ok');
+        Observer.Expect('kl_om|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('oi_od_on', 'ok');
+        Observer.Expect('oi_od_on|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('oi_kma', 'ok');
+        Observer.Expect('oi_kma|stored', 'start|5|1|2 buf=2');
+        Observer.Verify();
     end;
 
     // 4 Commit(s); the open transaction did not touch the row, it wrote other rows of the table or locked the table.
@@ -610,7 +716,15 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'om_ki', 'insert_modify', 'C ki C ki C rm C om ki', 'modify_true');
         Cell(Observer, 'om_km', 'insert_modify', 'C ki C ki C rm C om km', 'modify_true');
         Cell(Observer, 'lk_ki', 'insert_modify', 'C ki C ki C rm C lk ki', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('om_od', 'ok');
+        Observer.Expect('om_od|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('om_ki', 'ok');
+        Observer.Expect('om_ki|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('om_km', 'ok');
+        Observer.Expect('om_km|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('lk_ki', 'ok');
+        Observer.Expect('lk_ki|stored', 'start|5|1|2 buf=2');
+        Observer.Verify();
     end;
 
     // 4 Commit(s); the open transaction did not touch the row, it wrote other rows of the table or locked the table.
@@ -623,10 +737,20 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'kl_om', 'insert_modify', 'C ki C ki C rm C kl om', 'modify_true');
         Cell(Observer, 'oi_od_on', 'insert_modify', 'C ki C ki C rm C oi od on', 'modify_true');
         Cell(Observer, 'oi_kma', 'insert_modify', 'C ki C ki C rm C oi kma', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('lk_om', 'ok');
+        Observer.Expect('lk_om|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('kl_om', 'ok');
+        Observer.Expect('kl_om|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('oi_od_on', 'ok');
+        Observer.Expect('oi_od_on|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('oi_kma', 'ok');
+        Observer.Expect('oi_kma|stored', 'start|5|1|2 buf=2');
+        Observer.Verify();
     end;
 
     // 1 Commit(s); the open transaction ran ModifyAll or DeleteAll filtered to other rows of the table.
+    // Linux suspect: measured on the Linux CI containers only. record/TestRecordStaleBufferWrite.al notes that a stale Modify after a ModifyAll of
+    // the row itself (no Commit) is accepted on the Windows container and refused on the Linux image, so these cells wait for a Windows check.
     [Test]
     procedure StaleMx_BulkSameTable_1C()
     var
@@ -635,10 +759,18 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'oi_oma', 'insert_modify', 'rm C oi oma', 'modify_true');
         Cell(Observer, 'oma', 'insert_modify', 'rm C oma', 'modify_true');
         Cell(Observer, 'oda', 'insert_modify', 'rm C oda', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('oi_oma', 'ok');
+        Observer.Expect('oi_oma|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('oma', 'ok');
+        Observer.Expect('oma|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('oda', 'ok');
+        Observer.Expect('oda|stored', 'start|5|1|2 buf=2');
+        Observer.Verify();
     end;
 
     // 2 Commit(s); the open transaction ran ModifyAll or DeleteAll filtered to other rows of the table.
+    // Linux suspect: measured on the Linux CI containers only. record/TestRecordStaleBufferWrite.al notes that a stale Modify after a ModifyAll of
+    // the row itself (no Commit) is accepted on the Windows container and refused on the Linux image, so these cells wait for a Windows check.
     [Test]
     procedure StaleMx_BulkSameTable_2C()
     var
@@ -647,7 +779,13 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'oi_oma', 'insert_modify', 'C rm C oi oma', 'modify_true');
         Cell(Observer, 'oma', 'insert_modify', 'C rm C oma', 'modify_true');
         Cell(Observer, 'oda', 'insert_modify', 'C rm C oda', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('oi_oma', 'ok');
+        Observer.Expect('oi_oma|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('oma', 'ok');
+        Observer.Expect('oma|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('oda', 'ok');
+        Observer.Expect('oda|stored', 'start|5|1|2 buf=2');
+        Observer.Verify();
     end;
 
     // 1 Commit(s); the open transaction did not write or lock the table of the row.
@@ -660,7 +798,23 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'km', 'insert_modify', 'rm C km', 'modify_true');
         Cell(Observer, 'kd', 'insert_modify', 'rm C kd', 'modify_true');
         Cell(Observer, 'kda', 'insert_modify', 'rm C kda', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('kl_ki', 'error');
+        Observer.Expect('kl_ki|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('kl_ki|code', 'DB:RecordChanged');
+        Observer.Expect('kl_ki|stored', 'o1|0|1|1 buf=2');
+        Observer.Expect('km', 'error');
+        Observer.Expect('km|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('km|code', 'DB:RecordChanged');
+        Observer.Expect('km|stored', 'o1|0|1|1 buf=2');
+        Observer.Expect('kd', 'error');
+        Observer.Expect('kd|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('kd|code', 'DB:RecordChanged');
+        Observer.Expect('kd|stored', 'o1|0|1|1 buf=2');
+        Observer.Expect('kda', 'error');
+        Observer.Expect('kda|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('kda|code', 'DB:RecordChanged');
+        Observer.Expect('kda|stored', 'o1|0|1|1 buf=2');
+        Observer.Verify();
     end;
 
     // 1 Commit(s); the open transaction did not write or lock the table of the row.
@@ -673,7 +827,23 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'rg', 'insert_modify', 'rm C rg', 'modify_true');
         Cell(Observer, 'fs', 'insert_modify', 'rm C fs', 'modify_true');
         Cell(Observer, 'nothing', 'insert_modify', 'rm C', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('kl_km', 'error');
+        Observer.Expect('kl_km|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('kl_km|code', 'DB:RecordChanged');
+        Observer.Expect('kl_km|stored', 'o1|0|1|1 buf=2');
+        Observer.Expect('rg', 'error');
+        Observer.Expect('rg|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('rg|code', 'DB:RecordChanged');
+        Observer.Expect('rg|stored', 'o1|0|1|1 buf=2');
+        Observer.Expect('fs', 'error');
+        Observer.Expect('fs|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('fs|code', 'DB:RecordChanged');
+        Observer.Expect('fs|stored', 'o1|0|1|1 buf=2');
+        Observer.Expect('nothing', 'error');
+        Observer.Expect('nothing|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('nothing|code', 'DB:RecordChanged');
+        Observer.Expect('nothing|stored', 'o1|0|1|1 buf=2');
+        Observer.Verify();
     end;
 
     // 2 Commit(s); the open transaction did not write or lock the table of the row.
@@ -686,7 +856,23 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'km', 'insert_modify', 'C rm C km', 'modify_true');
         Cell(Observer, 'kd', 'insert_modify', 'C rm C kd', 'modify_true');
         Cell(Observer, 'kda', 'insert_modify', 'C rm C kda', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('kl_ki', 'error');
+        Observer.Expect('kl_ki|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('kl_ki|code', 'DB:RecordChanged');
+        Observer.Expect('kl_ki|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('km', 'error');
+        Observer.Expect('km|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('km|code', 'DB:RecordChanged');
+        Observer.Expect('km|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('kd', 'error');
+        Observer.Expect('kd|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('kd|code', 'DB:RecordChanged');
+        Observer.Expect('kd|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('kda', 'error');
+        Observer.Expect('kda|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('kda|code', 'DB:RecordChanged');
+        Observer.Expect('kda|stored', 'o2|0|1|1 buf=2');
+        Observer.Verify();
     end;
 
     // 2 Commit(s); the open transaction did not write or lock the table of the row.
@@ -699,7 +885,23 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'rg', 'insert_modify', 'C rm C rg', 'modify_true');
         Cell(Observer, 'fs', 'insert_modify', 'C rm C fs', 'modify_true');
         Cell(Observer, 'nothing', 'insert_modify', 'C rm C', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('kl_km', 'error');
+        Observer.Expect('kl_km|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('kl_km|code', 'DB:RecordChanged');
+        Observer.Expect('kl_km|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('rg', 'error');
+        Observer.Expect('rg|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('rg|code', 'DB:RecordChanged');
+        Observer.Expect('rg|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('fs', 'error');
+        Observer.Expect('fs|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('fs|code', 'DB:RecordChanged');
+        Observer.Expect('fs|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('nothing', 'error');
+        Observer.Expect('nothing|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('nothing|code', 'DB:RecordChanged');
+        Observer.Expect('nothing|stored', 'o2|0|1|1 buf=2');
+        Observer.Verify();
     end;
 
     // 4 Commit(s); the open transaction did not write or lock the table of the row.
@@ -712,7 +914,23 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'km', 'insert_modify', 'C ki C ki C rm C km', 'modify_true');
         Cell(Observer, 'kd', 'insert_modify', 'C ki C ki C rm C kd', 'modify_true');
         Cell(Observer, 'kda', 'insert_modify', 'C ki C ki C rm C kda', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('kl_ki', 'error');
+        Observer.Expect('kl_ki|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('kl_ki|code', 'DB:RecordChanged');
+        Observer.Expect('kl_ki|stored', 'o6|0|1|1 buf=2');
+        Observer.Expect('km', 'error');
+        Observer.Expect('km|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('km|code', 'DB:RecordChanged');
+        Observer.Expect('km|stored', 'o6|0|1|1 buf=2');
+        Observer.Expect('kd', 'error');
+        Observer.Expect('kd|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('kd|code', 'DB:RecordChanged');
+        Observer.Expect('kd|stored', 'o6|0|1|1 buf=2');
+        Observer.Expect('kda', 'error');
+        Observer.Expect('kda|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('kda|code', 'DB:RecordChanged');
+        Observer.Expect('kda|stored', 'o6|0|1|1 buf=2');
+        Observer.Verify();
     end;
 
     // 4 Commit(s); the open transaction did not write or lock the table of the row.
@@ -725,7 +943,23 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'rg', 'insert_modify', 'C ki C ki C rm C rg', 'modify_true');
         Cell(Observer, 'fs', 'insert_modify', 'C ki C ki C rm C fs', 'modify_true');
         Cell(Observer, 'nothing', 'insert_modify', 'C ki C ki C rm C', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('kl_km', 'error');
+        Observer.Expect('kl_km|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('kl_km|code', 'DB:RecordChanged');
+        Observer.Expect('kl_km|stored', 'o6|0|1|1 buf=2');
+        Observer.Expect('rg', 'error');
+        Observer.Expect('rg|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('rg|code', 'DB:RecordChanged');
+        Observer.Expect('rg|stored', 'o6|0|1|1 buf=2');
+        Observer.Expect('fs', 'error');
+        Observer.Expect('fs|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('fs|code', 'DB:RecordChanged');
+        Observer.Expect('fs|stored', 'o6|0|1|1 buf=2');
+        Observer.Expect('nothing', 'error');
+        Observer.Expect('nothing|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('nothing|code', 'DB:RecordChanged');
+        Observer.Expect('nothing|stored', 'o6|0|1|1 buf=2');
+        Observer.Verify();
     end;
 
     // Two Commits; the stale write is Modify(false) after row contact, table contact and no contact.
@@ -737,7 +971,15 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'rm', 'insert_modify', 'C rm C rm', 'modify_false');
         Cell(Observer, 'om_od', 'insert_modify', 'C rm C om od', 'modify_false');
         Cell(Observer, 'km', 'insert_modify', 'C rm C km', 'modify_false');
-        Observer.Finish();
+        Observer.Expect('rm', 'ok');
+        Observer.Expect('rm|stored', 'start|5|1|1 buf=1');
+        Observer.Expect('om_od', 'ok');
+        Observer.Expect('om_od|stored', 'start|5|1|1 buf=1');
+        Observer.Expect('km', 'error');
+        Observer.Expect('km|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('km|code', 'DB:RecordChanged');
+        Observer.Expect('km|stored', 'o2|0|1|1 buf=1');
+        Observer.Verify();
     end;
 
     // Two Commits; the stale write is Delete(false) after row contact, table contact and no contact.
@@ -749,7 +991,15 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'rm', 'insert_modify', 'C rm C rm', 'delete_false');
         Cell(Observer, 'om_od', 'insert_modify', 'C rm C om od', 'delete_false');
         Cell(Observer, 'km', 'insert_modify', 'C rm C km', 'delete_false');
-        Observer.Finish();
+        Observer.Expect('rm', 'ok');
+        Observer.Expect('rm|stored', 'none buf=1');
+        Observer.Expect('om_od', 'ok');
+        Observer.Expect('om_od|stored', 'none buf=1');
+        Observer.Expect('km', 'error');
+        Observer.Expect('km|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('km|code', 'DB:RecordChanged');
+        Observer.Expect('km|stored', 'o2|0|1|1 buf=1');
+        Observer.Verify();
     end;
 
     // The open transaction wrote and was rolled back by asserterror Error before the stale write.
@@ -762,7 +1012,21 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'rm_rb_2c', 'insert_modify', 'C rm C rm rb', 'modify_true');
         Cell(Observer, 'om_rb_2c', 'insert_modify', 'C rm C om rb', 'modify_true');
         Cell(Observer, 'rm_rb_rm_2c', 'insert_modify', 'C rm C rm rb rm', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('rm_rb_1c', 'error');
+        Observer.Expect('rm_rb_1c|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('rm_rb_1c|code', 'DB:RecordChanged');
+        Observer.Expect('rm_rb_1c|stored', 'o1|0|1|1 buf=2');
+        Observer.Expect('rm_rb_2c', 'error');
+        Observer.Expect('rm_rb_2c|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('rm_rb_2c|code', 'DB:RecordChanged');
+        Observer.Expect('rm_rb_2c|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('om_rb_2c', 'error');
+        Observer.Expect('om_rb_2c|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('om_rb_2c|code', 'DB:RecordChanged');
+        Observer.Expect('om_rb_2c|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('rm_rb_rm_2c', 'ok');
+        Observer.Expect('rm_rb_rm_2c|stored', 'start|5|1|2 buf=2');
+        Observer.Verify();
     end;
 
     // The closed write of the row is made inside `if Codeunit.Run` (which commits); one more `if Codeunit.Run` only reads.
@@ -775,7 +1039,21 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'g_read_rm', 'insert_modify', 'C g:rm g:rg rm', 'modify_true');
         Cell(Observer, 'g_read', 'insert_modify', 'C g:rm g:rg', 'modify_true');
         Cell(Observer, 'g_read_om', 'insert_modify', 'C g:rm g:rg om', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('g_rm', 'ok');
+        Observer.Expect('g_rm|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('g_rm|runs', 'Y');
+        Observer.Expect('g_read_rm', 'ok');
+        Observer.Expect('g_read_rm|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('g_read_rm|runs', 'YY');
+        Observer.Expect('g_read', 'error');
+        Observer.Expect('g_read|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('g_read|code', 'DB:RecordChanged');
+        Observer.Expect('g_read|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('g_read|runs', 'YY');
+        Observer.Expect('g_read_om', 'ok');
+        Observer.Expect('g_read_om|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('g_read_om|runs', 'YY');
+        Observer.Verify();
     end;
 
     // Two Commits, then `if Codeunit.Run` after them: it modifies the row, only reads it, or only locks the table.
@@ -788,7 +1066,25 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'g_rg', 'insert_modify', 'C rm C g:rg', 'modify_true');
         Cell(Observer, 'g_rg_rm', 'insert_modify', 'C rm C g:rg rm', 'modify_true');
         Cell(Observer, 'g_lk', 'insert_modify', 'C rm C g:lk', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('g_rm', 'error');
+        Observer.Expect('g_rm|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('g_rm|code', 'DB:RecordChanged');
+        Observer.Expect('g_rm|stored', 'o4|0|1|1 buf=2');
+        Observer.Expect('g_rm|runs', 'Y');
+        Observer.Expect('g_rg', 'error');
+        Observer.Expect('g_rg|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('g_rg|code', 'DB:RecordChanged');
+        Observer.Expect('g_rg|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('g_rg|runs', 'Y');
+        Observer.Expect('g_rg_rm', 'ok');
+        Observer.Expect('g_rg_rm|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('g_rg_rm|runs', 'Y');
+        Observer.Expect('g_lk', 'error');
+        Observer.Expect('g_lk|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('g_lk|code', 'DB:RecordChanged');
+        Observer.Expect('g_lk|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('g_lk|runs', 'Y');
+        Observer.Verify();
     end;
 
     // Codeunit.Run as a statement (return value not used, no Commit of its own) makes the closed write or the open one.
@@ -801,7 +1097,23 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'closed_only', 'insert_modify', 'C r:rm C', 'modify_true');
         Cell(Observer, 'open_rm', 'insert_modify', 'C rm C r:rm', 'modify_true');
         Cell(Observer, 'open_rg', 'insert_modify', 'C rm C r:rg', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('closed_rm', 'ok');
+        Observer.Expect('closed_rm|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('closed_rm|runs', 'r');
+        Observer.Expect('closed_only', 'error');
+        Observer.Expect('closed_only|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('closed_only|code', 'DB:RecordChanged');
+        Observer.Expect('closed_only|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('closed_only|runs', 'r');
+        Observer.Expect('open_rm', 'ok');
+        Observer.Expect('open_rm|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('open_rm|runs', 'r');
+        Observer.Expect('open_rg', 'error');
+        Observer.Expect('open_rg|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('open_rg|code', 'DB:RecordChanged');
+        Observer.Expect('open_rg|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('open_rg|runs', 'r');
+        Observer.Verify();
     end;
 
     // Committed-read buffer (Get of a committed row, no own write), 1 Commit(s) after the Get.
@@ -814,7 +1126,23 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'rm', 'get_committed', 'rm C rm', 'modify_true');
         Cell(Observer, 'lk', 'get_committed', 'rm C lk', 'modify_true');
         Cell(Observer, 'om', 'get_committed', 'rm C om', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('nothing', 'error');
+        Observer.Expect('nothing|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('nothing|code', 'DB:RecordChanged');
+        Observer.Expect('nothing|stored', 'o1|0|0|0 buf=1');
+        Observer.Expect('rm', 'error');
+        Observer.Expect('rm|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('rm|code', 'DB:RecordChanged');
+        Observer.Expect('rm|stored', 'o1|0|0|0 buf=1');
+        Observer.Expect('lk', 'error');
+        Observer.Expect('lk|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('lk|code', 'DB:RecordChanged');
+        Observer.Expect('lk|stored', 'o1|0|0|0 buf=1');
+        Observer.Expect('om', 'error');
+        Observer.Expect('om|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('om|code', 'DB:RecordChanged');
+        Observer.Expect('om|stored', 'o1|0|0|0 buf=1');
+        Observer.Verify();
     end;
 
     // Committed-read buffer (Get of a committed row, no own write), 2 Commit(s) after the Get.
@@ -827,7 +1155,23 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'rm', 'get_committed', 'C rm C rm', 'modify_true');
         Cell(Observer, 'lk', 'get_committed', 'C rm C lk', 'modify_true');
         Cell(Observer, 'om', 'get_committed', 'C rm C om', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('nothing', 'error');
+        Observer.Expect('nothing|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('nothing|code', 'DB:RecordChanged');
+        Observer.Expect('nothing|stored', 'o2|0|0|0 buf=1');
+        Observer.Expect('rm', 'error');
+        Observer.Expect('rm|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('rm|code', 'DB:RecordChanged');
+        Observer.Expect('rm|stored', 'o2|0|0|0 buf=1');
+        Observer.Expect('lk', 'error');
+        Observer.Expect('lk|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('lk|code', 'DB:RecordChanged');
+        Observer.Expect('lk|stored', 'o2|0|0|0 buf=1');
+        Observer.Expect('om', 'error');
+        Observer.Expect('om|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('om|code', 'DB:RecordChanged');
+        Observer.Expect('om|stored', 'o2|0|0|0 buf=1');
+        Observer.Verify();
     end;
 
     // Committed-read buffer: the row read under LockTable, row and table contact together, four Commits.
@@ -840,7 +1184,23 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'lg_2c', 'get_committed', 'C rm C lg', 'modify_true');
         Cell(Observer, 'rm_om_2c', 'get_committed', 'C rm C rm om', 'modify_true');
         Cell(Observer, 'rm_4c', 'get_committed', 'C ki C ki C rm C rm', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('lg_1c', 'error');
+        Observer.Expect('lg_1c|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('lg_1c|code', 'DB:RecordChanged');
+        Observer.Expect('lg_1c|stored', 'o1|0|0|0 buf=1');
+        Observer.Expect('lg_2c', 'error');
+        Observer.Expect('lg_2c|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('lg_2c|code', 'DB:RecordChanged');
+        Observer.Expect('lg_2c|stored', 'o2|0|0|0 buf=1');
+        Observer.Expect('rm_om_2c', 'error');
+        Observer.Expect('rm_om_2c|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('rm_om_2c|code', 'DB:RecordChanged');
+        Observer.Expect('rm_om_2c|stored', 'o2|0|0|0 buf=1');
+        Observer.Expect('rm_4c', 'error');
+        Observer.Expect('rm_4c|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('rm_4c|code', 'DB:RecordChanged');
+        Observer.Expect('rm_4c|stored', 'o6|0|0|0 buf=1');
+        Observer.Verify();
     end;
 
     // Buffer that read a committed row by Get and then did its own Modify in that transaction, two Commits.
@@ -853,7 +1213,17 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'rm', 'get_committed_modify', 'C rm C rm', 'modify_true');
         Cell(Observer, 'lk', 'get_committed_modify', 'C rm C lk', 'modify_true');
         Cell(Observer, 'om', 'get_committed_modify', 'C rm C om', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('nothing', 'error');
+        Observer.Expect('nothing|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('nothing|code', 'DB:RecordChanged');
+        Observer.Expect('nothing|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('rm', 'ok');
+        Observer.Expect('rm|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('lk', 'ok');
+        Observer.Expect('lk|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('om', 'ok');
+        Observer.Expect('om|stored', 'start|5|1|2 buf=2');
+        Observer.Verify();
     end;
 
     // Buffer that read the row by Get in the transaction that inserted it through another variable, two Commits.
@@ -866,6 +1236,16 @@ codeunit 97291 "REC StaleMx Probe"
         Cell(Observer, 'rm', 'get_uncommitted', 'C rm C rm', 'modify_true');
         Cell(Observer, 'lk', 'get_uncommitted', 'C rm C lk', 'modify_true');
         Cell(Observer, 'om', 'get_uncommitted', 'C rm C om', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('nothing', 'error');
+        Observer.Expect('nothing|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('nothing|code', 'DB:RecordChanged');
+        Observer.Expect('nothing|stored', 'o2|0|0|0 buf=1');
+        Observer.Expect('rm', 'ok');
+        Observer.Expect('rm|stored', 'start|5|0|1 buf=1');
+        Observer.Expect('lk', 'ok');
+        Observer.Expect('lk|stored', 'start|5|0|1 buf=1');
+        Observer.Expect('om', 'ok');
+        Observer.Expect('om|stored', 'start|5|0|1 buf=1');
+        Observer.Verify();
     end;
 }
