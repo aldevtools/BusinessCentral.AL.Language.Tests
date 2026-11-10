@@ -597,7 +597,25 @@ codeunit 64403 "FFM Lookup Tests"
         if not TryCalc_Lk_filterenum(H) then
             Observer.ObserveError('Lk_filterenum.calc18');
         Observer.Observe('H3.filterenum', Format(H.Lk_filterenum));
-        Observer.Finish();
+        Observer.Expect('H1.const', 'alpha');
+        Observer.Expect('H1.field', 'alpha');
+        Observer.Expect('H1.filter', 'bravo');
+        Observer.Expect('H1.constopt', 'alpha');
+        Observer.Expect('H1.constenum', 'bravo');
+        Observer.Expect('H1.filterenum', 'alpha');
+        Observer.Expect('H2.const', 'alpha');
+        Observer.Expect('H2.field', 'echo');
+        Observer.Expect('H2.filter', 'bravo');
+        Observer.Expect('H2.constopt', 'alpha');
+        Observer.Expect('H2.constenum', 'bravo');
+        Observer.Expect('H2.filterenum', 'alpha');
+        Observer.Expect('H3.const', 'alpha');
+        Observer.Expect('H3.field', '');
+        Observer.Expect('H3.filter', 'bravo');
+        Observer.Expect('H3.constopt', 'alpha');
+        Observer.Expect('H3.constenum', 'bravo');
+        Observer.Expect('H3.filterenum', 'alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -664,7 +682,21 @@ codeunit 64403 "FFM Lookup Tests"
         if not TryCalc_Lk_fftext(H) then
             Observer.ObserveError('Lk_fftext.calc32');
         Observer.Observe('fftext.set', Format(H.Lk_fftext));
-        Observer.Finish();
+        Observer.Expect('ffint.unset', 'alpha');
+        Observer.Expect('ffint.set', 'bravo');
+        Observer.Expect('ffdec.unset', 'alpha');
+        Observer.Expect('ffdec.set', 'bravo');
+        Observer.Expect('ffdate.unset', 'alpha');
+        Observer.Expect('ffdate.set', 'bravo');
+        Observer.Expect('ffcode.unset', 'alpha');
+        Observer.Expect('ffcode.set', 'alpha');
+        Observer.Expect('ffopt.unset', 'alpha');
+        Observer.Expect('ffopt.set', 'alpha');
+        Observer.Expect('ffenum.unset', 'alpha');
+        Observer.Expect('ffenum.set', 'bravo');
+        Observer.Expect('fftext.unset', 'alpha');
+        Observer.Expect('fftext.set', 'alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -731,7 +763,23 @@ codeunit 64403 "FFM Lookup Tests"
         if not TryCalc_Lk_ulfdate(H) then
             Observer.ObserveError('Lk_ulfdate.calc46');
         Observer.Observe('ulfdate.set', Format(H.Lk_ulfdate));
-        Observer.Finish();
+        Observer.Expect('uldate.unset', 'alpha');
+        Observer.Expect('uldate.set', 'alpha');
+        Observer.Expect('ulint.unset', 'alpha');
+        Observer.Expect('ulint.set', 'alpha');
+        Observer.Expect('uldec.unset', 'alpha');
+        Observer.Expect('Lk_uldec.calc38|text', 'The filter expression ">=14" applied to the field DecF in the FFM Lookup Header table results in more than one range.');
+        Observer.Expect('Lk_uldec.calc38|code', 'DB:NotIntervalFilter');
+        Observer.Expect('uldec.set', 'alpha');
+        Observer.Expect('ulcode.unset', 'alpha');
+        Observer.Expect('ulcode.set', 'alpha');
+        Observer.Expect('ulopt.unset', 'alpha');
+        Observer.Expect('ulopt.set', 'alpha');
+        Observer.Expect('ulenum.unset', 'alpha');
+        Observer.Expect('ulenum.set', 'alpha');
+        Observer.Expect('ulfdate.unset', 'alpha');
+        Observer.Expect('ulfdate.set', 'alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -758,7 +806,11 @@ codeunit 64403 "FFM Lookup Tests"
         if not TryCalc_Lk_ffboth(H) then
             Observer.ObserveError('Lk_ffboth.calc50');
         Observer.Observe('ffboth.set', Format(H.Lk_ffboth));
-        Observer.Finish();
+        Observer.Expect('ffmismatch.unset', 'alpha');
+        Observer.Expect('ffmismatch.set', '');
+        Observer.Expect('ffboth.unset', 'alpha');
+        Observer.Expect('ffboth.set', 'bravo');
+        Observer.Verify();
     end;
 
     [Test]
@@ -835,7 +887,29 @@ codeunit 64403 "FFM Lookup Tests"
         if not TryCalc_Lk_ffboth(H) then
             Observer.ObserveError('Lk_ffboth.calc72');
         Observer.Observe('ffboth.h3', Format(H.Lk_ffboth));
-        Observer.Finish();
+        Observer.Expect('const.h3', 'alpha');
+        Observer.Expect('field.h3', '');
+        Observer.Expect('filter.h3', 'bravo');
+        Observer.Expect('constopt.h3', 'alpha');
+        Observer.Expect('constenum.h3', 'bravo');
+        Observer.Expect('filterenum.h3', 'alpha');
+        Observer.Expect('ffint.h3', 'alpha');
+        Observer.Expect('ffdec.h3', 'alpha');
+        Observer.Expect('ffdate.h3', 'alpha');
+        Observer.Expect('ffcode.h3', 'alpha');
+        Observer.Expect('ffopt.h3', 'alpha');
+        Observer.Expect('ffenum.h3', 'alpha');
+        Observer.Expect('fftext.h3', 'alpha');
+        Observer.Expect('uldate.h3', 'alpha');
+        Observer.Expect('ulint.h3', 'alpha');
+        Observer.Expect('uldec.h3', 'alpha');
+        Observer.Expect('ulcode.h3', 'alpha');
+        Observer.Expect('ulopt.h3', 'alpha');
+        Observer.Expect('ulenum.h3', 'alpha');
+        Observer.Expect('ulfdate.h3', 'alpha');
+        Observer.Expect('ffmismatch.h3', 'alpha');
+        Observer.Expect('ffboth.h3', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -902,7 +976,25 @@ codeunit 64403 "FFM Lookup Tests"
         if not TryCalc_LkDec_filterenum(H) then
             Observer.ObserveError('LkDec_filterenum.calc90');
         Observer.Observe('H3.filterenum', Format(H.LkDec_filterenum));
-        Observer.Finish();
+        Observer.Expect('H1.const', '10.5');
+        Observer.Expect('H1.field', '10.5');
+        Observer.Expect('H1.filter', '20');
+        Observer.Expect('H1.constopt', '10.5');
+        Observer.Expect('H1.constenum', '20');
+        Observer.Expect('H1.filterenum', '10.5');
+        Observer.Expect('H2.const', '10.5');
+        Observer.Expect('H2.field', '7');
+        Observer.Expect('H2.filter', '20');
+        Observer.Expect('H2.constopt', '10.5');
+        Observer.Expect('H2.constenum', '20');
+        Observer.Expect('H2.filterenum', '10.5');
+        Observer.Expect('H3.const', '10.5');
+        Observer.Expect('H3.field', '0');
+        Observer.Expect('H3.filter', '20');
+        Observer.Expect('H3.constopt', '10.5');
+        Observer.Expect('H3.constenum', '20');
+        Observer.Expect('H3.filterenum', '10.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -969,7 +1061,21 @@ codeunit 64403 "FFM Lookup Tests"
         if not TryCalc_LkDec_fftext(H) then
             Observer.ObserveError('LkDec_fftext.calc104');
         Observer.Observe('fftext.set', Format(H.LkDec_fftext));
-        Observer.Finish();
+        Observer.Expect('ffint.unset', '10.5');
+        Observer.Expect('ffint.set', '20');
+        Observer.Expect('ffdec.unset', '10.5');
+        Observer.Expect('ffdec.set', '20');
+        Observer.Expect('ffdate.unset', '10.5');
+        Observer.Expect('ffdate.set', '20');
+        Observer.Expect('ffcode.unset', '10.5');
+        Observer.Expect('ffcode.set', '10.5');
+        Observer.Expect('ffopt.unset', '10.5');
+        Observer.Expect('ffopt.set', '10.5');
+        Observer.Expect('ffenum.unset', '10.5');
+        Observer.Expect('ffenum.set', '20');
+        Observer.Expect('fftext.unset', '10.5');
+        Observer.Expect('fftext.set', '10.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1036,7 +1142,23 @@ codeunit 64403 "FFM Lookup Tests"
         if not TryCalc_LkDec_ulfdate(H) then
             Observer.ObserveError('LkDec_ulfdate.calc118');
         Observer.Observe('ulfdate.set', Format(H.LkDec_ulfdate));
-        Observer.Finish();
+        Observer.Expect('uldate.unset', '10.5');
+        Observer.Expect('uldate.set', '10.5');
+        Observer.Expect('ulint.unset', '10.5');
+        Observer.Expect('ulint.set', '10.5');
+        Observer.Expect('uldec.unset', '10.5');
+        Observer.Expect('LkDec_uldec.calc110|text', 'The filter expression ">=14" applied to the field DecF in the FFM Lookup Header table results in more than one range.');
+        Observer.Expect('LkDec_uldec.calc110|code', 'DB:NotIntervalFilter');
+        Observer.Expect('uldec.set', '10.5');
+        Observer.Expect('ulcode.unset', '10.5');
+        Observer.Expect('ulcode.set', '10.5');
+        Observer.Expect('ulopt.unset', '10.5');
+        Observer.Expect('ulopt.set', '10.5');
+        Observer.Expect('ulenum.unset', '10.5');
+        Observer.Expect('ulenum.set', '10.5');
+        Observer.Expect('ulfdate.unset', '10.5');
+        Observer.Expect('ulfdate.set', '10.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1063,7 +1185,11 @@ codeunit 64403 "FFM Lookup Tests"
         if not TryCalc_LkDec_ffboth(H) then
             Observer.ObserveError('LkDec_ffboth.calc122');
         Observer.Observe('ffboth.set', Format(H.LkDec_ffboth));
-        Observer.Finish();
+        Observer.Expect('ffmismatch.unset', '10.5');
+        Observer.Expect('ffmismatch.set', '0');
+        Observer.Expect('ffboth.unset', '10.5');
+        Observer.Expect('ffboth.set', '20');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1140,7 +1266,29 @@ codeunit 64403 "FFM Lookup Tests"
         if not TryCalc_LkDec_ffboth(H) then
             Observer.ObserveError('LkDec_ffboth.calc144');
         Observer.Observe('ffboth.h3', Format(H.LkDec_ffboth));
-        Observer.Finish();
+        Observer.Expect('const.h3', '10.5');
+        Observer.Expect('field.h3', '0');
+        Observer.Expect('filter.h3', '20');
+        Observer.Expect('constopt.h3', '10.5');
+        Observer.Expect('constenum.h3', '20');
+        Observer.Expect('filterenum.h3', '10.5');
+        Observer.Expect('ffint.h3', '10.5');
+        Observer.Expect('ffdec.h3', '10.5');
+        Observer.Expect('ffdate.h3', '10.5');
+        Observer.Expect('ffcode.h3', '10.5');
+        Observer.Expect('ffopt.h3', '10.5');
+        Observer.Expect('ffenum.h3', '10.5');
+        Observer.Expect('fftext.h3', '10.5');
+        Observer.Expect('uldate.h3', '10.5');
+        Observer.Expect('ulint.h3', '10.5');
+        Observer.Expect('uldec.h3', '10.5');
+        Observer.Expect('ulcode.h3', '10.5');
+        Observer.Expect('ulopt.h3', '10.5');
+        Observer.Expect('ulenum.h3', '10.5');
+        Observer.Expect('ulfdate.h3', '10.5');
+        Observer.Expect('ffmismatch.h3', '10.5');
+        Observer.Expect('ffboth.h3', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1207,7 +1355,25 @@ codeunit 64403 "FFM Lookup Tests"
         if not TryCalc_NLkDec_filterenum(H) then
             Observer.ObserveError('NLkDec_filterenum.calc162');
         Observer.Observe('H3.filterenum', Format(H.NLkDec_filterenum));
-        Observer.Finish();
+        Observer.Expect('H1.const', '10.5');
+        Observer.Expect('H1.field', '10.5');
+        Observer.Expect('H1.filter', '20');
+        Observer.Expect('H1.constopt', '10.5');
+        Observer.Expect('H1.constenum', '20');
+        Observer.Expect('H1.filterenum', '10.5');
+        Observer.Expect('H2.const', '10.5');
+        Observer.Expect('H2.field', '7');
+        Observer.Expect('H2.filter', '20');
+        Observer.Expect('H2.constopt', '10.5');
+        Observer.Expect('H2.constenum', '20');
+        Observer.Expect('H2.filterenum', '10.5');
+        Observer.Expect('H3.const', '10.5');
+        Observer.Expect('H3.field', '0');
+        Observer.Expect('H3.filter', '20');
+        Observer.Expect('H3.constopt', '10.5');
+        Observer.Expect('H3.constenum', '20');
+        Observer.Expect('H3.filterenum', '10.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1274,7 +1440,21 @@ codeunit 64403 "FFM Lookup Tests"
         if not TryCalc_NLkDec_fftext(H) then
             Observer.ObserveError('NLkDec_fftext.calc176');
         Observer.Observe('fftext.set', Format(H.NLkDec_fftext));
-        Observer.Finish();
+        Observer.Expect('ffint.unset', '10.5');
+        Observer.Expect('ffint.set', '20');
+        Observer.Expect('ffdec.unset', '10.5');
+        Observer.Expect('ffdec.set', '20');
+        Observer.Expect('ffdate.unset', '10.5');
+        Observer.Expect('ffdate.set', '20');
+        Observer.Expect('ffcode.unset', '10.5');
+        Observer.Expect('ffcode.set', '10.5');
+        Observer.Expect('ffopt.unset', '10.5');
+        Observer.Expect('ffopt.set', '10.5');
+        Observer.Expect('ffenum.unset', '10.5');
+        Observer.Expect('ffenum.set', '20');
+        Observer.Expect('fftext.unset', '10.5');
+        Observer.Expect('fftext.set', '10.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1341,7 +1521,23 @@ codeunit 64403 "FFM Lookup Tests"
         if not TryCalc_NLkDec_ulfdate(H) then
             Observer.ObserveError('NLkDec_ulfdate.calc190');
         Observer.Observe('ulfdate.set', Format(H.NLkDec_ulfdate));
-        Observer.Finish();
+        Observer.Expect('uldate.unset', '10.5');
+        Observer.Expect('uldate.set', '10.5');
+        Observer.Expect('ulint.unset', '10.5');
+        Observer.Expect('ulint.set', '10.5');
+        Observer.Expect('uldec.unset', '10.5');
+        Observer.Expect('NLkDec_uldec.calc182|text', 'The filter expression ">=14" applied to the field DecF in the FFM Lookup Header table results in more than one range.');
+        Observer.Expect('NLkDec_uldec.calc182|code', 'DB:NotIntervalFilter');
+        Observer.Expect('uldec.set', '10.5');
+        Observer.Expect('ulcode.unset', '10.5');
+        Observer.Expect('ulcode.set', '10.5');
+        Observer.Expect('ulopt.unset', '10.5');
+        Observer.Expect('ulopt.set', '10.5');
+        Observer.Expect('ulenum.unset', '10.5');
+        Observer.Expect('ulenum.set', '10.5');
+        Observer.Expect('ulfdate.unset', '10.5');
+        Observer.Expect('ulfdate.set', '10.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1368,7 +1564,11 @@ codeunit 64403 "FFM Lookup Tests"
         if not TryCalc_NLkDec_ffboth(H) then
             Observer.ObserveError('NLkDec_ffboth.calc194');
         Observer.Observe('ffboth.set', Format(H.NLkDec_ffboth));
-        Observer.Finish();
+        Observer.Expect('ffmismatch.unset', '10.5');
+        Observer.Expect('ffmismatch.set', '0');
+        Observer.Expect('ffboth.unset', '10.5');
+        Observer.Expect('ffboth.set', '20');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1445,7 +1645,29 @@ codeunit 64403 "FFM Lookup Tests"
         if not TryCalc_NLkDec_ffboth(H) then
             Observer.ObserveError('NLkDec_ffboth.calc216');
         Observer.Observe('ffboth.h3', Format(H.NLkDec_ffboth));
-        Observer.Finish();
+        Observer.Expect('const.h3', '10.5');
+        Observer.Expect('field.h3', '0');
+        Observer.Expect('filter.h3', '20');
+        Observer.Expect('constopt.h3', '10.5');
+        Observer.Expect('constenum.h3', '20');
+        Observer.Expect('filterenum.h3', '10.5');
+        Observer.Expect('ffint.h3', '10.5');
+        Observer.Expect('ffdec.h3', '10.5');
+        Observer.Expect('ffdate.h3', '10.5');
+        Observer.Expect('ffcode.h3', '10.5');
+        Observer.Expect('ffopt.h3', '10.5');
+        Observer.Expect('ffenum.h3', '10.5');
+        Observer.Expect('fftext.h3', '10.5');
+        Observer.Expect('uldate.h3', '10.5');
+        Observer.Expect('ulint.h3', '10.5');
+        Observer.Expect('uldec.h3', '10.5');
+        Observer.Expect('ulcode.h3', '10.5');
+        Observer.Expect('ulopt.h3', '10.5');
+        Observer.Expect('ulenum.h3', '10.5');
+        Observer.Expect('ulfdate.h3', '10.5');
+        Observer.Expect('ffmismatch.h3', '10.5');
+        Observer.Expect('ffboth.h3', '0');
+        Observer.Verify();
     end;
 
     local procedure Initialize()
