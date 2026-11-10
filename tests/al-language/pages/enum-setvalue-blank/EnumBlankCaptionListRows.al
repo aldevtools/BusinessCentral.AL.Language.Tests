@@ -398,7 +398,10 @@ codeunit 62439 "ENB Enum Blank List Tests"
         Line."Action Type" := Line."Action Type"::Empty;
         Observer.Observe('Format of the field', '[' + Format(Line."Action Type") + ']');
         Observer.Observe('StrLen of Format', Format(StrLen(Format(Line."Action Type"))));
-        Observer.Finish();
+        Observer.Expect('Format of the member', '[ ]');
+        Observer.Expect('Format of the field', '[ ]');
+        Observer.Expect('StrLen of Format', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -409,7 +412,10 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 1 to 3 do
             PartCase(Observer, 'A', Input);
-        Observer.Finish();
+        Observer.Expect('Value empty text', 'before=[Replace] stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[1]');
+        Observer.Expect('Value space', 'before=[Replace] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/0 H1/20000:0/0');
+        Observer.Expect('Value Format of the blank member', 'before=[Replace] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/0 H1/20000:0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -420,7 +426,11 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 4 to 7 do
             PartCase(Observer, 'A', Input);
-        Observer.Finish();
+        Observer.Expect('SetValue empty text', 'before=[Replace] stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[1]');
+        Observer.Expect('SetValue space', 'before=[Replace] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/0 H1/20000:0/0');
+        Observer.Expect('SetValue 0', 'before=[Replace] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/0 H1/20000:0/0');
+        Observer.Expect('SetValue blank member', 'before=[Replace] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/0 H1/20000:0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -431,7 +441,10 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 1 to 3 do
             PartCase(Observer, 'B', Input);
-        Observer.Finish();
+        Observer.Expect('Value empty text', 'before=[ ] stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[0]');
+        Observer.Expect('Value space', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('Value Format of the blank member', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -442,7 +455,11 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 4 to 7 do
             PartCase(Observer, 'B', Input);
-        Observer.Finish();
+        Observer.Expect('SetValue empty text', 'before=[ ] stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[0]');
+        Observer.Expect('SetValue space', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('SetValue 0', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('SetValue blank member', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -453,7 +470,10 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 1 to 3 do
             PartCase(Observer, 'C', Input);
-        Observer.Finish();
+        Observer.Expect('Value empty text', 'before=[ ] stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[0]');
+        Observer.Expect('Value space', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('Value Format of the blank member', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -464,7 +484,11 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 4 to 7 do
             PartCase(Observer, 'C', Input);
-        Observer.Finish();
+        Observer.Expect('SetValue empty text', 'before=[ ] stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[0]');
+        Observer.Expect('SetValue space', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('SetValue 0', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('SetValue blank member', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -475,7 +499,10 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 1 to 3 do
             PartCase(Observer, 'D', Input);
-        Observer.Finish();
+        Observer.Expect('Value empty text', 'before=[ ] stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[0]');
+        Observer.Expect('Value space', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=3 rows H1/10000:0/1 H1/20000:0/0 H1/30000:1/0');
+        Observer.Expect('Value Format of the blank member', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=3 rows H1/10000:0/1 H1/20000:0/0 H1/30000:1/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -486,7 +513,11 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 4 to 7 do
             PartCase(Observer, 'D', Input);
-        Observer.Finish();
+        Observer.Expect('SetValue empty text', 'before=[ ] stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[0]');
+        Observer.Expect('SetValue space', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=3 rows H1/10000:0/1 H1/20000:0/0 H1/30000:1/0');
+        Observer.Expect('SetValue 0', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=3 rows H1/10000:0/1 H1/20000:0/0 H1/30000:1/0');
+        Observer.Expect('SetValue blank member', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=3 rows H1/10000:0/1 H1/20000:0/0 H1/30000:1/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -497,7 +528,10 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 1 to 3 do
             PartCase(Observer, 'E', Input);
-        Observer.Finish();
+        Observer.Expect('Value empty text', 'stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[0]');
+        Observer.Expect('Value space', 'stage=done error=no error {Dialog} after=[ ] stored=0 rows');
+        Observer.Expect('Value Format of the blank member', 'stage=done error=no error {Dialog} after=[ ] stored=0 rows');
+        Observer.Verify();
     end;
 
     [Test]
@@ -508,7 +542,11 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 4 to 7 do
             PartCase(Observer, 'E', Input);
-        Observer.Finish();
+        Observer.Expect('SetValue empty text', 'stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[0]');
+        Observer.Expect('SetValue space', 'stage=done error=no error {Dialog} after=[ ] stored=0 rows');
+        Observer.Expect('SetValue 0', 'stage=done error=no error {Dialog} after=[ ] stored=0 rows');
+        Observer.Expect('SetValue blank member', 'stage=done error=no error {Dialog} after=[ ] stored=0 rows');
+        Observer.Verify();
     end;
 
     [Test]
@@ -519,7 +557,10 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 1 to 3 do
             PartCase(Observer, 'F', Input);
-        Observer.Finish();
+        Observer.Expect('Value empty text', 'before=[ ] stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[0]');
+        Observer.Expect('Value space', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('Value Format of the blank member', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -530,7 +571,11 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 4 to 7 do
             PartCase(Observer, 'F', Input);
-        Observer.Finish();
+        Observer.Expect('SetValue empty text', 'before=[ ] stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[0]');
+        Observer.Expect('SetValue space', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('SetValue 0', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('SetValue blank member', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -541,7 +586,10 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 1 to 3 do
             ListCase(Observer, 'A', Input);
-        Observer.Finish();
+        Observer.Expect('Value empty text', 'before=[Replace] stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[1]');
+        Observer.Expect('Value space', 'before=[Replace] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/0 H1/20000:0/0');
+        Observer.Expect('Value Format of the blank member', 'before=[Replace] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/0 H1/20000:0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -552,7 +600,11 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 4 to 7 do
             ListCase(Observer, 'A', Input);
-        Observer.Finish();
+        Observer.Expect('SetValue empty text', 'before=[Replace] stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[1]');
+        Observer.Expect('SetValue space', 'before=[Replace] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/0 H1/20000:0/0');
+        Observer.Expect('SetValue 0', 'before=[Replace] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/0 H1/20000:0/0');
+        Observer.Expect('SetValue blank member', 'before=[Replace] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/0 H1/20000:0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -563,7 +615,10 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 1 to 3 do
             ListCase(Observer, 'B', Input);
-        Observer.Finish();
+        Observer.Expect('Value empty text', 'before=[ ] stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[0]');
+        Observer.Expect('Value space', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('Value Format of the blank member', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -574,7 +629,11 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 4 to 7 do
             ListCase(Observer, 'B', Input);
-        Observer.Finish();
+        Observer.Expect('SetValue empty text', 'before=[ ] stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[0]');
+        Observer.Expect('SetValue space', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('SetValue 0', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('SetValue blank member', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -585,7 +644,10 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 1 to 3 do
             ListCase(Observer, 'C', Input);
-        Observer.Finish();
+        Observer.Expect('Value empty text', 'before=[ ] stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[0]');
+        Observer.Expect('Value space', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('Value Format of the blank member', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -596,7 +658,11 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 4 to 7 do
             ListCase(Observer, 'C', Input);
-        Observer.Finish();
+        Observer.Expect('SetValue empty text', 'before=[ ] stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[0]');
+        Observer.Expect('SetValue space', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('SetValue 0', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('SetValue blank member', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -607,7 +673,10 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 1 to 3 do
             ListCase(Observer, 'D', Input);
-        Observer.Finish();
+        Observer.Expect('Value empty text', 'before=[ ] stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[0]');
+        Observer.Expect('Value space', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=3 rows /0:1/0 H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('Value Format of the blank member', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=3 rows /0:1/0 H1/10000:0/1 H1/20000:0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -618,7 +687,11 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 4 to 7 do
             ListCase(Observer, 'D', Input);
-        Observer.Finish();
+        Observer.Expect('SetValue empty text', 'before=[ ] stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[0]');
+        Observer.Expect('SetValue space', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=3 rows /0:1/0 H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('SetValue 0', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=3 rows /0:1/0 H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('SetValue blank member', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=3 rows /0:1/0 H1/10000:0/1 H1/20000:0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -629,7 +702,10 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 1 to 3 do
             ListCase(Observer, 'E', Input);
-        Observer.Finish();
+        Observer.Expect('Value empty text', 'stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[0]');
+        Observer.Expect('Value space', 'stage=done error=no error {Dialog} after=[ ] stored=0 rows');
+        Observer.Expect('Value Format of the blank member', 'stage=done error=no error {Dialog} after=[ ] stored=0 rows');
+        Observer.Verify();
     end;
 
     [Test]
@@ -640,7 +716,11 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 4 to 7 do
             ListCase(Observer, 'E', Input);
-        Observer.Finish();
+        Observer.Expect('SetValue empty text', 'stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[0]');
+        Observer.Expect('SetValue space', 'stage=done error=no error {Dialog} after=[ ] stored=0 rows');
+        Observer.Expect('SetValue 0', 'stage=done error=no error {Dialog} after=[ ] stored=0 rows');
+        Observer.Expect('SetValue blank member', 'stage=done error=no error {Dialog} after=[ ] stored=0 rows');
+        Observer.Verify();
     end;
 
     [Test]
@@ -651,7 +731,10 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 1 to 3 do
             ListCase(Observer, 'F', Input);
-        Observer.Finish();
+        Observer.Expect('Value empty text', 'before=[ ] stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[0]');
+        Observer.Expect('Value space', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('Value Format of the blank member', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -662,6 +745,10 @@ codeunit 62439 "ENB Enum Blank List Tests"
     begin
         for Input := 4 to 7 do
             ListCase(Observer, 'F', Input);
-        Observer.Finish();
+        Observer.Expect('SetValue empty text', 'before=[ ] stage=input error=Validation error for Field: ActionType,  Message = ''Your entry of '''' is not an acceptable value for ''Action Type''.'' {TestValidation} after=[0]');
+        Observer.Expect('SetValue space', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('SetValue 0', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Expect('SetValue blank member', 'before=[ ] stage=done error=no error {Dialog} after=[ ] stored=2 rows H1/10000:0/1 H1/20000:0/0');
+        Observer.Verify();
     end;
 }
