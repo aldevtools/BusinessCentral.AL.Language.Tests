@@ -199,7 +199,16 @@ codeunit 66403 "PG PcfExpr Tests"
         Read(Observer, Page::"PG PcfExpr Card", 'OrExpr');
         Read(Observer, Page::"PG PcfExpr Card", 'InExpr');
         Read(Observer, Page::"PG PcfExpr Card", 'BuiltIn');
-        Observer.Finish();
+        Observer.Expect('NotNullGuidParen', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[(not IsNullGuid(Rec.Link))] Opt=[] Seq=1');
+        Observer.Expect('NotNullGuid', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[not IsNullGuid(Rec.Link)] Opt=[] Seq=2');
+        Observer.Expect('NotFlag', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[not Rec.Flag] Opt=[] Seq=3');
+        Observer.Expect('Compare', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[Rec.Qty > 0] Opt=[] Seq=4');
+        Observer.Expect('CompareParen', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[(Rec.Qty <> 0)] Opt=[] Seq=5');
+        Observer.Expect('AndExpr', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[(Rec.Qty > 0) and Rec.Flag] Opt=[] Seq=6');
+        Observer.Expect('OrExpr', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[Rec.Flag or (Rec.Amount = 0)] Opt=[] Seq=7');
+        Observer.Expect('InExpr', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[Rec.Qty in [1 .. 3]] Opt=[] Seq=8');
+        Observer.Expect('BuiltIn', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[IsNullGuid(Rec.Link)] Opt=[] Seq=9');
+        Observer.Verify();
     end;
 
     [Test]
@@ -217,7 +226,16 @@ codeunit 66403 "PG PcfExpr Tests"
         Read(Observer, Page::"PG PcfExpr Card", 'Concat');
         Read(Observer, Page::"PG PcfExpr Card", 'Nested');
         Read(Observer, Page::"PG PcfExpr Card", 'FormatDay');
-        Observer.Finish();
+        Observer.Expect('ParenField', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[(Rec.Qty)] Opt=[] Seq=10');
+        Observer.Expect('SumExpr', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[Rec.Qty + 1] Opt=[] Seq=11');
+        Observer.Expect('Product', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[Rec.Qty * Rec.Amount] Opt=[] Seq=12');
+        Observer.Expect('Negate', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[-Rec.Qty] Opt=[] Seq=13');
+        Observer.Expect('DivExpr', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[Rec.Qty div 2] Opt=[] Seq=14');
+        Observer.Expect('ModExpr', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[Rec.Qty mod 2] Opt=[] Seq=15');
+        Observer.Expect('Concat', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[Rec."No." + '' '' + Rec.Name] Opt=[] Seq=16');
+        Observer.Expect('Nested', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[UpperCase(CopyStr(Rec.Name, 1, 5))] Opt=[] Seq=17');
+        Observer.Expect('FormatDay', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[Format(Rec.Day, 0, 9)] Opt=[] Seq=18');
+        Observer.Verify();
     end;
 
     [Test]
@@ -232,7 +250,13 @@ codeunit 66403 "PG PcfExpr Tests"
         Read(Observer, Page::"PG PcfExpr Card", 'GlobalVar');
         Read(Observer, Page::"PG PcfExpr Card", 'NotGlobal');
         Read(Observer, Page::"PG PcfExpr Card", 'GlobalAndField');
-        Observer.Finish();
+        Observer.Expect('NoCtl', 'T=own F=1 En=[true] Ed=[True] Vis=[true] Src=[No.] Opt=[] Seq=0');
+        Observer.Expect('TextLiteral', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[''fixed''] Opt=[] Seq=19');
+        Observer.Expect('NumberLiteral', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[42] Opt=[] Seq=20');
+        Observer.Expect('GlobalVar', 'T=own F=0 En=[true] Ed=[True] Vis=[true] Src=[GlobalText] Opt=[] Seq=21');
+        Observer.Expect('NotGlobal', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[not GlobalFlag] Opt=[] Seq=22');
+        Observer.Expect('GlobalAndField', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[GlobalFlag and Rec.Flag] Opt=[] Seq=23');
+        Observer.Verify();
     end;
 
     [Test]
@@ -246,7 +270,12 @@ codeunit 66403 "PG PcfExpr Tests"
         Read(Observer, Page::"PG PcfExpr Card", 'ExtConcat');
         Read(Observer, Page::"PG PcfExpr Card", 'ExtName');
         Read(Observer, Page::"PG PcfExpr Card", 'ExtGlobal');
-        Observer.Finish();
+        Observer.Expect('ExtNotNullGuidParen', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[(not IsNullGuid(Rec.Link))] Opt=[] Seq=24');
+        Observer.Expect('ExtCompare', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[Rec.Amount > 0] Opt=[] Seq=25');
+        Observer.Expect('ExtConcat', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[Rec.Name + ''!''] Opt=[] Seq=26');
+        Observer.Expect('ExtName', 'T=own F=5 En=[true] Ed=[True] Vis=[true] Src=[Name] Opt=[] Seq=27');
+        Observer.Expect('ExtGlobal', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[not ExtFlag] Opt=[] Seq=28');
+        Observer.Verify();
     end;
 
     [Test]
@@ -259,7 +288,11 @@ codeunit 66403 "PG PcfExpr Tests"
         Read(Observer, Page::"PG PcfExpr List", 'NotNullGuidParen');
         Read(Observer, Page::"PG PcfExpr List", 'Compare');
         Read(Observer, Page::"PG PcfExpr List", 'Concat');
-        Observer.Finish();
+        Observer.Expect('NoCtl', 'T=own F=1 En=[true] Ed=[True] Vis=[true] Src=[No.] Opt=[] Seq=0');
+        Observer.Expect('NotNullGuidParen', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[(not IsNullGuid(Rec.Link))] Opt=[] Seq=1');
+        Observer.Expect('Compare', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[Rec.Qty > 0] Opt=[] Seq=2');
+        Observer.Expect('Concat', 'T=own F=0 En=[true] Ed=[False] Vis=[true] Src=[Rec."No." + '' '' + Rec.Name] Opt=[] Seq=3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -276,7 +309,14 @@ codeunit 66403 "PG PcfExpr Tests"
         Filtered(Observer, 'card, Unused (no control)', Page::"PG PcfExpr Card", R.FieldNo(Unused));
         Filtered(Observer, 'list, Link (only in expressions)', Page::"PG PcfExpr List", R.FieldNo(Link));
         Filtered(Observer, 'list, No. (a bound control)', Page::"PG PcfExpr List", R.FieldNo("No."));
-        Observer.Finish();
+        Observer.Expect('card, Link (only in expressions)', 'IsEmpty=true Count=0 controls=');
+        Observer.Expect('card, No. (a bound control)', 'IsEmpty=false Count=1 controls=NoCtl ');
+        Observer.Expect('card, Name (bound by the extension)', 'IsEmpty=false Count=1 controls=ExtName ');
+        Observer.Expect('card, Qty (only in expressions)', 'IsEmpty=true Count=0 controls=');
+        Observer.Expect('card, Unused (no control)', 'IsEmpty=true Count=0 controls=');
+        Observer.Expect('list, Link (only in expressions)', 'IsEmpty=true Count=0 controls=');
+        Observer.Expect('list, No. (a bound control)', 'IsEmpty=false Count=1 controls=NoCtl ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -287,6 +327,8 @@ codeunit 66403 "PG PcfExpr Tests"
         Initialize();
         Filtered(Observer, 'card, FieldNo 0', Page::"PG PcfExpr Card", 0);
         Filtered(Observer, 'list, FieldNo 0', Page::"PG PcfExpr List", 0);
-        Observer.Finish();
+        Observer.Expect('card, FieldNo 0', 'IsEmpty=false Count=27 controls=ModExpr SumExpr Concat Negate ExtConcat AndExpr BuiltIn Compare GlobalAndField NotNullGuid Product InExpr ExtNotNullGuidParen GlobalVar CompareParen NotFlag Nested ParenField ExtGlobal OrExpr DivExpr NumberLiteral ExtCompare NotNullGuidParen FormatDay NotGlobal TextLiteral ');
+        Observer.Expect('list, FieldNo 0', 'IsEmpty=false Count=3 controls=Compare Concat NotNullGuidParen ');
+        Observer.Verify();
     end;
 }
