@@ -256,7 +256,9 @@ codeunit 75085 "LT QAW Aggregated Write Loop"
     begin
         Observer.Observe('no write', RunLoop('none', 0));
         Observer.Observe('write to another table after every row', RunLoop('write to another table', 0));
-        Observer.Finish();
+        Observer.Expect('no write', '10:1 20:1 30:1 40:1 50:1 ');
+        Observer.Expect('write to another table after every row', '10:1 20:1 30:1 40:1 50:1 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -270,7 +272,13 @@ codeunit 75085 "LT QAW Aggregated Write Loop"
         Observer.Observe('status of line 10, at line 30', RunLoop('modify status of line 10', 30));
         Observer.Observe('Modify without a change, every row', RunLoop('modify without a change', 0));
         Observer.Observe('ModifyAll of status, at line 20', RunLoop('modify all status', 20));
-        Observer.Finish();
+        Observer.Expect('status of every row read', '10:1 20:1 30:1 40:1 50:1 ');
+        Observer.Expect('status of the row read, at line 20 only', '10:1 20:1 30:1 40:1 50:1 ');
+        Observer.Expect('status of line 40, at line 20', '10:1 20:1 30:1 40:1 50:1 ');
+        Observer.Expect('status of line 10, at line 30', '10:1 20:1 30:1 40:1 50:1 ');
+        Observer.Expect('Modify without a change, every row', '10:1 20:1 30:1 40:1 50:1 ');
+        Observer.Expect('ModifyAll of status, at line 20', '10:1 20:1 30:1 40:1 50:1 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -283,7 +291,12 @@ codeunit 75085 "LT QAW Aggregated Write Loop"
         Observer.Observe('the row read leaves the filter, at line 20', RunLoop('the row read leaves the contact filter', 20));
         Observer.Observe('line 60 enters the filter, at line 20', RunLoop('line 60 enters the contact filter', 20));
         Observer.Observe('line group of line 40 changes, at line 20', RunLoop('line group of line 40 changes', 20));
-        Observer.Finish();
+        Observer.Expect('line 40 leaves the filter, at line 20', '10:1 20:1 30:1 50:1 ');
+        Observer.Expect('the row read leaves the filter, every row', '10:1 20:1 30:1 40:1 50:1 ');
+        Observer.Expect('the row read leaves the filter, at line 20', '10:1 20:1 30:1 40:1 50:1 ');
+        Observer.Expect('line 60 enters the filter, at line 20', '10:1 20:1 30:1 40:1 50:1 60:1 ');
+        Observer.Expect('line group of line 40 changes, at line 20', '10:1 20:1 30:1 40:1 50:1 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -295,7 +308,11 @@ codeunit 75085 "LT QAW Aggregated Write Loop"
         Observer.Observe('insert a line outside the filter, at line 20', RunLoop('insert line 70 of another contact', 20));
         Observer.Observe('delete line 40, at line 20', RunLoop('delete line 40', 20));
         Observer.Observe('delete line 10, at line 30', RunLoop('delete line 10', 30));
-        Observer.Finish();
+        Observer.Expect('insert lines 25 and 5, at line 20', '10:1 20:1 25:1 30:1 40:1 50:1 ');
+        Observer.Expect('insert a line outside the filter, at line 20', '10:1 20:1 30:1 40:1 50:1 ');
+        Observer.Expect('delete line 40, at line 20', '10:1 20:1 30:1 50:1 ');
+        Observer.Expect('delete line 10, at line 30', '10:1 20:1 30:1 40:1 50:1 ');
+        Observer.Verify();
     end;
 
     local procedure RunDescending(Action: Text; AtLine: Integer): Text
@@ -330,7 +347,13 @@ codeunit 75085 "LT QAW Aggregated Write Loop"
         Observer.Observe('line 40 leaves the filter, at line 20', RunDescending('line 40 leaves the contact filter', 20));
         Observer.Observe('insert lines 25 and 5, at line 30', RunDescending('insert line 25 and line 5', 30));
         Observer.Observe('delete line 10, at line 30', RunDescending('delete line 10', 30));
-        Observer.Finish();
+        Observer.Expect('no write', '50:1 40:1 30:1 20:1 10:1 ');
+        Observer.Expect('status of every row read', '50:1 40:1 30:1 20:1 10:1 ');
+        Observer.Expect('line 40 leaves the filter, at line 50', '50:1 30:1 20:1 10:1 ');
+        Observer.Expect('line 40 leaves the filter, at line 20', '50:1 40:1 30:1 20:1 10:1 ');
+        Observer.Expect('insert lines 25 and 5, at line 30', '50:1 40:1 30:1 25:1 20:1 10:1 5:1 ');
+        Observer.Expect('delete line 10, at line 30', '50:1 40:1 30:1 20:1 ');
+        Observer.Verify();
     end;
 
     local procedure RunSums(Action: Text; AtKind: Integer): Text
@@ -403,6 +426,12 @@ codeunit 75085 "LT QAW Aggregated Write Loop"
         Observer.Observe('amount of a row of kind 1, at kind 2', RunSums('amount of a row of kind 1', 2));
         Observer.Observe('a row of kind 3 becomes kind 1, at kind 2', RunSums('a row of kind 3 becomes kind 1', 2));
         Observer.Observe('a row of kind 1 becomes kind 4, at kind 2', RunSums('a row of kind 1 becomes kind 4', 2));
-        Observer.Finish();
+        Observer.Expect('no write', '1=99/4 2=4/1 3=24/2 ');
+        Observer.Expect('status of a row of kind 3, at kind 2', '1=99/4 2=4/1 3=24/2 ');
+        Observer.Expect('amount of a row of kind 3, at kind 2', '1=99/4 2=4/1 3=1016/2 ');
+        Observer.Expect('amount of a row of kind 1, at kind 2', '1=99/4 2=4/1 3=24/2 ');
+        Observer.Expect('a row of kind 3 becomes kind 1, at kind 2', '1=99/4 2=4/1 3=16/1 ');
+        Observer.Expect('a row of kind 1 becomes kind 4, at kind 2', '1=99/4 2=4/1 3=24/2 4=1/1 ');
+        Observer.Verify();
     end;
 }

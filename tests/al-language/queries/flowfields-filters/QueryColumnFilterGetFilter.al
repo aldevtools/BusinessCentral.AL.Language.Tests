@@ -152,7 +152,14 @@ codeunit 75102 "LT QCF ColumnFilter GetFilter"
         Q.Close();
         Observer.Observe('after Close', ConstState(Q));
         Observer.Observe('rows', ConstRows(Q));
-        Observer.Finish();
+        Observer.Expect('fresh', 'GetFilter(ContactNo)=[C1] GetFilters=[Contact No.: C1]');
+        Observer.Expect('other columns', 'GetFilter(HeaderNo)=[] GetFilter(LineNo)=[]');
+        Observer.Expect('after Open', 'GetFilter(ContactNo)=[C1] GetFilters=[Contact No.: C1]');
+        Observer.Expect('Read', 'Yes');
+        Observer.Expect('after Read', 'GetFilter(ContactNo)=[C1] GetFilters=[Contact No.: C1]');
+        Observer.Expect('after Close', 'GetFilter(ContactNo)=[C1] GetFilters=[Contact No.: C1]');
+        Observer.Expect('rows', 'H1/10/C1 H1/20/C1 H1/30/C1 H2/10/C1 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -171,7 +178,13 @@ codeunit 75102 "LT QCF ColumnFilter GetFilter"
         Q.SetFilter(ContactNo, 'C1|C2');
         Observer.Observe('SetFilter C1|C2 on the column', ConstState(Q));
         Observer.Observe('SetFilter C1|C2 on the column rows', ConstRows(Q));
-        Observer.Finish();
+        Observer.Expect('SetRange on another column', 'GetFilter(ContactNo)=[C1] GetFilters=[Header No.: H1, Contact No.: C1]');
+        Observer.Expect('SetRange on another column rows', 'H1/10/C1 H1/20/C1 H1/30/C1 ');
+        Observer.Expect('SetRange C2 on the column', 'GetFilter(ContactNo)=[C2] GetFilters=[Header No.: H1, Contact No.: C2]');
+        Observer.Expect('SetRange C2 on the column rows', 'H1/40/C2 ');
+        Observer.Expect('SetFilter C1|C2 on the column', 'GetFilter(ContactNo)=[C1|C2] GetFilters=[Header No.: H1, Contact No.: C1|C2]');
+        Observer.Expect('SetFilter C1|C2 on the column rows', 'H1/10/C1 H1/20/C1 H1/30/C1 H1/40/C2 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -194,7 +207,14 @@ codeunit 75102 "LT QCF ColumnFilter GetFilter"
         Observer.Observe('all runtime filters removed rows', ConstRows(Q));
         Clear(Q);
         Observer.Observe('after Clear', ConstState(Q));
-        Observer.Finish();
+        Observer.Expect('SetRange without a value on the column', 'GetFilter(ContactNo)=[] GetFilters=[Header No.: H1]');
+        Observer.Expect('SetRange without a value on the column rows', 'H1/10/C1 H1/20/C1 H1/30/C1 H1/40/C2 ');
+        Observer.Expect('SetFilter blank on the column', 'GetFilter(ContactNo)=[] GetFilters=[Header No.: H1]');
+        Observer.Expect('SetFilter blank on the column rows', 'H1/10/C1 H1/20/C1 H1/30/C1 H1/40/C2 ');
+        Observer.Expect('all runtime filters removed', 'GetFilter(ContactNo)=[] GetFilters=[]');
+        Observer.Expect('all runtime filters removed rows', 'H1/10/C1 H1/20/C1 H1/30/C1 H1/40/C2 H2/10/C1 ');
+        Observer.Expect('after Clear', 'GetFilter(ContactNo)=[C1] GetFilters=[Contact No.: C1]');
+        Observer.Verify();
     end;
 
     local procedure ExprRows(var Q: Query "LT QCF Column Expr"): Text
@@ -232,7 +252,15 @@ codeunit 75102 "LT QCF ColumnFilter GetFilter"
         Q.SetRange(KindF);
         Observer.Observe('runtime filters removed', ExprState(Q));
         Observer.Observe('runtime filters removed rows', ExprRows(Q));
-        Observer.Finish();
+        Observer.Expect('fresh', 'GetFilter(LineNo)=[>10&<40] GetFilter(KindF)=[1] GetFilters=[Kind: 1, Line No.: >10&<40]');
+        Observer.Expect('fresh rows', 'H1/20/C1 ');
+        Observer.Expect('SetFilter >=10 on the column', 'GetFilter(LineNo)=[>=10] GetFilter(KindF)=[1] GetFilters=[Kind: 1, Line No.: >=10]');
+        Observer.Expect('SetFilter >=10 on the column rows', 'H1/10/C1 H1/20/C1 H1/40/C2 H2/10/C1 ');
+        Observer.Expect('SetRange 2 on the filter element', 'GetFilter(LineNo)=[>=10] GetFilter(KindF)=[2] GetFilters=[Kind: 2, Line No.: >=10]');
+        Observer.Expect('SetRange 2 on the filter element rows', 'H1/30/C1 ');
+        Observer.Expect('runtime filters removed', 'GetFilter(LineNo)=[] GetFilter(KindF)=[] GetFilters=[]');
+        Observer.Expect('runtime filters removed rows', 'H1/10/C1 H1/20/C1 H1/30/C1 H1/40/C2 H2/10/C1 ');
+        Observer.Verify();
     end;
 
     local procedure TableRows(var Q: Query "LT QCF Table Filter"): Text
@@ -266,7 +294,13 @@ codeunit 75102 "LT QCF ColumnFilter GetFilter"
         Q.SetRange(ContactNo);
         Observer.Observe('runtime filter removed', TableState(Q));
         Observer.Observe('runtime filter removed rows', TableRows(Q));
-        Observer.Finish();
+        Observer.Expect('fresh', 'GetFilter(ContactNo)=[] GetFilters=[]');
+        Observer.Expect('fresh rows', 'H1/10/C1 H1/20/C1 H1/30/C1 H2/10/C1 ');
+        Observer.Expect('SetRange C2 on the column', 'GetFilter(ContactNo)=[C2] GetFilters=[Contact No.: C2]');
+        Observer.Expect('SetRange C2 on the column rows', '');
+        Observer.Expect('runtime filter removed', 'GetFilter(ContactNo)=[] GetFilters=[]');
+        Observer.Expect('runtime filter removed rows', 'H1/10/C1 H1/20/C1 H1/30/C1 H2/10/C1 ');
+        Observer.Verify();
     end;
 
     local procedure CountRows(var Q: Query "LT QCF Count Filter"): Text
@@ -300,6 +334,12 @@ codeunit 75102 "LT QCF ColumnFilter GetFilter"
         Q.SetRange(Qty);
         Observer.Observe('runtime filter removed', CountState(Q));
         Observer.Observe('runtime filter removed rows', CountRows(Q));
-        Observer.Finish();
+        Observer.Expect('fresh', 'GetFilter(Qty)=[>1] GetFilters=[Qty: >1]');
+        Observer.Expect('fresh rows', 'H1=4 ');
+        Observer.Expect('SetFilter >0 on the column', 'GetFilter(Qty)=[>0] GetFilters=[Qty: >0]');
+        Observer.Expect('SetFilter >0 on the column rows', 'H1=4 H2=1 ');
+        Observer.Expect('runtime filter removed', 'GetFilter(Qty)=[] GetFilters=[]');
+        Observer.Expect('runtime filter removed rows', 'H1=4 H2=1 ');
+        Observer.Verify();
     end;
 }
