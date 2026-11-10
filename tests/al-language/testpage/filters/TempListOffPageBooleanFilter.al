@@ -340,7 +340,15 @@ codeunit 97433 "TP TmpFilter Tests"
         Observer.Observe('=false', TempCase('Fill', 'Hidden', '=false'));
         Observer.Observe('1', TempCase('Fill', 'Hidden', '1'));
         Observer.Observe('0', TempCase('Fill', 'Hidden', '0'));
-        Observer.Finish();
+        Observer.Expect('=1', 'open=none filled=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('=0', 'open=none filled=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('=Yes', 'open=none filled=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('=No', 'open=none filled=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('=true', 'open=none filled=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('=false', 'open=none filled=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('1', 'open=none filled=1,2,3,4, filter=Yes rows=2,4,');
+        Observer.Expect('0', 'open=none filled=1,2,3,4, filter=No rows=1,3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -357,7 +365,15 @@ codeunit 97433 "TP TmpFilter Tests"
         Observer.Observe('=false', TempCase('Fill', 'Shown', '=false'));
         Observer.Observe('1', TempCase('Fill', 'Shown', '1'));
         Observer.Observe('0', TempCase('Fill', 'Shown', '0'));
-        Observer.Finish();
+        Observer.Expect('=1', 'open=none filled=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('=0', 'open=none filled=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('=Yes', 'open=none filled=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('=No', 'open=none filled=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('=true', 'open=none filled=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('=false', 'open=none filled=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('1', 'open=none filled=1,2,3,4, filter=Yes rows=3,4,');
+        Observer.Expect('0', 'open=none filled=1,2,3,4, filter=No rows=1,2,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -372,7 +388,13 @@ codeunit 97433 "TP TmpFilter Tests"
         Observer.Observe('shown =1', TempCase('FillPlain', 'Shown', '=1'));
         Observer.Observe('shown =0', TempCase('FillPlain', 'Shown', '=0'));
         Observer.Observe('shown =Yes', TempCase('FillPlain', 'Shown', '=Yes'));
-        Observer.Finish();
+        Observer.Expect('hidden =1', 'open=none filled=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('hidden =0', 'open=none filled=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('hidden =Yes', 'open=none filled=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('shown =1', 'open=none filled=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('shown =0', 'open=none filled=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('shown =Yes', 'open=none filled=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -390,7 +412,15 @@ codeunit 97433 "TP TmpFilter Tests"
         Observer.Observe('shown =0', TempCase('FillOne', 'Shown', '=0'));
         Observer.Observe('shown =Yes', TempCase('FillOne', 'Shown', '=Yes'));
         Observer.Observe('shown =No', TempCase('FillOne', 'Shown', '=No'));
-        Observer.Finish();
+        Observer.Expect('hidden =1', 'open=none filled=1, filter= rows=1,');
+        Observer.Expect('hidden =0', 'open=none filled=1, filter= rows=1,');
+        Observer.Expect('hidden =Yes', 'open=none filled=1, filter= rows=1,');
+        Observer.Expect('hidden =No', 'open=none filled=1, filter= rows=1,');
+        Observer.Expect('shown =1', 'open=none filled=1, filter= rows=1,');
+        Observer.Expect('shown =0', 'open=none filled=1, filter= rows=1,');
+        Observer.Expect('shown =Yes', 'open=none filled=1, filter= rows=1,');
+        Observer.Expect('shown =No', 'open=none filled=1, filter= rows=1,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -412,7 +442,12 @@ codeunit 97433 "TP TmpFilter Tests"
         Observer.Observe('first after filters', Format(P.First()));
         Observer.Observe('rows after filters', Walk(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('first after action', 'Yes|1');
+        Observer.Expect('hidden filter', '');
+        Observer.Expect('kind filter', '');
+        Observer.Expect('first after filters', 'Yes');
+        Observer.Expect('rows after filters', '1,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -434,7 +469,12 @@ codeunit 97433 "TP TmpFilter Tests"
         P.Filter.SetFilter(Hidden, '=0');
         Observer.Observe('rows after hidden =0 and kind', Walk(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('first after action', 'Yes|1');
+        Observer.Expect('rows after hidden filter', '1,2,3,4,');
+        Observer.Expect('first after both filters', 'Yes');
+        Observer.Expect('rows after both filters', '1,2,3,4,');
+        Observer.Expect('rows after hidden =0 and kind', '1,2,3,4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -452,7 +492,10 @@ codeunit 97433 "TP TmpFilter Tests"
         Observer.Observe('filter after action', P.Filter.GetFilter(Hidden));
         Observer.Observe('rows after action', Walk(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('rows before action', 'none');
+        Observer.Expect('filter after action', '');
+        Observer.Expect('rows after action', '1,2,3,4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -470,7 +513,15 @@ codeunit 97433 "TP TmpFilter Tests"
         Observer.Observe('=false', PhysCase('Hidden', '=false'));
         Observer.Observe('1', PhysCase('Hidden', '1'));
         Observer.Observe('0', PhysCase('Hidden', '0'));
-        Observer.Finish();
+        Observer.Expect('=1', 'open=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('=0', 'open=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('=Yes', 'open=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('=No', 'open=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('=true', 'open=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('=false', 'open=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('1', 'open=1,2,3,4, filter=Yes rows=2,4,');
+        Observer.Expect('0', 'open=1,2,3,4, filter=No rows=1,3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -488,6 +539,14 @@ codeunit 97433 "TP TmpFilter Tests"
         Observer.Observe('=false', PhysCase('Shown', '=false'));
         Observer.Observe('1', PhysCase('Shown', '1'));
         Observer.Observe('0', PhysCase('Shown', '0'));
-        Observer.Finish();
+        Observer.Expect('=1', 'open=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('=0', 'open=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('=Yes', 'open=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('=No', 'open=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('=true', 'open=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('=false', 'open=1,2,3,4, filter= rows=1,2,3,4,');
+        Observer.Expect('1', 'open=1,2,3,4, filter=Yes rows=3,4,');
+        Observer.Expect('0', 'open=1,2,3,4, filter=No rows=1,2,');
+        Observer.Verify();
     end;
 }

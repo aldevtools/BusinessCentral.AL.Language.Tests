@@ -97,7 +97,10 @@ codeunit 97435 "RRF GetTable Variant Kinds"
         asserterror RecRef.GetTable(V);
         Observer.ObserveError('gettable');
         Observer.Observe('after asserterror', State(RecRef));
-        Observer.Finish();
+        Observer.Expect('gettable|text', 'Microsoft.Dynamics.Nav.Runtime.NavVariant variable not initialized.');
+        Observer.Expect('gettable|code', 'NotInitialized');
+        Observer.Expect('after asserterror', 'number=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -116,7 +119,11 @@ codeunit 97435 "RRF GetTable Variant Kinds"
         Clear(Cleared);
         Observer.Observe('cleared', Outcome(Cleared));
         Observer.Observe('as parameter', OutcomeOfParameter(V));
-        Observer.Finish();
+        Observer.Expect('never assigned', 'error:NotInitialized|Microsoft.Dynamics.Nav.Runtime.NavVariant variable not initialized.|number=0');
+        Observer.Expect('copy of unassigned', 'error:NotInitialized|Microsoft.Dynamics.Nav.Runtime.NavVariant variable not initialized.|number=0');
+        Observer.Expect('cleared', 'error:NotInitialized|Microsoft.Dynamics.Nav.Runtime.NavVariant variable not initialized.|number=0');
+        Observer.Expect('as parameter', 'error:NotInitialized|Microsoft.Dynamics.Nav.Runtime.NavVariant variable not initialized.|number=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -144,7 +151,14 @@ codeunit 97435 "RRF GetTable Variant Kinds"
         Observer.Observe('recordid', Outcome(V));
         V := Row;
         Observer.Observe('record', Outcome(V));
-        Observer.Finish();
+        Observer.Expect('integer', 'error:Conversion|Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle.|number=0');
+        Observer.Expect('text', 'error:Conversion|Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle.|number=0');
+        Observer.Expect('boolean', 'error:Conversion|Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle.|number=0');
+        Observer.Expect('guid', 'error:Conversion|Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle.|number=0');
+        Observer.Expect('date', 'error:Conversion|Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle.|number=0');
+        Observer.Expect('recordid', 'error:Conversion|Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavRecordId to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle.|number=0');
+        Observer.Expect('record', 'ok|number=60000');
+        Observer.Verify();
     end;
 
     [Test]
@@ -163,7 +177,10 @@ codeunit 97435 "RRF GetTable Variant Kinds"
         else
             Observer.Observe('gettable', 'error:' + GetLastErrorCode() + '|' + GetLastErrorText());
         Observer.Observe('after', State(RecRef));
-        Observer.Finish();
+        Observer.Expect('before', 'number=60000');
+        Observer.Expect('gettable', 'error:NotInitialized|Microsoft.Dynamics.Nav.Runtime.NavVariant variable not initialized.');
+        Observer.Expect('after', 'number=60000');
+        Observer.Verify();
     end;
 
     [Test]
@@ -181,6 +198,8 @@ codeunit 97435 "RRF GetTable Variant Kinds"
         else
             Observer.Observe('assign', 'error:' + GetLastErrorCode() + '|' + GetLastErrorText());
         Observer.Observe('entry no after', Format(Row."Entry No."));
-        Observer.Finish();
+        Observer.Expect('assign', 'error:NotInitialized|Microsoft.Dynamics.Nav.Runtime.NavVariant variable not initialized.');
+        Observer.Expect('entry no after', '7');
+        Observer.Verify();
     end;
 }
