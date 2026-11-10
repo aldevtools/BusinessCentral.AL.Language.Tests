@@ -402,7 +402,19 @@ codeunit 70437 "LT EE Batch Switch Tests"
     procedure MovementWs_EmptyToEmpty_ThenAction()
     begin
         MovementSwitch('B', 'L2', true);
-        Observer.Finish();
+        Observer.Expect('open', 'A/L1/10000:N:A/L1;C:A/L1;N:A/L1;C:A/L1;');
+        Observer.Expect('header', 'A/L1');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start;V:done;N:B/L2;C:B/L2;N:B/L2;C:B/L2;');
+        Observer.Expect('current', 'T1/B/L2/10000');
+        Observer.Expect('read log', '');
+        Observer.Expect('invoke', 'Yes');
+        Observer.Expect('action log', 'A:B/L2;N:B/L2;C:B/L2;N:B/L2;C:B/L2;');
+        Observer.Expect('action result', 'T1/B/L2');
+        Observer.Expect('first', 'No:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', '0');
+        Observer.Verify();
     end;
 
     // The same switch, nothing invoked: what the page shows and which triggers ran.
@@ -410,7 +422,16 @@ codeunit 70437 "LT EE Batch Switch Tests"
     procedure MovementWs_EmptyToEmpty_NoAction()
     begin
         MovementSwitch('B', 'L2', false);
-        Observer.Finish();
+        Observer.Expect('open', 'A/L1/10000:N:A/L1;C:A/L1;N:A/L1;C:A/L1;');
+        Observer.Expect('header', 'A/L1');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start;V:done;N:B/L2;C:B/L2;N:B/L2;C:B/L2;');
+        Observer.Expect('current', 'T1/B/L2/10000');
+        Observer.Expect('read log', '');
+        Observer.Expect('first', 'No:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', '0');
+        Observer.Verify();
     end;
 
     // A second switch in the same codeunit, to the third worksheet (the earlier tests left their rows behind).
@@ -418,7 +439,19 @@ codeunit 70437 "LT EE Batch Switch Tests"
     procedure MovementWs_EmptyToEmpty_SecondTest()
     begin
         MovementSwitch('C', 'L3', true);
-        Observer.Finish();
+        Observer.Expect('open', 'A/L1/10000:N:A/L1;C:A/L1;N:A/L1;C:A/L1;');
+        Observer.Expect('header', 'A/L1');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start;V:done;N:C/L3;C:C/L3;N:C/L3;C:C/L3;');
+        Observer.Expect('current', 'T1/C/L3/10000');
+        Observer.Expect('read log', '');
+        Observer.Expect('invoke', 'Yes');
+        Observer.Expect('action log', 'A:C/L3;N:C/L3;C:C/L3;N:C/L3;C:C/L3;');
+        Observer.Expect('action result', 'T1/C/L3');
+        Observer.Expect('first', 'No:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', '0');
+        Observer.Verify();
     end;
 
     // The name the page already shows: the filters stay as they are.
@@ -426,7 +459,19 @@ codeunit 70437 "LT EE Batch Switch Tests"
     procedure MovementWs_SameName_ThenAction()
     begin
         MovementSwitch('A', 'L1', true);
-        Observer.Finish();
+        Observer.Expect('open', 'A/L1/10000:N:A/L1;C:A/L1;N:A/L1;C:A/L1;');
+        Observer.Expect('header', 'A/L1');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start;V:done;N:A/L1;C:A/L1;N:A/L1;C:A/L1;');
+        Observer.Expect('current', 'T1/A/L1/10000');
+        Observer.Expect('read log', '');
+        Observer.Expect('invoke', 'Yes');
+        Observer.Expect('action log', 'A:A/L1;N:A/L1;C:A/L1;N:A/L1;C:A/L1;');
+        Observer.Expect('action result', 'T1/A/L1');
+        Observer.Expect('first', 'No:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -450,6 +495,14 @@ codeunit 70437 "LT EE Batch Switch Tests"
         W.Close();
         Observer.Observe('close log', Log.Take());
         Observer.Observe('stored', Format(StoredLines()));
-        Observer.Finish();
+        Observer.Expect('open', 'A/L1/0:N:T1/A/L1;C:A/L1;N:T1/A/L1;C:A/L1;');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start;V:done;N:T1/B/L2;C:B/L2;N:T1/B/L2;C:B/L2;');
+        Observer.Expect('current', 'T1/B/L2/0');
+        Observer.Expect('read log', '');
+        Observer.Expect('action log', 'A:T1/B/L2;N:T1/B/L2;C:B/L2;N:T1/B/L2;C:B/L2;');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', '0');
+        Observer.Verify();
     end;
 }
