@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/database/database-setuserpassword-method
 // Scope: in-scope (OnPrem app only: Database.SetUserPassword has scope OnPrem, must-not-compile case 0568)
 // Fixtures used: Probe Observer (69160), from the AL Language Coverage Tests app; self-contained codeunit 98000
-// Probe (observe only): al-runner issue 7447. ODatabaseOps.al pins the error of Database.SetUserPassword for an unknown user. This probe asks what it does
+// Probe (values pinned): al-runner issue 7447. ODatabaseOps.al pins the error of Database.SetUserPassword for an unknown user. This probe asks what it does
 //   for a user that exists: a user row the test inserts (User Name, License Type Full User, State Enabled, no Windows Security ID), then
 //     a strong password, a second strong password after the first, a blank password, a short one, one without digits or symbols,
 //     one of 300 characters, the user name as the password, a disabled user, a user with a blank User Name,
@@ -9,6 +9,11 @@
 //   plain text, and whether a second call changes it. Unknown user and null GUID are the controls.
 //   Only users the test inserts are touched; the test ends in an error, so the rows are rolled back. The session user's password is never set.
 //   Each call runs in a TryFunction: `ok` or the error text and code.
+// Measured on BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): for every user the test inserts (enabled, disabled, blank name) and every
+//   password, the first call raises "Call to the function 'MODIFY' is not allowed inside the call to '<test>' when it is used as a
+//   TryFunction." The TryFunction does not catch it and the test stops. So each test now asserts that error for its first call with
+//   asserterror (the method name in the text is masked) and the later calls of each test, never reached, are removed. What
+//   SetUserPassword stores for an existing user needs a probe without a TryFunction.
 // BC versions: 27, 28, 29
 
 codeunit 98000 "LT SUP SetUserPassword"
@@ -48,15 +53,6 @@ codeunit 98000 "LT SUP SetUserPassword"
             ' is the plain text=' + Format(UserProperty.Password = Plain));
     end;
 
-    local procedure StoredPassword(UserSecurityId: Guid): Text
-    var
-        UserProperty: Record "User Property";
-    begin
-        if UserProperty.Get(UserSecurityId) then
-            exit(UserProperty.Password);
-        exit('');
-    end;
-
     local procedure ObserveSet(var Observer: Codeunit "Probe Observer"; Name: Text; UserSecurityId: Guid; Password: Text)
     begin
         ClearLastError();
@@ -67,27 +63,38 @@ codeunit 98000 "LT SUP SetUserPassword"
         Observer.Observe(Name + ' property', PropertyState(UserSecurityId, Password));
     end;
 
+    // The error names the outermost method of the test runner under asserterror, not this codeunit's test ('RunTests' or
+    // 'RootMethodScope', depending on the runner; see errors/CuTryTests.al): the name is masked so the pin holds under either runner.
+    local procedure MaskRunnerScope(ErrorText: Text): Text
+    var
+        Marker: Text;
+        StartPos: Integer;
+        EndPos: Integer;
+    begin
+        Marker := 'inside the call to ''';
+        StartPos := ErrorText.IndexOf(Marker);
+        if StartPos = 0 then
+            exit(ErrorText);
+        StartPos += StrLen(Marker);
+        EndPos := ErrorText.Substring(StartPos).IndexOf('''');
+        if EndPos = 0 then
+            exit(ErrorText);
+        exit(ErrorText.Substring(1, StartPos - 1) + '<scope>' + ErrorText.Substring(StartPos + EndPos - 1));
+    end;
+
     [Test]
     procedure SetUserPassword_ExistingUser_StrongPassword()
     var
         Observer: Codeunit "Probe Observer";
-        User: Record User;
         Sid: Guid;
-        First: Text;
     begin
         Sid := NewUser('LT-SUP-STRONG', true);
-        Observer.Observe('before property', PropertyState(Sid, ''));
-        ObserveSet(Observer, 'strong password', Sid, 'LT-Sup3r!Passw0rd#1');
-        First := StoredPassword(Sid);
-        ObserveSet(Observer, 'second strong password', Sid, 'LT-0ther!Passw0rd#2');
-        Observer.Observe('second call changed the stored value', Format(StoredPassword(Sid) <> First));
-        First := StoredPassword(Sid);
-        ObserveSet(Observer, 'same password again', Sid, 'LT-0ther!Passw0rd#2');
-        Observer.Observe('same password stores the same value', Format(StoredPassword(Sid) = First));
-        User.Get(Sid);
-        Observer.Observe('user row after', User."User Name" + ' state=' + Format(User.State) + ' change password=' + Format(User."Change Password"));
-        Observer.Observe('in write transaction', Format(Database.IsInWriteTransaction()));
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): Database.SetUserPassword in the TryFunction raises the TryFunction write
+        // error for MODIFY, which the TryFunction does not catch; the test stopped here, so the calls after this one were never reached.
+        asserterror ObserveSet(Observer, 'strong password', Sid, 'LT-Sup3r!Passw0rd#1');
+        Observer.Observe('first call', MaskRunnerScope(GetLastErrorText()));
+        Observer.Expect('first call', 'Call to the function ''MODIFY'' is not allowed inside the call to ''<scope>'' when it is used as a TryFunction.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -97,10 +104,12 @@ codeunit 98000 "LT SUP SetUserPassword"
         Sid: Guid;
     begin
         Sid := NewUser('LT-SUP-WEAK1', true);
-        ObserveSet(Observer, 'blank', Sid, '');
-        ObserveSet(Observer, 'three letters', Sid, 'abc');
-        ObserveSet(Observer, 'seven characters with all classes', Sid, 'Ab1!xyz');
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): Database.SetUserPassword in the TryFunction raises the TryFunction write
+        // error for MODIFY, which the TryFunction does not catch; the test stopped here, so the calls after this one were never reached.
+        asserterror ObserveSet(Observer, 'blank', Sid, '');
+        Observer.Observe('first call', MaskRunnerScope(GetLastErrorText()));
+        Observer.Expect('first call', 'Call to the function ''MODIFY'' is not allowed inside the call to ''<scope>'' when it is used as a TryFunction.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -110,11 +119,12 @@ codeunit 98000 "LT SUP SetUserPassword"
         Sid: Guid;
     begin
         Sid := NewUser('LT-SUP-WEAK2', true);
-        ObserveSet(Observer, 'eight lower case letters', Sid, 'abcdefgh');
-        ObserveSet(Observer, 'letters and digits only', Sid, 'Abcdefgh1234');
-        ObserveSet(Observer, 'no upper case', Sid, 'abcdefgh1234!');
-        ObserveSet(Observer, 'no digit', Sid, 'Abcdefgh!!!!');
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): Database.SetUserPassword in the TryFunction raises the TryFunction write
+        // error for MODIFY, which the TryFunction does not catch; the test stopped here, so the calls after this one were never reached.
+        asserterror ObserveSet(Observer, 'eight lower case letters', Sid, 'abcdefgh');
+        Observer.Observe('first call', MaskRunnerScope(GetLastErrorText()));
+        Observer.Expect('first call', 'Call to the function ''MODIFY'' is not allowed inside the call to ''<scope>'' when it is used as a TryFunction.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -124,9 +134,12 @@ codeunit 98000 "LT SUP SetUserPassword"
         Sid: Guid;
     begin
         Sid := NewUser('LT-SUP-WEAK3', true);
-        ObserveSet(Observer, 'the user name', Sid, 'LT-SUP-WEAK3');
-        ObserveSet(Observer, 'spaces only', Sid, '        ');
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): Database.SetUserPassword in the TryFunction raises the TryFunction write
+        // error for MODIFY, which the TryFunction does not catch; the test stopped here, so the calls after this one were never reached.
+        asserterror ObserveSet(Observer, 'the user name', Sid, 'LT-SUP-WEAK3');
+        Observer.Observe('first call', MaskRunnerScope(GetLastErrorText()));
+        Observer.Expect('first call', 'Call to the function ''MODIFY'' is not allowed inside the call to ''<scope>'' when it is used as a TryFunction.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -136,9 +149,12 @@ codeunit 98000 "LT SUP SetUserPassword"
         Sid: Guid;
     begin
         Sid := NewUser('LT-SUP-LONG', true);
-        ObserveSet(Observer, '300 characters', Sid, 'Aa1!' + PadStr('', 296, 'x'));
-        ObserveSet(Observer, 'non ASCII', Sid, 'Pässwörd-1234!€');
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): Database.SetUserPassword in the TryFunction raises the TryFunction write
+        // error for MODIFY, which the TryFunction does not catch; the test stopped here, so the calls after this one were never reached.
+        asserterror ObserveSet(Observer, '300 characters', Sid, 'Aa1!' + PadStr('', 296, 'x'));
+        Observer.Observe('first call', MaskRunnerScope(GetLastErrorText()));
+        Observer.Expect('first call', 'Call to the function ''MODIFY'' is not allowed inside the call to ''<scope>'' when it is used as a TryFunction.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -146,15 +162,14 @@ codeunit 98000 "LT SUP SetUserPassword"
     var
         Observer: Codeunit "Probe Observer";
         Sid: Guid;
-        Unknown: Guid;
-        Empty: Guid;
     begin
         Sid := NewUser('LT-SUP-DISABLED', false);
-        ObserveSet(Observer, 'disabled user', Sid, 'LT-Sup3r!Passw0rd#1');
-        Evaluate(Unknown, '{7E57C0DE-0000-4000-8000-00000000A0A1}');
-        ObserveSet(Observer, 'unknown user', Unknown, 'LT-Sup3r!Passw0rd#1');
-        ObserveSet(Observer, 'null guid', Empty, 'LT-Sup3r!Passw0rd#1');
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): Database.SetUserPassword in the TryFunction raises the TryFunction write
+        // error for MODIFY, which the TryFunction does not catch; the test stopped here, so the calls after this one were never reached.
+        asserterror ObserveSet(Observer, 'disabled user', Sid, 'LT-Sup3r!Passw0rd#1');
+        Observer.Observe('first call', MaskRunnerScope(GetLastErrorText()));
+        Observer.Expect('first call', 'Call to the function ''MODIFY'' is not allowed inside the call to ''<scope>'' when it is used as a TryFunction.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -164,7 +179,11 @@ codeunit 98000 "LT SUP SetUserPassword"
         Sid: Guid;
     begin
         Sid := NewUser('', true);
-        ObserveSet(Observer, 'user with a blank name', Sid, 'LT-Sup3r!Passw0rd#1');
-        Observer.Finish();
+        // BC 27.5, 28.5 and 29.0 (corpus CI run 42824219882): Database.SetUserPassword in the TryFunction raises the TryFunction write
+        // error for MODIFY, which the TryFunction does not catch; the test stopped here, so the calls after this one were never reached.
+        asserterror ObserveSet(Observer, 'user with a blank name', Sid, 'LT-Sup3r!Passw0rd#1');
+        Observer.Observe('first call', MaskRunnerScope(GetLastErrorText()));
+        Observer.Expect('first call', 'Call to the function ''MODIFY'' is not allowed inside the call to ''<scope>'' when it is used as a TryFunction.');
+        Observer.Verify();
     end;
 }
