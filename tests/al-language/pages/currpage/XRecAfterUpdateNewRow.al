@@ -402,9 +402,8 @@ codeunit 61836 "PAG XRec New Row Tests"
         end;
     end;
 
-    local procedure ListNewRowKeyTyped(FieldIndex: Integer)
+    local procedure ListNewRowKeyTyped(FieldIndex: Integer; var Observer: Codeunit "Probe Observer")
     var
-        Observer: Codeunit "Probe Observer";
         P: TestPage "PAG XRec New List";
     begin
         Seed();
@@ -418,12 +417,10 @@ codeunit 61836 "PAG XRec New Row Tests"
         SetListField(P, FieldIndex, 6);
         Observer.Observe('new row, second set 5 -> 6', Log.Take());
         Observer.Observe('stored after the second set', StoredField('N1', FieldIndex));
-        Observer.Finish();
     end;
 
-    local procedure ListNewRowFieldFirst(FieldIndex: Integer)
+    local procedure ListNewRowFieldFirst(FieldIndex: Integer; var Observer: Codeunit "Probe Observer")
     var
-        Observer: Codeunit "Probe Observer";
         P: TestPage "PAG XRec New List";
     begin
         Seed();
@@ -436,12 +433,10 @@ codeunit 61836 "PAG XRec New Row Tests"
         SetListField(P, FieldIndex, 6);
         Observer.Observe('new row with a blank key, second set 5 -> 6', Log.Take());
         Observer.Observe('stored after the second set', StoredField('', FieldIndex));
-        Observer.Finish();
     end;
 
-    local procedure CardOpenNewKeyTyped(FieldIndex: Integer)
+    local procedure CardOpenNewKeyTyped(FieldIndex: Integer; var Observer: Codeunit "Probe Observer")
     var
-        Observer: Codeunit "Probe Observer";
         P: TestPage "PAG XRec New Card";
     begin
         Seed();
@@ -453,114 +448,239 @@ codeunit 61836 "PAG XRec New Row Tests"
         SetCardField(P, FieldIndex, 6);
         Observer.Observe('new card, second set 5 -> 6', Log.Take());
         Observer.Observe('stored after the second set', StoredField('N1', FieldIndex));
-        Observer.Finish();
     end;
 
     [Test]
     procedure List_NewRow_KeyTyped_F0()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ListNewRowKeyTyped(0);
+        ListNewRowKeyTyped(0, Observer);
+        Observer.Expect('new row, first set 0 -> 5', 'base F0 (no call) rec=5 xrec=0 xno=N1; ext F0 rec=5 xrec=0 xno=N1 equal=No; ');
+        Observer.Expect('stored after the first set', '0');
+        Observer.Expect('new row, second set 5 -> 6', 'base F0 (no call) rec=6 xrec=5 xno=N1; ext F0 rec=6 xrec=5 xno=N1 equal=No; ');
+        Observer.Expect('stored after the second set', '0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure List_NewRow_KeyTyped_F1()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ListNewRowKeyTyped(1);
+        ListNewRowKeyTyped(1, Observer);
+        Observer.Expect('new row, first set 0 -> 5', 'base F1 (CurrPage.Update()) rec=5 xrec=0 xno=N1; ext F1 rec=5 xrec=0 xno=N1 equal=No; ');
+        Observer.Expect('stored after the first set', '5');
+        Observer.Expect('new row, second set 5 -> 6', 'base F1 (CurrPage.Update()) rec=6 xrec=5 xno=N1; ext F1 rec=6 xrec=5 xno=N1 equal=No; ');
+        Observer.Expect('stored after the second set', '6');
+        Observer.Verify();
     end;
 
     [Test]
     procedure List_NewRow_KeyTyped_F2()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ListNewRowKeyTyped(2);
+        ListNewRowKeyTyped(2, Observer);
+        Observer.Expect('new row, first set 0 -> 5', 'base F2 (CurrPage.Update(true)) rec=5 xrec=0 xno=N1; ext F2 rec=5 xrec=0 xno=N1 equal=No; ');
+        Observer.Expect('stored after the first set', '5');
+        Observer.Expect('new row, second set 5 -> 6', 'base F2 (CurrPage.Update(true)) rec=6 xrec=5 xno=N1; ext F2 rec=6 xrec=5 xno=N1 equal=No; ');
+        Observer.Expect('stored after the second set', '6');
+        Observer.Verify();
     end;
 
     [Test]
     procedure List_NewRow_KeyTyped_F3()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ListNewRowKeyTyped(3);
+        ListNewRowKeyTyped(3, Observer);
+        Observer.Expect('new row, first set 0 -> 5', 'base F3 (CurrPage.Update(false)) rec=5 xrec=0 xno=N1; ext F3 rec=5 xrec=0 xno=N1 equal=No; ');
+        Observer.Expect('stored after the first set', '0');
+        Observer.Expect('new row, second set 5 -> 6', 'base F3 (CurrPage.Update(false)) rec=6 xrec=0 xno=N1; ext F3 rec=6 xrec=0 xno=N1 equal=No; ');
+        Observer.Expect('stored after the second set', '0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure List_NewRow_KeyTyped_F4()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ListNewRowKeyTyped(4);
+        ListNewRowKeyTyped(4, Observer);
+        Observer.Expect('new row, first set 0 -> 5', 'base F4 (CurrPage.SaveRecord()) rec=5 xrec=0 xno=N1; ext F4 rec=5 xrec=0 xno=N1 equal=No; ');
+        Observer.Expect('stored after the first set', '5');
+        Observer.Expect('new row, second set 5 -> 6', 'base F4 (CurrPage.SaveRecord()) rec=6 xrec=5 xno=N1; ext F4 rec=6 xrec=5 xno=N1 equal=No; ');
+        Observer.Expect('stored after the second set', '6');
+        Observer.Verify();
     end;
 
     [Test]
     procedure List_NewRow_KeyTyped_F5()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ListNewRowKeyTyped(5);
+        ListNewRowKeyTyped(5, Observer);
+        Observer.Expect('new row, first set 0 -> 5', 'base F5 (SaveRecord then Update(false)) rec=5 xrec=0 xno=N1; ext F5 rec=5 xrec=0 xno=N1 equal=No; ');
+        Observer.Expect('stored after the first set', '5');
+        Observer.Expect('new row, second set 5 -> 6', 'base F5 (SaveRecord then Update(false)) rec=6 xrec=5 xno=N1; ext F5 rec=6 xrec=5 xno=N1 equal=No; ');
+        Observer.Expect('stored after the second set', '6');
+        Observer.Verify();
     end;
 
     [Test]
     procedure List_NewRow_FieldFirst_F0()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ListNewRowFieldFirst(0);
+        ListNewRowFieldFirst(0, Observer);
+        Observer.Expect('new row with a blank key, first set 0 -> 5', 'base F0 (no call) rec=5 xrec=0 xno=; ext F0 rec=5 xrec=0 xno= equal=No; ');
+        Observer.Expect('stored after the first set', 'no row');
+        Observer.Expect('new row with a blank key, second set 5 -> 6', 'base F0 (no call) rec=6 xrec=5 xno=; ext F0 rec=6 xrec=5 xno= equal=No; ');
+        Observer.Expect('stored after the second set', 'no row');
+        Observer.Verify();
     end;
 
     [Test]
     procedure List_NewRow_FieldFirst_F1()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ListNewRowFieldFirst(1);
+        ListNewRowFieldFirst(1, Observer);
+        Observer.Expect('new row with a blank key, first set 0 -> 5', 'base F1 (CurrPage.Update()) rec=5 xrec=0 xno=; ext F1 rec=5 xrec=0 xno= equal=No; ');
+        Observer.Expect('stored after the first set', '5');
+        Observer.Expect('new row with a blank key, second set 5 -> 6', 'base F1 (CurrPage.Update()) rec=6 xrec=5 xno=; ext F1 rec=6 xrec=5 xno= equal=No; ');
+        Observer.Expect('stored after the second set', '6');
+        Observer.Verify();
     end;
 
     [Test]
     procedure List_NewRow_FieldFirst_F2()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ListNewRowFieldFirst(2);
+        ListNewRowFieldFirst(2, Observer);
+        Observer.Expect('new row with a blank key, first set 0 -> 5', 'base F2 (CurrPage.Update(true)) rec=5 xrec=0 xno=; ext F2 rec=5 xrec=0 xno= equal=No; ');
+        Observer.Expect('stored after the first set', '5');
+        Observer.Expect('new row with a blank key, second set 5 -> 6', 'base F2 (CurrPage.Update(true)) rec=6 xrec=5 xno=; ext F2 rec=6 xrec=5 xno= equal=No; ');
+        Observer.Expect('stored after the second set', '6');
+        Observer.Verify();
     end;
 
     [Test]
     procedure List_NewRow_FieldFirst_F3()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ListNewRowFieldFirst(3);
+        ListNewRowFieldFirst(3, Observer);
+        Observer.Expect('new row with a blank key, first set 0 -> 5', 'base F3 (CurrPage.Update(false)) rec=5 xrec=0 xno=; ext F3 rec=5 xrec=0 xno= equal=No; ');
+        Observer.Expect('stored after the first set', 'no row');
+        Observer.Expect('new row with a blank key, second set 5 -> 6', 'base F3 (CurrPage.Update(false)) rec=6 xrec=0 xno=; ext F3 rec=6 xrec=0 xno= equal=No; ');
+        Observer.Expect('stored after the second set', 'no row');
+        Observer.Verify();
     end;
 
     [Test]
     procedure List_NewRow_FieldFirst_F4()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ListNewRowFieldFirst(4);
+        ListNewRowFieldFirst(4, Observer);
+        Observer.Expect('new row with a blank key, first set 0 -> 5', 'base F4 (CurrPage.SaveRecord()) rec=5 xrec=0 xno=; ext F4 rec=5 xrec=0 xno= equal=No; ');
+        Observer.Expect('stored after the first set', '5');
+        Observer.Expect('new row with a blank key, second set 5 -> 6', 'base F4 (CurrPage.SaveRecord()) rec=6 xrec=5 xno=; ext F4 rec=6 xrec=5 xno= equal=No; ');
+        Observer.Expect('stored after the second set', '6');
+        Observer.Verify();
     end;
 
     [Test]
     procedure List_NewRow_FieldFirst_F5()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ListNewRowFieldFirst(5);
+        ListNewRowFieldFirst(5, Observer);
+        Observer.Expect('new row with a blank key, first set 0 -> 5', 'base F5 (SaveRecord then Update(false)) rec=5 xrec=0 xno=; ext F5 rec=5 xrec=0 xno= equal=No; ');
+        Observer.Expect('stored after the first set', '5');
+        Observer.Expect('new row with a blank key, second set 5 -> 6', 'base F5 (SaveRecord then Update(false)) rec=6 xrec=5 xno=; ext F5 rec=6 xrec=5 xno= equal=No; ');
+        Observer.Expect('stored after the second set', '6');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Card_OpenNew_KeyTyped_F0()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CardOpenNewKeyTyped(0);
+        CardOpenNewKeyTyped(0, Observer);
+        Observer.Expect('new card, first set 0 -> 5', 'base F0 (no call) rec=5 xrec=0 xno=N1; ext F0 rec=5 xrec=0 xno=N1 equal=No; ');
+        Observer.Expect('stored after the first set', '0');
+        Observer.Expect('new card, second set 5 -> 6', 'base F0 (no call) rec=6 xrec=5 xno=N1; ext F0 rec=6 xrec=5 xno=N1 equal=No; ');
+        Observer.Expect('stored after the second set', '0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Card_OpenNew_KeyTyped_F1()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CardOpenNewKeyTyped(1);
+        CardOpenNewKeyTyped(1, Observer);
+        Observer.Expect('new card, first set 0 -> 5', 'base F1 (CurrPage.Update()) rec=5 xrec=0 xno=N1; ext F1 rec=5 xrec=0 xno=N1 equal=No; ');
+        Observer.Expect('stored after the first set', '5');
+        Observer.Expect('new card, second set 5 -> 6', 'base F1 (CurrPage.Update()) rec=6 xrec=5 xno=N1; ext F1 rec=6 xrec=5 xno=N1 equal=No; ');
+        Observer.Expect('stored after the second set', '6');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Card_OpenNew_KeyTyped_F2()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CardOpenNewKeyTyped(2);
+        CardOpenNewKeyTyped(2, Observer);
+        Observer.Expect('new card, first set 0 -> 5', 'base F2 (CurrPage.Update(true)) rec=5 xrec=0 xno=N1; ext F2 rec=5 xrec=0 xno=N1 equal=No; ');
+        Observer.Expect('stored after the first set', '5');
+        Observer.Expect('new card, second set 5 -> 6', 'base F2 (CurrPage.Update(true)) rec=6 xrec=5 xno=N1; ext F2 rec=6 xrec=5 xno=N1 equal=No; ');
+        Observer.Expect('stored after the second set', '6');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Card_OpenNew_KeyTyped_F3()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CardOpenNewKeyTyped(3);
+        CardOpenNewKeyTyped(3, Observer);
+        Observer.Expect('new card, first set 0 -> 5', 'base F3 (CurrPage.Update(false)) rec=5 xrec=0 xno=N1; ext F3 rec=5 xrec=0 xno=N1 equal=No; ');
+        Observer.Expect('stored after the first set', '0');
+        Observer.Expect('new card, second set 5 -> 6', 'base F3 (CurrPage.Update(false)) rec=6 xrec=0 xno=N1; ext F3 rec=6 xrec=0 xno=N1 equal=No; ');
+        Observer.Expect('stored after the second set', '0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Card_OpenNew_KeyTyped_F4()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CardOpenNewKeyTyped(4);
+        CardOpenNewKeyTyped(4, Observer);
+        Observer.Expect('new card, first set 0 -> 5', 'base F4 (CurrPage.SaveRecord()) rec=5 xrec=0 xno=N1; ext F4 rec=5 xrec=0 xno=N1 equal=No; ');
+        Observer.Expect('stored after the first set', '5');
+        Observer.Expect('new card, second set 5 -> 6', 'base F4 (CurrPage.SaveRecord()) rec=6 xrec=5 xno=N1; ext F4 rec=6 xrec=5 xno=N1 equal=No; ');
+        Observer.Expect('stored after the second set', '6');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Card_OpenNew_KeyTyped_F5()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CardOpenNewKeyTyped(5);
+        CardOpenNewKeyTyped(5, Observer);
+        Observer.Expect('new card, first set 0 -> 5', 'base F5 (SaveRecord then Update(false)) rec=5 xrec=0 xno=N1; ext F5 rec=5 xrec=0 xno=N1 equal=No; ');
+        Observer.Expect('stored after the first set', '5');
+        Observer.Expect('new card, second set 5 -> 6', 'base F5 (SaveRecord then Update(false)) rec=6 xrec=5 xno=N1; ext F5 rec=6 xrec=5 xno=N1 equal=No; ');
+        Observer.Expect('stored after the second set', '6');
+        Observer.Verify();
     end;
 }
