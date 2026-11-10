@@ -22,6 +22,12 @@ codeunit 99524 "CEM Lookup Tests"
         Help: Codeunit "CEM Help";
         Runner: Codeunit "CEM Runner";
 
+    [TryFunction]
+    local procedure TryCloseDoc(var Doc: TestPage "CEM Doc")
+    begin
+        Doc.Close();
+    end;
+
     // CLAIM: CardField: lookup handler returns without closing, no error anywhere.
     [Test]
     [HandlerFunctions('CemCodesModal')]
@@ -956,6 +962,8 @@ codeunit 99524 "CEM Lookup Tests"
         O.ObserveError('end');
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
+        if not TryCloseDoc(Doc) then
+            O.ObserveError('close after');
         Cfg.Quiet();
         O.Finish();
     end;
