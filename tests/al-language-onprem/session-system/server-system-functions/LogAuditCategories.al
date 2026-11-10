@@ -88,7 +88,26 @@ codeunit 98201 "SS Audit Category Calls"
         Observer.Observe('ProvisioningManagement', Message(AuditCategory::ProvisioningManagement));
         Observer.Observe('CustomerFacing', Message(AuditCategory::CustomerFacing));
         Observer.Observe('Euii', Message(AuditCategory::Euii));
-        Observer.Finish();
+        Observer.Expect('Other', 'ok');
+        Observer.Expect('UserManagement', 'ok');
+        Observer.Expect('GroupManagement', 'ok');
+        Observer.Expect('Authentication', 'ok');
+        Observer.Expect('Authorization', 'ok');
+        Observer.Expect('RoleManagement', 'ok');
+        Observer.Expect('ApplicationManagement', 'ok');
+        Observer.Expect('KeyManagement', 'ok');
+        Observer.Expect('DirectoryManagement', 'ok');
+        Observer.Expect('ResourceManagement', 'ok');
+        Observer.Expect('PolicyManagement', 'ok');
+        Observer.Expect('DeviceManagement', 'ok');
+        Observer.Expect('EntitlementManagement', 'ok');
+        Observer.Expect('PasswordManagement', 'ok');
+        Observer.Expect('IdentityProtection', 'ok');
+        Observer.Expect('ObjectManagement', 'ok');
+        Observer.Expect('ProvisioningManagement', 'ok');
+        Observer.Expect('CustomerFacing', 'ok');
+        Observer.Expect('Euii', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -115,7 +134,26 @@ codeunit 98201 "SS Audit Category Calls"
         Observer.Observe('ProvisioningManagement', MessageDimensions(AuditCategory::ProvisioningManagement));
         Observer.Observe('CustomerFacing', MessageDimensions(AuditCategory::CustomerFacing));
         Observer.Observe('Euii', MessageDimensions(AuditCategory::Euii));
-        Observer.Finish();
+        Observer.Expect('Other', 'ok');
+        Observer.Expect('UserManagement', 'ok');
+        Observer.Expect('GroupManagement', 'ok');
+        Observer.Expect('Authentication', 'ok');
+        Observer.Expect('Authorization', 'ok');
+        Observer.Expect('RoleManagement', 'ok');
+        Observer.Expect('ApplicationManagement', 'ok');
+        Observer.Expect('KeyManagement', 'ok');
+        Observer.Expect('DirectoryManagement', 'ok');
+        Observer.Expect('ResourceManagement', 'ok');
+        Observer.Expect('PolicyManagement', 'ok');
+        Observer.Expect('DeviceManagement', 'ok');
+        Observer.Expect('EntitlementManagement', 'ok');
+        Observer.Expect('PasswordManagement', 'ok');
+        Observer.Expect('IdentityProtection', 'ok');
+        Observer.Expect('ObjectManagement', 'ok');
+        Observer.Expect('ProvisioningManagement', 'ok');
+        Observer.Expect('CustomerFacing', 'ok');
+        Observer.Expect('Euii', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -142,7 +180,26 @@ codeunit 98201 "SS Audit Category Calls"
         Observer.Observe('ProvisioningManagement', SecurityAudit(AuditCategory::ProvisioningManagement));
         Observer.Observe('CustomerFacing', SecurityAudit(AuditCategory::CustomerFacing));
         Observer.Observe('Euii', SecurityAudit(AuditCategory::Euii));
-        Observer.Finish();
+        Observer.Expect('Other', 'ok');
+        Observer.Expect('UserManagement', 'ok');
+        Observer.Expect('GroupManagement', 'ok');
+        Observer.Expect('Authentication', 'ok');
+        Observer.Expect('Authorization', 'ok');
+        Observer.Expect('RoleManagement', 'ok');
+        Observer.Expect('ApplicationManagement', 'ok');
+        Observer.Expect('KeyManagement', 'ok');
+        Observer.Expect('DirectoryManagement', 'ok');
+        Observer.Expect('ResourceManagement', 'ok');
+        Observer.Expect('PolicyManagement', 'ok');
+        Observer.Expect('DeviceManagement', 'ok');
+        Observer.Expect('EntitlementManagement', 'ok');
+        Observer.Expect('PasswordManagement', 'ok');
+        Observer.Expect('IdentityProtection', 'ok');
+        Observer.Expect('ObjectManagement', 'ok');
+        Observer.Expect('ProvisioningManagement', 'ok');
+        Observer.Expect('CustomerFacing', 'ok');
+        Observer.Expect('Euii', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -153,6 +210,7 @@ codeunit 98201 "SS Audit Category Calls"
         // The reported statement, outside a TryFunction.
         Session.LogAuditMessage('m', SecurityOperationResult::Success, AuditCategory::Authentication, 1, 0);
         Observer.Observe('after statement', 'no error');
-        Observer.Finish();
+        Observer.Expect('after statement', 'no error');
+        Observer.Verify();
     end;
 }

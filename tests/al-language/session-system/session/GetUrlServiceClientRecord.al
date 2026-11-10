@@ -190,7 +190,18 @@ codeunit 97455 "SS UrlSvc Record Tests"
     begin
         Initialize();
         ClientCases(Observer, ClientType::ODataV4);
-        Observer.Finish();
+        Observer.Expect('5 args, row, current company', 'ok|');
+        Observer.Expect('5 args, row, empty company', 'ok|');
+        Observer.Expect('5 args, row, unknown company', 'ok|');
+        Observer.Expect('5 args, unread record', 'ok|');
+        Observer.Expect('5 args, filtered row', 'ok|');
+        Observer.Expect('5 args, codeunit', 'ok|');
+        Observer.Expect('6 args false, row', 'ok|');
+        Observer.Expect('6 args true, row', 'ok|');
+        Observer.Expect('6 args true, filtered row', 'ok|');
+        Observer.Expect('5 args, recordref', 'ok|');
+        Observer.Expect('6 args true, recordref', 'ok|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -200,7 +211,18 @@ codeunit 97455 "SS UrlSvc Record Tests"
     begin
         Initialize();
         ClientCases(Observer, ClientType::OData);
-        Observer.Finish();
+        Observer.Expect('5 args, row, current company', 'ok|');
+        Observer.Expect('5 args, row, empty company', 'ok|');
+        Observer.Expect('5 args, row, unknown company', 'ok|');
+        Observer.Expect('5 args, unread record', 'ok|');
+        Observer.Expect('5 args, filtered row', 'ok|');
+        Observer.Expect('5 args, codeunit', 'ok|');
+        Observer.Expect('6 args false, row', 'ok|');
+        Observer.Expect('6 args true, row', 'ok|');
+        Observer.Expect('6 args true, filtered row', 'ok|');
+        Observer.Expect('5 args, recordref', 'ok|');
+        Observer.Expect('6 args true, recordref', 'ok|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -210,7 +232,18 @@ codeunit 97455 "SS UrlSvc Record Tests"
     begin
         Initialize();
         ClientCases(Observer, ClientType::SOAP);
-        Observer.Finish();
+        Observer.Expect('5 args, row, current company', 'ok|');
+        Observer.Expect('5 args, row, empty company', 'ok|');
+        Observer.Expect('5 args, row, unknown company', 'ok|');
+        Observer.Expect('5 args, unread record', 'ok|');
+        Observer.Expect('5 args, filtered row', 'ok|');
+        Observer.Expect('5 args, codeunit', 'ok|');
+        Observer.Expect('6 args false, row', 'ok|');
+        Observer.Expect('6 args true, row', 'ok|');
+        Observer.Expect('6 args true, filtered row', 'ok|');
+        Observer.Expect('5 args, recordref', 'ok|');
+        Observer.Expect('6 args true, recordref', 'ok|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -220,7 +253,18 @@ codeunit 97455 "SS UrlSvc Record Tests"
     begin
         Initialize();
         ClientCases(Observer, ClientType::Api);
-        Observer.Finish();
+        Observer.Expect('5 args, row, current company', 'ok|');
+        Observer.Expect('5 args, row, empty company', 'ok|');
+        Observer.Expect('5 args, row, unknown company', 'ok|');
+        Observer.Expect('5 args, unread record', 'ok|');
+        Observer.Expect('5 args, filtered row', 'ok|');
+        Observer.Expect('5 args, codeunit', 'ok|');
+        Observer.Expect('6 args false, row', 'ok|');
+        Observer.Expect('6 args true, row', 'ok|');
+        Observer.Expect('6 args true, filtered row', 'ok|');
+        Observer.Expect('5 args, recordref', 'ok|');
+        Observer.Expect('6 args true, recordref', 'ok|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -234,7 +278,9 @@ codeunit 97455 "SS UrlSvc Record Tests"
         Observer.Observe('unread record is empty text', Format(GetUrl(ClientType::ODataV4, CompanyName(), ObjectType::Page, Page::"SS UrlSvc List", Row) = ''));
         Row.Get(5);
         Observer.Observe('row is empty text', Format(GetUrl(ClientType::ODataV4, CompanyName(), ObjectType::Page, Page::"SS UrlSvc List", Row) = ''));
-        Observer.Finish();
+        Observer.Expect('unread record is empty text', 'Yes');
+        Observer.Expect('row is empty text', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -262,6 +308,16 @@ codeunit 97455 "SS UrlSvc Record Tests"
         if TenantWebService.Get(TenantWebService."Object Type"::Page, 'SSUrlSvcList') then
             TenantWebService.Delete();
         Observer.Observe('odatav4 after delete', Five(ClientType::ODataV4, CompanyName(), ObjectType::Page, Page::"SS UrlSvc List", Row));
-        Observer.Finish();
+        Observer.Expect('odatav4 before', 'ok|');
+        Observer.Expect('odatav4 4 args', 'ok|http://<host>/<instance>/ODataV4/Company(''<Company>'')/SSUrlSvcList');
+        Observer.Expect('odatav4 5 args', 'ok|http://<host>/<instance>/ODataV4/Company(''<Company>'')/SSUrlSvcList(5)');
+        Observer.Expect('odatav4 5 args, empty company', 'ok|http://<host>/<instance>/ODataV4/SSUrlSvcList(5)');
+        Observer.Expect('odatav4 6 args false', 'ok|http://<host>/<instance>/ODataV4/Company(''<Company>'')/SSUrlSvcList(5)');
+        Observer.Expect('odatav4 6 args true', 'ok|http://<host>/<instance>/ODataV4/Company(''<Company>'')/SSUrlSvcList(5)?$filter=');
+        Observer.Expect('odata 5 args', 'ok|http://<host>/<instance>/ODataV4/Company(''<Company>'')/SSUrlSvcList(5)');
+        Observer.Expect('soap 5 args', 'ok|');
+        Observer.Expect('api 5 args', 'ok|');
+        Observer.Expect('odatav4 after delete', 'ok|');
+        Observer.Verify();
     end;
 }

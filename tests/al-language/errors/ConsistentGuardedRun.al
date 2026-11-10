@@ -276,7 +276,11 @@ codeunit 97444 "ERR Consist Run Tests"
         Observer.Observe('run', Format(Ok));
         Observer.ObserveError('last error');
         Observer.Observe('durable rows', DurableRows());
-        Observer.Finish();
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('last error|text', '');
+        Observer.Expect('last error|code', '');
+        Observer.Expect('durable rows', '[89;] other=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -311,7 +315,9 @@ codeunit 97444 "ERR Consist Run Tests"
         Row.Consistent(true);
         Commit();
         Observer.Observe('durable rows', DurableRows());
-        Observer.Finish();
+        Observer.Expect('rows after run', '[77;] other=0');
+        Observer.Expect('durable rows', '[77;] other=0');
+        Observer.Verify();
     end;
 
     [Test]
