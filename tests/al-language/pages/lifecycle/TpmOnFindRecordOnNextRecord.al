@@ -328,9 +328,9 @@ codeunit 97466 "TPM FR Tests"
     end;
 
     [TryFunction]
-    local procedure TryGoToGenKey(var P: TestPage "TPM FR Generated"; Key: Integer)
+    local procedure TryGoToGenKey(var P: TestPage "TPM FR Generated"; KeyValue: Integer)
     begin
-        if not P.GoToKey(Key) then
+        if not P.GoToKey(KeyValue) then
             Error('GoToKey returned false');
     end;
 
