@@ -189,7 +189,12 @@ codeunit 62374 "RPT RpOpt Tests"
     procedure RequestPage_OptionFieldOfGlobalRecord_SetValueInteger()
     begin
         RunWith(1);
-        Observer.Finish();
+        Observer.Expect('before value', 'No Logo');
+        Observer.Expect('before integer', '0');
+        Observer.Expect('after value', 'Left');
+        Observer.Expect('after integer', '1');
+        Observer.Expect('report', 'pre logo=Left/1 kind=None/0 qty=0 flag=No day= name= arr=0 arr1=0 plainoption=0 plainenum=0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -197,7 +202,61 @@ codeunit 62374 "RPT RpOpt Tests"
     procedure RequestPage_OptionFieldOfGlobalRecord_SetValueMemberNames()
     begin
         RunWith(2);
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('name Center ok', 'No');
+        Observer.Expect('name Center|text', 'The value "Center" can''t be evaluated into type Option.');
+        Observer.Expect('name Center|code', 'Evaluate:Format');
+        Observer.Expect('name Center value', 'No Logo');
+        Observer.Expect('lower case right ok', 'No');
+        Observer.Expect('lower case right|text', 'The value "right" can''t be evaluated into type Option.');
+        Observer.Expect('lower case right|code', 'Evaluate:Format');
+        Observer.Expect('lower case right value', 'No Logo');
+        Observer.Expect('prefix Le ok', 'No');
+        Observer.Expect('prefix Le|text', 'The value "Le" can''t be evaluated into type Option.');
+        Observer.Expect('prefix Le|code', 'Evaluate:Format');
+        Observer.Expect('prefix Le value', 'No Logo');
+        Observer.Expect('name with space ok', 'No');
+        Observer.Expect('name with space|text', 'The value "No Logo" can''t be evaluated into type Option.');
+        Observer.Expect('name with space|code', 'Evaluate:Format');
+        Observer.Expect('name with space value', 'No Logo');
+        Observer.Expect('integer as text 2 ok', 'Yes');
+        Observer.Expect('integer as text 2|text', '');
+        Observer.Expect('integer as text 2|code', '');
+        Observer.Expect('integer as text 2 value', 'Center');
+        Observer.Expect('integer 3 ok', 'Yes');
+        Observer.Expect('integer 3|text', '');
+        Observer.Expect('integer 3|code', '');
+        Observer.Expect('integer 3 value', 'Right');
+        Observer.Expect('report', 'pre logo=Right/3 kind=None/0 qty=0 flag=No day= name= arr=0 arr1=0 plainoption=0 plainenum=0;');
+        Observer.Verify();
+#else
+        Observer.Expect('name Center ok', 'No');
+        Observer.Expect('name Center|text', 'The type NavOption is unknown.');
+        Observer.Expect('name Center|code', 'NotSupportedType');
+        Observer.Expect('name Center value', 'No Logo');
+        Observer.Expect('lower case right ok', 'No');
+        Observer.Expect('lower case right|text', 'The type NavOption is unknown.');
+        Observer.Expect('lower case right|code', 'NotSupportedType');
+        Observer.Expect('lower case right value', 'No Logo');
+        Observer.Expect('prefix Le ok', 'No');
+        Observer.Expect('prefix Le|text', 'The type NavOption is unknown.');
+        Observer.Expect('prefix Le|code', 'NotSupportedType');
+        Observer.Expect('prefix Le value', 'No Logo');
+        Observer.Expect('name with space ok', 'No');
+        Observer.Expect('name with space|text', 'The type NavOption is unknown.');
+        Observer.Expect('name with space|code', 'NotSupportedType');
+        Observer.Expect('name with space value', 'No Logo');
+        Observer.Expect('integer as text 2 ok', 'Yes');
+        Observer.Expect('integer as text 2|text', '');
+        Observer.Expect('integer as text 2|code', '');
+        Observer.Expect('integer as text 2 value', 'Center');
+        Observer.Expect('integer 3 ok', 'Yes');
+        Observer.Expect('integer 3|text', '');
+        Observer.Expect('integer 3|code', '');
+        Observer.Expect('integer 3 value', 'Right');
+        Observer.Expect('report', 'pre logo=Right/3 kind=None/0 qty=0 flag=No day= name= arr=0 arr1=0 plainoption=0 plainenum=0;');
+        Observer.Verify();
+#endif
     end;
 
     [Test]
@@ -205,7 +264,61 @@ codeunit 62374 "RPT RpOpt Tests"
     procedure RequestPage_OptionFieldOfGlobalRecord_SetValueRefused()
     begin
         RunWith(3);
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('integer 2 ok', 'Yes');
+        Observer.Expect('integer 2|text', '');
+        Observer.Expect('integer 2|code', '');
+        Observer.Expect('integer 2 value', 'Center');
+        Observer.Expect('integer 9 ok', 'No');
+        Observer.Expect('integer 9|text', 'Validation error for Field: LogoPosition,  Message = ''Your entry of ''2'' is not an acceptable value for ''LogoPosition''.''');
+        Observer.Expect('integer 9|code', 'TestValidation');
+        Observer.Expect('integer 9 value', '2');
+        Observer.Expect('integer -1 ok', 'No');
+        Observer.Expect('integer -1|text', 'Validation error for Field: LogoPosition,  Message = ''Your entry of ''2'' is not an acceptable value for ''LogoPosition''.''');
+        Observer.Expect('integer -1|code', 'TestValidation');
+        Observer.Expect('integer -1 value', '2');
+        Observer.Expect('no member ok', 'No');
+        Observer.Expect('no member|text', 'The value "Nope" can''t be evaluated into type Option.');
+        Observer.Expect('no member|code', 'Evaluate:Format');
+        Observer.Expect('no member value', '2');
+        Observer.Expect('empty text ok', 'No');
+        Observer.Expect('empty text|text', 'The value "" can''t be evaluated into type Option.');
+        Observer.Expect('empty text|code', 'Evaluate:Format');
+        Observer.Expect('empty text value', '2');
+        Observer.Expect('boolean ok', 'Yes');
+        Observer.Expect('boolean|text', '');
+        Observer.Expect('boolean|code', '');
+        Observer.Expect('boolean value', 'Left');
+        Observer.Expect('report', 'pre logo=Left/1 kind=None/0 qty=0 flag=No day= name= arr=0 arr1=0 plainoption=0 plainenum=0;');
+        Observer.Verify();
+#else
+        Observer.Expect('integer 2 ok', 'Yes');
+        Observer.Expect('integer 2|text', '');
+        Observer.Expect('integer 2|code', '');
+        Observer.Expect('integer 2 value', 'Center');
+        Observer.Expect('integer 9 ok', 'No');
+        Observer.Expect('integer 9|text', 'Validation error for Field: LogoPosition,  Message = ''Your entry of ''2'' is not an acceptable value for ''LogoPosition''.''');
+        Observer.Expect('integer 9|code', 'TestValidation');
+        Observer.Expect('integer 9 value', '2');
+        Observer.Expect('integer -1 ok', 'No');
+        Observer.Expect('integer -1|text', 'Validation error for Field: LogoPosition,  Message = ''Your entry of ''2'' is not an acceptable value for ''LogoPosition''.''');
+        Observer.Expect('integer -1|code', 'TestValidation');
+        Observer.Expect('integer -1 value', '2');
+        Observer.Expect('no member ok', 'No');
+        Observer.Expect('no member|text', 'The type NavOption is unknown.');
+        Observer.Expect('no member|code', 'NotSupportedType');
+        Observer.Expect('no member value', '2');
+        Observer.Expect('empty text ok', 'No');
+        Observer.Expect('empty text|text', 'The type NavOption is unknown.');
+        Observer.Expect('empty text|code', 'NotSupportedType');
+        Observer.Expect('empty text value', '2');
+        Observer.Expect('boolean ok', 'Yes');
+        Observer.Expect('boolean|text', '');
+        Observer.Expect('boolean|code', '');
+        Observer.Expect('boolean value', 'Left');
+        Observer.Expect('report', 'pre logo=Left/1 kind=None/0 qty=0 flag=No day= name= arr=0 arr1=0 plainoption=0 plainenum=0;');
+        Observer.Verify();
+#endif
     end;
 
     [Test]
@@ -213,7 +326,63 @@ codeunit 62374 "RPT RpOpt Tests"
     procedure RequestPage_EnumFieldOfGlobalRecord_SetValueForms()
     begin
         RunWith(4);
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('before value', 'None');
+        Observer.Expect('integer 1 ok', 'Yes');
+        Observer.Expect('integer 1|text', '');
+        Observer.Expect('integer 1|code', '');
+        Observer.Expect('integer 1 value', 'First one');
+        Observer.Expect('integer 4 ok', 'Yes');
+        Observer.Expect('integer 4|text', '');
+        Observer.Expect('integer 4|code', '');
+        Observer.Expect('integer 4 value', 'Second one');
+        Observer.Expect('name First ok', 'No');
+        Observer.Expect('name First|text', 'The value "First" can''t be evaluated into type Option.');
+        Observer.Expect('name First|code', 'Evaluate:Format');
+        Observer.Expect('name First value', 'Second one');
+        Observer.Expect('caption Second one ok', 'No');
+        Observer.Expect('caption Second one|text', 'The value "Second one" can''t be evaluated into type Option.');
+        Observer.Expect('caption Second one|code', 'Evaluate:Format');
+        Observer.Expect('caption Second one value', 'Second one');
+        Observer.Expect('enum value First ok', 'Yes');
+        Observer.Expect('enum value First|text', '');
+        Observer.Expect('enum value First|code', '');
+        Observer.Expect('enum value First value', 'First one');
+        Observer.Expect('enum value Second ok', 'Yes');
+        Observer.Expect('enum value Second|text', '');
+        Observer.Expect('enum value Second|code', '');
+        Observer.Expect('enum value Second value', 'Second one');
+        Observer.Expect('report', 'pre logo=No Logo/0 kind=Second one/4 qty=0 flag=No day= name= arr=0 arr1=0 plainoption=0 plainenum=0;');
+        Observer.Verify();
+#else
+        Observer.Expect('before value', 'None');
+        Observer.Expect('integer 1 ok', 'Yes');
+        Observer.Expect('integer 1|text', '');
+        Observer.Expect('integer 1|code', '');
+        Observer.Expect('integer 1 value', 'First one');
+        Observer.Expect('integer 4 ok', 'Yes');
+        Observer.Expect('integer 4|text', '');
+        Observer.Expect('integer 4|code', '');
+        Observer.Expect('integer 4 value', 'Second one');
+        Observer.Expect('name First ok', 'No');
+        Observer.Expect('name First|text', 'The type NavOption is unknown.');
+        Observer.Expect('name First|code', 'NotSupportedType');
+        Observer.Expect('name First value', 'Second one');
+        Observer.Expect('caption Second one ok', 'No');
+        Observer.Expect('caption Second one|text', 'The type NavOption is unknown.');
+        Observer.Expect('caption Second one|code', 'NotSupportedType');
+        Observer.Expect('caption Second one value', 'Second one');
+        Observer.Expect('enum value First ok', 'Yes');
+        Observer.Expect('enum value First|text', '');
+        Observer.Expect('enum value First|code', '');
+        Observer.Expect('enum value First value', 'First one');
+        Observer.Expect('enum value Second ok', 'Yes');
+        Observer.Expect('enum value Second|text', '');
+        Observer.Expect('enum value Second|code', '');
+        Observer.Expect('enum value Second value', 'Second one');
+        Observer.Expect('report', 'pre logo=No Logo/0 kind=Second one/4 qty=0 flag=No day= name= arr=0 arr1=0 plainoption=0 plainenum=0;');
+        Observer.Verify();
+#endif
     end;
 
     [Test]
@@ -221,7 +390,53 @@ codeunit 62374 "RPT RpOpt Tests"
     procedure RequestPage_EnumFieldOfGlobalRecord_SetValueRefused()
     begin
         RunWith(5);
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('integer 4 ok', 'Yes');
+        Observer.Expect('integer 4|text', '');
+        Observer.Expect('integer 4|code', '');
+        Observer.Expect('integer 4 value', 'Second one');
+        Observer.Expect('integer 2 is no ordinal ok', 'No');
+        Observer.Expect('integer 2 is no ordinal|text', 'Validation error for Field: KindCtl,  Message = ''Your entry of ''4'' is not an acceptable value for ''KindCtl''.''');
+        Observer.Expect('integer 2 is no ordinal|code', 'TestValidation');
+        Observer.Expect('integer 2 is no ordinal value', '4');
+        Observer.Expect('integer 9 ok', 'No');
+        Observer.Expect('integer 9|text', 'Validation error for Field: KindCtl,  Message = ''Your entry of ''4'' is not an acceptable value for ''KindCtl''.''');
+        Observer.Expect('integer 9|code', 'TestValidation');
+        Observer.Expect('integer 9 value', '4');
+        Observer.Expect('no member ok', 'No');
+        Observer.Expect('no member|text', 'The value "Nope" can''t be evaluated into type Option.');
+        Observer.Expect('no member|code', 'Evaluate:Format');
+        Observer.Expect('no member value', '4');
+        Observer.Expect('lower case caption ok', 'No');
+        Observer.Expect('lower case caption|text', 'The value "first one" can''t be evaluated into type Option.');
+        Observer.Expect('lower case caption|code', 'Evaluate:Format');
+        Observer.Expect('lower case caption value', '4');
+        Observer.Expect('report', 'pre logo=No Logo/0 kind=Second one/4 qty=0 flag=No day= name= arr=0 arr1=0 plainoption=0 plainenum=0;');
+        Observer.Verify();
+#else
+        Observer.Expect('integer 4 ok', 'Yes');
+        Observer.Expect('integer 4|text', '');
+        Observer.Expect('integer 4|code', '');
+        Observer.Expect('integer 4 value', 'Second one');
+        Observer.Expect('integer 2 is no ordinal ok', 'No');
+        Observer.Expect('integer 2 is no ordinal|text', 'Validation error for Field: KindCtl,  Message = ''Your entry of ''4'' is not an acceptable value for ''KindCtl''.''');
+        Observer.Expect('integer 2 is no ordinal|code', 'TestValidation');
+        Observer.Expect('integer 2 is no ordinal value', '4');
+        Observer.Expect('integer 9 ok', 'No');
+        Observer.Expect('integer 9|text', 'Validation error for Field: KindCtl,  Message = ''Your entry of ''4'' is not an acceptable value for ''KindCtl''.''');
+        Observer.Expect('integer 9|code', 'TestValidation');
+        Observer.Expect('integer 9 value', '4');
+        Observer.Expect('no member ok', 'No');
+        Observer.Expect('no member|text', 'The type NavOption is unknown.');
+        Observer.Expect('no member|code', 'NotSupportedType');
+        Observer.Expect('no member value', '4');
+        Observer.Expect('lower case caption ok', 'No');
+        Observer.Expect('lower case caption|text', 'The type NavOption is unknown.');
+        Observer.Expect('lower case caption|code', 'NotSupportedType');
+        Observer.Expect('lower case caption value', '4');
+        Observer.Expect('report', 'pre logo=No Logo/0 kind=Second one/4 qty=0 flag=No day= name= arr=0 arr1=0 plainoption=0 plainenum=0;');
+        Observer.Verify();
+#endif
     end;
 
     [Test]
@@ -229,7 +444,12 @@ codeunit 62374 "RPT RpOpt Tests"
     procedure RequestPage_OtherFieldTypesOfGlobalRecord_SetValue()
     begin
         RunWith(6);
-        Observer.Finish();
+        Observer.Expect('qty value', '1.50');
+        Observer.Expect('flag value', 'Yes');
+        Observer.Expect('day value', '1/31/2026');
+        Observer.Expect('name value', 'abc');
+        Observer.Expect('report', 'pre logo=No Logo/0 kind=None/0 qty=1.5 flag=Yes day=2026-01-31 name=abc arr=0 arr1=0 plainoption=0 plainenum=0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -237,7 +457,45 @@ codeunit 62374 "RPT RpOpt Tests"
     procedure RequestPage_OptionFieldOfArrayElement_AndPlainVariables_SetValue()
     begin
         RunWith(7);
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('array element integer 2 ok', 'Yes');
+        Observer.Expect('array element integer 2|text', '');
+        Observer.Expect('array element integer 2|code', '');
+        Observer.Expect('array element value', 'Center');
+        Observer.Expect('array element name Right ok', 'No');
+        Observer.Expect('array element name Right|text', 'The value "Right" can''t be evaluated into type Option.');
+        Observer.Expect('array element name Right|code', 'Evaluate:Format');
+        Observer.Expect('array element value 2', 'Center');
+        Observer.Expect('plain option integer 1 ok', 'Yes');
+        Observer.Expect('plain option integer 1|text', '');
+        Observer.Expect('plain option integer 1|code', '');
+        Observer.Expect('plain option value', 'Left');
+        Observer.Expect('plain enum integer 4 ok', 'Yes');
+        Observer.Expect('plain enum integer 4|text', '');
+        Observer.Expect('plain enum integer 4|code', '');
+        Observer.Expect('plain enum value', 'Second one');
+        Observer.Expect('report', 'pre logo=No Logo/0 kind=None/0 qty=0 flag=No day= name= arr=2 arr1=0 plainoption=1 plainenum=4;');
+        Observer.Verify();
+#else
+        Observer.Expect('array element integer 2 ok', 'Yes');
+        Observer.Expect('array element integer 2|text', '');
+        Observer.Expect('array element integer 2|code', '');
+        Observer.Expect('array element value', 'Center');
+        Observer.Expect('array element name Right ok', 'No');
+        Observer.Expect('array element name Right|text', 'The type NavOption is unknown.');
+        Observer.Expect('array element name Right|code', 'NotSupportedType');
+        Observer.Expect('array element value 2', 'Center');
+        Observer.Expect('plain option integer 1 ok', 'Yes');
+        Observer.Expect('plain option integer 1|text', '');
+        Observer.Expect('plain option integer 1|code', '');
+        Observer.Expect('plain option value', 'Left');
+        Observer.Expect('plain enum integer 4 ok', 'Yes');
+        Observer.Expect('plain enum integer 4|text', '');
+        Observer.Expect('plain enum integer 4|code', '');
+        Observer.Expect('plain enum value', 'Second one');
+        Observer.Expect('report', 'pre logo=No Logo/0 kind=None/0 qty=0 flag=No day= name= arr=2 arr1=0 plainoption=1 plainenum=4;');
+        Observer.Verify();
+#endif
     end;
 
     [Test]
@@ -253,7 +511,8 @@ codeunit 62374 "RPT RpOpt Tests"
         if At > 0 then
             Parameters := Parameters.Substring(At);
         Observer.Observe('parameters', Parameters);
-        Observer.Finish();
+        Observer.Expect('parameters', '<Options><Field name="MySetup.&quot;Logo Position&quot;">2</Field><Field name="MySetup.Kind">4</Field><Field name="MySetup.Qty">1.5</Field><Field name="MySetup.Flag">true</Field><Field name="MySetup.Day" /><Field name="MySetup.Name" /><Field name="SetupArr[2].&quot;Logo Position&quot;">3</Field><Field name="PlainOptionValue">1</Field><Field name="PlainEnumValue">1</Field></Options><DataItems><DataItem name="One">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]

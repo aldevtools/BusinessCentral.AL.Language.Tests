@@ -240,7 +240,11 @@ codeunit 62303 "RPT UseRp Read Tests"
         Observer.Observe('ok', Format(TryRunVar(true, false, false)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('log', 'init Yes/Yes/Yes;pre cond=not;pre No/No/No;predataitem cond=first;predataitem No/No/No;aftergetrecord No/No/No;postdataitem No/No/No;post No/No/No;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -252,7 +256,11 @@ codeunit 62303 "RPT UseRp Read Tests"
         Observer.Observe('ok', Format(TryRunVar(true, false, true)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('log', 'init Yes/Yes/Yes;pre cond=not;pre No/No/No;predataitem cond=first;predataitem No/No/No;aftergetrecord No/No/No;postdataitem No/No/No;post No/No/No;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -264,7 +272,11 @@ codeunit 62303 "RPT UseRp Read Tests"
         Observer.Observe('ok', Format(TryRunStatic(Report::"RPT UseRp Read A", false, false)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('log', 'init Yes/Yes/Yes;pre cond=not;pre No/No/No;predataitem cond=first;predataitem No/No/No;aftergetrecord No/No/No;postdataitem No/No/No;post No/No/No;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -276,7 +288,11 @@ codeunit 62303 "RPT UseRp Read Tests"
         Observer.Observe('ok', Format(TryRunStatic(Report::"RPT UseRp Read A", false, true)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('log', 'init Yes/Yes/Yes;pre cond=not;pre No/No/No;predataitem cond=first;predataitem No/No/No;aftergetrecord No/No/No;postdataitem No/No/No;post No/No/No;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -289,7 +305,8 @@ codeunit 62303 "RPT UseRp Read Tests"
         Start();
         Rpt.Run();
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'init Yes/Yes/Yes;rp open Yes/Yes/Yes;handler ok;pre cond=else;pre Yes/Yes/Yes;predataitem cond=second;predataitem Yes/Yes/Yes;aftergetrecord Yes/Yes/Yes;postdataitem Yes/Yes/Yes;post Yes/Yes/Yes;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -302,7 +319,8 @@ codeunit 62303 "RPT UseRp Read Tests"
         Start();
         Rpt.RunModal();
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'init Yes/Yes/Yes;rp open Yes/Yes/Yes;handler ok;pre cond=else;pre Yes/Yes/Yes;predataitem cond=second;predataitem Yes/Yes/Yes;aftergetrecord Yes/Yes/Yes;postdataitem Yes/Yes/Yes;post Yes/Yes/Yes;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -316,7 +334,8 @@ codeunit 62303 "RPT UseRp Read Tests"
         Rpt.UseRequestPage(true);
         Rpt.RunModal();
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'init Yes/Yes/Yes;rp open Yes/Yes/Yes;handler ok;pre cond=else;pre Yes/Yes/Yes;predataitem cond=second;predataitem Yes/Yes/Yes;aftergetrecord Yes/Yes/Yes;postdataitem Yes/Yes/Yes;post Yes/Yes/Yes;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -328,7 +347,8 @@ codeunit 62303 "RPT UseRp Read Tests"
         Start();
         Report.Run(Report::"RPT UseRp Read A", true);
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'init Yes/Yes/Yes;rp open Yes/Yes/Yes;handler ok;pre cond=else;pre Yes/Yes/Yes;predataitem cond=second;predataitem Yes/Yes/Yes;aftergetrecord Yes/Yes/Yes;postdataitem Yes/Yes/Yes;post Yes/Yes/Yes;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -340,7 +360,8 @@ codeunit 62303 "RPT UseRp Read Tests"
         Start();
         Report.RunModal(Report::"RPT UseRp Read A", true);
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'init Yes/Yes/Yes;rp open Yes/Yes/Yes;handler ok;pre cond=else;pre Yes/Yes/Yes;predataitem cond=second;predataitem Yes/Yes/Yes;aftergetrecord Yes/Yes/Yes;postdataitem Yes/Yes/Yes;post Yes/Yes/Yes;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -353,7 +374,8 @@ codeunit 62303 "RPT UseRp Read Tests"
         Start();
         Rpt.RunModal();
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'init Yes/Yes/Yes;rp open Yes/Yes/Yes;handler cancel;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -365,7 +387,11 @@ codeunit 62303 "RPT UseRp Read Tests"
         Observer.Observe('ok', Format(TryExecute(Report::"RPT UseRp Read A", '')));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('log', 'init Yes/Yes/Yes;pre cond=not;pre No/No/No;predataitem cond=first;predataitem No/No/No;aftergetrecord No/No/No;postdataitem No/No/No;post No/No/No;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -382,7 +408,13 @@ codeunit 62303 "RPT UseRp Read Tests"
         Observer.Observe('ok', Format(TryExecute(Report::"RPT UseRp Read A", Parameters)));
         Observer.ObserveError('error');
         Observer.Observe('execute log', L.Take());
-        Observer.Finish();
+        Observer.Expect('request page log', 'init Yes/Yes/Yes;rp open Yes/Yes/Yes;handler ok;');
+        Observer.Expect('has parameters', 'Yes');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('execute log', 'init Yes/Yes/Yes;rp open No/No/No;pre cond=not;pre No/No/No;predataitem cond=first;predataitem No/No/No;aftergetrecord No/No/No;postdataitem No/No/No;post No/No/No;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -394,7 +426,11 @@ codeunit 62303 "RPT UseRp Read Tests"
         Observer.Observe('ok', Format(TryRunVarB(false, false)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('log', 'pre No/No/No;predataitem No/No/No;aftergetrecord No/No/No;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -407,7 +443,11 @@ codeunit 62303 "RPT UseRp Read Tests"
         Observer.Observe('ok', Format(TryRunStatic(Report::"RPT UseRp Read B", true, false)));
         Observer.ObserveError('error');
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('ok', 'No');
+        Observer.Expect('error|text', 'Unhandled UI: RequestPage 62302');
+        Observer.Expect('error|code', 'MissingUIHandler');
+        Observer.Expect('log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -421,7 +461,8 @@ codeunit 62303 "RPT UseRp Read Tests"
         Rpt.UseRequestPage(true);
         Rpt.RunModal();
         Observer.Observe('log', L.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'rp open Yes/Yes/Yes;handler ok;pre Yes/Yes/Yes;predataitem Yes/Yes/Yes;aftergetrecord Yes/Yes/Yes;');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]

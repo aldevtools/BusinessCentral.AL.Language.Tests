@@ -213,7 +213,8 @@ codeunit 62333 "RPT DecCol Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('columns', StoredColumns(1));
-        Observer.Finish();
+        Observer.Expect('columns', '<Column name="Id">1</Column>|<Column name="D05" decimalformatter="#,##0.#####">1</Column>|<Column name="D25" decimalformatter="#,##0.00###">1</Column>|<Column name="D55" decimalformatter="#,##0.00000">1</Column>|<Column name="D00" decimalformatter="#,##0">1</Column>|<Column name="DDef" decimalformatter="#,##0.00">1</Column>|<Column name="D05Qualified" decimalformatter="#,##0.#####">1</Column>|<Column name="D05Times1" decimalformatter="#,##0.00">1</Column>|<Column name="D05OwnPlaces" decimalformatter="#,##0.00">1</Column>|<Column name="D05AsText">1</Column>| Format: 1 / 1.00 / 1.00000 / 1 / 1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -222,7 +223,8 @@ codeunit 62333 "RPT DecCol Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('columns', StoredColumns(2));
-        Observer.Finish();
+        Observer.Expect('columns', '<Column name="Id">2</Column>|<Column name="D05" decimalformatter="#,##0.#####">1.5</Column>|<Column name="D25" decimalformatter="#,##0.00###">1.5</Column>|<Column name="D55" decimalformatter="#,##0.00000">1.5</Column>|<Column name="D00" decimalformatter="#,##0">1.5</Column>|<Column name="DDef" decimalformatter="#,##0.00">1.5</Column>|<Column name="D05Qualified" decimalformatter="#,##0.#####">1.5</Column>|<Column name="D05Times1" decimalformatter="#,##0.00">1.5</Column>|<Column name="D05OwnPlaces" decimalformatter="#,##0.00">1.5</Column>|<Column name="D05AsText">1.5</Column>| Format: 1.5 / 1.50 / 1.50000 / 2 / 1.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -231,7 +233,8 @@ codeunit 62333 "RPT DecCol Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('columns', StoredColumns(3));
-        Observer.Finish();
+        Observer.Expect('columns', '<Column name="Id">3</Column>|<Column name="D05" decimalformatter="#,##0.#####">1</Column>|<Column name="D25" decimalformatter="#,##0.00###">1</Column>|<Column name="D55" decimalformatter="#,##0.00000">1</Column>|<Column name="D00" decimalformatter="#,##0">1</Column>|<Column name="DDef" decimalformatter="#,##0.00">1</Column>|<Column name="D05Qualified" decimalformatter="#,##0.#####">1</Column>|<Column name="D05Times1" decimalformatter="#,##0.00">1</Column>|<Column name="D05OwnPlaces" decimalformatter="#,##0.00">1</Column>|<Column name="D05AsText">1</Column>| Format: 1 / 1.00 / 1.00000 / 1 / 1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -240,7 +243,8 @@ codeunit 62333 "RPT DecCol Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('columns', StoredColumns(4));
-        Observer.Finish();
+        Observer.Expect('columns', '<Column name="Id">4</Column>|<Column name="D05" decimalformatter="#,##0.#####">1</Column>|<Column name="D25" decimalformatter="#,##0.00###">1</Column>|<Column name="D55" decimalformatter="#,##0.00000">1</Column>|<Column name="D00" decimalformatter="#,##0">1</Column>|<Column name="DDef" decimalformatter="#,##0.00">1</Column>|<Column name="D05Qualified" decimalformatter="#,##0.#####">1</Column>|<Column name="D05Times1" decimalformatter="#,##0.00">1</Column>|<Column name="D05OwnPlaces" decimalformatter="#,##0.00">1</Column>|<Column name="D05AsText">1</Column>| Format: 1 / 1.00 / 1.00000 / 1 / 1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -249,7 +253,8 @@ codeunit 62333 "RPT DecCol Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('columns', StoredColumns(5));
-        Observer.Finish();
+        Observer.Expect('columns', '<Column name="Id">5</Column>|<Column name="D05" decimalformatter="#,##0.#####">1.23457</Column>|<Column name="D25" decimalformatter="#,##0.00###">1.23457</Column>|<Column name="D55" decimalformatter="#,##0.00000">1.23457</Column>|<Column name="D00" decimalformatter="#,##0">1.23457</Column>|<Column name="DDef" decimalformatter="#,##0.00">1.23457</Column>|<Column name="D05Qualified" decimalformatter="#,##0.#####">1.23457</Column>|<Column name="D05Times1" decimalformatter="#,##0.00">1.23457</Column>|<Column name="D05OwnPlaces" decimalformatter="#,##0.00">1.23457</Column>|<Column name="D05AsText">1.23457</Column>| Format: 1.23457 / 1.23457 / 1.23457 / 1 / 1.23457');
+        Observer.Verify();
     end;
 
     [Test]
@@ -258,7 +263,8 @@ codeunit 62333 "RPT DecCol Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('columns', StoredColumns(6));
-        Observer.Finish();
+        Observer.Expect('columns', '<Column name="Id">6</Column>|<Column name="D05" decimalformatter="#,##0.#####">1</Column>|<Column name="D25" decimalformatter="#,##0.00###">1</Column>|<Column name="D55" decimalformatter="#,##0.00000">1</Column>|<Column name="D00" decimalformatter="#,##0">1</Column>|<Column name="DDef" decimalformatter="#,##0.00">1</Column>|<Column name="D05Qualified" decimalformatter="#,##0.#####">1</Column>|<Column name="D05Times1" decimalformatter="#,##0.00">1</Column>|<Column name="D05OwnPlaces" decimalformatter="#,##0.00">1</Column>|<Column name="D05AsText">1</Column>| Format: 1 / 1.00 / 1.00000 / 1 / 1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -267,7 +273,8 @@ codeunit 62333 "RPT DecCol Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('columns', StoredColumns(7));
-        Observer.Finish();
+        Observer.Expect('columns', '<Column name="Id">7</Column>|<Column name="D05" decimalformatter="#,##0.#####">1</Column>|<Column name="D25" decimalformatter="#,##0.00###">1</Column>|<Column name="D55" decimalformatter="#,##0.00000">1</Column>|<Column name="D00" decimalformatter="#,##0">1</Column>|<Column name="DDef" decimalformatter="#,##0.00">1</Column>|<Column name="D05Qualified" decimalformatter="#,##0.#####">1</Column>|<Column name="D05Times1" decimalformatter="#,##0.00">1</Column>|<Column name="D05OwnPlaces" decimalformatter="#,##0.00">1</Column>|<Column name="D05AsText">1</Column>| Format: 1 / 1.00 / 1.00000 / 1 / 1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -276,7 +283,8 @@ codeunit 62333 "RPT DecCol Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('columns', StoredColumns(8));
-        Observer.Finish();
+        Observer.Expect('columns', '<Column name="Id">8</Column>|<Column name="D05" decimalformatter="#,##0.#####">1</Column>|<Column name="D25" decimalformatter="#,##0.00###">1</Column>|<Column name="D55" decimalformatter="#,##0.00000">1</Column>|<Column name="D00" decimalformatter="#,##0">1</Column>|<Column name="DDef" decimalformatter="#,##0.00">1</Column>|<Column name="D05Qualified" decimalformatter="#,##0.#####">1</Column>|<Column name="D05Times1" decimalformatter="#,##0.00">1</Column>|<Column name="D05OwnPlaces" decimalformatter="#,##0.00">1</Column>|<Column name="D05AsText">1</Column>| Format: 1 / 1.00 / 1.00000 / 1 / 1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -285,7 +293,8 @@ codeunit 62333 "RPT DecCol Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('columns', StoredColumns(9));
-        Observer.Finish();
+        Observer.Expect('columns', '<Column name="Id">9</Column>|<Column name="D05" decimalformatter="#,##0.#####">1</Column>|<Column name="D25" decimalformatter="#,##0.00###">1</Column>|<Column name="D55" decimalformatter="#,##0.00000">1</Column>|<Column name="D00" decimalformatter="#,##0">1</Column>|<Column name="DDef" decimalformatter="#,##0.00">1</Column>|<Column name="D05Qualified" decimalformatter="#,##0.#####">1</Column>|<Column name="D05Times1" decimalformatter="#,##0.00">1</Column>|<Column name="D05OwnPlaces" decimalformatter="#,##0.00">1</Column>|<Column name="D05AsText">1</Column>| Format: 1 / 1.00 / 1.00000 / 1 / 1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -294,7 +303,8 @@ codeunit 62333 "RPT DecCol Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('columns', StoredColumns(10));
-        Observer.Finish();
+        Observer.Expect('columns', '<Column name="Id">10</Column>|<Column name="D05" decimalformatter="#,##0.#####">0</Column>|<Column name="D25" decimalformatter="#,##0.00###">0</Column>|<Column name="D55" decimalformatter="#,##0.00000">0</Column>|<Column name="D00" decimalformatter="#,##0">0</Column>|<Column name="DDef" decimalformatter="#,##0.00">0</Column>|<Column name="D05Qualified" decimalformatter="#,##0.#####">0</Column>|<Column name="D05Times1" decimalformatter="#,##0.00">0</Column>|<Column name="D05OwnPlaces" decimalformatter="#,##0.00">0</Column>|<Column name="D05AsText">0</Column>| Format: 0 / 0.00 / 0.00000 / 0 / 0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -303,7 +313,8 @@ codeunit 62333 "RPT DecCol Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('columns', StoredColumns(11));
-        Observer.Finish();
+        Observer.Expect('columns', '<Column name="Id">11</Column>|<Column name="D05" decimalformatter="#,##0.#####">-2.5</Column>|<Column name="D25" decimalformatter="#,##0.00###">-2.5</Column>|<Column name="D55" decimalformatter="#,##0.00000">-2.5</Column>|<Column name="D00" decimalformatter="#,##0">-2.5</Column>|<Column name="DDef" decimalformatter="#,##0.00">-2.5</Column>|<Column name="D05Qualified" decimalformatter="#,##0.#####">-2.5</Column>|<Column name="D05Times1" decimalformatter="#,##0.00">-2.5</Column>|<Column name="D05OwnPlaces" decimalformatter="#,##0.00">-2.5</Column>|<Column name="D05AsText">-2.5</Column>| Format: -2.5 / -2.50 / -2.50000 / -3 / -2.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -312,7 +323,8 @@ codeunit 62333 "RPT DecCol Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('columns', StoredColumns(12));
-        Observer.Finish();
+        Observer.Expect('columns', '<Column name="Id">12</Column>|<Column name="D05" decimalformatter="#,##0.#####">1234.5</Column>|<Column name="D25" decimalformatter="#,##0.00###">1234.5</Column>|<Column name="D55" decimalformatter="#,##0.00000">1234.5</Column>|<Column name="D00" decimalformatter="#,##0">1234.5</Column>|<Column name="DDef" decimalformatter="#,##0.00">1234.5</Column>|<Column name="D05Qualified" decimalformatter="#,##0.#####">1234.5</Column>|<Column name="D05Times1" decimalformatter="#,##0.00">1234.5</Column>|<Column name="D05OwnPlaces" decimalformatter="#,##0.00">1234.5</Column>|<Column name="D05AsText">1,234.5</Column>| Format: 1,234.5 / 1,234.50 / 1,234.50000 / 1,235 / 1,234.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -321,7 +333,8 @@ codeunit 62333 "RPT DecCol Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('columns', StoredColumns(20));
-        Observer.Finish();
+        Observer.Expect('columns', '<Column name="Id">20</Column>|<Column name="D05" decimalformatter="#,##0.#####">1</Column>|<Column name="D25" decimalformatter="#,##0.00###">1</Column>|<Column name="D55" decimalformatter="#,##0.00000">1</Column>|<Column name="D00" decimalformatter="#,##0">1</Column>|<Column name="DDef" decimalformatter="#,##0.00">1</Column>|<Column name="D05Qualified" decimalformatter="#,##0.#####">1</Column>|<Column name="D05Times1" decimalformatter="#,##0.00">1</Column>|<Column name="D05OwnPlaces" decimalformatter="#,##0.00">1</Column>|<Column name="D05AsText">1</Column>| Format: 1 / 1.00 / 1.00000 / 1 / 1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -345,7 +358,11 @@ codeunit 62333 "RPT DecCol Tests"
         Observer.Observe('saved', Format(Ok));
         Observer.ObserveError('error');
         Observer.Observe('columns', Kept);
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('columns', '<Column name="RecLiteral" decimalformatter="#,##0.#####">1</Column>|<Column name="RecRounded" decimalformatter="#,##0.#####">1</Column>|<Column name="RecProduct" decimalformatter="#,##0.#####">1</Column>|<Column name="RecValidated" decimalformatter="#,##0.#####">1</Column>|<Column name="RecEvaluated" decimalformatter="#,##0.#####">1</Column>|<Column name="RecLiteralZeros" decimalformatter="#,##0.#####">1</Column>|<Column name="RecRoundedDefault" decimalformatter="#,##0.00">1</Column>|<Column name="RecRounded55" decimalformatter="#,##0.00000">1</Column>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -374,6 +391,10 @@ codeunit 62333 "RPT DecCol Tests"
         Observer.Observe('saved', Format(Ok));
         Observer.ObserveError('error');
         Observer.Observe('columns', Kept);
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('columns', '<Column name="VarLiteral" decimalformatter="#,##0.00">1</Column>|<Column name="VarRounded" decimalformatter="#,##0.00">1</Column>|<Column name="VarRoundedLong" decimalformatter="#,##0.00">1.23457</Column>|<Column name="VarProduct" decimalformatter="#,##0.00">1</Column>|<Column name="VarQuotient" decimalformatter="#,##0.00">1</Column>|<Column name="VarSum" decimalformatter="#,##0.00">1</Column>|<Column name="VarEvaluated" decimalformatter="#,##0.00">1</Column>|<Column name="VarLiteralZeros" decimalformatter="#,##0.00">1</Column>|<Column name="VarRoundedOwnPlaces" decimalformatter="#,##0.#####">1</Column>|<Column name="VarLiteralOwnPlaces" decimalformatter="#,##0.00000">1</Column>|<Column name="VarFromStored" decimalformatter="#,##0.00">1</Column>|');
+        Observer.Verify();
     end;
 }

@@ -344,7 +344,12 @@ codeunit 62318 "RPT TvQ Tests"
         Observer.Observe('filter(<>Type::Item)', Part(Log, 'NotEqual'));
         Observer.Observe('filter(Type::Item|Type::Charge)', Part(Log, 'ListOfTwo'));
         Observer.Observe('filter(Type::Item..Type::Resource)', Part(Log, 'RangeOf'));
-        Observer.Finish();
+        Observer.Expect('filter(Type::Item)', 'view=VERSION(1) SORTING(Line No.);row 2;row 3;row 6;');
+        Observer.Expect('const(Type::Item)', 'view=VERSION(1) SORTING(Line No.);row 2;row 3;row 6;');
+        Observer.Expect('filter(<>Type::Item)', 'view=VERSION(1) SORTING(Line No.);row 1;row 4;row 5;');
+        Observer.Expect('filter(Type::Item|Type::Charge)', 'view=VERSION(1) SORTING(Line No.);row 2;row 3;row 5;row 6;');
+        Observer.Expect('filter(Type::Item..Type::Resource)', 'view=VERSION(1) SORTING(Line No.);row 2;row 3;row 4;row 6;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -360,7 +365,11 @@ codeunit 62318 "RPT TvQ Tests"
         Observer.Observe('option field', Part(Log, 'OptionField'));
         Observer.Observe('control const(Item)', Part(Log, 'PlainMember'));
         Observer.Observe('control filter("RPT TvQ Kind"::Item)', Part(Log, 'TypeQualified'));
-        Observer.Finish();
+        Observer.Expect('two fields', 'view=VERSION(1) SORTING(Line No.);row 2;row 3;');
+        Observer.Expect('option field', 'view=VERSION(1) SORTING(Line No.);row 2;row 3;row 5;row 6;');
+        Observer.Expect('control const(Item)', 'view=VERSION(1) SORTING(Line No.);row 2;row 3;row 6;');
+        Observer.Expect('control filter("RPT TvQ Kind"::Item)', 'view=VERSION(1) SORTING(Line No.);row 2;row 3;row 6;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -379,7 +388,9 @@ codeunit 62318 "RPT TvQ Tests"
             until not Pg.Next();
         Pg.Close();
         Observer.Observe('rows', Rows);
-        Observer.Finish();
+        Observer.Expect('open', 'page view=VERSION(1) SORTING(Line No.) count=2;');
+        Observer.Expect('rows', '2 3 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -396,7 +407,12 @@ codeunit 62318 "RPT TvQ Tests"
         Observer.Observe('filter(Type::Item|Type::Resource)', Format(Head."Item Or Res Lines"));
         Observer.Observe('const(Type::Item)', Format(Head."Const Item Lines"));
         Observer.Observe('two fields', Format(Head."Quote Order Item Lines"));
-        Observer.Finish();
+        Observer.Expect('filter(Type::Item)', '3');
+        Observer.Expect('filter(<>Type::Item)', '3');
+        Observer.Expect('filter(Type::Item|Type::Resource)', '4');
+        Observer.Expect('const(Type::Item)', '3');
+        Observer.Expect('two fields', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -412,6 +428,7 @@ codeunit 62318 "RPT TvQ Tests"
             Rows += Format(Q.LineNo) + ' ';
         Q.Close();
         Observer.Observe('rows', Rows);
-        Observer.Finish();
+        Observer.Expect('rows', '3 4 ');
+        Observer.Verify();
     end;
 }
