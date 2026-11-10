@@ -61,7 +61,18 @@ codeunit 99691 "JSON Array Used Return"
         Observer.Observe('format', Format(R.Insert(5, 9)));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', '');
+        Observer.Expect('assign_last_code', '');
+        Observer.Expect('assign_state', '[1,2]');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', '');
+        Observer.Expect('end_state', '[1,2]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -75,7 +86,10 @@ codeunit 99691 "JSON Array Used Return"
         asserterror R.Insert(5, 9);
         Observer.ObserveError('statement');
         Observer.Observe('state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('statement|text', 'Index out of bounds.');
+        Observer.Expect('statement|code', 'IndexOutOfBounds');
+        Observer.Expect('state', '[1,2]');
+        Observer.Verify();
     end;
 
     local procedure ArrayInsert_NegativeIndex_Exit(var R: JsonArray): Boolean
@@ -111,7 +125,18 @@ codeunit 99691 "JSON Array Used Return"
         Observer.Observe('format', Format(R.Insert(-1, 9)));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', '');
+        Observer.Expect('assign_last_code', '');
+        Observer.Expect('assign_state', '[1,2]');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', '');
+        Observer.Expect('end_state', '[1,2]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -125,7 +150,10 @@ codeunit 99691 "JSON Array Used Return"
         asserterror R.Insert(-1, 9);
         Observer.ObserveError('statement');
         Observer.Observe('state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('statement|text', 'Index out of bounds.');
+        Observer.Expect('statement|code', 'IndexOutOfBounds');
+        Observer.Expect('state', '[1,2]');
+        Observer.Verify();
     end;
 
     local procedure ArraySet_IndexOutside_Exit(var R: JsonArray): Boolean
@@ -161,7 +189,18 @@ codeunit 99691 "JSON Array Used Return"
         Observer.Observe('format', Format(R.Set(2, 9)));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', '');
+        Observer.Expect('assign_last_code', '');
+        Observer.Expect('assign_state', '[1,2]');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', '');
+        Observer.Expect('end_state', '[1,2]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -175,7 +214,10 @@ codeunit 99691 "JSON Array Used Return"
         asserterror R.Set(2, 9);
         Observer.ObserveError('statement');
         Observer.Observe('state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('statement|text', 'Index out of bounds.');
+        Observer.Expect('statement|code', 'IndexOutOfBounds');
+        Observer.Expect('state', '[1,2]');
+        Observer.Verify();
     end;
 
     local procedure ArrayGet_IndexOutside_Exit(var R: JsonArray): Boolean
@@ -217,7 +259,18 @@ codeunit 99691 "JSON Array Used Return"
         Observer.Observe('format', Format(R.Get(2, T)));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R.AsToken()) + ' / ' + Txt(T));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', '');
+        Observer.Expect('assign_last_code', '');
+        Observer.Expect('assign_state', '[1,2] / "marker"');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', '');
+        Observer.Expect('end_state', '[1,2] / "marker"');
+        Observer.Verify();
     end;
 
     [Test]
@@ -235,7 +288,10 @@ codeunit 99691 "JSON Array Used Return"
         asserterror R.Get(2, T);
         Observer.ObserveError('statement');
         Observer.Observe('state', Txt(R.AsToken()) + ' / ' + Txt(T));
-        Observer.Finish();
+        Observer.Expect('statement|text', 'Index out of bounds.');
+        Observer.Expect('statement|code', 'IndexOutOfBounds');
+        Observer.Expect('state', '[1,2] / "marker"');
+        Observer.Verify();
     end;
 
     local procedure ArrayRemoveAt_IndexOutside_Exit(var R: JsonArray): Boolean
@@ -271,7 +327,18 @@ codeunit 99691 "JSON Array Used Return"
         Observer.Observe('format', Format(R.RemoveAt(2)));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', '');
+        Observer.Expect('assign_last_code', '');
+        Observer.Expect('assign_state', '[1,2]');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', '');
+        Observer.Expect('end_state', '[1,2]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -285,7 +352,10 @@ codeunit 99691 "JSON Array Used Return"
         asserterror R.RemoveAt(2);
         Observer.ObserveError('statement');
         Observer.Observe('state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('statement|text', 'Index out of bounds.');
+        Observer.Expect('statement|code', 'IndexOutOfBounds');
+        Observer.Expect('state', '[1,2]');
+        Observer.Verify();
     end;
 
     local procedure ArraySelectToken_MissingPath_Exit(var R: JsonArray): Boolean
@@ -327,7 +397,18 @@ codeunit 99691 "JSON Array Used Return"
         Observer.Observe('format', Format(R.SelectToken('[5]', T)));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R.AsToken()) + ' / ' + Txt(T));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', '');
+        Observer.Expect('assign_last_code', '');
+        Observer.Expect('assign_state', '[1,2] / "marker"');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', '');
+        Observer.Expect('end_state', '[1,2] / "marker"');
+        Observer.Verify();
     end;
 
     [Test]
@@ -345,7 +426,10 @@ codeunit 99691 "JSON Array Used Return"
         asserterror R.SelectToken('[5]', T);
         Observer.ObserveError('statement');
         Observer.Observe('state', Txt(R.AsToken()) + ' / ' + Txt(T));
-        Observer.Finish();
+        Observer.Expect('statement|text', 'The JSON path ''[5]'' does not match any tokens.');
+        Observer.Expect('statement|code', 'InvalidJsonPathSelection');
+        Observer.Expect('state', '[1,2] / "marker"');
+        Observer.Verify();
     end;
 
     local procedure ArraySelectToken_UnclosedPath_Exit(var R: JsonArray): Boolean
@@ -387,7 +471,18 @@ codeunit 99691 "JSON Array Used Return"
         Observer.Observe('format', Format(R.SelectToken('[', T)));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R.AsToken()) + ' / ' + Txt(T));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('assign_last_code', 'InvalidOperation');
+        Observer.Expect('assign_state', '[1,2] / "marker"');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('end_state', '[1,2] / "marker"');
+        Observer.Verify();
     end;
 
     [Test]
@@ -405,7 +500,10 @@ codeunit 99691 "JSON Array Used Return"
         asserterror R.SelectToken('[', T);
         Observer.ObserveError('statement');
         Observer.Observe('state', Txt(R.AsToken()) + ' / ' + Txt(T));
-        Observer.Finish();
+        Observer.Expect('statement|text', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('statement|code', 'InvalidOperation');
+        Observer.Expect('state', '[1,2] / "marker"');
+        Observer.Verify();
     end;
 
     local procedure ArrayReadFrom_InvalidText_Exit(var R: JsonArray): Boolean
@@ -441,7 +539,18 @@ codeunit 99691 "JSON Array Used Return"
         Observer.Observe('format', Format(R.ReadFrom('[1,')));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', 'The data does not represent a valid JSON token.');
+        Observer.Expect('assign_last_code', 'InvalidJsonData');
+        Observer.Expect('assign_state', '[1,2]');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', 'The data does not represent a valid JSON token.');
+        Observer.Expect('end_state', '[1,2]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -455,7 +564,10 @@ codeunit 99691 "JSON Array Used Return"
         asserterror R.ReadFrom('[1,');
         Observer.ObserveError('statement');
         Observer.Observe('state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('statement|text', 'The data does not represent a valid JSON token.');
+        Observer.Expect('statement|code', 'InvalidJsonData');
+        Observer.Expect('state', '[1,2]');
+        Observer.Verify();
     end;
 
     local procedure TokenReadFrom_InvalidText_Exit(var R: JsonToken): Boolean
@@ -490,7 +602,18 @@ codeunit 99691 "JSON Array Used Return"
         Observer.Observe('format', Format(R.ReadFrom('{"a":')));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', 'The data does not represent a valid JSON token.');
+        Observer.Expect('assign_last_code', 'InvalidJsonData');
+        Observer.Expect('assign_state', '{"a":1}');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', 'The data does not represent a valid JSON token.');
+        Observer.Expect('end_state', '{"a":1}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -503,7 +626,10 @@ codeunit 99691 "JSON Array Used Return"
         asserterror R.ReadFrom('{"a":');
         Observer.ObserveError('statement');
         Observer.Observe('state', Txt(R));
-        Observer.Finish();
+        Observer.Expect('statement|text', 'The data does not represent a valid JSON token.');
+        Observer.Expect('statement|code', 'InvalidJsonData');
+        Observer.Expect('state', '{"a":1}');
+        Observer.Verify();
     end;
 
     local procedure TokenSelectToken_MissingPath_Exit(var R: JsonToken): Boolean
@@ -544,7 +670,18 @@ codeunit 99691 "JSON Array Used Return"
         Observer.Observe('format', Format(R.SelectToken('zz', T)));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R) + ' / ' + Txt(T));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', '');
+        Observer.Expect('assign_last_code', '');
+        Observer.Expect('assign_state', '{"a":1} / "marker"');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', '');
+        Observer.Expect('end_state', '{"a":1} / "marker"');
+        Observer.Verify();
     end;
 
     [Test]
@@ -561,7 +698,10 @@ codeunit 99691 "JSON Array Used Return"
         asserterror R.SelectToken('zz', T);
         Observer.ObserveError('statement');
         Observer.Observe('state', Txt(R) + ' / ' + Txt(T));
-        Observer.Finish();
+        Observer.Expect('statement|text', 'The JSON path ''zz'' does not match any tokens.');
+        Observer.Expect('statement|code', 'InvalidJsonPathSelection');
+        Observer.Expect('state', '{"a":1} / "marker"');
+        Observer.Verify();
     end;
 
     local procedure ValueReadFrom_InvalidText_Exit(var R: JsonValue): Boolean
@@ -596,7 +736,18 @@ codeunit 99691 "JSON Array Used Return"
         Observer.Observe('format', Format(R.ReadFrom('{"a":')));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', 'The data does not represent a valid JSON token.');
+        Observer.Expect('assign_last_code', 'InvalidJsonData');
+        Observer.Expect('assign_state', '7');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', 'The data does not represent a valid JSON token.');
+        Observer.Expect('end_state', '7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -609,7 +760,10 @@ codeunit 99691 "JSON Array Used Return"
         asserterror R.ReadFrom('{"a":');
         Observer.ObserveError('statement');
         Observer.Observe('state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('statement|text', 'The data does not represent a valid JSON token.');
+        Observer.Expect('statement|code', 'InvalidJsonData');
+        Observer.Expect('state', '7');
+        Observer.Verify();
     end;
 
     local procedure ValueSelectToken_MissingPath_Exit(var R: JsonValue): Boolean
@@ -650,7 +804,18 @@ codeunit 99691 "JSON Array Used Return"
         Observer.Observe('format', Format(R.SelectToken('zz', T)));
         Observer.Observe('end_last_text', GetLastErrorText());
         Observer.Observe('end_state', Txt(R.AsToken()) + ' / ' + Txt(T));
-        Observer.Finish();
+        Observer.Expect('assign', 'No');
+        Observer.Expect('assign_last_text', '');
+        Observer.Expect('assign_last_code', '');
+        Observer.Expect('assign_state', '7 / "marker"');
+        Observer.Expect('if_not', 'then branch');
+        Observer.Expect('exit', 'No');
+        Observer.Expect('exit_result_ignored', 'no error');
+        Observer.Expect('argument', 'false');
+        Observer.Expect('format', 'No');
+        Observer.Expect('end_last_text', '');
+        Observer.Expect('end_state', '7 / "marker"');
+        Observer.Verify();
     end;
 
     [Test]
@@ -667,7 +832,10 @@ codeunit 99691 "JSON Array Used Return"
         asserterror R.SelectToken('zz', T);
         Observer.ObserveError('statement');
         Observer.Observe('state', Txt(R.AsToken()) + ' / ' + Txt(T));
-        Observer.Finish();
+        Observer.Expect('statement|text', 'The JSON path ''zz'' does not match any tokens.');
+        Observer.Expect('statement|code', 'InvalidJsonPathSelection');
+        Observer.Expect('state', '7 / "marker"');
+        Observer.Verify();
     end;
 
     [Test]
@@ -695,6 +863,14 @@ codeunit 99691 "JSON Array Used Return"
         Observer.Observe('removeat_assign', Format(Ok));
         Observer.Observe('removeat_argument', TakeBoolean(R.RemoveAt(0)));
         Observer.Observe('state', Txt(R.AsToken()));
-        Observer.Finish();
+        Observer.Expect('insert_assign', 'Yes');
+        Observer.Expect('insert_at_count_if', 'then branch');
+        Observer.Expect('insert_argument', 'true');
+        Observer.Expect('set_assign', 'Yes');
+        Observer.Expect('set_argument', 'true');
+        Observer.Expect('removeat_assign', 'Yes');
+        Observer.Expect('removeat_argument', 'true');
+        Observer.Expect('state', '[5,1,2]');
+        Observer.Verify();
     end;
 }
