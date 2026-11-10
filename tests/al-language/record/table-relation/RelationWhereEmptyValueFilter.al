@@ -92,6 +92,11 @@ codeunit 66333 "REC WhEmpty Tests"
 {
     Subtype = Test;
 
+    var
+        // Codeunit global: the observation of WhereDate_ConstAndTwoConditions_RecordValidate is longer than one failure message, and its
+        // continuation tests (_More1, _More2) read the rest from this variable.
+        LongObserver: Codeunit "Probe Observer";
+
     local procedure Initialize()
     var
         M: Record "REC WhEmpty Master";
@@ -238,25 +243,25 @@ codeunit 66333 "REC WhEmpty Tests"
     [Test]
     procedure WhereDate_ConstAndTwoConditions_RecordValidate()
     var
-        Observer: Codeunit "Probe Observer";
         R: Record "REC WhEmpty Response";
     begin
         Initialize();
-        DateCells(Observer, 'const 0D', R.FieldNo(DateConst));
-        DateCells(Observer, 'eq and code not empty', R.FieldNo(DateEqAndCode));
-        DateCells(Observer, 'eq, table.field form', R.FieldNo(DateEqField));
-        Observer.Expect('const 0D EMPTY', 'The format of the Date ''0001-01-01T00:00:00.0000000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. [Evaluate]');
-        Observer.Expect('const 0D SET', 'The format of the Date ''0001-01-01T00:00:00.0000000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. [Evaluate]');
-        Observer.Expect('const 0D NOPE', 'The format of the Date ''0001-01-01T00:00:00.0000000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. [Evaluate]');
-        Observer.Expect('const 0D blank', 'ok');
-        Observer.Expect('eq and code not empty EMPTY', 'The field DateEqAndCode of table REC WhEmpty Response contains a value (EMPTY) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
-        Observer.Expect('eq and code not empty SET', 'The field DateEqAndCode of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
-        Observer.Expect('eq and code not empty NOPE', 'The field DateEqAndCode of table REC WhEmpty Response contains a value (NOPE) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
-        Observer.Expect('eq and code not empty blank', 'ok');
-        Observer.Expect('eq, table.field form EMPTY', 'ok');
-        Observer.Expect('eq, table.field form SET', 'The field DateEqField of table REC WhEmpty Response contains a value (SET) that cannot be found in the related table (REC WhEmpty Master). [DB:NothingInsideFilter]');
-        Observer.Expect('eq, table.field form NOPE', 'The field DateEqField of table REC WhEm');
-        Observer.Verify();
+        DateCells(LongObserver, 'const 0D', R.FieldNo(DateConst));
+        DateCells(LongObserver, 'eq and code not empty', R.FieldNo(DateEqAndCode));
+        DateCells(LongObserver, 'eq, table.field form', R.FieldNo(DateEqField));
+        LongObserver.Finish();
+    end;
+
+    [Test]
+    procedure WhereDate_ConstAndTwoConditions_RecordValidate_More1()
+    begin
+        LongObserver.More();
+    end;
+
+    [Test]
+    procedure WhereDate_ConstAndTwoConditions_RecordValidate_More2()
+    begin
+        LongObserver.More();
     end;
 
     [Test]
