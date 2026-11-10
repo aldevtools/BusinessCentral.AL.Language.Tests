@@ -1,5 +1,26 @@
 # AL Language Coverage Test Suite — Agent Instructions
 
+## Rule 0 — Probe the whole area, never only the reported shape
+
+When an issue, a refusal or a failing test points at one shape (one builtin with one argument type,
+one property on one object type, one page pattern), measure the **whole area** around it in one
+go, not just that shape:
+
+- **A builtin or statement:** every argument type and arity, every receiver kind, every format or
+  option number, the error cases, compile (must-compile and must-not-compile) and run time. For
+  example Format: every standard format and format string element on every value type it accepts.
+- **A property or trigger:** every object type and sub-element where AL allows it, every value form,
+  and how it combines with the properties that usually appear next to it.
+- **A page or TestPage behaviour:** the lifecycle matrix (OpenEdit, OpenView, OpenNew, New, First,
+  Next, GoToKey/GoToRecord, SetValue, actions, OK, Close, end of test) crossed with the page shapes
+  that change it (DelayedInsert, AutoSplitKey, parts and SubPageLink, OnFindRecord/OnNextRecord,
+  temporary source tables, more rows than one window).
+
+Write the area as a table of cases (a matrix), assert every cell, and say in the file header which
+area it covers. One area matrix replaces dozens of later one-shape issues. Only skip a cell when
+BC rejects it at compile time (then pin that as a must-not-compile case) or when it is out of scope
+for the app it would go in; say which cells you skipped and why in the PR body.
+
 ## What This Repo Is
 
 An executable specification that proves AL language features work correctly

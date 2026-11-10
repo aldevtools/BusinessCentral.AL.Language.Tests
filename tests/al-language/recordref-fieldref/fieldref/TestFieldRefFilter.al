@@ -186,6 +186,131 @@ codeunit 60075 "Test FieldRef Filter"
         Assert.AreEqual(2, Count, 'SetFilter(>7) must return 2 records (10 and 15)');
     end;
 
+    // FieldRef.SetFilter with the text 0 and related texts on a Duration field (al-runner issue 7388), next to Integer, BigInteger and Decimal.
+    // Rows: Duration 0, 1000 and 60000 (Integer, BigInteger and Decimal the same numbers).
+    [TryFunction]
+    local procedure TrySetFilter(var FldRef: FieldRef; Txt: Text)
+    begin
+        FldRef.SetFilter(Txt);
+    end;
+
+    local procedure SeedNumbers()
+    var
+        Rec: Record "ALT Universal";
+    begin
+        Rec."Entry No." := 1;
+        Rec."Integer Field" := 0;
+        Rec."BigInteger Field" := 0;
+        Rec."Decimal Field" := 0;
+        Rec."Duration Field" := 0;
+        Rec.Insert();
+        Rec."Entry No." := 2;
+        Rec."Integer Field" := 1000;
+        Rec."BigInteger Field" := 1000;
+        Rec."Decimal Field" := 1000;
+        Rec."Duration Field" := 1000;
+        Rec.Insert();
+        Rec."Entry No." := 3;
+        Rec."Integer Field" := 60000;
+        Rec."BigInteger Field" := 60000;
+        Rec."Decimal Field" := 60000;
+        Rec."Duration Field" := 60000;
+        Rec.Insert();
+    end;
+
+    local procedure Probe(var Observer: Codeunit "Probe Observer"; Name: Text; FieldNo: Integer; Txt: Text)
+    var
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+        Ids: Text;
+    begin
+        RecRef.Open(Database::"ALT Universal");
+        FldRef := RecRef.Field(FieldNo);
+        ClearLastError();
+        if TrySetFilter(FldRef, Txt) then begin
+            if RecRef.FindSet() then
+                repeat
+                    Ids += Format(RecRef.Field(1).Value) + ',';
+                until RecRef.Next() = 0;
+            Observer.Observe(Name, 'ok|' + FldRef.GetFilter() + '|' + Ids);
+        end else
+            Observer.ObserveError(Name);
+        RecRef.Close();
+    end;
+
+    [Test]
+    procedure FieldRef_SetFilter_Zero_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        SeedNumbers();
+        Probe(Observer, 'dur_0', 11, '0');
+        Probe(Observer, 'dur_ne0', 11, '<>0');
+        Probe(Observer, 'dur_empty', 11, '');
+        Probe(Observer, 'dur_ne_empty', 11, '<>''''');
+        Probe(Observer, 'dur_1000', 11, '1000');
+        Probe(Observer, 'dur_gt0', 11, '>0');
+        Probe(Observer, 'dur_range', 11, '0..1000');
+        Probe(Observer, 'dur_1s', 11, '1S');
+        Observer.Expect('dur_0', 'ok|''''|1,');
+        Observer.Expect('dur_ne0', 'ok|<>''''|2,3,');
+        Observer.Expect('dur_empty', 'ok||1,2,3,');
+        Observer.Expect('dur_ne_empty', 'ok|<>''''|2,3,');
+        Observer.Expect('dur_1000', 'ok|41 days 16 hours|');
+        Observer.Expect('dur_gt0', 'ok|>''''|2,3,');
+        Observer.Expect('dur_range', 'ok|''''..41 days 16 hours|1,2,3,');
+        Observer.Expect('dur_1s', 'ok|1 second|2,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FieldRef_SetFilter_Zero_DurationTexts()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        SeedNumbers();
+        Probe(Observer, 'dur_1m', 11, '1M');
+        Probe(Observer, 'dur_1min', 11, '1 minute');
+        Probe(Observer, 'dur_zero_s', 11, '0S');
+        Probe(Observer, 'dur_text', 11, 'abc');
+        Probe(Observer, 'dur_0_blank', 11, ' 0 ');
+        Probe(Observer, 'dur_minus1', 11, '-1');
+        Probe(Observer, 'dur_0_0', 11, '0|1000');
+        Observer.Expect('dur_1m', 'ok|1 minute|3,');
+        Observer.Expect('dur_1min', 'ok|1 minute|3,');
+        Observer.Expect('dur_zero_s', 'ok|''''|1,');
+        Observer.Expect('dur_text|text', 'The filter "abc" is not valid for the Duration Field field on the ALT Universal table. The value "abc" can''t be evaluated into type Duration.');
+        Observer.Expect('dur_text|code', 'Filter:CSide');
+        Observer.Expect('dur_0_blank', 'ok|''''|1,');
+        Observer.Expect('dur_minus1', 'ok|-1 hour|');
+        Observer.Expect('dur_0_0', 'ok|''''|41 days 16 hours|1,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FieldRef_SetFilter_Zero_OtherNumberFields()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        SeedNumbers();
+        Probe(Observer, 'int_0', 3, '0');
+        Probe(Observer, 'int_ne0', 3, '<>0');
+        Probe(Observer, 'big_0', 4, '0');
+        Probe(Observer, 'big_ne0', 4, '<>0');
+        Probe(Observer, 'dec_0', 5, '0');
+        Probe(Observer, 'dec_ne0', 5, '<>0');
+        Observer.Expect('int_0', 'ok|0|1,');
+        Observer.Expect('int_ne0', 'ok|<>0|2,3,');
+        Observer.Expect('big_0', 'ok|0|1,');
+        Observer.Expect('big_ne0', 'ok|<>0|2,3,');
+        Observer.Expect('dec_0', 'ok|0|1,');
+        Observer.Expect('dec_ne0', 'ok|<>0|2,3,');
+        Observer.Verify();
+    end;
+
     local procedure Initialize()
     begin
         Cleanup.Initialize();
