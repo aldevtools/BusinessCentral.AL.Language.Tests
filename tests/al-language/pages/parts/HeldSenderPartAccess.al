@@ -254,9 +254,8 @@ codeunit 99621 "LT HS Tests"
         Row.Insert();
     end;
 
-    local procedure ObserveReach(Prefix: Text)
+    local procedure ObserveReach(Prefix: Text; var Observer: Codeunit "Probe Observer")
     var
-        Observer: Codeunit "Probe Observer";
         Holder: Codeunit "LT HS Holder";
         Touched: Integer;
         Text1: Text;
@@ -290,9 +289,9 @@ codeunit 99621 "LT HS Tests"
         Seed();
         Holder.Setup(true, false);
         Host.OpenView();
-        ObserveReach('open');
+        ObserveReach('open', Observer);
         Host.Close();
-        ObserveReach('closed');
+        ObserveReach('closed', Observer);
         Observer.Finish();
     end;
 
@@ -302,7 +301,7 @@ codeunit 99621 "LT HS Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        ObserveReach('next-test');
+        ObserveReach('next-test', Observer);
         Observer.Finish();
     end;
 
@@ -325,7 +324,8 @@ codeunit 99621 "LT HS Tests"
         Log := Holder.TakeLog();
         Host.Close();
         Observer.Observe('second-open.log', Log);
-        Observer.Finish();
+        Observer.Expect('second-open.log', 'fact(1);touch=1;read=id=1 name=one count=1;');
+        Observer.Verify();
     end;
 
     // The same second open when the variable was assigned from the sender of the second open's own event (the page is the open one).
@@ -343,7 +343,8 @@ codeunit 99621 "LT HS Tests"
         Log := Holder.TakeLog();
         Host.Close();
         Observer.Observe('assigned-open.log', Log);
-        Observer.Finish();
+        Observer.Expect('assigned-open.log', 'fact(1);touch=1;read=id=1 name=one count=1;');
+        Observer.Verify();
     end;
 }
 
@@ -378,7 +379,8 @@ codeunit 99622 "LT HS Tests Never"
         Log := Holder.TakeLog();
         Host.Close();
         Observer.Observe('never-assigned.log', Log);
-        Observer.Finish();
+        Observer.Expect('never-assigned.log', 'fact(1);touch=2;read=id=1 name=one count=1;');
+        Observer.Verify();
     end;
 }
 
@@ -706,7 +708,8 @@ codeunit 99629 "LT HS Shape Hidden Raw"
         Host.Close();
         ShapeLog.Add('T:closed');
         Observer.Observe('log', ShapeLog.TakeLog());
-        Observer.Finish();
+        Observer.Expect('log', 'h1.open(vis=false);sub.open;f2.open;h1.getrec(1);sub.hold;sub.curr;f2.curr(1);sub.fact(enabled=true,init=false);h1.upd;f2.refresh(id=1,n=1);T:opened;sub.qclose;T:closed;');
+        Observer.Verify();
     end;
 
     // The customer's second test, in the same codeunit: OpenNew, the key set with SetValue, an action invoked. Part hidden, direct call.
@@ -727,7 +730,8 @@ codeunit 99629 "LT HS Shape Hidden Raw"
         Host.Close();
         ShapeLog.Add('T:closed');
         Observer.Observe('log', ShapeLog.TakeLog());
-        Observer.Finish();
+        Observer.Expect('log', 'h3.open(vis=false);sub.open;f4.open;sub.curr;f4.curr(0);sub.fact(enabled=true,init=true);h1.upd;f2.refresh(id=1,n=2);T:opened;T:set;h3.getrec(2);sub.hold;action(2);h3.getrec(2);sub.hold;h3.getrec(2);sub.hold;sub.curr;f4.curr(2);sub.fact(enabled=true,init=true);h3.upd;f4.refresh(id=2,n=1);T:acted;sub.qclose;T:closed;');
+        Observer.Verify();
     end;
 }
 
@@ -762,7 +766,9 @@ codeunit 99630 "LT HS Shape Hidden Try"
         else
             Observer.ObserveError('closed.direct');
         Observer.Observe('log', ShapeLog.TakeLog());
-        Observer.Finish();
+        Observer.Expect('closed.direct', '2');
+        Observer.Expect('log', 'h1.open(vis=false);sub.open;f2.open;h1.getrec(1);sub.hold;sub.curr;f2.curr(1);sub.fact(enabled=true,init=false);h1.updv;f2.refresh(id=1,n=1);ret=1;T:opened;sub.qclose;T:closed;h1.updv;f2.refresh(id=1,n=2);');
+        Observer.Verify();
     end;
 
     // As HS07 with the call on the held page in a TryFunction, and one more call from the test body after the close.
@@ -789,7 +795,9 @@ codeunit 99630 "LT HS Shape Hidden Try"
         else
             Observer.ObserveError('closed.direct');
         Observer.Observe('log', ShapeLog.TakeLog());
-        Observer.Finish();
+        Observer.Expect('closed.direct', '2');
+        Observer.Expect('log', 'h3.open(vis=false);sub.open;f4.open;sub.curr;f4.curr(0);sub.fact(enabled=true,init=true);h1.updv;f2.refresh(id=1,n=3);ret=3;T:opened;T:set;h3.getrec(2);sub.hold;action(2);h3.getrec(2);sub.hold;h3.getrec(2);sub.hold;sub.curr;f4.curr(2);sub.fact(enabled=true,init=true);h3.updv;f4.refresh(id=2,n=1);ret=1;T:acted;sub.qclose;T:closed;h3.updv;f4.refresh(id=2,n=2);');
+        Observer.Verify();
     end;
 }
 
@@ -819,7 +827,8 @@ codeunit 99631 "LT HS Shape Visible Raw"
         Host.Close();
         ShapeLog.Add('T:closed');
         Observer.Observe('log', ShapeLog.TakeLog());
-        Observer.Finish();
+        Observer.Expect('log', 'h1.open(vis=true);sub.open;f2.open;h1.getrec(1);sub.hold;sub.curr;f2.curr(1);sub.fact(enabled=true,init=false);h1.upd;f2.refresh(id=1,n=1);T:opened;sub.qclose;T:closed;');
+        Observer.Verify();
     end;
 
     // As HS07 with the part visible.
@@ -840,7 +849,8 @@ codeunit 99631 "LT HS Shape Visible Raw"
         Host.Close();
         ShapeLog.Add('T:closed');
         Observer.Observe('log', ShapeLog.TakeLog());
-        Observer.Finish();
+        Observer.Expect('log', 'h3.open(vis=true);sub.open;f4.open;sub.curr;f4.curr(0);sub.fact(enabled=true,init=true);h1.upd;f2.refresh(id=1,n=2);T:opened;T:set;h3.getrec(2);sub.hold;action(2);h3.getrec(2);sub.hold;h3.getrec(2);sub.hold;sub.curr;f4.curr(2);sub.fact(enabled=true,init=true);h3.upd;f4.refresh(id=2,n=1);T:acted;sub.qclose;T:closed;');
+        Observer.Verify();
     end;
 }
 
@@ -875,7 +885,9 @@ codeunit 99632 "LT HS Shape Visible Try"
         else
             Observer.ObserveError('closed.direct');
         Observer.Observe('log', ShapeLog.TakeLog());
-        Observer.Finish();
+        Observer.Expect('closed.direct', '2');
+        Observer.Expect('log', 'h1.open(vis=true);sub.open;f2.open;h1.getrec(1);sub.hold;sub.curr;f2.curr(1);sub.fact(enabled=true,init=false);h1.updv;f2.refresh(id=1,n=1);ret=1;T:opened;sub.qclose;T:closed;h1.updv;f2.refresh(id=1,n=2);');
+        Observer.Verify();
     end;
 
     // As HS09 with the part visible.
@@ -902,6 +914,8 @@ codeunit 99632 "LT HS Shape Visible Try"
         else
             Observer.ObserveError('closed.direct');
         Observer.Observe('log', ShapeLog.TakeLog());
-        Observer.Finish();
+        Observer.Expect('closed.direct', '2');
+        Observer.Expect('log', 'h3.open(vis=true);sub.open;f4.open;sub.curr;f4.curr(0);sub.fact(enabled=true,init=true);h1.updv;f2.refresh(id=1,n=3);ret=3;T:opened;T:set;h3.getrec(2);sub.hold;action(2);h3.getrec(2);sub.hold;h3.getrec(2);sub.hold;sub.curr;f4.curr(2);sub.fact(enabled=true,init=true);h3.updv;f4.refresh(id=2,n=1);ret=1;T:acted;sub.qclose;T:closed;h3.updv;f4.refresh(id=2,n=2);');
+        Observer.Verify();
     end;
 }
