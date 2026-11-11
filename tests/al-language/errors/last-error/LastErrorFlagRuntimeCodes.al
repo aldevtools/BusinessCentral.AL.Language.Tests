@@ -8,7 +8,7 @@
 //   KeyNotFound (Dictionary.Get); a duplicate Dictionary.Add; TypeConversion:Format (a Variant holding a text into an Integer);
 //   OutsidePermittedRange (DMY2Date); InvalidGuidFormat (Evaluate into a Guid); Evaluate into an Integer; a List changed in its
 //   own foreach. The first statement of each test is the reporter's repro of aldevtools/BusinessCentral.AL.Runner#7759.
-//   Added (observe form): the raise sites of those codes not measured above (List.RemoveAt, List.Set, List.Get(i, var), Dictionary.Get(k, var),
+//   Added, measured by the corpus CI matrix (BC 27.5, 28.5, 29.0, run 43121492269; the same on all three): the raise sites of those codes not measured above (List.RemoveAt, List.Set, List.Get(i, var), Dictionary.Get(k, var),
 //   Text.Remove, PadRight, Substring(Start, Length), DMY2Date day and year, JsonArray.Get, an array read, a Guid compared with a text, a
 //   Variant holding '' into an Integer), InvalidOperation candidates (an uninitialized interface, SelectToken, AsValue of an object) and
 //   RecordRef finds on an empty set (empty table with and without a filter, a table with rows filtered out, a temporary RecordRef).
@@ -369,7 +369,23 @@ codeunit 77100 "ERR LastErr Codes Test"
         Site('listset', Observer);
         Site('listgetvar', Observer);
         Site('dictgetvar', Observer);
-        Observer.Finish();
+        Observer.Expect('listremoveat', 'No');
+        Observer.Expect('listremoveat_true', 'Message not shown because the NavBaseException constructor was used without privacy classification');
+        Observer.Expect('listremoveat_false', 'An invalid argument was passed to a ''List'' data type method.');
+        Observer.Expect('listremoveat_code', 'ArgumentOutOfRange');
+        Observer.Expect('listset', 'No');
+        Observer.Expect('listset_true', 'Message not shown because the NavBaseException constructor was used without privacy classification');
+        Observer.Expect('listset_false', 'An invalid argument was passed to a ''List'' data type method.');
+        Observer.Expect('listset_code', 'ArgumentOutOfRange');
+        Observer.Expect('listgetvar', 'Yes');
+        Observer.Expect('listgetvar_true', 'Message not shown because the NavBaseException constructor was used without privacy classification');
+        Observer.Expect('listgetvar_false', 'An invalid argument was passed to a ''List'' data type method.');
+        Observer.Expect('listgetvar_code', 'ArgumentOutOfRange');
+        Observer.Expect('dictgetvar', 'Yes');
+        Observer.Expect('dictgetvar_true', '');
+        Observer.Expect('dictgetvar_false', '');
+        Observer.Expect('dictgetvar_code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -380,7 +396,19 @@ codeunit 77100 "ERR LastErr Codes Test"
         Site('textremove', Observer);
         Site('padright', Observer);
         Site('substringlength', Observer);
-        Observer.Finish();
+        Observer.Expect('textremove', 'No');
+        Observer.Expect('textremove_true', 'Message not shown because the NavBaseException constructor was used without privacy classification');
+        Observer.Expect('textremove_false', 'startIndex cannot be larger than length of string. (Parameter ''startIndex'')');
+        Observer.Expect('textremove_code', 'ArgumentOutOfRange');
+        Observer.Expect('padright', 'No');
+        Observer.Expect('padright_true', 'Message not shown because the NavBaseException constructor was used without privacy classification');
+        Observer.Expect('padright_false', 'totalWidth (''-1'') must be a non-negative value. (Parameter ''totalWidth'')\Actual value was -1.');
+        Observer.Expect('padright_code', 'ArgumentOutOfRange');
+        Observer.Expect('substringlength', 'Yes');
+        Observer.Expect('substringlength_true', '');
+        Observer.Expect('substringlength_false', '');
+        Observer.Expect('substringlength_code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -392,7 +420,23 @@ codeunit 77100 "ERR LastErr Codes Test"
         Site('dmy2dateyear', Observer);
         Site('guidtext', Observer);
         Site('variantempty', Observer);
-        Observer.Finish();
+        Observer.Expect('dmy2dateday', 'No');
+        Observer.Expect('dmy2dateday_true', 'The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: <redacted>. The permitted range is: from 1 to 31.');
+        Observer.Expect('dmy2dateday_false', 'The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 40. The permitted range is: from 1 to 31.');
+        Observer.Expect('dmy2dateday_code', 'OutsidePermittedRange');
+        Observer.Expect('dmy2dateyear', 'No');
+        Observer.Expect('dmy2dateyear_true', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: <redacted>. The permitted range is: from 1 to 9999.');
+        Observer.Expect('dmy2dateyear_false', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 10000. The permitted range is: from 1 to 9999.');
+        Observer.Expect('dmy2dateyear_code', 'OutsidePermittedRange');
+        Observer.Expect('guidtext', 'No');
+        Observer.Expect('guidtext_true', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('guidtext_false', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('guidtext_code', 'InvalidGuidFormat');
+        Observer.Expect('variantempty', 'No');
+        Observer.Expect('variantempty_true', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('variantempty_false', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('variantempty_code', 'TypeConversion:Format');
+        Observer.Verify();
     end;
 
     [Test]
@@ -402,7 +446,15 @@ codeunit 77100 "ERR LastErr Codes Test"
     begin
         Site('jsonarrayget', Observer);
         Site('arrayread', Observer);
-        Observer.Finish();
+        Observer.Expect('jsonarrayget', 'Yes');
+        Observer.Expect('jsonarrayget_true', '');
+        Observer.Expect('jsonarrayget_false', '');
+        Observer.Expect('jsonarrayget_code', '');
+        Observer.Expect('arrayread', 'No');
+        Observer.Expect('arrayread_true', 'Index out of bounds.');
+        Observer.Expect('arrayread_false', 'Index out of bounds.');
+        Observer.Expect('arrayread_code', 'IndexOutOfBounds');
+        Observer.Verify();
     end;
 
     [Test]
@@ -413,7 +465,19 @@ codeunit 77100 "ERR LastErr Codes Test"
         Site('interface', Observer);
         Site('selecttoken', Observer);
         Site('asvalue', Observer);
-        Observer.Finish();
+        Observer.Expect('interface', 'No');
+        Observer.Expect('interface_true', 'Interface not initialized');
+        Observer.Expect('interface_false', 'Interface not initialized');
+        Observer.Expect('interface_code', 'InvalidOperation');
+        Observer.Expect('selecttoken', 'Yes');
+        Observer.Expect('selecttoken_true', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('selecttoken_false', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('selecttoken_code', 'InvalidOperation');
+        Observer.Expect('asvalue', 'No');
+        Observer.Expect('asvalue_true', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonToken to Microsoft.Dynamics.Nav.Runtime.NavJsonValue.');
+        Observer.Expect('asvalue_false', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonToken to Microsoft.Dynamics.Nav.Runtime.NavJsonValue.');
+        Observer.Expect('asvalue_code', 'Conversion');
+        Observer.Verify();
     end;
 
     // RecordRef finds on an empty set (the Record cells are the NothingInsideFilter tests above; al-runtime-rs#7806).
@@ -459,7 +523,27 @@ codeunit 77100 "ERR LastErr Codes Test"
         RefFind(Ref, 'minus', Observer);
         RefFind(Ref, 'plus', Observer);
         Ref.Close();
-        Observer.Finish();
+        Observer.Expect('first', 'No');
+        Observer.Expect('first_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('first_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 42');
+        Observer.Expect('first_code', 'DB:NothingInsideFilter');
+        Observer.Expect('last', 'No');
+        Observer.Expect('last_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('last_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 42');
+        Observer.Expect('last_code', 'DB:NothingInsideFilter');
+        Observer.Expect('set', 'No');
+        Observer.Expect('set_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('set_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 42');
+        Observer.Expect('set_code', 'DB:NothingInsideFilter');
+        Observer.Expect('minus', 'No');
+        Observer.Expect('minus_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('minus_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 42');
+        Observer.Expect('minus_code', 'DB:NothingInsideFilter');
+        Observer.Expect('plus', 'No');
+        Observer.Expect('plus_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('plus_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 42');
+        Observer.Expect('plus_code', 'DB:NothingInsideFilter');
+        Observer.Verify();
     end;
 
     [Test]
@@ -478,7 +562,31 @@ codeunit 77100 "ERR LastErr Codes Test"
         RefFind(Ref, 'plus', Observer);
         RefFind(Ref, 'equal', Observer);
         Ref.Close();
-        Observer.Finish();
+        Observer.Expect('first', 'No');
+        Observer.Expect('first_true', 'The ALT Universal table is empty.');
+        Observer.Expect('first_false', 'The ALT Universal table is empty.');
+        Observer.Expect('first_code', 'DB:TableIsEmpty');
+        Observer.Expect('last', 'No');
+        Observer.Expect('last_true', 'The ALT Universal table is empty.');
+        Observer.Expect('last_false', 'The ALT Universal table is empty.');
+        Observer.Expect('last_code', 'DB:TableIsEmpty');
+        Observer.Expect('set', 'No');
+        Observer.Expect('set_true', 'The ALT Universal table is empty.');
+        Observer.Expect('set_false', 'The ALT Universal table is empty.');
+        Observer.Expect('set_code', 'DB:TableIsEmpty');
+        Observer.Expect('minus', 'No');
+        Observer.Expect('minus_true', 'The ALT Universal table is empty.');
+        Observer.Expect('minus_false', 'The ALT Universal table is empty.');
+        Observer.Expect('minus_code', 'DB:TableIsEmpty');
+        Observer.Expect('plus', 'No');
+        Observer.Expect('plus_true', 'The ALT Universal table is empty.');
+        Observer.Expect('plus_false', 'The ALT Universal table is empty.');
+        Observer.Expect('plus_code', 'DB:TableIsEmpty');
+        Observer.Expect('equal', 'No');
+        Observer.Expect('equal_true', 'The ALT Universal does not exist. Identification fields and values: <redacted>');
+        Observer.Expect('equal_false', 'The ALT Universal does not exist. Identification fields and values: Entry No.=''0''');
+        Observer.Expect('equal_code', 'DB:RecordNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -500,7 +608,27 @@ codeunit 77100 "ERR LastErr Codes Test"
         RefFind(Ref, 'minus', Observer);
         RefFind(Ref, 'plus', Observer);
         Ref.Close();
-        Observer.Finish();
+        Observer.Expect('first', 'No');
+        Observer.Expect('first_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('first_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 99');
+        Observer.Expect('first_code', 'DB:NothingInsideFilter');
+        Observer.Expect('last', 'No');
+        Observer.Expect('last_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('last_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 99');
+        Observer.Expect('last_code', 'DB:NothingInsideFilter');
+        Observer.Expect('set', 'No');
+        Observer.Expect('set_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('set_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 99');
+        Observer.Expect('set_code', 'DB:NothingInsideFilter');
+        Observer.Expect('minus', 'No');
+        Observer.Expect('minus_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('minus_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 99');
+        Observer.Expect('minus_code', 'DB:NothingInsideFilter');
+        Observer.Expect('plus', 'No');
+        Observer.Expect('plus_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('plus_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 99');
+        Observer.Expect('plus_code', 'DB:NothingInsideFilter');
+        Observer.Verify();
     end;
 
     [Test]
@@ -518,6 +646,26 @@ codeunit 77100 "ERR LastErr Codes Test"
         RefFind(Ref, 'minus', Observer);
         RefFind(Ref, 'plus', Observer);
         Ref.Close();
-        Observer.Finish();
+        Observer.Expect('first', 'No');
+        Observer.Expect('first_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('first_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 99');
+        Observer.Expect('first_code', 'DB:NothingInsideFilter');
+        Observer.Expect('last', 'No');
+        Observer.Expect('last_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('last_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 99');
+        Observer.Expect('last_code', 'DB:NothingInsideFilter');
+        Observer.Expect('set', 'No');
+        Observer.Expect('set_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('set_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 99');
+        Observer.Expect('set_code', 'DB:NothingInsideFilter');
+        Observer.Expect('minus', 'No');
+        Observer.Expect('minus_true', 'The ALT Universal table is empty.');
+        Observer.Expect('minus_false', 'The ALT Universal table is empty.');
+        Observer.Expect('minus_code', 'DB:TableIsEmpty');
+        Observer.Expect('plus', 'No');
+        Observer.Expect('plus_true', 'The ALT Universal table is empty.');
+        Observer.Expect('plus_false', 'The ALT Universal table is empty.');
+        Observer.Expect('plus_code', 'DB:TableIsEmpty');
+        Observer.Verify();
     end;
 }

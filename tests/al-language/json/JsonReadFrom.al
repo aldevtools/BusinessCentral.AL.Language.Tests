@@ -2,7 +2,7 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); self-contained codeunit 72505
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
-// Added (observe form, corpus CI 27.5 / 28.5 / 29.0): raw and escaped control characters inside JSON strings, in JsonObject, JsonToken,
+// Added, measured by the corpus CI matrix (BC 27.5, 28.5, 29.0, run 43121492269; the same on all three): raw and escaped control characters inside JSON strings, in JsonObject, JsonToken,
 // JsonArray and JsonValue ReadFrom (TAB, LF, CR, 1, 8, 12, 27, 31, 127), a raw TAB in a key, in a single-quoted string and between tokens.
 // BC versions: 29 (27 and 28 by CI)
 
@@ -440,28 +440,64 @@ codeunit 72505 "LT JsT ReadFrom"
     procedure ObjectReadFromRawControlInString()
     begin
         RawControls('obj');
-        Observer.Finish();
+        Observer.Expect('obj_raw_9', 'ret=Yes len=3 codes=120,9,121 out={"a":"x\ty"}');
+        Observer.Expect('obj_raw_10', 'ret=Yes len=3 codes=120,10,121 out={"a":"x\ny"}');
+        Observer.Expect('obj_raw_13', 'ret=Yes len=3 codes=120,13,121 out={"a":"x\ry"}');
+        Observer.Expect('obj_raw_1', 'ret=Yes len=3 codes=120,1,121 out={"a":"x\u0001y"}');
+        Observer.Expect('obj_raw_8', 'ret=Yes len=3 codes=120,8,121 out={"a":"x\by"}');
+        Observer.Expect('obj_raw_12', 'ret=Yes len=3 codes=120,12,121 out={"a":"x\fy"}');
+        Observer.Expect('obj_raw_27', 'ret=Yes len=3 codes=120,27,121 out={"a":"x\u001by"}');
+        Observer.Expect('obj_raw_31', 'ret=Yes len=3 codes=120,31,121 out={"a":"x\u001fy"}');
+        Observer.Expect('obj_raw_127', 'ret=Yes len=3 codes=120,127,121 out={"a":"xy"}');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TokenReadFromRawControlInString()
     begin
         RawControls('tok');
-        Observer.Finish();
+        Observer.Expect('tok_raw_9', 'ret=Yes len=3 codes=120,9,121 out={"a":"x\ty"}');
+        Observer.Expect('tok_raw_10', 'ret=Yes len=3 codes=120,10,121 out={"a":"x\ny"}');
+        Observer.Expect('tok_raw_13', 'ret=Yes len=3 codes=120,13,121 out={"a":"x\ry"}');
+        Observer.Expect('tok_raw_1', 'ret=Yes len=3 codes=120,1,121 out={"a":"x\u0001y"}');
+        Observer.Expect('tok_raw_8', 'ret=Yes len=3 codes=120,8,121 out={"a":"x\by"}');
+        Observer.Expect('tok_raw_12', 'ret=Yes len=3 codes=120,12,121 out={"a":"x\fy"}');
+        Observer.Expect('tok_raw_27', 'ret=Yes len=3 codes=120,27,121 out={"a":"x\u001by"}');
+        Observer.Expect('tok_raw_31', 'ret=Yes len=3 codes=120,31,121 out={"a":"x\u001fy"}');
+        Observer.Expect('tok_raw_127', 'ret=Yes len=3 codes=120,127,121 out={"a":"xy"}');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ArrayReadFromRawControlInString()
     begin
         RawControls('arr');
-        Observer.Finish();
+        Observer.Expect('arr_raw_9', 'ret=Yes len=3 codes=120,9,121 out=["x\ty"]');
+        Observer.Expect('arr_raw_10', 'ret=Yes len=3 codes=120,10,121 out=["x\ny"]');
+        Observer.Expect('arr_raw_13', 'ret=Yes len=3 codes=120,13,121 out=["x\ry"]');
+        Observer.Expect('arr_raw_1', 'ret=Yes len=3 codes=120,1,121 out=["x\u0001y"]');
+        Observer.Expect('arr_raw_8', 'ret=Yes len=3 codes=120,8,121 out=["x\by"]');
+        Observer.Expect('arr_raw_12', 'ret=Yes len=3 codes=120,12,121 out=["x\fy"]');
+        Observer.Expect('arr_raw_27', 'ret=Yes len=3 codes=120,27,121 out=["x\u001by"]');
+        Observer.Expect('arr_raw_31', 'ret=Yes len=3 codes=120,31,121 out=["x\u001fy"]');
+        Observer.Expect('arr_raw_127', 'ret=Yes len=3 codes=120,127,121 out=["xy"]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ValueReadFromRawControlInString()
     begin
         RawControls('val');
-        Observer.Finish();
+        Observer.Expect('val_raw_9', 'ret=Yes len=3 codes=120,9,121 out="x\ty"');
+        Observer.Expect('val_raw_10', 'ret=Yes len=3 codes=120,10,121 out="x\ny"');
+        Observer.Expect('val_raw_13', 'ret=Yes len=3 codes=120,13,121 out="x\ry"');
+        Observer.Expect('val_raw_1', 'ret=Yes len=3 codes=120,1,121 out="x\u0001y"');
+        Observer.Expect('val_raw_8', 'ret=Yes len=3 codes=120,8,121 out="x\by"');
+        Observer.Expect('val_raw_12', 'ret=Yes len=3 codes=120,12,121 out="x\fy"');
+        Observer.Expect('val_raw_27', 'ret=Yes len=3 codes=120,27,121 out="x\u001by"');
+        Observer.Expect('val_raw_31', 'ret=Yes len=3 codes=120,31,121 out="x\u001fy"');
+        Observer.Expect('val_raw_127', 'ret=Yes len=3 codes=120,127,121 out="xy"');
+        Observer.Verify();
     end;
 
     [Test]
@@ -476,7 +512,16 @@ codeunit 72505 "LT JsT ReadFrom"
         Observer.Observe('tok_esc_u001f', Ctl('tok', '{"a":"x\u001fy"}'));
         Observer.Observe('val_esc_t', Ctl('val', '"x\ty"'));
         Observer.Observe('arr_esc_u0001', Ctl('arr', '["x\u0001y"]'));
-        Observer.Finish();
+        Observer.Expect('tok_esc_t', 'ret=Yes len=3 codes=120,9,121 out={"a":"x\ty"}');
+        Observer.Expect('tok_esc_n', 'ret=Yes len=3 codes=120,10,121 out={"a":"x\ny"}');
+        Observer.Expect('tok_esc_r', 'ret=Yes len=3 codes=120,13,121 out={"a":"x\ry"}');
+        Observer.Expect('tok_esc_b', 'ret=Yes len=3 codes=120,8,121 out={"a":"x\by"}');
+        Observer.Expect('tok_esc_f', 'ret=Yes len=3 codes=120,12,121 out={"a":"x\fy"}');
+        Observer.Expect('tok_esc_u0001', 'ret=Yes len=3 codes=120,1,121 out={"a":"x\u0001y"}');
+        Observer.Expect('tok_esc_u001f', 'ret=Yes len=3 codes=120,31,121 out={"a":"x\u001fy"}');
+        Observer.Expect('val_esc_t', 'ret=Yes len=3 codes=120,9,121 out="x\ty"');
+        Observer.Expect('arr_esc_u0001', 'ret=Yes len=3 codes=120,1,121 out=["x\u0001y"]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -489,6 +534,13 @@ codeunit 72505 "LT JsT ReadFrom"
         Observer.Observe('tok_12_between', Ctl('tok', '{"a":' + Ch(12) + '"v"}'));
         Observer.Observe('tok_tab_only_string', Ctl('tok', '{"a":"' + Ch(9) + '"}'));
         Observer.Observe('tok_lf_crlf_string', Ctl('tok', '{"a":"x' + Ch(13) + Ch(10) + 'y"}'));
-        Observer.Finish();
+        Observer.Expect('tok_tab_in_key', 'ret=Yes len=1 codes=118 out={"a\tb":1,"a":"v"}');
+        Observer.Expect('tok_tab_single_quoted', 'ret=Yes len=3 codes=120,9,121 out={"a":"x\ty"}');
+        Observer.Expect('tok_tab_between', 'ret=Yes len=1 codes=118 out={"a":"v"}');
+        Observer.Expect('tok_1_between', 'ret=No out=null');
+        Observer.Expect('tok_12_between', 'ret=Yes len=1 codes=118 out={"a":"v"}');
+        Observer.Expect('tok_tab_only_string', 'ret=Yes len=1 codes=9 out={"a":"\t"}');
+        Observer.Expect('tok_lf_crlf_string', 'ret=Yes len=4 codes=120,13,10,121 out={"a":"x\r\ny"}');
+        Observer.Verify();
     end;
 }
