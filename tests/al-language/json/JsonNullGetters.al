@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/jsonvalue/jsonvalue-data-type
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160)
-// Probe: observe form, measured by the corpus CI matrix (BC 27.5, 28.5, 29.0).
+// Probe: measured by the corpus CI matrix (BC 27.5, 28.5, 29.0, run 43072734044); the values are the same on all three.
 // Facts: what every typed getter of JsonValue (AsBoolean, AsInteger, AsBigInteger, AsDecimal, AsText, AsCode, AsChar, AsByte,
 //   AsOption, AsDate, AsTime, AsDateTime, AsDuration) does on a JSON null: a null read from text, a JsonValue never assigned, and a
 //   JsonValue after SetValueToNull. Each getter answers a value or raises an error (text and code observed). The null read from
@@ -86,7 +86,22 @@ codeunit 77110 "JSN Null Getters Test"
         J.ReadFrom('{"a":null}');
         J.Get('a', T);
         ObserveAll(Observer, T.AsValue());
-        Observer.Finish();
+        Observer.Expect('isnull', 'Yes');
+        Observer.Expect('isundefined', 'No');
+        Observer.Expect('boolean', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Expect('integer', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('biginteger', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavBigInteger.|Conversion');
+        Observer.Expect('decimal', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion');
+        Observer.Expect('text', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavText.|Conversion');
+        Observer.Expect('code', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavText.|Conversion');
+        Observer.Expect('char', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Char.|Conversion');
+        Observer.Expect('byte', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Byte.|Conversion');
+        Observer.Expect('option', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavOption.|Conversion');
+        Observer.Expect('date', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavDate.|Conversion');
+        Observer.Expect('time', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavTime.|Conversion');
+        Observer.Expect('datetime', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavDateTime.|Conversion');
+        Observer.Expect('duration', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavDuration.|Conversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -96,7 +111,22 @@ codeunit 77110 "JSN Null Getters Test"
         V: JsonValue;
     begin
         ObserveAll(Observer, V);
-        Observer.Finish();
+        Observer.Expect('isnull', 'Yes');
+        Observer.Expect('isundefined', 'No');
+        Observer.Expect('boolean', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Expect('integer', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('biginteger', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavBigInteger.|Conversion');
+        Observer.Expect('decimal', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion');
+        Observer.Expect('text', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavText.|Conversion');
+        Observer.Expect('code', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavText.|Conversion');
+        Observer.Expect('char', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Char.|Conversion');
+        Observer.Expect('byte', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Byte.|Conversion');
+        Observer.Expect('option', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavOption.|Conversion');
+        Observer.Expect('date', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavDate.|Conversion');
+        Observer.Expect('time', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavTime.|Conversion');
+        Observer.Expect('datetime', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavDateTime.|Conversion');
+        Observer.Expect('duration', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavDuration.|Conversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -108,6 +138,21 @@ codeunit 77110 "JSN Null Getters Test"
         V.SetValue(5);
         V.SetValueToNull();
         ObserveAll(Observer, V);
-        Observer.Finish();
+        Observer.Expect('isnull', 'Yes');
+        Observer.Expect('isundefined', 'No');
+        Observer.Expect('boolean', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Expect('integer', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('biginteger', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavBigInteger.|Conversion');
+        Observer.Expect('decimal', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion');
+        Observer.Expect('text', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavText.|Conversion');
+        Observer.Expect('code', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavText.|Conversion');
+        Observer.Expect('char', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Char.|Conversion');
+        Observer.Expect('byte', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Byte.|Conversion');
+        Observer.Expect('option', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavOption.|Conversion');
+        Observer.Expect('date', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavDate.|Conversion');
+        Observer.Expect('time', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavTime.|Conversion');
+        Observer.Expect('datetime', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavDateTime.|Conversion');
+        Observer.Expect('duration', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavDuration.|Conversion');
+        Observer.Verify();
     end;
 }

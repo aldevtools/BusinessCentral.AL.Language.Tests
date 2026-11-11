@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/instream/instream-data-type
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160), ALT Blob (table 60008)
-// Probe: observe form, measured by the corpus CI matrix (BC 27.5, 28.5, 29.0).
+// Probe: measured by the corpus CI matrix (BC 27.5, 28.5, 29.0, run 43072734044); the values are the same on all three.
 // Facts: what the methods of an InStream and an OutStream that were never created do (EOS, Length, Position, ReadText, Read,
 //   CopyStream from it, WriteText, Write, CopyStream into it): a value or an error (text and code). And InStream.Read of a Text with
 //   a BigInteger length against the same read with an Integer length. Repros of aldevtools/BusinessCentral.AL.Runner#7760 (item 4)
@@ -103,7 +103,13 @@ codeunit 77130 "STR Uncreated Use Test"
         ObserveIn(Observer, 'readtext');
         ObserveIn(Observer, 'read');
         ObserveIn(Observer, 'copystream');
-        Observer.Finish();
+        Observer.Expect('in_eos', 'error:Microsoft.Dynamics.Nav.Runtime.NavInStream variable not initialized.|NotInitialized');
+        Observer.Expect('in_length', 'error:Microsoft.Dynamics.Nav.Runtime.NavInStream variable not initialized.|NotInitialized');
+        Observer.Expect('in_position', 'error:Microsoft.Dynamics.Nav.Runtime.NavInStream variable not initialized.|NotInitialized');
+        Observer.Expect('in_readtext', 'error:Microsoft.Dynamics.Nav.Runtime.NavInStream variable not initialized.|NotInitialized');
+        Observer.Expect('in_read', 'error:Microsoft.Dynamics.Nav.Runtime.NavInStream variable not initialized.|NotInitialized');
+        Observer.Expect('in_copystream', 'ok:No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -114,7 +120,10 @@ codeunit 77130 "STR Uncreated Use Test"
         ObserveOut(Observer, 'writetext');
         ObserveOut(Observer, 'write');
         ObserveOut(Observer, 'copystream');
-        Observer.Finish();
+        Observer.Expect('out_writetext', 'ok:0');
+        Observer.Expect('out_write', 'ok:0');
+        Observer.Expect('out_copystream', 'ok:No');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -161,6 +170,12 @@ codeunit 77130 "STR Uncreated Use Test"
         ReadWithLength(Observer, 'int0', false, 0);
         ReadWithLength(Observer, 'big10', true, 10);
         ReadWithLength(Observer, 'int10', false, 10);
-        Observer.Finish();
+        Observer.Expect('big3', 'ok:3|[abc]|eos=No');
+        Observer.Expect('int3', 'ok:3|[abc]|eos=No');
+        Observer.Expect('big0', 'ok:0|[]|eos=No');
+        Observer.Expect('int0', 'ok:0|[]|eos=No');
+        Observer.Expect('big10', 'ok:6|[abcdef]|eos=Yes');
+        Observer.Expect('int10', 'ok:6|[abcdef]|eos=Yes');
+        Observer.Verify();
     end;
 }

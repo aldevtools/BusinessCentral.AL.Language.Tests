@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/variant/variant-data-type
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160), ALT Universal (table 60000)
-// Probe: observe form, measured by the corpus CI matrix (BC 27.5, 28.5, 29.0).
+// Probe: measured by the corpus CI matrix (BC 27.5, 28.5, 29.0, run 43072734044); the values are the same on all three.
 // Facts: a Variant holding a RecordId, a Record, a RecordRef, a Guid, a Code, a Text or an Integer, assigned to a Code[20], a
 //   Text, an Integer, a Guid, a RecordId, a Record and a RecordRef: the value it gives or the error (text and code). And an
 //   unassigned Variant used as a condition, in Format, and assigned to an Integer, a Text and a Boolean. Repros of
@@ -106,7 +106,14 @@ codeunit 77120 "TYP Variant RecId Conv Test"
         StoredRow(Row);
         V := Row.RecordId();
         ObserveTargets(Observer, 'recordid', V);
-        Observer.Finish();
+        Observer.Expect('recordid_to_code', 'error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.|TypeConversion');
+        Observer.Expect('recordid_to_text', 'error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.|TypeConversion');
+        Observer.Expect('recordid_to_integer', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavRecordId to System.Int32.|Conversion');
+        Observer.Expect('recordid_to_guid', 'error:The expression Variant cannot be type-converted to a GUID value.|TypeConversion');
+        Observer.Expect('recordid_to_recordid', 'ok:ALT Universal: 7');
+        Observer.Expect('recordid_to_record', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavRecordId to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle.|Conversion');
+        Observer.Expect('recordid_to_recordref', 'error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavRecordRef value.|TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -119,7 +126,14 @@ codeunit 77120 "TYP Variant RecId Conv Test"
         StoredRow(Row);
         V := Row;
         ObserveTargets(Observer, 'record', V);
-        Observer.Finish();
+        Observer.Expect('record_to_code', 'error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.|TypeConversion');
+        Observer.Expect('record_to_text', 'error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.|TypeConversion');
+        Observer.Expect('record_to_integer', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavRecordHandle to System.Int32.|Conversion');
+        Observer.Expect('record_to_guid', 'error:The expression Variant cannot be type-converted to a GUID value.|TypeConversion');
+        Observer.Expect('record_to_recordid', 'error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavRecordId value.|TypeConversion');
+        Observer.Expect('record_to_record', 'ok:7');
+        Observer.Expect('record_to_recordref', 'error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavRecordRef value.|TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -134,7 +148,14 @@ codeunit 77120 "TYP Variant RecId Conv Test"
         RRef.GetTable(Row);
         V := RRef;
         ObserveTargets(Observer, 'recordref', V);
-        Observer.Finish();
+        Observer.Expect('recordref_to_code', 'error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.|TypeConversion');
+        Observer.Expect('recordref_to_text', 'error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.|TypeConversion');
+        Observer.Expect('recordref_to_integer', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavRecordRef to System.Int32.|Conversion');
+        Observer.Expect('recordref_to_guid', 'error:The expression Variant cannot be type-converted to a GUID value.|TypeConversion');
+        Observer.Expect('recordref_to_recordid', 'error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavRecordId value.|TypeConversion');
+        Observer.Expect('recordref_to_record', 'ok:7');
+        Observer.Expect('recordref_to_recordref', 'ok:60000:ALT Universal: 7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -142,10 +163,19 @@ codeunit 77120 "TYP Variant RecId Conv Test"
     var
         Observer: Codeunit "Probe Observer";
         V: Variant;
+        G: Guid;
     begin
-        V := CreateGuid();
+        Evaluate(G, '{11111111-2222-3333-4444-555555555555}');
+        V := G;
         ObserveTargets(Observer, 'guid', V);
-        Observer.Finish();
+        Observer.Expect('guid_to_code', 'error:The length of the string is 38, but it must be less than or equal to 20 characters. Value: {11111111-2222-3333-4444-555555555555}|StringLengthExceeded');
+        Observer.Expect('guid_to_text', 'ok:{11111111-2222-3333-4444-555555555555}');
+        Observer.Expect('guid_to_integer', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.|Conversion');
+        Observer.Expect('guid_to_guid', 'ok:a guid');
+        Observer.Expect('guid_to_recordid', 'error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavRecordId value.|TypeConversion');
+        Observer.Expect('guid_to_record', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle.|Conversion');
+        Observer.Expect('guid_to_recordref', 'error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavRecordRef value.|TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -172,7 +202,16 @@ codeunit 77120 "TYP Variant RecId Conv Test"
         ObserveInto(Observer, 'integer', V, 'recordid');
         ObserveInto(Observer, 'integer', V, 'record');
         ObserveInto(Observer, 'integer', V, 'recordref');
-        Observer.Finish();
+        Observer.Expect('code_to_recordid', 'error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavRecordId value.|TypeConversion');
+        Observer.Expect('code_to_record', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle.|Conversion');
+        Observer.Expect('code_to_recordref', 'error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavRecordRef value.|TypeConversion');
+        Observer.Expect('text_to_recordid', 'error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavRecordId value.|TypeConversion');
+        Observer.Expect('text_to_record', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle.|Conversion');
+        Observer.Expect('text_to_recordref', 'error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavRecordRef value.|TypeConversion');
+        Observer.Expect('integer_to_recordid', 'error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavRecordId value.|TypeConversion');
+        Observer.Expect('integer_to_record', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle.|Conversion');
+        Observer.Expect('integer_to_recordref', 'error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavRecordRef value.|TypeConversion');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -214,7 +253,14 @@ codeunit 77120 "TYP Variant RecId Conv Test"
         V := '';
         ObserveCondition(Observer, 'textempty', V);
         Observer.Observe('unassigned_isboolean', Format(Unassigned.IsBoolean()));
-        Observer.Finish();
+        Observer.Expect('unassigned', 'error:Microsoft.Dynamics.Nav.Runtime.NavVariant variable not initialized.|NotInitialized');
+        Observer.Expect('true', 'ok:then');
+        Observer.Expect('integer1', 'ok:then');
+        Observer.Expect('integer0', 'ok:else');
+        Observer.Expect('texttrue', 'error:The expression Variant cannot be type-converted to a Boolean value.|TypeConversion:Format');
+        Observer.Expect('textempty', 'error:The expression Variant cannot be type-converted to a Boolean value.|TypeConversion:Format');
+        Observer.Expect('unassigned_isboolean', 'No');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -265,6 +311,10 @@ codeunit 77120 "TYP Variant RecId Conv Test"
             else
                 Observer.Observe(Target, 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
         end;
-        Observer.Finish();
+        Observer.Expect('integer', 'error:Microsoft.Dynamics.Nav.Runtime.NavVariant variable not initialized.|NotInitialized');
+        Observer.Expect('text', 'ok:[]');
+        Observer.Expect('boolean', 'error:Microsoft.Dynamics.Nav.Runtime.NavVariant variable not initialized.|NotInitialized');
+        Observer.Expect('format', 'ok:[]');
+        Observer.Verify();
     end;
 }

@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/system/system-getlasterrortext-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160), ALT Universal (table 60000)
-// Probe: observe form, measured by the corpus CI matrix (BC 27.5, 28.5, 29.0).
+// Probe: measured by the corpus CI matrix (BC 27.5, 28.5, 29.0, run 43072734044); the values are the same on all three.
 // Facts: GetLastErrorText(true) (ExcludeCustomerContent), GetLastErrorText(false) and GetLastErrorCode after runtime errors of
 //   codes the corpus did not pin for the flag: DB:NothingInsideFilter on an empty table, on a temporary record and with Find('-') /
 //   Find('+'); ArgumentOutOfRange (List.Get, Text.Substring, Text.PadLeft); IndexOutOfBounds (an array index, JsonArray.RemoveAt);
@@ -58,7 +58,27 @@ codeunit 77100 "ERR LastErr Codes Test"
         Forms('minus', Observer);
         Observer.Observe('plus', Format(TryFind(Row, 'plus')));
         Forms('plus', Observer);
-        Observer.Finish();
+        Observer.Expect('first', 'No');
+        Observer.Expect('first_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('first_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 42');
+        Observer.Expect('first_code', 'DB:NothingInsideFilter');
+        Observer.Expect('last', 'No');
+        Observer.Expect('last_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('last_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 42');
+        Observer.Expect('last_code', 'DB:NothingInsideFilter');
+        Observer.Expect('set', 'No');
+        Observer.Expect('set_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('set_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 42');
+        Observer.Expect('set_code', 'DB:NothingInsideFilter');
+        Observer.Expect('minus', 'No');
+        Observer.Expect('minus_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('minus_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 42');
+        Observer.Expect('minus_code', 'DB:NothingInsideFilter');
+        Observer.Expect('plus', 'No');
+        Observer.Expect('plus_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('plus_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 42');
+        Observer.Expect('plus_code', 'DB:NothingInsideFilter');
+        Observer.Verify();
     end;
 
     [Test]
@@ -80,7 +100,19 @@ codeunit 77100 "ERR LastErr Codes Test"
         Row.SetFilter("Text Field", 'secret*');
         Observer.Observe('textfilter', Format(TryFind(Row, 'first')));
         Forms('textfilter', Observer);
-        Observer.Finish();
+        Observer.Expect('minus', 'No');
+        Observer.Expect('minus_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('minus_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 99');
+        Observer.Expect('minus_code', 'DB:NothingInsideFilter');
+        Observer.Expect('plus', 'No');
+        Observer.Expect('plus_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('plus_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 99');
+        Observer.Expect('plus_code', 'DB:NothingInsideFilter');
+        Observer.Expect('textfilter', 'No');
+        Observer.Expect('textfilter_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('textfilter_false', 'There is no ALT Universal within the filter.\\Filters: Text Field: secret*');
+        Observer.Expect('textfilter_code', 'DB:NothingInsideFilter');
+        Observer.Verify();
     end;
 
     [Test]
@@ -102,7 +134,19 @@ codeunit 77100 "ERR LastErr Codes Test"
         Row.Reset();
         Observer.Observe('empty', Format(TryFind(Row, 'first')));
         Forms('empty', Observer);
-        Observer.Finish();
+        Observer.Expect('withrows', 'No');
+        Observer.Expect('withrows_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('withrows_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 99');
+        Observer.Expect('withrows_code', 'DB:NothingInsideFilter');
+        Observer.Expect('emptyfiltered', 'No');
+        Observer.Expect('emptyfiltered_true', 'There is no ALT Universal within the filter.\\Filters: <redacted>');
+        Observer.Expect('emptyfiltered_false', 'There is no ALT Universal within the filter.\\Filters: Entry No.: 99');
+        Observer.Expect('emptyfiltered_code', 'DB:NothingInsideFilter');
+        Observer.Expect('empty', 'No');
+        Observer.Expect('empty_true', 'The ALT Universal table is empty.');
+        Observer.Expect('empty_false', 'The ALT Universal table is empty.');
+        Observer.Expect('empty_code', 'DB:TableIsEmpty');
+        Observer.Verify();
     end;
 
     [Test]
@@ -121,7 +165,16 @@ codeunit 77100 "ERR LastErr Codes Test"
         Forms('substring', Observer);
         asserterror R := T.PadLeft(-1);
         Forms('padleft', Observer);
-        Observer.Finish();
+        Observer.Expect('listget_true', 'Message not shown because the NavBaseException constructor was used without privacy classification');
+        Observer.Expect('listget_false', 'An invalid argument was passed to a ''List'' data type method.');
+        Observer.Expect('listget_code', 'ArgumentOutOfRange');
+        Observer.Expect('substring_true', 'Message not shown because the NavBaseException constructor was used without privacy classification');
+        Observer.Expect('substring_false', 'startIndex cannot be larger than length of string. (Parameter ''startIndex'')');
+        Observer.Expect('substring_code', 'ArgumentOutOfRange');
+        Observer.Expect('padleft_true', 'Message not shown because the NavBaseException constructor was used without privacy classification');
+        Observer.Expect('padleft_false', 'totalWidth (''-1'') must be a non-negative value. (Parameter ''totalWidth'')\Actual value was -1.');
+        Observer.Expect('padleft_code', 'ArgumentOutOfRange');
+        Observer.Verify();
     end;
 
     [Test]
@@ -138,7 +191,13 @@ codeunit 77100 "ERR LastErr Codes Test"
         JA.Add(1);
         asserterror JA.RemoveAt(5);
         Forms('jsonremoveat', Observer);
-        Observer.Finish();
+        Observer.Expect('array_true', 'Index out of bounds.');
+        Observer.Expect('array_false', 'Index out of bounds.');
+        Observer.Expect('array_code', 'IndexOutOfBounds');
+        Observer.Expect('jsonremoveat_true', 'Index out of bounds.');
+        Observer.Expect('jsonremoveat_false', 'Index out of bounds.');
+        Observer.Expect('jsonremoveat_code', 'IndexOutOfBounds');
+        Observer.Verify();
     end;
 
     [Test]
@@ -153,7 +212,13 @@ codeunit 77100 "ERR LastErr Codes Test"
         D.Add('k', 1);
         asserterror D.Add('k', 2);
         Forms('addtwice', Observer);
-        Observer.Finish();
+        Observer.Expect('get_true', 'Message not shown because the NavBaseException constructor was used without privacy classification');
+        Observer.Expect('get_false', 'The given key was not present in the dictionary.');
+        Observer.Expect('get_code', 'KeyNotFound');
+        Observer.Expect('addtwice_true', 'An item with the same key has already been added.');
+        Observer.Expect('addtwice_false', 'An item with the same key has already been added.');
+        Observer.Expect('addtwice_code', 'Argument');
+        Observer.Verify();
     end;
 
     [Test]
@@ -174,7 +239,19 @@ codeunit 77100 "ERR LastErr Codes Test"
         Forms('evalguid', Observer);
         asserterror Evaluate(I, 'secret 12');
         Forms('evalint', Observer);
-        Observer.Finish();
+        Observer.Expect('variantint_true', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('variantint_false', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('variantint_code', 'TypeConversion:Format');
+        Observer.Expect('dmy2date_true', 'The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: <redacted>. The permitted range is: from 1 to 12.');
+        Observer.Expect('dmy2date_false', 'The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: 13. The permitted range is: from 1 to 12.');
+        Observer.Expect('dmy2date_code', 'OutsidePermittedRange');
+        Observer.Expect('evalguid_true', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('evalguid_false', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('evalguid_code', 'InvalidGuidFormat');
+        Observer.Expect('evalint_true', 'The value "<redacted>" can''t be evaluated into type Integer.');
+        Observer.Expect('evalint_false', 'The value "secret 12" can''t be evaluated into type Integer.');
+        Observer.Expect('evalint_code', 'Evaluate');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -197,6 +274,11 @@ codeunit 77100 "ERR LastErr Codes Test"
         Observer.Observe('ok', Format(TryChangeListInForeach(L)));
         Forms('foreach', Observer);
         Observer.Observe('count', Format(L.Count()));
-        Observer.Finish();
+        Observer.Expect('ok', 'No');
+        Observer.Expect('foreach_true', 'Collection was modified; enumeration operation may not execute.');
+        Observer.Expect('foreach_false', 'Collection was modified; enumeration operation may not execute.');
+        Observer.Expect('foreach_code', 'AL:InvalidOperation');
+        Observer.Expect('count', '3');
+        Observer.Verify();
     end;
 }
