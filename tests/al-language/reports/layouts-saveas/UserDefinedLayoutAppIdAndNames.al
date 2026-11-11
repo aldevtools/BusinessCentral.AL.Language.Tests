@@ -372,13 +372,8 @@ codeunit 96765 "LT UDA Tests"
         // the error), so it runs under asserterror and only the error is asserted.
         asserterror AddAndReadNoReport();
         Observer.Observe('no report', GetLastErrorText());
-#if BC29PLUS
-        Observer.Expect('no report', 'You tried to invoke the Report object with the ID 96799 from the object LT UDA Tests. An object with that ID does not exist in the current application compiled with emit version 29022.');
-#elif BC28PLUS
-        Observer.Expect('no report', 'You tried to invoke the Report object with the ID 96799 from the object LT UDA Tests. An object with that ID does not exist in the current application compiled with emit version 28015.');
-#else
-        Observer.Expect('no report', 'You tried to invoke the Report object with the ID 96799 from the object LT UDA Tests. An object with that ID does not exist in the current application compiled with emit version 27025.');
-#endif
+        // The Observer masks the emit version number as n.
+        Observer.Expect('no report', 'You tried to invoke the Report object with the ID 96799 from the object LT UDA Tests. An object with that ID does not exist in the current application compiled with emit version n.');
         Observer.Verify();
     end;
 
