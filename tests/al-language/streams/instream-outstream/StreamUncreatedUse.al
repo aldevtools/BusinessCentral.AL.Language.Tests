@@ -178,4 +178,54 @@ codeunit 77130 "STR Uncreated Use Test"
         Observer.Expect('int10', 'ok:6|[abcdef]|eos=Yes');
         Observer.Verify();
     end;
+
+    [TryFunction]
+    local procedure TryStatement(Step: Text)
+    var
+        Row: Record "ALT Blob";
+        UncreatedIn: InStream;
+        UncreatedOut: OutStream;
+        InS: InStream;
+        OutS: OutStream;
+    begin
+        case Step of
+            'copy_from_uncreated':
+                begin
+                    Row.Data.CreateOutStream(OutS);
+                    CopyStream(OutS, UncreatedIn);
+                end;
+            'copy_into_uncreated':
+                begin
+                    Row.Data.CreateOutStream(OutS);
+                    OutS.WriteText('abc');
+                    Row.Data.CreateInStream(InS);
+                    CopyStream(UncreatedOut, InS);
+                end;
+            'writetext':
+                UncreatedOut.WriteText('x');
+            'write':
+                UncreatedOut.Write(5);
+        end;
+    end;
+
+    local procedure ObserveStatement(var Observer: Codeunit "Probe Observer"; Step: Text)
+    begin
+        ClearLastError();
+        if TryStatement(Step) then
+            Observer.Observe(Step, 'no error')
+        else
+            Observer.Observe(Step, 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    [Test]
+    procedure UncreatedStreams_StatementForms()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveStatement(Observer, 'copy_from_uncreated');
+        ObserveStatement(Observer, 'copy_into_uncreated');
+        ObserveStatement(Observer, 'writetext');
+        ObserveStatement(Observer, 'write');
+        Observer.Finish();
+    end;
 }
