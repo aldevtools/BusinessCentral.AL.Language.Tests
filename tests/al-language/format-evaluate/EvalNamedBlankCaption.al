@@ -220,7 +220,7 @@ codeunit 97277 "LT NB Evaluate"
         Observer.Expect('Evaluate [Eerste BE]|text', '');
         Observer.Expect('Evaluate [Eerste BE]|code', '');
         Observer.Expect('Evaluate [0]', 'ok|0|[ ]');
-        Observer.Expect('Evaluate format 9 of blank', 'Yes|0');
+        Observer.Expect('Evaluate format 9 of blank', 'Sí|0');
         Observer.Expect('Evaluate statement of the round trip', '0');
         Observer.Verify();
     end;
@@ -249,7 +249,7 @@ codeunit 97277 "LT NB Evaluate"
         Observer.Expect('Evaluate [Eerste BE]|text', '');
         Observer.Expect('Evaluate [Eerste BE]|code', '');
         Observer.Expect('Evaluate [0]', 'ok|0|[ ]');
-        Observer.Expect('Evaluate format 9 of blank', 'Yes|0');
+        Observer.Expect('Evaluate format 9 of blank', 'Ja|0');
         Observer.Expect('Evaluate statement of the round trip', '0');
         Observer.Verify();
     end;
@@ -307,7 +307,7 @@ codeunit 97277 "LT NB Evaluate"
         Observer.Expect('Evaluate [Eerste BE]|text', '');
         Observer.Expect('Evaluate [Eerste BE]|code', '');
         Observer.Expect('Evaluate [0]', 'ok|0|[ ]');
-        Observer.Expect('Evaluate format 9 of blank', 'Yes|0');
+        Observer.Expect('Evaluate format 9 of blank', 'Sí|0');
         Observer.Expect('Evaluate statement of the round trip', '0');
         Observer.Verify();
     end;
@@ -336,7 +336,7 @@ codeunit 97277 "LT NB Evaluate"
         Observer.Expect('Evaluate [First cap]|code', '');
         Observer.Expect('Evaluate [Eerste BE]', 'ok|1|[Eerste BE]');
         Observer.Expect('Evaluate [0]', 'ok|0|[ ]');
-        Observer.Expect('Evaluate format 9 of blank', 'Yes|0');
+        Observer.Expect('Evaluate format 9 of blank', 'Ja|0');
         Observer.Expect('Evaluate statement of the round trip', '0');
         Observer.Verify();
     end;
@@ -394,7 +394,7 @@ codeunit 97277 "LT NB Evaluate"
         Observer.Expect('Evaluate [Eerste BE]|text', '');
         Observer.Expect('Evaluate [Eerste BE]|code', '');
         Observer.Expect('Evaluate [0]', 'ok|0|[0]');
-        Observer.Expect('Evaluate format 9 of blank', 'Yes|0');
+        Observer.Expect('Evaluate format 9 of blank', 'Sí|0');
         Observer.Verify();
     end;
 
@@ -422,7 +422,7 @@ codeunit 97277 "LT NB Evaluate"
         Observer.Expect('Evaluate [Eerste BE]|text', '');
         Observer.Expect('Evaluate [Eerste BE]|code', '');
         Observer.Expect('Evaluate [0]', 'ok|0|[0]');
-        Observer.Expect('Evaluate format 9 of blank', 'Yes|0');
+        Observer.Expect('Evaluate format 9 of blank', 'Ja|0');
         Observer.Verify();
     end;
 
@@ -478,7 +478,7 @@ codeunit 97277 "LT NB Evaluate"
         Observer.Expect('Evaluate [Eerste BE]|text', '');
         Observer.Expect('Evaluate [Eerste BE]|code', '');
         Observer.Expect('Evaluate [0]', 'ok|0|[ ]');
-        Observer.Expect('Evaluate format 9 of blank', 'Yes|0');
+        Observer.Expect('Evaluate format 9 of blank', 'Sí|0');
         Observer.Verify();
     end;
 
@@ -506,7 +506,7 @@ codeunit 97277 "LT NB Evaluate"
         Observer.Expect('Evaluate [Eerste BE]|text', '');
         Observer.Expect('Evaluate [Eerste BE]|code', '');
         Observer.Expect('Evaluate [0]', 'ok|0|[ ]');
-        Observer.Expect('Evaluate format 9 of blank', 'Yes|0');
+        Observer.Expect('Evaluate format 9 of blank', 'Ja|0');
         Observer.Verify();
     end;
 
