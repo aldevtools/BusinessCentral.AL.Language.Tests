@@ -15,19 +15,20 @@ namespace ALLanguage.IsolationProbe;
 //   - OnRun calls a test method: the body of that method runs three times in the session: once
 //     from OnRun in the discovery pass (130452 lets OnRun run), once from OnRun when 130450 runs
 //     the codeunit, and once as a test method. The others run too, and there is no 'OnRun' row.
-// The other majors are not measured by this file yet.
+// The same, and the two shapes below, observed on BC 27.5, 28.5 and 29.0 (2026-11-11) through 130450
+// in one web-service session that does the discovery pass and the run, as page 130455 does in the
+// one client session of Run-TestsInBcContainer:
+//   - "LT SW OnRun Writes": OnRun inserts a row on each call. The discovery pass writes row 1 and
+//     it stays (130452 has no test isolation). The run's OnRun writes row 2. The test method sees
+//     rows 1 and 2. After the codeunit, 130450 has rolled back row 2; row 1 is still there.
+//   - "LT SW OnRun Raises Discovery": OnRun raises only on its first call, the discovery pass. The
+//     suite is still built, but the codeunit gets no method rows. The run calls OnRun again (it does
+//     not raise), runs no method, and the codeunit row is Skipped.
 // Older readings: the oldest major (corpus probe RlOnRunError, commit c69419f6) and the newest
 // (al-runner issue 5859).
 //
-// Not measured yet (the reader expects '<observe>' and its message carries what the runner did):
-//   - "LT SW OnRun Writes": OnRun inserts a row and counts its calls. Does the row the discovery
-//     pass wrote (130452 has no test isolation) reach the run and the test method, and is it still
-//     there after 130450 has rolled the codeunit back?
-//   - "LT SW OnRun Raises Discovery": OnRun raises only on its first call, which is the discovery
-//     pass. What does the runner list and report for that codeunit, and does its method run?
-//
-// OnRun also runs in the AL Test Tool's discovery pass (runner 130452). So "LT SW OnRun Raises" raises only from its second call in
-// the session: the first call is the discovery pass. If discovery and the run were different
+// OnRun also runs in the AL Test Tool's discovery pass (runner 130452). So "LT SW OnRun Raises"
+// raises only from its second call in the session: the first call is the discovery pass. If discovery and the run were different
 // sessions, the raising shape would not be measured and the reader below fails on its own
 // expectation, with the observed rows in the message.
 //
@@ -280,14 +281,14 @@ codeunit 97018 "LT SW OnRun Reader"
     [Test]
     procedure OnRunWrites_DiscoveryRowAndRollback()
     begin
-        Expect('seen by the method; rows after the codeunit', '<observe>',
+        Expect('seen by the method; rows after the codeunit', 'OnRun calls 2, rows 1,2; after: OnRun calls 2, rows 1',
             State.WritesSeenByMethod() + '; after: OnRun calls ' + Format(State.WritesCallsSoFar()) + ', rows ' + State.LogRows());
     end;
 
     [Test]
     procedure OnRunRaisesInDiscovery_Rows()
     begin
-        Expect('codeunit row; function rows; OnRun calls; method ran', '<observe>',
+        Expect('codeunit row; function rows; OnRun calls; method ran', 'Skipped; <no rows>; 2; No',
             CodeunitResult(Codeunit::"LT SW OnRun Raises Discovery") + '; ' + Functions(Codeunit::"LT SW OnRun Raises Discovery") + '; ' +
             Format(State.RaisesDiscoveryCallsSoFar()) + '; ' + Format(State.RaisesDiscoveryMethodHasRun()));
     end;
