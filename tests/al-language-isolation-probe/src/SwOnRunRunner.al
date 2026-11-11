@@ -7,11 +7,15 @@ namespace ALLanguage.IsolationProbe;
 // TestRunnerHub, which reports a raising OnRun as a failure, so these shapes cannot live in
 // tests/al-language.
 //
-// Measured on BC 28.5 through 130450 (Windows container, 2026-11-09), expected on every major:
-//   - OnRun raises: the codeunit is Skipped, its test methods are listed with a blank result
-//     (not executed), there is no 'OnRun' row, and the run stays green.
+// Observed on BC 28.4 by the Windows nightly through 130450 (run 42801814970, 2026-11-10):
+//   - OnRun raises: the codeunit is Skipped, its test methods are listed with the blank result
+//     ' ' (the first member of the Result option of "Test Method Line": not executed), there is
+//     no 'OnRun' row, and the run stays green.
 //   - OnRun does not raise: the methods run, there is no 'OnRun' row.
-//   - OnRun calls a test method: that method runs once, the others run too, no 'OnRun' row.
+//   - OnRun calls a test method: the body of that method runs three times in the session: once
+//     from OnRun in the discovery pass (130452 lets OnRun run), once from OnRun when 130450 runs
+//     the codeunit, and once as a test method. The others run too, and there is no 'OnRun' row.
+// The other majors are not measured by this file yet.
 // Older readings: the oldest major (corpus probe RlOnRunError, commit c69419f6) and the newest
 // (al-runner issue 5859).
 //
@@ -120,7 +124,7 @@ codeunit 97018 "LT SW OnRun Reader"
     procedure OnRunRaises_CodeunitSkipped_MethodNotExecuted_NoOnRunRow()
     begin
         Expect('codeunit row', 'Skipped', CodeunitResult(Codeunit::"LT SW OnRun Raises"));
-        Expect('function rows', 'Raises_AfterOnRun:', Functions(Codeunit::"LT SW OnRun Raises"));
+        Expect('function rows', 'Raises_AfterOnRun: ', Functions(Codeunit::"LT SW OnRun Raises"));
     end;
 
     [Test]
@@ -130,10 +134,11 @@ codeunit 97018 "LT SW OnRun Reader"
     end;
 
     [Test]
-    procedure OnRunCallsTestMethod_MethodRunsOnce_OthersRun_NoOnRunRow()
+    procedure OnRunCallsTestMethod_BodyRunsThreeTimes_OthersRun_NoOnRunRow()
     begin
         Expect('function rows', 'CalledFromOnRun:Success ; Other_Test:Success', Functions(Codeunit::"LT SW OnRun Calls Test"));
-        Expect('runs of CalledFromOnRun', '1', Format(State.CalledFromOnRunRuns()));
+        // Discovery-pass OnRun, the run's OnRun, the test method itself.
+        Expect('runs of CalledFromOnRun', '3', Format(State.CalledFromOnRunRuns()));
     end;
 
     // The function rows of a codeunit, in key order: <function>:<result>. The line of the codeunit
