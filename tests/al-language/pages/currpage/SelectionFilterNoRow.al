@@ -340,4 +340,83 @@ codeunit 74892 "LT SSN Tests"
         Obs.Expect('HasFilter', 'Yes');
         Obs.Verify();
     end;
+
+    [Test]
+    [HandlerFunctions('WorksheetHandler')]
+    procedure Page_SetSelectionFilter_EmptyModalWorksheet_FiltersDefaultKey()
+    var
+        Row: Record "ALT Shape 06";
+    begin
+        Initialize();
+
+        Row.Id := 1;
+        Row.Name := 'HIDDEN';
+        Row.Insert();
+        Page.RunModal(Page::"PAG Empty Selection Worksheet");
+    end;
+
+    [ModalPageHandler]
+    procedure WorksheetHandler(var Worksheet: TestPage "PAG Empty Selection Worksheet")
+    begin
+        Worksheet.CheckSelection.Invoke();
+    end;
+
+    local procedure Initialize()
+    var
+        Row: Record "ALT Shape 06";
+    begin
+        Row.DeleteAll();
+    end;
+}
+
+// local object: the worksheet source view and its action are the behavior under test.
+page 67999 "PAG Empty Selection Worksheet"
+{
+    PageType = Worksheet;
+    InsertAllowed = false;
+    DelayedInsert = true;
+    SourceTable = "ALT Shape 06";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(Id; Rec.Id) { ApplicationArea = All; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(CheckSelection)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                var
+                    Selected: Record "ALT Shape 06";
+                begin
+                    CurrPage.SetSelectionFilter(Selected);
+                    if Selected.GetFilter(Id) <> '0' then
+                        Error('Expected a primary key filter on the default row. Got %1.', Selected.GetFilters());
+                    if not Selected.IsEmpty() then
+                        Error('The selection must exclude the hidden row.');
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Rec.FilterGroup(2);
+        Rec.SetRange(Name, 'VISIBLE');
+        Rec.FilterGroup(0);
+        if Rec.FindFirst() then;
+    end;
 }
