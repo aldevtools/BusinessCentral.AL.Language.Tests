@@ -416,7 +416,7 @@ codeunit 72505 "LT JsT ReadFrom"
         exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
     end;
 
-    local procedure RawControls(Kind: Text)
+    local procedure RawControls(Kind: Text; var Obs: Codeunit "Probe Observer")
     var
         Src: Text;
         CharCode: Integer;
@@ -432,115 +432,127 @@ codeunit 72505 "LT JsT ReadFrom"
                 'val':
                     Src := '"x' + Ch(CharCode) + 'y"';
             end;
-            Observer.Observe(Kind + '_raw_' + Format(CharCode), Ctl(Kind, Src));
+            Obs.Observe(Kind + '_raw_' + Format(CharCode), Ctl(Kind, Src));
         end;
     end;
 
     [Test]
     procedure ObjectReadFromRawControlInString()
+    var
+        Obs: Codeunit "Probe Observer";
     begin
-        RawControls('obj');
-        Observer.Expect('obj_raw_9', 'ret=Yes len=3 codes=120,9,121 out={"a":"x\ty"}');
-        Observer.Expect('obj_raw_10', 'ret=Yes len=3 codes=120,10,121 out={"a":"x\ny"}');
-        Observer.Expect('obj_raw_13', 'ret=Yes len=3 codes=120,13,121 out={"a":"x\ry"}');
-        Observer.Expect('obj_raw_1', 'ret=Yes len=3 codes=120,1,121 out={"a":"x\u0001y"}');
-        Observer.Expect('obj_raw_8', 'ret=Yes len=3 codes=120,8,121 out={"a":"x\by"}');
-        Observer.Expect('obj_raw_12', 'ret=Yes len=3 codes=120,12,121 out={"a":"x\fy"}');
-        Observer.Expect('obj_raw_27', 'ret=Yes len=3 codes=120,27,121 out={"a":"x\u001by"}');
-        Observer.Expect('obj_raw_31', 'ret=Yes len=3 codes=120,31,121 out={"a":"x\u001fy"}');
-        Observer.Expect('obj_raw_127', 'ret=Yes len=3 codes=120,127,121 out={"a":"xy"}');
-        Observer.Verify();
+        RawControls('obj', Obs);
+        Obs.Expect('obj_raw_9', 'ret=Yes len=3 codes=120,9,121 out={"a":"x\ty"}');
+        Obs.Expect('obj_raw_10', 'ret=Yes len=3 codes=120,10,121 out={"a":"x\ny"}');
+        Obs.Expect('obj_raw_13', 'ret=Yes len=3 codes=120,13,121 out={"a":"x\ry"}');
+        Obs.Expect('obj_raw_1', 'ret=Yes len=3 codes=120,1,121 out={"a":"x\u0001y"}');
+        Obs.Expect('obj_raw_8', 'ret=Yes len=3 codes=120,8,121 out={"a":"x\by"}');
+        Obs.Expect('obj_raw_12', 'ret=Yes len=3 codes=120,12,121 out={"a":"x\fy"}');
+        Obs.Expect('obj_raw_27', 'ret=Yes len=3 codes=120,27,121 out={"a":"x\u001by"}');
+        Obs.Expect('obj_raw_31', 'ret=Yes len=3 codes=120,31,121 out={"a":"x\u001fy"}');
+        Obs.Expect('obj_raw_127', 'ret=Yes len=3 codes=120,127,121 out={"a":"xy"}');
+        Obs.Verify();
     end;
 
     [Test]
     procedure TokenReadFromRawControlInString()
+    var
+        Obs: Codeunit "Probe Observer";
     begin
-        RawControls('tok');
-        Observer.Expect('tok_raw_9', 'ret=Yes len=3 codes=120,9,121 out={"a":"x\ty"}');
-        Observer.Expect('tok_raw_10', 'ret=Yes len=3 codes=120,10,121 out={"a":"x\ny"}');
-        Observer.Expect('tok_raw_13', 'ret=Yes len=3 codes=120,13,121 out={"a":"x\ry"}');
-        Observer.Expect('tok_raw_1', 'ret=Yes len=3 codes=120,1,121 out={"a":"x\u0001y"}');
-        Observer.Expect('tok_raw_8', 'ret=Yes len=3 codes=120,8,121 out={"a":"x\by"}');
-        Observer.Expect('tok_raw_12', 'ret=Yes len=3 codes=120,12,121 out={"a":"x\fy"}');
-        Observer.Expect('tok_raw_27', 'ret=Yes len=3 codes=120,27,121 out={"a":"x\u001by"}');
-        Observer.Expect('tok_raw_31', 'ret=Yes len=3 codes=120,31,121 out={"a":"x\u001fy"}');
-        Observer.Expect('tok_raw_127', 'ret=Yes len=3 codes=120,127,121 out={"a":"xy"}');
-        Observer.Verify();
+        RawControls('tok', Obs);
+        Obs.Expect('tok_raw_9', 'ret=Yes len=3 codes=120,9,121 out={"a":"x\ty"}');
+        Obs.Expect('tok_raw_10', 'ret=Yes len=3 codes=120,10,121 out={"a":"x\ny"}');
+        Obs.Expect('tok_raw_13', 'ret=Yes len=3 codes=120,13,121 out={"a":"x\ry"}');
+        Obs.Expect('tok_raw_1', 'ret=Yes len=3 codes=120,1,121 out={"a":"x\u0001y"}');
+        Obs.Expect('tok_raw_8', 'ret=Yes len=3 codes=120,8,121 out={"a":"x\by"}');
+        Obs.Expect('tok_raw_12', 'ret=Yes len=3 codes=120,12,121 out={"a":"x\fy"}');
+        Obs.Expect('tok_raw_27', 'ret=Yes len=3 codes=120,27,121 out={"a":"x\u001by"}');
+        Obs.Expect('tok_raw_31', 'ret=Yes len=3 codes=120,31,121 out={"a":"x\u001fy"}');
+        Obs.Expect('tok_raw_127', 'ret=Yes len=3 codes=120,127,121 out={"a":"xy"}');
+        Obs.Verify();
     end;
 
     [Test]
     procedure ArrayReadFromRawControlInString()
+    var
+        Obs: Codeunit "Probe Observer";
     begin
-        RawControls('arr');
-        Observer.Expect('arr_raw_9', 'ret=Yes len=3 codes=120,9,121 out=["x\ty"]');
-        Observer.Expect('arr_raw_10', 'ret=Yes len=3 codes=120,10,121 out=["x\ny"]');
-        Observer.Expect('arr_raw_13', 'ret=Yes len=3 codes=120,13,121 out=["x\ry"]');
-        Observer.Expect('arr_raw_1', 'ret=Yes len=3 codes=120,1,121 out=["x\u0001y"]');
-        Observer.Expect('arr_raw_8', 'ret=Yes len=3 codes=120,8,121 out=["x\by"]');
-        Observer.Expect('arr_raw_12', 'ret=Yes len=3 codes=120,12,121 out=["x\fy"]');
-        Observer.Expect('arr_raw_27', 'ret=Yes len=3 codes=120,27,121 out=["x\u001by"]');
-        Observer.Expect('arr_raw_31', 'ret=Yes len=3 codes=120,31,121 out=["x\u001fy"]');
-        Observer.Expect('arr_raw_127', 'ret=Yes len=3 codes=120,127,121 out=["xy"]');
-        Observer.Verify();
+        RawControls('arr', Obs);
+        Obs.Expect('arr_raw_9', 'ret=Yes len=3 codes=120,9,121 out=["x\ty"]');
+        Obs.Expect('arr_raw_10', 'ret=Yes len=3 codes=120,10,121 out=["x\ny"]');
+        Obs.Expect('arr_raw_13', 'ret=Yes len=3 codes=120,13,121 out=["x\ry"]');
+        Obs.Expect('arr_raw_1', 'ret=Yes len=3 codes=120,1,121 out=["x\u0001y"]');
+        Obs.Expect('arr_raw_8', 'ret=Yes len=3 codes=120,8,121 out=["x\by"]');
+        Obs.Expect('arr_raw_12', 'ret=Yes len=3 codes=120,12,121 out=["x\fy"]');
+        Obs.Expect('arr_raw_27', 'ret=Yes len=3 codes=120,27,121 out=["x\u001by"]');
+        Obs.Expect('arr_raw_31', 'ret=Yes len=3 codes=120,31,121 out=["x\u001fy"]');
+        Obs.Expect('arr_raw_127', 'ret=Yes len=3 codes=120,127,121 out=["xy"]');
+        Obs.Verify();
     end;
 
     [Test]
     procedure ValueReadFromRawControlInString()
+    var
+        Obs: Codeunit "Probe Observer";
     begin
-        RawControls('val');
-        Observer.Expect('val_raw_9', 'ret=Yes len=3 codes=120,9,121 out="x\ty"');
-        Observer.Expect('val_raw_10', 'ret=Yes len=3 codes=120,10,121 out="x\ny"');
-        Observer.Expect('val_raw_13', 'ret=Yes len=3 codes=120,13,121 out="x\ry"');
-        Observer.Expect('val_raw_1', 'ret=Yes len=3 codes=120,1,121 out="x\u0001y"');
-        Observer.Expect('val_raw_8', 'ret=Yes len=3 codes=120,8,121 out="x\by"');
-        Observer.Expect('val_raw_12', 'ret=Yes len=3 codes=120,12,121 out="x\fy"');
-        Observer.Expect('val_raw_27', 'ret=Yes len=3 codes=120,27,121 out="x\u001by"');
-        Observer.Expect('val_raw_31', 'ret=Yes len=3 codes=120,31,121 out="x\u001fy"');
-        Observer.Expect('val_raw_127', 'ret=Yes len=3 codes=120,127,121 out="xy"');
-        Observer.Verify();
+        RawControls('val', Obs);
+        Obs.Expect('val_raw_9', 'ret=Yes len=3 codes=120,9,121 out="x\ty"');
+        Obs.Expect('val_raw_10', 'ret=Yes len=3 codes=120,10,121 out="x\ny"');
+        Obs.Expect('val_raw_13', 'ret=Yes len=3 codes=120,13,121 out="x\ry"');
+        Obs.Expect('val_raw_1', 'ret=Yes len=3 codes=120,1,121 out="x\u0001y"');
+        Obs.Expect('val_raw_8', 'ret=Yes len=3 codes=120,8,121 out="x\by"');
+        Obs.Expect('val_raw_12', 'ret=Yes len=3 codes=120,12,121 out="x\fy"');
+        Obs.Expect('val_raw_27', 'ret=Yes len=3 codes=120,27,121 out="x\u001by"');
+        Obs.Expect('val_raw_31', 'ret=Yes len=3 codes=120,31,121 out="x\u001fy"');
+        Obs.Expect('val_raw_127', 'ret=Yes len=3 codes=120,127,121 out="xy"');
+        Obs.Verify();
     end;
 
     [Test]
     procedure ReadFromEscapedControlInString()
+    var
+        Obs: Codeunit "Probe Observer";
     begin
-        Observer.Observe('tok_esc_t', Ctl('tok', '{"a":"x\ty"}'));
-        Observer.Observe('tok_esc_n', Ctl('tok', '{"a":"x\ny"}'));
-        Observer.Observe('tok_esc_r', Ctl('tok', '{"a":"x\ry"}'));
-        Observer.Observe('tok_esc_b', Ctl('tok', '{"a":"x\by"}'));
-        Observer.Observe('tok_esc_f', Ctl('tok', '{"a":"x\fy"}'));
-        Observer.Observe('tok_esc_u0001', Ctl('tok', '{"a":"x\u0001y"}'));
-        Observer.Observe('tok_esc_u001f', Ctl('tok', '{"a":"x\u001fy"}'));
-        Observer.Observe('val_esc_t', Ctl('val', '"x\ty"'));
-        Observer.Observe('arr_esc_u0001', Ctl('arr', '["x\u0001y"]'));
-        Observer.Expect('tok_esc_t', 'ret=Yes len=3 codes=120,9,121 out={"a":"x\ty"}');
-        Observer.Expect('tok_esc_n', 'ret=Yes len=3 codes=120,10,121 out={"a":"x\ny"}');
-        Observer.Expect('tok_esc_r', 'ret=Yes len=3 codes=120,13,121 out={"a":"x\ry"}');
-        Observer.Expect('tok_esc_b', 'ret=Yes len=3 codes=120,8,121 out={"a":"x\by"}');
-        Observer.Expect('tok_esc_f', 'ret=Yes len=3 codes=120,12,121 out={"a":"x\fy"}');
-        Observer.Expect('tok_esc_u0001', 'ret=Yes len=3 codes=120,1,121 out={"a":"x\u0001y"}');
-        Observer.Expect('tok_esc_u001f', 'ret=Yes len=3 codes=120,31,121 out={"a":"x\u001fy"}');
-        Observer.Expect('val_esc_t', 'ret=Yes len=3 codes=120,9,121 out="x\ty"');
-        Observer.Expect('arr_esc_u0001', 'ret=Yes len=3 codes=120,1,121 out=["x\u0001y"]');
-        Observer.Verify();
+        Obs.Observe('tok_esc_t', Ctl('tok', '{"a":"x\ty"}'));
+        Obs.Observe('tok_esc_n', Ctl('tok', '{"a":"x\ny"}'));
+        Obs.Observe('tok_esc_r', Ctl('tok', '{"a":"x\ry"}'));
+        Obs.Observe('tok_esc_b', Ctl('tok', '{"a":"x\by"}'));
+        Obs.Observe('tok_esc_f', Ctl('tok', '{"a":"x\fy"}'));
+        Obs.Observe('tok_esc_u0001', Ctl('tok', '{"a":"x\u0001y"}'));
+        Obs.Observe('tok_esc_u001f', Ctl('tok', '{"a":"x\u001fy"}'));
+        Obs.Observe('val_esc_t', Ctl('val', '"x\ty"'));
+        Obs.Observe('arr_esc_u0001', Ctl('arr', '["x\u0001y"]'));
+        Obs.Expect('tok_esc_t', 'ret=Yes len=3 codes=120,9,121 out={"a":"x\ty"}');
+        Obs.Expect('tok_esc_n', 'ret=Yes len=3 codes=120,10,121 out={"a":"x\ny"}');
+        Obs.Expect('tok_esc_r', 'ret=Yes len=3 codes=120,13,121 out={"a":"x\ry"}');
+        Obs.Expect('tok_esc_b', 'ret=Yes len=3 codes=120,8,121 out={"a":"x\by"}');
+        Obs.Expect('tok_esc_f', 'ret=Yes len=3 codes=120,12,121 out={"a":"x\fy"}');
+        Obs.Expect('tok_esc_u0001', 'ret=Yes len=3 codes=120,1,121 out={"a":"x\u0001y"}');
+        Obs.Expect('tok_esc_u001f', 'ret=Yes len=3 codes=120,31,121 out={"a":"x\u001fy"}');
+        Obs.Expect('val_esc_t', 'ret=Yes len=3 codes=120,9,121 out="x\ty"');
+        Obs.Expect('arr_esc_u0001', 'ret=Yes len=3 codes=120,1,121 out=["x\u0001y"]');
+        Obs.Verify();
     end;
 
     [Test]
     procedure ReadFromRawControlOtherPlaces()
+    var
+        Obs: Codeunit "Probe Observer";
     begin
-        Observer.Observe('tok_tab_in_key', Ctl('tok', '{"a' + Ch(9) + 'b":1,"a":"v"}'));
-        Observer.Observe('tok_tab_single_quoted', Ctl('tok', '{''a'':''x' + Ch(9) + 'y''}'));
-        Observer.Observe('tok_tab_between', Ctl('tok', '{"a":' + Ch(9) + '"v"}'));
-        Observer.Observe('tok_1_between', Ctl('tok', '{"a":' + Ch(1) + '"v"}'));
-        Observer.Observe('tok_12_between', Ctl('tok', '{"a":' + Ch(12) + '"v"}'));
-        Observer.Observe('tok_tab_only_string', Ctl('tok', '{"a":"' + Ch(9) + '"}'));
-        Observer.Observe('tok_lf_crlf_string', Ctl('tok', '{"a":"x' + Ch(13) + Ch(10) + 'y"}'));
-        Observer.Expect('tok_tab_in_key', 'ret=Yes len=1 codes=118 out={"a\tb":1,"a":"v"}');
-        Observer.Expect('tok_tab_single_quoted', 'ret=Yes len=3 codes=120,9,121 out={"a":"x\ty"}');
-        Observer.Expect('tok_tab_between', 'ret=Yes len=1 codes=118 out={"a":"v"}');
-        Observer.Expect('tok_1_between', 'ret=No out=null');
-        Observer.Expect('tok_12_between', 'ret=Yes len=1 codes=118 out={"a":"v"}');
-        Observer.Expect('tok_tab_only_string', 'ret=Yes len=1 codes=9 out={"a":"\t"}');
-        Observer.Expect('tok_lf_crlf_string', 'ret=Yes len=4 codes=120,13,10,121 out={"a":"x\r\ny"}');
-        Observer.Verify();
+        Obs.Observe('tok_tab_in_key', Ctl('tok', '{"a' + Ch(9) + 'b":1,"a":"v"}'));
+        Obs.Observe('tok_tab_single_quoted', Ctl('tok', '{''a'':''x' + Ch(9) + 'y''}'));
+        Obs.Observe('tok_tab_between', Ctl('tok', '{"a":' + Ch(9) + '"v"}'));
+        Obs.Observe('tok_1_between', Ctl('tok', '{"a":' + Ch(1) + '"v"}'));
+        Obs.Observe('tok_12_between', Ctl('tok', '{"a":' + Ch(12) + '"v"}'));
+        Obs.Observe('tok_tab_only_string', Ctl('tok', '{"a":"' + Ch(9) + '"}'));
+        Obs.Observe('tok_lf_crlf_string', Ctl('tok', '{"a":"x' + Ch(13) + Ch(10) + 'y"}'));
+        Obs.Expect('tok_tab_in_key', 'ret=Yes len=1 codes=118 out={"a\tb":1,"a":"v"}');
+        Obs.Expect('tok_tab_single_quoted', 'ret=Yes len=3 codes=120,9,121 out={"a":"x\ty"}');
+        Obs.Expect('tok_tab_between', 'ret=Yes len=1 codes=118 out={"a":"v"}');
+        Obs.Expect('tok_1_between', 'ret=No out=null');
+        Obs.Expect('tok_12_between', 'ret=Yes len=1 codes=118 out={"a":"v"}');
+        Obs.Expect('tok_tab_only_string', 'ret=Yes len=1 codes=9 out={"a":"\t"}');
+        Obs.Expect('tok_lf_crlf_string', 'ret=Yes len=4 codes=120,13,10,121 out={"a":"x\r\ny"}');
+        Obs.Verify();
     end;
 }
