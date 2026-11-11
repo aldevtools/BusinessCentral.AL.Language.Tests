@@ -251,4 +251,53 @@ codeunit 60576 "TPBK Tests"
         Assert.AreEqual('b[r1 i1 d] c[r1 i1 d] d[r2 i2 db]', 'b[' + AfterB + '] c[' + AfterC + '] d[' + AfterD + ']',
             'rows (r), OnInsert runs (i) and the Description OnInsert last saw (d), per step on a second new List line');
     end;
+
+    [Test]
+    procedure TestPage_OpenNew_VariableControlCanModifyDocument()
+    var
+        Row: Record "TPBK Row";
+        Document: TestPage "TPG Variable Scan Document";
+    begin
+        Initialize();
+
+        Document.OpenNew();
+        Document.Scan.Value('SCANNED');
+        Row.Get('AUTO1');
+        if Row.Description <> 'SCANNED' then
+            Error('Expected stored payload SCANNED. Got %1.', Row.Description);
+        Document.Close();
+    end;
+}
+
+// local object: the Document page opens in New mode and validates an unbound control.
+page 67997 "TPG Variable Scan Document"
+{
+    PageType = Document;
+    SourceTable = "TPBK Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(General)
+            {
+                field(No; Rec."No.") { ApplicationArea = All; }
+                field(Scan; InputText)
+                {
+                    ApplicationArea = All;
+
+                    trigger OnValidate()
+                    begin
+                        Rec.Description := InputText;
+                        Rec.Modify();
+                    end;
+                }
+            }
+        }
+    }
+
+    var
+        InputText: Text[20];
 }
