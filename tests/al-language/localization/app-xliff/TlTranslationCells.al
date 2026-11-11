@@ -283,7 +283,7 @@ report 96704 "LT TL Report"
     end;
 }
 
-enum 96705 "LT TL Kind"
+enum 96705 "LT TLC Kind"
 {
     Extensible = true;
 
@@ -297,7 +297,7 @@ enum 96705 "LT TL Kind"
     }
 }
 
-enumextension 96706 "LT TL Kind Ext" extends "LT TL Kind"
+enumextension 96706 "LT TLC Kind Ext" extends "LT TLC Kind"
 {
     value(96706; Third)
     {
@@ -426,7 +426,7 @@ codeunit 96708 "LT TL Translation Tests"
     procedure TL_EnumExtensions_Dutch()
     var
         Observer: Codeunit "Probe Observer";
-        Own: Enum "LT TL Kind";
+        Own: Enum "LT TLC Kind";
         Dep: Enum "LT XL Kind";
     begin
         GlobalLanguage(1043);

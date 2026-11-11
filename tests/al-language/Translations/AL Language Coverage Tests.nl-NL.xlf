@@ -234,17 +234,17 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Report LT TL Report - ReportDataItem TlNumber - Method OnAfterGetRecord - NamedType DataLbl</note>
         </trans-unit>
-        <trans-unit id="Enum 4164442660 - EnumValue 139100102 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Enum 3832796397 - EnumValue 139100102 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>First kind</source>
           <target>Eerste soort NL</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum LT TL Kind - EnumValue First - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum LT TLC Kind - EnumValue First - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Enum 4164442660 - EnumValue 1550647365 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Enum 4164442660">
+        <trans-unit id="Enum 3832796397 - EnumValue 1550647365 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Enum 3832796397">
           <source>Third kind</source>
           <target>Derde soort NL</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">EnumExtension LT TL Kind Ext - EnumValue Third - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">EnumExtension LT TLC Kind Ext - EnumValue Third - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 133352936 - EnumValue 1873146758 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Enum 133352936">
           <source>Extra kind</source>
