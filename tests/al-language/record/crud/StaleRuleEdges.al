@@ -37,6 +37,7 @@ codeunit 76601 "REC StaleEdge Probe"
     TestPermissions = Disabled;
 
     var
+        Observer: Codeunit "Probe Observer";
         Notes: Text;
         LastText: Text;
         LastCode: Text;
@@ -278,9 +279,8 @@ codeunit 76601 "REC StaleEdge Probe"
     // LockTable on the row's table, then a rollback with nothing after it; LockTable again after the rollback as the control.
     [Test]
     procedure StaleEdge_LockThenRollback()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
+        Clear(Observer);
         Cell(Observer, 'lk_rb', 'insert_modify', 'C rm C lk rb', 'modify_true');
         Cell(Observer, 'lk_rb_insert', 'insert', 'C rm C lk rb', 'modify_true');
         Cell(Observer, 'lk_rb_lk', 'insert_modify', 'C rm C lk rb lk', 'modify_true');
@@ -288,12 +288,29 @@ codeunit 76601 "REC StaleEdge Probe"
         Observer.Finish();
     end;
 
+    [Test]
+    procedure StaleEdge_LockThenRollback_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure StaleEdge_LockThenRollback_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure StaleEdge_LockThenRollback_More3()
+    begin
+        Observer.More();
+    end;
+
     // A rollback by an error of the database (a duplicate Insert under asserterror) instead of Error().
     [Test]
     procedure StaleEdge_DatabaseErrorRollback()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
+        Clear(Observer);
         Cell(Observer, 'rm_rbi', 'insert_modify', 'C rm C rm rbi', 'modify_true');
         Cell(Observer, 'om_rbi', 'insert_modify', 'C rm C om rbi', 'modify_true');
         Cell(Observer, 'rbi_rm', 'insert_modify', 'C rm C rbi rm', 'modify_true');
@@ -301,12 +318,29 @@ codeunit 76601 "REC StaleEdge Probe"
         Observer.Finish();
     end;
 
+    [Test]
+    procedure StaleEdge_DatabaseErrorRollback_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure StaleEdge_DatabaseErrorRollback_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure StaleEdge_DatabaseErrorRollback_More3()
+    begin
+        Observer.More();
+    end;
+
     // A failed `if Codeunit.Run` that wrote before its error: the row, another row, another table.
     [Test]
     procedure StaleEdge_FailedGuardedRun()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
+        Clear(Observer);
         Cell(Observer, 'f_rm', 'insert_modify', 'C rm C f:rm', 'modify_true');
         Cell(Observer, 'f_om', 'insert_modify', 'C rm C f:om', 'modify_true');
         Cell(Observer, 'f_ki', 'insert_modify', 'C rm C f:ki', 'modify_true');
@@ -316,12 +350,29 @@ codeunit 76601 "REC StaleEdge Probe"
         Observer.Finish();
     end;
 
+    [Test]
+    procedure StaleEdge_FailedGuardedRun_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure StaleEdge_FailedGuardedRun_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure StaleEdge_FailedGuardedRun_More3()
+    begin
+        Observer.More();
+    end;
+
     // The row itself deleted by another variable in the open transaction, and inserted again after it.
     [Test]
     procedure StaleEdge_RowDeletedAndInserted()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
+        Clear(Observer);
         Cell(Observer, 'rd', 'insert_modify', 'C rm C rd', 'modify_true');
         Cell(Observer, 'rd_ri', 'insert_modify', 'C rm C rd ri', 'modify_true');
         Cell(Observer, 'rd_ri_false', 'insert_modify', 'C rm C rd ri', 'modify_false');
@@ -330,37 +381,106 @@ codeunit 76601 "REC StaleEdge Probe"
         Observer.Finish();
     end;
 
+    [Test]
+    procedure StaleEdge_RowDeletedAndInserted_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure StaleEdge_RowDeletedAndInserted_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure StaleEdge_RowDeletedAndInserted_More3()
+    begin
+        Observer.More();
+    end;
+
     // The row itself renamed by another variable in the open transaction, and renamed back.
     [Test]
     procedure StaleEdge_RowRenamed()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
+        Clear(Observer);
         Cell(Observer, 'rn', 'insert_modify', 'C rm C rn', 'modify_true');
         Cell(Observer, 'rn_rnb', 'insert_modify', 'C rm C rn rnb', 'modify_true');
         Cell(Observer, 'rn_rnb_false', 'insert_modify', 'C rm C rn rnb', 'modify_false');
         Observer.Finish();
     end;
 
+    [Test]
+    procedure StaleEdge_RowRenamed_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure StaleEdge_RowRenamed_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure StaleEdge_RowRenamed_More3()
+    begin
+        Observer.More();
+    end;
+
     // A ModifyAll on the row's table that matches no row.
     [Test]
     procedure StaleEdge_NoRowModifyAll()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
+        Clear(Observer);
         Cell(Observer, 'oman', 'insert_modify', 'C rm C oman', 'modify_true');
         Cell(Observer, 'oman_1c', 'insert_modify', 'rm C oman', 'modify_true');
         Observer.Finish();
     end;
 
+    [Test]
+    procedure StaleEdge_NoRowModifyAll_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure StaleEdge_NoRowModifyAll_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure StaleEdge_NoRowModifyAll_More3()
+    begin
+        Observer.More();
+    end;
+
     // A Truncate of another table in the open transaction.
     [Test]
     procedure StaleEdge_TruncateOtherTable()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
+        Clear(Observer);
         Cell(Observer, 'kt', 'insert_modify', 'C rm C kt', 'modify_true');
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure StaleEdge_TruncateOtherTable_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure StaleEdge_TruncateOtherTable_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure StaleEdge_TruncateOtherTable_More3()
+    begin
+        Observer.More();
     end;
 
     local procedure RolledBackInsertAndModify(var Observer: Codeunit "Probe Observer"; Name: Text; RunTrigger: Boolean; ChangeAfter: Boolean)
@@ -399,14 +519,31 @@ codeunit 76601 "REC StaleEdge Probe"
     // OnModify trigger and no Modify event subscribers.
     [Test]
     procedure StaleEdge_RolledBackInsertAndModify_NoSubscribers()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
+        Clear(Observer);
         RolledBackInsertAndModify(Observer, 'modify_false_unchanged', false, false);
         RolledBackInsertAndModify(Observer, 'modify_true_unchanged', true, false);
         RolledBackInsertAndModify(Observer, 'modify_false_changed', false, true);
         RolledBackInsertAndModify(Observer, 'modify_true_changed', true, true);
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure StaleEdge_RolledBackInsertAndModify_NoSubscribers_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure StaleEdge_RolledBackInsertAndModify_NoSubscribers_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure StaleEdge_RolledBackInsertAndModify_NoSubscribers_More3()
+    begin
+        Observer.More();
     end;
 
     local procedure TriggerLog() Result: Text
@@ -425,12 +562,12 @@ codeunit 76601 "REC StaleEdge Probe"
     [Test]
     procedure StaleEdge_RolledBackModify_GlobalAndDatabaseTriggers()
     var
-        Observer: Codeunit "Probe Observer";
         Cleanup: Codeunit ALTFixtureCleanup;
         Row: Record "ALT Triggered";
         Check: Record "ALT Triggered";
         Done: Boolean;
     begin
+        Clear(Observer);
         Cleanup.Initialize();
         Row.Init();
         Row."Entry No." := 1;
@@ -453,5 +590,23 @@ codeunit 76601 "REC StaleEdge Probe"
         Cleanup.Initialize();
         Commit();
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure StaleEdge_RolledBackModify_GlobalAndDatabaseTriggers_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure StaleEdge_RolledBackModify_GlobalAndDatabaseTriggers_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure StaleEdge_RolledBackModify_GlobalAndDatabaseTriggers_More3()
+    begin
+        Observer.More();
     end;
 }

@@ -247,6 +247,24 @@ codeunit 76635 "REC TRQ Probe"
     end;
 
     [Test]
+    procedure Where_TwoQuotedBounds_And_TwoQuotedMembers_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Where_TwoQuotedBounds_And_TwoQuotedMembers_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Where_TwoQuotedBounds_And_TwoQuotedMembers_More3()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     procedure Where_NotBoth_FourAnd_QuotedPlain()
     var
         Codes: List of [Text];
@@ -262,6 +280,24 @@ codeunit 76635 "REC TRQ Probe"
     end;
 
     [Test]
+    procedure Where_NotBoth_FourAnd_QuotedPlain_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Where_NotBoth_FourAnd_QuotedPlain_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Where_NotBoth_FourAnd_QuotedPlain_More3()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     procedure Where_QuotedNextToOtherConditions()
     var
         Codes: List of [Text];
@@ -273,6 +309,24 @@ codeunit 76635 "REC TRQ Probe"
         Probe(21, 0, 'G1', Codes);
         Probe(21, 0, 'G2', Codes);
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure Where_QuotedNextToOtherConditions_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Where_QuotedNextToOtherConditions_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Where_QuotedNextToOtherConditions_More3()
+    begin
+        Observer.More();
     end;
 
     [Test]
@@ -293,6 +347,24 @@ codeunit 76635 "REC TRQ Probe"
     end;
 
     [Test]
+    procedure Arms_EnumField_SingleConditions_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Arms_EnumField_SingleConditions_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Arms_EnumField_SingleConditions_More3()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     procedure Arms_EnumField_RangesAndAnd()
     var
         Codes: List of [Text];
@@ -305,6 +377,24 @@ codeunit 76635 "REC TRQ Probe"
             Probe(35, K, '', Codes);
         end;
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure Arms_EnumField_RangesAndAnd_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Arms_EnumField_RangesAndAnd_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Arms_EnumField_RangesAndAnd_More3()
+    begin
+        Observer.More();
     end;
 
     [Test]
@@ -321,5 +411,23 @@ codeunit 76635 "REC TRQ Probe"
             Probe(37, K, 'G2', Codes);
         end;
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure Arms_EnumField_ThreeArms_TwoConditions_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Arms_EnumField_ThreeArms_TwoConditions_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Arms_EnumField_ThreeArms_TwoConditions_More3()
+    begin
+        Observer.More();
     end;
 }

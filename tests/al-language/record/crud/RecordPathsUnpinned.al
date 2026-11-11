@@ -145,6 +145,9 @@ codeunit 76624 "REC RPU Probe"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    var
+        Observer: Codeunit "Probe Observer";
+
     local procedure SeedRows()
     var
         Row: Record "REC RPU Row";
@@ -191,9 +194,9 @@ codeunit 76624 "REC RPU Probe"
     [Test]
     procedure DeleteAllTrue_Descending_TriggerOrder()
     var
-        Observer: Codeunit "Probe Observer";
         Row: Record "REC RPU Row";
     begin
+        Clear(Observer);
         SeedRows();
         Row.SetFilter("No.", 'R2..R4');
         Row.Ascending(false);
@@ -230,6 +233,24 @@ codeunit 76624 "REC RPU Probe"
         Row.DeleteAll(true);
         Observer.Observe('pk_descending_filter_after_find', TakeLog());
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure DeleteAllTrue_Descending_TriggerOrder_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure DeleteAllTrue_Descending_TriggerOrder_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure DeleteAllTrue_Descending_TriggerOrder_More3()
+    begin
+        Observer.More();
     end;
 
     local procedure PngIn(var TempBlob: Codeunit "Temp Blob"; var Ins: InStream)
@@ -314,9 +335,8 @@ codeunit 76624 "REC RPU Probe"
     // of each row.
     [Test]
     procedure DeleteAll_MediaRows_TenantMedia()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
+        Clear(Observer);
         MediaCell(Observer, 'deleteall', 'deleteall');
         MediaCell(Observer, 'deleteall_true', 'deleteall_true');
         MediaCell(Observer, 'delete_each', 'delete_each');
@@ -324,14 +344,50 @@ codeunit 76624 "REC RPU Probe"
     end;
 
     [Test]
+    procedure DeleteAll_MediaRows_TenantMedia_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure DeleteAll_MediaRows_TenantMedia_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure DeleteAll_MediaRows_TenantMedia_More3()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     procedure Company_Count()
     var
-        Observer: Codeunit "Probe Observer";
         Company: Record Company;
     begin
+        Clear(Observer);
         Observer.Observe('count', Format(Company.Count()));
         Observer.Observe('current found', Format(Company.Get(CompanyName())));
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure Company_Count_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Company_Count_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Company_Count_More3()
+    begin
+        Observer.More();
     end;
 
     local procedure GuidKind(Value: Guid; Assigned: Guid; First: Guid): Text
@@ -349,7 +405,6 @@ codeunit 76624 "REC RPU Probe"
     [Test]
     procedure FailedGuardedInsert_SystemIdAfter()
     var
-        Observer: Codeunit "Probe Observer";
         TempRow: Record "REC RPU Row" temporary;
         TempSecond: Record "REC RPU Row" temporary;
         Row: Record "REC RPU Row";
@@ -358,6 +413,7 @@ codeunit 76624 "REC RPU Probe"
         Assigned: Guid;
         Ok: Boolean;
     begin
+        Clear(Observer);
         TempRow.Init();
         TempRow."No." := 'T1';
         TempRow.Insert();
@@ -398,6 +454,24 @@ codeunit 76624 "REC RPU Probe"
         Observer.Finish();
     end;
 
+    [Test]
+    procedure FailedGuardedInsert_SystemIdAfter_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure FailedGuardedInsert_SystemIdAfter_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure FailedGuardedInsert_SystemIdAfter_More3()
+    begin
+        Observer.More();
+    end;
+
     local procedure Loaded(var Row: Record "REC RPU Row"): Text
     begin
         exit(Format(Row.AreFieldsLoaded("No.")) + '/' + Format(Row.AreFieldsLoaded(Name)) + '/' + Format(Row.AreFieldsLoaded(Other)) + '/' + Format(Row.AreFieldsLoaded(Grp)));
@@ -407,10 +481,10 @@ codeunit 76624 "REC RPU Probe"
     [Test]
     procedure AreFieldsLoaded_UnfetchedAndCleared()
     var
-        Observer: Codeunit "Probe Observer";
         Row: Record "REC RPU Row";
         Ok: Boolean;
     begin
+        Clear(Observer);
         SeedRows();
         Row.Init();
         Row."No." := 'R1';
@@ -447,13 +521,31 @@ codeunit 76624 "REC RPU Probe"
         Observer.Finish();
     end;
 
+    [Test]
+    procedure AreFieldsLoaded_UnfetchedAndCleared_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure AreFieldsLoaded_UnfetchedAndCleared_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure AreFieldsLoaded_UnfetchedAndCleared_More3()
+    begin
+        Observer.More();
+    end;
+
     // SystemRowVersion of a temporary record after Insert and Modify.
     [Test]
     procedure Temporary_SystemRowVersion()
     var
-        Observer: Codeunit "Probe Observer";
         TempRow: Record "REC RPU Row" temporary;
     begin
+        Clear(Observer);
         TempRow.Init();
         TempRow."No." := 'T1';
         Observer.Observe('before insert', Format(TempRow.SystemRowVersion));
@@ -467,14 +559,32 @@ codeunit 76624 "REC RPU Probe"
         Observer.Finish();
     end;
 
+    [Test]
+    procedure Temporary_SystemRowVersion_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Temporary_SystemRowVersion_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Temporary_SystemRowVersion_More3()
+    begin
+        Observer.More();
+    end;
+
     // FilterPageBuilder.GetView of a record with a Boolean filter, localized (true) and not (false).
     [Test]
     procedure FilterPageBuilder_GetView_BooleanFilter()
     var
-        Observer: Codeunit "Probe Observer";
         Row: Record "REC RPU Row";
         Builder: FilterPageBuilder;
     begin
+        Clear(Observer);
         Row.SetRange(Flag, true);
         Builder.AddRecord('Rows', Row);
         Builder.AddField('Rows', Row.Flag);
@@ -487,6 +597,24 @@ codeunit 76624 "REC RPU Probe"
         Observer.Observe('getview false two', Builder.GetView('Rows', false));
         Observer.Observe('getview true two', Builder.GetView('Rows', true));
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure FilterPageBuilder_GetView_BooleanFilter_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure FilterPageBuilder_GetView_BooleanFilter_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure FilterPageBuilder_GetView_BooleanFilter_More3()
+    begin
+        Observer.More();
     end;
 
     local procedure DateCell(var Observer: Codeunit "Probe Observer"; var Sub: Codeunit "REC RPU Date Sub"; Name: Text; Filter: Text; WithArg: Boolean)
@@ -517,9 +645,9 @@ codeunit 76624 "REC RPU Probe"
     [Test]
     procedure MakeDateFilter_PlaceholdersAndLanguage()
     var
-        Observer: Codeunit "Probe Observer";
         Sub: Codeunit "REC RPU Date Sub";
     begin
+        Clear(Observer);
         BindSubscription(Sub);
         DateCell(Observer, Sub, 'english plain', 'abc', false);
         DateCell(Observer, Sub, 'english placeholder or', '%1|abc', true);
@@ -533,16 +661,34 @@ codeunit 76624 "REC RPU Probe"
         Observer.Finish();
     end;
 
+    [Test]
+    procedure MakeDateFilter_PlaceholdersAndLanguage_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure MakeDateFilter_PlaceholdersAndLanguage_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure MakeDateFilter_PlaceholdersAndLanguage_More3()
+    begin
+        Observer.More();
+    end;
+
     // A copy of a RecordRef that is not open, before the original is opened (RR2 := RR, and RR through a Variant).
     [Test]
     procedure RecordRefCopy_BeforeOpen()
     var
-        Observer: Codeunit "Probe Observer";
         RR: RecordRef;
         RR2: RecordRef;
         Back: RecordRef;
         V: Variant;
     begin
+        Clear(Observer);
         SeedRows();
         RR2 := RR;
         V := RR;
@@ -563,6 +709,24 @@ codeunit 76624 "REC RPU Probe"
         Observer.Observe('rr2 findfirst|code', GetLastErrorCode());
         ClearLastError();
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecordRefCopy_BeforeOpen_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure RecordRefCopy_BeforeOpen_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure RecordRefCopy_BeforeOpen_More3()
+    begin
+        Observer.More();
     end;
 
     local procedure StoreDate(var Observer: Codeunit "Probe Observer"; Name: Text; D: Date; Dtm: DateTime)
@@ -595,9 +759,8 @@ codeunit 76624 "REC RPU Probe"
     // Date and DateTime values before 1753-01-02 other than the pinned ones, written by Insert and read back by Get.
     [Test]
     procedure DatesBefore1753_InsertAndGet()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
+        Clear(Observer);
         StoreDate(Observer, 'date 1700-06-15', DMY2Date(15, 6, 1700), 0DT);
         StoreDate(Observer, 'date 0001-01-02', DMY2Date(2, 1, 1), 0DT);
         StoreDate(Observer, 'date 1753-01-02', DMY2Date(2, 1, 1753), 0DT);
@@ -610,14 +773,32 @@ codeunit 76624 "REC RPU Probe"
         Observer.Finish();
     end;
 
+    [Test]
+    procedure DatesBefore1753_InsertAndGet_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure DatesBefore1753_InsertAndGet_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure DatesBefore1753_InsertAndGet_More3()
+    begin
+        Observer.More();
+    end;
+
     // Blob.Length and HasValue of a stored Blob of 24 bytes, read by Get without CalcFields, then after CalcFields.
     [Test]
     procedure StoredBlob_LengthBeforeCalcFields()
     var
-        Observer: Codeunit "Probe Observer";
         Row: Record "REC RPU Blob";
         Out: OutStream;
     begin
+        Clear(Observer);
         Row.DeleteAll();
         Row.Init();
         Row.Id := 1;
@@ -638,6 +819,24 @@ codeunit 76624 "REC RPU Probe"
         Row.Get(1);
         Observer.Observe('get after commit', Format(Row.B.Length) + ' ' + Format(Row.B.HasValue()));
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure StoredBlob_LengthBeforeCalcFields_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure StoredBlob_LengthBeforeCalcFields_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure StoredBlob_LengthBeforeCalcFields_More3()
+    begin
+        Observer.More();
     end;
 
     var
@@ -703,13 +902,30 @@ codeunit 76624 "REC RPU Probe"
     [Test]
     [HandlerFunctions('PointElsewhereHandler')]
     procedure FilterPageHandler_PointsRecordRefElsewhere()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
+        Clear(Observer);
         FilterPageCell(Observer, 'set filter', 1);
         FilterPageCell(Observer, 'gettable other record', 2);
         FilterPageCell(Observer, 'open other table', 3);
         FilterPageCell(Observer, 'open same table again', 4);
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure FilterPageHandler_PointsRecordRefElsewhere_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure FilterPageHandler_PointsRecordRefElsewhere_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure FilterPageHandler_PointsRecordRefElsewhere_More3()
+    begin
+        Observer.More();
     end;
 }

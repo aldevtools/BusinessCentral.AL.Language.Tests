@@ -278,6 +278,9 @@ codeunit 76618 "REC FFV Probe"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    var
+        Observer: Codeunit "Probe Observer";
+
     local procedure Reset()
     var
         Line: Record "REC FFV Line";
@@ -409,9 +412,8 @@ codeunit 76618 "REC FFV Probe"
     // already has, 0, and the one-argument form with CalcFields first, with an assigned value and without either.
     [Test]
     procedure NegatedSum_OneFieldKey_CurrentAndNewNotZero()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
+        Clear(Observer);
         Reset();
         AddE1(1, 10000, 3);
         AddE1(2, 10000, 1);
@@ -427,12 +429,29 @@ codeunit 76618 "REC FFV Probe"
         Observer.Finish();
     end;
 
+    [Test]
+    procedure NegatedSum_OneFieldKey_CurrentAndNewNotZero_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure NegatedSum_OneFieldKey_CurrentAndNewNotZero_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure NegatedSum_OneFieldKey_CurrentAndNewNotZero_More3()
+    begin
+        Observer.More();
+    end;
+
     // The Reserved Qty. (Base) shape: a negated sum over a source table whose key is (Integer, Boolean), with a const() condition.
     [Test]
     procedure NegatedSum_TwoFieldKey_ConstCondition()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
+        Clear(Observer);
         Reset();
         AddE2(1, true, 10000, 7, 3);
         AddE2(1, false, 10000, 7, -1);
@@ -445,12 +464,29 @@ codeunit 76618 "REC FFV Probe"
         Observer.Finish();
     end;
 
+    [Test]
+    procedure NegatedSum_TwoFieldKey_ConstCondition_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure NegatedSum_TwoFieldKey_ConstCondition_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure NegatedSum_TwoFieldKey_ConstCondition_More3()
+    begin
+        Observer.More();
+    end;
+
     // The same shape with no matching source row (the current sum is 0), as in the reported conversion of a quote line (line 0 of a new order).
     [Test]
     procedure NegatedSum_TwoFieldKey_NoMatchingRow()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
+        Clear(Observer);
         Reset();
         AddE2(5, true, 20000, 7, 2);
         ValidateCell(Observer, 'onearg_nothing', 11, false, 0, false, false, 0);
@@ -460,12 +496,29 @@ codeunit 76618 "REC FFV Probe"
         Observer.Finish();
     end;
 
+    [Test]
+    procedure NegatedSum_TwoFieldKey_NoMatchingRow_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure NegatedSum_TwoFieldKey_NoMatchingRow_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure NegatedSum_TwoFieldKey_NoMatchingRow_More3()
+    begin
+        Observer.More();
+    end;
+
     // A plain sum over the two-field key with a const() condition, with and without matching rows.
     [Test]
     procedure PlainSum_TwoFieldKey_ConstCondition()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
+        Clear(Observer);
         Reset();
         AddE2(1, true, 10000, 7, 3);
         AddE2(4, false, 10000, 7, 2);
@@ -475,12 +528,29 @@ codeunit 76618 "REC FFV Probe"
         Observer.Finish();
     end;
 
+    [Test]
+    procedure PlainSum_TwoFieldKey_ConstCondition_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure PlainSum_TwoFieldKey_ConstCondition_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure PlainSum_TwoFieldKey_ConstCondition_More3()
+    begin
+        Observer.More();
+    end;
+
     // Sums whose source table has no row at all.
     [Test]
     procedure Sum_EmptySourceTable()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
+        Clear(Observer);
         Reset();
         ValidateCell(Observer, 'pos_one_new_4', 13, true, 4, false, false, 0);
         ValidateCell(Observer, 'neg_one_new_4', 10, true, 4, false, false, 0);
@@ -488,6 +558,24 @@ codeunit 76618 "REC FFV Probe"
         ValidateCell(Observer, 'neg_two_new_4', 11, true, 4, false, false, 0);
         ValidateCell(Observer, 'neg_two_onearg', 11, false, 0, false, false, 0);
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure Sum_EmptySourceTable_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Sum_EmptySourceTable_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Sum_EmptySourceTable_More3()
+    begin
+        Observer.More();
     end;
 
     local procedure SeedHead(KindValue: Enum "REC FFV Kind"; TxtValue: Text[50]; WithDetail: Boolean)
@@ -556,34 +644,85 @@ codeunit 76618 "REC FFV Probe"
     // Conversions of a lookup and a max with a condition on a FlowField of the source table, next to the same formula without it.
     [Test]
     procedure FlowFieldCondition_ConvertedValues_Beta()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
+        Clear(Observer);
         SeedHead("REC FFV Kind"::Beta, 'abcdefghij', true);
         CalcAll(Observer, 'beta_');
         Observer.Finish();
     end;
 
+    [Test]
+    procedure FlowFieldCondition_ConvertedValues_Beta_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure FlowFieldCondition_ConvertedValues_Beta_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure FlowFieldCondition_ConvertedValues_Beta_More3()
+    begin
+        Observer.More();
+    end;
+
     // The source member has ordinal 5 (Gamma), which the Option fields have as their sixth member.
     [Test]
     procedure FlowFieldCondition_ConvertedValues_Gamma()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
+        Clear(Observer);
         SeedHead("REC FFV Kind"::Gamma, 'xyz', true);
         CalcAll(Observer, 'gamma_');
         Observer.Finish();
     end;
 
+    [Test]
+    procedure FlowFieldCondition_ConvertedValues_Gamma_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure FlowFieldCondition_ConvertedValues_Gamma_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure FlowFieldCondition_ConvertedValues_Gamma_More3()
+    begin
+        Observer.More();
+    end;
+
     // The condition on the FlowField does not hold (no detail row): the FlowFields with the condition find no row.
     [Test]
     procedure FlowFieldCondition_ConditionFalse()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
+        Clear(Observer);
         SeedHead("REC FFV Kind"::Beta, 'abcdefghij', false);
         CalcAll(Observer, 'nodetail_');
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure FlowFieldCondition_ConditionFalse_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure FlowFieldCondition_ConditionFalse_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure FlowFieldCondition_ConditionFalse_More3()
+    begin
+        Observer.More();
     end;
 
     local procedure SeedKeys()
@@ -633,9 +772,9 @@ codeunit 76618 "REC FFV Probe"
     [Test]
     procedure LookupFirstKey_CodeAndOption_RowOrder()
     var
-        Observer: Codeunit "Probe Observer";
         Row: Record "REC FFV Key Row";
     begin
+        Clear(Observer);
         SeedKeys();
         Observer.Observe('type codes', KeyOrder(Row));
         Row.SetCurrentKey(LkCode, Grp);
@@ -654,5 +793,23 @@ codeunit 76618 "REC FFV Probe"
         Row.SetRange(Grp, 1, 2);
         Observer.Observe('opt grp 1..2', KeyOrder(Row));
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure LookupFirstKey_CodeAndOption_RowOrder_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure LookupFirstKey_CodeAndOption_RowOrder_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure LookupFirstKey_CodeAndOption_RowOrder_More3()
+    begin
+        Observer.More();
     end;
 }
