@@ -7,7 +7,7 @@
 //   Line" from XpRootTableNested.al; own table 75126, xmlports 75127-75133, test codeunit 75134.
 // local object: the schemas of the ports are what is under test; table 75126 has Code, Text, Decimal and Date fields that take empty
 //   elements, and no fixture table has that shape.
-// Probe (observe only): al-runner issue 6924 (outside reporter's port) and 7714. XpRootTableNested.al measured an Xml import whose root
+// Probe (values pinned): al-runner issue 6924 (outside reporter's port) and 7714. XpRootTableNested.al measured an Xml import whose root
 //   is a table element (MinOccurs = Once, MaxOccurs = Once) holding a header table element; there the line table element declares no
 //   MinOccurs or MaxOccurs, the text element that wraps the lines is the last child of the header, and only missing elements of Code
 //   fields were tried. The reporter's port differs; each port below changes one of these:
@@ -25,6 +25,14 @@
 //                   pinned in codeunits/procedures/AssignIsCallRule.al U16 and U17)
 //   The documents follow the reporter's: declaration ISO-8859-1 written with TextEncoding::Windows and the port's TextEncoding set to
 //   Windows, LF and two spaces between the elements, empty ShipToCode and Location, `if not Port.Import() then`.
+// Values measured on BC 27.5, 28.5 and 29.0 (corpus CI runs 43030003559, 43030045249, 43030086489; the Filename export in runs 43034340527,
+//   43034386731, 43034438484), identical on all three. Measured: every port imports the reporter's document as the measured shape does
+//   (same trigger order and rows). A line's OnBeforeInsertRecord sees only the header elements read before the wrapper: with the wrapper
+//   first, the header's fields are blank and its text elements keep the previous header's values. A Body without lines fails with
+//   XmlPortInvalidXml unless the line table element has MinOccurs = Zero (then the header is stored without lines). An empty or
+//   self-closing field element assigns the blank value (Code and Text '', Decimal 0, Date 0D) over the value OnAfterInitRecord set; an
+//   empty text element assigns '', a self-closing text element leaves the variable as it was; a missing element leaves the value.
+//   currXMLport.Filename := ... in OnPreXmlPort of an Xml import and export runs, and Filename() returns the new name afterwards.
 // BC versions: 27, 28, 29 (corpus CI)
 
 table 75126 "XP RTV Empty Header"
@@ -1892,6 +1900,10 @@ codeunit 75134 "XP RTV Tests"
         Observer.Observe('filename after', Port.Filename());
         TempBlob.CreateInStream(InS, TextEncoding::UTF8);
         Observer.Observe('content', ReadAll(InS));
-        Observer.Finish();
+        Observer.Expect('export', 'true');
+        Observer.Expect('log', 'pre: ;pre, after assign: probe.xml;post: probe.xml;');
+        Observer.Expect('filename after', 'probe.xml');
+        Observer.Expect('content', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Row>|    <Id>1</Id>|    <Name>one</Name>|  </Row>|  <Row>|    <Id>2</Id>|    <Name>two</Name>|  </Row>|</Root>');
+        Observer.Verify();
     end;
 }
