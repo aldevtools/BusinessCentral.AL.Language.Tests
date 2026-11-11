@@ -17,7 +17,8 @@
 //   3. Unit forms: state needs-translation, needs-review-translation, new, final, translated and signed-off; an empty <target>, no
 //      <target>, translate="no"; a target longer than the Label's MaxLength; a Label with a Comment.
 //   4. An enum extension in the same app as its enum and one of a dependency app's enum; the page caption of a TestPage.
-//   5. Error(Label) under 1043, read with GetLastErrorText after GlobalLanguage(1033).
+//   5. Error(Label) under 1043, read with GetLastErrorText after GlobalLanguage(1033); Labels read while a report runs with
+//      CurrReport.Language set (the report's own Label and a dependency app's Label).
 //   6. CaptionML and OptionCaptionML of a field in an app that ships a file, under 1043 (NLD entry) and 2067 (no NLB entry); TextConst
 //      with NLD, NLB, FRB, FRA and DAN entries under 1043, 2067, 2060, 1036 and 1030.
 // BC versions: 27.0+
@@ -229,16 +230,40 @@ report 96704 "LT TL Report"
 
             trigger OnAfterGetRecord()
             var
+                XL: Codeunit "LT XL Labels";
                 DataLbl: Label 'Data item label';
             begin
                 LastText := DataLbl;
+                DepText := XL.Both();
+                GlobalText := Format(GlobalLanguage());
+                ReportLanguageText := Format(CurrReport.Language());
             end;
         }
     }
 
+    trigger OnPreReport()
+    begin
+        if ReportLanguage <> 0 then
+            CurrReport.Language := ReportLanguage;
+    end;
+
     var
         LastText: Text;
+        DepText: Text;
+        GlobalText: Text;
+        ReportLanguageText: Text;
+        ReportLanguage: Integer;
         ReportGlobalLbl: Label 'Report global label';
+
+    procedure SetReportLanguage(Language: Integer)
+    begin
+        ReportLanguage := Language;
+    end;
+
+    procedure GetRunTexts(): Text
+    begin
+        exit(LastText + '|' + DepText + '|' + GlobalText + '|' + ReportLanguageText);
+    end;
 
     procedure GetLast(): Text
     begin
@@ -493,6 +518,29 @@ codeunit 96708 "LT TL Translation Tests"
         Rep.UseRequestPage(false);
         Rep.RunModal();
         Observer.Observe('nlnl_report_dataitem_onaftergetrecord', Rep.GetLast());
+        GlobalLanguage(1033);
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TL_ReportLanguage_LabelsWhileReportRuns()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rep: Report "LT TL Report";
+        Rep2: Report "LT TL Report";
+    begin
+        // GlobalLanguage 1033, CurrReport.Language 1043 (set in OnPreReport): the report's own Label and a dependency app's Label read in
+        // OnAfterGetRecord, then GlobalLanguage and CurrReport.Language there (Label|dependency Label|GlobalLanguage|CurrReport.Language).
+        GlobalLanguage(1033);
+        Rep.SetReportLanguage(1043);
+        Rep.UseRequestPage(false);
+        Rep.RunModal();
+        Observer.Observe('enus_global_nlnl_report', Rep.GetRunTexts());
+        // GlobalLanguage 2067, report language not set.
+        GlobalLanguage(2067);
+        Rep2.UseRequestPage(false);
+        Rep2.RunModal();
+        Observer.Observe('nlbe_global_report_language_unset', Rep2.GetRunTexts());
         GlobalLanguage(1033);
         Observer.Verify();
     end;
