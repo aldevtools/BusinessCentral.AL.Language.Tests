@@ -811,8 +811,6 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Verify();
     end;
 
-#if BC28PLUS // On BC 27.5 a Message in OnQueryClosePage is an unhandled UI call: Close raises 'Unhandled UI: Message CEM query close error' and the test ends in a failure, which CI cannot hold.
-
     // CLAIM: Card.Close() with no asserterror around it: OnClosePage raises an error; what GetLastErrorText and GetLastErrorCode hold afterwards (al-runner 7457).
     // A Close that raises with no asserterror around it ends the test with a failure, which CI cannot hold: the Close runs inside a TryFunction, so the error is caught and what GetLastErrorText and GetLastErrorCode hold is observed.
     [Test]
