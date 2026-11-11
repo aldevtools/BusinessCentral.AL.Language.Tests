@@ -371,7 +371,7 @@ codeunit 96708 "LT TL Translation Tests"
     begin
         ObserveDependencyLabels(Observer, 2067, 'nlbe');
         ObserveDependencyLabels(Observer, 1043, 'nlnl');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -383,7 +383,7 @@ codeunit 96708 "LT TL Translation Tests"
         ObserveDependencyLabels(Observer, 2060, 'frbe');
         ObserveDependencyLabels(Observer, 3084, 'frca');
         ObserveDependencyLabels(Observer, 4108, 'frch');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -395,7 +395,7 @@ codeunit 96708 "LT TL Translation Tests"
         ObserveDependencyLabels(Observer, 2057, 'engb');
         ObserveDependencyLabels(Observer, 3081, 'enau');
         ObserveDependencyLabels(Observer, 1031, 'dede');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -407,7 +407,7 @@ codeunit 96708 "LT TL Translation Tests"
         ObserveDependencyCaptions(Observer, 1043, 'nlnl');
         ObserveDependencyCaptions(Observer, 2060, 'frbe');
         ObserveDependencyCaptions(Observer, 1031, 'dede');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -419,7 +419,7 @@ codeunit 96708 "LT TL Translation Tests"
         GlobalLanguage(1043);
         Observer.Observe('nlnl_cross', XL.Cross());
         GlobalLanguage(1033);
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -446,7 +446,7 @@ codeunit 96708 "LT TL Translation Tests"
         Dep := Dep::Alpha;
         Observer.Observe('nlbe_dep_alpha', Format(Dep));
         GlobalLanguage(1033);
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -461,7 +461,7 @@ codeunit 96708 "LT TL Translation Tests"
         Observer.Observe('nlnl_procedure_local', TL.WithLocal());
         Observer.Observe('nlnl_subscriber', TL.RaiseProbe());
         GlobalLanguage(1033);
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -479,7 +479,7 @@ codeunit 96708 "LT TL Translation Tests"
         Observer.Observe('nlnl_table_global', Row.TableGlobal());
         Observer.Observe('nlnl_table_procedure_local', Row.TableLocal());
         GlobalLanguage(1033);
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -503,7 +503,7 @@ codeunit 96708 "LT TL Translation Tests"
         Observer.Observe('nlnl_page_action_global', Card.NoteCtl.Value());
         Card.Close();
         GlobalLanguage(1033);
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -519,7 +519,7 @@ codeunit 96708 "LT TL Translation Tests"
         Rep.RunModal();
         Observer.Observe('nlnl_report_dataitem_onaftergetrecord', Rep.GetLast());
         GlobalLanguage(1033);
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -542,7 +542,7 @@ codeunit 96708 "LT TL Translation Tests"
         Rep2.RunModal();
         Observer.Observe('nlbe_global_report_language_unset', Rep2.GetRunTexts());
         GlobalLanguage(1033);
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -566,7 +566,7 @@ codeunit 96708 "LT TL Translation Tests"
         Observer.Observe('nlnl_maxlength_strlen', Format(StrLen(Text)));
         Observer.Observe('nlnl_comment', CommentLbl);
         GlobalLanguage(1033);
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -578,7 +578,7 @@ codeunit 96708 "LT TL Translation Tests"
         asserterror Error(ErrLbl);
         GlobalLanguage(1033);
         Observer.Observe('error_text_after_1033', GetLastErrorText());
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -595,7 +595,7 @@ codeunit 96708 "LT TL Translation Tests"
         Observer.Observe('nlbe_captionml', Row.FieldCaption(Mixed));
         Observer.Observe('nlbe_optioncaptionml', Format(Row.Opt));
         GlobalLanguage(1033);
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -619,6 +619,6 @@ codeunit 96708 "LT TL Translation Tests"
         Observer.Observe('dadk_enu_nld', TcEnuNld);
         GlobalLanguage(1033);
         Observer.Observe('enus_nld_only', TcNldOnly);
-        Observer.Verify();
+        Observer.Finish();
     end;
 }
