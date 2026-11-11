@@ -607,7 +607,7 @@ table 76719 "CRT Request"
 
     fields
     {
-        field(1; Direction; Option) { OptionMembers = In,Out; }
+        field(1; Direction; Option) { OptionMembers = Inbound,Outbound; }
         field(2; "No."; Code[20]) { }
         field(3; Note; Text[50]) { }
     }
@@ -629,9 +629,9 @@ codeunit 76718 "CRT Upsert Two Rows Tests"
     begin
         Request.DeleteAll();
         Request."No." := 'A';
-        Request.Direction := Request.Direction::Out;
+        Request.Direction := Request.Direction::Outbound;
         Request.Insert();
-        Request.Direction := Request.Direction::In;
+        Request.Direction := Request.Direction::Inbound;
         Request.Insert();
     end;
 
@@ -642,12 +642,12 @@ codeunit 76718 "CRT Upsert Two Rows Tests"
         Request."No." := 'A';
         Request.Note := CopyStr(NoteValue, 1, 50);
         if Rows <> 'out' then begin
-            Request.Direction := Request.Direction::In;
+            Request.Direction := Request.Direction::Inbound;
             if not Request.Insert() then
                 Request.Modify();
         end;
         if Rows <> 'in' then begin
-            Request.Direction := Request.Direction::Out;
+            Request.Direction := Request.Direction::Outbound;
             if not Request.Insert() then
                 Request.Modify();
         end;
