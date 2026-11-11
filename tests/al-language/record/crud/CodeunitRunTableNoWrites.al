@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/codeunit/codeunit-run-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own objects 76710..76717
+// Fixtures used: Probe Observer (codeunit 69160); own objects 76710..76719
 // local object: the TableNo codeunits must write, commit and fail on demand
 // Probe (al-runner issue 7795): Codeunit.Run of a TableNo codeunit with a record variable, where the codeunit modifies Rec (and commits,
 //   and raises an error), and then the caller writes through the same variable (directly, or through a second TableNo codeunit as an
@@ -598,5 +598,138 @@ codeunit 76716 "CRT Stale Other Row Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, true, true, 'repeatableread-own');
+    end;
+}
+
+table 76719 "CRT Request"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Direction; Option) { OptionMembers = In,Out; }
+        field(2; "No."; Code[20]) { }
+        field(3; Note; Text[50]) { }
+    }
+
+    keys { key(PK; Direction, "No.") { Clustered = true; } }
+}
+
+// Fourth part (al-runner issue 7798): one buffer does `if not Insert() then Modify()` on two existing rows of a two-field key, the key
+// changed between them (In, then Out), as a release into inbound and outbound requests does; the upsert runs twice. Cells: both rows in
+// both passes, with and without a Commit between, with the same or a new Note in the second pass; one row only; both rows then one.
+codeunit 76718 "CRT Upsert Two Rows Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    local procedure Seed()
+    var
+        Request: Record "CRT Request";
+    begin
+        Request.DeleteAll();
+        Request."No." := 'A';
+        Request.Direction := Request.Direction::Out;
+        Request.Insert();
+        Request.Direction := Request.Direction::In;
+        Request.Insert();
+    end;
+
+    local procedure Upsert(Rows: Text; NoteValue: Text)
+    var
+        Request: Record "CRT Request";
+    begin
+        Request."No." := 'A';
+        Request.Note := CopyStr(NoteValue, 1, 50);
+        if Rows <> 'out' then begin
+            Request.Direction := Request.Direction::In;
+            if not Request.Insert() then
+                Request.Modify();
+        end;
+        if Rows <> 'in' then begin
+            Request.Direction := Request.Direction::Out;
+            if not Request.Insert() then
+                Request.Modify();
+        end;
+    end;
+
+    local procedure Stored(): Text
+    var
+        Request: Record "CRT Request";
+        Result: Text;
+    begin
+        if Request.FindSet() then
+            repeat
+                Result += Format(Request.Direction) + '=' + Request.Note + ' ';
+            until Request.Next() = 0;
+        exit(Result);
+    end;
+
+    local procedure Cell(var Observer: Codeunit "Probe Observer"; First: Text; Second: Text; SecondNote: Text; CommitBetween: Boolean)
+    var
+        Request: Record "CRT Request";
+    begin
+        Seed();
+        Upsert(First, 'release');
+        Observer.Observe('stored after first', Stored());
+        if CommitBetween then
+            Commit();
+        asserterror begin
+            Upsert(Second, SecondNote);
+            Observer.Observe('stored after second', Stored());
+            Error('CRT_NO_ERROR');
+        end;
+        Observer.ObserveError('second');
+        Request.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure BothRows_Twice_SameNote()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cell(Observer, 'both', 'both', 'release', false);
+    end;
+
+    [Test]
+    procedure BothRows_Twice_SameNote_CommitBetween()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cell(Observer, 'both', 'both', 'release', true);
+    end;
+
+    [Test]
+    procedure BothRows_Twice_NewNote()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cell(Observer, 'both', 'both', 'again', false);
+    end;
+
+    [Test]
+    procedure InRow_Twice()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cell(Observer, 'in', 'in', 'release', false);
+    end;
+
+    [Test]
+    procedure BothRows_ThenOutOnly()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cell(Observer, 'both', 'out', 'release', false);
+    end;
+
+    [Test]
+    procedure InOnly_ThenBothRows()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cell(Observer, 'in', 'both', 'release', false);
     end;
 }
