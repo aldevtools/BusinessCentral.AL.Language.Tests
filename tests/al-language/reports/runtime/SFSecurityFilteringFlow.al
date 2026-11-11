@@ -188,7 +188,14 @@ codeunit 77537 "LT SF Flow"
         PlainRow.SecurityFiltering(SecurityFilter::Ignored);
         PlainRow.TransferFields(FilteredRow, false);
         Observer.Observe('plain_set_ignored_from_filtered_no_init', Format(PlainRow.SecurityFiltering()));
-        Observer.Finish();
+        Observer.Expect('filtered_from_plain', 'Filtered');
+        Observer.Expect('filtered_from_ignored', 'Filtered');
+        Observer.Expect('plain_from_ignored', 'Validated');
+        Observer.Expect('filtered_from_plain_set_disallowed', 'Filtered');
+        Observer.Expect('filtered_set_ignored_from_plain', 'Ignored');
+        Observer.Expect('filtered_set_ignored_from_plain_then_clear', 'Filtered');
+        Observer.Expect('plain_set_ignored_from_filtered_no_init', 'Ignored');
+        Observer.Verify();
     end;
 
     [Test]
@@ -235,7 +242,19 @@ codeunit 77537 "LT SF Flow"
         Clear(RecRef);
         RecRef.Open(Database::"LT AC Attr Row");
         Observer.Observe('recref_reopen_after_clear', Format(RecRef.SecurityFiltering()));
-        Observer.Finish();
+        Observer.Expect('recref_open', 'Validated');
+        Observer.Expect('recref_gettable_filtered', 'Validated');
+        Observer.Expect('recref_gettable_ignored', 'Validated');
+        Observer.Expect('recref_gettable_plain', 'Validated');
+        Observer.Expect('recref_gettable_plain_set_disallowed', 'Validated');
+        Observer.Expect('filtered_after_settable_from_ignored', 'Filtered');
+        Observer.Expect('plain_after_settable_from_ignored', 'Validated');
+        Observer.Expect('plain_after_settable_from_recref_set_disallowed', 'Validated');
+        Observer.Expect('filtered_after_its_recref_set_ignored', 'Filtered');
+        Observer.Expect('filtered_after_settable_from_recref_set_ignored', 'Filtered');
+        Observer.Expect('filtered_after_settable_then_clear', 'Filtered');
+        Observer.Expect('recref_reopen_after_clear', 'Validated');
+        Observer.Verify();
     end;
 
     [Test]
@@ -261,7 +280,20 @@ codeunit 77537 "LT SF Flow"
         Observer.Observe('var_clear_of_filtered_set_ignored', ClearVar(FilteredRow));
         Observer.Observe('filtered_set_ignored_after_callee_var_clear', Format(FilteredRow.SecurityFiltering()));
         Observer.Observe('nested_byvalue_clear_of_filtered', NestedClearByValue(FilteredRow));
-        Observer.Finish();
+        Observer.Expect('byvalue_clear_of_filtered', 'Filtered');
+        Observer.Expect('filtered_after_callee_byvalue_clear', 'Filtered');
+        Observer.Expect('var_clear_of_filtered', 'Filtered');
+        Observer.Expect('filtered_after_callee_var_clear', 'Filtered');
+        Observer.Expect('byvalue_clear_of_plain_set_ignored', 'Validated');
+        Observer.Expect('var_clear_of_plain_set_ignored', 'Validated');
+        Observer.Expect('byvalue_of_filtered_set_ignored', 'Filtered');
+        Observer.Expect('var_of_filtered_set_ignored', 'Ignored');
+        Observer.Expect('byvalue_clear_of_filtered_set_ignored', 'Filtered');
+        Observer.Expect('filtered_set_ignored_after_callee_byvalue_clear', 'Ignored');
+        Observer.Expect('var_clear_of_filtered_set_ignored', 'Filtered');
+        Observer.Expect('filtered_set_ignored_after_callee_var_clear', 'Filtered');
+        Observer.Expect('nested_byvalue_clear_of_filtered', 'Filtered');
+        Observer.Verify();
     end;
 
     [Test]
@@ -319,7 +351,20 @@ codeunit 77537 "LT SF Flow"
         V := IgnoredRow;
         PlainRow := V;
         Observer.Observe('plain_from_variant_of_ignored', Format(PlainRow.SecurityFiltering()));
-        Observer.Finish();
+        Observer.Expect('onrun_rec_of_filtered', 'Filtered');
+        Observer.Expect('filtered_after_run', 'Filtered');
+        Observer.Expect('onrun_rec_of_plain', 'Validated');
+        Observer.Expect('onrun_rec_of_filtered_set_ignored', 'Ignored');
+        Observer.Expect('onrun_clear_rec_of_filtered_set_ignored', 'Filtered');
+        Observer.Expect('filtered_set_ignored_after_onrun_clear', 'Filtered');
+        Observer.Expect('temporary_param_of_filtered', 'Filtered');
+        Observer.Expect('temporary_param_of_filtered_set_ignored', 'Filtered');
+        Observer.Expect('temporary_param_clear_of_filtered_set_ignored', 'Filtered');
+        Observer.Expect('plain_from_variant_of_filtered_set_ignored', 'Validated');
+        Observer.Expect('filtered_from_variant_of_ignored', 'Filtered');
+        Observer.Expect('ignored_from_variant_of_filtered', 'Ignored');
+        Observer.Expect('plain_from_variant_of_ignored', 'Validated');
+        Observer.Verify();
     end;
 
     [Test]
@@ -339,7 +384,12 @@ codeunit 77537 "LT SF Flow"
         Observer.Observe('test_global_set_ignored', Format(TestGlobalRow.SecurityFiltering()));
         ClearAll();
         Observer.Observe('test_global_set_ignored_then_clearall', Format(TestGlobalRow.SecurityFiltering()));
-        Observer.Finish();
+        Observer.Expect('holder_global_set_ignored', 'Ignored');
+        Observer.Expect('holder_global_set_ignored_then_clearall', 'Filtered');
+        Observer.Expect('holder_global_set_disallowed_then_clear_codeunit_var', 'Filtered');
+        Observer.Expect('test_global_set_ignored', 'Ignored');
+        Observer.Expect('test_global_set_ignored_then_clearall', 'Filtered');
+        Observer.Verify();
     end;
 
     [Test]
@@ -356,7 +406,13 @@ codeunit 77537 "LT SF Flow"
         Observer.Observe('page_global_set_ignored_then_clearall', GlobalPage.SetIgnoredThenClearAll());
         Observer.Observe('report_global', GlobalReport.GlobalFiltering());
         Observer.Observe('report_global_set_ignored_then_clearall', GlobalReport.SetIgnoredThenClearAll());
-        Observer.Finish();
+        Observer.Expect('table_global', 'Filtered');
+        Observer.Expect('table_global_set_ignored_then_clearall', 'Ignored>Filtered');
+        Observer.Expect('page_global', 'Filtered');
+        Observer.Expect('page_global_set_ignored_then_clearall', 'Ignored>Filtered');
+        Observer.Expect('report_global', 'Filtered');
+        Observer.Expect('report_global_set_ignored_then_clearall', 'Ignored>Filtered');
+        Observer.Verify();
     end;
 
     [Test]
@@ -381,7 +437,14 @@ codeunit 77537 "LT SF Flow"
         TempRow.SecurityFiltering(SecurityFilter::Ignored);
         Clear(TempRow);
         Observer.Observe('temporary_variable_set_ignored_then_clear', Format(TempRow.SecurityFiltering()));
-        Observer.Finish();
+        Observer.Expect('array_1', 'Filtered');
+        Observer.Expect('array_2', 'Filtered');
+        Observer.Expect('array_1_set_ignored_then_clear_element', 'Filtered');
+        Observer.Expect('array_2_set_ignored', 'Ignored');
+        Observer.Expect('array_2_set_ignored_then_clear_array', 'Filtered');
+        Observer.Expect('temporary_variable', 'Filtered');
+        Observer.Expect('temporary_variable_set_ignored_then_clear', 'Filtered');
+        Observer.Verify();
     end;
 
     local procedure ReadByValue(Row: Record "LT AC Attr Row"): Text
