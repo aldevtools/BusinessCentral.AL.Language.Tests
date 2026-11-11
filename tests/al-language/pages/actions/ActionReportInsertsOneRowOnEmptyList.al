@@ -4,8 +4,7 @@
 //   report "PAG AddRows Report" (its request page sets how many rows it inserts), pages "PAG AddRows Delayed" and "PAG AddRows Plain";
 //   own codeunit 96660.
 // Probe: al-runner issue 7478, the cell that file leaves out: the report inserts ONE row behind a List that stands on its new-row line over
-//   an empty view (the file above inserts two or three). Observation form: every test ends in Observer.Finish(), so its failure message
-//   holds BC's values.
+//   an empty view (the file above inserts two or three). The expected values are what the corpus CI legs (BC 27.5, 28.5, 29.0) returned.
 // Area: after the action, the test calls OK, Close, Next, Previous, Last or GoToKey on the TestPage. Observed: the rows of the table, the row
 //   the page shows before and after, the answer of the call and its error, and the rows after the page closed.
 // Each case deletes the rows of earlier tests first and commits before the report's request page opens (see the file above).

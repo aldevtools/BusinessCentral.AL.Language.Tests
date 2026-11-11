@@ -5,8 +5,7 @@
 //   table "Probe Rep Parent" (text/TestReportSaveAsDatasetContracts.al); report "LT AM Word Rpt" (reports/layouts-saveas, a Word layout);
 //   own codeunit 96630.
 // Probe: from the code-sweep issues al-runner 7634 and 7608 (cell d): which Reporting Triggers events the call forms raise that
-//   events/platform-triggers/PeVTests.al does not pin, and the RecordRef SubstituteReport gets. Observation form: every test ends in
-//   Observer.Finish(), so its failure message holds BC's values.
+//   events/platform-triggers/PeVTests.al does not pin, and the RecordRef SubstituteReport gets. The expected values are what the corpus CI legs (BC 27.5, 28.5, 29.0) returned.
 // Area (Xml only, so the Linux tier renders nothing):
 //   - Report.Execute(Number, '', RecordRef) and Report.Execute(Number, Parameters, RecordRef): SubstituteReport's RunMode, RequestPageXml and
 //     RecordRef.Number, then the events raised;

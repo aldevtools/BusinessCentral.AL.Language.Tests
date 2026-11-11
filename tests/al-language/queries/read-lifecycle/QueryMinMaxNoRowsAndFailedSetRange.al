@@ -1,8 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-method-property
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own table 96640, queries 96641-96642, codeunit 96643.
-// Probe: from the code-sweep issue al-runner 7637. Observation form: every test ends in Observer.Finish(), so its failure message holds
-//   BC's values.
+// Probe: from the code-sweep issue al-runner 7637. The expected values are what the corpus CI legs (BC 27.5, 28.5, 29.0) returned.
 // Area:
 //   - Min and Max over no rows for Decimal, BigInteger and Duration columns, without and with grouping columns (the Integer form is
 //     pinned: queries/TestQueryRuntimeContracts.al:357-372; other column types do not compile, AL0347);

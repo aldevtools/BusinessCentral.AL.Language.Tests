@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); W3 Dataset (codeunit 67703); own table 96610, codeunit 96611, reports 96612-96613,
 //   codeunit 96614.
 // Probe: from the code-sweep issue al-runner 7621 (Skip, Break, Quit and UseRequestPage do not check which report asks; PrintOnlyIfDetail
-//   after a nested run). Observation form: every test ends in Observer.Finish(), so its failure message holds BC's values.
+//   after a nested run). The expected values are what the corpus CI legs (BC 27.5, 28.5, 29.0) returned.
 // Area: report "Outer" runs and, in a trigger of its data item, either calls a procedure of a report variable "Inner" that is not running,
 //   or runs "Inner" (a nested run). Observed:
 //   - CurrReport.Skip, Break and Quit in a procedure of Inner, called from Outer's OnAfterGetRecord while Inner is not running;

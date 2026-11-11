@@ -2,8 +2,7 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own table 96680, codeunit 96681, reports 96682-96684, codeunit 96685.
 // Probe: from the trial report al-runner 6924 (a [ReportHandler] for a report that is not processing-only). The processing-only report with
-//   a request page is pinned (reports/reporthandler/AeReportHandler.al:31-158). Observation form: every test ends in Observer.Finish(), so
-//   its failure message holds BC's values.
+//   a request page is pinned (reports/reporthandler/AeReportHandler.al:31-158). The expected values are what the corpus CI legs (BC 27.5, 28.5, 29.0) returned.
 // Area: a test binds a [ReportHandler] for (a) a report with a dataset column and a request page (not processing-only), (b) a
 //   processing-only report without a request page, (c) a report with a dataset column and no request page. The test runs each with
 //   Report.Run, Report.RunModal, and a report variable's Run. Observed: whether the handler is called, which report triggers and request

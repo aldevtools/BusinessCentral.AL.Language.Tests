@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); Temp Blob (System Application); own table 96600, codeunit 96601, reports 96602-96603,
 //   reportextension 96604, codeunit 96605.
 // Probe: follow-ups of al-runner issue 7590 (reports/request-page/ReportParametersBareRoot.al) and the code-sweep issue about the parameters
-//   text reader (al-runner 7633). Observation form: every test ends in Observer.Finish(), so its failure message holds BC's values.
+//   text reader (al-runner 7633). The expected values are what the corpus CI legs (BC 27.5, 28.5, 29.0) returned.
 // Area: a parameters string handed to Report.SaveAs (Xml), Report.Execute and Report.RunRequestPage:
 //   - a DataItems view under a root without name and id: the rows Execute reads, the filter RunRequestPage shows;
 //   - under RunRequestPage: an unknown Field under a named root; a Field that names a global no control shows, a name in another letter
@@ -396,7 +396,6 @@ codeunit 96605 "LT RPS Tests"
     end;
 
     [Test]
-    [HandlerFunctions('ReadHandler')]
     procedure RPS_NoDeclaration_OptionsRoot_SaveAs()
     var
         Observer: Codeunit "Probe Observer";

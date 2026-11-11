@@ -3,8 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); reports "LT AM Word Rpt" and "LT AM Excel Rpt" (reports/layouts-saveas/AMReports.al, a
 //   Word and an Excel layout); platform tables Tenant Report Layout and Report Layout List; own codeunit 96670.
 // Probe: from the trial report al-runner 6924 (a user-defined layout that is not RDLC). The RDLC row is pinned
-//   (metadata/platform-tables/UgReportLayoutList.al:287 Y17_ReportLayoutList_UserDefinedRow). Observation form: every test ends in
-//   Observer.Finish(), so its failure message holds BC's values.
+//   (metadata/platform-tables/UgReportLayoutList.al:287 Y17_ReportLayoutList_UserDefinedRow). The expected values are what the corpus CI legs (BC 27.5, 28.5, 29.0) returned.
 // Area: a Tenant Report Layout row of Layout Format Word, and one of Layout Format Excel, stored for a report of the app; the columns of
 //   its Report Layout List row, and the number of rows of that report.
 // BC versions: 27.5, 28.5, 29.0 (to be measured by the corpus CI)

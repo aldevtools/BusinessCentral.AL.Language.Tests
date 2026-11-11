@@ -4,7 +4,7 @@
 //   xmlports 96691-96693, codeunit 96695.
 // Probe: from the trial report al-runner 6924: a VariableText port whose table element holds more than field elements, and
 //   MinOccurs = Once on a table element nested below another table element (export). Generic shapes, not the reporter's ports.
-//   Observation form: every test ends in Observer.Finish(), so its failure message holds BC's values.
+//   The expected values are what the corpus CI legs (BC 27.5, 28.5, 29.0) returned.
 // Area:
 //   - VariableText: a table element with a field element and a text element (no children) that OnBeforePassVariable fills, and one with a
 //     field attribute before a field element; export of two rows and import of two lines (the rows made, the text element's value);

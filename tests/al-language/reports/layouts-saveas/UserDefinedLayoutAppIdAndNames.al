@@ -9,7 +9,7 @@
 //   Report ID (order and count), filters on Application ID and User Defined, a report of another app, a report id that names no report, and a
 //   Tenant Report Layout Selection row that picks the user-defined layout.
 // Area: Report Layout List rows of user-defined layouts (RDLC, Word, Excel) next to the RDLC, Word and Excel layouts the report declares.
-// BC versions: 27.5, 28.5, 29.0 (to be measured by the corpus CI). Observation form: every test ends in Observer.Finish().
+// BC versions: 27.5, 28.5, 29.0. The expected values are what the corpus CI legs returned (BC28PLUS / BC29PLUS where they differ).
 
 report 96760 "LT UDA Rpt"
 {
@@ -223,7 +223,21 @@ codeunit 96765 "LT UDA Tests"
         List.SetRange("Application ID", Blank);
         Observer.Observe('by name and blank app', Format(List.FindFirst()) + ' ' + List.Name);
         ClearUserLayouts(Report::"LT UDA Rpt");
-        Observer.Finish();
+        Observer.Expect('declared', '3:LtUdaExcel/Excel/No;LtUdaRdlc/RDLC/No;LtUdaWord/Word/No;');
+        Observer.Expect('word insert', 'Yes');
+#if BC29PLUS
+        Observer.Expect('row', '5=null|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Word|8=null|9=|10=UDA word|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|18=Approved|19=Default|20=|21=|');
+#elif BC28PLUS
+        Observer.Expect('row', '5=null|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Word|8=null|9=|10=UDA word|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|18=Approved|');
+#else
+        Observer.Expect('row', '5=null|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Word|8=null|9=|10=UDA word|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|');
+#endif
+        Observer.Expect('after', '4:{6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}/Word/Yes;LtUdaExcel/Excel/No;LtUdaRdlc/RDLC/No;LtUdaWord/Word/No;');
+        Observer.Expect('blank application id', '1');
+        Observer.Expect('this app application id', '3');
+        Observer.Expect('user defined', '1');
+        Observer.Expect('by name and blank app', 'Yes {6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}');
+        Observer.Verify();
     end;
 
     // The same Word layout with App ID = the id of this app, and with App ID = a GUID that names no app.
@@ -246,7 +260,26 @@ codeunit 96765 "LT UDA Tests"
         Observer.Observe('other app application id', Format(List.Count()));
         Observer.Observe('other after', RowsOfReport(Report::"LT UDA Rpt"));
         ClearUserLayouts(Report::"LT UDA Rpt");
-        Observer.Finish();
+        Observer.Expect('this insert', 'Yes');
+#if BC29PLUS
+        Observer.Expect('this row', '5=this app|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Word|8=null|9=|10=UDA this|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|18=Approved|19=Default|20=|21=|');
+#elif BC28PLUS
+        Observer.Expect('this row', '5=this app|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Word|8=null|9=|10=UDA this|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|18=Approved|');
+#else
+        Observer.Expect('this row', '5=this app|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Word|8=null|9=|10=UDA this|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|');
+#endif
+        Observer.Expect('this app application id', '3');
+        Observer.Expect('other insert', 'Yes');
+#if BC29PLUS
+        Observer.Expect('other row', '5=other app id|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Word|8=null|9=|10=UDA other|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|18=Approved|19=Default|20=|21=|');
+#elif BC28PLUS
+        Observer.Expect('other row', '5=other app id|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Word|8=null|9=|10=UDA other|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|18=Approved|');
+#else
+        Observer.Expect('other row', '5=other app id|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Word|8=null|9=|10=UDA other|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|');
+#endif
+        Observer.Expect('other app application id', '0');
+        Observer.Expect('other after', '4:{6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}/Word/Yes;LtUdaExcel/Excel/No;LtUdaRdlc/RDLC/No;LtUdaWord/Word/No;');
+        Observer.Verify();
     end;
 
     // Two rows with the same report and name, one with a blank App ID and one with this app's id: both stored? both listed?
@@ -262,7 +295,17 @@ codeunit 96765 "LT UDA Tests"
         Observer.Observe('after', RowsOfReport(Report::"LT UDA Rpt"));
         Observer.Observe('first row', Row(Report::"LT UDA Rpt", GuidNameTxt));
         ClearUserLayouts(Report::"LT UDA Rpt");
-        Observer.Finish();
+        Observer.Expect('blank insert', 'Yes');
+        Observer.Expect('this insert', 'Yes');
+        Observer.Expect('after', '5:{6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}/Word/Yes;{6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}/Word/Yes;LtUdaExcel/Excel/No;LtUdaRdlc/RDLC/No;LtUdaWord/Word/No;');
+#if BC29PLUS
+        Observer.Expect('first row', '5=null|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Word|8=null|9=|10=UDA blank|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|18=Approved|19=Default|20=|21=|');
+#elif BC28PLUS
+        Observer.Expect('first row', '5=null|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Word|8=null|9=|10=UDA blank|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|18=Approved|');
+#else
+        Observer.Expect('first row', '5=null|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Word|8=null|9=|10=UDA blank|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|');
+#endif
+        Observer.Verify();
     end;
 
     // An Excel layout with a GUID name for the current company only, and an RDLC layout with a GUID name and App ID = this app.
@@ -279,7 +322,23 @@ codeunit 96765 "LT UDA Tests"
         AddLayout(Observer, 'rdlc', Report::"LT UDA Rpt", GuidNameTxt, 0, ThisApp(), '');
         Observer.Observe('rdlc row', Row(Report::"LT UDA Rpt", GuidNameTxt));
         ClearUserLayouts(Report::"LT UDA Rpt");
-        Observer.Finish();
+        Observer.Expect('excel insert', 'Yes');
+#if BC29PLUS
+        Observer.Expect('excel row', '5=null|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Excel|8=null|9=|10=UDA excel|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|18=Approved|19=Default|20=|21=|');
+#elif BC28PLUS
+        Observer.Expect('excel row', '5=null|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Excel|8=null|9=|10=UDA excel|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|18=Approved|');
+#else
+        Observer.Expect('excel row', '5=null|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Excel|8=null|9=|10=UDA excel|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|');
+#endif
+        Observer.Expect('rdlc insert', 'Yes');
+#if BC29PLUS
+        Observer.Expect('rdlc row', '5=this app|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=RDLC|8=null|9=|10=UDA rdlc|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|18=Approved|19=Default|20=|21=|');
+#elif BC28PLUS
+        Observer.Expect('rdlc row', '5=this app|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=RDLC|8=null|9=|10=UDA rdlc|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|18=Approved|');
+#else
+        Observer.Expect('rdlc row', '5=this app|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=RDLC|8=null|9=|10=UDA rdlc|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|');
+#endif
+        Observer.Verify();
     end;
 
     // A Word layout for a report of another app (Base Application 1306); then one for a report id that names no report.
@@ -293,11 +352,37 @@ codeunit 96765 "LT UDA Tests"
         AddLayout(Observer, 'base app', 1306, GuidNameTxt, 1, Blank, '');
         Observer.Observe('base app row', Row(1306, GuidNameTxt));
         ClearUserLayouts(1306);
-        Observer.Finish();
+        Observer.Expect('base app insert', 'Yes');
+#if BC29PLUS
+        Observer.Expect('base app row', '5=null|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Word|8=null|9=|10=UDA base app|11=null|12=Sales - Invoice|13=|14=Yes|15=Yes|16=No|17=Default|18=Approved|19=Default|20=|21=|');
+#elif BC28PLUS
+        Observer.Expect('base app row', '5=null|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Word|8=null|9=|10=UDA base app|11=null|12=Sales - Invoice|13=|14=Yes|15=Yes|16=No|17=Default|18=Approved|');
+#else
+        Observer.Expect('base app row', '5=null|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Word|8=null|9=|10=UDA base app|11=null|12=Sales - Invoice|13=|14=Yes|15=Yes|16=No|17=Default|');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
     procedure UDA_Word_ReportIdOfNoReport()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        // A layout for a report id that names no report: the sequence below fails (the first measurement had no Insert result before
+        // the error), so it runs under asserterror and only the error is asserted.
+        asserterror AddAndReadNoReport();
+        Observer.Observe('no report', GetLastErrorText());
+#if BC29PLUS
+        Observer.Expect('no report', 'You tried to invoke the Report object with the ID 96799 from the object LT UDA Tests. An object with that ID does not exist in the current application compiled with emit version 29022.');
+#elif BC28PLUS
+        Observer.Expect('no report', 'You tried to invoke the Report object with the ID 96799 from the object LT UDA Tests. An object with that ID does not exist in the current application compiled with emit version 28015.');
+#else
+        Observer.Expect('no report', 'You tried to invoke the Report object with the ID 96799 from the object LT UDA Tests. An object with that ID does not exist in the current application compiled with emit version 27025.');
+#endif
+        Observer.Verify();
+    end;
+
+    local procedure AddAndReadNoReport()
     var
         Observer: Codeunit "Probe Observer";
         Blank: Guid;
@@ -306,8 +391,6 @@ codeunit 96765 "LT UDA Tests"
         AddLayout(Observer, 'no report', 96799, GuidNameTxt, 1, Blank, '');
         Observer.Observe('no report rows', RowsOfReport(96799));
         Observer.Observe('no report row', Row(96799, GuidNameTxt));
-        ClearUserLayouts(96799);
-        Observer.Finish();
     end;
 
     // A Tenant Report Layout Selection row (all companies, blank user) that picks the user-defined Word layout: the Report Layout List row after,
@@ -332,6 +415,18 @@ codeunit 96765 "LT UDA Tests"
         Observer.Observe('default after', Format(Report.DefaultLayout(Report::"LT UDA Rpt")));
         Observer.Observe('after', RowsOfReport(Report::"LT UDA Rpt"));
         ClearUserLayouts(Report::"LT UDA Rpt");
-        Observer.Finish();
+        Observer.Expect('default before', 'Word');
+        Observer.Expect('word insert', 'Yes');
+        Observer.Expect('selection insert', 'Yes');
+#if BC29PLUS
+        Observer.Expect('row', '5=null|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Word|8=null|9=|10=UDA word|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|18=Approved|19=Default|20=|21=|');
+#elif BC28PLUS
+        Observer.Expect('row', '5=null|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Word|8=null|9=|10=UDA word|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|18=Approved|');
+#else
+        Observer.Expect('row', '5=null|3={6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}|4=|6=not shown|7=Word|8=null|9=|10=UDA word|11=null|12=LT UDA Caption|13=|14=Yes|15=Yes|16=No|17=Default|');
+#endif
+        Observer.Expect('default after', 'Word');
+        Observer.Expect('after', '4:{6F1C2A3B-0D4E-4F5A-8B9C-1D2E3F405162}/Word/Yes;LtUdaExcel/Excel/No;LtUdaRdlc/RDLC/No;LtUdaWord/Word/No;');
+        Observer.Verify();
     end;
 }

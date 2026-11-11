@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); table 50001 "ALT Shape 01"; Temp Blob (System Application); the xmlports 95480-95493 of
 //   xmlports/shapes-properties/XpSeparatorTokens.al (their export bytes are pinned there); own xmlports 96650-96651, codeunit 96652.
 // Probe: from the code-sweep issue al-runner 7635 (the separator getters decode the declared tokens by another rule than export and
-//   import). Observation form: every test ends in Observer.Finish(), so its failure message holds BC's values.
+//   import). The expected values are what the corpus CI legs (BC 27.5, 28.5, 29.0) returned.
 // Area: FieldDelimiter(), FieldSeparator(), RecordSeparator() and TableSeparator() of a fresh xmlport variable, for the declared tokens
 //   <>, <None>, <none>, <TAB>, <tab>, <LF>, <CR>, <CR/LF>, <NewLine>, ;<TAB> and <TAB><TAB>; RecordSeparator and TableSeparator declared
 //   as <none>, <tab>, ;<LF> and <None>, with the export of two rows through those two ports. CR, LF and TAB show as \r, \n and \t.

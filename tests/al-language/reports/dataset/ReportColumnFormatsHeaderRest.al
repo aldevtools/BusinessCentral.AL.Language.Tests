@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); W3 Dataset (codeunit 67703); Temp Blob (System Application); own table 96620,
 //   reports 96621-96623, codeunit 96624.
 // Probe: from the code-sweep issue al-runner 7634 (report paths that answer with no pin) and the trial report al-runner 6924
-//   (EnableExternalImages). Observation form: every test ends in Observer.Finish(), so its failure message holds BC's values.
+//   (EnableExternalImages). The expected values are what the corpus CI legs (BC 27.5, 28.5, 29.0) returned.
 // Area:
 //   - the decimalformatter and value of a Decimal column whose field has AutoFormatType = 1 with an AutoFormatExpression that names a
 //     currency code field (blank, a code no Currency row has), AutoFormatType = 1 beside DecimalPlaces = 0:3, AutoFormatType = 2;
