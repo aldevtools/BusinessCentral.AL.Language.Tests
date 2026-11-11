@@ -11,6 +11,12 @@
 //   A worker cannot reach the handlers of the test (BjNoClientDialogs.al: no handler fires for a call of the worker). The second test codeunit
 //   declares page, modal page, request page, send and recall notification handlers, runs every group in the worker and logs which handler ran
 //   for it; then the test session calls each dialog itself, because a declared handler that never runs fails the test.
+// Facts (CI, 27.5, 28.5 and 29.0, the same on all three): CurrentClientType is ChildSession in the worker (not Background; Web in the test
+//   session). Notification.Recall returns true after a Send (also a second time) and false on a notification never sent. Every Page.Run and
+//   Page.RunModal with a record raises CallbackNotAllowed. Every report entry point whose request page would open raises CallbackNotAllowed
+//   for page <report id> RequestOptionsPage as modal, Report.RunRequestPage too. Without a request page, a processing-only report runs; the
+//   report with a dataset and no layout raises ReportNoLayout from RunModal and Execute; SaveAs Xml returns true with output. No handler of
+//   the test runs for a call of the worker.
 // BC versions: 27, 28, 29
 
 codeunit 81975 "LT BJ NC2 Worker"
@@ -294,28 +300,55 @@ codeunit 81978 "LT BJ NC2 Tests"
     procedure RunPageBackgroundTask_ClientTypeAndRecall()
     begin
         RunGroup('client');
-        Observer.Finish();
+        Observer.Expect('c1 Format(CurrentClientType())', 'returned: ChildSession');
+        Observer.Expect('c2 = ClientType::Background', 'returned: No');
+        Observer.Expect('c3 = ClientType::ChildSession', 'returned: Yes');
+        Observer.Expect('c4 = ClientType::Web', 'returned: No');
+        Observer.Expect('c5 = ClientType::Api', 'returned: No');
+        Observer.Expect('c6 = ClientType::NAS', 'returned: No');
+        Observer.Expect('n1 Send then Recall', 'returned: send Yes, recall Yes');
+        Observer.Expect('n2 Recall never sent', 'returned: No');
+        Observer.Expect('n3 Send then Recall twice', 'returned: send Yes, recall Yes, recall Yes');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RunPageBackgroundTask_PagesWithRecord()
     begin
         RunGroup('pages');
-        Observer.Finish();
+        Observer.Expect('p0 record found', 'returned: RUN');
+        Observer.Expect('p1 Page.Run(Id, Rec)', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81976 LT BJ NC2 Record Page. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('p2 Page.RunModal(Id, Rec)', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81976 LT BJ NC2 Record Page as modal. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('p3 SetRecord then Run', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81976 LT BJ NC2 Record Page. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('p4 SetRecord then RunModal', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81976 LT BJ NC2 Record Page as modal. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('p5 Page.RunModal(Id, Rec, FieldNo)', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81976 LT BJ NC2 Record Page as modal. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RunPageBackgroundTask_ReportsWithRequestPage()
     begin
         RunGroup('reports1');
-        Observer.Finish();
+        Observer.Expect('r1 Report.Run(Id)', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81977 RequestOptionsPage as modal. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('r2 Report.RunModal(Id)', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81977 RequestOptionsPage as modal. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('r3 Report.Run(Id, true, false, Rec)', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81977 RequestOptionsPage as modal. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('r4 variable Run', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81977 RequestOptionsPage as modal. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('r5 variable RunModal', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81977 RequestOptionsPage as modal. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Expect('r6 Report.RunRequestPage(Id)', 'error: Microsoft Dynamics 365 Business Central Server attempted to issue a client callback to run page 81977 RequestOptionsPage as modal. Client callbacks are not supported on Microsoft Dynamics 365 Business Central Server. code=CallbackNotAllowed');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RunPageBackgroundTask_ReportsWithoutRequestPage()
     begin
         RunGroup('reports2');
-        Observer.Finish();
+        Observer.Expect('r7 Report.RunModal(Id, false)', 'error: Report 81977 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom. code=ReportNoLayout');
+        Observer.Expect('r8 processing only Report.RunModal(Id, false)', 'returned: ran');
+        Observer.Expect('r9 Report.Execute(Id, parameters)', 'error: Report 81977 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom. code=ReportNoLayout');
+        Observer.Expect('r10 Report.Execute(Id, empty)', 'error: Report 81977 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom. code=ReportNoLayout');
+        Observer.Expect('r11 Report.SaveAs(Id, parameters, Xml)', 'returned: Yes, has output Yes');
+        Observer.Expect('r12 Report.SaveAs(Id, empty, Xml)', 'returned: Yes, has output Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -326,7 +359,11 @@ codeunit 81978 "LT BJ NC2 Tests"
         Observer.Observe('c2 = ClientType::Background', Format(CurrentClientType() = ClientType::Background));
         Observer.Observe('c4 = ClientType::Web', Format(CurrentClientType() = ClientType::Web));
         Observer.Observe('GuiAllowed', Format(GuiAllowed()));
-        Observer.Finish();
+        Observer.Expect('c1 Format(CurrentClientType())', 'Web');
+        Observer.Expect('c2 = ClientType::Background', 'No');
+        Observer.Expect('c4 = ClientType::Web', 'Yes');
+        Observer.Expect('GuiAllowed', 'Yes');
+        Observer.Verify();
     end;
 }
 
@@ -384,7 +421,13 @@ codeunit 81979 "LT BJ NC2 Tests Handlers"
         Note.Send();
         Note.Recall();
         Observer.Observe('handlers after the test calls', HandlerLog);
-        Observer.Finish();
+        Observer.Expect('client', 'c1:retur;c2:retur;c3:retur;c4:retur;c5:retur;c6:retur;n1:retur;n2:retur;n3:retur;');
+        Observer.Expect('pages', 'p0:retur;p1:error;p2:error;p3:error;p4:error;p5:error;');
+        Observer.Expect('reports1', 'r1:error;r2:error;r3:error;r4:error;r5:error;r6:error;');
+        Observer.Expect('reports2', 'r7:error;r8:retur;r9:error;r10:error;r11:retur;r12:retur;');
+        Observer.Expect('handlers after the tasks', '');
+        Observer.Expect('handlers after the test calls', 'page handler: RUN;modal page handler: RUN;request page handler;send handler: LT BJ NC2 from the test;recall handler: LT BJ NC2 from the test;');
+        Observer.Verify();
     end;
 
     [PageHandler]
