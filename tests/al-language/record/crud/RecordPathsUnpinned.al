@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/library
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), System Application "Base64 Convert" and "Temp Blob"; own tables 76620 to 76622,
+// Fixtures used: Probe Observer (codeunit 69160), System Application "Base64 Convert" and "Temp Blob"; own tables 76620 to 76622, 76625 and 76626,
 //   codeunit 76623 (a manual subscriber), test codeunit 76624
 // local object: the OnDelete trigger that logs the order of the deletes, the Media and MediaSet fields whose Tenant Media rows are counted,
 //   and a subscriber bound only inside one test are what is under test.
@@ -13,7 +13,8 @@
 //   after Insert and Modify; FilterPageBuilder.GetView with a Boolean filter, localized and not;
 //   whether "Filter Helper Triggers".MakeDateFilter is raised for a Date filter text with a piece it cannot read when the filter has
 //   placeholders, and in a session whose language is not English; a copy of a RecordRef that is not open (RR2 := RR, V := RR) before
-//   RR.Open.
+//   RR.Open; Date and DateTime values before 1753-01-02 other than the ones record/filters/P130DateFilters.al:255-293 pins; Blob.Length
+//   and HasValue of a stored Blob before and after CalcFields; a [FilterPageHandler] that points its RecordRef at another record or table.
 // Observation form: every test ends in Finish(), so the run fails on purpose and the failure message carries what BC produced.
 // BC versions: 27, 28, 29
 
@@ -82,6 +83,39 @@ table 76622 "REC RPU Media"
     trigger OnDelete()
     begin
     end;
+}
+
+table 76625 "REC RPU Dates"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Dt; Date) { }
+        field(3; Dtm; DateTime) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+table 76626 "REC RPU Blob"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; B; Blob) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
 }
 
 codeunit 76623 "REC RPU Date Sub"
@@ -528,6 +562,154 @@ codeunit 76624 "REC RPU Probe"
         Observer.Observe('rr2 findfirst', GetLastErrorText());
         Observer.Observe('rr2 findfirst|code', GetLastErrorCode());
         ClearLastError();
+        Observer.Finish();
+    end;
+
+    local procedure StoreDate(var Observer: Codeunit "Probe Observer"; Name: Text; D: Date; Dtm: DateTime)
+    var
+        Row: Record "REC RPU Dates";
+        Stored: Record "REC RPU Dates";
+    begin
+        Row.DeleteAll();
+        ClearLastError();
+        asserterror
+        begin
+            Row.Init();
+            Row.Id := 1;
+            Row.Dt := D;
+            Row.Dtm := Dtm;
+            Row.Insert();
+            Stored.Get(1);
+            Error('REC_RPU_STORED %1|%2|%3|%4', Format(Stored.Dt, 0, 9), Format(Stored.Dtm, 0, 9), Format(Stored.Dt = D), Format(Stored.Dtm = Dtm));
+        end;
+        if GetLastErrorText().StartsWith('REC_RPU_STORED ') then
+            Observer.Observe(Name, 'stored ' + CopyStr(GetLastErrorText(), StrLen('REC_RPU_STORED ') + 1))
+        else begin
+            Observer.Observe(Name, 'error');
+            Observer.Observe(Name + '|text', GetLastErrorText());
+            Observer.Observe(Name + '|code', GetLastErrorCode());
+        end;
+        ClearLastError();
+    end;
+
+    // Date and DateTime values before 1753-01-02 other than the pinned ones, written by Insert and read back by Get.
+    [Test]
+    procedure DatesBefore1753_InsertAndGet()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        StoreDate(Observer, 'date 1700-06-15', DMY2Date(15, 6, 1700), 0DT);
+        StoreDate(Observer, 'date 0001-01-02', DMY2Date(2, 1, 1), 0DT);
+        StoreDate(Observer, 'date 1753-01-02', DMY2Date(2, 1, 1753), 0DT);
+        StoreDate(Observer, 'datetime 1753-01-01 12:00', 0D, CreateDateTime(DMY2Date(1, 1, 1753), 120000T));
+        StoreDate(Observer, 'datetime 1753-01-01 23:59', 0D, CreateDateTime(DMY2Date(1, 1, 1753), 235900T));
+        StoreDate(Observer, 'datetime 1753-01-02 00:00', 0D, CreateDateTime(DMY2Date(2, 1, 1753), 000000T));
+        StoreDate(Observer, 'datetime 1752-01-01 00:00', 0D, CreateDateTime(DMY2Date(1, 1, 1752), 000000T));
+        StoreDate(Observer, 'datetime 0001-01-01 00:00', 0D, CreateDateTime(DMY2Date(1, 1, 1), 000000T));
+        StoreDate(Observer, 'datetime 0001-01-02 08:00', 0D, CreateDateTime(DMY2Date(2, 1, 1), 080000T));
+        Observer.Finish();
+    end;
+
+    // Blob.Length and HasValue of a stored Blob of 24 bytes, read by Get without CalcFields, then after CalcFields.
+    [Test]
+    procedure StoredBlob_LengthBeforeCalcFields()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "REC RPU Blob";
+        Out: OutStream;
+    begin
+        Row.DeleteAll();
+        Row.Init();
+        Row.Id := 1;
+        Row.B.CreateOutStream(Out);
+        Out.WriteText('abcdefghijklmnopqrstuvwx');
+        Row.Insert();
+        Observer.Observe('buffer after insert', Format(Row.B.Length) + ' ' + Format(Row.B.HasValue()));
+        Clear(Row);
+        Row.Get(1);
+        Observer.Observe('get', Format(Row.B.Length) + ' ' + Format(Row.B.HasValue()));
+        Row.CalcFields(B);
+        Observer.Observe('calcfields', Format(Row.B.Length) + ' ' + Format(Row.B.HasValue()));
+        Clear(Row);
+        Row.FindFirst();
+        Observer.Observe('findfirst', Format(Row.B.Length) + ' ' + Format(Row.B.HasValue()));
+        Commit();
+        Clear(Row);
+        Row.Get(1);
+        Observer.Observe('get after commit', Format(Row.B.Length) + ' ' + Format(Row.B.HasValue()));
+        Observer.Finish();
+    end;
+
+    var
+        FilterPageMode: Integer;
+
+    [FilterPageHandler]
+    procedure PointElsewhereHandler(var RecRef: RecordRef): Boolean
+    var
+        OtherRow: Record "REC RPU Row";
+    begin
+        case FilterPageMode of
+            1:
+                RecRef.Field(6).SetFilter('1..3');
+            2:
+                begin
+                    OtherRow.SetRange(Grp, 7);
+                    RecRef.GetTable(OtherRow);
+                end;
+            3:
+                begin
+                    RecRef.Close();
+                    RecRef.Open(Database::"REC RPU Log");
+                    RecRef.Field(2).SetFilter('x*');
+                end;
+            4:
+                begin
+                    RecRef.Close();
+                    RecRef.Open(Database::"REC RPU Row");
+                    RecRef.Field(2).SetFilter('n1');
+                end;
+        end;
+        exit(true);
+    end;
+
+    local procedure FilterPageCell(var Observer: Codeunit "Probe Observer"; Name: Text; Mode: Integer)
+    var
+        Row: Record "REC RPU Row";
+        Builder: FilterPageBuilder;
+        Ok: Boolean;
+    begin
+        FilterPageMode := Mode;
+        Row.SetRange(Flag, true);
+        Builder.AddRecord('Rows', Row);
+        Builder.AddField('Rows', Row.Grp);
+        ClearLastError();
+        asserterror
+        begin
+            Ok := Builder.RunModal();
+            Error('REC_RPU_FPB %1|%2|%3|%4', Format(Ok), Builder.Count(), Builder.Name(1), Builder.GetView('Rows', false));
+        end;
+        if GetLastErrorText().StartsWith('REC_RPU_FPB ') then
+            Observer.Observe(Name, CopyStr(GetLastErrorText(), StrLen('REC_RPU_FPB ') + 1))
+        else begin
+            Observer.Observe(Name, 'error');
+            Observer.Observe(Name + '|text', GetLastErrorText());
+            Observer.Observe(Name + '|code', GetLastErrorCode());
+        end;
+        ClearLastError();
+    end;
+
+    // A [FilterPageHandler] that sets a filter (control), points its RecordRef at another record of the table (GetTable), at another
+    // table (Close, Open), or at the same table opened again: what RunModal returns and what the builder keeps.
+    [Test]
+    [HandlerFunctions('PointElsewhereHandler')]
+    procedure FilterPageHandler_PointsRecordRefElsewhere()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        FilterPageCell(Observer, 'set filter', 1);
+        FilterPageCell(Observer, 'gettable other record', 2);
+        FilterPageCell(Observer, 'open other table', 3);
+        FilterPageCell(Observer, 'open same table again', 4);
         Observer.Finish();
     end;
 }

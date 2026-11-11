@@ -1,13 +1,14 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-modify-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); the tables "REC StaleMx Row" (97290) and "REC StaleMx Other" (97291) and the step codeunit
+// Fixtures used: Probe Observer (69160), ALT Triggered and ALT Trigger Log (60002, 60003), ALTFixtureCleanup (60019); the tables "REC StaleMx Row" (97290) and "REC StaleMx Other" (97291) and the step codeunit
 //   "REC StaleMx Ops" (97290) of record/crud/StaleRuleMatrix.al; own codeunits 76600 and 76601
 // local object: codeunit 76600 must fail inside `if Codeunit.Run` after a write, so the rollback of a failed guarded run can be measured.
 // Probe: al-runner issues 6924 and 7464, the edges that record/crud/StaleRuleMatrix.al leaves open for the one rule of the stale record buffer.
 //   Area: how the open transaction ends or loses its contact with the row's table before the stale write (LockTable then a rollback with
 //   nothing after it, a rollback by an error of the database instead of Error(), a failed `if Codeunit.Run` that wrote), the row itself
 //   deleted, deleted and inserted again, renamed, renamed back, a ModifyAll that matches no row, a Truncate of another table; and a Modify
-//   through a buffer whose own Modify and the Insert of its row a rollback undid, on a table without Modify event subscribers.
+//   through a buffer whose own Modify and the Insert of its row a rollback undid, on a table without Modify event subscribers; and a Modify(true)
+//   after a rolled-back Modify on the shared fixture "ALT Triggered" (60002), which has global and database triggers (codeunit 60025).
 //   The cell notation is the one of the header of StaleRuleMatrix.al (buffer kind, steps, final write). New steps of this file:
 //     rbi  asserterror of a duplicate Insert of row 8 (an error of the database rolls back the open transaction)
 //     f:x  step x inside `if Codeunit.Run` of codeunit 76600, which raises an error after the step; '<cell>|runs' records Y or N
@@ -405,6 +406,52 @@ codeunit 76601 "REC StaleEdge Probe"
         RolledBackInsertAndModify(Observer, 'modify_true_unchanged', true, false);
         RolledBackInsertAndModify(Observer, 'modify_false_changed', false, true);
         RolledBackInsertAndModify(Observer, 'modify_true_changed', true, true);
+        Observer.Finish();
+    end;
+
+    local procedure TriggerLog() Result: Text
+    var
+        TrigLog: Record "ALT Trigger Log";
+    begin
+        if TrigLog.FindSet() then
+            repeat
+                Result += TrigLog.TriggerName + ',';
+            until TrigLog.Next() = 0;
+        TrigLog.DeleteAll();
+    end;
+
+    // al-runner issue 7464 on a table with an OnModify trigger, Modify event subscribers, global triggers (OnGlobalModify) and database
+    // triggers (OnDatabaseModify): Insert, Commit, Modify(true), a failed Validate-like Error under asserterror, the same value again, Modify(true).
+    [Test]
+    procedure StaleEdge_RolledBackModify_GlobalAndDatabaseTriggers()
+    var
+        Observer: Codeunit "Probe Observer";
+        Cleanup: Codeunit ALTFixtureCleanup;
+        Row: Record "ALT Triggered";
+        Check: Record "ALT Triggered";
+        Done: Boolean;
+    begin
+        Cleanup.Initialize();
+        Row.Init();
+        Row."Entry No." := 1;
+        Row.Name := 'start';
+        Row.Insert(true);
+        Commit();
+        TriggerLog();
+        Row.Value := 1;
+        Row.Modify(true);
+        Observer.Observe('first modify log', TriggerLog());
+        asserterror Error('REC_STALEEDGE_ROLLBACK');
+        ClearLastError();
+        Row.Value := 1;
+        Done := Row.Modify(true);
+        Observer.Observe('second modify', Format(Done));
+        Observer.Observe('second modify log', TriggerLog());
+        Check.Get(1);
+        Observer.Observe('stored', Check.Name + '|' + Format(Check.Value));
+        Observer.Observe('buffer', Row.Name + '|' + Format(Row.Value));
+        Cleanup.Initialize();
+        Commit();
         Observer.Finish();
     end;
 }
