@@ -138,6 +138,191 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension LPX Territories Ext - Action LpxCount - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Codeunit 934835811 - NamedType 4224886656" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cross app</source>
+          <target>Kruis uit de hoofdapp</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">cross-app: the id of the Label CrossLbl of codeunit LT XL Labels in cross-app fixture C (no object of this app has it)</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 370423375 - Method 1665861916 - NamedType 2320520933" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnRun label</source>
+          <target>OnRun-label NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT TL Trigger Labels - Method OnRun - NamedType RunLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 370423375 - Method 357961873 - NamedType 3516055481" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Procedure label</source>
+          <target>Procedurelabel NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT TL Trigger Labels - Method WithLocal - NamedType LocalLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3722656350 - Method 188781420 - NamedType 2522113546" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Subscriber label</source>
+          <target>Abonneelabel NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT TL Subscriber - Method HandleProbe - NamedType SubLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 3471213022 - Method 2451657066 - NamedType 2306667255" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Insert trigger label</source>
+          <target>Invoegtriggerlabel NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table LT TL Row - Method OnInsert - NamedType InsertLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 3471213022 - Field 636392376 - Method 2126772001 - NamedType 117816908" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Field trigger label</source>
+          <target>Veldtriggerlabel NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table LT TL Row - Field Amount - Method OnValidate - NamedType FieldLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 3471213022 - NamedType 1132029569" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table global label</source>
+          <target>Tabel globaal label NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table LT TL Row - NamedType TableGlobalLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 3471213022 - Method 601007845 - NamedType 3543630611" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table procedure label</source>
+          <target>Tabelprocedurelabel NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table LT TL Row - Method TableLocal - NamedType TableLocalLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3177067032 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>TL card</source>
+          <target>TL kaart NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page LT TL Card - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3177067032 - NamedType 2327292470" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Page global label</source>
+          <target>Pagina globaal label NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page LT TL Card - NamedType PageGlobalLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3177067032 - Method 538709410 - NamedType 2554964584" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Page procedure label</source>
+          <target>Paginaprocedurelabel NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page LT TL Card - Method PageLocal - NamedType PageLocalLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3177067032 - Control 2618574865 - Method 2126772001 - NamedType 1478812635" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Control trigger label</source>
+          <target>Besturingstriggerlabel NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page LT TL Card - Control AmountCtl - Method OnValidate - NamedType CtlLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3177067032 - Action 3129654808 - Method 1377591017 - NamedType 2414215720" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Action trigger label</source>
+          <target>Actietriggerlabel NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page LT TL Card - Action ProbeAction - Method OnAction - NamedType ActLbl</note>
+        </trans-unit>
+        <trans-unit id="Report 4069931642 - NamedType 795179393" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Report global label</source>
+          <target>Rapport globaal label NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report LT TL Report - NamedType ReportGlobalLbl</note>
+        </trans-unit>
+        <trans-unit id="Report 4069931642 - Method 893082085 - NamedType 901946899" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Report procedure label</source>
+          <target>Rapportprocedurelabel NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report LT TL Report - Method ReportLocal - NamedType ReportLocalLbl</note>
+        </trans-unit>
+        <trans-unit id="Report 4069931642 - ReportDataItem 88747429 - Method 3245603402 - NamedType 1954781630" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data item label</source>
+          <target>Gegevensitemlabel NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report LT TL Report - ReportDataItem TlNumber - Method OnAfterGetRecord - NamedType DataLbl</note>
+        </trans-unit>
+        <trans-unit id="Enum 4164442660 - EnumValue 139100102 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>First kind</source>
+          <target>Eerste soort NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum LT TL Kind - EnumValue First - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 4164442660 - EnumValue 1550647365 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Enum 4164442660">
+          <source>Third kind</source>
+          <target>Derde soort NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">EnumExtension LT TL Kind Ext - EnumValue Third - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 133352936 - EnumValue 1873146758 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Enum 133352936">
+          <source>Extra kind</source>
+          <target>Extra soort NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">EnumExtension LT TL XKind Ext - EnumValue Extra - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2819219394 - NamedType 2496606192" size-unit="char" translate="yes" xml:space="preserve">
+          <source>State needs-translation</source>
+          <target state="needs-translation">Status needs-translation NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT TL Translation Tests - NamedType StateNeedsLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2819219394 - NamedType 1140087409" size-unit="char" translate="yes" xml:space="preserve">
+          <source>State needs-review-translation</source>
+          <target state="needs-review-translation">Status needs-review-translation NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT TL Translation Tests - NamedType StateReviewLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2819219394 - NamedType 2141783539" size-unit="char" translate="yes" xml:space="preserve">
+          <source>State new</source>
+          <target state="new">Status new NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT TL Translation Tests - NamedType StateNewLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2819219394 - NamedType 2475888987" size-unit="char" translate="yes" xml:space="preserve">
+          <source>State final</source>
+          <target state="final">Status final NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT TL Translation Tests - NamedType StateFinalLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2819219394 - NamedType 642317825" size-unit="char" translate="yes" xml:space="preserve">
+          <source>State translated</source>
+          <target state="translated">Status translated NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT TL Translation Tests - NamedType StateTranslatedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2819219394 - NamedType 2035258804" size-unit="char" translate="yes" xml:space="preserve">
+          <source>State signed-off</source>
+          <target state="signed-off">Status signed-off NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT TL Translation Tests - NamedType StateSignedOffLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2819219394 - NamedType 2090628850" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Empty target</source>
+          <target></target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT TL Translation Tests - NamedType EmptyTargetLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2819219394 - NamedType 3678487334" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No target</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT TL Translation Tests - NamedType NoTargetLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2819219394 - NamedType 4031904767" size-unit="char" translate="no" xml:space="preserve">
+          <source>Translate no</source>
+          <target>Vertaal niet NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT TL Translation Tests - NamedType TranslateNoLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2819219394 - NamedType 1878795882" maxwidth="5" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Short</source>
+          <target>Veel te lang NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT TL Translation Tests - NamedType MaxLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2819219394 - NamedType 3534265827" size-unit="char" translate="yes" xml:space="preserve">
+          <source>With comment</source>
+          <target>Met opmerking NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT TL Translation Tests - NamedType CommentLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2819219394 - NamedType 3024544721" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Error label</source>
+          <target>Foutlabel NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT TL Translation Tests - NamedType ErrLbl</note>
+        </trans-unit>
       </group>
     </body>
   </file>

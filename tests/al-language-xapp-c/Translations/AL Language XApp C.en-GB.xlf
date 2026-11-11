@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="en-GB" original="AL Language XApp C">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 934835811 - NamedType 151515437" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Both files</source>
+          <target>Both GB</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT XL Labels - NamedType BothLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 934835811 - NamedType 2430147341" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Color</source>
+          <target>Colour GB</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT XL Labels - NamedType GbOnlyLbl</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

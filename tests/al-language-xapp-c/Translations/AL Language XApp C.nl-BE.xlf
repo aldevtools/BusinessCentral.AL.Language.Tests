@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="nl-BE" original="AL Language XApp C">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 934835811 - NamedType 151515437" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Both files</source>
+          <target>Beide BE</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT XL Labels - NamedType BothLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 934835811 - NamedType 329316947" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Only BE</source>
+          <target>Alleen BE</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT XL Labels - NamedType BeOnlyLbl</note>
+        </trans-unit>
+        <trans-unit id="Enum 133352936 - EnumValue 3069917208 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Alpha kind</source>
+          <target>Alfa BE</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum LT XL Kind - EnumValue Alpha - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 547282018 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>XL row</source>
+          <target>XL rij BE</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table LT XL Row - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 547282018 - Field 3004954119 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Row code</source>
+          <target>Rijcode BE</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table LT XL Row - Field Code - Property Caption</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

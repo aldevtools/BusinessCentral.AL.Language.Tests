@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="fr-FR" original="AL Language XApp C">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 934835811 - NamedType 151515437" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Both files</source>
+          <target>Les deux FR</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT XL Labels - NamedType BothLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 934835811 - NamedType 1818440566" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Only FR</source>
+          <target>Seulement FR</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LT XL Labels - NamedType FrOnlyLbl</note>
+        </trans-unit>
+        <trans-unit id="Enum 133352936 - EnumValue 3069917208 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Alpha kind</source>
+          <target>Alpha FR</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum LT XL Kind - EnumValue Alpha - Property Caption</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>
