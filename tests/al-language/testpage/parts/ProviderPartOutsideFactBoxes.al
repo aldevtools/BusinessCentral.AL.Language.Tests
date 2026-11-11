@@ -10,6 +10,9 @@
 // Facts: per host, the rows the two parts stand on when read without a move, and the part triggers that ran (OnOpenPage with the part's filter,
 //   OnAfterGetCurrRecord), after OpenView, OpenEdit, GoToRecord, GoToKey (a header with lines and one without), Next and First on the Provider part,
 //   OpenNew with SetValue of the key, and Close.
+// Result (BC 27.5, 28.5 and 29.0 alike): the three hosts read the same rows and run the same triggers, except on OpenNew, where the
+//   chain in the base FactBoxes reads its blank line once and the key typed into the host inserts the row (as the chain a page
+//   extension adds to FactBoxes in ProviderLinkedPartsMatrix.al), while the two Content chains read it twice and do not insert.
 // local object: the host pages are the fixtures under test (where their Provider chain is declared), the log records the part triggers.
 // BC versions: 27, 28, 29
 
@@ -392,7 +395,11 @@ codeunit 77418 "LT PX Provider Outside FB"
         Card.Lines.First();
         SnapA('first', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'lines=10 detail=ten log=[lines-open() | detail-open() | host-row(H1) | lines-row(10) | detail-row(ten)]');
+        Observer.Expect('h1', 'lines=10 detail=ten log=[host-row(H1)]');
+        Observer.Expect('next', 'lines=20 detail=twenty log=[lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('first', 'lines=10 detail=ten log=[lines-row(10) | detail-row(ten)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -409,7 +416,10 @@ codeunit 77418 "LT PX Provider Outside FB"
         Card.Next();
         SnapA('next-host', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('h2', 'lines= detail= log=[lines-open() | detail-open() | host-row(H1) | lines-row(10) | detail-row(ten) | host-row(H1) | host-row(H2) | lines-row(0) | detail-row()]');
+        Observer.Expect('h1', 'lines=20 detail=twenty log=[host-row(H1) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('next-host', 'lines= detail= log=[host-row(H2) | lines-row(0) | detail-row()]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -425,7 +435,10 @@ codeunit 77418 "LT PX Provider Outside FB"
         SnapA('keyed', Card);
         Card.Close();
         Observer.Observe('inserted', Format(Header.Get('H3')));
-        Observer.Finish();
+        Observer.Expect('new', 'lines= detail= log=[lines-open() | detail-open() | host-row() | lines-row(0) | detail-row() | lines-row(0)]');
+        Observer.Expect('keyed', 'lines= detail= log=[]');
+        Observer.Expect('inserted', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -445,7 +458,11 @@ codeunit 77418 "LT PX Provider Outside FB"
         Card.Lines.First();
         SnapB('first', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'lines=10 detail=ten log=[lines-open() | detail-open() | host-row(H1) | lines-row(10) | detail-row(ten)]');
+        Observer.Expect('h1', 'lines=10 detail=ten log=[host-row(H1)]');
+        Observer.Expect('next', 'lines=20 detail=twenty log=[lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('first', 'lines=10 detail=ten log=[lines-row(10) | detail-row(ten)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -462,7 +479,10 @@ codeunit 77418 "LT PX Provider Outside FB"
         Card.Next();
         SnapB('next-host', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('h2', 'lines= detail= log=[lines-open() | detail-open() | host-row(H1) | lines-row(10) | detail-row(ten) | host-row(H1) | host-row(H2) | lines-row(0) | detail-row()]');
+        Observer.Expect('h1', 'lines=20 detail=twenty log=[host-row(H1) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('next-host', 'lines= detail= log=[host-row(H2) | lines-row(0) | detail-row()]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -478,7 +498,10 @@ codeunit 77418 "LT PX Provider Outside FB"
         SnapB('keyed', Card);
         Card.Close();
         Observer.Observe('inserted', Format(Header.Get('H3')));
-        Observer.Finish();
+        Observer.Expect('new', 'lines= detail= log=[lines-open() | detail-open() | host-row() | lines-row(0) | detail-row()]');
+        Observer.Expect('keyed', 'lines= detail= log=[lines-row(0)]');
+        Observer.Expect('inserted', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -498,7 +521,11 @@ codeunit 77418 "LT PX Provider Outside FB"
         Card.Lines.First();
         SnapC('first', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'lines=10 detail=ten log=[lines-open() | detail-open() | host-row(H1) | lines-row(10) | detail-row(ten)]');
+        Observer.Expect('h1', 'lines=10 detail=ten log=[host-row(H1)]');
+        Observer.Expect('next', 'lines=20 detail=twenty log=[lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('first', 'lines=10 detail=ten log=[lines-row(10) | detail-row(ten)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -515,7 +542,10 @@ codeunit 77418 "LT PX Provider Outside FB"
         Card.Next();
         SnapC('next-host', Card);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('h2', 'lines= detail= log=[lines-open() | detail-open() | host-row(H1) | lines-row(10) | detail-row(ten) | host-row(H1) | host-row(H2) | lines-row(0) | detail-row()]');
+        Observer.Expect('h1', 'lines=20 detail=twenty log=[host-row(H1) | lines-row(20) | detail-row(twenty)]');
+        Observer.Expect('next-host', 'lines= detail= log=[host-row(H2) | lines-row(0) | detail-row()]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -531,6 +561,9 @@ codeunit 77418 "LT PX Provider Outside FB"
         SnapC('keyed', Card);
         Card.Close();
         Observer.Observe('inserted', Format(Header.Get('H3')));
-        Observer.Finish();
+        Observer.Expect('new', 'lines= detail= log=[lines-open() | detail-open() | host-row() | lines-row(0) | detail-row() | lines-row(0)]');
+        Observer.Expect('keyed', 'lines= detail= log=[]');
+        Observer.Expect('inserted', 'No');
+        Observer.Verify();
     end;
 }
