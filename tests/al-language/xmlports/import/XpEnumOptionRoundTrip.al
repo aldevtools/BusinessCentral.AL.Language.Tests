@@ -3,7 +3,10 @@
 // Fixtures used: Probe Observer (codeunit 69160); own enum 75140, table 75141, xmlports 75142-75145, test codeunit 75146.
 // local object: the enum's captions (different from the names, a name with a space, a member without a caption), the Option field's
 //   captions and the ports' schemas are what is under test.
-// Probe (observe only): al-runner issue 7781. An XmlPort exports a table with an Enum field and an Option field, then the same file is
+// Values pinned from corpus CI runs 43037046921 (27.5), 43037093215 (28.5), 43037138591 (29.0), identical on all three: Legacy writes the
+//   caption (Enum and Option; a member without caption writes its name), FormatEvaluate = Xml writes the ordinal, VariableText writes the
+//   caption; every port imports its own export (import true) and the stored ordinals equal the original rows.
+// Probe: al-runner issue 7781. An XmlPort exports a table with an Enum field and an Option field, then the same file is
 //   imported again into the emptied table (the round trip of Microsoft's Master Data Management tests). Ports:
 //     Legacy Attr   Format = Xml, FormatEvaluate not set (Legacy), field attributes (the reported shape)
 //     Legacy Elem   Format = Xml, FormatEvaluate not set, field elements
@@ -218,27 +221,39 @@ codeunit 75146 "XP EOR Tests"
     procedure EOR_LegacyAttr_RoundTrip()
     begin
         RoundTrip(Xmlport::"XP EOR Legacy Attr", TextEncoding::UTF16);
-        Observer.Finish();
+        Observer.Expect('exported', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Mapping Name="A" Direction="Both ways" Opt="Both ways" />|  <Mapping Name="B" Direction="Send data update to target" Opt="Send data update to target" />|  <Mapping Name="C" Direction="Get data update from target" Opt="Get data update from target" />|  <Mapping Name="D" Direction="With Space cap" Opt="With Space cap" />|  <Mapping Name="E" Direction="NoCaption" Opt="Both ways" />|</Root>');
+        Observer.Expect('import', 'true');
+        Observer.Expect('rows after import', '5:A/0/0;B/1/1;C/2/2;D/3/3;E/4/0;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure EOR_LegacyElem_RoundTrip()
     begin
         RoundTrip(Xmlport::"XP EOR Legacy Elem", TextEncoding::UTF16);
-        Observer.Finish();
+        Observer.Expect('exported', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Mapping>|    <Name>A</Name>|    <Direction>Both ways</Direction>|    <Opt>Both ways</Opt>|  </Mapping>|  <Mapping>|    <Name>B</Name>|    <Direction>Send data update to target</Direction>|    <Opt>Send data update to target</Opt>|  </Mapping>|  <Mapping>|    <Name>C</Name>|    <Direction>Get data update from target</Direction>|    <Opt>Get data update from target</Opt>|  </Mapping>|  <Mapping>|    <Name>D</Name>|    <Direction>With Space cap</Direction>|    <Opt>With Space cap</Opt>|  </Mapping>|  <Mapping>|    <Name>E</Name>|    <Direction>NoCaption</Direction>|    <Opt>Both ways</Opt>|  </Mapping>|</Root>');
+        Observer.Expect('import', 'true');
+        Observer.Expect('rows after import', '5:A/0/0;B/1/1;C/2/2;D/3/3;E/4/0;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure EOR_XmlAttr_RoundTrip()
     begin
         RoundTrip(Xmlport::"XP EOR Xml Attr", TextEncoding::UTF16);
-        Observer.Finish();
+        Observer.Expect('exported', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Mapping Name="A" Direction="0" Opt="0" />|  <Mapping Name="B" Direction="1" Opt="1" />|  <Mapping Name="C" Direction="2" Opt="2" />|  <Mapping Name="D" Direction="3" Opt="3" />|  <Mapping Name="E" Direction="4" Opt="0" />|</Root>');
+        Observer.Expect('import', 'true');
+        Observer.Expect('rows after import', '5:A/0/0;B/1/1;C/2/2;D/3/3;E/4/0;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure EOR_VarText_RoundTrip()
     begin
         RoundTrip(Xmlport::"XP EOR VarText", TextEncoding::MSDos);
-        Observer.Finish();
+        Observer.Expect('exported', '"A","Both ways","Both ways"|"B","Send data update to target","Send data update to target"|"C","Get data update from target","Get data update from target"|"D","With Space cap","With Space cap"|"E","NoCaption","Both ways"');
+        Observer.Expect('import', 'true');
+        Observer.Expect('rows after import', '5:A/0/0;B/1/1;C/2/2;D/3/3;E/4/0;');
+        Observer.Verify();
     end;
 }
