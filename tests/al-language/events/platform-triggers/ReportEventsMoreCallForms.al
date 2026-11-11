@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/report/report-execute-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); Temp Blob (System Application); from events/platform-triggers: codeunit "LT V Log",
-//   report "LT V Report A" (RDLC layout) with its automatic Reporting Triggers subscribers, the manual subscriber codeunit "LT PW V Arg Subs";
+// Fixtures used: Probe Observer (codeunit 69160); Temp Blob (System Application); own log and manual subscriber codeunits 96790 and 96791 (ReportEventsMoreCallFormsFixtures.al);
+//   report "LT V Report A" (RDLC layout) from events/platform-triggers/PeVFixtures.al;
 //   table "Probe Rep Parent" (text/TestReportSaveAsDatasetContracts.al); report "LT AM Word Rpt" (reports/layouts-saveas, a Word layout);
 //   own codeunit 96630.
 // Probe: from the code-sweep issues al-runner 7634 and 7608 (cell d): which Reporting Triggers events the call forms raise that
@@ -19,7 +19,7 @@ codeunit 96630 "LT REV More Forms"
     TestPermissions = Disabled;
 
     var
-        Log: Codeunit "LT V Log";
+        Log: Codeunit "LT REV Log";
 
     local procedure Seed()
     var
@@ -61,7 +61,7 @@ codeunit 96630 "LT REV More Forms"
 
     local procedure CallCase(var Observer: Codeunit "Probe Observer"; Which: Text; Parameters: Text)
     var
-        ArgSubs: Codeunit "LT PW V Arg Subs";
+        ArgSubs: Codeunit "LT REV Subs";
         Ok: Boolean;
     begin
         BindSubscription(ArgSubs);
