@@ -1084,6 +1084,7 @@ xmlport 75133 "XP RTV Filename"
 {
     // local object: an Xml port whose OnPreXmlPort assigns currXMLport.Filename is under test (al-runner 7714).
     Format = Xml;
+    Encoding = UTF8;
 
     schema
     {
@@ -1407,7 +1408,12 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportVariant(1, '', IssueDoc(3));
-        Observer.Finish();
+        Observer.Expect('import', 'Yes');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/body=[];L.bins:ITEM001/hdr=1/kind=[Order]/cust=[K10000]/ref=[TR_ORDER_04]/od=[20200326];L.bins:ITEM002/hdr=1/kind=[Order]/cust=[K10000]/ref=[TR_ORDER_04]/od=[20200326];H.ains:1/kind=[Order]/od=[20200326]/dd=[20200327]/body=[];post;');
+        Observer.Expect('roots', '1:0;');
+        Observer.Expect('headers', '1:1/K10000/[]/TR_ORDER_04/[];');
+        Observer.Expect('lines', '2:1/1/ITEM001/2/first line/6.32/100;2/1/ITEM002/10/second line/1.5/0;');
+        Observer.Verify();
     end;
 
     // Port WrapLast: a second header without ShipToCode, OrderDate and DeliveryDate, with a Location and one line.
@@ -1416,7 +1422,12 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportVariant(1, '', TwoHeaderDoc(3));
-        Observer.Finish();
+        Observer.Expect('import', 'Yes');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/body=[];L.bins:ITEM001/hdr=1/kind=[Order]/cust=[K10000]/ref=[TR_ORDER_04]/od=[20200326];L.bins:ITEM002/hdr=1/kind=[Order]/cust=[K10000]/ref=[TR_ORDER_04]/od=[20200326];H.ains:1/kind=[Order]/od=[20200326]/dd=[20200327]/body=[];H.init:2/kind=[Order]/od=[20200326]/dd=[20200327]/body=[];L.bins:ITEM003/hdr=2/kind=[Return]/cust=[K20000]/ref=[TR_ORDER_05]/od=[20200326];H.ains:2/kind=[Return]/od=[20200326]/dd=[20200327]/body=[];post;');
+        Observer.Expect('roots', '1:0;');
+        Observer.Expect('headers', '2:1/K10000/[]/TR_ORDER_04/[];2/K20000/[]/TR_ORDER_05/[BLUE];');
+        Observer.Expect('lines', '3:1/1/ITEM001/2/first line/6.32/100;2/1/ITEM002/10/second line/1.5/0;3/2/ITEM003/3/third line/2/5;');
+        Observer.Verify();
     end;
 
     // Port Undeclared: the reporter's document (one header, two lines, empty ShipToCode and Location).
@@ -1425,7 +1436,12 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportVariant(2, '', IssueDoc(3));
-        Observer.Finish();
+        Observer.Expect('import', 'Yes');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/body=[];L.bins:ITEM001/hdr=1/kind=[Order]/cust=[K10000]/ref=[TR_ORDER_04]/od=[20200326];L.bins:ITEM002/hdr=1/kind=[Order]/cust=[K10000]/ref=[TR_ORDER_04]/od=[20200326];H.ains:1/kind=[Order]/od=[20200326]/dd=[20200327]/body=[];post;');
+        Observer.Expect('roots', '1:0;');
+        Observer.Expect('headers', '1:1/K10000/[]/TR_ORDER_04/[];');
+        Observer.Expect('lines', '2:1/1/ITEM001/2/first line/6.32/100;2/1/ITEM002/10/second line/1.5/0;');
+        Observer.Verify();
     end;
 
     // Port Undeclared: a second header without ShipToCode, OrderDate and DeliveryDate, with a Location and one line.
@@ -1434,7 +1450,12 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportVariant(2, '', TwoHeaderDoc(3));
-        Observer.Finish();
+        Observer.Expect('import', 'Yes');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/body=[];L.bins:ITEM001/hdr=1/kind=[Order]/cust=[K10000]/ref=[TR_ORDER_04]/od=[20200326];L.bins:ITEM002/hdr=1/kind=[Order]/cust=[K10000]/ref=[TR_ORDER_04]/od=[20200326];H.ains:1/kind=[Order]/od=[20200326]/dd=[20200327]/body=[];H.init:2/kind=[Order]/od=[20200326]/dd=[20200327]/body=[];L.bins:ITEM003/hdr=2/kind=[Return]/cust=[K20000]/ref=[TR_ORDER_05]/od=[20200326];H.ains:2/kind=[Return]/od=[20200326]/dd=[20200327]/body=[];post;');
+        Observer.Expect('roots', '1:0;');
+        Observer.Expect('headers', '2:1/K10000/[]/TR_ORDER_04/[];2/K20000/[]/TR_ORDER_05/[BLUE];');
+        Observer.Expect('lines', '3:1/1/ITEM001/2/first line/6.32/100;2/1/ITEM002/10/second line/1.5/0;3/2/ITEM003/3/third line/2/5;');
+        Observer.Verify();
     end;
 
     // Port LineMinZero: the reporter's document (one header, two lines, empty ShipToCode and Location).
@@ -1443,7 +1464,12 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportVariant(3, '', IssueDoc(3));
-        Observer.Finish();
+        Observer.Expect('import', 'Yes');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/body=[];L.bins:ITEM001/hdr=1/kind=[Order]/cust=[K10000]/ref=[TR_ORDER_04]/od=[20200326];L.bins:ITEM002/hdr=1/kind=[Order]/cust=[K10000]/ref=[TR_ORDER_04]/od=[20200326];H.ains:1/kind=[Order]/od=[20200326]/dd=[20200327]/body=[];post;');
+        Observer.Expect('roots', '1:0;');
+        Observer.Expect('headers', '1:1/K10000/[]/TR_ORDER_04/[];');
+        Observer.Expect('lines', '2:1/1/ITEM001/2/first line/6.32/100;2/1/ITEM002/10/second line/1.5/0;');
+        Observer.Verify();
     end;
 
     // Port LineMinZero: a second header without ShipToCode, OrderDate and DeliveryDate, with a Location and one line.
@@ -1452,7 +1478,12 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportVariant(3, '', TwoHeaderDoc(3));
-        Observer.Finish();
+        Observer.Expect('import', 'Yes');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/body=[];L.bins:ITEM001/hdr=1/kind=[Order]/cust=[K10000]/ref=[TR_ORDER_04]/od=[20200326];L.bins:ITEM002/hdr=1/kind=[Order]/cust=[K10000]/ref=[TR_ORDER_04]/od=[20200326];H.ains:1/kind=[Order]/od=[20200326]/dd=[20200327]/body=[];H.init:2/kind=[Order]/od=[20200326]/dd=[20200327]/body=[];L.bins:ITEM003/hdr=2/kind=[Return]/cust=[K20000]/ref=[TR_ORDER_05]/od=[20200326];H.ains:2/kind=[Return]/od=[20200326]/dd=[20200327]/body=[];post;');
+        Observer.Expect('roots', '1:0;');
+        Observer.Expect('headers', '2:1/K10000/[]/TR_ORDER_04/[];2/K20000/[]/TR_ORDER_05/[BLUE];');
+        Observer.Expect('lines', '3:1/1/ITEM001/2/first line/6.32/100;2/1/ITEM002/10/second line/1.5/0;3/2/ITEM003/3/third line/2/5;');
+        Observer.Verify();
     end;
 
     // Port WrapFirst: the reporter's document (one header, two lines, empty ShipToCode and Location).
@@ -1461,7 +1492,12 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportVariant(4, '', IssueDoc(1));
-        Observer.Finish();
+        Observer.Expect('import', 'Yes');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/body=[];L.bins:ITEM001/hdr=1/kind=[]/cust=[]/ref=[]/od=[];L.bins:ITEM002/hdr=1/kind=[]/cust=[]/ref=[]/od=[];H.ains:1/kind=[Order]/od=[20200326]/dd=[20200327]/body=[];post;');
+        Observer.Expect('roots', '1:0;');
+        Observer.Expect('headers', '1:1/K10000/[]/TR_ORDER_04/[];');
+        Observer.Expect('lines', '2:1/1/ITEM001/2/first line/6.32/100;2/1/ITEM002/10/second line/1.5/0;');
+        Observer.Verify();
     end;
 
     // Port WrapFirst: a second header without ShipToCode, OrderDate and DeliveryDate, with a Location and one line.
@@ -1470,7 +1506,12 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportVariant(4, '', TwoHeaderDoc(1));
-        Observer.Finish();
+        Observer.Expect('import', 'Yes');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/body=[];L.bins:ITEM001/hdr=1/kind=[]/cust=[]/ref=[]/od=[];L.bins:ITEM002/hdr=1/kind=[]/cust=[]/ref=[]/od=[];H.ains:1/kind=[Order]/od=[20200326]/dd=[20200327]/body=[];H.init:2/kind=[Order]/od=[20200326]/dd=[20200327]/body=[];L.bins:ITEM003/hdr=2/kind=[Order]/cust=[]/ref=[]/od=[20200326];H.ains:2/kind=[Return]/od=[20200326]/dd=[20200327]/body=[];post;');
+        Observer.Expect('roots', '1:0;');
+        Observer.Expect('headers', '2:1/K10000/[]/TR_ORDER_04/[];2/K20000/[]/TR_ORDER_05/[BLUE];');
+        Observer.Expect('lines', '3:1/1/ITEM001/2/first line/6.32/100;2/1/ITEM002/10/second line/1.5/0;3/2/ITEM003/3/third line/2/5;');
+        Observer.Verify();
     end;
 
     // Port WrapMiddle: the reporter's document (one header, two lines, empty ShipToCode and Location).
@@ -1479,7 +1520,12 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportVariant(5, '', IssueDoc(2));
-        Observer.Finish();
+        Observer.Expect('import', 'Yes');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/body=[];L.bins:ITEM001/hdr=1/kind=[Order]/cust=[K10000]/ref=[]/od=[];L.bins:ITEM002/hdr=1/kind=[Order]/cust=[K10000]/ref=[]/od=[];H.ains:1/kind=[Order]/od=[20200326]/dd=[20200327]/body=[];post;');
+        Observer.Expect('roots', '1:0;');
+        Observer.Expect('headers', '1:1/K10000/[]/TR_ORDER_04/[];');
+        Observer.Expect('lines', '2:1/1/ITEM001/2/first line/6.32/100;2/1/ITEM002/10/second line/1.5/0;');
+        Observer.Verify();
     end;
 
     // Port WrapMiddle: a second header without ShipToCode, OrderDate and DeliveryDate, with a Location and one line.
@@ -1488,7 +1534,12 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportVariant(5, '', TwoHeaderDoc(2));
-        Observer.Finish();
+        Observer.Expect('import', 'Yes');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/body=[];L.bins:ITEM001/hdr=1/kind=[Order]/cust=[K10000]/ref=[]/od=[];L.bins:ITEM002/hdr=1/kind=[Order]/cust=[K10000]/ref=[]/od=[];H.ains:1/kind=[Order]/od=[20200326]/dd=[20200327]/body=[];H.init:2/kind=[Order]/od=[20200326]/dd=[20200327]/body=[];L.bins:ITEM003/hdr=2/kind=[Return]/cust=[K20000]/ref=[]/od=[20200326];H.ains:2/kind=[Return]/od=[20200326]/dd=[20200327]/body=[];post;');
+        Observer.Expect('roots', '1:0;');
+        Observer.Expect('headers', '2:1/K10000/[]/TR_ORDER_04/[];2/K20000/[]/TR_ORDER_05/[BLUE];');
+        Observer.Expect('lines', '3:1/1/ITEM001/2/first line/6.32/100;2/1/ITEM002/10/second line/1.5/0;3/2/ITEM003/3/third line/2/5;');
+        Observer.Verify();
     end;
 
     // Port WrapLast: a header whose Body element is empty (no Line).
@@ -1497,7 +1548,14 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportVariant(1, '', EnvelopDoc(HeadXml(3, 'Order', 'K10000', 'TR_ORDER_04', true, '')));
-        Observer.Finish();
+        Observer.Expect('import', 'No');
+        Observer.Expect('error|text', 'Imported XML cannot validate with the schema: The element ''Body'' has incomplete content. List of possible elements expected: ''Line''.');
+        Observer.Expect('error|code', 'XmlPortInvalidXml');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/body=[];');
+        Observer.Expect('roots', '0:');
+        Observer.Expect('headers', '0:');
+        Observer.Expect('lines', '0:');
+        Observer.Verify();
     end;
 
     // Port Undeclared: a header whose Body element is empty (no Line).
@@ -1506,7 +1564,14 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportVariant(2, '', EnvelopDoc(HeadXml(3, 'Order', 'K10000', 'TR_ORDER_04', true, '')));
-        Observer.Finish();
+        Observer.Expect('import', 'No');
+        Observer.Expect('error|text', 'Imported XML cannot validate with the schema: The element ''Body'' has incomplete content. List of possible elements expected: ''Line''.');
+        Observer.Expect('error|code', 'XmlPortInvalidXml');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/body=[];');
+        Observer.Expect('roots', '0:');
+        Observer.Expect('headers', '0:');
+        Observer.Expect('lines', '0:');
+        Observer.Verify();
     end;
 
     // Port LineMinZero: a header whose Body element is empty (no Line).
@@ -1515,7 +1580,12 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportVariant(3, '', EnvelopDoc(HeadXml(3, 'Order', 'K10000', 'TR_ORDER_04', true, '')));
-        Observer.Finish();
+        Observer.Expect('import', 'Yes');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/body=[];H.ains:1/kind=[Order]/od=[20200326]/dd=[20200327]/body=[];post;');
+        Observer.Expect('roots', '1:0;');
+        Observer.Expect('headers', '1:1/K10000/[]/TR_ORDER_04/[];');
+        Observer.Expect('lines', '0:');
+        Observer.Verify();
     end;
 
     // Port LineMinZero: a header whose Body is a self-closing element.
@@ -1524,7 +1594,12 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportVariant(3, '', EnvelopDoc(HeadXml(3, 'Order', 'K10000', 'TR_ORDER_04', true, '<sc>')));
-        Observer.Finish();
+        Observer.Expect('import', 'Yes');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/body=[];H.ains:1/kind=[Order]/od=[20200326]/dd=[20200327]/body=[];post;');
+        Observer.Expect('roots', '1:0;');
+        Observer.Expect('headers', '1:1/K10000/[]/TR_ORDER_04/[];');
+        Observer.Expect('lines', '0:');
+        Observer.Verify();
     end;
 
     // Port WrapFirst: the document has Body last (the order of the other ports).
@@ -1533,7 +1608,14 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportVariant(4, '', IssueDoc(3));
-        Observer.Finish();
+        Observer.Expect('import', 'No');
+        Observer.Expect('error|text', 'Imported XML cannot validate with the schema: The element ''Head'' has invalid child element ''Type''. List of possible elements expected: ''Body''.');
+        Observer.Expect('error|code', 'XmlPortInvalidXml');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/body=[];');
+        Observer.Expect('roots', '0:');
+        Observer.Expect('headers', '0:');
+        Observer.Expect('lines', '0:');
+        Observer.Verify();
     end;
 
     // Port WrapLast: the document has Body first.
@@ -1542,7 +1624,14 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportVariant(1, '', IssueDoc(1));
-        Observer.Finish();
+        Observer.Expect('import', 'No');
+        Observer.Expect('error|text', 'Imported XML cannot validate with the schema: The element ''Head'' has invalid child element ''Body''. List of possible elements expected: ''Type''.');
+        Observer.Expect('error|code', 'XmlPortInvalidXml');
+        Observer.Expect('log', 'init;pre;H.init:1/kind=[]/od=[]/dd=[]/body=[];');
+        Observer.Expect('roots', '0:');
+        Observer.Expect('headers', '0:');
+        Observer.Expect('lines', '0:');
+        Observer.Verify();
     end;
 
     // Port Empty: every element has a value (control).
@@ -1551,7 +1640,11 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportEmpty('');
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('log', 'pre;H.init:1;H.ains:1/tag=[T1]/opttag=[T2];post;');
+        Observer.Expect('headers', '1:1/cust=[C1]/note=[a note]/amount=[12.5]/date=[2024-03-15]/optcode=[BLUE]/optamount=[3.25]/optdate=[2024-03-16];');
+        Observer.Expect('lines', '1');
+        Observer.Verify();
     end;
 
     // Port Empty: OptCode, OptAmount, OptDate and OptTag left out.
@@ -1560,7 +1653,11 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportEmpty('missing');
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('log', 'pre;H.init:1;H.ains:1/tag=[T1]/opttag=[init opt tag];post;');
+        Observer.Expect('headers', '1:1/cust=[C1]/note=[a note]/amount=[12.5]/date=[2024-03-15]/optcode=[INITOPT]/optamount=[8]/optdate=[2000-01-02];');
+        Observer.Expect('lines', '1');
+        Observer.Verify();
     end;
 
     // Port Empty: the required Code field element empty.
@@ -1569,7 +1666,11 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportEmpty('Cust');
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('log', 'pre;H.init:1;H.ains:1/tag=[T1]/opttag=[T2];post;');
+        Observer.Expect('headers', '1:1/cust=[]/note=[a note]/amount=[12.5]/date=[2024-03-15]/optcode=[BLUE]/optamount=[3.25]/optdate=[2024-03-16];');
+        Observer.Expect('lines', '1');
+        Observer.Verify();
     end;
 
     // Port Empty: the required Text field element empty.
@@ -1578,7 +1679,11 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportEmpty('Note');
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('log', 'pre;H.init:1;H.ains:1/tag=[T1]/opttag=[T2];post;');
+        Observer.Expect('headers', '1:1/cust=[C1]/note=[]/amount=[12.5]/date=[2024-03-15]/optcode=[BLUE]/optamount=[3.25]/optdate=[2024-03-16];');
+        Observer.Expect('lines', '1');
+        Observer.Verify();
     end;
 
     // Port Empty: the required Decimal field element empty.
@@ -1587,7 +1692,11 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportEmpty('Amount');
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('log', 'pre;H.init:1;H.ains:1/tag=[T1]/opttag=[T2];post;');
+        Observer.Expect('headers', '1:1/cust=[C1]/note=[a note]/amount=[0]/date=[2024-03-15]/optcode=[BLUE]/optamount=[3.25]/optdate=[2024-03-16];');
+        Observer.Expect('lines', '1');
+        Observer.Verify();
     end;
 
     // Port Empty: the required Date field element empty.
@@ -1596,7 +1705,11 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportEmpty('DocDate');
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('log', 'pre;H.init:1;H.ains:1/tag=[T1]/opttag=[T2];post;');
+        Observer.Expect('headers', '1:1/cust=[C1]/note=[a note]/amount=[12.5]/date=[]/optcode=[BLUE]/optamount=[3.25]/optdate=[2024-03-16];');
+        Observer.Expect('lines', '1');
+        Observer.Verify();
     end;
 
     // Port Empty: the required text element empty.
@@ -1605,7 +1718,11 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportEmpty('Tag');
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('log', 'pre;H.init:1;H.ains:1/tag=[]/opttag=[T2];post;');
+        Observer.Expect('headers', '1:1/cust=[C1]/note=[a note]/amount=[12.5]/date=[2024-03-15]/optcode=[BLUE]/optamount=[3.25]/optdate=[2024-03-16];');
+        Observer.Expect('lines', '1');
+        Observer.Verify();
     end;
 
     // Port Empty: the optional Code field element empty.
@@ -1614,7 +1731,11 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportEmpty('OptCode');
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('log', 'pre;H.init:1;H.ains:1/tag=[T1]/opttag=[T2];post;');
+        Observer.Expect('headers', '1:1/cust=[C1]/note=[a note]/amount=[12.5]/date=[2024-03-15]/optcode=[]/optamount=[3.25]/optdate=[2024-03-16];');
+        Observer.Expect('lines', '1');
+        Observer.Verify();
     end;
 
     // Port Empty: the optional Decimal field element empty.
@@ -1623,7 +1744,11 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportEmpty('OptAmount');
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('log', 'pre;H.init:1;H.ains:1/tag=[T1]/opttag=[T2];post;');
+        Observer.Expect('headers', '1:1/cust=[C1]/note=[a note]/amount=[12.5]/date=[2024-03-15]/optcode=[BLUE]/optamount=[0]/optdate=[2024-03-16];');
+        Observer.Expect('lines', '1');
+        Observer.Verify();
     end;
 
     // Port Empty: the optional Date field element empty.
@@ -1632,7 +1757,11 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportEmpty('OptDate');
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('log', 'pre;H.init:1;H.ains:1/tag=[T1]/opttag=[T2];post;');
+        Observer.Expect('headers', '1:1/cust=[C1]/note=[a note]/amount=[12.5]/date=[2024-03-15]/optcode=[BLUE]/optamount=[3.25]/optdate=[];');
+        Observer.Expect('lines', '1');
+        Observer.Verify();
     end;
 
     // Port Empty: the optional text element empty.
@@ -1641,7 +1770,11 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportEmpty('OptTag');
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('log', 'pre;H.init:1;H.ains:1/tag=[T1]/opttag=[];post;');
+        Observer.Expect('headers', '1:1/cust=[C1]/note=[a note]/amount=[12.5]/date=[2024-03-15]/optcode=[BLUE]/optamount=[3.25]/optdate=[2024-03-16];');
+        Observer.Expect('lines', '1');
+        Observer.Verify();
     end;
 
     // Port Empty: the required Code field element self-closing.
@@ -1650,7 +1783,11 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportEmpty('sc:Cust');
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('log', 'pre;H.init:1;H.ains:1/tag=[T1]/opttag=[T2];post;');
+        Observer.Expect('headers', '1:1/cust=[]/note=[a note]/amount=[12.5]/date=[2024-03-15]/optcode=[BLUE]/optamount=[3.25]/optdate=[2024-03-16];');
+        Observer.Expect('lines', '1');
+        Observer.Verify();
     end;
 
     // Port Empty: the required Decimal field element self-closing.
@@ -1659,7 +1796,11 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportEmpty('sc:Amount');
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('log', 'pre;H.init:1;H.ains:1/tag=[T1]/opttag=[T2];post;');
+        Observer.Expect('headers', '1:1/cust=[C1]/note=[a note]/amount=[0]/date=[2024-03-15]/optcode=[BLUE]/optamount=[3.25]/optdate=[2024-03-16];');
+        Observer.Expect('lines', '1');
+        Observer.Verify();
     end;
 
     // Port Empty: the required Date field element self-closing.
@@ -1668,7 +1809,11 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportEmpty('sc:DocDate');
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('log', 'pre;H.init:1;H.ains:1/tag=[T1]/opttag=[T2];post;');
+        Observer.Expect('headers', '1:1/cust=[C1]/note=[a note]/amount=[12.5]/date=[]/optcode=[BLUE]/optamount=[3.25]/optdate=[2024-03-16];');
+        Observer.Expect('lines', '1');
+        Observer.Verify();
     end;
 
     // Port Empty: the required text element self-closing.
@@ -1677,7 +1822,11 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportEmpty('sc:Tag');
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('log', 'pre;H.init:1;H.ains:1/tag=[init tag]/opttag=[T2];post;');
+        Observer.Expect('headers', '1:1/cust=[C1]/note=[a note]/amount=[12.5]/date=[2024-03-15]/optcode=[BLUE]/optamount=[3.25]/optdate=[2024-03-16];');
+        Observer.Expect('lines', '1');
+        Observer.Verify();
     end;
 
     // Port Empty: every Code, Text and text element empty, Decimal and Date valued.
@@ -1686,7 +1835,11 @@ codeunit 75134 "XP RTV Tests"
     begin
         Initialize();
         ImportEmpty('Cust,Note,Tag,OptCode,OptTag');
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('log', 'pre;H.init:1;H.ains:1/tag=[]/opttag=[];post;');
+        Observer.Expect('headers', '1:1/cust=[]/note=[]/amount=[12.5]/date=[2024-03-15]/optcode=[]/optamount=[3.25]/optdate=[2024-03-16];');
+        Observer.Expect('lines', '1');
+        Observer.Verify();
     end;
 
     // Port Filename (al-runner 7714): an Xml import from an InStream; OnPreXmlPort assigns Filename.
@@ -1709,7 +1862,11 @@ codeunit 75134 "XP RTV Tests"
         Observer.Observe('log', Port.GetLog());
         Observer.Observe('rows', Port.Rows());
         Observer.Observe('filename after', Port.Filename());
-        Observer.Finish();
+        Observer.Expect('import', 'true');
+        Observer.Expect('log', 'pre: ;pre, after assign: probe.xml;post: probe.xml;');
+        Observer.Expect('rows', '2:1/one;2/two;');
+        Observer.Expect('filename after', 'probe.xml');
+        Observer.Verify();
     end;
 
     // Port Filename (al-runner 7714): an Xml export to an OutStream; OnPreXmlPort assigns Filename.
