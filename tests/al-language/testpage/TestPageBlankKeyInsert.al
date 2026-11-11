@@ -267,6 +267,28 @@ codeunit 60576 "TPBK Tests"
             Error('Expected stored payload SCANNED. Got %1.', Row.Description);
         Document.Close();
     end;
+
+    [Test]
+    procedure TestPage_OpenNew_VariableControlCanModifyDocumentWithPart()
+    var
+        Row: Record "TPBK Row";
+        Line: Record "ALT Universal";
+        Document: TestPage "TPG Linked Scan Document";
+    begin
+        Initialize(Line);
+
+        Document.OpenNew();
+        Document.Scan.Value('SCANNED');
+        Row.Get('AUTO1');
+        Assert.AreEqual('SCANNED', Row.Description, 'The linked Document must store its header before Scan validation.');
+        Document.Close();
+    end;
+
+    local procedure Initialize(var Line: Record "ALT Universal")
+    begin
+        Initialize();
+        Line.DeleteAll();
+    end;
 }
 
 // local object: the Document page opens in New mode and validates an unbound control.
@@ -300,4 +322,60 @@ page 67997 "TPG Variable Scan Document"
 
     var
         InputText: Text[20];
+}
+
+// local object: the Document needs one open, empty ListPart linked to the header's primary key.
+page 67994 "TPG Linked Scan Document"
+{
+    PageType = Document;
+    SourceTable = "TPBK Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(General)
+            {
+                field(No; Rec."No.") { ApplicationArea = All; }
+                field(Scan; InputText)
+                {
+                    ApplicationArea = All;
+
+                    trigger OnValidate()
+                    begin
+                        Rec.Description := InputText;
+                        Rec.Modify();
+                    end;
+                }
+            }
+            part(Lines; "TPG Linked Scan Lines")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Code Field" = field("No.");
+            }
+        }
+    }
+
+    var
+        InputText: Text[20];
+}
+
+// local object: the part has no row triggers so the test measures the header focus move.
+page 67995 "TPG Linked Scan Lines"
+{
+    PageType = ListPart;
+    SourceTable = "ALT Universal";
+    ApplicationArea = All;
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(EntryNo; Rec."Entry No.") { ApplicationArea = All; }
+            }
+        }
+    }
 }
