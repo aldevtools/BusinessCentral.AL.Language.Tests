@@ -6,6 +6,17 @@
 //   on a by-value and a var parameter, Codeunit.Run with a declared record, a temporary parameter, a Variant, ClearAll after a
 //   SecurityFiltering(x) call on a codeunit global and on a test codeunit global, the attribute on a global of a table, a page and a report,
 //   and on an array of records.
+// Rule seen (the same on BC 27.5, 28.5 and 29.0):
+//   - The declared attribute stays with the variable. TransferFields, RecordRef.SetTable and a Variant assigned back never carry the
+//     source's value over; a SecurityFiltering(x) call on the target stays through TransferFields.
+//   - Clear and ClearAll go back to the declared value, also after a SecurityFiltering(x) call: on a local, on an array element and on the
+//     whole array, on a temporary variable, and on a global of a codeunit, a test codeunit, a table, a page and a report. Clear of a
+//     codeunit variable gives a fresh instance with the declared value.
+//   - A by-value parameter (also a temporary one) reads the argument's DECLARED value, not its current value, and Clear in the callee
+//     goes back to that value; the caller's record keeps its current value. A var parameter and the Rec of Codeunit.Run read the current
+//     value, and Clear on them goes back to the caller variable's declared value.
+//   - RecordRef.SecurityFiltering() reads Validated after Open and after GetTable of any record (declared or set); setting it on the
+//     RecordRef does not reach the record it was taken from, nor a record SetTable fills.
 // BC versions: 27, 28, 29
 
 // local object: its own definition is under test (the attribute on a global of a table)
