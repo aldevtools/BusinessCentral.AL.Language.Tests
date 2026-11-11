@@ -116,7 +116,21 @@ codeunit 96624 "LT RCF Tests"
         Observer.Observe('format row 2', Format(Row.AmtCur) + ' / ' + Format(Row.AmtPlaces) + ' / ' + Format(Row.AmtUnit) + ' / [' + Format(Row.Opt) + ']');
         Row.Get(3);
         Observer.Observe('format row 3 opt', '[' + Format(Row.Opt) + ']');
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('save|text', '');
+        Observer.Expect('save|code', '');
+#if BC28PLUS
+        Observer.Expect('columns', '<Column name="Id">1</Column>|<Column name="AmtCur" decimalformatter="#,##0.00">1234.5</Column>|<Column name="AmtPlaces" decimalformatter="#,##0.00">1234.5</Column>|<Column name="AmtUnit" decimalformatter="#,##0.00###">1234.5</Column>|<Column name="Opt">Alpha</Column>|<Column name="Id">2</Column>|<Column name="AmtCur" decimalformatter="#,##0.00">1.23456</Column>|<Column name="AmtPlaces" decimalformatter="#,##0.00">1.23456</Column>|<Column name="AmtUnit" decimalformatter="#,##0.00###">1.23456</Column>|<Column name="Opt">Beta</Column>|<Column name="Id">3</Column>|<Column name="AmtCur" decimalformatter="#,##0.00">2</Column>|<Column name="AmtPlaces" decimalformatter="#,##0.00">2</Column>|<Column name="AmtUnit" decimalformatter="#,##0.00###">2</Column>|<Column name="Opt">5</Column>|');
+#else
+        Observer.Expect('columns', '<Column name="Id">1</Column>|<Column name="AmtCur" decimalformatter="#,##0.00">1234.5</Column>|<Column name="AmtPlaces" decimalformatter="#,##0.###">1234.5</Column>|<Column name="AmtUnit" decimalformatter="#,##0.00###">1234.5</Column>|<Column name="Opt">Alpha</Column>|<Column name="Id">2</Column>|<Column name="AmtCur" decimalformatter="#,##0.00">1.23456</Column>|<Column name="AmtPlaces" decimalformatter="#,##0.###">1.23456</Column>|<Column name="AmtUnit" decimalformatter="#,##0.00###">1.23456</Column>|<Column name="Opt">Beta</Column>|<Column name="Id">3</Column>|<Column name="AmtCur" decimalformatter="#,##0.00">2</Column>|<Column name="AmtPlaces" decimalformatter="#,##0.###">2</Column>|<Column name="AmtUnit" decimalformatter="#,##0.00###">2</Column>|<Column name="Opt">5</Column>|');
+#endif
+#if BC28PLUS
+        Observer.Expect('format row 2', '1.23 / 1.23 / 1.23456 / [Beta]');
+#else
+        Observer.Expect('format row 2', '1.23 / 1.23456 / 1.23456 / [Beta]');
+#endif
+        Observer.Expect('format row 3 opt', '[5]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -136,7 +150,10 @@ codeunit 96624 "LT RCF Tests"
             Xml := CopyStr(Xml, 1, Pos - 1);
         Observer.Observe('header', Xml);
         Observer.Observe('now', Format(CurrentDateTime(), 0, 9));
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('header', '<?xml version="1.0" standalone="yes"?>\n<ReportDataSet name="LT RCF Rpt" id="96621" language="en-US" formatRegion="en-US">\n  <BCReportInformation>x</BCReportInformation>\n  ');
+        Observer.Ignore('now');
+        Observer.Verify();
     end;
 
     [Test]
@@ -155,7 +172,14 @@ codeunit 96624 "LT RCF Tests"
         ClearLastError();
         Observer.Observe('execute', Format(TryExecute(Report::"LT RCF ExtImg")));
         Observer.ObserveError('execute');
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('save|text', '');
+        Observer.Expect('save|code', '');
+        Observer.Expect('columns', '<Column name="Id">1</Column>|');
+        Observer.Expect('execute', 'No');
+        Observer.Expect('execute|text', 'Report 96622 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('execute|code', 'ReportNoLayout');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -191,6 +215,27 @@ codeunit 96624 "LT RCF Tests"
         SaveAsFormat(Observer, 'excel', ReportFormat::Excel);
         SaveAsFormat(Observer, 'html', ReportFormat::Html);
         SaveAsFormat(Observer, 'xml', ReportFormat::Xml);
-        Observer.Finish();
+        Observer.Expect('pdf ok', 'No');
+        Observer.Expect('pdf|text', 'Report 96623 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('pdf|code', 'ReportNoLayout');
+        Observer.Expect('pdf length', '0');
+        Observer.Expect('word ok', 'No');
+        Observer.Expect('word|text', 'Report 96623 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('word|code', 'ReportNoLayout');
+        Observer.Expect('word length', '0');
+        Observer.Expect('excel ok', 'No');
+        Observer.Expect('excel|text', 'Report 96623 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('excel|code', 'ReportNoLayout');
+        Observer.Expect('excel length', '0');
+        Observer.Expect('html ok', 'No');
+        Observer.Expect('html|text', 'Report 96623 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('html|code', 'ReportNoLayout');
+        Observer.Expect('html length', '0');
+        Observer.Expect('xml ok', 'Yes');
+        Observer.Expect('xml|text', '');
+        Observer.Expect('xml|code', '');
+        // The length depends on the dataset header (time stamp, environment): not asserted.
+        Observer.Ignore('xml length');
+        Observer.Verify();
     end;
 }

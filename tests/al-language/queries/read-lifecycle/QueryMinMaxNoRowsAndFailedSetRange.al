@@ -106,7 +106,10 @@ codeunit 96643 "LT QMN Tests"
             Observer.Observe('filtered row ' + Format(Rows), ScalarText(Q));
         end;
         Observer.Observe('filtered rows', Format(Rows));
-        Observer.Finish();
+        Observer.Expect('row 1', 'dec=[0|0] big=[0|0] dur=[|]');
+        Observer.Expect('rows', '1');
+        Observer.Expect('filtered rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -122,8 +125,39 @@ codeunit 96643 "LT QMN Tests"
         while Q.Read() do
             Rows += 1;
         Observer.Observe('rows', Format(Rows));
-        Observer.Observe('after', 'grp=[' + Q.Grp + '] dt=[' + Format(Q.Dt, 0, 9) + '] dec=[' + Format(Q.MinDec) + '] big=[' + Format(Q.MaxBig) + ']');
+        // A first measurement failed here (the read of Grp after the last Read raised an error): each column is read on its own now.
+        ReadColumn(Observer, Q, 'grp');
+        ReadColumn(Observer, Q, 'dt');
+        ReadColumn(Observer, Q, 'dec');
+        ReadColumn(Observer, Q, 'big');
         Observer.Finish();
+    end;
+
+    [TryFunction]
+    local procedure TryColumn(var Q: Query "LT QMN Grouped"; Which: Text; var Result: Text)
+    begin
+        case Which of
+            'grp':
+                Result := Q.Grp;
+            'dt':
+                Result := Format(Q.Dt, 0, 9);
+            'dec':
+                Result := Format(Q.MinDec);
+            'big':
+                Result := Format(Q.MaxBig);
+        end;
+    end;
+
+    local procedure ReadColumn(var Observer: Codeunit "Probe Observer"; var Q: Query "LT QMN Grouped"; Which: Text)
+    var
+        Result: Text;
+    begin
+        if TryColumn(Q, Which, Result) then
+            Observer.Observe(Which, Result)
+        else begin
+            Observer.Observe(Which, 'error');
+            Observer.ObserveError(Which);
+        end;
     end;
 
     [TryFunction]
@@ -167,6 +201,25 @@ codeunit 96643 "LT QMN Tests"
         Observer.Observe('read 3', Format(TryRead(Q, Got)) + ' ' + Format(Got) + ' ' + Q.Grp);
         Observer.ObserveError('read 3');
         Observer.Observe('getfilters', Q.GetFilters());
-        Observer.Finish();
+        Observer.Expect('read 1', 'Yes G1');
+        Observer.Expect('setrange', 'No');
+#if BC28PLUS
+        Observer.Expect('setrange|text', 'The format of the Date ''not a date'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('setrange|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+#if BC28PLUS
+        Observer.Expect('setrange|code', 'Evaluate:Conversion');
+#else
+        Observer.Expect('setrange|code', 'Conversion');
+#endif
+        Observer.Expect('read 2', 'Yes Yes G2');
+        Observer.Expect('read 2|text', '');
+        Observer.Expect('read 2|code', '');
+        Observer.Expect('read 3', 'Yes Yes G3');
+        Observer.Expect('read 3|text', '');
+        Observer.Expect('read 3|code', '');
+        Observer.Expect('getfilters', '');
+        Observer.Verify();
     end;
 }

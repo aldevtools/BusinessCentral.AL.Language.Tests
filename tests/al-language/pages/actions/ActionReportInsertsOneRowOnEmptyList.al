@@ -99,7 +99,14 @@ codeunit 96660 "PAG OneRow Tests"
     procedure OneRow_DelayedInsertList_ReportWithRequestPage_Ok()
     begin
         RunDelayed('ok');
-        Observer.Finish();
+        Observer.Expect('row before', '[P1 0 ]');
+        Observer.Expect('stored after action', '[P1 10000 by report 1]');
+        Observer.Expect('row after action', '[P1 0 ]');
+        Observer.Expect('ok', 'Yes ');
+        Observer.Expect('ok|text', '');
+        Observer.Expect('ok|code', '');
+        Observer.Expect('stored after closing', '[P1 10000 by report 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -107,7 +114,14 @@ codeunit 96660 "PAG OneRow Tests"
     procedure OneRow_DelayedInsertList_ReportWithRequestPage_Close()
     begin
         RunDelayed('close');
-        Observer.Finish();
+        Observer.Expect('row before', '[P1 0 ]');
+        Observer.Expect('stored after action', '[P1 10000 by report 1]');
+        Observer.Expect('row after action', '[P1 0 ]');
+        Observer.Expect('close', 'Yes ');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('stored after closing', '[P1 10000 by report 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -115,7 +129,18 @@ codeunit 96660 "PAG OneRow Tests"
     procedure OneRow_DelayedInsertList_ReportWithRequestPage_Next()
     begin
         RunDelayed('next');
-        Observer.Finish();
+        Observer.Expect('row before', '[P1 0 ]');
+        Observer.Expect('stored after action', '[P1 10000 by report 1]');
+        Observer.Expect('row after action', '[P1 0 ]');
+        Observer.Expect('next', 'Yes No');
+        Observer.Expect('next|text', '');
+        Observer.Expect('next|code', '');
+        Observer.Expect('row after next', '[P1 0 ]');
+        Observer.Expect('ok after next', 'Yes');
+        Observer.Expect('ok after next|text', '');
+        Observer.Expect('ok after next|code', '');
+        Observer.Expect('stored after closing', '[P1 10000 by report 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -123,7 +148,18 @@ codeunit 96660 "PAG OneRow Tests"
     procedure OneRow_DelayedInsertList_ReportWithRequestPage_Previous()
     begin
         RunDelayed('previous');
-        Observer.Finish();
+        Observer.Expect('row before', '[P1 0 ]');
+        Observer.Expect('stored after action', '[P1 10000 by report 1]');
+        Observer.Expect('row after action', '[P1 0 ]');
+        Observer.Expect('previous', 'Yes Yes');
+        Observer.Expect('previous|text', '');
+        Observer.Expect('previous|code', '');
+        Observer.Expect('row after previous', '[P1 10000 by report 1]');
+        Observer.Expect('ok after previous', 'Yes');
+        Observer.Expect('ok after previous|text', '');
+        Observer.Expect('ok after previous|code', '');
+        Observer.Expect('stored after closing', '[P1 10000 by report 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -131,7 +167,18 @@ codeunit 96660 "PAG OneRow Tests"
     procedure OneRow_DelayedInsertList_ReportWithRequestPage_Last()
     begin
         RunDelayed('last');
-        Observer.Finish();
+        Observer.Expect('row before', '[P1 0 ]');
+        Observer.Expect('stored after action', '[P1 10000 by report 1]');
+        Observer.Expect('row after action', '[P1 0 ]');
+        Observer.Expect('last', 'Yes Yes');
+        Observer.Expect('last|text', '');
+        Observer.Expect('last|code', '');
+        Observer.Expect('row after last', '[P1 10000 by report 1]');
+        Observer.Expect('ok after last', 'Yes');
+        Observer.Expect('ok after last|text', '');
+        Observer.Expect('ok after last|code', '');
+        Observer.Expect('stored after closing', '[P1 10000 by report 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -139,7 +186,18 @@ codeunit 96660 "PAG OneRow Tests"
     procedure OneRow_DelayedInsertList_ReportWithRequestPage_GoToKey()
     begin
         RunDelayed('gotokey');
-        Observer.Finish();
+        Observer.Expect('row before', '[P1 0 ]');
+        Observer.Expect('stored after action', '[P1 10000 by report 1]');
+        Observer.Expect('row after action', '[P1 0 ]');
+        Observer.Expect('gotokey', 'Yes Yes');
+        Observer.Expect('gotokey|text', '');
+        Observer.Expect('gotokey|code', '');
+        Observer.Expect('row after gotokey', '[P1 10000 by report 1]');
+        Observer.Expect('ok after gotokey', 'Yes');
+        Observer.Expect('ok after gotokey|text', '');
+        Observer.Expect('ok after gotokey|code', '');
+        Observer.Expect('stored after closing', '[P1 10000 by report 1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -162,7 +220,14 @@ codeunit 96660 "PAG OneRow Tests"
         Observer.ObserveError('ok');
         Observer.Observe('stored after closing', Stored());
         Line.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('row before', '[P1 0 ]');
+        Observer.Expect('stored after action', '[P1 10000 by report 1]');
+        Observer.Expect('row after action', '[P1 0 ]');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('ok|text', '');
+        Observer.Expect('ok|code', '');
+        Observer.Expect('stored after closing', '[P1 10000 by report 1]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]

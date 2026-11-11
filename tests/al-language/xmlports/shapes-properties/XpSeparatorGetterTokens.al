@@ -102,7 +102,21 @@ codeunit 96652 "XP SepG Tests"
         Getters(Observer, '<None> <None>', X91.FieldDelimiter(), X91.FieldSeparator(), X91.RecordSeparator(), X91.TableSeparator());
         Getters(Observer, '<> <None>', X92.FieldDelimiter(), X92.FieldSeparator(), X92.RecordSeparator(), X92.TableSeparator());
         Getters(Observer, '<none> <TAB>', X93.FieldDelimiter(), X93.FieldSeparator(), X93.RecordSeparator(), X93.TableSeparator());
-        Observer.Finish();
+        Observer.Expect('<> <TAB>', 'delim=[<>] sep=[\t] rec=[\r\n] table=[\r\n\r\n]');
+        Observer.Expect('<> default', 'delim=[<>] sep=[,] rec=[\r\n] table=[\r\n\r\n]');
+        Observer.Expect('<TAB> ;', 'delim=[\t] sep=[;] rec=[\r\n] table=[\r\n\r\n]');
+        Observer.Expect('<None> <>', 'delim=[] sep=[<>] rec=[\r\n] table=[\r\n\r\n]');
+        Observer.Expect('<None> <LF>', 'delim=[] sep=[\n] rec=[\r\n] table=[\r\n\r\n]');
+        Observer.Expect('<None> <CR>', 'delim=[] sep=[\r] rec=[\r\n] table=[\r\n\r\n]');
+        Observer.Expect('<None> <CR/LF>', 'delim=[] sep=[\r\n] rec=[\r\n] table=[\r\n\r\n]');
+        Observer.Expect('<None> <NewLine>', 'delim=[] sep=[\r\n] rec=[\r\n] table=[\r\n\r\n]');
+        Observer.Expect('<None> <tab>', 'delim=[] sep=[<tab>] rec=[\r\n] table=[\r\n\r\n]');
+        Observer.Expect('<None> ;<TAB>', 'delim=[] sep=[;\t] rec=[\r\n] table=[\r\n\r\n]');
+        Observer.Expect('<None> <TAB><TAB>', 'delim=[] sep=[\t\t] rec=[\r\n] table=[\r\n\r\n]');
+        Observer.Expect('<None> <None>', 'delim=[] sep=[] rec=[\r\n] table=[\r\n\r\n]');
+        Observer.Expect('<> <None>', 'delim=[<>] sep=[] rec=[\r\n] table=[\r\n\r\n]');
+        Observer.Expect('<none> <TAB>', 'delim=[<none>] sep=[\t] rec=[\r\n] table=[\r\n\r\n]');
+        Observer.Verify();
     end;
 
     local procedure ExportRows(PortId: Integer): Text
@@ -138,6 +152,10 @@ codeunit 96652 "XP SepG Tests"
         Getters(Observer, 'rec ;<LF> table <None>', XSemi.FieldDelimiter(), XSemi.FieldSeparator(), XSemi.RecordSeparator(), XSemi.TableSeparator());
         Observer.Observe('export rec <none>', ExportRows(Xmlport::"XP SepG Rec Lower"));
         Observer.Observe('export rec ;<LF>', ExportRows(Xmlport::"XP SepG Rec Semi LF"));
-        Observer.Finish();
+        Observer.Expect('rec <none> table <tab>', 'delim=[] sep=[,] rec=[<none>] table=[<tab>]');
+        Observer.Expect('rec ;<LF> table <None>', 'delim=[] sep=[,] rec=[;\n] table=[]');
+        Observer.Expect('export rec <none>', '1,Alpha<none>2,Beta');
+        Observer.Expect('export rec ;<LF>', '1,Alpha;\n2,Beta');
+        Observer.Verify();
     end;
 }

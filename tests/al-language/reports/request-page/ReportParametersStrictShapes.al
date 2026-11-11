@@ -285,7 +285,17 @@ codeunit 96605 "LT RPS Tests"
         RunCase(Observer, 'execute bare view', Report::"LT RPS Rpt", DeclTxt + Bare(Opts(SetStart()) + RowView()), 'execute');
         RunCase(Observer, 'execute named view', Report::"LT RPS Rpt", DeclTxt + Named(Opts(SetStart()) + RowView()), 'execute');
         RunCase(Observer, 'saveas bare view', Report::"LT RPS Rpt", DeclTxt + Bare(Opts(SetStart()) + RowView()), 'saveas');
-        Observer.Finish();
+        Observer.Expect('execute bare view ok', 'No');
+        Observer.Expect('execute bare view error', 'Report 96602 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('execute bare view code', 'ReportNoLayout');
+        Observer.Expect('execute bare view log', '');
+        Observer.Expect('execute named view ok', 'No');
+        Observer.Expect('execute named view error', 'Report 96602 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('execute named view code', 'ReportNoLayout');
+        Observer.Expect('execute named view log', '');
+        Observer.Expect('saveas bare view ok', 'Yes');
+        Observer.Expect('saveas bare view log', 'pre start=[2026-01-15] note=[init] hidden=[] filter=[Id: 2] second=[];rows=1;second=3;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -297,7 +307,19 @@ codeunit 96605 "LT RPS Tests"
         SeedRows();
         RunCase(Observer, 'rrp bare view', Report::"LT RPS Rpt", DeclTxt + Bare(Opts(SetStart()) + RowView()), 'runrequestpage');
         RunCase(Observer, 'rrp named view', Report::"LT RPS Rpt", DeclTxt + Named(Opts(SetStart()) + RowView()), 'runrequestpage');
-        Observer.Finish();
+        Observer.Expect('rrp bare view ok', 'No');
+        Observer.Expect('rrp bare view error', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.');
+        Observer.Expect('rrp bare view code', 'DB:Ok');
+        Observer.Expect('rrp bare view log', '');
+        Observer.Expect('rrp bare view handler', '');
+        Observer.Expect('rrp bare view returned', '');
+        Observer.Expect('rrp named view ok', 'No');
+        Observer.Expect('rrp named view error', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.');
+        Observer.Expect('rrp named view code', 'DB:Ok');
+        Observer.Expect('rrp named view log', '');
+        Observer.Expect('rrp named view handler', '');
+        Observer.Expect('rrp named view returned', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -309,6 +331,27 @@ codeunit 96605 "LT RPS Tests"
         RunCase(Observer, 'rrp named unknown', Report::"LT RPS Rpt", DeclTxt + Named(Opts(SetStart() + '<Field name="NoSuchOption">x</Field>')), 'runrequestpage');
         RunCase(Observer, 'rrp bare hidden', Report::"LT RPS Rpt", DeclTxt + Bare(Opts('<Field name="Hidden">h</Field>' + SetStart())), 'runrequestpage');
         RunCase(Observer, 'rrp bare letter case', Report::"LT RPS Rpt", DeclTxt + Bare(Opts('<Field name="startdate">2026-02-16</Field>')), 'runrequestpage');
+        Observer.Expect('rrp named unknown ok', 'Yes');
+        Observer.Expect('rrp named unknown log', '');
+        Observer.Expect('rrp named unknown handler', 'start=[1/15/2026] note=[init] row=[] second=[]');
+        Observer.Expect('rrp named unknown returned', '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT RPS Rpt" id="96602"><Options><Field name="StartDate">2026-01-15</Field><Field name="NoteText">init</Field></Options><DataItems><DataItem name="Row">VERSION(1) SORTING(Field1)</DataItem><DataItem name="Second">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Expect('rrp bare hidden ok', 'Yes');
+        Observer.Expect('rrp bare hidden log', '');
+        Observer.Expect('rrp bare hidden handler', 'start=[1/15/2026] note=[init] row=[] second=[]');
+        Observer.Expect('rrp bare hidden returned', '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT RPS Rpt" id="96602"><Options><Field name="StartDate">2026-01-15</Field><Field name="NoteText">init</Field></Options><DataItems><DataItem name="Row">VERSION(1) SORTING(Field1)</DataItem><DataItem name="Second">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Expect('rrp bare letter case ok', 'Yes');
+        Observer.Expect('rrp bare letter case log', '');
+        Observer.Expect('rrp bare letter case handler', 'start=[] note=[init] row=[] second=[]');
+        Observer.Expect('rrp bare letter case returned', '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT RPS Rpt" id="96602"><Options><Field name="StartDate" /><Field name="NoteText">init</Field></Options><DataItems><DataItem name="Row">VERSION(1) SORTING(Field1)</DataItem><DataItem name="Second">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('ReadHandler')]
+    procedure RPS_RunRequestPage_ControlName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         RunCase(Observer, 'rrp bare control name', Report::"LT RPS Rpt", DeclTxt + Bare(Opts('<Field name="StartCtl">2026-03-17</Field>')), 'runrequestpage');
         Observer.Finish();
     end;
@@ -322,6 +365,29 @@ codeunit 96605 "LT RPS Tests"
         RunCase(Observer, 'execute no decl named', Report::"LT RPS Rpt", Named(Opts(SetStart())), 'execute');
         RunCase(Observer, 'rrp no decl named', Report::"LT RPS Rpt", Named(Opts(SetStart())), 'runrequestpage');
         RunCase(Observer, 'execute no decl options', Report::"LT RPS Rpt", Opts(SetStart()), 'execute');
+        Observer.Expect('execute no decl named ok', 'No');
+        Observer.Expect('execute no decl named error', 'The filter "<ReportParameters name="LT RPS Rpt" id="96602"><Options><Field name="StartDate">2026-01-15</Field></Options></ReportParameters>" is not valid for the Parameter Name field on the Object Options table. An error occurred while interpreting the filter: Did not expect ''=''.\\For more information, see https://go.microsoft.com/fwlink/?linkid=2158058.');
+        Observer.Expect('execute no decl named code', 'Filter:CSide');
+        Observer.Expect('execute no decl named log', '');
+        Observer.Expect('rrp no decl named ok', 'No');
+        Observer.Expect('rrp no decl named error', 'The filter "<ReportParameters name="LT RPS Rpt" id="96602"><Options><Field name="StartDate">2026-01-15</Field></Options></ReportParameters>" is not valid for the Parameter Name field on the Object Options table. An error occurred while interpreting the filter: Did not expect ''=''.\\For more information, see https://go.microsoft.com/fwlink/?linkid=2158058.');
+        Observer.Expect('rrp no decl named code', 'Filter:CSide');
+        Observer.Expect('rrp no decl named log', '');
+        Observer.Expect('rrp no decl named handler', '');
+        Observer.Expect('rrp no decl named returned', '');
+        Observer.Expect('execute no decl options ok', 'No');
+        Observer.Expect('execute no decl options error', 'The filter "<Options><Field name="StartDate">2026-01-15</Field></Options>" is not valid for the Parameter Name field on the Object Options table. An error occurred while interpreting the filter: Did not expect ''>''.\\For more information, see https://go.microsoft.com/fwlink/?linkid=2158058.');
+        Observer.Expect('execute no decl options code', 'Filter:CSide');
+        Observer.Expect('execute no decl options log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('ReadHandler')]
+    procedure RPS_NoDeclaration_OptionsRoot_SaveAs()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         RunCase(Observer, 'saveas no decl options', Report::"LT RPS Rpt", Opts(SetStart()), 'saveas');
         Observer.Finish();
     end;
@@ -337,7 +403,17 @@ codeunit 96605 "LT RPS Tests"
         RunCase(Observer, 'saveas', Report::"LT RPS Rpt", DeclTxt + Named(Inner), 'saveas');
         RunCase(Observer, 'execute', Report::"LT RPS Rpt", DeclTxt + Named(Inner), 'execute');
         RunCase(Observer, 'rrp', Report::"LT RPS Rpt", DeclTxt + Named(Inner), 'runrequestpage');
-        Observer.Finish();
+        Observer.Expect('saveas ok', 'Yes');
+        Observer.Expect('saveas log', 'pre start=[2026-01-15] note=[after] hidden=[] filter=[] second=[];rows=0;second=0;');
+        Observer.Expect('execute ok', 'No');
+        Observer.Expect('execute error', 'Report 96602 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('execute code', 'ReportNoLayout');
+        Observer.Expect('execute log', '');
+        Observer.Expect('rrp ok', 'Yes');
+        Observer.Expect('rrp log', '');
+        Observer.Expect('rrp handler', 'start=[1/15/2026] note=[after] row=[] second=[]');
+        Observer.Expect('rrp returned', '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT RPS Rpt" id="96602"><Options><Field name="StartDate">2026-01-15</Field><Field name="NoteText">after</Field></Options><DataItems><DataItem name="Row">VERSION(1) SORTING(Field1)</DataItem><DataItem name="Second">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -352,7 +428,15 @@ codeunit 96605 "LT RPS Tests"
         RunCase(Observer, 'execute', Report::"LT RPS Rpt", DeclTxt + Named(Inner), 'execute');
         Inner := Opts(SetStart()) + '<DataItems><DataItem name="Row" /></DataItems>';
         RunCase(Observer, 'saveas alone', Report::"LT RPS Rpt", DeclTxt + Named(Inner), 'saveas');
-        Observer.Finish();
+        Observer.Expect('saveas ok', 'Yes');
+        Observer.Expect('saveas log', 'pre start=[2026-01-15] note=[init] hidden=[] filter=[] second=[Id: 3];rows=3;second=1;');
+        Observer.Expect('execute ok', 'No');
+        Observer.Expect('execute error', 'Report 96602 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('execute code', 'ReportNoLayout');
+        Observer.Expect('execute log', '');
+        Observer.Expect('saveas alone ok', 'Yes');
+        Observer.Expect('saveas alone log', 'pre start=[2026-01-15] note=[init] hidden=[] filter=[] second=[];rows=3;second=3;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -365,7 +449,19 @@ codeunit 96605 "LT RPS Tests"
         RunCase(Observer, 'hex ref', Report::"LT RPS Rpt", DeclTxt + Named(Opts('<Field name="NoteText">a&#x41;b</Field>')), 'saveas');
         RunCase(Observer, 'quot amp', Report::"LT RPS Rpt", DeclTxt + Named(Opts('<Field name="NoteText">a&quot;b&amp;c</Field>')), 'saveas');
         RunCase(Observer, 'execute apos', Report::"LT RPS Rpt", DeclTxt + Named(Opts('<Field name="NoteText">a&apos;b</Field>')), 'execute');
-        Observer.Finish();
+        Observer.Expect('apos ok', 'Yes');
+        Observer.Expect('apos log', 'pre start=[] note=[a''b] hidden=[] filter=[] second=[];rows=0;second=0;');
+        Observer.Expect('decimal ref ok', 'Yes');
+        Observer.Expect('decimal ref log', 'pre start=[] note=[a''b] hidden=[] filter=[] second=[];rows=0;second=0;');
+        Observer.Expect('hex ref ok', 'Yes');
+        Observer.Expect('hex ref log', 'pre start=[] note=[aAb] hidden=[] filter=[] second=[];rows=0;second=0;');
+        Observer.Expect('quot amp ok', 'Yes');
+        Observer.Expect('quot amp log', 'pre start=[] note=[a"b&c] hidden=[] filter=[] second=[];rows=0;second=0;');
+        Observer.Expect('execute apos ok', 'No');
+        Observer.Expect('execute apos error', 'Report 96602 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('execute apos code', 'ReportNoLayout');
+        Observer.Expect('execute apos log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -379,7 +475,17 @@ codeunit 96605 "LT RPS Tests"
         RunCase(Observer, 'saveas bare', Report::"LT RPS Ext Rpt", DeclTxt + Bare(Inner), 'saveas');
         RunCase(Observer, 'execute bare', Report::"LT RPS Ext Rpt", DeclTxt + Bare(Inner), 'execute');
         RunCase(Observer, 'rrp bare', Report::"LT RPS Ext Rpt", DeclTxt + Bare(Inner), 'runrequestpage');
-        Observer.Finish();
+        Observer.Expect('saveas bare ok', 'No');
+        Observer.Expect('saveas bare error', 'Report 96603 is a processing-only report. Output cannot be rendered and saved to a file.');
+        Observer.Expect('saveas bare code', 'ReportProcessingOnly');
+        Observer.Expect('saveas bare log', '');
+        Observer.Expect('execute bare ok', 'Yes');
+        Observer.Expect('execute bare log', 'base note=[base];ext note=[ext];');
+        Observer.Expect('rrp bare ok', 'Yes');
+        Observer.Expect('rrp bare log', '');
+        Observer.Expect('rrp bare handler', 'note=[base] ext=[ext]');
+        Observer.Expect('rrp bare returned', '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT RPS Ext Rpt" id="96603"><Options><Field name="NoteText">base</Field><Field name="ExtNote">ext</Field></Options><DataItems><DataItem name="Row">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]

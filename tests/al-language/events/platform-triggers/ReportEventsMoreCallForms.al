@@ -90,7 +90,13 @@ codeunit 96630 "LT REV More Forms"
         Parameters := Report.RunRequestPage(Report::"LT V Report A");
         CallCase(Observer, 'execute static empty recref', '');
         CallCase(Observer, 'execute static params recref', Parameters);
-        Observer.Finish();
+        Observer.Expect('execute static empty recref ok', 'Yes');
+        Observer.Expect('execute static empty recref args', 'Sub(Execute,xmlLen>0=No,xmlHasDataItem=No,xmlHasPrefix=No,recNo=68300);Ready(keys=filterviews,version,objectname,objectid,documenttype,invokedby,invokeddatetime,companyname,printername,duplex,color,defaultcopies,papertray,intent,layoutmodel,layoutname,layoutmimetype,layoutapplicationid,reportrunid, documenttype=application/pdf head=%PDF-1.3);');
+        Observer.Expect('execute static empty recref events', 'SubstituteReport(69860,Execute,in=-1);SelectReportLayoutCode(69860,in=/None/No);HasCustomLayout(Report,69860,in=None);SelectedBuiltinLayoutType(69860,in=None);GetPrinterName(69860,in=);GetPaperTrayForReport(69860,in=0/0/0);ApplicationReportMergeStrategy(69860,Rdlc,in=No);SetupPrinters(in=0);OnDocumentReady(69860,in=No);OnDocumentDownload(69860,in=No);');
+        Observer.Expect('execute static params recref ok', 'Yes');
+        Observer.Expect('execute static params recref args', 'Sub(Execute,xmlLen>0=Yes,xmlHasDataItem=Yes,xmlHasPrefix=Yes,recNo=68300);Ready(keys=filterviews,version,objectname,objectid,documenttype,invokedby,invokeddatetime,companyname,printername,duplex,color,defaultcopies,papertray,intent,layoutmodel,layoutname,layoutmimetype,layoutapplicationid,reportrunid, documenttype=application/pdf head=%PDF-1.3);');
+        Observer.Expect('execute static params recref events', 'SubstituteReport(69860,Execute,in=-1);SelectReportLayoutCode(69860,in=/None/No);HasCustomLayout(Report,69860,in=None);SelectedBuiltinLayoutType(69860,in=None);GetPrinterName(69860,in=);GetPaperTrayForReport(69860,in=0/0/0);ApplicationReportMergeStrategy(69860,Rdlc,in=No);SetupPrinters(in=0);OnDocumentReady(69860,in=No);OnDocumentDownload(69860,in=No);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -104,7 +110,13 @@ codeunit 96630 "LT REV More Forms"
         Parameters := Report.RunRequestPage(Report::"LT V Report A");
         CallCase(Observer, 'saveas var params xml', Parameters);
         CallCase(Observer, 'saveas static word layout xml', '');
-        Observer.Finish();
+        Observer.Expect('saveas var params xml ok', 'Yes');
+        Observer.Expect('saveas var params xml args', 'Ready(keys=filterviews,version,objectname,objectid,documenttype,invokedby,invokeddatetime,companyname,printername,duplex,color,defaultcopies,papertray,intent,layoutmodel,layoutname,layoutmimetype,layoutapplicationid,reportrunid, documenttype=text/xml head=Ù‹<?xml version="1.0" standalone="yes"?);');
+        Observer.Expect('saveas var params xml events', 'OnDocumentReady(69860,in=No);');
+        Observer.Expect('saveas static word layout xml ok', 'Yes');
+        Observer.Expect('saveas static word layout xml args', 'Sub(SaveAs,xmlLen>0=No,xmlHasDataItem=No,xmlHasPrefix=No,recNo=0);Ready(keys=filterviews,version,objectname,objectid,documenttype,invokedby,invokeddatetime,companyname,printername,duplex,color,defaultcopies,papertray,intent,layoutmodel,layoutname,layoutmimetype,layoutapplicationid,reportrunid, documenttype=text/xml head=Ù‹<?xml version="1.0" standalone="yes"?);');
+        Observer.Expect('saveas static word layout xml events', 'SubstituteReport(79251,SaveAs,in=-1);OnDocumentReady(79251,in=No);');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]

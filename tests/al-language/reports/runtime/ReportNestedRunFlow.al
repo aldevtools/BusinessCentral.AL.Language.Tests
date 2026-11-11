@@ -253,7 +253,29 @@ codeunit 96614 "LT RNF Tests"
         RunCase(Observer, 'skip in other');
         RunCase(Observer, 'break in other');
         RunCase(Observer, 'quit in other');
-        Observer.Finish();
+        Observer.Expect('skip in other run ok', 'No');
+        Observer.Expect('skip in other run|text', 'Report 96612 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('skip in other run|code', 'ReportNoLayout');
+        Observer.Expect('skip in other run log', '');
+        Observer.Expect('skip in other saveas ok', 'Yes');
+        Observer.Expect('skip in other saveas log', 'outer pre urp=No;outer row 1;outer row 2;inner init;inner skip called;outer row 3;outer post item;outer post report;');
+        Observer.Expect('skip in other columns', '<Column name="RowId">3</Column>|<Column name="DetailNo">1</Column>|');
+        Observer.Expect('break in other run ok', 'No');
+        Observer.Expect('break in other run|text', 'Report 96612 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('break in other run|code', 'ReportNoLayout');
+        Observer.Expect('break in other run log', '');
+        Observer.Expect('break in other saveas ok', 'Yes');
+        Observer.Expect('break in other saveas log', 'outer pre urp=No;outer row 1;outer row 2;inner init;inner break called;outer post item;outer post report;');
+        Observer.Expect('break in other columns', '');
+        Observer.Expect('quit in other run ok', 'No');
+        Observer.Expect('quit in other run|text', 'Report 96612 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('quit in other run|code', 'ReportNoLayout');
+        Observer.Expect('quit in other run log', '');
+        Observer.Expect('quit in other saveas ok', 'No');
+        Observer.Expect('quit in other saveas|text', '');
+        Observer.Expect('quit in other saveas|code', '');
+        Observer.Expect('quit in other saveas log', 'outer pre urp=No;outer row 1;outer row 2;inner init;inner quit called;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -263,7 +285,21 @@ codeunit 96614 "LT RNF Tests"
     begin
         RunCase(Observer, 'nested quit init');
         RunCase(Observer, 'nested quit pre');
-        Observer.Finish();
+        Observer.Expect('nested quit init run ok', 'No');
+        Observer.Expect('nested quit init run|text', 'Report 96612 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('nested quit init run|code', 'ReportNoLayout');
+        Observer.Expect('nested quit init run log', '');
+        Observer.Expect('nested quit init saveas ok', 'Yes');
+        Observer.Expect('nested quit init saveas log', 'outer pre urp=No;outer row 1;outer row 2;inner init;outer after nested;outer row end 2;outer row 3;outer post item;outer post report;');
+        Observer.Expect('nested quit init columns', '<Column name="RowId">2</Column>|<Column name="DetailNo">1</Column>|<Column name="RowId">3</Column>|<Column name="DetailNo">1</Column>|');
+        Observer.Expect('nested quit pre run ok', 'No');
+        Observer.Expect('nested quit pre run|text', 'Report 96612 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('nested quit pre run|code', 'ReportNoLayout');
+        Observer.Expect('nested quit pre run log', '');
+        Observer.Expect('nested quit pre saveas ok', 'Yes');
+        Observer.Expect('nested quit pre saveas log', 'outer pre urp=No;outer row 1;outer row 2;inner init;inner pre urp=No;outer after nested;outer row end 2;outer row 3;outer post item;outer post report;');
+        Observer.Expect('nested quit pre columns', '<Column name="RowId">2</Column>|<Column name="DetailNo">1</Column>|<Column name="RowId">3</Column>|<Column name="DetailNo">1</Column>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -274,6 +310,27 @@ codeunit 96614 "LT RNF Tests"
         RunCase(Observer, 'nested urp');
         RunCase(Observer, 'nested run');
         RunCase(Observer, 'no nested run');
-        Observer.Finish();
+        Observer.Expect('nested urp run ok', 'No');
+        Observer.Expect('nested urp run|text', 'Report 96612 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('nested urp run|code', 'ReportNoLayout');
+        Observer.Expect('nested urp run log', '');
+        Observer.Expect('nested urp saveas ok', 'Yes');
+        Observer.Expect('nested urp saveas log', 'outer pre urp=No;outer row 1;outer row 2;inner init;inner pre urp=No;inner row 1;inner row 2;inner row 3;inner post report;outer after nested;outer row end 2;outer row 3;outer post item;outer post report;');
+        Observer.Expect('nested urp columns', '<Column name="RowId">2</Column>|<Column name="DetailNo">1</Column>|<Column name="RowId">3</Column>|<Column name="DetailNo">1</Column>|');
+        Observer.Expect('nested run run ok', 'No');
+        Observer.Expect('nested run run|text', 'Report 96612 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('nested run run|code', 'ReportNoLayout');
+        Observer.Expect('nested run run log', '');
+        Observer.Expect('nested run saveas ok', 'Yes');
+        Observer.Expect('nested run saveas log', 'outer pre urp=No;outer row 1;outer row 2;inner init;inner pre urp=No;inner row 1;inner row 2;inner row 3;inner post report;outer after nested;outer row end 2;outer row 3;outer post item;outer post report;');
+        Observer.Expect('nested run columns', '<Column name="RowId">2</Column>|<Column name="DetailNo">1</Column>|<Column name="RowId">3</Column>|<Column name="DetailNo">1</Column>|');
+        Observer.Expect('no nested run run ok', 'No');
+        Observer.Expect('no nested run run|text', 'Report 96612 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('no nested run run|code', 'ReportNoLayout');
+        Observer.Expect('no nested run run log', '');
+        Observer.Expect('no nested run saveas ok', 'Yes');
+        Observer.Expect('no nested run saveas log', 'outer pre urp=No;outer row 1;outer row 2;outer row end 2;outer row 3;outer post item;outer post report;');
+        Observer.Expect('no nested run columns', '<Column name="RowId">2</Column>|<Column name="DetailNo">1</Column>|<Column name="RowId">3</Column>|<Column name="DetailNo">1</Column>|');
+        Observer.Verify();
     end;
 }

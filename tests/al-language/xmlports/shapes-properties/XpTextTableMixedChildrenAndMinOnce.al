@@ -222,7 +222,16 @@ codeunit 96695 "XP XTM Tests"
         Observer.ObserveError('import');
         Observer.Observe('import rows', ShapesText());
         Observer.Observe('import extra', Imported);
-        Observer.Finish();
+        Observer.Expect('export', 'Yes');
+        Observer.Expect('export|text', '');
+        Observer.Expect('export|code', '');
+        Observer.Expect('export data', '1,x1\r\n2,x2');
+        Observer.Expect('import', 'Yes');
+        Observer.Expect('import|text', '');
+        Observer.Expect('import|code', '');
+        Observer.Expect('import rows', '[5 ][6 ]');
+        Observer.Expect('import extra', '[e5][e6]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -240,7 +249,15 @@ codeunit 96695 "XP XTM Tests"
         Observer.Observe('import', Format(TryImport(Xmlport::"XP XTM Field Attr", 'Gamma,7')));
         Observer.ObserveError('import');
         Observer.Observe('import rows', ShapesText());
-        Observer.Finish();
+        Observer.Expect('export', 'Yes');
+        Observer.Expect('export|text', '');
+        Observer.Expect('export|code', '');
+        Observer.Expect('export data', 'Alpha,1\r\nBeta,2');
+        Observer.Expect('import', 'Yes');
+        Observer.Expect('import|text', '');
+        Observer.Expect('import|code', '');
+        Observer.Expect('import rows', '[7 Gamma]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -274,6 +291,18 @@ codeunit 96695 "XP XTM Tests"
             '<?xml version="1.0" encoding="UTF-8"?><Root><H><Id>3</Id><C><ChildId>30</ChildId><Note>three</Note></C></H><H><Id>4</Id></H></Root>')));
         Observer.ObserveError('import parent without child');
         Observer.Observe('import rows', ShapesText() + ' / ' + ChildrenText());
-        Observer.Finish();
+        Observer.Expect('export parent 2 without child', 'No');
+        Observer.Expect('export parent 2 without child|text', 'Invalid data encountered in stream, unable to read text.');
+        Observer.Expect('export parent 2 without child|code', 'InvalidStreamData');
+        Observer.Expect('export data 1', '');
+        Observer.Expect('export every parent with child', 'No');
+        Observer.Expect('export every parent with child|text', 'Invalid data encountered in stream, unable to read text.');
+        Observer.Expect('export every parent with child|code', 'InvalidStreamData');
+        Observer.Expect('export data 2', '');
+        Observer.Expect('import parent without child', 'No');
+        Observer.Expect('import parent without child|text', 'Imported XML cannot validate with the schema: The element ''H'' has incomplete content. List of possible elements expected: ''C''.');
+        Observer.Expect('import parent without child|code', 'XmlPortInvalidXml');
+        Observer.Expect('import rows', '[3 ] / [30 3 three]');
+        Observer.Verify();
     end;
 }

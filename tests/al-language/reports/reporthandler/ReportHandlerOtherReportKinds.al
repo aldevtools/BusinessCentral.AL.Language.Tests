@@ -233,7 +233,19 @@ codeunit 96685 "LT RHK Tests"
     begin
         Seed();
         RunCase(Observer, 'a', Report::"LT RHK Dataset Page");
-        Observer.Finish();
+        Observer.Expect('a run', 'Yes');
+        Observer.Expect('a run|text', '');
+        Observer.Expect('a run|code', '');
+        Observer.Expect('a run log', 'a init;a page init;handler a;');
+        Observer.Expect('a runmodal', 'Yes');
+        Observer.Expect('a runmodal|text', '');
+        Observer.Expect('a runmodal|code', '');
+        Observer.Expect('a runmodal log', 'a init;a page init;handler a;');
+        Observer.Expect('a var run', 'Yes');
+        Observer.Expect('a var run|text', '');
+        Observer.Expect('a var run|code', '');
+        Observer.Expect('a var run log', 'a init;a page init;handler a;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -244,7 +256,19 @@ codeunit 96685 "LT RHK Tests"
     begin
         Seed();
         RunCase(Observer, 'b', Report::"LT RHK ProcOnly NoPage");
-        Observer.Finish();
+        Observer.Expect('b run', 'Yes');
+        Observer.Expect('b run|text', '');
+        Observer.Expect('b run|code', '');
+        Observer.Expect('b run log', 'b init;handler b;');
+        Observer.Expect('b runmodal', 'Yes');
+        Observer.Expect('b runmodal|text', '');
+        Observer.Expect('b runmodal|code', '');
+        Observer.Expect('b runmodal log', 'b init;handler b;');
+        Observer.Expect('b var run', 'Yes');
+        Observer.Expect('b var run|text', '');
+        Observer.Expect('b var run|code', '');
+        Observer.Expect('b var run log', 'b init;handler b;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -255,7 +279,19 @@ codeunit 96685 "LT RHK Tests"
     begin
         Seed();
         RunCase(Observer, 'c', Report::"LT RHK Dataset NoPage");
-        Observer.Finish();
+        Observer.Expect('c run', 'Yes');
+        Observer.Expect('c run|text', '');
+        Observer.Expect('c run|code', '');
+        Observer.Expect('c run log', 'c init;handler c;');
+        Observer.Expect('c runmodal', 'Yes');
+        Observer.Expect('c runmodal|text', '');
+        Observer.Expect('c runmodal|code', '');
+        Observer.Expect('c runmodal log', 'c init;handler c;');
+        Observer.Expect('c var run', 'Yes');
+        Observer.Expect('c var run|text', '');
+        Observer.Expect('c var run|code', '');
+        Observer.Expect('c var run log', 'c init;handler c;');
+        Observer.Verify();
     end;
 
     [ReportHandler]

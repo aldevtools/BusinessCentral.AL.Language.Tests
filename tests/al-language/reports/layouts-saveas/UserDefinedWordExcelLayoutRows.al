@@ -64,7 +64,23 @@ codeunit 96670 "LT UDL Tests"
         Columns(Observer, 'word', Report::"LT AM Word Rpt", 'LT UDL Word');
         Layout.SetRange("Report ID", Report::"LT AM Word Rpt");
         Layout.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('insert', 'Yes');
+        Observer.Expect('word rows in report', '2');
+        Observer.Expect('word caption', 'LT UDL Word');
+        Observer.Expect('word format', 'Word');
+        Observer.Expect('word mime', '');
+        Observer.Expect('word description', 'UDL word layout');
+        Observer.Expect('word application id', '{00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('word runtime package id', '{00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('word custom type', '{00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('word report name', 'LT AM Word Rpt');
+        Observer.Expect('word publisher', '');
+        Observer.Expect('word user defined', 'Yes');
+        Observer.Expect('word installed', 'Yes');
+        Observer.Expect('word obsolete', 'No');
+        Observer.Expect('word multiple sheets', 'Default');
+        Observer.Expect('word has layout', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -88,6 +104,22 @@ codeunit 96670 "LT UDL Tests"
         Columns(Observer, 'excel', Report::"LT AM Excel Rpt", 'LT UDL Excel');
         Layout.SetRange("Report ID", Report::"LT AM Excel Rpt");
         Layout.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('insert', 'Yes');
+        Observer.Expect('excel rows in report', '2');
+        Observer.Expect('excel caption', 'LT UDL Excel');
+        Observer.Expect('excel format', 'Excel');
+        Observer.Expect('excel mime', '');
+        Observer.Expect('excel description', 'UDL excel layout');
+        Observer.Expect('excel application id', '{00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('excel runtime package id', '{00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('excel custom type', '{00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('excel report name', 'LT AM Excel Rpt');
+        Observer.Expect('excel publisher', '');
+        Observer.Expect('excel user defined', 'Yes');
+        Observer.Expect('excel installed', 'Yes');
+        Observer.Expect('excel obsolete', 'No');
+        Observer.Expect('excel multiple sheets', 'Default');
+        Observer.Expect('excel has layout', 'Yes');
+        Observer.Verify();
     end;
 }
