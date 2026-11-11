@@ -11,6 +11,11 @@
 // Second part: a buffer made stale by its own write (Insert or Modify, then another variable's Modify and a Commit), then in the
 //   open transaction a read under ReadIsolation of ANOTHER row of the table (no contact with the buffer's row), then the buffer's
 //   Modify. ReadIsolation UpdLock, RepeatableRead, ReadCommitted and ReadUncommitted; through Get and through FindSet.
+// Measured by the corpus CI matrix (BC 27.5, 28.5, 29.0, run 43078862011); the values are the same on all three.
+// Facts: a guarded run that fails leaves the caller's variable as it was before the run; after Modify+Commit+Error in the codeunit
+//   the caller's next Modify (directly or through the handler) raises DB:RecordChanged, after Modify+Error it is written. An unguarded
+//   run that fails leaves the run's values in the caller's variable. The read under ReadIsolation of another row never changes the
+//   stale buffer's Modify: it raises DB:RecordChanged.
 // BC versions: 27, 28, 29
 
 table 76710 "CRT Row"
@@ -154,7 +159,6 @@ codeunit 76714 "CRT Codeunit Run Tests"
         end;
         Observer.ObserveError('handler');
         CleanUp();
-        Observer.Finish();
     end;
 
     // The guarded run, then the caller's own Modify through the same variable.
@@ -173,7 +177,6 @@ codeunit 76714 "CRT Codeunit Run Tests"
         end;
         Observer.ObserveError('modify');
         CleanUp();
-        Observer.Finish();
     end;
 
     // The run without a return value, inside asserterror, then the handler codeunit on the same variable.
@@ -196,7 +199,6 @@ codeunit 76714 "CRT Codeunit Run Tests"
         end;
         Observer.ObserveError('handler');
         CleanUp();
-        Observer.Finish();
     end;
 
     [Test]
@@ -205,6 +207,12 @@ codeunit 76714 "CRT Codeunit Run Tests"
         Observer: Codeunit "Probe Observer";
     begin
         GuardedThenHandler(Observer, 'mce');
+        Observer.Expect('run answer', 'No');
+        Observer.Expect('buffer after run', 'Running/0');
+        Observer.Expect('stored after run', 'Running/3');
+        Observer.Expect('handler|text', 'The changes to the CRT Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('handler|code', 'DB:RecordChanged');
+        Observer.Verify();
     end;
 
     [Test]
@@ -213,6 +221,14 @@ codeunit 76714 "CRT Codeunit Run Tests"
         Observer: Codeunit "Probe Observer";
     begin
         GuardedThenHandler(Observer, 'me');
+        Observer.Expect('run answer', 'No');
+        Observer.Expect('buffer after run', 'Running/0');
+        Observer.Expect('stored after run', 'Running/0');
+        Observer.Expect('stored after handler', 'Failed/-1');
+        Observer.Expect('buffer after handler', 'Failed/-1');
+        Observer.Expect('handler|text', 'CRT_NO_ERROR');
+        Observer.Expect('handler|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -221,6 +237,14 @@ codeunit 76714 "CRT Codeunit Run Tests"
         Observer: Codeunit "Probe Observer";
     begin
         GuardedThenHandler(Observer, 'mc');
+        Observer.Expect('run answer', 'Yes');
+        Observer.Expect('buffer after run', 'Running/3');
+        Observer.Expect('stored after run', 'Running/3');
+        Observer.Expect('stored after handler', 'Failed/2');
+        Observer.Expect('buffer after handler', 'Failed/2');
+        Observer.Expect('handler|text', 'CRT_NO_ERROR');
+        Observer.Expect('handler|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -229,6 +253,14 @@ codeunit 76714 "CRT Codeunit Run Tests"
         Observer: Codeunit "Probe Observer";
     begin
         GuardedThenHandler(Observer, 'm');
+        Observer.Expect('run answer', 'Yes');
+        Observer.Expect('buffer after run', 'Running/3');
+        Observer.Expect('stored after run', 'Running/3');
+        Observer.Expect('stored after handler', 'Failed/2');
+        Observer.Expect('buffer after handler', 'Failed/2');
+        Observer.Expect('handler|text', 'CRT_NO_ERROR');
+        Observer.Expect('handler|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -237,6 +269,11 @@ codeunit 76714 "CRT Codeunit Run Tests"
         Observer: Codeunit "Probe Observer";
     begin
         GuardedThenModify(Observer, 'mce');
+        Observer.Expect('run answer', 'No');
+        Observer.Expect('buffer after run', 'Running/0');
+        Observer.Expect('modify|text', 'The changes to the CRT Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('modify|code', 'DB:RecordChanged');
+        Observer.Verify();
     end;
 
     [Test]
@@ -245,6 +282,12 @@ codeunit 76714 "CRT Codeunit Run Tests"
         Observer: Codeunit "Probe Observer";
     begin
         GuardedThenModify(Observer, 'me');
+        Observer.Expect('run answer', 'No');
+        Observer.Expect('buffer after run', 'Running/0');
+        Observer.Expect('stored after modify', 'Running/10');
+        Observer.Expect('modify|text', 'CRT_NO_ERROR');
+        Observer.Expect('modify|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -253,6 +296,12 @@ codeunit 76714 "CRT Codeunit Run Tests"
         Observer: Codeunit "Probe Observer";
     begin
         GuardedThenModify(Observer, 'mc');
+        Observer.Expect('run answer', 'Yes');
+        Observer.Expect('buffer after run', 'Running/3');
+        Observer.Expect('stored after modify', 'Running/13');
+        Observer.Expect('modify|text', 'CRT_NO_ERROR');
+        Observer.Expect('modify|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -261,6 +310,14 @@ codeunit 76714 "CRT Codeunit Run Tests"
         Observer: Codeunit "Probe Observer";
     begin
         UnguardedThenHandler(Observer, 'mce');
+        Observer.Expect('run|text', 'the work failed');
+        Observer.Expect('run|code', 'Dialog');
+        Observer.Expect('buffer after run', 'Running/3');
+        Observer.Expect('stored after run', 'Running/3');
+        Observer.Expect('stored after handler', 'Failed/2');
+        Observer.Expect('handler|text', 'CRT_NO_ERROR');
+        Observer.Expect('handler|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -269,6 +326,14 @@ codeunit 76714 "CRT Codeunit Run Tests"
         Observer: Codeunit "Probe Observer";
     begin
         UnguardedThenHandler(Observer, 'me');
+        Observer.Expect('run|text', 'the work failed');
+        Observer.Expect('run|code', 'Dialog');
+        Observer.Expect('buffer after run', 'Running/3');
+        Observer.Expect('stored after run', 'Running/0');
+        Observer.Expect('stored after handler', 'Failed/2');
+        Observer.Expect('handler|text', 'CRT_NO_ERROR');
+        Observer.Expect('handler|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -288,7 +353,12 @@ codeunit 76714 "CRT Codeunit Run Tests"
         end;
         Observer.ObserveError('handler');
         CleanUp();
-        Observer.Finish();
+        Observer.Expect('buffer after run', 'Running/3');
+        Observer.Expect('stored after run', 'Running/3');
+        Observer.Expect('stored after handler', 'Failed/2');
+        Observer.Expect('handler|text', 'CRT_NO_ERROR');
+        Observer.Expect('handler|code', 'Dialog');
+        Observer.Verify();
     end;
 }
 
@@ -370,7 +440,6 @@ codeunit 76715 "CRT Stale ReadIsolation Tests"
         Observer.ObserveError('modify');
         Old.DeleteAll();
         Commit();
-        Observer.Finish();
     end;
 
     [Test]
@@ -379,6 +448,9 @@ codeunit 76715 "CRT Stale ReadIsolation Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 'modify', 'updlock', 'get');
+        Observer.Expect('modify|text', 'The changes to the CRT Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('modify|code', 'DB:RecordChanged');
+        Observer.Verify();
     end;
 
     [Test]
@@ -387,6 +459,9 @@ codeunit 76715 "CRT Stale ReadIsolation Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 'modify', 'updlock', 'findset');
+        Observer.Expect('modify|text', 'The changes to the CRT Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('modify|code', 'DB:RecordChanged');
+        Observer.Verify();
     end;
 
     [Test]
@@ -395,6 +470,9 @@ codeunit 76715 "CRT Stale ReadIsolation Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 'modify', 'repeatableread', 'get');
+        Observer.Expect('modify|text', 'The changes to the CRT Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('modify|code', 'DB:RecordChanged');
+        Observer.Verify();
     end;
 
     [Test]
@@ -403,6 +481,9 @@ codeunit 76715 "CRT Stale ReadIsolation Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 'modify', 'readcommitted', 'get');
+        Observer.Expect('modify|text', 'The changes to the CRT Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('modify|code', 'DB:RecordChanged');
+        Observer.Verify();
     end;
 
     [Test]
@@ -411,6 +492,9 @@ codeunit 76715 "CRT Stale ReadIsolation Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 'modify', 'readuncommitted', 'get');
+        Observer.Expect('modify|text', 'The changes to the CRT Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('modify|code', 'DB:RecordChanged');
+        Observer.Verify();
     end;
 
     [Test]
@@ -419,6 +503,9 @@ codeunit 76715 "CRT Stale ReadIsolation Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 'modify', 'none', 'none');
+        Observer.Expect('modify|text', 'The changes to the CRT Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('modify|code', 'DB:RecordChanged');
+        Observer.Verify();
     end;
 
     [Test]
@@ -427,6 +514,9 @@ codeunit 76715 "CRT Stale ReadIsolation Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 'insert', 'updlock', 'get');
+        Observer.Expect('modify|text', 'The changes to the CRT Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('modify|code', 'DB:RecordChanged');
+        Observer.Verify();
     end;
 
     [Test]
@@ -435,6 +525,9 @@ codeunit 76715 "CRT Stale ReadIsolation Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 'insert', 'updlock', 'findset');
+        Observer.Expect('modify|text', 'The changes to the CRT Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('modify|code', 'DB:RecordChanged');
+        Observer.Verify();
     end;
 
     [Test]
@@ -443,12 +536,17 @@ codeunit 76715 "CRT Stale ReadIsolation Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 'insert', 'repeatableread', 'get');
+        Observer.Expect('modify|text', 'The changes to the CRT Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('modify|code', 'DB:RecordChanged');
+        Observer.Verify();
     end;
 }
 
 // Third part: a buffer A that inserted its row and wrote it with Modify(true); a partial record B (SetLoadFields) writes the same row; a
 // Commit; then the open transaction inserts and modifies ANOTHER row of the table, and reads under ReadIsolation (A's row, another row,
 // or nothing); then A's Modify(true). Cells with and without B's write, with and without the other row, and each read.
+// Facts: with the other row written in the open transaction, A's Modify(true) is written whatever the read; without it, it raises
+//   DB:RecordChanged whatever the read.
 codeunit 76716 "CRT Stale Other Row Tests"
 {
     Subtype = Test;
@@ -525,7 +623,6 @@ codeunit 76716 "CRT Stale Other Row Tests"
         Old.DeleteAll();
         Side.DeleteAll();
         Commit();
-        Observer.Finish();
     end;
 
     [Test]
@@ -534,6 +631,11 @@ codeunit 76716 "CRT Stale Other Row Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, true, true, 'updlock-othertable');
+        Observer.Expect('buffer before', 'New/1');
+        Observer.Expect('stored after modify', 'New/2');
+        Observer.Expect('modify|text', 'CRT_NO_ERROR');
+        Observer.Expect('modify|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -542,6 +644,10 @@ codeunit 76716 "CRT Stale Other Row Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, true, false, 'updlock-othertable');
+        Observer.Expect('buffer before', 'New/1');
+        Observer.Expect('modify|text', 'The changes to the CRT Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('modify|code', 'DB:RecordChanged');
+        Observer.Verify();
     end;
 
     [Test]
@@ -550,6 +656,11 @@ codeunit 76716 "CRT Stale Other Row Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, true, true, 'updlock-own');
+        Observer.Expect('buffer before', 'New/1');
+        Observer.Expect('stored after modify', 'New/2');
+        Observer.Expect('modify|text', 'CRT_NO_ERROR');
+        Observer.Expect('modify|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -558,6 +669,11 @@ codeunit 76716 "CRT Stale Other Row Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, true, true, 'none');
+        Observer.Expect('buffer before', 'New/1');
+        Observer.Expect('stored after modify', 'New/2');
+        Observer.Expect('modify|text', 'CRT_NO_ERROR');
+        Observer.Expect('modify|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -566,6 +682,10 @@ codeunit 76716 "CRT Stale Other Row Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, true, false, 'updlock-own');
+        Observer.Expect('buffer before', 'New/1');
+        Observer.Expect('modify|text', 'The changes to the CRT Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('modify|code', 'DB:RecordChanged');
+        Observer.Verify();
     end;
 
     [Test]
@@ -574,6 +694,11 @@ codeunit 76716 "CRT Stale Other Row Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, true, true, 'updlock-other');
+        Observer.Expect('buffer before', 'New/1');
+        Observer.Expect('stored after modify', 'New/2');
+        Observer.Expect('modify|text', 'CRT_NO_ERROR');
+        Observer.Expect('modify|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -582,6 +707,10 @@ codeunit 76716 "CRT Stale Other Row Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, true, false, 'updlock-other');
+        Observer.Expect('buffer before', 'New/1');
+        Observer.Expect('modify|text', 'The changes to the CRT Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('modify|code', 'DB:RecordChanged');
+        Observer.Verify();
     end;
 
     [Test]
@@ -590,6 +719,11 @@ codeunit 76716 "CRT Stale Other Row Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, false, true, 'updlock-own');
+        Observer.Expect('buffer before', 'New/1');
+        Observer.Expect('stored after modify', 'New/2');
+        Observer.Expect('modify|text', 'CRT_NO_ERROR');
+        Observer.Expect('modify|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -598,6 +732,11 @@ codeunit 76716 "CRT Stale Other Row Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, true, true, 'repeatableread-own');
+        Observer.Expect('buffer before', 'New/1');
+        Observer.Expect('stored after modify', 'New/2');
+        Observer.Expect('modify|text', 'CRT_NO_ERROR');
+        Observer.Expect('modify|code', 'Dialog');
+        Observer.Verify();
     end;
 }
 
@@ -616,8 +755,9 @@ table 76719 "CRT Request"
 }
 
 // Fourth part (al-runner issue 7798): one buffer does `if not Insert() then Modify()` on two existing rows of a two-field key, the key
-// changed between them (In, then Out), as a release into inbound and outbound requests does; the upsert runs twice. Cells: both rows in
+// changed between them (Inbound, then Outbound); the upsert runs twice. Cells: both rows in
 // both passes, with and without a Commit between, with the same or a new Note in the second pass; one row only; both rows then one.
+// Facts: every cell is written; no second pass raises.
 codeunit 76718 "CRT Upsert Two Rows Tests"
 {
     Subtype = Test;
@@ -682,7 +822,6 @@ codeunit 76718 "CRT Upsert Two Rows Tests"
         Observer.ObserveError('second');
         Request.DeleteAll();
         Commit();
-        Observer.Finish();
     end;
 
     [Test]
@@ -691,6 +830,11 @@ codeunit 76718 "CRT Upsert Two Rows Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 'both', 'both', 'release', false);
+        Observer.Expect('stored after first', 'Inbound=release Outbound=release ');
+        Observer.Expect('stored after second', 'Inbound=release Outbound=release ');
+        Observer.Expect('second|text', 'CRT_NO_ERROR');
+        Observer.Expect('second|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -699,6 +843,11 @@ codeunit 76718 "CRT Upsert Two Rows Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 'both', 'both', 'release', true);
+        Observer.Expect('stored after first', 'Inbound=release Outbound=release ');
+        Observer.Expect('stored after second', 'Inbound=release Outbound=release ');
+        Observer.Expect('second|text', 'CRT_NO_ERROR');
+        Observer.Expect('second|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -707,6 +856,11 @@ codeunit 76718 "CRT Upsert Two Rows Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 'both', 'both', 'again', false);
+        Observer.Expect('stored after first', 'Inbound=release Outbound=release ');
+        Observer.Expect('stored after second', 'Inbound=again Outbound=again ');
+        Observer.Expect('second|text', 'CRT_NO_ERROR');
+        Observer.Expect('second|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -715,6 +869,11 @@ codeunit 76718 "CRT Upsert Two Rows Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 'in', 'in', 'release', false);
+        Observer.Expect('stored after first', 'Inbound=release Outbound= ');
+        Observer.Expect('stored after second', 'Inbound=release Outbound= ');
+        Observer.Expect('second|text', 'CRT_NO_ERROR');
+        Observer.Expect('second|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -723,6 +882,11 @@ codeunit 76718 "CRT Upsert Two Rows Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 'both', 'out', 'release', false);
+        Observer.Expect('stored after first', 'Inbound=release Outbound=release ');
+        Observer.Expect('stored after second', 'Inbound=release Outbound=release ');
+        Observer.Expect('second|text', 'CRT_NO_ERROR');
+        Observer.Expect('second|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -731,5 +895,10 @@ codeunit 76718 "CRT Upsert Two Rows Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 'in', 'both', 'release', false);
+        Observer.Expect('stored after first', 'Inbound=release Outbound= ');
+        Observer.Expect('stored after second', 'Inbound=release Outbound=release ');
+        Observer.Expect('second|text', 'CRT_NO_ERROR');
+        Observer.Expect('second|code', 'Dialog');
+        Observer.Verify();
     end;
 }

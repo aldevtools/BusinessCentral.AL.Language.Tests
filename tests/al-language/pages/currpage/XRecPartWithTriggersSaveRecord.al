@@ -12,7 +12,7 @@
 //   Cells: a new line of a host opened with OpenNew; a new line below stored lines of a host opened with OpenEdit; a stored line;
 //   "No." (with the SaveRecord) or Ref (without) set before the quantity.
 //   A log entry is '<where> <field> rec=<Rec.field> xrec=<xRec.field> xline=<xRec."Line No."> line=<Rec."Line No.">'.
-// Observation form: every test ends in Finish(), so the run fails on purpose and the failure message carries what BC produced.
+// Measured by the corpus CI matrix (BC 27.5, 28.5, 29.0, run 43078862011); the values are the same on all three.
 // BC versions: 27, 28, 29
 
 table 76730 "PXT Head"
@@ -320,7 +320,6 @@ codeunit 76737 "PXT Part Triggers Save Tests"
         Observer.Observe('quantity 5 -> 6', Log.Take());
         Doc.Close();
         Observer.Observe('lines after close', Stored());
-        Observer.Finish();
     end;
 
     local procedure NewLineBelowStored(var Observer: Codeunit "Probe Observer"; WithSave: Boolean; QtyIndex: Integer)
@@ -340,7 +339,6 @@ codeunit 76737 "PXT Part Triggers Save Tests"
         Observer.Observe('lines after the quantity', Stored());
         Doc.Close();
         Observer.Observe('lines after close', Stored());
-        Observer.Finish();
     end;
 
     local procedure StoredLine(var Observer: Codeunit "Probe Observer"; WithSave: Boolean; QtyIndex: Integer)
@@ -359,7 +357,6 @@ codeunit 76737 "PXT Part Triggers Save Tests"
         Observer.Observe('lines after the quantity', Stored());
         Doc.Close();
         Observer.Observe('lines after close', Stored());
-        Observer.Finish();
     end;
 
     [Test]
@@ -368,6 +365,14 @@ codeunit 76737 "PXT Part Triggers Save Tests"
         Observer: Codeunit "Probe Observer";
     begin
         HostOpenNew(Observer, true, 1);
+        Observer.Expect('header typed', 'new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; ');
+        Observer.Expect('first field', 'new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; after No. line=0 save; ');
+        Observer.Expect('lines after the first field', 'H1/10000:   1 1 1; H1/20000:   2 2 2; N1/10000: ITEM1  0 0 0; ');
+        Observer.Expect('quantity 0 -> 5', 'before Qty rec=5 xrec=0 xline=10000 line=10000; base Qty rec=5 xrec=0 xline=10000 line=10000; after Qty rec=5 xrec=0 xline=10000 line=10000; ');
+        Observer.Expect('lines after the quantity', 'H1/10000:   1 1 1; H1/20000:   2 2 2; N1/10000: ITEM1  5 0 0; ');
+        Observer.Expect('quantity 5 -> 6', 'before Qty rec=6 xrec=5 xline=10000 line=10000; base Qty rec=6 xrec=5 xline=10000 line=10000; after Qty rec=6 xrec=5 xline=10000 line=10000; ');
+        Observer.Expect('lines after close', 'H1/10000:   1 1 1; H1/20000:   2 2 2; N1/10000: ITEM1  6 0 0; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -376,6 +381,14 @@ codeunit 76737 "PXT Part Triggers Save Tests"
         Observer: Codeunit "Probe Observer";
     begin
         HostOpenNew(Observer, true, 2);
+        Observer.Expect('header typed', 'new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; ');
+        Observer.Expect('first field', 'new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; after No. line=0 save; ');
+        Observer.Expect('lines after the first field', 'H1/10000:   1 1 1; H1/20000:   2 2 2; N1/10000: ITEM1  0 0 0; ');
+        Observer.Expect('quantity 0 -> 5', 'before Qty2 rec=5 xrec=0 xline=10000 line=10000; base Qty2 rec=5 xrec=0 xline=10000 line=10000; after Qty2 rec=5 xrec=0 xline=10000 line=10000; agr line=10000; agr line=10000; agcr line=10000 xline=10000; ');
+        Observer.Expect('lines after the quantity', 'H1/10000:   1 1 1; H1/20000:   2 2 2; N1/10000: ITEM1  0 5 0; ');
+        Observer.Expect('quantity 5 -> 6', 'before Qty2 rec=6 xrec=5 xline=10000 line=10000; base Qty2 rec=6 xrec=5 xline=10000 line=10000; after Qty2 rec=6 xrec=5 xline=10000 line=10000; agr line=10000; agr line=10000; agcr line=10000 xline=10000; ');
+        Observer.Expect('lines after close', 'H1/10000:   1 1 1; H1/20000:   2 2 2; N1/10000: ITEM1  0 6 0; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -384,6 +397,14 @@ codeunit 76737 "PXT Part Triggers Save Tests"
         Observer: Codeunit "Probe Observer";
     begin
         HostOpenNew(Observer, true, 3);
+        Observer.Expect('header typed', 'new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; ');
+        Observer.Expect('first field', 'new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; after No. line=0 save; ');
+        Observer.Expect('lines after the first field', 'H1/10000:   1 1 1; H1/20000:   2 2 2; N1/10000: ITEM1  0 0 0; ');
+        Observer.Expect('quantity 0 -> 5', 'before Qty3 rec=5 xrec=0 xline=10000 line=10000; base Qty3 rec=5 xrec=0 xline=10000 line=10000; after Qty3 rec=5 xrec=0 xline=10000 line=10000; ');
+        Observer.Expect('lines after the quantity', 'H1/10000:   1 1 1; H1/20000:   2 2 2; N1/10000: ITEM1  0 0 0; ');
+        Observer.Expect('quantity 5 -> 6', 'before Qty3 rec=6 xrec=5 xline=10000 line=10000; base Qty3 rec=6 xrec=5 xline=10000 line=10000; after Qty3 rec=6 xrec=5 xline=10000 line=10000; ');
+        Observer.Expect('lines after close', 'H1/10000:   1 1 1; H1/20000:   2 2 2; N1/10000: ITEM1  0 0 6; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -392,6 +413,14 @@ codeunit 76737 "PXT Part Triggers Save Tests"
         Observer: Codeunit "Probe Observer";
     begin
         HostOpenNew(Observer, false, 1);
+        Observer.Expect('header typed', 'new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; ');
+        Observer.Expect('first field', 'new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; ');
+        Observer.Expect('lines after the first field', 'H1/10000:   1 1 1; H1/20000:   2 2 2; ');
+        Observer.Expect('quantity 0 -> 5', 'before Qty rec=5 xrec=0 xline=0 line=0; base Qty rec=5 xrec=0 xline=0 line=0; after Qty rec=5 xrec=0 xline=0 line=10000; ');
+        Observer.Expect('lines after the quantity', 'H1/10000:   1 1 1; H1/20000:   2 2 2; N1/10000:  REF1 5 0 0; ');
+        Observer.Expect('quantity 5 -> 6', 'before Qty rec=6 xrec=5 xline=10000 line=10000; base Qty rec=6 xrec=5 xline=10000 line=10000; after Qty rec=6 xrec=5 xline=10000 line=10000; ');
+        Observer.Expect('lines after close', 'H1/10000:   1 1 1; H1/20000:   2 2 2; N1/10000:  REF1 6 0 0; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -400,6 +429,14 @@ codeunit 76737 "PXT Part Triggers Save Tests"
         Observer: Codeunit "Probe Observer";
     begin
         HostOpenNew(Observer, false, 3);
+        Observer.Expect('header typed', 'new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; ');
+        Observer.Expect('first field', 'new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; new xline=0; agcr line=0 xline=0; ');
+        Observer.Expect('lines after the first field', 'H1/10000:   1 1 1; H1/20000:   2 2 2; ');
+        Observer.Expect('quantity 0 -> 5', 'before Qty3 rec=5 xrec=0 xline=0 line=0; base Qty3 rec=5 xrec=0 xline=0 line=0; after Qty3 rec=5 xrec=0 xline=0 line=0; ');
+        Observer.Expect('lines after the quantity', 'H1/10000:   1 1 1; H1/20000:   2 2 2; ');
+        Observer.Expect('quantity 5 -> 6', 'before Qty3 rec=6 xrec=5 xline=0 line=0; base Qty3 rec=6 xrec=5 xline=0 line=0; after Qty3 rec=6 xrec=5 xline=0 line=0; ');
+        Observer.Expect('lines after close', 'H1/10000:   1 1 1; H1/20000:   2 2 2; N1/10000:  REF1 0 0 6; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -408,6 +445,11 @@ codeunit 76737 "PXT Part Triggers Save Tests"
         Observer: Codeunit "Probe Observer";
     begin
         NewLineBelowStored(Observer, true, 1);
+        Observer.Expect('first field', 'after No. line=0 save; ');
+        Observer.Expect('quantity 0 -> 5', 'before Qty rec=5 xrec=0 xline=30000 line=30000; base Qty rec=5 xrec=0 xline=30000 line=30000; after Qty rec=5 xrec=0 xline=30000 line=30000; ');
+        Observer.Expect('lines after the quantity', 'H1/10000:   1 1 1; H1/20000:   2 2 2; H1/30000: ITEM1  5 0 0; ');
+        Observer.Expect('lines after close', 'H1/10000:   1 1 1; H1/20000:   2 2 2; H1/30000: ITEM1  5 0 0; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -416,6 +458,11 @@ codeunit 76737 "PXT Part Triggers Save Tests"
         Observer: Codeunit "Probe Observer";
     begin
         NewLineBelowStored(Observer, false, 1);
+        Observer.Expect('first field', '');
+        Observer.Expect('quantity 0 -> 5', 'before Qty rec=5 xrec=0 xline=0 line=0; base Qty rec=5 xrec=0 xline=0 line=0; after Qty rec=5 xrec=0 xline=0 line=30000; ');
+        Observer.Expect('lines after the quantity', 'H1/10000:   1 1 1; H1/20000:   2 2 2; H1/30000:  REF1 5 0 0; ');
+        Observer.Expect('lines after close', 'H1/10000:   1 1 1; H1/20000:   2 2 2; H1/30000:  REF1 5 0 0; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -424,6 +471,11 @@ codeunit 76737 "PXT Part Triggers Save Tests"
         Observer: Codeunit "Probe Observer";
     begin
         NewLineBelowStored(Observer, true, 3);
+        Observer.Expect('first field', 'after No. line=0 save; ');
+        Observer.Expect('quantity 0 -> 5', 'before Qty3 rec=5 xrec=0 xline=30000 line=30000; base Qty3 rec=5 xrec=0 xline=30000 line=30000; after Qty3 rec=5 xrec=0 xline=30000 line=30000; ');
+        Observer.Expect('lines after the quantity', 'H1/10000:   1 1 1; H1/20000:   2 2 2; H1/30000: ITEM1  0 0 0; ');
+        Observer.Expect('lines after close', 'H1/10000:   1 1 1; H1/20000:   2 2 2; H1/30000: ITEM1  0 0 5; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -432,6 +484,11 @@ codeunit 76737 "PXT Part Triggers Save Tests"
         Observer: Codeunit "Probe Observer";
     begin
         StoredLine(Observer, true, 1);
+        Observer.Expect('first field', 'after No. line=10000 save; ');
+        Observer.Expect('quantity 1 -> 5', 'before Qty rec=5 xrec=1 xline=10000 line=10000; base Qty rec=5 xrec=1 xline=10000 line=10000; after Qty rec=5 xrec=1 xline=10000 line=10000; ');
+        Observer.Expect('lines after the quantity', 'H1/10000: ITEM1  5 1 1; H1/20000:   2 2 2; ');
+        Observer.Expect('lines after close', 'H1/10000: ITEM1  5 1 1; H1/20000:   2 2 2; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -440,5 +497,10 @@ codeunit 76737 "PXT Part Triggers Save Tests"
         Observer: Codeunit "Probe Observer";
     begin
         StoredLine(Observer, false, 1);
+        Observer.Expect('first field', '');
+        Observer.Expect('quantity 1 -> 5', 'before Qty rec=5 xrec=1 xline=10000 line=10000; base Qty rec=5 xrec=1 xline=10000 line=10000; after Qty rec=5 xrec=1 xline=10000 line=10000; ');
+        Observer.Expect('lines after the quantity', 'H1/10000:  REF1 5 1 1; H1/20000:   2 2 2; ');
+        Observer.Expect('lines after close', 'H1/10000:  REF1 5 1 1; H1/20000:   2 2 2; ');
+        Observer.Verify();
     end;
 }

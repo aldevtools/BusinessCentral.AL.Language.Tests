@@ -7,6 +7,9 @@
 //   a record read from the database (xRec holds the stored values) and a fresh record after Init (xRec equals a blank record); and the
 //   same three calls from a table extension: its own field's OnValidate and the OnAfterValidate of a base field, calling the base
 //   table's procedure. Each cell logs what the procedure read of xRec ('P'), what the trigger read of xRec after the call ('T' or 'E').
+// Measured by the corpus CI matrix (BC 27.5, 28.5, 29.0, run 43078862011); the values are the same on all three.
+// Facts: the procedure reads the trigger's xRec in every form, on a stored and on a fresh record, from the base table and from a table
+//   extension; its assignment to xRec shows in the trigger after the call.
 // BC versions: 27, 28, 29
 
 codeunit 76720 "XTP Cfg"
@@ -161,7 +164,6 @@ codeunit 76723 "XTP XRec Table Proc Tests"
         Observer.Observe('rec after', Row."Code" + '/' + Row.A + '/' + Row.Note);
         Cfg.Set('');
         Old.DeleteAll();
-        Observer.Finish();
     end;
 
     // Validate on a fresh record after Init: xRec equals a blank record.
@@ -178,7 +180,6 @@ codeunit 76723 "XTP XRec Table Proc Tests"
         Observer.Observe('log', Cfg.Take());
         Observer.Observe('rec after', Row."Code" + '/' + Row.A + '/' + Row.Note);
         Cfg.Set('');
-        Observer.Finish();
     end;
 
     [Test]
@@ -187,6 +188,9 @@ codeunit 76723 "XTP XRec Table Proc Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Stored(Observer, 'rec', false);
+        Observer.Expect('log', 'P x=R1/stored/changed;T x=R1/stored/FROMPROC;');
+        Observer.Expect('rec after', 'R1/v/changed');
+        Observer.Verify();
     end;
 
     [Test]
@@ -195,6 +199,9 @@ codeunit 76723 "XTP XRec Table Proc Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Stored(Observer, 'this', false);
+        Observer.Expect('log', 'P x=R1/stored/changed;T x=R1/stored/FROMPROC;');
+        Observer.Expect('rec after', 'R1/v/changed');
+        Observer.Verify();
     end;
 
     [Test]
@@ -203,6 +210,9 @@ codeunit 76723 "XTP XRec Table Proc Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Stored(Observer, 'plain', false);
+        Observer.Expect('log', 'P x=R1/stored/changed;T x=R1/stored/FROMPROC;');
+        Observer.Expect('rec after', 'R1/v/changed');
+        Observer.Verify();
     end;
 
     [Test]
@@ -211,6 +221,9 @@ codeunit 76723 "XTP XRec Table Proc Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Fresh(Observer, 'rec', false);
+        Observer.Expect('log', 'P x=//;T x=//FROMPROC;');
+        Observer.Expect('rec after', '/v/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -219,6 +232,9 @@ codeunit 76723 "XTP XRec Table Proc Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Fresh(Observer, 'this', false);
+        Observer.Expect('log', 'P x=//;T x=//FROMPROC;');
+        Observer.Expect('rec after', '/v/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -227,6 +243,9 @@ codeunit 76723 "XTP XRec Table Proc Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Fresh(Observer, 'plain', false);
+        Observer.Expect('log', 'P x=//;T x=//FROMPROC;');
+        Observer.Expect('rec after', '/v/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -235,6 +254,9 @@ codeunit 76723 "XTP XRec Table Proc Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Stored(Observer, 'ext-rec', true);
+        Observer.Expect('log', 'P x=R1/stored/changed;E x=R1/stored/FROMPROC;');
+        Observer.Expect('rec after', 'R1/stored/changed');
+        Observer.Verify();
     end;
 
     [Test]
@@ -243,6 +265,9 @@ codeunit 76723 "XTP XRec Table Proc Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Stored(Observer, 'ext-this', true);
+        Observer.Expect('log', 'P x=R1/stored/changed;E x=R1/stored/FROMPROC;');
+        Observer.Expect('rec after', 'R1/stored/changed');
+        Observer.Verify();
     end;
 
     [Test]
@@ -251,6 +276,9 @@ codeunit 76723 "XTP XRec Table Proc Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Stored(Observer, 'ext-plain', true);
+        Observer.Expect('log', 'P x=R1/stored/changed;E x=R1/stored/FROMPROC;');
+        Observer.Expect('rec after', 'R1/stored/changed');
+        Observer.Verify();
     end;
 
     [Test]
@@ -259,6 +287,9 @@ codeunit 76723 "XTP XRec Table Proc Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Stored(Observer, 'after-rec', false);
+        Observer.Expect('log', 'P x=R1/stored/changed;E x=R1/stored/FROMPROC;');
+        Observer.Expect('rec after', 'R1/v/changed');
+        Observer.Verify();
     end;
 
     [Test]
@@ -267,6 +298,9 @@ codeunit 76723 "XTP XRec Table Proc Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Stored(Observer, 'after-this', false);
+        Observer.Expect('log', 'P x=R1/stored/changed;E x=R1/stored/FROMPROC;');
+        Observer.Expect('rec after', 'R1/v/changed');
+        Observer.Verify();
     end;
 
     [Test]
@@ -275,6 +309,9 @@ codeunit 76723 "XTP XRec Table Proc Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Stored(Observer, 'after-plain', false);
+        Observer.Expect('log', 'P x=R1/stored/changed;E x=R1/stored/FROMPROC;');
+        Observer.Expect('rec after', 'R1/v/changed');
+        Observer.Verify();
     end;
 
     [Test]
@@ -283,6 +320,9 @@ codeunit 76723 "XTP XRec Table Proc Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Fresh(Observer, 'ext-plain', true);
+        Observer.Expect('log', 'P x=//;E x=//FROMPROC;');
+        Observer.Expect('rec after', '//');
+        Observer.Verify();
     end;
 
     [Test]
@@ -291,5 +331,8 @@ codeunit 76723 "XTP XRec Table Proc Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Fresh(Observer, 'after-rec', false);
+        Observer.Expect('log', 'P x=//;E x=//FROMPROC;');
+        Observer.Expect('rec after', '/v/');
+        Observer.Verify();
     end;
 }

@@ -8,6 +8,7 @@
 //   OnQueryClosePage, a TestField error raised through Codeunit.Run of a TableNo codeunit (the report) and directly, a Worksheet, a
 //   new row whose OnInsertRecord raises, and a Page variable in LookupMode. Each cell records how RunModal ended (text and code),
 //   the trigger log and the stored row.
+// Measured by the corpus CI matrix (BC 27.5, 28.5, 29.0, run 43078862011); the values are the same on all three.
 // BC versions: 27, 28, 29
 
 table 76700 "MCS Entry"
@@ -241,7 +242,6 @@ codeunit 76706 "MCS Modal Close Save Tests"
         Observer.Observe('log', Cfg.Take());
         Observer.Observe('rows', Rows());
         CleanUp();
-        Observer.Finish();
     end;
 
     // The report: a List without OnQueryClosePage whose OnModifyRecord runs a TableNo codeunit that calls TestField.
@@ -259,6 +259,11 @@ codeunit 76706 "MCS Modal Close Save Tests"
             Error('MCS_NO_ERROR');
         end;
         Wrap(Observer);
+        Observer.Expect('end|text', 'Canceled must be equal to ''No''  in MCS Entry: Code=E1. Current value is ''Yes''.');
+        Observer.Expect('end|code', 'TestField');
+        Observer.Expect('log', 'M-list NEW;M-list NEW;');
+        Observer.Expect('rows', 'E1=Yes/OLD (1 rows)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -275,6 +280,11 @@ codeunit 76706 "MCS Modal Close Save Tests"
             Error('MCS_NO_ERROR');
         end;
         Wrap(Observer);
+        Observer.Expect('end|text', 'Canceled must be equal to ''No''  in MCS Entry: Code=E1. Current value is ''Yes''.');
+        Observer.Expect('end|code', 'TestField');
+        Observer.Expect('log', 'M-list NEW;M-list NEW;');
+        Observer.Expect('rows', 'E1=Yes/OLD (1 rows)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -291,6 +301,11 @@ codeunit 76706 "MCS Modal Close Save Tests"
             Error('MCS_NO_ERROR');
         end;
         Wrap(Observer);
+        Observer.Expect('end|text', 'MCS page modify error');
+        Observer.Expect('end|code', 'TestWrapped');
+        Observer.Expect('log', 'M-list NEW;');
+        Observer.Expect('rows', 'E1=Yes/OLD (1 rows)');
+        Observer.Verify();
     end;
 
     // The same error reaching the test without asserterror around RunModal is not observable here; GetLastErrorCode after it is.
@@ -307,6 +322,13 @@ codeunit 76706 "MCS Modal Close Save Tests"
         Observer.Observe('last|text', GetLastErrorText());
         Observer.Observe('last|code', GetLastErrorCode());
         Wrap(Observer);
+        Observer.Expect('last|text', 'Canceled must be equal to ''No''  in MCS Entry: Code=E1. Current value is ''Yes''.');
+        Observer.Expect('last|code', 'TestField');
+        Observer.Expect('end|text', 'Canceled must be equal to ''No''  in MCS Entry: Code=E1. Current value is ''Yes''.');
+        Observer.Expect('end|code', 'TestField');
+        Observer.Expect('log', 'M-list NEW;M-list NEW;');
+        Observer.Expect('rows', 'E1=Yes/OLD (1 rows)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -322,6 +344,11 @@ codeunit 76706 "MCS Modal Close Save Tests"
             Error('MCS_NO_ERROR');
         end;
         Wrap(Observer);
+        Observer.Expect('end|text', 'Canceled must be equal to ''No''  in MCS Entry: Code=E1. Current value is ''Yes''.');
+        Observer.Expect('end|code', 'TestField');
+        Observer.Expect('log', 'M-card NEW;M-card NEW;');
+        Observer.Expect('rows', 'E1=Yes/OLD (1 rows)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -337,6 +364,11 @@ codeunit 76706 "MCS Modal Close Save Tests"
             Error('MCS_NO_ERROR');
         end;
         Wrap(Observer);
+        Observer.Expect('end|text', 'MCS page modify error');
+        Observer.Expect('end|code', 'TestWrapped');
+        Observer.Expect('log', 'M-card NEW;');
+        Observer.Expect('rows', 'E1=Yes/OLD (1 rows)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -353,6 +385,11 @@ codeunit 76706 "MCS Modal Close Save Tests"
             Error('MCS_NO_ERROR');
         end;
         Wrap(Observer);
+        Observer.Expect('end|text', 'MCS page modify error');
+        Observer.Expect('end|code', 'TestWrapped');
+        Observer.Expect('log', 'M-ws NEW;');
+        Observer.Expect('rows', 'E1=Yes/OLD (1 rows)');
+        Observer.Verify();
     end;
 
     // A new row typed in the handler, whose OnInsertRecord raises when the platform saves it at close.
@@ -369,6 +406,11 @@ codeunit 76706 "MCS Modal Close Save Tests"
             Error('MCS_NO_ERROR');
         end;
         Wrap(Observer);
+        Observer.Expect('end|text', 'MCS page insert error');
+        Observer.Expect('end|code', 'TestWrapped');
+        Observer.Expect('log', 'I-list N1;');
+        Observer.Expect('rows', 'E1=Yes/OLD (1 rows)');
+        Observer.Verify();
     end;
 
     // A Page variable in LookupMode, the handler edits and returns, OnModifyRecord raises.
@@ -389,6 +431,11 @@ codeunit 76706 "MCS Modal Close Save Tests"
             Error('MCS_NO_ERROR');
         end;
         Wrap(Observer);
+        Observer.Expect('end|text', 'MCS page modify error');
+        Observer.Expect('end|code', 'TestWrapped');
+        Observer.Expect('log', 'M-list NEW;');
+        Observer.Expect('rows', 'E1=Yes/OLD (1 rows)');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
