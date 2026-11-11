@@ -2,6 +2,8 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); self-contained codeunit 72505
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
+// Added (observe form, corpus CI 27.5 / 28.5 / 29.0): raw and escaped control characters inside JSON strings, in JsonObject, JsonToken,
+// JsonArray and JsonValue ReadFrom (TAB, LF, CR, 1, 8, 12, 27, 31, 127), a raw TAB in a key, in a single-quoted string and between tokens.
 // BC versions: 29 (27 and 28 by CI)
 
 codeunit 72505 "LT JsT ReadFrom"
@@ -307,5 +309,186 @@ codeunit 72505 "LT JsT ReadFrom"
         Observer.Expect('af214|code', 'InvalidJsonData');
         Observer.Expect('array_after_failed_read', '[2]');
         Observer.Verify();
+    end;
+
+    // Control characters inside JSON strings (aldevtools/BusinessCentral.AL.Runner#7812): what each ReadFrom returns, the characters of
+    // the string it read (len and character codes) and what WriteTo writes back.
+    local procedure Ch(CharCode: Integer): Text
+    var
+        C: Text[1];
+    begin
+        C[1] := CharCode;
+        exit(C);
+    end;
+
+    local procedure Codes(S: Text): Text
+    var
+        Index: Integer;
+        CharCode: Integer;
+        R: Text;
+    begin
+        R := 'len=' + Format(StrLen(S)) + ' codes=';
+        for Index := 1 to StrLen(S) do begin
+            if Index > 1 then
+                R += ',';
+            CharCode := S[Index];
+            R += Format(CharCode);
+        end;
+        exit(R);
+    end;
+
+    [TryFunction]
+    local procedure DoCtlObj(Src: Text; var R: Text)
+    var
+        O: JsonObject;
+        T: JsonToken;
+        Out: Text;
+    begin
+        R := 'ret=' + Format(O.ReadFrom(Src));
+        if O.Get('a', T) then
+            R += ' ' + Codes(T.AsValue().AsText());
+        O.WriteTo(Out);
+        R += ' out=' + Out;
+    end;
+
+    [TryFunction]
+    local procedure DoCtlTok(Src: Text; var R: Text)
+    var
+        T: JsonToken;
+        V: JsonToken;
+        Out: Text;
+    begin
+        R := 'ret=' + Format(T.ReadFrom(Src));
+        if T.IsObject() then
+            if T.AsObject().Get('a', V) then
+                R += ' ' + Codes(V.AsValue().AsText());
+        T.WriteTo(Out);
+        R += ' out=' + Out;
+    end;
+
+    [TryFunction]
+    local procedure DoCtlArr(Src: Text; var R: Text)
+    var
+        A: JsonArray;
+        T: JsonToken;
+        Out: Text;
+    begin
+        R := 'ret=' + Format(A.ReadFrom(Src));
+        if A.Get(0, T) then
+            R += ' ' + Codes(T.AsValue().AsText());
+        A.WriteTo(Out);
+        R += ' out=' + Out;
+    end;
+
+    [TryFunction]
+    local procedure DoCtlVal(Src: Text; var R: Text)
+    var
+        V: JsonValue;
+        Ret: Boolean;
+        Out: Text;
+    begin
+        Ret := V.ReadFrom(Src);
+        R := 'ret=' + Format(Ret);
+        if Ret then
+            R += ' ' + Codes(V.AsText());
+        V.WriteTo(Out);
+        R += ' out=' + Out;
+    end;
+
+    local procedure Ctl(Kind: Text; Src: Text): Text
+    var
+        R: Text;
+        Ok: Boolean;
+    begin
+        ClearLastError();
+        case Kind of
+            'obj':
+                Ok := DoCtlObj(Src, R);
+            'tok':
+                Ok := DoCtlTok(Src, R);
+            'arr':
+                Ok := DoCtlArr(Src, R);
+            'val':
+                Ok := DoCtlVal(Src, R);
+        end;
+        if Ok then
+            exit(R);
+        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    local procedure RawControls(Kind: Text)
+    var
+        Src: Text;
+        CharCode: Integer;
+        CodeList: List of [Integer];
+    begin
+        CodeList.AddRange(9, 10, 13, 1, 8, 12, 27, 31, 127);
+        foreach CharCode in CodeList do begin
+            case Kind of
+                'obj', 'tok':
+                    Src := '{"a":"x' + Ch(CharCode) + 'y"}';
+                'arr':
+                    Src := '["x' + Ch(CharCode) + 'y"]';
+                'val':
+                    Src := '"x' + Ch(CharCode) + 'y"';
+            end;
+            Observer.Observe(Kind + '_raw_' + Format(CharCode), Ctl(Kind, Src));
+        end;
+    end;
+
+    [Test]
+    procedure ObjectReadFromRawControlInString()
+    begin
+        RawControls('obj');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TokenReadFromRawControlInString()
+    begin
+        RawControls('tok');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ArrayReadFromRawControlInString()
+    begin
+        RawControls('arr');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ValueReadFromRawControlInString()
+    begin
+        RawControls('val');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ReadFromEscapedControlInString()
+    begin
+        Observer.Observe('tok_esc_t', Ctl('tok', '{"a":"x\ty"}'));
+        Observer.Observe('tok_esc_n', Ctl('tok', '{"a":"x\ny"}'));
+        Observer.Observe('tok_esc_r', Ctl('tok', '{"a":"x\ry"}'));
+        Observer.Observe('tok_esc_b', Ctl('tok', '{"a":"x\by"}'));
+        Observer.Observe('tok_esc_f', Ctl('tok', '{"a":"x\fy"}'));
+        Observer.Observe('tok_esc_u0001', Ctl('tok', '{"a":"x\u0001y"}'));
+        Observer.Observe('tok_esc_u001f', Ctl('tok', '{"a":"x\u001fy"}'));
+        Observer.Observe('val_esc_t', Ctl('val', '"x\ty"'));
+        Observer.Observe('arr_esc_u0001', Ctl('arr', '["x\u0001y"]'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ReadFromRawControlOtherPlaces()
+    begin
+        Observer.Observe('tok_tab_in_key', Ctl('tok', '{"a' + Ch(9) + 'b":1,"a":"v"}'));
+        Observer.Observe('tok_tab_single_quoted', Ctl('tok', '{''a'':''x' + Ch(9) + 'y''}'));
+        Observer.Observe('tok_tab_between', Ctl('tok', '{"a":' + Ch(9) + '"v"}'));
+        Observer.Observe('tok_1_between', Ctl('tok', '{"a":' + Ch(1) + '"v"}'));
+        Observer.Observe('tok_12_between', Ctl('tok', '{"a":' + Ch(12) + '"v"}'));
+        Observer.Observe('tok_tab_only_string', Ctl('tok', '{"a":"' + Ch(9) + '"}'));
+        Observer.Observe('tok_lf_crlf_string', Ctl('tok', '{"a":"x' + Ch(13) + Ch(10) + 'y"}'));
+        Observer.Finish();
     end;
 }

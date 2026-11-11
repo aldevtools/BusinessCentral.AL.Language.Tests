@@ -8,6 +8,10 @@
 //   KeyNotFound (Dictionary.Get); a duplicate Dictionary.Add; TypeConversion:Format (a Variant holding a text into an Integer);
 //   OutsidePermittedRange (DMY2Date); InvalidGuidFormat (Evaluate into a Guid); Evaluate into an Integer; a List changed in its
 //   own foreach. The first statement of each test is the reporter's repro of aldevtools/BusinessCentral.AL.Runner#7759.
+//   Added (observe form): the raise sites of those codes not measured above (List.RemoveAt, List.Set, List.Get(i, var), Dictionary.Get(k, var),
+//   Text.Remove, PadRight, Substring(Start, Length), DMY2Date day and year, JsonArray.Get, an array read, a Guid compared with a text, a
+//   Variant holding '' into an Integer), InvalidOperation candidates (an uninitialized interface, SelectToken, AsValue of an object) and
+//   RecordRef finds on an empty set (empty table with and without a filter, a table with rows filtered out, a temporary RecordRef).
 // BC versions: 27.5, 28.5, 29.0
 
 codeunit 77100 "ERR LastErr Codes Test"
@@ -280,5 +284,240 @@ codeunit 77100 "ERR LastErr Codes Test"
         Observer.Expect('foreach_code', 'AL:InvalidOperation');
         Observer.Expect('count', '3');
         Observer.Verify();
+    end;
+
+    // The raise sites below were not measured by the tests above (aldevtools/BusinessCentral.AL.Runner#7759, the remainder).
+    [TryFunction]
+    local procedure TrySite(Which: Text)
+    var
+        L: List of [Integer];
+        D: Dictionary of [Text, Integer];
+        JA: JsonArray;
+        JO: JsonObject;
+        JT: JsonToken;
+        JV: JsonValue;
+        A: array[3] of Integer;
+        C: Interface IALTCompute;
+        V: Variant;
+        G: Guid;
+        T: Text;
+        R: Text;
+        I: Integer;
+        B: Boolean;
+        Dt: Date;
+    begin
+        L.Add(1);
+        JA.Add(1);
+        JO.Add('k', 1);
+        T := 'abc';
+        I := 4;
+        case Which of
+            'listremoveat':
+                L.RemoveAt(5);
+            'listset':
+                L.Set(5, 1);
+            'listgetvar':
+                B := L.Get(5, I);
+            'textremove':
+                R := T.Remove(9);
+            'padright':
+                R := T.PadRight(-1);
+            'substringlength':
+                R := T.Substring(2, 9);
+            'dmy2dateday':
+                Dt := DMY2Date(40, 1, 2020);
+            'dmy2dateyear':
+                Dt := DMY2Date(1, 1, 10000);
+            'jsonarrayget':
+                B := JA.Get(5, JT);
+            'arrayread':
+                I := A[I];
+            'guidtext':
+                B := G = 'not a guid';
+            'variantempty':
+                begin
+                    V := '';
+                    I := V;
+                end;
+            'dictgetvar':
+                B := D.Get('missing key', I);
+            'interface':
+                I := C.Compute(1);
+            'selecttoken':
+                B := JO.SelectToken('[', JT);
+            'asvalue':
+                begin
+                    JT := JO.AsToken();
+                    JV := JT.AsValue();
+                end;
+        end;
+    end;
+
+    local procedure Site(Which: Text; var Observer: Codeunit "Probe Observer")
+    begin
+        ClearLastError();
+        Observer.Observe(Which, Format(TrySite(Which)));
+        Forms(Which, Observer);
+    end;
+
+    [Test]
+    procedure ListSites_ExcludeFlag()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Site('listremoveat', Observer);
+        Site('listset', Observer);
+        Site('listgetvar', Observer);
+        Site('dictgetvar', Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TextSites_ExcludeFlag()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Site('textremove', Observer);
+        Site('padright', Observer);
+        Site('substringlength', Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure DateAndConversionSites_ExcludeFlag()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Site('dmy2dateday', Observer);
+        Site('dmy2dateyear', Observer);
+        Site('guidtext', Observer);
+        Site('variantempty', Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure IndexSites_ExcludeFlag()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Site('jsonarrayget', Observer);
+        Site('arrayread', Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure InvalidOperationSites_ExcludeFlag()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Site('interface', Observer);
+        Site('selecttoken', Observer);
+        Site('asvalue', Observer);
+        Observer.Finish();
+    end;
+
+    // RecordRef finds on an empty set (the Record cells are the NothingInsideFilter tests above; al-runtime-rs#7806).
+    [TryFunction]
+    local procedure TryFindRef(var Ref: RecordRef; Which: Text)
+    begin
+        case Which of
+            'first':
+                Ref.FindFirst();
+            'last':
+                Ref.FindLast();
+            'set':
+                Ref.FindSet();
+            'minus':
+                Ref.Find('-');
+            'plus':
+                Ref.Find('+');
+            'equal':
+                Ref.Find('=');
+        end;
+    end;
+
+    local procedure RefFind(var Ref: RecordRef; Which: Text; var Observer: Codeunit "Probe Observer")
+    begin
+        ClearLastError();
+        Observer.Observe(Which, Format(TryFindRef(Ref, Which)));
+        Forms(Which, Observer);
+    end;
+
+    [Test]
+    procedure RecordRef_EmptyTable_Filtered_ExcludeFlag()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "ALT Universal";
+        Ref: RecordRef;
+    begin
+        Row.DeleteAll();
+        Ref.Open(Database::"ALT Universal");
+        Ref.Field(1).SetRange(42);
+        RefFind(Ref, 'first', Observer);
+        RefFind(Ref, 'last', Observer);
+        RefFind(Ref, 'set', Observer);
+        RefFind(Ref, 'minus', Observer);
+        RefFind(Ref, 'plus', Observer);
+        Ref.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecordRef_EmptyTable_NoFilter_ExcludeFlag()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "ALT Universal";
+        Ref: RecordRef;
+    begin
+        Row.DeleteAll();
+        Ref.Open(Database::"ALT Universal");
+        RefFind(Ref, 'first', Observer);
+        RefFind(Ref, 'last', Observer);
+        RefFind(Ref, 'set', Observer);
+        RefFind(Ref, 'minus', Observer);
+        RefFind(Ref, 'plus', Observer);
+        RefFind(Ref, 'equal', Observer);
+        Ref.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecordRef_TableWithRows_FilteredOut_ExcludeFlag()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "ALT Universal";
+        Ref: RecordRef;
+    begin
+        Row.DeleteAll();
+        Row."Entry No." := 1;
+        Row."Text Field" := 'customer text';
+        Row.Insert();
+        Ref.Open(Database::"ALT Universal");
+        Ref.Field(1).SetRange(99);
+        RefFind(Ref, 'first', Observer);
+        RefFind(Ref, 'last', Observer);
+        RefFind(Ref, 'set', Observer);
+        RefFind(Ref, 'minus', Observer);
+        RefFind(Ref, 'plus', Observer);
+        Ref.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecordRef_Temporary_ExcludeFlag()
+    var
+        Observer: Codeunit "Probe Observer";
+        Ref: RecordRef;
+    begin
+        Ref.Open(Database::"ALT Universal", true);
+        Ref.Field(1).SetRange(99);
+        RefFind(Ref, 'first', Observer);
+        RefFind(Ref, 'last', Observer);
+        RefFind(Ref, 'set', Observer);
+        Ref.Reset();
+        RefFind(Ref, 'minus', Observer);
+        RefFind(Ref, 'plus', Observer);
+        Ref.Close();
+        Observer.Finish();
     end;
 }
