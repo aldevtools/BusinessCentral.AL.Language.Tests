@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/codeunit/codeunit-run-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own objects 76710..76715
+// Fixtures used: Probe Observer (codeunit 69160); own objects 76710..76717
 // local object: the TableNo codeunits must write, commit and fail on demand
 // Probe (al-runner issue 7795): Codeunit.Run of a TableNo codeunit with a record variable, where the codeunit modifies Rec (and commits,
 //   and raises an error), and then the caller writes through the same variable (directly, or through a second TableNo codeunit as an
@@ -22,6 +22,18 @@ table 76710 "CRT Row"
         field(1; "No."; Code[20]) { }
         field(2; Status; Option) { OptionMembers = New,Running,Failed; }
         field(3; Attempts; Integer) { }
+    }
+
+    keys { key(PK; "No.") { Clustered = true; } }
+}
+
+table 76717 "CRT Side"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
     }
 
     keys { key(PK; "No.") { Clustered = true; } }
@@ -431,5 +443,160 @@ codeunit 76715 "CRT Stale ReadIsolation Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 'insert', 'repeatableread', 'get');
+    end;
+}
+
+// Third part: a buffer A that inserted its row and wrote it with Modify(true); a partial record B (SetLoadFields) writes the same row; a
+// Commit; then the open transaction inserts and modifies ANOTHER row of the table, and reads under ReadIsolation (A's row, another row,
+// or nothing); then A's Modify(true). Cells with and without B's write, with and without the other row, and each read.
+codeunit 76716 "CRT Stale Other Row Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    local procedure Cell(var Observer: Codeunit "Probe Observer"; WithB: Boolean; WithOtherRow: Boolean; ReadMode: Text)
+    var
+        A: Record "CRT Row";
+        B: Record "CRT Row";
+        C: Record "CRT Row";
+        R: Record "CRT Row";
+        Check: Record "CRT Row";
+        Old: Record "CRT Row";
+        Side: Record "CRT Side";
+    begin
+        Old.DeleteAll();
+        Old.Init();
+        Old."No." := 'B';
+        Old.Insert();
+        Side.DeleteAll();
+        Side."No." := 'S';
+        Side.Insert();
+        Commit();
+        A.Init();
+        A."No." := 'A';
+        A.Insert(true);
+        A.Attempts := 1;
+        A.Modify(true);
+        if WithB then begin
+            B.SetLoadFields(Status);
+            B.Get('A');
+            B.Status := B.Status::Failed;
+            B.Modify();
+        end;
+        Commit();
+        if WithOtherRow then begin
+            C.Init();
+            C."No." := 'C';
+            C.Insert(true);
+            C.Attempts := 9;
+            C.Modify(true);
+        end;
+        case ReadMode of
+            'updlock-own':
+                begin
+                    R.ReadIsolation := IsolationLevel::UpdLock;
+                    R.Get('A');
+                end;
+            'updlock-other':
+                begin
+                    R.ReadIsolation := IsolationLevel::UpdLock;
+                    R.Get('B');
+                end;
+            'updlock-othertable':
+                begin
+                    Side.ReadIsolation := IsolationLevel::UpdLock;
+                    if Side.FindFirst() then;
+                end;
+            'repeatableread-own':
+                begin
+                    R.ReadIsolation := IsolationLevel::RepeatableRead;
+                    R.Get('A');
+                end;
+        end;
+        Observer.Observe('buffer before', Format(A.Status) + '/' + Format(A.Attempts));
+        asserterror begin
+            A.Attempts := 2;
+            A.Modify(true);
+            Check.Get('A');
+            Observer.Observe('stored after modify', Format(Check.Status) + '/' + Format(Check.Attempts));
+            Error('CRT_NO_ERROR');
+        end;
+        Observer.ObserveError('modify');
+        Old.DeleteAll();
+        Side.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure PartialWrite_OtherRow_UpdLockOtherTable()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cell(Observer, true, true, 'updlock-othertable');
+    end;
+
+    [Test]
+    procedure PartialWrite_NoOtherRow_UpdLockOtherTable()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cell(Observer, true, false, 'updlock-othertable');
+    end;
+
+    [Test]
+    procedure PartialWrite_OtherRow_UpdLockOwnRow()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cell(Observer, true, true, 'updlock-own');
+    end;
+
+    [Test]
+    procedure PartialWrite_OtherRow_NoRead()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cell(Observer, true, true, 'none');
+    end;
+
+    [Test]
+    procedure PartialWrite_NoOtherRow_UpdLockOwnRow()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cell(Observer, true, false, 'updlock-own');
+    end;
+
+    [Test]
+    procedure PartialWrite_OtherRow_UpdLockOtherRow()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cell(Observer, true, true, 'updlock-other');
+    end;
+
+    [Test]
+    procedure PartialWrite_NoOtherRow_UpdLockOtherRow()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cell(Observer, true, false, 'updlock-other');
+    end;
+
+    [Test]
+    procedure NoPartialWrite_OtherRow_UpdLockOwnRow()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cell(Observer, false, true, 'updlock-own');
+    end;
+
+    [Test]
+    procedure PartialWrite_OtherRow_RepeatableReadOwnRow()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cell(Observer, true, true, 'repeatableread-own');
     end;
 }
