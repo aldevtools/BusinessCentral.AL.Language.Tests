@@ -130,7 +130,20 @@ codeunit 96643 "LT QMN Tests"
         ReadColumn(Observer, Q, 'dt');
         ReadColumn(Observer, Q, 'dec');
         ReadColumn(Observer, Q, 'big');
-        Observer.Finish();
+        Observer.Expect('rows', '0');
+        Observer.Expect('grp', 'error');
+        Observer.Expect('grp|text', 'You have not yet retrieved a data row for this query. The value for column ''Grp'' can only be accessed after a row is retrieved with a call to the READ function.');
+        Observer.Expect('grp|code', 'QueryNoDataSet');
+        Observer.Expect('dt', 'error');
+        Observer.Expect('dt|text', 'You have not yet retrieved a data row for this query. The value for column ''Dt'' can only be accessed after a row is retrieved with a call to the READ function.');
+        Observer.Expect('dt|code', 'QueryNoDataSet');
+        Observer.Expect('dec', 'error');
+        Observer.Expect('dec|text', 'You have not yet retrieved a data row for this query. The value for column ''MinDec'' can only be accessed after a row is retrieved with a call to the READ function.');
+        Observer.Expect('dec|code', 'QueryNoDataSet');
+        Observer.Expect('big', 'error');
+        Observer.Expect('big|text', 'You have not yet retrieved a data row for this query. The value for column ''MaxBig'' can only be accessed after a row is retrieved with a call to the READ function.');
+        Observer.Expect('big|code', 'QueryNoDataSet');
+        Observer.Verify();
     end;
 
     [TryFunction]

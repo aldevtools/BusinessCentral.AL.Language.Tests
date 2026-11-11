@@ -155,17 +155,10 @@ codeunit 96765 "LT UDA Tests"
         end;
     end;
 
-    [TryFunction]
-    local procedure TryInsert(var Layout: Record "Tenant Report Layout"; var Inserted: Boolean)
-    begin
-        Inserted := Layout.Insert();
-    end;
-
     local procedure AddLayout(var Observer: Codeunit "Probe Observer"; Tag: Text; ReportId: Integer; LayoutName: Text[250]; Kind: Integer; AppId: Guid; Company: Text[30])
     var
         Layout: Record "Tenant Report Layout";
         InS: InStream;
-        Inserted: Boolean;
     begin
         Layout.Init();
         Layout."Report ID" := ReportId;
@@ -183,12 +176,8 @@ codeunit 96765 "LT UDA Tests"
         Layout."Company Name" := Company;
         LayoutBytes(Kind, InS);
         Layout.Layout.ImportStream(InS, 'UDA ' + Tag);
-        if TryInsert(Layout, Inserted) then
-            Observer.Observe(Tag + ' insert', Format(Inserted))
-        else begin
-            Observer.Observe(Tag + ' insert', 'error');
-            Observer.ObserveError(Tag + ' insert');
-        end;
+        // An Insert inside a TryFunction is not allowed (first measurement): a failing Insert ends the test with its error.
+        Observer.Observe(Tag + ' insert', Format(Layout.Insert()));
     end;
 
     local procedure ThisApp(): Guid
@@ -293,9 +282,9 @@ codeunit 96765 "LT UDA Tests"
         Observer.Finish();
     end;
 
-    // A Word layout for a report of another app (Base Application 1306), and one for a report id that names no report.
+    // A Word layout for a report of another app (Base Application 1306); then one for a report id that names no report.
     [Test]
-    procedure UDA_Word_ReportOfAnotherApp_AndNoReport()
+    procedure UDA_Word_ReportOfAnotherApp()
     var
         Observer: Codeunit "Probe Observer";
         Blank: Guid;
@@ -304,6 +293,15 @@ codeunit 96765 "LT UDA Tests"
         AddLayout(Observer, 'base app', 1306, GuidNameTxt, 1, Blank, '');
         Observer.Observe('base app row', Row(1306, GuidNameTxt));
         ClearUserLayouts(1306);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UDA_Word_ReportIdOfNoReport()
+    var
+        Observer: Codeunit "Probe Observer";
+        Blank: Guid;
+    begin
         ClearUserLayouts(96799);
         AddLayout(Observer, 'no report', 96799, GuidNameTxt, 1, Blank, '');
         Observer.Observe('no report rows', RowsOfReport(96799));

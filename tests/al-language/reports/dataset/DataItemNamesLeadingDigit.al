@@ -5,7 +5,7 @@
 //   (reports/W3ReportDataset.al:395 `_x0032_nd_item`, reports/WordXmlPartNames.al:450). This file measures data items whose
 //   names start with 0, 3 and 9 (a column name may not start with a digit: AL0379), in the Xml dataset of SaveAs and in Report.WordXmlPart (plain and extended).
 // Area: report dataset and Word XML part names.
-// BC versions: 27.5, 28.5, 29.0 (to be measured by the corpus CI). Observation form: every test ends in Observer.Finish().
+// BC versions: 27.5, 28.5, 29.0. The expected values are what the corpus CI legs returned (BC28PLUS where 27.5 differs).
 
 report 96780 "LT DLD Rpt"
 {
@@ -79,7 +79,14 @@ codeunit 96785 "LT DLD Tests"
         end;
         Observer.Observe('items', Lines(Xml, '<DataItem '));
         Observer.Observe('columns', Lines(Xml, '<Column '));
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+#if BC28PLUS
+        Observer.Expect('items', '<DataItem language="en-US" formatRegion="en-US" name="_x0030_x_item" tableId="2000000026">|<DataItem name="_x0033_x_item" tableId="2000000026">|<DataItem language="en-US" formatRegion="en-US" name="_x0039_x" tableId="2000000026">|');
+#else
+        Observer.Expect('items', '<DataItem language="en-US" formatRegion="en-US" name="_x0030_x_item">|<DataItem name="_x0033_x_item">|<DataItem language="en-US" formatRegion="en-US" name="_x0039_x">|');
+#endif
+        Observer.Expect('columns', '<Column name="C0">1</Column>|<Column name="C7">1</Column>|<Column name="C3">2</Column>|<Column name="C9">3</Column>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -88,7 +95,8 @@ codeunit 96785 "LT DLD Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('part', Report.WordXmlPart(Report::"LT DLD Rpt"));
-        Observer.Finish();
+        Observer.Expect('part', '<?xml version="1.0" encoding="utf-16"?>\r\n<NavWordReportXmlPart xmlns="urn:microsoft-dynamics-nav/reports/LT_DLD_Rpt/96780/">\r\n  <BCReportInformation>x</BCReportInformation>\r\n  <_x0030_x_item>\r\n    <C0>C0</C0>\r\n    <C7>C7</C7>\r\n    <_x0033_x_item>\r\n      <C3>C3</C3>\r\n    </_x0033_x_item>\r\n  </_x0030_x_item>\r\n  <_x0039_x>\r\n    <C9>C9</C9>\r\n  </_x0039_x>\r\n</NavWordReportXmlPart>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -97,6 +105,7 @@ codeunit 96785 "LT DLD Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('part', Report.WordXmlPart(Report::"LT DLD Rpt", true));
-        Observer.Finish();
+        Observer.Expect('part', '<?xml version="1.0" encoding="utf-16"?>\r\n<NavWordReportXmlPart xmlns="urn:microsoft-dynamics-businesscentral/internal/extended/reports/LT_DLD_Rpt/96780/">\r\n  <BCReportInformation>x</BCReportInformation>\r\n  <Tooltips />\r\n  <_x0030_x_item ElementType="DataItem" ElementId="1600254248">\r\n    <C0 ElementType="Column" ElementId="1882946614" DataType="Integer">C0</C0>\r\n    <C7 ElementType="Column" ElementId="1305536471" DataType="Integer">C7</C7>\r\n    <_x0033_x_item ElementType="DataItem" ElementId="390959709">\r\n      <C3 ElementType="Column" ElementId="1245249997" DataType="Integer">C3</C3>\r\n    </_x0033_x_item>\r\n  </_x0030_x_item>\r\n  <_x0039_x ElementType="DataItem" ElementId="881638084">\r\n    <C9 ElementType="Column" ElementId="967718425" DataType="Integer">C9</C9>\r\n  </_x0039_x>\r\n</NavWordReportXmlPart>');
+        Observer.Verify();
     end;
 }

@@ -9,7 +9,7 @@
 //   variable Run and static RunModal (control: started by Run), a procedure of a report variable that is not running, the Language of the report
 //   variable before SaveAs, and Language with FormatRegion nl-BE.
 // Area: reports/runtime, CurrReport.Language and Format.
-// BC versions: 27.5, 28.5, 29.0 (to be measured by the corpus CI). Observation form: every test ends in Observer.Finish().
+// BC versions: 27.5, 28.5, 29.0. The expected values are what the corpus CI legs returned (BC28PLUS where 27.5 differs).
 
 codeunit 96772 "LT RLN Log"
 {
@@ -238,7 +238,16 @@ codeunit 96775 "LT RLN Tests"
         Observer.Observe('log', L.Take());
         Dataset(TempBlob, Observer);
         Observer.Observe('after', L.Formats());
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('log', 'pre lang=2067 region=[] d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;row d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;post d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;');
+        Observer.Expect('columns', '<Column name="DecC" decimalformatter="#,##0.00">1234.5</Column>|<Column name="DateC">12/25/2024</Column>|<Column name="TimeC">2:30:05 PM</Column>|<Column name="BoolC">True</Column>|<Column name="TextC">12/25/24 1,234.5 Ja</Column>|');
+#if BC28PLUS
+        Observer.Expect('items', '<DataItem language="nl-BE" formatRegion="en-US" name="Row" tableId="2000000026">|');
+#else
+        Observer.Expect('items', '<DataItem language="nl-BE" formatRegion="en-US" name="Row">|');
+#endif
+        Observer.Expect('after', 'd=12/25/24 d4=December 25, 2024 mw=December Wednesday n=1,234,567.891 p=1,234.50 i=1234567 b=Yes/No t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033');
+        Observer.Verify();
     end;
 
     [Test]
@@ -254,7 +263,16 @@ codeunit 96775 "LT RLN Tests"
         Observer.Observe('log', L.Take());
         Dataset(TempBlob, Observer);
         Observer.Observe('after', L.Formats());
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('log', 'pre lang=2067 region=[] d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;row d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;post d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;');
+        Observer.Expect('columns', '<Column name="DecC" decimalformatter="#,##0.00">1234.5</Column>|<Column name="DateC">12/25/2024</Column>|<Column name="TimeC">2:30:05 PM</Column>|<Column name="BoolC">True</Column>|<Column name="TextC">12/25/24 1,234.5 Ja</Column>|');
+#if BC28PLUS
+        Observer.Expect('items', '<DataItem language="nl-BE" formatRegion="en-US" name="Row" tableId="2000000026">|');
+#else
+        Observer.Expect('items', '<DataItem language="nl-BE" formatRegion="en-US" name="Row">|');
+#endif
+        Observer.Expect('after', 'd=12/25/24 d4=December 25, 2024 mw=December Wednesday n=1,234,567.891 p=1,234.50 i=1234567 b=Yes/No t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033');
+        Observer.Verify();
     end;
 
     [Test]
@@ -270,7 +288,15 @@ codeunit 96775 "LT RLN Tests"
         Observer.Observe('saved', Format(Rpt.SaveAs('', ReportFormat::Xml, OutS)));
         Observer.Observe('log', L.Take());
         Dataset(TempBlob, Observer);
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('log', 'pre lang=2067 region=[nl-BE] d=25/12/24 d4=25 december 2024 mw=december woensdag n=1.234.567,891 p=1.234,50 i=1234567 b=Ja/Nee t=14:30:05 dt=25/12/24 14:30 gl=1033;row d=25/12/24 d4=25 december 2024 mw=december woensdag n=1.234.567,891 p=1.234,50 i=1234567 b=Ja/Nee t=14:30:05 dt=25/12/24 14:30 gl=1033;post d=25/12/24 d4=25 december 2024 mw=december woensdag n=1.234.567,891 p=1.234,50 i=1234567 b=Ja/Nee t=14:30:05 dt=25/12/24 14:30 gl=1033;');
+        Observer.Expect('columns', '<Column name="DecC" decimalformatter="#,##0.00">1234,5</Column>|<Column name="DateC">25/12/2024</Column>|<Column name="TimeC">14:30:05</Column>|<Column name="BoolC">True</Column>|<Column name="TextC">25/12/24 1.234,5 Ja</Column>|');
+#if BC28PLUS
+        Observer.Expect('items', '<DataItem language="nl-BE" formatRegion="nl-BE" name="Row" tableId="2000000026">|');
+#else
+        Observer.Expect('items', '<DataItem language="nl-BE" formatRegion="nl-BE" name="Row">|');
+#endif
+        Observer.Verify();
     end;
 
     // The Language of the report variable set before SaveAs; nothing is set in the report.
@@ -289,7 +315,16 @@ codeunit 96775 "LT RLN Tests"
         Observer.Observe('log', L.Take());
         Dataset(TempBlob, Observer);
         Observer.Observe('after', L.Formats());
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('log', 'pre lang=2067 region=[] d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;row d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;post d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;');
+        Observer.Expect('columns', '<Column name="DecC" decimalformatter="#,##0.00">1234.5</Column>|<Column name="DateC">12/25/2024</Column>|<Column name="TimeC">2:30:05 PM</Column>|<Column name="BoolC">True</Column>|<Column name="TextC">12/25/24 1,234.5 Ja</Column>|');
+#if BC28PLUS
+        Observer.Expect('items', '<DataItem language="nl-BE" formatRegion="en-US" name="Row" tableId="2000000026">|');
+#else
+        Observer.Expect('items', '<DataItem language="nl-BE" formatRegion="en-US" name="Row">|');
+#endif
+        Observer.Expect('after', 'd=12/25/24 d4=December 25, 2024 mw=December Wednesday n=1,234,567.891 p=1,234.50 i=1234567 b=Yes/No t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033');
+        Observer.Verify();
     end;
 
     [Test]
@@ -306,7 +341,16 @@ codeunit 96775 "LT RLN Tests"
         Observer.Observe('static ok', Format(TryExecuteStatic()));
         Observer.ObserveError('static');
         Observer.Observe('static log', L.Take());
-        Observer.Finish();
+        Observer.Expect('var ok', 'Yes');
+        Observer.Expect('var|text', '');
+        Observer.Expect('var|code', '');
+        Observer.Expect('var log', 'pre lang=2067 d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;row d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;post d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;');
+        Observer.Expect('var after', 'd=12/25/24 d4=December 25, 2024 mw=December Wednesday n=1,234,567.891 p=1,234.50 i=1234567 b=Yes/No t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033');
+        Observer.Expect('static ok', 'Yes');
+        Observer.Expect('static|text', '');
+        Observer.Expect('static|code', '');
+        Observer.Expect('static log', 'pre lang=2067 d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;row d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;post d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;');
+        Observer.Verify();
     end;
 
     // Control: a report started by Run (variable) and RunModal (static).
@@ -323,7 +367,10 @@ codeunit 96775 "LT RLN Tests"
         Observer.Observe('run after', L.Formats());
         Report.RunModal(Report::"LT RLN Proc Rpt", false);
         Observer.Observe('runmodal log', L.Take());
-        Observer.Finish();
+        Observer.Expect('run log', 'pre lang=2067 d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;row d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;post d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;');
+        Observer.Expect('run after', 'd=12/25/24 d4=December 25, 2024 mw=December Wednesday n=1,234,567.891 p=1,234.50 i=1234567 b=Yes/No t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033');
+        Observer.Expect('runmodal log', 'pre lang=2067 d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;row d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;post d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033;');
+        Observer.Verify();
     end;
 
     // CurrReport.Language := 2067 in a procedure of a report variable that is not running, then Format there, in a second procedure of the
@@ -341,6 +388,12 @@ codeunit 96775 "LT RLN Tests"
         Observer.Observe('set result', Result);
         Observer.Observe('second procedure', Rpt.FormatsOnly());
         Observer.Observe('test', L.Formats());
-        Observer.Finish();
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set result', 'lang=2067 d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033');
+        Observer.Expect('second procedure', 'lang=2067 d=12/25/24 d4=december 25, 2024 mw=december woensdag n=1,234,567.891 p=1,234.50 i=1234567 b=Ja/Nee t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033');
+        Observer.Expect('test', 'd=12/25/24 d4=December 25, 2024 mw=December Wednesday n=1,234,567.891 p=1,234.50 i=1234567 b=Yes/No t= 2:30:05 PM dt=12/25/24 02:30 PM gl=1033');
+        Observer.Verify();
     end;
 }

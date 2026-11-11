@@ -200,6 +200,15 @@ codeunit 96605 "LT RPS Tests"
         end;
     end;
 
+    // A test that seeds rows and passes keeps them for the next test of the codeunit: the seeding tests remove them at their end, so each
+    // test starts as it did in the first measurement (where every test failed and its rows were rolled back).
+    local procedure ClearRows()
+    var
+        R: Record "LT RPS Row";
+    begin
+        R.DeleteAll();
+    end;
+
     local procedure Bare(Inner: Text): Text
     begin
         exit('<ReportParameters>' + Inner + '</ReportParameters>');
@@ -285,6 +294,7 @@ codeunit 96605 "LT RPS Tests"
         RunCase(Observer, 'execute bare view', Report::"LT RPS Rpt", DeclTxt + Bare(Opts(SetStart()) + RowView()), 'execute');
         RunCase(Observer, 'execute named view', Report::"LT RPS Rpt", DeclTxt + Named(Opts(SetStart()) + RowView()), 'execute');
         RunCase(Observer, 'saveas bare view', Report::"LT RPS Rpt", DeclTxt + Bare(Opts(SetStart()) + RowView()), 'saveas');
+        ClearRows();
         Observer.Expect('execute bare view ok', 'No');
         Observer.Expect('execute bare view error', 'Report 96602 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
         Observer.Expect('execute bare view code', 'ReportNoLayout');
@@ -299,7 +309,6 @@ codeunit 96605 "LT RPS Tests"
     end;
 
     [Test]
-    [HandlerFunctions('ReadHandler')]
     procedure RPS_RunRequestPage_BareRoot_DataItemsView()
     var
         Observer: Codeunit "Probe Observer";
@@ -307,6 +316,7 @@ codeunit 96605 "LT RPS Tests"
         SeedRows();
         RunCase(Observer, 'rrp bare view', Report::"LT RPS Rpt", DeclTxt + Bare(Opts(SetStart()) + RowView()), 'runrequestpage');
         RunCase(Observer, 'rrp named view', Report::"LT RPS Rpt", DeclTxt + Named(Opts(SetStart()) + RowView()), 'runrequestpage');
+        ClearRows();
         Observer.Expect('rrp bare view ok', 'No');
         Observer.Expect('rrp bare view error', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.');
         Observer.Expect('rrp bare view code', 'DB:Ok');
@@ -353,11 +363,14 @@ codeunit 96605 "LT RPS Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunCase(Observer, 'rrp bare control name', Report::"LT RPS Rpt", DeclTxt + Bare(Opts('<Field name="StartCtl">2026-03-17</Field>')), 'runrequestpage');
-        Observer.Finish();
+        Observer.Expect('rrp bare control name ok', 'Yes');
+        Observer.Expect('rrp bare control name log', '');
+        Observer.Expect('rrp bare control name handler', 'start=[] note=[init] row=[] second=[]');
+        Observer.Expect('rrp bare control name returned', '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT RPS Rpt" id="96602"><Options><Field name="StartDate" /><Field name="NoteText">init</Field></Options><DataItems><DataItem name="Row">VERSION(1) SORTING(Field1)</DataItem><DataItem name="Second">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Verify();
     end;
 
     [Test]
-    [HandlerFunctions('ReadHandler')]
     procedure RPS_NoDeclaration_NamedRoot_ExecuteAndRunRequestPage()
     var
         Observer: Codeunit "Probe Observer";
@@ -389,7 +402,11 @@ codeunit 96605 "LT RPS Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunCase(Observer, 'saveas no decl options', Report::"LT RPS Rpt", Opts(SetStart()), 'saveas');
-        Observer.Finish();
+        Observer.Expect('saveas no decl options ok', 'No');
+        Observer.Expect('saveas no decl options error', 'The filter "<Options><Field name="StartDate">2026-01-15</Field></Options>" is not valid for the Parameter Name field on the Object Options table. An error occurred while interpreting the filter: Did not expect ''>''.\\For more information, see https://go.microsoft.com/fwlink/?linkid=2158058.');
+        Observer.Expect('saveas no decl options code', 'Filter:CSide');
+        Observer.Expect('saveas no decl options log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -428,6 +445,7 @@ codeunit 96605 "LT RPS Tests"
         RunCase(Observer, 'execute', Report::"LT RPS Rpt", DeclTxt + Named(Inner), 'execute');
         Inner := Opts(SetStart()) + '<DataItems><DataItem name="Row" /></DataItems>';
         RunCase(Observer, 'saveas alone', Report::"LT RPS Rpt", DeclTxt + Named(Inner), 'saveas');
+        ClearRows();
         Observer.Expect('saveas ok', 'Yes');
         Observer.Expect('saveas log', 'pre start=[2026-01-15] note=[init] hidden=[] filter=[] second=[Id: 3];rows=3;second=1;');
         Observer.Expect('execute ok', 'No');
