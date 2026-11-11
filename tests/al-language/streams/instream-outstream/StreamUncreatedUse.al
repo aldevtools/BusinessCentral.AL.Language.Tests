@@ -226,6 +226,10 @@ codeunit 77130 "STR Uncreated Use Test"
         ObserveStatement(Observer, 'copy_into_uncreated');
         ObserveStatement(Observer, 'writetext');
         ObserveStatement(Observer, 'write');
-        Observer.Finish();
+        Observer.Expect('copy_from_uncreated', 'error:Microsoft.Dynamics.Nav.Runtime.NavInStream variable not initialized.|NotInitialized');
+        Observer.Expect('copy_into_uncreated', 'error:Microsoft.Dynamics.Nav.Runtime.NavOutStream variable not initialized.|NotInitialized');
+        Observer.Expect('writetext', 'error:Microsoft.Dynamics.Nav.Runtime.NavOutStream variable not initialized.|NotInitialized');
+        Observer.Expect('write', 'error:Microsoft.Dynamics.Nav.Runtime.NavOutStream variable not initialized.|NotInitialized');
+        Observer.Verify();
     end;
 }
