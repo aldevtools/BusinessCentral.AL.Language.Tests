@@ -292,27 +292,9 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-card OK; Q-card OK; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM_NO_ERROR');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'Unhandled UI: Message CEM query close error');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'TestWrapped:MissingUIHandler');
-#endif
-#if BC28PLUS
-        O.Expect('log', 'Q-card OK; Q-card OK; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'Q-card OK; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -364,22 +346,8 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-card OK; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM_NO_ERROR');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'Unhandled UI: Message CEM query close error');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'MissingUIHandler');
-#endif
         O.Expect('log', 'Q-card OK; ');
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
@@ -405,16 +373,9 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
         O.Expect('end|text', 'CEM handler error');
         O.Expect('end|code', 'Dialog');
-#if BC28PLUS
-        O.Expect('log', 'Q-card OK; Q-card OK; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'Q-card OK; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -439,21 +400,10 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-card OK; M-card EDIT; T-mod R1 EDIT; Q-card OK; | R1=EDIT/ (1 rows) L1=1 L2=2');
-#else // BC 27.5 behaves differently here
         O.Expect('returned', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; | R1=EDIT/ (1 rows) L1=1 L2=2');
-#endif
         O.Expect('end|text', 'CEM_NO_ERROR');
         O.Expect('end|code', 'Dialog');
-#if BC28PLUS
-        O.Expect('log', 'Q-card OK; M-card EDIT; T-mod R1 EDIT; Q-card OK; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -478,27 +428,9 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-card OK; M-card EDIT; T-mod R1 EDIT; Q-card OK; Q-card OK; | R1=EDIT/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM_NO_ERROR');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'Unhandled UI: Message CEM query close error');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'TestWrapped:MissingUIHandler');
-#endif
-#if BC28PLUS
-        O.Expect('log', 'Q-card OK; M-card EDIT; T-mod R1 EDIT; Q-card OK; Q-card OK; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -523,21 +455,10 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-card OK; M-card FAILMOD; T-mod R1 FAILMOD; | R1=start/ (1 rows) L1=1 L2=2');
-#else // BC 27.5 behaves differently here
         O.Expect('returned', 'M-card FAILMOD; T-mod R1 FAILMOD; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
         O.Expect('end|text', 'CEM_NO_ERROR');
         O.Expect('end|code', 'Dialog');
-#if BC28PLUS
-        O.Expect('log', 'Q-card OK; M-card FAILMOD; T-mod R1 FAILMOD; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'M-card FAILMOD; T-mod R1 FAILMOD; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -562,22 +483,9 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if not BC28PLUS
         O.Expect('returned', 'Q-card OK; C-card; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'CEM_NO_ERROR');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'TestWrapped');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'Dialog');
-#endif
         O.Expect('log', 'Q-card OK; C-card; ');
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
@@ -657,16 +565,9 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
         O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
         O.Expect('end|code', 'TestWrapped');
-#if BC28PLUS
-        O.Expect('log', 'Q-card OK; C-card; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -691,21 +592,10 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-card OK; C-card; C-card confirm=No; Q-card OK; C-card; C-card confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
-#else // BC 27.5 behaves differently here
         O.Expect('returned', 'Q-card OK; C-card; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
         O.Expect('end|text', 'CEM_NO_ERROR');
         O.Expect('end|code', 'Dialog');
-#if BC28PLUS
-        O.Expect('log', 'Q-card OK; C-card; C-card confirm=No; Q-card OK; C-card; C-card confirm=No; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'Q-card OK; C-card; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -730,27 +620,9 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-card OK; C-card; C-card confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM_NO_ERROR');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'One or more errors occurred while closing the page.\\Unhandled UI: Confirm CEM close confirm?');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'TestWrapped');
-#endif
-#if BC28PLUS
-        O.Expect('log', 'Q-card OK; C-card; C-card confirm=No; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'Q-card OK; C-card; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -775,27 +647,9 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-card OK; C-card; C-card confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM_NO_ERROR');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'One or more errors occurred while closing the page.\\Unhandled UI: Confirm CEM close confirm?');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'TestWrapped');
-#endif
-#if BC28PLUS
-        O.Expect('log', 'Q-card OK; C-card; C-card confirm=No; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'Q-card OK; C-card; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -820,27 +674,9 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; C-card confirm=No; | R1=EDIT/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM_NO_ERROR');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'One or more errors occurred while closing the page.\\Unhandled UI: Confirm CEM close confirm?');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'TestWrapped');
-#endif
-#if BC28PLUS
-        O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; C-card confirm=No; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -1089,27 +925,9 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-card OK; Q-card OK; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM_NO_ERROR');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'Unhandled UI: Message CEM query close error');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'TestWrapped:MissingUIHandler');
-#endif
-#if BC28PLUS
-        O.Expect('log', 'Q-card OK; Q-card OK; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'Q-card OK; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -1134,22 +952,8 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-card OK; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM_NO_ERROR');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'Unhandled UI: Message CEM query close error');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'MissingUIHandler');
-#endif
         O.Expect('log', 'Q-card OK; ');
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
@@ -1175,21 +979,10 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-card OK; M-card EDIT; T-mod R1 EDIT; Q-card OK; | R1=EDIT/ (1 rows) L1=1 L2=2');
-#else // BC 27.5 behaves differently here
         O.Expect('returned', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; | R1=EDIT/ (1 rows) L1=1 L2=2');
-#endif
         O.Expect('end|text', 'CEM_NO_ERROR');
         O.Expect('end|code', 'Dialog');
-#if BC28PLUS
-        O.Expect('log', 'Q-card OK; M-card EDIT; T-mod R1 EDIT; Q-card OK; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -1214,22 +1007,9 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if not BC28PLUS
         O.Expect('returned', 'Q-card OK; C-card; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'One or more errors occurred while closing the page.\\CEM close page error');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'CEM_NO_ERROR');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'TestWrapped');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'Dialog');
-#endif
         O.Expect('log', 'Q-card OK; C-card; ');
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
@@ -1282,21 +1062,10 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-card OK; C-card; C-card confirm=No; Q-card OK; C-card; C-card confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
-#else // BC 27.5 behaves differently here
         O.Expect('returned', 'Q-card OK; C-card; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
         O.Expect('end|text', 'CEM_NO_ERROR');
         O.Expect('end|code', 'Dialog');
-#if BC28PLUS
-        O.Expect('log', 'Q-card OK; C-card; C-card confirm=No; Q-card OK; C-card; C-card confirm=No; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'Q-card OK; C-card; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -1321,27 +1090,9 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-card OK; C-card; C-card confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM_NO_ERROR');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'One or more errors occurred while closing the page.\\Unhandled UI: Confirm CEM close confirm?');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'TestWrapped');
-#endif
-#if BC28PLUS
-        O.Expect('log', 'Q-card OK; C-card; C-card confirm=No; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'Q-card OK; C-card; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -1505,27 +1256,9 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-list OK; Q-list OK; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM_NO_ERROR');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'Unhandled UI: Message CEM query close error');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'TestWrapped:MissingUIHandler');
-#endif
-#if BC28PLUS
-        O.Expect('log', 'Q-list OK; Q-list OK; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'Q-list OK; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -1550,22 +1283,8 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-list OK; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM_NO_ERROR');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'Unhandled UI: Message CEM query close error');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'MissingUIHandler');
-#endif
         O.Expect('log', 'Q-list OK; ');
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
@@ -1673,21 +1392,10 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-list OK; C-list; C-list confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
-#else // BC 27.5 behaves differently here
         O.Expect('returned', 'Q-list OK; C-list; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
         O.Expect('end|text', 'CEM_NO_ERROR');
         O.Expect('end|code', 'Dialog');
-#if BC28PLUS
-        O.Expect('log', 'Q-list OK; C-list; C-list confirm=No; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'Q-list OK; C-list; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -1712,27 +1420,9 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-list OK; C-list; C-list confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM_NO_ERROR');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'One or more errors occurred while closing the page.\\Unhandled UI: Confirm CEM close confirm?');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'TestWrapped');
-#endif
-#if BC28PLUS
-        O.Expect('log', 'Q-list OK; C-list; C-list confirm=No; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'Q-list OK; C-list; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -1923,27 +1613,9 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-wizard OK; Q-wizard OK; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM_NO_ERROR');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'Unhandled UI: Message CEM query close error');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'TestWrapped:MissingUIHandler');
-#endif
-#if BC28PLUS
-        O.Expect('log', 'Q-wizard OK; Q-wizard OK; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'Q-wizard OK; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -2023,21 +1695,10 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-wizard OK; C-wizard; C-wizard confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
-#else // BC 27.5 behaves differently here
         O.Expect('returned', 'Q-wizard OK; C-wizard; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
         O.Expect('end|text', 'CEM_NO_ERROR');
         O.Expect('end|code', 'Dialog');
-#if BC28PLUS
-        O.Expect('log', 'Q-wizard OK; C-wizard; C-wizard confirm=No; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'Q-wizard OK; C-wizard; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -2062,27 +1723,9 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-wizard OK; C-wizard; C-wizard confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM_NO_ERROR');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'One or more errors occurred while closing the page.\\Unhandled UI: Confirm CEM close confirm?');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'TestWrapped');
-#endif
-#if BC28PLUS
-        O.Expect('log', 'Q-wizard OK; C-wizard; C-wizard confirm=No; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'Q-wizard OK; C-wizard; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -2107,16 +1750,9 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
         O.Expect('end|text', 'The built-in action = Cancel is not found on the page.');
         O.Expect('end|code', 'TestActionNotFound');
-#if BC28PLUS
-        O.Expect('log', 'Q-wizard OK; C-wizard; C-wizard confirm=No; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'Q-wizard OK; C-wizard; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -2141,27 +1777,9 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'Q-wizard OK; C-wizard; C-wizard confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM_NO_ERROR');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'One or more errors occurred while closing the page.\\Unhandled UI: Confirm CEM close confirm?');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'TestWrapped');
-#endif
-#if BC28PLUS
-        O.Expect('log', 'Q-wizard OK; C-wizard; C-wizard confirm=No; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'Q-wizard OK; C-wizard; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -2186,16 +1804,9 @@ codeunit 99522 "CEM Page Handler Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
         O.Expect('end|text', 'CEM handler error');
         O.Expect('end|code', 'Dialog');
-#if BC28PLUS
-        O.Expect('log', 'Q-wizard OK; C-wizard; C-wizard confirm=No; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'Q-wizard OK; C-wizard; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;

@@ -318,22 +318,8 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'None | Q-doc LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM_NO_ERROR');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'Unhandled UI: Message CEM query close error');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'MissingUIHandler');
-#endif
         O.Expect('log', 'Q-doc LookupCancel; ');
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
@@ -359,27 +345,9 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'None | Q-doc LookupOK; Q-doc LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM_NO_ERROR');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'Unhandled UI: Message CEM query close error');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'TestWrapped:MissingUIHandler');
-#endif
-#if BC28PLUS
-        O.Expect('log', 'Q-doc LookupOK; Q-doc LookupCancel; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'Q-doc LookupOK; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -404,27 +372,9 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'None | Q-doc LookupCancel; Q-doc LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM_NO_ERROR');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'Unhandled UI: Message CEM query close error');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'TestWrapped:MissingUIHandler');
-#endif
-#if BC28PLUS
-        O.Expect('log', 'Q-doc LookupCancel; Q-doc LookupCancel; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'Q-doc LookupCancel; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -449,22 +399,8 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'None | M-doc EDIT; T-mod R1 EDIT; Q-doc LookupCancel; | R1=EDIT/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM_NO_ERROR');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'Unhandled UI: Message CEM query close error');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'MissingUIHandler');
-#endif
         O.Expect('log', 'M-doc EDIT; T-mod R1 EDIT; Q-doc LookupCancel; ');
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
@@ -490,27 +426,9 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('returned', 'None | M-doc EDIT; T-mod R1 EDIT; Q-doc LookupOK; Q-doc LookupCancel; | R1=EDIT/ (1 rows) L1=1 L2=2');
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM_NO_ERROR');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'Unhandled UI: Message CEM query close error');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'TestWrapped:MissingUIHandler');
-#endif
-#if BC28PLUS
-        O.Expect('log', 'M-doc EDIT; T-mod R1 EDIT; Q-doc LookupOK; Q-doc LookupCancel; ');
-#else // BC 27.5 behaves differently here
         O.Expect('log', 'M-doc EDIT; T-mod R1 EDIT; Q-doc LookupOK; ');
-#endif
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
     end;
@@ -535,19 +453,8 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
-#if BC28PLUS
-        O.Finish();
-#endif
-#if BC28PLUS
-        O.Expect('end|text', 'CEM query close error');
-#else // BC 27.5 behaves differently here
         O.Expect('end|text', 'Unhandled UI: Message CEM query close error');
-#endif
-#if BC28PLUS
-        O.Expect('end|code', 'Dialog');
-#else // BC 27.5 behaves differently here
         O.Expect('end|code', 'MissingUIHandler');
-#endif
         O.Expect('log', 'Q-doc LookupCancel; ');
         O.Expect('rows', 'R1=start/ (1 rows) L1=1 L2=2');
         O.Verify();
