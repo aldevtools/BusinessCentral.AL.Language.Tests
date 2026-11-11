@@ -367,6 +367,43 @@ codeunit 74892 "LT SSN Tests"
     begin
         Row.DeleteAll();
     end;
+
+    [Test]
+    procedure TestPage_Update_NewWorksheetRow_IsSelectable()
+    var
+        Row: Record "ALT Universal";
+        Worksheet: TestPage "PAG Selection Refresh Sheet";
+    begin
+        Initialize(Row);
+        Worksheet.OpenEdit();
+        Worksheet.ImportRow.Invoke();
+        Worksheet.CheckSelection.Invoke();
+        Worksheet.Close();
+    end;
+
+    [Test]
+    procedure TestPage_First_AfterWorksheetUpdate_FindsImportedRow()
+    var
+        Row: Record "ALT Universal";
+        Worksheet: TestPage "PAG Selection Refresh Sheet";
+    begin
+        Initialize(Row);
+        Worksheet.OpenEdit();
+        Worksheet.ImportRow.Invoke();
+        if not Worksheet.First() then
+            Error('Expected to find the imported row after Update.');
+        Worksheet.CheckSelection.Invoke();
+        Worksheet.Close();
+    end;
+
+    local procedure Initialize(var Row: Record "ALT Universal")
+    begin
+        Row.DeleteAll();
+        Row."Entry No." := 1;
+        Row."Code Field" := 'HIDDEN';
+        Row."Boolean Field" := true;
+        Row.Insert();
+    end;
 }
 
 // local object: the worksheet source view and its action are the behavior under test.
@@ -416,6 +453,68 @@ page 67999 "PAG Empty Selection Worksheet"
     begin
         Rec.FilterGroup(2);
         Rec.SetRange(Name, 'VISIBLE');
+        Rec.FilterGroup(0);
+        if Rec.FindFirst() then;
+    end;
+}
+
+// local object: the Worksheet action, source view, and group-2 range define the measured refresh.
+page 67996 "PAG Selection Refresh Sheet"
+{
+    PageType = Worksheet;
+    SourceTable = "ALT Universal";
+    SourceTableView = where("Boolean Field" = const(true));
+    DelayedInsert = true;
+    InsertAllowed = false;
+    ApplicationArea = All;
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(Id; Rec."Entry No.") { ApplicationArea = All; }
+            }
+        }
+    }
+    actions
+    {
+        area(Processing)
+        {
+            action(ImportRow)
+            {
+                ApplicationArea = All;
+                trigger OnAction()
+                var
+                    Row: Record "ALT Universal";
+                begin
+                    Row."Entry No." := 7;
+                    Row."Code Field" := 'SELECTED';
+                    Row."Boolean Field" := true;
+                    Row.Insert();
+                    CurrPage.Update(false);
+                end;
+            }
+            action(CheckSelection)
+            {
+                ApplicationArea = All;
+                trigger OnAction()
+                var
+                    Selected: Record "ALT Universal";
+                begin
+                    CurrPage.SetSelectionFilter(Selected);
+                    if (Selected.Count() <> 1) or not Selected.FindFirst() then
+                        Error('Expected one selected row. Got %1.', Selected.Count());
+                    Selected.TestField("Entry No.", 7);
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Rec.FilterGroup(2);
+        Rec.SetRange("Code Field", 'SELECTED');
         Rec.FilterGroup(0);
         if Rec.FindFirst() then;
     end;
