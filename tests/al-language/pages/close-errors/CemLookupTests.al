@@ -320,6 +320,9 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
 #if BC28PLUS
+        O.Finish();
+#endif
+#if BC28PLUS
         O.Expect('returned', 'value= | Q-codes LookupOK; Q-codes LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
 #endif
 #if BC28PLUS
@@ -364,6 +367,9 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
 #if BC28PLUS
+        O.Finish();
+#endif
+#if BC28PLUS
         O.Expect('returned', 'value= | Q-codes LookupCancel; Q-codes LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
 #endif
 #if BC28PLUS
@@ -407,6 +413,9 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
+#if BC28PLUS
+        O.Finish();
+#endif
 #if BC28PLUS
         O.Expect('returned', 'value= | Q-codes LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
 #endif
@@ -476,6 +485,9 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
+#if BC28PLUS
+        O.Finish();
+#endif
 #if BC28PLUS
         O.Expect('returned', 'value= | Q-codes LookupOK; Q-codes LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
 #endif
@@ -550,6 +562,9 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
+#if BC28PLUS
+        O.Finish();
+#endif
 #if BC28PLUS
         O.Expect('returned', 'value= | Q-codes LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
 #endif
@@ -708,6 +723,9 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
 #if BC28PLUS
+        O.Finish();
+#endif
+#if BC28PLUS
         O.Expect('returned', 'value=C1 | Q-codes LookupCancel; C-codes; C-codes confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
 #else // BC 27.5 behaves differently here
         O.Expect('returned', 'value= | Q-codes LookupCancel; C-codes; | R1=start/ (1 rows) L1=1 L2=2');
@@ -745,6 +763,9 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
+#if BC28PLUS
+        O.Finish();
+#endif
 #if BC28PLUS
         O.Expect('returned', 'value=C1 | Q-codes LookupOK; C-codes; C-codes confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
 #endif
@@ -790,6 +811,9 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
 #if BC28PLUS
+        O.Finish();
+#endif
+#if BC28PLUS
         O.Expect('returned', 'value=C1 | Q-codes LookupCancel; C-codes; C-codes confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
 #endif
 #if BC28PLUS
@@ -833,6 +857,9 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
+#if BC28PLUS
+        O.Finish();
+#endif
 #if BC28PLUS
         O.Expect('returned', 'value=C2 | Q-codes LookupOK; C-codes; C-codes confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
 #endif
@@ -1095,6 +1122,9 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
 #if BC28PLUS
+        O.Finish();
+#endif
+#if BC28PLUS
         O.Expect('returned', 'value= | Q-codes LookupOK; Q-codes LookupOK; | R1=start/ (1 rows) L1=1 L2=2');
 #endif
 #if BC28PLUS
@@ -1140,6 +1170,9 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
 #if BC28PLUS
+        O.Finish();
+#endif
+#if BC28PLUS
         O.Expect('returned', 'value= | Q-codes LookupOK; Q-codes LookupOK; | R1=start/ (1 rows) L1=1 L2=2');
 #endif
 #if BC28PLUS
@@ -1184,6 +1217,9 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
+#if BC28PLUS
+        O.Finish();
+#endif
 #if BC28PLUS
         O.Expect('returned', 'value= | Q-codes LookupOK; | R1=start/ (1 rows) L1=1 L2=2');
 #endif
@@ -1255,6 +1291,9 @@ codeunit 99524 "CEM Lookup Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
+#if BC28PLUS
+        O.Finish();
+#endif
 #if BC28PLUS
         O.Expect('returned', 'value= | Q-codes LookupOK; Q-codes LookupOK; | R1=start/ (1 rows) L1=1 L2=2');
 #endif

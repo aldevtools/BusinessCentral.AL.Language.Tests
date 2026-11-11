@@ -109,6 +109,9 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
 #if BC28PLUS
+        O.Finish();
+#endif
+#if BC28PLUS
         O.Expect('returned', 'Q-card OK; | R1=start/ (1 rows) L1=1 L2=2');
 #endif
 #if BC28PLUS
@@ -148,6 +151,9 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
+#if BC28PLUS
+        O.Finish();
+#endif
 #if BC28PLUS
         O.Expect('returned', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; | R1=EDIT/ (1 rows) L1=1 L2=2');
 #endif
@@ -245,6 +251,9 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
 #if BC28PLUS
+        O.Finish();
+#endif
+#if BC28PLUS
         O.Expect('returned', 'Q-card OK; C-card; C-card confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
 #endif
 #if BC28PLUS
@@ -288,6 +297,9 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
+#if BC28PLUS
+        O.Finish();
+#endif
 #if BC28PLUS
         O.Expect('returned', 'M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; C-card confirm=No; | R1=EDIT/ (1 rows) L1=1 L2=2');
 #endif
@@ -420,6 +432,9 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
 #if BC28PLUS
+        O.Finish();
+#endif
+#if BC28PLUS
         O.Expect('returned', 'Q-list OK; | R1=start/ (1 rows) L1=1 L2=2');
 #endif
 #if BC28PLUS
@@ -459,6 +474,9 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
+#if BC28PLUS
+        O.Finish();
+#endif
 #if BC28PLUS
         O.Expect('returned', 'M-list EDIT; T-mod R1 EDIT; Q-list OK; | R1=EDIT/ (1 rows) L1=1 L2=2');
 #endif
@@ -556,6 +574,9 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
 #if BC28PLUS
+        O.Finish();
+#endif
+#if BC28PLUS
         O.Expect('returned', 'Q-list OK; C-list; C-list confirm=No; | R1=start/ (1 rows) L1=1 L2=2');
 #endif
 #if BC28PLUS
@@ -599,6 +620,9 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
+#if BC28PLUS
+        O.Finish();
+#endif
 #if BC28PLUS
         O.Expect('returned', 'M-list EDIT; T-mod R1 EDIT; Q-list OK; C-list; C-list confirm=No; | R1=EDIT/ (1 rows) L1=1 L2=2');
 #endif
@@ -852,6 +876,9 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
 #if BC28PLUS
+        O.Finish();
+#endif
+#if BC28PLUS
         O.Expect('returned', 'I-card ; T-ins N1 ; M-card NEW; T-mod N1 NEW; Q-card OK; | N1=NEW/ R1=start/ (2 rows) L1=1 L2=2');
 #endif
 #if BC28PLUS
@@ -918,6 +945,9 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
+#if BC28PLUS
+        O.Finish();
+#endif
 #if BC28PLUS and not BC29PLUS // BC 28.5 also logs the close of the page the previous test left open
         O.Expect('returned', 'Q-card OK; C-card; I-card ; T-ins N1 ; M-card FAILINS; T-mod N1 FAILINS; Q-card OK; C-card; | N1=FAILINS/ R1=start/ (2 rows) L1=1 L2=2');
 #else
@@ -953,6 +983,9 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
+#if BC28PLUS
+        O.Finish();
+#endif
 #if BC28PLUS
         O.Expect('last error', 'CEM query close error|Dialog');
 #endif
@@ -1049,6 +1082,9 @@ codeunit 99520 "CEM TestPage Close Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
+#if BC28PLUS
+        O.Finish();
+#endif
 #if BC28PLUS
         O.Expect('log', 'test body end; M-card EDIT; T-mod R1 EDIT; Q-card OK; C-card; C-card confirm=No; ');
 #else // BC 27.5 behaves differently here

@@ -319,6 +319,9 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
 #if BC28PLUS
+        O.Finish();
+#endif
+#if BC28PLUS
         O.Expect('returned', 'None | Q-doc LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
 #endif
 #if BC28PLUS
@@ -356,6 +359,9 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
+#if BC28PLUS
+        O.Finish();
+#endif
 #if BC28PLUS
         O.Expect('returned', 'None | Q-doc LookupOK; Q-doc LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
 #endif
@@ -399,6 +405,9 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
 #if BC28PLUS
+        O.Finish();
+#endif
+#if BC28PLUS
         O.Expect('returned', 'None | Q-doc LookupCancel; Q-doc LookupCancel; | R1=start/ (1 rows) L1=1 L2=2');
 #endif
 #if BC28PLUS
@@ -441,6 +450,9 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
 #if BC28PLUS
+        O.Finish();
+#endif
+#if BC28PLUS
         O.Expect('returned', 'None | M-doc EDIT; T-mod R1 EDIT; Q-doc LookupCancel; | R1=EDIT/ (1 rows) L1=1 L2=2');
 #endif
 #if BC28PLUS
@@ -478,6 +490,9 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
+#if BC28PLUS
+        O.Finish();
+#endif
 #if BC28PLUS
         O.Expect('returned', 'None | M-doc EDIT; T-mod R1 EDIT; Q-doc LookupOK; Q-doc LookupCancel; | R1=EDIT/ (1 rows) L1=1 L2=2');
 #endif
@@ -520,6 +535,9 @@ codeunit 99523 "CEM Document Tests"
         O.Observe('log', Cfg.Take());
         O.Observe('rows', Help.Names());
         Cfg.Quiet();
+#if BC28PLUS
+        O.Finish();
+#endif
 #if BC28PLUS
         O.Expect('end|text', 'CEM query close error');
 #else // BC 27.5 behaves differently here
