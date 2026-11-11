@@ -11,6 +11,8 @@
 //   A worker cannot reach the handlers of the test (BjNoClientDialogs.al: no handler fires for a call of the worker). The second test codeunit
 //   declares page, modal page, request page, send and recall notification handlers, runs every group in the worker and logs which handler ran
 //   for it; then the test session calls each dialog itself, because a declared handler that never runs fails the test.
+//   No handler name is part of another: with handlers PageH and RequestPageH, BC reported "UI handlers were not executed: Request" although
+//   both ran (CI, 27.5, 28.5 and 29.0).
 // Facts (CI, 27.5, 28.5 and 29.0, the same on all three): CurrentClientType is ChildSession in the worker (not Background; Web in the test
 //   session). Notification.Recall returns true after a Send (also a second time) and false on a notification never sent. Every Page.Run and
 //   Page.RunModal with a record raises CallbackNotAllowed. Every report entry point whose request page would open raises CallbackNotAllowed
@@ -400,7 +402,7 @@ codeunit 81979 "LT BJ NC2 Tests Handlers"
     end;
 
     [Test]
-    [HandlerFunctions('PageH,ModalH,RequestPageH,SendH,RecallH')]
+    [HandlerFunctions('CardH,ModalH,ReqPageH,SendH,RecallH')]
     procedure RunPageBackgroundTask_WithHandlers()
     var
         Row: Record "LT BJ NoGui Row";
@@ -431,7 +433,7 @@ codeunit 81979 "LT BJ NC2 Tests Handlers"
     end;
 
     [PageHandler]
-    procedure PageH(var RecPage: TestPage "LT BJ NC2 Record Page")
+    procedure CardH(var RecPage: TestPage "LT BJ NC2 Record Page")
     begin
         HandlerLog += 'page handler: ' + RecPage.No.Value() + ';';
     end;
@@ -444,7 +446,7 @@ codeunit 81979 "LT BJ NC2 Tests Handlers"
     end;
 
     [RequestPageHandler]
-    procedure RequestPageH(var ReqPage: TestRequestPage "LT BJ NC2 Data Report")
+    procedure ReqPageH(var ReqPage: TestRequestPage "LT BJ NC2 Data Report")
     begin
         HandlerLog += 'request page handler;';
         ReqPage.Cancel().Invoke();
