@@ -14,6 +14,10 @@
 //   with the triggers and properties of page 1178 (DeleteAllowed, DelayedInsert, OnInit, OnDeleteRecord, a field with OnDrillDown
 //   and Editable = false), also as a FactBox with UpdatePropagation = Both (the Base Application hosts of page 1178 set it); a host
 //   with OnOpenPage, OnAfterGetRecord and OnAfterGetCurrRecord.
+// The reporter's host form (three heads, every part empty, GoToRecord to the last row): a List host with a Caption whose FactBox
+//   part of page 1178's shape sets ApplicationArea, Caption, UpdatePropagation = Both and links "No." to the host's "Ref Code"
+//   (outside the key); the same with only Caption on the part control, on a host with Editable = false, and on a host with
+//   CardPageId. Each OpenEdit and OpenView.
 // BC versions: 27-29
 
 table 76840 "PG EPL Head"
@@ -454,6 +458,158 @@ page 76854 "PG EPL List DocBoth"
     }
 }
 
+// The reporter's host form (issue 6924): a List page with a Caption whose FactBox part sets ApplicationArea, Caption,
+// UpdatePropagation = Both and links "No." to a host field outside the host key, like the Base Application hosts of page 1178.
+page 76855 "PG EPL List Rep"
+{
+    PageType = List;
+    SourceTable = "PG EPL Head";
+    Caption = 'EPL Reporter List';
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Heads)
+            {
+                field(NoCtl; Rec."No.") { ApplicationArea = All; }
+                field(RefCtl; Rec."Ref Code") { ApplicationArea = All; }
+            }
+        }
+        area(FactBoxes)
+        {
+            part(Box; "PG EPL Part Doc")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"PG EPL Head"), "No." = field("Ref Code");
+                UpdatePropagation = Both;
+            }
+        }
+    }
+}
+
+// As "PG EPL List Rep", but the part control has only Caption besides ApplicationArea and SubPageLink.
+page 76856 "PG EPL List RepCap"
+{
+    PageType = List;
+    SourceTable = "PG EPL Head";
+    Caption = 'EPL Reporter List Caption';
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Heads)
+            {
+                field(NoCtl; Rec."No.") { ApplicationArea = All; }
+                field(RefCtl; Rec."Ref Code") { ApplicationArea = All; }
+            }
+        }
+        area(FactBoxes)
+        {
+            part(Box; "PG EPL Part Doc")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"PG EPL Head"), "No." = field("Ref Code");
+            }
+        }
+    }
+}
+
+// As "PG EPL List Rep", on a host with Editable = false.
+page 76857 "PG EPL List RepRO"
+{
+    PageType = List;
+    SourceTable = "PG EPL Head";
+    Caption = 'EPL Reporter List Read Only';
+    Editable = false;
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Heads)
+            {
+                field(NoCtl; Rec."No.") { ApplicationArea = All; }
+                field(RefCtl; Rec."Ref Code") { ApplicationArea = All; }
+            }
+        }
+        area(FactBoxes)
+        {
+            part(Box; "PG EPL Part Doc")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"PG EPL Head"), "No." = field("Ref Code");
+                UpdatePropagation = Both;
+            }
+        }
+    }
+}
+
+// The card page of "PG EPL List RepCard".
+page 76858 "PG EPL Head Card"
+{
+    PageType = Card;
+    SourceTable = "PG EPL Head";
+    Caption = 'EPL Head Card';
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(General)
+            {
+                field(NoCtl; Rec."No.") { ApplicationArea = All; }
+                field(RefCtl; Rec."Ref Code") { ApplicationArea = All; }
+            }
+        }
+    }
+}
+
+// As "PG EPL List Rep", on a host with CardPageId.
+page 76859 "PG EPL List RepCard"
+{
+    PageType = List;
+    SourceTable = "PG EPL Head";
+    Caption = 'EPL Reporter List Card';
+    CardPageId = "PG EPL Head Card";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Heads)
+            {
+                field(NoCtl; Rec."No.") { ApplicationArea = All; }
+                field(RefCtl; Rec."Ref Code") { ApplicationArea = All; }
+            }
+        }
+        area(FactBoxes)
+        {
+            part(Box; "PG EPL Part Doc")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"PG EPL Head"), "No." = field("Ref Code");
+                UpdatePropagation = Both;
+            }
+        }
+    }
+}
+
 codeunit 76849 "PG EPL Log"
 {
     SingleInstance = true;
@@ -525,6 +681,17 @@ codeunit 76850 "PG EPL Tests"
         Initialize();
         Head.Get('B');
         Head.Delete();
+    end;
+
+    // Heads A, B and C (Ref Code RA, RB and RC), no line: C is the last row of the host.
+    local procedure InitializeThree()
+    var
+        Head: Record "PG EPL Head";
+    begin
+        Initialize();
+        Head."No." := 'C';
+        Head."Ref Code" := 'RC';
+        Head.Insert();
     end;
 
     local procedure AddLine(No: Code[20]; LineNo: Integer; Kind: Code[10])
@@ -1674,6 +1841,173 @@ codeunit 76850 "PG EPL Tests"
         InitializeOneHead();
         Host.OpenView();
         Head.Get('A');
+        Host.GoToRecord(Head);
+        Host.Box.ReadRec.Invoke();
+        Observer.Observe('action', Log.ActionLog());
+        Host.Close();
+        Observer.Finish();
+    end;
+
+    // The reporter's host form (issue 6924): heads A, B and C, every part empty; GoToRecord moves to the last row C.
+    [Test]
+    procedure EmptyPart_ListOpenEdit_Reporter_FactBox_ActionReadsRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "PG EPL List Rep";
+        Head: Record "PG EPL Head";
+    begin
+        InitializeThree();
+        Host.OpenEdit();
+        Host.Box.ReadRec.Invoke();
+        Observer.Observe('action', Log.ActionLog());
+        Host.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure EmptyPart_ListOpenView_Reporter_FactBox_ActionReadsRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "PG EPL List Rep";
+        Head: Record "PG EPL Head";
+    begin
+        InitializeThree();
+        Host.OpenView();
+        Host.Box.ReadRec.Invoke();
+        Observer.Observe('action', Log.ActionLog());
+        Host.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure EmptyPart_ListOpenEdit_GoToLastRow_Reporter_FactBox_ActionReadsRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "PG EPL List Rep";
+        Head: Record "PG EPL Head";
+    begin
+        InitializeThree();
+        Host.OpenEdit();
+        Head.Get('C');
+        Host.GoToRecord(Head);
+        Host.Box.ReadRec.Invoke();
+        Observer.Observe('action', Log.ActionLog());
+        Host.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure EmptyPart_ListOpenView_GoToLastRow_Reporter_FactBox_ActionReadsRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "PG EPL List Rep";
+        Head: Record "PG EPL Head";
+    begin
+        InitializeThree();
+        Host.OpenView();
+        Head.Get('C');
+        Host.GoToRecord(Head);
+        Host.Box.ReadRec.Invoke();
+        Observer.Observe('action', Log.ActionLog());
+        Host.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure EmptyPart_ListOpenEdit_GoToLastRow_ReporterCaptionOnly_FactBox_ActionReadsRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "PG EPL List RepCap";
+        Head: Record "PG EPL Head";
+    begin
+        InitializeThree();
+        Host.OpenEdit();
+        Head.Get('C');
+        Host.GoToRecord(Head);
+        Host.Box.ReadRec.Invoke();
+        Observer.Observe('action', Log.ActionLog());
+        Host.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure EmptyPart_ListOpenView_GoToLastRow_ReporterCaptionOnly_FactBox_ActionReadsRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "PG EPL List RepCap";
+        Head: Record "PG EPL Head";
+    begin
+        InitializeThree();
+        Host.OpenView();
+        Head.Get('C');
+        Host.GoToRecord(Head);
+        Host.Box.ReadRec.Invoke();
+        Observer.Observe('action', Log.ActionLog());
+        Host.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure EmptyPart_ListOpenEdit_GoToLastRow_ReporterNotEditable_FactBox_ActionReadsRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "PG EPL List RepRO";
+        Head: Record "PG EPL Head";
+    begin
+        InitializeThree();
+        Host.OpenEdit();
+        Head.Get('C');
+        Host.GoToRecord(Head);
+        Host.Box.ReadRec.Invoke();
+        Observer.Observe('action', Log.ActionLog());
+        Host.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure EmptyPart_ListOpenView_GoToLastRow_ReporterNotEditable_FactBox_ActionReadsRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "PG EPL List RepRO";
+        Head: Record "PG EPL Head";
+    begin
+        InitializeThree();
+        Host.OpenView();
+        Head.Get('C');
+        Host.GoToRecord(Head);
+        Host.Box.ReadRec.Invoke();
+        Observer.Observe('action', Log.ActionLog());
+        Host.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure EmptyPart_ListOpenEdit_GoToLastRow_ReporterCardPage_FactBox_ActionReadsRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "PG EPL List RepCard";
+        Head: Record "PG EPL Head";
+    begin
+        InitializeThree();
+        Host.OpenEdit();
+        Head.Get('C');
+        Host.GoToRecord(Head);
+        Host.Box.ReadRec.Invoke();
+        Observer.Observe('action', Log.ActionLog());
+        Host.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure EmptyPart_ListOpenView_GoToLastRow_ReporterCardPage_FactBox_ActionReadsRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "PG EPL List RepCard";
+        Head: Record "PG EPL Head";
+    begin
+        InitializeThree();
+        Host.OpenView();
+        Head.Get('C');
         Host.GoToRecord(Head);
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
