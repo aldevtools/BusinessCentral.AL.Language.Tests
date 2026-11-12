@@ -11,8 +11,9 @@
 //   row without lines and from one with lines), after Next, the link form (const + field, field only, const only, filter() of one
 //   value, filter() of a range), a link field of the host outside its key, a part with rows, a List without rows, and
 //   OnAfterGetCurrRecord. A GoToRecord to the row the host already stands on (a List with one row, the first of two rows); a part
-//   with the triggers and properties of page 1178 (DeleteAllowed, OnInit, OnDeleteRecord, a field with OnDrillDown and
-//   Editable = false); a host with OnOpenPage, OnAfterGetRecord and OnAfterGetCurrRecord.
+//   with the triggers and properties of page 1178 (DeleteAllowed, DelayedInsert, OnInit, OnDeleteRecord, a field with OnDrillDown
+//   and Editable = false), also as a FactBox with UpdatePropagation = Both (the Base Application hosts of page 1178 set it); a host
+//   with OnOpenPage, OnAfterGetRecord and OnAfterGetCurrRecord.
 // BC versions: 27-29
 
 table 76840 "PG EPL Head"
@@ -271,13 +272,14 @@ page 76848 "PG EPL List RefCode"
     }
 }
 
-// The triggers and properties of page 1178 beside the shape of "PG EPL Part": DeleteAllowed, OnInit, OnDeleteRecord, a field with
-// OnDrillDown and Editable = false.
+// The triggers and properties of page 1178 beside the shape of "PG EPL Part": DeleteAllowed, DelayedInsert, OnInit, OnDeleteRecord,
+// a field with OnDrillDown and Editable = false.
 page 76851 "PG EPL Part Doc"
 {
     PageType = ListPart;
     SourceTable = "PG EPL Line";
     DeleteAllowed = true;
+    DelayedInsert = true;
     InsertAllowed = false;
     ApplicationArea = All;
     UsageCategory = None;
@@ -420,6 +422,36 @@ page 76853 "PG EPL List Triggers"
         Opens: Integer;
         Reads: Integer;
         CurrReads: Integer;
+}
+
+// Page 1178's host form: the FactBox has UpdatePropagation = Both.
+page 76854 "PG EPL List DocBoth"
+{
+    PageType = List;
+    SourceTable = "PG EPL Head";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Heads)
+            {
+                field(NoCtl; Rec."No.") { ApplicationArea = All; }
+                field(RefCtl; Rec."Ref Code") { ApplicationArea = All; }
+            }
+        }
+        area(FactBoxes)
+        {
+            part(Box; "PG EPL Part Doc")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Table ID" = const(Database::"PG EPL Head"), "No." = field("No.");
+                UpdatePropagation = Both;
+            }
+        }
+    }
 }
 
 codeunit 76849 "PG EPL Log"
@@ -1560,6 +1592,71 @@ codeunit 76850 "PG EPL Tests"
         Host.GoToRecord(Head);
         Host.Box.ReadRec.Invoke();
 
+        Observer.Observe('action', Log.ActionLog());
+        Host.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure EmptyPart_ListOpenEdit_PartDocBoth_FactBox_ActionReadsRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "PG EPL List DocBoth";
+    begin
+        Initialize();
+        Host.OpenEdit();
+        Host.Box.ReadRec.Invoke();
+        Observer.Observe('action', Log.ActionLog());
+        Host.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure EmptyPart_ListOpenEdit_GoToRecord_PartDocBoth_FactBox_ActionReadsRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "PG EPL List DocBoth";
+        Head: Record "PG EPL Head";
+    begin
+        Initialize();
+        Host.OpenEdit();
+        Head.Get('B');
+        Host.GoToRecord(Head);
+        Host.Box.ReadRec.Invoke();
+        Observer.Observe('action', Log.ActionLog());
+        Host.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure EmptyPart_ListOpenEdit_OneHead_GoToSameRow_PartDocBoth_FactBox_ActionReadsRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "PG EPL List DocBoth";
+        Head: Record "PG EPL Head";
+    begin
+        InitializeOneHead();
+        Host.OpenEdit();
+        Head.Get('A');
+        Host.GoToRecord(Head);
+        Host.Box.ReadRec.Invoke();
+        Observer.Observe('action', Log.ActionLog());
+        Host.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure EmptyPart_ListOpenView_OneHead_GoToSameRow_PartDocBoth_FactBox_ActionReadsRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "PG EPL List DocBoth";
+        Head: Record "PG EPL Head";
+    begin
+        InitializeOneHead();
+        Host.OpenView();
+        Head.Get('A');
+        Host.GoToRecord(Head);
+        Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
         Observer.Finish();
