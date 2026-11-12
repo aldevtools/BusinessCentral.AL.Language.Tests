@@ -18,9 +18,13 @@
 //   again does not. A user with a blank User Name raises the TestField error of User Name. An unknown user and the null GUID raise the
 //   NothingInsideFilter error of User Property, as in a TryFunction (ODatabaseOps.al).
 // Second round: "Identity Management".IsUserPasswordSet (NavUserAccountHelper.IsPasswordSet), which the User Card reaches, for a new user,
-//   after a strong and after a blank password, for an unknown user, the null GUID and the session user; and what the User Card's
-//   OnAfterGetRecord asks "Identity Management" for (GetACSStatus, GetWebServiceExpiryDate, GetAuthenticationStatus, GetWebServicesKey,
-//   UserName('')) for a new user, after a password, and for the session user.
+//   after a strong and after a blank password and for an unknown user; and what the User Card's OnAfterGetRecord asks "Identity Management"
+//   for (GetACSStatus, GetWebServiceExpiryDate, GetAuthenticationStatus, GetWebServicesKey, UserName('')) for a new user, after a password,
+//   and for the session user.
+// Measured on BC 27.5, 28.5 and 29.0 (corpus PR CI, second round): IsUserPasswordSet is No for a new user and Yes after a strong and after a
+//   blank password; for an unknown user it raises the NothingInsideFilter error of User Property. For a new user, after a password and for
+//   the session user, GetACSStatus and GetAuthenticationStatus format as 0, the expiry date and the web services key are blank, and
+//   UserName('') is blank.
 // BC versions: 27, 28, 29
 
 codeunit 98001 "LT SUP SetUserPassword Stmt"
@@ -257,7 +261,6 @@ codeunit 98001 "LT SUP SetUserPassword Stmt"
         IdentityManagement: Codeunit "Identity Management";
         Sid: Guid;
         Unknown: Guid;
-        NullGuid: Guid;
     begin
         Sid := NewUser('LT-SUPS-ISSET', true);
         Log += 'new user: ' + Format(IdentityManagement.IsUserPasswordSet(Sid)) + ' / ';
@@ -267,8 +270,6 @@ codeunit 98001 "LT SUP SetUserPassword Stmt"
         Log += 'after a blank password: ' + Format(IdentityManagement.IsUserPasswordSet(Sid)) + ' / ';
         Evaluate(Unknown, '{7E57C0DE-0000-4000-8000-00000000A0A2}');
         Log += 'unknown user: ' + Format(IdentityManagement.IsUserPasswordSet(Unknown)) + ' / ';
-        Log += 'null guid: ' + Format(IdentityManagement.IsUserPasswordSet(NullGuid)) + ' / ';
-        Log += 'session user: ' + Format(IdentityManagement.IsUserPasswordSet(UserSecurityId())) + ' / ';
         Error(LtSupRollbackErr);
     end;
 
@@ -280,7 +281,7 @@ codeunit 98001 "LT SUP SetUserPassword Stmt"
     begin
         asserterror PasswordSetBody(Log);
         ObserveEnd(Observer, Log);
-        Observer.Expect('result', 'new user: No / after a strong password: Yes / after a blank password: Yes / unknown user: No / null guid: No / session user: No / end: Dialog | LT SUP rollback marker');
+        Observer.Expect('result', 'new user: No / after a strong password: Yes / after a blank password: Yes / end: DB:NothingInsideFilter | There is no User Property within the filter.\\Filters: User Security ID: {7E57C0DE-0000-4000-8000-00000000A0A2}');
         Observer.Verify();
     end;
 
@@ -319,7 +320,7 @@ codeunit 98001 "LT SUP SetUserPassword Stmt"
     begin
         asserterror CardFactsBody(Log);
         ObserveEnd(Observer, Log);
-        Observer.Expect('result', 'new user: acs=Disabled expiry= auth=Disabled key blank=Yes key len=0 windows name=[] / after a password: acs=Disabled expiry= auth=Disabled key blank=Yes key len=0 windows name=[] / session user: acs=Disabled expiry= auth=Disabled key blank=Yes key len=0 windows name=[] / end: Dialog | LT SUP rollback marker');
+        Observer.Expect('result', 'new user: acs=0 expiry= auth=0 key blank=Yes key len=0 windows name=[] / after a password: acs=0 expiry= auth=0 key blank=Yes key len=0 windows name=[] / session user: acs=0 expiry= auth=0 key blank=Yes key len=0 windows name=[] / end: Dialog | LT SUP rollback marker');
         Observer.Verify();
     end;
 }
