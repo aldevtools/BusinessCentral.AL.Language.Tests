@@ -18,6 +18,9 @@
 //   part of page 1178's shape sets ApplicationArea, Caption, UpdatePropagation = Both and links "No." to the host's "Ref Code"
 //   (outside the key); the same with only Caption on the part control, on a host with Editable = false, and on a host with
 //   CardPageId. Each OpenEdit and OpenView.
+// Fact (observed on BC 27.5, 28.5 and 29.0): in every one of these shapes Rec in the action of the empty part holds the link values of the
+//   row the host stands on ("Table ID" 76840, "No." = that row's "Ref Code", Line No. 0): RA as opened, RC after GoToRecord to the
+//   last row. Neither UpdatePropagation, the part's Caption, Editable = false nor CardPageId changes it.
 // BC versions: 27-29
 
 table 76840 "PG EPL Head"
@@ -1794,7 +1797,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/A/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1811,7 +1815,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/B/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1828,7 +1833,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/A/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1845,7 +1851,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/A/0/');
+        Observer.Verify();
     end;
 
     // The reporter's host form (issue 6924): heads A, B and C, every part empty; GoToRecord moves to the last row C.
@@ -1861,7 +1868,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/RA/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1876,7 +1884,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/RA/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1893,7 +1902,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/RC/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1910,7 +1920,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/RC/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1927,7 +1938,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/RC/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1944,7 +1956,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/RC/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1961,7 +1974,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/RC/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1978,7 +1992,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/RC/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1995,7 +2010,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/RC/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2012,6 +2028,7 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/RC/0/');
+        Observer.Verify();
     end;
 }
