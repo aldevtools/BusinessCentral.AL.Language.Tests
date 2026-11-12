@@ -22,7 +22,7 @@ report 61179 "RPT Dependency Rising Base"
         layout(Rdlc)
         {
             Type = RDLC;
-            LayoutFile = 'DependencyLayout.rdl';
+            LayoutFile = 'ReportDependencyRisingLayout.rdl';
         }
     }
 }
