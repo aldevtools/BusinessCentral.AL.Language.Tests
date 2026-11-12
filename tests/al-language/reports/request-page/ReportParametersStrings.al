@@ -258,7 +258,13 @@ codeunit 76403 "LT RPS Strings"
         Observer.Observe('named text', Xml);
         Observer.Observe('named length', Format(StrLen(Xml)));
         Observer.Observe('named has CRLF', Format(Xml.Contains(CrLf)));
-        Observer.Finish();
+        Observer.Expect('bare text', '<?xml version="1.0" encoding="utf-16" standalone="yes"?>\r\n<ReportParameters>\r\n  <Options>\r\n    <Field name="StartDate">2026-01-15</Field>\r\n    <Field name="NoteText" />\r\n  </Options>\r\n</ReportParameters>');
+        Observer.Expect('bare length', '203');
+        Observer.Expect('bare has CRLF', 'Yes');
+        Observer.Expect('named text', '<?xml version="1.0" encoding="utf-16" standalone="yes"?>\r\n<ReportParameters name="LT RPS Rpt" id="76400">\r\n  <Options>\r\n    <Field name="StartDate">2026-01-15</Field>\r\n    <Field name="NoteText" />\r\n  </Options>\r\n</ReportParameters>');
+        Observer.Expect('named length', '232');
+        Observer.Expect('named has CRLF', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -267,7 +273,19 @@ codeunit 76403 "LT RPS Strings"
         Observer: Codeunit "Probe Observer";
     begin
         RunAll(Observer, 'saveas');
-        Observer.Finish();
+        Observer.Expect('utf-16 one line ok', 'Yes');
+        Observer.Expect('utf-16 one line log', 'pre start=[2026-01-15] note=[init];rows=1;');
+        Observer.Expect('utf-8 one line ok', 'Yes');
+        Observer.Expect('utf-8 one line log', 'pre start=[2026-01-15] note=[init];rows=1;');
+        Observer.Expect('no standalone ok', 'Yes');
+        Observer.Expect('no standalone log', 'pre start=[2026-01-15] note=[init];rows=1;');
+        Observer.Expect('indented by hand ok', 'Yes');
+        Observer.Expect('indented by hand log', 'pre start=[2026-01-15] note=[init];rows=1;');
+        Observer.Expect('WriteTo bare root ok', 'Yes');
+        Observer.Expect('WriteTo bare root log', 'pre start=[2026-01-15] note=[];rows=1;');
+        Observer.Expect('WriteTo named root ok', 'Yes');
+        Observer.Expect('WriteTo named root log', 'pre start=[2026-01-15] note=[];rows=1;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -276,7 +294,19 @@ codeunit 76403 "LT RPS Strings"
         Observer: Codeunit "Probe Observer";
     begin
         RunAll(Observer, 'execute');
-        Observer.Finish();
+        Observer.Expect('utf-16 one line ok', 'Yes');
+        Observer.Expect('utf-16 one line log', 'pre start=[2026-01-15] note=[init];');
+        Observer.Expect('utf-8 one line ok', 'Yes');
+        Observer.Expect('utf-8 one line log', 'pre start=[2026-01-15] note=[init];');
+        Observer.Expect('no standalone ok', 'Yes');
+        Observer.Expect('no standalone log', 'pre start=[2026-01-15] note=[init];');
+        Observer.Expect('indented by hand ok', 'Yes');
+        Observer.Expect('indented by hand log', 'pre start=[2026-01-15] note=[init];');
+        Observer.Expect('WriteTo bare root ok', 'Yes');
+        Observer.Expect('WriteTo bare root log', 'pre start=[2026-01-15] note=[];');
+        Observer.Expect('WriteTo named root ok', 'Yes');
+        Observer.Expect('WriteTo named root log', 'pre start=[2026-01-15] note=[];');
+        Observer.Verify();
     end;
 
     [Test]
@@ -286,7 +316,16 @@ codeunit 76403 "LT RPS Strings"
         Observer: Codeunit "Probe Observer";
     begin
         RunOneLine(Observer, 'runrequestpage');
-        Observer.Finish();
+        Observer.Expect('utf-16 one line ok', 'Yes');
+        Observer.Expect('utf-16 one line log', 'handler start=[1/15/2026] note=[init];');
+        Observer.Expect('utf-16 one line returned', '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT RPS Rpt" id="76400"><Options><Field name="StartDate">2026-01-15</Field><Field name="NoteText">init</Field></Options><DataItems><DataItem name="Num">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Expect('utf-8 one line ok', 'Yes');
+        Observer.Expect('utf-8 one line log', 'handler start=[1/15/2026] note=[init];');
+        Observer.Expect('utf-8 one line returned', '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT RPS Rpt" id="76400"><Options><Field name="StartDate">2026-01-15</Field><Field name="NoteText">init</Field></Options><DataItems><DataItem name="Num">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Expect('no standalone ok', 'Yes');
+        Observer.Expect('no standalone log', 'handler start=[1/15/2026] note=[init];');
+        Observer.Expect('no standalone returned', '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT RPS Rpt" id="76400"><Options><Field name="StartDate">2026-01-15</Field><Field name="NoteText">init</Field></Options><DataItems><DataItem name="Num">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -296,7 +335,16 @@ codeunit 76403 "LT RPS Strings"
         Observer: Codeunit "Probe Observer";
     begin
         RunIndented(Observer, 'runrequestpage');
-        Observer.Finish();
+        Observer.Expect('indented by hand ok', 'Yes');
+        Observer.Expect('indented by hand log', 'handler start=[1/15/2026] note=[init];');
+        Observer.Expect('indented by hand returned', '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT RPS Rpt" id="76400"><Options><Field name="StartDate">2026-01-15</Field><Field name="NoteText">init</Field></Options><DataItems><DataItem name="Num">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Expect('WriteTo bare root ok', 'Yes');
+        Observer.Expect('WriteTo bare root log', 'handler start=[1/15/2026] note=[];');
+        Observer.Expect('WriteTo bare root returned', '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT RPS Rpt" id="76400"><Options><Field name="StartDate">2026-01-15</Field><Field name="NoteText" /></Options><DataItems><DataItem name="Num">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Expect('WriteTo named root ok', 'Yes');
+        Observer.Expect('WriteTo named root log', 'handler start=[1/15/2026] note=[];');
+        Observer.Expect('WriteTo named root returned', '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT RPS Rpt" id="76400"><Options><Field name="StartDate">2026-01-15</Field><Field name="NoteText" /></Options><DataItems><DataItem name="Num">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]

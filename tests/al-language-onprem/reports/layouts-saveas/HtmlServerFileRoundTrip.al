@@ -173,7 +173,20 @@ codeunit 98032 "LT HSF Round Trip"
         Observer.Observe('path ends with .html', Format(Path.EndsWith('.html')));
         ImportFacts(Observer, Path, TempBlob, Direct, true);
         DeleteFacts(Observer, Path);
-        Observer.Finish();
+        Observer.Expect('save ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('HasValue after SaveAs', 'Yes');
+        Observer.Expect('path ends with .html', 'Yes');
+        Observer.Expect('file exists after export', 'Yes');
+        Observer.Expect('HasValue after Clear', 'No');
+        Observer.Expect('HasValue after import', 'Yes');
+        Observer.Expect('length = direct copy', 'Yes');
+        Observer.Expect('base64 = direct copy', 'Yes');
+        Observer.Expect('Read(Text) = direct copy', 'Yes');
+        Observer.Expect('DeleteServerFile', 'Yes');
+        Observer.Expect('file exists after delete', 'No');
+        Observer.Expect('DeleteServerFile again', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -191,7 +204,21 @@ codeunit 98032 "LT HSF Round Trip"
         FileMgt.BLOBExportToServerFile(TempBlob, Path);
         ImportFacts(Observer, Path, TempBlob, Direct, true);
         DeleteFacts(Observer, Path);
-        Observer.Finish();
+        Observer.Expect('save ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('HasValue after SaveAs', 'Yes');
+        Observer.Expect('path ends with .html', 'Yes');
+        Observer.Expect('file exists before export', 'No');
+        Observer.Expect('file exists after export', 'Yes');
+        Observer.Expect('HasValue after Clear', 'No');
+        Observer.Expect('HasValue after import', 'Yes');
+        Observer.Expect('length = direct copy', 'Yes');
+        Observer.Expect('base64 = direct copy', 'Yes');
+        Observer.Expect('Read(Text) = direct copy', 'Yes');
+        Observer.Expect('DeleteServerFile', 'Yes');
+        Observer.Expect('file exists after delete', 'No');
+        Observer.Expect('DeleteServerFile again', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -207,7 +234,19 @@ codeunit 98032 "LT HSF Round Trip"
         Observer.Observe('path ends with .pdf', Format(Path.EndsWith('.pdf')));
         ImportFacts(Observer, Path, TempBlob, Direct, false);
         DeleteFacts(Observer, Path);
-        Observer.Finish();
+        Observer.Expect('save ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('HasValue after SaveAs', 'Yes');
+        Observer.Expect('path ends with .pdf', 'Yes');
+        Observer.Expect('file exists after export', 'Yes');
+        Observer.Expect('HasValue after Clear', 'No');
+        Observer.Expect('HasValue after import', 'Yes');
+        Observer.Expect('length = direct copy', 'Yes');
+        Observer.Expect('base64 = direct copy', 'Yes');
+        Observer.Expect('DeleteServerFile', 'Yes');
+        Observer.Expect('file exists after delete', 'No');
+        Observer.Expect('DeleteServerFile again', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -224,7 +263,19 @@ codeunit 98032 "LT HSF Round Trip"
         Path := FileMgt.InstreamExportToServerFile(InS, 'html');
         ImportFacts(Observer, Path, TempBlob, Direct, true);
         DeleteFacts(Observer, Path);
-        Observer.Finish();
+        Observer.Expect('save ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('HasValue after SaveAs', 'Yes');
+        Observer.Expect('file exists after export', 'Yes');
+        Observer.Expect('HasValue after Clear', 'No');
+        Observer.Expect('HasValue after import', 'Yes');
+        Observer.Expect('length = direct copy', 'Yes');
+        Observer.Expect('base64 = direct copy', 'Yes');
+        Observer.Expect('Read(Text) = direct copy', 'Yes');
+        Observer.Expect('DeleteServerFile', 'Yes');
+        Observer.Expect('file exists after delete', 'No');
+        Observer.Expect('DeleteServerFile again', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -237,7 +288,10 @@ codeunit 98032 "LT HSF Round Trip"
         Observer.Observe('exists', Format(Exists(Path)));
         Observer.Observe('DeleteServerFile', Format(FileMgt.DeleteServerFile(Path)));
         Observer.Observe('exists after', Format(Exists(Path)));
-        Observer.Finish();
+        Observer.Expect('exists', 'No');
+        Observer.Expect('DeleteServerFile', 'No');
+        Observer.Expect('exists after', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -277,6 +331,16 @@ codeunit 98032 "LT HSF Round Trip"
         Observer.Observe('Read(Text) = direct copy', Format(ReadWhole(TempBlob) = ReadWhole(Direct)));
         Erase(Path);
         Observer.Observe('file exists after Erase', Format(Exists(Path)));
-        Observer.Finish();
+        Observer.Expect('save ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('HasValue after SaveAs', 'Yes');
+        Observer.Expect('file exists after export', 'Yes');
+        Observer.Expect('HasValue after Clear', 'No');
+        Observer.Expect('HasValue after import', 'Yes');
+        Observer.Expect('length = direct copy', 'Yes');
+        Observer.Expect('base64 = direct copy', 'Yes');
+        Observer.Expect('Read(Text) = direct copy', 'Yes');
+        Observer.Expect('file exists after Erase', 'No');
+        Observer.Verify();
     end;
 }

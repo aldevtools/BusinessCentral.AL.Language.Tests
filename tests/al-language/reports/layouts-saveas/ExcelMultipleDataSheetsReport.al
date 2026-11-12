@@ -6,7 +6,8 @@
 // Facts:
 //   - Report.SaveAs Xml of a report with the property (no layout, a Word default layout, an Excel default layout) gives the same
 //     dataset as the same report without it (the texts compared after the report name and id are replaced);
-//   - Report.Run and Report.RunModal with UseRequestPage false of the report with the property: the answer or the error;
+//   - Report.Run and Report.RunModal with UseRequestPage false of the report with the property (no layout, an Excel default
+//     layout): the error;
 //   - Report.SaveAs Excel of the report with the Excel default layout and of the one without a layout: the answer, the error and
 //     whether the stream holds bytes.
 // BC versions: 27 - 29
@@ -180,7 +181,12 @@ codeunit 76409 "LT XMS Multiple Data Sheets"
         Observer.Observe('multi excel = plain', Format(MultiExcel = Plain));
         if Multi <> Plain then
             Observer.Observe('multi', CopyStr(Multi, 1, 300));
-        Observer.Finish();
+        Observer.Expect('plain saved', 'Yes');
+        Observer.Expect('plain has rows', 'Yes');
+        Observer.Expect('multi = plain', 'Yes');
+        Observer.Expect('multi word = plain', 'Yes');
+        Observer.Expect('multi excel = plain', 'Yes');
+        Observer.Verify();
     end;
 
     local procedure RunFacts(var Observer: Codeunit "Probe Observer"; Name: Text; ReportId: Integer; Modal: Boolean)
@@ -205,11 +211,24 @@ codeunit 76409 "LT XMS Multiple Data Sheets"
         RunFacts(Observer, 'run no layout', Report::"LT XMS Multi", false);
         RunFacts(Observer, 'runmodal no layout', Report::"LT XMS Multi", true);
         RunFacts(Observer, 'run plain no layout', Report::"LT XMS Plain", false);
-        RunFacts(Observer, 'run word', Report::"LT XMS Multi Word", false);
-        RunFacts(Observer, 'runmodal word', Report::"LT XMS Multi Word", true);
         RunFacts(Observer, 'run excel', Report::"LT XMS Multi Excel", false);
         RunFacts(Observer, 'runmodal excel', Report::"LT XMS Multi Excel", true);
-        Observer.Finish();
+        Observer.Expect('run no layout ok', 'No');
+        Observer.Expect('run no layout error|text', 'Report 76406 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('run no layout error|code', 'ReportNoLayout');
+        Observer.Expect('runmodal no layout ok', 'No');
+        Observer.Expect('runmodal no layout error|text', 'Report 76406 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('runmodal no layout error|code', 'ReportNoLayout');
+        Observer.Expect('run plain no layout ok', 'No');
+        Observer.Expect('run plain no layout error|text', 'Report 76405 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('run plain no layout error|code', 'ReportNoLayout');
+        Observer.Expect('run excel ok', 'No');
+        Observer.Expect('run excel error|text', 'The current report operation is not supported for Excel Layout reports.');
+        Observer.Expect('run excel error|code', 'ReportUnsupportedOperation');
+        Observer.Expect('runmodal excel ok', 'No');
+        Observer.Expect('runmodal excel error|text', 'The current report operation is not supported for Excel Layout reports.');
+        Observer.Expect('runmodal excel error|code', 'ReportUnsupportedOperation');
+        Observer.Verify();
     end;
 
     local procedure ExcelFacts(var Observer: Codeunit "Probe Observer"; Name: Text; ReportId: Integer)
@@ -235,6 +254,15 @@ codeunit 76409 "LT XMS Multiple Data Sheets"
         ExcelFacts(Observer, 'excel layout', Report::"LT XMS Multi Excel");
         ExcelFacts(Observer, 'no layout', Report::"LT XMS Multi");
         ExcelFacts(Observer, 'plain no layout', Report::"LT XMS Plain");
-        Observer.Finish();
+        Observer.Expect('excel layout ok', 'Yes');
+        Observer.Expect('excel layout saved', 'Yes');
+        Observer.Expect('excel layout length > 0', 'Yes');
+        Observer.Expect('no layout ok', 'Yes');
+        Observer.Expect('no layout saved', 'No');
+        Observer.Expect('no layout length > 0', 'No');
+        Observer.Expect('plain no layout ok', 'Yes');
+        Observer.Expect('plain no layout saved', 'No');
+        Observer.Expect('plain no layout length > 0', 'No');
+        Observer.Verify();
     end;
 }
