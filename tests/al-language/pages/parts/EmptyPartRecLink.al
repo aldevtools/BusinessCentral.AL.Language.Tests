@@ -647,7 +647,7 @@ codeunit 75171 "PG EPR Tests"
     end;
 
     // OnAfterGetCurrRecord of the one FactBox of the Card with a field-only link, opened for edit (the Card with two parts runs it
-    // three times in all).
+    // three times in all). BC 28.5: once.
     [Test]
     procedure EmptyPart_CardOpenEdit_FieldOnly_OnAfterGetCurrRecordReadsRec()
     var
@@ -658,7 +658,7 @@ codeunit 75171 "PG EPR Tests"
         Card.OpenEdit();
         Observer.Observe('curr', Log.CurrLog());
         Card.Close();
-        Observer.Expect('curr', 'agcr=0/A/0 | agcr=0/A/0');
+        Observer.Expect('curr', 'agcr=0/A/0');
         Observer.Verify();
     end;
 }
