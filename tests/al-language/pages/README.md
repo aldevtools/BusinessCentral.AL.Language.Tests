@@ -37,7 +37,7 @@ The page object: page triggers, parts, controls, actions, CurrPage, Run and RunM
 - `modify-denied/`: pages where modify is not allowed (1 AL file).
 - `new-host-key-entry/`: entering the key of a new host row (1 AL file).
 - `onopenpage-moves-rec/`: OnOpenPage moving the record (8 AL files).
-- `opennew-findrecord/`: OpenNew and OnFindRecord (1 AL file).
+- `opennew-findrecord/`: OpenNew and OnFindRecord, OpenNew on a page whose OnOpenPage inserted a row (2 AL files).
 - `or-filter-groups-on-page-rec/`: OR filter groups on the record of a page (1 AL file).
 - `page-customization/`: page customizations (1 AL file).
 - `page-handler-with-record/`: page handlers for Page.Run with a record (1 AL file).
