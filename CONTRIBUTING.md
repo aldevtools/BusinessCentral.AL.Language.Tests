@@ -199,8 +199,10 @@ Some behavior only shows when code is spread over several apps: an extension of 
 | `tests/al-language-xapp-d` | `e92be076-de11-44ed-895e-17031341df29` | AL Language XApp D | Mike Probe Publisher | 61160-61169 | A | a subscriber of an event of A, in an app that only C depends on and that depends on none of B, C and the main test app (subscriber order of apps that do not depend on each other) |
 | `tests/al-language-xapp-n` | `01a5e2c7-4f3b-4d1e-9b6a-2c8d7e1f0a53` | AL Language XApp N | Yankee Probe Publisher | 97810-97814 | nothing | a subscriber app with no dependencies and the lowest app id of all, that only T depends on (two-top subscriber order probe, `TtSubscriberOrderTests.al`) |
 | `tests/al-language-xapp-t` | `f7c3b9d2-6a41-4e85-8d0f-b3a97c5e1d26` | AL Language XApp T | Aaa Probe Publisher | 97815-97819 | N | a second top-level app (no app depends on it, next to the main test app) with the highest app id of all and a publisher that sorts first (two-top subscriber order probe) |
+| `tests/al-language-xapp-e` | `0b3f52e8-9d3a-4f61-b8e2-5a07c3d91f45` | AL Language XApp E | Echo Probe Publisher | 61195-61197 | A | a report extension of A's report 97996, in an app that no app depends on (order rule of report extensions from apps with no dependency path, `IndependentAppsOrderRule.al`) |
+| `tests/al-language-xapp-f` | `f2a8c113-3c17-4e9a-a5d4-e81b26f07c39` | AL Language XApp F | Whiskey Probe Publisher | 61198-61199 | A | the same as E, with an app id, name, publisher and publish place that make every candidate rule predict another order (see `tests/al-language-xapp-a/R7358XaOrderRule.al`) |
 
-CI publishes the fixture, A, D, B, C, N, T and then the main test app (D right after A, before B, on purpose; N and T after C, before the main test app, on purpose) (`app_dirs` of every job in `ci.yml` that compiles `al-language`, and `$apps` in `nightly-windows.yml`). A change to one of these apps is a change to a dependency app, so the pull request gets a full run.
+CI publishes the fixture, A, D, B, C, N, T, E, F and then the main test app (D right after A, before B, on purpose; N and T after C, before the main test app, on purpose; E and F last of the fixtures, on purpose) (`app_dirs` of every job in `ci.yml` that compiles `al-language`, and `$apps` in `nightly-windows.yml`). A change to one of these apps is a change to a dependency app, so the pull request gets a full run.
 
 **The ids, names and publishers are fixed on purpose.** The cross-app subscriber order probe (`tests/al-language/events/subscriber-order/`) needs every candidate rule to predict another order of the four apps A, B, C and the main app (M):
 
@@ -217,7 +219,7 @@ Each reversed order differs from all of these too. Each app has two object id bl
 
 **Adding a cross-app case.**
 
-1. Put the objects the other apps need into the app that fits the dependencies (A for a base object, B for an extension of A, C for an extension of B without the fixture). Use the free ids of that app's blocks; a new block needs a range outside every other app's `idRanges` (free today: 61170-61199 and 61350-61399).
+1. Put the objects the other apps need into the app that fits the dependencies (A for a base object, B for an extension of A, C for an extension of B without the fixture). Use the free ids of that app's blocks; a new block needs a range outside every other app's `idRanges` (free today: none in 61170-61199 and 61350-61399; take a new range outside every app).
 2. Put the test into the main test app, as for any other test. It can name objects of A, B and C.
 3. A cross-app case that must not compile goes into `tests/must-not-compile/cases/` with `// @depends AL Language XApp A,AL Language XApp B` (the names of the corpus apps the case app depends on; see `tests/must-not-compile/README.md`). To check it locally, compile the fixture, A, B and C first and put their `.app` files into the `--symbols` folder.
 4. A new app is a bigger change: give it an id range outside every other app, add it to `app_dirs` of every job in `ci.yml` that compiles `al-language` (before `tests/al-language`), to `$apps` in `nightly-windows.yml`, to `CORPUS_DEPENDENCIES` in `.github/scripts/check-must-not-compile.py`, and to the tables above. Tell al-runtime-rs: its corpus runner loads the corpus apps by folder.
@@ -359,7 +361,7 @@ Every test codeunit runs when one of these is true:
 - The change touches one of these:
   - a file under `.github/` (workflows and the scripts CI runs). One exception: a change to `ci.yml` that edits only the values of `codeunit_range` lines (a "CI range edit") is selected as usual, plus every test codeunit the edit brings into its job's range. Any other line changed in `ci.yml`, a comment included, means a full run;
   - an `app.json`, the symbols in an app's `.alpackages/` folder, or an app's resource folder (`NavApp.ListResources` sees every resource);
-  - a dependency app: an app in `app_dirs` of a job and in no job's `test_app_dirs` (the fixture app `tests/al-language-internals-fixture` and the cross-app fixtures `tests/al-language-xapp-a`, `-b`, `-c`, `-d`, `-n` and `-t`; the other apps depend on the fixture and on A, B and C);
+  - a dependency app: an app in `app_dirs` of a job and in no job's `test_app_dirs` (the fixture app `tests/al-language-internals-fixture` and the cross-app fixtures `tests/al-language-xapp-a`, `-b`, `-c`, `-d`, `-n`, `-t`, `-e` and `-f`; the other apps depend on the fixture and on A, B and C);
   - an event subscriber that can run during any test, when the change touches it, removes it, or touches an object it uses. That is an automatic subscriber whose publisher is:
     - not an object of the test apps (a platform, System Application or Base Application object, for example `Global Triggers`, `Company Triggers`, `Caption Class`, or a table event of `Customer`);
     - an install or upgrade event (the event name contains `Install` or `Upgrade`);

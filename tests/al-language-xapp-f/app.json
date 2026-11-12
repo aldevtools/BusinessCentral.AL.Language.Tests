@@ -1,0 +1,43 @@
+{
+  "id": "f2a8c113-3c17-4e9a-a5d4-e81b26f07c39",
+  "name": "AL Language XApp F",
+  "publisher": "Whiskey Probe Publisher",
+  "version": "1.0.0.0",
+  "brief": "Cross-app fixture F: one report extension of a report of cross-app fixture A; depends on A only.",
+  "description": "Holds one report extension of a report of cross-app fixture A (al-runner issue 7358, the order rule of report extensions from apps with no dependency path between them). Depends on cross-app fixture A only; no app depends on it. The app id, name and publisher are fixed on purpose: with B and D they decide the candidate orders of the probe (tests/al-language-xapp-a/R7358XaOrderRule.al). Do not change them.",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "platform": "27.0.0.0",
+  "dependencies": [
+    {
+      "id": "cd6a4292-f27b-4af9-89bc-15a5956f5c71",
+      "name": "AL Language XApp A",
+      "publisher": "AL Language",
+      "version": "1.0.0.0"
+    },
+    {
+      "id": "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
+      "name": "System Application",
+      "publisher": "Microsoft",
+      "version": "27.0.0.0"
+    },
+    {
+      "id": "437dbf0e-84ff-417a-965d-ed2bb9650972",
+      "name": "Base Application",
+      "publisher": "Microsoft",
+      "version": "27.0.0.0"
+    }
+  ],
+  "screenshots": [],
+  "idRanges": [
+    {
+      "from": 61198,
+      "to": 61199
+    }
+  ],
+  "features": [],
+  "runtime": "18.0",
+  "target": "Cloud"
+}
