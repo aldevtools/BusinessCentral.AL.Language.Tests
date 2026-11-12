@@ -5,3 +5,4 @@
 # Several lines with the same old_key: the facts must be held by the union of the new keys.
 # Never edit or remove a line: the runner and later bumps read the whole file.
 old_key	new_key
+al-language-isolation-probe/97018/OnRunCallsTestMethod_MethodRunsOnce_OthersRun_NoOnRunRow	al-language-isolation-probe/97018/OnRunCallsTestMethod_BodyRunsThreeTimes_OthersRun_NoOnRunRow
