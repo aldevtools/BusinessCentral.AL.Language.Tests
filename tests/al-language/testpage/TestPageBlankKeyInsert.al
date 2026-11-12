@@ -251,4 +251,131 @@ codeunit 60576 "TPBK Tests"
         Assert.AreEqual('b[r1 i1 d] c[r1 i1 d] d[r2 i2 db]', 'b[' + AfterB + '] c[' + AfterC + '] d[' + AfterD + ']',
             'rows (r), OnInsert runs (i) and the Description OnInsert last saw (d), per step on a second new List line');
     end;
+
+    [Test]
+    procedure TestPage_OpenNew_VariableControlCanModifyDocument()
+    var
+        Row: Record "TPBK Row";
+        Document: TestPage "TPG Variable Scan Document";
+    begin
+        Initialize();
+
+        Document.OpenNew();
+        Document.Scan.Value('SCANNED');
+        Row.Get('AUTO1');
+        if Row.Description <> 'SCANNED' then
+            Error('Expected stored payload SCANNED. Got %1.', Row.Description);
+        Document.Close();
+    end;
+
+    [Test]
+    procedure TestPage_OpenNew_VariableControlCanModifyDocumentWithPart()
+    var
+        Row: Record "TPBK Row";
+        Line: Record "ALT Universal";
+        Document: TestPage "TPG Linked Scan Document";
+    begin
+        Initialize(Line);
+
+        Document.OpenNew();
+        Document.Scan.Value('SCANNED');
+        Row.Get('AUTO1');
+        Assert.AreEqual('SCANNED', Row.Description, 'The linked Document must store its header before Scan validation.');
+        Document.Close();
+    end;
+
+    local procedure Initialize(var Line: Record "ALT Universal")
+    begin
+        Initialize();
+        Line.DeleteAll();
+    end;
+}
+
+// local object: the Document page opens in New mode and validates an unbound control.
+page 67997 "TPG Variable Scan Document"
+{
+    PageType = Document;
+    SourceTable = "TPBK Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(General)
+            {
+                field(No; Rec."No.") { ApplicationArea = All; }
+                field(Scan; InputText)
+                {
+                    ApplicationArea = All;
+
+                    trigger OnValidate()
+                    begin
+                        Rec.Description := InputText;
+                        Rec.Modify();
+                    end;
+                }
+            }
+        }
+    }
+
+    var
+        InputText: Text[20];
+}
+
+// local object: the Document needs one open, empty ListPart linked to the header's primary key.
+page 67994 "TPG Linked Scan Document"
+{
+    PageType = Document;
+    SourceTable = "TPBK Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(General)
+            {
+                field(No; Rec."No.") { ApplicationArea = All; }
+                field(Scan; InputText)
+                {
+                    ApplicationArea = All;
+
+                    trigger OnValidate()
+                    begin
+                        Rec.Description := InputText;
+                        Rec.Modify();
+                    end;
+                }
+            }
+            part(Lines; "TPG Linked Scan Lines")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Code Field" = field("No.");
+            }
+        }
+    }
+
+    var
+        InputText: Text[20];
+}
+
+// local object: the part has no row triggers so the test measures the header focus move.
+page 67995 "TPG Linked Scan Lines"
+{
+    PageType = ListPart;
+    SourceTable = "ALT Universal";
+    ApplicationArea = All;
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(EntryNo; Rec."Entry No.") { ApplicationArea = All; }
+            }
+        }
+    }
 }
