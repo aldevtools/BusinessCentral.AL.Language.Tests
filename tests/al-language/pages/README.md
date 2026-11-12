@@ -31,13 +31,13 @@ The page object: page triggers, parts, controls, actions, CurrPage, Run and RunM
 - `list-key-navigation/`: moving through a list page on a key (2 AL files).
 - `list-order/`: row order of list pages (5 AL files).
 - `list-refill-key-order/`: refilling a list on its key and order (1 AL file).
-- `long-list-open/`: opening and moving in long lists (3 AL files).
+- `long-list-open/`: opening and moving in long lists (4 AL files).
 - `lookups/`: Lookup and DrillDown (1 AL file).
 - `missing-object-fqn/`: running a page or report whose fully qualified name does not exist (1 AL file).
 - `modify-denied/`: pages where modify is not allowed (1 AL file).
 - `new-host-key-entry/`: entering the key of a new host row (1 AL file).
 - `onopenpage-moves-rec/`: OnOpenPage moving the record (8 AL files).
-- `opennew-findrecord/`: OpenNew and OnFindRecord (1 AL file).
+- `opennew-findrecord/`: OpenNew and OnFindRecord, OpenNew on a page whose OnOpenPage inserted a row (2 AL files).
 - `or-filter-groups-on-page-rec/`: OR filter groups on the record of a page (1 AL file).
 - `page-customization/`: page customizations (1 AL file).
 - `page-handler-with-record/`: page handlers for Page.Run with a record (1 AL file).
