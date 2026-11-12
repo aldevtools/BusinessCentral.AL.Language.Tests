@@ -9,7 +9,10 @@
 //   241 "Item Jnl.-Post" leaves page 99000823 "Output Journal". The test opens the page (OpenEdit, or Page.Run on a filtered record),
 //   invokes Post and reads the page triggers that ran after the action. The reporter saw on BC 29.0 with one line
 //   `R:10000;N:0;C:0;N:0;C:0;N:0;C:0;` for both opens.
-// Result: awaiting the corpus CI run (BC 27.5, 28.5 and 29.0).
+// Result (values measured by CI run 43156294622, BC 27.5, 28.5 and 29.0): the one-line tests matched on all three. With two lines
+//   'after post' is R:10000 followed by five N:0;C:0 pairs on BC 27.5 and 29.0 and four pairs on BC 28.5; with three lines it is five pairs
+//   on all three. The observer reports one wrong value per test, so the other values of the two- and three-line opens have one test each
+//   (_ShownLine, _AfterClose, _LinesLeft) with no Expect: they fail on purpose until the next CI run reports the measured value.
 // BC versions: 27+ (tested by the corpus CI matrix)
 
 table 67138 "TP R7821 Line"
@@ -162,6 +165,23 @@ codeunit 67141 "TP R7821 Tests"
         Observer.Observe('lines left', Format(Line.Count()));
     end;
 
+    local procedure OnlyOne(var Observer: Codeunit "Probe Observer"; Kept: Text)
+    var
+        Name: Text;
+    begin
+        foreach Name in ObservationNames() do
+            if Name <> Kept then
+                Observer.Ignore(Name);
+    end;
+
+    local procedure ObservationNames() Names: List of [Text]
+    begin
+        Names.Add('after post');
+        Names.Add('shown line');
+        Names.Add('after close');
+        Names.Add('lines left');
+    end;
+
     [Test]
     procedure TP7821_OneLine_OpenEdit()
     var
@@ -194,10 +214,42 @@ codeunit 67141 "TP R7821 Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 2, false);
-        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
-        Observer.Expect('shown line', '0');
-        Observer.Expect('after close', '');
-        Observer.Expect('lines left', '0');
+        OnlyOne(Observer, 'after post');
+#if BC28PLUS and not BC29PLUS
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;');
+#else
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;');
+#endif
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP7821_TwoLines_OpenEdit_ShownLine()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Run(Observer, 2, false);
+        OnlyOne(Observer, 'shown line');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP7821_TwoLines_OpenEdit_AfterClose()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Run(Observer, 2, false);
+        OnlyOne(Observer, 'after close');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP7821_TwoLines_OpenEdit_LinesLeft()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Run(Observer, 2, false);
+        OnlyOne(Observer, 'lines left');
         Observer.Verify();
     end;
 
@@ -207,10 +259,38 @@ codeunit 67141 "TP R7821 Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 3, false);
-        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
-        Observer.Expect('shown line', '0');
-        Observer.Expect('after close', '');
-        Observer.Expect('lines left', '0');
+        OnlyOne(Observer, 'after post');
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP7821_ThreeLines_OpenEdit_ShownLine()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Run(Observer, 3, false);
+        OnlyOne(Observer, 'shown line');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP7821_ThreeLines_OpenEdit_AfterClose()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Run(Observer, 3, false);
+        OnlyOne(Observer, 'after close');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP7821_ThreeLines_OpenEdit_LinesLeft()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Run(Observer, 3, false);
+        OnlyOne(Observer, 'lines left');
         Observer.Verify();
     end;
 }
