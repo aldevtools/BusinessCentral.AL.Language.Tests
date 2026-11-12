@@ -3,7 +3,7 @@
 // Scope: in-scope (Cloud). TestPage.
 // Fixtures used: Probe Observer (codeunit 69160); own tables 64860 and 64861, log codeunit 64862, pages 64863 to 64868,
 //   test codeunit 64869
-// Probe: observe-only. Area: TestPage.OpenNew() on a page whose OnOpenPage inserted a blank row into Rec (al-runner issue 7811;
+// Probe (values from the CI runs on BC 27.5, 28.5 and 29.0, the same on all three). Area: TestPage.OpenNew() on a page whose OnOpenPage inserted a blank row into Rec (al-runner issue 7811;
 //   the shape of Microsoft's SMTP Account Wizard, a NavigatePage over a temporary source whose OnOpenPage runs
 //   `Rec.Init(); Rec.Insert();`). Cells: page type NavigatePage and Card; source temporary and a database table; the page's
 //   only trigger OnOpenPage, or OnOpenPage with logging row triggers (OnNewRecord, OnAfterGetCurrRecord, OnInsertRecord,
@@ -13,6 +13,10 @@
 // Observed: Editable(), the value shown after the open, whether SetValue on a non-key field raises an error (text and code),
 //   the value shown after it, the row triggers that ran (N new record, C current record, I insert, M modify, X close with
 //   the rows of Rec), and the rows of the database table at the end.
+// Result: OpenNew of the NavigatePage shows the row OnOpenPage inserted (no OnNewRecord), SetValue edits it and Close modifies it
+//   in the temporary table only; with two rows inserted it shows the last one. OpenNew of the Card starts a new row (OnNewRecord), and
+//   Close fails with "already exists" (TestWrapped) because the inserted blank row holds the same key. Over a database table the
+//   NavigatePage edits the stored row.
 // local object: the page types, triggers and the temporary property are what the test checks
 // BC versions: 27, 28, 29
 
@@ -317,7 +321,13 @@ codeunit 64869 "PGON OpenNew Temp Test"
         else
             Observer.ObserveError('Close error');
         Observer.Observe('stored rows', StoredRows());
-        Observer.Finish();
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('shown after open', '');
+        Observer.Expect('SetValue', 'ok');
+        Observer.Expect('shown after SetValue', 'Draft');
+        Observer.Expect('Close', 'ok');
+        Observer.Expect('stored rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -332,7 +342,9 @@ codeunit 64869 "PGON OpenNew Temp Test"
         Observer.Observe('shown after the second open', P.Label.Value());
         P.Close();
         Observer.Observe('stored rows', StoredRows());
-        Observer.Finish();
+        Observer.Expect('shown after the second open', '');
+        Observer.Expect('stored rows', '0');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -368,7 +380,15 @@ codeunit 64869 "PGON OpenNew Temp Test"
             Observer.ObserveError('Close error');
         Observer.Observe('log of Close', Log.Take());
         Observer.Observe('stored rows', StoredRows());
-        Observer.Finish();
+        Observer.Expect('log of the open', 'C: ');
+        Observer.Expect('shown after open', '');
+        Observer.Expect('SetValue', 'ok');
+        Observer.Expect('log of SetValue', '');
+        Observer.Expect('shown after SetValue', 'Draft');
+        Observer.Expect('Close', 'ok');
+        Observer.Expect('log of Close', 'M:Draft X:1:Draft ');
+        Observer.Expect('stored rows', '0');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -401,7 +421,13 @@ codeunit 64869 "PGON OpenNew Temp Test"
         else
             Observer.ObserveError('Close error');
         Observer.Observe('stored rows', StoredRows());
-        Observer.Finish();
+        Observer.Expect('shown after open', '');
+        Observer.Expect('SetValue', 'ok');
+        Observer.Expect('shown after SetValue', 'Draft');
+        Observer.Expect('Close error|text', 'The record in table PGON Setting already exists. Identification fields and values: Id=''{00000000-0000-0000-0000-000000000000}''');
+        Observer.Expect('Close error|code', 'TestWrapped');
+        Observer.Expect('stored rows', '0');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -434,7 +460,13 @@ codeunit 64869 "PGON OpenNew Temp Test"
         else
             Observer.ObserveError('Close error');
         Observer.Observe('log of Close', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log of the open', 'N C: ');
+        Observer.Expect('SetValue', 'ok');
+        Observer.Expect('log of SetValue', '');
+        Observer.Expect('Close error|text', 'The record in table PGON Setting already exists. Identification fields and values: Id=''{00000000-0000-0000-0000-000000000000}''');
+        Observer.Expect('Close error|code', 'TestWrapped');
+        Observer.Expect('log of Close', 'I:Draft ');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -469,7 +501,12 @@ codeunit 64869 "PGON OpenNew Temp Test"
         Observer.Observe('stored rows', StoredRows());
         if Setting.FindFirst() then
             Observer.Observe('stored label', Setting.Label);
-        Observer.Finish();
+        Observer.Expect('stored rows after open', '1');
+        Observer.Expect('SetValue', 'ok');
+        Observer.Expect('Close', 'ok');
+        Observer.Expect('stored rows', '1');
+        Observer.Expect('stored label', 'Draft');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -503,6 +540,12 @@ codeunit 64869 "PGON OpenNew Temp Test"
         else
             Observer.ObserveError('Close error');
         Observer.Observe('log of Close', Log.Take());
-        Observer.Finish();
+        Observer.Expect('No shown after open', '2');
+        Observer.Expect('Label shown after open', 'second');
+        Observer.Expect('SetValue', 'ok');
+        Observer.Expect('No shown after SetValue', '2');
+        Observer.Expect('Close', 'ok');
+        Observer.Expect('log of Close', 'X:2:2:Draft ');
+        Observer.Verify();
     end;
 }
