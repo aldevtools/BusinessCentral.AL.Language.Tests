@@ -2,7 +2,7 @@
 //   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/page/page-setselectionfilter-method
 // Scope: in-scope (Cloud). TestPage.
 // Fixtures used: Probe Observer (codeunit 69160); own table 64785, log codeunit 64786, pages 64787 64788 64789, test codeunit 64790
-// Probe: observe-only. Area: which row a page shows after CurrPage.Update when it stood on no row while its view has rows, and when the
+// Probe (values from the CI runs on BC 27.5, 28.5 and 29.0, the same on all three). Area: which row a page shows after CurrPage.Update when it stood on no row while its view has rows, and when the
 //   row it stood on left its filters outside an action; and Page.SetSelectionFilter on a page that stands on no row of a table with rows.
 //   Cells: a List opened on an empty table (new-row line) whose action inserts two rows through another record variable and runs
 //   CurrPage.Update(false); the same after New() on a list with rows; a Card opened on an empty table with the same action; a List
@@ -295,7 +295,13 @@ codeunit 64790 "PGA UR Update Row Choice"
         Observer.Observe('shown after next', P."Entry No.".Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('log-open', 'N;C:0;N;C:0');
+        Observer.Expect('log-fill', 'A:fill;R:10;R:20;R:10;R:10;C:10;N;C:0');
+        Observer.Expect('shown', '0');
+        Observer.Expect('next', 'No');
+        Observer.Expect('shown after next', '0');
+        Observer.Expect('stored', '[10:OPEN;20:OPEN;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -312,7 +318,11 @@ codeunit 64790 "PGA UR Update Row Choice"
         Observer.Observe('shown', P."Entry No.".Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('log-new', 'R:1;R:2;R:1;R:1;C:1;N;C:0');
+        Observer.Expect('log-fill', 'R:0;A:fill;R:1;R:1;R:2;R:10;R:20;R:1;R:1;C:1;N;C:0');
+        Observer.Expect('shown', '0');
+        Observer.Expect('stored', '[1:OPEN;2:OPEN;10:OPEN;20:OPEN;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -330,7 +340,13 @@ codeunit 64790 "PGA UR Update Row Choice"
         Observer.Observe('shown after next', P."Entry No.".Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('log-open', 'N;C:0');
+        Observer.Expect('log-fill', 'A:fill;R:10;C:10');
+        Observer.Expect('shown', '10');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('shown after next', '20');
+        Observer.Expect('stored', '[10:OPEN;20:OPEN;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -347,7 +363,10 @@ codeunit 64790 "PGA UR Update Row Choice"
         Observer.Observe('shown', P."Entry No.".Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('log-setvalue', 'A:status(DONE);R:3;R:1;R:3;R:3;C:3');
+        Observer.Expect('shown', '3');
+        Observer.Expect('stored', '[1:OPEN;2:DONE;3:OPEN;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -364,7 +383,10 @@ codeunit 64790 "PGA UR Update Row Choice"
         Observer.Observe('shown', P."Entry No.".Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('log-setvalue', 'A:status(DONE);R:2;R:3;R:2;R:1;R:2;R:2;C:2');
+        Observer.Expect('shown', '2');
+        Observer.Expect('stored', '[1:OPEN;2:OPEN;3:OPEN;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -379,7 +401,9 @@ codeunit 64790 "PGA UR Update Row Choice"
         Observer.Observe('log-sel', Log.Take());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('log-sel', 'R:0;A:sel(0 Entry No.: 0);R:1;R:2;R:1;R:1;C:1;N;C:0');
+        Observer.Expect('stored', '[1:OPEN;2:OPEN;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -396,6 +420,8 @@ codeunit 64790 "PGA UR Update Row Choice"
         Observer.Observe('log-sel', Log.Take());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('log-sel', 'R:0;A:sel(0 Entry No.: 0);R:2;R:2;R:1;R:2;R:2;C:2;N;C:0');
+        Observer.Expect('stored', '[1:OPEN;2:OPEN;]');
+        Observer.Verify();
     end;
 }

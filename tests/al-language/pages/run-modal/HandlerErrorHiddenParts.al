@@ -3,7 +3,7 @@
 // Scope: in-scope (Cloud). Page.RunModal with a ModalPageHandler that raises an error.
 // Fixtures used: Probe Observer (codeunit 69160); own tables 64755 64756, log codeunit 64757, part pages 64758 64759, host pages 64760
 //   64761, test codeunit 64762
-// Probe: observe-only. Area: a ModalPageHandler that raises an error on a Document page that has parts with OnQueryClosePage and a part
+// Probe (values from the CI runs on BC 27.5, 28.5 and 29.0, the same on all three). Area: a ModalPageHandler that raises an error on a Document page that has parts with OnQueryClosePage and a part
 //   that is not visible (a Visible expression that is false, or Visible = false), and the same with an unsaved row (a typed value with
 //   no CurrPage.Update). The error comes from the table's OnModify through a control's OnValidate with CurrPage.Update() (al-runner issue
 //   7473), or from Error() in the handler after a typed value. Pinned: a page with open parts that refuses the close
@@ -335,7 +335,14 @@ codeunit 64762 "PGA HE Handler Error Hidden"
     begin
         Initialize(false, '');
         RunTwice(Page::"PGA HE Doc Expr", 'FINAL', 'OTHER');
-        Observer.Finish();
+        Observer.Expect('first', 'LookupCancel');
+        Observer.Expect('log-first', 'M(OPEN>FINAL) IQ(None) LQ(None) HQ(LookupCancel) IC LC HC');
+        Observer.Expect('stored-first', 'FINAL|');
+        Observer.Expect('second|text', 'Validation error for Field: Status,  Message = ''Documents with the status FINAL cannot be modified. (Select Refresh to discard errors)''');
+        Observer.Expect('second|code', 'TestValidation');
+        Observer.Expect('log-second', 'M(FINAL>OTHER)');
+        Observer.Expect('stored-second', 'FINAL|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -344,7 +351,14 @@ codeunit 64762 "PGA HE Handler Error Hidden"
     begin
         Initialize(true, '');
         RunTwice(Page::"PGA HE Doc Expr", 'FINAL', 'OTHER');
-        Observer.Finish();
+        Observer.Expect('first', 'LookupCancel');
+        Observer.Expect('log-first', 'M(OPEN>FINAL) IQ(None) LQ(None) HQ(LookupCancel) IC LC HC');
+        Observer.Expect('stored-first', 'FINAL|');
+        Observer.Expect('second|text', 'Validation error for Field: Status,  Message = ''Documents with the status FINAL cannot be modified. (Select Refresh to discard errors)''');
+        Observer.Expect('second|code', 'TestValidation');
+        Observer.Expect('log-second', 'M(FINAL>OTHER)');
+        Observer.Expect('stored-second', 'FINAL|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -353,7 +367,14 @@ codeunit 64762 "PGA HE Handler Error Hidden"
     begin
         Initialize(false, '');
         RunTwice(Page::"PGA HE Doc Literal", 'FINAL', 'OTHER');
-        Observer.Finish();
+        Observer.Expect('first', 'LookupCancel');
+        Observer.Expect('log-first', 'M(OPEN>FINAL) LQ(None) LC');
+        Observer.Expect('stored-first', 'FINAL|');
+        Observer.Expect('second|text', 'Validation error for Field: Status,  Message = ''Documents with the status FINAL cannot be modified. (Select Refresh to discard errors)''');
+        Observer.Expect('second|code', 'TestValidation');
+        Observer.Expect('log-second', 'M(FINAL>OTHER)');
+        Observer.Expect('stored-second', 'FINAL|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -362,7 +383,14 @@ codeunit 64762 "PGA HE Handler Error Hidden"
     begin
         Initialize(false, '');
         RunTwice(Page::"PGA HE Doc Expr", 'NAMEOK', 'NAMEERROR');
-        Observer.Finish();
+        Observer.Expect('first', 'LookupCancel');
+        Observer.Expect('log-first', 'M(OPEN>OPEN) IQ(None) LQ(None) HQ(LookupCancel) IC LC HC');
+        Observer.Expect('stored-first', 'OPEN|first');
+        Observer.Expect('second|text', 'The handler failed.');
+        Observer.Expect('second|code', 'Dialog');
+        Observer.Expect('log-second', 'M(OPEN>OPEN) IQ(None) LQ(None) HQ(OK) IC LC HC');
+        Observer.Expect('stored-second', 'OPEN|first');
+        Observer.Verify();
     end;
 
     [Test]
@@ -371,7 +399,14 @@ codeunit 64762 "PGA HE Handler Error Hidden"
     begin
         Initialize(true, '');
         RunTwice(Page::"PGA HE Doc Expr", 'NAMEOK', 'NAMEERROR');
-        Observer.Finish();
+        Observer.Expect('first', 'LookupCancel');
+        Observer.Expect('log-first', 'M(OPEN>OPEN) IQ(None) LQ(None) HQ(LookupCancel) IC LC HC');
+        Observer.Expect('stored-first', 'OPEN|first');
+        Observer.Expect('second|text', 'The handler failed.');
+        Observer.Expect('second|code', 'Dialog');
+        Observer.Expect('log-second', 'M(OPEN>OPEN) IQ(None) LQ(None) HQ(OK) IC LC HC');
+        Observer.Expect('stored-second', 'OPEN|first');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]

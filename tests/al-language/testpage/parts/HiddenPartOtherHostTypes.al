@@ -3,7 +3,7 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own tables 64700 64701 64702, log codeunit 64703, part pages 64704 64705 64706,
 //   host pages 64707..64711, test codeunit 64712
-// Probe: observe-only. Area: the triggers of a FactBox part that a Visible expression hides, with no Provider (not in a Provider chain),
+// Probe (values from the CI runs on BC 27.5, 28.5 and 29.0, the same on all three). Area: the triggers of a FactBox part that a Visible expression hides, with no Provider (not in a Provider chain),
 //   on host page types that HiddenPartExtensionVariable.al and HiddenPartOutsideChain.al do not cover. Those files pin a hidden CardPart
 //   on Card and Document hosts; HiddenPartExtensionVariable.al:632 Hidden_OpenEdit_FlipTheVariable_ThenActions shows that an action that
 //   turns the Visible variable on makes the part read its row once before the host's refresh (`act-flip(Yes) fb-agr(H1) fb-agcr(H1)
@@ -677,7 +677,12 @@ codeunit 64712 "PGA HP Hidden Part Hosts"
         Say('next');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '2 [host-open fb-open wf-open host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('flip', '2 [act-flip fb-agr(H1) fb-agcr(H1) host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('plain', '2 [act-plain host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('next', '2 [host-agcr(H2) fb-agr(H2) fb-agcr(H2)]');
+        Observer.Expect('closed', '2 [fb-query wf-close fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -697,7 +702,12 @@ codeunit 64712 "PGA HP Hidden Part Hosts"
         Say('next');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '2 [host-open fb-open wf-open host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('flip', '2 [act-flip host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('plain', '2 [act-plain host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('next', '2 [host-agcr(H2) fb-agr(H2) fb-agcr(H2)]');
+        Observer.Expect('closed', '2 [fb-query wf-close fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -715,7 +725,11 @@ codeunit 64712 "PGA HP Hidden Part Hosts"
         Say('plain');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '2 [host-open fb-open wf-open host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('flipupd', '2 [act-flipupd fb-agr(H1) fb-agcr(H1) host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('plain', '2 [act-plain host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('closed', '2 [fb-query wf-close fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -737,7 +751,13 @@ codeunit 64712 "PGA HP Hidden Part Hosts"
         Say('fill-h2');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '2 [host-open fb-open wf-open host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('fill-h1', '2 [act-fill wf-fill(H1,1) wf-agr(1) wf-agr(1) wf-agcr(1) host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agr(1) wf-agr(1) wf-agcr(1)]');
+        Observer.Expect('plain', '2 [act-plain host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agr(1) wf-agr(1) wf-agcr(1)]');
+        Observer.Expect('next', '2 [host-agcr(H2) fb-agr(H2) fb-agcr(H2)]');
+        Observer.Expect('fill-h2', '2 [act-fill wf-fill(H2,0) host-agcr(H2) wf-agcr(0) fb-agr(H2) fb-agcr(H2) wf-agcr(0)]');
+        Observer.Expect('closed', '2 [fb-query wf-close fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -757,7 +777,12 @@ codeunit 64712 "PGA HP Hidden Part Hosts"
         Say('next');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '2 [host-open fb-open wf-open host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('flip', '2 [act-flip fb-agr(H1) fb-agcr(H1) host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('plain', '2 [act-plain host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('next', '2 [host-agcr(H2) fb-agr(H2) fb-agcr(H2)]');
+        Observer.Expect('closed', '2 [fb-query wf-close fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -777,7 +802,12 @@ codeunit 64712 "PGA HP Hidden Part Hosts"
         Say('next');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '2 [host-open fb-open wf-open host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('flip', '2 [act-flip host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('plain', '2 [act-plain host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('next', '2 [host-agcr(H2) fb-agr(H2) fb-agcr(H2)]');
+        Observer.Expect('closed', '2 [fb-query wf-close fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -795,7 +825,11 @@ codeunit 64712 "PGA HP Hidden Part Hosts"
         Say('plain');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '2 [host-open fb-open wf-open host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('flipupd', '2 [act-flipupd fb-agr(H1) fb-agcr(H1) host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('plain', '2 [act-plain host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('closed', '2 [fb-query wf-close fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -817,7 +851,13 @@ codeunit 64712 "PGA HP Hidden Part Hosts"
         Say('fill-h2');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '2 [host-open fb-open wf-open host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('fill-h1', '2 [act-fill wf-fill(H1,1) wf-agr(1) wf-agr(1) wf-agcr(1) host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agr(1) wf-agr(1) wf-agcr(1)]');
+        Observer.Expect('plain', '2 [act-plain host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agr(1) wf-agr(1) wf-agcr(1)]');
+        Observer.Expect('next', '2 [host-agcr(H2) fb-agr(H2) fb-agcr(H2)]');
+        Observer.Expect('fill-h2', '2 [act-fill wf-fill(H2,0) host-agcr(H2) wf-agcr(0) fb-agr(H2) fb-agcr(H2) wf-agcr(0)]');
+        Observer.Expect('closed', '2 [fb-query wf-close fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -837,7 +877,12 @@ codeunit 64712 "PGA HP Hidden Part Hosts"
         Say('next');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '2 [host-open fb-open wf-open host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('flip', '2 [act-flip fb-agr(H1) fb-agcr(H1) host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('plain', '2 [act-plain host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('next', '2 [host-agcr(H2) fb-agr(H2) fb-agcr(H2)]');
+        Observer.Expect('closed', '2 [fb-query wf-close fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -857,7 +902,12 @@ codeunit 64712 "PGA HP Hidden Part Hosts"
         Say('next');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '2 [host-open fb-open wf-open host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('flip', '2 [act-flip host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('plain', '2 [act-plain host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('next', '2 [host-agcr(H2) fb-agr(H2) fb-agcr(H2)]');
+        Observer.Expect('closed', '2 [fb-query wf-close fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -875,7 +925,11 @@ codeunit 64712 "PGA HP Hidden Part Hosts"
         Say('plain');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '2 [host-open fb-open wf-open host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('flipupd', '2 [act-flipupd fb-agr(H1) fb-agcr(H1) host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('plain', '2 [act-plain host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('closed', '2 [fb-query wf-close fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -897,7 +951,13 @@ codeunit 64712 "PGA HP Hidden Part Hosts"
         Say('fill-h2');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '2 [host-open fb-open wf-open host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agcr(0)]');
+        Observer.Expect('fill-h1', '2 [act-fill wf-fill(H1,1) wf-agr(1) wf-agr(1) wf-agcr(1) host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agr(1) wf-agr(1) wf-agcr(1)]');
+        Observer.Expect('plain', '2 [act-plain host-agcr(H1) fb-agr(H1) fb-agcr(H1) wf-agr(1) wf-agr(1) wf-agcr(1)]');
+        Observer.Expect('next', '2 [host-agcr(H2) fb-agr(H2) fb-agcr(H2)]');
+        Observer.Expect('fill-h2', '2 [act-fill wf-fill(H2,0) host-agcr(H2) wf-agcr(0) fb-agr(H2) fb-agcr(H2) wf-agcr(0)]');
+        Observer.Expect('closed', '2 [fb-query wf-close fb-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -914,7 +974,11 @@ codeunit 64712 "PGA HP Hidden Part Hosts"
         Say('name');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('opennew', '2 [host-open ln-open host-agcr() ln-agcr(,0) ln-agcr(,0) ln-agcr(,0)]');
+        Observer.Expect('key', '2 [ln-agcr(,0) ln-agcr(,0) ln-agcr(,0)]');
+        Observer.Expect('name', '3 [ln-agcr(N1,0) ln-agcr(N1,0) ln-agcr(N1,0)]');
+        Observer.Expect('closed', '3 [ln-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -931,7 +995,11 @@ codeunit 64712 "PGA HP Hidden Part Hosts"
         Say('name');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('opennew', '2 [host-open ln-open host-agcr() ln-agcr(,0) ln-agcr(,0) ln-agcr(,0)]');
+        Observer.Expect('key', '2 [ln-agcr(,0) ln-agcr(,0) ln-agcr(,0)]');
+        Observer.Expect('name', '3 [ln-agcr(N1,0) ln-agcr(N1,0) ln-agcr(N1,0)]');
+        Observer.Expect('closed', '3 [ln-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -948,7 +1016,11 @@ codeunit 64712 "PGA HP Hidden Part Hosts"
         Say('name');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('opennew', '2 [host-open ln-open host-agcr() ln-agcr(,0) ln-agcr(,0) ln-agcr(,0)]');
+        Observer.Expect('key', '2 [ln-agcr(,0) ln-agcr(,0) ln-agcr(,0)]');
+        Observer.Expect('name', '3 [ln-agcr(N1,0) ln-agcr(N1,0) ln-agcr(N1,0)]');
+        Observer.Expect('closed', '3 [ln-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -965,6 +1037,10 @@ codeunit 64712 "PGA HP Hidden Part Hosts"
         Say('name');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('opennew', '2 [host-open ln-open host-agcr() ln-agcr(,0) ln-agcr(,0) ln-agcr(,0)]');
+        Observer.Expect('key', '2 [ln-agcr(,0) ln-agcr(,0) ln-agcr(,0)]');
+        Observer.Expect('name', '3 [ln-agcr(N1,0) ln-agcr(N1,0) ln-agcr(N1,0)]');
+        Observer.Expect('closed', '3 [ln-close]');
+        Observer.Verify();
     end;
 }

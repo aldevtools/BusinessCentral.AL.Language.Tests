@@ -2,7 +2,7 @@
 //   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/page/page-lookupmode-method
 // Scope: in-scope (Cloud). TestPage in a ModalPageHandler.
 // Fixtures used: Probe Observer (codeunit 69160); own table 64720, pages 64721 64722 64723, test codeunit 64724
-// Probe: observe-only. Area: Enabled() and Visible() of the built-in actions OK, Cancel, Yes and No of a TestPage (a TestPage has no LookupOK or LookupCancel member: AL0132) in a
+// Probe (values from the CI runs on BC 27.5, 28.5 and 29.0, the same on all three). Area: Enabled() and Visible() of the built-in actions OK, Cancel, Yes and No of a TestPage (a TestPage has no LookupOK or LookupCancel member: AL0132) in a
 //   ModalPageHandler, for a List, a Card and a Worksheet run modally: Page.RunModal(Id, Rec) and Page.RunModal(Id) (no LookupMode set),
 //   and a Page variable's RunModal with and without LookupMode(true). Then the handler invokes OK and the test records the returned Action.
 //   A built-in action that the page does not have is recorded as the error text and code of Enabled().
@@ -208,7 +208,16 @@ codeunit 64724 "PGA BA Builtin Action Enabled"
         Initialize(Row);
         Observer.Observe('action', Format(Page.RunModal(Page::"PGA BA List", Row)));
         Observer.Observe('rec', Row."Code");
-        Observer.Finish();
+        Observer.Expect('OK', 'Yes/Yes');
+        Observer.Expect('Cancel', 'Yes/Yes');
+        Observer.Expect('Yes|text', 'The built-in action = Yes is not found on the page.');
+        Observer.Expect('Yes|code', 'TestActionNotFound');
+        Observer.Expect('No|text', 'The built-in action = No is not found on the page.');
+        Observer.Expect('No|code', 'TestActionNotFound');
+        Observer.Expect('InvokeOK', 'Yes/Yes');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('rec', 'B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -219,7 +228,15 @@ codeunit 64724 "PGA BA Builtin Action Enabled"
     begin
         Initialize(Row);
         Observer.Observe('action', Format(Page.RunModal(Page::"PGA BA List")));
-        Observer.Finish();
+        Observer.Expect('OK', 'Yes/Yes');
+        Observer.Expect('Cancel', 'Yes/Yes');
+        Observer.Expect('Yes|text', 'The built-in action = Yes is not found on the page.');
+        Observer.Expect('Yes|code', 'TestActionNotFound');
+        Observer.Expect('No|text', 'The built-in action = No is not found on the page.');
+        Observer.Expect('No|code', 'TestActionNotFound');
+        Observer.Expect('InvokeOK', 'Yes/Yes');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Verify();
     end;
 
     [Test]
@@ -231,7 +248,16 @@ codeunit 64724 "PGA BA Builtin Action Enabled"
     begin
         Initialize(Row);
         Observer.Observe('action', Format(L.RunModal()));
-        Observer.Finish();
+        Observer.Expect('OK', 'Yes/Yes');
+        Observer.Expect('Cancel|text', 'The built-in action = Cancel is not found on the page.');
+        Observer.Expect('Cancel|code', 'TestActionNotFound');
+        Observer.Expect('Yes|text', 'The built-in action = Yes is not found on the page.');
+        Observer.Expect('Yes|code', 'TestActionNotFound');
+        Observer.Expect('No|text', 'The built-in action = No is not found on the page.');
+        Observer.Expect('No|code', 'TestActionNotFound');
+        Observer.Expect('InvokeOK', 'Yes/Yes');
+        Observer.Expect('action', 'OK');
+        Observer.Verify();
     end;
 
     [Test]
@@ -246,7 +272,16 @@ codeunit 64724 "PGA BA Builtin Action Enabled"
         Observer.Observe('action', Format(L.RunModal()));
         L.GetRecord(Row);
         Observer.Observe('rec', Row."Code");
-        Observer.Finish();
+        Observer.Expect('OK', 'Yes/Yes');
+        Observer.Expect('Cancel', 'Yes/Yes');
+        Observer.Expect('Yes|text', 'The built-in action = Yes is not found on the page.');
+        Observer.Expect('Yes|code', 'TestActionNotFound');
+        Observer.Expect('No|text', 'The built-in action = No is not found on the page.');
+        Observer.Expect('No|code', 'TestActionNotFound');
+        Observer.Expect('InvokeOK', 'Yes/Yes');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('rec', 'B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -258,7 +293,15 @@ codeunit 64724 "PGA BA Builtin Action Enabled"
         Initialize(Row);
         Row.Get('A');
         Observer.Observe('action', Format(Page.RunModal(Page::"PGA BA Card", Row)));
-        Observer.Finish();
+        Observer.Expect('OK', 'Yes/Yes');
+        Observer.Expect('Cancel', 'Yes/Yes');
+        Observer.Expect('Yes|text', 'The built-in action = Yes is not found on the page.');
+        Observer.Expect('Yes|code', 'TestActionNotFound');
+        Observer.Expect('No|text', 'The built-in action = No is not found on the page.');
+        Observer.Expect('No|code', 'TestActionNotFound');
+        Observer.Expect('InvokeOK', 'Yes/Yes');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Verify();
     end;
 
     [Test]
@@ -271,7 +314,15 @@ codeunit 64724 "PGA BA Builtin Action Enabled"
         Initialize(Row);
         C.LookupMode(true);
         Observer.Observe('action', Format(C.RunModal()));
-        Observer.Finish();
+        Observer.Expect('OK', 'Yes/Yes');
+        Observer.Expect('Cancel', 'Yes/Yes');
+        Observer.Expect('Yes|text', 'The built-in action = Yes is not found on the page.');
+        Observer.Expect('Yes|code', 'TestActionNotFound');
+        Observer.Expect('No|text', 'The built-in action = No is not found on the page.');
+        Observer.Expect('No|code', 'TestActionNotFound');
+        Observer.Expect('InvokeOK', 'Yes/Yes');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Verify();
     end;
 
     [Test]
@@ -282,7 +333,15 @@ codeunit 64724 "PGA BA Builtin Action Enabled"
     begin
         Initialize(Row);
         Observer.Observe('action', Format(Page.RunModal(Page::"PGA BA Worksheet", Row)));
-        Observer.Finish();
+        Observer.Expect('OK', 'Yes/Yes');
+        Observer.Expect('Cancel', 'Yes/Yes');
+        Observer.Expect('Yes|text', 'The built-in action = Yes is not found on the page.');
+        Observer.Expect('Yes|code', 'TestActionNotFound');
+        Observer.Expect('No|text', 'The built-in action = No is not found on the page.');
+        Observer.Expect('No|code', 'TestActionNotFound');
+        Observer.Expect('InvokeOK', 'Yes/Yes');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Verify();
     end;
 
     [Test]
@@ -295,6 +354,14 @@ codeunit 64724 "PGA BA Builtin Action Enabled"
         Initialize(Row);
         W.LookupMode(true);
         Observer.Observe('action', Format(W.RunModal()));
-        Observer.Finish();
+        Observer.Expect('OK', 'Yes/Yes');
+        Observer.Expect('Cancel', 'Yes/Yes');
+        Observer.Expect('Yes|text', 'The built-in action = Yes is not found on the page.');
+        Observer.Expect('Yes|code', 'TestActionNotFound');
+        Observer.Expect('No|text', 'The built-in action = No is not found on the page.');
+        Observer.Expect('No|code', 'TestActionNotFound');
+        Observer.Expect('InvokeOK', 'Yes/Yes');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Verify();
     end;
 }

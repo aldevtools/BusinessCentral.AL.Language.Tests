@@ -3,7 +3,7 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own table 64730, part pages 64731 64734, host pages 64732 64735, holder codeunit 64733,
 //   test codeunit 64736
-// Probe: observe-only. Area: a page held across test methods. A SingleInstance codeunit keeps the sender of an event that page "PGA HA
+// Probe (values from the CI runs on BC 27.5, 28.5 and 29.0, the same on all three). Area: a page held across test methods. A SingleInstance codeunit keeps the sender of an event that page "PGA HA
 //   Held" raises in OnAfterGetCurrRecord (a Page variable). A later test of the same codeunit opens another page ("PGA HA Other") whose
 //   FactBox runs, in OnAfterGetCurrRecord, a procedure of the SingleInstance codeunit that calls a procedure of the held page, which calls
 //   a procedure of the held page's own part (CurrPage.Fb.Page.Refresh()). The tests run in declaration order in one session, in pairs:
@@ -251,7 +251,8 @@ codeunit 64736 "PGA HA Held Across Tests"
         P.GoToKey('H1');
         P.Close();
         Observer.Observe('log', Holder.Take());
-        Observer.Finish();
+        Observer.Expect('log', '[held-agcr(H1) held-agcr(H1)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -259,7 +260,9 @@ codeunit 64736 "PGA HA Held Across Tests"
     begin
         Initialize(false);
         OpenOther();
-        Observer.Finish();
+        Observer.Expect('other-open', 'ok');
+        Observer.Expect('log', '[other-agcr(H1) touch(Yes) fb-refresh(H1) other-agcr(H2) touch(Yes) fb-refresh(H1)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -271,7 +274,8 @@ codeunit 64736 "PGA HA Held Across Tests"
         P.OpenView();
         P.GoToKey('H1');
         Observer.Observe('log', Holder.Take());
-        Observer.Finish();
+        Observer.Expect('log', '[held-agcr(H1) held-agcr(H1)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -279,7 +283,9 @@ codeunit 64736 "PGA HA Held Across Tests"
     begin
         Initialize(false);
         OpenOther();
-        Observer.Finish();
+        Observer.Expect('other-open', 'ok');
+        Observer.Expect('log', '[other-agcr(H1) touch(Yes) fb-refresh(H1) other-agcr(H2) touch(Yes) fb-refresh(H1)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -292,7 +298,8 @@ codeunit 64736 "PGA HA Held Across Tests"
         P.GoToKey('H1');
         P.OK().Invoke();
         Observer.Observe('log', Holder.Take());
-        Observer.Finish();
+        Observer.Expect('log', '[held-agcr(H1) held-agcr(H1)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -300,7 +307,9 @@ codeunit 64736 "PGA HA Held Across Tests"
     begin
         Initialize(false);
         OpenOther();
-        Observer.Finish();
+        Observer.Expect('other-open', 'ok');
+        Observer.Expect('log', '[other-agcr(H1) touch(Yes) fb-refresh(H1) other-agcr(H2) touch(Yes) fb-refresh(H1)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -313,7 +322,8 @@ codeunit 64736 "PGA HA Held Across Tests"
         Doc.Get('H1');
         Page.Run(Page::"PGA HA Held", Doc);
         Observer.Observe('log', Holder.Take());
-        Observer.Finish();
+        Observer.Expect('log', '[held-agcr(H1)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -321,7 +331,9 @@ codeunit 64736 "PGA HA Held Across Tests"
     begin
         Initialize(false);
         OpenOther();
-        Observer.Finish();
+        Observer.Expect('other-open', 'ok');
+        Observer.Expect('log', '[other-agcr(H1) touch(Yes) fb-refresh(H1) other-agcr(H2) touch(Yes) fb-refresh(H1)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -334,7 +346,9 @@ codeunit 64736 "PGA HA Held Across Tests"
         Doc.Get('H1');
         Observer.Observe('action', Format(Page.RunModal(Page::"PGA HA Held", Doc)));
         Observer.Observe('log', Holder.Take());
-        Observer.Finish();
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('log', '[held-agcr(H1)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -342,7 +356,9 @@ codeunit 64736 "PGA HA Held Across Tests"
     begin
         Initialize(false);
         OpenOther();
-        Observer.Finish();
+        Observer.Expect('other-open', 'ok');
+        Observer.Expect('log', '[other-agcr(H1) touch(Yes) fb-refresh(H1) other-agcr(H2) touch(Yes) fb-refresh(H1)]');
+        Observer.Verify();
     end;
 
     [PageHandler]

@@ -3,7 +3,7 @@
 // Scope: in-scope (Cloud). TestField.Lookup with a ModalPageHandler.
 // Fixtures used: Probe Observer (codeunit 69160); own tables 64765 64767 64768, list page 64766, part page 64769, host page 64770, log
 //   codeunit 64771, test codeunit 64772
-// Probe: observe-only. Area: the ModalPageHandler of a TableRelation lookup whose LookupPageId is a List page, reached by Lookup() on a
+// Probe (values from the CI runs on BC 27.5, 28.5 and 29.0, the same on all three). Area: the ModalPageHandler of a TableRelation lookup whose LookupPageId is a List page, reached by Lookup() on a
 //   field of a Card and on a field of a ListPart in a Document page (al-runner issue 7479). The handler ends the lookup page with
 //   TestPage.Close(), with Cancel().Invoke(), or with GoToKey and OK().Invoke(). Pinned elsewhere: TestPage.Close() in the handler of a
 //   static RunModal of a StandardDialog and of a Page variable's RunModal of a Card (ui-handlers). Not pinned: a lookup page.
@@ -275,7 +275,11 @@ codeunit 64772 "PGA LC Lookup Handler Close"
     procedure CardField_Lookup_HandlerClose()
     begin
         RunHead('CLOSE');
-        Observer.Finish();
+        Observer.Expect('lookup', 'ok');
+        Observer.Expect('log', 'open open handler-on(W) query(LookupCancel) close');
+        Observer.Expect('shown', 'W');
+        Observer.Expect('stored', 'head=W line=W');
+        Observer.Verify();
     end;
 
     [Test]
@@ -283,7 +287,11 @@ codeunit 64772 "PGA LC Lookup Handler Close"
     procedure CardField_Lookup_HandlerCancel()
     begin
         RunHead('CANCEL');
-        Observer.Finish();
+        Observer.Expect('lookup', 'ok');
+        Observer.Expect('log', 'open open handler-on(W) query(LookupCancel) close');
+        Observer.Expect('shown', 'W');
+        Observer.Expect('stored', 'head=W line=W');
+        Observer.Verify();
     end;
 
     [Test]
@@ -291,7 +299,11 @@ codeunit 64772 "PGA LC Lookup Handler Close"
     procedure CardField_Lookup_HandlerOkOnOtherRow()
     begin
         RunHead('OK');
-        Observer.Finish();
+        Observer.Expect('lookup', 'ok');
+        Observer.Expect('log', 'open open handler-on(W) query(LookupOK) close');
+        Observer.Expect('shown', 'X');
+        Observer.Expect('stored', 'head=X line=W');
+        Observer.Verify();
     end;
 
     [Test]
@@ -299,7 +311,12 @@ codeunit 64772 "PGA LC Lookup Handler Close"
     procedure PartField_Lookup_HandlerClose()
     begin
         RunLine('CLOSE');
-        Observer.Finish();
+        Observer.Expect('lookup|text', 'The field with ID = n is not found on the page.');
+        Observer.Expect('lookup|code', 'TestFieldNotFound');
+        Observer.Expect('log', 'open query(LookupOK) close');
+        Observer.Expect('shown', 'W');
+        Observer.Expect('stored', 'head=W line=W');
+        Observer.Verify();
     end;
 
     [Test]
@@ -307,7 +324,12 @@ codeunit 64772 "PGA LC Lookup Handler Close"
     procedure PartField_Lookup_HandlerCancel()
     begin
         RunLine('CANCEL');
-        Observer.Finish();
+        Observer.Expect('lookup|text', 'The field with ID = n is not found on the page.');
+        Observer.Expect('lookup|code', 'TestFieldNotFound');
+        Observer.Expect('log', 'open query(LookupOK) close');
+        Observer.Expect('shown', 'W');
+        Observer.Expect('stored', 'head=W line=W');
+        Observer.Verify();
     end;
 
     [Test]
@@ -315,7 +337,12 @@ codeunit 64772 "PGA LC Lookup Handler Close"
     procedure PartField_Lookup_HandlerOkOnOtherRow()
     begin
         RunLine('OK');
-        Observer.Finish();
+        Observer.Expect('lookup|text', 'The field with ID = n is not found on the page.');
+        Observer.Expect('lookup|code', 'TestFieldNotFound');
+        Observer.Expect('log', 'open query(LookupOK) close');
+        Observer.Expect('shown', 'W');
+        Observer.Expect('stored', 'head=W line=W');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]

@@ -3,7 +3,7 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own tables 64740 64741 64742, log codeunit 64743, part pages 64744..64747, host pages
 //   64748..64752, test codeunit 64753
-// Probe: observe-only. Area: a part whose link value fails its validation when the host opens on a row without lines. Pinned only for a
+// Probe (values from the CI runs on BC 27.5, 28.5 and 29.0, the same on all three). Area: a part whose link value fails its validation when the host opens on a row without lines. Pinned only for a
 //   Document host and a part with both AutoSplitKey and DelayedInsert or neither (pages/parts/QjPartPropagation.al:3766
 //   QT_ValPartSplit_Empty_Last_KeyValidateErrors, :3825): the error is swallowed, OnNewRecord and OnAfterGetCurrRecord run once on the
 //   stamped line, Last() answers No and a write raises TestRowNotFound. Not pinned: a Card host, a ListPlus host, a part with only
@@ -13,6 +13,9 @@
 // Observed: ok or the error text and code of each step, and the log (V = the link field's OnValidate in the table, NEW/AGCR = the part's
 //   OnNewRecord and OnAfterGetCurrRecord, I = the table's OnInsert).
 // local object: the part shapes, their links and the failing link validation are what the test checks
+// Not kept: the Card whose linked part follows a Provider part on a header without lines (OpenEdit, and Page.Run with a PageHandler)
+//   ends on BC 27.5, 28.5 and 29.0 with "Unexpected CLR exception thrown.: Microsoft.Dynamics.Framework.UI.FormAbortException: Page
+//   <caption> has to close.", which a TryFunction does not catch, so those two tests could not record values.
 // BC versions: 27, 28, 29
 
 table 64740 "PGA LV Head"
@@ -487,7 +490,16 @@ codeunit 64753 "PGA LV Link Validate Hosts"
         P.Close();
         Observer.Observe('log-close', Log.Take());
         Observer.Observe('lines-after-close', Lines());
-        Observer.Finish();
+        Observer.Expect('open', 'ok');
+        Observer.Expect('log-open', 'V(H1 ln=0) P.NEW(H1 0) P.AGCR(H1 0)');
+        Observer.Expect('last', 'ok No');
+        Observer.Expect('log-last', '');
+        Observer.Expect('type|text', 'The row does not exist on the TestPage.');
+        Observer.Expect('type|code', 'TestRowNotFound');
+        Observer.Expect('log-type', '');
+        Observer.Expect('log-close', '');
+        Observer.Expect('lines-after-close', '[]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -534,7 +546,16 @@ codeunit 64753 "PGA LV Link Validate Hosts"
         P.Close();
         Observer.Observe('log-close', Log.Take());
         Observer.Observe('lines-after-close', Lines());
-        Observer.Finish();
+        Observer.Expect('open', 'ok');
+        Observer.Expect('log-open', 'V(H1 ln=0) P.NEW(H1 0) P.AGCR(H1 0)');
+        Observer.Expect('last', 'ok No');
+        Observer.Expect('log-last', '');
+        Observer.Expect('type|text', 'The row does not exist on the TestPage.');
+        Observer.Expect('type|code', 'TestRowNotFound');
+        Observer.Expect('log-type', '');
+        Observer.Expect('log-close', '');
+        Observer.Expect('lines-after-close', '[]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -581,7 +602,16 @@ codeunit 64753 "PGA LV Link Validate Hosts"
         P.Close();
         Observer.Observe('log-close', Log.Take());
         Observer.Observe('lines-after-close', Lines());
-        Observer.Finish();
+        Observer.Expect('open', 'ok');
+        Observer.Expect('log-open', 'V(H1 ln=0) P.NEW(H1 0) P.AGCR(H1 0)');
+        Observer.Expect('last', 'ok No');
+        Observer.Expect('log-last', '');
+        Observer.Expect('type|text', 'The row does not exist on the TestPage.');
+        Observer.Expect('type|code', 'TestRowNotFound');
+        Observer.Expect('log-type', '');
+        Observer.Expect('log-close', '');
+        Observer.Expect('lines-after-close', '[]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -628,7 +658,16 @@ codeunit 64753 "PGA LV Link Validate Hosts"
         P.Close();
         Observer.Observe('log-close', Log.Take());
         Observer.Observe('lines-after-close', Lines());
-        Observer.Finish();
+        Observer.Expect('open', 'ok');
+        Observer.Expect('log-open', 'V(H1 ln=0) P.NEW(H1 0) P.AGCR(H1 0)');
+        Observer.Expect('last', 'ok No');
+        Observer.Expect('log-last', '');
+        Observer.Expect('type|text', 'The row does not exist on the TestPage.');
+        Observer.Expect('type|code', 'TestRowNotFound');
+        Observer.Expect('log-type', '');
+        Observer.Expect('log-close', '');
+        Observer.Expect('lines-after-close', '[]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -648,50 +687,6 @@ codeunit 64753 "PGA LV Link Validate Hosts"
     local procedure TryTypeCardProvider(var P: TestPage "PGA LV Card Provider")
     begin
         P.Lines.Descr.SetValue('typed');
-    end;
-
-    [Test]
-    procedure CardProvider_EmptyLines_FilterLinkValidateFails()
-    var
-        P: TestPage "PGA LV Card Provider";
-        Result: Boolean;
-    begin
-        Initialize(false);
-        if TryOpenCardProvider(P) then
-            Observer.Observe('open', 'ok')
-        else
-            Observer.ObserveError('open');
-        Observer.Observe('log-open', Log.Take());
-        if TryLastCardProvider(P, Result) then
-            Observer.Observe('last', 'ok ' + Format(Result))
-        else
-            Observer.ObserveError('last');
-        Observer.Observe('log-last', Log.Take());
-        if TryTypeCardProvider(P) then
-            Observer.Observe('type', 'ok')
-        else
-            Observer.ObserveError('type');
-        Observer.Observe('log-type', Log.Take());
-        P.Close();
-        Observer.Observe('log-close', Log.Take());
-        Observer.Observe('lines-after-close', Lines());
-        Observer.Finish();
-    end;
-
-    [Test]
-    [HandlerFunctions('ProviderPageHandler')]
-    procedure CardProvider_PageRunOnNewHeader_FilterLinkValidateFails()
-    var
-        Head: Record "PGA LV Head";
-    begin
-        Initialize(false);
-        Head.Init();
-        Head."Code" := 'H2';
-        if Head.Insert() then
-            Page.Run(Page::"PGA LV Card Provider", Head);
-        Observer.Observe('log-run', Log.Take());
-        Observer.Observe('lines-after-close', Lines());
-        Observer.Finish();
     end;
 
     [PageHandler]
