@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/triggers-auto/xmlport/devenv-onafterassignfield-xmlport-trigger
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), Temp Blob (System Application); own tables 77700-77701, xmlports 77702-77706,
+// Fixtures used: Probe Observer (codeunit 69160), Temp Blob (System Application); own tables 77700-77701, xmlports 77702-77706 and 77709-77711,
 //   log codeunit 77707, test codeunit 77708.
 // local object: the field's TableRelation, OnValidate and the node's OnAfterAssignField trigger are what is under test.
 // Probe: al-runner issue 7863. An Xml import of a field node (fieldattribute or fieldelement) that has an OnAfterAssignField trigger, into a
@@ -312,6 +312,149 @@ xmlport 77706 "XP AAR Attr Db"
         AarLog: Codeunit "XP AAR Log";
 }
 
+xmlport 77709 "XP AAR Elem Db"
+{
+    // local object: fieldelement with OnAfterAssignField, table element not temporary.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                fieldattribute(Id; Row.Id) { }
+                fieldelement(RelCode; Row."Rel Code")
+                {
+                    trigger OnAfterAssignField()
+                    begin
+                        AarLog.Add('after:' + Row."Rel Code");
+                        case AarLog.GetMode() of
+                            1:
+                                Row."Rel Code" := 'P2';
+                            2:
+                                Row."Rel Code" := 'MISS';
+                        end;
+                    end;
+                }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Row."Rel Code");
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Row."Rel Code");
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
+xmlport 77710 "XP AAR Attr NoVal Db"
+{
+    // local object: fieldattribute with OnAfterAssignField and FieldValidate = No, table element not temporary.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                fieldattribute(Id; Row.Id) { }
+                fieldattribute(RelCode; Row."Rel Code")
+                {
+                    FieldValidate = No;
+
+                    trigger OnAfterAssignField()
+                    begin
+                        AarLog.Add('after:' + Row."Rel Code");
+                        case AarLog.GetMode() of
+                            1:
+                                Row."Rel Code" := 'P2';
+                            2:
+                                Row."Rel Code" := 'MISS';
+                        end;
+                    end;
+                }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Row."Rel Code");
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Row."Rel Code");
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
+xmlport 77711 "XP AAR Attr NV Db"
+{
+    // local object: fieldattribute into the field with ValidateTableRelation = false, table element not temporary.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                fieldattribute(Id; Row.Id) { }
+                fieldattribute(RelCode; Row."Rel Code NV")
+                {
+                    trigger OnAfterAssignField()
+                    begin
+                        AarLog.Add('after:' + Row."Rel Code NV");
+                        case AarLog.GetMode() of
+                            1:
+                                Row."Rel Code NV" := 'P2';
+                            2:
+                                Row."Rel Code NV" := 'MISS';
+                        end;
+                    end;
+                }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Row."Rel Code NV");
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Row."Rel Code NV");
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
 codeunit 77707 "XP AAR Log"
 {
     // local object: the log of the triggers and the mode of OnAfterAssignField (used by codeunit 77708 only).
@@ -390,7 +533,7 @@ codeunit 77708 "XP AAR Tests"
     begin
         if Row.FindSet() then
             repeat
-                Result += Format(Row.Id) + ':' + Row."Rel Code" + ',';
+                Result += Format(Row.Id) + ':' + Row."Rel Code" + ':' + Row."Rel Code NV" + ',';
             until Row.Next() = 0;
         exit(Result);
     end;
@@ -454,6 +597,26 @@ codeunit 77708 "XP AAR Tests"
     procedure AAR_FieldAttribute_NotTemporary_AfterAssign()
     begin
         Probe(Xmlport::"XP AAR Attr Db", true);
+        Observer.Finish();
+    end;
+    [Test]
+    procedure AAR_FieldElement_NotTemporary_AfterAssign()
+    begin
+        Probe(Xmlport::"XP AAR Elem Db", false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_FieldAttribute_FieldValidateNo_NotTemporary_AfterAssign()
+    begin
+        Probe(Xmlport::"XP AAR Attr NoVal Db", true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_FieldAttribute_ValidateTableRelationFalse_NotTemporary_AfterAssign()
+    begin
+        Probe(Xmlport::"XP AAR Attr NV Db", true);
         Observer.Finish();
     end;
 }
