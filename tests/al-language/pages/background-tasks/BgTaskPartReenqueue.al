@@ -174,7 +174,7 @@ codeunit 97925 "LT BPR Part Reenqueue"
         Observer.Observe('after GoToRecord', Log.Take());
         Host.Close();
         Observer.Observe('after Close', Log.Take());
-        Observer.Expect('after OpenView', 'agcr 1;enqueued 1;done 1;');
+        Observer.Expect('after OpenView', 'agcr 1;done 1;enqueued 1;');
         Observer.Expect('after GoToRecord', '');
         Observer.Expect('after Close', '');
         Observer.Verify();
@@ -196,8 +196,8 @@ codeunit 97925 "LT BPR Part Reenqueue"
         Observer.Observe('after GoToRecord', Log.Take());
         Host.Close();
         Observer.Observe('after Close', Log.Take());
-        Observer.Expect('after OpenView', 'agcr 1;enqueued 1;done 1;');
-        Observer.Expect('after GoToRecord', 'agcr 2;enqueued 2;done 2;');
+        Observer.Expect('after OpenView', 'agcr 1;done 1;enqueued 1;');
+        Observer.Expect('after GoToRecord', 'agcr 2;done 2;enqueued 2;');
         Observer.Expect('after Close', '');
         Observer.Verify();
     end;
@@ -216,7 +216,7 @@ codeunit 97925 "LT BPR Part Reenqueue"
         Observer.Observe('after OpenView', Log.Take());
         Host.Close();
         Observer.Observe('after Close', Log.Take());
-        Observer.Expect('after OpenView', 'agcr 1;enqueued 1;done 1;');
+        Observer.Expect('after OpenView', 'agcr 1;done 1;enqueued 1;');
         Observer.Expect('after Close', '');
         Observer.Verify();
     end;
@@ -237,9 +237,9 @@ codeunit 97925 "LT BPR Part Reenqueue"
         Observer.Observe('after Next', Log.Take());
         Host.Close();
         Observer.Observe('after Close', Log.Take());
-        Observer.Expect('after OpenView', 'agcr 1;enqueued 1;done 1;');
+        Observer.Expect('after OpenView', 'agcr 1;done 1;enqueued 1;');
         Observer.Expect('Next', 'Yes');
-        Observer.Expect('after Next', 'agcr 2;enqueued 2;done 2;');
+        Observer.Expect('after Next', 'agcr 2;done 2;enqueued 2;');
         Observer.Expect('after Close', '');
         Observer.Verify();
     end;
@@ -261,7 +261,7 @@ codeunit 97925 "LT BPR Part Reenqueue"
         Observer.Observe('after the second GoToRecord', Log.Take());
         Host.Close();
         Observer.Observe('after Close', Log.Take());
-        Observer.Expect('after OpenView and GoToRecord', 'agcr 1;enqueued 1;done 1;agcr 2;enqueued 2;done 2;');
+        Observer.Expect('after OpenView and GoToRecord', 'agcr 1;done 1;enqueued 1;agcr 2;done 2;enqueued 2;');
         Observer.Expect('after the second GoToRecord', '');
         Observer.Expect('after Close', '');
         Observer.Verify();
