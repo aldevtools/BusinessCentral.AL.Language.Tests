@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); own tables 66417 and 66418, codeunit 66419, test codeunit 66420
 // local object: the CalcFormula definitions and their OnValidate triggers are what the tests measure.
 // Probe (al-runner issue 7422: codeunit 5923 "Service-Quote to Order" validates Service Line "Reserved Qty. (Base)", a FlowField whose
-//   formula is a negated Sum): observation form, the values are read from the corpus CI matrix.
+//   formula is a negated Sum): measured by the corpus CI matrix (BC 27.5, 28.5, 29.0, run 43144389162); the values are the same on all three.
 // Area: Validate with a value on a Sum FlowField while the FlowField's current sum is not 0 and the new value is not 0. Formulas: -sum with
 //   one where-condition on a field, -sum with a field condition and a const condition, and sum for contrast. Values: larger than the sum,
 //   smaller, of the other sign, equal to the sum, and a sum below 0. Read: whether Validate raises, the value right after it, the OnValidate
@@ -194,7 +194,13 @@ codeunit 66420 "FFM NSum Tests"
         AddDetail(10, 'H1', 1, -3);
         H.Get('H1');
         ValidateCase('NSumF', 8, Observer, H);
-        Observer.Finish();
+        Observer.Expect('before', 'sum=-3 nsum=3 nsumkind=3');
+        Observer.Expect('rows before', '1/H2/1/100;10/H1/1/-3;');
+        Observer.Expect('value', '8');
+        Observer.Expect('log', 'NSumF=8;');
+        Observer.Expect('after', 'sum=-8 nsum=8 nsumkind=3');
+        Observer.Expect('rows after', '1/H2/1/100;10/H1/1/-3;11/H1/0/-5;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -207,7 +213,13 @@ codeunit 66420 "FFM NSum Tests"
         AddDetail(10, 'H1', 1, -3);
         H.Get('H1');
         ValidateCase('NSumF', 1, Observer, H);
-        Observer.Finish();
+        Observer.Expect('before', 'sum=-3 nsum=3 nsumkind=3');
+        Observer.Expect('rows before', '1/H2/1/100;10/H1/1/-3;');
+        Observer.Expect('value', '1');
+        Observer.Expect('log', 'NSumF=1;');
+        Observer.Expect('after', 'sum=-1 nsum=1 nsumkind=3');
+        Observer.Expect('rows after', '1/H2/1/100;10/H1/1/-3;11/H1/0/2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -220,7 +232,13 @@ codeunit 66420 "FFM NSum Tests"
         AddDetail(10, 'H1', 1, -3);
         H.Get('H1');
         ValidateCase('NSumF', -2, Observer, H);
-        Observer.Finish();
+        Observer.Expect('before', 'sum=-3 nsum=3 nsumkind=3');
+        Observer.Expect('rows before', '1/H2/1/100;10/H1/1/-3;');
+        Observer.Expect('value', '-2');
+        Observer.Expect('log', 'NSumF=-2;');
+        Observer.Expect('after', 'sum=2 nsum=-2 nsumkind=3');
+        Observer.Expect('rows after', '1/H2/1/100;10/H1/1/-3;11/H1/0/5;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -233,7 +251,13 @@ codeunit 66420 "FFM NSum Tests"
         AddDetail(10, 'H1', 1, -3);
         H.Get('H1');
         ValidateCase('NSumF', 3, Observer, H);
-        Observer.Finish();
+        Observer.Expect('before', 'sum=-3 nsum=3 nsumkind=3');
+        Observer.Expect('rows before', '1/H2/1/100;10/H1/1/-3;');
+        Observer.Expect('value', '3');
+        Observer.Expect('log', 'NSumF=3;');
+        Observer.Expect('after', 'sum=-3 nsum=3 nsumkind=3');
+        Observer.Expect('rows after', '1/H2/1/100;10/H1/1/-3;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -246,7 +270,13 @@ codeunit 66420 "FFM NSum Tests"
         AddDetail(10, 'H1', 1, 4);
         H.Get('H1');
         ValidateCase('NSumF', 2.5, Observer, H);
-        Observer.Finish();
+        Observer.Expect('before', 'sum=4 nsum=-4 nsumkind=-4');
+        Observer.Expect('rows before', '1/H2/1/100;10/H1/1/4;');
+        Observer.Expect('value', '2.5');
+        Observer.Expect('log', 'NSumF=2.5;');
+        Observer.Expect('after', 'sum=-2.5 nsum=2.5 nsumkind=-4');
+        Observer.Expect('rows after', '1/H2/1/100;10/H1/1/4;11/H1/0/-6.5;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -260,7 +290,13 @@ codeunit 66420 "FFM NSum Tests"
         AddDetail(11, 'H1', 2, -2);
         H.Get('H1');
         ValidateCase('NSumF', 8, Observer, H);
-        Observer.Finish();
+        Observer.Expect('before', 'sum=-3 nsum=3 nsumkind=1');
+        Observer.Expect('rows before', '1/H2/1/100;10/H1/1/-1;11/H1/2/-2;');
+        Observer.Expect('value', '8');
+        Observer.Expect('log', 'NSumF=8;');
+        Observer.Expect('after', 'sum=-8 nsum=8 nsumkind=1');
+        Observer.Expect('rows after', '1/H2/1/100;10/H1/1/-1;11/H1/2/-2;12/H1/0/-5;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -274,7 +310,13 @@ codeunit 66420 "FFM NSum Tests"
         AddDetail(11, 'H1', 2, -5);
         H.Get('H1');
         ValidateCase('NSumKindF', 8, Observer, H);
-        Observer.Finish();
+        Observer.Expect('before', 'sum=-8 nsum=8 nsumkind=3');
+        Observer.Expect('rows before', '1/H2/1/100;10/H1/1/-3;11/H1/2/-5;');
+        Observer.Expect('value', '8');
+        Observer.Expect('log', 'NSumKindF=8;');
+        Observer.Expect('after', 'sum=-13 nsum=13 nsumkind=8');
+        Observer.Expect('rows after', '1/H2/1/100;10/H1/1/-3;11/H1/2/-5;12/H1/1/-5;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -287,6 +329,12 @@ codeunit 66420 "FFM NSum Tests"
         AddDetail(10, 'H1', 1, 3);
         H.Get('H1');
         ValidateCase('SumF', 8, Observer, H);
-        Observer.Finish();
+        Observer.Expect('before', 'sum=3 nsum=-3 nsumkind=-3');
+        Observer.Expect('rows before', '1/H2/1/100;10/H1/1/3;');
+        Observer.Expect('value', '8');
+        Observer.Expect('log', 'SumF=8;');
+        Observer.Expect('after', 'sum=8 nsum=-8 nsumkind=-3');
+        Observer.Expect('rows after', '1/H2/1/100;10/H1/1/3;11/H1/0/5;');
+        Observer.Verify();
     end;
 }

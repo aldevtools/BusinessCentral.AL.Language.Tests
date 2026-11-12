@@ -6,7 +6,7 @@
 // Probe (al-runner issue 7419, the reporter's own page shape: a non-editable List over a temporary source table with
 //   `SourceTableView = sorting(...) order(descending)`, whose OnOpenPage and actions refill Rec; controls bound to methods of the record;
 //   the handler invokes an action, sets a TestPage filter on "Field No.", goes to the first row and reads the method-bound controls):
-//   observation form, the values are read from the corpus CI matrix.
+//   measured by the corpus CI matrix (BC 27.5, 28.5, 29.0, run 43144389162); the values are the same on all three.
 // Area: testpage/TempListExpressionRefill.al pins the same page without a SourceTableView. Here the same refills and reads on a List
 //   whose SourceTableView sorts descending, once by the primary key and once by a second key whose order differs from the primary key's
 //   (as in the report: sorting("Table No.", "Date and Time") order(descending)). Refills: three other rows, three other rows then
@@ -439,7 +439,15 @@ codeunit 66416 "TP TmpExprD Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ViewCasePK('none', '7', Observer);
-        Observer.Finish();
+        Observer.Expect('opened', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        Observer.Expect('after action', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        Observer.Expect('after filter 7', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        Observer.Expect('first', 'true 3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        Observer.Expect('next', 'true 1 s=20 f=7 old=a1 oldlocal=L:a1 newlocal=L:b1 fill=open');
+        Observer.Expect('filter removed, first', 'true 3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        Observer.Expect('filter removed, next', 'true 2 s=10 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 fill=open');
+        Observer.Expect('last', 'true 1 s=20 f=7 old=a1 oldlocal=L:a1 newlocal=L:b1 fill=open');
+        Observer.Verify();
     end;
 
     [Test]
@@ -448,7 +456,15 @@ codeunit 66416 "TP TmpExprD Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ViewCasePK('ThreeOther', '7', Observer);
-        Observer.Finish();
+        Observer.Expect('opened', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        Observer.Expect('after action', '13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('after filter 7', '13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('first', 'true 13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('next', 'true 11 s=5 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 fill=three other');
+        Observer.Expect('filter removed, first', 'true 13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('filter removed, next', 'true 12 s=40 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 fill=three other');
+        Observer.Expect('last', 'true 11 s=5 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 fill=three other');
+        Observer.Verify();
     end;
 
     [Test]
@@ -457,7 +473,15 @@ codeunit 66416 "TP TmpExprD Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ViewCasePK('ThreeOther', '9', Observer);
-        Observer.Finish();
+        Observer.Expect('opened', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        Observer.Expect('after action', '13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('after filter 9', '12 s=40 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 fill=three other');
+        Observer.Expect('first', 'true 12 s=40 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 fill=three other');
+        Observer.Expect('next', 'false 12 s=40 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 fill=three other');
+        Observer.Expect('filter removed, first', 'true 13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('filter removed, next', 'true 12 s=40 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 fill=three other');
+        Observer.Expect('last', 'true 11 s=5 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 fill=three other');
+        Observer.Verify();
     end;
 
     [Test]
@@ -466,7 +490,15 @@ codeunit 66416 "TP TmpExprD Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ViewCasePK('ThreeOther', '5', Observer);
-        Observer.Finish();
+        Observer.Expect('opened', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        Observer.Expect('after action', '13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('after filter 5', ' s= f= old= oldlocal= newlocal= fill=');
+        Observer.Expect('first', 'false  s= f= old= oldlocal= newlocal= fill=');
+        Observer.Expect('next', 'false  s= f= old= oldlocal= newlocal= fill=');
+        Observer.Expect('filter removed, first', 'true 13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('filter removed, next', 'true 12 s=40 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 fill=three other');
+        Observer.Expect('last', 'true 11 s=5 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 fill=three other');
+        Observer.Verify();
     end;
 
     [Test]
@@ -475,7 +507,15 @@ codeunit 66416 "TP TmpExprD Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ViewCasePK('ThreeOtherFindFirst', '7', Observer);
-        Observer.Finish();
+        Observer.Expect('opened', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        Observer.Expect('after action', '13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('after filter 7', '13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('first', 'true 13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('next', 'true 11 s=5 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 fill=three other');
+        Observer.Expect('filter removed, first', 'true 13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('filter removed, next', 'true 12 s=40 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 fill=three other');
+        Observer.Expect('last', 'true 11 s=5 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 fill=three other');
+        Observer.Verify();
     end;
 
     [Test]
@@ -484,7 +524,15 @@ codeunit 66416 "TP TmpExprD Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ViewCasePK('NoRow', '7', Observer);
-        Observer.Finish();
+        Observer.Expect('opened', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        Observer.Expect('after action', ' s= f= old= oldlocal= newlocal= fill=');
+        Observer.Expect('after filter 7', ' s= f= old= oldlocal= newlocal= fill=');
+        Observer.Expect('first', 'false  s= f= old= oldlocal= newlocal= fill=');
+        Observer.Expect('next', 'false  s= f= old= oldlocal= newlocal= fill=');
+        Observer.Expect('filter removed, first', 'false  s= f= old= oldlocal= newlocal= fill=');
+        Observer.Expect('filter removed, next', 'false  s= f= old= oldlocal= newlocal= fill=');
+        Observer.Expect('last', 'false  s= f= old= oldlocal= newlocal= fill=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -492,7 +540,15 @@ codeunit 66416 "TP TmpExprD Tests"
     procedure PkDescending_RunModal_NoAction_FilterAndFirst()
     begin
         ModalCasePK('none', '7');
-        ModalObserver.Finish();
+        ModalObserver.Expect('opened', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        ModalObserver.Expect('after action', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        ModalObserver.Expect('after filter 7', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        ModalObserver.Expect('first', 'true 3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        ModalObserver.Expect('next', 'true 1 s=20 f=7 old=a1 oldlocal=L:a1 newlocal=L:b1 fill=open');
+        ModalObserver.Expect('filter removed, first', 'true 3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        ModalObserver.Expect('filter removed, next', 'true 2 s=10 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 fill=open');
+        ModalObserver.Expect('last', 'true 1 s=20 f=7 old=a1 oldlocal=L:a1 newlocal=L:b1 fill=open');
+        ModalObserver.Verify();
     end;
 
     [Test]
@@ -500,7 +556,15 @@ codeunit 66416 "TP TmpExprD Tests"
     procedure PkDescending_RunModal_ThreeOtherRows_FilterAndFirst()
     begin
         ModalCasePK('ThreeOther', '7');
-        ModalObserver.Finish();
+        ModalObserver.Expect('opened', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        ModalObserver.Expect('after action', '13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        ModalObserver.Expect('after filter 7', '13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        ModalObserver.Expect('first', 'true 13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        ModalObserver.Expect('next', 'true 11 s=5 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 fill=three other');
+        ModalObserver.Expect('filter removed, first', 'true 13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        ModalObserver.Expect('filter removed, next', 'true 12 s=40 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 fill=three other');
+        ModalObserver.Expect('last', 'true 11 s=5 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 fill=three other');
+        ModalObserver.Verify();
     end;
 
     [Test]
@@ -508,7 +572,15 @@ codeunit 66416 "TP TmpExprD Tests"
     procedure PkDescending_RunModal_ThreeOtherRows_FilterWithoutMatch()
     begin
         ModalCasePK('ThreeOther', '5');
-        ModalObserver.Finish();
+        ModalObserver.Expect('opened', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        ModalObserver.Expect('after action', '13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        ModalObserver.Expect('after filter 5', ' s= f= old= oldlocal= newlocal= fill=');
+        ModalObserver.Expect('first', 'false  s= f= old= oldlocal= newlocal= fill=');
+        ModalObserver.Expect('next', 'false  s= f= old= oldlocal= newlocal= fill=');
+        ModalObserver.Expect('filter removed, first', 'true 13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        ModalObserver.Expect('filter removed, next', 'true 12 s=40 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 fill=three other');
+        ModalObserver.Expect('last', 'true 11 s=5 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 fill=three other');
+        ModalObserver.Verify();
     end;
 
     [Test]
@@ -517,7 +589,15 @@ codeunit 66416 "TP TmpExprD Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ViewCaseKEY('none', '7', Observer);
-        Observer.Finish();
+        Observer.Expect('opened', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        Observer.Expect('after action', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        Observer.Expect('after filter 7', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        Observer.Expect('first', 'true 3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        Observer.Expect('next', 'true 1 s=20 f=7 old=a1 oldlocal=L:a1 newlocal=L:b1 fill=open');
+        Observer.Expect('filter removed, first', 'true 3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        Observer.Expect('filter removed, next', 'true 1 s=20 f=7 old=a1 oldlocal=L:a1 newlocal=L:b1 fill=open');
+        Observer.Expect('last', 'true 2 s=10 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 fill=open');
+        Observer.Verify();
     end;
 
     [Test]
@@ -526,7 +606,15 @@ codeunit 66416 "TP TmpExprD Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ViewCaseKEY('ThreeOther', '7', Observer);
-        Observer.Finish();
+        Observer.Expect('opened', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        Observer.Expect('after action', '13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('after filter 7', '13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('first', 'true 13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('next', 'true 11 s=5 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 fill=three other');
+        Observer.Expect('filter removed, first', 'true 12 s=40 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 fill=three other');
+        Observer.Expect('filter removed, next', 'true 13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('last', 'true 11 s=5 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 fill=three other');
+        Observer.Verify();
     end;
 
     [Test]
@@ -535,7 +623,15 @@ codeunit 66416 "TP TmpExprD Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ViewCaseKEY('ThreeOther', '9', Observer);
-        Observer.Finish();
+        Observer.Expect('opened', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        Observer.Expect('after action', '13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('after filter 9', '12 s=40 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 fill=three other');
+        Observer.Expect('first', 'true 12 s=40 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 fill=three other');
+        Observer.Expect('next', 'false 12 s=40 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 fill=three other');
+        Observer.Expect('filter removed, first', 'true 12 s=40 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 fill=three other');
+        Observer.Expect('filter removed, next', 'true 13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('last', 'true 11 s=5 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 fill=three other');
+        Observer.Verify();
     end;
 
     [Test]
@@ -544,7 +640,15 @@ codeunit 66416 "TP TmpExprD Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ViewCaseKEY('ThreeOther', '5', Observer);
-        Observer.Finish();
+        Observer.Expect('opened', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        Observer.Expect('after action', '13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('after filter 5', ' s= f= old= oldlocal= newlocal= fill=');
+        Observer.Expect('first', 'false  s= f= old= oldlocal= newlocal= fill=');
+        Observer.Expect('next', 'false  s= f= old= oldlocal= newlocal= fill=');
+        Observer.Expect('filter removed, first', 'true 12 s=40 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 fill=three other');
+        Observer.Expect('filter removed, next', 'true 13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('last', 'true 11 s=5 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 fill=three other');
+        Observer.Verify();
     end;
 
     [Test]
@@ -553,7 +657,15 @@ codeunit 66416 "TP TmpExprD Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ViewCaseKEY('ThreeOtherFindFirst', '7', Observer);
-        Observer.Finish();
+        Observer.Expect('opened', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        Observer.Expect('after action', '12 s=40 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 fill=three other');
+        Observer.Expect('after filter 7', '13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('first', 'true 13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('next', 'true 11 s=5 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 fill=three other');
+        Observer.Expect('filter removed, first', 'true 12 s=40 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 fill=three other');
+        Observer.Expect('filter removed, next', 'true 13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        Observer.Expect('last', 'true 11 s=5 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 fill=three other');
+        Observer.Verify();
     end;
 
     [Test]
@@ -562,7 +674,15 @@ codeunit 66416 "TP TmpExprD Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ViewCaseKEY('NoRow', '7', Observer);
-        Observer.Finish();
+        Observer.Expect('opened', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        Observer.Expect('after action', ' s= f= old= oldlocal= newlocal= fill=');
+        Observer.Expect('after filter 7', ' s= f= old= oldlocal= newlocal= fill=');
+        Observer.Expect('first', 'false  s= f= old= oldlocal= newlocal= fill=');
+        Observer.Expect('next', 'false  s= f= old= oldlocal= newlocal= fill=');
+        Observer.Expect('filter removed, first', 'false  s= f= old= oldlocal= newlocal= fill=');
+        Observer.Expect('filter removed, next', 'false  s= f= old= oldlocal= newlocal= fill=');
+        Observer.Expect('last', 'false  s= f= old= oldlocal= newlocal= fill=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -570,7 +690,15 @@ codeunit 66416 "TP TmpExprD Tests"
     procedure KeyDescending_RunModal_NoAction_FilterAndFirst()
     begin
         ModalCaseKEY('none', '7');
-        ModalObserver.Finish();
+        ModalObserver.Expect('opened', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        ModalObserver.Expect('after action', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        ModalObserver.Expect('after filter 7', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        ModalObserver.Expect('first', 'true 3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        ModalObserver.Expect('next', 'true 1 s=20 f=7 old=a1 oldlocal=L:a1 newlocal=L:b1 fill=open');
+        ModalObserver.Expect('filter removed, first', 'true 3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        ModalObserver.Expect('filter removed, next', 'true 1 s=20 f=7 old=a1 oldlocal=L:a1 newlocal=L:b1 fill=open');
+        ModalObserver.Expect('last', 'true 2 s=10 f=8 old=a2 oldlocal=L:a2 newlocal=L:b2 fill=open');
+        ModalObserver.Verify();
     end;
 
     [Test]
@@ -578,7 +706,15 @@ codeunit 66416 "TP TmpExprD Tests"
     procedure KeyDescending_RunModal_ThreeOtherRows_FilterAndFirst()
     begin
         ModalCaseKEY('ThreeOther', '7');
-        ModalObserver.Finish();
+        ModalObserver.Expect('opened', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        ModalObserver.Expect('after action', '13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        ModalObserver.Expect('after filter 7', '13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        ModalObserver.Expect('first', 'true 13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        ModalObserver.Expect('next', 'true 11 s=5 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 fill=three other');
+        ModalObserver.Expect('filter removed, first', 'true 12 s=40 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 fill=three other');
+        ModalObserver.Expect('filter removed, next', 'true 13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        ModalObserver.Expect('last', 'true 11 s=5 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 fill=three other');
+        ModalObserver.Verify();
     end;
 
     [Test]
@@ -586,6 +722,14 @@ codeunit 66416 "TP TmpExprD Tests"
     procedure KeyDescending_RunModal_ThreeOtherRows_FilterWithoutMatch()
     begin
         ModalCaseKEY('ThreeOther', '5');
-        ModalObserver.Finish();
+        ModalObserver.Expect('opened', '3 s=30 f=7 old=a3 oldlocal=L:a3 newlocal=L:b3 fill=open');
+        ModalObserver.Expect('after action', '13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        ModalObserver.Expect('after filter 5', ' s= f= old= oldlocal= newlocal= fill=');
+        ModalObserver.Expect('first', 'false  s= f= old= oldlocal= newlocal= fill=');
+        ModalObserver.Expect('next', 'false  s= f= old= oldlocal= newlocal= fill=');
+        ModalObserver.Expect('filter removed, first', 'true 12 s=40 f=9 old=m2 oldlocal=L:m2 newlocal=L:n2 fill=three other');
+        ModalObserver.Expect('filter removed, next', 'true 13 s=15 f=7 old=m3 oldlocal=L:m3 newlocal=L:n3 fill=three other');
+        ModalObserver.Expect('last', 'true 11 s=5 f=7 old=m1 oldlocal=L:m1 newlocal=L:n1 fill=three other');
+        ModalObserver.Verify();
     end;
 }
