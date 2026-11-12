@@ -87,7 +87,7 @@ codeunit 50893 "REC Enum Group Tests"
         Initialize();
         OpenFilteredNewCard(Card, 2);
         asserterror Card.Target.SetValue('OTHER');
-        if StrPos(GetLastErrorText(), 'Target') = 0 then
+        if GetLastErrorText() <> 'Validation error for Field: Target,  Message = ''The field Target of table REC Enum Group Source contains a value (OTHER) that cannot be found in the related table (REC Enum Group Target). (Select Refresh to discard errors)''' then
             Error('Expected validation of Target to fail, got %1', GetLastErrorText());
         Card.Close();
     end;
@@ -103,7 +103,7 @@ codeunit 50893 "REC Enum Group Tests"
         Source.Validate(Target, 'MATCH');
         Source.TestField(Target, 'MATCH');
         asserterror Source.Validate(Target, 'OTHER');
-        if StrPos(GetLastErrorText(), 'OTHER') = 0 then
+        if GetLastErrorText() <> 'The field Target of table REC Enum Group Source contains a value (OTHER) that cannot be found in the related table (REC Enum Group Target).' then
             Error('Expected a relation error for OTHER, got %1', GetLastErrorText());
     end;
 
