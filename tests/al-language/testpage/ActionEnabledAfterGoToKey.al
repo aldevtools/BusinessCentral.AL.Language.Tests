@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-enabled-property
 //   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testpage/testpage-gotokey-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own tables 77700 77701, pages 77702..77705, log codeunit 77706, test codeunit 77707
+// Fixtures used: Probe Observer (codeunit 69160); own tables 75300 75301, pages 75302..75305, log codeunit 75306, test codeunit 75307
 // Probe (al-runner 7916): an action whose Enabled is a page variable that OnAfterGetRecord sets from the row (NextEnabled :=
 //   Rec.Rel <> 0), read with TestAction.Enabled() after the open and after each cursor move: GoToKey to a row with Rel <> 0, to a row
 //   with Rel = 0 and back, GoToRecord, Next, Previous, First, Last. Opens: OpenView, OpenEdit, Trap + Page.Run(Page, Rec) with a
@@ -13,7 +13,7 @@
 // local object: the pages are the shapes under test; the log records the record triggers
 // BC versions: 27, 28, 29
 
-table 77700 "PG6 EW Row"
+table 75300 "PG6 EW Row"
 {
     DataClassification = SystemMetadata;
 
@@ -29,7 +29,7 @@ table 77700 "PG6 EW Row"
     }
 }
 
-table 77701 "PG6 EW Rel Src"
+table 75301 "PG6 EW Rel Src"
 {
     DataClassification = SystemMetadata;
 
@@ -47,7 +47,7 @@ table 77701 "PG6 EW Rel Src"
 }
 
 // The reporter's shape on an own table: a non-editable list, one action whose Enabled is set by OnAfterGetRecord.
-page 77702 "PG6 EW List"
+page 75302 "PG6 EW List"
 {
     PageType = List;
     SourceTable = "PG6 EW Row";
@@ -102,7 +102,7 @@ page 77702 "PG6 EW List"
 
 // The neighbors: a variable set in OnAfterGetCurrRecord (CurrAction), Visible bound to the OnAfterGetRecord variable (VisAction),
 // and a field control whose Enabled and Editable are that variable (FlagCtl).
-page 77703 "PG6 EW List Mix"
+page 75303 "PG6 EW List Mix"
 {
     PageType = List;
     SourceTable = "PG6 EW Row";
@@ -172,7 +172,7 @@ page 77703 "PG6 EW List Mix"
     end;
 }
 
-page 77704 "PG6 EW Card"
+page 75304 "PG6 EW Card"
 {
     PageType = Card;
     SourceTable = "PG6 EW Row";
@@ -230,7 +230,7 @@ page 77704 "PG6 EW Card"
 }
 
 // The reporter's page on the virtual Field table.
-page 77705 "PG6 EW Field List"
+page 75305 "PG6 EW Field List"
 {
     PageType = List;
     SourceTable = Field;
@@ -283,7 +283,7 @@ page 77705 "PG6 EW Field List"
     end;
 }
 
-codeunit 77706 "PG6 EW Log"
+codeunit 75306 "PG6 EW Log"
 {
     SingleInstance = true;
 
@@ -309,7 +309,7 @@ codeunit 77706 "PG6 EW Log"
     end;
 }
 
-codeunit 77707 "PG6 EW Enabled Walk"
+codeunit 75307 "PG6 EW Enabled Walk"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -386,7 +386,18 @@ codeunit 77707 "PG6 EW Enabled Walk"
         Initialize();
         P.OpenView();
         WalkList(P);
-        Observer.Finish();
+        Observer.Expect('open', 'No [agr(A) agr(B) agr(C) agr(D) agr(E) agr(A) agr(A) agcr(A)]');
+        Observer.Expect('gotokey-b', 'Yes [agr(B) agr(B) agcr(B)]');
+        Observer.Expect('gotokey-c', 'No [agr(A) agr(A) agcr(A) agr(B) agr(B) agcr(B) agr(C) agr(C) agcr(C)]');
+        Observer.Expect('gotokey-d', 'Yes [agr(A) agr(A) agcr(A) agr(B) agr(B) agcr(B) agr(C) agr(C) agcr(C) agr(D) agr(D) agcr(D)]');
+        Observer.Expect('gotorecord-e', 'No [agr(A) agr(A) agcr(A) agr(B) agr(B) agcr(B) agr(C) agr(C) agcr(C) agr(D) agr(D) agcr(D) agr(E) agr(E) agcr(E)]');
+        Observer.Expect('gotorecord-b', 'Yes [agr(A) agr(A) agcr(A) agr(B) agr(B) agcr(B)]');
+        Observer.Expect('next', 'No [agr(C) agr(C) agcr(C)]');
+        Observer.Expect('previous', 'Yes [agr(B) agr(B) agcr(B)]');
+        Observer.Expect('first', 'No [agr(A) agr(A) agcr(A)]');
+        Observer.Expect('last', 'No [agr(E) agr(E) agcr(E)]');
+        Observer.Expect('closed', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -397,7 +408,18 @@ codeunit 77707 "PG6 EW Enabled Walk"
         Initialize();
         P.OpenEdit();
         WalkList(P);
-        Observer.Finish();
+        Observer.Expect('open', 'No [agr(A) agr(B) agr(C) agr(D) agr(E) agr(A) agr(A) agcr(A)]');
+        Observer.Expect('gotokey-b', 'Yes [agr(B) agr(B) agcr(B)]');
+        Observer.Expect('gotokey-c', 'No [agr(A) agr(A) agcr(A) agr(B) agr(B) agcr(B) agr(C) agr(C) agcr(C)]');
+        Observer.Expect('gotokey-d', 'Yes [agr(A) agr(A) agcr(A) agr(B) agr(B) agcr(B) agr(C) agr(C) agcr(C) agr(D) agr(D) agcr(D)]');
+        Observer.Expect('gotorecord-e', 'No [agr(A) agr(A) agcr(A) agr(B) agr(B) agcr(B) agr(C) agr(C) agcr(C) agr(D) agr(D) agcr(D) agr(E) agr(E) agcr(E)]');
+        Observer.Expect('gotorecord-b', 'Yes [agr(A) agr(A) agcr(A) agr(B) agr(B) agcr(B)]');
+        Observer.Expect('next', 'No [agr(C) agr(C) agcr(C)]');
+        Observer.Expect('previous', 'Yes [agr(B) agr(B) agcr(B)]');
+        Observer.Expect('first', 'No [agr(A) agr(A) agcr(A)]');
+        Observer.Expect('last', 'No [agr(E) agr(E) agcr(E)]');
+        Observer.Expect('closed', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -411,7 +433,18 @@ codeunit 77707 "PG6 EW Enabled Walk"
         P.Trap();
         Page.Run(Page::"PG6 EW List", Row);
         WalkList(P);
-        Observer.Finish();
+        Observer.Expect('open', 'Yes [agr(B) agr(C) agr(D) agr(E) agr(B) agr(B) agcr(B)]');
+        Observer.Expect('gotokey-b', 'Yes []');
+        Observer.Expect('gotokey-c', 'No [agr(C) agr(C) agcr(C)]');
+        Observer.Expect('gotokey-d', 'Yes [agr(B) agr(B) agcr(B) agr(C) agr(C) agcr(C) agr(D) agr(D) agcr(D)]');
+        Observer.Expect('gotorecord-e', 'No [agr(B) agr(B) agcr(B) agr(C) agr(C) agcr(C) agr(D) agr(D) agcr(D) agr(E) agr(E) agcr(E)]');
+        Observer.Expect('gotorecord-b', 'Yes [agr(B) agr(B) agcr(B)]');
+        Observer.Expect('next', 'No [agr(C) agr(C) agcr(C)]');
+        Observer.Expect('previous', 'Yes [agr(B) agr(B) agcr(B)]');
+        Observer.Expect('first', 'Yes []');
+        Observer.Expect('last', 'No [agr(E) agr(E) agcr(E)]');
+        Observer.Expect('closed', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -444,7 +477,17 @@ codeunit 77707 "PG6 EW Enabled Walk"
         P.Last();
         Say('last', P.CurrAction.Enabled());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'No [agr(A) agr(B) agr(C) agr(D) agr(E) agr(A) agr(A) agcr(A)]');
+        Observer.Expect('gotokey-b', 'Yes [agr(B) agr(B) agcr(B)]');
+        Observer.Expect('gotokey-c', 'No [agr(A) agr(A) agcr(A) agr(B) agr(B) agcr(B) agr(C) agr(C) agcr(C)]');
+        Observer.Expect('gotokey-d', 'Yes [agr(A) agr(A) agcr(A) agr(B) agr(B) agcr(B) agr(C) agr(C) agcr(C) agr(D) agr(D) agcr(D)]');
+        Observer.Expect('gotorecord-e', 'No [agr(A) agr(A) agcr(A) agr(B) agr(B) agcr(B) agr(C) agr(C) agcr(C) agr(D) agr(D) agcr(D) agr(E) agr(E) agcr(E)]');
+        Observer.Expect('gotorecord-b', 'Yes [agr(A) agr(A) agcr(A) agr(B) agr(B) agcr(B)]');
+        Observer.Expect('next', 'No [agr(C) agr(C) agcr(C)]');
+        Observer.Expect('previous', 'Yes [agr(B) agr(B) agcr(B)]');
+        Observer.Expect('first', 'No [agr(A) agr(A) agcr(A)]');
+        Observer.Expect('last', 'No [agr(E) agr(E) agcr(E)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -477,7 +520,17 @@ codeunit 77707 "PG6 EW Enabled Walk"
         P.Last();
         Say('last', P.VisAction.Visible());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'No [agr(A) agr(B) agr(C) agr(D) agr(E) agr(A) agr(A) agcr(A)]');
+        Observer.Expect('gotokey-b', 'Yes [agr(B) agr(B) agcr(B)]');
+        Observer.Expect('gotokey-c', 'No [agr(A) agr(A) agcr(A) agr(B) agr(B) agcr(B) agr(C) agr(C) agcr(C)]');
+        Observer.Expect('gotokey-d', 'Yes [agr(A) agr(A) agcr(A) agr(B) agr(B) agcr(B) agr(C) agr(C) agcr(C) agr(D) agr(D) agcr(D)]');
+        Observer.Expect('gotorecord-e', 'No [agr(A) agr(A) agcr(A) agr(B) agr(B) agcr(B) agr(C) agr(C) agcr(C) agr(D) agr(D) agcr(D) agr(E) agr(E) agcr(E)]');
+        Observer.Expect('gotorecord-b', 'Yes [agr(A) agr(A) agcr(A) agr(B) agr(B) agcr(B)]');
+        Observer.Expect('next', 'No [agr(C) agr(C) agcr(C)]');
+        Observer.Expect('previous', 'Yes [agr(B) agr(B) agcr(B)]');
+        Observer.Expect('first', 'No [agr(A) agr(A) agcr(A)]');
+        Observer.Expect('last', 'No [agr(E) agr(E) agcr(E)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -503,7 +556,14 @@ codeunit 77707 "PG6 EW Enabled Walk"
         P.First();
         Observer.Observe('first', Format(P.FlagCtl.Enabled()) + '/' + Format(P.FlagCtl.Editable()) + ' ' + Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'No/No [agr(A) agr(B) agr(C) agr(D) agr(E) agr(A) agr(A) agcr(A)]');
+        Observer.Expect('gotokey-b', 'Yes/No [agr(B) agr(B) agcr(B)]');
+        Observer.Expect('gotokey-c', 'No/No [agr(A) agr(A) agcr(A) agr(B) agr(B) agcr(B) agr(C) agr(C) agcr(C)]');
+        Observer.Expect('gotokey-d', 'Yes/No [agr(A) agr(A) agcr(A) agr(B) agr(B) agcr(B) agr(C) agr(C) agcr(C) agr(D) agr(D) agcr(D)]');
+        Observer.Expect('gotorecord-e', 'No/No [agr(A) agr(A) agcr(A) agr(B) agr(B) agcr(B) agr(C) agr(C) agcr(C) agr(D) agr(D) agcr(D) agr(E) agr(E) agcr(E)]');
+        Observer.Expect('previous', 'Yes/No [agr(D) agr(D) agcr(D)]');
+        Observer.Expect('first', 'No/No [agr(A) agr(A) agcr(A)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -531,7 +591,15 @@ codeunit 77707 "PG6 EW Enabled Walk"
         P.Last();
         Observer.Observe('last', Format(P.NextAction.Enabled()) + '/' + Format(P.FlagCtl.Enabled()) + ' ' + Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'No/No [agr(A) agcr(A)]');
+        Observer.Expect('gotokey-b', 'Yes/Yes [agr(A) agcr(A) agr(B) agcr(B)]');
+        Observer.Expect('gotokey-c', 'No/No [agr(A) agcr(A) agr(B) agcr(B) agr(C) agcr(C)]');
+        Observer.Expect('gotokey-d', 'Yes/Yes [agr(A) agcr(A) agr(B) agcr(B) agr(C) agcr(C) agr(D) agcr(D)]');
+        Observer.Expect('gotorecord-e', 'No/No [agr(A) agcr(A) agr(B) agcr(B) agr(C) agcr(C) agr(D) agcr(D) agr(E) agcr(E)]');
+        Observer.Expect('previous', 'Yes/Yes [agr(D) agcr(D)]');
+        Observer.Expect('first', 'No/No [agr(A) agcr(A)]');
+        Observer.Expect('last', 'No/No [agr(E) agcr(E)]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -555,6 +623,11 @@ codeunit 77707 "PG6 EW Enabled Walk"
         P.GoToKey(Database::"PG6 EW Rel Src", 3);
         Observer.Observe('gotokey-3', Format(P.NextAction.Enabled()) + ' ' + Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'No rel=0 [agr(1) agr(2) agr(3) agr(1) agr(1) agcr(1)]');
+        Observer.Expect('gotokey-2', 'Yes rel=Yes [agr(2) agr(2) agcr(2)]');
+        Observer.Expect('gotokey-1', 'No rel=0 [agr(1) agr(1) agcr(1)]');
+        Observer.Expect('gotokey-2-again', 'Yes [agr(2) agr(2) agcr(2)]');
+        Observer.Expect('gotokey-3', 'No [agr(1) agr(1) agcr(1) agr(2) agr(2) agcr(2) agr(3) agr(3) agcr(3)]');
+        Observer.Verify();
     end;
 }

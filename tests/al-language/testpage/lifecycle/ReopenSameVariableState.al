@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testpage/testpage-data-type
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own table 77770, pages 77771 77772 77773, log codeunit 77774, test codeunit 77775
+// Fixtures used: Probe Observer (codeunit 69160); own table 75370, pages 75371 75372 75373, log codeunit 75374, test codeunit 75375
 // Probe (al-runner 7645): what a TestPage variable carries into its second open. Each test reaches a state on the first open (an action
 //   ran; a save failed in the table's OnModify; a save was aborted by OnModifyRecord returning false; a control bound to a page variable
 //   on a page without a source table was set; a row of a temporary list was deleted under the cursor), closes the page, opens the same
@@ -12,7 +12,7 @@
 // local object: the pages are the states under test
 // BC versions: 27, 28, 29
 
-table 77770 "PG6 FL Row"
+table 75370 "PG6 FL Row"
 {
     DataClassification = SystemMetadata;
 
@@ -37,7 +37,7 @@ table 77770 "PG6 FL Row"
     end;
 }
 
-page 77771 "PG6 FL Card"
+page 75371 "PG6 FL Card"
 {
     PageType = Card;
     SourceTable = "PG6 FL Row";
@@ -97,7 +97,7 @@ page 77771 "PG6 FL Card"
     end;
 }
 
-page 77772 "PG6 FL No Source"
+page 75372 "PG6 FL No Source"
 {
     PageType = Card;
     ApplicationArea = All;
@@ -145,7 +145,7 @@ page 77772 "PG6 FL No Source"
     end;
 }
 
-page 77773 "PG6 FL Temp List"
+page 75373 "PG6 FL Temp List"
 {
     PageType = List;
     SourceTable = "PG6 FL Row";
@@ -209,7 +209,7 @@ page 77773 "PG6 FL Temp List"
     end;
 }
 
-codeunit 77774 "PG6 FL Log"
+codeunit 75374 "PG6 FL Log"
 {
     SingleInstance = true;
 
@@ -235,7 +235,7 @@ codeunit 77774 "PG6 FL Log"
     end;
 }
 
-codeunit 77775 "PG6 FL Reopen State"
+codeunit 75375 "PG6 FL Reopen State"
 {
     Subtype = Test;
     TestPermissions = Disabled;

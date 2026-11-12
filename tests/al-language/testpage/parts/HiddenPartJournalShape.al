@@ -1,8 +1,8 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-visible-property
 //   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-page-types-and-layouts
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own tables 77710 77711 77712, part pages 77713 77714, host pages 77715 77716 77717,
-//   codeunit 77718 (the send codeunit), log codeunit 77719, test codeunit 77720
+// Fixtures used: Probe Observer (codeunit 69160); own tables 75310 75311 75312, part pages 75313 75314, host pages 75315 75316 75317,
+//   codeunit 75318 (the send codeunit), log codeunit 75319, test codeunit 75320
 // Probe (al-runner 7922): the journal shape of a workflow status FactBox. The host's OnOpenPage, OnAfterGetCurrRecord and an action all run
 //   ShowStatus := CurrPage.Status.Page.Fill(Rec."No."); the part control has Editable = false, Enabled = false, ShowFilter = false and
 //   Visible = ShowStatus. The action first calls a codeunit that takes the host's Rec (by value, or by var) and inserts the request row
@@ -15,7 +15,7 @@
 // local object: the hosts, the part and its Visible settings are what the test checks; the log records the triggers
 // BC versions: 27, 28, 29
 
-table 77710 "PG6 HJ Doc"
+table 75310 "PG6 HJ Doc"
 {
     DataClassification = SystemMetadata;
 
@@ -31,7 +31,7 @@ table 77710 "PG6 HJ Doc"
     }
 }
 
-table 77711 "PG6 HJ Request"
+table 75311 "PG6 HJ Request"
 {
     DataClassification = SystemMetadata;
 
@@ -47,7 +47,7 @@ table 77711 "PG6 HJ Request"
     }
 }
 
-table 77712 "PG6 HJ Status"
+table 75312 "PG6 HJ Status"
 {
     DataClassification = SystemMetadata;
 
@@ -64,7 +64,7 @@ table 77712 "PG6 HJ Status"
 }
 
 // A temporary ListPart that a procedure refills from the stored requests of one document and answers whether it has rows.
-page 77713 "PG6 HJ Status Part"
+page 75313 "PG6 HJ Status Part"
 {
     PageType = ListPart;
     SourceTable = "PG6 HJ Status";
@@ -127,7 +127,7 @@ page 77713 "PG6 HJ Status Part"
 }
 
 // The same over the stored requests: the procedure filters instead of filling.
-page 77714 "PG6 HJ Stored Part"
+page 75314 "PG6 HJ Stored Part"
 {
     PageType = ListPart;
     SourceTable = "PG6 HJ Request";
@@ -178,7 +178,7 @@ page 77714 "PG6 HJ Stored Part"
     end;
 }
 
-page 77715 "PG6 HJ Worksheet"
+page 75315 "PG6 HJ Worksheet"
 {
     PageType = Worksheet;
     SourceTable = "PG6 HJ Doc";
@@ -268,7 +268,7 @@ page 77715 "PG6 HJ Worksheet"
     end;
 }
 
-page 77716 "PG6 HJ List"
+page 75316 "PG6 HJ List"
 {
     PageType = List;
     SourceTable = "PG6 HJ Doc";
@@ -358,7 +358,7 @@ page 77716 "PG6 HJ List"
     end;
 }
 
-page 77717 "PG6 HJ Worksheet Stored"
+page 75317 "PG6 HJ Worksheet Stored"
 {
     PageType = Worksheet;
     SourceTable = "PG6 HJ Doc";
@@ -435,7 +435,7 @@ page 77717 "PG6 HJ Worksheet Stored"
     end;
 }
 
-codeunit 77718 "PG6 HJ Send"
+codeunit 75318 "PG6 HJ Send"
 {
     procedure SendByValue(Doc: Record "PG6 HJ Doc")
     begin
@@ -463,7 +463,7 @@ codeunit 77718 "PG6 HJ Send"
     end;
 }
 
-codeunit 77719 "PG6 HJ Log"
+codeunit 75319 "PG6 HJ Log"
 {
     SingleInstance = true;
 
@@ -489,7 +489,7 @@ codeunit 77719 "PG6 HJ Log"
     end;
 }
 
-codeunit 77720 "PG6 HJ Journal Shape"
+codeunit 75320 "PG6 HJ Journal Shape"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -547,7 +547,12 @@ codeunit 77720 "PG6 HJ Journal Shape"
         Say('next', P.Status.Visible());
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '0 No [host-open st-fill(,0) st-open host-agcr(H1) st-fill(H1,0) st-agcr(0)]');
+        Observer.Expect('gotorecord', '0 No []');
+        Observer.Expect('send', '1 Yes [act-send cu-send(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1) host-agcr(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1)]');
+        Observer.Expect('next', '1 No [host-agcr(H2) st-fill(H2,0)]');
+        Observer.Expect('closed', '1 [st-close host-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -568,7 +573,12 @@ codeunit 77720 "PG6 HJ Journal Shape"
         Say('next', P.Status.Visible());
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '0 No [host-open st-fill(,0) st-open host-agcr(H1) st-fill(H1,0) st-agcr(0)]');
+        Observer.Expect('gotorecord', '0 No []');
+        Observer.Expect('send', '1 Yes [act-send cu-send(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1) host-agcr(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1)]');
+        Observer.Expect('next', '1 No [host-agcr(H2) st-fill(H2,0)]');
+        Observer.Expect('closed', '1 [st-close host-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -589,7 +599,12 @@ codeunit 77720 "PG6 HJ Journal Shape"
         Say('next', P.Status.Visible());
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '0 No [host-open st-fill(,0) st-open host-agcr(H1) st-fill(H1,0) st-agcr(0)]');
+        Observer.Expect('gotorecord', '0 No []');
+        Observer.Expect('send', '1 Yes [act-send cu-send(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1) host-agcr(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1)]');
+        Observer.Expect('next', '1 No [host-agcr(H2) st-fill(H2,0)]');
+        Observer.Expect('closed', '1 [st-close host-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -610,7 +625,12 @@ codeunit 77720 "PG6 HJ Journal Shape"
         Say('next', P.Status.Visible());
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '0 No [host-open st-fill(,0) st-open host-agcr(H1) st-fill(H1,0) st-agcr(0)]');
+        Observer.Expect('gotorecord', '0 No []');
+        Observer.Expect('send', '1 Yes [act-send cu-send(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1) host-agcr(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1)]');
+        Observer.Expect('next', '1 No [host-agcr(H2) st-fill(H2,0)]');
+        Observer.Expect('closed', '1 [st-close host-close]');
+        Observer.Verify();
     end;
 
     // The request for H1 exists before the page opens: OnOpenPage and OnAfterGetCurrRecord answer true without the action.
@@ -635,7 +655,13 @@ codeunit 77720 "PG6 HJ Journal Shape"
         Say('previous', P.Status.Visible());
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('setup', '1 [cu-send(H1)]');
+        Observer.Expect('open', '1 Yes [host-open st-fill(,0) st-open host-agcr(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1)]');
+        Observer.Expect('gotorecord', '1 Yes []');
+        Observer.Expect('next', '1 No [host-agcr(H2) st-fill(H2,0)]');
+        Observer.Expect('previous', '1 Yes [host-agcr(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1)]');
+        Observer.Expect('closed', '1 [st-close host-close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -656,6 +682,11 @@ codeunit 77720 "PG6 HJ Journal Shape"
         Say('next', P.Status.Visible());
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '0 No [host-open st-fill(,0) st-open host-agcr(H1) st-fill(H1,0) st-agcr(0)]');
+        Observer.Expect('gotorecord', '0 No []');
+        Observer.Expect('send', '1 Yes [act-send cu-send(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1) host-agcr(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1)]');
+        Observer.Expect('next', '1 No [host-agcr(H2) st-fill(H2,0)]');
+        Observer.Expect('closed', '1 [st-close host-close]');
+        Observer.Verify();
     end;
 }

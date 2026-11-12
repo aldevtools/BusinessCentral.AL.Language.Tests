@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-showastree-property
 //   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-indentationcolumn-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own table 77730, pages 77731 77732, log codeunit 77733, test codeunit 77734
+// Fixtures used: Probe Observer (codeunit 69160); own table 75330, pages 75331 75332, log codeunit 75333, test codeunit 75334
 // Probe (al-runner 7421): a tree list page (repeater with ShowAsTree = true and IndentationColumn = Lvl, a page variable that
 //   OnAfterGetRecord sets from the row's Level) opened with OpenView, over views of 25 and 45 rows (levels 0,1,1,1,1 repeated, and all
 //   0), with a stored source and with a temporary source that OnOpenPage fills. Observed: the rows OnAfterGetRecord ran for during
@@ -10,7 +10,7 @@
 // local object: the tree pages are the shape under test; the log records OnAfterGetRecord
 // BC versions: 27, 28, 29
 
-table 77730 "PG6 TR Row"
+table 75330 "PG6 TR Row"
 {
     DataClassification = SystemMetadata;
 
@@ -27,7 +27,7 @@ table 77730 "PG6 TR Row"
     }
 }
 
-page 77731 "PG6 TR Stored Tree"
+page 75331 "PG6 TR Stored Tree"
 {
     PageType = List;
     SourceTable = "PG6 TR Row";
@@ -71,7 +71,7 @@ page 77731 "PG6 TR Stored Tree"
     end;
 }
 
-page 77732 "PG6 TR Temp Tree"
+page 75332 "PG6 TR Temp Tree"
 {
     PageType = List;
     SourceTable = "PG6 TR Row";
@@ -125,7 +125,7 @@ page 77732 "PG6 TR Temp Tree"
     end;
 }
 
-codeunit 77733 "PG6 TR Log"
+codeunit 75333 "PG6 TR Log"
 {
     SingleInstance = true;
 
@@ -203,7 +203,7 @@ codeunit 77733 "PG6 TR Log"
     end;
 }
 
-codeunit 77734 "PG6 TR Tree Open Rows"
+codeunit 75334 "PG6 TR Tree Open Rows"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -272,7 +272,11 @@ codeunit 77734 "PG6 TR Tree Open Rows"
         Initialize(25, true, true);
         P.OpenView();
         WalkStored(P);
-        Observer.Finish();
+        Observer.Expect('open', '[open agr(1-20) agr(1) agr(20-25)]');
+        Observer.Expect('walk-seen', '1,6,11,16,21,');
+        Observer.Expect('walk-log', '[]');
+        Observer.Expect('closed', '[agr(21) close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -283,7 +287,11 @@ codeunit 77734 "PG6 TR Tree Open Rows"
         Initialize(45, true, true);
         P.OpenView();
         WalkStored(P);
-        Observer.Finish();
+        Observer.Expect('open', '[open agr(1-20) agr(1) agr(20-45)]');
+        Observer.Expect('walk-seen', '1,6,11,16,21,26,31,36,41,');
+        Observer.Expect('walk-log', '[]');
+        Observer.Expect('closed', '[agr(41) close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -294,7 +302,11 @@ codeunit 77734 "PG6 TR Tree Open Rows"
         Initialize(45, false, true);
         P.OpenView();
         WalkStored(P);
-        Observer.Finish();
+        Observer.Expect('open', '[open agr(1-20) agr(1)]');
+        Observer.Expect('walk-seen', '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,');
+        Observer.Expect('walk-log', '[agr(19-45)]');
+        Observer.Expect('closed', '[close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -307,7 +319,9 @@ codeunit 77734 "PG6 TR Tree Open Rows"
         Observer.Observe('open', Log.Take());
         P.Close();
         Observer.Observe('closed', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', '[open agr(1-20) agr(1) agr(20-45)]');
+        Observer.Expect('closed', '[agr(1) close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -318,7 +332,11 @@ codeunit 77734 "PG6 TR Tree Open Rows"
         Initialize(25, true, false);
         P.OpenView();
         WalkTemp(P);
-        Observer.Finish();
+        Observer.Expect('open', '[open agr(25) agr(24) agr(23) agr(22) agr(21) agr(20) agr(19) agr(18) agr(17) agr(16) agr(15) agr(14) agr(13) agr(12) agr(11) agr(10) agr(9) agr(8) agr(7) agr(6) agr(5) agr(4) agr(3) agr(2) agr(1)]');
+        Observer.Expect('walk-seen', '1,6,11,16,21,22,23,24,25,');
+        Observer.Expect('walk-log', '[]');
+        Observer.Expect('closed', '[agr(25) close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -329,7 +347,11 @@ codeunit 77734 "PG6 TR Tree Open Rows"
         Initialize(45, true, false);
         P.OpenView();
         WalkTemp(P);
-        Observer.Finish();
+        Observer.Expect('open', '[open agr(45) agr(44) agr(43) agr(42) agr(41) agr(40) agr(39) agr(38) agr(37) agr(36) agr(35) agr(34) agr(33) agr(32) agr(31) agr(30) agr(29) agr(28) agr(27) agr(26) agr(25) agr(24) agr(23) agr(22) agr(21) agr(20) agr(19) agr(18) agr(17) agr(16) agr(15) agr(14) agr(13) agr(12) agr(11) agr(10) agr(9) agr(8) agr(7) agr(6) agr(5) agr(4) agr(3) agr(2) agr(1)]');
+        Observer.Expect('walk-seen', '1,6,11,16,21,26,31,36,41,42,43,44,45,');
+        Observer.Expect('walk-log', '[]');
+        Observer.Expect('closed', '[agr(45) close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -340,7 +362,11 @@ codeunit 77734 "PG6 TR Tree Open Rows"
         Initialize(45, false, false);
         P.OpenView();
         WalkTemp(P);
-        Observer.Finish();
+        Observer.Expect('open', '[open agr(45) agr(44) agr(43) agr(42) agr(41) agr(40) agr(39) agr(38) agr(37) agr(36) agr(35) agr(34) agr(33) agr(32) agr(31) agr(30) agr(29) agr(28) agr(27) agr(26) agr(25) agr(24) agr(23) agr(22) agr(21) agr(20) agr(19) agr(18) agr(17) agr(16) agr(15) agr(14) agr(13) agr(12) agr(11) agr(10) agr(9) agr(8) agr(7) agr(6) agr(5) agr(4) agr(3) agr(2) agr(1)]');
+        Observer.Expect('walk-seen', '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,');
+        Observer.Expect('walk-log', '[]');
+        Observer.Expect('closed', '[agr(45) close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -353,6 +379,8 @@ codeunit 77734 "PG6 TR Tree Open Rows"
         Observer.Observe('open', Log.Take());
         P.Close();
         Observer.Observe('closed', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', '[open agr(45) agr(44) agr(43) agr(42) agr(41) agr(40) agr(39) agr(38) agr(37) agr(36) agr(35) agr(34) agr(33) agr(32) agr(31) agr(30) agr(29) agr(28) agr(27) agr(26) agr(25) agr(24) agr(23) agr(22) agr(21) agr(20) agr(19) agr(18) agr(17) agr(16) agr(15) agr(14) agr(13) agr(12) agr(11) agr(10) agr(9) agr(8) agr(7) agr(6) agr(5) agr(4) agr(3) agr(2) agr(1)]');
+        Observer.Expect('closed', '[agr(45) close]');
+        Observer.Verify();
     end;
 }

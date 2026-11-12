@@ -1,8 +1,8 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-page-ext-object
 //   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/triggers-auto/pagefield/devenv-onlookup-pagefield-trigger
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own table 77780, pages 77781..77787, page extensions 77788 77789 77790, subscriber
-//   codeunit 77791, log codeunit 77792, test codeunit 77793
+// Fixtures used: Probe Observer (codeunit 69160); own table 75380, pages 75381..75387, page extensions 75388 75389 75390, subscriber
+//   codeunit 75391, log codeunit 75392, test codeunit 75393
 // Probe (al-runner 7630), four page client paths:
 //   1. A subscriber to OnAfterGetCurrRecordEvent of a card with a control bound to a procedure (a function control), and of a temporary
 //      list opened by Trap + Page.Run with an empty and a filled buffer: when it is called.
@@ -17,7 +17,7 @@
 // local object: the pages are the shapes under test
 // BC versions: 27, 28, 29
 
-table 77780 "PG6 PC Row"
+table 75380 "PG6 PC Row"
 {
     DataClassification = SystemMetadata;
 
@@ -33,7 +33,7 @@ table 77780 "PG6 PC Row"
     }
 }
 
-page 77781 "PG6 PC Fn Card"
+page 75381 "PG6 PC Fn Card"
 {
     PageType = Card;
     SourceTable = "PG6 PC Row";
@@ -62,7 +62,7 @@ page 77781 "PG6 PC Fn Card"
     end;
 }
 
-page 77782 "PG6 PC Temp List"
+page 75382 "PG6 PC Temp List"
 {
     PageType = List;
     SourceTable = "PG6 PC Row";
@@ -84,7 +84,7 @@ page 77782 "PG6 PC Temp List"
 }
 
 // Base: a temporary list that allows no writes; the extension allows them.
-page 77783 "PG6 PC Locked Temp List"
+page 75383 "PG6 PC Locked Temp List"
 {
     PageType = List;
     SourceTable = "PG6 PC Row";
@@ -115,7 +115,7 @@ page 77783 "PG6 PC Locked Temp List"
     end;
 }
 
-page 77784 "PG6 PC Locked Card"
+page 75384 "PG6 PC Locked Card"
 {
     PageType = Card;
     SourceTable = "PG6 PC Row";
@@ -136,7 +136,7 @@ page 77784 "PG6 PC Locked Card"
     }
 }
 
-page 77785 "PG6 PC Open Card"
+page 75385 "PG6 PC Open Card"
 {
     PageType = Card;
     SourceTable = "PG6 PC Row";
@@ -156,7 +156,7 @@ page 77785 "PG6 PC Open Card"
     }
 }
 
-page 77786 "PG6 PC Edit List"
+page 75386 "PG6 PC Edit List"
 {
     PageType = List;
     SourceTable = "PG6 PC Row";
@@ -202,7 +202,7 @@ page 77786 "PG6 PC Edit List"
 }
 
 // A lookup that fails, and Editable / Enabled from OnAfterGetRecord on a repeater.
-page 77787 "PG6 PC Row List"
+page 75387 "PG6 PC Row List"
 {
     PageType = List;
     SourceTable = "PG6 PC Row";
@@ -257,24 +257,24 @@ page 77787 "PG6 PC Row List"
     end;
 }
 
-pageextension 77788 "PG6 PC Locked Temp Ext" extends "PG6 PC Locked Temp List"
+pageextension 75388 "PG6 PC Locked Temp Ext" extends "PG6 PC Locked Temp List"
 {
     InsertAllowed = true;
     ModifyAllowed = true;
     DeleteAllowed = true;
 }
 
-pageextension 77789 "PG6 PC Locked Card Ext" extends "PG6 PC Locked Card"
+pageextension 75389 "PG6 PC Locked Card Ext" extends "PG6 PC Locked Card"
 {
     ModifyAllowed = true;
 }
 
-pageextension 77790 "PG6 PC Open Card Ext" extends "PG6 PC Open Card"
+pageextension 75390 "PG6 PC Open Card Ext" extends "PG6 PC Open Card"
 {
     ModifyAllowed = false;
 }
 
-codeunit 77791 "PG6 PC Subscribers"
+codeunit 75391 "PG6 PC Subscribers"
 {
     [EventSubscriber(ObjectType::Page, Page::"PG6 PC Fn Card", 'OnAfterGetCurrRecordEvent', '', false, false)]
     local procedure FnCardAfterGetCurrRecord(var Rec: Record "PG6 PC Row")
@@ -293,7 +293,7 @@ codeunit 77791 "PG6 PC Subscribers"
     end;
 }
 
-codeunit 77792 "PG6 PC Log"
+codeunit 75392 "PG6 PC Log"
 {
     SingleInstance = true;
 
@@ -319,7 +319,7 @@ codeunit 77792 "PG6 PC Log"
     end;
 }
 
-codeunit 77793 "PG6 PC Unpinned Paths"
+codeunit 75393 "PG6 PC Unpinned Paths"
 {
     Subtype = Test;
     TestPermissions = Disabled;

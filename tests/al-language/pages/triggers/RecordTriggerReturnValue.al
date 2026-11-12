@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/triggers-auto/page/devenv-oninsertrecord-page-trigger
 //   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/triggers-auto/page/devenv-onmodifyrecord-page-trigger
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own table 77750, card pages 77751 77752 77753, log codeunit 77754, test codeunit 77755
+// Fixtures used: Probe Observer (codeunit 69160); own table 75350, card pages 75351 75352 75353, log codeunit 75354, test codeunit 75355
 // Probe (al-runner 7628): what the client reads from a Boolean page trigger (OnInsertRecord, OnModifyRecord, OnDeleteRecord) that does not
 //   end with exit(value): (Cond) `if Blocked then exit(false);` with Blocked = false, so the trigger ends without exit; (False) a named
 //   return value Ok assigned false without exit; (True) the same assigned true. Driven through a TestPage: OpenNew + SetValue + Close or
@@ -13,7 +13,7 @@
 // local object: the pages are the trigger shapes under test
 // BC versions: 27, 28, 29
 
-table 77750 "PG6 RT Row"
+table 75350 "PG6 RT Row"
 {
     DataClassification = SystemMetadata;
 
@@ -43,7 +43,7 @@ table 77750 "PG6 RT Row"
     end;
 }
 
-page 77751 "PG6 RT Cond Card"
+page 75351 "PG6 RT Cond Card"
 {
     PageType = Card;
     SourceTable = "PG6 RT Row";
@@ -88,7 +88,7 @@ page 77751 "PG6 RT Cond Card"
     end;
 }
 
-page 77752 "PG6 RT False Card"
+page 75352 "PG6 RT False Card"
 {
     PageType = Card;
     SourceTable = "PG6 RT Row";
@@ -130,7 +130,7 @@ page 77752 "PG6 RT False Card"
     end;
 }
 
-page 77753 "PG6 RT True Card"
+page 75353 "PG6 RT True Card"
 {
     PageType = Card;
     SourceTable = "PG6 RT Row";
@@ -172,7 +172,7 @@ page 77753 "PG6 RT True Card"
     end;
 }
 
-codeunit 77754 "PG6 RT Log"
+codeunit 75354 "PG6 RT Log"
 {
     SingleInstance = true;
 
@@ -201,7 +201,7 @@ codeunit 77754 "PG6 RT Log"
     end;
 }
 
-codeunit 77755 "PG6 RT Trigger Return"
+codeunit 75355 "PG6 RT Trigger Return"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -261,7 +261,12 @@ codeunit 77755 "PG6 RT Trigger Return"
             Error('CEM_NO_ERROR');
         end;
         ObserveEnd(O);
-        O.Finish();
+        O.Expect('returned', 'I N1 ; T-ins N1 ; M N1 new; T-mod N1 new; | N1=new R1=start R2=second (3 rows)');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'I N1 ; T-ins N1 ; M N1 new; T-mod N1 new; ');
+        O.Expect('rows', 'R1=start R2=second (2 rows)');
+        O.Verify();
     end;
 
     [Test]
@@ -281,7 +286,12 @@ codeunit 77755 "PG6 RT Trigger Return"
             Error('CEM_NO_ERROR');
         end;
         ObserveEnd(O);
-        O.Finish();
+        O.Expect('returned', 'I N1 ; T-ins N1 ; M N1 new; T-mod N1 new; | N1=new R1=start R2=second (3 rows)');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'I N1 ; T-ins N1 ; M N1 new; T-mod N1 new; ');
+        O.Expect('rows', 'R1=start R2=second (2 rows)');
+        O.Verify();
     end;
 
     [Test]
@@ -301,7 +311,12 @@ codeunit 77755 "PG6 RT Trigger Return"
             Error('CEM_NO_ERROR');
         end;
         ObserveEnd(O);
-        O.Finish();
+        O.Expect('returned', 'M R1 edited; T-mod R1 edited; | R1=edited R2=second (2 rows)');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M R1 edited; T-mod R1 edited; ');
+        O.Expect('rows', 'R1=start R2=second (2 rows)');
+        O.Verify();
     end;
 
     [Test]
@@ -320,7 +335,12 @@ codeunit 77755 "PG6 RT Trigger Return"
             Error('CEM_NO_ERROR');
         end;
         ObserveEnd(O);
-        O.Finish();
+        O.Expect('returned', 'M R1 edited; T-mod R1 edited; | R1=edited R2=second (2 rows)');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M R1 edited; T-mod R1 edited; ');
+        O.Expect('rows', 'R1=start R2=second (2 rows)');
+        O.Verify();
     end;
 
     [Test]
@@ -339,7 +359,11 @@ codeunit 77755 "PG6 RT Trigger Return"
             Error('CEM_NO_ERROR');
         end;
         ObserveEnd(O);
-        O.Finish();
+        O.Expect('end|text', 'Validation error for Field: ,  Message = ''The view is filtered, and the entry is outside the filter. Some actions may not work.''');
+        O.Expect('end|code', 'TestValidation');
+        O.Expect('log', 'I N1 ; ');
+        O.Expect('rows', 'R1=start R2=second (2 rows)');
+        O.Verify();
     end;
 
     [Test]
@@ -359,7 +383,11 @@ codeunit 77755 "PG6 RT Trigger Return"
             Error('CEM_NO_ERROR');
         end;
         ObserveEnd(O);
-        O.Finish();
+        O.Expect('end|text', 'Validation error for Field: ,  Message = ''The view is filtered, and the entry is outside the filter. Some actions may not work.''');
+        O.Expect('end|code', 'TestValidation');
+        O.Expect('log', 'I N1 ; ');
+        O.Expect('rows', 'R1=start R2=second (2 rows)');
+        O.Verify();
     end;
 
     [Test]
@@ -379,7 +407,12 @@ codeunit 77755 "PG6 RT Trigger Return"
             Error('CEM_NO_ERROR');
         end;
         ObserveEnd(O);
-        O.Finish();
+        O.Expect('returned', 'M R1 edited; | R1=start R2=second (2 rows)');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M R1 edited; ');
+        O.Expect('rows', 'R1=start R2=second (2 rows)');
+        O.Verify();
     end;
 
     [Test]
@@ -398,7 +431,12 @@ codeunit 77755 "PG6 RT Trigger Return"
             Error('CEM_NO_ERROR');
         end;
         ObserveEnd(O);
-        O.Finish();
+        O.Expect('returned', 'M R1 edited; | R1=start R2=second (2 rows)');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M R1 edited; ');
+        O.Expect('rows', 'R1=start R2=second (2 rows)');
+        O.Verify();
     end;
 
     [Test]
@@ -417,7 +455,12 @@ codeunit 77755 "PG6 RT Trigger Return"
             Error('CEM_NO_ERROR');
         end;
         ObserveEnd(O);
-        O.Finish();
+        O.Expect('returned', 'I N1 ; T-ins N1 ; M N1 new; T-mod N1 new; | N1=new R1=start R2=second (3 rows)');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'I N1 ; T-ins N1 ; M N1 new; T-mod N1 new; ');
+        O.Expect('rows', 'R1=start R2=second (2 rows)');
+        O.Verify();
     end;
 
     [Test]
@@ -437,7 +480,12 @@ codeunit 77755 "PG6 RT Trigger Return"
             Error('CEM_NO_ERROR');
         end;
         ObserveEnd(O);
-        O.Finish();
+        O.Expect('returned', 'I N1 ; T-ins N1 ; M N1 new; T-mod N1 new; | N1=new R1=start R2=second (3 rows)');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'I N1 ; T-ins N1 ; M N1 new; T-mod N1 new; ');
+        O.Expect('rows', 'R1=start R2=second (2 rows)');
+        O.Verify();
     end;
 
     [Test]
@@ -457,7 +505,12 @@ codeunit 77755 "PG6 RT Trigger Return"
             Error('CEM_NO_ERROR');
         end;
         ObserveEnd(O);
-        O.Finish();
+        O.Expect('returned', 'M R1 edited; T-mod R1 edited; | R1=edited R2=second (2 rows)');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M R1 edited; T-mod R1 edited; ');
+        O.Expect('rows', 'R1=start R2=second (2 rows)');
+        O.Verify();
     end;
 
     [Test]
@@ -476,6 +529,11 @@ codeunit 77755 "PG6 RT Trigger Return"
             Error('CEM_NO_ERROR');
         end;
         ObserveEnd(O);
-        O.Finish();
+        O.Expect('returned', 'M R1 edited; T-mod R1 edited; | R1=edited R2=second (2 rows)');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'M R1 edited; T-mod R1 edited; ');
+        O.Expect('rows', 'R1=start R2=second (2 rows)');
+        O.Verify();
     end;
 }

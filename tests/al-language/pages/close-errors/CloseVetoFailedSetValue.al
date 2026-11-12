@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/triggers-auto/page/devenv-onqueryclosepage-page-trigger
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own tables 77740 77741, pages 77742 77743 77744, log codeunit 77745, test codeunit 77746
+// Fixtures used: Probe Observer (codeunit 69160); own tables 75340 75341, pages 75342 75343 75344, log codeunit 75345, test codeunit 75346
 // Probe (al-runner 7826 item 2): the cells next to CemDocumentTests.al DocumentStaticRunModal_HandlerTableRefusesReturns_NoError (handler
 //   mode 8: the ModalPageHandler sets a Name that the table's OnModify refuses, through the field's OnValidate CurrPage.Update(), and
 //   returns), with an OnQueryClosePage that vetoes (exit(false), logged). Cells: the Document page with a part opened by a static
@@ -12,7 +12,7 @@
 // local object: the pages need their own vetoing OnQueryClosePage
 // BC versions: 27, 28, 29
 
-table 77740 "PG6 CV Row"
+table 75340 "PG6 CV Row"
 {
     DataClassification = SystemMetadata;
 
@@ -37,7 +37,7 @@ table 77740 "PG6 CV Row"
     end;
 }
 
-table 77741 "PG6 CV Line"
+table 75341 "PG6 CV Line"
 {
     DataClassification = SystemMetadata;
 
@@ -54,7 +54,7 @@ table 77741 "PG6 CV Line"
     }
 }
 
-page 77742 "PG6 CV Lines Part"
+page 75342 "PG6 CV Lines Part"
 {
     PageType = ListPart;
     SourceTable = "PG6 CV Line";
@@ -74,7 +74,7 @@ page 77742 "PG6 CV Lines Part"
     }
 }
 
-page 77743 "PG6 CV Doc"
+page 75343 "PG6 CV Doc"
 {
     PageType = Document;
     SourceTable = "PG6 CV Row";
@@ -127,7 +127,7 @@ page 77743 "PG6 CV Doc"
     end;
 }
 
-page 77744 "PG6 CV List"
+page 75344 "PG6 CV List"
 {
     PageType = List;
     SourceTable = "PG6 CV Row";
@@ -175,7 +175,7 @@ page 77744 "PG6 CV List"
     end;
 }
 
-codeunit 77745 "PG6 CV Log"
+codeunit 75345 "PG6 CV Log"
 {
     SingleInstance = true;
 
@@ -211,7 +211,7 @@ codeunit 77745 "PG6 CV Log"
     end;
 }
 
-codeunit 77746 "PG6 CV Close Veto"
+codeunit 75346 "PG6 CV Close Veto"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -268,7 +268,11 @@ codeunit 77746 "PG6 CV Close Veto"
         O.ObserveError('end');
         O.Observe('log', Log.Take());
         O.Observe('rows', Names());
-        O.Finish();
+        O.Expect('end|text', 'Validation error for Field: Name,  Message = ''PG6 table modify refused (Select Refresh to discard errors)''');
+        O.Expect('end|code', 'TestValidation');
+        O.Expect('log', 'H-doc editable=Yes; M-doc FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start (1 rows)');
+        O.Verify();
     end;
 
     [Test]
@@ -289,7 +293,12 @@ codeunit 77746 "PG6 CV Close Veto"
         O.ObserveError('end');
         O.Observe('log', Log.Take());
         O.Observe('rows', Names());
-        O.Finish();
+        O.Expect('returned', 'None | H-doc editable=Yes; Q-doc LookupCancel veto; | R1=start (1 rows)');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'H-doc editable=Yes; Q-doc LookupCancel veto; ');
+        O.Expect('rows', 'R1=start (1 rows)');
+        O.Verify();
     end;
 
     [Test]
@@ -313,7 +322,11 @@ codeunit 77746 "PG6 CV Close Veto"
         O.ObserveError('end');
         O.Observe('log', Log.Take());
         O.Observe('rows', Names());
-        O.Finish();
+        O.Expect('end|text', 'Validation error for Field: Name,  Message = ''PG6 table modify refused''');
+        O.Expect('end|code', 'TestValidation');
+        O.Expect('log', 'H-list editable=No; M-list FAILMOD; T-mod R1 FAILMOD; ');
+        O.Expect('rows', 'R1=start (1 rows)');
+        O.Verify();
     end;
 
     [Test]
@@ -337,7 +350,12 @@ codeunit 77746 "PG6 CV Close Veto"
         O.ObserveError('end');
         O.Observe('log', Log.Take());
         O.Observe('rows', Names());
-        O.Finish();
+        O.Expect('returned', 'None | H-list editable=No; Q-list LookupCancel veto; | R1=start (1 rows)');
+        O.Expect('end|text', 'CEM_NO_ERROR');
+        O.Expect('end|code', 'Dialog');
+        O.Expect('log', 'H-list editable=No; Q-list LookupCancel veto; ');
+        O.Expect('rows', 'R1=start (1 rows)');
+        O.Verify();
     end;
 
     [ModalPageHandler]

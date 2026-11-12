@@ -1,8 +1,8 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-autoformatexpression-property
 //   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testfield/testfield-data-type
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own tables 77721 77722 77723, table extension 77724, pages 77725 77726, page extension
-//   77727, counter codeunit 77728, test codeunit 77729
+// Fixtures used: Probe Observer (codeunit 69160); own tables 75321 75322 75323, table extension 75324, pages 75325 75326, page extension
+//   75327, counter codeunit 75328, test codeunit 75329
 // Probe (al-runner 7850): a TestPage control over a Decimal field with AutoFormatType = 11 and AutoFormatExpression =
 //   Setup.GetFormat(Setup.FieldNo(Decimals)), where GetFormat is a procedure of another table's record variable (a global of the table)
 //   that returns a format text and counts its calls. Steps: OpenView + GoToRecord, Value(), AsDecimal(), then OpenEdit + GoToRecord,
@@ -13,7 +13,7 @@
 // local object: the field, its AutoFormatExpression and the counter are what the test checks
 // BC versions: 27, 28, 29
 
-table 77721 "PG6 AF Setup"
+table 75321 "PG6 AF Setup"
 {
     DataClassification = SystemMetadata;
 
@@ -36,7 +36,7 @@ table 77721 "PG6 AF Setup"
     end;
 }
 
-table 77722 "PG6 AF Thing"
+table 75322 "PG6 AF Thing"
 {
     DataClassification = SystemMetadata;
 
@@ -60,7 +60,7 @@ table 77722 "PG6 AF Thing"
         AFSetup: Record "PG6 AF Setup";
 }
 
-table 77723 "PG6 AF Thing Ext Base"
+table 75323 "PG6 AF Thing Ext Base"
 {
     DataClassification = SystemMetadata;
 
@@ -75,11 +75,11 @@ table 77723 "PG6 AF Thing Ext Base"
     }
 }
 
-tableextension 77724 "PG6 AF Thing Ext" extends "PG6 AF Thing Ext Base"
+tableextension 75324 "PG6 AF Thing Ext" extends "PG6 AF Thing Ext Base"
 {
     fields
     {
-        field(77724; ExtAmount; Decimal)
+        field(75324; ExtAmount; Decimal)
         {
             DataClassification = SystemMetadata;
             AutoFormatType = 11;
@@ -91,7 +91,7 @@ tableextension 77724 "PG6 AF Thing Ext" extends "PG6 AF Thing Ext Base"
         AFSetup: Record "PG6 AF Setup";
 }
 
-page 77725 "PG6 AF Card"
+page 75325 "PG6 AF Card"
 {
     PageType = Card;
     SourceTable = "PG6 AF Thing";
@@ -111,7 +111,7 @@ page 77725 "PG6 AF Card"
     }
 }
 
-page 77726 "PG6 AF Ext Card"
+page 75326 "PG6 AF Ext Card"
 {
     PageType = Card;
     SourceTable = "PG6 AF Thing Ext Base";
@@ -130,7 +130,7 @@ page 77726 "PG6 AF Ext Card"
     }
 }
 
-pageextension 77727 "PG6 AF Ext Card Ext" extends "PG6 AF Ext Card"
+pageextension 75327 "PG6 AF Ext Card Ext" extends "PG6 AF Ext Card"
 {
     layout
     {
@@ -141,7 +141,7 @@ pageextension 77727 "PG6 AF Ext Card Ext" extends "PG6 AF Ext Card"
     }
 }
 
-codeunit 77728 "PG6 AF Counter"
+codeunit 75328 "PG6 AF Counter"
 {
     SingleInstance = true;
 
@@ -168,7 +168,7 @@ codeunit 77728 "PG6 AF Counter"
     end;
 }
 
-codeunit 77729 "PG6 AF Procedure Control"
+codeunit 75329 "PG6 AF Procedure Control"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -257,21 +257,57 @@ codeunit 77729 "PG6 AF Procedure Control"
     procedure Base_TwoDecimals_ReadSetAssert()
     begin
         RunBase('<precision, 2:2><standard format, 0>', 7, '7.00');
-        Observer.Finish();
+        Observer.Expect('setup', ' calls=0');
+        Observer.Expect('openview', ' calls=2');
+        Observer.Expect('gotorecord', ' calls=1');
+        Observer.Expect('value', '3.25 calls=0');
+        Observer.Expect('asdecimal', '3.25 calls=0');
+        Observer.Expect('close-view', ' calls=0');
+        Observer.Expect('openedit', ' calls=3');
+        Observer.Expect('setvalue', ' calls=0');
+        Observer.Expect('value-after', '7.00 calls=0');
+        Observer.Expect('assert-decimal', 'NO_ERROR calls=0');
+        Observer.Expect('assert-text', 'NO_ERROR calls=0');
+        Observer.Expect('close-edit', '7.00 calls=2');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Base_EmptyFormat_ReadSetAssert()
     begin
         RunBase('', 7, '7.00');
-        Observer.Finish();
+        Observer.Expect('setup', ' calls=0');
+        Observer.Expect('openview', ' calls=2');
+        Observer.Expect('gotorecord', ' calls=1');
+        Observer.Expect('value', '3.25 calls=0');
+        Observer.Expect('asdecimal', '3.25 calls=0');
+        Observer.Expect('close-view', ' calls=0');
+        Observer.Expect('openedit', ' calls=3');
+        Observer.Expect('setvalue', ' calls=0');
+        Observer.Expect('value-after', '7.00 calls=0');
+        Observer.Expect('assert-decimal', 'NO_ERROR calls=0');
+        Observer.Expect('assert-text', 'NO_ERROR calls=0');
+        Observer.Expect('close-edit', '7 calls=2');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Base_ZeroDecimals_ReadSetAssert()
     begin
         RunBase('<precision, 0:0><standard format, 0>', 7.5, '7.5');
-        Observer.Finish();
+        Observer.Expect('setup', ' calls=0');
+        Observer.Expect('openview', ' calls=2');
+        Observer.Expect('gotorecord', ' calls=1');
+        Observer.Expect('value', '3 calls=0');
+        Observer.Expect('asdecimal', '3.25 calls=0');
+        Observer.Expect('close-view', ' calls=0');
+        Observer.Expect('openedit', ' calls=3');
+        Observer.Expect('setvalue', ' calls=0');
+        Observer.Expect('value-after', '8 calls=0');
+        Observer.Expect('assert-decimal', 'NO_ERROR calls=0');
+        Observer.Expect('assert-text', 'AssertEquals for Field: Amount Expected = ''7.5'', Actual = ''8'' calls=0');
+        Observer.Expect('close-edit', '8 calls=2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -310,6 +346,18 @@ codeunit 77729 "PG6 AF Procedure Control"
         P.Close();
         ExtThing.Get('T1');
         Say('close-edit', Format(ExtThing.ExtAmount, 0, 9));
-        Observer.Finish();
+        Observer.Expect('setup', ' calls=0');
+        Observer.Expect('openview', ' calls=2');
+        Observer.Expect('gotorecord', ' calls=1');
+        Observer.Expect('value', '3.25 calls=0');
+        Observer.Expect('asdecimal', '3.25 calls=0');
+        Observer.Expect('close-view', ' calls=0');
+        Observer.Expect('openedit', ' calls=3');
+        Observer.Expect('setvalue', ' calls=0');
+        Observer.Expect('value-after', '7.00 calls=0');
+        Observer.Expect('assert-decimal', 'NO_ERROR calls=0');
+        Observer.Expect('assert-text', 'NO_ERROR calls=0');
+        Observer.Expect('close-edit', '7.00 calls=2');
+        Observer.Verify();
     end;
 }

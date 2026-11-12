@@ -1,8 +1,8 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-page-ext-object
 //   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/triggers-auto/page/devenv-onaftergetrecord-page-trigger
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own table 77760, pages 77761 77762 77763, page extensions 77764 77765, log codeunit
-//   77766, test codeunit 77767
+// Fixtures used: Probe Observer (codeunit 69160); own table 75360, pages 75361 75362 75363, page extensions 75364 75365, log codeunit
+//   75366, test codeunit 75367
 // Probe (al-runner 7629): OnAfterGetRecord and OnAfterGetCurrRecord declared only by a page extension (the base page declares neither),
 //   at the moves and calls events/extension-events/PageExtensionSender.al does not pin: Last, Previous, GoToKey and GoToRecord on a
 //   list, an action, an action with CurrPage.Update(false), New, Close; a page with its own OnAfterGetCurrRecord and an extension-only
@@ -13,7 +13,7 @@
 // local object: the base pages and their extensions are the shapes under test
 // BC versions: 27, 28, 29
 
-table 77760 "PG6 XT Row"
+table 75360 "PG6 XT Row"
 {
     DataClassification = SystemMetadata;
 
@@ -29,7 +29,7 @@ table 77760 "PG6 XT Row"
     }
 }
 
-page 77761 "PG6 XT List"
+page 75361 "PG6 XT List"
 {
     PageType = List;
     SourceTable = "PG6 XT Row";
@@ -80,7 +80,7 @@ page 77761 "PG6 XT List"
 }
 
 // Own OnAfterGetCurrRecord, a function control; the extension adds only OnAfterGetRecord.
-page 77762 "PG6 XT Fn List"
+page 75362 "PG6 XT Fn List"
 {
     PageType = List;
     SourceTable = "PG6 XT Row";
@@ -115,7 +115,7 @@ page 77762 "PG6 XT Fn List"
 }
 
 // Opens the extended list with a RunPageLink.
-page 77763 "PG6 XT Opener"
+page 75363 "PG6 XT Opener"
 {
     PageType = Card;
     SourceTable = "PG6 XT Row";
@@ -147,7 +147,7 @@ page 77763 "PG6 XT Opener"
     }
 }
 
-pageextension 77764 "PG6 XT List Ext" extends "PG6 XT List"
+pageextension 75364 "PG6 XT List Ext" extends "PG6 XT List"
 {
     var
         Log: Codeunit "PG6 XT Log";
@@ -163,7 +163,7 @@ pageextension 77764 "PG6 XT List Ext" extends "PG6 XT List"
     end;
 }
 
-pageextension 77765 "PG6 XT Fn List Ext" extends "PG6 XT Fn List"
+pageextension 75365 "PG6 XT Fn List Ext" extends "PG6 XT Fn List"
 {
     var
         XLog: Codeunit "PG6 XT Log";
@@ -174,7 +174,7 @@ pageextension 77765 "PG6 XT Fn List Ext" extends "PG6 XT Fn List"
     end;
 }
 
-codeunit 77766 "PG6 XT Log"
+codeunit 75366 "PG6 XT Log"
 {
     SingleInstance = true;
 
@@ -200,7 +200,7 @@ codeunit 77766 "PG6 XT Log"
     end;
 }
 
-codeunit 77767 "PG6 XT Extension Triggers"
+codeunit 75367 "PG6 XT Extension Triggers"
 {
     Subtype = Test;
     TestPermissions = Disabled;
