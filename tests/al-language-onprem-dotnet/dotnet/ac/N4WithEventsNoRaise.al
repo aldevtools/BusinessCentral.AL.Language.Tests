@@ -12,8 +12,14 @@
 // The constructor is called without an argument, then Interval is set: Timer(1000) (the issue's shape) and Timer(D) with a Decimal D do
 //   not compile with the CI compiler (AL0196, ambiguous between Timer(System.Double) and Timer(System.TimeSpan)).
 // Already pinned elsewhere, not repeated: Disposed raised by Dispose() and by SuppressDispose (AcDnAttributes.al).
-// Observation form: every test ends in Finish(); the values are what BC produced.
-// BC versions: 27.5, 28.5, 29.0 (measured by the corpus CI)
+// Facts (measured by the corpus CI on 27.5, 28.5 and 29.0, the same on all three):
+//   - No case raises an error. The variable is null before its first assignment and not null after it; Interval and Enabled read back
+//     (Enabled No: the timer is never started). Clear makes it null again.
+//   - No Elapsed trigger runs in any case (the timer never starts). A Disposed trigger runs when the variable that holds an object is
+//     assigned a new object (1) and when it is cleared (2); not when it is cleared while null, nor on the first assignment.
+//   - Page: OnOpenPage assigns and reads the variable. Table: the global is kept per record variable (a second call on the same variable
+//     sees it assigned, another variable sees it null). Report: Run completes; GetShown() on the report variable after Run returns ''.
+// BC versions: 27.5, 28.5, 29.0
 dotnet
 {
     assembly("System")
@@ -298,7 +304,16 @@ codeunit 99013 "N4 WE With Disposed"
         Observer.Observe('counts', Counter.Shown());
         Observer.Observe('local_instance', Format(UseElapsedOnly()));
         Observer.Observe('counts_after_local', Counter.Shown());
-        Observer.Finish();
+        Observer.Expect('null_before', 'Yes');
+        Observer.Expect('touch', '1');
+        Observer.Expect('null_after', 'No');
+        Observer.Expect('props', '1,000|No');
+        Observer.Expect('props_reassigned', '2,000|No');
+        Observer.Expect('null_cleared', 'Yes');
+        Observer.Expect('counts', 'elapsed=0;disposed=0');
+        Observer.Expect('local_instance', '1');
+        Observer.Expect('counts_after_local', 'elapsed=0;disposed=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -317,7 +332,15 @@ codeunit 99013 "N4 WE With Disposed"
         Observer.Observe('null_cleared', Format(H.IsNullNow()));
         Observer.Observe('local_instance', Format(UseNoTrigger()));
         Observer.Observe('counts', Counter.Shown());
-        Observer.Finish();
+        Observer.Expect('null_before', 'Yes');
+        Observer.Expect('touch', '1');
+        Observer.Expect('null_after', 'No');
+        Observer.Expect('props', '1,000|No');
+        Observer.Expect('props_reassigned', '2,000|No');
+        Observer.Expect('null_cleared', 'Yes');
+        Observer.Expect('local_instance', '1');
+        Observer.Expect('counts', 'elapsed=0;disposed=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -336,7 +359,13 @@ codeunit 99013 "N4 WE With Disposed"
         Clear(Timer);
         Observer.Observe('after_clear', Counter.Shown());
         Observer.Observe('null_after_clear', Format(IsNull(Timer)));
-        Observer.Finish();
+        Observer.Expect('after_first_clear', 'elapsed=0;disposed=0');
+        Observer.Expect('after_assign', 'elapsed=0;disposed=0');
+        Observer.Expect('props', '1,000|No');
+        Observer.Expect('after_reassign', 'elapsed=0;disposed=1');
+        Observer.Expect('after_clear', 'elapsed=0;disposed=2');
+        Observer.Expect('null_after_clear', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -349,7 +378,9 @@ codeunit 99013 "N4 WE With Disposed"
         Observer.Observe('shown', TP.ShownField.Value());
         TP.Close();
         Observer.Observe('counts', Counter.Shown());
-        Observer.Finish();
+        Observer.Expect('shown', 'Yes|No|1,500|No');
+        Observer.Expect('counts', 'elapsed=0;disposed=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -363,7 +394,11 @@ codeunit 99013 "N4 WE With Disposed"
         Observer.Observe('second_same_var', Rec.Touch());
         Observer.Observe('other_var', Other.Touch());
         Observer.Observe('counts', Counter.Shown());
-        Observer.Finish();
+        Observer.Expect('first', 'Yes|No|2,500|No');
+        Observer.Expect('second_same_var', 'No|No|2,500|No');
+        Observer.Expect('other_var', 'Yes|No|2,500|No');
+        Observer.Expect('counts', 'elapsed=0;disposed=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -376,6 +411,8 @@ codeunit 99013 "N4 WE With Disposed"
         R.Run();
         Observer.Observe('shown', R.GetShown());
         Observer.Observe('counts', Counter.Shown());
-        Observer.Finish();
+        Observer.Expect('shown', '');
+        Observer.Expect('counts', 'elapsed=0;disposed=0');
+        Observer.Verify();
     end;
 }

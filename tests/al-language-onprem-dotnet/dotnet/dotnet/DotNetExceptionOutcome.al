@@ -16,8 +16,16 @@
 //   (WdTryFunctionDotNetException.al); GetLastErrorObject of AL errors (dotnet-interop/GetLastErrorObject.al, AzLastErrorObject.al).
 // Not measurable: ErrorInfo of a .NET exception (AL has no reader of the last error as an ErrorInfo; GetLastErrorObject is the object).
 //   The literal outcome of a test that makes the plain call (it fails; a corpus test cannot fail): cell (a) shows the error instead.
-// Observation form: every test ends in Finish(); the values are what BC produced.
-// BC versions: 27.5, 28.5, 29.0 (measured by the corpus CI)
+// Facts (measured by the corpus CI on 27.5, 28.5 and 29.0, the same on all three):
+//   - Every exception becomes an AL error: Codeunit.Run returns No, asserterror catches it and the test goes on, a TryFunction returns
+//     No (also in an if, and from another codeunit with global DotNet variables).
+//   - Text: 'A call to <Type>.<Member> failed with this message: <exception message>' (Member is the method or property; a constructor
+//     shows the type only). Code: 'DotNetInvoke:<exception class name without Exception>' (ArgumentNull, Format, InvalidOperation,
+//     ArgumentOutOfRange). The ArgumentOutOfRange text keeps the second line of .NET's message ('\nActual value was -1.').
+//   - The innermost frame of GetLastErrorCallStack is the AL statement that made the call.
+//   - GetLastErrorObject: a Microsoft.Dynamics.Nav.Types.Exceptions.NavNCLDotNetInvokeException whose Message is the last error text and
+//     whose InnerException is the .NET exception (its own message, first line).
+// BC versions: 27.5, 28.5, 29.0
 dotnet
 {
     assembly("System")
@@ -222,7 +230,13 @@ codeunit 99019 "DnExc Outcome"
     begin
         RunPlain('uri');
         RunPlain('convert');
-        Observer.Finish();
+        Observer.Expect('uri_run', 'No');
+        Observer.Expect('uri|text', 'A call to System.Uri.IsBaseOf failed with this message: Value cannot be null. (Parameter ''uri'')');
+        Observer.Expect('uri|code', 'DotNetInvoke:ArgumentNull');
+        Observer.Expect('convert_run', 'No');
+        Observer.Expect('convert|text', 'A call to System.Convert.ToInt32 failed with this message: The input string ''abc'' was not in a correct format.');
+        Observer.Expect('convert|code', 'DotNetInvoke:Format');
+        Observer.Verify();
     end;
 
     [Test]
@@ -230,7 +244,13 @@ codeunit 99019 "DnExc Outcome"
     begin
         RunPlain('getter');
         RunPlain('ctor');
-        Observer.Finish();
+        Observer.Expect('getter_run', 'No');
+        Observer.Expect('getter|text', 'A call to System.Uri.AbsolutePath failed with this message: This operation is not supported for a relative URI.');
+        Observer.Expect('getter|code', 'DotNetInvoke:InvalidOperation');
+        Observer.Expect('ctor_run', 'No');
+        Observer.Expect('ctor|text', 'A call to System.Text.StringBuilder failed with this message: capacity (''-1'') must be a non-negative value. (Parameter ''capacity'')\nActual value was -1.');
+        Observer.Expect('ctor|code', 'DotNetInvoke:ArgumentOutOfRange');
+        Observer.Verify();
     end;
 
     // (b) asserterror around the call, the text never read: the test goes on
@@ -252,7 +272,12 @@ codeunit 99019 "DnExc Outcome"
         Observer.Observe('getter', 'reached');
         asserterror Raiser.Raise('ctor');
         Observer.Observe('ctor', 'reached');
-        Observer.Finish();
+        Observer.Expect('uri_inline', 'reached');
+        Observer.Expect('uri', 'reached');
+        Observer.Expect('convert', 'reached');
+        Observer.Expect('getter', 'reached');
+        Observer.Expect('ctor', 'reached');
+        Observer.Verify();
     end;
 
     // (c) a [TryFunction] around the call, only the Boolean read
@@ -267,7 +292,12 @@ codeunit 99019 "DnExc Outcome"
             Observer.Observe('uri_if', 'then')
         else
             Observer.Observe('uri_if', 'else');
-        Observer.Finish();
+        Observer.Expect('uri', 'No');
+        Observer.Expect('convert', 'No');
+        Observer.Expect('getter', 'No');
+        Observer.Expect('ctor', 'No');
+        Observer.Expect('uri_if', 'else');
+        Observer.Verify();
     end;
 
     // (d) asserterror, then every reader of the last error, once per exception
@@ -281,7 +311,16 @@ codeunit 99019 "DnExc Outcome"
         Base := Base.Uri('https://example.com/a/');
         asserterror if Base.IsBaseOf(Other) then;
         DescribeLastError();
-        Observer.Finish();
+        Observer.Expect('text', 'A call to System.Uri.IsBaseOf failed with this message: Value cannot be null. (Parameter ''uri'')');
+        Observer.Expect('code', 'DotNetInvoke:ArgumentNull');
+        Observer.Expect('top_frame', '"DnExc Outcome"(CodeUnit 99019).DnExc_AssertError_LastError_Uri line 7 - AL Language Coverage Tests (OnPrem DotNet) by AL Language version 1.0.0.0');
+        Observer.Expect('object_null', 'No');
+        Observer.Expect('object_type', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavNCLDotNetInvokeException');
+        Observer.Expect('object_message_is_text', 'Yes');
+        Observer.Expect('inner_null', 'No');
+        Observer.Expect('inner_type', 'System.ArgumentNullException');
+        Observer.Expect('inner_message', 'Value cannot be null. (Parameter ''uri'')');
+        Observer.Verify();
     end;
 
     [Test]
@@ -292,7 +331,16 @@ codeunit 99019 "DnExc Outcome"
         ClearLastError();
         asserterror Raiser.Raise('convert');
         DescribeLastError();
-        Observer.Finish();
+        Observer.Expect('text', 'A call to System.Convert.ToInt32 failed with this message: The input string ''abc'' was not in a correct format.');
+        Observer.Expect('code', 'DotNetInvoke:Format');
+        Observer.Expect('top_frame', '"DnExc Raiser"(CodeUnit 99017).Raise line 15 - AL Language Coverage Tests (OnPrem DotNet) by AL Language version 1.0.0.0');
+        Observer.Expect('object_null', 'No');
+        Observer.Expect('object_type', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavNCLDotNetInvokeException');
+        Observer.Expect('object_message_is_text', 'Yes');
+        Observer.Expect('inner_null', 'No');
+        Observer.Expect('inner_type', 'System.FormatException');
+        Observer.Expect('inner_message', 'The input string ''abc'' was not in a correct format.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -303,7 +351,16 @@ codeunit 99019 "DnExc Outcome"
         ClearLastError();
         asserterror Raiser.Raise('getter');
         DescribeLastError();
-        Observer.Finish();
+        Observer.Expect('text', 'A call to System.Uri.AbsolutePath failed with this message: This operation is not supported for a relative URI.');
+        Observer.Expect('code', 'DotNetInvoke:InvalidOperation');
+        Observer.Expect('top_frame', '"DnExc Raiser"(CodeUnit 99017).Raise line 20 - AL Language Coverage Tests (OnPrem DotNet) by AL Language version 1.0.0.0');
+        Observer.Expect('object_null', 'No');
+        Observer.Expect('object_type', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavNCLDotNetInvokeException');
+        Observer.Expect('object_message_is_text', 'Yes');
+        Observer.Expect('inner_null', 'No');
+        Observer.Expect('inner_type', 'System.InvalidOperationException');
+        Observer.Expect('inner_message', 'This operation is not supported for a relative URI.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -314,7 +371,16 @@ codeunit 99019 "DnExc Outcome"
         ClearLastError();
         asserterror Raiser.Raise('ctor');
         DescribeLastError();
-        Observer.Finish();
+        Observer.Expect('text', 'A call to System.Text.StringBuilder failed with this message: capacity (''-1'') must be a non-negative value. (Parameter ''capacity'')\nActual value was -1.');
+        Observer.Expect('code', 'DotNetInvoke:ArgumentOutOfRange');
+        Observer.Expect('top_frame', '"DnExc Raiser"(CodeUnit 99017).Raise line 23 - AL Language Coverage Tests (OnPrem DotNet) by AL Language version 1.0.0.0');
+        Observer.Expect('object_null', 'No');
+        Observer.Expect('object_type', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavNCLDotNetInvokeException');
+        Observer.Expect('object_message_is_text', 'Yes');
+        Observer.Expect('inner_null', 'No');
+        Observer.Expect('inner_type', 'System.ArgumentOutOfRangeException');
+        Observer.Expect('inner_message', 'capacity (''-1'') must be a non-negative value. (Parameter ''capacity'')');
+        Observer.Verify();
     end;
 
     // (e) a [TryFunction] of another codeunit with global DotNet variables, called in an if
@@ -347,6 +413,14 @@ codeunit 99019 "DnExc Outcome"
         else
             Observer.Observe('ctor', 'else');
         Observer.Observe('ctor|code', GetLastErrorCode());
-        Observer.Finish();
+        Observer.Expect('uri', 'else');
+        Observer.Expect('uri|code', 'DotNetInvoke:ArgumentNull');
+        Observer.Expect('convert', 'else');
+        Observer.Expect('convert|code', 'DotNetInvoke:Format');
+        Observer.Expect('getter', 'not');
+        Observer.Expect('getter|code', 'DotNetInvoke:InvalidOperation');
+        Observer.Expect('ctor', 'else');
+        Observer.Expect('ctor|code', 'DotNetInvoke:ArgumentOutOfRange');
+        Observer.Verify();
     end;
 }

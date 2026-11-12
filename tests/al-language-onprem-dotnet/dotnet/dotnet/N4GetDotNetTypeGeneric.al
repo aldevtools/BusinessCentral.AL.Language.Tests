@@ -8,8 +8,14 @@
 //   followed by Activator.CreateInstance (the Microsoft pattern), or the error text and code.
 // Already pinned elsewhere, not repeated: unassigned String, Char, Byte, Int32, StringBuilder, Type, Object, Exception and two enums
 //   (BbGetDotNetType.al).
-// Observation form: every test ends in Finish(); the values are what BC produced.
-// BC versions: 27.5, 28.5, 29.0 (measured by the corpus CI)
+// Facts (measured by the corpus CI on 27.5, 28.5 and 29.0; the same on all three except where guarded):
+//   - GetDotNetType of an unassigned Dictionary`2, List`1 or KeyValuePair`2 variable is the open generic type definition: FullName
+//     'System.Collections.Generic.Dictionary`2', Name 'Dictionary`2', Format 'System.Collections.Generic.Dictionary`2[TKey,TValue]',
+//     IsGenericTypeDefinition Yes. An assigned Dictionary`2 variable gives the same values.
+//   - The Microsoft pattern runs: GetDotNetType of an unassigned DotNet String variable is System.Object here, so MakeGenericType builds
+//     Dictionary`2[System.Object,System.Int32]; its FullName names System.Private.CoreLib Version=8.0.0.0 on 27.5 and 28.5 and
+//     Version=10.0.0.0 on 29.0 (#if BC29PLUS).
+// BC versions: 27.5, 28.5, 29.0
 dotnet
 {
     assembly("mscorlib")
@@ -122,7 +128,10 @@ codeunit 99009 "N4 GetDotNetType Generic"
         Shown := '';
         ClearLastError();
         Run('keyvaluepair', TryUnassignedKvp(Shown), Shown);
-        Observer.Finish();
+        Observer.Expect('dictionary', 'System.Collections.Generic.Dictionary`2|Dictionary`2|System.Collections.Generic.Dictionary`2[TKey,TValue]|Yes');
+        Observer.Expect('list', 'System.Collections.Generic.List`1|List`1|System.Collections.Generic.List`1[T]|Yes');
+        Observer.Expect('keyvaluepair', 'System.Collections.Generic.KeyValuePair`2|KeyValuePair`2|System.Collections.Generic.KeyValuePair`2[TKey,TValue]|Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -132,7 +141,12 @@ codeunit 99009 "N4 GetDotNetType Generic"
     begin
         ClearLastError();
         Run('make_generic', TryMakeGeneric(Shown), Shown);
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('make_generic', 'System.Collections.Generic.Dictionary`2[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]|Dictionary`2|System.Collections.Generic.Dictionary`2[System.Object,System.Int32]|No|count=2');
+#else
+        Observer.Expect('make_generic', 'System.Collections.Generic.Dictionary`2[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]|Dictionary`2|System.Collections.Generic.Dictionary`2[System.Object,System.Int32]|No|count=2');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -142,6 +156,7 @@ codeunit 99009 "N4 GetDotNetType Generic"
     begin
         ClearLastError();
         Run('assigned', TryAssignedDictionary(Shown), Shown);
-        Observer.Finish();
+        Observer.Expect('assigned', 'System.Collections.Generic.Dictionary`2|Dictionary`2|System.Collections.Generic.Dictionary`2[TKey,TValue]|Yes');
+        Observer.Verify();
     end;
 }
