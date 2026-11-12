@@ -49,6 +49,8 @@ codeunit 52037 "Minimum UTC Repro Tests"
         Row.Insert();
         Clear(Row);
         Row.Get(7);
+        if (Buffer.Stamp <> 0DT) or (Row.Stamp <> 0DT) then
+            Error('The JSON minimum UTC value and its stored readback must both equal 0DT.');
         if StrSubstNo('%1|%2', Row.Id, Format(Row.Stamp, 0, 9)) <> '7|' then
             Error('Expected row 7 with a blank DateTime. Got row %1 with DateTime %2.',
                 Row.Id, Format(Row.Stamp, 0, 9));
