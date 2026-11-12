@@ -149,3 +149,37 @@ table 94690 "LT Y88 Pkg Dec Tiny"
         key(PK; "No.") { Clustered = true; }
     }
 }
+
+// al-runner issue 7366: data files whose header lists the stored fields and then the column `$systemId` (the field count is one more than the
+// stored fields), the shape the reporter's files have. The rows are written as in every other file here: the field values, then the 16 bytes of
+// the SystemId. 94692 is DataPerCompany = false and loaded from OnInstallAppPerDatabase; 94693 is per company and loaded from OnInstallAppPerCompany.
+table 94692 "LT Y88 Pkg SysId Db"
+{
+    DataClassification = SystemMetadata;
+    DataPerCompany = false;
+
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(10; Description; Text[100]) { }
+    }
+    keys
+    {
+        key(PK; "Entry No.") { Clustered = true; }
+    }
+}
+
+table 94693 "LT Y88 Pkg SysId Co"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; Description; Text[30]) { }
+    }
+    keys
+    {
+        key(PK; "No.") { Clustered = true; }
+    }
+}
