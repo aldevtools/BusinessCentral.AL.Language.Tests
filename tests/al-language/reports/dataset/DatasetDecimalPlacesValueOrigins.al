@@ -427,7 +427,7 @@ codeunit 62333 "RPT DecCol Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('value', MatrixValue('VarTimes1'));
-        Observer.Expect('value', '1.00000,');
+        Observer.Expect('value', '1,');
         Observer.Verify();
     end;
 
@@ -447,7 +447,7 @@ codeunit 62333 "RPT DecCol Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('value', MatrixValue('Neg'));
-        Observer.Expect('value', '-1.00000,');
+        Observer.Expect('value', '-1,');
         Observer.Verify();
     end;
 
@@ -467,7 +467,7 @@ codeunit 62333 "RPT DecCol Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('value', MatrixValue('CallParens'));
-        Observer.Expect('value', '1.00000,');
+        Observer.Expect('value', '1,');
         Observer.Verify();
     end;
 
@@ -477,7 +477,7 @@ codeunit 62333 "RPT DecCol Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('value', MatrixValue('CallNoParens'));
-        Observer.Expect('value', '1.00000,');
+        Observer.Expect('value', '1,');
         Observer.Verify();
     end;
 
@@ -487,7 +487,7 @@ codeunit 62333 "RPT DecCol Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('value', MatrixValue('MemberCall'));
-        Observer.Expect('value', '1.00000,');
+        Observer.Expect('value', '1,');
         Observer.Verify();
     end;
 
@@ -527,7 +527,7 @@ codeunit 62333 "RPT DecCol Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('value', MatrixValue('AssignedTimes1'));
-        Observer.Expect('value', '1.00000,');
+        Observer.Expect('value', '1,');
         Observer.Verify();
     end;
 
@@ -567,7 +567,7 @@ codeunit 62333 "RPT DecCol Tests"
         Observer.Observe('times one', Dataset.ColumnValues(Xml, 'TmpTimes1'));
         Observer.Expect('saved', 'Yes');
         Observer.Expect('field', '1,');
-        Observer.Expect('times one', '1.00000,');
+        Observer.Expect('times one', '1,');
         Observer.Verify();
     end;
 }
