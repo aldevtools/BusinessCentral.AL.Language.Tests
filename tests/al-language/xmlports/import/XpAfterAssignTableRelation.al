@@ -69,6 +69,29 @@ table 77701 "XP AAR Row"
                 AarLog.Add('validate nv:' + "Rel Code NV");
             end;
         }
+        field(4; "Rel Code NoTrig"; Code[20])
+        {
+            // al-runner issue 7863 as reported: a TableRelation and no OnValidate trigger.
+            TableRelation = "XP AAR Rel";
+        }
+        field(5; "Rel Int"; Integer)
+        {
+            TableRelation = "XP AAR IntRel";
+
+            trigger OnValidate()
+            begin
+                AarLog.Add('validate int:' + Format("Rel Int"));
+            end;
+        }
+        field(6; "Rel Code10"; Code[10])
+        {
+            TableRelation = "XP AAR Rel";
+
+            trigger OnValidate()
+            begin
+                AarLog.Add('validate c10:' + "Rel Code10");
+            end;
+        }
     }
 
     keys
@@ -78,6 +101,22 @@ table 77701 "XP AAR Row"
 
     var
         AarLog: Codeunit "XP AAR Log";
+}
+
+table 77712 "XP AAR IntRel"
+{
+    // local object: the related table of the Integer field "Rel Int".
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
 }
 
 xmlport 77702 "XP AAR Attr"
@@ -464,6 +503,810 @@ xmlport 77711 "XP AAR Attr NV Db"
         AarLog: Codeunit "XP AAR Log";
 }
 
+xmlport 77713 "XP AAR NT Attr"
+{
+    // local object: fieldattribute with OnAfterAssignField into a field with a TableRelation and no OnValidate, temporary table element (al-runner issue 7863 as reported; captures the value in a global).
+    Direction = Import;
+    Encoding = UTF8;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                UseTemporary = true;
+                fieldattribute(Id; Row.Id) { }
+                fieldattribute(RelCode; Row."Rel Code NoTrig")
+                {
+                    trigger OnAfterAssignField()
+                    begin
+                        AarLog.Add('after:' + Row."Rel Code NoTrig");
+                        Captured := Row."Rel Code NoTrig";
+                        case AarLog.GetMode() of
+                            1:
+                                Row."Rel Code NoTrig" := 'P2';
+                            2:
+                                Row."Rel Code NoTrig" := 'MISS';
+                        end;
+                    end;
+                }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Row."Rel Code NoTrig");
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Row."Rel Code NoTrig");
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+        Captured: Code[20];
+
+    procedure GetCaptured(): Code[20]
+    begin
+        exit(Captured);
+    end;
+}
+
+xmlport 77714 "XP AAR NT Attr Plain"
+{
+    // local object: fieldattribute without OnAfterAssignField into the field with a TableRelation and no OnValidate, temporary table element.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                UseTemporary = true;
+                fieldattribute(Id; Row.Id) { }
+                fieldattribute(RelCode; Row."Rel Code NoTrig") { }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Row."Rel Code NoTrig");
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Row."Rel Code NoTrig");
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
+xmlport 77715 "XP AAR NT Attr Db"
+{
+    // local object: fieldattribute with OnAfterAssignField into the field with a TableRelation and no OnValidate, table element not temporary.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                fieldattribute(Id; Row.Id) { }
+                fieldattribute(RelCode; Row."Rel Code NoTrig")
+                {
+                    trigger OnAfterAssignField()
+                    begin
+                        AarLog.Add('after:' + Row."Rel Code NoTrig");
+                        case AarLog.GetMode() of
+                            1:
+                                Row."Rel Code NoTrig" := 'P2';
+                            2:
+                                Row."Rel Code NoTrig" := 'MISS';
+                        end;
+                    end;
+                }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Row."Rel Code NoTrig");
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Row."Rel Code NoTrig");
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
+xmlport 77716 "XP AAR NT Attr Db Plain"
+{
+    // local object: fieldattribute without OnAfterAssignField into the field with a TableRelation and no OnValidate, table element not temporary.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                fieldattribute(Id; Row.Id) { }
+                fieldattribute(RelCode; Row."Rel Code NoTrig") { }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Row."Rel Code NoTrig");
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Row."Rel Code NoTrig");
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
+xmlport 77717 "XP AAR Attr Plain"
+{
+    // local object: fieldattribute without OnAfterAssignField, temporary table element.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                UseTemporary = true;
+                fieldattribute(Id; Row.Id) { }
+                fieldattribute(RelCode; Row."Rel Code") { }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Row."Rel Code");
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Row."Rel Code");
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
+xmlport 77718 "XP AAR Attr Db Plain"
+{
+    // local object: fieldattribute without OnAfterAssignField, table element not temporary.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                fieldattribute(Id; Row.Id) { }
+                fieldattribute(RelCode; Row."Rel Code") { }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Row."Rel Code");
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Row."Rel Code");
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
+xmlport 77719 "XP AAR Elem Plain"
+{
+    // local object: fieldelement without OnAfterAssignField, temporary table element.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                UseTemporary = true;
+                fieldattribute(Id; Row.Id) { }
+                fieldelement(RelCode; Row."Rel Code") { }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Row."Rel Code");
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Row."Rel Code");
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
+xmlport 77729 "XP AAR Elem Db Plain"
+{
+    // local object: fieldelement without OnAfterAssignField, table element not temporary.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                fieldattribute(Id; Row.Id) { }
+                fieldelement(RelCode; Row."Rel Code") { }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Row."Rel Code");
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Row."Rel Code");
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
+xmlport 77730 "XP AAR Attr FVYes"
+{
+    // local object: fieldattribute with OnAfterAssignField and FieldValidate = Yes, temporary table element.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                UseTemporary = true;
+                fieldattribute(Id; Row.Id) { }
+                fieldattribute(RelCode; Row."Rel Code")
+                {
+                    FieldValidate = Yes;
+
+                    trigger OnAfterAssignField()
+                    begin
+                        AarLog.Add('after:' + Row."Rel Code");
+                        case AarLog.GetMode() of
+                            1:
+                                Row."Rel Code" := 'P2';
+                            2:
+                                Row."Rel Code" := 'MISS';
+                        end;
+                    end;
+                }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Row."Rel Code");
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Row."Rel Code");
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
+xmlport 77731 "XP AAR Attr FVYes Db"
+{
+    // local object: fieldattribute with OnAfterAssignField and FieldValidate = Yes, table element not temporary.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                fieldattribute(Id; Row.Id) { }
+                fieldattribute(RelCode; Row."Rel Code")
+                {
+                    FieldValidate = Yes;
+
+                    trigger OnAfterAssignField()
+                    begin
+                        AarLog.Add('after:' + Row."Rel Code");
+                        case AarLog.GetMode() of
+                            1:
+                                Row."Rel Code" := 'P2';
+                            2:
+                                Row."Rel Code" := 'MISS';
+                        end;
+                    end;
+                }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Row."Rel Code");
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Row."Rel Code");
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
+xmlport 77732 "XP AAR Attr FVYes Plain"
+{
+    // local object: fieldattribute without OnAfterAssignField and FieldValidate = Yes, temporary table element.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                UseTemporary = true;
+                fieldattribute(Id; Row.Id) { }
+                fieldattribute(RelCode; Row."Rel Code")
+                {
+                    FieldValidate = Yes;
+                }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Row."Rel Code");
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Row."Rel Code");
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
+xmlport 77733 "XP AAR Attr FVYes Db Plain"
+{
+    // local object: fieldattribute without OnAfterAssignField and FieldValidate = Yes, table element not temporary.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                fieldattribute(Id; Row.Id) { }
+                fieldattribute(RelCode; Row."Rel Code")
+                {
+                    FieldValidate = Yes;
+                }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Row."Rel Code");
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Row."Rel Code");
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
+xmlport 77734 "XP AAR Elem NoVal"
+{
+    // local object: fieldelement with OnAfterAssignField and FieldValidate = No, temporary table element.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                UseTemporary = true;
+                fieldattribute(Id; Row.Id) { }
+                fieldelement(RelCode; Row."Rel Code")
+                {
+                    FieldValidate = No;
+
+                    trigger OnAfterAssignField()
+                    begin
+                        AarLog.Add('after:' + Row."Rel Code");
+                        case AarLog.GetMode() of
+                            1:
+                                Row."Rel Code" := 'P2';
+                            2:
+                                Row."Rel Code" := 'MISS';
+                        end;
+                    end;
+                }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Row."Rel Code");
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Row."Rel Code");
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
+xmlport 77735 "XP AAR Elem NoVal Db"
+{
+    // local object: fieldelement with OnAfterAssignField and FieldValidate = No, table element not temporary.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                fieldattribute(Id; Row.Id) { }
+                fieldelement(RelCode; Row."Rel Code")
+                {
+                    FieldValidate = No;
+
+                    trigger OnAfterAssignField()
+                    begin
+                        AarLog.Add('after:' + Row."Rel Code");
+                        case AarLog.GetMode() of
+                            1:
+                                Row."Rel Code" := 'P2';
+                            2:
+                                Row."Rel Code" := 'MISS';
+                        end;
+                    end;
+                }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Row."Rel Code");
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Row."Rel Code");
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
+xmlport 77736 "XP AAR Elem NoVal Db Plain"
+{
+    // local object: fieldelement without OnAfterAssignField and FieldValidate = No, table element not temporary.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                fieldattribute(Id; Row.Id) { }
+                fieldelement(RelCode; Row."Rel Code")
+                {
+                    FieldValidate = No;
+                }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Row."Rel Code");
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Row."Rel Code");
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
+xmlport 77737 "XP AAR Int Attr"
+{
+    // local object: fieldattribute with OnAfterAssignField into an Integer field with a TableRelation, temporary table element.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                UseTemporary = true;
+                fieldattribute(Id; Row.Id) { }
+                fieldattribute(RelCode; Row."Rel Int")
+                {
+                    trigger OnAfterAssignField()
+                    begin
+                        AarLog.Add('after:' + Format(Row."Rel Int"));
+                        case AarLog.GetMode() of
+                            1:
+                                Row."Rel Int" := 2;
+                            2:
+                                Row."Rel Int" := 99;
+                        end;
+                    end;
+                }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Format(Row."Rel Int"));
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Format(Row."Rel Int"));
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
+xmlport 77738 "XP AAR Int Attr Db"
+{
+    // local object: fieldattribute with OnAfterAssignField into an Integer field with a TableRelation, table element not temporary.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                fieldattribute(Id; Row.Id) { }
+                fieldattribute(RelCode; Row."Rel Int")
+                {
+                    trigger OnAfterAssignField()
+                    begin
+                        AarLog.Add('after:' + Format(Row."Rel Int"));
+                        case AarLog.GetMode() of
+                            1:
+                                Row."Rel Int" := 2;
+                            2:
+                                Row."Rel Int" := 99;
+                        end;
+                    end;
+                }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Format(Row."Rel Int"));
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Format(Row."Rel Int"));
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
+xmlport 77739 "XP AAR Int Attr Db Plain"
+{
+    // local object: fieldattribute without OnAfterAssignField into an Integer field with a TableRelation, table element not temporary.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                fieldattribute(Id; Row.Id) { }
+                fieldattribute(RelCode; Row."Rel Int") { }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Format(Row."Rel Int"));
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Format(Row."Rel Int"));
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
+xmlport 77740 "XP AAR C10 Attr Db"
+{
+    // local object: fieldattribute with OnAfterAssignField into a Code[10] field related to a Code[20] key, table element not temporary.
+    Direction = Import;
+    Encoding = UTF8;
+    Format = Xml;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Row; "XP AAR Row")
+            {
+                fieldattribute(Id; Row.Id) { }
+                fieldattribute(RelCode; Row."Rel Code10")
+                {
+                    trigger OnAfterAssignField()
+                    begin
+                        AarLog.Add('after:' + Row."Rel Code10");
+                        case AarLog.GetMode() of
+                            1:
+                                Row."Rel Code10" := 'P2';
+                            2:
+                                Row."Rel Code10" := 'MISS';
+                        end;
+                    end;
+                }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    AarLog.Add('before insert:' + Row."Rel Code10");
+                end;
+
+                trigger OnAfterInsertRecord()
+                begin
+                    AarLog.Add('after insert:' + Row."Rel Code10");
+                end;
+            }
+        }
+    }
+
+    var
+        AarLog: Codeunit "XP AAR Log";
+}
+
 codeunit 77707 "XP AAR Log"
 {
     // local object: the log of the triggers and the mode of OnAfterAssignField (used by codeunit 77708 only).
@@ -675,5 +1518,250 @@ codeunit 77708 "XP AAR Tests"
         Observer.Expect('existing, trigger sets MISS', 'Yes |  |  | after:P1;validate nv:MISS;before insert:MISS;after insert:MISS; | 1::MISS,');
         Observer.Expect('existing, trigger sets P2', 'Yes |  |  | after:P1;validate nv:P2;before insert:P2;after insert:P2; | 1::P2,');
         Observer.Verify();
+    end;
+
+    // Cells 2 (the second round of al-runner issue 7863): the rows of the new tests show Id:Rel Code:Rel Code NoTrig:Rel Int:Rel Code10.
+    local procedure SeedAll(Mode: Integer)
+    var
+        IntRel: Record "XP AAR IntRel";
+    begin
+        Seed(Mode);
+        IntRel.DeleteAll();
+        IntRel.Id := 1;
+        IntRel.Insert();
+        IntRel.Id := 2;
+        IntRel.Insert();
+    end;
+
+    local procedure DbRowsAll(): Text
+    var
+        Row: Record "XP AAR Row";
+        Result: Text;
+    begin
+        if Row.FindSet() then
+            repeat
+                Result += Format(Row.Id) + ':' + Row."Rel Code" + ':' + Row."Rel Code NoTrig" + ':' + Format(Row."Rel Int") + ':' + Row."Rel Code10" + ',';
+            until Row.Next() = 0;
+        exit(Result);
+    end;
+
+    local procedure ImportCaseAll(XmlPortId: Integer; IsAttribute: Boolean; Value: Text; Mode: Integer; Name: Text)
+    var
+        Xml: Text;
+        Ok: Boolean;
+    begin
+        if IsAttribute then
+            Xml := '<?xml version="1.0" encoding="UTF-8"?><Root><Row Id="1" RelCode="' + Value + '" /></Root>'
+        else
+            Xml := '<?xml version="1.0" encoding="UTF-8"?><Root><Row Id="1"><RelCode>' + Value + '</RelCode></Row></Root>';
+        SeedAll(Mode);
+        ClearLastError();
+        Ok := TryImport(XmlPortId, Xml);
+        Observer.Observe(Name, Format(Ok) + ' | ' + GetLastErrorText() + ' | ' + GetLastErrorCode() + ' | ' + AarLog.Take() + ' | ' + DbRowsAll());
+        ClearLastError();
+    end;
+
+    local procedure ProbeAll(XmlPortId: Integer; IsAttribute: Boolean)
+    begin
+        ImportCaseAll(XmlPortId, IsAttribute, 'P1', 0, 'existing, trigger reads');
+        ImportCaseAll(XmlPortId, IsAttribute, 'MISS', 0, 'missing, trigger reads');
+        ImportCaseAll(XmlPortId, IsAttribute, '', 0, 'blank, trigger reads');
+        ImportCaseAll(XmlPortId, IsAttribute, 'MISS', 1, 'missing, trigger sets P2');
+        ImportCaseAll(XmlPortId, IsAttribute, 'P1', 2, 'existing, trigger sets MISS');
+        ImportCaseAll(XmlPortId, IsAttribute, 'P1', 1, 'existing, trigger sets P2');
+    end;
+
+    // A node without OnAfterAssignField: the imported value only.
+    local procedure ProbePlain(XmlPortId: Integer; IsAttribute: Boolean)
+    begin
+        ImportCaseAll(XmlPortId, IsAttribute, 'P1', 0, 'existing');
+        ImportCaseAll(XmlPortId, IsAttribute, 'MISS', 0, 'missing');
+        ImportCaseAll(XmlPortId, IsAttribute, '', 0, 'blank');
+    end;
+
+    // Integer field related to "XP AAR IntRel" (rows 1 and 2): the trigger sets 2 (mode 1) or 99 (mode 2).
+    local procedure ProbeInt(XmlPortId: Integer; WithTrigger: Boolean)
+    begin
+        ImportCaseAll(XmlPortId, true, '1', 0, 'existing 1');
+        ImportCaseAll(XmlPortId, true, '99', 0, 'missing 99');
+        ImportCaseAll(XmlPortId, true, '', 0, 'blank');
+        ImportCaseAll(XmlPortId, true, '0', 0, 'zero');
+        if not WithTrigger then
+            exit;
+        ImportCaseAll(XmlPortId, true, '99', 1, 'missing 99, trigger sets 2');
+        ImportCaseAll(XmlPortId, true, '1', 2, 'existing 1, trigger sets 99');
+        ImportCaseAll(XmlPortId, true, '1', 1, 'existing 1, trigger sets 2');
+    end;
+
+    // The reporter's call: an XmlPort variable, SetSource, Import, then a procedure of the port returns the value the trigger captured.
+    [TryFunction]
+    local procedure TryImportReporter(Xml: Text; var Captured: Code[20])
+    var
+        TempBlob: Codeunit "Temp Blob";
+        AarImport: XmlPort "XP AAR NT Attr";
+        OutS: OutStream;
+        InS: InStream;
+    begin
+        TempBlob.CreateOutStream(OutS);
+        OutS.WriteText(Xml);
+        TempBlob.CreateInStream(InS);
+        AarImport.SetSource(InS);
+        AarImport.Import();
+        Captured := AarImport.GetCaptured();
+    end;
+
+    local procedure ReporterCase(Value: Text; Name: Text)
+    var
+        Captured: Code[20];
+        Ok: Boolean;
+    begin
+        SeedAll(0);
+        ClearLastError();
+        Ok := TryImportReporter('<?xml version="1.0" encoding="UTF-8"?><Root><Row Id="1" RelCode="' + Value + '" /></Root>', Captured);
+        Observer.Observe(Name, Format(Ok) + ' | ' + GetLastErrorText() + ' | ' + GetLastErrorCode() + ' | captured:' + Captured + ' | ' + AarLog.Take() + ' | ' + DbRowsAll());
+        ClearLastError();
+    end;
+
+    [Test]
+    procedure AAR_NoOnValidate_Reporter_InstanceImport()
+    begin
+        ReporterCase('P1', 'existing');
+        ReporterCase('MISS', 'missing');
+        ReporterCase('', 'blank');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_NoOnValidate_Temporary_AfterAssign()
+    begin
+        ProbeAll(Xmlport::"XP AAR NT Attr", true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_NoOnValidate_Temporary_Plain()
+    begin
+        ProbePlain(Xmlport::"XP AAR NT Attr Plain", true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_NoOnValidate_NotTemporary_AfterAssign()
+    begin
+        ProbeAll(Xmlport::"XP AAR NT Attr Db", true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_NoOnValidate_NotTemporary_Plain()
+    begin
+        ProbePlain(Xmlport::"XP AAR NT Attr Db Plain", true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_FieldAttribute_Temporary_Plain()
+    begin
+        ProbePlain(Xmlport::"XP AAR Attr Plain", true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_FieldAttribute_NotTemporary_Plain()
+    begin
+        ProbePlain(Xmlport::"XP AAR Attr Db Plain", true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_FieldElement_Temporary_Plain()
+    begin
+        ProbePlain(Xmlport::"XP AAR Elem Plain", false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_FieldElement_NotTemporary_Plain()
+    begin
+        ProbePlain(Xmlport::"XP AAR Elem Db Plain", false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_FieldAttribute_FieldValidateYes_AfterAssign()
+    begin
+        ProbeAll(Xmlport::"XP AAR Attr FVYes", true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_FieldAttribute_FieldValidateYes_NotTemporary_AfterAssign()
+    begin
+        ProbeAll(Xmlport::"XP AAR Attr FVYes Db", true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_FieldAttribute_FieldValidateYes_Plain()
+    begin
+        ProbePlain(Xmlport::"XP AAR Attr FVYes Plain", true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_FieldAttribute_FieldValidateYes_NotTemporary_Plain()
+    begin
+        ProbePlain(Xmlport::"XP AAR Attr FVYes Db Plain", true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_FieldElement_FieldValidateNo_AfterAssign()
+    begin
+        ProbeAll(Xmlport::"XP AAR Elem NoVal", false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_FieldElement_FieldValidateNo_NotTemporary_AfterAssign()
+    begin
+        ProbeAll(Xmlport::"XP AAR Elem NoVal Db", false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_FieldElement_FieldValidateNo_NotTemporary_Plain()
+    begin
+        ProbePlain(Xmlport::"XP AAR Elem NoVal Db Plain", false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_IntegerRelation_AfterAssign()
+    begin
+        ProbeInt(Xmlport::"XP AAR Int Attr", true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_IntegerRelation_NotTemporary_AfterAssign()
+    begin
+        ProbeInt(Xmlport::"XP AAR Int Attr Db", true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_IntegerRelation_NotTemporary_Plain()
+    begin
+        ProbeInt(Xmlport::"XP AAR Int Attr Db Plain", false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure AAR_Code10Relation_NotTemporary_AfterAssign()
+    begin
+        ProbeAll(Xmlport::"XP AAR C10 Attr Db", true);
+        ImportCaseAll(Xmlport::"XP AAR C10 Attr Db", true, 'ABCDEFGHIJK', 0, 'eleven characters, trigger reads');
+        Observer.Finish();
     end;
 }
