@@ -15,6 +15,8 @@
 //   - a temporary layout selection before SaveAs: default, empty name, the other Word layout by name with and without the app id, a
 //     user-defined Tenant Report Layout row named by a GUID, a name and a custom layout code that match nothing; the answer, the error and
 //     the Reporting Triggers events in their order inside SaveAs (the layoutname of OnDocumentReady says which layout was used).
+// Measured on BC 27.5 and 28.5 (Windows containers, identical answers); BC 29.0 not measured locally (its container failed to publish).
+// The four FieldValue_* tests are still in observe form: the local run reported them passed without an observation (not measured).
 // BC versions: 27 - 29
 
 codeunit 75210 "HT Rendered Text Tests"
@@ -130,7 +132,24 @@ codeunit 75210 "HT Rendered Text Tests"
         Observer.Observe('BigText.Read GetSubText = body', Format(Other = Body));
         Observer.Observe('BigText.Length = StrLen', Format(BigTxt.Length() = StrLen(Body)));
         Observer.Observe('Format(BigText) = body', Format(Format(BigTxt) = Body));
-        Observer.Finish();
+        Observer.Expect('log', 'SubstituteReport(SaveAs);SelectReportLayoutCode;SelectedBuiltinLayoutType;OnPreReport;OnPreRendering;OnDocumentReady(text/html,HtWordMain);OnPostReport;');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('length > 1000', 'No');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body starts with <', 'Yes');
+        Observer.Expect('body over 1000 characters', 'No');
+        Observer.Expect('read answer = StrLen', 'No');
+        Observer.Expect('EOS after read', 'Yes');
+        Observer.Expect('second read', '1');
+        Observer.Expect('second read text empty', 'Yes');
+        Observer.Expect('ReadText one line = body', 'Yes');
+        Observer.Expect('read without encoding = body', 'Yes');
+        Observer.Expect('BigText.Read GetSubText = body', 'Yes');
+        Observer.Expect('BigText.Length = StrLen', 'Yes');
+        Observer.Expect('Format(BigText) = body', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -166,7 +185,21 @@ codeunit 75210 "HT Rendered Text Tests"
         Observer.Observe('body = known text', Format(Body = 'Body'));
         Observer.Observe('(Body + body) < body', Format(('Body ' + Body) < 'body'));
         Observer.Observe('body < a', Format(Body < 'a'));
-        Observer.Finish();
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('Format = body', 'Yes');
+        Observer.Expect('TextBuilder.ToText = body', 'Yes');
+        Observer.Expect('known + body <> empty', 'Yes');
+        Observer.Expect('StrSubstNo %1 = body', 'Yes');
+        Observer.Expect('StrSubstNo #1 width 10 = 10 stars', 'Yes');
+        Observer.Expect('Variant IsText', 'Yes');
+        Observer.Expect('Format(Variant) = body', 'Yes');
+        Observer.Expect('List.Get = body', 'Yes');
+        Observer.Expect('Dictionary.Get = body', 'Yes');
+        Observer.Expect('BigText.AddText GetSubText = body', 'Yes');
+        Observer.Expect('body = known text', 'No');
+        Observer.Expect('(Body + body) < body', 'No');
+        Observer.Expect('body < a', 'Yes');
+        Observer.Verify();
     end;
 
     local procedure RoundTrip(Body: Text; Encoding: TextEncoding; UseWrite: Boolean): Boolean
@@ -227,7 +260,15 @@ codeunit 75210 "HT Rendered Text Tests"
         InS.Read(Back);
         Observer.Observe('Blob field stored and read = body', Format(Back = Body));
         BodyRow.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('UTF8 WriteText Read = body', 'Yes');
+        Observer.Expect('UTF8 Write Read = body', 'Yes');
+        Observer.Expect('UTF16 WriteText Read = body', 'Yes');
+        Observer.Expect('Windows WriteText Read = body', 'Yes');
+        Observer.Expect('MSDos WriteText Read = body', 'Yes');
+        Observer.Expect('BigText Write Read = body', 'Yes');
+        Observer.Expect('Blob field HasValue', 'Yes');
+        Observer.Expect('Blob field stored and read = body', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -265,7 +306,14 @@ codeunit 75210 "HT Rendered Text Tests"
         Observer.Observe('Email Item GetBodyTextFromBlob = body', Format(TempEmailItem.GetBodyTextFromBlob() = Body));
         TempEmailItem.SetBody(TempBlob, true);
         Observer.Observe('Email Item plain GetBodyTextFromBlob = body', Format(TempEmailItem.GetBodyTextFromBlob() = Body));
-        Observer.Finish();
+        Observer.Expect('html Create GetBody <> empty', 'Yes');
+        Observer.Expect('html Create GetBody = body', 'Yes');
+        Observer.Expect('plain Create GetBody = body', 'Yes');
+        Observer.Expect('signed GetBody <> empty', 'Yes');
+        Observer.Expect('signed GetBody = body + signature', 'Yes');
+        Observer.Expect('Email Item GetBodyTextFromBlob = body', 'Yes');
+        Observer.Expect('Email Item plain GetBodyTextFromBlob = body', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -276,7 +324,14 @@ codeunit 75210 "HT Rendered Text Tests"
     begin
         Rows(0);
         SaveFacts(Observer, Report::"HT Word Rpt", TempBlob);
-        Observer.Finish();
+        Observer.Expect('log', 'SubstituteReport(SaveAs);SelectReportLayoutCode;SelectedBuiltinLayoutType;OnPreReport;OnPreRendering;');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'No');
+        Observer.Expect('length > 0', 'No');
+        Observer.Expect('length > 1000', 'No');
+        Observer.Expect('body <> empty', 'No');
+        Observer.Expect('body starts with <', 'No');
+        Observer.Verify();
     end;
 
     local procedure QuitFacts(var Observer: Codeunit "Probe Observer"; TriggerName: Text)
@@ -295,7 +350,14 @@ codeunit 75210 "HT Rendered Text Tests"
         Observer: Codeunit "Probe Observer";
     begin
         QuitFacts(Observer, '');
-        Observer.Finish();
+        Observer.Expect('log', 'SubstituteReport(SaveAs);SelectReportLayoutCode;SelectedBuiltinLayoutType;OnPreReport;OnAfterGetRecord;OnAfterGetRecord;OnPreRendering;OnDocumentReady(text/html,HtQuit);OnPostReport;');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('length > 1000', 'No');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body starts with <', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -304,7 +366,14 @@ codeunit 75210 "HT Rendered Text Tests"
         Observer: Codeunit "Probe Observer";
     begin
         QuitFacts(Observer, 'OnPreReport');
-        Observer.Finish();
+        Observer.Expect('log', 'SubstituteReport(SaveAs);SelectReportLayoutCode;SelectedBuiltinLayoutType;OnPreReport;');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'No');
+        Observer.Expect('length > 0', 'No');
+        Observer.Expect('length > 1000', 'No');
+        Observer.Expect('body <> empty', 'No');
+        Observer.Expect('body starts with <', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -313,7 +382,14 @@ codeunit 75210 "HT Rendered Text Tests"
         Observer: Codeunit "Probe Observer";
     begin
         QuitFacts(Observer, 'OnAfterGetRecord');
-        Observer.Finish();
+        Observer.Expect('log', 'SubstituteReport(SaveAs);SelectReportLayoutCode;SelectedBuiltinLayoutType;OnPreReport;OnAfterGetRecord;');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'No');
+        Observer.Expect('length > 0', 'No');
+        Observer.Expect('length > 1000', 'No');
+        Observer.Expect('body <> empty', 'No');
+        Observer.Expect('body starts with <', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -322,7 +398,14 @@ codeunit 75210 "HT Rendered Text Tests"
         Observer: Codeunit "Probe Observer";
     begin
         QuitFacts(Observer, 'OnPostReport');
-        Observer.Finish();
+        Observer.Expect('log', 'SubstituteReport(SaveAs);SelectReportLayoutCode;SelectedBuiltinLayoutType;OnPreReport;OnAfterGetRecord;OnAfterGetRecord;OnPreRendering;OnDocumentReady(text/html,HtQuit);OnPostReport;');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('length > 1000', 'No');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body starts with <', 'Yes');
+        Observer.Verify();
     end;
 
     local procedure SelectionFacts(var Observer: Codeunit "Probe Observer")
@@ -345,7 +428,16 @@ codeunit 75210 "HT Rendered Text Tests"
     begin
         Selection.ClearTempLayoutSelected();
         SelectionFacts(Observer);
-        Observer.Finish();
+        Observer.Expect('log', 'SubstituteReport(SaveAs);SelectReportLayoutCode;SelectedBuiltinLayoutType;OnPreReport;OnPreRendering;OnDocumentReady(text/html,HtWordMain);OnPostReport;');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('length > 1000', 'No');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body starts with <', 'Yes');
+        Observer.Expect('selected name after', '');
+        Observer.Expect('selected code after', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -357,7 +449,16 @@ codeunit 75210 "HT Rendered Text Tests"
     begin
         Selection.SetTempLayoutSelectedName('', NullGuid);
         SelectionFacts(Observer);
-        Observer.Finish();
+        Observer.Expect('log', 'SubstituteReport(SaveAs);SelectReportLayoutCode;SelectedBuiltinLayoutType;OnPreReport;OnPreRendering;OnDocumentReady(text/html,HtWordMain);OnPostReport;');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('length > 1000', 'No');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body starts with <', 'Yes');
+        Observer.Expect('selected name after', '');
+        Observer.Expect('selected code after', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -370,7 +471,16 @@ codeunit 75210 "HT Rendered Text Tests"
         NavApp.GetCurrentModuleInfo(Info);
         Selection.SetTempLayoutSelectedName('HtWordOther', Info.Id());
         SelectionFacts(Observer);
-        Observer.Finish();
+        Observer.Expect('log', 'SubstituteReport(SaveAs);SelectReportLayoutCode;OnPreReport;OnPreRendering;OnDocumentReady(text/html,HtWordOther);OnPostReport;');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('length > 1000', 'No');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body starts with <', 'Yes');
+        Observer.Expect('selected name after', '');
+        Observer.Expect('selected code after', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -381,7 +491,16 @@ codeunit 75210 "HT Rendered Text Tests"
     begin
         Selection.SetTempLayoutSelectedName('HtWordOther');
         SelectionFacts(Observer);
-        Observer.Finish();
+        Observer.Expect('log', 'SubstituteReport(SaveAs);SelectReportLayoutCode;OnPreReport;OnPreRendering;OnDocumentReady(text/html,HtWordOther);OnPostReport;');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('length > 1000', 'No');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body starts with <', 'Yes');
+        Observer.Expect('selected name after', '');
+        Observer.Expect('selected code after', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -408,7 +527,16 @@ codeunit 75210 "HT Rendered Text Tests"
         SelectionFacts(Observer);
         Layout.SetRange("Report ID", Report::"HT Word Rpt");
         Layout.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('log', 'SubstituteReport(SaveAs);SelectReportLayoutCode;OnPreReport;OnPreRendering;OnDocumentReady(text/html,<tenant layout>);OnPostReport;');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('length > 1000', 'No');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body starts with <', 'Yes');
+        Observer.Expect('selected name after', '');
+        Observer.Expect('selected code after', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -421,7 +549,16 @@ codeunit 75210 "HT Rendered Text Tests"
         NavApp.GetCurrentModuleInfo(Info);
         Selection.SetTempLayoutSelectedName('HtNoSuchLayout', Info.Id());
         SelectionFacts(Observer);
-        Observer.Finish();
+        Observer.Expect('log', 'SubstituteReport(SaveAs);SelectReportLayoutCode;');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'No');
+        Observer.Expect('length > 0', 'No');
+        Observer.Expect('length > 1000', 'No');
+        Observer.Expect('body <> empty', 'No');
+        Observer.Expect('body starts with <', 'No');
+        Observer.Expect('selected name after', '');
+        Observer.Expect('selected code after', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -433,7 +570,16 @@ codeunit 75210 "HT Rendered Text Tests"
     begin
         Selection.SetTempLayoutSelectedName('HtNoSuchLayout', NullGuid);
         SelectionFacts(Observer);
-        Observer.Finish();
+        Observer.Expect('log', 'SubstituteReport(SaveAs);SelectReportLayoutCode;');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'No');
+        Observer.Expect('length > 0', 'No');
+        Observer.Expect('length > 1000', 'No');
+        Observer.Expect('body <> empty', 'No');
+        Observer.Expect('body starts with <', 'No');
+        Observer.Expect('selected name after', '');
+        Observer.Expect('selected code after', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -444,7 +590,16 @@ codeunit 75210 "HT Rendered Text Tests"
     begin
         Selection.SetTempLayoutSelected('HTNOSUCHCODE');
         SelectionFacts(Observer);
-        Observer.Finish();
+        Observer.Expect('log', 'SubstituteReport(SaveAs);SelectReportLayoutCode;');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'No');
+        Observer.Expect('length > 0', 'No');
+        Observer.Expect('length > 1000', 'No');
+        Observer.Expect('body <> empty', 'No');
+        Observer.Expect('body starts with <', 'No');
+        Observer.Expect('selected name after', '');
+        Observer.Expect('selected code after', '');
+        Observer.Verify();
     end;
 
     local procedure LongText(Count: Integer; WithBreaks: Boolean): Text
@@ -545,7 +700,20 @@ codeunit 75210 "HT Rendered Text Tests"
         BigTextFacts(Observer, '5000', LongText(5000, false));
         BigTextFacts(Observer, '5000 breaks', LongText(5000, true));
         BigTextFacts(Observer, '100000', LongText(100000, false));
-        Observer.Finish();
+        Observer.Expect('empty Format', '');
+        Observer.Expect('1 Format = text', 'Yes');
+        Observer.Expect('1 StrLen(Format)', '1');
+        Observer.Expect('250 Format = text', 'Yes');
+        Observer.Expect('250 StrLen(Format)', '250');
+        Observer.Expect('1030 Format = text', 'Yes');
+        Observer.Expect('1030 StrLen(Format)', '1030');
+        Observer.Expect('5000 Format = text', 'Yes');
+        Observer.Expect('5000 StrLen(Format)', '5000');
+        Observer.Expect('5000 breaks Format = text', 'Yes');
+        Observer.Expect('5000 breaks StrLen(Format)', '5005');
+        Observer.Expect('100000 Format = text', 'Yes');
+        Observer.Expect('100000 StrLen(Format)', '100000');
+        Observer.Verify();
     end;
 
     [Test]
@@ -562,6 +730,8 @@ codeunit 75210 "HT Rendered Text Tests"
         BigTxt.AddText(B);
         Observer.Observe('Format = A + B', Format(Format(BigTxt) = A + B));
         Observer.Observe('StrLen(Format) = StrLen(A + B)', Format(StrLen(Format(BigTxt)) = StrLen(A + B)));
-        Observer.Finish();
+        Observer.Expect('Format = A + B', 'Yes');
+        Observer.Expect('StrLen(Format) = StrLen(A + B)', 'Yes');
+        Observer.Verify();
     end;
 }
