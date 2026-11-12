@@ -698,5 +698,6 @@ BC container. Run locally with the tools in `~/.al-tool-cache` it passes today w
 | 3120 to 3123 | AL0152 | two Option members named "" (or two named " ") in an Option variable and in an Option table field: tests/al-language/format-evaluate/format-matrix/FMOptionBlankVar.al |
 | 3124, 3125 | AL0155 | two Enum values named "" (or two named " ") |
 | 3126 to 3131 | AL0132 | the name forms O::"" and O::" ": an Option member "" or an unquoted empty member has no name, " " is not "" and "" is not " ", also for a table field and for an Enum value |
+| 3134, 3135 | AL0185 | an enum named by its plain name from a file in another namespace without a `using` of the enum's namespace: a Base Application enum, an enum of AL Language XApp A (al-runner issue 7921) |
 
 Legacy Statistics compatibility: cases 2971 (extension anchor, AL0271) and 2972 (TestPage member, AL0132) apply from BC29. The public replacements are SalesOrderStatistics and SalesStatistics.
