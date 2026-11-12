@@ -355,7 +355,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/A/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -370,7 +371,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Inline.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/A/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -387,7 +389,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/B/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -404,7 +407,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Inline.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/B/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -422,7 +426,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/B/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -438,7 +443,9 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('action', 'act=76840/B/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -455,7 +462,9 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('action', 'act=76840/B/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -470,7 +479,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/A/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -485,7 +495,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Inline.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/A/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -502,7 +513,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/B/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -519,7 +531,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Inline.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/B/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -537,7 +550,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/B/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -553,7 +567,9 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('action', 'act=76840/B/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -570,7 +586,9 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('action', 'act=76840/B/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -585,7 +603,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=0/A/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -602,7 +621,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=0/B/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -617,7 +637,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840//0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -634,7 +655,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840//0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -649,7 +671,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/A/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -666,7 +689,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/B/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -681,7 +705,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=0/A/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -698,7 +723,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=0/B/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -713,7 +739,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=0/A/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -730,7 +757,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=0/B/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -745,7 +773,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840//0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -762,7 +791,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840//0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -777,7 +807,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/A/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -794,7 +825,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/B/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -809,7 +841,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=0/A/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -826,7 +859,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=0/B/0/');
+        Observer.Verify();
     end;
 
     // The reporter's shape: OpenEdit, GoToRecord, then the FactBox action.
@@ -844,7 +878,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/RB/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -861,7 +896,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/RB/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -876,7 +912,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/RA/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -892,7 +929,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/A/7/K');
+        Observer.Verify();
     end;
 
     [Test]
@@ -910,7 +948,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/B/8/L');
+        Observer.Verify();
     end;
 
     // The List shows no row.
@@ -927,7 +966,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840//0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -943,7 +983,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=0//0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -961,7 +1002,8 @@ codeunit 76850 "PG EPL Tests"
         Host.Box.ReadRec.Invoke();
         Observer.Observe('action', Log.ActionLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76840/B/0/ | act=76840/B/0/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -975,7 +1017,8 @@ codeunit 76850 "PG EPL Tests"
         Host.OpenEdit();
         Observer.Observe('curr', Log.CurrLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('curr', 'agcr=76840/A/0 | agcr=76840/A/0 | agcr=76840/A/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -992,7 +1035,8 @@ codeunit 76850 "PG EPL Tests"
         Host.GoToRecord(Head);
         Observer.Observe('curr', Log.CurrLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('curr', 'agcr=76840/B/0 | agcr=76840/B/0 | agcr=76840/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1006,7 +1050,8 @@ codeunit 76850 "PG EPL Tests"
         Host.OpenView();
         Observer.Observe('curr', Log.CurrLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('curr', 'agcr=76840/A/0 | agcr=76840/A/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1023,6 +1068,7 @@ codeunit 76850 "PG EPL Tests"
         Host.GoToRecord(Head);
         Observer.Observe('curr', Log.CurrLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('curr', 'agcr=76840/B/0 | agcr=76840/B/0');
+        Observer.Verify();
     end;
 }
