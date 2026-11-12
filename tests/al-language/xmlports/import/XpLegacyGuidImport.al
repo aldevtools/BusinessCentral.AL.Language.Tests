@@ -9,7 +9,7 @@
 //     Forms        one document per text: the export form (upper case in braces), lower case in braces, no braces (upper and lower),
 //                  parentheses, the 32 digits alone, spaces around, empty, missing, and texts that are no Guid
 //   QrXpContainerOccurs.al pins the same forms under FormatEvaluate = Xml.
-// BC versions: 27, 28, 29 (observe form; the values come from the measurement run)
+// BC versions: 27, 28, 29 (values observed on a local BC 27.5 and 28.5, identical; the corpus CI run checks all three)
 
 table 75180 "XP LGI Row"
 {
@@ -178,14 +178,20 @@ codeunit 75183 "XP LGI Tests"
     procedure LGI_Xml_RoundTrip()
     begin
         RoundTrip(Xmlport::"XP LGI Xml", TextEncoding::UTF16);
-        Observer.Finish();
+        Observer.Expect('exported', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Row Id="1" Ref="{6F9619FF-8B86-D011-B42D-00C04FC964FF}">|    <Ref2>{0A1B2C3D-4E5F-6789-ABCD-EF0123456789}</Ref2>|  </Row>|  <Row Id="2" Ref="{00000000-0000-0000-0000-000000000000}">|    <Ref2>{00000000-0000-0000-0000-000000000000}</Ref2>|  </Row>|</Root>');
+        Observer.Expect('import', 'true');
+        Observer.Expect('rows after import', '2:1/{6F9619FF-8B86-D011-B42D-00C04FC964FF}/{0A1B2C3D-4E5F-6789-ABCD-EF0123456789};2/{00000000-0000-0000-0000-000000000000}/{00000000-0000-0000-0000-000000000000};');
+        Observer.Verify();
     end;
 
     [Test]
     procedure LGI_VarText_RoundTrip()
     begin
         RoundTrip(Xmlport::"XP LGI VarText", TextEncoding::Windows);
-        Observer.Finish();
+        Observer.Expect('exported', '"1","{6F9619FF-8B86-D011-B42D-00C04FC964FF}"|"2","{00000000-0000-0000-0000-000000000000}"');
+        Observer.Expect('import', 'true');
+        Observer.Expect('rows after import', '2:1/{6F9619FF-8B86-D011-B42D-00C04FC964FF}/{00000000-0000-0000-0000-000000000000};2/{00000000-0000-0000-0000-000000000000}/{00000000-0000-0000-0000-000000000000};');
+        Observer.Verify();
     end;
 
     [Test]
@@ -206,7 +212,23 @@ codeunit 75183 "XP LGI Tests"
         ImportText(Xp, '<Root><Row Id="1" /></Root>', 'missing');
         ImportText(Xp, AttrDoc('not-a-guid'), 'not a guid');
         ImportText(Xp, AttrDoc('{6F9619FF-8B86-D011-B42D-00C04FC964F}'), 'one digit short');
-        Observer.Finish();
+        Observer.Expect('export form', 'imported=Yes 1:1/{6F9619FF-8B86-D011-B42D-00C04FC964FF}/{00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('null in braces', 'imported=Yes 1:1/{00000000-0000-0000-0000-000000000000}/{00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('lower in braces', 'imported=Yes 1:1/{6F9619FF-8B86-D011-B42D-00C04FC964FF}/{00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('upper no braces', 'imported=Yes 1:1/{6F9619FF-8B86-D011-B42D-00C04FC964FF}/{00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('lower no braces', 'imported=Yes 1:1/{6F9619FF-8B86-D011-B42D-00C04FC964FF}/{00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('parentheses', 'imported=Yes 1:1/{6F9619FF-8B86-D011-B42D-00C04FC964FF}/{00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('32 digits', 'imported=Yes 1:1/{6F9619FF-8B86-D011-B42D-00C04FC964FF}/{00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('spaces around', 'imported=Yes 1:1/{6F9619FF-8B86-D011-B42D-00C04FC964FF}/{00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('empty', 'imported=Yes 1:1/{00000000-0000-0000-0000-000000000000}/{00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('missing', 'imported=Yes 1:1/{00000000-0000-0000-0000-000000000000}/{00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('not a guid', 'imported=No 0:');
+        Observer.Expect('not a guid error|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('not a guid error|code', 'InvalidGuidFormat');
+        Observer.Expect('one digit short', 'imported=No 0:');
+        Observer.Expect('one digit short error|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('one digit short error|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -220,7 +242,16 @@ codeunit 75183 "XP LGI Tests"
         ImportText(Xp, ElemDoc('0A1B2C3D-4E5F-6789-ABCD-EF0123456789'), 'upper no braces');
         ImportText(Xp, ElemDoc(''), 'empty');
         ImportText(Xp, ElemDoc('not-a-guid'), 'not a guid');
-        Observer.Finish();
+        Observer.Expect('export form', 'imported=Yes 1:1/{00000000-0000-0000-0000-000000000000}/{0A1B2C3D-4E5F-6789-ABCD-EF0123456789};');
+        Observer.Expect('lower in braces', 'imported=Yes 1:1/{00000000-0000-0000-0000-000000000000}/{0A1B2C3D-4E5F-6789-ABCD-EF0123456789};');
+        Observer.Expect('upper no braces', 'imported=Yes 1:1/{00000000-0000-0000-0000-000000000000}/{0A1B2C3D-4E5F-6789-ABCD-EF0123456789};');
+        Observer.Expect('empty', 'imported=No 0:');
+        Observer.Expect('empty error|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('empty error|code', 'InvalidGuidFormat');
+        Observer.Expect('not a guid', 'imported=No 0:');
+        Observer.Expect('not a guid error|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('not a guid error|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -234,6 +265,15 @@ codeunit 75183 "XP LGI Tests"
         ImportText(Xp, '"1","6F9619FF-8B86-D011-B42D-00C04FC964FF"', 'upper no braces');
         ImportText(Xp, '"1",""', 'empty');
         ImportText(Xp, '"1","not-a-guid"', 'not a guid');
-        Observer.Finish();
+        Observer.Expect('export form', 'imported=Yes 1:1/{6F9619FF-8B86-D011-B42D-00C04FC964FF}/{00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('lower in braces', 'imported=Yes 1:1/{6F9619FF-8B86-D011-B42D-00C04FC964FF}/{00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('upper no braces', 'imported=Yes 1:1/{6F9619FF-8B86-D011-B42D-00C04FC964FF}/{00000000-0000-0000-0000-000000000000};');
+        Observer.Expect('empty', 'imported=No 0:');
+        Observer.Expect('empty error|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('empty error|code', 'InvalidGuidFormat');
+        Observer.Expect('not a guid', 'imported=No 0:');
+        Observer.Expect('not a guid error|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('not a guid error|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 }

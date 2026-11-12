@@ -12,7 +12,7 @@
 //   Each port runs through Xmlport.Export(Id, OutStream, Rec) on a record filtered by SetRecFilter to exactly one row (his call), and,
 //   as neighbors, on a filter that selects no row and on one that selects two rows. Each test records the exported text (lines joined
 //   with |) or the error.
-// BC versions: 27, 28, 29 (observe form; the values come from the measurement run)
+// BC versions: 27, 28, 29 (values observed on a local BC 27.5 and 28.5, identical; the corpus CI run checks all three)
 
 table 75193 "XP ROZ Party"
 {
@@ -212,7 +212,9 @@ codeunit 75197 "XP ROZ Tests"
         Party.Get('C2');
         Party.SetRecFilter();
         ExportParty(Party, 'one row, blank city');
-        Observer.Finish();
+        Observer.Expect('one row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Party>|  <No>C1</No>|  <Name>First &amp; Co</Name>|  <City>Gent</City>|  <CountryRegion>BE</CountryRegion>|</Party>');
+        Observer.Expect('one row, blank city', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Party>|  <No>C2</No>|  <Name>Second</Name>|  <City />|  <CountryRegion>DE</CountryRegion>|</Party>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -223,7 +225,8 @@ codeunit 75197 "XP ROZ Tests"
         SeedParties();
         Party.SetRange("No.", 'NONE');
         ExportParty(Party, 'no row');
-        Observer.Finish();
+        Observer.Expect('no row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -234,7 +237,8 @@ codeunit 75197 "XP ROZ Tests"
         SeedParties();
         Party.SetFilter("No.", 'C1|C3');
         ExportParty(Party, 'two rows');
-        Observer.Finish();
+        Observer.Expect('two rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Party>|  <No>C1</No>|  <Name>First &amp; Co</Name>|  <City>Gent</City>|  <CountryRegion>BE</CountryRegion>|</Party>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -249,7 +253,9 @@ codeunit 75197 "XP ROZ Tests"
         Queue.Get(2);
         Queue.SetRecFilter();
         ExportQueue(Queue, 'one row, null guid');
-        Observer.Finish();
+        Observer.Expect('one row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<RecordDeleted>|  <Warning>Record Deleted</Warning>|  <TableNo>18</TableNo>|  <SystemId>{6F9619FF-8B86-D011-B42D-00C04FC964FF}</SystemId>|  <PrimaryKey>No.=CONST(C1)</PrimaryKey>|  <Connector>ECF</Connector>|</RecordDeleted>');
+        Observer.Expect('one row, null guid', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<RecordDeleted>|  <Warning>Record Deleted</Warning>|  <TableNo>27</TableNo>|  <SystemId>{00000000-0000-0000-0000-000000000000}</SystemId>|  <PrimaryKey>No.=CONST(1000)</PrimaryKey>|  <Connector>ECF</Connector>|</RecordDeleted>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -260,7 +266,8 @@ codeunit 75197 "XP ROZ Tests"
         SeedQueue();
         Queue.SetRange("Entry No.", 99);
         ExportQueue(Queue, 'no row');
-        Observer.Finish();
+        Observer.Expect('no row', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -270,6 +277,7 @@ codeunit 75197 "XP ROZ Tests"
     begin
         SeedQueue();
         ExportQueue(Queue, 'two rows');
-        Observer.Finish();
+        Observer.Expect('two rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<RecordDeleted>|  <Warning>Record Deleted</Warning>|  <TableNo>18</TableNo>|  <SystemId>{6F9619FF-8B86-D011-B42D-00C04FC964FF}</SystemId>|  <PrimaryKey>No.=CONST(C1)</PrimaryKey>|  <Connector>ECF</Connector>|</RecordDeleted>');
+        Observer.Verify();
     end;
 }

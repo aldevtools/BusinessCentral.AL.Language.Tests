@@ -10,7 +10,7 @@
 //     Linked Default    LinkTable and LinkFields, neither set (control)
 //   Each test exports headers with 0, 1 and 2 lines, and an empty header table, and records the text.
 //   Np4XmlPort.al pins MinOccurs = Once with MaxOccurs = Once; QrXpContainerOccurs.al TU_* the unlinked Once/Unbounded pair.
-// BC versions: 27, 28, 29 (observe form; the values come from the measurement run)
+// BC versions: 27, 28, 29 (values observed on a local BC 27.5 and 28.5, identical; the corpus CI run checks all three)
 
 table 75184 "XP NMO Head"
 {
@@ -232,27 +232,35 @@ codeunit 75190 "XP NMO Tests"
     procedure NMO_LinkedMin_Export()
     begin
         Measure(Xmlport::"XP NMO Linked Min");
-        Observer.Finish();
+        Observer.Expect('rows', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Head No="H0">|    <Line LineNo="0">|      <Qty>0</Qty>|    </Line>|  </Head>|  <Head No="H1">|    <Line LineNo="10">|      <Qty>5</Qty>|    </Line>|  </Head>|  <Head No="H2">|    <Line LineNo="10">|      <Qty>7</Qty>|    </Line>|    <Line LineNo="20">|      <Qty>8</Qty>|    </Line>|  </Head>|</Root>');
+        Observer.Expect('no rows', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Head No="">|    <Line LineNo="0">|      <Qty>0</Qty>|    </Line>|  </Head>|</Root>');
+        Observer.Verify();
     end;
 
     [Test]
     procedure NMO_LinkedMinMax_Export()
     begin
         Measure(Xmlport::"XP NMO Linked MinMax");
-        Observer.Finish();
+        Observer.Expect('rows', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Head No="H0">|    <Line LineNo="0">|      <Qty>0</Qty>|    </Line>|  </Head>|  <Head No="H1">|    <Line LineNo="10">|      <Qty>5</Qty>|    </Line>|  </Head>|  <Head No="H2">|    <Line LineNo="10">|      <Qty>7</Qty>|    </Line>|    <Line LineNo="20">|      <Qty>8</Qty>|    </Line>|  </Head>|</Root>');
+        Observer.Expect('no rows', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Head No="">|    <Line LineNo="0">|      <Qty>0</Qty>|    </Line>|  </Head>|</Root>');
+        Observer.Verify();
     end;
 
     [Test]
     procedure NMO_UnlinkedMin_Export()
     begin
         Measure(Xmlport::"XP NMO Unlinked Min");
-        Observer.Finish();
+        Observer.Expect('no rows', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Head No="">|    <Line LineNo="0">|      <Qty>0</Qty>|    </Line>|  </Head>|</Root>');
+        Observer.Ignore('rows'); // a dump or environment data: observed, not asserted
+        Observer.Verify();
     end;
 
     [Test]
     procedure NMO_LinkedDefault_Export()
     begin
         Measure(Xmlport::"XP NMO Linked Default");
-        Observer.Finish();
+        Observer.Expect('rows', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Head No="H0">|    <Line LineNo="0">|      <Qty>0</Qty>|    </Line>|  </Head>|  <Head No="H1">|    <Line LineNo="10">|      <Qty>5</Qty>|    </Line>|  </Head>|  <Head No="H2">|    <Line LineNo="10">|      <Qty>7</Qty>|    </Line>|    <Line LineNo="20">|      <Qty>8</Qty>|    </Line>|  </Head>|</Root>');
+        Observer.Expect('no rows', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Head No="">|    <Line LineNo="0">|      <Qty>0</Qty>|    </Line>|  </Head>|</Root>');
+        Observer.Verify();
     end;
 }

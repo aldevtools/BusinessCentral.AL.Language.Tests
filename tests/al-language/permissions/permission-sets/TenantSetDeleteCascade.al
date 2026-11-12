@@ -8,7 +8,7 @@
 //   set that has its own Tenant Permission rows, a Rel. row that includes another set, and a Rel. row of another set that includes
 //   it; the rows left in both tables for the deleted set and for a second set that is not deleted. Also: DeleteAll of a set whose
 //   App ID is not zero, and how often a bound OnAfterDeleteEvent subscriber on Tenant Permission runs during a set DeleteAll.
-// BC versions: 27, 28, 29 (observe form; the values come from the measurement run)
+// BC versions: 27, 28, 29 (values observed on a local BC 27.5 and 28.5, identical; the corpus CI run checks all three)
 
 codeunit 75191 "XP TSDC Tests"
 {
@@ -118,7 +118,8 @@ codeunit 75191 "XP TSDC Tests"
         TenantSet.Delete();
         Observer.Observe('after Delete', Left());
         Clean();
-        Observer.Finish();
+        Observer.Expect('after Delete', 'sets=1 perms gone=0 perms kept=1 rel of gone=0 rel of kept=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -131,7 +132,8 @@ codeunit 75191 "XP TSDC Tests"
         TenantSet.Delete(true);
         Observer.Observe('after Delete(true)', Left());
         Clean();
-        Observer.Finish();
+        Observer.Expect('after Delete(true)', 'sets=1 perms gone=0 perms kept=1 rel of gone=0 rel of kept=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -144,7 +146,8 @@ codeunit 75191 "XP TSDC Tests"
         TenantSet.DeleteAll();
         Observer.Observe('after DeleteAll', Left());
         Clean();
-        Observer.Finish();
+        Observer.Expect('after DeleteAll', 'sets=1 perms gone=0 perms kept=1 rel of gone=0 rel of kept=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -157,7 +160,8 @@ codeunit 75191 "XP TSDC Tests"
         TenantSet.DeleteAll(true);
         Observer.Observe('after DeleteAll(true)', Left());
         Clean();
-        Observer.Finish();
+        Observer.Expect('after DeleteAll(true)', 'sets=1 perms gone=0 perms kept=1 rel of gone=0 rel of kept=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -172,7 +176,8 @@ codeunit 75191 "XP TSDC Tests"
         RecRef.Delete();
         Observer.Observe('after RecordRef.Delete', Left());
         Clean();
-        Observer.Finish();
+        Observer.Expect('after RecordRef.Delete', 'sets=1 perms gone=0 perms kept=1 rel of gone=0 rel of kept=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -187,7 +192,8 @@ codeunit 75191 "XP TSDC Tests"
         RecRef.DeleteAll();
         Observer.Observe('after RecordRef.DeleteAll', Left());
         Clean();
-        Observer.Finish();
+        Observer.Expect('after RecordRef.DeleteAll', 'sets=1 perms gone=0 perms kept=1 rel of gone=0 rel of kept=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -218,7 +224,10 @@ codeunit 75191 "XP TSDC Tests"
         TenantPerm.SetFilter("Role ID", 'TSDC*');
         TenantPerm.DeleteAll();
         Clean();
-        Observer.Finish();
+        Observer.Expect('sets left', '0');
+        Observer.Expect('perms of that app left', '2');
+        Observer.Expect('perms of app zero, same role left', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -235,7 +244,9 @@ codeunit 75191 "XP TSDC Tests"
         Observer.Observe('after DeleteAll', Left());
         UnbindSubscription(Sub);
         Clean();
-        Observer.Finish();
+        Observer.Expect('Tenant Permission OnAfterDeleteEvent calls', '2');
+        Observer.Expect('after DeleteAll', 'sets=1 perms gone=0 perms kept=1 rel of gone=0 rel of kept=0');
+        Observer.Verify();
     end;
 }
 
