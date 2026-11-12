@@ -18,7 +18,9 @@
 //   again does not. A user with a blank User Name raises the TestField error of User Name. An unknown user and the null GUID raise the
 //   NothingInsideFilter error of User Property, as in a TryFunction (ODatabaseOps.al).
 // Second round: "Identity Management".IsUserPasswordSet (NavUserAccountHelper.IsPasswordSet), which the User Card reaches, for a new user,
-//   after a strong and after a blank password, for an unknown user, the null GUID and the session user.
+//   after a strong and after a blank password, for an unknown user, the null GUID and the session user; and what the User Card's
+//   OnAfterGetRecord asks "Identity Management" for (GetACSStatus, GetWebServiceExpiryDate, GetAuthenticationStatus, GetWebServicesKey,
+//   UserName('')) for a new user, after a password, and for the session user.
 // BC versions: 27, 28, 29
 
 codeunit 98001 "LT SUP SetUserPassword Stmt"
@@ -279,6 +281,45 @@ codeunit 98001 "LT SUP SetUserPassword Stmt"
         asserterror PasswordSetBody(Log);
         ObserveEnd(Observer, Log);
         Observer.Expect('result', 'new user: No / after a strong password: Yes / after a blank password: Yes / unknown user: No / null guid: No / session user: No / end: Dialog | LT SUP rollback marker');
+        Observer.Verify();
+    end;
+
+    // What the User Card's OnAfterGetRecord asks Base Application's "Identity Management" for (al-runner issue 7447), for a new user and
+    // for the session user.
+    local procedure CardFacts(UserSecurityId: Guid): Text
+    var
+        IdentityManagement: Codeunit "Identity Management";
+        WebServicesKey: Text;
+    begin
+        WebServicesKey := IdentityManagement.GetWebServicesKey(UserSecurityId);
+        exit('acs=' + Format(IdentityManagement.GetACSStatus(UserSecurityId)) +
+            ' expiry=' + Format(IdentityManagement.GetWebServiceExpiryDate(UserSecurityId), 0, 9) +
+            ' auth=' + Format(IdentityManagement.GetAuthenticationStatus(UserSecurityId)) +
+            ' key blank=' + Format(WebServicesKey = '') + ' key len=' + Format(StrLen(WebServicesKey)) +
+            ' windows name=[' + IdentityManagement.UserName('') + ']');
+    end;
+
+    local procedure CardFactsBody(var Log: Text)
+    var
+        Sid: Guid;
+    begin
+        Sid := NewUser('LT-SUPS-CARD', true);
+        Log += 'new user: ' + CardFacts(Sid) + ' / ';
+        Database.SetUserPassword(Sid, 'LT-Sup3r!Passw0rd#1');
+        Log += 'after a password: ' + CardFacts(Sid) + ' / ';
+        Log += 'session user: ' + CardFacts(UserSecurityId()) + ' / ';
+        Error(LtSupRollbackErr);
+    end;
+
+    [Test]
+    procedure SetUserPasswordStmt_UserCardIdentityFacts()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        asserterror CardFactsBody(Log);
+        ObserveEnd(Observer, Log);
+        Observer.Expect('result', 'new user: acs=Disabled expiry= auth=Disabled key blank=Yes key len=0 windows name=[] / after a password: acs=Disabled expiry= auth=Disabled key blank=Yes key len=0 windows name=[] / session user: acs=Disabled expiry= auth=Disabled key blank=Yes key len=0 windows name=[] / end: Dialog | LT SUP rollback marker');
         Observer.Verify();
     end;
 }
