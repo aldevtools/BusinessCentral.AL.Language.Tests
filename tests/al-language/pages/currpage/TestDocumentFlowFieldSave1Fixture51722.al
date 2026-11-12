@@ -12,6 +12,7 @@ pageextension 51722 "Action Header Ext" extends "Action Header Document"
         {
             action(CalculateAndWrite)
             {
+                ApplicationArea = All;
                 trigger OnAction()
                 begin
                     Rec.CalcFields("Linked Code");
