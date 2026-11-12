@@ -326,7 +326,7 @@ codeunit 62357 "RPT WXP2 Tests"
         Part := Report.WordXmlPart(Report::"RPT WXP2 Empty Alone", false);
         Observer.Observe('shape', Shape(Part));
         Observer.Observe('self-closing', SelfClosing(Part));
-        Observer.Expect('shape', '?');
+        Observer.Expect('shape', ' Total');
         Observer.Expect('self-closing', '?');
         Observer.Verify();
     end;
@@ -339,7 +339,7 @@ codeunit 62357 "RPT WXP2 Tests"
         Part := Report.WordXmlPart(Report::"RPT WXP2 Empty Alone", true);
         Observer.Observe('shape', Shape(Part));
         Observer.Observe('self-closing', SelfClosing(Part));
-        Observer.Expect('shape', '?');
+        Observer.Expect('shape', ' Tooltips Total');
         Observer.Expect('self-closing', '?');
         Observer.Verify();
     end;
@@ -352,7 +352,7 @@ codeunit 62357 "RPT WXP2 Tests"
         Part := Report.WordXmlPart(Report::"RPT WXP2 Empty After", false);
         Observer.Observe('shape', Shape(Part));
         Observer.Observe('self-closing', SelfClosing(Part));
-        Observer.Expect('shape', '?');
+        Observer.Expect('shape', ' Head[ No ] Total');
         Observer.Expect('self-closing', '?');
         Observer.Verify();
     end;
@@ -365,7 +365,7 @@ codeunit 62357 "RPT WXP2 Tests"
         Part := Report.WordXmlPart(Report::"RPT WXP2 Empty After", true);
         Observer.Observe('shape', Shape(Part));
         Observer.Observe('self-closing', SelfClosing(Part));
-        Observer.Expect('shape', '?');
+        Observer.Expect('shape', ' Tooltips Head[ No(Integer) ] Total');
         Observer.Expect('self-closing', '?');
         Observer.Verify();
     end;
@@ -378,7 +378,7 @@ codeunit 62357 "RPT WXP2 Tests"
         Part := Report.WordXmlPart(Report::"RPT WXP2 Empty Mixed", false);
         Observer.Observe('shape', Shape(Part));
         Observer.Observe('self-closing', SelfClosing(Part));
-        Observer.Expect('shape', '?');
+        Observer.Expect('shape', ' Labels[ OneLabel ] PlainFirst Head[ No NestedEmpty NestedWithColumn[ NestedNo ] ] OnlyEmptyChild[ ChildOfEmptyParent ] OnlyChildWithColumn[ Deep[ DeepNo ] ] PlainLast');
         Observer.Expect('self-closing', '?');
         Observer.Verify();
     end;
@@ -391,7 +391,7 @@ codeunit 62357 "RPT WXP2 Tests"
         Part := Report.WordXmlPart(Report::"RPT WXP2 Empty Mixed", true);
         Observer.Observe('shape', Shape(Part));
         Observer.Observe('self-closing', SelfClosing(Part));
-        Observer.Expect('shape', '?');
+        Observer.Expect('shape', ' Labels[ OneLabel(String) ] Tooltips PlainFirst Head[ No(Integer) NestedEmpty NestedWithColumn[ NestedNo(Integer) ] ] OnlyEmptyChild[ ChildOfEmptyParent ] OnlyChildWithColumn[ Deep[ DeepNo(Integer) ] ] PlainLast');
         Observer.Expect('self-closing', '?');
         Observer.Verify();
     end;
@@ -404,7 +404,7 @@ codeunit 62357 "RPT WXP2 Tests"
         Part := Report.WordXmlPart(Report::"RPT WXP2 Name Order", false);
         Observer.Observe('shape', Shape(Part));
         Observer.Observe('self-closing', SelfClosing(Part));
-        Observer.Expect('shape', '?');
+        Observer.Expect('shape', ' Labels[ Lbl_Text Lbl8Text lbl9Text LblAText ] Rows[ A_ A1 AA aB ShipTo_Address ShipTo8Address ShipToAddress ShipToAddress_ ShipToAddress_Lbl ShipToAddress1 ShipToAddress10 ShipToAddress2 SHIPTOADDRESS3 ShipToAddress8 shipToAddress9 ShipToAddressA ]');
         Observer.Expect('self-closing', '?');
         Observer.Verify();
     end;
@@ -417,7 +417,7 @@ codeunit 62357 "RPT WXP2 Tests"
         Part := Report.WordXmlPart(Report::"RPT WXP2 Name Order", true);
         Observer.Observe('shape', Shape(Part));
         Observer.Observe('self-closing', SelfClosing(Part));
-        Observer.Expect('shape', '?');
+        Observer.Expect('shape', ' Labels[ Lbl_Text(String) Lbl8Text(String) lbl9Text(String) LblAText(String) ] Tooltips Rows[ A_(Integer) A1(Integer) AA(Integer) aB(Integer) ShipTo_Address(Text) ShipTo8Address(Text) ShipToAddress(Text) ShipToAddress_(Text) ShipToAddress_Lbl(Text) ShipToAddress1(Text) ShipToAddress10(Text) ShipToAddress2(Text) SHIPTOADDRESS3(Text) ShipToAddress8(Text) shipToAddress9(Text) ShipToAddressA(Text) ]');
         Observer.Expect('self-closing', '?');
         Observer.Verify();
     end;
@@ -430,7 +430,7 @@ codeunit 62357 "RPT WXP2 Tests"
         Part := Report.WordXmlPart(Report::"RPT WXP2 Arrays A", false);
         Observer.Observe('shape', Shape(Part));
         Observer.Observe('self-closing', SelfClosing(Part));
-        Observer.Expect('shape', '?');
+        Observer.Expect('shape', ' Rows[ Bool_1 Code_2 Contact_AddrArray_1 Contact_AddrArray_8 Date_1 DateTime_1 Dec_2 Int_1 Text30_1 Time_1 ]');
         Observer.Expect('self-closing', '?');
         Observer.Verify();
     end;
@@ -443,7 +443,7 @@ codeunit 62357 "RPT WXP2 Tests"
         Part := Report.WordXmlPart(Report::"RPT WXP2 Arrays A", true);
         Observer.Observe('shape', Shape(Part));
         Observer.Observe('self-closing', SelfClosing(Part));
-        Observer.Expect('shape', '?');
+        Observer.Expect('shape', ' Tooltips Rows[ Bool_1(Boolean) Code_2(Code) Contact_AddrArray_1(Text) Contact_AddrArray_8(Text) Date_1(Date) DateTime_1(DateTime) Dec_2(Decimal) Int_1(Integer) Text30_1(Text) Time_1(Time) ]');
         Observer.Expect('self-closing', '?');
         Observer.Verify();
     end;
@@ -456,7 +456,7 @@ codeunit 62357 "RPT WXP2 Tests"
         Part := Report.WordXmlPart(Report::"RPT WXP2 Arrays B", false);
         Observer.Observe('shape', Shape(Part));
         Observer.Observe('self-closing', SelfClosing(Part));
-        Observer.Expect('shape', '?');
+        Observer.Expect('shape', ' Rows[ BigInt_1 Concat Duration_1 Enum_1 Formatted Guid_1 Option_1 RecArr_Amount RecArr_Name Sum TwoDim_1_2 VarIndex ]');
         Observer.Expect('self-closing', '?');
         Observer.Verify();
     end;
@@ -469,7 +469,7 @@ codeunit 62357 "RPT WXP2 Tests"
         Part := Report.WordXmlPart(Report::"RPT WXP2 Arrays B", true);
         Observer.Observe('shape', Shape(Part));
         Observer.Observe('self-closing', SelfClosing(Part));
-        Observer.Expect('shape', '?');
+        Observer.Expect('shape', ' Tooltips Rows[ BigInt_1(BigInteger) Concat(String) Duration_1(Duration) Enum_1(Option) Formatted(String) Guid_1(GUID) Option_1(Option) RecArr_Amount(Decimal) RecArr_Name(Text) Sum(Integer) TwoDim_1_2(Text) VarIndex(Text) ]');
         Observer.Expect('self-closing', '?');
         Observer.Verify();
     end;
