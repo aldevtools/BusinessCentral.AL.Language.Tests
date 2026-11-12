@@ -15,6 +15,10 @@
 // Observed per step: the read value and the log since the last step (ev-agcr(X) the subscriber, agr(X) / agcr(X) the page's triggers,
 //   fn(X) the function control's procedure, new = OnNewRecord).
 // local object: the pages are the shapes under test
+// Facts: OnAfterGetCurrRecordEvent is raised with each OnAfterGetCurrRecord, also for the empty temporary list (twice, on an empty
+//   row) and after Next past the last temporary row. The extension's InsertAllowed / ModifyAllowed win over the base value (a denied
+//   modify raises 'Page cannot be saved.' on Close). Error out of OnLookup has the code TestWrapped:Dialog. On a new line Editable and
+//   Enabled keep the values OnAfterGetRecord set for the row the cursor was on before New.
 // BC versions: 27, 28, 29
 
 table 75380 "PG6 PC Row"
@@ -395,7 +399,13 @@ codeunit 75393 "PG6 PC Unpinned Paths"
         Say('read-fn');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '[fn(A) ev-agcr(A) fn(A)]');
+        Observer.Expect('gotokey-c', '[fn(A) ev-agcr(A) fn(A) fn(B) ev-agcr(B) fn(B) fn(C) ev-agcr(C) fn(C)]');
+        Observer.Expect('previous', '[fn(B) ev-agcr(B) fn(B)]');
+        Observer.Expect('fn', '6');
+        Observer.Expect('read-fn', '[]');
+        Observer.Expect('closed', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -412,7 +422,11 @@ codeunit 75393 "PG6 PC Unpinned Paths"
         Say('first-log');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '[ev-agcr() ev-agcr()]');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first-log', '[]');
+        Observer.Expect('closed', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -434,7 +448,11 @@ codeunit 75393 "PG6 PC Unpinned Paths"
         Say('next');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '[ev-agcr(T2)]');
+        Observer.Expect('code', 'T2');
+        Observer.Expect('next', '[ev-agcr()]');
+        Observer.Expect('closed', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -456,7 +474,11 @@ codeunit 75393 "PG6 PC Unpinned Paths"
         P.Close();
         Say('closed');
         Observer.Observe('rows', Names());
-        Observer.Finish();
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('new-setvalue', 'ok []');
+        Observer.Expect('closed', '[temp-rows=1]');
+        Observer.Expect('rows', 'A=alpha B=locked C=charlie ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -480,7 +502,11 @@ codeunit 75393 "PG6 PC Unpinned Paths"
         SayEnd('setvalue-close');
         L.Close();
         Observer.Observe('rows', Names());
-        Observer.Finish();
+        Observer.Expect('editable', 'Yes/Yes');
+        Observer.Expect('rows-in', 'A=edited B=locked C=charlie ');
+        Observer.Expect('setvalue-close', 'ok []');
+        Observer.Expect('rows', 'A=alpha B=locked C=charlie ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -504,7 +530,10 @@ codeunit 75393 "PG6 PC Unpinned Paths"
         SayEnd('setvalue-close');
         L.Close();
         Observer.Observe('rows', Names());
-        Observer.Finish();
+        Observer.Expect('editable', 'Yes/No');
+        Observer.Expect('setvalue-close', 'Page cannot be saved. []');
+        Observer.Expect('rows', 'A=alpha B=locked C=charlie ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -520,7 +549,10 @@ codeunit 75393 "PG6 PC Unpinned Paths"
         Observer.ObserveError('lookup');
         Say('log');
         P.Close();
-        Observer.Finish();
+        Observer.Expect('lookup|text', 'PG6 PC lookup refused');
+        Observer.Expect('lookup|code', 'TestWrapped:Dialog');
+        Observer.Expect('log', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -540,6 +572,11 @@ codeunit 75393 "PG6 PC Unpinned Paths"
         P.New();
         Observer.Observe('new-after-a', Format(P.Name.Editable()) + '/' + Format(P.Name.Enabled()) + ' ' + Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'Yes/Yes [agr(A) agr(B) agr(C) agr(A) agr(A) agcr(A)]');
+        Observer.Expect('gotokey-b', 'No/No [agr(B) agr(B) agcr(B)]');
+        Observer.Expect('new-after-b', 'No/No [new agcr()]');
+        Observer.Expect('gotokey-a', 'Yes/Yes [agr(A) agr(A) agcr(A)]');
+        Observer.Expect('new-after-a', 'Yes/Yes [new agcr()]');
+        Observer.Verify();
     end;
 }

@@ -11,6 +11,9 @@
 //   (CEM_NO_ERROR when no step raised); 'log' I/M/D = the page's OnInsertRecord / OnModifyRecord / OnDeleteRecord, T-ins / T-mod the
 //   table's OnInsert / OnModify; 'rows' the stored rows afterwards.
 // local object: the pages are the trigger shapes under test
+// Facts: the conditional exit not taken and Ok := true both save (insert then modify). Ok := false without exit vetoes: the insert
+//   raises 'The view is filtered, and the entry is outside the filter...' as a validation error and saves nothing; the modify is
+//   dropped silently (no table OnModify, row unchanged, no error).
 // BC versions: 27, 28, 29
 
 table 75350 "PG6 RT Row"

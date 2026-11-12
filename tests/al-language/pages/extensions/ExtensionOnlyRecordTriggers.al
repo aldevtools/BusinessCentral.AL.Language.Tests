@@ -11,6 +11,10 @@
 // Observed per step: the log since the last step: x-agr(X) / x-agcr(X) the extension's triggers on row X, b-agcr(X) the base page's
 //   own OnAfterGetCurrRecord, fn(X) the procedure behind the function control, act / act-upd the actions.
 // local object: the base pages and their extensions are the shapes under test
+// Facts: the extension-only OnAfterGetRecord and OnAfterGetCurrRecord run at every move, action and New, as if the base page declared
+//   them (Last on an edit-mode list first runs OnAfterGetCurrRecord on an empty row; New runs only OnAfterGetCurrRecord on the empty
+//   line; Close runs neither). With an own OnAfterGetCurrRecord the extension's OnAfterGetRecord runs before it, and the function
+//   control is evaluated after each. The RunPageLink list reads its one row like an own trigger would.
 // BC versions: 27, 28, 29
 
 table 75360 "PG6 XT Row"
@@ -261,7 +265,15 @@ codeunit 75367 "PG6 XT Extension Triggers"
         Say('action-update');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '[x-agr(A) x-agr(B) x-agr(C) x-agr(D) x-agr(A) x-agr(A) x-agcr(A)]');
+        Observer.Expect('last', '[x-agcr() x-agr(D) x-agr(D) x-agcr(D)]');
+        Observer.Expect('previous', '[x-agr(C) x-agr(C) x-agcr(C)]');
+        Observer.Expect('gotokey-a', '[x-agr(A) x-agr(A) x-agcr(A)]');
+        Observer.Expect('gotorecord-c', '[x-agr(B) x-agr(B) x-agcr(B) x-agr(C) x-agr(C) x-agcr(C)]');
+        Observer.Expect('action', '[x-agr(C) act x-agr(C) x-agr(C) x-agr(D) x-agr(C) x-agr(B) x-agr(A) x-agr(C) x-agr(C) x-agcr(C)]');
+        Observer.Expect('action-update', '[x-agr(C) act-upd x-agr(C) x-agr(C) x-agr(D) x-agr(C) x-agr(B) x-agr(A) x-agr(C) x-agr(C) x-agcr(C)]');
+        Observer.Expect('closed', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -277,7 +289,10 @@ codeunit 75367 "PG6 XT Extension Triggers"
         Say('new');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '[x-agr(A) x-agr(B) x-agr(C) x-agr(D) x-agr(A) x-agr(A) x-agcr(A) x-agr(B) x-agr(B) x-agcr(B)]');
+        Observer.Expect('new', '[x-agcr()]');
+        Observer.Expect('closed', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -296,7 +311,12 @@ codeunit 75367 "PG6 XT Extension Triggers"
         Say('gotokey-b');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '[x-agr(A) x-agr(B) x-agr(C) x-agr(D) x-agr(A) x-agr(A) x-agcr(A)]');
+        Observer.Expect('last', '[x-agr(D) x-agr(D) x-agcr(D)]');
+        Observer.Expect('previous', '[x-agr(C) x-agr(C) x-agcr(C)]');
+        Observer.Expect('gotokey-b', '[x-agr(A) x-agr(A) x-agcr(A) x-agr(B) x-agr(B) x-agcr(B)]');
+        Observer.Expect('closed', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -317,7 +337,14 @@ codeunit 75367 "PG6 XT Extension Triggers"
         Say('read-fn');
         P.Close();
         Say('closed');
-        Observer.Finish();
+        Observer.Expect('open', '[x-agr(A) fn(A) x-agr(B) fn(B) x-agr(C) fn(C) x-agr(D) fn(D) x-agr(A) x-agr(A) fn(A) b-agcr(A) fn(A)]');
+        Observer.Expect('last', '[x-agr(D) x-agr(D) fn(D) b-agcr(D) fn(D)]');
+        Observer.Expect('gotokey-b', '[x-agr(A) x-agr(A) fn(A) b-agcr(A) fn(A) x-agr(B) x-agr(B) fn(B) b-agcr(B) fn(B)]');
+        Observer.Expect('next', '[x-agr(C) x-agr(C) fn(C) b-agcr(C) fn(C)]');
+        Observer.Expect('fn-value', '7');
+        Observer.Expect('read-fn', '[]');
+        Observer.Expect('closed', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -341,6 +368,11 @@ codeunit 75367 "PG6 XT Extension Triggers"
         P.Close();
         Say('linked-closed');
         Opener.Close();
-        Observer.Finish();
+        Observer.Expect('opener', '[]');
+        Observer.Expect('linked-open', '[x-agr(B) x-agr(B) x-agcr(B)]');
+        Observer.Expect('linked-code', 'B');
+        Observer.Expect('linked-next', '[x-agcr(B)]');
+        Observer.Expect('linked-closed', '[]');
+        Observer.Verify();
     end;
 }

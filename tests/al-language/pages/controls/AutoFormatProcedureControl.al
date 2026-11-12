@@ -11,6 +11,9 @@
 //   format, 0>' on a base table field; the same field declared by a table extension and shown by a page extension (the reporter's
 //   shape); the procedure returning ''; returning '<precision, 0:0><standard format, 0>' with SetValue(7.5).
 // local object: the field, its AutoFormatExpression and the counter are what the test checks
+// Facts: the procedure runs 2 times on OpenView, 1 on GoToRecord, 3 on OpenEdit + GoToRecord and 2 on Close after the edit; never on
+//   Value(), AsDecimal(), SetValue or AssertEquals. Value() follows the format ('3.25', '7.00'; with 0:0 '3' and '8' after SetValue(7.5));
+//   AssertEquals(Decimal) passes; AssertEquals('7.00') passes with 2:2 and with '' ; AssertEquals('7.5') fails with 0:0.
 // BC versions: 27, 28, 29
 
 table 75321 "PG6 AF Setup"

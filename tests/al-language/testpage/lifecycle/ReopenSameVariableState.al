@@ -10,6 +10,9 @@
 //   table's OnModify, act(X) = the action on row X, read=V = the variable a no-source action reads, del(X) = the temporary row deleted,
 //   close = OnClosePage) and, where it matters, the stored rows.
 // local object: the pages are the states under test
+// Facts: nothing carries into the second open: it runs OnOpenPage and reads from the first row again, a save works again, the
+//   no-source variable starts blank, the temporary list is refilled. A failed table OnModify on Next and an aborted OnModifyRecord both
+//   come back without an error to the test; the row is not changed.
 // BC versions: 27, 28, 29
 
 table 75370 "PG6 FL Row"
@@ -318,7 +321,14 @@ codeunit 75375 "PG6 FL Reopen State"
         Say('next-2');
         P.Close();
         Say('close-2');
-        Observer.Finish();
+        Observer.Expect('open-1', '[open agcr(R1) agcr(R1)]');
+        Observer.Expect('act-1', '[act(R1) agcr(R1)]');
+        Observer.Expect('close-1', '[close]');
+        Observer.Expect('open-2', '[open agcr(R1) agcr(R1) agcr(R2)]');
+        Observer.Expect('act-2', '[act(R2) agcr(R2)]');
+        Observer.Expect('next-2', '[agcr(R3)]');
+        Observer.Expect('close-2', '[close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -359,7 +369,17 @@ codeunit 75375 "PG6 FL Reopen State"
             Error('NO_ERROR');
         end;
         SayEnd('close-2');
-        Observer.Finish();
+        Observer.Expect('open-1', '[open agcr(R1) agcr(R1)]');
+        Observer.Expect('setvalue-1', '[]');
+        Observer.Expect('next-1', 'ok [M(R1 FAILMOD) T-mod(R1 FAILMOD)]');
+        Observer.Expect('close-1', 'ok []');
+        Observer.Expect('rows-1', 'R1=one R2=two R3=three ');
+        Observer.Expect('open-2', '[open agcr(R1) agcr(R1) agcr(R2)]');
+        Observer.Expect('setvalue-2', '[]');
+        Observer.Expect('rows-in-2', 'R1=one R2=edited R3=three ');
+        Observer.Expect('next-2', 'ok [M(R2 edited) T-mod(R2 edited) agcr(R3)]');
+        Observer.Expect('close-2', 'ok [close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -400,7 +420,17 @@ codeunit 75375 "PG6 FL Reopen State"
             Error('NO_ERROR');
         end;
         SayEnd('close-2');
-        Observer.Finish();
+        Observer.Expect('open-1', '[open agcr(R1) agcr(R1)]');
+        Observer.Expect('setvalue-1', '[]');
+        Observer.Expect('rows-in-1', 'R1=one R2=two R3=three ');
+        Observer.Expect('next-1', 'ok [M(R1 DENY) agcr(R2)]');
+        Observer.Expect('close-1', 'ok [close]');
+        Observer.Expect('open-2', '[open agcr(R1) agcr(R1) agcr(R2)]');
+        Observer.Expect('setvalue-2', '[]');
+        Observer.Expect('rows-in-2', 'R1=one R2=edited R3=three ');
+        Observer.Expect('next-2', 'ok [M(R2 edited) T-mod(R2 edited) agcr(R3)]');
+        Observer.Expect('close-2', 'ok [close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -425,7 +455,14 @@ codeunit 75375 "PG6 FL Reopen State"
         Say('read-2b');
         P.Close();
         Say('close-2');
-        Observer.Finish();
+        Observer.Expect('open-1', '[open]');
+        Observer.Expect('read-1', '[read=first]');
+        Observer.Expect('close-1', '[close]');
+        Observer.Expect('value-2', '');
+        Observer.Expect('read-2', '[open read=]');
+        Observer.Expect('read-2b', '[read=second]');
+        Observer.Expect('close-2', '[close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -464,6 +501,20 @@ codeunit 75375 "PG6 FL Reopen State"
         P.Close();
         Say('close-2');
         Observer.Observe('rows', Names());
-        Observer.Finish();
+        Observer.Expect('open-1', '[open agcr(R3) agcr(R1) agcr(R2)]');
+        Observer.Expect('cursor-1', 'R1');
+        Observer.Expect('del-1', '[del(R2) agcr(R1) agcr(R1)]');
+        Observer.Expect('next-in-1', 'R3');
+        Observer.Expect('next-1', 'ok [agcr(R3)]');
+        Observer.Expect('close-1', '[close]');
+        Observer.Expect('first-2', 'R3');
+        Observer.Expect('open-2', '[open agcr(R3) agcr(R1) agcr(R2)]');
+        Observer.Expect('cursor-2', 'R1');
+        Observer.Expect('del-2', '[del(R2) agcr(R1) agcr(R1)]');
+        Observer.Expect('next-in-2', 'R3');
+        Observer.Expect('next-2', 'ok [agcr(R3)]');
+        Observer.Expect('close-2', '[close]');
+        Observer.Expect('rows', 'R1=one R2=two R3=three ');
+        Observer.Verify();
     end;
 }

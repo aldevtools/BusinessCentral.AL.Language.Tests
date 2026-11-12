@@ -10,6 +10,9 @@
 //   out of RunModal (CEM_NO_ERROR when it came back); 'log' the triggers in order (M-page = the page's OnModifyRecord, T-mod = the
 //   table's OnModify, Q = OnQueryClosePage with its CloseAction, C = OnClosePage); 'rows' the stored rows afterwards.
 // local object: the pages need their own vetoing OnQueryClosePage
+// Facts: mode 8 raises the validation error out of RunModal before OnQueryClosePage runs (the veto never runs; Document: the text ends
+//   with '(Select Refresh to discard errors)', lookup List: it does not); the rows are unchanged. A handler that returns: OnQueryClosePage
+//   runs with LookupCancel, its veto is ignored, RunModal returns None and OnClosePage does not run. The lookup List is not editable.
 // BC versions: 27, 28, 29
 
 table 75340 "PG6 CV Row"

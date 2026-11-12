@@ -11,6 +11,10 @@
 // Observed per step: the read value, then the log since the last step: agr(X) = OnAfterGetRecord on row X, agcr(X) =
 //   OnAfterGetCurrRecord on row X.
 // local object: the pages are the shapes under test; the log records the record triggers
+// Facts: after every move (GoToKey, GoToRecord, Next, Previous, First, Last) Enabled() and Visible() of the action and Enabled() of the
+//   field control give the value OnAfterGetRecord (or OnAfterGetCurrRecord) computed for the row the cursor is on, on every open form,
+//   on the Card and on the Field table. A GoToKey on a list reads the rows from the first row of the view up to the target (agr twice and
+//   agcr per row). Editable() of the field stays No on the non-editable page.
 // BC versions: 27, 28, 29
 
 table 75300 "PG6 EW Row"

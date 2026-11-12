@@ -8,6 +8,9 @@
 //   OpenView (as ranges of entry numbers, in call order), then the entry numbers a First + Next walk shows and the rows
 //   OnAfterGetRecord ran for during the walk, then the triggers of Close.
 // local object: the tree pages are the shape under test; the log records OnAfterGetRecord
+// Facts: OpenView of the stored tree reads rows 1-20, row 1 again, then the rest of the view; the temporary tree reads every row in
+//   descending order. A First + Next walk of a mixed tree shows only the level-0 rows (the tree is collapsed); with all rows at level 0
+//   it shows every row. Close reads one row again before OnClosePage.
 // BC versions: 27, 28, 29
 
 table 75330 "PG6 TR Row"

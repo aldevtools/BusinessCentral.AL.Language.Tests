@@ -13,6 +13,10 @@
 //   close), act-send the action, cu-send the codeunit, st-* the part (open, agr = OnAfterGetRecord, agcr, fill(doc,rows) its procedure,
 //   close).
 // local object: the hosts, the part and its Visible settings are what the test checks; the log records the triggers
+// Facts: OnOpenPage calls the part procedure before the part's OnOpenPage, with an empty Rec; the action makes the part visible
+//   (Visible() Yes) and its rows are read twice, before and after the host's OnAfterGetCurrRecord; GoToRecord to the current row runs
+//   nothing; Next runs the host's OnAfterGetCurrRecord and the procedure but no part trigger, and Visible() turns No. By value or by
+//   var, Worksheet or List, temporary or stored part: the same log.
 // BC versions: 27, 28, 29
 
 table 75310 "PG6 HJ Doc"
