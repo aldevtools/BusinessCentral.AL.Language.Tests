@@ -629,4 +629,34 @@ codeunit 92928 "LT Y48 Tenant Media Rows"
         Observer.Expect('TestFile_I.xml', 'Description=|Mime Type=text/xml|File Name=TestFile_I.xml|Height=0|Width=0|Company Name=<CompanyName()>|Prohibit Cache=No|Creating User empty=Yes|Expiration empty=Yes|Security Token empty=Yes|len=38');
         Observer.Verify();
     end;
+
+    [Test]
+    procedure Record_Insert_TenantMediaDescriptionOnly_ReadsBack()
+    var
+        TenantMedia: Record "Tenant Media";
+        Id: Guid;
+    begin
+        Initialize();
+        Id := ProbeId();
+        TenantMedia.Init();
+        TenantMedia.ID := Id;
+        TenantMedia.Description := 'Synthetic description';
+        TenantMedia.Insert(false);
+        Clear(TenantMedia);
+        TenantMedia.Get(Id);
+        TenantMedia.TestField(Description, 'Synthetic description');
+        TenantMedia.Delete();
+    end;
+    local procedure Initialize()
+    var
+        TenantMedia: Record "Tenant Media";
+    begin
+        TenantMedia.SetRange(ID, ProbeId());
+        TenantMedia.DeleteAll();
+    end;
+
+    local procedure ProbeId(): Guid
+    begin
+        exit('eb5700b7-a069-42c4-a86e-404e2839defc');
+    end;
 }
