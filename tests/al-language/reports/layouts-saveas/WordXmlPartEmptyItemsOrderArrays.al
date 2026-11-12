@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/report/report-wordxmlpart-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160), W3 Row (67698)
+// Fixtures used: Probe Observer (69160), W3 Row (67698), W3 Dataset
 // local object: the data items and columns of these reports are under test (enum 62350, reports 62351 to 62356).
 // Area: the text of Report.WordXmlPart(Id) and Report.WordXmlPart(Id, true) for three shapes not pinned before.
 //   1. A data item with no column and no nested data item (al-runner issue 7383, the Integer data item `Total` of the Base
@@ -14,7 +14,8 @@
 //      an element.
 // Already pinned elsewhere: name legalizing, the DataType of fields, variables and literals, labels, one and two report
 //   extensions, and the order of names that differ in case or in an underscore between letters (reports/WordXmlPartNames.al).
-// The WordXmlPart of the Extended tests is observed, not asserted (Ignore), so they have no continuation tests.
+// The WordXmlPart of the first twelve tests is observed, not asserted (Ignore). The WordXmlPart_Shape_* tests assert, for
+//   the same reports, the elements BC writes, their order, their DataType and which are empty elements.
 // BC versions: 27-29
 enum 62350 "RPT WXP2 Kind"
 {
@@ -317,4 +318,213 @@ codeunit 62357 "RPT WXP2 Tests"
         Observer.Verify();
     end;
 
+    [Test]
+    procedure WordXmlPart_Shape_EmptyAlone_Plain()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"RPT WXP2 Empty Alone", false);
+        Observer.Observe('shape', Shape(Part));
+        Observer.Observe('self-closing', SelfClosing(Part));
+        Observer.Expect('shape', '?');
+        Observer.Expect('self-closing', '?');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_Shape_EmptyAlone_Extended()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"RPT WXP2 Empty Alone", true);
+        Observer.Observe('shape', Shape(Part));
+        Observer.Observe('self-closing', SelfClosing(Part));
+        Observer.Expect('shape', '?');
+        Observer.Expect('self-closing', '?');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_Shape_EmptyAfter_Plain()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"RPT WXP2 Empty After", false);
+        Observer.Observe('shape', Shape(Part));
+        Observer.Observe('self-closing', SelfClosing(Part));
+        Observer.Expect('shape', '?');
+        Observer.Expect('self-closing', '?');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_Shape_EmptyAfter_Extended()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"RPT WXP2 Empty After", true);
+        Observer.Observe('shape', Shape(Part));
+        Observer.Observe('self-closing', SelfClosing(Part));
+        Observer.Expect('shape', '?');
+        Observer.Expect('self-closing', '?');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_Shape_EmptyMixed_Plain()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"RPT WXP2 Empty Mixed", false);
+        Observer.Observe('shape', Shape(Part));
+        Observer.Observe('self-closing', SelfClosing(Part));
+        Observer.Expect('shape', '?');
+        Observer.Expect('self-closing', '?');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_Shape_EmptyMixed_Extended()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"RPT WXP2 Empty Mixed", true);
+        Observer.Observe('shape', Shape(Part));
+        Observer.Observe('self-closing', SelfClosing(Part));
+        Observer.Expect('shape', '?');
+        Observer.Expect('self-closing', '?');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_Shape_NameOrder_Plain()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"RPT WXP2 Name Order", false);
+        Observer.Observe('shape', Shape(Part));
+        Observer.Observe('self-closing', SelfClosing(Part));
+        Observer.Expect('shape', '?');
+        Observer.Expect('self-closing', '?');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_Shape_NameOrder_Extended()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"RPT WXP2 Name Order", true);
+        Observer.Observe('shape', Shape(Part));
+        Observer.Observe('self-closing', SelfClosing(Part));
+        Observer.Expect('shape', '?');
+        Observer.Expect('self-closing', '?');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_Shape_ArraysA_Plain()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"RPT WXP2 Arrays A", false);
+        Observer.Observe('shape', Shape(Part));
+        Observer.Observe('self-closing', SelfClosing(Part));
+        Observer.Expect('shape', '?');
+        Observer.Expect('self-closing', '?');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_Shape_ArraysA_Extended()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"RPT WXP2 Arrays A", true);
+        Observer.Observe('shape', Shape(Part));
+        Observer.Observe('self-closing', SelfClosing(Part));
+        Observer.Expect('shape', '?');
+        Observer.Expect('self-closing', '?');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_Shape_ArraysB_Plain()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"RPT WXP2 Arrays B", false);
+        Observer.Observe('shape', Shape(Part));
+        Observer.Observe('self-closing', SelfClosing(Part));
+        Observer.Expect('shape', '?');
+        Observer.Expect('self-closing', '?');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WordXmlPart_Shape_ArraysB_Extended()
+    var
+        Part: Text;
+    begin
+        Part := Report.WordXmlPart(Report::"RPT WXP2 Arrays B", true);
+        Observer.Observe('shape', Shape(Part));
+        Observer.Observe('self-closing', SelfClosing(Part));
+        Observer.Expect('shape', '?');
+        Observer.Expect('self-closing', '?');
+        Observer.Verify();
+    end;
+
+    // The elements of a WordXmlPart below its root, nested in [ ], each with its DataType in ( ) when it has one; the
+    // BCReportInformation element is left out (environment data). The text of the part is pinned elsewhere
+    // (reports/WordXmlPartNames.al); these tests pin which elements BC writes, their order and their DataType.
+    local procedure Shape(Part: Text): Text
+    var
+        Doc: XmlDocument;
+        Root: XmlElement;
+    begin
+        if not XmlDocument.ReadFrom(Part, Doc) then
+            exit('not read');
+        Doc.GetRoot(Root);
+        exit(Children(Root));
+    end;
+
+    local procedure Children(Parent: XmlElement): Text
+    var
+        Node: XmlNode;
+        Element: XmlElement;
+        Attribute: XmlAttribute;
+        Result: Text;
+    begin
+        foreach Node in Parent.GetChildElements() do begin
+            Element := Node.AsXmlElement();
+            if Element.LocalName() <> 'BCReportInformation' then begin
+                Result += ' ' + Element.LocalName();
+                if Element.Attributes().Get('DataType', Attribute) then
+                    Result += '(' + Attribute.Value() + ')';
+                if Element.GetChildElements().Count() > 0 then
+                    Result += '[' + Children(Element) + ' ]';
+            end;
+        end;
+        exit(Result);
+    end;
+
+    // The tags BC writes as an empty element (`<Name ... />`), in document order.
+    local procedure SelfClosing(Part: Text): Text
+    var
+        Dataset: Codeunit "W3 Dataset";
+        Line: Text;
+        Result: Text;
+        Tag: Text;
+    begin
+        foreach Line in Part.Split(Dataset.Lf()) do begin
+            Line := Line.Trim();
+            if Line.StartsWith('<') and Line.EndsWith('/>') then begin
+                Tag := Line.Substring(2).TrimEnd('/>').TrimEnd();
+                if Tag.IndexOf(' ') > 0 then
+                    Tag := Tag.Substring(1, Tag.IndexOf(' ') - 1);
+                Result += Tag + ',';
+            end;
+        end;
+        exit(Result);
+    end;
 }
