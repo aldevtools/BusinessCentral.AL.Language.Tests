@@ -12,6 +12,11 @@
 //   Each case runs inside asserterror on a procedure that ends with the error LtSupRollbackErr, so every write (the inserted user, the password)
 //   is rolled back and the session user's password is never set. The last error tells where the procedure stopped: the marker, or the error
 //   SetUserPassword raised. The observations made before the error are kept by the observer.
+// Measured on BC 27.5, 28.5 and 29.0 (corpus PR CI, first round): a user row inserted by AL already has a User Property row with a blank
+//   Password. Every password, also blank, short, without digits or symbols, 300 characters long or the user name, is accepted for an enabled
+//   and a disabled user: Password then holds 27 characters that are not the plain text; a different password changes it, the same password
+//   again does not. A user with a blank User Name raises the TestField error of User Name. An unknown user and the null GUID raise the
+//   NothingInsideFilter error of User Property, as in a TryFunction (ODatabaseOps.al).
 // BC versions: 27, 28, 29
 
 codeunit 98001 "LT SUP SetUserPassword Stmt"
@@ -95,6 +100,23 @@ codeunit 98001 "LT SUP SetUserPassword Stmt"
         Error(LtSupRollbackErr);
     end;
 
+    local procedure MaskUserSecurityId(ErrorText: Text): Text
+    var
+        Marker: Text;
+        StartPos: Integer;
+        EndPos: Integer;
+    begin
+        Marker := 'User Security ID=';
+        StartPos := ErrorText.IndexOf(Marker);
+        if StartPos = 0 then
+            exit(ErrorText);
+        StartPos += StrLen(Marker);
+        EndPos := ErrorText.Substring(StartPos).IndexOf('}');
+        if EndPos = 0 then
+            exit(ErrorText);
+        exit(ErrorText.Substring(1, StartPos - 1) + '<sid>' + ErrorText.Substring(StartPos + EndPos));
+    end;
+
     // One observation per test, so that a mismatch shows everything the test saw.
     local procedure ObserveEnd(var Observer: Codeunit "Probe Observer"; Log: Text)
     begin
@@ -109,7 +131,7 @@ codeunit 98001 "LT SUP SetUserPassword Stmt"
     begin
         asserterror StrongBody(Log);
         ObserveEnd(Observer, Log);
-        Observer.Expect('result', 'before: no User Property row / strong: ok, row filled=Yes len=0 plain=No / second strong: ok, row filled=Yes len=0 plain=No / second changes it: Yes / same again: ok, row filled=Yes len=0 plain=No / same again changes it: Yes / end: Dialog | LT SUP rollback marker');
+        Observer.Expect('result', 'before: row filled=No len=0 plain=Yes / strong: ok, row filled=Yes len=27 plain=No / second strong: ok, row filled=Yes len=27 plain=No / second changes it: Yes / same again: ok, row filled=Yes len=27 plain=No / same again changes it: No / end: Dialog | LT SUP rollback marker');
         Observer.Verify();
     end;
 
@@ -121,7 +143,7 @@ codeunit 98001 "LT SUP SetUserPassword Stmt"
     begin
         asserterror OneCallBody(Log, 'LT-SUPS-BLANK', true, '');
         ObserveEnd(Observer, Log);
-        Observer.Expect('result', 'call: ok, row filled=No len=0 plain=Yes / end: Dialog | LT SUP rollback marker');
+        Observer.Expect('result', 'call: ok, row filled=Yes len=27 plain=No / end: Dialog | LT SUP rollback marker');
         Observer.Verify();
     end;
 
@@ -133,7 +155,7 @@ codeunit 98001 "LT SUP SetUserPassword Stmt"
     begin
         asserterror OneCallBody(Log, 'LT-SUPS-SHORT', true, 'Ab1!');
         ObserveEnd(Observer, Log);
-        Observer.Expect('result', 'call: ok, row filled=Yes len=0 plain=No / end: Dialog | LT SUP rollback marker');
+        Observer.Expect('result', 'call: ok, row filled=Yes len=27 plain=No / end: Dialog | LT SUP rollback marker');
         Observer.Verify();
     end;
 
@@ -145,7 +167,7 @@ codeunit 98001 "LT SUP SetUserPassword Stmt"
     begin
         asserterror OneCallBody(Log, 'LT-SUPS-LOWER', true, 'abcdefghij');
         ObserveEnd(Observer, Log);
-        Observer.Expect('result', 'call: ok, row filled=Yes len=0 plain=No / end: Dialog | LT SUP rollback marker');
+        Observer.Expect('result', 'call: ok, row filled=Yes len=27 plain=No / end: Dialog | LT SUP rollback marker');
         Observer.Verify();
     end;
 
@@ -157,7 +179,7 @@ codeunit 98001 "LT SUP SetUserPassword Stmt"
     begin
         asserterror OneCallBody(Log, 'LT-SUPS-LONG', true, 'Aa1!' + PadStr('', 296, 'x'));
         ObserveEnd(Observer, Log);
-        Observer.Expect('result', 'call: ok, row filled=Yes len=0 plain=No / end: Dialog | LT SUP rollback marker');
+        Observer.Expect('result', 'call: ok, row filled=Yes len=27 plain=No / end: Dialog | LT SUP rollback marker');
         Observer.Verify();
     end;
 
@@ -169,7 +191,7 @@ codeunit 98001 "LT SUP SetUserPassword Stmt"
     begin
         asserterror OneCallBody(Log, 'LT-SUPS-NAME', true, 'LT-SUPS-NAME');
         ObserveEnd(Observer, Log);
-        Observer.Expect('result', 'call: ok, row filled=Yes len=0 plain=No / end: Dialog | LT SUP rollback marker');
+        Observer.Expect('result', 'call: ok, row filled=Yes len=27 plain=No / end: Dialog | LT SUP rollback marker');
         Observer.Verify();
     end;
 
@@ -181,7 +203,7 @@ codeunit 98001 "LT SUP SetUserPassword Stmt"
     begin
         asserterror OneCallBody(Log, 'LT-SUPS-DISABLED', false, 'LT-Sup3r!Passw0rd#1');
         ObserveEnd(Observer, Log);
-        Observer.Expect('result', 'call: ok, row filled=Yes len=0 plain=No / end: Dialog | LT SUP rollback marker');
+        Observer.Expect('result', 'call: ok, row filled=Yes len=27 plain=No / end: Dialog | LT SUP rollback marker');
         Observer.Verify();
     end;
 
@@ -192,8 +214,9 @@ codeunit 98001 "LT SUP SetUserPassword Stmt"
         Log: Text;
     begin
         asserterror OneCallBody(Log, '', true, 'LT-Sup3r!Passw0rd#1');
-        ObserveEnd(Observer, Log);
-        Observer.Expect('result', 'call: ok, row filled=Yes len=0 plain=No / end: Dialog | LT SUP rollback marker');
+        // The text names the inserted user's random User Security ID: masked.
+        Observer.Observe('result', Log + 'end: ' + GetLastErrorCode() + ' | ' + MaskUserSecurityId(GetLastErrorText()));
+        Observer.Expect('result', 'end: TestField | User Name must have a value in User: User Security ID=<sid>. It cannot be zero or empty.');
         Observer.Verify();
     end;
 
