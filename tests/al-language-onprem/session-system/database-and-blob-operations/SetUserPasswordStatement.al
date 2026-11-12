@@ -17,6 +17,8 @@
 //   and a disabled user: Password then holds 27 characters that are not the plain text; a different password changes it, the same password
 //   again does not. A user with a blank User Name raises the TestField error of User Name. An unknown user and the null GUID raise the
 //   NothingInsideFilter error of User Property, as in a TryFunction (ODatabaseOps.al).
+// Second round: "Identity Management".IsUserPasswordSet (NavUserAccountHelper.IsPasswordSet), which the User Card reaches, for a new user,
+//   after a strong and after a blank password, for an unknown user, the null GUID and the session user.
 // BC versions: 27, 28, 29
 
 codeunit 98001 "LT SUP SetUserPassword Stmt"
@@ -244,6 +246,39 @@ codeunit 98001 "LT SUP SetUserPassword Stmt"
         asserterror UnknownBody(Log, NullGuid);
         ObserveEnd(Observer, Log);
         Observer.Expect('result', 'end: DB:NothingInsideFilter | There is no User Property within the filter.\\Filters: User Security ID: {00000000-0000-0000-0000-000000000000}');
+        Observer.Verify();
+    end;
+
+    // Base Application's "Identity Management".IsUserPasswordSet asks NavUserAccountHelper.IsPasswordSet; the User Card reaches it.
+    local procedure PasswordSetBody(var Log: Text)
+    var
+        IdentityManagement: Codeunit "Identity Management";
+        Sid: Guid;
+        Unknown: Guid;
+        NullGuid: Guid;
+    begin
+        Sid := NewUser('LT-SUPS-ISSET', true);
+        Log += 'new user: ' + Format(IdentityManagement.IsUserPasswordSet(Sid)) + ' / ';
+        Database.SetUserPassword(Sid, 'LT-Sup3r!Passw0rd#1');
+        Log += 'after a strong password: ' + Format(IdentityManagement.IsUserPasswordSet(Sid)) + ' / ';
+        Database.SetUserPassword(Sid, '');
+        Log += 'after a blank password: ' + Format(IdentityManagement.IsUserPasswordSet(Sid)) + ' / ';
+        Evaluate(Unknown, '{7E57C0DE-0000-4000-8000-00000000A0A2}');
+        Log += 'unknown user: ' + Format(IdentityManagement.IsUserPasswordSet(Unknown)) + ' / ';
+        Log += 'null guid: ' + Format(IdentityManagement.IsUserPasswordSet(NullGuid)) + ' / ';
+        Log += 'session user: ' + Format(IdentityManagement.IsUserPasswordSet(UserSecurityId())) + ' / ';
+        Error(LtSupRollbackErr);
+    end;
+
+    [Test]
+    procedure SetUserPasswordStmt_IsUserPasswordSet()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        asserterror PasswordSetBody(Log);
+        ObserveEnd(Observer, Log);
+        Observer.Expect('result', 'new user: No / after a strong password: Yes / after a blank password: Yes / unknown user: No / null guid: No / session user: No / end: Dialog | LT SUP rollback marker');
         Observer.Verify();
     end;
 }
