@@ -610,7 +610,7 @@ codeunit 75171 "PG EPR Tests"
         Card.OpenEdit();
         Observer.Observe('curr', Log.CurrLog());
         Card.Close();
-        Observer.Expect('curr', 'agcr=75160/A/0 | agcr=75160/A/0');
+        Observer.Expect('curr', 'agcr=75160/A/0 | agcr=75160/A/0 | agcr=75160/A/0');
         Observer.Verify();
     end;
 
@@ -643,6 +643,22 @@ codeunit 75171 "PG EPR Tests"
         Observer.Observe('action', Log.ActionLog());
         Card.Close();
         Observer.Expect('action', 'act=75160/A/0/ | act=75160/A/0/');
+        Observer.Verify();
+    end;
+
+    // OnAfterGetCurrRecord of the one FactBox of the Card with a field-only link, opened for edit (the Card with two parts runs it
+    // three times in all).
+    [Test]
+    procedure EmptyPart_CardOpenEdit_FieldOnly_OnAfterGetCurrRecordReadsRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Card: TestPage "PG EPR Card FieldOnly";
+    begin
+        Initialize();
+        Card.OpenEdit();
+        Observer.Observe('curr', Log.CurrLog());
+        Card.Close();
+        Observer.Expect('curr', 'agcr=0/A/0 | agcr=0/A/0');
         Observer.Verify();
     end;
 }
