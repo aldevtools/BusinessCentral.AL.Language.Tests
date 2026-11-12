@@ -14,7 +14,12 @@
 //     Attr Never         fieldattribute; the text element is never assigned
 //   Each test exports one line with value 5, one line with value 0 (the text cleared) and three lines (5, 0, 7.5) and records the text.
 //   Y67XpTextAttrSkip.al pins text attributes on a text element outside a table element.
-// BC versions: 27, 28, 29
+// Facts: with a fieldattribute the element is always written: <MinValue equalsValid="true">5</MinValue> with text, <MinValue equalsValid="true" />
+//   when the text is cleared or never assigned, also with MinOccurs = Zero and with a blank Text attribute (note=""). It makes no difference
+//   whether OnBeforePassVariable or the table element's OnAfterGetRecord sets the text, or whether MinOccurs is Zero or not set. The
+//   attribute value is read after the element's OnBeforePassVariable (a change of its field there is written). Without an attribute a cleared
+//   text is written as <MinValue />.
+// BC versions: 27, 28, 29 (values observed on local BC 27.5, 28.5 and 29.0, identical; the corpus CI run checks all three)
 
 table 77720 "XP TEA Line"
 {
@@ -463,48 +468,69 @@ codeunit 77728 "XP TEA Tests"
     procedure TEA_AttrTrigger_Export()
     begin
         Measure(Xmlport::"XP TEA Attr Trigger");
-        Observer.Finish();
+        Observer.Expect('value 5', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue equalsValid="true">5</MinValue>|  </Line>|</Root>');
+        Observer.Expect('value cleared', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue equalsValid="true" />|  </Line>|</Root>');
+        Observer.Expect('three lines', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue equalsValid="true">5</MinValue>|  </Line>|  <Line>|    <EntryNo>2</EntryNo>|    <MinValue equalsValid="true" />|  </Line>|  <Line>|    <EntryNo>3</EntryNo>|    <MinValue equalsValid="false">7.5</MinValue>|  </Line>|</Root>');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TEA_AttrOnly_Export()
     begin
         Measure(Xmlport::"XP TEA Attr Only");
-        Observer.Finish();
+        Observer.Expect('value 5', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue equalsValid="true">5</MinValue>|  </Line>|</Root>');
+        Observer.Expect('value cleared', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue equalsValid="true" />|  </Line>|</Root>');
+        Observer.Expect('three lines', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue equalsValid="true">5</MinValue>|  </Line>|  <Line>|    <EntryNo>2</EntryNo>|    <MinValue equalsValid="true" />|  </Line>|  <Line>|    <EntryNo>3</EntryNo>|    <MinValue equalsValid="false">7.5</MinValue>|  </Line>|</Root>');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TEA_TriggerOnly_Export()
     begin
         Measure(Xmlport::"XP TEA Trigger Only");
-        Observer.Finish();
+        Observer.Expect('value 5', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue>5</MinValue>|  </Line>|</Root>');
+        Observer.Expect('value cleared', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue />|  </Line>|</Root>');
+        Observer.Expect('three lines', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue>5</MinValue>|  </Line>|  <Line>|    <EntryNo>2</EntryNo>|    <MinValue />|  </Line>|  <Line>|    <EntryNo>3</EntryNo>|    <MinValue>7.5</MinValue>|  </Line>|</Root>');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TEA_AttrTriggerOnce_Export()
     begin
         Measure(Xmlport::"XP TEA Attr Trigger Once");
-        Observer.Finish();
+        Observer.Expect('value 5', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue equalsValid="true">5</MinValue>|  </Line>|</Root>');
+        Observer.Expect('value cleared', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue equalsValid="true" />|  </Line>|</Root>');
+        Observer.Expect('three lines', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue equalsValid="true">5</MinValue>|  </Line>|  <Line>|    <EntryNo>2</EntryNo>|    <MinValue equalsValid="true" />|  </Line>|  <Line>|    <EntryNo>3</EntryNo>|    <MinValue equalsValid="false">7.5</MinValue>|  </Line>|</Root>');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TEA_AttrTriggerFlip_Export()
     begin
         Measure(Xmlport::"XP TEA Attr Trigger Flip");
-        Observer.Finish();
+        Observer.Expect('value 5', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue equalsValid="false">5</MinValue>|  </Line>|</Root>');
+        Observer.Expect('value cleared', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue equalsValid="false" />|  </Line>|</Root>');
+        Observer.Expect('three lines', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue equalsValid="false">5</MinValue>|  </Line>|  <Line>|    <EntryNo>2</EntryNo>|    <MinValue equalsValid="false" />|  </Line>|  <Line>|    <EntryNo>3</EntryNo>|    <MinValue equalsValid="true">7.5</MinValue>|  </Line>|</Root>');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TEA_TextAttrTrigger_Export()
     begin
         Measure(Xmlport::"XP TEA Text Attr Trigger");
-        Observer.Finish();
+        Observer.Expect('value 5', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue note="">5</MinValue>|  </Line>|</Root>');
+        Observer.Expect('value cleared', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue note="" />|  </Line>|</Root>');
+        Observer.Expect('three lines', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue note="">5</MinValue>|  </Line>|  <Line>|    <EntryNo>2</EntryNo>|    <MinValue note="" />|  </Line>|  <Line>|    <EntryNo>3</EntryNo>|    <MinValue note="n3">7.5</MinValue>|  </Line>|</Root>');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TEA_AttrNever_Export()
     begin
         Measure(Xmlport::"XP TEA Attr Never");
-        Observer.Finish();
+        Observer.Expect('value 5', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue equalsValid="true" />|  </Line>|</Root>');
+        Observer.Expect('value cleared', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue equalsValid="true" />|  </Line>|</Root>');
+        Observer.Expect('three lines', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Line>|    <EntryNo>1</EntryNo>|    <MinValue equalsValid="true" />|  </Line>|  <Line>|    <EntryNo>2</EntryNo>|    <MinValue equalsValid="true" />|  </Line>|  <Line>|    <EntryNo>3</EntryNo>|    <MinValue equalsValid="false" />|  </Line>|</Root>');
+        Observer.Verify();
     end;
 }
