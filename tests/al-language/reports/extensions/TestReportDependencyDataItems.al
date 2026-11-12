@@ -12,17 +12,37 @@ codeunit 50898 "RPT Dependency Tests"
     procedure Report_SaveAs_DependencyExtension_UsesOwnedDataItem()
     // CLAIM: A dependent extension sees the introducing extension's data item in triggers and in the XML dataset.
     var
-        Trace: Codeunit "RPT Dependency Trace";
         Data: Codeunit "Temp Blob";
         DataOut: OutStream;
-        DataIn: InStream;
-        Line: Text;
-        FoundColumn: Boolean;
     begin
         Initialize();
         Data.CreateOutStream(DataOut);
         if not Report.SaveAs(Report::"RPT Dependency Base", '', ReportFormat::Xml, DataOut) then
             Error('Report.SaveAs failed: %1', GetLastErrorText());
+        AssertDependencyDataset(Data);
+    end;
+
+    [Test]
+    procedure Report_SaveAs_RisingDependencyExtension_UsesOwnedDataItem()
+    // CLAIM: A dependent extension with a higher object ID sees the introducing extension's data item in triggers and in the XML dataset.
+    var
+        Data: Codeunit "Temp Blob";
+        DataOut: OutStream;
+    begin
+        Initialize();
+        Data.CreateOutStream(DataOut);
+        if not Report.SaveAs(Report::"RPT Dependency Rising Base", '', ReportFormat::Xml, DataOut) then
+            Error('Report.SaveAs failed: %1', GetLastErrorText());
+        AssertDependencyDataset(Data);
+    end;
+
+    local procedure AssertDependencyDataset(var Data: Codeunit "Temp Blob")
+    var
+        Trace: Codeunit "RPT Dependency Trace";
+        DataIn: InStream;
+        Line: Text;
+        FoundColumn: Boolean;
+    begin
         if Trace.Read() <> 'owner=2|dependent=2|before|footer|after=2|' then
             Error('Cross report observation: %1', Trace.Read());
         Data.CreateInStream(DataIn, TextEncoding::UTF8);
