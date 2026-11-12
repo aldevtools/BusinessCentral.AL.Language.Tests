@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/triggers-auto/xmlport/devenv-onafterassignfield-xmlport-trigger
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), Temp Blob (System Application); own tables 77700-77701, xmlports 77702-77706 and 77709-77711,
-//   log codeunit 77707, test codeunit 77708.
+// Fixtures used: Probe Observer (codeunit 69160), Temp Blob (System Application); own tables 77700-77701 and 77712, xmlports 77702-77706,
+//   77709-77711, 77713-77719 and 77729-77740, log codeunit 77707, test codeunit 77708.
 // local object: the field's TableRelation, OnValidate and the node's OnAfterAssignField trigger are what is under test.
 // Probe: al-runner issue 7863. An Xml import of a field node (fieldattribute or fieldelement) that has an OnAfterAssignField trigger, into a
 //   Code field with a TableRelation and an OnValidate trigger: which runs first (the TableRelation check, OnValidate, OnAfterAssignField),
@@ -23,8 +23,24 @@
 //   On a temporary table element (UseTemporary = true, the reporter's shape) the field is not validated at all: no TableRelation check and
 //   no OnValidate, every case imports with the value the trigger left. A blank fieldattribute runs no OnAfterAssignField (and no
 //   validation); a blank fieldelement runs OnAfterAssignField and, not temporary, OnValidate.
-// BC versions: 27, 28, 29 (values observed on local BC 27.5 and 28.5, identical; the five first ports also on 29.0, identical; the corpus
-//   CI run checks all three)
+// Second round (al-runner issue 7863 as reported, nodes without OnAfterAssignField, FieldValidate, other field types; tests from
+//   AAR_NoOnValidate_Reporter_InstanceImport on, rows shown as Id:Rel Code:Rel Code NoTrig:Rel Int:Rel Code10):
+//   - A field with a TableRelation and no OnValidate (the reporter's shape) behaves as "Rel Code" without the OnValidate entry: on a
+//     temporary table element nothing is checked (MISS imports, the trigger sees the imported value; through an XmlPort variable with
+//     SetSource and Import too); not temporary, the TableRelation check runs after OnAfterAssignField, with the value it leaves.
+//   - A node without OnAfterAssignField: on a temporary table element no TableRelation check and no OnValidate (fieldattribute and
+//     fieldelement); not temporary, the check and OnValidate run (a missing value: the same error, nothing in the log, no row).
+//   - Blank value without OnAfterAssignField, not temporary: a fieldattribute runs no OnValidate, a fieldelement runs OnValidate with ''.
+//     A blank Code value is never checked against the related table.
+//   - FieldValidate = Yes set explicitly is the same as the default: still no validation on a temporary table element.
+//   - fieldelement with FieldValidate = No: no check and no OnValidate (MISS stored), OnAfterAssignField runs, also on a blank element.
+//   - Integer field with a TableRelation: the same order and the same error ("... contains a value (99) that cannot be found in the
+//     related table (XP AAR IntRel).", DB:PrimRecordNotFound). A blank attribute assigns nothing (0 stays; no trigger, no OnValidate);
+//     the value 0 runs the trigger and OnValidate and passes the check.
+//   - Code[10] field related to a Code[20] key: the same as "Rel Code". An 11-character value fails before OnAfterAssignField:
+//     "The length of the string is 11, but it must be less than or equal to 10 characters. Value: ABCDEFGHIJK", StringLengthExceeded.
+// BC versions: 27, 28, 29 (first round: values observed on local BC 27.5 and 28.5, identical, the five first ports also on 29.0; second
+//   round: observed on local BC 27.5, 28.5 and 29.0, identical; the corpus CI run checks all three)
 
 table 77700 "XP AAR Rel"
 {
@@ -1628,133 +1644,217 @@ codeunit 77708 "XP AAR Tests"
         ReporterCase('P1', 'existing');
         ReporterCase('MISS', 'missing');
         ReporterCase('', 'blank');
-        Observer.Finish();
+        Observer.Expect('existing', 'Yes |  |  | captured:P1 | after:P1;before insert:P1;after insert:P1; | ');
+        Observer.Expect('missing', 'Yes |  |  | captured:MISS | after:MISS;before insert:MISS;after insert:MISS; | ');
+        Observer.Expect('blank', 'Yes |  |  | captured: | before insert:;after insert:; | ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure AAR_NoOnValidate_Temporary_AfterAssign()
     begin
         ProbeAll(Xmlport::"XP AAR NT Attr", true);
-        Observer.Finish();
+        Observer.Expect('existing, trigger reads', 'Yes |  |  | after:P1;before insert:P1;after insert:P1; | ');
+        Observer.Expect('missing, trigger reads', 'Yes |  |  | after:MISS;before insert:MISS;after insert:MISS; | ');
+        Observer.Expect('blank, trigger reads', 'Yes |  |  | before insert:;after insert:; | ');
+        Observer.Expect('missing, trigger sets P2', 'Yes |  |  | after:MISS;before insert:P2;after insert:P2; | ');
+        Observer.Expect('existing, trigger sets MISS', 'Yes |  |  | after:P1;before insert:MISS;after insert:MISS; | ');
+        Observer.Expect('existing, trigger sets P2', 'Yes |  |  | after:P1;before insert:P2;after insert:P2; | ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure AAR_NoOnValidate_Temporary_Plain()
     begin
         ProbePlain(Xmlport::"XP AAR NT Attr Plain", true);
-        Observer.Finish();
+        Observer.Expect('existing', 'Yes |  |  | before insert:P1;after insert:P1; | ');
+        Observer.Expect('missing', 'Yes |  |  | before insert:MISS;after insert:MISS; | ');
+        Observer.Expect('blank', 'Yes |  |  | before insert:;after insert:; | ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure AAR_NoOnValidate_NotTemporary_AfterAssign()
     begin
         ProbeAll(Xmlport::"XP AAR NT Attr Db", true);
-        Observer.Finish();
+        Observer.Expect('existing, trigger reads', 'Yes |  |  | after:P1;before insert:P1;after insert:P1; | 1::P1:0:,');
+        Observer.Expect('missing, trigger reads', 'No | The field Rel Code NoTrig of table XP AAR Row contains a value (MISS) that cannot be found in the related table (XP AAR Rel). | DB:PrimRecordNotFound | after:MISS; | ');
+        Observer.Expect('blank, trigger reads', 'Yes |  |  | before insert:;after insert:; | 1:::0:,');
+        Observer.Expect('missing, trigger sets P2', 'Yes |  |  | after:MISS;before insert:P2;after insert:P2; | 1::P2:0:,');
+        Observer.Expect('existing, trigger sets MISS', 'No | The field Rel Code NoTrig of table XP AAR Row contains a value (MISS) that cannot be found in the related table (XP AAR Rel). | DB:PrimRecordNotFound | after:P1; | ');
+        Observer.Expect('existing, trigger sets P2', 'Yes |  |  | after:P1;before insert:P2;after insert:P2; | 1::P2:0:,');
+        Observer.Verify();
     end;
 
     [Test]
     procedure AAR_NoOnValidate_NotTemporary_Plain()
     begin
         ProbePlain(Xmlport::"XP AAR NT Attr Db Plain", true);
-        Observer.Finish();
+        Observer.Expect('existing', 'Yes |  |  | before insert:P1;after insert:P1; | 1::P1:0:,');
+        Observer.Expect('missing', 'No | The field Rel Code NoTrig of table XP AAR Row contains a value (MISS) that cannot be found in the related table (XP AAR Rel). | DB:PrimRecordNotFound |  | ');
+        Observer.Expect('blank', 'Yes |  |  | before insert:;after insert:; | 1:::0:,');
+        Observer.Verify();
     end;
 
     [Test]
     procedure AAR_FieldAttribute_Temporary_Plain()
     begin
         ProbePlain(Xmlport::"XP AAR Attr Plain", true);
-        Observer.Finish();
+        Observer.Expect('existing', 'Yes |  |  | before insert:P1;after insert:P1; | ');
+        Observer.Expect('missing', 'Yes |  |  | before insert:MISS;after insert:MISS; | ');
+        Observer.Expect('blank', 'Yes |  |  | before insert:;after insert:; | ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure AAR_FieldAttribute_NotTemporary_Plain()
     begin
         ProbePlain(Xmlport::"XP AAR Attr Db Plain", true);
-        Observer.Finish();
+        Observer.Expect('existing', 'Yes |  |  | validate:P1;before insert:P1;after insert:P1; | 1:P1::0:,');
+        Observer.Expect('missing', 'No | The field Rel Code of table XP AAR Row contains a value (MISS) that cannot be found in the related table (XP AAR Rel). | DB:PrimRecordNotFound |  | ');
+        Observer.Expect('blank', 'Yes |  |  | before insert:;after insert:; | 1:::0:,');
+        Observer.Verify();
     end;
 
     [Test]
     procedure AAR_FieldElement_Temporary_Plain()
     begin
         ProbePlain(Xmlport::"XP AAR Elem Plain", false);
-        Observer.Finish();
+        Observer.Expect('existing', 'Yes |  |  | before insert:P1;after insert:P1; | ');
+        Observer.Expect('missing', 'Yes |  |  | before insert:MISS;after insert:MISS; | ');
+        Observer.Expect('blank', 'Yes |  |  | before insert:;after insert:; | ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure AAR_FieldElement_NotTemporary_Plain()
     begin
         ProbePlain(Xmlport::"XP AAR Elem Db Plain", false);
-        Observer.Finish();
+        Observer.Expect('existing', 'Yes |  |  | validate:P1;before insert:P1;after insert:P1; | 1:P1::0:,');
+        Observer.Expect('missing', 'No | The field Rel Code of table XP AAR Row contains a value (MISS) that cannot be found in the related table (XP AAR Rel). | DB:PrimRecordNotFound |  | ');
+        Observer.Expect('blank', 'Yes |  |  | validate:;before insert:;after insert:; | 1:::0:,');
+        Observer.Verify();
     end;
 
     [Test]
     procedure AAR_FieldAttribute_FieldValidateYes_AfterAssign()
     begin
         ProbeAll(Xmlport::"XP AAR Attr FVYes", true);
-        Observer.Finish();
+        Observer.Expect('existing, trigger reads', 'Yes |  |  | after:P1;before insert:P1;after insert:P1; | ');
+        Observer.Expect('missing, trigger reads', 'Yes |  |  | after:MISS;before insert:MISS;after insert:MISS; | ');
+        Observer.Expect('blank, trigger reads', 'Yes |  |  | before insert:;after insert:; | ');
+        Observer.Expect('missing, trigger sets P2', 'Yes |  |  | after:MISS;before insert:P2;after insert:P2; | ');
+        Observer.Expect('existing, trigger sets MISS', 'Yes |  |  | after:P1;before insert:MISS;after insert:MISS; | ');
+        Observer.Expect('existing, trigger sets P2', 'Yes |  |  | after:P1;before insert:P2;after insert:P2; | ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure AAR_FieldAttribute_FieldValidateYes_NotTemporary_AfterAssign()
     begin
         ProbeAll(Xmlport::"XP AAR Attr FVYes Db", true);
-        Observer.Finish();
+        Observer.Expect('existing, trigger reads', 'Yes |  |  | after:P1;validate:P1;before insert:P1;after insert:P1; | 1:P1::0:,');
+        Observer.Expect('missing, trigger reads', 'No | The field Rel Code of table XP AAR Row contains a value (MISS) that cannot be found in the related table (XP AAR Rel). | DB:PrimRecordNotFound | after:MISS; | ');
+        Observer.Expect('blank, trigger reads', 'Yes |  |  | before insert:;after insert:; | 1:::0:,');
+        Observer.Expect('missing, trigger sets P2', 'Yes |  |  | after:MISS;validate:P2;before insert:P2;after insert:P2; | 1:P2::0:,');
+        Observer.Expect('existing, trigger sets MISS', 'No | The field Rel Code of table XP AAR Row contains a value (MISS) that cannot be found in the related table (XP AAR Rel). | DB:PrimRecordNotFound | after:P1; | ');
+        Observer.Expect('existing, trigger sets P2', 'Yes |  |  | after:P1;validate:P2;before insert:P2;after insert:P2; | 1:P2::0:,');
+        Observer.Verify();
     end;
 
     [Test]
     procedure AAR_FieldAttribute_FieldValidateYes_Plain()
     begin
         ProbePlain(Xmlport::"XP AAR Attr FVYes Plain", true);
-        Observer.Finish();
+        Observer.Expect('existing', 'Yes |  |  | before insert:P1;after insert:P1; | ');
+        Observer.Expect('missing', 'Yes |  |  | before insert:MISS;after insert:MISS; | ');
+        Observer.Expect('blank', 'Yes |  |  | before insert:;after insert:; | ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure AAR_FieldAttribute_FieldValidateYes_NotTemporary_Plain()
     begin
         ProbePlain(Xmlport::"XP AAR Attr FVYes Db Plain", true);
-        Observer.Finish();
+        Observer.Expect('existing', 'Yes |  |  | validate:P1;before insert:P1;after insert:P1; | 1:P1::0:,');
+        Observer.Expect('missing', 'No | The field Rel Code of table XP AAR Row contains a value (MISS) that cannot be found in the related table (XP AAR Rel). | DB:PrimRecordNotFound |  | ');
+        Observer.Expect('blank', 'Yes |  |  | before insert:;after insert:; | 1:::0:,');
+        Observer.Verify();
     end;
 
     [Test]
     procedure AAR_FieldElement_FieldValidateNo_AfterAssign()
     begin
         ProbeAll(Xmlport::"XP AAR Elem NoVal", false);
-        Observer.Finish();
+        Observer.Expect('existing, trigger reads', 'Yes |  |  | after:P1;before insert:P1;after insert:P1; | ');
+        Observer.Expect('missing, trigger reads', 'Yes |  |  | after:MISS;before insert:MISS;after insert:MISS; | ');
+        Observer.Expect('blank, trigger reads', 'Yes |  |  | after:;before insert:;after insert:; | ');
+        Observer.Expect('missing, trigger sets P2', 'Yes |  |  | after:MISS;before insert:P2;after insert:P2; | ');
+        Observer.Expect('existing, trigger sets MISS', 'Yes |  |  | after:P1;before insert:MISS;after insert:MISS; | ');
+        Observer.Expect('existing, trigger sets P2', 'Yes |  |  | after:P1;before insert:P2;after insert:P2; | ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure AAR_FieldElement_FieldValidateNo_NotTemporary_AfterAssign()
     begin
         ProbeAll(Xmlport::"XP AAR Elem NoVal Db", false);
-        Observer.Finish();
+        Observer.Expect('existing, trigger reads', 'Yes |  |  | after:P1;before insert:P1;after insert:P1; | 1:P1::0:,');
+        Observer.Expect('missing, trigger reads', 'Yes |  |  | after:MISS;before insert:MISS;after insert:MISS; | 1:MISS::0:,');
+        Observer.Expect('blank, trigger reads', 'Yes |  |  | after:;before insert:;after insert:; | 1:::0:,');
+        Observer.Expect('missing, trigger sets P2', 'Yes |  |  | after:MISS;before insert:P2;after insert:P2; | 1:P2::0:,');
+        Observer.Expect('existing, trigger sets MISS', 'Yes |  |  | after:P1;before insert:MISS;after insert:MISS; | 1:MISS::0:,');
+        Observer.Expect('existing, trigger sets P2', 'Yes |  |  | after:P1;before insert:P2;after insert:P2; | 1:P2::0:,');
+        Observer.Verify();
     end;
 
     [Test]
     procedure AAR_FieldElement_FieldValidateNo_NotTemporary_Plain()
     begin
         ProbePlain(Xmlport::"XP AAR Elem NoVal Db Plain", false);
-        Observer.Finish();
+        Observer.Expect('existing', 'Yes |  |  | before insert:P1;after insert:P1; | 1:P1::0:,');
+        Observer.Expect('missing', 'Yes |  |  | before insert:MISS;after insert:MISS; | 1:MISS::0:,');
+        Observer.Expect('blank', 'Yes |  |  | before insert:;after insert:; | 1:::0:,');
+        Observer.Verify();
     end;
 
     [Test]
     procedure AAR_IntegerRelation_AfterAssign()
     begin
         ProbeInt(Xmlport::"XP AAR Int Attr", true);
-        Observer.Finish();
+        Observer.Expect('existing 1', 'Yes |  |  | after:1;before insert:1;after insert:1; | ');
+        Observer.Expect('missing 99', 'Yes |  |  | after:99;before insert:99;after insert:99; | ');
+        Observer.Expect('blank', 'Yes |  |  | before insert:0;after insert:0; | ');
+        Observer.Expect('zero', 'Yes |  |  | after:0;before insert:0;after insert:0; | ');
+        Observer.Expect('missing 99, trigger sets 2', 'Yes |  |  | after:99;before insert:2;after insert:2; | ');
+        Observer.Expect('existing 1, trigger sets 99', 'Yes |  |  | after:1;before insert:99;after insert:99; | ');
+        Observer.Expect('existing 1, trigger sets 2', 'Yes |  |  | after:1;before insert:2;after insert:2; | ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure AAR_IntegerRelation_NotTemporary_AfterAssign()
     begin
         ProbeInt(Xmlport::"XP AAR Int Attr Db", true);
-        Observer.Finish();
+        Observer.Expect('existing 1', 'Yes |  |  | after:1;validate int:1;before insert:1;after insert:1; | 1:::1:,');
+        Observer.Expect('missing 99', 'No | The field Rel Int of table XP AAR Row contains a value (99) that cannot be found in the related table (XP AAR IntRel). | DB:PrimRecordNotFound | after:99; | ');
+        Observer.Expect('blank', 'Yes |  |  | before insert:0;after insert:0; | 1:::0:,');
+        Observer.Expect('zero', 'Yes |  |  | after:0;validate int:0;before insert:0;after insert:0; | 1:::0:,');
+        Observer.Expect('missing 99, trigger sets 2', 'Yes |  |  | after:99;validate int:2;before insert:2;after insert:2; | 1:::2:,');
+        Observer.Expect('existing 1, trigger sets 99', 'No | The field Rel Int of table XP AAR Row contains a value (99) that cannot be found in the related table (XP AAR IntRel). | DB:PrimRecordNotFound | after:1; | ');
+        Observer.Expect('existing 1, trigger sets 2', 'Yes |  |  | after:1;validate int:2;before insert:2;after insert:2; | 1:::2:,');
+        Observer.Verify();
     end;
 
     [Test]
     procedure AAR_IntegerRelation_NotTemporary_Plain()
     begin
         ProbeInt(Xmlport::"XP AAR Int Attr Db Plain", false);
-        Observer.Finish();
+        Observer.Expect('existing 1', 'Yes |  |  | validate int:1;before insert:1;after insert:1; | 1:::1:,');
+        Observer.Expect('missing 99', 'No | The field Rel Int of table XP AAR Row contains a value (99) that cannot be found in the related table (XP AAR IntRel). | DB:PrimRecordNotFound |  | ');
+        Observer.Expect('blank', 'Yes |  |  | before insert:0;after insert:0; | 1:::0:,');
+        Observer.Expect('zero', 'Yes |  |  | validate int:0;before insert:0;after insert:0; | 1:::0:,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1762,6 +1862,13 @@ codeunit 77708 "XP AAR Tests"
     begin
         ProbeAll(Xmlport::"XP AAR C10 Attr Db", true);
         ImportCaseAll(Xmlport::"XP AAR C10 Attr Db", true, 'ABCDEFGHIJK', 0, 'eleven characters, trigger reads');
-        Observer.Finish();
+        Observer.Expect('existing, trigger reads', 'Yes |  |  | after:P1;validate c10:P1;before insert:P1;after insert:P1; | 1:::0:P1,');
+        Observer.Expect('missing, trigger reads', 'No | The field Rel Code10 of table XP AAR Row contains a value (MISS) that cannot be found in the related table (XP AAR Rel). | DB:PrimRecordNotFound | after:MISS; | ');
+        Observer.Expect('blank, trigger reads', 'Yes |  |  | before insert:;after insert:; | 1:::0:,');
+        Observer.Expect('missing, trigger sets P2', 'Yes |  |  | after:MISS;validate c10:P2;before insert:P2;after insert:P2; | 1:::0:P2,');
+        Observer.Expect('existing, trigger sets MISS', 'No | The field Rel Code10 of table XP AAR Row contains a value (MISS) that cannot be found in the related table (XP AAR Rel). | DB:PrimRecordNotFound | after:P1; | ');
+        Observer.Expect('existing, trigger sets P2', 'Yes |  |  | after:P1;validate c10:P2;before insert:P2;after insert:P2; | 1:::0:P2,');
+        Observer.Expect('eleven characters, trigger reads', 'No | The length of the string is 11, but it must be less than or equal to 10 characters. Value: ABCDEFGHIJK | StringLengthExceeded |  | ');
+        Observer.Verify();
     end;
 }
