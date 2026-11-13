@@ -15,9 +15,10 @@
 //   - a temporary layout selection before SaveAs: default, empty name, the other Word layout by name with and without the app id, a
 //     user-defined Tenant Report Layout row named by a GUID, a name and a custom layout code that match nothing; the answer, the error and
 //     the Reporting Triggers events in their order inside SaveAs (the layoutname of OnDocumentReady says which layout was used).
-// Measured on BC 27.5 and 28.5 (Windows containers, identical answers); BC 29.0 not measured locally (its container failed to publish).
-// The FieldValue_* tests are still in observe form: the first CI run stopped at the hidden control (not found on the page); that read
-//   now has its own test, FieldValue_HiddenMultiLine.
+// Measured on BC 27.5 and 28.5 (Windows containers, identical answers); the corpus CI run confirmed the same answers on 27.5, 28.5 and 29.0.
+// The FieldValue_* tests were measured by the corpus CI run (identical on 27.5, 28.5 and 29.0): every control returns the text unchanged,
+//   except the plain control for the long text with line breaks (Value <> text, other length); reading the hidden MultiLine control
+//   raises TestFieldNotFound.
 // BC versions: 27 - 29
 
 codeunit 75210 "HT Rendered Text Tests"
@@ -647,7 +648,13 @@ codeunit 75210 "HT Rendered Text Tests"
         Observer: Codeunit "Probe Observer";
     begin
         FieldFacts(Observer, 'HTSHORT');
-        Observer.Finish();
+        Observer.Expect('plain Value = text', 'Yes');
+        Observer.Expect('plain StrLen equal', 'Yes');
+        Observer.Expect('multiline Value = text', 'Yes');
+        Observer.Expect('multiline StrLen equal', 'Yes');
+        Observer.Expect('richcontent Value = text', 'Yes');
+        Observer.Expect('richcontent StrLen equal', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -656,7 +663,13 @@ codeunit 75210 "HT Rendered Text Tests"
         Observer: Codeunit "Probe Observer";
     begin
         FieldFacts(Observer, LongText(5000, false));
-        Observer.Finish();
+        Observer.Expect('plain Value = text', 'Yes');
+        Observer.Expect('plain StrLen equal', 'Yes');
+        Observer.Expect('multiline Value = text', 'Yes');
+        Observer.Expect('multiline StrLen equal', 'Yes');
+        Observer.Expect('richcontent Value = text', 'Yes');
+        Observer.Expect('richcontent StrLen equal', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -665,7 +678,13 @@ codeunit 75210 "HT Rendered Text Tests"
         Observer: Codeunit "Probe Observer";
     begin
         FieldFacts(Observer, LongText(5000, true));
-        Observer.Finish();
+        Observer.Expect('plain Value = text', 'No');
+        Observer.Expect('plain StrLen equal', 'No');
+        Observer.Expect('multiline Value = text', 'Yes');
+        Observer.Expect('multiline StrLen equal', 'Yes');
+        Observer.Expect('richcontent Value = text', 'Yes');
+        Observer.Expect('richcontent StrLen equal', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -674,7 +693,13 @@ codeunit 75210 "HT Rendered Text Tests"
         Observer: Codeunit "Probe Observer";
     begin
         FieldFacts(Observer, RenderBody());
-        Observer.Finish();
+        Observer.Expect('plain Value = text', 'Yes');
+        Observer.Expect('plain StrLen equal', 'Yes');
+        Observer.Expect('multiline Value = text', 'Yes');
+        Observer.Expect('multiline StrLen equal', 'Yes');
+        Observer.Expect('richcontent Value = text', 'Yes');
+        Observer.Expect('richcontent StrLen equal', 'Yes');
+        Observer.Verify();
     end;
 
     // A control inside a group with Visible = false: the CI matrix (27.5, 28.5, 29.0) showed that reading it raises a "field not found" error
@@ -695,7 +720,9 @@ codeunit 75210 "HT Rendered Text Tests"
         ClearLastError();
         BodyPage.Close();
         HtLog.SetPageText('');
-        Observer.Finish();
+        Observer.Expect('hidden multiline Value raises', 'Yes');
+        Observer.Expect('hidden multiline error code', 'TestFieldNotFound');
+        Observer.Verify();
     end;
 
     local procedure BigTextFacts(var Observer: Codeunit "Probe Observer"; Name: Text; Value: Text)
