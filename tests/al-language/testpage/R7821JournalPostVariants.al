@@ -18,6 +18,11 @@
 //     writing to the trigger log to show their order).
 //   - Open: OpenEdit instead of Page.Run (for V1b, V3 and V4; the base case with OpenEdit is in R7821JournalPostNewLine.al).
 //   The reporter saw on BC 29.0 for V1b, V3 and V4 the base case's `R:10000;N:0;C:0;N:0;C:0;N:0;C:0;`, for V2 five N:0;C:0 pairs.
+// Result (measured on Windows BC 27.5, 28.5 and 29.0 containers, before the corpus CI run): the base case, V1b (both opens), V3 (B2 and A1,
+//   both opens) and V4 (both opens) all give the base case's `R:10000;N:0;C:0;N:0;C:0;N:0;C:0;`, show line 0, run no trigger on Close and
+//   leave no B1 line (V3 keeps its other-batch line). V1b shows batch B1. The counting subscribers ran twice; the logging ones run after
+//   OnAfterGetRecord of the deleted line and before the blank line: `R:10000;BA;AA;N:0;C:0;...`. V2 with two lines gives five N:0;C:0
+//   pairs on BC 27.5 and 29.0 and four on BC 28.5 (as the OpenEdit case of R7821JournalPostNewLine.al); with three lines five pairs on all.
 // Not here: the reporter's V1a (the page under another id and name, same body: every page of this file already is one) and V5 (the real
 //   Output Journal posting a production order: it writes to Microsoft tables, which the corpus does not do).
 // BC versions: 27+ (tested by the corpus CI matrix)
@@ -369,7 +374,12 @@ codeunit 67210 "TP R7821V Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunWks(Observer, 1, '', true, 0);
-        Observer.Finish();
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('after close', '');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -378,7 +388,13 @@ codeunit 67210 "TP R7821V Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunFieldWks(Observer, true);
-        Observer.Finish();
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown batch', 'B1');
+        Observer.Expect('after close', '');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -387,7 +403,13 @@ codeunit 67210 "TP R7821V Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunFieldWks(Observer, false);
-        Observer.Finish();
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown batch', 'B1');
+        Observer.Expect('after close', '');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -396,7 +418,16 @@ codeunit 67210 "TP R7821V Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunWks(Observer, 2, '', true, 0);
-        Observer.Finish();
+#if BC28PLUS and not BC29PLUS
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;');
+#else
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;');
+#endif
+        Observer.Expect('shown line', '0');
+        Observer.Expect('after close', '');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -405,7 +436,12 @@ codeunit 67210 "TP R7821V Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunWks(Observer, 3, '', true, 0);
-        Observer.Finish();
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('after close', '');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -414,7 +450,12 @@ codeunit 67210 "TP R7821V Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunWks(Observer, 1, 'B2', true, 0);
-        Observer.Finish();
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('after close', '');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -423,7 +464,12 @@ codeunit 67210 "TP R7821V Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunWks(Observer, 1, 'A1', true, 0);
-        Observer.Finish();
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('after close', '');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -432,7 +478,12 @@ codeunit 67210 "TP R7821V Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunWks(Observer, 1, 'B2', false, 0);
-        Observer.Finish();
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('after close', '');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -441,7 +492,13 @@ codeunit 67210 "TP R7821V Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunWks(Observer, 1, '', true, 1);
-        Observer.Finish();
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('after close', '');
+        Observer.Expect('subscriber runs', '2');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -450,7 +507,12 @@ codeunit 67210 "TP R7821V Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunWks(Observer, 1, '', true, 2);
-        Observer.Finish();
+        Observer.Expect('after post', 'R:10000;BA;AA;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('after close', '');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -459,6 +521,12 @@ codeunit 67210 "TP R7821V Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunWks(Observer, 1, '', false, 1);
-        Observer.Finish();
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('after close', '');
+        Observer.Expect('subscriber runs', '2');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 }
