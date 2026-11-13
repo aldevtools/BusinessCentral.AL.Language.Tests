@@ -538,7 +538,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'plain value', 4, false, 1);
-        Observer.Finish();
+        Observer.Expect('plain value mem rr', 'hv:alpha');
+        Observer.Expect('plain value mem rr w src', 'hv:alpha');
+        Observer.Expect('plain value mem row ins', 'hv: hv:alpha');
+        Observer.Expect('plain value mem row w src mod', 'hv: hv:alpha');
+        Observer.Expect('plain value mem src t set', 'hv:gammagamma');
+        Observer.Expect('plain value mem row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -547,7 +553,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'plain value', 4, false, 5);
-        Observer.Finish();
+        Observer.Expect('plain value empty rr', 'nohv:');
+        Observer.Expect('plain value empty rr w src', 'nohv:');
+        Observer.Expect('plain value empty row ins', 'nohv: nohv:');
+        Observer.Expect('plain value empty row w src mod', 'nohv: nohv:');
+        Observer.Expect('plain value empty src t set', 'hv:gammagamma');
+        Observer.Expect('plain value empty row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -556,7 +568,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'plain value', 4, false, 4);
-        Observer.Finish();
+        Observer.Expect('plain value get rr', 'nohv:');
+        Observer.Expect('plain value get rr w src', 'nohv:');
+        Observer.Expect('plain value get row ins', 'nohv: nohv:');
+        Observer.Expect('plain value get row w src mod', 'nohv: nohv:');
+        Observer.Expect('plain value get src t set', 'hv:gammagamma');
+        Observer.Expect('plain value get row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -565,7 +583,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'plain value', 4, false, 3);
-        Observer.Finish();
+        Observer.Expect('plain value calc rr', 'hv:alpha');
+        Observer.Expect('plain value calc rr w src', 'hv:alpha');
+        Observer.Expect('plain value calc row ins', 'hv: hv:alpha');
+        Observer.Expect('plain value calc row w src mod', 'hv: hv:alpha');
+        Observer.Expect('plain value calc src t set', 'hv:gammagamma');
+        Observer.Expect('plain value calc row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -574,7 +598,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'plain validate', 4, true, 1);
-        Observer.Finish();
+        Observer.Expect('plain validate mem rr', 'hv:alpha');
+        Observer.Expect('plain validate mem rr w src', 'hv:alpha');
+        Observer.Expect('plain validate mem row ins', 'hv: hv:alpha');
+        Observer.Expect('plain validate mem row w src mod', 'hv: hv:alpha');
+        Observer.Expect('plain validate mem src t set', 'hv:gammagamma');
+        Observer.Expect('plain validate mem row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -583,7 +613,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'plain validate', 4, true, 5);
-        Observer.Finish();
+        Observer.Expect('plain validate empty rr', 'nohv:');
+        Observer.Expect('plain validate empty rr w src', 'nohv:');
+        Observer.Expect('plain validate empty row ins', 'nohv: nohv:');
+        Observer.Expect('plain validate empty row w src mod', 'nohv: nohv:');
+        Observer.Expect('plain validate empty src t set', 'hv:gammagamma');
+        Observer.Expect('plain validate empty row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -592,7 +628,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'plain validate', 4, true, 4);
-        Observer.Finish();
+        Observer.Expect('plain validate get rr', 'nohv:');
+        Observer.Expect('plain validate get rr w src', 'nohv:');
+        Observer.Expect('plain validate get row ins', 'nohv: nohv:');
+        Observer.Expect('plain validate get row w src mod', 'nohv: nohv:');
+        Observer.Expect('plain validate get src t set', 'hv:gammagamma');
+        Observer.Expect('plain validate get row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -601,7 +643,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'plain validate', 4, true, 3);
-        Observer.Finish();
+        Observer.Expect('plain validate calc rr', 'hv:alpha');
+        Observer.Expect('plain validate calc rr w src', 'hv:alpha');
+        Observer.Expect('plain validate calc row ins', 'hv: hv:alpha');
+        Observer.Expect('plain validate calc row w src mod', 'hv: hv:alpha');
+        Observer.Expect('plain validate calc src t set', 'hv:gammagamma');
+        Observer.Expect('plain validate calc row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -610,7 +658,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'comp value', 5, false, 1);
-        Observer.Finish();
+        Observer.Expect('comp value mem rr', 'hv:alpha');
+        Observer.Expect('comp value mem rr w src', 'hv:alpha');
+        Observer.Expect('comp value mem row ins', 'hv: hv:alpha');
+        Observer.Expect('comp value mem row w src mod', 'hv: hv:alpha');
+        Observer.Expect('comp value mem src t set', 'hv:gammagamma');
+        Observer.Expect('comp value mem row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -619,7 +673,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'comp value', 5, false, 5);
-        Observer.Finish();
+        Observer.Expect('comp value empty rr', 'nohv:');
+        Observer.Expect('comp value empty rr w src', 'nohv:');
+        Observer.Expect('comp value empty row ins', 'nohv: nohv:');
+        Observer.Expect('comp value empty row w src mod', 'nohv: nohv:');
+        Observer.Expect('comp value empty src t set', 'hv:gammagamma');
+        Observer.Expect('comp value empty row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -628,7 +688,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'comp value', 5, false, 4);
-        Observer.Finish();
+        Observer.Expect('comp value get rr', 'nohv:');
+        Observer.Expect('comp value get rr w src', 'nohv:');
+        Observer.Expect('comp value get row ins', 'nohv: nohv:');
+        Observer.Expect('comp value get row w src mod', 'nohv: nohv:');
+        Observer.Expect('comp value get src t set', 'hv:gammagamma');
+        Observer.Expect('comp value get row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -637,7 +703,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'comp value', 5, false, 3);
-        Observer.Finish();
+        Observer.Expect('comp value calc rr', 'hv:alpha');
+        Observer.Expect('comp value calc rr w src', 'hv:alpha');
+        Observer.Expect('comp value calc row ins', 'hv: hv:alpha');
+        Observer.Expect('comp value calc row w src mod', 'hv: hv:alpha');
+        Observer.Expect('comp value calc src t set', 'hv:gammagamma');
+        Observer.Expect('comp value calc row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -646,7 +718,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'comp validate', 5, true, 1);
-        Observer.Finish();
+        Observer.Expect('comp validate mem rr', 'hv:alpha');
+        Observer.Expect('comp validate mem rr w src', 'hv:alpha');
+        Observer.Expect('comp validate mem row ins', 'hv: hv:alpha');
+        Observer.Expect('comp validate mem row w src mod', 'hv: hv:alpha');
+        Observer.Expect('comp validate mem src t set', 'hv:gammagamma');
+        Observer.Expect('comp validate mem row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -655,7 +733,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'comp validate', 5, true, 5);
-        Observer.Finish();
+        Observer.Expect('comp validate empty rr', 'nohv:');
+        Observer.Expect('comp validate empty rr w src', 'nohv:');
+        Observer.Expect('comp validate empty row ins', 'nohv: nohv:');
+        Observer.Expect('comp validate empty row w src mod', 'nohv: nohv:');
+        Observer.Expect('comp validate empty src t set', 'hv:gammagamma');
+        Observer.Expect('comp validate empty row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -664,7 +748,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'comp validate', 5, true, 4);
-        Observer.Finish();
+        Observer.Expect('comp validate get rr', 'nohv:');
+        Observer.Expect('comp validate get rr w src', 'nohv:');
+        Observer.Expect('comp validate get row ins', 'nohv: nohv:');
+        Observer.Expect('comp validate get row w src mod', 'nohv: nohv:');
+        Observer.Expect('comp validate get src t set', 'hv:gammagamma');
+        Observer.Expect('comp validate get row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -673,7 +763,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'comp validate', 5, true, 3);
-        Observer.Finish();
+        Observer.Expect('comp validate calc rr', 'hv:alpha');
+        Observer.Expect('comp validate calc rr w src', 'hv:alpha');
+        Observer.Expect('comp validate calc row ins', 'hv: hv:alpha');
+        Observer.Expect('comp validate calc row w src mod', 'hv: hv:alpha');
+        Observer.Expect('comp validate calc src t set', 'hv:gammagamma');
+        Observer.Expect('comp validate calc row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -682,7 +778,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'ext value', 97761, false, 1);
-        Observer.Finish();
+        Observer.Expect('ext value mem rr', 'hv:alpha');
+        Observer.Expect('ext value mem rr w src', 'hv:alpha');
+        Observer.Expect('ext value mem row ins', 'hv: hv:alpha');
+        Observer.Expect('ext value mem row w src mod', 'hv: hv:alpha');
+        Observer.Expect('ext value mem src t set', 'hv:gammagamma');
+        Observer.Expect('ext value mem row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -691,7 +793,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'ext value', 97761, false, 5);
-        Observer.Finish();
+        Observer.Expect('ext value empty rr', 'nohv:');
+        Observer.Expect('ext value empty rr w src', 'nohv:');
+        Observer.Expect('ext value empty row ins', 'nohv: nohv:');
+        Observer.Expect('ext value empty row w src mod', 'nohv: nohv:');
+        Observer.Expect('ext value empty src t set', 'hv:gammagamma');
+        Observer.Expect('ext value empty row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -700,7 +808,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'ext value', 97761, false, 4);
-        Observer.Finish();
+        Observer.Expect('ext value get rr', 'nohv:');
+        Observer.Expect('ext value get rr w src', 'nohv:');
+        Observer.Expect('ext value get row ins', 'nohv: nohv:');
+        Observer.Expect('ext value get row w src mod', 'nohv: nohv:');
+        Observer.Expect('ext value get src t set', 'hv:gammagamma');
+        Observer.Expect('ext value get row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -709,7 +823,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'ext value', 97761, false, 3);
-        Observer.Finish();
+        Observer.Expect('ext value calc rr', 'hv:alpha');
+        Observer.Expect('ext value calc rr w src', 'hv:alpha');
+        Observer.Expect('ext value calc row ins', 'hv: hv:alpha');
+        Observer.Expect('ext value calc row w src mod', 'hv: hv:alpha');
+        Observer.Expect('ext value calc src t set', 'hv:gammagamma');
+        Observer.Expect('ext value calc row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -718,7 +838,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'ext validate', 97761, true, 1);
-        Observer.Finish();
+        Observer.Expect('ext validate mem rr', 'hv:alpha');
+        Observer.Expect('ext validate mem rr w src', 'hv:alpha');
+        Observer.Expect('ext validate mem row ins', 'hv: hv:alpha');
+        Observer.Expect('ext validate mem row w src mod', 'hv: hv:alpha');
+        Observer.Expect('ext validate mem src t set', 'hv:gammagamma');
+        Observer.Expect('ext validate mem row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -727,7 +853,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'ext validate', 97761, true, 5);
-        Observer.Finish();
+        Observer.Expect('ext validate empty rr', 'nohv:');
+        Observer.Expect('ext validate empty rr w src', 'nohv:');
+        Observer.Expect('ext validate empty row ins', 'nohv: nohv:');
+        Observer.Expect('ext validate empty row w src mod', 'nohv: nohv:');
+        Observer.Expect('ext validate empty src t set', 'hv:gammagamma');
+        Observer.Expect('ext validate empty row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -736,7 +868,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'ext validate', 97761, true, 4);
-        Observer.Finish();
+        Observer.Expect('ext validate get rr', 'nohv:');
+        Observer.Expect('ext validate get rr w src', 'nohv:');
+        Observer.Expect('ext validate get row ins', 'nohv: nohv:');
+        Observer.Expect('ext validate get row w src mod', 'nohv: nohv:');
+        Observer.Expect('ext validate get src t set', 'hv:gammagamma');
+        Observer.Expect('ext validate get row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -745,7 +883,13 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         Into(Observer, 'ext validate', 97761, true, 3);
-        Observer.Finish();
+        Observer.Expect('ext validate calc rr', 'hv:alpha');
+        Observer.Expect('ext validate calc rr w src', 'hv:alpha');
+        Observer.Expect('ext validate calc row ins', 'hv: hv:alpha');
+        Observer.Expect('ext validate calc row w src mod', 'hv: hv:alpha');
+        Observer.Expect('ext validate calc src t set', 'hv:gammagamma');
+        Observer.Expect('ext validate calc row t set mod', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -754,7 +898,9 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         SameKind(Observer, 'plain', 4);
-        Observer.Finish();
+        Observer.Expect('plain same rr w src', 'hv:alpha');
+        Observer.Expect('plain same row', 'hv: hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -763,7 +909,9 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         SameKind(Observer, 'comp', 5);
-        Observer.Finish();
+        Observer.Expect('comp same rr w src', 'hv:alpha');
+        Observer.Expect('comp same row', 'hv: hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -772,7 +920,9 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         SameKind(Observer, 'ext', 97761);
-        Observer.Finish();
+        Observer.Expect('ext same rr w src', 'hv:alpha');
+        Observer.Expect('ext same row', 'hv: hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -781,7 +931,10 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         VariantInto(Observer, 'plain', 4);
-        Observer.Finish();
+        Observer.Expect('plain var dst', 'hv:alpha');
+        Observer.Expect('plain var dst w src', 'hv:alpha');
+        Observer.Expect('plain var src w dst', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -790,7 +943,10 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         VariantInto(Observer, 'comp', 5);
-        Observer.Finish();
+        Observer.Expect('comp var dst', 'hv:alpha');
+        Observer.Expect('comp var dst w src', 'hv:alpha');
+        Observer.Expect('comp var src w dst', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -799,7 +955,10 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         VariantInto(Observer, 'ext', 97761);
-        Observer.Finish();
+        Observer.Expect('ext var dst', 'hv:alpha');
+        Observer.Expect('ext var dst w src', 'hv:alpha');
+        Observer.Expect('ext var src w dst', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -808,7 +967,10 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         AssignInto(Observer, 'plain', 4);
-        Observer.Finish();
+        Observer.Expect('plain asg dst', 'hv:alpha');
+        Observer.Expect('plain asg dst w src', 'hv:alpha');
+        Observer.Expect('plain asg src w dst', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -817,7 +979,10 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         AssignInto(Observer, 'comp', 5);
-        Observer.Finish();
+        Observer.Expect('comp asg dst', 'hv:alpha');
+        Observer.Expect('comp asg dst w src', 'hv:alpha');
+        Observer.Expect('comp asg src w dst', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -826,7 +991,10 @@ codeunit 97764 "LT BC3 FieldRef Into"
         Observer: Codeunit "Probe Observer";
     begin
         AssignInto(Observer, 'ext', 97761);
-        Observer.Finish();
+        Observer.Expect('ext asg dst', 'hv:alpha');
+        Observer.Expect('ext asg dst w src', 'hv:alpha');
+        Observer.Expect('ext asg src w dst', 'hv:betaa');
+        Observer.Verify();
     end;
 
 }
@@ -978,7 +1146,13 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ByValue(Observer, 1, false);
-        Observer.Finish();
+        Observer.Expect('bv mem src', 'hv:alpha');
+        Observer.Expect('bv mem in entry', 'hv:alpha');
+        Observer.Expect('bv mem in w', 'hv:zzpha');
+        Observer.Expect('bv mem src after call', 'hv:alpha');
+        Observer.Expect('bv mem row', 'hv: hv:alpha');
+        Observer.Expect('bv mem src after persist', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -987,7 +1161,13 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ByValue(Observer, 2, false);
-        Observer.Finish();
+        Observer.Expect('bv ins src', 'hv:alpha');
+        Observer.Expect('bv ins in entry', 'hv:alpha');
+        Observer.Expect('bv ins in w', 'hv:zzpha');
+        Observer.Expect('bv ins src after call', 'hv:alpha');
+        Observer.Expect('bv ins row', 'hv: hv:alpha');
+        Observer.Expect('bv ins src after persist', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -996,7 +1176,13 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ByValue(Observer, 3, false);
-        Observer.Finish();
+        Observer.Expect('bv calc src', 'hv:alpha');
+        Observer.Expect('bv calc in entry', 'hv:alpha');
+        Observer.Expect('bv calc in w', 'hv:zzpha');
+        Observer.Expect('bv calc src after call', 'hv:alpha');
+        Observer.Expect('bv calc row', 'hv: hv:alpha');
+        Observer.Expect('bv calc src after persist', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1005,7 +1191,13 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ByValue(Observer, 4, false);
-        Observer.Finish();
+        Observer.Expect('bv get src', 'hv:');
+        Observer.Expect('bv get in entry', 'hv:');
+        Observer.Expect('bv get in w', 'hv:zz');
+        Observer.Expect('bv get src after call', 'hv:');
+        Observer.Expect('bv get row', 'hv: hv:alpha');
+        Observer.Expect('bv get src after persist', 'hv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1014,7 +1206,13 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ByValue(Observer, 5, false);
-        Observer.Finish();
+        Observer.Expect('bv empty src', 'nohv:');
+        Observer.Expect('bv empty in entry', 'nohv:');
+        Observer.Expect('bv empty in w', 'hv:zz');
+        Observer.Expect('bv empty src after call', 'nohv:');
+        Observer.Expect('bv empty row', 'nohv: nohv:');
+        Observer.Expect('bv empty src after persist', 'nohv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1023,7 +1221,13 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ByValue(Observer, 6, false);
-        Observer.Finish();
+        Observer.Expect('bv asg src', 'hv:alpha');
+        Observer.Expect('bv asg in entry', 'hv:alpha');
+        Observer.Expect('bv asg in w', 'hv:zzpha');
+        Observer.Expect('bv asg src after call', 'hv:alpha');
+        Observer.Expect('bv asg row', 'hv: hv:alpha');
+        Observer.Expect('bv asg src after persist', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1032,7 +1236,13 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ByValue(Observer, 4, true);
-        Observer.Finish();
+        Observer.Expect('bvc get src', 'hv:');
+        Observer.Expect('bvc get in entry', 'hv:alpha');
+        Observer.Expect('bvc get in w', 'hv:zzpha');
+        Observer.Expect('bvc get src after call', 'hv:');
+        Observer.Expect('bvc get row', 'hv: hv:alpha');
+        Observer.Expect('bvc get src after persist', 'hv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1041,7 +1251,13 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ByValue(Observer, 2, true);
-        Observer.Finish();
+        Observer.Expect('bvc ins src', 'hv:alpha');
+        Observer.Expect('bvc ins in entry', 'hv:alpha');
+        Observer.Expect('bvc ins in w', 'hv:zzpha');
+        Observer.Expect('bvc ins src after call', 'hv:alpha');
+        Observer.Expect('bvc ins row', 'hv: hv:alpha');
+        Observer.Expect('bvc ins src after persist', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1050,7 +1266,12 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         CopyMove(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('copy mem dst', 'hv:alpha');
+        Observer.Expect('copy mem dst w src', 'hv:alpha');
+        Observer.Expect('copy mem src w dst', 'hv:betaa');
+        Observer.Expect('copy mem dst w dst', 'hv:zzpha');
+        Observer.Expect('copy mem row', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1059,7 +1280,12 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         CopyMove(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('copy ins dst', 'hv:alpha');
+        Observer.Expect('copy ins dst w src', 'hv:alpha');
+        Observer.Expect('copy ins src w dst', 'hv:betaa');
+        Observer.Expect('copy ins dst w dst', 'hv:zzpha');
+        Observer.Expect('copy ins row', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1068,7 +1294,12 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         CopyMove(Observer, 3);
-        Observer.Finish();
+        Observer.Expect('copy calc dst', 'hv:alpha');
+        Observer.Expect('copy calc dst w src', 'hv:alpha');
+        Observer.Expect('copy calc src w dst', 'hv:betaa');
+        Observer.Expect('copy calc dst w dst', 'hv:zzpha');
+        Observer.Expect('copy calc row', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1077,7 +1308,12 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         CopyMove(Observer, 4);
-        Observer.Finish();
+        Observer.Expect('copy get dst', 'hv:');
+        Observer.Expect('copy get dst w src', 'hv:');
+        Observer.Expect('copy get src w dst', 'hv:beta');
+        Observer.Expect('copy get dst w dst', 'hv:zz');
+        Observer.Expect('copy get row', 'hv: hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1086,7 +1322,12 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         CopyMove(Observer, 5);
-        Observer.Finish();
+        Observer.Expect('copy empty dst', 'nohv:');
+        Observer.Expect('copy empty dst w src', 'nohv:');
+        Observer.Expect('copy empty src w dst', 'hv:beta');
+        Observer.Expect('copy empty dst w dst', 'hv:zz');
+        Observer.Expect('copy empty row', 'hv: hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1095,7 +1336,12 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         CopyMove(Observer, 6);
-        Observer.Finish();
+        Observer.Expect('copy asg dst', 'hv:alpha');
+        Observer.Expect('copy asg dst w src', 'hv:alpha');
+        Observer.Expect('copy asg src w dst', 'hv:betaa');
+        Observer.Expect('copy asg dst w dst', 'hv:zzpha');
+        Observer.Expect('copy asg row', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1104,7 +1350,12 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         TransferMove(Observer, 1, true);
-        Observer.Finish();
+        Observer.Expect('tf Yes mem dst key', '12');
+        Observer.Expect('tf Yes mem dst', 'hv:alpha');
+        Observer.Expect('tf Yes mem dst w src', 'hv:alpha');
+        Observer.Expect('tf Yes mem src w dst', 'hv:betaa');
+        Observer.Expect('tf Yes mem row src', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1113,7 +1364,12 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         TransferMove(Observer, 2, true);
-        Observer.Finish();
+        Observer.Expect('tf Yes ins dst key', '12');
+        Observer.Expect('tf Yes ins dst', 'hv:alpha');
+        Observer.Expect('tf Yes ins dst w src', 'hv:alpha');
+        Observer.Expect('tf Yes ins src w dst', 'hv:betaa');
+        Observer.Expect('tf Yes ins row src', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1122,7 +1378,12 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         TransferMove(Observer, 3, true);
-        Observer.Finish();
+        Observer.Expect('tf Yes calc dst key', '12');
+        Observer.Expect('tf Yes calc dst', 'hv:alpha');
+        Observer.Expect('tf Yes calc dst w src', 'hv:alpha');
+        Observer.Expect('tf Yes calc src w dst', 'hv:betaa');
+        Observer.Expect('tf Yes calc row src', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1131,7 +1392,12 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         TransferMove(Observer, 4, true);
-        Observer.Finish();
+        Observer.Expect('tf Yes get dst key', '12');
+        Observer.Expect('tf Yes get dst', 'nohv:');
+        Observer.Expect('tf Yes get dst w src', 'nohv:');
+        Observer.Expect('tf Yes get src w dst', 'hv:beta');
+        Observer.Expect('tf Yes get row src', 'hv: hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1140,7 +1406,12 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         TransferMove(Observer, 5, true);
-        Observer.Finish();
+        Observer.Expect('tf Yes empty dst key', '12');
+        Observer.Expect('tf Yes empty dst', 'nohv:');
+        Observer.Expect('tf Yes empty dst w src', 'nohv:');
+        Observer.Expect('tf Yes empty src w dst', 'hv:beta');
+        Observer.Expect('tf Yes empty row src', 'hv: hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1149,7 +1420,12 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         TransferMove(Observer, 6, true);
-        Observer.Finish();
+        Observer.Expect('tf Yes asg dst key', '12');
+        Observer.Expect('tf Yes asg dst', 'hv:alpha');
+        Observer.Expect('tf Yes asg dst w src', 'hv:alpha');
+        Observer.Expect('tf Yes asg src w dst', 'hv:betaa');
+        Observer.Expect('tf Yes asg row src', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1158,7 +1434,13 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         TransferMove(Observer, 1, false);
-        Observer.Finish();
+        Observer.Expect('tf No mem dst key', '62');
+        Observer.Expect('tf No mem dst', 'hv:alpha');
+        Observer.Expect('tf No mem dst w src', 'hv:alpha');
+        Observer.Expect('tf No mem src w dst', 'hv:betaa');
+        Observer.Expect('tf No mem row src', 'hv: hv:betaa');
+        Observer.Expect('tf No mem row dst', 'hv: hv:zzpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1167,7 +1449,13 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         TransferMove(Observer, 2, false);
-        Observer.Finish();
+        Observer.Expect('tf No ins dst key', '62');
+        Observer.Expect('tf No ins dst', 'hv:alpha');
+        Observer.Expect('tf No ins dst w src', 'hv:alpha');
+        Observer.Expect('tf No ins src w dst', 'hv:betaa');
+        Observer.Expect('tf No ins row src', 'hv: hv:betaa');
+        Observer.Expect('tf No ins row dst', 'hv: hv:zzpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1176,7 +1464,13 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         TransferMove(Observer, 3, false);
-        Observer.Finish();
+        Observer.Expect('tf No calc dst key', '62');
+        Observer.Expect('tf No calc dst', 'hv:alpha');
+        Observer.Expect('tf No calc dst w src', 'hv:alpha');
+        Observer.Expect('tf No calc src w dst', 'hv:betaa');
+        Observer.Expect('tf No calc row src', 'hv: hv:betaa');
+        Observer.Expect('tf No calc row dst', 'hv: hv:zzpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1185,7 +1479,13 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         TransferMove(Observer, 4, false);
-        Observer.Finish();
+        Observer.Expect('tf No get dst key', '62');
+        Observer.Expect('tf No get dst', 'nohv:');
+        Observer.Expect('tf No get dst w src', 'nohv:');
+        Observer.Expect('tf No get src w dst', 'hv:beta');
+        Observer.Expect('tf No get row src', 'hv: hv:beta');
+        Observer.Expect('tf No get row dst', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1194,7 +1494,13 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         TransferMove(Observer, 5, false);
-        Observer.Finish();
+        Observer.Expect('tf No empty dst key', '62');
+        Observer.Expect('tf No empty dst', 'nohv:');
+        Observer.Expect('tf No empty dst w src', 'nohv:');
+        Observer.Expect('tf No empty src w dst', 'hv:beta');
+        Observer.Expect('tf No empty row src', 'hv: hv:beta');
+        Observer.Expect('tf No empty row dst', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1203,7 +1509,13 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         TransferMove(Observer, 6, false);
-        Observer.Finish();
+        Observer.Expect('tf No asg dst key', '62');
+        Observer.Expect('tf No asg dst', 'hv:alpha');
+        Observer.Expect('tf No asg dst w src', 'hv:alpha');
+        Observer.Expect('tf No asg src w dst', 'hv:betaa');
+        Observer.Expect('tf No asg row src', 'hv: hv:betaa');
+        Observer.Expect('tf No asg row dst', 'hv: hv:zzpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1212,7 +1524,11 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         GlobalVariantMove(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('gv mem dst w src', 'hv:alpha');
+        Observer.Expect('gv mem src w dst', 'hv:betaa');
+        Observer.Expect('gv mem dst2 w dst', 'hv:alpha');
+        Observer.Expect('gv mem row', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1221,7 +1537,11 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         GlobalVariantMove(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('gv ins dst w src', 'hv:alpha');
+        Observer.Expect('gv ins src w dst', 'hv:betaa');
+        Observer.Expect('gv ins dst2 w dst', 'hv:alpha');
+        Observer.Expect('gv ins row', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1230,7 +1550,11 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         GlobalVariantMove(Observer, 3);
-        Observer.Finish();
+        Observer.Expect('gv calc dst w src', 'hv:alpha');
+        Observer.Expect('gv calc src w dst', 'hv:betaa');
+        Observer.Expect('gv calc dst2 w dst', 'hv:alpha');
+        Observer.Expect('gv calc row', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1239,7 +1563,11 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         GlobalVariantMove(Observer, 4);
-        Observer.Finish();
+        Observer.Expect('gv get dst w src', 'hv:');
+        Observer.Expect('gv get src w dst', 'hv:beta');
+        Observer.Expect('gv get dst2 w dst', 'hv:');
+        Observer.Expect('gv get row', 'hv: hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1248,7 +1576,11 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         GlobalVariantMove(Observer, 5);
-        Observer.Finish();
+        Observer.Expect('gv empty dst w src', 'nohv:');
+        Observer.Expect('gv empty src w dst', 'hv:beta');
+        Observer.Expect('gv empty dst2 w dst', 'nohv:');
+        Observer.Expect('gv empty row', 'hv: hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1257,7 +1589,11 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         GlobalVariantMove(Observer, 6);
-        Observer.Finish();
+        Observer.Expect('gv asg dst w src', 'hv:alpha');
+        Observer.Expect('gv asg src w dst', 'hv:betaa');
+        Observer.Expect('gv asg dst2 w dst', 'hv:alpha');
+        Observer.Expect('gv asg row', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1266,7 +1602,11 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ArrayVariantMove(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('va mem dst w src', 'hv:alpha');
+        Observer.Expect('va mem src w dst', 'hv:betaa');
+        Observer.Expect('va mem dst2 w dst', 'hv:alpha');
+        Observer.Expect('va mem row', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1275,7 +1615,11 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ArrayVariantMove(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('va ins dst w src', 'hv:alpha');
+        Observer.Expect('va ins src w dst', 'hv:betaa');
+        Observer.Expect('va ins dst2 w dst', 'hv:alpha');
+        Observer.Expect('va ins row', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1284,7 +1628,11 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ArrayVariantMove(Observer, 3);
-        Observer.Finish();
+        Observer.Expect('va calc dst w src', 'hv:alpha');
+        Observer.Expect('va calc src w dst', 'hv:betaa');
+        Observer.Expect('va calc dst2 w dst', 'hv:alpha');
+        Observer.Expect('va calc row', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1293,7 +1641,11 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ArrayVariantMove(Observer, 4);
-        Observer.Finish();
+        Observer.Expect('va get dst w src', 'hv:');
+        Observer.Expect('va get src w dst', 'hv:beta');
+        Observer.Expect('va get dst2 w dst', 'hv:');
+        Observer.Expect('va get row', 'hv: hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1302,7 +1654,11 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ArrayVariantMove(Observer, 5);
-        Observer.Finish();
+        Observer.Expect('va empty dst w src', 'nohv:');
+        Observer.Expect('va empty src w dst', 'hv:beta');
+        Observer.Expect('va empty dst2 w dst', 'nohv:');
+        Observer.Expect('va empty row', 'hv: hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1311,7 +1667,11 @@ codeunit 97765 "LT BC3 Record Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ArrayVariantMove(Observer, 6);
-        Observer.Finish();
+        Observer.Expect('va asg dst w src', 'hv:alpha');
+        Observer.Expect('va asg src w dst', 'hv:betaa');
+        Observer.Expect('va asg dst2 w dst', 'hv:alpha');
+        Observer.Expect('va asg row', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
 }
@@ -1349,6 +1709,7 @@ codeunit 97766 "LT BC3 Temp Moves"
         end;
     end;
 
+    // SetTable(Rec, true) with records that are not temporary raises (observed in the first run of this probe).
     local procedure ShareMoveStored(var Observer: Codeunit "Probe Observer"; S: Integer)
     var
         Src: Record "LT BC3 Row";
@@ -1360,16 +1721,10 @@ codeunit 97766 "LT BC3 Temp Moves"
         P := 'shs ' + L.StateName(S) + ' ';
         L.Prepare(Src, S, 21);
         RR.GetTable(Src);
-        L.W(Src, 'beta');
-        RR.SetTable(Dst, true);
+        asserterror RR.SetTable(Dst, true);
+        Observer.ObserveError(P + 'settable');
         Observer.Observe(P + 'dst', L.Rd(Dst));
-        L.W(Dst, 'zz');
-        Observer.Observe(P + 'src w dst', L.Rd(Src));
-        Observer.Observe(P + 'rr w dst', L.RdRR(RR, 2));
-        L.W(Src, 'gammagamma');
-        Observer.Observe(P + 'dst w src', L.Rd(Dst));
-        L.Persist(Src, S);
-        Observer.Observe(P + 'row', L.Stored(21));
+        Observer.Observe(P + 'rr', L.RdRR(RR, 2));
     end;
 
     local procedure TakeNonTemp(R: Record "LT BC3 Row"; var IsTemp: Text; var AtEntry: Text; var AfterWrite: Text)
@@ -1485,7 +1840,11 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ShareMoveTemp(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('sht mem dst', 'hv:alpha');
+        Observer.Expect('sht mem src w dst', 'hv:betaa');
+        Observer.Expect('sht mem rr w dst', 'hv:alpha');
+        Observer.Expect('sht mem dst w src', 'hv:zzpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1494,7 +1853,12 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ShareMoveTemp(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('sht ins dst', 'hv:alpha');
+        Observer.Expect('sht ins src w dst', 'hv:betaa');
+        Observer.Expect('sht ins rr w dst', 'hv:alpha');
+        Observer.Expect('sht ins dst w src', 'hv:zzpha');
+        Observer.Expect('sht ins dst get', 'hv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1503,7 +1867,12 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ShareMoveTemp(Observer, 3);
-        Observer.Finish();
+        Observer.Expect('sht calc dst', 'hv:alpha');
+        Observer.Expect('sht calc src w dst', 'hv:betaa');
+        Observer.Expect('sht calc rr w dst', 'hv:alpha');
+        Observer.Expect('sht calc dst w src', 'hv:zzpha');
+        Observer.Expect('sht calc dst get', 'hv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1512,7 +1881,12 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ShareMoveTemp(Observer, 4);
-        Observer.Finish();
+        Observer.Expect('sht get dst', 'hv:');
+        Observer.Expect('sht get src w dst', 'hv:beta');
+        Observer.Expect('sht get rr w dst', 'hv:');
+        Observer.Expect('sht get dst w src', 'hv:zz');
+        Observer.Expect('sht get dst get', 'hv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1521,7 +1895,11 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ShareMoveTemp(Observer, 5);
-        Observer.Finish();
+        Observer.Expect('sht empty dst', 'nohv:');
+        Observer.Expect('sht empty src w dst', 'hv:beta');
+        Observer.Expect('sht empty rr w dst', 'nohv:');
+        Observer.Expect('sht empty dst w src', 'hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1530,7 +1908,11 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ShareMoveTemp(Observer, 6);
-        Observer.Finish();
+        Observer.Expect('sht asg dst', 'hv:alpha');
+        Observer.Expect('sht asg src w dst', 'hv:betaa');
+        Observer.Expect('sht asg rr w dst', 'hv:alpha');
+        Observer.Expect('sht asg dst w src', 'hv:zzpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1593,7 +1975,11 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         TempToNonTempParam(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('tmppar mem in temp', 'No');
+        Observer.Expect('tmppar mem in entry', 'hv:alpha');
+        Observer.Expect('tmppar mem in w', 'hv:zzpha');
+        Observer.Expect('tmppar mem src', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1602,7 +1988,12 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         TempToNonTempParam(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('tmppar ins in temp', 'No');
+        Observer.Expect('tmppar ins in entry', 'hv:alpha');
+        Observer.Expect('tmppar ins in w', 'hv:zzpha');
+        Observer.Expect('tmppar ins src', 'hv:alpha');
+        Observer.Expect('tmppar ins src get', 'hv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1611,7 +2002,12 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         TempToNonTempParam(Observer, 4);
-        Observer.Finish();
+        Observer.Expect('tmppar get in temp', 'No');
+        Observer.Expect('tmppar get in entry', 'hv:');
+        Observer.Expect('tmppar get in w', 'hv:zz');
+        Observer.Expect('tmppar get src', 'hv:');
+        Observer.Expect('tmppar get src get', 'hv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1620,7 +2016,12 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         NonTempToTempParam(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('rectmp mem in temp', 'Yes');
+        Observer.Expect('rectmp mem in entry', 'hv:alpha');
+        Observer.Expect('rectmp mem in w', 'hv:zzpha');
+        Observer.Expect('rectmp mem src', 'hv:alpha');
+        Observer.Expect('rectmp mem row', 'hv: hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1629,7 +2030,12 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         NonTempToTempParam(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('rectmp ins in temp', 'Yes');
+        Observer.Expect('rectmp ins in entry', 'hv:alpha');
+        Observer.Expect('rectmp ins in w', 'hv:zzpha');
+        Observer.Expect('rectmp ins src', 'hv:alpha');
+        Observer.Expect('rectmp ins row', 'hv: hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1638,7 +2044,12 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         NonTempToTempParam(Observer, 4);
-        Observer.Finish();
+        Observer.Expect('rectmp get in temp', 'Yes');
+        Observer.Expect('rectmp get in entry', 'hv:');
+        Observer.Expect('rectmp get in w', 'hv:zz');
+        Observer.Expect('rectmp get src', 'hv:');
+        Observer.Expect('rectmp get row', 'hv: hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1647,7 +2058,13 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         CopyStoredToTemp(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('copy2tmp mem copy', 'ok');
+        Observer.Expect('copy2tmp mem dst temp', 'Yes');
+        Observer.Expect('copy2tmp mem dst', 'hv:alpha');
+        Observer.Expect('copy2tmp mem dst w src', 'hv:alpha');
+        Observer.Expect('copy2tmp mem src w dst', 'hv:betaa');
+        Observer.Expect('copy2tmp mem row', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1656,7 +2073,13 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         CopyStoredToTemp(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('copy2tmp ins copy', 'ok');
+        Observer.Expect('copy2tmp ins dst temp', 'Yes');
+        Observer.Expect('copy2tmp ins dst', 'hv:alpha');
+        Observer.Expect('copy2tmp ins dst w src', 'hv:alpha');
+        Observer.Expect('copy2tmp ins src w dst', 'hv:betaa');
+        Observer.Expect('copy2tmp ins row', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1665,7 +2088,13 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         CopyStoredToTemp(Observer, 4);
-        Observer.Finish();
+        Observer.Expect('copy2tmp get copy', 'ok');
+        Observer.Expect('copy2tmp get dst temp', 'Yes');
+        Observer.Expect('copy2tmp get dst', 'hv:');
+        Observer.Expect('copy2tmp get dst w src', 'hv:');
+        Observer.Expect('copy2tmp get src w dst', 'hv:beta');
+        Observer.Expect('copy2tmp get row', 'hv: hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1674,7 +2103,12 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         CopyTempToStored(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('copy2rec mem copy', 'ok');
+        Observer.Expect('copy2rec mem dst temp', 'No');
+        Observer.Expect('copy2rec mem dst', 'hv:alpha');
+        Observer.Expect('copy2rec mem dst w src', 'hv:alpha');
+        Observer.Expect('copy2rec mem src w dst', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1683,7 +2117,12 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         CopyTempToStored(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('copy2rec ins copy', 'ok');
+        Observer.Expect('copy2rec ins dst temp', 'No');
+        Observer.Expect('copy2rec ins dst', 'hv:alpha');
+        Observer.Expect('copy2rec ins dst w src', 'hv:alpha');
+        Observer.Expect('copy2rec ins src w dst', 'hv:betaa');
+        Observer.Verify();
     end;
 
 }
@@ -1845,7 +2284,12 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         TryCall(Observer, 1, false);
-        Observer.Finish();
+        Observer.Expect('try mem ok', 'Yes');
+        Observer.Expect('try mem in entry', 'hv:alpha');
+        Observer.Expect('try mem in w', 'hv:zzpha');
+        Observer.Expect('try mem src', 'hv:alpha');
+        Observer.Expect('try mem row', 'hv: hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1854,7 +2298,12 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         TryCall(Observer, 2, false);
-        Observer.Finish();
+        Observer.Expect('try ins ok', 'Yes');
+        Observer.Expect('try ins in entry', 'hv:alpha');
+        Observer.Expect('try ins in w', 'hv:zzpha');
+        Observer.Expect('try ins src', 'hv:alpha');
+        Observer.Expect('try ins row', 'hv: hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1863,7 +2312,12 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         TryCall(Observer, 4, false);
-        Observer.Finish();
+        Observer.Expect('try get ok', 'Yes');
+        Observer.Expect('try get in entry', 'hv:');
+        Observer.Expect('try get in w', 'hv:zz');
+        Observer.Expect('try get src', 'hv:');
+        Observer.Expect('try get row', 'hv: hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1872,7 +2326,12 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         TryCall(Observer, 1, true);
-        Observer.Finish();
+        Observer.Expect('tryvar mem ok', 'Yes');
+        Observer.Expect('tryvar mem in entry', 'hv:alpha');
+        Observer.Expect('tryvar mem in w', 'hv:zzpha');
+        Observer.Expect('tryvar mem src', 'hv:zzpha');
+        Observer.Expect('tryvar mem row', 'hv: hv:zzpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1881,7 +2340,10 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         ModifyTrigger(Observer, 2, 1);
-        Observer.Finish();
+        Observer.Expect('onmodify1 ins seen', 'hv:alpha');
+        Observer.Expect('onmodify1 ins src', 'hv:triga');
+        Observer.Expect('onmodify1 ins row', 'hv: hv:triga');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1890,7 +2352,10 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         ModifyTrigger(Observer, 3, 1);
-        Observer.Finish();
+        Observer.Expect('onmodify1 calc seen', 'hv:alpha');
+        Observer.Expect('onmodify1 calc src', 'hv:triga');
+        Observer.Expect('onmodify1 calc row', 'hv: hv:triga');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1899,7 +2364,10 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         ModifyTrigger(Observer, 4, 1);
-        Observer.Finish();
+        Observer.Expect('onmodify1 get seen', 'hv:');
+        Observer.Expect('onmodify1 get src', 'hv:trig');
+        Observer.Expect('onmodify1 get row', 'hv: hv:trig');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1908,7 +2376,10 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         ModifyTrigger(Observer, 2, 2);
-        Observer.Finish();
+        Observer.Expect('onmodify2 ins seen', 'hv:alpha');
+        Observer.Expect('onmodify2 ins src', 'hv:alpha');
+        Observer.Expect('onmodify2 ins row', 'hv: hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1917,7 +2388,10 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         ModifyTrigger(Observer, 3, 2);
-        Observer.Finish();
+        Observer.Expect('onmodify2 calc seen', 'hv:alpha');
+        Observer.Expect('onmodify2 calc src', 'hv:alpha');
+        Observer.Expect('onmodify2 calc row', 'hv: hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1926,7 +2400,10 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         ModifyTrigger(Observer, 4, 2);
-        Observer.Finish();
+        Observer.Expect('onmodify2 get seen', 'hv:');
+        Observer.Expect('onmodify2 get src', 'hv:');
+        Observer.Expect('onmodify2 get row', 'hv: hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1935,7 +2412,9 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         InsertTrigger(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('oninsert mem src', 'hv:insha');
+        Observer.Expect('oninsert mem row', 'hv: hv:insha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1944,7 +2423,9 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         InsertTrigger(Observer, 5);
-        Observer.Finish();
+        Observer.Expect('oninsert empty src', 'hv:ins');
+        Observer.Expect('oninsert empty row', 'hv: hv:ins');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1953,7 +2434,9 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         ValidateTrigger(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('onvalidate mem src', 'hv:valha');
+        Observer.Expect('onvalidate mem row', 'hv: hv:valha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1962,7 +2445,9 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         ValidateTrigger(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('onvalidate ins src', 'hv:valha');
+        Observer.Expect('onvalidate ins row', 'hv: hv:valha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1971,7 +2456,9 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         ValidateTrigger(Observer, 4);
-        Observer.Finish();
+        Observer.Expect('onvalidate get src', 'hv:val');
+        Observer.Expect('onvalidate get row', 'hv: hv:val');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1980,7 +2467,10 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         RunTableNo(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('run mem seen', 'hv:alpha');
+        Observer.Expect('run mem src', 'hv:runha');
+        Observer.Expect('run mem row', 'hv: hv:runha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1989,7 +2479,10 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         RunTableNo(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('run ins seen', 'hv:alpha');
+        Observer.Expect('run ins src', 'hv:runha');
+        Observer.Expect('run ins row', 'hv: hv:runha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1998,7 +2491,10 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         RunTableNo(Observer, 4);
-        Observer.Finish();
+        Observer.Expect('run get seen', 'hv:');
+        Observer.Expect('run get src', 'hv:run');
+        Observer.Expect('run get row', 'hv: hv:run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2007,7 +2503,9 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         RunTableNoTemp(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('runtmp mem seen', 'hv:alpha');
+        Observer.Expect('runtmp mem src', 'hv:runha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2016,7 +2514,9 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         RunTableNoTemp(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('runtmp ins seen', 'hv:alpha');
+        Observer.Expect('runtmp ins src', 'hv:runha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2025,7 +2525,11 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         RaiseEvent(Observer, 1, 1);
-        Observer.Finish();
+        Observer.Expect('event1 mem in entry', 'hv:alpha');
+        Observer.Expect('event1 mem in w', 'hv:zzpha');
+        Observer.Expect('event1 mem src', 'hv:alpha');
+        Observer.Expect('event1 mem row', 'hv: hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2034,7 +2538,11 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         RaiseEvent(Observer, 2, 1);
-        Observer.Finish();
+        Observer.Expect('event1 ins in entry', 'hv:alpha');
+        Observer.Expect('event1 ins in w', 'hv:zzpha');
+        Observer.Expect('event1 ins src', 'hv:alpha');
+        Observer.Expect('event1 ins row', 'hv: hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2043,7 +2551,11 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         RaiseEvent(Observer, 4, 1);
-        Observer.Finish();
+        Observer.Expect('event1 get in entry', 'hv:');
+        Observer.Expect('event1 get in w', 'hv:zz');
+        Observer.Expect('event1 get src', 'hv:');
+        Observer.Expect('event1 get row', 'hv: hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2052,7 +2564,11 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         RaiseEvent(Observer, 1, 2);
-        Observer.Finish();
+        Observer.Expect('event2 mem in entry', 'hv:alpha');
+        Observer.Expect('event2 mem in w', 'hv:zzpha');
+        Observer.Expect('event2 mem src', 'hv:zzpha');
+        Observer.Expect('event2 mem row', 'hv: hv:zzpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2061,7 +2577,11 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         RaiseEvent(Observer, 2, 2);
-        Observer.Finish();
+        Observer.Expect('event2 ins in entry', 'hv:alpha');
+        Observer.Expect('event2 ins in w', 'hv:zzpha');
+        Observer.Expect('event2 ins src', 'hv:zzpha');
+        Observer.Expect('event2 ins row', 'hv: hv:zzpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2070,7 +2590,11 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         RaiseEvent(Observer, 4, 2);
-        Observer.Finish();
+        Observer.Expect('event2 get in entry', 'hv:');
+        Observer.Expect('event2 get in w', 'hv:zz');
+        Observer.Expect('event2 get src', 'hv:zz');
+        Observer.Expect('event2 get row', 'hv: hv:zz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2079,7 +2603,11 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         RaiseEvent(Observer, 1, 3);
-        Observer.Finish();
+        Observer.Expect('event3 mem in entry', 'hv:alpha');
+        Observer.Expect('event3 mem in w', 'hv:zzpha');
+        Observer.Expect('event3 mem src', 'hv:alpha');
+        Observer.Expect('event3 mem row', 'hv: hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2088,7 +2616,11 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         RaiseEvent(Observer, 2, 3);
-        Observer.Finish();
+        Observer.Expect('event3 ins in entry', 'hv:alpha');
+        Observer.Expect('event3 ins in w', 'hv:zzpha');
+        Observer.Expect('event3 ins src', 'hv:alpha');
+        Observer.Expect('event3 ins row', 'hv: hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2097,7 +2629,11 @@ codeunit 97767 "LT BC3 Calls"
         Observer: Codeunit "Probe Observer";
     begin
         RaiseEvent(Observer, 4, 3);
-        Observer.Finish();
+        Observer.Expect('event3 get in entry', 'hv:');
+        Observer.Expect('event3 get in w', 'hv:zz');
+        Observer.Expect('event3 get src', 'hv:');
+        Observer.Expect('event3 get row', 'hv: hv:alpha');
+        Observer.Verify();
     end;
 
 }
