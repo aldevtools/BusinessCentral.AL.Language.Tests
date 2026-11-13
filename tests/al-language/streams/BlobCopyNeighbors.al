@@ -1,4 +1,38 @@
-// HEADER
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-copy-method
+// Scope: in-scope
+// Fixtures used: Probe Observer (codeunit 69160); own tables 97850, 97851, helper codeunits 97852, 97853, 97854, 97855;
+//   test codeunits 97860 to 97866
+// Probe: written against real BC (al-runner pull request 7981, fourth Blob copy probe; the earlier ones are
+//   recordref-fieldref/fieldref/FieldRefValueBlobCopy.al, streams/BlobValueCopyShapes.al, streams/BlobCopyStates.al and
+//   streams/BlobAssignThenCalcFields.al).
+// Facts: whether a Blob value is copied or shared when a record or a Blob field moves, per source kind (stored or temporary record),
+//   taker and preparation state of the source. Each cell writes 'zz' on the other side after the move and reads one side back.
+//   Takers: a Record parameter, a temporary Record parameter, a Variant parameter, a local Variant, a global Variant, a Variant array
+//   element, a procedure return value, TransferFields(Src, true); Record.Copy for every pair of stored and temporary records and
+//   Record.Copy(Src, true) between temporary records; a Blob field read into a global Variant, a Variant array element and a by-value
+//   Variant parameter; event subscribers that take the record by value (codeunit IntegrationEvent and BusinessEvent publishers by value
+//   and var, IncludeSender, a manual subscriber, IntegrationEvents declared in a table, the table events OnBeforeInsertEvent,
+//   OnAfterInsertEvent, OnBeforeModifyEvent and OnAfterModifyEvent); a table procedure with and without [TryFunction];
+//   RecordRef.SetTable(Rec) after GetTable, Open and FindFirst, FieldRef.Value := and RecordRef.Modify; RecordRef.SetTable(Rec, true)
+//   after a RecordRef call or a RecordRef assignment; a record method between Insert and the by-value call; CalcFields after :=.
+//   Preparation states (LT BC4 Lib.Prep): mem, ins, insmod, inswrite, insmodwrite, insinitwrite, calc, get, empty, asg, insemptywrite,
+//   inscalcwrite, inswritemodwrite, insfailedinsertwrite, insclearfield, insclearfieldwrite (written out at Prep).
+//   Value format: hv: or nohv: (HasValue of the Blob in hand, no CalcFields) followed by the text read from it; row = the stored row
+//   read through a fresh record: HasValue before CalcFields, a space, then hv:/nohv: and the text after CalcFields.
+// What BC did (BC 29.0; 27.5 and 28.5 see the version note below):
+//   - Every by-value taker, Record.Copy pair, field read and by-value subscriber copies the Blob in every state, for stored and for
+//     temporary sources: the other side's 'zz' never reaches the side that is read. A Blob written again after Insert, Modify, Init,
+//     CalcFields or Clear(field) is copied with the text it holds in memory ('beta' over 'alpha' reads 'betaa').
+//   - Record.Copy(Src, true) between temporary records: a write into the target's Blob does not reach the source's buffer.
+//   - A source read with Get only (state get), or after FindFirst: the record copies give HasValue true and empty text; the field reads
+//     give HasValue false. An empty source or a cleared field gives nohv:.
+//   - Shared, not copied: only a var subscriber of a var publisher (and of OnBeforeInsertEvent, where the row stores 'zzpha').
+//     A by-value subscriber of a table event changes neither Rec nor the stored row.
+//   - RecordRef.SetTable(Rec) after RR.Open and FindFirst gives HasValue true and empty text (the Blob is not loaded); after
+//     RR.Field(2).CalcField() or GetTable the value; SetTable(Rec, true) gives the RecordRef's value, the source keeps its own.
+//   - A Blob assigned with := into a record that was never inserted: CalcFields on the copy and on the source gives nohv:
+//     (the value is lost, as BlobAssignThenCalcFields.al measured); over a stored row CalcFields gives the stored 'alpha'.
+// BC versions: 27.5+
 
 table 97850 "LT BC4 Row"
 {
@@ -556,7 +590,23 @@ codeunit 97860 "LT BC4 ByValue Stored"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CellRecordParam(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -566,7 +616,23 @@ codeunit 97860 "LT BC4 ByValue Stored"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CellTemporaryParam(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -576,7 +642,23 @@ codeunit 97860 "LT BC4 ByValue Stored"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CellVariantParam(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -586,7 +668,23 @@ codeunit 97860 "LT BC4 ByValue Stored"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CellLocalVariant(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -596,7 +694,23 @@ codeunit 97860 "LT BC4 ByValue Stored"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CellGlobalVariant(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -606,7 +720,23 @@ codeunit 97860 "LT BC4 ByValue Stored"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CellArrayVariant(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -616,7 +746,23 @@ codeunit 97860 "LT BC4 ByValue Stored"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CellReturnValue(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -626,7 +772,23 @@ codeunit 97860 "LT BC4 ByValue Stored"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CellTransferFieldsTrue(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
 }
@@ -766,7 +928,23 @@ codeunit 97861 "LT BC4 ByValue Temp"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CellRecordParam(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -776,7 +954,23 @@ codeunit 97861 "LT BC4 ByValue Temp"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CellTemporaryParam(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -786,7 +980,23 @@ codeunit 97861 "LT BC4 ByValue Temp"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CellVariantParam(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -796,7 +1006,23 @@ codeunit 97861 "LT BC4 ByValue Temp"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CellLocalVariant(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -806,7 +1032,23 @@ codeunit 97861 "LT BC4 ByValue Temp"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CellGlobalVariant(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -816,7 +1058,23 @@ codeunit 97861 "LT BC4 ByValue Temp"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CellArrayVariant(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -826,7 +1084,23 @@ codeunit 97861 "LT BC4 ByValue Temp"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CellReturnValue(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -836,7 +1110,23 @@ codeunit 97861 "LT BC4 ByValue Temp"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CellTransferFieldsTrue(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
 }
@@ -917,7 +1207,23 @@ codeunit 97862 "LT BC4 Copy Pairs"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CopyStoredToStored(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -927,7 +1233,23 @@ codeunit 97862 "LT BC4 Copy Pairs"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CopyStoredToTemp(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -937,7 +1259,23 @@ codeunit 97862 "LT BC4 Copy Pairs"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CopyTempToStored(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -947,7 +1285,23 @@ codeunit 97862 "LT BC4 Copy Pairs"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CopyTempToTemp(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -957,7 +1311,23 @@ codeunit 97862 "LT BC4 Copy Pairs"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), CopyShareTempToTemp(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
 }
@@ -1067,7 +1437,23 @@ codeunit 97863 "LT BC4 Field Reads"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), ReadStoredGlobalVariant(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'nohv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1077,7 +1463,23 @@ codeunit 97863 "LT BC4 Field Reads"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), ReadStoredArrayElement(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'nohv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1087,7 +1489,23 @@ codeunit 97863 "LT BC4 Field Reads"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), ReadStoredVariantParam(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'nohv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1097,7 +1515,23 @@ codeunit 97863 "LT BC4 Field Reads"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), ReadTempGlobalVariant(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'nohv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1107,7 +1541,23 @@ codeunit 97863 "LT BC4 Field Reads"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), ReadTempArrayElement(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'nohv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1117,7 +1567,23 @@ codeunit 97863 "LT BC4 Field Reads"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), ReadTempVariantParam(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'nohv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
 }
@@ -1329,7 +1795,23 @@ codeunit 97864 "LT BC4 Events"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), EventCodeunitIntegrationValue(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1339,7 +1821,23 @@ codeunit 97864 "LT BC4 Events"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), EventCodeunitIntegrationVarSubValue(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1349,7 +1847,23 @@ codeunit 97864 "LT BC4 Events"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), EventCodeunitIntegrationVarSubVar(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:zzpha');
+        Observer.Expect('ins', 'hv:zzpha');
+        Observer.Expect('insmod', 'hv:zzpha');
+        Observer.Expect('inswrite', 'hv:zztaa');
+        Observer.Expect('insmodwrite', 'hv:zztaa');
+        Observer.Expect('insinitwrite', 'hv:zzta');
+        Observer.Expect('calc', 'hv:zzpha');
+        Observer.Expect('get', 'hv:zz');
+        Observer.Expect('empty', 'hv:zz');
+        Observer.Expect('asg', 'hv:zzpha');
+        Observer.Expect('insemptywrite', 'hv:zzta');
+        Observer.Expect('inscalcwrite', 'hv:zztaa');
+        Observer.Expect('inswritemodwrite', 'hv:zztaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:zztaa');
+        Observer.Expect('insclearfield', 'hv:zz');
+        Observer.Expect('insclearfieldwrite', 'hv:zzta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1359,7 +1873,23 @@ codeunit 97864 "LT BC4 Events"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), EventCodeunitBusinessValue(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1369,7 +1899,23 @@ codeunit 97864 "LT BC4 Events"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), EventCodeunitBusinessVarSubValue(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1379,7 +1925,23 @@ codeunit 97864 "LT BC4 Events"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), EventCodeunitSenderValue(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1389,7 +1951,23 @@ codeunit 97864 "LT BC4 Events"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), EventCodeunitManualVarSubValue(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1399,7 +1977,23 @@ codeunit 97864 "LT BC4 Events"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), EventTableIntegrationValue(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1409,7 +2003,23 @@ codeunit 97864 "LT BC4 Events"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), EventTableIntegrationVarSubValue(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1419,7 +2029,23 @@ codeunit 97864 "LT BC4 Events"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), EventTableProcedure(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1429,7 +2055,23 @@ codeunit 97864 "LT BC4 Events"
     begin
         for S := 1 to 16 do
             Observer.Observe(L.StateName(S), EventTableTryFunction(S));
-        Observer.Finish();
+        Observer.Expect('mem', 'hv:alpha');
+        Observer.Expect('ins', 'hv:alpha');
+        Observer.Expect('insmod', 'hv:alpha');
+        Observer.Expect('inswrite', 'hv:betaa');
+        Observer.Expect('insmodwrite', 'hv:betaa');
+        Observer.Expect('insinitwrite', 'hv:beta');
+        Observer.Expect('calc', 'hv:alpha');
+        Observer.Expect('get', 'hv:');
+        Observer.Expect('empty', 'nohv:');
+        Observer.Expect('asg', 'hv:alpha');
+        Observer.Expect('insemptywrite', 'hv:beta');
+        Observer.Expect('inscalcwrite', 'hv:betaa');
+        Observer.Expect('inswritemodwrite', 'hv:betaa');
+        Observer.Expect('insfailedinsertwrite', 'hv:betaa');
+        Observer.Expect('insclearfield', 'nohv:');
+        Observer.Expect('insclearfieldwrite', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1453,7 +2095,17 @@ codeunit 97864 "LT BC4 Events"
         TableOnAfterModifyEventValue(R, W);
         Observer.Observe('OnAfterModifyEventValue rec', R);
         Observer.Observe('OnAfterModifyEventValue row', W);
-        Observer.Finish();
+        Observer.Expect('OnBeforeInsertEventValue rec', 'hv:alpha');
+        Observer.Expect('OnBeforeInsertEventValue row', 'hv: hv:alpha');
+        Observer.Expect('OnAfterInsertEventValue rec', 'hv:alpha');
+        Observer.Expect('OnAfterInsertEventValue row', 'hv: hv:alpha');
+        Observer.Expect('OnBeforeInsertEventVar rec', 'hv:zzpha');
+        Observer.Expect('OnBeforeInsertEventVar row', 'hv: hv:zzpha');
+        Observer.Expect('OnBeforeModifyEventValue rec', 'hv:alpha');
+        Observer.Expect('OnBeforeModifyEventValue row', 'hv: hv:alpha');
+        Observer.Expect('OnAfterModifyEventValue rec', 'hv:alpha');
+        Observer.Expect('OnAfterModifyEventValue row', 'hv: hv:alpha');
+        Observer.Verify();
     end;
 
 }
@@ -1779,7 +2431,15 @@ codeunit 97865 "LT BC4 RecordRef"
         Observer.Observe('OtherGetTableSetTable', RrOtherGetTableSetTable());
         Observer.Observe('FieldValueSetTable', RrFieldValueSetTable());
         Observer.Observe('FieldValueModifySetTable', RrFieldValueModifySetTable());
-        Observer.Finish();
+        Observer.Expect('GetTable', 'hv:alpha');
+        Observer.Expect('GetTableSetTable', 'hv:alpha');
+        Observer.Expect('GetTableSetTableFalse', 'hv:alpha');
+        Observer.Expect('OpenFindSetTable', 'hv:');
+        Observer.Expect('OpenFindCalcSetTable', 'hv:alpha');
+        Observer.Expect('OtherGetTableSetTable', 'hv:gamma');
+        Observer.Expect('FieldValueSetTable', 'hv:gamma');
+        Observer.Expect('FieldValueModifySetTable', 'hv:gamma');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1812,7 +2472,23 @@ codeunit 97865 "LT BC4 RecordRef"
         ShareReset(R, W);
         Observer.Observe('Reset rr', R);
         Observer.Observe('Reset src', W);
-        Observer.Finish();
+        Observer.Expect('Plain rr', 'hv:alpha');
+        Observer.Expect('Plain src', 'hv:alpha');
+        Observer.Expect('FindCalc rr', 'hv:alpha');
+        Observer.Expect('FindCalc src', 'hv:alpha');
+        Observer.Expect('Assigned rr', 'hv:alpha');
+        Observer.Expect('Assigned src', 'hv:alpha');
+        Observer.Expect('FieldValue rr', 'hv:gamma');
+        Observer.Expect('FieldValue src', 'hv:alpha');
+        Observer.Expect('Modify rr', 'hv:alpha');
+        Observer.Expect('Modify src', 'hv:alpha');
+        Observer.Expect('Insert rr', 'hv:alpha');
+        Observer.Expect('Insert src', 'hv:alpha');
+        Observer.Expect('SetRange rr', 'hv:alpha');
+        Observer.Expect('SetRange src', 'hv:alpha');
+        Observer.Expect('Reset rr', 'hv:alpha');
+        Observer.Expect('Reset src', 'hv:alpha');
+        Observer.Verify();
     end;
 
 }
@@ -2544,7 +3220,23 @@ codeunit 97866 "LT BC4 Sequences"
         Observer.Observe('VariantOf', SeqStoredVariantOf());
         Observer.Observe('IsRecord', SeqStoredIsRecord());
         Observer.Observe('SelectLatestVersion', SeqStoredSelectLatestVersion());
-        Observer.Finish();
+        Observer.Expect('Baseline', 'hv:alpha');
+        Observer.Expect('FindFirst', 'hv:');
+        Observer.Expect('ModifyNoArg', 'hv:alpha');
+        Observer.Expect('GetNoClear', 'hv:');
+        Observer.Expect('CalcFieldsNoGet', 'hv:alpha');
+        Observer.Expect('IsTemporary', 'hv:alpha');
+        Observer.Expect('AssignSource', 'hv:alpha');
+        Observer.Expect('AssignTarget', 'hv:gamma');
+        Observer.Expect('ClearField', 'nohv:');
+        Observer.Expect('ClearFieldWrite', 'hv:beta');
+        Observer.Expect('FieldWrite', 'hv:alpha');
+        Observer.Expect('InitWrite', 'hv:beta');
+        Observer.Expect('ModifySubscriber', 'hv:alpha');
+        Observer.Expect('VariantOf', 'hv:alpha');
+        Observer.Expect('IsRecord', 'hv:alpha');
+        Observer.Expect('SelectLatestVersion', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2566,7 +3258,23 @@ codeunit 97866 "LT BC4 Sequences"
         Observer.Observe('VariantOf', SeqTempVariantOf());
         Observer.Observe('IsRecord', SeqTempIsRecord());
         Observer.Observe('SelectLatestVersion', SeqTempSelectLatestVersion());
-        Observer.Finish();
+        Observer.Expect('Baseline', 'hv:alpha');
+        Observer.Expect('FindFirst', 'hv:');
+        Observer.Expect('ModifyNoArg', 'hv:alpha');
+        Observer.Expect('GetNoClear', 'hv:');
+        Observer.Expect('CalcFieldsNoGet', 'hv:alpha');
+        Observer.Expect('IsTemporary', 'hv:alpha');
+        Observer.Expect('AssignSource', 'hv:alpha');
+        Observer.Expect('AssignTarget', 'hv:gamma');
+        Observer.Expect('ClearField', 'nohv:');
+        Observer.Expect('ClearFieldWrite', 'hv:beta');
+        Observer.Expect('FieldWrite', 'hv:alpha');
+        Observer.Expect('InitWrite', 'hv:beta');
+        Observer.Expect('ModifySubscriber', 'hv:alpha');
+        Observer.Expect('VariantOf', 'hv:alpha');
+        Observer.Expect('IsRecord', 'hv:alpha');
+        Observer.Expect('SelectLatestVersion', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2600,7 +3308,25 @@ codeunit 97866 "LT BC4 Sequences"
         Observer.Observe('Copy AssignedOverStoredGetOnly moved', A);
         Observer.Observe('Copy AssignedOverStoredGetOnly src', B);
         Observer.Observe('Copy AssignedOverStoredGetOnly src calc', C);
-        Observer.Finish();
+        Observer.Expect('ByValue AssignedNeverInserted moved', 'nohv:');
+        Observer.Expect('ByValue AssignedNeverInserted src', 'hv:beta');
+        Observer.Expect('ByValue AssignedNeverInserted src calc', 'nohv:');
+        Observer.Expect('Copy AssignedNeverInserted moved', 'nohv:');
+        Observer.Expect('Copy AssignedNeverInserted src', 'hv:beta');
+        Observer.Expect('Copy AssignedNeverInserted src calc', 'nohv:');
+        Observer.Expect('ByValue AssignedOverStored moved', 'hv:alpha');
+        Observer.Expect('ByValue AssignedOverStored src', 'hv:beta');
+        Observer.Expect('ByValue AssignedOverStored src calc', 'hv:alpha');
+        Observer.Expect('Copy AssignedOverStored moved', 'hv:alpha');
+        Observer.Expect('Copy AssignedOverStored src', 'hv:beta');
+        Observer.Expect('Copy AssignedOverStored src calc', 'hv:alpha');
+        Observer.Expect('ByValue AssignedOverStoredGetOnly moved', 'hv:alpha');
+        Observer.Expect('ByValue AssignedOverStoredGetOnly src', 'hv:beta');
+        Observer.Expect('ByValue AssignedOverStoredGetOnly src calc', 'hv:alpha');
+        Observer.Expect('Copy AssignedOverStoredGetOnly moved', 'hv:alpha');
+        Observer.Expect('Copy AssignedOverStoredGetOnly src', 'hv:beta');
+        Observer.Expect('Copy AssignedOverStoredGetOnly src calc', 'hv:alpha');
+        Observer.Verify();
     end;
 
 }
