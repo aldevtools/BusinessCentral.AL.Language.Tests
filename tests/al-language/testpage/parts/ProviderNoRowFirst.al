@@ -8,6 +8,11 @@
 //   false on BC 29.1), or to a header with one line and one detail (the control). Neighbors: Details.First() without Lines.First() first;
 //   the values both parts show without a move; Last() and Next() on both parts; OpenEdit with GoToKey; and the same chain declared in the
 //   base page, with Details in the FactBoxes area.
+// Result (measured on Windows BC 27.5, 28.5 and 29.0 containers, identical on all three; before the corpus CI run): on a header with no
+//   lines, First() on Lines and on Details both return false and both parts show an empty value, with Details outside FactBoxes (Provider =
+//   Lines) and with Details in the base page's FactBoxes. Last() and Next() on both parts return false. Details.First() alone returns false.
+//   OpenEdit with GoToKey on the empty header gives the same. On a header with one line and one detail both First() return true and the values
+//   are 10000 and 1 (the detail's value is already 1 before any move).
 // BC versions: 27+ (tested by the corpus CI matrix)
 
 table 67211 "TP R7392 Header"
@@ -199,7 +204,11 @@ codeunit 67216 "TP R7392 Tests"
         Observer.Observe('lines value', Card.Lines."Line No.".Value());
         Observer.Observe('details value', Card.Details.Seq.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('lines first', 'No');
+        Observer.Expect('details first', 'No');
+        Observer.Expect('lines value', '');
+        Observer.Expect('details value', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -219,7 +228,12 @@ codeunit 67216 "TP R7392 Tests"
         Observer.Observe('lines value', Card.Lines."Line No.".Value());
         Observer.Observe('details value', Card.Details.Seq.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('details value before', '1');
+        Observer.Expect('lines first', 'Yes');
+        Observer.Expect('details first', 'Yes');
+        Observer.Expect('lines value', '10000');
+        Observer.Expect('details value', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -236,7 +250,9 @@ codeunit 67216 "TP R7392 Tests"
         Observer.Observe('details first', Format(Card.Details.First()));
         Observer.Observe('details value', Card.Details.Seq.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('details first', 'No');
+        Observer.Expect('details value', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -253,7 +269,9 @@ codeunit 67216 "TP R7392 Tests"
         Observer.Observe('lines value', Card.Lines."Line No.".Value());
         Observer.Observe('details value', Card.Details.Seq.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('lines value', '');
+        Observer.Expect('details value', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -272,7 +290,11 @@ codeunit 67216 "TP R7392 Tests"
         Observer.Observe('lines next', Format(Card.Lines.Next()));
         Observer.Observe('details next', Format(Card.Details.Next()));
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('lines last', 'No');
+        Observer.Expect('details last', 'No');
+        Observer.Expect('lines next', 'No');
+        Observer.Expect('details next', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -289,7 +311,11 @@ codeunit 67216 "TP R7392 Tests"
         Observer.Observe('lines value', Card.Lines."Line No.".Value());
         Observer.Observe('details value', Card.Details.Seq.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('lines first', 'No');
+        Observer.Expect('details first', 'No');
+        Observer.Expect('lines value', '');
+        Observer.Expect('details value', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -308,7 +334,11 @@ codeunit 67216 "TP R7392 Tests"
         Observer.Observe('lines value', Card.Lines."Line No.".Value());
         Observer.Observe('details value', Card.Details.Seq.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('lines first', 'No');
+        Observer.Expect('details first', 'No');
+        Observer.Expect('lines value', '');
+        Observer.Expect('details value', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -328,6 +358,11 @@ codeunit 67216 "TP R7392 Tests"
         Observer.Observe('lines value', Card.Lines."Line No.".Value());
         Observer.Observe('details value', Card.Details.Seq.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('details value before', '1');
+        Observer.Expect('lines first', 'Yes');
+        Observer.Expect('details first', 'Yes');
+        Observer.Expect('lines value', '10000');
+        Observer.Expect('details value', '1');
+        Observer.Verify();
     end;
 }
