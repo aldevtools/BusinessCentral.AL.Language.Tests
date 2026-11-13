@@ -2114,7 +2114,6 @@ codeunit 79105 "RBK Rename Blank Shapes"
 
     var
         Observer: Codeunit "Probe Observer";
-        ConfirmQuestions: Text;
 
     local procedure Start(var Runner: Codeunit "RBK Rename Runner")
     begin
@@ -2674,7 +2673,13 @@ codeunit 79105 "RBK Rename Blank Shapes"
         Runner.SetCode(Database::"RBK Master", '', 'X');
         Runner.SetMode(4);
         RunRename(Runner, Database::"RBK Master", Database::"RBK Child");
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('control chars', '');
+        Observer.Expect('error|text', 'The Code field on the RBK Master table cannot be renamed from "" to "X".\\When a field has a relation defined, the field cannot be renamed to and from zero or an empty value.');
+        Observer.Expect('error|code', 'DB:Ok');
+        Observer.Expect('master rows', '');
+        Observer.Expect('child rows', '[2][]');
+        Observer.Verify();
     end;
 
     local procedure PageCloseSetup()
@@ -2687,10 +2692,10 @@ codeunit 79105 "RBK Rename Blank Shapes"
         Commit();
     end;
 
-    // The page client renames at close: the key field of a card is edited from blank to X, then the page is closed. The pair
-    // differs only in where the error is expected (the edit or the close); the observation keeps the one that holds.
+    // The page client: the key field of a card is edited from blank to X, then the page is closed (no error at the edit, at the
+    // close or from a confirm dialog on BC 27.5, 28.5 and 29.0: measured with asserterror around each step and a confirm handler).
     [Test]
-    procedure PageClose_FromBlank_ErrorAtClose()
+    procedure PageClose_FromBlank()
     var
         Runner: Codeunit "RBK Rename Runner";
         Master: Record "RBK Master";
@@ -2701,54 +2706,8 @@ codeunit 79105 "RBK Rename Blank Shapes"
         Card.OpenEdit();
         Card.GoToRecord(Master);
         Card."Code".SetValue('X');
-        Observer.Observe('edit', 'no error');
-        asserterror Card.Close();
-        Observer.Observe('control chars', Runner.ControlCodes(GetLastErrorText()));
-        Observer.ObserveError('close');
-        Observer.Observe('master rows', Runner.Rows(Database::"RBK Master"));
-        Observer.Observe('child rows', Runner.Rows(Database::"RBK Child"));
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure PageClose_FromBlank_ErrorAtEdit()
-    var
-        Runner: Codeunit "RBK Rename Runner";
-        Master: Record "RBK Master";
-        Card: TestPage "RBK Master Card";
-    begin
-        PageCloseSetup();
-        Master.Get('');
-        Card.OpenEdit();
-        Card.GoToRecord(Master);
-        asserterror Card."Code".SetValue('X');
-        Observer.Observe('control chars', Runner.ControlCodes(GetLastErrorText()));
-        Observer.ObserveError('edit');
-        Observer.Observe('master rows', Runner.Rows(Database::"RBK Master"));
-        Observer.Observe('child rows', Runner.Rows(Database::"RBK Child"));
-        Observer.Finish();
-    end;
-
-    // The same with a confirm handler that answers Yes and records the question (in case the client asks before it renames).
-    [Test]
-    [HandlerFunctions('ConfirmYes')]
-    procedure PageClose_FromBlank_ConfirmYes()
-    var
-        Runner: Codeunit "RBK Rename Runner";
-        Master: Record "RBK Master";
-        Card: TestPage "RBK Master Card";
-    begin
-        PageCloseSetup();
-        ConfirmQuestions := '';
-        Master.Get('');
-        Card.OpenEdit();
-        Card.GoToRecord(Master);
-        Card."Code".SetValue('X');
-        Observer.Observe('edit', 'no error');
-        asserterror Card.Close();
-        Observer.Observe('confirm questions', ConfirmQuestions);
-        Observer.Observe('control chars', Runner.ControlCodes(GetLastErrorText()));
-        Observer.ObserveError('close');
+        Card.Close();
+        Observer.Observe('last error', GetLastErrorText());
         Observer.Observe('master rows', Runner.Rows(Database::"RBK Master"));
         Observer.Observe('child rows', Runner.Rows(Database::"RBK Child"));
         Observer.Finish();
@@ -2955,12 +2914,5 @@ codeunit 79105 "RBK Rename Blank Shapes"
         Observer.Observe('control chars', Runner.ControlCodes(GetLastErrorText()));
         Observer.ObserveError('error');
         Observer.Finish();
-    end;
-
-    [ConfirmHandler]
-    procedure ConfirmYes(Question: Text[1024]; var Reply: Boolean)
-    begin
-        ConfirmQuestions += Question + '|';
-        Reply := true;
     end;
 }
