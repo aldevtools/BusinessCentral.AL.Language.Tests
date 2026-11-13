@@ -7,6 +7,10 @@
 //   the enum's own app ships a translation file and another app extends the enum and ships its own file: Format of a base value with a
 //   unit, a base value without a unit, an extension value with a unit (from the EnumExtension's own file) and one without; Evaluate of
 //   the enum from the translated captions, the English captions, a value name and an ordinal.
+// Results (corpus CI, identical on 27.5, 28.5 and 29.0): under 1043 and 2067 a value with a unit shows its Dutch caption (also the
+//   extension value, from the extension app's own file) and a value without a unit its English caption; under 1033 every English caption.
+//   Evaluate accepts the captions of the current language, the value names and the ordinal; the captions of the other language fail
+//   and leave the variable unchanged.
 // Lives in the OnPrem app only because it must be a second app that depends on the corpus app (no OnPrem scope is used).
 // BC versions: 27 - 29
 
@@ -75,7 +79,12 @@ codeunit 98981 "RX Xl Status Ext Tests"
         Observer: Codeunit "Probe Observer";
     begin
         FormatFacts(Observer, 1043);
-        Observer.Finish();
+        Observer.Expect('Draft (base, unit)', 'Concept NL');
+        Observer.Expect('Ready (base, unit)', 'Gereed NL');
+        Observer.Expect('Plain (base, no unit)', 'Plain EN');
+        Observer.Expect('Extra (extension, unit)', 'Extra NL');
+        Observer.Expect('ExtPlain (extension, no unit)', 'ExtPlain EN');
+        Observer.Verify();
     end;
 
     [Test]
@@ -84,7 +93,12 @@ codeunit 98981 "RX Xl Status Ext Tests"
         Observer: Codeunit "Probe Observer";
     begin
         FormatFacts(Observer, 2067);
-        Observer.Finish();
+        Observer.Expect('Draft (base, unit)', 'Concept NL');
+        Observer.Expect('Ready (base, unit)', 'Gereed NL');
+        Observer.Expect('Plain (base, no unit)', 'Plain EN');
+        Observer.Expect('Extra (extension, unit)', 'Extra NL');
+        Observer.Expect('ExtPlain (extension, no unit)', 'ExtPlain EN');
+        Observer.Verify();
     end;
 
     [Test]
@@ -93,7 +107,12 @@ codeunit 98981 "RX Xl Status Ext Tests"
         Observer: Codeunit "Probe Observer";
     begin
         FormatFacts(Observer, 1033);
-        Observer.Finish();
+        Observer.Expect('Draft (base, unit)', 'Draft EN');
+        Observer.Expect('Ready (base, unit)', 'Ready EN');
+        Observer.Expect('Plain (base, no unit)', 'Plain EN');
+        Observer.Expect('Extra (extension, unit)', 'Extra EN');
+        Observer.Expect('ExtPlain (extension, no unit)', 'ExtPlain EN');
+        Observer.Verify();
     end;
 
     [Test]
@@ -102,7 +121,16 @@ codeunit 98981 "RX Xl Status Ext Tests"
         Observer: Codeunit "Probe Observer";
     begin
         EvaluateFacts(Observer, 1043);
-        Observer.Finish();
+        Observer.Expect('Evaluate Concept NL', 'Ja 0');
+        Observer.Expect('Evaluate Gereed NL', 'Ja 1');
+        Observer.Expect('Evaluate Extra NL', 'Ja 10');
+        Observer.Expect('Evaluate Draft EN', 'Nee 2');
+        Observer.Expect('Evaluate Extra EN', 'Nee 2');
+        Observer.Expect('Evaluate ExtPlain EN', 'Ja 11');
+        Observer.Expect('Evaluate Ready', 'Ja 1');
+        Observer.Expect('Evaluate Extra', 'Ja 10');
+        Observer.Expect('Evaluate 10', 'Ja 10');
+        Observer.Verify();
     end;
 
     [Test]
@@ -111,6 +139,15 @@ codeunit 98981 "RX Xl Status Ext Tests"
         Observer: Codeunit "Probe Observer";
     begin
         EvaluateFacts(Observer, 1033);
-        Observer.Finish();
+        Observer.Expect('Evaluate Concept NL', 'No 2');
+        Observer.Expect('Evaluate Gereed NL', 'No 2');
+        Observer.Expect('Evaluate Extra NL', 'No 2');
+        Observer.Expect('Evaluate Draft EN', 'Yes 0');
+        Observer.Expect('Evaluate Extra EN', 'Yes 10');
+        Observer.Expect('Evaluate ExtPlain EN', 'Yes 11');
+        Observer.Expect('Evaluate Ready', 'Yes 1');
+        Observer.Expect('Evaluate Extra', 'Yes 10');
+        Observer.Expect('Evaluate 10', 'Yes 10');
+        Observer.Verify();
     end;
 }
