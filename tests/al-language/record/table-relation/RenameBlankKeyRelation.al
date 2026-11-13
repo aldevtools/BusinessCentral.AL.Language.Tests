@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-rename-method
 // Scope: in-scope (Cloud)
-// Fixtures used: Probe Observer (codeunit 69160); tables 79100-79145, table extension 79100, codeunits 79100-79106, page 79100 (all self-contained);
+// Fixtures used: Probe Observer (codeunit 69160); tables 79100-79158, table extension 79100, codeunits 79100-79106, page 79100 (all self-contained);
 //   Base Application GlobalTriggerManagement (codeunit 49) events
 // Probe (al-runner issue 7937): Record.Rename of a row whose primary key changes to or from its blank or zero value, when another
 //   table relates to the table. Each test commits its setup, runs the Rename inside Codeunit.Run (so an error rolls back only the
@@ -17,7 +17,9 @@
 //   key field B changes to or from blank; the database rename trigger switched on through GlobalTriggerManagement (log of
 //   OnAfterOnDatabaseRename against the error); child rows that hold other values; a Code[10] child field against a Code[20] key;
 //   the reporter's Insert-then-Rename through one variable; the page client's rename at close (TestPage edit of the key field of
-//   a card, then Close).
+//   a card, then Close); a child field with ObsoleteState = Removed and Pending; a stale record; TestTableRelation = false; a key
+//   field with NotBlank; a key field with its own TableRelation; other rows in the renamed table; a child OnModify trigger; a
+//   Rename outside Codeunit.Run (asserterror); a new value with quotes and lower case.
 // Results (corpus CI, BC 27.5, 28.5 and 29.0 on Linux, identical on all three):
 //   - Rename raises when a primary key field changes from or to its blank or zero value ('' for Code, 0 for Integer, the first
 //     Option member, the null Guid, 0D) and a validated TableRelation of another table, a table extension field or a field of the
@@ -512,6 +514,140 @@ table 79145 "RBK DbTrg Child"
     keys { key(PK; "Entry No.") { Clustered = true; } }
 }
 
+table 79146 "RBK ObsRem Master"
+{
+    DataClassification = SystemMetadata;
+    fields { field(1; "Code"; Code[20]) { } }
+    keys { key(PK; "Code") { Clustered = true; } }
+}
+
+table 79147 "RBK ObsRem Child"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(2; Ref; Code[20])
+        {
+            TableRelation = "RBK ObsRem Master";
+            ObsoleteState = Removed;
+            ObsoleteReason = 'Probe of a removed field with a relation.';
+        }
+    }
+    keys { key(PK; "Entry No.") { Clustered = true; } }
+}
+
+table 79148 "RBK ObsPend Master"
+{
+    DataClassification = SystemMetadata;
+    fields { field(1; "Code"; Code[20]) { } }
+    keys { key(PK; "Code") { Clustered = true; } }
+}
+
+table 79149 "RBK ObsPend Child"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(2; Ref; Code[20])
+        {
+            TableRelation = "RBK ObsPend Master";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Probe of a pending obsolete field with a relation.';
+        }
+    }
+    keys { key(PK; "Entry No.") { Clustered = true; } }
+}
+
+table 79150 "RBK NoTest Master"
+{
+    DataClassification = SystemMetadata;
+    fields { field(1; "Code"; Code[20]) { } }
+    keys { key(PK; "Code") { Clustered = true; } }
+}
+
+table 79151 "RBK NoTest Child"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(2; Ref; Code[20])
+        {
+            TableRelation = "RBK NoTest Master";
+            TestTableRelation = false;
+        }
+    }
+    keys { key(PK; "Entry No.") { Clustered = true; } }
+}
+
+table 79152 "RBK NotBlank Master"
+{
+    DataClassification = SystemMetadata;
+    fields { field(1; "Code"; Code[20]) { NotBlank = true; } }
+    keys { key(PK; "Code") { Clustered = true; } }
+}
+
+table 79153 "RBK NotBlank Child"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(2; Ref; Code[20]) { TableRelation = "RBK NotBlank Master"; }
+    }
+    keys { key(PK; "Entry No.") { Clustered = true; } }
+}
+
+table 79154 "RBK KeyRel Target"
+{
+    DataClassification = SystemMetadata;
+    fields { field(1; "Code"; Code[20]) { } }
+    keys { key(PK; "Code") { Clustered = true; } }
+}
+
+table 79155 "RBK KeyRel Master"
+{
+    DataClassification = SystemMetadata;
+    fields { field(1; "Code"; Code[20]) { TableRelation = "RBK KeyRel Target"; } }
+    keys { key(PK; "Code") { Clustered = true; } }
+}
+
+table 79156 "RBK KeyRel Child"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(2; Ref; Code[20]) { TableRelation = "RBK KeyRel Master"; }
+    }
+    keys { key(PK; "Entry No.") { Clustered = true; } }
+}
+
+table 79157 "RBK OnMod Master"
+{
+    DataClassification = SystemMetadata;
+    fields { field(1; "Code"; Code[20]) { } }
+    keys { key(PK; "Code") { Clustered = true; } }
+}
+
+table 79158 "RBK OnMod Child"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(2; Ref; Code[20]) { TableRelation = "RBK OnMod Master"; }
+    }
+    keys { key(PK; "Entry No.") { Clustered = true; } }
+
+    trigger OnModify()
+    begin
+        Error('RBK OnMod Child OnModify ran');
+    end;
+}
+
 page 79100 "RBK Master Card"
 {
     PageType = Card;
@@ -639,6 +775,13 @@ codeunit 79101 "RBK Rename Runner"
         DateMaster: Record "RBK Date Master";
         IfMaster: Record "RBK If Master";
         WhereMaster: Record "RBK Where Master";
+        StaleCopy: Record "RBK Where Master";
+        ObsRemMaster: Record "RBK ObsRem Master";
+        ObsPendMaster: Record "RBK ObsPend Master";
+        NoTestMaster: Record "RBK NoTest Master";
+        NotBlankMaster: Record "RBK NotBlank Master";
+        KeyRelMaster: Record "RBK KeyRel Master";
+        OnModMaster: Record "RBK OnMod Master";
         NamedMaster: Record "RBK Named Master";
         NonKeyMaster: Record "RBK NonKey Master";
         NoValMaster: Record "RBK NoVal Master";
@@ -734,7 +877,43 @@ codeunit 79101 "RBK Rename Runner"
             Database::"RBK Where Master":
                 begin
                     WhereMaster.Get(OldCode);
+                    if Mode = 5 then begin
+                        // A stale record: another variable changes the row after this one read it.
+                        StaleCopy.Get(OldCode);
+                        StaleCopy.Name := 'CHANGED';
+                        StaleCopy.Modify();
+                    end;
                     WhereMaster.Rename(NewCode);
+                end;
+            Database::"RBK ObsRem Master":
+                begin
+                    ObsRemMaster.Get(OldCode);
+                    ObsRemMaster.Rename(NewCode);
+                end;
+            Database::"RBK ObsPend Master":
+                begin
+                    ObsPendMaster.Get(OldCode);
+                    ObsPendMaster.Rename(NewCode);
+                end;
+            Database::"RBK NoTest Master":
+                begin
+                    NoTestMaster.Get(OldCode);
+                    NoTestMaster.Rename(NewCode);
+                end;
+            Database::"RBK NotBlank Master":
+                begin
+                    NotBlankMaster.Get(OldCode);
+                    NotBlankMaster.Rename(NewCode);
+                end;
+            Database::"RBK KeyRel Master":
+                begin
+                    KeyRelMaster.Get(OldCode);
+                    KeyRelMaster.Rename(NewCode);
+                end;
+            Database::"RBK OnMod Master":
+                begin
+                    OnModMaster.Get(OldCode);
+                    OnModMaster.Rename(NewCode);
                 end;
             Database::"RBK Named Master":
                 begin
@@ -857,7 +1036,7 @@ codeunit 79101 "RBK Rename Runner"
     end;
 
     // 0 = Get and Rename, 1 = Rename of a buffer whose row is not stored, 2 = the return value form, 3 = RecordRef.Rename,
-    // 4 = Insert and Rename through the same variable (table "RBK Master" only).
+    // 4 = Insert and Rename through the same variable (table "RBK Master" only); 5 = a stale record (table "RBK Where Master" only).
     procedure SetMode(NewMode: Integer)
     begin
         Mode := NewMode;
@@ -969,7 +1148,7 @@ codeunit 79101 "RBK Rename Runner"
         TableNo: Integer;
         RecRef: RecordRef;
     begin
-        for TableNo := Database::"RBK Master" to Database::"RBK DbTrg Child" do begin
+        for TableNo := Database::"RBK Master" to Database::"RBK OnMod Child" do begin
             RecRef.Open(TableNo);
             RecRef.DeleteAll();
             RecRef.Close();
@@ -2572,6 +2751,209 @@ codeunit 79105 "RBK Rename Blank Shapes"
         Observer.ObserveError('close');
         Observer.Observe('master rows', Runner.Rows(Database::"RBK Master"));
         Observer.Observe('child rows', Runner.Rows(Database::"RBK Child"));
+        Observer.Finish();
+    end;
+
+    // One master row with the old key and one child row (field 2 set to the old key when SetRef) through RecordRef.
+    local procedure GenericPair(MasterTable: Integer; ChildTable: Integer; FromCode: Code[20]; ToCode: Code[20]; SetRef: Boolean)
+    var
+        Runner: Codeunit "RBK Rename Runner";
+        MasterRef: RecordRef;
+        ChildRef: RecordRef;
+    begin
+        Start(Runner);
+        MasterRef.Open(MasterTable);
+        MasterRef.Field(1).Value := FromCode;
+        MasterRef.Insert();
+        ChildRef.Open(ChildTable);
+        ChildRef.Field(1).Value := 1;
+        if SetRef then
+            ChildRef.Field(2).Value := FromCode;
+        ChildRef.Insert();
+        Runner.SetCode(MasterTable, FromCode, ToCode);
+        RunRename(Runner, MasterTable, ChildTable);
+    end;
+
+    [Test]
+    procedure ObsoleteRemovedChildField_FromBlank()
+    begin
+        GenericPair(Database::"RBK ObsRem Master", Database::"RBK ObsRem Child", '', 'X', false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ObsoleteRemovedChildField_ToBlank()
+    begin
+        GenericPair(Database::"RBK ObsRem Master", Database::"RBK ObsRem Child", 'X', '', false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ObsoletePendingChildField_FromBlank()
+    begin
+        GenericPair(Database::"RBK ObsPend Master", Database::"RBK ObsPend Child", '', 'X', true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ObsoletePendingChildField_ToBlank()
+    begin
+        GenericPair(Database::"RBK ObsPend Master", Database::"RBK ObsPend Child", 'X', '', true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TestTableRelationFalse_FromBlank()
+    begin
+        GenericPair(Database::"RBK NoTest Master", Database::"RBK NoTest Child", '', 'X', true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TestTableRelationFalse_ToBlank()
+    begin
+        GenericPair(Database::"RBK NoTest Master", Database::"RBK NoTest Child", 'X', '', true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NotBlankKeyField_FromBlank()
+    begin
+        GenericPair(Database::"RBK NotBlank Master", Database::"RBK NotBlank Child", '', 'X', true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NotBlankKeyField_ToBlank()
+    begin
+        GenericPair(Database::"RBK NotBlank Master", Database::"RBK NotBlank Child", 'X', '', true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure KeyFieldWithOwnRelation_FromBlank()
+    begin
+        GenericPair(Database::"RBK KeyRel Master", Database::"RBK KeyRel Child", '', 'X', true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure KeyFieldWithOwnRelation_ToBlank()
+    begin
+        GenericPair(Database::"RBK KeyRel Master", Database::"RBK KeyRel Child", 'X', '', true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ChildOnModifyTrigger_FromBlank()
+    begin
+        GenericPair(Database::"RBK OnMod Master", Database::"RBK OnMod Child", '', 'X', true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ChildOnModifyTrigger_NonBlank()
+    begin
+        GenericPair(Database::"RBK OnMod Master", Database::"RBK OnMod Child", 'X', 'Y', true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure StaleRecord_FromBlank()
+    var
+        Runner: Codeunit "RBK Rename Runner";
+        Master: Record "RBK Where Master";
+        Child: Record "RBK Where Child";
+    begin
+        Start(Runner);
+        Master."Code" := '';
+        Master.Name := 'N';
+        Master.Insert();
+        Child."Entry No." := 1;
+        Child.Ref := '';
+        Child.Insert();
+        Runner.SetCode(Database::"RBK Where Master", '', 'X');
+        Runner.SetMode(5);
+        RunRename(Runner, Database::"RBK Where Master", Database::"RBK Where Child");
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure StaleRecord_NonBlank()
+    var
+        Runner: Codeunit "RBK Rename Runner";
+        Master: Record "RBK Where Master";
+        Child: Record "RBK Where Child";
+    begin
+        Start(Runner);
+        Master."Code" := 'X';
+        Master.Name := 'N';
+        Master.Insert();
+        Child."Entry No." := 1;
+        Child.Ref := 'X';
+        Child.Insert();
+        Runner.SetCode(Database::"RBK Where Master", 'X', 'Y');
+        Runner.SetMode(5);
+        RunRename(Runner, Database::"RBK Where Master", Database::"RBK Where Child");
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure OtherRowsInRenamedTable_FromBlank()
+    var
+        Runner: Codeunit "RBK Rename Runner";
+    begin
+        Start(Runner);
+        AddMaster('');
+        AddMaster('A');
+        AddMaster('B');
+        AddChild(1, '');
+        AddChild(2, 'A');
+        Runner.SetCode(Database::"RBK Master", '', 'X');
+        RunRename(Runner, Database::"RBK Master", Database::"RBK Child");
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure QuotesAndLowerCase_FromBlank()
+    var
+        Runner: Codeunit "RBK Rename Runner";
+    begin
+        Start(Runner);
+        AddMaster('');
+        AddChild(1, '');
+        Runner.SetCode(Database::"RBK Master", '', 'x"y''z');
+        RunRename(Runner, Database::"RBK Master", Database::"RBK Child");
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure QuotesAndLowerCase_ToBlank()
+    var
+        Runner: Codeunit "RBK Rename Runner";
+    begin
+        Start(Runner);
+        AddMaster('A"B''C');
+        AddChild(1, 'A"B''C');
+        Runner.SetCode(Database::"RBK Master", 'A"B''C', '');
+        RunRename(Runner, Database::"RBK Master", Database::"RBK Child");
+        Observer.Finish();
+    end;
+
+    // The reporter's test as written: Insert, then asserterror Rename in the test itself (not inside Codeunit.Run).
+    [Test]
+    procedure ReporterShape_AssertError()
+    var
+        Runner: Codeunit "RBK Rename Runner";
+        Master: Record "RBK Master";
+    begin
+        Start(Runner);
+        Master."Code" := '';
+        Master.Insert();
+        AddChild(2, '');
+        asserterror Master.Rename('X');
+        Observer.Observe('control chars', Runner.ControlCodes(GetLastErrorText()));
+        Observer.ObserveError('error');
         Observer.Finish();
     end;
 
