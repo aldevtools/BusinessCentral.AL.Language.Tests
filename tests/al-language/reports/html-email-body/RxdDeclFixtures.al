@@ -174,6 +174,20 @@ codeunit 80042 "RXD Decl Helper"
         Report.SaveAs(Report::"RXD Decl Word", '', Fmt, OutS);
     end;
 
+    // The attachment form of Report Selections: the five-argument SaveAs with the source record (RXD Row filtered to Id 1).
+    [TryFunction]
+    procedure TrySaveWithRecord(Fmt: ReportFormat; var TempBlob: Codeunit "Temp Blob"; var Ok: Boolean)
+    var
+        Row: Record "RXD Row";
+        RecRef: RecordRef;
+        OutS: OutStream;
+    begin
+        Row.SetRange(Id, 1);
+        RecRef.GetTable(Row);
+        TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
+        Ok := Report.SaveAs(Report::"RXD Decl Word", '', Fmt, OutS, RecRef);
+    end;
+
     procedure BodyText(var TempBlob: Codeunit "Temp Blob") Body: Text
     var
         InS: InStream;
@@ -185,7 +199,18 @@ codeunit 80042 "RXD Decl Helper"
     end;
 
     // The text of word/document.xml of a saved Word document ('' when the output is empty or has no such part).
-    procedure WordDocumentText(var TempBlob: Codeunit "Temp Blob") Content: Text
+    procedure WordDocumentText(var TempBlob: Codeunit "Temp Blob"): Text
+    begin
+        exit(EntryText(TempBlob, 'word/document.xml'));
+    end;
+
+    // The text of xl/sharedStrings.xml of a saved Excel workbook ('' when the output is empty or has no such part).
+    procedure ExcelStringsText(var TempBlob: Codeunit "Temp Blob"): Text
+    begin
+        exit(EntryText(TempBlob, 'xl/sharedStrings.xml'));
+    end;
+
+    local procedure EntryText(var TempBlob: Codeunit "Temp Blob"; EntryName: Text) Content: Text
     var
         DataCompression: Codeunit "Data Compression";
         EntryBlob: Codeunit "Temp Blob";
@@ -200,10 +225,10 @@ codeunit 80042 "RXD Decl Helper"
         TempBlob.CreateInStream(InS);
         DataCompression.OpenZipArchive(InS, false);
         DataCompression.GetEntryList(Names);
-        if not Names.Contains('word/document.xml') then
+        if not Names.Contains(EntryName) then
             exit('');
         EntryBlob.CreateOutStream(EntryOut);
-        DataCompression.ExtractEntry('word/document.xml', EntryOut, Length);
+        DataCompression.ExtractEntry(EntryName, EntryOut, Length);
         EntryBlob.CreateInStream(EntryIn, TextEncoding::UTF8);
         EntryIn.Read(Content);
     end;

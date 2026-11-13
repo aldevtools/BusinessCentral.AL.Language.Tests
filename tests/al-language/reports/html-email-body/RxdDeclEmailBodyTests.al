@@ -59,23 +59,34 @@ codeunit 80044 "RXD Decl Email Body Tests"
     end;
 
     [Test]
-    procedure EmailBody_NoRow()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Setup(0, 0);
-        BodyFacts(Observer, 0);
-        Helper.Cleanup();
-        Observer.Finish();
-    end;
-
-    [Test]
     procedure EmailBody_NoRow_TempGuid()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Setup(0, 1);
         BodyFacts(Observer, 1);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure EmailBody_RdlcCompany_TempEmpty()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(1, 2);
+        BodyFacts(Observer, 2);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure EmailBody_NoRow()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(0, 0);
+        BodyFacts(Observer, 0);
         Helper.Cleanup();
         Observer.Finish();
     end;
@@ -109,17 +120,6 @@ codeunit 80044 "RXD Decl Email Body Tests"
     begin
         Setup(1, 1);
         BodyFacts(Observer, 1);
-        Helper.Cleanup();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure EmailBody_RdlcCompany_TempEmpty()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Setup(1, 2);
-        BodyFacts(Observer, 2);
         Helper.Cleanup();
         Observer.Finish();
     end;

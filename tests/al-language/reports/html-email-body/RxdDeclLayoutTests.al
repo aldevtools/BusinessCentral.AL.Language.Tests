@@ -47,6 +47,12 @@ codeunit 80043 "RXD Decl Layout Tests"
                     Content := Helper.WordDocumentText(TempBlob);
                     Observer.Observe(Name + ' has RXDROW1', Format(StrPos(Content, 'RXDROW1') > 0));
                 end;
+            ReportFormat::Excel:
+                begin
+                    Observer.Observe(Name + ' first bytes', Helper.FirstBytes(TempBlob));
+                    Content := Helper.ExcelStringsText(TempBlob);
+                    Observer.Observe(Name + ' has RXDROW1', Format(StrPos(Content, 'RXDROW1') > 0));
+                end;
             ReportFormat::Pdf:
                 Observer.Observe(Name + ' first bytes', Helper.FirstBytes(TempBlob));
         end;
@@ -70,6 +76,21 @@ codeunit 80043 "RXD Decl Layout Tests"
         Observer.Observe('used temp name after', Helper.TempNameAfter());
     end;
 
+    local procedure RecordFacts(var Observer: Codeunit "Probe Observer"; Fmt: ReportFormat; Mode: Integer)
+    var
+        TempBlob: Codeunit "Temp Blob";
+        Completed: Boolean;
+        Ok: Boolean;
+    begin
+        Helper.SetTemp(Mode);
+        ClearLastError();
+        Completed := Helper.TrySaveWithRecord(Fmt, TempBlob, Ok);
+        Observer.Observe('rec completed', Format(Completed));
+        Observer.Observe('rec returned', Format(Ok));
+        Observer.ObserveError('rec err');
+        OutputFacts(Observer, 'rec', Fmt, TempBlob);
+    end;
+
     local procedure StatementFacts(var Observer: Codeunit "Probe Observer"; Fmt: ReportFormat; Mode: Integer)
     var
         TempBlob: Codeunit "Temp Blob";
@@ -82,44 +103,104 @@ codeunit 80043 "RXD Decl Layout Tests"
         Observer.ObserveError('stmt err');
         Observer.Observe('stmt length > 0', Format(TempBlob.Length() > 0));
         if Fmt <> ReportFormat::Pdf then
-            if Fmt = ReportFormat::Html then
-                Observer.Observe('stmt marker', Helper.Markers(Helper.BodyText(TempBlob)))
-            else
-                Observer.Observe('stmt marker', Helper.Markers(Helper.WordDocumentText(TempBlob)));
+            case Fmt of
+                ReportFormat::Html:
+                    Observer.Observe('stmt marker', Helper.Markers(Helper.BodyText(TempBlob)));
+                ReportFormat::Word:
+                    Observer.Observe('stmt marker', Helper.Markers(Helper.WordDocumentText(TempBlob)));
+                ReportFormat::Excel:
+                    Observer.Observe('stmt marker', Helper.Markers(Helper.ExcelStringsText(TempBlob)));
+            end;
     end;
 
     [Test]
-    procedure SaveAs_NoRow_Html()
+    procedure SaveAs_RdlcCompany_TempEmpty_Excel()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Setup(0, 0);
-        UsedFacts(Observer, ReportFormat::Html, 0);
-        StatementFacts(Observer, ReportFormat::Html, 0);
+        Setup(1, 2);
+        UsedFacts(Observer, ReportFormat::Excel, 2);
+        StatementFacts(Observer, ReportFormat::Excel, 2);
         Helper.Cleanup();
         Observer.Finish();
     end;
 
     [Test]
-    procedure SaveAs_NoRow_Word()
+    procedure SaveAsRecord_RdlcCompany_TempEmpty_Excel()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Setup(0, 0);
-        UsedFacts(Observer, ReportFormat::Word, 0);
-        StatementFacts(Observer, ReportFormat::Word, 0);
+        Setup(1, 2);
+        RecordFacts(Observer, ReportFormat::Excel, 2);
         Helper.Cleanup();
         Observer.Finish();
     end;
 
     [Test]
-    procedure SaveAs_NoRow_Pdf()
+    procedure SaveAs_RdlcCompany_TempEmpty_Pdf()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Setup(0, 0);
-        UsedFacts(Observer, ReportFormat::Pdf, 0);
-        StatementFacts(Observer, ReportFormat::Pdf, 0);
+        Setup(1, 2);
+        UsedFacts(Observer, ReportFormat::Pdf, 2);
+        StatementFacts(Observer, ReportFormat::Pdf, 2);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SaveAsRecord_RdlcCompany_TempEmpty_Pdf()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(1, 2);
+        RecordFacts(Observer, ReportFormat::Pdf, 2);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SaveAs_RdlcCompany_TempEmpty_Word()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(1, 2);
+        UsedFacts(Observer, ReportFormat::Word, 2);
+        StatementFacts(Observer, ReportFormat::Word, 2);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SaveAsRecord_RdlcCompany_TempEmpty_Word()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(1, 2);
+        RecordFacts(Observer, ReportFormat::Word, 2);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SaveAs_RdlcCompany_TempEmpty_Html()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(1, 2);
+        UsedFacts(Observer, ReportFormat::Html, 2);
+        StatementFacts(Observer, ReportFormat::Html, 2);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SaveAsRecord_RdlcCompany_TempEmpty_Html()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(1, 2);
+        RecordFacts(Observer, ReportFormat::Html, 2);
         Helper.Cleanup();
         Observer.Finish();
     end;
@@ -161,6 +242,110 @@ codeunit 80043 "RXD Decl Layout Tests"
     end;
 
     [Test]
+    procedure SaveAs_NoRow_TempGuid_Excel()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(0, 1);
+        UsedFacts(Observer, ReportFormat::Excel, 1);
+        StatementFacts(Observer, ReportFormat::Excel, 1);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SaveAsRecord_NoRow_TempEmpty_Excel()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(0, 2);
+        RecordFacts(Observer, ReportFormat::Excel, 2);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SaveAsRecord_NoRow_TempEmpty_Pdf()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(0, 2);
+        RecordFacts(Observer, ReportFormat::Pdf, 2);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SaveAsRecord_NoRow_TempEmpty_Word()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(0, 2);
+        RecordFacts(Observer, ReportFormat::Word, 2);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SaveAsRecord_NoRow_TempEmpty_Html()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(0, 2);
+        RecordFacts(Observer, ReportFormat::Html, 2);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SaveAs_NoRow_Html()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(0, 0);
+        UsedFacts(Observer, ReportFormat::Html, 0);
+        StatementFacts(Observer, ReportFormat::Html, 0);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SaveAs_NoRow_Word()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(0, 0);
+        UsedFacts(Observer, ReportFormat::Word, 0);
+        StatementFacts(Observer, ReportFormat::Word, 0);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SaveAs_NoRow_Pdf()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(0, 0);
+        UsedFacts(Observer, ReportFormat::Pdf, 0);
+        StatementFacts(Observer, ReportFormat::Pdf, 0);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SaveAs_NoRow_Excel()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(0, 0);
+        UsedFacts(Observer, ReportFormat::Excel, 0);
+        StatementFacts(Observer, ReportFormat::Excel, 0);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
     procedure SaveAs_NoRow_TempEmpty_Html()
     var
         Observer: Codeunit "Probe Observer";
@@ -192,6 +377,18 @@ codeunit 80043 "RXD Decl Layout Tests"
         Setup(0, 2);
         UsedFacts(Observer, ReportFormat::Pdf, 2);
         StatementFacts(Observer, ReportFormat::Pdf, 2);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SaveAs_NoRow_TempEmpty_Excel()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(0, 2);
+        UsedFacts(Observer, ReportFormat::Excel, 2);
+        StatementFacts(Observer, ReportFormat::Excel, 2);
         Helper.Cleanup();
         Observer.Finish();
     end;
@@ -233,6 +430,18 @@ codeunit 80043 "RXD Decl Layout Tests"
     end;
 
     [Test]
+    procedure SaveAs_RdlcCompany_Excel()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(1, 0);
+        UsedFacts(Observer, ReportFormat::Excel, 0);
+        StatementFacts(Observer, ReportFormat::Excel, 0);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
     procedure SaveAs_RdlcCompany_TempGuid_Html()
     var
         Observer: Codeunit "Probe Observer";
@@ -269,37 +478,13 @@ codeunit 80043 "RXD Decl Layout Tests"
     end;
 
     [Test]
-    procedure SaveAs_RdlcCompany_TempEmpty_Html()
+    procedure SaveAs_RdlcCompany_TempGuid_Excel()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Setup(1, 2);
-        UsedFacts(Observer, ReportFormat::Html, 2);
-        StatementFacts(Observer, ReportFormat::Html, 2);
-        Helper.Cleanup();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure SaveAs_RdlcCompany_TempEmpty_Word()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Setup(1, 2);
-        UsedFacts(Observer, ReportFormat::Word, 2);
-        StatementFacts(Observer, ReportFormat::Word, 2);
-        Helper.Cleanup();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure SaveAs_RdlcCompany_TempEmpty_Pdf()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Setup(1, 2);
-        UsedFacts(Observer, ReportFormat::Pdf, 2);
-        StatementFacts(Observer, ReportFormat::Pdf, 2);
+        Setup(1, 1);
+        UsedFacts(Observer, ReportFormat::Excel, 1);
+        StatementFacts(Observer, ReportFormat::Excel, 1);
         Helper.Cleanup();
         Observer.Finish();
     end;
@@ -341,6 +526,18 @@ codeunit 80043 "RXD Decl Layout Tests"
     end;
 
     [Test]
+    procedure SaveAs_RdlcEmptyCompany_Excel()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(2, 0);
+        UsedFacts(Observer, ReportFormat::Excel, 0);
+        StatementFacts(Observer, ReportFormat::Excel, 0);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
     procedure SaveAs_RdlcEmptyCompany_TempGuid_Html()
     var
         Observer: Codeunit "Probe Observer";
@@ -372,6 +569,18 @@ codeunit 80043 "RXD Decl Layout Tests"
         Setup(2, 1);
         UsedFacts(Observer, ReportFormat::Pdf, 1);
         StatementFacts(Observer, ReportFormat::Pdf, 1);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SaveAs_RdlcEmptyCompany_TempGuid_Excel()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(2, 1);
+        UsedFacts(Observer, ReportFormat::Excel, 1);
+        StatementFacts(Observer, ReportFormat::Excel, 1);
         Helper.Cleanup();
         Observer.Finish();
     end;
@@ -413,6 +622,18 @@ codeunit 80043 "RXD Decl Layout Tests"
     end;
 
     [Test]
+    procedure SaveAs_RdlcEmptyCompany_TempEmpty_Excel()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(2, 2);
+        UsedFacts(Observer, ReportFormat::Excel, 2);
+        StatementFacts(Observer, ReportFormat::Excel, 2);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
     procedure SaveAs_RdlcBoth_Html()
     var
         Observer: Codeunit "Probe Observer";
@@ -444,6 +665,18 @@ codeunit 80043 "RXD Decl Layout Tests"
         Setup(3, 0);
         UsedFacts(Observer, ReportFormat::Pdf, 0);
         StatementFacts(Observer, ReportFormat::Pdf, 0);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SaveAs_RdlcBoth_Excel()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(3, 0);
+        UsedFacts(Observer, ReportFormat::Excel, 0);
+        StatementFacts(Observer, ReportFormat::Excel, 0);
         Helper.Cleanup();
         Observer.Finish();
     end;
@@ -485,6 +718,18 @@ codeunit 80043 "RXD Decl Layout Tests"
     end;
 
     [Test]
+    procedure SaveAs_RdlcBoth_TempGuid_Excel()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(3, 1);
+        UsedFacts(Observer, ReportFormat::Excel, 1);
+        StatementFacts(Observer, ReportFormat::Excel, 1);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
     procedure SaveAs_RdlcBoth_TempEmpty_Html()
     var
         Observer: Codeunit "Probe Observer";
@@ -516,6 +761,18 @@ codeunit 80043 "RXD Decl Layout Tests"
         Setup(3, 2);
         UsedFacts(Observer, ReportFormat::Pdf, 2);
         StatementFacts(Observer, ReportFormat::Pdf, 2);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SaveAs_RdlcBoth_TempEmpty_Excel()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(3, 2);
+        UsedFacts(Observer, ReportFormat::Excel, 2);
+        StatementFacts(Observer, ReportFormat::Excel, 2);
         Helper.Cleanup();
         Observer.Finish();
     end;
@@ -557,6 +814,18 @@ codeunit 80043 "RXD Decl Layout Tests"
     end;
 
     [Test]
+    procedure SaveAs_WordCompany_Excel()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(4, 0);
+        UsedFacts(Observer, ReportFormat::Excel, 0);
+        StatementFacts(Observer, ReportFormat::Excel, 0);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
     procedure SaveAs_WordCompany_TempGuid_Html()
     var
         Observer: Codeunit "Probe Observer";
@@ -593,6 +862,18 @@ codeunit 80043 "RXD Decl Layout Tests"
     end;
 
     [Test]
+    procedure SaveAs_WordCompany_TempGuid_Excel()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(4, 1);
+        UsedFacts(Observer, ReportFormat::Excel, 1);
+        StatementFacts(Observer, ReportFormat::Excel, 1);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
     procedure SaveAs_WordCompany_TempEmpty_Html()
     var
         Observer: Codeunit "Probe Observer";
@@ -624,6 +905,18 @@ codeunit 80043 "RXD Decl Layout Tests"
         Setup(4, 2);
         UsedFacts(Observer, ReportFormat::Pdf, 2);
         StatementFacts(Observer, ReportFormat::Pdf, 2);
+        Helper.Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SaveAs_WordCompany_TempEmpty_Excel()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Setup(4, 2);
+        UsedFacts(Observer, ReportFormat::Excel, 2);
+        StatementFacts(Observer, ReportFormat::Excel, 2);
         Helper.Cleanup();
         Observer.Finish();
     end;
