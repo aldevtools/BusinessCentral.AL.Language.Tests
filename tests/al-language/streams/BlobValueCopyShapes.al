@@ -10,7 +10,23 @@
 //   Value format: hv: or nohv: (HasValue of the Blob in hand, no CalcFields) followed by the text read from the Blob in hand;
 //   row = the stored row read through a fresh record (Get, HasValue, CalcFields, text), <no row> when Get fails;
 //   rr = the RecordRef read through SetTable into a fresh temporary record.
-// What BC did: see the Expect lines of each test.
+// What BC did (the same on 27.5, 28.5 and 29.0):
+//   - Every form copies the Blob at the moment it runs; a later write on either side never shows on the other: RecordRef.GetTable
+//     and SetTable (also SetTable(Rec, true) between temporary records), TransferFields with one, two and three arguments and
+//     between two tables, FieldRef.Value and Validate, a Variant (by-value and var parameter, array element, global, Variant :=
+//     Variant, from a global record), GetTable of a record held in a Variant (local or by-value parameter), Record.Copy (also
+//     Copy(Rec, true)), a record passed by value (the caller keeps 'alpha'), and record assignment (the control).
+//   - The same holds for an empty Blob and a Blob emptied with Clear: the copy stays empty (nohv:) after the source is written,
+//     and RecordRef.Insert / Insert of the other record stores an empty Blob. Memo, Compressed = false and table extension
+//     Blob fields behave the same.
+//   - A stored row read with Get and no CalcFields: GetTable, SetTable and RecordRef.FindFirst give HasValue true and empty text;
+//     a later CalcFields of the source does not reach the copy; RecordRef.Modify (after GetTable and a write on the source, or
+//     after SetTable and a write on the target) keeps the stored 'alpha'. FieldRef.Validate and a Variant give HasValue false.
+//     FieldRef.CalcField on the RecordRef loads 'alpha' there, and SetTable then copies it; the source stays not loaded.
+//   - An OutStream open on the source keeps writing to that Blob only: after GetTable the RecordRef holds the text written so
+//     far ('al'); after GetTable and SetTable back into the same record, later writes reach neither the record nor the RecordRef.
+//   - A Blob FlowField cannot be declared (AL0844), so it is not a cell.
+//   - CreateOutStream on a Blob that holds a value writes from the start and does not truncate: 'beta' over 'alpha' reads 'betaa'.
 // BC versions: 27.5+
 
 table 97750 "LT BCP Row"
@@ -162,7 +178,10 @@ codeunit 97753 "LT BCP Empty Source"
         L.W(Src, 'x');
         Observer.Observe('E1 after write src', L.Rd(Src));
         Observer.Observe('E1 after write rr', L.RdRR(RR));
-        Observer.Finish();
+        Observer.Expect('E1 after GetTable rr', 'nohv:');
+        Observer.Expect('E1 after write src', 'hv:x');
+        Observer.Expect('E1 after write rr', 'nohv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -183,7 +202,12 @@ codeunit 97753 "LT BCP Empty Source"
         Observer.Observe('E2 after RR.Insert row', L.Stored(2));
         Observer.Observe('E2 after RR.Insert src', L.Rd(Src));
         Observer.Observe('E2 after RR.Insert rr', L.RdRR(RR));
-        Observer.Finish();
+        Observer.Expect('E2 after write src', 'hv:x');
+        Observer.Expect('E2 after write rr', 'nohv:');
+        Observer.Expect('E2 after RR.Insert row', 'nohv:');
+        Observer.Expect('E2 after RR.Insert src', 'hv:x');
+        Observer.Expect('E2 after RR.Insert rr', 'nohv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -201,7 +225,10 @@ codeunit 97753 "LT BCP Empty Source"
         Observer.Observe('E3 after write dst', L.Rd(Dst));
         Observer.Observe('E3 after write src', L.Rd(Src));
         Observer.Observe('E3 after write rr', L.RdRR(RR));
-        Observer.Finish();
+        Observer.Expect('E3 after write dst', 'hv:x');
+        Observer.Expect('E3 after write src', 'nohv:');
+        Observer.Expect('E3 after write rr', 'nohv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -216,7 +243,9 @@ codeunit 97753 "LT BCP Empty Source"
         L.W(Src, 'x');
         Observer.Observe('E4 after write src', L.Rd(Src));
         Observer.Observe('E4 after write dst', L.Rd(Dst));
-        Observer.Finish();
+        Observer.Expect('E4 after write src', 'hv:x');
+        Observer.Expect('E4 after write dst', 'nohv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -237,7 +266,12 @@ codeunit 97753 "LT BCP Empty Source"
         Observer.Observe('E4b after Src.Insert row', L.Stored(41));
         Observer.Observe('E4b after Src.Insert src', L.Rd(Src));
         Observer.Observe('E4b after Src.Insert dst', L.Rd(Dst));
-        Observer.Finish();
+        Observer.Expect('E4b after write dst', 'hv:y');
+        Observer.Expect('E4b after write src', 'nohv:');
+        Observer.Expect('E4b after Src.Insert row', 'nohv:');
+        Observer.Expect('E4b after Src.Insert src', 'nohv:');
+        Observer.Expect('E4b after Src.Insert dst', 'hv:y');
+        Observer.Verify();
     end;
 
     [Test]
@@ -254,7 +288,9 @@ codeunit 97753 "LT BCP Empty Source"
         L.W(Src, 'x');
         Observer.Observe('E5 after write src', L.Rd(Src));
         Observer.Observe('E5 after write rr', L.RdRR(RR));
-        Observer.Finish();
+        Observer.Expect('E5 after write src', 'hv:x');
+        Observer.Expect('E5 after write rr', 'nohv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -275,7 +311,10 @@ codeunit 97753 "LT BCP Empty Source"
         Observer.Observe('E6 after FieldRef.Value rr', L.RdRR(RR));
         Dst.Data := V;
         Observer.Observe('E6 after Dst.Data := V dst', L.Rd(Dst));
-        Observer.Finish();
+        Observer.Expect('E6 after FieldRef.Value src', 'hv:x');
+        Observer.Expect('E6 after FieldRef.Value rr', 'nohv:');
+        Observer.Expect('E6 after Dst.Data := V dst', 'nohv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -293,7 +332,10 @@ codeunit 97753 "LT BCP Empty Source"
         L.W(Src, 'x');
         Observer.Observe('E7 after write src', L.Rd(Src));
         Observer.Observe('E7 after write rr', L.RdRR(RR));
-        Observer.Finish();
+        Observer.Expect('E7 after Clear src', 'nohv:');
+        Observer.Expect('E7 after write src', 'hv:x');
+        Observer.Expect('E7 after write rr', 'nohv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -315,7 +357,11 @@ codeunit 97753 "LT BCP Empty Source"
         RR.SetTable(R);
         Observer.Observe('E8 after write rr data', L.Rd(R));
         Observer.Observe('E8 after write rr other', L.RdOther(R));
-        Observer.Finish();
+        Observer.Expect('E8 after write src data', 'hv:x');
+        Observer.Expect('E8 after write src other', 'hv:o');
+        Observer.Expect('E8 after write rr data', 'nohv:');
+        Observer.Expect('E8 after write rr other', 'hv:o');
+        Observer.Verify();
     end;
 
     [Test]
@@ -336,7 +382,11 @@ codeunit 97753 "LT BCP Empty Source"
         RR.SetTable(Dst);
         Observer.Observe('N1 after SetTable dst', L.Rd(Dst));
         Observer.Observe('N1 row', L.Stored(11));
-        Observer.Finish();
+        Observer.Expect('N1 after CalcFields src', 'hv:alpha');
+        Observer.Expect('N1 after CalcFields rr', 'hv:');
+        Observer.Expect('N1 after SetTable dst', 'hv:');
+        Observer.Expect('N1 row', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -356,7 +406,11 @@ codeunit 97753 "LT BCP Empty Source"
         RR.Modify();
         Observer.Observe('N2 after RR.Modify row', L.Stored(12));
         Observer.Observe('N2 after RR.Modify src', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('N2 after write src', 'hv:new');
+        Observer.Expect('N2 after write rr', 'hv:');
+        Observer.Expect('N2 after RR.Modify row', 'hv:alpha');
+        Observer.Expect('N2 after RR.Modify src', 'hv:new');
+        Observer.Verify();
     end;
 
     [Test]
@@ -377,7 +431,10 @@ codeunit 97753 "LT BCP Empty Source"
         Dst.CalcFields(Data);
         Observer.Observe('N3 after CalcFields dst', L.Rd(Dst));
         Observer.Observe('N3 after CalcFields rr', L.RdRR(RR));
-        Observer.Finish();
+        Observer.Expect('N3 after SetTable dst', 'hv:');
+        Observer.Expect('N3 after CalcFields dst', 'hv:alpha');
+        Observer.Expect('N3 after CalcFields rr', 'hv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -400,7 +457,11 @@ codeunit 97753 "LT BCP Empty Source"
         RR.Modify();
         Observer.Observe('N4 after RR.Modify row', L.Stored(14));
         Observer.Observe('N4 after RR.Modify dst', L.Rd(Dst));
-        Observer.Finish();
+        Observer.Expect('N4 after write dst', 'hv:new');
+        Observer.Expect('N4 after write rr', 'hv:');
+        Observer.Expect('N4 after RR.Modify row', 'hv:alpha');
+        Observer.Expect('N4 after RR.Modify dst', 'hv:new');
+        Observer.Verify();
     end;
 
     [Test]
@@ -420,7 +481,10 @@ codeunit 97753 "LT BCP Empty Source"
         Src.CalcFields(Data);
         Observer.Observe('N5 after CalcFields src', L.Rd(Src));
         Observer.Observe('N5 after CalcFields rr', L.RdRR(RR));
-        Observer.Finish();
+        Observer.Expect('N5 after Validate rr', 'nohv:');
+        Observer.Expect('N5 after CalcFields src', 'hv:alpha');
+        Observer.Expect('N5 after CalcFields rr', 'nohv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -443,7 +507,10 @@ codeunit 97753 "LT BCP Empty Source"
         Observer.Observe('N6 after FieldRef.Value rr', L.RdRR(RR));
         Dst.Data := V;
         Observer.Observe('N6 after Dst.Data := V dst', L.Rd(Dst));
-        Observer.Finish();
+        Observer.Expect('N6 after CalcFields src', 'hv:alpha');
+        Observer.Expect('N6 after FieldRef.Value rr', 'nohv:');
+        Observer.Expect('N6 after Dst.Data := V dst', 'nohv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -463,7 +530,10 @@ codeunit 97753 "LT BCP Empty Source"
         Observer.Observe('N7 after CalcField src', L.Rd(Src));
         RR.SetTable(Dst);
         Observer.Observe('N7 after SetTable dst', L.Rd(Dst));
-        Observer.Finish();
+        Observer.Expect('N7 after CalcField rr', 'hv:alpha');
+        Observer.Expect('N7 after CalcField src', 'hv:');
+        Observer.Expect('N7 after SetTable dst', 'hv:alpha');
+        Observer.Verify();
     end;
 }
 
@@ -528,7 +598,9 @@ codeunit 97754 "LT BCP Call Forms"
         TakeVar(Src.Data, Src, Dst);
         Observer.Observe('V3 dst', L.Rd(Dst));
         Observer.Observe('V3 src', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('V3 dst', 'hv:alpha');
+        Observer.Expect('V3 src', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -546,7 +618,9 @@ codeunit 97754 "LT BCP Call Forms"
         Dst.Data := V;
         Observer.Observe('V1 dst', L.Rd(Dst));
         Observer.Observe('V1 src', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('V1 dst', 'hv:alpha');
+        Observer.Expect('V1 src', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -568,7 +642,10 @@ codeunit 97754 "LT BCP Call Forms"
         Dst.Data := V;
         Observer.Observe('V2 dst from V', L.Rd(Dst));
         Observer.Observe('V2 src', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('V2 dst from V2', 'hv:alpha');
+        Observer.Expect('V2 dst from V', 'hv:alpha');
+        Observer.Expect('V2 src', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -586,7 +663,9 @@ codeunit 97754 "LT BCP Call Forms"
         Dst.Data := V[1];
         Observer.Observe('V5 dst', L.Rd(Dst));
         Observer.Observe('V5 src', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('V5 dst', 'hv:alpha');
+        Observer.Expect('V5 src', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -604,7 +683,9 @@ codeunit 97754 "LT BCP Call Forms"
         Dst.Data := GVar;
         Observer.Observe('GV dst', L.Rd(Dst));
         Observer.Observe('GV src', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('GV dst', 'hv:alpha');
+        Observer.Expect('GV src', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -622,7 +703,9 @@ codeunit 97754 "LT BCP Call Forms"
         Dst.Data := V;
         Observer.Observe('V6 dst', L.Rd(Dst));
         Observer.Observe('V6 grow', L.Rd(GRow));
-        Observer.Finish();
+        Observer.Expect('V6 dst', 'hv:alpha');
+        Observer.Expect('V6 grow', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -645,7 +728,13 @@ codeunit 97754 "LT BCP Call Forms"
         L.W(Src, 'beta');
         Observer.Observe('X6 after write src dst', L.Rd(Dst));
         Observer.Observe('X6 after write src rr', L.RdRR(RR));
-        Observer.Finish();
+        Observer.Expect('X6 after SetTable dst', 'hv:alpha');
+        Observer.Expect('X6 after write dst dst', 'hv:zzpha');
+        Observer.Expect('X6 after write dst rr', 'hv:alpha');
+        Observer.Expect('X6 after write dst src', 'hv:alpha');
+        Observer.Expect('X6 after write src dst', 'hv:zzpha');
+        Observer.Expect('X6 after write src rr', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -663,7 +752,10 @@ codeunit 97754 "LT BCP Call Forms"
         L.W(Dst, 'zz');
         Observer.Observe('TF2 after write dst src', L.Rd(Src));
         Observer.Observe('TF2 after write dst dst', L.Rd(Dst));
-        Observer.Finish();
+        Observer.Expect('TF2 after write src dst', 'hv:alpha');
+        Observer.Expect('TF2 after write dst src', 'hv:betaa');
+        Observer.Expect('TF2 after write dst dst', 'hv:zzpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -680,7 +772,9 @@ codeunit 97754 "LT BCP Call Forms"
         Observer.Observe('TF2f after write src dst', L.Rd(Dst));
         L.W(Dst, 'zz');
         Observer.Observe('TF2f after write dst src', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('TF2f after write src dst', 'hv:alpha');
+        Observer.Expect('TF2f after write dst src', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -698,7 +792,10 @@ codeunit 97754 "LT BCP Call Forms"
         L.W(Dst, 'zz');
         Observer.Observe('TF3 after write dst src', L.Rd(Src));
         Observer.Observe('TF3 after write dst dst', L.Rd(Dst));
-        Observer.Finish();
+        Observer.Expect('TF3 after write src dst', 'hv:alpha');
+        Observer.Expect('TF3 after write dst src', 'hv:betaa');
+        Observer.Expect('TF3 after write dst dst', 'hv:zzpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -718,7 +815,9 @@ codeunit 97754 "LT BCP Call Forms"
         IS.ReadText(T);
         Observer.Observe('TFO after write src dst', L.HasValueText(Dst.Data.HasValue()) + T);
         Observer.Observe('TFO after write src src', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('TFO after write src dst', 'hv:alpha');
+        Observer.Expect('TFO after write src src', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -738,7 +837,10 @@ codeunit 97754 "LT BCP Call Forms"
         Observer.Observe('P1 after GetTable src', L.Rd(Src));
         L.W(Src, 'zz');
         Observer.Observe('P1 after second write rr', L.RdRR(RR));
-        Observer.Finish();
+        Observer.Expect('P1 after GetTable rr', 'hv:alpha');
+        Observer.Expect('P1 after GetTable src', 'hv:betaa');
+        Observer.Expect('P1 after second write rr', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -753,7 +855,9 @@ codeunit 97754 "LT BCP Call Forms"
         FromVariant(GRow, RR);
         Observer.Observe('P2 rr', L.RdRR(RR));
         Observer.Observe('P2 grow', L.Rd(GRow));
-        Observer.Finish();
+        Observer.Expect('P2 rr', 'hv:alpha');
+        Observer.Expect('P2 grow', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -772,7 +876,9 @@ codeunit 97754 "LT BCP Call Forms"
         Dst := V;
         Observer.Observe('P3 dst', L.Rd(Dst));
         Observer.Observe('P3 src', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('P3 dst', 'hv:alpha');
+        Observer.Expect('P3 src', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -791,7 +897,9 @@ codeunit 97754 "LT BCP Call Forms"
         Dst := V;
         Observer.Observe('P4 dst', L.Rd(Dst));
         Observer.Observe('P4 src', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('P4 dst', 'hv:alpha');
+        Observer.Expect('P4 src', 'nohv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -810,7 +918,11 @@ codeunit 97754 "LT BCP Call Forms"
         L.W(Dst, 'zz');
         Observer.Observe('X2 after write dst src', L.Rd(Src));
         Observer.Observe('X2 after write dst dst', L.Rd(Dst));
-        Observer.Finish();
+        Observer.Expect('X2 after Copy dst', 'hv:alpha');
+        Observer.Expect('X2 after write src dst', 'hv:alpha');
+        Observer.Expect('X2 after write dst src', 'hv:betaa');
+        Observer.Expect('X2 after write dst dst', 'hv:zzpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -829,7 +941,11 @@ codeunit 97754 "LT BCP Call Forms"
         L.W(Dst, 'zz');
         Observer.Observe('X2s after write dst src', L.Rd(Src));
         Observer.Observe('X2s after write dst dst', L.Rd(Dst));
-        Observer.Finish();
+        Observer.Expect('X2s after Copy dst', 'hv:alpha');
+        Observer.Expect('X2s after write src dst', 'hv:alpha');
+        Observer.Expect('X2s after write dst src', 'hv:betaa');
+        Observer.Expect('X2s after write dst dst', 'hv:zzpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -849,7 +965,10 @@ codeunit 97754 "LT BCP Call Forms"
         Observer.Observe('X2r after Src.Insert row', L.Stored(21));
         Observer.Observe('X2r after Src.Insert src', L.Rd(Src));
         Observer.Observe('X2r after Src.Insert dst', L.Rd(Dst));
-        Observer.Finish();
+        Observer.Expect('X2r after Src.Insert row', 'hv:alpha');
+        Observer.Expect('X2r after Src.Insert src', 'hv:alpha');
+        Observer.Expect('X2r after Src.Insert dst', 'hv:zzpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -862,7 +981,9 @@ codeunit 97754 "LT BCP Call Forms"
         L.W(Src, 'alpha');
         Observer.Observe('P5t inside', ByValueTemp(Src));
         Observer.Observe('P5t caller', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('P5t inside', 'hv:zzpha');
+        Observer.Expect('P5t caller', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -875,7 +996,9 @@ codeunit 97754 "LT BCP Call Forms"
         L.W(Src, 'alpha');
         Observer.Observe('P5 inside', ByValue(Src));
         Observer.Observe('P5 caller', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('P5 inside', 'hv:zzpha');
+        Observer.Expect('P5 caller', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -894,7 +1017,11 @@ codeunit 97754 "LT BCP Call Forms"
         L.W(Dst, 'zz');
         Observer.Observe('X1 after write dst src', L.Rd(Src));
         Observer.Observe('X1 after write dst dst', L.Rd(Dst));
-        Observer.Finish();
+        Observer.Expect('X1 after assign dst', 'hv:alpha');
+        Observer.Expect('X1 after write src dst', 'hv:alpha');
+        Observer.Expect('X1 after write dst src', 'hv:betaa');
+        Observer.Expect('X1 after write dst dst', 'hv:zzpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -913,7 +1040,9 @@ codeunit 97754 "LT BCP Call Forms"
         Src.Insert();
         Observer.Observe('X1r after Src.Insert row', L.Stored(22));
         Observer.Observe('X1r after Src.Insert dst', L.Rd(Dst));
-        Observer.Finish();
+        Observer.Expect('X1r after Src.Insert row', 'hv:alpha');
+        Observer.Expect('X1r after Src.Insert dst', 'hv:zzpha');
+        Observer.Verify();
     end;
 }
 
@@ -1033,7 +1162,12 @@ codeunit 97755 "LT BCP Field Kinds"
         GetSet(Observer, 'memo', 5);
         TransferF(Observer, 'memo', 5);
         ToData(Observer, 'memo', 5);
-        Observer.Finish();
+        Observer.Expect('memo GetTable then write src dst', 'hv:alpha');
+        Observer.Expect('memo write dst src', 'hv:betaa');
+        Observer.Expect('memo TransferFields then write src dst', 'hv:alpha');
+        Observer.Expect('memo FieldRef.Value into Data then write src rr', 'hv:alpha');
+        Observer.Expect('memo Variant into Data then write src dst', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1044,7 +1178,12 @@ codeunit 97755 "LT BCP Field Kinds"
         GetSet(Observer, 'plain', 4);
         TransferF(Observer, 'plain', 4);
         ToData(Observer, 'plain', 4);
-        Observer.Finish();
+        Observer.Expect('plain GetTable then write src dst', 'hv:alpha');
+        Observer.Expect('plain write dst src', 'hv:betaa');
+        Observer.Expect('plain TransferFields then write src dst', 'hv:alpha');
+        Observer.Expect('plain FieldRef.Value into Data then write src rr', 'hv:alpha');
+        Observer.Expect('plain Variant into Data then write src dst', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1055,7 +1194,12 @@ codeunit 97755 "LT BCP Field Kinds"
         GetSet(Observer, 'ext', 97751);
         TransferF(Observer, 'ext', 97751);
         ToData(Observer, 'ext', 97751);
-        Observer.Finish();
+        Observer.Expect('ext GetTable then write src dst', 'hv:alpha');
+        Observer.Expect('ext write dst src', 'hv:betaa');
+        Observer.Expect('ext TransferFields then write src dst', 'hv:alpha');
+        Observer.Expect('ext FieldRef.Value into Data then write src rr', 'hv:alpha');
+        Observer.Expect('ext Variant into Data then write src dst', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1080,7 +1224,10 @@ codeunit 97755 "LT BCP Field Kinds"
         R.CalcFields(Added);
         Observer.Observe('ext row', ReadField(R, 97751));
         Observer.Observe('ext src', ReadField(Src, 97751));
-        Observer.Finish();
+        Observer.Expect('ext row before CalcFields', 'hv:');
+        Observer.Expect('ext row', 'hv:alpha');
+        Observer.Expect('ext src', 'hv:newha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1100,7 +1247,10 @@ codeunit 97755 "LT BCP Field Kinds"
         OS.WriteText('pha');
         Observer.Observe('X4 after stream write src', L.Rd(Src));
         Observer.Observe('X4 after stream write rr', L.RdRR(RR));
-        Observer.Finish();
+        Observer.Expect('X4 after SetTable src', 'hv:al');
+        Observer.Expect('X4 after stream write src', 'hv:al');
+        Observer.Expect('X4 after stream write rr', 'hv:al');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1118,6 +1268,8 @@ codeunit 97755 "LT BCP Field Kinds"
         OS.WriteText('pha');
         Observer.Observe('X4g after stream write src', L.Rd(Src));
         Observer.Observe('X4g after stream write rr', L.RdRR(RR));
-        Observer.Finish();
+        Observer.Expect('X4g after stream write src', 'hv:alpha');
+        Observer.Expect('X4g after stream write rr', 'hv:al');
+        Observer.Verify();
     end;
 }
