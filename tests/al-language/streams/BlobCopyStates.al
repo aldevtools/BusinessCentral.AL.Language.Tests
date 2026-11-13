@@ -1,14 +1,16 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/fieldref/fieldref-value-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own table 97760, table extension 97761, helper codeunits 97763, 97769, 97770, 97771;
-//   test codeunits 97764, 97765, 97766, 97767
+// Fixtures used: Probe Observer (codeunit 69160); own tables 97760, 97762, table extension 97761, interface "LT BC3 Taker",
+//   helper codeunits 97763, 97769, 97770, 97771, 97772; test codeunits 97764, 97765, 97766, 97767, 97768
 // Probe: written against real BC (al-runner issue 7948, third probe; the earlier ones are recordref-fieldref/fieldref/FieldRefValueBlobCopy.al
 //   and streams/BlobValueCopyShapes.al).
 // Facts: whether a Blob value is copied or shared, per state of the source Blob, when it moves through FieldRef.Value and FieldRef.Validate
 //   into a Compressed = false, a Compressed = true and a table extension Blob field, a record passed by value (also into a [TryFunction],
 //   an event publisher and its subscriber, a temporary record into a non-temporary parameter and the reverse), Record.Copy (also between a
 //   temporary and a stored record), RecordRef.SetTable(Rec, true), TransferFields with both InitPrimaryKeyFields values, a global Variant,
-//   a Variant array element, Codeunit.Run with TableNo, and the table triggers OnInsert, OnModify (Rec and xRec) and OnValidate.
+//   a Variant array element, Codeunit.Run with TableNo, and the table triggers OnInsert, OnModify (Rec and xRec) and OnValidate;
+//   neighbors: a Blob written again after Insert or Modify, a Blob filled by := or FieldRef.Value and then moved, other field kinds in
+//   a Variant, and a callee in another codeunit, an interface method, a table procedure, a var parameter passed on by value, a global record.
 //   Source states: mem (written in memory, not stored), ins (written, then Insert), calc (stored, Get and CalcFields), get (stored, Get only,
 //   Blob not loaded), empty (Init only), asg (copied by := from another record that holds 'alpha').
 //   Value format: hv: or nohv: (HasValue of the Blob in hand, no CalcFields) followed by the text read from the Blob in hand;
@@ -72,6 +74,49 @@ table 97760 "LT BC3 Row"
                     Seen := CopyStr(L.Rd(Rec), 1, 250);
                 end;
         end;
+    end;
+
+    // A table procedure that takes a record by value and writes its Blob.
+    procedure TakeByValue(R: Record "LT BC3 Row"; var AfterWrite: Text)
+    var
+        L: Codeunit "LT BC3 Lib";
+    begin
+        L.W(R, 'zz');
+        AfterWrite := L.Rd(R);
+    end;
+}
+
+// A second table with the same field numbers (TransferFields into another table).
+table 97762 "LT BC3 Other"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Key1; Integer) { DataClassification = SystemMetadata; }
+        field(2; Data; Blob) { DataClassification = SystemMetadata; }
+    }
+
+    keys
+    {
+        key(PK; Key1) { Clustered = true; }
+    }
+}
+
+interface "LT BC3 Taker"
+{
+    procedure Take(R: Record "LT BC3 Row"; var AfterWrite: Text);
+}
+
+// A callee in another codeunit, also reached through an interface.
+codeunit 97772 "LT BC3 Taker Impl" implements "LT BC3 Taker"
+{
+    procedure Take(R: Record "LT BC3 Row"; var AfterWrite: Text)
+    var
+        L: Codeunit "LT BC3 Lib";
+    begin
+        L.W(R, 'zz');
+        AfterWrite := L.Rd(R);
     end;
 }
 
@@ -2055,4 +2100,549 @@ codeunit 97767 "LT BC3 Calls"
         Observer.Finish();
     end;
 
+}
+
+// ---- Neighbors: a Blob written again after Insert or Modify, a Blob filled by := or FieldRef.Value, other field kinds in a Variant,
+// ---- and more call forms (another codeunit, an interface, a table procedure, a var parameter passed on, a global record) ----
+codeunit 97768 "LT BC3 Neighbors"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        L: Codeunit "LT BC3 Lib";
+        GV: Variant;
+        GRec: Record "LT BC3 Row";
+
+    local procedure ByValue(R: Record "LT BC3 Row"; var AfterWrite: Text)
+    begin
+        L.W(R, 'zz');
+        AfterWrite := L.Rd(R);
+    end;
+
+    local procedure ByValueTemp(R: Record "LT BC3 Row" temporary; var AfterWrite: Text)
+    begin
+        L.W(R, 'zz');
+        AfterWrite := L.Rd(R);
+    end;
+
+    local procedure PassOn(var R: Record "LT BC3 Row"; var AfterWrite: Text)
+    begin
+        ByValue(R, AfterWrite);
+    end;
+
+    local procedure TakeVar(V: Variant; var Dst: Record "LT BC3 Row")
+    begin
+        Dst.Data := V;
+    end;
+
+    // Writes 'beta' into field F of Src, then assigns the Variant parameter to Dst.Data.
+    local procedure TakeVarWrite(V: Variant; var Src: Record "LT BC3 Row"; var Dst: Record "LT BC3 Row"; F: Integer)
+    begin
+        L.WF(Src, F, 'beta');
+        Dst.Data := V;
+    end;
+
+    [Test]
+    procedure InsertWriteAgain_ByValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row";
+        B: Text;
+    begin
+        // A1
+        L.Reset();
+        Src.Key1 := 40;
+        L.W(Src, 'alpha');
+        Src.Insert();
+        L.W(Src, 'beta');
+        ByValue(Src, B);
+        Observer.Observe('A1 in w', B);
+        Observer.Observe('A1 src', L.Rd(Src));
+        Src.Modify();
+        Observer.Observe('A1 row', L.Stored(40));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TempInsertWriteAgain_ByValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row" temporary;
+        B: Text;
+    begin
+        // A2
+        Src.Key1 := 41;
+        L.W(Src, 'alpha');
+        Src.Insert();
+        L.W(Src, 'beta');
+        ByValueTemp(Src, B);
+        Observer.Observe('A2 in w', B);
+        Observer.Observe('A2 src', L.Rd(Src));
+        Src.Get(41);
+        Observer.Observe('A2 src get', L.Rd(Src));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure InsertWriteAgain_Copy_Modify()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row";
+        Dst: Record "LT BC3 Row";
+    begin
+        // A3
+        L.Reset();
+        Src.Key1 := 42;
+        L.W(Src, 'alpha');
+        Src.Insert();
+        L.W(Src, 'beta');
+        Dst.Copy(Src);
+        Observer.Observe('A3 dst', L.Rd(Dst));
+        L.W(Dst, 'zz');
+        Observer.Observe('A3 src w dst', L.Rd(Src));
+        Src.Modify();
+        Observer.Observe('A3 row', L.Stored(42));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ModifyWriteAgain_ByValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row";
+        B: Text;
+    begin
+        // A4
+        L.Reset();
+        Src.Key1 := 43;
+        Src.Insert();
+        L.W(Src, 'alpha');
+        Src.Modify();
+        L.W(Src, 'beta');
+        ByValue(Src, B);
+        Observer.Observe('A4 in w', B);
+        Observer.Observe('A4 src', L.Rd(Src));
+        Src.Modify();
+        Observer.Observe('A4 row', L.Stored(43));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TempInsertWriteAgain_GlobalVariant_TransferFieldsTrue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row" temporary;
+        Dst: Record "LT BC3 Row" temporary;
+        Dst2: Record "LT BC3 Row" temporary;
+    begin
+        // A5
+        Src.Key1 := 44;
+        L.W(Src, 'alpha');
+        Src.Insert();
+        L.W(Src, 'beta');
+        GV := Src.Data;
+        Dst2.TransferFields(Src, true);
+        L.W(Src, 'zz');
+        Dst.Data := GV;
+        Observer.Observe('A5 gv', L.Rd(Dst));
+        Observer.Observe('A5 tf', L.Rd(Dst2));
+        L.W(Dst2, 'yyyyyy');
+        Observer.Observe('A5 src w tf', L.Rd(Src));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure StoredInsertWriteAgain_GlobalVariant_TransferFieldsTrue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row";
+        Dst: Record "LT BC3 Row";
+        Dst2: Record "LT BC3 Row";
+    begin
+        // A5 with a stored record
+        L.Reset();
+        Src.Key1 := 45;
+        L.W(Src, 'alpha');
+        Src.Insert();
+        L.W(Src, 'beta');
+        GV := Src.Data;
+        Dst2.TransferFields(Src, true);
+        L.W(Src, 'zz');
+        Dst.Data := GV;
+        Observer.Observe('A5s gv', L.Rd(Dst));
+        Observer.Observe('A5s tf', L.Rd(Dst2));
+        Src.Modify();
+        Observer.Observe('A5s row', L.Stored(45));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure FieldAssignedBlob_ByValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row";
+        Mid: Record "LT BC3 Row";
+        B: Text;
+    begin
+        // B1
+        L.W(Src, 'alpha');
+        Mid.Data := Src.Data;
+        ByValue(Mid, B);
+        Observer.Observe('B1 in w', B);
+        Observer.Observe('B1 mid', L.Rd(Mid));
+        Observer.Observe('B1 src', L.Rd(Src));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecordAssignedThenWritten_ByValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row";
+        Mid: Record "LT BC3 Row";
+        B: Text;
+    begin
+        // B2
+        L.W(Src, 'alpha');
+        Mid := Src;
+        L.W(Mid, 'beta');
+        ByValue(Mid, B);
+        Observer.Observe('B2 in w', B);
+        Observer.Observe('B2 mid', L.Rd(Mid));
+        Observer.Observe('B2 src', L.Rd(Src));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure FieldRefValueBlob_SetTable_ByValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row";
+        Mid: Record "LT BC3 Row";
+        RR: RecordRef;
+        B: Text;
+    begin
+        // B3
+        L.W(Src, 'alpha');
+        RR.GetTable(Mid);
+        RR.Field(2).Value := Src.Data;
+        RR.SetTable(Mid);
+        ByValue(Mid, B);
+        Observer.Observe('B3 in w', B);
+        Observer.Observe('B3 mid', L.Rd(Mid));
+        Observer.Observe('B3 src', L.Rd(Src));
+        Observer.Observe('B3 rr', L.RdRR(RR, 2));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure FieldAssignedBlob_Copy()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row";
+        Mid: Record "LT BC3 Row";
+        Dst: Record "LT BC3 Row";
+    begin
+        // B1 moved by Record.Copy
+        L.W(Src, 'alpha');
+        Mid.Data := Src.Data;
+        Dst.Copy(Mid);
+        L.W(Dst, 'zz');
+        Observer.Observe('B1c mid w dst', L.Rd(Mid));
+        L.W(Mid, 'beta');
+        Observer.Observe('B1c dst w mid', L.Rd(Dst));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure GetCalcFieldsThenWrite_ByValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row";
+        B: Text;
+    begin
+        // B4
+        L.Reset();
+        Src.Key1 := 46;
+        L.W(Src, 'alpha');
+        Src.Insert();
+        Clear(Src);
+        Src.Get(46);
+        Src.CalcFields(Data);
+        L.W(Src, 'beta');
+        ByValue(Src, B);
+        Observer.Observe('B4 in w', B);
+        Observer.Observe('B4 src', L.Rd(Src));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure GetNoCalcFieldsThenWrite_ByValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row";
+        B: Text;
+    begin
+        // B5
+        L.Reset();
+        Src.Key1 := 47;
+        L.W(Src, 'alpha');
+        Src.Insert();
+        Clear(Src);
+        Src.Get(47);
+        L.W(Src, 'beta');
+        ByValue(Src, B);
+        Observer.Observe('B5 in w', B);
+        Observer.Observe('B5 src', L.Rd(Src));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure OtherKinds_ByValueVariantParam()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row" temporary;
+        Dst: Record "LT BC3 Row" temporary;
+    begin
+        // C1, C2, C3
+        L.WF(Src, 97761, 'alpha');
+        TakeVarWrite(Src.Added, Src, Dst, 97761);
+        Observer.Observe('C1 ext dst', L.Rd(Dst));
+        Observer.Observe('C1 ext src', L.RF(Src, 97761));
+        Clear(Dst);
+        L.WF(Src, 4, 'alpha');
+        TakeVarWrite(Src.Plain, Src, Dst, 4);
+        Observer.Observe('C2 plain dst', L.Rd(Dst));
+        Observer.Observe('C2 plain src', L.RF(Src, 4));
+        Clear(Dst);
+        L.WF(Src, 5, 'alpha');
+        TakeVarWrite(Src.Comp, Src, Dst, 5);
+        Observer.Observe('C3 comp dst', L.Rd(Dst));
+        Observer.Observe('C3 comp src', L.RF(Src, 5));
+        Observer.Finish();
+    end;
+
+    local procedure KindVariants(var Observer: Codeunit "Probe Observer"; Tag: Text; F: Integer)
+    var
+        Src: Record "LT BC3 Row" temporary;
+        Dst: Record "LT BC3 Row" temporary;
+        Dst2: Record "LT BC3 Row" temporary;
+        Dst3: Record "LT BC3 Row" temporary;
+        A: array[2] of Variant;
+        V: Variant;
+    begin
+        L.WF(Src, F, 'alpha');
+        case F of
+            4:
+                begin
+                    GV := Src.Plain;
+                    A[1] := Src.Plain;
+                    V := Src.Plain;
+                end;
+            5:
+                begin
+                    GV := Src.Comp;
+                    A[1] := Src.Comp;
+                    V := Src.Comp;
+                end;
+            97761:
+                begin
+                    GV := Src.Added;
+                    A[1] := Src.Added;
+                    V := Src.Added;
+                end;
+        end;
+        L.WF(Src, F, 'beta');
+        Dst.Data := GV;
+        Dst2.Data := A[1];
+        Dst3.Data := V;
+        Observer.Observe(Tag + ' gv', L.Rd(Dst));
+        Observer.Observe(Tag + ' arr', L.Rd(Dst2));
+        Observer.Observe(Tag + ' local', L.Rd(Dst3));
+    end;
+
+    [Test]
+    procedure OtherKinds_GlobalVariant_ArrayElement_LocalVariant()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        // C4, C5
+        KindVariants(Observer, 'C4 ext', 97761);
+        KindVariants(Observer, 'C4 plain', 4);
+        KindVariants(Observer, 'C5 comp', 5);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure OtherKinds_RecordByValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row";
+    begin
+        // C6
+        L.WF(Src, 97761, 'alpha');
+        L.WF(Src, 4, 'alpha');
+        L.WF(Src, 5, 'alpha');
+        WriteOthersByValue(Src);
+        Observer.Observe('C6 ext', L.RF(Src, 97761));
+        Observer.Observe('C6 plain', L.RF(Src, 4));
+        Observer.Observe('C6 comp', L.RF(Src, 5));
+        Observer.Finish();
+    end;
+
+    local procedure WriteOthersByValue(R: Record "LT BC3 Row")
+    begin
+        L.WF(R, 97761, 'zz');
+        L.WF(R, 4, 'zz');
+        L.WF(R, 5, 'zz');
+    end;
+
+    [Test]
+    procedure OtherCodeunit_ByValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row";
+        Impl: Codeunit "LT BC3 Taker Impl";
+        B: Text;
+    begin
+        // D1
+        L.W(Src, 'alpha');
+        Impl.Take(Src, B);
+        Observer.Observe('D1 in w', B);
+        Observer.Observe('D1 src', L.Rd(Src));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure InterfaceMethod_ByValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row";
+        Impl: Codeunit "LT BC3 Taker Impl";
+        I: Interface "LT BC3 Taker";
+        B: Text;
+    begin
+        // D2
+        I := Impl;
+        L.W(Src, 'alpha');
+        I.Take(Src, B);
+        Observer.Observe('D2 in w', B);
+        Observer.Observe('D2 src', L.Rd(Src));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TableProcedure_ByValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row";
+        Other: Record "LT BC3 Row";
+        B: Text;
+    begin
+        // D3
+        L.W(Src, 'alpha');
+        Other.TakeByValue(Src, B);
+        Observer.Observe('D3 in w', B);
+        Observer.Observe('D3 src', L.Rd(Src));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure VarParameterPassedOnByValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row";
+        B: Text;
+    begin
+        // D4
+        L.W(Src, 'alpha');
+        PassOn(Src, B);
+        Observer.Observe('D4 in w', B);
+        Observer.Observe('D4 src', L.Rd(Src));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure GlobalRecord_ByValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        B: Text;
+    begin
+        // D5
+        Clear(GRec);
+        L.W(GRec, 'alpha');
+        ByValue(GRec, B);
+        Observer.Observe('D5 in w', B);
+        Observer.Observe('D5 grec', L.Rd(GRec));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure VariantHoldingBlob_ByValueVariantParam()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row" temporary;
+        Dst: Record "LT BC3 Row" temporary;
+        Src2: Record "LT BC3 Row" temporary;
+        V: Variant;
+    begin
+        // D6
+        L.W(Src, 'alpha');
+        V := Src.Data;
+        TakeVar(V, Dst);
+        L.W(Dst, 'zz');
+        Src2.Data := V;
+        Observer.Observe('D6 v', L.Rd(Src2));
+        Observer.Observe('D6 src', L.Rd(Src));
+        Observer.Observe('D6 dst', L.Rd(Dst));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TransferFieldsTrue_OtherTable()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row" temporary;
+        Dst: Record "LT BC3 Other" temporary;
+        IS: InStream;
+        OS: OutStream;
+        T: Text;
+    begin
+        // E1
+        L.W(Src, 'alpha');
+        Dst.TransferFields(Src, true);
+        L.W(Src, 'beta');
+        Dst.Data.CreateInStream(IS);
+        IS.ReadText(T);
+        Observer.Observe('E1 dst w src', L.HasValueText(Dst.Data.HasValue()) + T);
+        Dst.Data.CreateOutStream(OS);
+        OS.WriteText('zz');
+        Observer.Observe('E1 src w dst', L.Rd(Src));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Copy_TwoBlobsOneStored()
+    var
+        Observer: Codeunit "Probe Observer";
+        Src: Record "LT BC3 Row";
+        Dst: Record "LT BC3 Row";
+    begin
+        // E2
+        L.Reset();
+        Src.Key1 := 48;
+        L.W(Src, 'alpha');
+        Src.Insert();
+        L.WF(Src, 4, 'alpha');
+        Dst.Copy(Src);
+        L.W(Dst, 'zz');
+        L.WF(Dst, 4, 'zz');
+        Observer.Observe('E2 src data', L.Rd(Src));
+        Observer.Observe('E2 src plain', L.RF(Src, 4));
+        Src.Modify();
+        Observer.Observe('E2 row data', L.Stored(48));
+        Observer.Observe('E2 row plain', L.StoredF(48, 4));
+        Observer.Finish();
+    end;
 }
