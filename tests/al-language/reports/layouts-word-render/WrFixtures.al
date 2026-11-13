@@ -118,6 +118,430 @@ report 91112 "WR Gate Plain Binding"
     }
 }
 
+// Values of each column type in one table row.
+report 91113 "WR Values"
+{
+    UsageCategory = None;
+    UseRequestPage = false;
+    DefaultRenderingLayout = WrValues;
+
+    dataset
+    {
+        dataitem(Line; "WR Line")
+        {
+            column(LineTxt; Txt) { }
+            column(LineCd; Cd) { }
+            column(LineQty; Qty) { }
+            column(LineAmt; Amt) { }
+            column(LineAmtFmt; Amt) { AutoFormatType = 1; AutoFormatExpression = ''; }
+            column(LineDt; Dt) { }
+            column(LineFlag; Flag) { }
+            column(LineOpt; Opt) { }
+            column(LineTxtCaptionCol; Txt) { IncludeCaption = true; }
+        }
+    }
+
+
+    rendering
+    {
+        layout(WrValues)
+        {
+            Type = Word;
+            LayoutFile = './reports/layouts-word-render/WrValues.docx';
+        }
+    }
+
+    labels
+    {
+        WrLabel = 'WRLABELTEXT';
+    }
+}
+
+// A parent data item and a linked child; the child row also binds a column of the parent.
+report 91114 "WR Parent Child"
+{
+    UsageCategory = None;
+    UseRequestPage = false;
+    DefaultRenderingLayout = WrParentChild;
+
+    dataset
+    {
+        dataitem(Head; "WR Head")
+        {
+            column(HeadName; Name) { }
+            dataitem(Line; "WR Line")
+            {
+                DataItemLink = HeadId = field(Id);
+                column(LineTxt; Txt) { }
+            }
+        }
+    }
+
+    rendering
+    {
+        layout(WrParentChild)
+        {
+            Type = Word;
+            LayoutFile = './reports/layouts-word-render/WrParentChild.docx';
+        }
+    }
+}
+
+// A child data item without columns; its repeater has static text only.
+report 91115 "WR No Columns"
+{
+    UsageCategory = None;
+    UseRequestPage = false;
+    DefaultRenderingLayout = WrNoColumns;
+
+    dataset
+    {
+        dataitem(Head; "WR Head")
+        {
+            column(HeadName; Name) { }
+            dataitem(Line; "WR Line")
+            {
+                DataItemLink = HeadId = field(Id);
+            }
+        }
+    }
+
+    rendering
+    {
+        layout(WrNoColumns)
+        {
+            Type = Word;
+            LayoutFile = './reports/layouts-word-render/WrNoColumns.docx';
+        }
+    }
+}
+
+// CurrReport.Break in OnPreDataItem of Line.
+report 91116 "WR Break Pre"
+{
+    UsageCategory = None;
+    UseRequestPage = false;
+    DefaultRenderingLayout = WrBreakPre;
+
+    dataset
+    {
+        dataitem(Head; "WR Head")
+        {
+            column(HeadName; Name) { }
+        }
+        dataitem(Line; "WR Line")
+        {
+            column(LineTxt; Txt) { }
+
+            trigger OnPreDataItem()
+            begin
+                CurrReport.Break();
+            end;
+        }
+    }
+
+    rendering
+    {
+        layout(WrBreakPre)
+        {
+            Type = Word;
+            LayoutFile = './reports/layouts-word-render/WrBreakPre.docx';
+        }
+    }
+}
+
+// CurrReport.Break in OnAfterGetRecord of Line, on its first record.
+report 91117 "WR Break After"
+{
+    UsageCategory = None;
+    UseRequestPage = false;
+    DefaultRenderingLayout = WrBreakAfter;
+
+    dataset
+    {
+        dataitem(Head; "WR Head")
+        {
+            column(HeadName; Name) { }
+        }
+        dataitem(Line; "WR Line")
+        {
+            column(LineTxt; Txt) { }
+
+            trigger OnAfterGetRecord()
+            begin
+                CurrReport.Break();
+            end;
+        }
+    }
+
+    rendering
+    {
+        layout(WrBreakAfter)
+        {
+            Type = Word;
+            LayoutFile = './reports/layouts-word-render/WrBreakAfter.docx';
+        }
+    }
+}
+
+// Two top-level data items, each with its own repeater, side by side.
+report 91118 "WR Two Items"
+{
+    UsageCategory = None;
+    UseRequestPage = false;
+    DefaultRenderingLayout = WrTwoItems;
+
+    dataset
+    {
+        dataitem(Head; "WR Head")
+        {
+            column(HeadName; Name) { }
+        }
+        dataitem(Line; "WR Line")
+        {
+            column(LineTxt; Txt) { }
+        }
+    }
+
+    rendering
+    {
+        layout(WrTwoItems)
+        {
+            Type = Word;
+            LayoutFile = './reports/layouts-word-render/WrTwoItems.docx';
+        }
+    }
+}
+
+// Bound controls in the page header and footer.
+report 91119 "WR Parts"
+{
+    UsageCategory = None;
+    UseRequestPage = false;
+    DefaultRenderingLayout = WrParts;
+
+    dataset
+    {
+        dataitem(Head; "WR Head")
+        {
+            column(HeadName; Name) { }
+        }
+    }
+
+    rendering
+    {
+        layout(WrParts)
+        {
+            Type = Word;
+            LayoutFile = './reports/layouts-word-render/WrParts.docx';
+        }
+    }
+}
+
+// A picture control bound to a BLOB column.
+report 91120 "WR Picture"
+{
+    UsageCategory = None;
+    UseRequestPage = false;
+    DefaultRenderingLayout = WrPicture;
+
+    dataset
+    {
+        dataitem(Line; "WR Line")
+        {
+            column(LineTxt; Txt) { }
+            column(LinePic; Pic) { }
+        }
+    }
+
+    rendering
+    {
+        layout(WrPicture)
+        {
+            Type = Word;
+            LayoutFile = './reports/layouts-word-render/WrPicture.docx';
+        }
+    }
+}
+
+// A control bound to a path that names no column (NoSuchColumn), next to a bound column.
+report 91121 "WR Unknown Path"
+{
+    UsageCategory = None;
+    UseRequestPage = false;
+    DefaultRenderingLayout = WrUnknownPath;
+
+    dataset
+    {
+        dataitem(Line; "WR Line")
+        {
+            column(LineTxt; Txt) { }
+        }
+    }
+
+    rendering
+    {
+        layout(WrUnknownPath)
+        {
+            Type = Word;
+            LayoutFile = './reports/layouts-word-render/WrUnknownPath.docx';
+        }
+    }
+}
+
+// The layout's data part lacks the column LineCd that the dataset has (the column was added after the layout was made).
+report 91122 "WR Older Part"
+{
+    UsageCategory = None;
+    UseRequestPage = false;
+    DefaultRenderingLayout = WrOlderPart;
+
+    dataset
+    {
+        dataitem(Line; "WR Line")
+        {
+            column(LineTxt; Txt) { }
+            column(LineCd; Cd) { }
+        }
+    }
+
+    rendering
+    {
+        layout(WrOlderPart)
+        {
+            Type = Word;
+            LayoutFile = './reports/layouts-word-render/WrOlderPart.docx';
+        }
+    }
+}
+
+// The layout's data part and bindings name the namespace of report 91110 (another report).
+report 91123 "WR Other Part"
+{
+    UsageCategory = None;
+    UseRequestPage = false;
+    DefaultRenderingLayout = WrOtherPart;
+
+    dataset
+    {
+        dataitem(Line; "WR Line")
+        {
+            column(LineTxt; Txt) { }
+        }
+    }
+
+    rendering
+    {
+        layout(WrOtherPart)
+        {
+            Type = Word;
+            LayoutFile = './reports/layouts-word-render/WrOtherPart.docx';
+        }
+    }
+}
+
+// WordMergeDataItem = Head: one copy of the body per Head record, no section breaks in the layout.
+report 91124 "WR Merge Item"
+{
+    UsageCategory = None;
+    UseRequestPage = false;
+    DefaultRenderingLayout = WrMergeItem;
+    WordMergeDataItem = Head;
+
+    dataset
+    {
+        dataitem(Head; "WR Head")
+        {
+            column(HeadName; Name) { }
+        }
+    }
+
+    rendering
+    {
+        layout(WrMergeItem)
+        {
+            Type = Word;
+            LayoutFile = './reports/layouts-word-render/WrMergeItem.docx';
+        }
+    }
+}
+
+// Two Word layouts; WrAltLayout is chosen by a temporary selection.
+report 91125 "WR Two Layouts"
+{
+    UsageCategory = None;
+    UseRequestPage = false;
+    DefaultRenderingLayout = WrMainLayout;
+
+    dataset
+    {
+        dataitem(Line; "WR Line")
+        {
+            column(LineTxt; Txt) { }
+        }
+    }
+
+    rendering
+    {
+        layout(WrMainLayout)
+        {
+            Type = Word;
+            LayoutFile = './reports/layouts-word-render/WrMainLayout.docx';
+        }
+        layout(WrAltLayout)
+        {
+            Type = Word;
+            LayoutFile = './reports/layouts-word-render/WrAltLayout.docx';
+        }
+    }
+}
+
+// Base report of the report extension below.
+report 91126 "WR Ext Base"
+{
+    UsageCategory = None;
+    UseRequestPage = false;
+    DefaultRenderingLayout = WrExtBase;
+
+    dataset
+    {
+        dataitem(Line; "WR Line")
+        {
+            column(LineTxt; Txt) { }
+        }
+    }
+
+    rendering
+    {
+        layout(WrExtBase)
+        {
+            Type = Word;
+            LayoutFile = './reports/layouts-word-render/WrExtBase.docx';
+        }
+    }
+}
+
+// Adds the column LineExtra to Line and a Word layout that binds it.
+reportextension 91127 "WR Ext" extends "WR Ext Base"
+{
+    dataset
+    {
+        add(Line)
+        {
+            column(LineExtra; Cd) { }
+        }
+    }
+
+    rendering
+    {
+        layout(WrExtLayout)
+        {
+            Type = Word;
+            LayoutFile = './reports/layouts-word-render/WrExtLayout.docx';
+        }
+    }
+}
+
 codeunit 91139 "WR Helper"
 {
     procedure Lines(N: Integer)
@@ -307,5 +731,38 @@ codeunit 91139 "WR Helper"
     procedure Body(var TempBlob: Codeunit "Temp Blob"): Text
     begin
         exit(PlainText(Part(TempBlob, 'word/document.xml')));
+    end;
+
+    // The text of the core properties part: the entry under package/services/metadata/core-properties/, else docProps/core.xml; 'missing' when neither.
+    procedure CoreProperties(var TempBlob: Codeunit "Temp Blob"): Text
+    var
+        DataCompression: Codeunit "Data Compression";
+        InS: InStream;
+        Names: List of [Text];
+        Name: Text;
+    begin
+        TempBlob.CreateInStream(InS);
+        DataCompression.OpenZipArchive(InS, false);
+        DataCompression.GetEntryList(Names);
+        DataCompression.CloseZipArchive();
+        foreach Name in Names do
+            if Name.StartsWith('package/services/metadata/core-properties/') then
+                exit(Part(TempBlob, Name));
+        exit(Part(TempBlob, 'docProps/core.xml'));
+    end;
+
+    // The whole stream read as UTF-8 text.
+    procedure WholeText(var TempBlob: Codeunit "Temp Blob"): Text
+    var
+        InS: InStream;
+        Line: Text;
+        Result: TextBuilder;
+    begin
+        TempBlob.CreateInStream(InS, TextEncoding::UTF8);
+        while not InS.EOS() do begin
+            InS.ReadText(Line);
+            Result.Append(Line);
+        end;
+        exit(Result.ToText());
     end;
 }
