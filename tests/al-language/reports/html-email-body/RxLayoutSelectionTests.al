@@ -9,6 +9,8 @@
 //   name. Each Word layout has a marker text, so the Html says which layout was used. And Report.SaveAs of the Word layout report when
 //   the run wrote no dataset row, for every format, with the answer used and as a statement; the same for the RDLC report (Pdf, Word) and
 //   for the legacy DefaultLayout = Word report (Html, Pdf).
+// Also the attachment form of Report Selections: a stored RDLC (built-in) row with an empty Company Name and with the company,
+//   SetTempLayoutSelected(''), then Report.SaveAs(Id, '', Format, OutStream, RecordRef) for Html, Pdf, Xml, Word and Excel.
 // Not asked: the Reporting Triggers events (a subscriber of a platform publisher makes the corpus CI run every test).
 // BC versions: 27 - 29
 
@@ -166,6 +168,50 @@ codeunit 80023 "RX Layout Selection Tests"
         Observer.Observe(Name + ' log', SelLog.Take());
         if Fmt = ReportFormat::Html then
             Observer.Observe(Name + ' layout marker', Markers(TempBlob));
+    end;
+
+    [TryFunction]
+    local procedure TrySaveWithRecord(ReportId: Integer; Fmt: ReportFormat; var TempBlob: Codeunit "Temp Blob"; RecRef: RecordRef; var Ok: Boolean)
+    var
+        OutS: OutStream;
+    begin
+        TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
+        Ok := Report.SaveAs(ReportId, '', Fmt, OutS, RecRef);
+    end;
+
+    // The attachment form of Report Selections: SetTempLayoutSelected(''), then the five-argument SaveAs with the source record.
+    local procedure RecordFormatFacts(var Observer: Codeunit "Probe Observer"; Name: Text; Fmt: ReportFormat)
+    var
+        Selection: Record "Report Layout Selection";
+        Row: Record "RX Row";
+        TempBlob: Codeunit "Temp Blob";
+        RecRef: RecordRef;
+        Completed: Boolean;
+        Ok: Boolean;
+    begin
+        Selection.SetTempLayoutSelected('');
+        Row.SetRange(Id, 1);
+        RecRef.GetTable(Row);
+        SelLog.Start();
+        ClearLastError();
+        Completed := TrySaveWithRecord(Report::"RX Sel Word", Fmt, TempBlob, RecRef, Ok);
+        Observer.Observe(Name + ' completed', Format(Completed));
+        Observer.Observe(Name + ' returned', Format(Ok));
+        Observer.ObserveError(Name + ' err');
+        Observer.Observe(Name + ' length > 0', Format(TempBlob.Length() > 0));
+        Observer.Observe(Name + ' first bytes', FirstBytes(TempBlob));
+        Observer.Observe(Name + ' log', SelLog.Take());
+        if Fmt = ReportFormat::Html then
+            Observer.Observe(Name + ' layout marker', Markers(TempBlob));
+    end;
+
+    local procedure SetupRdlcEmptyCompany()
+    var
+        Selection: Record "Report Layout Selection";
+    begin
+        Cleanup();
+        Html.Rows(2);
+        StoreSelection('', Selection.Type::"RDLC (built-in)", '');
     end;
 
     local procedure StatementFacts(var Observer: Codeunit "Probe Observer"; Name: Text; ReportId: Integer; Fmt: ReportFormat)
@@ -569,6 +615,69 @@ codeunit 80023 "RX Layout Selection Tests"
         Observer: Codeunit "Probe Observer";
     begin
         NoRowFacts(Observer, Report::"RX Legacy Word", ReportFormat::Pdf);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure StoredRdlcEmptyCompany_WithRecord_HtmlPdfXml()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SetupRdlcEmptyCompany();
+        RecordFormatFacts(Observer, 'html', ReportFormat::Html);
+        RecordFormatFacts(Observer, 'pdf', ReportFormat::Pdf);
+        RecordFormatFacts(Observer, 'xml', ReportFormat::Xml);
+        Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure StoredRdlcEmptyCompany_WithRecord_WordExcel()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SetupRdlcEmptyCompany();
+        RecordFormatFacts(Observer, 'word', ReportFormat::Word);
+        RecordFormatFacts(Observer, 'excel', ReportFormat::Excel);
+        Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure StoredRdlcCompany_WithRecord_HtmlPdfXml()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SetupRdlcBuiltin();
+        RecordFormatFacts(Observer, 'html', ReportFormat::Html);
+        RecordFormatFacts(Observer, 'pdf', ReportFormat::Pdf);
+        RecordFormatFacts(Observer, 'xml', ReportFormat::Xml);
+        Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure StoredRdlcCompany_WithRecord_WordExcel()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SetupRdlcBuiltin();
+        RecordFormatFacts(Observer, 'word', ReportFormat::Word);
+        RecordFormatFacts(Observer, 'excel', ReportFormat::Excel);
+        Cleanup();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoSelection_WithRecord_HtmlPdfXml()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SetupNoSelection();
+        RecordFormatFacts(Observer, 'html', ReportFormat::Html);
+        RecordFormatFacts(Observer, 'pdf', ReportFormat::Pdf);
+        RecordFormatFacts(Observer, 'xml', ReportFormat::Xml);
+        Cleanup();
         Observer.Finish();
     end;
 }
