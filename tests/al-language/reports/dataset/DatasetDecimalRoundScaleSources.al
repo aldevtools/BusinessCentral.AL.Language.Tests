@@ -1,14 +1,16 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/system/system-round-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160), W3 Dataset (67703)
-// local object: the report columns over Round results and over global Decimal variables are under test (reports 62346 and 62347).
+// local object: the report columns over Round results and over global Decimal variables are under test (reports 62346, 62347 and 62349).
 // Area: the scale (the trailing zeros) of a Decimal in the report dataset, by the shape of the value and of the column
 //   (al-runner issue 7958). Rows: Round of a whole number written with decimals (2.0, 2.000, 3.0); Round of a number with
 //   decimals to a precision written with a trailing zero (0.50, 0.10); Round(2.50 * 1, 0.01); each as an expression column
 //   (`W * 1`). A global Decimal variable as the column source by name, with and without the column's own
 //   DecimalPlaces = 0 : 5, set in OnAfterGetRecord or in OnPreReport, from Round(2.5, 0.01), Round(3, 0.25) and the literals
 //   2.50 and 1.00000. The repro of issue 7958 as reported: four rows of a Price column (DecimalPlaces = 0 : 5) over a variable
-//   set from Round in OnAfterGetRecord.
+//   set from Round in OnAfterGetRecord. Third round: where the zeros of a whole value go: a literal (1.00000, 2.0, 0.50), a sum
+//   and a product of Decimal variables, a product with an Integer literal, Evaluate, and Round of a variable set from 2.0, each
+//   read as the variable by name, as V * 1 and, for the sums and products, as the expression itself.
 // Already pinned elsewhere: a variable set to 1.00000 in OnPreReport, by name without own DecimalPlaces, writes 1
 //   (reports/dataset/DatasetDecimalPlacesValueOrigins.al:397); the other Round shapes are measured by
 //   reports/dataset/DatasetDecimalRoundScale.al (open pull request 1337).
@@ -123,7 +125,7 @@ codeunit 62348 "RPT DecRound Source Tests"
     begin
         // Column VarRoundWhole: a global variable set to Round(3, 0.25) in OnAfterGetRecord, by name.
         Observer.Observe('value', VarReportValue('VarRoundWhole'));
-        Observer.Expect('value', '3,');
+        Observer.Expect('value', '3.00,');
         Observer.Verify();
     end;
 
@@ -178,7 +180,7 @@ codeunit 62348 "RPT DecRound Source Tests"
     begin
         // Column VarLitWholePlaces: the same variable, the column with DecimalPlaces = 0 : 5.
         Observer.Observe('value', VarReportValue('VarLitWholePlaces'));
-        Observer.Expect('value', '1.00000,');
+        Observer.Expect('value', '1,');
         Observer.Verify();
     end;
 
@@ -211,7 +213,7 @@ codeunit 62348 "RPT DecRound Source Tests"
     begin
         // Column PreRoundWhole: a global variable set to Round(3, 0.25) in OnPreReport, by name.
         Observer.Observe('value', VarReportValue('PreRoundWhole'));
-        Observer.Expect('value', '3,');
+        Observer.Expect('value', '3.00,');
         Observer.Verify();
     end;
 
@@ -244,7 +246,7 @@ codeunit 62348 "RPT DecRound Source Tests"
     begin
         // Column PreLitWholePlaces: the same variable, the column with DecimalPlaces = 0 : 5.
         Observer.Observe('value', VarReportValue('PreLitWholePlaces'));
-        Observer.Expect('value', '1.00000,');
+        Observer.Expect('value', '1,');
         Observer.Verify();
     end;
 
@@ -268,6 +270,201 @@ codeunit 62348 "RPT DecRound Source Tests"
         Observer.Expect('format', '2.5|3|2.5|1.2');
         Observer.Verify();
     end;
+    [Test]
+    procedure Dataset_Decimal_RoundScale_Origin_LiteralWholeWithDecimals()
+    var
+        Observer: Codeunit "Probe Observer";
+        Dataset: Codeunit "W3 Dataset";
+        Xml: Text;
+    begin
+        // V := 1.00000: the variable by name, and V * 1.
+        Observer.Observe('saved', Format(Dataset.Save(Report::"RPT DecRound Origin", '', Xml)));
+        Observer.Observe('variable', Dataset.ColumnValues(Xml, 'LitWholeVar'));
+        Observer.Observe('times one', Dataset.ColumnValues(Xml, 'LitWholeT1'));
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('variable', '1,');
+        Observer.Expect('times one', '1,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_RoundScale_Origin_LiteralWholeWithOneDecimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Dataset: Codeunit "W3 Dataset";
+        Xml: Text;
+    begin
+        // V := 2.0: the variable by name, and V * 1.
+        Observer.Observe('saved', Format(Dataset.Save(Report::"RPT DecRound Origin", '', Xml)));
+        Observer.Observe('variable', Dataset.ColumnValues(Xml, 'LitOneDecVar'));
+        Observer.Observe('times one', Dataset.ColumnValues(Xml, 'LitOneDecT1'));
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('variable', '2,');
+        Observer.Expect('times one', '2,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_RoundScale_Origin_LiteralWithTrailingZero()
+    var
+        Observer: Codeunit "Probe Observer";
+        Dataset: Codeunit "W3 Dataset";
+        Xml: Text;
+    begin
+        // V := 0.50: the variable by name, and V * 1.
+        Observer.Observe('saved', Format(Dataset.Save(Report::"RPT DecRound Origin", '', Xml)));
+        Observer.Observe('variable', Dataset.ColumnValues(Xml, 'LitHalfVar'));
+        Observer.Observe('times one', Dataset.ColumnValues(Xml, 'LitHalfT1'));
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('variable', '0.50,');
+        Observer.Expect('times one', '0.50,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_RoundScale_Origin_SumWhole()
+    var
+        Observer: Codeunit "Probe Observer";
+        Dataset: Codeunit "W3 Dataset";
+        Xml: Text;
+    begin
+        // V := Half + Half (Decimal variables 0.5): the variable by name, V * 1, and the column Half + Half.
+        Observer.Observe('saved', Format(Dataset.Save(Report::"RPT DecRound Origin", '', Xml)));
+        Observer.Observe('variable', Dataset.ColumnValues(Xml, 'SumWholeVar'));
+        Observer.Observe('times one', Dataset.ColumnValues(Xml, 'SumWholeT1'));
+        Observer.Observe('expression', Dataset.ColumnValues(Xml, 'SumWholeExpr'));
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('variable', '1,');
+        Observer.Expect('times one', '1.0,');
+        Observer.Expect('expression', '1.0,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_RoundScale_Origin_ProductWhole()
+    var
+        Observer: Codeunit "Probe Observer";
+        Dataset: Codeunit "W3 Dataset";
+        Xml: Text;
+    begin
+        // V := Half * Two (Decimal variables 0.5 and 2): the variable by name, V * 1, and the column Half * Two.
+        Observer.Observe('saved', Format(Dataset.Save(Report::"RPT DecRound Origin", '', Xml)));
+        Observer.Observe('variable', Dataset.ColumnValues(Xml, 'ProdWholeVar'));
+        Observer.Observe('times one', Dataset.ColumnValues(Xml, 'ProdWholeT1'));
+        Observer.Observe('expression', Dataset.ColumnValues(Xml, 'ProdWholeExpr'));
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('variable', '1,');
+        Observer.Expect('times one', '1.0,');
+        Observer.Expect('expression', '1.0,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_RoundScale_Origin_SumWithTrailingZero()
+    var
+        Observer: Codeunit "Probe Observer";
+        Dataset: Codeunit "W3 Dataset";
+        Xml: Text;
+    begin
+        // V := Quarter + Quarter (Decimal variables 0.25): the variable by name, and V * 1.
+        Observer.Observe('saved', Format(Dataset.Save(Report::"RPT DecRound Origin", '', Xml)));
+        Observer.Observe('variable', Dataset.ColumnValues(Xml, 'SumHalfVar'));
+        Observer.Observe('times one', Dataset.ColumnValues(Xml, 'SumHalfT1'));
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('variable', '0.50,');
+        Observer.Expect('times one', '0.50,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_RoundScale_Origin_ProductOfDecimalVariables()
+    var
+        Observer: Codeunit "Probe Observer";
+        Dataset: Codeunit "W3 Dataset";
+        Xml: Text;
+    begin
+        // V := OneFive * Two (Decimal variables 1.5 and 2): the variable by name, V * 1, and the column OneFive * Two.
+        Observer.Observe('saved', Format(Dataset.Save(Report::"RPT DecRound Origin", '', Xml)));
+        Observer.Observe('variable', Dataset.ColumnValues(Xml, 'ProdDecVar'));
+        Observer.Observe('times one', Dataset.ColumnValues(Xml, 'ProdDecT1'));
+        Observer.Observe('expression', Dataset.ColumnValues(Xml, 'ProdDecExpr'));
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('variable', '3,');
+        Observer.Expect('times one', '3.0,');
+        Observer.Expect('expression', '3.0,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_RoundScale_Origin_ProductWithIntegerLiteral()
+    var
+        Observer: Codeunit "Probe Observer";
+        Dataset: Codeunit "W3 Dataset";
+        Xml: Text;
+    begin
+        // V := OneFive * 2 (Decimal variable 1.5, Integer literal 2): the variable by name, V * 1, and the column OneFive * 2.
+        Observer.Observe('saved', Format(Dataset.Save(Report::"RPT DecRound Origin", '', Xml)));
+        Observer.Observe('variable', Dataset.ColumnValues(Xml, 'ProdIntVar'));
+        Observer.Observe('times one', Dataset.ColumnValues(Xml, 'ProdIntT1'));
+        Observer.Observe('expression', Dataset.ColumnValues(Xml, 'ProdIntExpr'));
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('variable', '3.0,');
+        Observer.Expect('times one', '3.0,');
+        Observer.Expect('expression', '3.0,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_RoundScale_Origin_EvaluateWhole()
+    var
+        Observer: Codeunit "Probe Observer";
+        Dataset: Codeunit "W3 Dataset";
+        Xml: Text;
+    begin
+        // Evaluate(V, '1.00000', 9): the variable by name, and V * 1.
+        Observer.Observe('saved', Format(Dataset.Save(Report::"RPT DecRound Origin", '', Xml)));
+        Observer.Observe('variable', Dataset.ColumnValues(Xml, 'EvWholeVar'));
+        Observer.Observe('times one', Dataset.ColumnValues(Xml, 'EvWholeT1'));
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('variable', '1,');
+        Observer.Expect('times one', '1,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_RoundScale_Origin_EvaluateWithTrailingZero()
+    var
+        Observer: Codeunit "Probe Observer";
+        Dataset: Codeunit "W3 Dataset";
+        Xml: Text;
+    begin
+        // Evaluate(V, '2.50', 9): the variable by name, and V * 1.
+        Observer.Observe('saved', Format(Dataset.Save(Report::"RPT DecRound Origin", '', Xml)));
+        Observer.Observe('variable', Dataset.ColumnValues(Xml, 'EvHalfVar'));
+        Observer.Observe('times one', Dataset.ColumnValues(Xml, 'EvHalfT1'));
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('variable', '2.50,');
+        Observer.Expect('times one', '2.50,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_RoundScale_Origin_RoundOfVariableSetFromLiteral()
+    var
+        Observer: Codeunit "Probe Observer";
+        Dataset: Codeunit "W3 Dataset";
+        Xml: Text;
+    begin
+        // V := 2.0; R := Round(V, 0.01): R by name, and R * 1 (Round(2.0, 0.01) written directly is 2.00, see W1).
+        Observer.Observe('saved', Format(Dataset.Save(Report::"RPT DecRound Origin", '', Xml)));
+        Observer.Observe('variable', Dataset.ColumnValues(Xml, 'RoundOfVarVar'));
+        Observer.Observe('times one', Dataset.ColumnValues(Xml, 'RoundOfVarT1'));
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('variable', '2.00,');
+        Observer.Expect('times one', '2.00,');
+        Observer.Verify();
+    end;
+
 }
 
 // local object: the column sources over Round results and over global Decimal variables are under test.
@@ -368,4 +565,81 @@ report 62347 "RPT DecRound Price"
 
     var
         PriceValue: Decimal;
+}
+
+// local object: the column sources over Decimal values made by literals, sums, products, Evaluate and Round are under test.
+report 62349 "RPT DecRound Origin"
+{
+    UsageCategory = None;
+
+    dataset
+    {
+        dataitem(One; Integer)
+        {
+            DataItemTableView = sorting(Number) where(Number = const(1));
+
+            column(LitWholeVar; LitWhole) { }
+            column(LitWholeT1; LitWhole * 1) { }
+            column(LitOneDecVar; LitOneDec) { }
+            column(LitOneDecT1; LitOneDec * 1) { }
+            column(LitHalfVar; LitHalf) { }
+            column(LitHalfT1; LitHalf * 1) { }
+            column(SumWholeVar; SumWhole) { }
+            column(SumWholeT1; SumWhole * 1) { }
+            column(SumWholeExpr; Half + Half) { }
+            column(ProdWholeVar; ProdWhole) { }
+            column(ProdWholeT1; ProdWhole * 1) { }
+            column(ProdWholeExpr; Half * Two) { }
+            column(SumHalfVar; SumHalf) { }
+            column(SumHalfT1; SumHalf * 1) { }
+            column(ProdDecVar; ProdDec) { }
+            column(ProdDecT1; ProdDec * 1) { }
+            column(ProdDecExpr; OneFive * Two) { }
+            column(ProdIntVar; ProdInt) { }
+            column(ProdIntT1; ProdInt * 1) { }
+            column(ProdIntExpr; OneFive * 2) { }
+            column(EvWholeVar; EvWhole) { }
+            column(EvWholeT1; EvWhole * 1) { }
+            column(EvHalfVar; EvHalf) { }
+            column(EvHalfT1; EvHalf * 1) { }
+            column(RoundOfVarVar; RoundOfVar) { }
+            column(RoundOfVarT1; RoundOfVar * 1) { }
+
+            trigger OnAfterGetRecord()
+            begin
+                Half := 0.5;
+                Two := 2;
+                Quarter := 0.25;
+                OneFive := 1.5;
+                LitWhole := 1.00000;
+                LitOneDec := 2.0;
+                LitHalf := 0.50;
+                SumWhole := Half + Half;
+                ProdWhole := Half * Two;
+                SumHalf := Quarter + Quarter;
+                ProdDec := OneFive * Two;
+                ProdInt := OneFive * 2;
+                Evaluate(EvWhole, '1.00000', 9);
+                Evaluate(EvHalf, '2.50', 9);
+                RoundOfVar := Round(LitOneDec, 0.01);
+            end;
+        }
+    }
+
+    var
+        Half: Decimal;
+        Two: Decimal;
+        Quarter: Decimal;
+        OneFive: Decimal;
+        LitWhole: Decimal;
+        LitOneDec: Decimal;
+        LitHalf: Decimal;
+        SumWhole: Decimal;
+        ProdWhole: Decimal;
+        SumHalf: Decimal;
+        ProdDec: Decimal;
+        ProdInt: Decimal;
+        EvWhole: Decimal;
+        EvHalf: Decimal;
+        RoundOfVar: Decimal;
 }
