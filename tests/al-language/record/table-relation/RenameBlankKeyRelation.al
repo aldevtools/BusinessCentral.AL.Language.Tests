@@ -668,13 +668,13 @@ codeunit 79100 "RBK Rename Blank Key"
         RunRename(Runner);
         Observer.Observe('master rows', Runner.Rows(Database::"RBK Master"));
         Observer.Observe('child rows', Runner.Rows(Database::"RBK Child"));
-        Observer.Finish();
     end;
 
     [Test]
     procedure CodeKey_FromBlank_NoRelatedRow()
     begin
         CodeKey('', 'X', 0);
+        Observer.Finish();
     end;
 
     [Test]
@@ -682,36 +682,42 @@ codeunit 79100 "RBK Rename Blank Key"
     begin
         // The reporter's shape (al-runner issue 7937): one child row (Entry No. 2) holds the blank key.
         CodeKey('', 'X', 1);
+        Observer.Finish();
     end;
 
     [Test]
     procedure CodeKey_FromBlank_TwoRelatedRows()
     begin
         CodeKey('', 'X', 2);
+        Observer.Finish();
     end;
 
     [Test]
     procedure CodeKey_ToBlank_NoRelatedRow()
     begin
         CodeKey('X', '', 0);
+        Observer.Finish();
     end;
 
     [Test]
     procedure CodeKey_ToBlank_OneRelatedRow()
     begin
         CodeKey('X', '', 1);
+        Observer.Finish();
     end;
 
     [Test]
     procedure CodeKey_ToBlank_TwoRelatedRows()
     begin
         CodeKey('X', '', 2);
+        Observer.Finish();
     end;
 
     [Test]
     procedure CodeKey_NonBlankToNonBlank_OneRelatedRow()
     begin
         CodeKey('X', 'Y', 1);
+        Observer.Finish();
     end;
 
     local procedure IntKey(FromInt: Integer; ToInt: Integer)
@@ -730,19 +736,20 @@ codeunit 79100 "RBK Rename Blank Key"
         RunRename(Runner);
         Observer.Observe('master rows', Runner.Rows(Database::"RBK Int Master"));
         Observer.Observe('child rows', Runner.Rows(Database::"RBK Int Child"));
-        Observer.Finish();
     end;
 
     [Test]
     procedure IntegerKey_FromZero()
     begin
         IntKey(0, 5);
+        Observer.Finish();
     end;
 
     [Test]
     procedure IntegerKey_ToZero()
     begin
         IntKey(5, 0);
+        Observer.Finish();
     end;
 
     local procedure MultiKey(FromA: Code[10]; FromB: Code[10]; ToA: Code[10]; ToB: Code[10])
@@ -763,7 +770,6 @@ codeunit 79100 "RBK Rename Blank Key"
         RunRename(Runner);
         Observer.Observe('master rows', Runner.Rows(Database::"RBK Multi Master"));
         Observer.Observe('child rows', Runner.Rows(Database::"RBK Multi Child"));
-        Observer.Finish();
     end;
 
     [Test]
@@ -771,24 +777,28 @@ codeunit 79100 "RBK Rename Blank Key"
     begin
         // A is only in the where filter of the relation; B is the related field.
         MultiKey('', 'B1', 'X', 'B1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure MultiKey_FirstFieldBlankKept()
     begin
         MultiKey('', 'B1', '', 'B2');
+        Observer.Finish();
     end;
 
     [Test]
     procedure MultiKey_RelatedFieldBlankChanges()
     begin
         MultiKey('A1', '', 'A1', 'X');
+        Observer.Finish();
     end;
 
     [Test]
     procedure MultiKey_RelatedFieldBlankKept()
     begin
         MultiKey('A1', '', 'A2', '');
+        Observer.Finish();
     end;
 
     local procedure GuidKey(FromGuid: Guid; ToGuid: Guid)
@@ -807,7 +817,6 @@ codeunit 79100 "RBK Rename Blank Key"
         RunRename(Runner);
         Observer.Observe('master rows', Runner.Rows(Database::"RBK Guid Master"));
         Observer.Observe('child rows', Runner.Rows(Database::"RBK Guid Child"));
-        Observer.Finish();
     end;
 
     [Test]
@@ -816,6 +825,7 @@ codeunit 79100 "RBK Rename Blank Key"
         Blank: Guid;
     begin
         GuidKey(Blank, '{11111111-2222-3333-4444-555555555555}');
+        Observer.Finish();
     end;
 
     [Test]
@@ -824,6 +834,7 @@ codeunit 79100 "RBK Rename Blank Key"
         Blank: Guid;
     begin
         GuidKey('{11111111-2222-3333-4444-555555555555}', Blank);
+        Observer.Finish();
     end;
 
     local procedure OptionKey(FromOption: Integer; ToOption: Integer)
@@ -842,19 +853,20 @@ codeunit 79100 "RBK Rename Blank Key"
         RunRename(Runner);
         Observer.Observe('master rows', Runner.Rows(Database::"RBK Option Master"));
         Observer.Observe('child rows', Runner.Rows(Database::"RBK Option Child"));
-        Observer.Finish();
     end;
 
     [Test]
     procedure OptionKey_FromBlank()
     begin
         OptionKey(0, 1);
+        Observer.Finish();
     end;
 
     [Test]
     procedure OptionKey_ToBlank()
     begin
         OptionKey(1, 0);
+        Observer.Finish();
     end;
 
     local procedure DateKey(FromDate: Date; ToDate: Date)
@@ -873,19 +885,20 @@ codeunit 79100 "RBK Rename Blank Key"
         RunRename(Runner);
         Observer.Observe('master rows', Runner.Rows(Database::"RBK Date Master"));
         Observer.Observe('child rows', Runner.Rows(Database::"RBK Date Child"));
-        Observer.Finish();
     end;
 
     [Test]
     procedure DateKey_FromBlank()
     begin
         DateKey(0D, DMY2Date(1, 2, 2024));
+        Observer.Finish();
     end;
 
     [Test]
     procedure DateKey_ToBlank()
     begin
         DateKey(DMY2Date(1, 2, 2024), 0D);
+        Observer.Finish();
     end;
 
     local procedure TemporaryKey(FromCode: Code[20]; ToCode: Code[20])
@@ -899,19 +912,20 @@ codeunit 79100 "RBK Rename Blank Key"
         Observer.Observe('temporary rows', Runner.TemporaryRows());
         Observer.Observe('master rows', Runner.Rows(Database::"RBK Master"));
         Observer.Observe('child rows', Runner.Rows(Database::"RBK Child"));
-        Observer.Finish();
     end;
 
     [Test]
     procedure TemporaryRecord_FromBlank()
     begin
         TemporaryKey('', 'X');
+        Observer.Finish();
     end;
 
     [Test]
     procedure TemporaryRecord_ToBlank()
     begin
         TemporaryKey('X', '');
+        Observer.Finish();
     end;
 
     local procedure PlainKey(FromCode: Code[20]; ToCode: Code[20])
@@ -925,19 +939,20 @@ codeunit 79100 "RBK Rename Blank Key"
         Runner.SetCode(Database::"RBK Plain Master", FromCode, ToCode);
         RunRename(Runner);
         Observer.Observe('master rows', Runner.Rows(Database::"RBK Plain Master"));
-        Observer.Finish();
     end;
 
     [Test]
     procedure NoRelation_FromBlank()
     begin
         PlainKey('', 'X');
+        Observer.Finish();
     end;
 
     [Test]
     procedure NoRelation_ToBlank()
     begin
         PlainKey('X', '');
+        Observer.Finish();
     end;
 }
 
@@ -989,7 +1004,6 @@ codeunit 79104 "RBK Rename Blank Relations"
         Child.Insert();
         Runner.SetCode(Database::"RBK If Master", FromCode, ToCode);
         RunRename(Runner, Database::"RBK If Master", Database::"RBK If Child");
-        Observer.Finish();
     end;
 
     [Test]
@@ -998,6 +1012,7 @@ codeunit 79104 "RBK Rename Blank Relations"
         Child: Record "RBK If Child";
     begin
         IfRelation('', 'X', Child.Kind::Linked);
+        Observer.Finish();
     end;
 
     [Test]
@@ -1006,6 +1021,7 @@ codeunit 79104 "RBK Rename Blank Relations"
         Child: Record "RBK If Child";
     begin
         IfRelation('', 'X', Child.Kind::" ");
+        Observer.Finish();
     end;
 
     [Test]
@@ -1014,6 +1030,7 @@ codeunit 79104 "RBK Rename Blank Relations"
         Child: Record "RBK If Child";
     begin
         IfRelation('X', '', Child.Kind::Linked);
+        Observer.Finish();
     end;
 
     local procedure WhereRelation(FromCode: Code[20]; ToCode: Code[20])
@@ -1031,19 +1048,20 @@ codeunit 79104 "RBK Rename Blank Relations"
         Child.Insert();
         Runner.SetCode(Database::"RBK Where Master", FromCode, ToCode);
         RunRename(Runner, Database::"RBK Where Master", Database::"RBK Where Child");
-        Observer.Finish();
     end;
 
     [Test]
     procedure WhereRelation_FromBlank()
     begin
         WhereRelation('', 'X');
+        Observer.Finish();
     end;
 
     [Test]
     procedure WhereRelation_ToBlank()
     begin
         WhereRelation('X', '');
+        Observer.Finish();
     end;
 
     local procedure NamedRelation(FromCode: Code[20]; ToCode: Code[20])
@@ -1060,19 +1078,20 @@ codeunit 79104 "RBK Rename Blank Relations"
         Child.Insert();
         Runner.SetCode(Database::"RBK Named Master", FromCode, ToCode);
         RunRename(Runner, Database::"RBK Named Master", Database::"RBK Named Child");
-        Observer.Finish();
     end;
 
     [Test]
     procedure NamedKeyRelation_FromBlank()
     begin
         NamedRelation('', 'X');
+        Observer.Finish();
     end;
 
     [Test]
     procedure NamedKeyRelation_ToBlank()
     begin
         NamedRelation('X', '');
+        Observer.Finish();
     end;
 
     local procedure NonKeyRelation(FromCode: Code[20]; ToCode: Code[20])
@@ -1090,19 +1109,20 @@ codeunit 79104 "RBK Rename Blank Relations"
         Child.Insert();
         Runner.SetCode(Database::"RBK NonKey Master", FromCode, ToCode);
         RunRename(Runner, Database::"RBK NonKey Master", Database::"RBK NonKey Child");
-        Observer.Finish();
     end;
 
     [Test]
     procedure NonKeyRelation_FromBlank()
     begin
         NonKeyRelation('', 'X');
+        Observer.Finish();
     end;
 
     [Test]
     procedure NonKeyRelation_ToBlank()
     begin
         NonKeyRelation('X', '');
+        Observer.Finish();
     end;
 
     local procedure NoValidateRelation(FromCode: Code[20]; ToCode: Code[20])
@@ -1119,19 +1139,20 @@ codeunit 79104 "RBK Rename Blank Relations"
         Child.Insert();
         Runner.SetCode(Database::"RBK NoVal Master", FromCode, ToCode);
         RunRename(Runner, Database::"RBK NoVal Master", Database::"RBK NoVal Child");
-        Observer.Finish();
     end;
 
     [Test]
     procedure NoValidateRelation_FromBlank()
     begin
         NoValidateRelation('', 'X');
+        Observer.Finish();
     end;
 
     [Test]
     procedure NoValidateRelation_ToBlank()
     begin
         NoValidateRelation('X', '');
+        Observer.Finish();
     end;
 
     local procedure ExtRelation(FromCode: Code[20]; ToCode: Code[20])
@@ -1148,19 +1169,20 @@ codeunit 79104 "RBK Rename Blank Relations"
         Child.Insert();
         Runner.SetCode(Database::"RBK Ext Master", FromCode, ToCode);
         RunRename(Runner, Database::"RBK Ext Master", Database::"RBK Ext Child");
-        Observer.Finish();
     end;
 
     [Test]
     procedure TableExtensionRelation_FromBlank()
     begin
         ExtRelation('', 'X');
+        Observer.Finish();
     end;
 
     [Test]
     procedure TableExtensionRelation_ToBlank()
     begin
         ExtRelation('X', '');
+        Observer.Finish();
     end;
 
     local procedure SelfRelation(FromCode: Code[20]; ToCode: Code[20])
@@ -1177,19 +1199,20 @@ codeunit 79104 "RBK Rename Blank Relations"
         Master.Insert();
         Runner.SetCode(Database::"RBK Self Master", FromCode, ToCode);
         RunRename(Runner, Database::"RBK Self Master", 0);
-        Observer.Finish();
     end;
 
     [Test]
     procedure SameTableRelation_FromBlank()
     begin
         SelfRelation('', 'X');
+        Observer.Finish();
     end;
 
     [Test]
     procedure SameTableRelation_ToBlank()
     begin
         SelfRelation('X', '');
+        Observer.Finish();
     end;
 
     local procedure TriggerRelation(FromCode: Code[20]; ToCode: Code[20])
@@ -1208,25 +1231,27 @@ codeunit 79104 "RBK Rename Blank Relations"
         Runner.SetCode(Database::"RBK Trg Master", FromCode, ToCode);
         RunRename(Runner, Database::"RBK Trg Master", Database::"RBK Trg Child");
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
     end;
 
     [Test]
     procedure TriggerAndSubscribers_FromBlank()
     begin
         TriggerRelation('', 'X');
+        Observer.Finish();
     end;
 
     [Test]
     procedure TriggerAndSubscribers_ToBlank()
     begin
         TriggerRelation('X', '');
+        Observer.Finish();
     end;
 
     [Test]
     procedure TriggerAndSubscribers_NonBlank()
     begin
         TriggerRelation('X', 'Y');
+        Observer.Finish();
     end;
 
     local procedure CaptionRelation(FromCode: Code[20]; ToCode: Code[20])
@@ -1243,18 +1268,19 @@ codeunit 79104 "RBK Rename Blank Relations"
         Child.Insert();
         Runner.SetCode(Database::"RBK Cap Master", FromCode, ToCode);
         RunRename(Runner, Database::"RBK Cap Master", Database::"RBK Cap Child");
-        Observer.Finish();
     end;
 
     [Test]
     procedure Captions_FromBlank()
     begin
         CaptionRelation('', 'X');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Captions_ToBlank()
     begin
         CaptionRelation('X', '');
+        Observer.Finish();
     end;
 }
