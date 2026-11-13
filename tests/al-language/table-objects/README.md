@@ -7,6 +7,7 @@ The table object: table and field properties, table and field triggers, table ex
 - (area folder itself): 12 AL files that are about the area as a whole or were not given a topic yet.
 - `extensions/`: extension objects of this object type (24 AL files).
 - `globals/`: table globals (3 AL files).
+- `moved-tables/`: a table declared again as an ObsoleteState = Moved stub in a dependent app (1 AL file).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
 

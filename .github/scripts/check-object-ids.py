@@ -57,6 +57,23 @@ DECL = re.compile(
 )
 
 
+MOVED = re.compile(r"^\s*ObsoleteState\s*=\s*Moved\s*;", re.IGNORECASE)
+FIELDS = re.compile(r"^\s*fields\b", re.IGNORECASE)
+
+
+def is_moved_stub(lines, lineno):
+    """True when the table declared on line `lineno` (1-based) has `ObsoleteState = Moved;` among its
+    properties (before its `fields` block). A Moved stub repeats the id and name of the live table of the
+    app named by its MovedTo (Base Application's stubs of the tables that moved to Business Foundation),
+    so it is not a duplicate id; its id must still lie in its own app's idRanges."""
+    for line in lines[lineno:]:
+        if FIELDS.match(line) or DECL.match(line):
+            return False
+        if MOVED.match(line):
+            return True
+    return False
+
+
 def app_dirs(root: Path):
     """Every directory holding an app.json, with its declared idRanges."""
     for manifest in sorted(root.rglob("app.json")):
@@ -94,7 +111,8 @@ def main() -> int:
             except OSError as exc:
                 print(f"::error file={al}::could not be read: {exc}")
                 return 1
-            for lineno, line in enumerate(text.splitlines(), start=1):
+            lines = text.splitlines()
+            for lineno, line in enumerate(lines, start=1):
                 m = DECL.match(line)
                 if not m:
                     continue
@@ -103,7 +121,8 @@ def main() -> int:
                 obj_id = int(m.group("id"))
                 name = m.group("name").strip('"')
                 rel = al.relative_to(root)
-                seen[(kind, obj_id)].append((rel, lineno, name, app_name))
+                if not (kind == "table" and is_moved_stub(lines, lineno)):
+                    seen[(kind, obj_id)].append((rel, lineno, name, app_name))
                 if ranges and not any(lo <= obj_id <= hi for lo, hi in ranges):
                     pretty = ", ".join(f"{lo}..{hi}" for lo, hi in ranges)
                     out_of_range.append((rel, lineno, kind, obj_id, name, app_name, pretty))
