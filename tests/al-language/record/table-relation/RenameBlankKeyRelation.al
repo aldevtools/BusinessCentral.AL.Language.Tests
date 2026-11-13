@@ -39,6 +39,13 @@
 //   - The return value form (Ok := Rec.Rename(...)) raises the same error; RecordRef.Rename raises the same error.
 //   - When the new key already exists, the already-exists error (DB:RecordExists) comes instead; when the old row is not stored,
 //     the does-not-exist error (DB:RecordNotFound) comes instead.
+//   - A stale record (another variable modified the row after Get) gets the record-changed error (DB:RecordChanged) instead.
+//   - The same error also for: a child field with ObsoleteState = Pending, TestTableRelation = false, a key field with NotBlank,
+//     a key field with its own TableRelation, other rows in the renamed table, a child table with an OnModify trigger (it does not
+//     run), the reporter's Insert-then-Rename through one variable, and a Rename outside Codeunit.Run (asserterror). The new and old
+//     values appear as stored: lower case is upper-cased, quotes stay as they are.
+//   - No error: a child field with ObsoleteState = Removed. The page client (TestPage edit of the key field from blank, then
+//     Close) raises no error and asks no confirm, and the row keeps its blank key.
 // BC versions: 27, 28, 29
 
 table 79100 "RBK Master"
@@ -2710,7 +2717,10 @@ codeunit 79105 "RBK Rename Blank Shapes"
         Observer.Observe('last error', GetLastErrorText());
         Observer.Observe('master rows', Runner.Rows(Database::"RBK Master"));
         Observer.Observe('child rows', Runner.Rows(Database::"RBK Child"));
-        Observer.Finish();
+        Observer.Expect('last error', '');
+        Observer.Expect('master rows', '[]');
+        Observer.Expect('child rows', '[1][]');
+        Observer.Verify();
     end;
 
     // One master row with the old key and one child row (field 2 set to the old key when SetRef) through RecordRef.
@@ -2737,84 +2747,147 @@ codeunit 79105 "RBK Rename Blank Shapes"
     procedure ObsoleteRemovedChildField_FromBlank()
     begin
         GenericPair(Database::"RBK ObsRem Master", Database::"RBK ObsRem Child", '', 'X', false);
-        Observer.Finish();
+        Observer.Expect('rename', 'no error');
+        Observer.Expect('master rows', '[X]');
+        Observer.Expect('child rows', '[1]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ObsoleteRemovedChildField_ToBlank()
     begin
         GenericPair(Database::"RBK ObsRem Master", Database::"RBK ObsRem Child", 'X', '', false);
-        Observer.Finish();
+        Observer.Expect('rename', 'no error');
+        Observer.Expect('master rows', '[]');
+        Observer.Expect('child rows', '[1]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ObsoletePendingChildField_FromBlank()
     begin
         GenericPair(Database::"RBK ObsPend Master", Database::"RBK ObsPend Child", '', 'X', true);
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('control chars', '');
+        Observer.Expect('error|text', 'The Code field on the RBK ObsPend Master table cannot be renamed from "" to "X".\\When a field has a relation defined, the field cannot be renamed to and from zero or an empty value.');
+        Observer.Expect('error|code', 'DB:Ok');
+        Observer.Expect('master rows', '[]');
+        Observer.Expect('child rows', '[1][]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ObsoletePendingChildField_ToBlank()
     begin
         GenericPair(Database::"RBK ObsPend Master", Database::"RBK ObsPend Child", 'X', '', true);
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('control chars', '');
+        Observer.Expect('error|text', 'The Code field on the RBK ObsPend Master table cannot be renamed from "X" to "".\\When a field has a relation defined, the field cannot be renamed to and from zero or an empty value.');
+        Observer.Expect('error|code', 'DB:Ok');
+        Observer.Expect('master rows', '[X]');
+        Observer.Expect('child rows', '[1][X]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TestTableRelationFalse_FromBlank()
     begin
         GenericPair(Database::"RBK NoTest Master", Database::"RBK NoTest Child", '', 'X', true);
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('control chars', '');
+        Observer.Expect('error|text', 'The Code field on the RBK NoTest Master table cannot be renamed from "" to "X".\\When a field has a relation defined, the field cannot be renamed to and from zero or an empty value.');
+        Observer.Expect('error|code', 'DB:Ok');
+        Observer.Expect('master rows', '[]');
+        Observer.Expect('child rows', '[1][]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TestTableRelationFalse_ToBlank()
     begin
         GenericPair(Database::"RBK NoTest Master", Database::"RBK NoTest Child", 'X', '', true);
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('control chars', '');
+        Observer.Expect('error|text', 'The Code field on the RBK NoTest Master table cannot be renamed from "X" to "".\\When a field has a relation defined, the field cannot be renamed to and from zero or an empty value.');
+        Observer.Expect('error|code', 'DB:Ok');
+        Observer.Expect('master rows', '[X]');
+        Observer.Expect('child rows', '[1][X]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure NotBlankKeyField_FromBlank()
     begin
         GenericPair(Database::"RBK NotBlank Master", Database::"RBK NotBlank Child", '', 'X', true);
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('control chars', '');
+        Observer.Expect('error|text', 'The Code field on the RBK NotBlank Master table cannot be renamed from "" to "X".\\When a field has a relation defined, the field cannot be renamed to and from zero or an empty value.');
+        Observer.Expect('error|code', 'DB:Ok');
+        Observer.Expect('master rows', '[]');
+        Observer.Expect('child rows', '[1][]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure NotBlankKeyField_ToBlank()
     begin
         GenericPair(Database::"RBK NotBlank Master", Database::"RBK NotBlank Child", 'X', '', true);
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('control chars', '');
+        Observer.Expect('error|text', 'The Code field on the RBK NotBlank Master table cannot be renamed from "X" to "".\\When a field has a relation defined, the field cannot be renamed to and from zero or an empty value.');
+        Observer.Expect('error|code', 'DB:Ok');
+        Observer.Expect('master rows', '[X]');
+        Observer.Expect('child rows', '[1][X]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure KeyFieldWithOwnRelation_FromBlank()
     begin
         GenericPair(Database::"RBK KeyRel Master", Database::"RBK KeyRel Child", '', 'X', true);
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('control chars', '');
+        Observer.Expect('error|text', 'The Code field on the RBK KeyRel Master table cannot be renamed from "" to "X".\\When a field has a relation defined, the field cannot be renamed to and from zero or an empty value.');
+        Observer.Expect('error|code', 'DB:Ok');
+        Observer.Expect('master rows', '[]');
+        Observer.Expect('child rows', '[1][]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure KeyFieldWithOwnRelation_ToBlank()
     begin
         GenericPair(Database::"RBK KeyRel Master", Database::"RBK KeyRel Child", 'X', '', true);
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('control chars', '');
+        Observer.Expect('error|text', 'The Code field on the RBK KeyRel Master table cannot be renamed from "X" to "".\\When a field has a relation defined, the field cannot be renamed to and from zero or an empty value.');
+        Observer.Expect('error|code', 'DB:Ok');
+        Observer.Expect('master rows', '[X]');
+        Observer.Expect('child rows', '[1][X]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ChildOnModifyTrigger_FromBlank()
     begin
         GenericPair(Database::"RBK OnMod Master", Database::"RBK OnMod Child", '', 'X', true);
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('control chars', '');
+        Observer.Expect('error|text', 'The Code field on the RBK OnMod Master table cannot be renamed from "" to "X".\\When a field has a relation defined, the field cannot be renamed to and from zero or an empty value.');
+        Observer.Expect('error|code', 'DB:Ok');
+        Observer.Expect('master rows', '[]');
+        Observer.Expect('child rows', '[1][]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ChildOnModifyTrigger_NonBlank()
     begin
         GenericPair(Database::"RBK OnMod Master", Database::"RBK OnMod Child", 'X', 'Y', true);
-        Observer.Finish();
+        Observer.Expect('rename', 'no error');
+        Observer.Expect('master rows', '[Y]');
+        Observer.Expect('child rows', '[1][Y]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2834,7 +2907,13 @@ codeunit 79105 "RBK Rename Blank Shapes"
         Runner.SetCode(Database::"RBK Where Master", '', 'X');
         Runner.SetMode(5);
         RunRename(Runner, Database::"RBK Where Master", Database::"RBK Where Child");
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('control chars', '');
+        Observer.Expect('error|text', 'The changes to the RBK Where Master record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Code=''''');
+        Observer.Expect('error|code', 'DB:RecordChanged');
+        Observer.Expect('master rows', '[][N]');
+        Observer.Expect('child rows', '[1][]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2854,7 +2933,13 @@ codeunit 79105 "RBK Rename Blank Shapes"
         Runner.SetCode(Database::"RBK Where Master", 'X', 'Y');
         Runner.SetMode(5);
         RunRename(Runner, Database::"RBK Where Master", Database::"RBK Where Child");
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('control chars', '');
+        Observer.Expect('error|text', 'The changes to the RBK Where Master record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Code=''X''');
+        Observer.Expect('error|code', 'DB:RecordChanged');
+        Observer.Expect('master rows', '[X][N]');
+        Observer.Expect('child rows', '[1][X]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2870,7 +2955,13 @@ codeunit 79105 "RBK Rename Blank Shapes"
         AddChild(2, 'A');
         Runner.SetCode(Database::"RBK Master", '', 'X');
         RunRename(Runner, Database::"RBK Master", Database::"RBK Child");
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('control chars', '');
+        Observer.Expect('error|text', 'The Code field on the RBK Master table cannot be renamed from "" to "X".\\When a field has a relation defined, the field cannot be renamed to and from zero or an empty value.');
+        Observer.Expect('error|code', 'DB:Ok');
+        Observer.Expect('master rows', '[] [A] [B]');
+        Observer.Expect('child rows', '[1][] [2][A]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2883,7 +2974,13 @@ codeunit 79105 "RBK Rename Blank Shapes"
         AddChild(1, '');
         Runner.SetCode(Database::"RBK Master", '', 'x"y''z');
         RunRename(Runner, Database::"RBK Master", Database::"RBK Child");
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('control chars', '');
+        Observer.Expect('error|text', 'The Code field on the RBK Master table cannot be renamed from "" to "X"Y''Z".\\When a field has a relation defined, the field cannot be renamed to and from zero or an empty value.');
+        Observer.Expect('error|code', 'DB:Ok');
+        Observer.Expect('master rows', '[]');
+        Observer.Expect('child rows', '[1][]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2896,7 +2993,13 @@ codeunit 79105 "RBK Rename Blank Shapes"
         AddChild(1, 'A"B''C');
         Runner.SetCode(Database::"RBK Master", 'A"B''C', '');
         RunRename(Runner, Database::"RBK Master", Database::"RBK Child");
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('control chars', '');
+        Observer.Expect('error|text', 'The Code field on the RBK Master table cannot be renamed from "A"B''C" to "".\\When a field has a relation defined, the field cannot be renamed to and from zero or an empty value.');
+        Observer.Expect('error|code', 'DB:Ok');
+        Observer.Expect('master rows', '[A"B''C]');
+        Observer.Expect('child rows', '[1][A"B''C]');
+        Observer.Verify();
     end;
 
     // The reporter's test as written: Insert, then asserterror Rename in the test itself (not inside Codeunit.Run).
@@ -2913,6 +3016,9 @@ codeunit 79105 "RBK Rename Blank Shapes"
         asserterror Master.Rename('X');
         Observer.Observe('control chars', Runner.ControlCodes(GetLastErrorText()));
         Observer.ObserveError('error');
-        Observer.Finish();
+        Observer.Expect('control chars', '');
+        Observer.Expect('error|text', 'The Code field on the RBK Master table cannot be renamed from "" to "X".\\When a field has a relation defined, the field cannot be renamed to and from zero or an empty value.');
+        Observer.Expect('error|code', 'DB:Ok');
+        Observer.Verify();
     end;
 }
