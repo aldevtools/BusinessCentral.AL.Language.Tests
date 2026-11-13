@@ -9,6 +9,7 @@ The report object: running, dataset and data items, request pages, layouts and S
 - `dataset/`: datasets, data items and columns (14 AL files).
 - `extension-settableview/`: SetTableView of report extensions (2 AL files).
 - `extensions/`: extension objects of this object type (10 AL files).
+- `html-email-body/`: the Html of a report saved as an email body, and Email Message's rgba replace on it (2 AL files).
 - `layouts-saveas/`: layouts, rendering and Report.SaveAs* (34 AL files).
 - `reporthandler/`: ReportHandler and processing-only request pages (6 AL files).
 - `request-page/`: request pages (71 AL files).
