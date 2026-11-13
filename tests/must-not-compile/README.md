@@ -698,5 +698,12 @@ BC container. Run locally with the tools in `~/.al-tool-cache` it passes today w
 | 3120 to 3123 | AL0152 | two Option members named "" (or two named " ") in an Option variable and in an Option table field: tests/al-language/format-evaluate/format-matrix/FMOptionBlankVar.al |
 | 3124, 3125 | AL0155 | two Enum values named "" (or two named " ") |
 | 3126 to 3131 | AL0132 | the name forms O::"" and O::" ": an Option member "" or an unquoted empty member has no name, " " is not "" and "" is not " ", also for a table field and for an Enum value |
+| 3140 to 3152 | AL0118 | a procedure of a TableNo codeunit has no implicit Rec: Rec, xRec, a bare field and a bare Record method (Find, Modify, Rec.Find) do not resolve in a global, local or internal procedure, an event subscriber or a [Test] procedure, and a bare field not next to a parameter named Rec; a global variable named Rec or xRec compiles |
+| 3153 | AL0161 | xRec in OnRun of a TableNo codeunit is inaccessible (Rec and a bare field compile there) |
+| 3154, 3155 | AL0132 | `Version.ToUpper()` names the Version type: in a TableNo procedure whose table has a field Version, and in a codeunit without TableNo |
+| 3156 | AL0310 | `Text.Contains('a')` in a TableNo procedure whose table has a field Text: Text is the type there |
+| 3157 | AL0133 | `StrLen(Text)` in a TableNo procedure whose table has a field Text: Text is the type there |
+| 3158 to 3160 | AL0107 (AL0104, AL0224, AL0111) | an unquoted `::In` after an option field, an Option variable and an enum type (`::"In"` compiles); AL 16 stops the texts after the first sentence |
+| 3161 to 3163 | AL0118 | an unknown quoted name in a table trigger, a page trigger and a codeunit: the text keeps the quotes (`'"Entry No."'`) |
 
 Legacy Statistics compatibility: cases 2971 (extension anchor, AL0271) and 2972 (TestPage member, AL0132) apply from BC29. The public replacements are SalesOrderStatistics and SalesStatistics.
