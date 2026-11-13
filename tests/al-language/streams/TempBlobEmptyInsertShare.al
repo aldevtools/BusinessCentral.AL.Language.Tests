@@ -14,7 +14,18 @@
 //   from base64 text in the test; no binary fixture).
 //   Value format: 'none' = no row; 'nohv' = row found, HasValue false after CalcFields; 'hv:<text>' = HasValue true
 //   and the text read from the Blob.
-// What BC did: filled in from the observation (see the Expect lines).
+// What BC did (observed on 28.5 before the push; the PR run checks 27.5, 28.5 and 29.0):
+//   - The rows are isolated. A row inserted with an empty Blob stays empty (nohv) when the same variable then moves to
+//     another key (:= or Validate, with or without Init), writes 'X' (with or without Clear) and inserts again; the
+//     new row reads hv:X. The same through Get, SetRange + FindFirst, a Copy(R, true) second variable, and on a table
+//     with TableType = Temporary.
+//   - Key change and write without a second Insert: row 1 stays nohv, no row 2; the Blob in hand reads nohv after
+//     CalcFields on the key that has no row.
+//   - Two empty rows, then a third written: rows 1 and 2 nohv, row 3 hv:X. A written row, then a key change with Clear
+//     and Insert: the written row keeps hv:X, the new row is nohv (hv:Y when it writes 'Y').
+//   - Control, same key: Get reads back the write made after Insert (hv:X), with or without Clear, both table kinds.
+//   - Excel Buffer ReadSheet: D1 (54 characters) and C2 ('C2VALUE') have no Blob value; D2 has 250 characters in
+//     Cell Value as Text and the full 510-character text in its Blob.
 // BC versions: 27.5+
 
 table 75230 "LT TBS Row"
@@ -144,7 +155,12 @@ codeunit 75235 "LT TBS Key Change"
         Observer.Observe('find 1', Lib.ReadFind(R, 1));
         Observer.Observe('find 2', Lib.ReadFind(R, 2));
         Observer.Observe('count', Format(R.Count()));
-        Observer.Finish();
+        Observer.Expect('get 1', 'nohv');
+        Observer.Expect('get 2', 'hv:X');
+        Observer.Expect('find 1', 'nohv');
+        Observer.Expect('find 2', 'hv:X');
+        Observer.Expect('count', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -163,7 +179,9 @@ codeunit 75235 "LT TBS Key Change"
         R.Insert();
         Observer.Observe('find 1', Lib.ReadFind(R, 1));
         Observer.Observe('find 2', Lib.ReadFind(R, 2));
-        Observer.Finish();
+        Observer.Expect('find 1', 'nohv');
+        Observer.Expect('find 2', 'hv:X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -179,7 +197,9 @@ codeunit 75235 "LT TBS Key Change"
         R.Insert();
         Observer.Observe('get 1', Lib.ReadGet(R, 1));
         Observer.Observe('get 2', Lib.ReadGet(R, 2));
-        Observer.Finish();
+        Observer.Expect('get 1', 'nohv');
+        Observer.Expect('get 2', 'hv:X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -196,7 +216,10 @@ codeunit 75235 "LT TBS Key Change"
         Observer.Observe('in hand', Lib.Content(R));
         Observer.Observe('get 1', Lib.ReadGet(R, 1));
         Observer.Observe('get 2', Lib.ReadGet(R, 2));
-        Observer.Finish();
+        Observer.Expect('in hand', 'nohv');
+        Observer.Expect('get 1', 'nohv');
+        Observer.Expect('get 2', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -210,7 +233,8 @@ codeunit 75235 "LT TBS Key Change"
         R.Key1 := 2;
         Lib.Write(R, 'X');
         Observer.Observe('get 1', Lib.ReadGet(R, 1));
-        Observer.Finish();
+        Observer.Expect('get 1', 'nohv');
+        Observer.Verify();
     end;
 
     [Test]
@@ -225,7 +249,8 @@ codeunit 75235 "LT TBS Key Change"
         Clear(R.Data);
         Lib.Write(R, 'X');
         Observer.Observe('get 1', Lib.ReadGet(R, 1));
-        Observer.Finish();
+        Observer.Expect('get 1', 'hv:X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -239,7 +264,8 @@ codeunit 75235 "LT TBS Key Change"
         R.Insert();
         Lib.Write(R, 'X');
         Observer.Observe('get 1', Lib.ReadGet(R, 1));
-        Observer.Finish();
+        Observer.Expect('get 1', 'hv:X');
+        Observer.Verify();
     end;
 }
 
@@ -270,7 +296,10 @@ codeunit 75236 "LT TBS Sequence"
         Observer.Observe('get 1', Lib.ReadGet(R, 1));
         Observer.Observe('get 2', Lib.ReadGet(R, 2));
         Observer.Observe('get 3', Lib.ReadGet(R, 3));
-        Observer.Finish();
+        Observer.Expect('get 1', 'nohv');
+        Observer.Expect('get 2', 'nohv');
+        Observer.Expect('get 3', 'hv:X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -291,7 +320,10 @@ codeunit 75236 "LT TBS Sequence"
         Observer.Observe('get 1', Lib.ReadGet(R, 1));
         Observer.Observe('get 2', Lib.ReadGet(R, 2));
         Observer.Observe('get 3', Lib.ReadGet(R, 3));
-        Observer.Finish();
+        Observer.Expect('get 1', 'nohv');
+        Observer.Expect('get 2', 'hv:X');
+        Observer.Expect('get 3', 'nohv');
+        Observer.Verify();
     end;
 
     [Test]
@@ -313,7 +345,10 @@ codeunit 75236 "LT TBS Sequence"
         Observer.Observe('get 1', Lib.ReadGet(R, 1));
         Observer.Observe('get 2', Lib.ReadGet(R, 2));
         Observer.Observe('get 3', Lib.ReadGet(R, 3));
-        Observer.Finish();
+        Observer.Expect('get 1', 'nohv');
+        Observer.Expect('get 2', 'hv:X');
+        Observer.Expect('get 3', 'hv:Y');
+        Observer.Verify();
     end;
 }
 
@@ -341,7 +376,9 @@ codeunit 75237 "LT TBS Variants"
         R.Insert();
         Observer.Observe('get 1', Lib.ReadGet(R, 1));
         Observer.Observe('get 2', Lib.ReadGet(R, 2));
-        Observer.Finish();
+        Observer.Expect('get 1', 'nohv');
+        Observer.Expect('get 2', 'hv:X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -360,7 +397,9 @@ codeunit 75237 "LT TBS Variants"
         R.Insert();
         Observer.Observe('get 1', Lib.ReadGet(R, 1));
         Observer.Observe('get 2', Lib.ReadGet(R, 2));
-        Observer.Finish();
+        Observer.Expect('get 1', 'nohv');
+        Observer.Expect('get 2', 'hv:X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -378,7 +417,9 @@ codeunit 75237 "LT TBS Variants"
         R.Insert();
         Observer.Observe('get 1', Lib.ReadGet(R, 1));
         Observer.Observe('get 2', Lib.ReadGet(R, 2));
-        Observer.Finish();
+        Observer.Expect('get 1', 'nohv');
+        Observer.Expect('get 2', 'hv:X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -397,7 +438,9 @@ codeunit 75237 "LT TBS Variants"
         R.Insert();
         Observer.Observe('second get 1', Lib.ReadGet(R2, 1));
         Observer.Observe('second get 2', Lib.ReadGet(R2, 2));
-        Observer.Finish();
+        Observer.Expect('second get 1', 'nohv');
+        Observer.Expect('second get 2', 'hv:X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -414,7 +457,8 @@ codeunit 75237 "LT TBS Variants"
         Clear(R.Data);
         Lib.Write(R, 'X');
         Observer.Observe('second get 1', Lib.ReadGet(R2, 1));
-        Observer.Finish();
+        Observer.Expect('second get 1', 'nohv');
+        Observer.Verify();
     end;
 
     [Test]
@@ -431,7 +475,9 @@ codeunit 75237 "LT TBS Variants"
         R.Insert();
         Observer.Observe('get 1', Lib.ReadGetTT(R, 1));
         Observer.Observe('get 2', Lib.ReadGetTT(R, 2));
-        Observer.Finish();
+        Observer.Expect('get 1', 'nohv');
+        Observer.Expect('get 2', 'hv:X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -447,7 +493,9 @@ codeunit 75237 "LT TBS Variants"
         R.Insert();
         Observer.Observe('get 1', Lib.ReadGetTT(R, 1));
         Observer.Observe('get 2', Lib.ReadGetTT(R, 2));
-        Observer.Finish();
+        Observer.Expect('get 1', 'nohv');
+        Observer.Expect('get 2', 'hv:X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -461,7 +509,8 @@ codeunit 75237 "LT TBS Variants"
         Clear(R.Data);
         Lib.WriteTT(R, 'X');
         Observer.Observe('get 1', Lib.ReadGetTT(R, 1));
-        Observer.Finish();
+        Observer.Expect('get 1', 'hv:X');
+        Observer.Verify();
     end;
 }
 
@@ -491,7 +540,19 @@ codeunit 75238 "LT TBS Excel Read"
         ObserveCell(TempExcelBuffer, 'C', 2);
         ObserveCell(TempExcelBuffer, 'D', 2);
         TempExcelBuffer.CloseBook();
-        Observer.Finish();
+        Observer.Expect('count', '3');
+        Observer.Expect('D1 text len', '54');
+        Observer.Expect('D1 text head', 'short text of fifty ');
+        Observer.Expect('D1 blob', 'nohv');
+        Observer.Expect('C2 text len', '7');
+        Observer.Expect('C2 text head', 'C2VALUE');
+        Observer.Expect('C2 blob', 'nohv');
+        Observer.Expect('D2 text len', '250');
+        Observer.Expect('D2 text head', 'abcdefghi abcdefghi ');
+        Observer.Expect('D2 blob len', '510');
+        Observer.Expect('D2 blob head', 'abcdefghi abcdefghi ');
+        Observer.Expect('D2 blob is long text', 'Yes');
+        Observer.Verify();
     end;
 
     local procedure ObserveCell(var TempExcelBuffer: Record "Excel Buffer" temporary; Column: Text; Row: Integer)
