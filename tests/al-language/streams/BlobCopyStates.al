@@ -16,7 +16,28 @@
 //   Value format: hv: or nohv: (HasValue of the Blob in hand, no CalcFields) followed by the text read from the Blob in hand;
 //   row = the stored row read through a fresh record: HasValue before CalcFields, a space, then hv:/nohv: and the text after CalcFields;
 //   rr = the RecordRef read through SetTable into a fresh temporary record.
-// Observe form: values not yet measured.
+// What BC did (the same on 27.5, 28.5 and 29.0):
+//   - Every by-value form copies the Blob when it runs, in every source state; a later write on either side never reaches the other,
+//     and Insert or Modify stores only that side's value: FieldRef.Value and Validate into Compressed = false, Compressed = true and
+//     table extension fields (also a same-kind source, a Variant and := into those fields); a record by value (also into a [TryFunction],
+//     another codeunit, an interface method, a table procedure, a var parameter passed on by value, a global record, a by-value event
+//     publisher, a var publisher with a by-value subscriber, a temporary record into a non-temporary parameter and the reverse);
+//     Record.Copy (also stored to temporary and temporary to stored: no error, the target keeps its own temporariness); SetTable(Rec, true)
+//     between temporary records; TransferFields(Src, true) and (Src, false), also into another table; a global Variant, a Variant array
+//     element and a local Variant, also for Compressed = false, Compressed = true and table extension fields; a Variant holding a Blob
+//     passed to a by-value Variant parameter.
+//   - The same holds for a Blob written again after Insert or Modify, a Blob filled by := or FieldRef.Value and then moved, and a Blob read
+//     with CalcFields and written again.
+//   - A source read with Get only (Blob not loaded): FieldRef.Value, Validate and TransferFields give HasValue false; by value, Copy, the
+//     Variants and SetTable give HasValue true and empty text; a write there starts empty ('zz'); the caller and the stored row keep 'alpha'.
+//     An empty source gives an empty copy (nohv:).
+//   - Get of a temporary row (also through a shared table) gives HasValue true and empty text without CalcFields.
+//   - Shared, not copied: a [TryFunction] var parameter, a var event publisher with a var subscriber, Codeunit.Run with TableNo (also a
+//     temporary record), and writes into Rec in OnInsert, OnModify and OnValidate: they reach the caller and the stored row. In OnModify
+//     xRec holds the caller's value from memory; a write into xRec reaches neither Rec nor the row.
+//   - RecordRef.SetTable(Rec, true) with records that are not temporary raises "The COPY function can only be used with the shareTable
+//     argument set to true if both records are temporary." (code Argument); the target stays empty.
+//   - CreateOutStream over a value does not truncate ('zz' over 'betaa' reads 'zztaa').
 // BC versions: 27.5+
 
 table 97760 "LT BC3 Row"
@@ -1921,7 +1942,11 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ShareMoveStored(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('shs mem settable|text', 'The COPY function can only be used with the shareTable argument set to true if both records are temporary.');
+        Observer.Expect('shs mem settable|code', 'Argument');
+        Observer.Expect('shs mem dst', 'nohv:');
+        Observer.Expect('shs mem rr', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1930,7 +1955,11 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ShareMoveStored(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('shs ins settable|text', 'The COPY function can only be used with the shareTable argument set to true if both records are temporary.');
+        Observer.Expect('shs ins settable|code', 'Argument');
+        Observer.Expect('shs ins dst', 'nohv:');
+        Observer.Expect('shs ins rr', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1939,7 +1968,11 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ShareMoveStored(Observer, 3);
-        Observer.Finish();
+        Observer.Expect('shs calc settable|text', 'The COPY function can only be used with the shareTable argument set to true if both records are temporary.');
+        Observer.Expect('shs calc settable|code', 'Argument');
+        Observer.Expect('shs calc dst', 'nohv:');
+        Observer.Expect('shs calc rr', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1948,7 +1981,11 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ShareMoveStored(Observer, 4);
-        Observer.Finish();
+        Observer.Expect('shs get settable|text', 'The COPY function can only be used with the shareTable argument set to true if both records are temporary.');
+        Observer.Expect('shs get settable|code', 'Argument');
+        Observer.Expect('shs get dst', 'nohv:');
+        Observer.Expect('shs get rr', 'hv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1957,7 +1994,11 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ShareMoveStored(Observer, 5);
-        Observer.Finish();
+        Observer.Expect('shs empty settable|text', 'The COPY function can only be used with the shareTable argument set to true if both records are temporary.');
+        Observer.Expect('shs empty settable|code', 'Argument');
+        Observer.Expect('shs empty dst', 'nohv:');
+        Observer.Expect('shs empty rr', 'nohv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1966,7 +2007,11 @@ codeunit 97766 "LT BC3 Temp Moves"
         Observer: Codeunit "Probe Observer";
     begin
         ShareMoveStored(Observer, 6);
-        Observer.Finish();
+        Observer.Expect('shs asg settable|text', 'The COPY function can only be used with the shareTable argument set to true if both records are temporary.');
+        Observer.Expect('shs asg settable|code', 'Argument');
+        Observer.Expect('shs asg dst', 'nohv:');
+        Observer.Expect('shs asg rr', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2697,7 +2742,10 @@ codeunit 97768 "LT BC3 Neighbors"
         Observer.Observe('A1 src', L.Rd(Src));
         Src.Modify();
         Observer.Observe('A1 row', L.Stored(40));
-        Observer.Finish();
+        Observer.Expect('A1 in w', 'hv:zztaa');
+        Observer.Expect('A1 src', 'hv:betaa');
+        Observer.Expect('A1 row', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2717,7 +2765,10 @@ codeunit 97768 "LT BC3 Neighbors"
         Observer.Observe('A2 src', L.Rd(Src));
         Src.Get(41);
         Observer.Observe('A2 src get', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('A2 in w', 'hv:zztaa');
+        Observer.Expect('A2 src', 'hv:betaa');
+        Observer.Expect('A2 src get', 'hv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2739,7 +2790,10 @@ codeunit 97768 "LT BC3 Neighbors"
         Observer.Observe('A3 src w dst', L.Rd(Src));
         Src.Modify();
         Observer.Observe('A3 row', L.Stored(42));
-        Observer.Finish();
+        Observer.Expect('A3 dst', 'hv:betaa');
+        Observer.Expect('A3 src w dst', 'hv:betaa');
+        Observer.Expect('A3 row', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2761,7 +2815,10 @@ codeunit 97768 "LT BC3 Neighbors"
         Observer.Observe('A4 src', L.Rd(Src));
         Src.Modify();
         Observer.Observe('A4 row', L.Stored(43));
-        Observer.Finish();
+        Observer.Expect('A4 in w', 'hv:zztaa');
+        Observer.Expect('A4 src', 'hv:betaa');
+        Observer.Expect('A4 row', 'hv: hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2785,7 +2842,10 @@ codeunit 97768 "LT BC3 Neighbors"
         Observer.Observe('A5 tf', L.Rd(Dst2));
         L.W(Dst2, 'yyyyyy');
         Observer.Observe('A5 src w tf', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('A5 gv', 'hv:betaa');
+        Observer.Expect('A5 tf', 'hv:betaa');
+        Observer.Expect('A5 src w tf', 'hv:zztaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2810,7 +2870,10 @@ codeunit 97768 "LT BC3 Neighbors"
         Observer.Observe('A5s tf', L.Rd(Dst2));
         Src.Modify();
         Observer.Observe('A5s row', L.Stored(45));
-        Observer.Finish();
+        Observer.Expect('A5s gv', 'hv:betaa');
+        Observer.Expect('A5s tf', 'hv:betaa');
+        Observer.Expect('A5s row', 'hv: hv:zztaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2828,7 +2891,10 @@ codeunit 97768 "LT BC3 Neighbors"
         Observer.Observe('B1 in w', B);
         Observer.Observe('B1 mid', L.Rd(Mid));
         Observer.Observe('B1 src', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('B1 in w', 'hv:zzpha');
+        Observer.Expect('B1 mid', 'hv:alpha');
+        Observer.Expect('B1 src', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2847,7 +2913,10 @@ codeunit 97768 "LT BC3 Neighbors"
         Observer.Observe('B2 in w', B);
         Observer.Observe('B2 mid', L.Rd(Mid));
         Observer.Observe('B2 src', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('B2 in w', 'hv:zztaa');
+        Observer.Expect('B2 mid', 'hv:betaa');
+        Observer.Expect('B2 src', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2869,7 +2938,11 @@ codeunit 97768 "LT BC3 Neighbors"
         Observer.Observe('B3 mid', L.Rd(Mid));
         Observer.Observe('B3 src', L.Rd(Src));
         Observer.Observe('B3 rr', L.RdRR(RR, 2));
-        Observer.Finish();
+        Observer.Expect('B3 in w', 'hv:zzpha');
+        Observer.Expect('B3 mid', 'hv:alpha');
+        Observer.Expect('B3 src', 'hv:alpha');
+        Observer.Expect('B3 rr', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2888,7 +2961,9 @@ codeunit 97768 "LT BC3 Neighbors"
         Observer.Observe('B1c mid w dst', L.Rd(Mid));
         L.W(Mid, 'beta');
         Observer.Observe('B1c dst w mid', L.Rd(Dst));
-        Observer.Finish();
+        Observer.Expect('B1c mid w dst', 'hv:alpha');
+        Observer.Expect('B1c dst w mid', 'hv:zzpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2910,7 +2985,9 @@ codeunit 97768 "LT BC3 Neighbors"
         ByValue(Src, B);
         Observer.Observe('B4 in w', B);
         Observer.Observe('B4 src', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('B4 in w', 'hv:zztaa');
+        Observer.Expect('B4 src', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2931,7 +3008,9 @@ codeunit 97768 "LT BC3 Neighbors"
         ByValue(Src, B);
         Observer.Observe('B5 in w', B);
         Observer.Observe('B5 src', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('B5 in w', 'hv:zzta');
+        Observer.Expect('B5 src', 'hv:beta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2956,7 +3035,13 @@ codeunit 97768 "LT BC3 Neighbors"
         TakeVarWrite(Src.Comp, Src, Dst, 5);
         Observer.Observe('C3 comp dst', L.Rd(Dst));
         Observer.Observe('C3 comp src', L.RF(Src, 5));
-        Observer.Finish();
+        Observer.Expect('C1 ext dst', 'hv:alpha');
+        Observer.Expect('C1 ext src', 'hv:betaa');
+        Observer.Expect('C2 plain dst', 'hv:alpha');
+        Observer.Expect('C2 plain src', 'hv:betaa');
+        Observer.Expect('C3 comp dst', 'hv:alpha');
+        Observer.Expect('C3 comp src', 'hv:betaa');
+        Observer.Verify();
     end;
 
     local procedure KindVariants(var Observer: Codeunit "Probe Observer"; Tag: Text; F: Integer)
@@ -3007,7 +3092,16 @@ codeunit 97768 "LT BC3 Neighbors"
         KindVariants(Observer, 'C4 ext', 97761);
         KindVariants(Observer, 'C4 plain', 4);
         KindVariants(Observer, 'C5 comp', 5);
-        Observer.Finish();
+        Observer.Expect('C4 ext gv', 'hv:alpha');
+        Observer.Expect('C4 ext arr', 'hv:alpha');
+        Observer.Expect('C4 ext local', 'hv:alpha');
+        Observer.Expect('C4 plain gv', 'hv:alpha');
+        Observer.Expect('C4 plain arr', 'hv:alpha');
+        Observer.Expect('C4 plain local', 'hv:alpha');
+        Observer.Expect('C5 comp gv', 'hv:alpha');
+        Observer.Expect('C5 comp arr', 'hv:alpha');
+        Observer.Expect('C5 comp local', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3024,7 +3118,10 @@ codeunit 97768 "LT BC3 Neighbors"
         Observer.Observe('C6 ext', L.RF(Src, 97761));
         Observer.Observe('C6 plain', L.RF(Src, 4));
         Observer.Observe('C6 comp', L.RF(Src, 5));
-        Observer.Finish();
+        Observer.Expect('C6 ext', 'hv:alpha');
+        Observer.Expect('C6 plain', 'hv:alpha');
+        Observer.Expect('C6 comp', 'hv:alpha');
+        Observer.Verify();
     end;
 
     local procedure WriteOthersByValue(R: Record "LT BC3 Row")
@@ -3047,7 +3144,9 @@ codeunit 97768 "LT BC3 Neighbors"
         Impl.Take(Src, B);
         Observer.Observe('D1 in w', B);
         Observer.Observe('D1 src', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('D1 in w', 'hv:zzpha');
+        Observer.Expect('D1 src', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3065,7 +3164,9 @@ codeunit 97768 "LT BC3 Neighbors"
         I.Take(Src, B);
         Observer.Observe('D2 in w', B);
         Observer.Observe('D2 src', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('D2 in w', 'hv:zzpha');
+        Observer.Expect('D2 src', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3081,7 +3182,9 @@ codeunit 97768 "LT BC3 Neighbors"
         Other.TakeByValue(Src, B);
         Observer.Observe('D3 in w', B);
         Observer.Observe('D3 src', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('D3 in w', 'hv:zzpha');
+        Observer.Expect('D3 src', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3096,7 +3199,9 @@ codeunit 97768 "LT BC3 Neighbors"
         PassOn(Src, B);
         Observer.Observe('D4 in w', B);
         Observer.Observe('D4 src', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('D4 in w', 'hv:zzpha');
+        Observer.Expect('D4 src', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3111,7 +3216,9 @@ codeunit 97768 "LT BC3 Neighbors"
         ByValue(GRec, B);
         Observer.Observe('D5 in w', B);
         Observer.Observe('D5 grec', L.Rd(GRec));
-        Observer.Finish();
+        Observer.Expect('D5 in w', 'hv:zzpha');
+        Observer.Expect('D5 grec', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3132,7 +3239,10 @@ codeunit 97768 "LT BC3 Neighbors"
         Observer.Observe('D6 v', L.Rd(Src2));
         Observer.Observe('D6 src', L.Rd(Src));
         Observer.Observe('D6 dst', L.Rd(Dst));
-        Observer.Finish();
+        Observer.Expect('D6 v', 'hv:alpha');
+        Observer.Expect('D6 src', 'hv:alpha');
+        Observer.Expect('D6 dst', 'hv:zzpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3155,7 +3265,9 @@ codeunit 97768 "LT BC3 Neighbors"
         Dst.Data.CreateOutStream(OS);
         OS.WriteText('zz');
         Observer.Observe('E1 src w dst', L.Rd(Src));
-        Observer.Finish();
+        Observer.Expect('E1 dst w src', 'hv:alpha');
+        Observer.Expect('E1 src w dst', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3179,6 +3291,10 @@ codeunit 97768 "LT BC3 Neighbors"
         Src.Modify();
         Observer.Observe('E2 row data', L.Stored(48));
         Observer.Observe('E2 row plain', L.StoredF(48, 4));
-        Observer.Finish();
+        Observer.Expect('E2 src data', 'hv:alpha');
+        Observer.Expect('E2 src plain', 'hv:alpha');
+        Observer.Expect('E2 row data', 'hv: hv:alpha');
+        Observer.Expect('E2 row plain', 'hv: hv:alpha');
+        Observer.Verify();
     end;
 }
