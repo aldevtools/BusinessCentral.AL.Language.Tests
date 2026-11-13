@@ -478,8 +478,8 @@ codeunit 62348 "RPT DecRound Source Tests"
         Observer.Observe('variable', Dataset.ColumnValues(Xml, 'R2Var'));
         Observer.Observe('expression', Dataset.ColumnValues(Xml, 'R2Expr'));
         Observer.Expect('saved', 'Yes');
-        Observer.Expect('variable', '2,');
-        Observer.Expect('expression', '2,');
+        Observer.Expect('variable', '2.00,');
+        Observer.Expect('expression', '2.00,');
         Observer.Verify();
     end;
 
@@ -495,8 +495,8 @@ codeunit 62348 "RPT DecRound Source Tests"
         Observer.Observe('variable', Dataset.ColumnValues(Xml, 'R1Var'));
         Observer.Observe('expression', Dataset.ColumnValues(Xml, 'R1Expr'));
         Observer.Expect('saved', 'Yes');
-        Observer.Expect('variable', '1.00,');
-        Observer.Expect('expression', '1.00,');
+        Observer.Expect('variable', '1,');
+        Observer.Expect('expression', '1,');
         Observer.Verify();
     end;
 
@@ -513,7 +513,7 @@ codeunit 62348 "RPT DecRound Source Tests"
         Observer.Observe('with decimals', Dataset.ColumnValues(Xml, 'RNegDecVar'));
         Observer.Expect('saved', 'Yes');
         Observer.Expect('whole', '-1,');
-        Observer.Expect('with decimals', '-1.00,');
+        Observer.Expect('with decimals', '-1,');
         Observer.Verify();
     end;
 
@@ -528,7 +528,7 @@ codeunit 62348 "RPT DecRound Source Tests"
         Observer.Observe('saved', Format(Dataset.Save(Report::"RPT DecRound One", '', Xml)));
         Observer.Observe('variable', Dataset.ColumnValues(Xml, 'RZeroVar'));
         Observer.Expect('saved', 'Yes');
-        Observer.Expect('variable', '0.00,');
+        Observer.Expect('variable', '0,');
         Observer.Verify();
     end;
 
@@ -543,7 +543,7 @@ codeunit 62348 "RPT DecRound Source Tests"
         Observer.Observe('saved', Format(Dataset.Save(Report::"RPT DecRound One", '', Xml)));
         Observer.Observe('variable', Dataset.ColumnValues(Xml, 'LitOneVar'));
         Observer.Expect('saved', 'Yes');
-        Observer.Expect('variable', '1.0,');
+        Observer.Expect('variable', '1,');
         Observer.Verify();
     end;
 
@@ -558,7 +558,7 @@ codeunit 62348 "RPT DecRound Source Tests"
         Observer.Observe('saved', Format(Dataset.Save(Report::"RPT DecRound One", '', Xml)));
         Observer.Observe('variable', Dataset.ColumnValues(Xml, 'LitNegVar'));
         Observer.Expect('saved', 'Yes');
-        Observer.Expect('variable', '-1.00,');
+        Observer.Expect('variable', '-1,');
         Observer.Verify();
     end;
 
@@ -573,7 +573,7 @@ codeunit 62348 "RPT DecRound Source Tests"
         Observer.Observe('saved', Format(Dataset.Save(Report::"RPT DecRound One", '', Xml)));
         Observer.Observe('variable', Dataset.ColumnValues(Xml, 'LitZeroVar'));
         Observer.Expect('saved', 'Yes');
-        Observer.Expect('variable', '0.00,');
+        Observer.Expect('variable', '0,');
         Observer.Verify();
     end;
 
@@ -606,8 +606,8 @@ codeunit 62348 "RPT DecRound Source Tests"
         Observer.Observe('variable', Dataset.ColumnValues(Xml, 'DiffVar'));
         Observer.Observe('expression', Dataset.ColumnValues(Xml, 'DiffExpr'));
         Observer.Expect('saved', 'Yes');
-        Observer.Expect('variable', '1.00,');
-        Observer.Expect('expression', '1.00,');
+        Observer.Expect('variable', '1,');
+        Observer.Expect('expression', '1,');
         Observer.Verify();
     end;
 
@@ -622,7 +622,7 @@ codeunit 62348 "RPT DecRound Source Tests"
         Observer.Observe('saved', Format(Dataset.Save(Report::"RPT DecRound One", '', Xml)));
         Observer.Observe('variable', Dataset.ColumnValues(Xml, 'ThenVar'));
         Observer.Expect('saved', 'Yes');
-        Observer.Expect('variable', '2.50,');
+        Observer.Expect('variable', '2.5000,');
         Observer.Verify();
     end;
 
