@@ -11,6 +11,16 @@
 //   for the legacy DefaultLayout = Word report (Html, Pdf).
 // Also the attachment form of Report Selections: a stored RDLC (built-in) row with an empty Company Name and with the company,
 //   SetTempLayoutSelected(''), then Report.SaveAs(Id, '', Format, OutStream, RecordRef) for Html, Pdf, Xml, Word and Excel.
+// Results (corpus CI, identical on 27.5, 28.5 and 29.0):
+//   - The stored selection decides the layout: RDLC (built-in) of the company makes Html fail (ReportUnsupportedFormat) while Pdf, Word,
+//     Excel and Xml render; a Tenant Report Layout Selection row wins over the Report Layout Selection type (marker 'tenant', also with
+//     RDLC (built-in)); Custom Layout with a tenant code renders that layout; Custom Layout with an unknown code fails every format
+//     (ReportNoLayout); a row of another company or with an empty Company Name is ignored (default Word layout, marker 'main').
+//     SetTempLayoutSelected('') before the five-argument SaveAs does not override the stored RDLC (built-in) row of the company.
+//   - Excel fails on every Word layout (ReportUnsupportedFormat, no trigger runs).
+//   - No dataset row: the Word layout returns false with ReportResultEmpty for Pdf, Word and Html (OnPreReport and OnPreRendering ran;
+//     the statement form raises the same error); the RDLC report returns true with an empty stream and no trigger; the legacy
+//     DefaultLayout = Word report returns false with ReportResultEmpty and no trigger.
 // Not asked: the Reporting Triggers events (a subscriber of a platform publisher makes the corpus CI run every test).
 // BC versions: 27 - 29
 
@@ -199,7 +209,9 @@ codeunit 80023 "RX Layout Selection Tests"
         Observer.Observe(Name + ' returned', Format(Ok));
         Observer.ObserveError(Name + ' err');
         Observer.Observe(Name + ' length > 0', Format(TempBlob.Length() > 0));
-        Observer.Observe(Name + ' first bytes', FirstBytes(TempBlob));
+        // The Xml output starts with bytes that Format(Byte) turns into non-printable characters; only its length is checked.
+        if Fmt <> ReportFormat::Xml then
+            Observer.Observe(Name + ' first bytes', FirstBytes(TempBlob));
         Observer.Observe(Name + ' log', SelLog.Take());
         if Fmt = ReportFormat::Html then
             Observer.Observe(Name + ' layout marker', Markers(TempBlob));
@@ -345,7 +357,22 @@ codeunit 80023 "RX Layout Selection Tests"
     begin
         SetupNoSelection();
         HtmlAndPdf(Observer);
-        Observer.Finish();
+        Observer.Expect('html completed', 'Yes');
+        Observer.Expect('html returned', 'Yes');
+        Observer.Expect('html err|text', '');
+        Observer.Expect('html err|code', '');
+        Observer.Expect('html length > 0', 'Yes');
+        Observer.Expect('html first bytes', '< h t m');
+        Observer.Expect('html log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('html layout marker', 'main;');
+        Observer.Expect('pdf completed', 'Yes');
+        Observer.Expect('pdf returned', 'Yes');
+        Observer.Expect('pdf err|text', '');
+        Observer.Expect('pdf err|code', '');
+        Observer.Expect('pdf length > 0', 'Yes');
+        Observer.Expect('pdf first bytes', '% P D F');
+        Observer.Expect('pdf log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -355,7 +382,21 @@ codeunit 80023 "RX Layout Selection Tests"
     begin
         SetupNoSelection();
         WordAndExcel(Observer);
-        Observer.Finish();
+        Observer.Expect('word completed', 'Yes');
+        Observer.Expect('word returned', 'Yes');
+        Observer.Expect('word err|text', '');
+        Observer.Expect('word err|code', '');
+        Observer.Expect('word length > 0', 'Yes');
+        Observer.Expect('word first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('word log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('excel completed', 'Yes');
+        Observer.Expect('excel returned', 'No');
+        Observer.Expect('excel err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('excel err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('excel length > 0', 'No');
+        Observer.Expect('excel first bytes', '');
+        Observer.Expect('excel log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -365,7 +406,22 @@ codeunit 80023 "RX Layout Selection Tests"
     begin
         SetupWordBuiltin();
         HtmlAndPdf(Observer);
-        Observer.Finish();
+        Observer.Expect('html completed', 'Yes');
+        Observer.Expect('html returned', 'Yes');
+        Observer.Expect('html err|text', '');
+        Observer.Expect('html err|code', '');
+        Observer.Expect('html length > 0', 'Yes');
+        Observer.Expect('html first bytes', '< h t m');
+        Observer.Expect('html log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('html layout marker', 'main;');
+        Observer.Expect('pdf completed', 'Yes');
+        Observer.Expect('pdf returned', 'Yes');
+        Observer.Expect('pdf err|text', '');
+        Observer.Expect('pdf err|code', '');
+        Observer.Expect('pdf length > 0', 'Yes');
+        Observer.Expect('pdf first bytes', '% P D F');
+        Observer.Expect('pdf log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -375,7 +431,21 @@ codeunit 80023 "RX Layout Selection Tests"
     begin
         SetupWordBuiltin();
         WordAndExcel(Observer);
-        Observer.Finish();
+        Observer.Expect('word completed', 'Yes');
+        Observer.Expect('word returned', 'Yes');
+        Observer.Expect('word err|text', '');
+        Observer.Expect('word err|code', '');
+        Observer.Expect('word length > 0', 'Yes');
+        Observer.Expect('word first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('word log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('excel completed', 'Yes');
+        Observer.Expect('excel returned', 'No');
+        Observer.Expect('excel err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('excel err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('excel length > 0', 'No');
+        Observer.Expect('excel first bytes', '');
+        Observer.Expect('excel log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -385,7 +455,22 @@ codeunit 80023 "RX Layout Selection Tests"
     begin
         SetupRdlcBuiltin();
         HtmlAndPdf(Observer);
-        Observer.Finish();
+        Observer.Expect('html completed', 'Yes');
+        Observer.Expect('html returned', 'No');
+        Observer.Expect('html err|text', 'The Html output format is not supported by the current report layout format.');
+        Observer.Expect('html err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('html length > 0', 'No');
+        Observer.Expect('html first bytes', '');
+        Observer.Expect('html log', '');
+        Observer.Expect('html layout marker', 'none');
+        Observer.Expect('pdf completed', 'Yes');
+        Observer.Expect('pdf returned', 'Yes');
+        Observer.Expect('pdf err|text', '');
+        Observer.Expect('pdf err|code', '');
+        Observer.Expect('pdf length > 0', 'Yes');
+        Observer.Expect('pdf first bytes', '% P D F');
+        Observer.Expect('pdf log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -395,7 +480,21 @@ codeunit 80023 "RX Layout Selection Tests"
     begin
         SetupRdlcBuiltin();
         WordAndExcel(Observer);
-        Observer.Finish();
+        Observer.Expect('word completed', 'Yes');
+        Observer.Expect('word returned', 'Yes');
+        Observer.Expect('word err|text', '');
+        Observer.Expect('word err|code', '');
+        Observer.Expect('word length > 0', 'Yes');
+        Observer.Expect('word first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('word log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('excel completed', 'Yes');
+        Observer.Expect('excel returned', 'Yes');
+        Observer.Expect('excel err|text', '');
+        Observer.Expect('excel err|code', '');
+        Observer.Expect('excel length > 0', 'Yes');
+        Observer.Expect('excel first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('excel log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -405,7 +504,22 @@ codeunit 80023 "RX Layout Selection Tests"
     begin
         SetupWordBuiltinOtherByName();
         HtmlAndPdf(Observer);
-        Observer.Finish();
+        Observer.Expect('html completed', 'Yes');
+        Observer.Expect('html returned', 'Yes');
+        Observer.Expect('html err|text', '');
+        Observer.Expect('html err|code', '');
+        Observer.Expect('html length > 0', 'Yes');
+        Observer.Expect('html first bytes', '< h t m');
+        Observer.Expect('html log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('html layout marker', 'other;');
+        Observer.Expect('pdf completed', 'Yes');
+        Observer.Expect('pdf returned', 'Yes');
+        Observer.Expect('pdf err|text', '');
+        Observer.Expect('pdf err|code', '');
+        Observer.Expect('pdf length > 0', 'Yes');
+        Observer.Expect('pdf first bytes', '% P D F');
+        Observer.Expect('pdf log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -415,7 +529,21 @@ codeunit 80023 "RX Layout Selection Tests"
     begin
         SetupWordBuiltinOtherByName();
         WordAndExcel(Observer);
-        Observer.Finish();
+        Observer.Expect('word completed', 'Yes');
+        Observer.Expect('word returned', 'Yes');
+        Observer.Expect('word err|text', '');
+        Observer.Expect('word err|code', '');
+        Observer.Expect('word length > 0', 'Yes');
+        Observer.Expect('word first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('word log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('excel completed', 'Yes');
+        Observer.Expect('excel returned', 'No');
+        Observer.Expect('excel err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('excel err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('excel length > 0', 'No');
+        Observer.Expect('excel first bytes', '');
+        Observer.Expect('excel log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -425,7 +553,22 @@ codeunit 80023 "RX Layout Selection Tests"
     begin
         SetupWordBuiltinTenantGuid();
         HtmlAndPdf(Observer);
-        Observer.Finish();
+        Observer.Expect('html completed', 'Yes');
+        Observer.Expect('html returned', 'Yes');
+        Observer.Expect('html err|text', '');
+        Observer.Expect('html err|code', '');
+        Observer.Expect('html length > 0', 'Yes');
+        Observer.Expect('html first bytes', '< h t m');
+        Observer.Expect('html log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('html layout marker', 'tenant;');
+        Observer.Expect('pdf completed', 'Yes');
+        Observer.Expect('pdf returned', 'Yes');
+        Observer.Expect('pdf err|text', '');
+        Observer.Expect('pdf err|code', '');
+        Observer.Expect('pdf length > 0', 'Yes');
+        Observer.Expect('pdf first bytes', '% P D F');
+        Observer.Expect('pdf log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -435,7 +578,21 @@ codeunit 80023 "RX Layout Selection Tests"
     begin
         SetupWordBuiltinTenantGuid();
         WordAndExcel(Observer);
-        Observer.Finish();
+        Observer.Expect('word completed', 'Yes');
+        Observer.Expect('word returned', 'Yes');
+        Observer.Expect('word err|text', '');
+        Observer.Expect('word err|code', '');
+        Observer.Expect('word length > 0', 'Yes');
+        Observer.Expect('word first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('word log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('excel completed', 'Yes');
+        Observer.Expect('excel returned', 'No');
+        Observer.Expect('excel err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('excel err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('excel length > 0', 'No');
+        Observer.Expect('excel first bytes', '');
+        Observer.Expect('excel log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -445,7 +602,22 @@ codeunit 80023 "RX Layout Selection Tests"
     begin
         SetupTenantGuidOnly();
         HtmlAndPdf(Observer);
-        Observer.Finish();
+        Observer.Expect('html completed', 'Yes');
+        Observer.Expect('html returned', 'Yes');
+        Observer.Expect('html err|text', '');
+        Observer.Expect('html err|code', '');
+        Observer.Expect('html length > 0', 'Yes');
+        Observer.Expect('html first bytes', '< h t m');
+        Observer.Expect('html log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('html layout marker', 'tenant;');
+        Observer.Expect('pdf completed', 'Yes');
+        Observer.Expect('pdf returned', 'Yes');
+        Observer.Expect('pdf err|text', '');
+        Observer.Expect('pdf err|code', '');
+        Observer.Expect('pdf length > 0', 'Yes');
+        Observer.Expect('pdf first bytes', '% P D F');
+        Observer.Expect('pdf log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -455,7 +627,21 @@ codeunit 80023 "RX Layout Selection Tests"
     begin
         SetupTenantGuidOnly();
         WordAndExcel(Observer);
-        Observer.Finish();
+        Observer.Expect('word completed', 'Yes');
+        Observer.Expect('word returned', 'Yes');
+        Observer.Expect('word err|text', '');
+        Observer.Expect('word err|code', '');
+        Observer.Expect('word length > 0', 'Yes');
+        Observer.Expect('word first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('word log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('excel completed', 'Yes');
+        Observer.Expect('excel returned', 'No');
+        Observer.Expect('excel err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('excel err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('excel length > 0', 'No');
+        Observer.Expect('excel first bytes', '');
+        Observer.Expect('excel log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -465,7 +651,22 @@ codeunit 80023 "RX Layout Selection Tests"
     begin
         SetupRdlcBuiltinTenantGuid();
         HtmlAndPdf(Observer);
-        Observer.Finish();
+        Observer.Expect('html completed', 'Yes');
+        Observer.Expect('html returned', 'Yes');
+        Observer.Expect('html err|text', '');
+        Observer.Expect('html err|code', '');
+        Observer.Expect('html length > 0', 'Yes');
+        Observer.Expect('html first bytes', '< h t m');
+        Observer.Expect('html log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('html layout marker', 'tenant;');
+        Observer.Expect('pdf completed', 'Yes');
+        Observer.Expect('pdf returned', 'Yes');
+        Observer.Expect('pdf err|text', '');
+        Observer.Expect('pdf err|code', '');
+        Observer.Expect('pdf length > 0', 'Yes');
+        Observer.Expect('pdf first bytes', '% P D F');
+        Observer.Expect('pdf log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -475,7 +676,21 @@ codeunit 80023 "RX Layout Selection Tests"
     begin
         SetupRdlcBuiltinTenantGuid();
         WordAndExcel(Observer);
-        Observer.Finish();
+        Observer.Expect('word completed', 'Yes');
+        Observer.Expect('word returned', 'Yes');
+        Observer.Expect('word err|text', '');
+        Observer.Expect('word err|code', '');
+        Observer.Expect('word length > 0', 'Yes');
+        Observer.Expect('word first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('word log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('excel completed', 'Yes');
+        Observer.Expect('excel returned', 'No');
+        Observer.Expect('excel err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('excel err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('excel length > 0', 'No');
+        Observer.Expect('excel first bytes', '');
+        Observer.Expect('excel log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -485,7 +700,22 @@ codeunit 80023 "RX Layout Selection Tests"
     begin
         SetupCustomLayoutTenantCode();
         HtmlAndPdf(Observer);
-        Observer.Finish();
+        Observer.Expect('html completed', 'Yes');
+        Observer.Expect('html returned', 'Yes');
+        Observer.Expect('html err|text', '');
+        Observer.Expect('html err|code', '');
+        Observer.Expect('html length > 0', 'Yes');
+        Observer.Expect('html first bytes', '< h t m');
+        Observer.Expect('html log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('html layout marker', 'tenant;');
+        Observer.Expect('pdf completed', 'Yes');
+        Observer.Expect('pdf returned', 'Yes');
+        Observer.Expect('pdf err|text', '');
+        Observer.Expect('pdf err|code', '');
+        Observer.Expect('pdf length > 0', 'Yes');
+        Observer.Expect('pdf first bytes', '% P D F');
+        Observer.Expect('pdf log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -495,7 +725,21 @@ codeunit 80023 "RX Layout Selection Tests"
     begin
         SetupCustomLayoutTenantCode();
         WordAndExcel(Observer);
-        Observer.Finish();
+        Observer.Expect('word completed', 'Yes');
+        Observer.Expect('word returned', 'Yes');
+        Observer.Expect('word err|text', '');
+        Observer.Expect('word err|code', '');
+        Observer.Expect('word length > 0', 'Yes');
+        Observer.Expect('word first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('word log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('excel completed', 'Yes');
+        Observer.Expect('excel returned', 'No');
+        Observer.Expect('excel err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('excel err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('excel length > 0', 'No');
+        Observer.Expect('excel first bytes', '');
+        Observer.Expect('excel log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -505,7 +749,22 @@ codeunit 80023 "RX Layout Selection Tests"
     begin
         SetupCustomLayoutUnknownCode();
         HtmlAndPdf(Observer);
-        Observer.Finish();
+        Observer.Expect('html completed', 'Yes');
+        Observer.Expect('html returned', 'No');
+        Observer.Expect('html err|text', 'Report 80020 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('html err|code', 'ReportNoLayout');
+        Observer.Expect('html length > 0', 'No');
+        Observer.Expect('html first bytes', '');
+        Observer.Expect('html log', '');
+        Observer.Expect('html layout marker', 'none');
+        Observer.Expect('pdf completed', 'Yes');
+        Observer.Expect('pdf returned', 'No');
+        Observer.Expect('pdf err|text', 'Report 80020 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('pdf err|code', 'ReportNoLayout');
+        Observer.Expect('pdf length > 0', 'No');
+        Observer.Expect('pdf first bytes', '');
+        Observer.Expect('pdf log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -515,7 +774,21 @@ codeunit 80023 "RX Layout Selection Tests"
     begin
         SetupCustomLayoutUnknownCode();
         WordAndExcel(Observer);
-        Observer.Finish();
+        Observer.Expect('word completed', 'Yes');
+        Observer.Expect('word returned', 'No');
+        Observer.Expect('word err|text', 'Report 80020 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('word err|code', 'ReportNoLayout');
+        Observer.Expect('word length > 0', 'No');
+        Observer.Expect('word first bytes', '');
+        Observer.Expect('word log', '');
+        Observer.Expect('excel completed', 'Yes');
+        Observer.Expect('excel returned', 'No');
+        Observer.Expect('excel err|text', 'Report 80020 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('excel err|code', 'ReportNoLayout');
+        Observer.Expect('excel length > 0', 'No');
+        Observer.Expect('excel first bytes', '');
+        Observer.Expect('excel log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -525,7 +798,22 @@ codeunit 80023 "RX Layout Selection Tests"
     begin
         SetupRdlcOtherCompany();
         HtmlAndPdf(Observer);
-        Observer.Finish();
+        Observer.Expect('html completed', 'Yes');
+        Observer.Expect('html returned', 'Yes');
+        Observer.Expect('html err|text', '');
+        Observer.Expect('html err|code', '');
+        Observer.Expect('html length > 0', 'Yes');
+        Observer.Expect('html first bytes', '< h t m');
+        Observer.Expect('html log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('html layout marker', 'main;');
+        Observer.Expect('pdf completed', 'Yes');
+        Observer.Expect('pdf returned', 'Yes');
+        Observer.Expect('pdf err|text', '');
+        Observer.Expect('pdf err|code', '');
+        Observer.Expect('pdf length > 0', 'Yes');
+        Observer.Expect('pdf first bytes', '% P D F');
+        Observer.Expect('pdf log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -535,7 +823,21 @@ codeunit 80023 "RX Layout Selection Tests"
     begin
         SetupRdlcOtherCompany();
         WordAndExcel(Observer);
-        Observer.Finish();
+        Observer.Expect('word completed', 'Yes');
+        Observer.Expect('word returned', 'Yes');
+        Observer.Expect('word err|text', '');
+        Observer.Expect('word err|code', '');
+        Observer.Expect('word length > 0', 'Yes');
+        Observer.Expect('word first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('word log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('excel completed', 'Yes');
+        Observer.Expect('excel returned', 'No');
+        Observer.Expect('excel err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('excel err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('excel length > 0', 'No');
+        Observer.Expect('excel first bytes', '');
+        Observer.Expect('excel log', '');
+        Observer.Verify();
     end;
 
     local procedure NoRowFacts(var Observer: Codeunit "Probe Observer"; ReportId: Integer; Fmt: ReportFormat)
@@ -552,7 +854,19 @@ codeunit 80023 "RX Layout Selection Tests"
         Observer: Codeunit "Probe Observer";
     begin
         NoRowFacts(Observer, Report::"RX Sel Word", ReportFormat::Pdf);
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The report couldn’t be generated, because it was empty. Adjust your filters and try again.');
+        Observer.Expect('used err|code', 'ReportResultEmpty');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used first bytes', '');
+        Observer.Expect('used log', 'OnPreReport;OnPreRendering;');
+        Observer.Expect('statement completed', 'No');
+        Observer.Expect('statement err|text', 'The report couldn’t be generated, because it was empty. Adjust your filters and try again.');
+        Observer.Expect('statement err|code', 'ReportResultEmpty');
+        Observer.Expect('statement length > 0', 'No');
+        Observer.Expect('statement log', 'OnPreReport;OnPreRendering;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -561,7 +875,19 @@ codeunit 80023 "RX Layout Selection Tests"
         Observer: Codeunit "Probe Observer";
     begin
         NoRowFacts(Observer, Report::"RX Sel Word", ReportFormat::Word);
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The report couldn’t be generated, because it was empty. Adjust your filters and try again.');
+        Observer.Expect('used err|code', 'ReportResultEmpty');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used first bytes', '');
+        Observer.Expect('used log', 'OnPreReport;OnPreRendering;');
+        Observer.Expect('statement completed', 'No');
+        Observer.Expect('statement err|text', 'The report couldn’t be generated, because it was empty. Adjust your filters and try again.');
+        Observer.Expect('statement err|code', 'ReportResultEmpty');
+        Observer.Expect('statement length > 0', 'No');
+        Observer.Expect('statement log', 'OnPreReport;OnPreRendering;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -570,7 +896,19 @@ codeunit 80023 "RX Layout Selection Tests"
         Observer: Codeunit "Probe Observer";
     begin
         NoRowFacts(Observer, Report::"RX Sel Word", ReportFormat::Excel);
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('used err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used first bytes', '');
+        Observer.Expect('used log', '');
+        Observer.Expect('statement completed', 'No');
+        Observer.Expect('statement err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('statement err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('statement length > 0', 'No');
+        Observer.Expect('statement log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -579,7 +917,20 @@ codeunit 80023 "RX Layout Selection Tests"
         Observer: Codeunit "Probe Observer";
     begin
         NoRowFacts(Observer, Report::"RX Sel Word", ReportFormat::Html);
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The report couldn’t be generated, because it was empty. Adjust your filters and try again.');
+        Observer.Expect('used err|code', 'ReportResultEmpty');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used first bytes', '');
+        Observer.Expect('used log', 'OnPreReport;OnPreRendering;');
+        Observer.Expect('used layout marker', 'none');
+        Observer.Expect('statement completed', 'No');
+        Observer.Expect('statement err|text', 'The report couldn’t be generated, because it was empty. Adjust your filters and try again.');
+        Observer.Expect('statement err|code', 'ReportResultEmpty');
+        Observer.Expect('statement length > 0', 'No');
+        Observer.Expect('statement log', 'OnPreReport;OnPreRendering;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -588,7 +939,19 @@ codeunit 80023 "RX Layout Selection Tests"
         Observer: Codeunit "Probe Observer";
     begin
         NoRowFacts(Observer, Report::"RX Rdlc", ReportFormat::Pdf);
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used first bytes', '');
+        Observer.Expect('used log', '');
+        Observer.Expect('statement completed', 'Yes');
+        Observer.Expect('statement err|text', '');
+        Observer.Expect('statement err|code', '');
+        Observer.Expect('statement length > 0', 'No');
+        Observer.Expect('statement log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -597,7 +960,19 @@ codeunit 80023 "RX Layout Selection Tests"
         Observer: Codeunit "Probe Observer";
     begin
         NoRowFacts(Observer, Report::"RX Rdlc", ReportFormat::Word);
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used first bytes', '');
+        Observer.Expect('used log', '');
+        Observer.Expect('statement completed', 'Yes');
+        Observer.Expect('statement err|text', '');
+        Observer.Expect('statement err|code', '');
+        Observer.Expect('statement length > 0', 'No');
+        Observer.Expect('statement log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -606,7 +981,20 @@ codeunit 80023 "RX Layout Selection Tests"
         Observer: Codeunit "Probe Observer";
     begin
         NoRowFacts(Observer, Report::"RX Legacy Word", ReportFormat::Html);
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The report couldn’t be generated, because it was empty. Adjust your filters and try again.');
+        Observer.Expect('used err|code', 'ReportResultEmpty');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used first bytes', '');
+        Observer.Expect('used log', '');
+        Observer.Expect('used layout marker', 'none');
+        Observer.Expect('statement completed', 'No');
+        Observer.Expect('statement err|text', 'The report couldn’t be generated, because it was empty. Adjust your filters and try again.');
+        Observer.Expect('statement err|code', 'ReportResultEmpty');
+        Observer.Expect('statement length > 0', 'No');
+        Observer.Expect('statement log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -615,7 +1003,19 @@ codeunit 80023 "RX Layout Selection Tests"
         Observer: Codeunit "Probe Observer";
     begin
         NoRowFacts(Observer, Report::"RX Legacy Word", ReportFormat::Pdf);
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The report couldn’t be generated, because it was empty. Adjust your filters and try again.');
+        Observer.Expect('used err|code', 'ReportResultEmpty');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used first bytes', '');
+        Observer.Expect('used log', '');
+        Observer.Expect('statement completed', 'No');
+        Observer.Expect('statement err|text', 'The report couldn’t be generated, because it was empty. Adjust your filters and try again.');
+        Observer.Expect('statement err|code', 'ReportResultEmpty');
+        Observer.Expect('statement length > 0', 'No');
+        Observer.Expect('statement log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -628,7 +1028,28 @@ codeunit 80023 "RX Layout Selection Tests"
         RecordFormatFacts(Observer, 'pdf', ReportFormat::Pdf);
         RecordFormatFacts(Observer, 'xml', ReportFormat::Xml);
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('html completed', 'Yes');
+        Observer.Expect('html returned', 'Yes');
+        Observer.Expect('html err|text', '');
+        Observer.Expect('html err|code', '');
+        Observer.Expect('html length > 0', 'Yes');
+        Observer.Expect('html first bytes', '< h t m');
+        Observer.Expect('html log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('html layout marker', 'main;');
+        Observer.Expect('pdf completed', 'Yes');
+        Observer.Expect('pdf returned', 'Yes');
+        Observer.Expect('pdf err|text', '');
+        Observer.Expect('pdf err|code', '');
+        Observer.Expect('pdf length > 0', 'Yes');
+        Observer.Expect('pdf first bytes', '% P D F');
+        Observer.Expect('pdf log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('xml completed', 'Yes');
+        Observer.Expect('xml returned', 'Yes');
+        Observer.Expect('xml err|text', '');
+        Observer.Expect('xml err|code', '');
+        Observer.Expect('xml length > 0', 'Yes');
+        Observer.Expect('xml log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -640,7 +1061,21 @@ codeunit 80023 "RX Layout Selection Tests"
         RecordFormatFacts(Observer, 'word', ReportFormat::Word);
         RecordFormatFacts(Observer, 'excel', ReportFormat::Excel);
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('word completed', 'Yes');
+        Observer.Expect('word returned', 'Yes');
+        Observer.Expect('word err|text', '');
+        Observer.Expect('word err|code', '');
+        Observer.Expect('word length > 0', 'Yes');
+        Observer.Expect('word first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('word log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('excel completed', 'Yes');
+        Observer.Expect('excel returned', 'No');
+        Observer.Expect('excel err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('excel err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('excel length > 0', 'No');
+        Observer.Expect('excel first bytes', '');
+        Observer.Expect('excel log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -653,7 +1088,28 @@ codeunit 80023 "RX Layout Selection Tests"
         RecordFormatFacts(Observer, 'pdf', ReportFormat::Pdf);
         RecordFormatFacts(Observer, 'xml', ReportFormat::Xml);
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('html completed', 'Yes');
+        Observer.Expect('html returned', 'No');
+        Observer.Expect('html err|text', 'The Html output format is not supported by the current report layout format.');
+        Observer.Expect('html err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('html length > 0', 'No');
+        Observer.Expect('html first bytes', '');
+        Observer.Expect('html log', '');
+        Observer.Expect('html layout marker', 'none');
+        Observer.Expect('pdf completed', 'Yes');
+        Observer.Expect('pdf returned', 'Yes');
+        Observer.Expect('pdf err|text', '');
+        Observer.Expect('pdf err|code', '');
+        Observer.Expect('pdf length > 0', 'Yes');
+        Observer.Expect('pdf first bytes', '% P D F');
+        Observer.Expect('pdf log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('xml completed', 'Yes');
+        Observer.Expect('xml returned', 'Yes');
+        Observer.Expect('xml err|text', '');
+        Observer.Expect('xml err|code', '');
+        Observer.Expect('xml length > 0', 'Yes');
+        Observer.Expect('xml log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -665,7 +1121,21 @@ codeunit 80023 "RX Layout Selection Tests"
         RecordFormatFacts(Observer, 'word', ReportFormat::Word);
         RecordFormatFacts(Observer, 'excel', ReportFormat::Excel);
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('word completed', 'Yes');
+        Observer.Expect('word returned', 'Yes');
+        Observer.Expect('word err|text', '');
+        Observer.Expect('word err|code', '');
+        Observer.Expect('word length > 0', 'Yes');
+        Observer.Expect('word first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('word log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('excel completed', 'Yes');
+        Observer.Expect('excel returned', 'Yes');
+        Observer.Expect('excel err|text', '');
+        Observer.Expect('excel err|code', '');
+        Observer.Expect('excel length > 0', 'Yes');
+        Observer.Expect('excel first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('excel log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -678,6 +1148,27 @@ codeunit 80023 "RX Layout Selection Tests"
         RecordFormatFacts(Observer, 'pdf', ReportFormat::Pdf);
         RecordFormatFacts(Observer, 'xml', ReportFormat::Xml);
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('html completed', 'Yes');
+        Observer.Expect('html returned', 'Yes');
+        Observer.Expect('html err|text', '');
+        Observer.Expect('html err|code', '');
+        Observer.Expect('html length > 0', 'Yes');
+        Observer.Expect('html first bytes', '< h t m');
+        Observer.Expect('html log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('html layout marker', 'main;');
+        Observer.Expect('pdf completed', 'Yes');
+        Observer.Expect('pdf returned', 'Yes');
+        Observer.Expect('pdf err|text', '');
+        Observer.Expect('pdf err|code', '');
+        Observer.Expect('pdf length > 0', 'Yes');
+        Observer.Expect('pdf first bytes', '% P D F');
+        Observer.Expect('pdf log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Expect('xml completed', 'Yes');
+        Observer.Expect('xml returned', 'Yes');
+        Observer.Expect('xml err|text', '');
+        Observer.Expect('xml err|code', '');
+        Observer.Expect('xml length > 0', 'Yes');
+        Observer.Expect('xml log', 'OnPreReport;OnPreRendering;OnPostReport;');
+        Observer.Verify();
     end;
 }

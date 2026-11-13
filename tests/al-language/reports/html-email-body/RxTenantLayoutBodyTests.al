@@ -14,6 +14,12 @@
 //   parent and a child data item (RX Two Items), a report whose reportextension adds a column (RX Ext Base, RX Ext Column), and the call
 //   form of Report Selections.DoSaveReportAsHTMLInTempBlob: SetTempLayoutSelectedName(''), then the statement form of the five-argument
 //   Report.SaveAs with a RecordRef filtered to one of two rows.
+// Results (corpus CI, identical on 27.5, 28.5 and 29.0): every shape renders Html and leaves GetTempSelectedLayoutName empty after the run.
+//   RX Word Rgba (through the GUID-named tenant row, the plain-named row and its default layout alike): the body holds rgba(1,2,3,1),
+//   rgba(4,5,6,0.5), rgba(7, 8, 9, 1.0) and rgb(1, 2, 3); GetBody (Html true and false) differs from the body: rgba(1,2,3,1) becomes
+//   rgb(1, 2, 3), rgba(7, 8, 9, 1.0) becomes rgb(7, 8, 9), rgba(4,5,6,0.5) stays. RX Word Alpha through the GUID row, RX Legacy Word,
+//   RX Two Items, RX Ext Base with its extension, and the Report Selections form hold no rgba( or rgb(: GetBody = body. The Report
+//   Selections form completes; its generated layout prints no row text, so the RecordRef filter is not visible in the Html.
 // BC versions: 27 - 29
 
 codeunit 80024 "RX Tenant Layout Body Tests"
@@ -125,7 +131,23 @@ codeunit 80024 "RX Tenant Layout Body Tests"
         RenderFacts(Observer, Report::"RX Word Alpha", Body);
         Cleanup(Report::"RX Word Alpha");
         BodyFacts(Observer, Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+        Observer.Expect('eos after read', 'Yes');
+        Observer.Expect('starts <html', 'Yes');
+        Observer.Expect('selected name after', '');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body rgba( count', '0');
+        Observer.Expect('body rgb( count', '0');
+        Observer.Expect('html GetBody = body', 'Yes');
+        Observer.Expect('html length equal', 'Yes');
+        Observer.Expect('html GetBody rgba( count', '0');
+        Observer.Expect('html GetBody rgb( count', '0');
+        Observer.Expect('plain GetBody = body', 'Yes');
+        Observer.Expect('plain length equal', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -142,7 +164,23 @@ codeunit 80024 "RX Tenant Layout Body Tests"
         RenderFacts(Observer, Report::"RX Word Rgba", Body);
         Cleanup(Report::"RX Word Rgba");
         BodyFacts(Observer, Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+        Observer.Expect('eos after read', 'Yes');
+        Observer.Expect('starts <html', 'Yes');
+        Observer.Expect('selected name after', '');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body rgba( count', '3');
+        Observer.Expect('body rgb( count', '1');
+        Observer.Expect('html GetBody = body', 'No');
+        Observer.Expect('html length equal', 'No');
+        Observer.Expect('html GetBody rgba( count', '1');
+        Observer.Expect('html GetBody rgb( count', '3');
+        Observer.Expect('plain GetBody = body', 'No');
+        Observer.Expect('plain length equal', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -164,7 +202,23 @@ codeunit 80024 "RX Tenant Layout Body Tests"
         Cleanup(Report::"RX Word Rgba");
         Observer.Observe('returned', Format(Ok));
         RgbaTextFacts(Observer, Body);
-        Observer.Finish();
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('body rgba(1,2,3,1)', '1');
+        Observer.Expect('body rgb(1, 2, 3)', '1');
+        Observer.Expect('body rgba(4,5,6,0.5)', '1');
+        Observer.Expect('body rgba(7, 8, 9, 1.0)', '1');
+        Observer.Expect('body rgb(7, 8, 9)', '0');
+        Observer.Expect('html GetBody rgba(1,2,3,1)', '0');
+        Observer.Expect('html GetBody rgb(1, 2, 3)', '2');
+        Observer.Expect('html GetBody rgba(4,5,6,0.5)', '1');
+        Observer.Expect('html GetBody rgba(7, 8, 9, 1.0)', '0');
+        Observer.Expect('html GetBody rgb(7, 8, 9)', '1');
+        Observer.Expect('plain GetBody rgba(1,2,3,1)', '0');
+        Observer.Expect('plain GetBody rgb(1, 2, 3)', '2');
+        Observer.Expect('plain GetBody rgba(4,5,6,0.5)', '1');
+        Observer.Expect('plain GetBody rgba(7, 8, 9, 1.0)', '0');
+        Observer.Expect('plain GetBody rgb(7, 8, 9)', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -181,7 +235,23 @@ codeunit 80024 "RX Tenant Layout Body Tests"
         RenderFacts(Observer, Report::"RX Word Rgba", Body);
         Cleanup(Report::"RX Word Rgba");
         BodyFacts(Observer, Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+        Observer.Expect('eos after read', 'Yes');
+        Observer.Expect('starts <html', 'Yes');
+        Observer.Expect('selected name after', '');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body rgba( count', '3');
+        Observer.Expect('body rgb( count', '1');
+        Observer.Expect('html GetBody = body', 'No');
+        Observer.Expect('html length equal', 'No');
+        Observer.Expect('html GetBody rgba( count', '1');
+        Observer.Expect('html GetBody rgb( count', '3');
+        Observer.Expect('plain GetBody = body', 'No');
+        Observer.Expect('plain length equal', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -193,7 +263,23 @@ codeunit 80024 "RX Tenant Layout Body Tests"
         Cleanup(Report::"RX Word Rgba");
         RenderFacts(Observer, Report::"RX Word Rgba", Body);
         BodyFacts(Observer, Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+        Observer.Expect('eos after read', 'Yes');
+        Observer.Expect('starts <html', 'Yes');
+        Observer.Expect('selected name after', '');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body rgba( count', '3');
+        Observer.Expect('body rgb( count', '1');
+        Observer.Expect('html GetBody = body', 'No');
+        Observer.Expect('html length equal', 'No');
+        Observer.Expect('html GetBody rgba( count', '1');
+        Observer.Expect('html GetBody rgb( count', '3');
+        Observer.Expect('plain GetBody = body', 'No');
+        Observer.Expect('plain length equal', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -210,7 +296,23 @@ codeunit 80024 "RX Tenant Layout Body Tests"
         Html.Render(Report::"RX Word Rgba", Body, Completed, Ok, Eos);
         Observer.Observe('returned', Format(Ok));
         RgbaTextFacts(Observer, Body);
-        Observer.Finish();
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('body rgba(1,2,3,1)', '1');
+        Observer.Expect('body rgb(1, 2, 3)', '1');
+        Observer.Expect('body rgba(4,5,6,0.5)', '1');
+        Observer.Expect('body rgba(7, 8, 9, 1.0)', '1');
+        Observer.Expect('body rgb(7, 8, 9)', '0');
+        Observer.Expect('html GetBody rgba(1,2,3,1)', '0');
+        Observer.Expect('html GetBody rgb(1, 2, 3)', '2');
+        Observer.Expect('html GetBody rgba(4,5,6,0.5)', '1');
+        Observer.Expect('html GetBody rgba(7, 8, 9, 1.0)', '0');
+        Observer.Expect('html GetBody rgb(7, 8, 9)', '1');
+        Observer.Expect('plain GetBody rgba(1,2,3,1)', '0');
+        Observer.Expect('plain GetBody rgb(1, 2, 3)', '2');
+        Observer.Expect('plain GetBody rgba(4,5,6,0.5)', '1');
+        Observer.Expect('plain GetBody rgba(7, 8, 9, 1.0)', '0');
+        Observer.Expect('plain GetBody rgb(7, 8, 9)', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -221,7 +323,23 @@ codeunit 80024 "RX Tenant Layout Body Tests"
     begin
         RenderFacts(Observer, Report::"RX Legacy Word", Body);
         BodyFacts(Observer, Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+        Observer.Expect('eos after read', 'Yes');
+        Observer.Expect('starts <html', 'Yes');
+        Observer.Expect('selected name after', '');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body rgba( count', '0');
+        Observer.Expect('body rgb( count', '0');
+        Observer.Expect('html GetBody = body', 'Yes');
+        Observer.Expect('html length equal', 'Yes');
+        Observer.Expect('html GetBody rgba( count', '0');
+        Observer.Expect('html GetBody rgb( count', '0');
+        Observer.Expect('plain GetBody = body', 'Yes');
+        Observer.Expect('plain length equal', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -232,7 +350,23 @@ codeunit 80024 "RX Tenant Layout Body Tests"
     begin
         RenderFacts(Observer, Report::"RX Two Items", Body);
         BodyFacts(Observer, Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+        Observer.Expect('eos after read', 'Yes');
+        Observer.Expect('starts <html', 'Yes');
+        Observer.Expect('selected name after', '');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body rgba( count', '0');
+        Observer.Expect('body rgb( count', '0');
+        Observer.Expect('html GetBody = body', 'Yes');
+        Observer.Expect('html length equal', 'Yes');
+        Observer.Expect('html GetBody rgba( count', '0');
+        Observer.Expect('html GetBody rgb( count', '0');
+        Observer.Expect('plain GetBody = body', 'Yes');
+        Observer.Expect('plain length equal', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -243,7 +377,23 @@ codeunit 80024 "RX Tenant Layout Body Tests"
     begin
         RenderFacts(Observer, Report::"RX Ext Base", Body);
         BodyFacts(Observer, Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+        Observer.Expect('eos after read', 'Yes');
+        Observer.Expect('starts <html', 'Yes');
+        Observer.Expect('selected name after', '');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body rgba( count', '0');
+        Observer.Expect('body rgb( count', '0');
+        Observer.Expect('html GetBody = body', 'Yes');
+        Observer.Expect('html length equal', 'Yes');
+        Observer.Expect('html GetBody rgba( count', '0');
+        Observer.Expect('html GetBody rgb( count', '0');
+        Observer.Expect('plain GetBody = body', 'Yes');
+        Observer.Expect('plain length equal', 'Yes');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -284,6 +434,21 @@ codeunit 80024 "RX Tenant Layout Body Tests"
         Observer.Observe('holds RXROW1', Format(StrPos(Body, 'RXROW1') > 0));
         Observer.Observe('holds RXROW2', Format(StrPos(Body, 'RXROW2') > 0));
         BodyFacts(Observer, Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+        Observer.Expect('starts <html', 'Yes');
+        Observer.Expect('holds RXROW1', 'No');
+        Observer.Expect('holds RXROW2', 'No');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body rgba( count', '0');
+        Observer.Expect('body rgb( count', '0');
+        Observer.Expect('html GetBody = body', 'Yes');
+        Observer.Expect('html length equal', 'Yes');
+        Observer.Expect('html GetBody rgba( count', '0');
+        Observer.Expect('html GetBody rgb( count', '0');
+        Observer.Expect('plain GetBody = body', 'Yes');
+        Observer.Expect('plain length equal', 'Yes');
+        Observer.Verify();
     end;
 }
