@@ -32,6 +32,13 @@ The comparison runs in whichever PR's CI fires, so the collision is reported on
 the PR itself within seconds of opening, on both PRs, and neither can merge
 until one of them renumbers.
 
+Contained PRs
+-------------
+Two PRs do not collide when the head commit of one is an ancestor of the
+other's head. Then the other PR already contains the first (a merge train, a
+stacked PR), so the shared ids are the same objects. The check uses
+`git merge-base --is-ancestor` on the pull/N/head refs it already fetches.
+
 Modes
 -----
   PR_NUMBER set   -- compare that PR against every other open PR (the CI case).
@@ -192,6 +199,14 @@ def fetch_pr(repo_unused, number, sha):
     return ref
 
 
+def is_contained(ref_a, ref_b):
+    """True when one head commit is an ancestor of (or equal to) the other."""
+    def anc(x, y):
+        return run("git", "merge-base", "--is-ancestor", x, y,
+                   check=False).returncode == 0
+    return anc(ref_a, ref_b) or anc(ref_b, ref_a)
+
+
 def main() -> int:
     repo = os.environ.get("GITHUB_REPOSITORY")
     if not repo:
@@ -220,8 +235,10 @@ def main() -> int:
     # from the base -- including ones master renumbered after the PR branched --
     # are not claims.
     claimed = {}
+    refs = {}
     for pr in prs:
         ref = fetch_pr(repo, pr["number"], pr["sha"])
+        refs[pr["number"]] = ref
         base_ids = base_decls(base, ref)
         ids = decls_at(ref)
         claimed[pr["number"]] = {k: v for k, v in ids.items() if k not in base_ids}
@@ -234,6 +251,15 @@ def main() -> int:
         pairs = [(self_num, n) for n in claimed if n != self_num]
     else:
         pairs = list(combinations(sorted(claimed), 2))
+
+    # A PR whose head commit is an ancestor of the other PR's head is CONTAINED
+    # in it (a merge train, or a PR stacked on another): the shared ids are the
+    # same objects, not two claims. Real clashes with PRs not contained stay.
+    contained = [(a, b) for a, b in pairs if is_contained(refs[a], refs[b])]
+    for a, b in contained:
+        print(f"  PR #{a} and PR #{b}: one contains the other's head, "
+              f"shared ids are the same objects — skipped")
+    pairs = [p for p in pairs if p not in contained]
 
     collisions = []
     for a, b in pairs:
