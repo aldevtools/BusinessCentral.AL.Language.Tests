@@ -722,7 +722,8 @@ jobs:
           # published right after A, before B, as in ci.yml (subscriber order of apps that do not depend on each other).
           $apps = @('tests/al-language-internals-fixture', 'tests/al-language-xapp-a', 'tests/al-language-xapp-d',
                     'tests/al-language-xapp-b', 'tests/al-language-xapp-c', 'tests/al-language-xapp-n',
-                    'tests/al-language-xapp-t', 'tests/al-language', 'tests/al-language-onprem')
+                    'tests/al-language-xapp-t', 'tests/al-language-xapp-e', 'tests/al-language-xapp-f',
+                    'tests/al-language', 'tests/al-language-onprem')
           $outDir = Join-Path $env:GITHUB_WORKSPACE '.output'
           New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 
