@@ -4,7 +4,14 @@
 // Probe: written against real BC (al-runner issue 7961).
 // Facts: whether a Blob field filled by `Row.Content := Source.Content` counts as an unsaved write, so that a later
 //   Row.CalcFields(Content) with no Modify in between keeps the assigned value, or loads the stored one.
-//   FACTS-PLACEHOLDER
+//   Measured: `Row.Content := Source.Content` marks the target Blob as an unsaved in-memory write, but a later CalcFields
+//   keeps it only while the stored Blob of the target row is empty (inserted empty, or stored empty and read with Get). When
+//   the stored Blob has content, CalcFields loads the stored value over the assigned one; the same holds for an OutStream
+//   write. An assigned empty source (HasValue false) leaves HasValue false. A target that was never inserted loses the
+//   assigned value at CalcFields. A temporary target keeps the assigned value when it was empty and loads its own
+//   content otherwise. Source state (inserted, not inserted, stored with or without CalcFields, Variant, FieldRef.Value)
+//   does not change the result, except that a source read with Get only has no loaded Blob and assigns an empty one.
+//   Another variable between assignment and CalcFields that writes the Blob and modifies the row makes CalcFields load its value; one that only changes Info does not.
 // BC versions: 27.5+
 
 table 97730 "LT BACF Row"
@@ -240,7 +247,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 1, 1);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('after save', 'hv:hello');
+        Observer.Expect('reget', 'hv: hv:hello');
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -250,7 +262,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 1, 2);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('after save', 'hv:hello');
+        Observer.Expect('reget', 'hv: hv:hello');
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -260,7 +277,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 1, 3);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('after save', 'hv:hello');
+        Observer.Expect('reget', 'hv: hv:hello');
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -270,7 +292,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 1, 4);
-        Observer.Finish();
+        Observer.Expect('before', 'nohv:');
+        Observer.Expect('after', 'nohv:');
+        Observer.Expect('after save', 'nohv:');
+        Observer.Expect('reget', 'nohv: nohv:');
+        Observer.Expect('row', 'nohv: nohv: info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -280,7 +307,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 1, 5);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('after save', 'hv:hello');
+        Observer.Expect('reget', 'hv: hv:hello');
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -290,7 +322,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 1, 6);
-        Observer.Finish();
+        Observer.Expect('before', 'nohv:');
+        Observer.Expect('after', 'nohv:');
+        Observer.Expect('after save', 'nohv:');
+        Observer.Expect('reget', 'nohv: nohv:');
+        Observer.Expect('row', 'nohv: nohv: info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -300,7 +337,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 2, 1);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('after save', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Expect('row', 'hv: hv:old info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -310,7 +352,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 2, 2);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('after save', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Expect('row', 'hv: hv:old info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -320,7 +367,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 2, 3);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('after save', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Expect('row', 'hv: hv:old info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -330,7 +382,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 2, 4);
-        Observer.Finish();
+        Observer.Expect('before', 'nohv:');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('after save', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Expect('row', 'hv: hv:old info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -340,7 +397,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 2, 5);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('after save', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Expect('row', 'hv: hv:old info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -350,7 +412,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 2, 6);
-        Observer.Finish();
+        Observer.Expect('before', 'nohv:');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('after save', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Expect('row', 'hv: hv:old info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -360,7 +427,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 3, 1);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('after save', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Expect('row', 'hv: hv:old info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -370,7 +442,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 3, 2);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('after save', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Expect('row', 'hv: hv:old info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -380,7 +457,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 3, 3);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('after save', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Expect('row', 'hv: hv:old info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -390,7 +472,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 3, 4);
-        Observer.Finish();
+        Observer.Expect('before', 'nohv:');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('after save', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Expect('row', 'hv: hv:old info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -400,7 +487,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 3, 5);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('after save', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Expect('row', 'hv: hv:old info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -410,7 +502,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 3, 6);
-        Observer.Finish();
+        Observer.Expect('before', 'nohv:');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('after save', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Expect('row', 'hv: hv:old info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -420,7 +517,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 4, 1);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('after save', 'hv:hello');
+        Observer.Expect('reget', 'hv: hv:hello');
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -430,7 +532,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 4, 2);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('after save', 'hv:hello');
+        Observer.Expect('reget', 'hv: hv:hello');
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -440,7 +547,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 4, 3);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('after save', 'hv:hello');
+        Observer.Expect('reget', 'hv: hv:hello');
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -450,7 +562,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 4, 4);
-        Observer.Finish();
+        Observer.Expect('before', 'nohv:');
+        Observer.Expect('after', 'nohv:');
+        Observer.Expect('after save', 'nohv:');
+        Observer.Expect('reget', 'nohv: nohv:');
+        Observer.Expect('row', 'nohv: nohv: info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -460,7 +577,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 4, 5);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('after save', 'hv:hello');
+        Observer.Expect('reget', 'hv: hv:hello');
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -470,7 +592,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 4, 6);
-        Observer.Finish();
+        Observer.Expect('before', 'nohv:');
+        Observer.Expect('after', 'nohv:');
+        Observer.Expect('after save', 'nohv:');
+        Observer.Expect('reget', 'nohv: nohv:');
+        Observer.Expect('row', 'nohv: nohv: info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -480,7 +607,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 5, 1);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'nohv:');
+        Observer.Expect('after save', 'nohv:');
+        Observer.Expect('reget', 'nohv: nohv:');
+        Observer.Expect('row', 'nohv: nohv: info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -490,7 +622,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 5, 2);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'nohv:');
+        Observer.Expect('after save', 'nohv:');
+        Observer.Expect('reget', 'nohv: nohv:');
+        Observer.Expect('row', 'nohv: nohv: info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -500,7 +637,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 5, 3);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'nohv:');
+        Observer.Expect('after save', 'nohv:');
+        Observer.Expect('reget', 'nohv: nohv:');
+        Observer.Expect('row', 'nohv: nohv: info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -510,7 +652,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 5, 4);
-        Observer.Finish();
+        Observer.Expect('before', 'nohv:');
+        Observer.Expect('after', 'nohv:');
+        Observer.Expect('after save', 'nohv:');
+        Observer.Expect('reget', 'nohv: nohv:');
+        Observer.Expect('row', 'nohv: nohv: info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -520,7 +667,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 5, 5);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'nohv:');
+        Observer.Expect('after save', 'nohv:');
+        Observer.Expect('reget', 'nohv: nohv:');
+        Observer.Expect('row', 'nohv: nohv: info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -530,7 +682,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 5, 6);
-        Observer.Finish();
+        Observer.Expect('before', 'nohv:');
+        Observer.Expect('after', 'nohv:');
+        Observer.Expect('after save', 'nohv:');
+        Observer.Expect('reget', 'nohv: nohv:');
+        Observer.Expect('row', 'nohv: nohv: info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -540,7 +697,11 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row" temporary;
     begin
         Cell(Observer, Row, 6, 1);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('after save', 'hv:hello');
+        Observer.Expect('reget', 'hv: hv:hello');
+        Observer.Verify();
     end;
 
     [Test]
@@ -550,7 +711,11 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row" temporary;
     begin
         Cell(Observer, Row, 6, 2);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('after save', 'hv:hello');
+        Observer.Expect('reget', 'hv: hv:hello');
+        Observer.Verify();
     end;
 
     [Test]
@@ -560,7 +725,11 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row" temporary;
     begin
         Cell(Observer, Row, 6, 3);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('after save', 'hv:hello');
+        Observer.Expect('reget', 'hv: hv:hello');
+        Observer.Verify();
     end;
 
     [Test]
@@ -570,7 +739,11 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row" temporary;
     begin
         Cell(Observer, Row, 6, 4);
-        Observer.Finish();
+        Observer.Expect('before', 'nohv:');
+        Observer.Expect('after', 'nohv:');
+        Observer.Expect('after save', 'nohv:');
+        Observer.Expect('reget', 'nohv: nohv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -580,7 +753,11 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row" temporary;
     begin
         Cell(Observer, Row, 6, 5);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('after save', 'hv:hello');
+        Observer.Expect('reget', 'hv: hv:hello');
+        Observer.Verify();
     end;
 
     [Test]
@@ -590,7 +767,11 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row" temporary;
     begin
         Cell(Observer, Row, 6, 6);
-        Observer.Finish();
+        Observer.Expect('before', 'nohv:');
+        Observer.Expect('after', 'nohv:');
+        Observer.Expect('after save', 'nohv:');
+        Observer.Expect('reget', 'nohv: nohv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -600,7 +781,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 7, 1);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('after save', 'hv:hello');
+        Observer.Expect('reget', 'hv: hv:hello');
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -610,7 +796,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 7, 2);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('after save', 'hv:hello');
+        Observer.Expect('reget', 'hv: hv:hello');
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -620,7 +811,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 7, 3);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('after save', 'hv:hello');
+        Observer.Expect('reget', 'hv: hv:hello');
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -630,7 +826,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 7, 4);
-        Observer.Finish();
+        Observer.Expect('before', 'nohv:');
+        Observer.Expect('after', 'nohv:');
+        Observer.Expect('after save', 'nohv:');
+        Observer.Expect('reget', 'nohv: nohv:');
+        Observer.Expect('row', 'nohv: nohv: info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -640,7 +841,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 7, 5);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('after save', 'hv:hello');
+        Observer.Expect('reget', 'hv: hv:hello');
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -650,7 +856,12 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 7, 6);
-        Observer.Finish();
+        Observer.Expect('before', 'nohv:');
+        Observer.Expect('after', 'nohv:');
+        Observer.Expect('after save', 'nohv:');
+        Observer.Expect('reget', 'nohv: nohv:');
+        Observer.Expect('row', 'nohv: nohv: info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -660,7 +871,11 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row" temporary;
     begin
         Cell(Observer, Row, 8, 1);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('after save', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Verify();
     end;
 
     [Test]
@@ -670,7 +885,11 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row" temporary;
     begin
         Cell(Observer, Row, 8, 2);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('after save', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Verify();
     end;
 
     [Test]
@@ -680,7 +899,11 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row" temporary;
     begin
         Cell(Observer, Row, 8, 3);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('after save', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Verify();
     end;
 
     [Test]
@@ -690,7 +913,11 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row" temporary;
     begin
         Cell(Observer, Row, 8, 4);
-        Observer.Finish();
+        Observer.Expect('before', 'nohv:');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('after save', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Verify();
     end;
 
     [Test]
@@ -700,7 +927,11 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row" temporary;
     begin
         Cell(Observer, Row, 8, 5);
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('after save', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Verify();
     end;
 
     [Test]
@@ -710,7 +941,11 @@ codeunit 97732 "LT BACF Matrix"
         Row: Record "LT BACF Row" temporary;
     begin
         Cell(Observer, Row, 8, 6);
-        Observer.Finish();
+        Observer.Expect('before', 'nohv:');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('after save', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Verify();
     end;
 }
 
@@ -736,7 +971,10 @@ codeunit 97733 "LT BACF Neighbors"
         Observer.Observe('after', L.Rd(Row));
         Row.Modify();
         Observer.Observe('row', L.Stored(1));
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -754,7 +992,10 @@ codeunit 97733 "LT BACF Neighbors"
         Observer.Observe('after 2', L.Rd(Row));
         Row.Modify();
         Observer.Observe('row', L.Stored(1));
-        Observer.Finish();
+        Observer.Expect('after 1', 'hv:hello');
+        Observer.Expect('after 2', 'hv:hello');
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -769,7 +1010,8 @@ codeunit 97733 "LT BACF Neighbors"
         Row.CalcFields(Content);
         Row.CalcFields(Content);
         Observer.Observe('after 2', L.Rd(Row));
-        Observer.Finish();
+        Observer.Expect('after 2', 'hv:hello');
+        Observer.Verify();
     end;
 
     [Test]
@@ -784,7 +1026,9 @@ codeunit 97733 "LT BACF Neighbors"
         Observer.Observe('in hand', L.Rd(Row));
         Row.Modify();
         Observer.Observe('row', L.Stored(1));
-        Observer.Finish();
+        Observer.Expect('in hand', 'hv:hello');
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -799,7 +1043,9 @@ codeunit 97733 "LT BACF Neighbors"
         Observer.Observe('read before', L.Rd(Row));
         Row.CalcFields(Content);
         Observer.Observe('after', L.Rd(Row));
-        Observer.Finish();
+        Observer.Expect('read before', 'hv:hello');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Verify();
     end;
 
     [Test]
@@ -820,7 +1066,11 @@ codeunit 97733 "LT BACF Neighbors"
         Observer.Observe('after', L.Rd(Row));
         Observer.Observe('info in hand', Row.Info);
         Observer.Observe('row', L.Stored(1));
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('info in hand', '');
+        Observer.Expect('row', 'nohv: nohv: info=other');
+        Observer.Verify();
     end;
 
     [Test]
@@ -840,7 +1090,10 @@ codeunit 97733 "LT BACF Neighbors"
         Row.CalcFields(Content);
         Observer.Observe('after', L.Rd(Row));
         Observer.Observe('row', L.Stored(1));
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:other');
+        Observer.Expect('row', 'hv: hv:other info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -859,7 +1112,8 @@ codeunit 97733 "LT BACF Neighbors"
         Row.CalcFields(Content);
         Row.Modify();
         Observer.Observe('row', L.Stored(1));
-        Observer.Finish();
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -880,7 +1134,10 @@ codeunit 97733 "LT BACF Neighbors"
         Observer.Observe('after', L.Rd(Row));
         Row.Modify();
         Observer.Observe('row', L.Stored(1));
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -901,7 +1158,10 @@ codeunit 97733 "LT BACF Neighbors"
         Observer.Observe('after', L.Rd(Row));
         Row.Modify();
         Observer.Observe('row', L.Stored(1));
-        Observer.Finish();
+        Observer.Expect('before', 'hv:');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -926,7 +1186,9 @@ codeunit 97733 "LT BACF Neighbors"
         Observer.Observe('after', L.Rd(Row3));
         RR.Modify();
         Observer.Observe('row', L.Stored(1));
-        Observer.Finish();
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -943,7 +1205,9 @@ codeunit 97733 "LT BACF Neighbors"
         Observer.Observe('after', L.Rd(Row));
         Row.Modify();
         Observer.Observe('row', L.Stored(1));
-        Observer.Finish();
+        Observer.Expect('after', 'hv:zzllo');
+        Observer.Expect('row', 'hv: hv:zzllo info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -959,7 +1223,9 @@ codeunit 97733 "LT BACF Neighbors"
         Observer.Observe('after 1', L.Rd(Row));
         Row.CalcFields(Content);
         Observer.Observe('after 2', L.Rd(Row));
-        Observer.Finish();
+        Observer.Expect('after 1', 'hv:old');
+        Observer.Expect('after 2', 'hv:old');
+        Observer.Verify();
     end;
 
     [Test]
@@ -977,7 +1243,11 @@ codeunit 97733 "LT BACF Neighbors"
         Row.Modify();
         Observer.Observe('reget', L.ReGet(Row, 1));
         Observer.Observe('row', L.Stored(1));
-        Observer.Finish();
+        Observer.Expect('before', 'hv:hello');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Expect('row', 'hv: hv:old info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -995,7 +1265,11 @@ codeunit 97733 "LT BACF Neighbors"
         Row.Modify();
         Observer.Observe('reget', L.ReGet(Row, 1));
         Observer.Observe('row', L.Stored(1));
-        Observer.Finish();
+        Observer.Expect('before', 'hv:hello');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Expect('row', 'hv: hv:old info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1013,7 +1287,11 @@ codeunit 97733 "LT BACF Neighbors"
         Row.Modify();
         Observer.Observe('reget', L.ReGet(Row, 1));
         Observer.Observe('row', L.Stored(1));
-        Observer.Finish();
+        Observer.Expect('before', 'hv:hello');
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('reget', 'hv: hv:hello');
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1030,7 +1308,10 @@ codeunit 97733 "LT BACF Neighbors"
         Observer.Observe('after', L.Rd(Row));
         Row.Modify();
         Observer.Observe('reget', L.ReGet(Row, 1));
-        Observer.Finish();
+        Observer.Expect('before', 'hv:hello');
+        Observer.Expect('after', 'hv:old');
+        Observer.Expect('reget', 'hv: hv:old');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1045,7 +1326,9 @@ codeunit 97733 "LT BACF Neighbors"
         Observer.Observe('in hand', L.Rd(Row));
         Row.Modify();
         Observer.Observe('row', L.Stored(1));
-        Observer.Finish();
+        Observer.Expect('in hand', 'hv:hello');
+        Observer.Expect('row', 'hv: hv:hello info=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1064,6 +1347,8 @@ codeunit 97733 "LT BACF Neighbors"
         Row.CalcFields(Content);
         Observer.Observe('after', L.Rd(Row));
         Observer.Observe('row', L.Stored(1));
-        Observer.Finish();
+        Observer.Expect('after', 'hv:hello');
+        Observer.Expect('row', 'nohv: nohv: info=');
+        Observer.Verify();
     end;
 }
