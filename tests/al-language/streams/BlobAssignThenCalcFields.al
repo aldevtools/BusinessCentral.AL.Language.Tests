@@ -93,6 +93,8 @@ codeunit 97731 "LT BACF Lib"
     // 4 dirty   inserted with an empty Blob, then 'dirty' written through an OutStream, not saved
     // 5 noins   Init only, not inserted
     // 6 temp    temporary record, inserted with an empty Blob (the caller passes a temporary record)
+    // 7 getempty stored with an empty Blob by another variable, read again with Get only
+    // 8 tempold temporary record, 'old' written, then Insert (the caller passes a temporary record)
     procedure PrepareTarget(var Row: Record "LT BACF Row"; S: Integer)
     var
         Other: Record "LT BACF Row";
@@ -125,6 +127,20 @@ codeunit 97731 "LT BACF Lib"
                 begin
                     Row.Init();
                     Row.Key1 := 1;
+                end;
+            7:
+                begin
+                    Other.Init();
+                    Other.Key1 := 1;
+                    Other.Insert();
+                    Row.Get(1);
+                end;
+            8:
+                begin
+                    Row.Init();
+                    Row.Key1 := 1;
+                    W(Row, 'old');
+                    Row.Insert();
                 end;
         end;
     end;
@@ -213,7 +229,7 @@ codeunit 97732 "LT BACF Matrix"
             Row.Modify();
         Observer.Observe('after save', L.Rd(Row));
         Observer.Observe('reget', L.ReGet(Row, 1));
-        if TS <> 6 then
+        if not (TS in [6, 8]) then
             Observer.Observe('row', L.Stored(1));
     end;
 
@@ -576,6 +592,126 @@ codeunit 97732 "LT BACF Matrix"
         Cell(Observer, Row, 6, 6);
         Observer.Finish();
     end;
+
+    [Test]
+    procedure Assign_GetEmpty_FromTmpIns()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT BACF Row";
+    begin
+        Cell(Observer, Row, 7, 1);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Assign_GetEmpty_FromTmpMem()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT BACF Row";
+    begin
+        Cell(Observer, Row, 7, 2);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Assign_GetEmpty_FromCalc()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT BACF Row";
+    begin
+        Cell(Observer, Row, 7, 3);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Assign_GetEmpty_FromGet()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT BACF Row";
+    begin
+        Cell(Observer, Row, 7, 4);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Assign_GetEmpty_FromMem()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT BACF Row";
+    begin
+        Cell(Observer, Row, 7, 5);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Assign_GetEmpty_FromEmpty()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT BACF Row";
+    begin
+        Cell(Observer, Row, 7, 6);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Assign_TempOld_FromTmpIns()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT BACF Row" temporary;
+    begin
+        Cell(Observer, Row, 8, 1);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Assign_TempOld_FromTmpMem()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT BACF Row" temporary;
+    begin
+        Cell(Observer, Row, 8, 2);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Assign_TempOld_FromCalc()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT BACF Row" temporary;
+    begin
+        Cell(Observer, Row, 8, 3);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Assign_TempOld_FromGet()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT BACF Row" temporary;
+    begin
+        Cell(Observer, Row, 8, 4);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Assign_TempOld_FromMem()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT BACF Row" temporary;
+    begin
+        Cell(Observer, Row, 8, 5);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Assign_TempOld_FromEmpty()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT BACF Row" temporary;
+    begin
+        Cell(Observer, Row, 8, 6);
+        Observer.Finish();
+    end;
 }
 
 codeunit 97733 "LT BACF Neighbors"
@@ -823,6 +959,111 @@ codeunit 97733 "LT BACF Neighbors"
         Observer.Observe('after 1', L.Rd(Row));
         Row.CalcFields(Content);
         Observer.Observe('after 2', L.Rd(Row));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Control_OutStreamWrite_Old_ThenCalcFields()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT BACF Row";
+    begin
+        L.Reset();
+        L.PrepareTarget(Row, 2);
+        L.W(Row, 'hello');
+        Observer.Observe('before', L.Rd(Row));
+        Row.CalcFields(Content);
+        Observer.Observe('after', L.Rd(Row));
+        Row.Modify();
+        Observer.Observe('reget', L.ReGet(Row, 1));
+        Observer.Observe('row', L.Stored(1));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Control_OutStreamWrite_OldCalc_ThenCalcFields()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT BACF Row";
+    begin
+        L.Reset();
+        L.PrepareTarget(Row, 3);
+        L.W(Row, 'hello');
+        Observer.Observe('before', L.Rd(Row));
+        Row.CalcFields(Content);
+        Observer.Observe('after', L.Rd(Row));
+        Row.Modify();
+        Observer.Observe('reget', L.ReGet(Row, 1));
+        Observer.Observe('row', L.Stored(1));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Control_OutStreamWrite_GetEmpty_ThenCalcFields()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT BACF Row";
+    begin
+        L.Reset();
+        L.PrepareTarget(Row, 7);
+        L.W(Row, 'hello');
+        Observer.Observe('before', L.Rd(Row));
+        Row.CalcFields(Content);
+        Observer.Observe('after', L.Rd(Row));
+        Row.Modify();
+        Observer.Observe('reget', L.ReGet(Row, 1));
+        Observer.Observe('row', L.Stored(1));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Control_OutStreamWrite_TempOld_ThenCalcFields()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT BACF Row" temporary;
+    begin
+        L.Reset();
+        L.PrepareTarget(Row, 8);
+        L.W(Row, 'hello');
+        Observer.Observe('before', L.Rd(Row));
+        Row.CalcFields(Content);
+        Observer.Observe('after', L.Rd(Row));
+        Row.Modify();
+        Observer.Observe('reget', L.ReGet(Row, 1));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Assign_Old_NoCalcFields_Modify()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT BACF Row";
+    begin
+        L.Reset();
+        L.PrepareTarget(Row, 2);
+        L.AssignFrom(Row, 1);
+        Observer.Observe('in hand', L.Rd(Row));
+        Row.Modify();
+        Observer.Observe('row', L.Stored(1));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Assign_Old_OtherVarClearsBlob_ThenCalcFields()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT BACF Row";
+        Row2: Record "LT BACF Row";
+    begin
+        L.Reset();
+        L.PrepareTarget(Row, 2);
+        L.AssignFrom(Row, 1);
+        Row2.Get(1);
+        Clear(Row2.Content);
+        Row2.Modify();
+        Row.CalcFields(Content);
+        Observer.Observe('after', L.Rd(Row));
+        Observer.Observe('row', L.Stored(1));
         Observer.Finish();
     end;
 }
