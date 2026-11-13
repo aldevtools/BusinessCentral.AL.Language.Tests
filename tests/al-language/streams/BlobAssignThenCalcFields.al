@@ -7,7 +7,7 @@
 //   FACTS-PLACEHOLDER
 // BC versions: 27.5+
 
-table 97730 "LT BAC Row"
+table 97730 "LT BACF Row"
 {
     DataClassification = SystemMetadata;
 
@@ -24,7 +24,7 @@ table 97730 "LT BAC Row"
     }
 }
 
-codeunit 97731 "LT BAC Lib"
+codeunit 97731 "LT BACF Lib"
 {
     procedure HasValueText(HV: Boolean): Text
     begin
@@ -33,7 +33,7 @@ codeunit 97731 "LT BAC Lib"
         exit('nohv:');
     end;
 
-    procedure W(var R: Record "LT BAC Row"; T: Text)
+    procedure W(var R: Record "LT BACF Row"; T: Text)
     var
         OS: OutStream;
     begin
@@ -42,7 +42,7 @@ codeunit 97731 "LT BAC Lib"
     end;
 
     // HasValue of the Blob in hand, then the text read from it.
-    procedure Rd(var R: Record "LT BAC Row"): Text
+    procedure Rd(var R: Record "LT BACF Row"): Text
     var
         IS: InStream;
         T: Text;
@@ -57,7 +57,7 @@ codeunit 97731 "LT BAC Lib"
     // The stored row read through a fresh record: HasValue before CalcFields, a space, then the Blob after CalcFields.
     procedure Stored(K: Integer): Text
     var
-        R: Record "LT BAC Row";
+        R: Record "LT BACF Row";
         HV: Boolean;
     begin
         if not R.Get(K) then
@@ -68,7 +68,7 @@ codeunit 97731 "LT BAC Lib"
     end;
 
     // Re-Get on the same variable (also works for a temporary record): HasValue before CalcFields, then after.
-    procedure ReGet(var R: Record "LT BAC Row"; K: Integer): Text
+    procedure ReGet(var R: Record "LT BACF Row"; K: Integer): Text
     var
         HV: Boolean;
     begin
@@ -81,7 +81,7 @@ codeunit 97731 "LT BAC Lib"
 
     procedure Reset()
     var
-        R: Record "LT BAC Row";
+        R: Record "LT BACF Row";
     begin
         R.DeleteAll();
     end;
@@ -93,9 +93,9 @@ codeunit 97731 "LT BAC Lib"
     // 4 dirty   inserted with an empty Blob, then 'dirty' written through an OutStream, not saved
     // 5 noins   Init only, not inserted
     // 6 temp    temporary record, inserted with an empty Blob (the caller passes a temporary record)
-    procedure PrepareTarget(var Row: Record "LT BAC Row"; S: Integer)
+    procedure PrepareTarget(var Row: Record "LT BACF Row"; S: Integer)
     var
-        Other: Record "LT BAC Row";
+        Other: Record "LT BACF Row";
     begin
         case S of
             1, 6:
@@ -136,11 +136,11 @@ codeunit 97731 "LT BAC Lib"
     // 4 get   stored with 'hello', read again with Get only (Blob not loaded)
     // 5 mem   record of the stored table, 'hello' written, not inserted
     // 6 empty record of the stored table, Init only
-    procedure AssignFrom(var Row: Record "LT BAC Row"; S: Integer)
+    procedure AssignFrom(var Row: Record "LT BACF Row"; S: Integer)
     var
-        TmpSrc: Record "LT BAC Row" temporary;
-        Src: Record "LT BAC Row";
-        Src2: Record "LT BAC Row";
+        TmpSrc: Record "LT BACF Row" temporary;
+        Src: Record "LT BACF Row";
+        Src2: Record "LT BACF Row";
     begin
         case S of
             1, 2:
@@ -179,7 +179,7 @@ codeunit 97731 "LT BAC Lib"
         end;
     end;
 
-    procedure TempSource(var TmpSrc: Record "LT BAC Row" temporary)
+    procedure TempSource(var TmpSrc: Record "LT BACF Row" temporary)
     begin
         TmpSrc.Init();
         TmpSrc.Key1 := 2;
@@ -188,7 +188,7 @@ codeunit 97731 "LT BAC Lib"
     end;
 }
 
-codeunit 97732 "LT BAC Matrix"
+codeunit 97732 "LT BACF Matrix"
 {
     // Target state x source state. Per cell: 'before' = HasValue right after the assignment (no CalcFields),
     // 'after' = HasValue and text after Row.CalcFields(Content), then Modify (Insert for noins) and
@@ -197,9 +197,9 @@ codeunit 97732 "LT BAC Matrix"
     TestPermissions = Disabled;
 
     var
-        L: Codeunit "LT BAC Lib";
+        L: Codeunit "LT BACF Lib";
 
-    local procedure Cell(var Observer: Codeunit "Probe Observer"; var Row: Record "LT BAC Row"; TS: Integer; SS: Integer)
+    local procedure Cell(var Observer: Codeunit "Probe Observer"; var Row: Record "LT BACF Row"; TS: Integer; SS: Integer)
     begin
         L.Reset();
         L.PrepareTarget(Row, TS);
@@ -221,7 +221,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Ins_FromTmpIns()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 1, 1);
         Observer.Finish();
@@ -231,7 +231,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Ins_FromTmpMem()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 1, 2);
         Observer.Finish();
@@ -241,7 +241,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Ins_FromCalc()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 1, 3);
         Observer.Finish();
@@ -251,7 +251,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Ins_FromGet()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 1, 4);
         Observer.Finish();
@@ -261,7 +261,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Ins_FromMem()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 1, 5);
         Observer.Finish();
@@ -271,7 +271,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Ins_FromEmpty()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 1, 6);
         Observer.Finish();
@@ -281,7 +281,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Old_FromTmpIns()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 2, 1);
         Observer.Finish();
@@ -291,7 +291,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Old_FromTmpMem()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 2, 2);
         Observer.Finish();
@@ -301,7 +301,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Old_FromCalc()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 2, 3);
         Observer.Finish();
@@ -311,7 +311,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Old_FromGet()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 2, 4);
         Observer.Finish();
@@ -321,7 +321,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Old_FromMem()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 2, 5);
         Observer.Finish();
@@ -331,7 +331,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Old_FromEmpty()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 2, 6);
         Observer.Finish();
@@ -341,7 +341,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_OldCalc_FromTmpIns()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 3, 1);
         Observer.Finish();
@@ -351,7 +351,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_OldCalc_FromTmpMem()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 3, 2);
         Observer.Finish();
@@ -361,7 +361,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_OldCalc_FromCalc()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 3, 3);
         Observer.Finish();
@@ -371,7 +371,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_OldCalc_FromGet()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 3, 4);
         Observer.Finish();
@@ -381,7 +381,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_OldCalc_FromMem()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 3, 5);
         Observer.Finish();
@@ -391,7 +391,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_OldCalc_FromEmpty()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 3, 6);
         Observer.Finish();
@@ -401,7 +401,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Dirty_FromTmpIns()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 4, 1);
         Observer.Finish();
@@ -411,7 +411,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Dirty_FromTmpMem()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 4, 2);
         Observer.Finish();
@@ -421,7 +421,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Dirty_FromCalc()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 4, 3);
         Observer.Finish();
@@ -431,7 +431,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Dirty_FromGet()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 4, 4);
         Observer.Finish();
@@ -441,7 +441,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Dirty_FromMem()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 4, 5);
         Observer.Finish();
@@ -451,7 +451,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Dirty_FromEmpty()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 4, 6);
         Observer.Finish();
@@ -461,7 +461,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_NotIns_FromTmpIns()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 5, 1);
         Observer.Finish();
@@ -471,7 +471,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_NotIns_FromTmpMem()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 5, 2);
         Observer.Finish();
@@ -481,7 +481,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_NotIns_FromCalc()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 5, 3);
         Observer.Finish();
@@ -491,7 +491,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_NotIns_FromGet()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 5, 4);
         Observer.Finish();
@@ -501,7 +501,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_NotIns_FromMem()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 5, 5);
         Observer.Finish();
@@ -511,7 +511,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_NotIns_FromEmpty()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         Cell(Observer, Row, 5, 6);
         Observer.Finish();
@@ -521,7 +521,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Temp_FromTmpIns()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row" temporary;
+        Row: Record "LT BACF Row" temporary;
     begin
         Cell(Observer, Row, 6, 1);
         Observer.Finish();
@@ -531,7 +531,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Temp_FromTmpMem()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row" temporary;
+        Row: Record "LT BACF Row" temporary;
     begin
         Cell(Observer, Row, 6, 2);
         Observer.Finish();
@@ -541,7 +541,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Temp_FromCalc()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row" temporary;
+        Row: Record "LT BACF Row" temporary;
     begin
         Cell(Observer, Row, 6, 3);
         Observer.Finish();
@@ -551,7 +551,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Temp_FromGet()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row" temporary;
+        Row: Record "LT BACF Row" temporary;
     begin
         Cell(Observer, Row, 6, 4);
         Observer.Finish();
@@ -561,7 +561,7 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Temp_FromMem()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row" temporary;
+        Row: Record "LT BACF Row" temporary;
     begin
         Cell(Observer, Row, 6, 5);
         Observer.Finish();
@@ -571,26 +571,26 @@ codeunit 97732 "LT BAC Matrix"
     procedure Assign_Temp_FromEmpty()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row" temporary;
+        Row: Record "LT BACF Row" temporary;
     begin
         Cell(Observer, Row, 6, 6);
         Observer.Finish();
     end;
 }
 
-codeunit 97733 "LT BAC Neighbors"
+codeunit 97733 "LT BACF Neighbors"
 {
     Subtype = Test;
     TestPermissions = Disabled;
 
     var
-        L: Codeunit "LT BAC Lib";
+        L: Codeunit "LT BACF Lib";
 
     [Test]
     procedure Control_OutStreamWrite_ThenCalcFields()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         L.Reset();
         L.PrepareTarget(Row, 1);
@@ -607,7 +607,7 @@ codeunit 97733 "LT BAC Neighbors"
     procedure Assign_CalcFieldsTwice()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         L.Reset();
         L.PrepareTarget(Row, 1);
@@ -625,7 +625,7 @@ codeunit 97733 "LT BAC Neighbors"
     procedure Assign_CalcFieldsTwice_NoReadBetween()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         L.Reset();
         L.PrepareTarget(Row, 1);
@@ -640,7 +640,7 @@ codeunit 97733 "LT BAC Neighbors"
     procedure Assign_NoCalcFields_Modify()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         L.Reset();
         L.PrepareTarget(Row, 1);
@@ -655,7 +655,7 @@ codeunit 97733 "LT BAC Neighbors"
     procedure Assign_ReadInStream_ThenCalcFields()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         L.Reset();
         L.PrepareTarget(Row, 1);
@@ -670,8 +670,8 @@ codeunit 97733 "LT BAC Neighbors"
     procedure Assign_OtherVarModifiesField_ThenCalcFields()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
-        Row2: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
+        Row2: Record "LT BACF Row";
     begin
         L.Reset();
         L.PrepareTarget(Row, 1);
@@ -691,8 +691,8 @@ codeunit 97733 "LT BAC Neighbors"
     procedure Assign_OtherVarWritesBlob_ThenCalcFields()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
-        Row2: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
+        Row2: Record "LT BACF Row";
     begin
         L.Reset();
         L.PrepareTarget(Row, 1);
@@ -711,8 +711,8 @@ codeunit 97733 "LT BAC Neighbors"
     procedure Assign_OtherVarModifies_ThenModify()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
-        Row2: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
+        Row2: Record "LT BACF Row";
     begin
         L.Reset();
         L.PrepareTarget(Row, 1);
@@ -730,8 +730,8 @@ codeunit 97733 "LT BAC Neighbors"
     procedure Assign_FromVariant_ThenCalcFields()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
-        TmpSrc: Record "LT BAC Row" temporary;
+        Row: Record "LT BACF Row";
+        TmpSrc: Record "LT BACF Row" temporary;
         V: Variant;
     begin
         L.Reset();
@@ -751,8 +751,8 @@ codeunit 97733 "LT BAC Neighbors"
     procedure Assign_FromFieldRefValue_ThenCalcFields()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
-        TmpSrc: Record "LT BAC Row" temporary;
+        Row: Record "LT BACF Row";
+        TmpSrc: Record "LT BACF Row" temporary;
         RR: RecordRef;
     begin
         L.Reset();
@@ -772,16 +772,16 @@ codeunit 97733 "LT BAC Neighbors"
     procedure FieldRefValueSet_ThenCalcField()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
-        Row3: Record "LT BAC Row" temporary;
-        TmpSrc: Record "LT BAC Row" temporary;
+        Row: Record "LT BACF Row";
+        Row3: Record "LT BACF Row" temporary;
+        TmpSrc: Record "LT BACF Row" temporary;
         RR: RecordRef;
         FR: FieldRef;
     begin
         L.Reset();
         L.PrepareTarget(Row, 1);
         L.TempSource(TmpSrc);
-        RR.Open(Database::"LT BAC Row");
+        RR.Open(Database::"LT BACF Row");
         RR.Get(Row.RecordId);
         FR := RR.Field(2);
         FR.Value := TmpSrc.Content;
@@ -797,7 +797,7 @@ codeunit 97733 "LT BAC Neighbors"
     procedure Assign_ThenOutStreamWrite_ThenCalcFields()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         L.Reset();
         L.PrepareTarget(Row, 1);
@@ -814,7 +814,7 @@ codeunit 97733 "LT BAC Neighbors"
     procedure Assign_StoredOld_FromEmpty_ThenCalcFieldsTwice()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "LT BAC Row";
+        Row: Record "LT BACF Row";
     begin
         L.Reset();
         L.PrepareTarget(Row, 3);
