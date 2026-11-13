@@ -466,32 +466,6 @@ report 91124 "WR Merge Item"
     }
 }
 
-// WordMergeDataItem = Head with a layout that has a page header and footer bound to HeadName.
-report 91128 "WR Merge Item Parts"
-{
-    UsageCategory = None;
-    UseRequestPage = false;
-    DefaultRenderingLayout = WrMergeItemParts;
-    WordMergeDataItem = Head;
-
-    dataset
-    {
-        dataitem(Head; "WR Head")
-        {
-            column(HeadName; Name) { }
-        }
-    }
-
-    rendering
-    {
-        layout(WrMergeItemParts)
-        {
-            Type = Word;
-            LayoutFile = './reports/layouts-word-render/WrMergeItemParts.docx';
-        }
-    }
-}
-
 // Two Word layouts; WrAltLayout is chosen by a temporary selection.
 report 91125 "WR Two Layouts"
 {
