@@ -1,6 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-rename-method
 // Scope: in-scope (Cloud)
-// Fixtures used: Probe Observer (codeunit 69160); tables 79100-79129, table extension 79100, codeunits 79100-79104 (all self-contained)
+// Fixtures used: Probe Observer (codeunit 69160); tables 79100-79145, table extension 79100, codeunits 79100-79106 (all self-contained);
+//   Base Application GlobalTriggerManagement (codeunit 49) events
 // Probe (al-runner issue 7937): Record.Rename of a row whose primary key changes to or from its blank or zero value, when another
 //   table relates to the table. Each test commits its setup, runs the Rename inside Codeunit.Run (so an error rolls back only the
 //   Rename) and records: whether Rename raised, GetLastErrorText (with the positions and codes of its control characters),
@@ -9,7 +10,12 @@
 //   changes or keeps its value; Guid, Option and Date keys; a relation with an if condition, with a where filter, to the named key
 //   field, to a non-key field; ValidateTableRelation = false; a relation from a table extension field and from a field of the
 //   same table; a temporary record; an OnRename trigger and OnBefore/OnAfterRenameEvent subscribers (log of what ran); a
-//   table and field Caption; a table nothing relates to (control); a non-blank to non-blank rename (control).
+//   table and field Caption; a table nothing relates to (control); a non-blank to non-blank rename (control); the row with the new
+//   key already exists; the old row is not stored; the return value form and RecordRef.Rename; a relation from a FlowFilter and
+//   from a FlowField; a Boolean key field false <-> true with a relation to a non-key field (Sales Invoice Entity Aggregate) and to
+//   the other key field; an Option key field 0 <-> 1 next to the related key field (Sales Header); a relation to key field A while
+//   key field B changes to or from blank; the database rename trigger switched on through GlobalTriggerManagement (log of
+//   OnAfterOnDatabaseRename against the error); child rows that hold other values; a Code[10] child field against a Code[20] key.
 // BC versions: 27, 28, 29
 
 table 79100 "RBK Master"
@@ -316,6 +322,175 @@ table 79129 "RBK Plain Master"
     keys { key(PK; "Code") { Clustered = true; } }
 }
 
+table 79130 "RBK FFilter Master"
+{
+    DataClassification = SystemMetadata;
+    fields { field(1; "Code"; Code[20]) { } }
+    keys { key(PK; "Code") { Clustered = true; } }
+}
+
+table 79131 "RBK FFilter Child"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(2; "Master Filter"; Code[20]) { FieldClass = FlowFilter; TableRelation = "RBK FFilter Master"; }
+    }
+    keys { key(PK; "Entry No.") { Clustered = true; } }
+}
+
+table 79132 "RBK FField Master"
+{
+    DataClassification = SystemMetadata;
+    fields { field(1; "Code"; Code[20]) { } }
+    keys { key(PK; "Code") { Clustered = true; } }
+}
+
+table 79133 "RBK FField Child"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(2; Src; Code[20]) { }
+        field(3; Ref; Code[20])
+        {
+            FieldClass = FlowField;
+            CalcFormula = lookup("RBK FField Child".Src where("Entry No." = field("Entry No.")));
+            TableRelation = "RBK FField Master";
+        }
+    }
+    keys { key(PK; "Entry No.") { Clustered = true; } }
+}
+
+// The shape of Base Application's Sales Invoice Entity Aggregate: key (No., Posted), other tables relate to a non-key field.
+table 79134 "RBK Bool Master"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; Posted; Boolean) { }
+        field(3; Id; Code[20]) { }
+    }
+    keys { key(PK; "No.", Posted) { Clustered = true; } }
+}
+
+table 79135 "RBK Bool Child"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(2; RefId; Code[20]) { TableRelation = "RBK Bool Master".Id; }
+    }
+    keys { key(PK; "Entry No.") { Clustered = true; } }
+}
+
+table 79136 "RBK BoolKey Master"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; Posted; Boolean) { }
+    }
+    keys { key(PK; "No.", Posted) { Clustered = true; } }
+}
+
+table 79137 "RBK BoolKey Child"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(2; RefNo; Code[20]) { TableRelation = "RBK BoolKey Master"."No."; }
+    }
+    keys { key(PK; "Entry No.") { Clustered = true; } }
+}
+
+table 79138 "RBK OptPair Master"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; Kind; Option) { OptionMembers = Quote,Order; }
+        field(2; "No."; Code[20]) { }
+    }
+    keys { key(PK; Kind, "No.") { Clustered = true; } }
+}
+
+table 79139 "RBK OptPair Child"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(2; Kind; Option) { OptionMembers = Quote,Order; }
+        field(3; "Doc No."; Code[20]) { TableRelation = "RBK OptPair Master"."No." where(Kind = field(Kind)); }
+    }
+    keys { key(PK; "Entry No.") { Clustered = true; } }
+}
+
+table 79140 "RBK PairA Master"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; A; Code[10]) { }
+        field(2; B; Code[10]) { }
+    }
+    keys { key(PK; A, B) { Clustered = true; } }
+}
+
+table 79141 "RBK PairA Child"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(2; RefA; Code[10]) { TableRelation = "RBK PairA Master".A; }
+    }
+    keys { key(PK; "Entry No.") { Clustered = true; } }
+}
+
+table 79142 "RBK Short Master"
+{
+    DataClassification = SystemMetadata;
+    fields { field(1; "Code"; Code[20]) { } }
+    keys { key(PK; "Code") { Clustered = true; } }
+}
+
+table 79143 "RBK Short Child"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(2; Ref; Code[10]) { TableRelation = "RBK Short Master"; }
+    }
+    keys { key(PK; "Entry No.") { Clustered = true; } }
+}
+
+table 79144 "RBK DbTrg Master"
+{
+    DataClassification = SystemMetadata;
+    fields { field(1; "Code"; Code[20]) { } }
+    keys { key(PK; "Code") { Clustered = true; } }
+}
+
+table 79145 "RBK DbTrg Child"
+{
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(2; Ref; Code[20]) { TableRelation = "RBK DbTrg Master"; }
+    }
+    keys { key(PK; "Entry No.") { Clustered = true; } }
+}
+
 // The log of what ran around a Rename of "RBK Trg Master". Used only by the test codeunit "RBK Rename Blank Trg".
 codeunit 79102 "RBK Rename Log"
 {
@@ -361,6 +536,35 @@ codeunit 79103 "RBK Rename Subscriber"
     end;
 }
 
+// Switches the database rename trigger on for "RBK DbTrg Master" only and logs the database rename events of that table.
+codeunit 79106 "RBK Db Rename Subscriber"
+{
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, 'OnAfterGetDatabaseTableTriggerSetup', '', false, false)]
+    local procedure AfterSetup(TableId: Integer; var OnDatabaseInsert: Boolean; var OnDatabaseModify: Boolean; var OnDatabaseDelete: Boolean; var OnDatabaseRename: Boolean)
+    begin
+        if TableId = Database::"RBK DbTrg Master" then
+            OnDatabaseRename := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, 'OnAfterOnDatabaseRename', '', false, false)]
+    local procedure AfterDbRename(RecRef: RecordRef; xRecRef: RecordRef)
+    var
+        Log: Codeunit "RBK Rename Log";
+    begin
+        if RecRef.Number() <> Database::"RBK DbTrg Master" then
+            exit;
+        Log.Add('OnAfterOnDatabaseRename xRec=[' + Format(xRecRef.Field(1).Value()) + '] Rec=[' + Format(RecRef.Field(1).Value()) + ']');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"RBK DbTrg Master", OnBeforeRenameEvent, '', false, false)]
+    local procedure OnBeforeRename(var Rec: Record "RBK DbTrg Master"; var xRec: Record "RBK DbTrg Master"; RunTrigger: Boolean)
+    var
+        Log: Codeunit "RBK Rename Log";
+    begin
+        Log.Add('OnBeforeRenameEvent xRec=[' + xRec."Code" + '] Rec=[' + Rec."Code" + ']');
+    end;
+}
+
 // Runs one Rename in OnRun, so the caller can use `if Runner.Run() then` (an error rolls back only the Rename) and read the rows
 // afterwards. Set* chooses the table and the old and new key; Rows lists the rows of a table as [value][value]... per row.
 codeunit 79101 "RBK Rename Runner"
@@ -382,6 +586,10 @@ codeunit 79101 "RBK Rename Runner"
         NewA: Code[10];
         NewB: Code[10];
         UseTemporary: Boolean;
+        Mode: Integer;
+        ReturnInfo: Text;
+        OldBool: Boolean;
+        NewBool: Boolean;
         TempMaster: Record "RBK Master" temporary;
 
     trigger OnRun()
@@ -402,6 +610,16 @@ codeunit 79101 "RBK Rename Runner"
         TrgMaster: Record "RBK Trg Master";
         CapMaster: Record "RBK Cap Master";
         PlainMaster: Record "RBK Plain Master";
+        FFilterMaster: Record "RBK FFilter Master";
+        FFieldMaster: Record "RBK FField Master";
+        BoolMaster: Record "RBK Bool Master";
+        BoolKeyMaster: Record "RBK BoolKey Master";
+        OptPairMaster: Record "RBK OptPair Master";
+        PairAMaster: Record "RBK PairA Master";
+        ShortMaster: Record "RBK Short Master";
+        DbTrgMaster: Record "RBK DbTrg Master";
+        RecRef: RecordRef;
+        Renamed: Boolean;
     begin
         if UseTemporary then begin
             TempMaster.Get(OldCode);
@@ -410,9 +628,33 @@ codeunit 79101 "RBK Rename Runner"
         end;
         case TableId of
             Database::"RBK Master":
-                begin
-                    Master.Get(OldCode);
-                    Master.Rename(NewCode);
+                case Mode of
+                    0:
+                        begin
+                            Master.Get(OldCode);
+                            Master.Rename(NewCode);
+                        end;
+                    1:
+                        begin
+                            // The old row is not stored: the buffer only holds the old key.
+                            Master.Init();
+                            Master."Code" := OldCode;
+                            Master.Rename(NewCode);
+                        end;
+                    2:
+                        begin
+                            Master.Get(OldCode);
+                            ClearLastError();
+                            Renamed := Master.Rename(NewCode);
+                            ReturnInfo := 'returned ' + Format(Renamed) + '; last error ' + GetLastErrorText() + '; controls ' + ControlCodes(GetLastErrorText());
+                        end;
+                    3:
+                        begin
+                            Master.Get(OldCode);
+                            RecRef.Open(Database::"RBK Master");
+                            RecRef.Get(Master.RecordId());
+                            RecRef.Rename(NewCode);
+                        end;
                 end;
             Database::"RBK Int Master":
                 begin
@@ -489,6 +731,46 @@ codeunit 79101 "RBK Rename Runner"
                     PlainMaster.Get(OldCode);
                     PlainMaster.Rename(NewCode);
                 end;
+            Database::"RBK FFilter Master":
+                begin
+                    FFilterMaster.Get(OldCode);
+                    FFilterMaster.Rename(NewCode);
+                end;
+            Database::"RBK FField Master":
+                begin
+                    FFieldMaster.Get(OldCode);
+                    FFieldMaster.Rename(NewCode);
+                end;
+            Database::"RBK Bool Master":
+                begin
+                    BoolMaster.Get(OldCode, OldBool);
+                    BoolMaster.Rename(NewCode, NewBool);
+                end;
+            Database::"RBK BoolKey Master":
+                begin
+                    BoolKeyMaster.Get(OldCode, OldBool);
+                    BoolKeyMaster.Rename(NewCode, NewBool);
+                end;
+            Database::"RBK OptPair Master":
+                begin
+                    OptPairMaster.Get(OldOption, OldCode);
+                    OptPairMaster.Rename(NewOption, NewCode);
+                end;
+            Database::"RBK PairA Master":
+                begin
+                    PairAMaster.Get(OldA, OldB);
+                    PairAMaster.Rename(NewA, NewB);
+                end;
+            Database::"RBK Short Master":
+                begin
+                    ShortMaster.Get(OldCode);
+                    ShortMaster.Rename(NewCode);
+                end;
+            Database::"RBK DbTrg Master":
+                begin
+                    DbTrgMaster.Get(OldCode);
+                    DbTrgMaster.Rename(NewCode);
+                end;
         end;
     end;
 
@@ -527,6 +809,44 @@ codeunit 79101 "RBK Rename Runner"
         TableId := Database::"RBK Option Master";
         OldOption := FromOption;
         NewOption := ToOption;
+    end;
+
+    // 0 = Get and Rename, 1 = Rename of a buffer whose row is not stored, 2 = the return value form, 3 = RecordRef.Rename (table "RBK Master" only).
+    procedure SetMode(NewMode: Integer)
+    begin
+        Mode := NewMode;
+    end;
+
+    procedure ReturnText(): Text
+    begin
+        exit(ReturnInfo);
+    end;
+
+    procedure SetBool(NewTableId: Integer; No: Code[20]; FromBool: Boolean; ToBool: Boolean)
+    begin
+        TableId := NewTableId;
+        OldCode := No;
+        NewCode := No;
+        OldBool := FromBool;
+        NewBool := ToBool;
+    end;
+
+    procedure SetOptPair(No: Code[20]; FromKind: Integer; ToKind: Integer)
+    begin
+        TableId := Database::"RBK OptPair Master";
+        OldCode := No;
+        NewCode := No;
+        OldOption := FromKind;
+        NewOption := ToKind;
+    end;
+
+    procedure SetPairA(A: Code[10]; FromB: Code[10]; ToB: Code[10])
+    begin
+        TableId := Database::"RBK PairA Master";
+        OldA := A;
+        NewA := A;
+        OldB := FromB;
+        NewB := ToB;
     end;
 
     procedure SetDate(FromDate: Date; ToDate: Date)
@@ -603,7 +923,7 @@ codeunit 79101 "RBK Rename Runner"
         TableNo: Integer;
         RecRef: RecordRef;
     begin
-        for TableNo := Database::"RBK Master" to Database::"RBK Plain Master" do begin
+        for TableNo := Database::"RBK Master" to Database::"RBK DbTrg Child" do begin
             RecRef.Open(TableNo);
             RecRef.DeleteAll();
             RecRef.Close();
@@ -1281,6 +1601,475 @@ codeunit 79104 "RBK Rename Blank Relations"
     procedure Captions_ToBlank()
     begin
         CaptionRelation('X', '');
+        Observer.Finish();
+    end;
+
+    local procedure DbTriggerRelation(FromCode: Code[20]; ToCode: Code[20])
+    var
+        Runner: Codeunit "RBK Rename Runner";
+        Log: Codeunit "RBK Rename Log";
+        Master: Record "RBK DbTrg Master";
+        Child: Record "RBK DbTrg Child";
+    begin
+        Start(Runner);
+        Master."Code" := FromCode;
+        Master.Insert();
+        Child."Entry No." := 1;
+        Child.Ref := FromCode;
+        Child.Insert();
+        Runner.SetCode(Database::"RBK DbTrg Master", FromCode, ToCode);
+        RunRename(Runner, Database::"RBK DbTrg Master", Database::"RBK DbTrg Child");
+        Observer.Observe('log', Log.Get());
+    end;
+
+    [Test]
+    procedure DatabaseRenameTrigger_FromBlank()
+    begin
+        DbTriggerRelation('', 'X');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure DatabaseRenameTrigger_ToBlank()
+    begin
+        DbTriggerRelation('X', '');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure DatabaseRenameTrigger_NonBlank()
+    begin
+        DbTriggerRelation('X', 'Y');
+        Observer.Finish();
+    end;
+}
+
+codeunit 79105 "RBK Rename Blank Shapes"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Observer: Codeunit "Probe Observer";
+
+    local procedure Start(var Runner: Codeunit "RBK Rename Runner")
+    begin
+        Runner.DeleteAllRows();
+        Commit();
+    end;
+
+    local procedure RunRename(var Runner: Codeunit "RBK Rename Runner"; MasterTable: Integer; ChildTable: Integer)
+    begin
+        Commit();
+        ClearLastError();
+        if Runner.Run() then
+            Observer.Observe('rename', 'no error')
+        else begin
+            Observer.Observe('rename', 'error');
+            Observer.Observe('control chars', Runner.ControlCodes(GetLastErrorText()));
+            Observer.ObserveError('error');
+        end;
+        Observer.Observe('master rows', Runner.Rows(MasterTable));
+        if ChildTable <> 0 then
+            Observer.Observe('child rows', Runner.Rows(ChildTable));
+    end;
+
+    local procedure AddMaster(NewCode: Code[20])
+    var
+        Master: Record "RBK Master";
+    begin
+        Master."Code" := NewCode;
+        Master.Insert();
+    end;
+
+    local procedure AddChild(EntryNo: Integer; MasterCode: Code[20])
+    var
+        Child: Record "RBK Child";
+    begin
+        Child."Entry No." := EntryNo;
+        Child."Master Code" := MasterCode;
+        Child.Insert();
+    end;
+
+    // The row with the new key already exists.
+    local procedure NewKeyExists(FromCode: Code[20]; ToCode: Code[20])
+    var
+        Runner: Codeunit "RBK Rename Runner";
+    begin
+        Start(Runner);
+        AddMaster(FromCode);
+        AddMaster(ToCode);
+        AddChild(1, FromCode);
+        Runner.SetCode(Database::"RBK Master", FromCode, ToCode);
+        RunRename(Runner, Database::"RBK Master", Database::"RBK Child");
+    end;
+
+    [Test]
+    procedure NewKeyExists_FromBlank()
+    begin
+        NewKeyExists('', 'X');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NewKeyExists_ToBlank()
+    begin
+        NewKeyExists('X', '');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NewKeyExists_NonBlank()
+    begin
+        NewKeyExists('X', 'Y');
+        Observer.Finish();
+    end;
+
+    // The buffer holds the old key, but no row with it is stored.
+    local procedure OldRowNotStored(FromCode: Code[20]; ToCode: Code[20])
+    var
+        Runner: Codeunit "RBK Rename Runner";
+    begin
+        Start(Runner);
+        AddChild(1, FromCode);
+        Runner.SetCode(Database::"RBK Master", FromCode, ToCode);
+        Runner.SetMode(1);
+        RunRename(Runner, Database::"RBK Master", Database::"RBK Child");
+    end;
+
+    [Test]
+    procedure OldRowNotStored_FromBlank()
+    begin
+        OldRowNotStored('', 'X');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure OldRowNotStored_ToBlank()
+    begin
+        OldRowNotStored('X', '');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure OldRowNotStored_NonBlank()
+    begin
+        OldRowNotStored('X', 'Y');
+        Observer.Finish();
+    end;
+
+    local procedure ReturnValueForm(FromCode: Code[20]; ToCode: Code[20])
+    var
+        Runner: Codeunit "RBK Rename Runner";
+    begin
+        Start(Runner);
+        AddMaster(FromCode);
+        AddChild(1, FromCode);
+        Runner.SetCode(Database::"RBK Master", FromCode, ToCode);
+        Runner.SetMode(2);
+        RunRename(Runner, Database::"RBK Master", Database::"RBK Child");
+        Observer.Observe('return value form', Runner.ReturnText());
+    end;
+
+    [Test]
+    procedure ReturnValueForm_FromBlank()
+    begin
+        ReturnValueForm('', 'X');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ReturnValueForm_ToBlank()
+    begin
+        ReturnValueForm('X', '');
+        Observer.Finish();
+    end;
+
+    local procedure RecordRefForm(FromCode: Code[20]; ToCode: Code[20])
+    var
+        Runner: Codeunit "RBK Rename Runner";
+    begin
+        Start(Runner);
+        AddMaster(FromCode);
+        AddChild(1, FromCode);
+        Runner.SetCode(Database::"RBK Master", FromCode, ToCode);
+        Runner.SetMode(3);
+        RunRename(Runner, Database::"RBK Master", Database::"RBK Child");
+    end;
+
+    [Test]
+    procedure RecordRefRename_FromBlank()
+    begin
+        RecordRefForm('', 'X');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecordRefRename_ToBlank()
+    begin
+        RecordRefForm('X', '');
+        Observer.Finish();
+    end;
+
+    // The child table holds other rows beside (or instead of) the one with the old key.
+    [Test]
+    procedure ChildOtherRows_FromBlank()
+    var
+        Runner: Codeunit "RBK Rename Runner";
+    begin
+        Start(Runner);
+        AddMaster('');
+        AddChild(1, '');
+        AddChild(2, 'OTHER');
+        Runner.SetCode(Database::"RBK Master", '', 'X');
+        RunRename(Runner, Database::"RBK Master", Database::"RBK Child");
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ChildOtherRows_ToBlank()
+    var
+        Runner: Codeunit "RBK Rename Runner";
+    begin
+        Start(Runner);
+        AddMaster('X');
+        AddChild(1, 'X');
+        AddChild(2, 'OTHER');
+        Runner.SetCode(Database::"RBK Master", 'X', '');
+        RunRename(Runner, Database::"RBK Master", Database::"RBK Child");
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ChildOnlyOtherValues_FromBlank()
+    var
+        Runner: Codeunit "RBK Rename Runner";
+    begin
+        Start(Runner);
+        AddMaster('');
+        AddChild(1, 'OTHER');
+        Runner.SetCode(Database::"RBK Master", '', 'X');
+        RunRename(Runner, Database::"RBK Master", Database::"RBK Child");
+        Observer.Finish();
+    end;
+
+    local procedure FlowFilterRelation(FromCode: Code[20]; ToCode: Code[20])
+    var
+        Runner: Codeunit "RBK Rename Runner";
+        Master: Record "RBK FFilter Master";
+        Child: Record "RBK FFilter Child";
+    begin
+        Start(Runner);
+        Master."Code" := FromCode;
+        Master.Insert();
+        Child."Entry No." := 1;
+        Child.Insert();
+        Runner.SetCode(Database::"RBK FFilter Master", FromCode, ToCode);
+        RunRename(Runner, Database::"RBK FFilter Master", 0);
+    end;
+
+    [Test]
+    procedure FlowFilterRelation_FromBlank()
+    begin
+        FlowFilterRelation('', 'X');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure FlowFilterRelation_ToBlank()
+    begin
+        FlowFilterRelation('X', '');
+        Observer.Finish();
+    end;
+
+    local procedure FlowFieldRelation(FromCode: Code[20]; ToCode: Code[20])
+    var
+        Runner: Codeunit "RBK Rename Runner";
+        Master: Record "RBK FField Master";
+        Child: Record "RBK FField Child";
+    begin
+        Start(Runner);
+        Master."Code" := FromCode;
+        Master.Insert();
+        Child."Entry No." := 1;
+        Child.Src := FromCode;
+        Child.Insert();
+        Runner.SetCode(Database::"RBK FField Master", FromCode, ToCode);
+        RunRename(Runner, Database::"RBK FField Master", Database::"RBK FField Child");
+    end;
+
+    [Test]
+    procedure FlowFieldRelation_FromBlank()
+    begin
+        FlowFieldRelation('', 'X');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure FlowFieldRelation_ToBlank()
+    begin
+        FlowFieldRelation('X', '');
+        Observer.Finish();
+    end;
+
+    // Sales Invoice Entity Aggregate shape: Posted changes false -> true, the only relation targets the non-key field Id.
+    local procedure BoolKeyNonKeyRelation(FromBool: Boolean; ToBool: Boolean)
+    var
+        Runner: Codeunit "RBK Rename Runner";
+        Master: Record "RBK Bool Master";
+        Child: Record "RBK Bool Child";
+    begin
+        Start(Runner);
+        Master."No." := 'DOC1';
+        Master.Posted := FromBool;
+        Master.Id := 'ID1';
+        Master.Insert();
+        Child."Entry No." := 1;
+        Child.RefId := 'ID1';
+        Child.Insert();
+        Runner.SetBool(Database::"RBK Bool Master", 'DOC1', FromBool, ToBool);
+        RunRename(Runner, Database::"RBK Bool Master", Database::"RBK Bool Child");
+    end;
+
+    [Test]
+    procedure BooleanKey_NonKeyRelation_FalseToTrue()
+    begin
+        BoolKeyNonKeyRelation(false, true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure BooleanKey_NonKeyRelation_TrueToFalse()
+    begin
+        BoolKeyNonKeyRelation(true, false);
+        Observer.Finish();
+    end;
+
+    // The relation targets key field No. while the Boolean key field Posted changes.
+    local procedure BoolKeyKeyRelation(FromBool: Boolean; ToBool: Boolean)
+    var
+        Runner: Codeunit "RBK Rename Runner";
+        Master: Record "RBK BoolKey Master";
+        Child: Record "RBK BoolKey Child";
+    begin
+        Start(Runner);
+        Master."No." := 'DOC1';
+        Master.Posted := FromBool;
+        Master.Insert();
+        Child."Entry No." := 1;
+        Child.RefNo := 'DOC1';
+        Child.Insert();
+        Runner.SetBool(Database::"RBK BoolKey Master", 'DOC1', FromBool, ToBool);
+        RunRename(Runner, Database::"RBK BoolKey Master", Database::"RBK BoolKey Child");
+    end;
+
+    [Test]
+    procedure BooleanKey_KeyFieldRelation_FalseToTrue()
+    begin
+        BoolKeyKeyRelation(false, true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure BooleanKey_KeyFieldRelation_TrueToFalse()
+    begin
+        BoolKeyKeyRelation(true, false);
+        Observer.Finish();
+    end;
+
+    // Sales Header shape: key (Kind, No.), the relation targets No. with where(Kind = field(Kind)); Kind changes 0 <-> 1.
+    local procedure OptionPairKey(FromKind: Integer; ToKind: Integer)
+    var
+        Runner: Codeunit "RBK Rename Runner";
+        Master: Record "RBK OptPair Master";
+        Child: Record "RBK OptPair Child";
+    begin
+        Start(Runner);
+        Master.Kind := FromKind;
+        Master."No." := 'DOC1';
+        Master.Insert();
+        Child."Entry No." := 1;
+        Child.Kind := FromKind;
+        Child."Doc No." := 'DOC1';
+        Child.Insert();
+        Runner.SetOptPair('DOC1', FromKind, ToKind);
+        RunRename(Runner, Database::"RBK OptPair Master", Database::"RBK OptPair Child");
+    end;
+
+    [Test]
+    procedure OptionPairKey_ZeroToOne()
+    begin
+        OptionPairKey(0, 1);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure OptionPairKey_OneToZero()
+    begin
+        OptionPairKey(1, 0);
+        Observer.Finish();
+    end;
+
+    // The relation targets key field A while key field B changes to or from blank.
+    local procedure PairAKey(FromB: Code[10]; ToB: Code[10])
+    var
+        Runner: Codeunit "RBK Rename Runner";
+        Master: Record "RBK PairA Master";
+        Child: Record "RBK PairA Child";
+    begin
+        Start(Runner);
+        Master.A := 'A1';
+        Master.B := FromB;
+        Master.Insert();
+        Child."Entry No." := 1;
+        Child.RefA := 'A1';
+        Child.Insert();
+        Runner.SetPairA('A1', FromB, ToB);
+        RunRename(Runner, Database::"RBK PairA Master", Database::"RBK PairA Child");
+    end;
+
+    [Test]
+    procedure RelationToFieldA_FieldBFromBlank()
+    begin
+        PairAKey('', 'X');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RelationToFieldA_FieldBToBlank()
+    begin
+        PairAKey('X', '');
+        Observer.Finish();
+    end;
+
+    // A Code[10] child field against a Code[20] key.
+    local procedure ShortChildField(FromCode: Code[20]; ToCode: Code[20])
+    var
+        Runner: Codeunit "RBK Rename Runner";
+        Master: Record "RBK Short Master";
+        Child: Record "RBK Short Child";
+    begin
+        Start(Runner);
+        Master."Code" := FromCode;
+        Master.Insert();
+        Child."Entry No." := 1;
+        Child.Ref := CopyStr(FromCode, 1, 10);
+        Child.Insert();
+        Runner.SetCode(Database::"RBK Short Master", FromCode, ToCode);
+        RunRename(Runner, Database::"RBK Short Master", Database::"RBK Short Child");
+    end;
+
+    [Test]
+    procedure ShortChildField_FromBlank()
+    begin
+        ShortChildField('', 'X');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ShortChildField_ToBlank()
+    begin
+        ShortChildField('X', '');
         Observer.Finish();
     end;
 }
