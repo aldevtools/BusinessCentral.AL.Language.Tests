@@ -15,7 +15,20 @@
 //     middle line before the action.
 //   Per cell: the page triggers that ran on the open and after Post, the "Line No." and Quantity the page shows after Post (Value and
 //   AsDecimal), the triggers those reads ran, the triggers of Close and the lines left. Nothing is read from the page before Post.
-// Result: see the Expect lines of each test.
+// Result (measured on Windows BC 27.5, 28.5 and 29.0 containers, before the corpus CI run):
+//   - Without subscriber codeunits the results equal those of R7821JournalPostVariants.al: one line, and one line plus a B2 or A1 line,
+//     give `R:10000;N:0;C:0;N:0;C:0;N:0;C:0;` with both opens. Two lines give five N:0;C:0 pairs on BC 27.5 and 29.0, four on BC 28.5
+//     (also when the record stands on the last line). Three lines give five pairs on every version, from the first, the middle or the
+//     last line. The R: entry after Post is the line the record stood on.
+//   - The blank line after Post shows "Line No." 0 and Quantity 0 (Value '0.00', AsDecimal 0), not the deleted line's 300. The reads run
+//     no trigger, Close runs none, no B1 line is left (other-batch lines stay).
+//   - Page.Run record shapes: no filter (also standing on the A1 line), a Quantity filter, and the batch filter in FilterGroup(2) only
+//     give the one-line result. A temporary record: the page works on the temporary table; the one-line result, the temporary table is
+//     empty after Post and the stored line stays. A "Line No." filter of 10000 with one line gives the one-line result; with two lines
+//     Post deletes only line 10000 and the page then shows line 20000 with Quantity 300:
+//     `R:10000;R:20000;N:0;C:0;R:20000;R:20000;R:20000;C:20000;`.
+//   - On the open: OnAfterGetRecord runs for the rows from the record's line on, then again for that line, then OnAfterGetCurrRecord
+//     (see 'after open' per test).
 // BC versions: 27+ (tested by the corpus CI matrix)
 
 table 67223 "TP R7821N Line"
@@ -214,7 +227,16 @@ codeunit 67226 "TP R7821N Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunFiltered(Observer, 1, '', false);
-        Observer.Finish();
+        Observer.Expect('after open', 'R:10000;R:10000;C:10000;');
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown quantity', '0.00');
+        Observer.Expect('quantity as decimal', '0');
+        Observer.Expect('after reads', '');
+        Observer.Expect('after close', '');
+        Observer.Expect('B1 lines left', '');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -223,7 +245,16 @@ codeunit 67226 "TP R7821N Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunFiltered(Observer, 1, '', true);
-        Observer.Finish();
+        Observer.Expect('after open', 'R:10000;R:10000;C:10000;');
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown quantity', '0.00');
+        Observer.Expect('quantity as decimal', '0');
+        Observer.Expect('after reads', '');
+        Observer.Expect('after close', '');
+        Observer.Expect('B1 lines left', '');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -232,7 +263,20 @@ codeunit 67226 "TP R7821N Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunFiltered(Observer, 2, '', false);
-        Observer.Finish();
+        Observer.Expect('after open', 'R:10000;R:20000;R:10000;R:10000;C:10000;');
+#if BC28PLUS and not BC29PLUS
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;');
+#else
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;');
+#endif
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown quantity', '0.00');
+        Observer.Expect('quantity as decimal', '0');
+        Observer.Expect('after reads', '');
+        Observer.Expect('after close', '');
+        Observer.Expect('B1 lines left', '');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -241,7 +285,20 @@ codeunit 67226 "TP R7821N Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunFiltered(Observer, 2, '', true);
-        Observer.Finish();
+        Observer.Expect('after open', 'R:10000;R:20000;R:10000;R:10000;C:10000;');
+#if BC28PLUS and not BC29PLUS
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;');
+#else
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;');
+#endif
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown quantity', '0.00');
+        Observer.Expect('quantity as decimal', '0');
+        Observer.Expect('after reads', '');
+        Observer.Expect('after close', '');
+        Observer.Expect('B1 lines left', '');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -250,7 +307,16 @@ codeunit 67226 "TP R7821N Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunFiltered(Observer, 3, '', false);
-        Observer.Finish();
+        Observer.Expect('after open', 'R:10000;R:20000;R:30000;R:10000;R:10000;C:10000;');
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown quantity', '0.00');
+        Observer.Expect('quantity as decimal', '0');
+        Observer.Expect('after reads', '');
+        Observer.Expect('after close', '');
+        Observer.Expect('B1 lines left', '');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -259,7 +325,16 @@ codeunit 67226 "TP R7821N Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunFiltered(Observer, 3, '', true);
-        Observer.Finish();
+        Observer.Expect('after open', 'R:10000;R:20000;R:30000;R:10000;R:10000;C:10000;');
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown quantity', '0.00');
+        Observer.Expect('quantity as decimal', '0');
+        Observer.Expect('after reads', '');
+        Observer.Expect('after close', '');
+        Observer.Expect('B1 lines left', '');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -268,7 +343,16 @@ codeunit 67226 "TP R7821N Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunFiltered(Observer, 1, 'B2', false);
-        Observer.Finish();
+        Observer.Expect('after open', 'R:10000;R:10000;C:10000;');
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown quantity', '0.00');
+        Observer.Expect('quantity as decimal', '0');
+        Observer.Expect('after reads', '');
+        Observer.Expect('after close', '');
+        Observer.Expect('B1 lines left', '');
+        Observer.Expect('other batch lines left', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -277,7 +361,16 @@ codeunit 67226 "TP R7821N Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunFiltered(Observer, 1, 'B2', true);
-        Observer.Finish();
+        Observer.Expect('after open', 'R:10000;R:10000;C:10000;');
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown quantity', '0.00');
+        Observer.Expect('quantity as decimal', '0');
+        Observer.Expect('after reads', '');
+        Observer.Expect('after close', '');
+        Observer.Expect('B1 lines left', '');
+        Observer.Expect('other batch lines left', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -286,7 +379,16 @@ codeunit 67226 "TP R7821N Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunFiltered(Observer, 1, 'A1', false);
-        Observer.Finish();
+        Observer.Expect('after open', 'R:10000;R:10000;C:10000;');
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown quantity', '0.00');
+        Observer.Expect('quantity as decimal', '0');
+        Observer.Expect('after reads', '');
+        Observer.Expect('after close', '');
+        Observer.Expect('B1 lines left', '');
+        Observer.Expect('other batch lines left', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -295,7 +397,16 @@ codeunit 67226 "TP R7821N Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunFiltered(Observer, 1, 'A1', true);
-        Observer.Finish();
+        Observer.Expect('after open', 'R:10000;R:10000;C:10000;');
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown quantity', '0.00');
+        Observer.Expect('quantity as decimal', '0');
+        Observer.Expect('after reads', '');
+        Observer.Expect('after close', '');
+        Observer.Expect('B1 lines left', '');
+        Observer.Expect('other batch lines left', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -307,7 +418,16 @@ codeunit 67226 "TP R7821N Tests"
         InsertLines(1, '');
         Line.FindFirst();
         RunWks(Observer, Line, true);
-        Observer.Finish();
+        Observer.Expect('after open', 'R:10000;R:10000;C:10000;');
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown quantity', '0.00');
+        Observer.Expect('quantity as decimal', '0');
+        Observer.Expect('after reads', '');
+        Observer.Expect('after close', '');
+        Observer.Expect('B1 lines left', '');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -320,7 +440,17 @@ codeunit 67226 "TP R7821N Tests"
         Line.FindFirst();
         Observer.Observe('record before open', Line."Batch Name" + ' ' + Format(Line."Line No."));
         RunWks(Observer, Line, true);
-        Observer.Finish();
+        Observer.Expect('record before open', 'A1 10000');
+        Observer.Expect('after open', 'R:10000;R:10000;C:10000;');
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown quantity', '0.00');
+        Observer.Expect('quantity as decimal', '0');
+        Observer.Expect('after reads', '');
+        Observer.Expect('after close', '');
+        Observer.Expect('B1 lines left', '');
+        Observer.Expect('other batch lines left', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -334,7 +464,16 @@ codeunit 67226 "TP R7821N Tests"
         Line.SetRange("Line No.", 10000);
         Line.FindFirst();
         RunWks(Observer, Line, true);
-        Observer.Finish();
+        Observer.Expect('after open', 'R:10000;R:10000;C:10000;');
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown quantity', '0.00');
+        Observer.Expect('quantity as decimal', '0');
+        Observer.Expect('after reads', '');
+        Observer.Expect('after close', '');
+        Observer.Expect('B1 lines left', '');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -348,7 +487,16 @@ codeunit 67226 "TP R7821N Tests"
         Line.SetRange("Line No.", 10000);
         Line.FindFirst();
         RunWks(Observer, Line, true);
-        Observer.Finish();
+        Observer.Expect('after open', 'R:10000;R:10000;C:10000;');
+        Observer.Expect('after post', 'R:10000;R:20000;N:0;C:0;R:20000;R:20000;R:20000;C:20000;');
+        Observer.Expect('shown line', '20000');
+        Observer.Expect('shown quantity', '300.00');
+        Observer.Expect('quantity as decimal', '300');
+        Observer.Expect('after reads', '');
+        Observer.Expect('after close', '');
+        Observer.Expect('B1 lines left', '20000;');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -362,7 +510,16 @@ codeunit 67226 "TP R7821N Tests"
         Line.SetRange(Quantity, 300);
         Line.FindFirst();
         RunWks(Observer, Line, true);
-        Observer.Finish();
+        Observer.Expect('after open', 'R:10000;R:10000;C:10000;');
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown quantity', '0.00');
+        Observer.Expect('quantity as decimal', '0');
+        Observer.Expect('after reads', '');
+        Observer.Expect('after close', '');
+        Observer.Expect('B1 lines left', '');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -377,7 +534,16 @@ codeunit 67226 "TP R7821N Tests"
         Line.FilterGroup(0);
         Line.FindFirst();
         RunWks(Observer, Line, true);
-        Observer.Finish();
+        Observer.Expect('after open', 'R:10000;R:10000;C:10000;');
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown quantity', '0.00');
+        Observer.Expect('quantity as decimal', '0');
+        Observer.Expect('after reads', '');
+        Observer.Expect('after close', '');
+        Observer.Expect('B1 lines left', '');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -396,7 +562,17 @@ codeunit 67226 "TP R7821N Tests"
         RunWks(Observer, TempLine, true);
         TempLine.Reset();
         Observer.Observe('temporary lines left', Format(TempLine.Count()));
-        Observer.Finish();
+        Observer.Expect('after open', 'R:10000;R:10000;C:10000;');
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown quantity', '0.00');
+        Observer.Expect('quantity as decimal', '0');
+        Observer.Expect('after reads', '');
+        Observer.Expect('after close', '');
+        Observer.Expect('B1 lines left', '10000;');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Expect('temporary lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -409,7 +585,20 @@ codeunit 67226 "TP R7821N Tests"
         Line.SetRange("Batch Name", 'B1');
         Line.FindLast();
         RunWks(Observer, Line, true);
-        Observer.Finish();
+        Observer.Expect('after open', 'R:20000;R:10000;R:20000;R:20000;C:20000;');
+#if BC28PLUS and not BC29PLUS
+        Observer.Expect('after post', 'R:20000;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;');
+#else
+        Observer.Expect('after post', 'R:20000;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;');
+#endif
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown quantity', '0.00');
+        Observer.Expect('quantity as decimal', '0');
+        Observer.Expect('after reads', '');
+        Observer.Expect('after close', '');
+        Observer.Expect('B1 lines left', '');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -422,7 +611,16 @@ codeunit 67226 "TP R7821N Tests"
         Line.SetRange("Batch Name", 'B1');
         Line.Get('B1', 20000);
         RunWks(Observer, Line, true);
-        Observer.Finish();
+        Observer.Expect('after open', 'R:20000;R:30000;R:20000;R:10000;R:20000;R:20000;C:20000;');
+        Observer.Expect('after post', 'R:20000;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown quantity', '0.00');
+        Observer.Expect('quantity as decimal', '0');
+        Observer.Expect('after reads', '');
+        Observer.Expect('after close', '');
+        Observer.Expect('B1 lines left', '');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -435,6 +633,15 @@ codeunit 67226 "TP R7821N Tests"
         Line.SetRange("Batch Name", 'B1');
         Line.FindLast();
         RunWks(Observer, Line, true);
-        Observer.Finish();
+        Observer.Expect('after open', 'R:30000;R:20000;R:10000;R:30000;R:30000;C:30000;');
+        Observer.Expect('after post', 'R:30000;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown quantity', '0.00');
+        Observer.Expect('quantity as decimal', '0');
+        Observer.Expect('after reads', '');
+        Observer.Expect('after close', '');
+        Observer.Expect('B1 lines left', '');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
     end;
 }
