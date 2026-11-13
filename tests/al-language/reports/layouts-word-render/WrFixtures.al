@@ -604,7 +604,23 @@ codeunit 91139 "WR Helper"
         exit(Result);
     end;
 
-    // The entry names of the zip package, sorted, joined by ';'. Entries under package/services/metadata/core-properties/ are folded to that folder
+    // Ordinal (char code) order. The Text '<' operator is culture dependent: on the Linux CI containers '_rels/.rels' sorts before
+    // '[Content_Types].xml', on Windows after it.
+    local procedure OrdinalLess(A: Text; B: Text): Boolean
+    var
+        I: Integer;
+        N: Integer;
+    begin
+        N := StrLen(A);
+        if StrLen(B) < N then
+            N := StrLen(B);
+        for I := 1 to N do
+            if A[I] <> B[I] then
+                exit(A[I] < B[I]);
+        exit(StrLen(A) < StrLen(B));
+    end;
+
+    // The entry names of the zip package, sorted by char code, joined by ';'. Entries under package/services/metadata/core-properties/ are folded to that folder
     // name plus '*' (System.IO.Packaging names the file by a new GUID on every save).
     procedure Entries(var TempBlob: Codeunit "Temp Blob"): Text
     var
@@ -626,7 +642,7 @@ codeunit 91139 "WR Helper"
                 Name := 'package/services/metadata/core-properties/*' + CopyStr(Name, StrLen(Name) - 6);
             Done := false;
             for I := 1 to Sorted.Count() do
-                if (not Done) and (Name < Sorted.Get(I)) then begin
+                if (not Done) and OrdinalLess(Name, Sorted.Get(I)) then begin
                     Sorted.Insert(I, Name);
                     Done := true;
                 end;

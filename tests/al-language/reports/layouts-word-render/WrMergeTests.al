@@ -23,6 +23,8 @@
 //   it has a GUID-named core properties entry under package/services/metadata/core-properties/ (folded to *.psmdcp here) whose dc:title is the
 //   report name; docProps/app.xml has an empty Company. Html of the same layout holds the merged values and the static text per row, escaped.
 //   A temporary layout selection picks the other Word layout; a report extension's Word layout binds the column the extension adds.
+//   Picture_EmptyBlob is held (a comment, not a test): BC on Linux (the corpus CI) throws an uncatchable System.NullReferenceException there while Windows
+//   completes (values in the comment at the test); the runtime must refuse that shape on Linux. Entry lists are sorted by char code (WR Helper.Entries).
 //   Measured on the local Windows BC containers 27.5, 28.5 and 29.0 (same values on all three); the corpus CI legs run BC on Linux.
 //   WordMergeDataItem = Head, layout without section breaks, 2 records: Pdf saves. The Word save is not a test here: on 27.5, 28.5 and 29.0 it
 //   raised "Unexpected CLR exception thrown.: System.NullReferenceException" in OfficeWordSectionHandler.GenerateHeadersFootersAndSection, which
@@ -509,31 +511,36 @@ codeunit 91140 "WR Merge Tests"
         Observer.Verify();
     end;
 
-    [Test]
-    procedure Picture_EmptyBlob()
-    var
-        Observer: Codeunit "Probe Observer";
-        TempBlob: Codeunit "Temp Blob";
-        Doc: Text;
-    begin
-        PictureLine(false);
-        if Helper.Save(Observer, Report::"WR Picture", ReportFormat::Word, TempBlob) then begin
-            Doc := Helper.Part(TempBlob, 'word/document.xml');
-            Observer.Observe('entries', Helper.Entries(TempBlob));
-            Observer.Observe('drawings', Format(Helper.Occurrences(Doc, '<w:drawing')));
-            Observer.Observe('text', Helper.Between(Helper.PlainText(Doc), 'WRBODYSTART', 'WRAFTER'));
-        end;
-        Observer.Expect('completed', 'Yes');
-        Observer.Expect('returned', 'Yes');
-        Observer.Expect('err|text', '');
-        Observer.Expect('err|code', '');
-        Observer.Expect('head', '80,75,3,4,');
-        Observer.Expect('length > 0', 'Yes');
-        Observer.Expect('entries', '[Content_Types].xml;_rels/.rels;customXml/item2.xml;docProps/app.xml;package/services/metadata/core-properties/*.psmdcp;word/_rels/document.xml.rels;word/document.xml;word/media/wrplaceholder.png;word/settings.xml;');
-        Observer.Expect('drawings', '1');
-        Observer.Expect('text', 'WRBODYSTART/WRP WRPICROW WRPE//WRAFTER');
-        Observer.Verify();
-    end;
+    // Held (not a test): Picture_EmptyBlob. On the Linux CI containers (27.5, 28.5, 29.0) BC ends the test with the uncatchable
+    // 'Unexpected CLR exception thrown.: System.NullReferenceException' (server log: NullReferenceException in IsInstanceOfClass) when a picture control
+    // is bound to an empty BLOB and the report is saved as Word. On the local Windows containers (27.5, 28.5, 29.0) the same test passes with exactly the
+    // values below. The runtime must refuse this shape on Linux. Not a test here, see docs/nightly-windows-authority.md.
+    //
+    // [Test]
+    // procedure Picture_EmptyBlob()
+    // var
+    //     Observer: Codeunit "Probe Observer";
+    //     TempBlob: Codeunit "Temp Blob";
+    //     Doc: Text;
+    // begin
+    //     PictureLine(false);
+    //     if Helper.Save(Observer, Report::"WR Picture", ReportFormat::Word, TempBlob) then begin
+    //         Doc := Helper.Part(TempBlob, 'word/document.xml');
+    //         Observer.Observe('entries', Helper.Entries(TempBlob));
+    //         Observer.Observe('drawings', Format(Helper.Occurrences(Doc, '<w:drawing')));
+    //         Observer.Observe('text', Helper.Between(Helper.PlainText(Doc), 'WRBODYSTART', 'WRAFTER'));
+    //     end;
+    //     Observer.Expect('completed', 'Yes');
+    //     Observer.Expect('returned', 'Yes');
+    //     Observer.Expect('err|text', '');
+    //     Observer.Expect('err|code', '');
+    //     Observer.Expect('head', '80,75,3,4,');
+    //     Observer.Expect('length > 0', 'Yes');
+    //     Observer.Expect('entries', '[Content_Types].xml;_rels/.rels;customXml/item2.xml;docProps/app.xml;package/services/metadata/core-properties/*.psmdcp;word/_rels/document.xml.rels;word/document.xml;word/media/wrplaceholder.png;word/settings.xml;');
+    //     Observer.Expect('drawings', '1');
+    //     Observer.Expect('text', 'WRBODYSTART/WRP WRPICROW WRPE//WRAFTER');
+    //     Observer.Verify();
+    // end;
 
     local procedure PictureLine(WithImage: Boolean)
     var
