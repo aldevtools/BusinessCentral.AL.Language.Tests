@@ -245,7 +245,8 @@ codeunit 80042 "RXD Decl Helper"
             Result := 'none';
     end;
 
-    // The first four bytes of the saved document as numbers ('37 80 68 70' is %PDF, '80 75 3 4' a zip package).
+    // The first four bytes of the saved document, each through Format(Byte), which gives the character: '% P D F' for a Pdf and
+    // 'P K' plus the control characters 3 and 4 for a zip package (Word, Excel).
     procedure FirstBytes(var TempBlob: Codeunit "Temp Blob") Result: Text
     var
         InS: InStream;

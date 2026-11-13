@@ -7,6 +7,13 @@
 //   The same stored states and temporary selections as RxdDeclLayoutTests.al. Asked: whether Html was produced, which layout's marker the
 //   body holds, the counts of 'rgba(' and 'rgb(' and of the static texts rgba(1,2,3,1) and rgb(1, 2, 3) in the body and in GetBody,
 //   and whether GetBody equals the body.
+// Results (local observation on BC 27.5, 28.5 and 29.0; identical on all three):
+//   - Where the Word layout runs (no row, empty-company RDLC row, company Word row; with or without SetTempLayoutSelected('')): Html
+//     body with marker word, rgba(1,2,3,1) once and rgb(1, 2, 3) once; GetBody <> body, holds rgb(1, 2, 3) twice and no 'rgba('.
+//   - With the temporary GUID tenant selection (every stored state): Html body with marker tenant, rgba(1,2,3,1) once, no 'rgb(';
+//     GetBody <> body, holds rgb(1, 2, 3) once and no 'rgba('.
+//   - Where the RDLC layout runs (company RDLC row, alone or with the empty-company row, with or without SetTempLayoutSelected('')):
+//     SaveAs returns false with ReportUnsupportedFormat, the body is empty, and GetBody = body.
 // BC versions: 27 - 29
 
 codeunit 80044 "RXD Decl Email Body Tests"
@@ -66,7 +73,22 @@ codeunit 80044 "RXD Decl Email Body Tests"
         Setup(0, 1);
         BodyFacts(Observer, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body marker', 'tenant;');
+        Observer.Expect('body rgba( count', '1');
+        Observer.Expect('body rgb( count', '0');
+        Observer.Expect('body rgba(1,2,3,1)', '1');
+        Observer.Expect('body rgb(1, 2, 3)', '0');
+        Observer.Expect('GetBody = body', 'No');
+        Observer.Expect('GetBody rgba( count', '0');
+        Observer.Expect('GetBody rgb( count', '1');
+        Observer.Expect('GetBody rgba(1,2,3,1)', '0');
+        Observer.Expect('GetBody rgb(1, 2, 3)', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -77,7 +99,22 @@ codeunit 80044 "RXD Decl Email Body Tests"
         Setup(1, 2);
         BodyFacts(Observer, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'No');
+        Observer.Expect('err|text', 'The Html output format is not supported by the current report layout format.');
+        Observer.Expect('err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('body <> empty', 'No');
+        Observer.Expect('body marker', 'none');
+        Observer.Expect('body rgba( count', '0');
+        Observer.Expect('body rgb( count', '0');
+        Observer.Expect('body rgba(1,2,3,1)', '0');
+        Observer.Expect('body rgb(1, 2, 3)', '0');
+        Observer.Expect('GetBody = body', 'Yes');
+        Observer.Expect('GetBody rgba( count', '0');
+        Observer.Expect('GetBody rgb( count', '0');
+        Observer.Expect('GetBody rgba(1,2,3,1)', '0');
+        Observer.Expect('GetBody rgb(1, 2, 3)', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -88,7 +125,22 @@ codeunit 80044 "RXD Decl Email Body Tests"
         Setup(0, 0);
         BodyFacts(Observer, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body marker', 'word;');
+        Observer.Expect('body rgba( count', '1');
+        Observer.Expect('body rgb( count', '1');
+        Observer.Expect('body rgba(1,2,3,1)', '1');
+        Observer.Expect('body rgb(1, 2, 3)', '1');
+        Observer.Expect('GetBody = body', 'No');
+        Observer.Expect('GetBody rgba( count', '0');
+        Observer.Expect('GetBody rgb( count', '2');
+        Observer.Expect('GetBody rgba(1,2,3,1)', '0');
+        Observer.Expect('GetBody rgb(1, 2, 3)', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -99,7 +151,22 @@ codeunit 80044 "RXD Decl Email Body Tests"
         Setup(0, 2);
         BodyFacts(Observer, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body marker', 'word;');
+        Observer.Expect('body rgba( count', '1');
+        Observer.Expect('body rgb( count', '1');
+        Observer.Expect('body rgba(1,2,3,1)', '1');
+        Observer.Expect('body rgb(1, 2, 3)', '1');
+        Observer.Expect('GetBody = body', 'No');
+        Observer.Expect('GetBody rgba( count', '0');
+        Observer.Expect('GetBody rgb( count', '2');
+        Observer.Expect('GetBody rgba(1,2,3,1)', '0');
+        Observer.Expect('GetBody rgb(1, 2, 3)', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -110,7 +177,22 @@ codeunit 80044 "RXD Decl Email Body Tests"
         Setup(1, 0);
         BodyFacts(Observer, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'No');
+        Observer.Expect('err|text', 'The Html output format is not supported by the current report layout format.');
+        Observer.Expect('err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('body <> empty', 'No');
+        Observer.Expect('body marker', 'none');
+        Observer.Expect('body rgba( count', '0');
+        Observer.Expect('body rgb( count', '0');
+        Observer.Expect('body rgba(1,2,3,1)', '0');
+        Observer.Expect('body rgb(1, 2, 3)', '0');
+        Observer.Expect('GetBody = body', 'Yes');
+        Observer.Expect('GetBody rgba( count', '0');
+        Observer.Expect('GetBody rgb( count', '0');
+        Observer.Expect('GetBody rgba(1,2,3,1)', '0');
+        Observer.Expect('GetBody rgb(1, 2, 3)', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -121,7 +203,22 @@ codeunit 80044 "RXD Decl Email Body Tests"
         Setup(1, 1);
         BodyFacts(Observer, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body marker', 'tenant;');
+        Observer.Expect('body rgba( count', '1');
+        Observer.Expect('body rgb( count', '0');
+        Observer.Expect('body rgba(1,2,3,1)', '1');
+        Observer.Expect('body rgb(1, 2, 3)', '0');
+        Observer.Expect('GetBody = body', 'No');
+        Observer.Expect('GetBody rgba( count', '0');
+        Observer.Expect('GetBody rgb( count', '1');
+        Observer.Expect('GetBody rgba(1,2,3,1)', '0');
+        Observer.Expect('GetBody rgb(1, 2, 3)', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -132,7 +229,22 @@ codeunit 80044 "RXD Decl Email Body Tests"
         Setup(2, 0);
         BodyFacts(Observer, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body marker', 'word;');
+        Observer.Expect('body rgba( count', '1');
+        Observer.Expect('body rgb( count', '1');
+        Observer.Expect('body rgba(1,2,3,1)', '1');
+        Observer.Expect('body rgb(1, 2, 3)', '1');
+        Observer.Expect('GetBody = body', 'No');
+        Observer.Expect('GetBody rgba( count', '0');
+        Observer.Expect('GetBody rgb( count', '2');
+        Observer.Expect('GetBody rgba(1,2,3,1)', '0');
+        Observer.Expect('GetBody rgb(1, 2, 3)', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -143,7 +255,22 @@ codeunit 80044 "RXD Decl Email Body Tests"
         Setup(2, 1);
         BodyFacts(Observer, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body marker', 'tenant;');
+        Observer.Expect('body rgba( count', '1');
+        Observer.Expect('body rgb( count', '0');
+        Observer.Expect('body rgba(1,2,3,1)', '1');
+        Observer.Expect('body rgb(1, 2, 3)', '0');
+        Observer.Expect('GetBody = body', 'No');
+        Observer.Expect('GetBody rgba( count', '0');
+        Observer.Expect('GetBody rgb( count', '1');
+        Observer.Expect('GetBody rgba(1,2,3,1)', '0');
+        Observer.Expect('GetBody rgb(1, 2, 3)', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -154,7 +281,22 @@ codeunit 80044 "RXD Decl Email Body Tests"
         Setup(2, 2);
         BodyFacts(Observer, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body marker', 'word;');
+        Observer.Expect('body rgba( count', '1');
+        Observer.Expect('body rgb( count', '1');
+        Observer.Expect('body rgba(1,2,3,1)', '1');
+        Observer.Expect('body rgb(1, 2, 3)', '1');
+        Observer.Expect('GetBody = body', 'No');
+        Observer.Expect('GetBody rgba( count', '0');
+        Observer.Expect('GetBody rgb( count', '2');
+        Observer.Expect('GetBody rgba(1,2,3,1)', '0');
+        Observer.Expect('GetBody rgb(1, 2, 3)', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -165,7 +307,22 @@ codeunit 80044 "RXD Decl Email Body Tests"
         Setup(3, 0);
         BodyFacts(Observer, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'No');
+        Observer.Expect('err|text', 'The Html output format is not supported by the current report layout format.');
+        Observer.Expect('err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('body <> empty', 'No');
+        Observer.Expect('body marker', 'none');
+        Observer.Expect('body rgba( count', '0');
+        Observer.Expect('body rgb( count', '0');
+        Observer.Expect('body rgba(1,2,3,1)', '0');
+        Observer.Expect('body rgb(1, 2, 3)', '0');
+        Observer.Expect('GetBody = body', 'Yes');
+        Observer.Expect('GetBody rgba( count', '0');
+        Observer.Expect('GetBody rgb( count', '0');
+        Observer.Expect('GetBody rgba(1,2,3,1)', '0');
+        Observer.Expect('GetBody rgb(1, 2, 3)', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -176,7 +333,22 @@ codeunit 80044 "RXD Decl Email Body Tests"
         Setup(3, 1);
         BodyFacts(Observer, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body marker', 'tenant;');
+        Observer.Expect('body rgba( count', '1');
+        Observer.Expect('body rgb( count', '0');
+        Observer.Expect('body rgba(1,2,3,1)', '1');
+        Observer.Expect('body rgb(1, 2, 3)', '0');
+        Observer.Expect('GetBody = body', 'No');
+        Observer.Expect('GetBody rgba( count', '0');
+        Observer.Expect('GetBody rgb( count', '1');
+        Observer.Expect('GetBody rgba(1,2,3,1)', '0');
+        Observer.Expect('GetBody rgb(1, 2, 3)', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -187,7 +359,22 @@ codeunit 80044 "RXD Decl Email Body Tests"
         Setup(3, 2);
         BodyFacts(Observer, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'No');
+        Observer.Expect('err|text', 'The Html output format is not supported by the current report layout format.');
+        Observer.Expect('err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('body <> empty', 'No');
+        Observer.Expect('body marker', 'none');
+        Observer.Expect('body rgba( count', '0');
+        Observer.Expect('body rgb( count', '0');
+        Observer.Expect('body rgba(1,2,3,1)', '0');
+        Observer.Expect('body rgb(1, 2, 3)', '0');
+        Observer.Expect('GetBody = body', 'Yes');
+        Observer.Expect('GetBody rgba( count', '0');
+        Observer.Expect('GetBody rgb( count', '0');
+        Observer.Expect('GetBody rgba(1,2,3,1)', '0');
+        Observer.Expect('GetBody rgb(1, 2, 3)', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -198,7 +385,22 @@ codeunit 80044 "RXD Decl Email Body Tests"
         Setup(4, 0);
         BodyFacts(Observer, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body marker', 'word;');
+        Observer.Expect('body rgba( count', '1');
+        Observer.Expect('body rgb( count', '1');
+        Observer.Expect('body rgba(1,2,3,1)', '1');
+        Observer.Expect('body rgb(1, 2, 3)', '1');
+        Observer.Expect('GetBody = body', 'No');
+        Observer.Expect('GetBody rgba( count', '0');
+        Observer.Expect('GetBody rgb( count', '2');
+        Observer.Expect('GetBody rgba(1,2,3,1)', '0');
+        Observer.Expect('GetBody rgb(1, 2, 3)', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -209,7 +411,22 @@ codeunit 80044 "RXD Decl Email Body Tests"
         Setup(4, 1);
         BodyFacts(Observer, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body marker', 'tenant;');
+        Observer.Expect('body rgba( count', '1');
+        Observer.Expect('body rgb( count', '0');
+        Observer.Expect('body rgba(1,2,3,1)', '1');
+        Observer.Expect('body rgb(1, 2, 3)', '0');
+        Observer.Expect('GetBody = body', 'No');
+        Observer.Expect('GetBody rgba( count', '0');
+        Observer.Expect('GetBody rgb( count', '1');
+        Observer.Expect('GetBody rgba(1,2,3,1)', '0');
+        Observer.Expect('GetBody rgb(1, 2, 3)', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -220,6 +437,21 @@ codeunit 80044 "RXD Decl Email Body Tests"
         Setup(4, 2);
         BodyFacts(Observer, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('body marker', 'word;');
+        Observer.Expect('body rgba( count', '1');
+        Observer.Expect('body rgb( count', '1');
+        Observer.Expect('body rgba(1,2,3,1)', '1');
+        Observer.Expect('body rgb(1, 2, 3)', '1');
+        Observer.Expect('GetBody = body', 'No');
+        Observer.Expect('GetBody rgba( count', '0');
+        Observer.Expect('GetBody rgb( count', '2');
+        Observer.Expect('GetBody rgba(1,2,3,1)', '0');
+        Observer.Expect('GetBody rgb(1, 2, 3)', '2');
+        Observer.Verify();
     end;
 }

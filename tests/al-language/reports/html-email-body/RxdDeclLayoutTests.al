@@ -8,7 +8,20 @@
 //   selection of a GUID-named Tenant Report Layout (SetTempLayoutSelectedName), and with SetTempLayoutSelected(''). The temporary
 //   selection is set again before each call. Asked: the answer used (TryFunction result, return value, error text and code, length > 0,
 //   HasValue, which layout's marker the output holds, the first bytes) and the statement form (completed, error, length, marker), and the
-//   temporary layout name after the call.
+//   temporary layout name after the call. Excel in every state. The five-argument form Report.SaveAs(Id, '', Format, OutStream, RecordRef)
+//   (the Report Selections attachment call, RXD Row filtered to Id 1) for the company RDLC row and for no row, both with
+//   SetTempLayoutSelected('').
+// Results (local observation on BC 27.5, 28.5 and 29.0; identical on all three):
+//   - Which layout runs: a temporary GUID tenant selection always wins (marker tenant), over every stored row. Otherwise a stored
+//     RDLC (built-in) row of the CURRENT company makes the RDLC layout run (also when the empty-company row exists too);
+//     SetTempLayoutSelected('') does not change that. An RDLC (built-in) row with an empty Company Name alone is ignored (Word layout).
+//     A Word (built-in) row of the company and no row run the Word layout.
+//   - Word layout: Html, Word and Pdf return true with output; Excel returns false with ReportUnsupportedFormat ('The Excel output format
+//     is not supported by the current report layout format.'), empty output; its statement form raises the same error.
+//   - RDLC layout: Html returns false with ReportUnsupportedFormat ('The Html output format is not supported by the current report layout
+//     format.'), empty output, statement form raises; Word, Pdf and Excel return true with output (Word holds the RDLC text box).
+//   - The five-argument form gives the same answers as the four-argument form in the same state.
+//   - GetTempSelectedLayoutName is empty after every call.
 // BC versions: 27 - 29
 
 codeunit 80043 "RXD Decl Layout Tests"
@@ -122,7 +135,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Excel, 2);
         StatementFacts(Observer, ReportFormat::Excel, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'none');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -133,7 +161,16 @@ codeunit 80043 "RXD Decl Layout Tests"
         Setup(1, 2);
         RecordFacts(Observer, ReportFormat::Excel, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('rec completed', 'Yes');
+        Observer.Expect('rec returned', 'Yes');
+        Observer.Expect('rec err|text', '');
+        Observer.Expect('rec err|code', '');
+        Observer.Expect('rec length > 0', 'Yes');
+        Observer.Expect('rec has value', 'Yes');
+        Observer.Expect('rec first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('rec has RXDROW1', 'No');
+        Observer.Expect('rec marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -145,7 +182,19 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Pdf, 2);
         StatementFacts(Observer, ReportFormat::Pdf, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', '% P D F');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -156,7 +205,14 @@ codeunit 80043 "RXD Decl Layout Tests"
         Setup(1, 2);
         RecordFacts(Observer, ReportFormat::Pdf, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('rec completed', 'Yes');
+        Observer.Expect('rec returned', 'Yes');
+        Observer.Expect('rec err|text', '');
+        Observer.Expect('rec err|code', '');
+        Observer.Expect('rec length > 0', 'Yes');
+        Observer.Expect('rec has value', 'Yes');
+        Observer.Expect('rec first bytes', '% P D F');
+        Observer.Verify();
     end;
 
     [Test]
@@ -168,7 +224,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Word, 2);
         StatementFacts(Observer, ReportFormat::Word, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'rdlc;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'rdlc;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -179,7 +250,16 @@ codeunit 80043 "RXD Decl Layout Tests"
         Setup(1, 2);
         RecordFacts(Observer, ReportFormat::Word, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('rec completed', 'Yes');
+        Observer.Expect('rec returned', 'Yes');
+        Observer.Expect('rec err|text', '');
+        Observer.Expect('rec err|code', '');
+        Observer.Expect('rec length > 0', 'Yes');
+        Observer.Expect('rec has value', 'Yes');
+        Observer.Expect('rec first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('rec has RXDROW1', 'No');
+        Observer.Expect('rec marker', 'rdlc;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -191,7 +271,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Html, 2);
         StatementFacts(Observer, ReportFormat::Html, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The Html output format is not supported by the current report layout format.');
+        Observer.Expect('used err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used has value', 'No');
+        Observer.Expect('used starts <html', 'No');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'none');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'No');
+        Observer.Expect('stmt err|text', 'The Html output format is not supported by the current report layout format.');
+        Observer.Expect('stmt err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('stmt length > 0', 'No');
+        Observer.Expect('stmt marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -202,7 +297,16 @@ codeunit 80043 "RXD Decl Layout Tests"
         Setup(1, 2);
         RecordFacts(Observer, ReportFormat::Html, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('rec completed', 'Yes');
+        Observer.Expect('rec returned', 'No');
+        Observer.Expect('rec err|text', 'The Html output format is not supported by the current report layout format.');
+        Observer.Expect('rec err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('rec length > 0', 'No');
+        Observer.Expect('rec has value', 'No');
+        Observer.Expect('rec starts <html', 'No');
+        Observer.Expect('rec has RXDROW1', 'No');
+        Observer.Expect('rec marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -214,7 +318,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Html, 1);
         StatementFacts(Observer, ReportFormat::Html, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used starts <html', 'Yes');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'tenant;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'tenant;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -226,7 +345,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Word, 1);
         StatementFacts(Observer, ReportFormat::Word, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'tenant;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'tenant;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -238,7 +372,19 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Pdf, 1);
         StatementFacts(Observer, ReportFormat::Pdf, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', '% P D F');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -250,7 +396,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Excel, 1);
         StatementFacts(Observer, ReportFormat::Excel, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('used err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used has value', 'No');
+        Observer.Expect('used first bytes', '');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'none');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'No');
+        Observer.Expect('stmt err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('stmt err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('stmt length > 0', 'No');
+        Observer.Expect('stmt marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -261,7 +422,16 @@ codeunit 80043 "RXD Decl Layout Tests"
         Setup(0, 2);
         RecordFacts(Observer, ReportFormat::Excel, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('rec completed', 'Yes');
+        Observer.Expect('rec returned', 'No');
+        Observer.Expect('rec err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('rec err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('rec length > 0', 'No');
+        Observer.Expect('rec has value', 'No');
+        Observer.Expect('rec first bytes', '');
+        Observer.Expect('rec has RXDROW1', 'No');
+        Observer.Expect('rec marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -272,7 +442,14 @@ codeunit 80043 "RXD Decl Layout Tests"
         Setup(0, 2);
         RecordFacts(Observer, ReportFormat::Pdf, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('rec completed', 'Yes');
+        Observer.Expect('rec returned', 'Yes');
+        Observer.Expect('rec err|text', '');
+        Observer.Expect('rec err|code', '');
+        Observer.Expect('rec length > 0', 'Yes');
+        Observer.Expect('rec has value', 'Yes');
+        Observer.Expect('rec first bytes', '% P D F');
+        Observer.Verify();
     end;
 
     [Test]
@@ -283,7 +460,16 @@ codeunit 80043 "RXD Decl Layout Tests"
         Setup(0, 2);
         RecordFacts(Observer, ReportFormat::Word, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('rec completed', 'Yes');
+        Observer.Expect('rec returned', 'Yes');
+        Observer.Expect('rec err|text', '');
+        Observer.Expect('rec err|code', '');
+        Observer.Expect('rec length > 0', 'Yes');
+        Observer.Expect('rec has value', 'Yes');
+        Observer.Expect('rec first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('rec has RXDROW1', 'Yes');
+        Observer.Expect('rec marker', 'word;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -294,7 +480,16 @@ codeunit 80043 "RXD Decl Layout Tests"
         Setup(0, 2);
         RecordFacts(Observer, ReportFormat::Html, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('rec completed', 'Yes');
+        Observer.Expect('rec returned', 'Yes');
+        Observer.Expect('rec err|text', '');
+        Observer.Expect('rec err|code', '');
+        Observer.Expect('rec length > 0', 'Yes');
+        Observer.Expect('rec has value', 'Yes');
+        Observer.Expect('rec starts <html', 'Yes');
+        Observer.Expect('rec has RXDROW1', 'Yes');
+        Observer.Expect('rec marker', 'word;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -306,7 +501,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Html, 0);
         StatementFacts(Observer, ReportFormat::Html, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used starts <html', 'Yes');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'word;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'word;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -318,7 +528,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Word, 0);
         StatementFacts(Observer, ReportFormat::Word, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'word;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'word;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -330,7 +555,19 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Pdf, 0);
         StatementFacts(Observer, ReportFormat::Pdf, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', '% P D F');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -342,7 +579,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Excel, 0);
         StatementFacts(Observer, ReportFormat::Excel, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('used err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used has value', 'No');
+        Observer.Expect('used first bytes', '');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'none');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'No');
+        Observer.Expect('stmt err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('stmt err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('stmt length > 0', 'No');
+        Observer.Expect('stmt marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -354,7 +606,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Html, 2);
         StatementFacts(Observer, ReportFormat::Html, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used starts <html', 'Yes');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'word;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'word;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -366,7 +633,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Word, 2);
         StatementFacts(Observer, ReportFormat::Word, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'word;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'word;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -378,7 +660,19 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Pdf, 2);
         StatementFacts(Observer, ReportFormat::Pdf, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', '% P D F');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -390,7 +684,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Excel, 2);
         StatementFacts(Observer, ReportFormat::Excel, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('used err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used has value', 'No');
+        Observer.Expect('used first bytes', '');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'none');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'No');
+        Observer.Expect('stmt err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('stmt err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('stmt length > 0', 'No');
+        Observer.Expect('stmt marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -402,7 +711,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Html, 0);
         StatementFacts(Observer, ReportFormat::Html, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The Html output format is not supported by the current report layout format.');
+        Observer.Expect('used err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used has value', 'No');
+        Observer.Expect('used starts <html', 'No');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'none');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'No');
+        Observer.Expect('stmt err|text', 'The Html output format is not supported by the current report layout format.');
+        Observer.Expect('stmt err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('stmt length > 0', 'No');
+        Observer.Expect('stmt marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -414,7 +738,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Word, 0);
         StatementFacts(Observer, ReportFormat::Word, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'rdlc;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'rdlc;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -426,7 +765,19 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Pdf, 0);
         StatementFacts(Observer, ReportFormat::Pdf, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', '% P D F');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -438,7 +789,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Excel, 0);
         StatementFacts(Observer, ReportFormat::Excel, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'none');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -450,7 +816,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Html, 1);
         StatementFacts(Observer, ReportFormat::Html, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used starts <html', 'Yes');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'tenant;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'tenant;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -462,7 +843,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Word, 1);
         StatementFacts(Observer, ReportFormat::Word, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'tenant;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'tenant;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -474,7 +870,19 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Pdf, 1);
         StatementFacts(Observer, ReportFormat::Pdf, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', '% P D F');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -486,7 +894,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Excel, 1);
         StatementFacts(Observer, ReportFormat::Excel, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('used err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used has value', 'No');
+        Observer.Expect('used first bytes', '');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'none');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'No');
+        Observer.Expect('stmt err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('stmt err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('stmt length > 0', 'No');
+        Observer.Expect('stmt marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -498,7 +921,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Html, 0);
         StatementFacts(Observer, ReportFormat::Html, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used starts <html', 'Yes');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'word;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'word;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -510,7 +948,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Word, 0);
         StatementFacts(Observer, ReportFormat::Word, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'word;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'word;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -522,7 +975,19 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Pdf, 0);
         StatementFacts(Observer, ReportFormat::Pdf, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', '% P D F');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -534,7 +999,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Excel, 0);
         StatementFacts(Observer, ReportFormat::Excel, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('used err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used has value', 'No');
+        Observer.Expect('used first bytes', '');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'none');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'No');
+        Observer.Expect('stmt err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('stmt err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('stmt length > 0', 'No');
+        Observer.Expect('stmt marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -546,7 +1026,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Html, 1);
         StatementFacts(Observer, ReportFormat::Html, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used starts <html', 'Yes');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'tenant;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'tenant;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -558,7 +1053,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Word, 1);
         StatementFacts(Observer, ReportFormat::Word, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'tenant;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'tenant;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -570,7 +1080,19 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Pdf, 1);
         StatementFacts(Observer, ReportFormat::Pdf, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', '% P D F');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -582,7 +1104,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Excel, 1);
         StatementFacts(Observer, ReportFormat::Excel, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('used err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used has value', 'No');
+        Observer.Expect('used first bytes', '');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'none');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'No');
+        Observer.Expect('stmt err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('stmt err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('stmt length > 0', 'No');
+        Observer.Expect('stmt marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -594,7 +1131,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Html, 2);
         StatementFacts(Observer, ReportFormat::Html, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used starts <html', 'Yes');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'word;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'word;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -606,7 +1158,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Word, 2);
         StatementFacts(Observer, ReportFormat::Word, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'word;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'word;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -618,7 +1185,19 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Pdf, 2);
         StatementFacts(Observer, ReportFormat::Pdf, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', '% P D F');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -630,7 +1209,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Excel, 2);
         StatementFacts(Observer, ReportFormat::Excel, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('used err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used has value', 'No');
+        Observer.Expect('used first bytes', '');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'none');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'No');
+        Observer.Expect('stmt err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('stmt err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('stmt length > 0', 'No');
+        Observer.Expect('stmt marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -642,7 +1236,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Html, 0);
         StatementFacts(Observer, ReportFormat::Html, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The Html output format is not supported by the current report layout format.');
+        Observer.Expect('used err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used has value', 'No');
+        Observer.Expect('used starts <html', 'No');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'none');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'No');
+        Observer.Expect('stmt err|text', 'The Html output format is not supported by the current report layout format.');
+        Observer.Expect('stmt err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('stmt length > 0', 'No');
+        Observer.Expect('stmt marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -654,7 +1263,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Word, 0);
         StatementFacts(Observer, ReportFormat::Word, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'rdlc;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'rdlc;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -666,7 +1290,19 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Pdf, 0);
         StatementFacts(Observer, ReportFormat::Pdf, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', '% P D F');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -678,7 +1314,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Excel, 0);
         StatementFacts(Observer, ReportFormat::Excel, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'none');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -690,7 +1341,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Html, 1);
         StatementFacts(Observer, ReportFormat::Html, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used starts <html', 'Yes');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'tenant;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'tenant;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -702,7 +1368,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Word, 1);
         StatementFacts(Observer, ReportFormat::Word, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'tenant;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'tenant;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -714,7 +1395,19 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Pdf, 1);
         StatementFacts(Observer, ReportFormat::Pdf, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', '% P D F');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -726,7 +1419,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Excel, 1);
         StatementFacts(Observer, ReportFormat::Excel, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('used err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used has value', 'No');
+        Observer.Expect('used first bytes', '');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'none');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'No');
+        Observer.Expect('stmt err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('stmt err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('stmt length > 0', 'No');
+        Observer.Expect('stmt marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -738,7 +1446,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Html, 2);
         StatementFacts(Observer, ReportFormat::Html, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The Html output format is not supported by the current report layout format.');
+        Observer.Expect('used err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used has value', 'No');
+        Observer.Expect('used starts <html', 'No');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'none');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'No');
+        Observer.Expect('stmt err|text', 'The Html output format is not supported by the current report layout format.');
+        Observer.Expect('stmt err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('stmt length > 0', 'No');
+        Observer.Expect('stmt marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -750,7 +1473,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Word, 2);
         StatementFacts(Observer, ReportFormat::Word, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'rdlc;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'rdlc;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -762,7 +1500,19 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Pdf, 2);
         StatementFacts(Observer, ReportFormat::Pdf, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', '% P D F');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -774,7 +1524,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Excel, 2);
         StatementFacts(Observer, ReportFormat::Excel, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'none');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -786,7 +1551,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Html, 0);
         StatementFacts(Observer, ReportFormat::Html, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used starts <html', 'Yes');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'word;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'word;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -798,7 +1578,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Word, 0);
         StatementFacts(Observer, ReportFormat::Word, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'word;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'word;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -810,7 +1605,19 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Pdf, 0);
         StatementFacts(Observer, ReportFormat::Pdf, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', '% P D F');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -822,7 +1629,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Excel, 0);
         StatementFacts(Observer, ReportFormat::Excel, 0);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('used err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used has value', 'No');
+        Observer.Expect('used first bytes', '');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'none');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'No');
+        Observer.Expect('stmt err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('stmt err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('stmt length > 0', 'No');
+        Observer.Expect('stmt marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -834,7 +1656,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Html, 1);
         StatementFacts(Observer, ReportFormat::Html, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used starts <html', 'Yes');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'tenant;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'tenant;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -846,7 +1683,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Word, 1);
         StatementFacts(Observer, ReportFormat::Word, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'tenant;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'tenant;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -858,7 +1710,19 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Pdf, 1);
         StatementFacts(Observer, ReportFormat::Pdf, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', '% P D F');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -870,7 +1734,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Excel, 1);
         StatementFacts(Observer, ReportFormat::Excel, 1);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('used err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used has value', 'No');
+        Observer.Expect('used first bytes', '');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'none');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'No');
+        Observer.Expect('stmt err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('stmt err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('stmt length > 0', 'No');
+        Observer.Expect('stmt marker', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -882,7 +1761,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Html, 2);
         StatementFacts(Observer, ReportFormat::Html, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used starts <html', 'Yes');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'word;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'word;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -894,7 +1788,22 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Word, 2);
         StatementFacts(Observer, ReportFormat::Word, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', 'P K \u0003 \u0004');
+        Observer.Expect('used has RXDROW1', 'Yes');
+        Observer.Expect('used marker', 'word;');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Expect('stmt marker', 'word;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -906,7 +1815,19 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Pdf, 2);
         StatementFacts(Observer, ReportFormat::Pdf, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'Yes');
+        Observer.Expect('used err|text', '');
+        Observer.Expect('used err|code', '');
+        Observer.Expect('used length > 0', 'Yes');
+        Observer.Expect('used has value', 'Yes');
+        Observer.Expect('used first bytes', '% P D F');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'Yes');
+        Observer.Expect('stmt err|text', '');
+        Observer.Expect('stmt err|code', '');
+        Observer.Expect('stmt length > 0', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -918,6 +1839,21 @@ codeunit 80043 "RXD Decl Layout Tests"
         UsedFacts(Observer, ReportFormat::Excel, 2);
         StatementFacts(Observer, ReportFormat::Excel, 2);
         Helper.Cleanup();
-        Observer.Finish();
+        Observer.Expect('used completed', 'Yes');
+        Observer.Expect('used returned', 'No');
+        Observer.Expect('used err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('used err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('used length > 0', 'No');
+        Observer.Expect('used has value', 'No');
+        Observer.Expect('used first bytes', '');
+        Observer.Expect('used has RXDROW1', 'No');
+        Observer.Expect('used marker', 'none');
+        Observer.Expect('used temp name after', '');
+        Observer.Expect('stmt completed', 'No');
+        Observer.Expect('stmt err|text', 'The Excel output format is not supported by the current report layout format.');
+        Observer.Expect('stmt err|code', 'ReportUnsupportedFormat');
+        Observer.Expect('stmt length > 0', 'No');
+        Observer.Expect('stmt marker', 'none');
+        Observer.Verify();
     end;
 }
