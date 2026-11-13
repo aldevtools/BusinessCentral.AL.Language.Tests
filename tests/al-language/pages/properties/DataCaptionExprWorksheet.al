@@ -449,6 +449,41 @@ codeunit 76428 "DCW Tests"
 
     [Test]
     [HandlerFunctions('WsDiHandler')]
+    procedure WsDi_Run0_Subscriber_OneRow_EditableFalse()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed(true);
+        Log.SetEditableMode('false');
+        Observer.Observe('log', RunOpener('WSDI0', 'Item', 'I1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('WsHandler')]
+    procedure Ws_RunPageId_Subscriber_EmptyView_EditableFalse()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed(false);
+        Log.SetEditableMode('false');
+        Observer.Observe('log', RunOpener('WSX', 'Item', 'I9'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('CardHandler')]
+    procedure Card_RunPageId_Subscriber_EmptyView_EditableNotSet()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed(false);
+        Observer.Observe('log', RunOpener('CARDX', 'Item', 'I9'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('WsDiHandler')]
     procedure WsDi_Run0_Subscriber_EmptyView_EditableNotSet()
     var
         Observer: Codeunit "Probe Observer";
