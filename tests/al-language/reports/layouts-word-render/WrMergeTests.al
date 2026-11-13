@@ -299,6 +299,10 @@ codeunit 91140 "WR Merge Tests"
             Core := Helper.CoreProperties(TempBlob);
             Observer.Observe('app Company = CompanyName()', Format(Helper.Between(App, '<Company>', '</Company>') = '<Company>' + CompanyName() + '</Company>'));
             Observer.Observe('app has Company', Format(App.Contains('Company>')));
+            App := App.Replace(CompanyName(), '{COMPANYNAME}');
+            if CompanyProperty.DisplayName() <> '' then
+                App := App.Replace(CompanyProperty.DisplayName(), '{DISPLAYNAME}');
+            Observer.Observe('app.xml', App);
             Observer.Observe('core title', Helper.Between(Core, '<dc:title>', '</dc:title>'));
             Observer.Observe('core has title', Format(Core.Contains('title')));
         end;
@@ -387,19 +391,39 @@ codeunit 91140 "WR Merge Tests"
         Observer.Finish();
     end;
 
+    // The Word save raises a CLR exception that a TryFunction does not catch; asserterror records its code and the start of its text (the rest
+    // is a .NET stack trace).
     [Test]
     procedure WordMergeDataItem_TwoRecords_Word()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBlob: Codeunit "Temp Blob";
+        OutS: OutStream;
+    begin
+        HeadsAndLines(2, 0, 0);
+        TempBlob.CreateOutStream(OutS);
+        asserterror Report.SaveAs(Report::"WR Merge Item", '', ReportFormat::Word, OutS);
+        Observer.Observe('err code', GetLastErrorCode());
+        Observer.Observe('err start', CopyStr(GetLastErrorText(), 1, 64));
+        Observer.Observe('length > 0', Format(TempBlob.Length() > 0));
+        Observer.Finish();
+    end;
+
+    // The same report shape whose layout has a page header and footer.
+    [Test]
+    procedure WordMergeDataItem_HeaderFooter_Word()
     var
         Observer: Codeunit "Probe Observer";
         TempBlob: Codeunit "Temp Blob";
         Body: Text;
     begin
         HeadsAndLines(2, 0, 0);
-        if Helper.Save(Observer, Report::"WR Merge Item", ReportFormat::Word, TempBlob) then begin
+        if Helper.Save(Observer, Report::"WR Merge Item Parts", ReportFormat::Word, TempBlob) then begin
             Body := Helper.Body(TempBlob);
             Observer.Observe('WRBODYSTART occurrences', Format(Helper.Occurrences(Body, 'WRBODYSTART')));
             Observer.Observe('sections', Format(Helper.Occurrences(Helper.Part(TempBlob, 'word/document.xml'), '<w:sectPr')));
             Observer.Observe('text', Body);
+            Observer.Observe('entries', Helper.Entries(TempBlob));
         end;
         Observer.Finish();
     end;
