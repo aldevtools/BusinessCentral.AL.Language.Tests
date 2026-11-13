@@ -4,10 +4,10 @@
 // BC versions: 27.5+
 
 // local object: this object defines the page, record, or trigger behavior that the test exercises.
-page 51763 "Document Repro With Part"
+page 51763 "Document Repro With Part 51763"
 {
     PageType = Document;
-    SourceTable = "Document Repro Row";
+    SourceTable = "Document Repro Row 51760";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -29,22 +29,22 @@ page 51763 "Document Repro With Part"
                     end;
                 }
             }
-            part(Lines; "Document Repro Lines")
+            part(Lines; "Document Repro Lines 51765")
             {
                 ApplicationArea = All;
                 SubPageLink = HeaderId = field(Id);
             }
-            part(SecondLines; "Document Repro Lines")
+            part(SecondLines; "Document Repro Lines 51765")
             {
                 ApplicationArea = All;
                 SubPageLink = HeaderId = field(Id);
             }
-            part(ThirdLines; "Document Repro Lines")
+            part(ThirdLines; "Document Repro Lines 51765")
             {
                 ApplicationArea = All;
                 SubPageLink = HeaderId = field(Id);
             }
-            part(FourthLines; "Document Repro Lines")
+            part(FourthLines; "Document Repro Lines 51765")
             {
                 ApplicationArea = All;
                 SubPageLink = HeaderId = field(Id);
@@ -54,7 +54,7 @@ page 51763 "Document Repro With Part"
                 ApplicationArea = All;
                 SubPageLink = Id = field(Id);
             }
-            part(HiddenLines; "Document Repro Lines")
+            part(HiddenLines; "Document Repro Lines 51765")
             {
                 ApplicationArea = All;
                 Visible = false;

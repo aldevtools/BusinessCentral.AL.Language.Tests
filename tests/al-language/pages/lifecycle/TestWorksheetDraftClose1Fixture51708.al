@@ -4,7 +4,7 @@
 // BC versions: 27.5+
 
 // local object: this object defines the page, record, or trigger behavior that the test exercises.
-codeunit 51708 "Draft Probe Trace"
+codeunit 51708 "Draft Probe Trace 51708"
 {
     SingleInstance = true;
     var

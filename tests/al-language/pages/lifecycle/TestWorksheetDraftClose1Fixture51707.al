@@ -4,7 +4,7 @@
 // BC versions: 27.5+
 
 // local object: this object defines the page, record, or trigger behavior that the test exercises.
-table 51707 "Draft Probe Detail"
+table 51707 "Draft Probe Detail 51707"
 {
     DataClassification = SystemMetadata;
     fields

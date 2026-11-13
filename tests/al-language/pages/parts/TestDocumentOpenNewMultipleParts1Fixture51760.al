@@ -4,7 +4,7 @@
 // BC versions: 27.5+
 
 // local object: this object defines the page, record, or trigger behavior that the test exercises.
-table 51760 "Document Repro Row"
+table 51760 "Document Repro Row 51760"
 {
     DataClassification = SystemMetadata;
     fields

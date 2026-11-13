@@ -12,7 +12,7 @@ codeunit 51711 "PAG WorksheetDraftClo Tests"
     procedure CloseStoresWorksheetRowWithoutReadingEmptyPart()
     var
         Header: Record "Draft Probe Header";
-        Trace: Codeunit "Draft Probe Trace";
+        Trace: Codeunit "Draft Probe Trace 51708";
         Worksheet: TestPage "Draft Probe Worksheet";
     begin
         Initialize();
@@ -32,7 +32,7 @@ codeunit 51711 "PAG WorksheetDraftClo Tests"
     local procedure Initialize()
     var
         ProbeTable1: Record "Draft Probe Header";
-        ProbeTable2: Record "Draft Probe Detail";
+        ProbeTable2: Record "Draft Probe Detail 51707";
     begin
         ProbeTable2.DeleteAll();
         ProbeTable1.DeleteAll();

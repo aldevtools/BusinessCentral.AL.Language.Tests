@@ -4,10 +4,10 @@
 // BC versions: 27.5+
 
 // local object: this object defines the page, record, or trigger behavior that the test exercises.
-page 51709 "Draft Probe Detail Part"
+page 51709 "Draft Probe Detail Part 51709"
 {
     PageType = ListPart;
-    SourceTable = "Draft Probe Detail";
+    SourceTable = "Draft Probe Detail 51707";
     ApplicationArea = All;
     layout
     {
@@ -22,14 +22,14 @@ page 51709 "Draft Probe Detail Part"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     var
-        Trace: Codeunit "Draft Probe Trace";
+        Trace: Codeunit "Draft Probe Trace 51708";
     begin
         Trace.Add('part.new');
     end;
 
     trigger OnAfterGetCurrRecord()
     var
-        Trace: Codeunit "Draft Probe Trace";
+        Trace: Codeunit "Draft Probe Trace 51708";
     begin
         Trace.Add('part.current');
     end;

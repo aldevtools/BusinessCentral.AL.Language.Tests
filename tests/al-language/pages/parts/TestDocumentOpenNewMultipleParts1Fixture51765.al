@@ -4,10 +4,10 @@
 // BC versions: 27.5+
 
 // local object: this object defines the page, record, or trigger behavior that the test exercises.
-page 51765 "Document Repro Lines"
+page 51765 "Document Repro Lines 51765"
 {
     PageType = ListPart;
-    SourceTable = "Document Repro Line";
+    SourceTable = "Document Repro Line 51764";
     ApplicationArea = All;
     layout
     {

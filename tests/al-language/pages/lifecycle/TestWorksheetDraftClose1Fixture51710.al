@@ -25,7 +25,7 @@ page 51710 "Draft Probe Worksheet"
         }
         area(FactBoxes)
         {
-            part(Details; "Draft Probe Detail Part")
+            part(Details; "Draft Probe Detail Part 51709")
             {
                 SubPageLink = "Header Code" = field(Item);
             }

@@ -11,8 +11,8 @@ codeunit 51762 "PAG DocumentOpenNewMu Tests"
     [Test]
     procedure TestPage_OpenNew_VariableControlCanModifyDocument()
     var
-        Row: Record "Document Repro Row";
-        Document: TestPage "Document Repro Page";
+        Row: Record "Document Repro Row 51760";
+        Document: TestPage "Document Repro Page 51761";
     begin
         Initialize();
 
@@ -29,8 +29,8 @@ codeunit 51762 "PAG DocumentOpenNewMu Tests"
     [Test]
     procedure OpenNewDocumentWithLinkedListAndCardPartsInsertsBeforeScan()
     var
-        Row: Record "Document Repro Row";
-        Document: TestPage "Document Repro With Part";
+        Row: Record "Document Repro Row 51760";
+        Document: TestPage "Document Repro With Part 51763";
     begin
         Initialize();
 
@@ -46,15 +46,15 @@ codeunit 51762 "PAG DocumentOpenNewMu Tests"
 
     local procedure InitializeFixture()
     var
-        Row: Record "Document Repro Row";
+        Row: Record "Document Repro Row 51760";
     begin
         Row.DeleteAll();
     end;
 
     local procedure Initialize()
     var
-        ProbeTable1: Record "Document Repro Row";
-        ProbeTable2: Record "Document Repro Line";
+        ProbeTable1: Record "Document Repro Row 51760";
+        ProbeTable2: Record "Document Repro Line 51764";
     begin
         ProbeTable2.DeleteAll();
         ProbeTable1.DeleteAll();

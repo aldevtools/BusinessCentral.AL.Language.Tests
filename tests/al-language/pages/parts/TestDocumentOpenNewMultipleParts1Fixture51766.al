@@ -7,7 +7,7 @@
 page 51766 "Probe Packing Header Card"
 {
     PageType = CardPart;
-    SourceTable = "Document Repro Row";
+    SourceTable = "Document Repro Row 51760";
     layout
     {
         area(Content)
