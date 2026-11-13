@@ -19,7 +19,7 @@
 //   inscalcwrite, inswritemodwrite, insfailedinsertwrite, insclearfield, insclearfieldwrite (written out at Prep).
 //   Value format: hv: or nohv: (HasValue of the Blob in hand, no CalcFields) followed by the text read from it; row = the stored row
 //   read through a fresh record: HasValue before CalcFields, a space, then hv:/nohv: and the text after CalcFields.
-// What BC did (BC 29.0; 27.5 and 28.5 see the version note below):
+// What BC did (the same on 27.5, 28.5 and 29.0):
 //   - Every by-value taker, Record.Copy pair, field read and by-value subscriber copies the Blob in every state, for stored and for
 //     temporary sources: the other side's 'zz' never reaches the side that is read. A Blob written again after Insert, Modify, Init,
 //     CalcFields or Clear(field) is copied with the text it holds in memory ('beta' over 'alpha' reads 'betaa').
