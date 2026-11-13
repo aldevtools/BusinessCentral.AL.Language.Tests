@@ -11,9 +11,11 @@
 //   D after is Format(D, 0, 9) of the target variable (set to 2024-01-01 before) after the failed statement.
 // Results (same on 27.5, 28.5 and 29.0): a result after 9999-12-31 or before 0001-01-01 raises 'The date is not valid.' with code
 //   DateInvalid; Codeunit.Run and the [TryFunction] return false, and the target variable keeps its old value (also after asserterror).
-//   Any CalcDate with the base 0001-01-01 raises the same error, even +0D and +1D. A number above 9999 in the formula (+10000Y) raises
-//   the formula error 'The date formula ''+10000Y'' contains a number that is too large.' (code Evaluate) before any date is computed.
-//   +0D and CY from 9999-12-31 and +1Y from 9998-12-31 give 9999-12-31 without an error.
+//   Any CalcDate with the base 0001-01-01 raises the same error, even +0D and +1D; so do +0D, -1D and -2D from 0001-01-02, while -1D
+//   from 0001-01-03 gives 0001-01-02. +9999Y from Today raises DateInvalid; a number above 9999 in the formula (+10000Y) raises the
+//   formula error 'The date formula ''+10000Y'' contains a number that is too large.' (code Evaluate) instead. +0D and CY from 9999-12-31
+//   and +1Y from 9998-12-31 give 9999-12-31 without an error. From the closing date C9999-12-31, +1D raises DateInvalid, while +0D, -1D
+//   and CY give closing dates (C9999-12-31, C9999-12-30, C9999-12-31).
 // BC versions: 27, 28, 29
 
 codeunit 73816 "LT DtT CalcDate Ovf Run"
@@ -315,7 +317,21 @@ codeunit 73815 "LT DtT CalcDate Overflow"
     begin
         for CaseNo := 17 to 21 do
             ObserveRun(Observer, CaseNo);
-        Observer.Finish();
+        Observer.Expect('+9999Y today run', 'No');
+        Observer.Expect('+9999Y today|text', 'The date is not valid.');
+        Observer.Expect('+9999Y today|code', 'DateInvalid');
+        Observer.Expect('+0D 0001-01-02 run', 'No');
+        Observer.Expect('+0D 0001-01-02|text', 'The date is not valid.');
+        Observer.Expect('+0D 0001-01-02|code', 'DateInvalid');
+        Observer.Expect('-1D 0001-01-02 run', 'No');
+        Observer.Expect('-1D 0001-01-02|text', 'The date is not valid.');
+        Observer.Expect('-1D 0001-01-02|code', 'DateInvalid');
+        Observer.Expect('-1D 0001-01-03 run', 'Yes');
+        Observer.Expect('-1D 0001-01-03 result', '0001-01-02');
+        Observer.Expect('-2D 0001-01-02 run', 'No');
+        Observer.Expect('-2D 0001-01-02|text', 'The date is not valid.');
+        Observer.Expect('-2D 0001-01-02|code', 'DateInvalid');
+        Observer.Verify();
     end;
 
     [Test]
@@ -471,7 +487,25 @@ codeunit 73815 "LT DtT CalcDate Overflow"
     begin
         for CaseNo := 17 to 21 do
             ObserveTry(Observer, CaseNo);
-        Observer.Finish();
+        Observer.Expect('+9999Y today try', 'No');
+        Observer.Expect('+9999Y today D after', '2024-01-01');
+        Observer.Expect('+9999Y today|text', 'The date is not valid.');
+        Observer.Expect('+9999Y today|code', 'DateInvalid');
+        Observer.Expect('+0D 0001-01-02 try', 'No');
+        Observer.Expect('+0D 0001-01-02 D after', '2024-01-01');
+        Observer.Expect('+0D 0001-01-02|text', 'The date is not valid.');
+        Observer.Expect('+0D 0001-01-02|code', 'DateInvalid');
+        Observer.Expect('-1D 0001-01-02 try', 'No');
+        Observer.Expect('-1D 0001-01-02 D after', '2024-01-01');
+        Observer.Expect('-1D 0001-01-02|text', 'The date is not valid.');
+        Observer.Expect('-1D 0001-01-02|code', 'DateInvalid');
+        Observer.Expect('-1D 0001-01-03 try', 'Yes');
+        Observer.Expect('-1D 0001-01-03 result', '0001-01-02');
+        Observer.Expect('-2D 0001-01-02 try', 'No');
+        Observer.Expect('-2D 0001-01-02 D after', '2024-01-01');
+        Observer.Expect('-2D 0001-01-02|text', 'The date is not valid.');
+        Observer.Expect('-2D 0001-01-02|code', 'DateInvalid');
+        Observer.Verify();
     end;
 
     [Test]
@@ -489,6 +523,12 @@ codeunit 73815 "LT DtT CalcDate Overflow"
         D := CalcDate('<CY>', ClosingDate(99991231D));
         Observer.Observe('CY C9999-12-31 is closing', Format(D = ClosingDate(D)));
         Observer.Observe('CY C9999-12-31 result', Format(D, 0, 9));
-        Observer.Finish();
+        Observer.Expect('+0D C9999-12-31 is closing', 'Yes');
+        Observer.Expect('+0D C9999-12-31 format', 'C12/31/9999');
+        Observer.Expect('-1D C9999-12-31 is closing', 'Yes');
+        Observer.Expect('-1D C9999-12-31 result', '9999-12-30');
+        Observer.Expect('CY C9999-12-31 is closing', 'Yes');
+        Observer.Expect('CY C9999-12-31 result', '9999-12-31');
+        Observer.Verify();
     end;
 }
