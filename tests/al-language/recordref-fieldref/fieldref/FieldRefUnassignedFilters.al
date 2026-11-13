@@ -7,6 +7,9 @@
 // Probe: written for al-runner issue 7964, observed on BC 27.5, 28.5 and 29.0. Every literal asserted below is what BC produced.
 // Facts: <case> is 'no error' (and the read value after it, where the member returns one) when the [TryFunction] around the call
 //   returned true, or <case>|text and <case>|code (GetLastErrorText and GetLastErrorCode) when it returned false.
+// Result (same on 27.5, 28.5, 29.0): on a never-assigned or a cleared FieldRef every member fails with
+//   'Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.', code NotInitialized. After RecordRef.Close the FieldRef
+//   still works: SetRange, SetFilter and GetFilter do not fail (GetFilter ''), GetRangeMin fails with DB:NoFilter.
 // BC versions: 27, 28, 29
 
 table 71897 "LT FrU Row"
@@ -88,7 +91,15 @@ codeunit 71898 "LT FrU Unassigned Filters"
         Run('setrange_text', 0, 2);
         Run('setrange_int', 0, 3);
         Run('setrange_two', 0, 4);
-        Observer.Finish();
+        Observer.Expect('setrange_none|text', 'Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('setrange_none|code', 'NotInitialized');
+        Observer.Expect('setrange_text|text', 'Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('setrange_text|code', 'NotInitialized');
+        Observer.Expect('setrange_int|text', 'Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('setrange_int|code', 'NotInitialized');
+        Observer.Expect('setrange_two|text', 'Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('setrange_two|code', 'NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -99,7 +110,17 @@ codeunit 71898 "LT FrU Unassigned Filters"
         Run('getfilter', 0, 7);
         Run('getrangemin', 0, 8);
         Run('getrangemax', 0, 9);
-        Observer.Finish();
+        Observer.Expect('setfilter_plain|text', 'Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('setfilter_plain|code', 'NotInitialized');
+        Observer.Expect('setfilter_empty|text', 'Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('setfilter_empty|code', 'NotInitialized');
+        Observer.Expect('getfilter|text', 'Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('getfilter|code', 'NotInitialized');
+        Observer.Expect('getrangemin|text', 'Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('getrangemin|code', 'NotInitialized');
+        Observer.Expect('getrangemax|text', 'Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('getrangemax|code', 'NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -110,7 +131,17 @@ codeunit 71898 "LT FrU Unassigned Filters"
         Run('setfilter_plain', 1, 5);
         Run('getfilter', 1, 7);
         Run('getrangemin', 1, 8);
-        Observer.Finish();
+        Observer.Expect('setrange_none|text', 'Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('setrange_none|code', 'NotInitialized');
+        Observer.Expect('setrange_text|text', 'Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('setrange_text|code', 'NotInitialized');
+        Observer.Expect('setfilter_plain|text', 'Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('setfilter_plain|code', 'NotInitialized');
+        Observer.Expect('getfilter|text', 'Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('getfilter|code', 'NotInitialized');
+        Observer.Expect('getrangemin|text', 'Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('getrangemin|code', 'NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -121,6 +152,12 @@ codeunit 71898 "LT FrU Unassigned Filters"
         Run('setfilter_plain', 2, 5);
         Run('getfilter', 2, 7);
         Run('getrangemin', 2, 8);
-        Observer.Finish();
+        Observer.Expect('setrange_none', 'no error, value=[]');
+        Observer.Expect('setrange_text', 'no error, value=[]');
+        Observer.Expect('setfilter_plain', 'no error, value=[]');
+        Observer.Expect('getfilter', 'no error, value=[]');
+        Observer.Expect('getrangemin|text', 'Specify a filter for the Name field in the LT FrU Row table.');
+        Observer.Expect('getrangemin|code', 'DB:NoFilter');
+        Observer.Verify();
     end;
 }

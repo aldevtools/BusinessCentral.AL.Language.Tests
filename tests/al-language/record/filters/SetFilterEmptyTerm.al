@@ -7,6 +7,9 @@
 // Facts: <case> is 'filter=<GetFilter> ids=<Id of each row FindSet returns>' when SetFilter did not fail, or <case>|text and
 //   <case>|code (GetLastErrorText and GetLastErrorCode) when the [TryFunction] around SetFilter returned false.
 //   Rows: 1 Name 'A' Code 'A' Num 1; 2 'B' 'B' 2; 3 '' '' 0; 4 'AB' 'AB' 5.
+// Result (same on 27.5, 28.5, 29.0): an empty term written in the filter text ('A|', '|A', 'A||B', '|', '%1|', '|%1') fails with
+//   code Filter:CSide ('The left/right side of '|' operators cannot be empty.'); an empty substituted value ('%1|%2' with '' or
+//   '%1' with '') is valid, shows as '' in GetFilter and matches the blank row. Text, Code and Integer fields behave the same.
 // BC versions: 27, 28, 29
 
 table 71907 "LT SfE Row"
@@ -125,7 +128,14 @@ codeunit 71908 "LT SfE Empty Term"
         Check('sub_second_empty', 2, '%1|%2', 2, 'A', '');
         Check('sub_first_empty', 2, '%1|%2', 2, '', 'A');
         Check('sub_only_empty', 2, '%1', 1, '', '');
-        Observer.Finish();
+        Observer.Expect('sub_trailing_pipe|text', 'The filter "%1|" is not valid for the Name field on the LT SfE Row table. The right side of ''|'' operators cannot be empty.');
+        Observer.Expect('sub_trailing_pipe|code', 'Filter:CSide');
+        Observer.Expect('sub_leading_pipe|text', 'The filter "|%1" is not valid for the Name field on the LT SfE Row table. The left side of ''|'' operators cannot be empty.');
+        Observer.Expect('sub_leading_pipe|code', 'Filter:CSide');
+        Observer.Expect('sub_second_empty', 'filter=A|'''' ids=1,3,');
+        Observer.Expect('sub_first_empty', 'filter=''''|A ids=1,3,');
+        Observer.Expect('sub_only_empty', 'filter='''' ids=3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -136,7 +146,15 @@ codeunit 71908 "LT SfE Empty Term"
         Check('lit_leading_pipe', 2, '|A', 0, '', '');
         Check('lit_double_pipe', 2, 'A||B', 0, '', '');
         Check('lit_pipe_only', 2, '|', 0, '', '');
-        Observer.Finish();
+        Observer.Expect('lit_trailing_pipe|text', 'The filter "A|" is not valid for the Name field on the LT SfE Row table. The right side of ''|'' operators cannot be empty.');
+        Observer.Expect('lit_trailing_pipe|code', 'Filter:CSide');
+        Observer.Expect('lit_leading_pipe|text', 'The filter "|A" is not valid for the Name field on the LT SfE Row table. The left side of ''|'' operators cannot be empty.');
+        Observer.Expect('lit_leading_pipe|code', 'Filter:CSide');
+        Observer.Expect('lit_double_pipe|text', 'The filter "A||B" is not valid for the Name field on the LT SfE Row table. The right side of ''|'' operators cannot be empty.');
+        Observer.Expect('lit_double_pipe|code', 'Filter:CSide');
+        Observer.Expect('lit_pipe_only|text', 'The filter "|" is not valid for the Name field on the LT SfE Row table. The left side of ''|'' operators cannot be empty.');
+        Observer.Expect('lit_pipe_only|code', 'Filter:CSide');
+        Observer.Verify();
     end;
 
     [Test]
@@ -147,7 +165,12 @@ codeunit 71908 "LT SfE Empty Term"
         Check('sub_second_empty', 3, '%1|%2', 2, 'A', '');
         Check('sub_first_empty', 3, '%1|%2', 2, '', 'A');
         Check('sub_only_empty', 3, '%1', 1, '', '');
-        Observer.Finish();
+        Observer.Expect('sub_trailing_pipe|text', 'The filter "%1|" is not valid for the Cd field on the LT SfE Row table. The right side of ''|'' operators cannot be empty.');
+        Observer.Expect('sub_trailing_pipe|code', 'Filter:CSide');
+        Observer.Expect('sub_second_empty', 'filter=A|'''' ids=1,3,');
+        Observer.Expect('sub_first_empty', 'filter=''''|A ids=1,3,');
+        Observer.Expect('sub_only_empty', 'filter='''' ids=3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -157,7 +180,13 @@ codeunit 71908 "LT SfE Empty Term"
         Check('lit_trailing_pipe', 3, 'A|', 0, '', '');
         Check('lit_leading_pipe', 3, '|A', 0, '', '');
         Check('lit_double_pipe', 3, 'A||B', 0, '', '');
-        Observer.Finish();
+        Observer.Expect('lit_trailing_pipe|text', 'The filter "A|" is not valid for the Cd field on the LT SfE Row table. The right side of ''|'' operators cannot be empty.');
+        Observer.Expect('lit_trailing_pipe|code', 'Filter:CSide');
+        Observer.Expect('lit_leading_pipe|text', 'The filter "|A" is not valid for the Cd field on the LT SfE Row table. The left side of ''|'' operators cannot be empty.');
+        Observer.Expect('lit_leading_pipe|code', 'Filter:CSide');
+        Observer.Expect('lit_double_pipe|text', 'The filter "A||B" is not valid for the Cd field on the LT SfE Row table. The right side of ''|'' operators cannot be empty.');
+        Observer.Expect('lit_double_pipe|code', 'Filter:CSide');
+        Observer.Verify();
     end;
 
     [Test]
@@ -168,7 +197,14 @@ codeunit 71908 "LT SfE Empty Term"
         Check('sub_leading_pipe', 4, '|%1', 1, 1, '');
         Check('sub_second_zero', 4, '%1|%2', 2, 1, 0);
         Check('lit_double_pipe', 4, '1||2', 0, '', '');
-        Observer.Finish();
+        Observer.Expect('sub_trailing_pipe|text', 'The filter "%1|" is not valid for the Num field on the LT SfE Row table. The right side of ''|'' operators cannot be empty.');
+        Observer.Expect('sub_trailing_pipe|code', 'Filter:CSide');
+        Observer.Expect('sub_leading_pipe|text', 'The filter "|%1" is not valid for the Num field on the LT SfE Row table. The left side of ''|'' operators cannot be empty.');
+        Observer.Expect('sub_leading_pipe|code', 'Filter:CSide');
+        Observer.Expect('sub_second_zero', 'filter=1|0 ids=1,3,');
+        Observer.Expect('lit_double_pipe|text', 'The filter "1||2" is not valid for the Num field on the LT SfE Row table. The right side of ''|'' operators cannot be empty.');
+        Observer.Expect('lit_double_pipe|code', 'Filter:CSide');
+        Observer.Verify();
     end;
     [TryFunction]
     local procedure TryIssueShape(var Row: Record "LT SfE Row"; Form: Integer)
@@ -203,6 +239,9 @@ codeunit 71908 "LT SfE Empty Term"
             end else
                 Observer.ObserveError('form' + Format(Form));
         end;
-        Observer.Finish();
+        Observer.Expect('form1|text', 'The filter "%1|" is not valid for the Name field on the LT SfE Row table. The right side of ''|'' operators cannot be empty.');
+        Observer.Expect('form1|code', 'Filter:CSide');
+        Observer.Expect('form2', 'filter=A|'''' ids=1,3,');
+        Observer.Verify();
     end;
 }

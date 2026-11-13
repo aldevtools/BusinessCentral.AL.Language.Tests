@@ -8,6 +8,9 @@
 // Probe: written for al-runner issue 7963, observed on BC 27.5, 28.5 and 29.0. Every literal asserted below is what BC produced.
 // Facts: <held kind> is the list of the Variant.IsXxx methods that returned true for a Variant holding that value, in the order of
 //   the AllFlags procedure below (an empty text: no method returned true).
+// Result (same on 27.5, 28.5, 29.0): each value matches only its own IsXxx, except: Char also IsWideChar, DataClassification also
+//   IsDataClassificationType, an Enum value IsOption, Label and TextConst are IsTextConstant, an XmlNode holding an element
+//   IsXmlElement; a Format()ted TransactionType IsText; an unassigned Variant matches nothing.
 // BC versions: 27, 28, 29
 
 enum 71904 "LT VaM Color"
@@ -157,7 +160,16 @@ codeunit 71906 "LT VaM Is Matrix"
         Observer.Observe('current', AllFlags(V));
         V := Format(TransactionType::Update);
         Observer.Observe('formatted', AllFlags(V));
-        Observer.Finish();
+        Observer.Expect('default', 'TransactionType,');
+        Observer.Expect('browse', 'TransactionType,');
+        Observer.Expect('snapshot', 'TransactionType,');
+        Observer.Expect('update', 'TransactionType,');
+        Observer.Expect('updatenolocks', 'TransactionType,');
+        Observer.Expect('report', 'TransactionType,');
+        Observer.Expect('literal', 'TransactionType,');
+        Observer.Expect('current', 'TransactionType,');
+        Observer.Expect('formatted', 'Text,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -166,7 +178,8 @@ codeunit 71906 "LT VaM Is Matrix"
         V: Variant;
     begin
         Observer.Observe('unassigned', AllFlags(V));
-        Observer.Finish();
+        Observer.Expect('unassigned', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -218,7 +231,19 @@ codeunit 71906 "LT VaM Is Matrix"
         E := E::Green;
         V := E;
         Observer.Observe('enum', AllFlags(V));
-        Observer.Finish();
+        Observer.Expect('boolean', 'Boolean,');
+        Observer.Expect('integer', 'Integer,');
+        Observer.Expect('biginteger', 'BigInteger,');
+        Observer.Expect('decimal', 'Decimal,');
+        Observer.Expect('byte', 'Byte,');
+        Observer.Expect('char', 'Char,WideChar,');
+        Observer.Expect('text', 'Text,');
+        Observer.Expect('code', 'Code,');
+        Observer.Expect('label', 'TextConstant,');
+        Observer.Expect('textconst', 'TextConstant,');
+        Observer.Expect('option', 'Option,');
+        Observer.Expect('enum', 'Option,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -250,7 +275,13 @@ codeunit 71906 "LT VaM Is Matrix"
         G := CreateGuid();
         V := G;
         Observer.Observe('guid', AllFlags(V));
-        Observer.Finish();
+        Observer.Expect('date', 'Date,');
+        Observer.Expect('time', 'Time,');
+        Observer.Expect('datetime', 'DateTime,');
+        Observer.Expect('duration', 'Duration,');
+        Observer.Expect('dateformula', 'DateFormula,');
+        Observer.Expect('guid', 'Guid,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -279,7 +310,12 @@ codeunit 71906 "LT VaM Is Matrix"
         Observer.Observe('fieldref', AllFlags(V));
         V := Cu;
         Observer.Observe('codeunit', AllFlags(V));
-        Observer.Finish();
+        Observer.Expect('record', 'Record,');
+        Observer.Expect('recordid', 'RecordId,');
+        Observer.Expect('recordref', 'RecordRef,');
+        Observer.Expect('fieldref', 'FieldRef,');
+        Observer.Expect('codeunit', 'Codeunit,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -315,7 +351,14 @@ codeunit 71906 "LT VaM Is Matrix"
         Observer.Observe('notification', AllFlags(V));
         V := FPB;
         Observer.Observe('filterpagebuilder', AllFlags(V));
-        Observer.Finish();
+        Observer.Expect('outstream', 'OutStream,');
+        Observer.Expect('instream', 'InStream,');
+        Observer.Expect('textbuilder', 'TextBuilder,');
+        Observer.Expect('list', 'List,');
+        Observer.Expect('dictionary', 'Dictionary,');
+        Observer.Expect('notification', 'Notification,');
+        Observer.Expect('filterpagebuilder', 'FilterPageBuilder,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -339,7 +382,11 @@ codeunit 71906 "LT VaM Is Matrix"
         JO.Get('a', JT);
         V := JT;
         Observer.Observe('jsontoken', AllFlags(V));
-        Observer.Finish();
+        Observer.Expect('jsonobject', 'JsonObject,');
+        Observer.Expect('jsonarray', 'JsonArray,');
+        Observer.Expect('jsonvalue', 'JsonValue,');
+        Observer.Expect('jsontoken', 'JsonToken,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -380,7 +427,18 @@ codeunit 71906 "LT VaM Is Matrix"
         Observer.Observe('textencoding', AllFlags(V));
         V := Pm;
         Observer.Observe('promptmode', AllFlags(V));
-        Observer.Finish();
+        Observer.Expect('action', 'Action,');
+        Observer.Expect('clienttype', 'ClientType,');
+        Observer.Expect('dataclassification', 'DataClassification,DataClassificationType,');
+        Observer.Expect('defaultlayout', 'DefaultLayout,');
+        Observer.Expect('executionmode', 'ExecutionMode,');
+        Observer.Expect('objecttype', 'ObjectType,');
+        Observer.Expect('reportformat', 'ReportFormat,');
+        Observer.Expect('tableconnectiontype', 'TableConnectionType,');
+        Observer.Expect('testpermissions', 'TestPermissions,');
+        Observer.Expect('textencoding', 'TextEncoding,');
+        Observer.Expect('promptmode', 'PromptMode,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -420,7 +478,15 @@ codeunit 71906 "LT VaM Is Matrix"
         Pi := XmlProcessingInstruction.Create('pi', 'd');
         V := Pi;
         Observer.Observe('xmlprocessinginstruction', AllFlags(V));
-        Observer.Finish();
+        Observer.Expect('xmldocument', 'XmlDocument,');
+        Observer.Expect('xmlelement', 'XmlElement,');
+        Observer.Expect('xmlattribute', 'XmlAttribute,');
+        Observer.Expect('xmltext', 'XmlText,');
+        Observer.Expect('xmlcdata', 'XmlCData,');
+        Observer.Expect('xmlcomment', 'XmlComment,');
+        Observer.Expect('xmldeclaration', 'XmlDeclaration,');
+        Observer.Expect('xmlprocessinginstruction', 'XmlProcessingInstruction,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -460,6 +526,14 @@ codeunit 71906 "LT VaM Is Matrix"
         Observer.Observe('xmlreadoptions', AllFlags(V));
         V := Wo;
         Observer.Observe('xmlwriteoptions', AllFlags(V));
-        Observer.Finish();
+        Observer.Expect('xmldocumenttype', 'XmlDocumentType,');
+        Observer.Expect('xmlnode', 'XmlElement,');
+        Observer.Expect('xmlnodelist', 'XmlNodeList,');
+        Observer.Expect('xmlattributecollection', 'XmlAttributeCollection,');
+        Observer.Expect('xmlnamespacemanager', 'XmlNamespaceManager,');
+        Observer.Expect('xmlnametable', 'XmlNameTable,');
+        Observer.Expect('xmlreadoptions', 'XmlReadOptions,');
+        Observer.Expect('xmlwriteoptions', 'XmlWriteOptions,');
+        Observer.Verify();
     end;
 }

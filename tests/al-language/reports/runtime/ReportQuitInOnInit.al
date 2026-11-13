@@ -9,6 +9,9 @@
 // Facts: run is the return value of Codeunit.Run of the form; error|text and error|code are GetLastErrorText and GetLastErrorCode after
 //   a false run; result is what the form returned (the parameters text of RunRequestPage, the Boolean of SaveAs, the length of the
 //   SaveAs output); log lists the report triggers that ran, in order.
+// Result (same on 27.5, 28.5, 29.0): every form ends without an error (Codeunit.Run true); only OnInitReport runs (no 'after Quit',
+//   no request page trigger, no OnPreReport); RunRequestPage returns ''; SaveAs returns false and writes nothing; a second Run on the
+//   same variable runs OnInitReport again.
 // BC versions: 27, 28, 29
 
 table 71901 "LT RqI Blob"
@@ -232,90 +235,129 @@ codeunit 71903 "LT RqI Quit OnInit"
     procedure Quit_ThenVarRunRequestPage()
     begin
         RunForm(1);
-        Observer.Finish();
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('result', '');
+        Observer.Expect('log', 'OnInitReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Quit_ThenStaticRunRequestPage()
     begin
         RunForm(2);
-        Observer.Finish();
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('result', '');
+        Observer.Expect('log', 'OnInitReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Quit_ThenStaticRunRequestPageWithParameters()
     begin
         RunForm(13);
-        Observer.Finish();
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('result', '');
+        Observer.Expect('log', 'OnInitReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Quit_ThenUseRequestPageFalseRun()
     begin
         RunForm(3);
-        Observer.Finish();
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('result', '');
+        Observer.Expect('log', 'OnInitReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Quit_ThenVarRunWithRequestPage()
     begin
         RunForm(4);
-        Observer.Finish();
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('result', '');
+        Observer.Expect('log', 'OnInitReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Quit_ThenStaticRunWithRequestPage()
     begin
         RunForm(5);
-        Observer.Finish();
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('result', '');
+        Observer.Expect('log', 'OnInitReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Quit_ThenStaticRunWithoutRequestPage()
     begin
         RunForm(6);
-        Observer.Finish();
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('result', '');
+        Observer.Expect('log', 'OnInitReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Quit_ThenUseRequestPageFalseRunModal()
     begin
         RunForm(7);
-        Observer.Finish();
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('result', '');
+        Observer.Expect('log', 'OnInitReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Quit_ThenVarRunModalWithRequestPage()
     begin
         RunForm(8);
-        Observer.Finish();
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('result', '');
+        Observer.Expect('log', 'OnInitReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Quit_ThenVarSaveAs()
     begin
         RunForm(9);
-        Observer.Finish();
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('result', 'ok=No length=0');
+        Observer.Expect('log', 'OnInitReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Quit_ThenStaticSaveAs()
     begin
         RunForm(10);
-        Observer.Finish();
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('result', 'ok=No length=0');
+        Observer.Expect('log', 'OnInitReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Quit_ThenStaticExecute()
     begin
         RunForm(11);
-        Observer.Finish();
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('result', '');
+        Observer.Expect('log', 'OnInitReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Quit_ThenRunTwiceOnOneVariable()
     begin
         RunForm(12);
-        Observer.Finish();
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('result', '');
+        Observer.Expect('log', 'OnInitReport;OnInitReport;');
+        Observer.Verify();
     end;
 }
