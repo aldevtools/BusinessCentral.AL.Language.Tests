@@ -7,6 +7,16 @@
 //   through the same record; for temporary and stored targets, a source that is loaded (written in memory, or Get plus CalcFields)
 //   or read with Get without CalcFields. Each observation is HasValue (before CalcFields for a row) and the text:
 //   r<n> = row n read through a second record (Get, HasValue, CalcFields, read), h = the target record in hand (no CalcFields).
+// What BC did (the same on 27.5, 28.5 and 29.0):
+//   - Every transfer copies the value at the moment it runs: FieldRef.Value := Blob (temporary and stored target, GetTable or
+//     RecordRef.Open, a TableType = Temporary table), FieldRef.Validate, FieldRef.Value := FieldRef.Value, a Variant,
+//     RecordRef.GetTable / SetTable and TransferFields. A later rewrite, Clear or Modify of the source, or a write to the target,
+//     never shows on the other side, before or after Insert, with or without Clear / Init of the target before the next item.
+//   - A source read with Get and no CalcFields (temporary or stored) gives the target an empty Blob (HasValue false), also
+//     through TransferFields, and the inserted row stays empty after the source row is modified.
+//   - CreateOutStream on a Blob that holds a value writes from the start and does not truncate: 'beta' over 'alpha' reads 'betaa'.
+//   - A source with an open OutStream gives the text written so far ('al'); the later writes reach only the source.
+//   - A stored row read with Get has HasValue true before CalcFields and reads empty until CalcFields.
 // BC versions: 27.5+
 
 table 97740 "LT BFR Row"
@@ -254,7 +264,14 @@ codeunit 97744 "LT FieldRef Blob Copy"
         Observer.Observe('add3 r1', L.Text(1));
         Observer.Observe('add3 r2', L.Text(2));
         Observer.Observe('add3 r3', L.Text(3));
-        Observer.Finish();
+        Observer.Expect('r1', 'hv:alpha');
+        Observer.Expect('r2', 'hv:betaa');
+        Observer.Expect('refill r1', 'hv:alpha');
+        Observer.Expect('refill r2', 'hv:betaa');
+        Observer.Expect('add3 r1', 'hv:alpha');
+        Observer.Expect('add3 r2', 'hv:betaa');
+        Observer.Expect('add3 r3', 'hv:gamma');
+        Observer.Verify();
     end;
 
     [Test]
@@ -263,7 +280,22 @@ codeunit 97744 "LT FieldRef Blob Copy"
         Observer: Codeunit "Probe Observer";
     begin
         RunMemTemp(Observer, 'n');
-        Observer.Finish();
+        Observer.Expect('add1 r1', 'hv:alpha');
+        Observer.Expect('add1 h', 'hv:alpha');
+        Observer.Expect('refill r1', 'hv:alpha');
+        Observer.Expect('refill h', 'hv:alpha');
+        Observer.Expect('add2 r1', 'hv:alpha');
+        Observer.Expect('add2 r2', 'hv:betaa');
+        Observer.Expect('add2 h', 'hv:betaa');
+        Observer.Expect('refill2 r1', 'hv:alpha');
+        Observer.Expect('refill2 r2', 'hv:betaa');
+        Observer.Expect('refill2 h', 'hv:betaa');
+        Observer.Expect('cleartgt r1', 'hv:alpha');
+        Observer.Expect('cleartgt r2', 'hv:betaa');
+        Observer.Expect('cleartgt h', 'nohv:');
+        Observer.Expect('clearsrc r1', 'hv:alpha');
+        Observer.Expect('clearsrc r2', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -272,7 +304,22 @@ codeunit 97744 "LT FieldRef Blob Copy"
         Observer: Codeunit "Probe Observer";
     begin
         RunMemTemp(Observer, 'c');
-        Observer.Finish();
+        Observer.Expect('add1 r1', 'hv:alpha');
+        Observer.Expect('add1 h', 'hv:alpha');
+        Observer.Expect('refill r1', 'hv:alpha');
+        Observer.Expect('refill h', 'hv:alpha');
+        Observer.Expect('add2 r1', 'hv:alpha');
+        Observer.Expect('add2 r2', 'hv:betaa');
+        Observer.Expect('add2 h', 'hv:betaa');
+        Observer.Expect('refill2 r1', 'hv:alpha');
+        Observer.Expect('refill2 r2', 'hv:betaa');
+        Observer.Expect('refill2 h', 'hv:betaa');
+        Observer.Expect('cleartgt r1', 'hv:alpha');
+        Observer.Expect('cleartgt r2', 'hv:betaa');
+        Observer.Expect('cleartgt h', 'nohv:');
+        Observer.Expect('clearsrc r1', 'hv:alpha');
+        Observer.Expect('clearsrc r2', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -281,7 +328,22 @@ codeunit 97744 "LT FieldRef Blob Copy"
         Observer: Codeunit "Probe Observer";
     begin
         RunMemTemp(Observer, 'i');
-        Observer.Finish();
+        Observer.Expect('add1 r1', 'hv:alpha');
+        Observer.Expect('add1 h', 'hv:alpha');
+        Observer.Expect('refill r1', 'hv:alpha');
+        Observer.Expect('refill h', 'hv:alpha');
+        Observer.Expect('add2 r1', 'hv:alpha');
+        Observer.Expect('add2 r2', 'hv:betaa');
+        Observer.Expect('add2 h', 'hv:betaa');
+        Observer.Expect('refill2 r1', 'hv:alpha');
+        Observer.Expect('refill2 r2', 'hv:betaa');
+        Observer.Expect('refill2 h', 'hv:betaa');
+        Observer.Expect('cleartgt r1', 'hv:alpha');
+        Observer.Expect('cleartgt r2', 'hv:betaa');
+        Observer.Expect('cleartgt h', 'nohv:');
+        Observer.Expect('clearsrc r1', 'hv:alpha');
+        Observer.Expect('clearsrc r2', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -290,7 +352,22 @@ codeunit 97744 "LT FieldRef Blob Copy"
         Observer: Codeunit "Probe Observer";
     begin
         RunMemTemp(Observer, 'r');
-        Observer.Finish();
+        Observer.Expect('add1 r1', 'hv:alpha');
+        Observer.Expect('add1 h', 'hv:alpha');
+        Observer.Expect('refill r1', 'hv:alpha');
+        Observer.Expect('refill h', 'hv:alpha');
+        Observer.Expect('add2 r1', 'hv:alpha');
+        Observer.Expect('add2 r2', 'hv:betaa');
+        Observer.Expect('add2 h', 'hv:betaa');
+        Observer.Expect('refill2 r1', 'hv:alpha');
+        Observer.Expect('refill2 r2', 'hv:betaa');
+        Observer.Expect('refill2 h', 'hv:betaa');
+        Observer.Expect('cleartgt r1', 'hv:alpha');
+        Observer.Expect('cleartgt r2', 'hv:betaa');
+        Observer.Expect('cleartgt h', 'nohv:');
+        Observer.Expect('clearsrc r1', 'hv:alpha');
+        Observer.Expect('clearsrc r2', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -303,7 +380,22 @@ codeunit 97744 "LT FieldRef Blob Copy"
     begin
         ResetStored();
         RunMem(Observer, Tgt, Reader, Src, 'n', true);
-        Observer.Finish();
+        Observer.Expect('add1 r1', 'hv:alpha');
+        Observer.Expect('add1 h', 'hv:alpha');
+        Observer.Expect('refill r1', 'hv:alpha');
+        Observer.Expect('refill h', 'hv:alpha');
+        Observer.Expect('add2 r1', 'hv:alpha');
+        Observer.Expect('add2 r2', 'hv:betaa');
+        Observer.Expect('add2 h', 'hv:betaa');
+        Observer.Expect('refill2 r1', 'hv:alpha');
+        Observer.Expect('refill2 r2', 'hv:betaa');
+        Observer.Expect('refill2 h', 'hv:betaa');
+        Observer.Expect('cleartgt r1', 'hv:alpha');
+        Observer.Expect('cleartgt r2', 'hv:betaa');
+        Observer.Expect('cleartgt h', 'nohv:');
+        Observer.Expect('clearsrc r1', 'hv:alpha');
+        Observer.Expect('clearsrc r2', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -316,7 +408,22 @@ codeunit 97744 "LT FieldRef Blob Copy"
     begin
         ResetStored();
         RunMem(Observer, Tgt, Reader, Src, 'c', true);
-        Observer.Finish();
+        Observer.Expect('add1 r1', 'hv:alpha');
+        Observer.Expect('add1 h', 'hv:alpha');
+        Observer.Expect('refill r1', 'hv:alpha');
+        Observer.Expect('refill h', 'hv:alpha');
+        Observer.Expect('add2 r1', 'hv:alpha');
+        Observer.Expect('add2 r2', 'hv:betaa');
+        Observer.Expect('add2 h', 'hv:betaa');
+        Observer.Expect('refill2 r1', 'hv:alpha');
+        Observer.Expect('refill2 r2', 'hv:betaa');
+        Observer.Expect('refill2 h', 'hv:betaa');
+        Observer.Expect('cleartgt r1', 'hv:alpha');
+        Observer.Expect('cleartgt r2', 'hv:betaa');
+        Observer.Expect('cleartgt h', 'nohv:');
+        Observer.Expect('clearsrc r1', 'hv:alpha');
+        Observer.Expect('clearsrc r2', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -329,7 +436,22 @@ codeunit 97744 "LT FieldRef Blob Copy"
     begin
         ResetStored();
         RunMem(Observer, Tgt, Reader, Src, 'i', true);
-        Observer.Finish();
+        Observer.Expect('add1 r1', 'hv:alpha');
+        Observer.Expect('add1 h', 'hv:alpha');
+        Observer.Expect('refill r1', 'hv:alpha');
+        Observer.Expect('refill h', 'hv:alpha');
+        Observer.Expect('add2 r1', 'hv:alpha');
+        Observer.Expect('add2 r2', 'hv:betaa');
+        Observer.Expect('add2 h', 'hv:betaa');
+        Observer.Expect('refill2 r1', 'hv:alpha');
+        Observer.Expect('refill2 r2', 'hv:betaa');
+        Observer.Expect('refill2 h', 'hv:betaa');
+        Observer.Expect('cleartgt r1', 'hv:alpha');
+        Observer.Expect('cleartgt r2', 'hv:betaa');
+        Observer.Expect('cleartgt h', 'nohv:');
+        Observer.Expect('clearsrc r1', 'hv:alpha');
+        Observer.Expect('clearsrc r2', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -342,10 +464,26 @@ codeunit 97744 "LT FieldRef Blob Copy"
     begin
         ResetStored();
         RunMem(Observer, Tgt, Reader, Src, 'r', true);
-        Observer.Finish();
+        Observer.Expect('add1 r1', 'hv:alpha');
+        Observer.Expect('add1 h', 'hv:alpha');
+        Observer.Expect('refill r1', 'hv:alpha');
+        Observer.Expect('refill h', 'hv:alpha');
+        Observer.Expect('add2 r1', 'hv:alpha');
+        Observer.Expect('add2 r2', 'hv:betaa');
+        Observer.Expect('add2 h', 'hv:betaa');
+        Observer.Expect('refill2 r1', 'hv:alpha');
+        Observer.Expect('refill2 r2', 'hv:betaa');
+        Observer.Expect('refill2 h', 'hv:betaa');
+        Observer.Expect('cleartgt r1', 'hv:alpha');
+        Observer.Expect('cleartgt r2', 'hv:betaa');
+        Observer.Expect('cleartgt h', 'nohv:');
+        Observer.Expect('clearsrc r1', 'hv:alpha');
+        Observer.Expect('clearsrc r2', 'hv:betaa');
+        Observer.Verify();
     end;
 
-    // Cell 1, stored source: inserted, then Get plus CalcFields (loaded); refilled in memory.
+    // Cell 1, stored source: the row holds 'stored'; Get plus CalcFields loads it, then RunMem writes 'alpha' over it in memory
+    // (CreateOutStream does not truncate a loaded Blob, so the source holds 'alphad') and refills it as the other cells do.
     [Test]
     procedure FieldRefValue_TempTarget_StoredLoadedSource_ClearField()
     var
@@ -363,7 +501,22 @@ codeunit 97744 "LT FieldRef Blob Copy"
         Src.Get(1);
         Src.CalcFields(Data);
         RunMem(Observer, Tgt, Reader, Src, 'c', true);
-        Observer.Finish();
+        Observer.Expect('add1 r1', 'hv:alphad');
+        Observer.Expect('add1 h', 'hv:alphad');
+        Observer.Expect('refill r1', 'hv:alphad');
+        Observer.Expect('refill h', 'hv:alphad');
+        Observer.Expect('add2 r1', 'hv:alphad');
+        Observer.Expect('add2 r2', 'hv:betaad');
+        Observer.Expect('add2 h', 'hv:betaad');
+        Observer.Expect('refill2 r1', 'hv:alphad');
+        Observer.Expect('refill2 r2', 'hv:betaad');
+        Observer.Expect('refill2 h', 'hv:betaad');
+        Observer.Expect('cleartgt r1', 'hv:alphad');
+        Observer.Expect('cleartgt r2', 'hv:betaad');
+        Observer.Expect('cleartgt h', 'nohv:');
+        Observer.Expect('clearsrc r1', 'hv:alphad');
+        Observer.Expect('clearsrc r2', 'hv:betaad');
+        Observer.Verify();
     end;
 
     [Test]
@@ -382,7 +535,22 @@ codeunit 97744 "LT FieldRef Blob Copy"
         Src.Get(1);
         Src.CalcFields(Data);
         RunMem(Observer, Tgt, Reader, Src, 'c', true);
-        Observer.Finish();
+        Observer.Expect('add1 r1', 'hv:alphad');
+        Observer.Expect('add1 h', 'hv:alphad');
+        Observer.Expect('refill r1', 'hv:alphad');
+        Observer.Expect('refill h', 'hv:alphad');
+        Observer.Expect('add2 r1', 'hv:alphad');
+        Observer.Expect('add2 r2', 'hv:betaad');
+        Observer.Expect('add2 h', 'hv:betaad');
+        Observer.Expect('refill2 r1', 'hv:alphad');
+        Observer.Expect('refill2 r2', 'hv:betaad');
+        Observer.Expect('refill2 h', 'hv:betaad');
+        Observer.Expect('cleartgt r1', 'hv:alphad');
+        Observer.Expect('cleartgt r2', 'hv:betaad');
+        Observer.Expect('cleartgt h', 'nohv:');
+        Observer.Expect('clearsrc r1', 'hv:alphad');
+        Observer.Expect('clearsrc r2', 'hv:betaad');
+        Observer.Verify();
     end;
 
     // Cell 2: the source row is read with Get and no CalcFields before each Add; refilled in memory, then Modify.
@@ -425,7 +593,18 @@ codeunit 97744 "LT FieldRef Blob Copy"
     begin
         Reader.Copy(Tgt, true);
         RunUnloaded(Observer, Tgt, Reader, Src);
-        Observer.Finish();
+        Observer.Expect('add1 r1', 'nohv:');
+        Observer.Expect('add1 h', 'nohv:');
+        Observer.Expect('refill r1', 'nohv:');
+        Observer.Expect('modify r1', 'nohv:');
+        Observer.Expect('add2 r1', 'nohv:');
+        Observer.Expect('add2 r2', 'nohv:');
+        Observer.Expect('add2 h', 'nohv:');
+        Observer.Expect('modify2 r1', 'nohv:');
+        Observer.Expect('modify2 r2', 'nohv:');
+        Observer.Expect('cleartgt r1', 'nohv:');
+        Observer.Expect('cleartgt r2', 'nohv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -438,7 +617,18 @@ codeunit 97744 "LT FieldRef Blob Copy"
     begin
         ResetStored();
         RunUnloaded(Observer, Tgt, Reader, Src);
-        Observer.Finish();
+        Observer.Expect('add1 r1', 'nohv:');
+        Observer.Expect('add1 h', 'nohv:');
+        Observer.Expect('refill r1', 'nohv:');
+        Observer.Expect('modify r1', 'nohv:');
+        Observer.Expect('add2 r1', 'nohv:');
+        Observer.Expect('add2 r2', 'nohv:');
+        Observer.Expect('add2 h', 'nohv:');
+        Observer.Expect('modify2 r1', 'nohv:');
+        Observer.Expect('modify2 r2', 'nohv:');
+        Observer.Expect('cleartgt r1', 'nohv:');
+        Observer.Expect('cleartgt r2', 'nohv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -452,7 +642,18 @@ codeunit 97744 "LT FieldRef Blob Copy"
         ResetStored();
         Reader.Copy(Tgt, true);
         RunUnloaded(Observer, Tgt, Reader, Src);
-        Observer.Finish();
+        Observer.Expect('add1 r1', 'nohv:');
+        Observer.Expect('add1 h', 'nohv:');
+        Observer.Expect('refill r1', 'nohv:');
+        Observer.Expect('modify r1', 'nohv:');
+        Observer.Expect('add2 r1', 'nohv:');
+        Observer.Expect('add2 r2', 'nohv:');
+        Observer.Expect('add2 h', 'nohv:');
+        Observer.Expect('modify2 r1', 'nohv:');
+        Observer.Expect('modify2 r2', 'nohv:');
+        Observer.Expect('cleartgt r1', 'nohv:');
+        Observer.Expect('cleartgt r2', 'nohv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -465,7 +666,18 @@ codeunit 97744 "LT FieldRef Blob Copy"
     begin
         ResetStored();
         RunUnloaded(Observer, Tgt, Reader, Src);
-        Observer.Finish();
+        Observer.Expect('add1 r1', 'nohv:');
+        Observer.Expect('add1 h', 'nohv:');
+        Observer.Expect('refill r1', 'nohv:');
+        Observer.Expect('modify r1', 'nohv:');
+        Observer.Expect('add2 r1', 'nohv:');
+        Observer.Expect('add2 r2', 'nohv:');
+        Observer.Expect('add2 h', 'nohv:');
+        Observer.Expect('modify2 r1', 'nohv:');
+        Observer.Expect('modify2 r2', 'nohv:');
+        Observer.Expect('cleartgt r1', 'nohv:');
+        Observer.Expect('cleartgt r2', 'nohv:');
+        Observer.Verify();
     end;
 
     // Cell 1, refill between FieldRef.Value and Insert: the RecordRef field, the record after SetTable, the inserted row.
@@ -501,7 +713,12 @@ codeunit 97744 "LT FieldRef Blob Copy"
     begin
         Reader.Copy(Tgt, true);
         RunRefillBeforeInsert(Observer, Tgt, Reader, Src);
-        Observer.Finish();
+        Observer.Expect('settable h', 'hv:alpha');
+        Observer.Expect('refill h', 'hv:alpha');
+        Observer.Expect('insert r1', 'hv:alpha');
+        Observer.Expect('clearsrc r1', 'hv:alpha');
+        Observer.Expect('clearsrc h', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -514,7 +731,12 @@ codeunit 97744 "LT FieldRef Blob Copy"
     begin
         ResetStored();
         RunRefillBeforeInsert(Observer, Tgt, Reader, Src);
-        Observer.Finish();
+        Observer.Expect('settable h', 'hv:alpha');
+        Observer.Expect('refill h', 'hv:alpha');
+        Observer.Expect('insert r1', 'hv:alpha');
+        Observer.Expect('clearsrc r1', 'hv:alpha');
+        Observer.Expect('clearsrc h', 'hv:alpha');
+        Observer.Verify();
     end;
 
     // Cell 1 through RecordRef.Open: FieldRef.Value and RecordRef.Insert, rows read back through the same RecordRef.
@@ -575,7 +797,15 @@ codeunit 97744 "LT FieldRef Blob Copy"
         Observer: Codeunit "Probe Observer";
     begin
         RunOpen(Observer, true);
-        Observer.Finish();
+        Observer.Expect('add1 r1', 'hv:alpha');
+        Observer.Expect('refill r1', 'hv:alpha');
+        Observer.Expect('add2 r1', 'hv:alpha');
+        Observer.Expect('add2 r2', 'hv:betaa');
+        Observer.Expect('refill2 r1', 'hv:alpha');
+        Observer.Expect('refill2 r2', 'hv:betaa');
+        Observer.Expect('clearsrc r1', 'hv:alpha');
+        Observer.Expect('clearsrc r2', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -585,7 +815,15 @@ codeunit 97744 "LT FieldRef Blob Copy"
     begin
         ResetStored();
         RunOpen(Observer, false);
-        Observer.Finish();
+        Observer.Expect('add1 r1', 'hv:alpha');
+        Observer.Expect('refill r1', 'hv:alpha');
+        Observer.Expect('add2 r1', 'hv:alpha');
+        Observer.Expect('add2 r2', 'hv:betaa');
+        Observer.Expect('refill2 r1', 'hv:alpha');
+        Observer.Expect('refill2 r2', 'hv:betaa');
+        Observer.Expect('clearsrc r1', 'hv:alpha');
+        Observer.Expect('clearsrc r2', 'hv:betaa');
+        Observer.Verify();
     end;
 }
 
@@ -709,7 +947,17 @@ codeunit 97746 "LT RecRef Blob Copy"
     begin
         Reader.Copy(Dst, true);
         RunGetSet(Observer, Src, Dst, Reader);
-        Observer.Finish();
+        Observer.Expect('a dst', 'hv:alpha');
+        Observer.Expect('a src', 'hv:betaa');
+        Observer.Expect('b dst', 'hv:alpha');
+        Observer.Expect('b src', 'hv:betaa');
+        Observer.Expect('c dst', 'hv:alpha');
+        Observer.Expect('d insert r2', 'hv:alpha');
+        Observer.Expect('d refill r2', 'hv:alpha');
+        Observer.Expect('d refill h', 'hv:alpha');
+        Observer.Expect('d clearsrc r2', 'hv:alpha');
+        Observer.Expect('d cleartgt r2', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -722,7 +970,17 @@ codeunit 97746 "LT RecRef Blob Copy"
     begin
         ResetStored();
         RunGetSet(Observer, Src, Dst, Reader);
-        Observer.Finish();
+        Observer.Expect('a dst', 'hv:alpha');
+        Observer.Expect('a src', 'hv:betaa');
+        Observer.Expect('b dst', 'hv:alpha');
+        Observer.Expect('b src', 'hv:betaa');
+        Observer.Expect('c dst', 'hv:alpha');
+        Observer.Expect('d insert r2', 'hv:alpha');
+        Observer.Expect('d refill r2', 'hv:alpha');
+        Observer.Expect('d refill h', 'hv:alpha');
+        Observer.Expect('d clearsrc r2', 'hv:alpha');
+        Observer.Expect('d cleartgt r2', 'hv:alpha');
+        Observer.Verify();
     end;
 
     // Cell 4: TransferFields from a loaded source, then refill and Clear the source, Insert, Clear the target field.
@@ -763,7 +1021,16 @@ codeunit 97746 "LT RecRef Blob Copy"
     begin
         Reader.Copy(Tgt, true);
         RunTransfer(Observer, Src, Tgt, Reader);
-        Observer.Finish();
+        Observer.Expect('transfer h', 'hv:alpha');
+        Observer.Expect('refill h', 'hv:alpha');
+        Observer.Expect('insert r1', 'hv:alpha');
+        Observer.Expect('refill2 r1', 'hv:alpha');
+        Observer.Expect('clearsrc r1', 'hv:alpha');
+        Observer.Expect('clearsrc h', 'hv:alpha');
+        Observer.Expect('cleartgt r1', 'hv:alpha');
+        Observer.Expect('add2 r1', 'hv:alpha');
+        Observer.Expect('add2 r2', 'hv:delta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -776,7 +1043,16 @@ codeunit 97746 "LT RecRef Blob Copy"
     begin
         ResetStored();
         RunTransfer(Observer, Src, Tgt, Reader);
-        Observer.Finish();
+        Observer.Expect('transfer h', 'hv:alpha');
+        Observer.Expect('refill h', 'hv:alpha');
+        Observer.Expect('insert r1', 'hv:alpha');
+        Observer.Expect('refill2 r1', 'hv:alpha');
+        Observer.Expect('clearsrc r1', 'hv:alpha');
+        Observer.Expect('clearsrc h', 'hv:alpha');
+        Observer.Expect('cleartgt r1', 'hv:alpha');
+        Observer.Expect('add2 r1', 'hv:alpha');
+        Observer.Expect('add2 r2', 'hv:delta');
+        Observer.Verify();
     end;
 
     // Cell 4, source read with Get and no CalcFields.
@@ -806,7 +1082,10 @@ codeunit 97746 "LT RecRef Blob Copy"
     begin
         Reader.Copy(Tgt, true);
         RunTransferUnloaded(Observer, Src, Tgt, Reader);
-        Observer.Finish();
+        Observer.Expect('transfer h', 'nohv:');
+        Observer.Expect('insert r1', 'nohv:');
+        Observer.Expect('modify r1', 'nohv:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -819,7 +1098,10 @@ codeunit 97746 "LT RecRef Blob Copy"
     begin
         ResetStored();
         RunTransferUnloaded(Observer, Src, Tgt, Reader);
-        Observer.Finish();
+        Observer.Expect('transfer h', 'nohv:');
+        Observer.Expect('insert r1', 'nohv:');
+        Observer.Expect('modify r1', 'nohv:');
+        Observer.Verify();
     end;
 
     // Cell 5: a Blob read into a Variant (from the field and from a FieldRef), the source refilled before the Variant is used.
@@ -894,7 +1176,14 @@ codeunit 97746 "LT RecRef Blob Copy"
     begin
         Reader.Copy(Tgt, true);
         RunVariant(Observer, Src, Tgt, Reader);
-        Observer.Finish();
+        Observer.Expect('a h', 'hv:alpha');
+        Observer.Expect('b r1', 'hv:alpha');
+        Observer.Expect('b refill r1', 'hv:alpha');
+        Observer.Expect('b refill h', 'hv:alpha');
+        Observer.Expect('c other', 'hv:alpha');
+        Observer.Expect('d r2', 'hv:alpha');
+        Observer.Expect('d r1', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -907,7 +1196,14 @@ codeunit 97746 "LT RecRef Blob Copy"
     begin
         ResetStored();
         RunVariant(Observer, Src, Tgt, Reader);
-        Observer.Finish();
+        Observer.Expect('a h', 'hv:alpha');
+        Observer.Expect('b r1', 'hv:alpha');
+        Observer.Expect('b refill r1', 'hv:alpha');
+        Observer.Expect('b refill h', 'hv:alpha');
+        Observer.Expect('c other', 'hv:alpha');
+        Observer.Expect('d r2', 'hv:alpha');
+        Observer.Expect('d r1', 'hv:alpha');
+        Observer.Verify();
     end;
 }
 
@@ -1115,7 +1411,15 @@ codeunit 97747 "LT FieldRef Blob Shapes"
         Observer.Observe('A13 same record other field', A13());
         Observer.Observe('A14 same field', A14());
         Observer.Observe('A16 two writes', A16());
-        Observer.Finish();
+        Observer.Expect('A01 rewrite source', 'hv:alpha');
+        Observer.Expect('A02 clear source', 'hv:alpha');
+        Observer.Expect('A03 write target', 'src=hv:alpha dst=hv:zzpha');
+        Observer.Expect('A11 fieldref to fieldref', 'dst=hv:alpha srcrr=hv:alpha');
+        Observer.Expect('A12 variant', 'hv:alpha');
+        Observer.Expect('A13 same record other field', 'data=hv:zzpha other=hv:alpha');
+        Observer.Expect('A14 same field', 'dst=hv:zzpha rr=hv:alpha');
+        Observer.Expect('A16 two writes', 'data=hv:alpha other=hv:alpha');
+        Observer.Verify();
     end;
 
     // ---- FieldRef.Value, stored target ----
@@ -1185,7 +1489,11 @@ codeunit 97747 "LT FieldRef Blob Shapes"
         Observer.Observe('A05 gettable clear source', A05());
         Observer.Observe('A06 insert rewrite source', A06());
         Observer.Observe('A07 write target', A07());
-        Observer.Finish();
+        Observer.Expect('A04 open rewrite source', 'hv:alpha');
+        Observer.Expect('A05 gettable clear source', 'hv:alpha');
+        Observer.Expect('A06 insert rewrite source', 'row=hv:alpha rr=hv:alpha');
+        Observer.Expect('A07 write target', 'src=hv:alpha dst=hv:zzpha');
+        Observer.Verify();
     end;
 
     // ---- FieldRef.Value, source rows ----
@@ -1337,7 +1645,14 @@ codeunit 97747 "LT FieldRef Blob Shapes"
         Observer.Observe('T1 open temporary', T1());
         Observer.Observe('T3 variant from function', T3());
         Observer.Observe('T4 var recordref two fields', T4());
-        Observer.Finish();
+        Observer.Expect('A08 stored calcfields clear source', 'hv:alpha');
+        Observer.Expect('A09 stored no calcfields', 'hand=nohv: row=nohv:');
+        Observer.Expect('A10 temp row no calcfields then calc', 'nohv:');
+        Observer.Expect('A15 insert via recordref rewrite source', 'hv:alpha');
+        Observer.Expect('T1 open temporary', 'hv:alpha');
+        Observer.Expect('T3 variant from function', 'hv:alpha');
+        Observer.Expect('T4 var recordref two fields', 'data=hv:alpha other=hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1357,7 +1672,9 @@ codeunit 97747 "LT FieldRef Blob Shapes"
         RR.SetTable(Dst);
         Observer.Observe('A17 validate', Rd(Dst));
         Observer.Observe('A17 source', Rd(Src));
-        Observer.Finish();
+        Observer.Expect('A17 validate', 'hv:alpha');
+        Observer.Expect('A17 source', 'hv:betaa');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1378,7 +1695,8 @@ codeunit 97747 "LT FieldRef Blob Shapes"
         Dst.Data.CreateInStream(IS);
         IS.ReadText(T);
         Observer.Observe('T2 tabletype temporary', HasValueText(Dst.Data.HasValue()) + T);
-        Observer.Finish();
+        Observer.Expect('T2 tabletype temporary', 'hv:alpha');
+        Observer.Verify();
     end;
 
     // ---- Direct assignment (0) against FieldRef.Value (1), with the life of the target: Insert, CalcFields, Get, Modify ----
@@ -1507,7 +1825,21 @@ codeunit 97747 "LT FieldRef Blob Shapes"
         ResetStored();
         S1(Observer, 0);
         S1(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('S1.0 hand', 'hv:alpha');
+        Observer.Expect('S1.0 insert', 'hv:alpha');
+        Observer.Expect('S1.0 calc', 'hv:alpha');
+        Observer.Expect('S1.0 get', 'hv:');
+        Observer.Expect('S1.0 getcalc', 'hv:alpha');
+        Observer.Expect('S1.0 modify', 'hv:Qlpha');
+        Observer.Expect('S1.0 src', 'hv:alpha');
+        Observer.Expect('S1.1 hand', 'hv:alpha');
+        Observer.Expect('S1.1 insert', 'hv:alpha');
+        Observer.Expect('S1.1 calc', 'hv:alpha');
+        Observer.Expect('S1.1 get', 'hv:');
+        Observer.Expect('S1.1 getcalc', 'hv:alpha');
+        Observer.Expect('S1.1 modify', 'hv:Qlpha');
+        Observer.Expect('S1.1 src', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1517,7 +1849,21 @@ codeunit 97747 "LT FieldRef Blob Shapes"
     begin
         S2(Observer, 0);
         S2(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('S2.0 hand', 'hv:alpha');
+        Observer.Expect('S2.0 insert', 'hv:alpha');
+        Observer.Expect('S2.0 calc', 'hv:alpha');
+        Observer.Expect('S2.0 get', 'hv:');
+        Observer.Expect('S2.0 getcalc', 'hv:alpha');
+        Observer.Expect('S2.0 modify', 'hv:Qlpha');
+        Observer.Expect('S2.0 srcrow', 'hv:alpha');
+        Observer.Expect('S2.1 hand', 'hv:alpha');
+        Observer.Expect('S2.1 insert', 'hv:alpha');
+        Observer.Expect('S2.1 calc', 'hv:alpha');
+        Observer.Expect('S2.1 get', 'hv:');
+        Observer.Expect('S2.1 getcalc', 'hv:alpha');
+        Observer.Expect('S2.1 modify', 'hv:Qlpha');
+        Observer.Expect('S2.1 srcrow', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1527,7 +1873,21 @@ codeunit 97747 "LT FieldRef Blob Shapes"
     begin
         S3(Observer, 0);
         S3(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('S3.0 hand', 'hv:alpha');
+        Observer.Expect('S3.0 insert', 'hv:alpha');
+        Observer.Expect('S3.0 calc', 'hv:alpha');
+        Observer.Expect('S3.0 get', 'hv:');
+        Observer.Expect('S3.0 getcalc', 'hv:alpha');
+        Observer.Expect('S3.0 modify', 'hv:Qlpha');
+        Observer.Expect('S3.0 srcrow', 'hv:alpha');
+        Observer.Expect('S3.1 hand', 'hv:alpha');
+        Observer.Expect('S3.1 insert', 'hv:alpha');
+        Observer.Expect('S3.1 calc', 'hv:alpha');
+        Observer.Expect('S3.1 get', 'hv:');
+        Observer.Expect('S3.1 getcalc', 'hv:alpha');
+        Observer.Expect('S3.1 modify', 'hv:Qlpha');
+        Observer.Expect('S3.1 srcrow', 'hv:alpha');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1537,7 +1897,21 @@ codeunit 97747 "LT FieldRef Blob Shapes"
     begin
         S4(Observer, 0);
         S4(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('S4.0 src', 'hv:alpha');
+        Observer.Expect('S4.0 hand', 'hv:al');
+        Observer.Expect('S4.0 insert', 'hv:al');
+        Observer.Expect('S4.0 calc', 'hv:al');
+        Observer.Expect('S4.0 get', 'hv:');
+        Observer.Expect('S4.0 getcalc', 'hv:al');
+        Observer.Expect('S4.0 modify', 'hv:Ql');
+        Observer.Expect('S4.1 src', 'hv:alpha');
+        Observer.Expect('S4.1 hand', 'hv:al');
+        Observer.Expect('S4.1 insert', 'hv:al');
+        Observer.Expect('S4.1 calc', 'hv:al');
+        Observer.Expect('S4.1 get', 'hv:');
+        Observer.Expect('S4.1 getcalc', 'hv:al');
+        Observer.Expect('S4.1 modify', 'hv:Ql');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1547,7 +1921,19 @@ codeunit 97747 "LT FieldRef Blob Shapes"
     begin
         S5(Observer, 0);
         S5(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('S5.0 hand', 'nohv:');
+        Observer.Expect('S5.0 insert', 'nohv:');
+        Observer.Expect('S5.0 calc', 'nohv:');
+        Observer.Expect('S5.0 get', 'nohv:');
+        Observer.Expect('S5.0 getcalc', 'nohv:');
+        Observer.Expect('S5.0 modify', 'hv:Q');
+        Observer.Expect('S5.1 hand', 'nohv:');
+        Observer.Expect('S5.1 insert', 'nohv:');
+        Observer.Expect('S5.1 calc', 'nohv:');
+        Observer.Expect('S5.1 get', 'nohv:');
+        Observer.Expect('S5.1 getcalc', 'nohv:');
+        Observer.Expect('S5.1 modify', 'hv:Q');
+        Observer.Verify();
     end;
 
     // ---- RecordRef.GetTable / SetTable ----
@@ -1688,7 +2074,15 @@ codeunit 97747 "LT FieldRef Blob Shapes"
         Observer.Observe('G05 stored rewrite source', G05());
         Observer.Observe('G07 insert then clear source', G07());
         Observer.Observe('G08 importer loop', G08());
-        Observer.Finish();
+        Observer.Expect('G06 stored gettable clear source insert', 'row=hv:alpha src=nohv:');
+        Observer.Expect('G01 rewrite source', 'hv:alpha');
+        Observer.Expect('G02 clear source', 'hv:alpha');
+        Observer.Expect('G03 write target settable again', 'src=hv:alpha dst2=hv:alpha');
+        Observer.Expect('G04 clear target settable again', 'src=hv:alpha dst2=hv:alpha');
+        Observer.Expect('G05 stored rewrite source', 'hv:alpha');
+        Observer.Expect('G07 insert then clear source', 'hv:alpha');
+        Observer.Expect('G08 importer loop', 'r1=hv:first r2=hv:second');
+        Observer.Verify();
     end;
 
     // ---- TransferFields ----
@@ -1788,6 +2182,12 @@ codeunit 97747 "LT FieldRef Blob Shapes"
         Observer.Observe('F03 write target', F03());
         Observer.Observe('F05 other table clear source', F05());
         Observer.Observe('F06 importer loop', F06());
-        Observer.Finish();
+        Observer.Expect('F04 stored clear source insert', 'hand=hv:alpha row=hv:alpha');
+        Observer.Expect('F01 rewrite source', 'hv:alpha');
+        Observer.Expect('F02 clear source', 'hv:alpha');
+        Observer.Expect('F03 write target', 'src=hv:alpha dst=hv:zzpha');
+        Observer.Expect('F05 other table clear source', 'hv:alpha');
+        Observer.Expect('F06 importer loop', 'r1=hv:first r2=hv:second');
+        Observer.Verify();
     end;
 }
