@@ -12,7 +12,17 @@
 //   of page 1178's shape), each with both triggers, only OnOpenPage and only OnAfterGetCurrRecord; CurrPage.Editable true and false;
 //   the notification sent (with a SendNotificationHandler, and once without one) and not sent; OpenEdit and OpenView; the host as
 //   opened, after GoToRecord and after Next.
-// Fact: @@FACT@@
+// Fact: (observed locally on BC 27.5 and 28.5; BC 29.0 by the pull request run): in every cell Rec in the action of the empty
+//   part holds the link values of the row the host stands on, as on the hosts without triggers: "Table ID" 76860, Line No. 0 and
+//   "No." = the host's "No." on the first form (A as opened, B after GoToRecord or Next), the host's "Ref Code" on the reporter's
+//   form (RA as opened, RC after GoToRecord to the last row). Neither CurrPage.Editable (true or false), the notification (sent or
+//   not, with or without a SendNotificationHandler) nor either trigger alone changes it. The part's OnAfterGetCurrRecord sees the
+//   same Rec. Order (seq): OnOpenPage and its notification, then the host's OnAfterGetCurrRecord and its notification, then the
+//   part's OnAfterGetCurrRecord; a GoToRecord or Next runs both OnAfterGetCurrRecord triggers again for every row it passes (B, or
+//   RB and RC); invoking the part's action runs the part's OnAfterGetCurrRecord once more after it. A notification sent without a
+//   SendNotificationHandler raises no error. TestPage.Editable() is No after OpenView and follows CurrPage.Editable after OpenEdit.
+//   On BC 27.5 the first host open of the codeunit ran OnOpenPage twice: the first test takes that open and does not observe the
+//   order.
 // BC versions: 27-29
 
 table 76860 "PG EPT Head"
@@ -562,6 +572,24 @@ codeunit 76872 "PG EPT Tests"
     end;
 
     [Test]
+    procedure EmptyPart_ListBoth_FirstOpen_OpenEdit_ActionReadsRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "PG EPT List Both";
+        Head: Record "PG EPT Head";
+    begin
+        Initialize(true, true);
+        Host.OpenEdit();
+        Host.Box.ReadRec.Invoke();
+        Observer.Observe('action', Log.ActionLog());
+        Observer.Observe('editable', Format(Host.Editable()));
+        Host.Close();
+        Observer.Expect('action', 'act=76860/A/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
     procedure EmptyPart_ListBoth_EditableNoNotify_OpenEdit_ActionReadsRec()
     var
         Observer: Codeunit "Probe Observer";
@@ -575,7 +603,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/A/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'open | hcur | pcur=76860/A/0 | act=76860/A/0/ | pcur=76860/A/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -592,7 +623,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/A/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | hcur | pcur=76860/A/0 | act=76860/A/0/ | pcur=76860/A/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -611,7 +645,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'open | hcur | pcur=76860/A/0 | hcur | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -630,7 +667,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | hcur | pcur=76860/A/0 | hcur | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -648,7 +688,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'open | hcur | pcur=76860/A/0 | hcur | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -666,7 +709,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | hcur | pcur=76860/A/0 | hcur | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -684,7 +730,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/A/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'open | ntf | hnd | hcur | ntf | hnd | pcur=76860/A/0 | act=76860/A/0/ | pcur=76860/A/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -702,7 +751,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/A/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | ntf | hnd | hcur | ntf | hnd | pcur=76860/A/0 | act=76860/A/0/ | pcur=76860/A/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -722,7 +774,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'open | ntf | hnd | hcur | ntf | hnd | pcur=76860/A/0 | hcur | ntf | hnd | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -742,7 +797,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | ntf | hnd | hcur | ntf | hnd | pcur=76860/A/0 | hcur | ntf | hnd | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -761,7 +819,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'open | ntf | hnd | hcur | ntf | hnd | pcur=76860/A/0 | hcur | ntf | hnd | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -780,7 +841,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | ntf | hnd | hcur | ntf | hnd | pcur=76860/A/0 | hcur | ntf | hnd | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -797,7 +861,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/A/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | hcur | pcur=76860/A/0 | act=76860/A/0/ | pcur=76860/A/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -814,7 +881,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/A/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | hcur | pcur=76860/A/0 | act=76860/A/0/ | pcur=76860/A/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -833,7 +903,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | hcur | pcur=76860/A/0 | hcur | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -852,7 +925,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | hcur | pcur=76860/A/0 | hcur | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -870,7 +946,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | hcur | pcur=76860/A/0 | hcur | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -888,7 +967,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | hcur | pcur=76860/A/0 | hcur | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -906,7 +988,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/A/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | ntf | hnd | hcur | ntf | hnd | pcur=76860/A/0 | act=76860/A/0/ | pcur=76860/A/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -924,7 +1009,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/A/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | ntf | hnd | hcur | ntf | hnd | pcur=76860/A/0 | act=76860/A/0/ | pcur=76860/A/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -944,7 +1032,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | ntf | hnd | hcur | ntf | hnd | pcur=76860/A/0 | hcur | ntf | hnd | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -964,7 +1055,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | ntf | hnd | hcur | ntf | hnd | pcur=76860/A/0 | hcur | ntf | hnd | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -983,7 +1077,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | ntf | hnd | hcur | ntf | hnd | pcur=76860/A/0 | hcur | ntf | hnd | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1002,7 +1099,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | ntf | hnd | hcur | ntf | hnd | pcur=76860/A/0 | hcur | ntf | hnd | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1019,7 +1119,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/A/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'open | ntf | hcur | ntf | pcur=76860/A/0 | act=76860/A/0/ | pcur=76860/A/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1036,7 +1139,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/A/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'open | pcur=76860/A/0 | act=76860/A/0/ | pcur=76860/A/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1053,7 +1159,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/A/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | pcur=76860/A/0 | act=76860/A/0/ | pcur=76860/A/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1072,7 +1181,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'open | pcur=76860/A/0 | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1091,7 +1203,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | pcur=76860/A/0 | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1109,7 +1224,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'open | pcur=76860/A/0 | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1127,7 +1245,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | pcur=76860/A/0 | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1144,7 +1265,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/A/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | pcur=76860/A/0 | act=76860/A/0/ | pcur=76860/A/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1161,7 +1285,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/A/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | pcur=76860/A/0 | act=76860/A/0/ | pcur=76860/A/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1180,7 +1307,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | pcur=76860/A/0 | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1199,7 +1329,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | pcur=76860/A/0 | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1217,7 +1350,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | pcur=76860/A/0 | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1235,7 +1371,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | pcur=76860/A/0 | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1252,7 +1391,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/A/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'hcur | pcur=76860/A/0 | act=76860/A/0/ | pcur=76860/A/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1269,7 +1411,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/A/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'hcur | pcur=76860/A/0 | act=76860/A/0/ | pcur=76860/A/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1288,7 +1433,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'hcur | pcur=76860/A/0 | hcur | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1307,7 +1455,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'hcur | pcur=76860/A/0 | hcur | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1325,7 +1476,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'hcur | pcur=76860/A/0 | hcur | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1343,7 +1497,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'hcur | pcur=76860/A/0 | hcur | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1361,7 +1518,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/A/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'hcur | ntf | hnd | pcur=76860/A/0 | act=76860/A/0/ | pcur=76860/A/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1379,7 +1539,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/A/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'hcur | ntf | hnd | pcur=76860/A/0 | act=76860/A/0/ | pcur=76860/A/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1399,7 +1562,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'hcur | ntf | hnd | pcur=76860/A/0 | hcur | ntf | hnd | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1419,7 +1585,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'hcur | ntf | hnd | pcur=76860/A/0 | hcur | ntf | hnd | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1438,7 +1607,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'hcur | ntf | hnd | pcur=76860/A/0 | hcur | ntf | hnd | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1457,7 +1629,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/B/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'hcur | ntf | hnd | pcur=76860/A/0 | hcur | ntf | hnd | pcur=76860/B/0 | act=76860/B/0/ | pcur=76860/B/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1474,7 +1649,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/A/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'hcur | ntf | pcur=76860/A/0 | act=76860/A/0/ | pcur=76860/A/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1491,7 +1669,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RA/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'open | hcur | pcur=76860/RA/0 | act=76860/RA/0/ | pcur=76860/RA/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1508,7 +1689,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RA/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | hcur | pcur=76860/RA/0 | act=76860/RA/0/ | pcur=76860/RA/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1527,7 +1711,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RC/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'open | hcur | pcur=76860/RA/0 | hcur | pcur=76860/RB/0 | hcur | pcur=76860/RC/0 | act=76860/RC/0/ | pcur=76860/RC/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1546,7 +1733,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RC/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | hcur | pcur=76860/RA/0 | hcur | pcur=76860/RB/0 | hcur | pcur=76860/RC/0 | act=76860/RC/0/ | pcur=76860/RC/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1564,7 +1754,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RA/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'open | ntf | hnd | hcur | ntf | hnd | pcur=76860/RA/0 | act=76860/RA/0/ | pcur=76860/RA/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1582,7 +1775,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RA/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | ntf | hnd | hcur | ntf | hnd | pcur=76860/RA/0 | act=76860/RA/0/ | pcur=76860/RA/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1602,7 +1798,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RC/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'open | ntf | hnd | hcur | ntf | hnd | pcur=76860/RA/0 | hcur | ntf | hnd | pcur=76860/RB/0 | hcur | ntf | hnd | pcur=76860/RC/0 | act=76860/RC/0/ | pcur=76860/RC/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1622,7 +1821,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RC/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | ntf | hnd | hcur | ntf | hnd | pcur=76860/RA/0 | hcur | ntf | hnd | pcur=76860/RB/0 | hcur | ntf | hnd | pcur=76860/RC/0 | act=76860/RC/0/ | pcur=76860/RC/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1639,7 +1841,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RA/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | hcur | pcur=76860/RA/0 | act=76860/RA/0/ | pcur=76860/RA/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1656,7 +1861,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RA/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | hcur | pcur=76860/RA/0 | act=76860/RA/0/ | pcur=76860/RA/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1675,7 +1883,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RC/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | hcur | pcur=76860/RA/0 | hcur | pcur=76860/RB/0 | hcur | pcur=76860/RC/0 | act=76860/RC/0/ | pcur=76860/RC/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1694,7 +1905,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RC/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | hcur | pcur=76860/RA/0 | hcur | pcur=76860/RB/0 | hcur | pcur=76860/RC/0 | act=76860/RC/0/ | pcur=76860/RC/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1712,7 +1926,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RA/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | ntf | hnd | hcur | ntf | hnd | pcur=76860/RA/0 | act=76860/RA/0/ | pcur=76860/RA/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1730,7 +1947,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RA/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | ntf | hnd | hcur | ntf | hnd | pcur=76860/RA/0 | act=76860/RA/0/ | pcur=76860/RA/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1750,7 +1970,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RC/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | ntf | hnd | hcur | ntf | hnd | pcur=76860/RA/0 | hcur | ntf | hnd | pcur=76860/RB/0 | hcur | ntf | hnd | pcur=76860/RC/0 | act=76860/RC/0/ | pcur=76860/RC/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1770,7 +1993,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RC/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | ntf | hnd | hcur | ntf | hnd | pcur=76860/RA/0 | hcur | ntf | hnd | pcur=76860/RB/0 | hcur | ntf | hnd | pcur=76860/RC/0 | act=76860/RC/0/ | pcur=76860/RC/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1787,7 +2013,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RA/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'open | ntf | hcur | ntf | pcur=76860/RA/0 | act=76860/RA/0/ | pcur=76860/RA/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1804,7 +2033,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RA/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'open | pcur=76860/RA/0 | act=76860/RA/0/ | pcur=76860/RA/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1821,7 +2053,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RA/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | pcur=76860/RA/0 | act=76860/RA/0/ | pcur=76860/RA/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1840,7 +2075,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RC/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'open | pcur=76860/RA/0 | pcur=76860/RB/0 | pcur=76860/RC/0 | act=76860/RC/0/ | pcur=76860/RC/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1859,7 +2097,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RC/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | pcur=76860/RA/0 | pcur=76860/RB/0 | pcur=76860/RC/0 | act=76860/RC/0/ | pcur=76860/RC/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1876,7 +2117,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RA/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | pcur=76860/RA/0 | act=76860/RA/0/ | pcur=76860/RA/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1893,7 +2137,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RA/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | pcur=76860/RA/0 | act=76860/RA/0/ | pcur=76860/RA/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1912,7 +2159,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RC/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | pcur=76860/RA/0 | pcur=76860/RB/0 | pcur=76860/RC/0 | act=76860/RC/0/ | pcur=76860/RC/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1931,7 +2181,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RC/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'open | pcur=76860/RA/0 | pcur=76860/RB/0 | pcur=76860/RC/0 | act=76860/RC/0/ | pcur=76860/RC/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1948,7 +2201,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RA/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'hcur | pcur=76860/RA/0 | act=76860/RA/0/ | pcur=76860/RA/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1965,7 +2221,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RA/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'hcur | pcur=76860/RA/0 | act=76860/RA/0/ | pcur=76860/RA/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1984,7 +2243,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RC/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'hcur | pcur=76860/RA/0 | hcur | pcur=76860/RB/0 | hcur | pcur=76860/RC/0 | act=76860/RC/0/ | pcur=76860/RC/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2003,7 +2265,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RC/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'hcur | pcur=76860/RA/0 | hcur | pcur=76860/RB/0 | hcur | pcur=76860/RC/0 | act=76860/RC/0/ | pcur=76860/RC/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2021,7 +2286,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RA/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'hcur | ntf | hnd | pcur=76860/RA/0 | act=76860/RA/0/ | pcur=76860/RA/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2039,7 +2307,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RA/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'hcur | ntf | hnd | pcur=76860/RA/0 | act=76860/RA/0/ | pcur=76860/RA/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2059,7 +2330,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RC/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'hcur | ntf | hnd | pcur=76860/RA/0 | hcur | ntf | hnd | pcur=76860/RB/0 | hcur | ntf | hnd | pcur=76860/RC/0 | act=76860/RC/0/ | pcur=76860/RC/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2079,7 +2353,10 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RC/0/');
+        Observer.Expect('editable', 'No');
+        Observer.Expect('seq', 'hcur | ntf | hnd | pcur=76860/RA/0 | hcur | ntf | hnd | pcur=76860/RB/0 | hcur | ntf | hnd | pcur=76860/RC/0 | act=76860/RC/0/ | pcur=76860/RC/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2096,6 +2373,9 @@ codeunit 76872 "PG EPT Tests"
         Observer.Observe('editable', Format(Host.Editable()));
         Observer.Observe('seq', Log.SeqLog());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('action', 'act=76860/RA/0/');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('seq', 'hcur | ntf | pcur=76860/RA/0 | act=76860/RA/0/ | pcur=76860/RA/0');
+        Observer.Verify();
     end;
 }
