@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-rename-method
 // Scope: in-scope (Cloud)
-// Fixtures used: Probe Observer (codeunit 69160); tables 79100-79145, table extension 79100, codeunits 79100-79106 (all self-contained);
+// Fixtures used: Probe Observer (codeunit 69160); tables 79100-79145, table extension 79100, codeunits 79100-79106, page 79100 (all self-contained);
 //   Base Application GlobalTriggerManagement (codeunit 49) events
 // Probe (al-runner issue 7937): Record.Rename of a row whose primary key changes to or from its blank or zero value, when another
 //   table relates to the table. Each test commits its setup, runs the Rename inside Codeunit.Run (so an error rolls back only the
@@ -15,7 +15,9 @@
 //   from a FlowField; a Boolean key field false <-> true with a relation to a non-key field (Sales Invoice Entity Aggregate) and to
 //   the other key field; an Option key field 0 <-> 1 next to the related key field (Sales Header); a relation to key field A while
 //   key field B changes to or from blank; the database rename trigger switched on through GlobalTriggerManagement (log of
-//   OnAfterOnDatabaseRename against the error); child rows that hold other values; a Code[10] child field against a Code[20] key.
+//   OnAfterOnDatabaseRename against the error); child rows that hold other values; a Code[10] child field against a Code[20] key;
+//   the reporter's Insert-then-Rename through one variable; the page client's rename at close (TestPage edit of the key field of
+//   a card, then Close).
 // Results (corpus CI, BC 27.5, 28.5 and 29.0 on Linux, identical on all three):
 //   - Rename raises when a primary key field changes from or to its blank or zero value ('' for Code, 0 for Integer, the first
 //     Option member, the null Guid, 0D) and a validated TableRelation of another table, a table extension field or a field of the
@@ -510,6 +512,22 @@ table 79145 "RBK DbTrg Child"
     keys { key(PK; "Entry No.") { Clustered = true; } }
 }
 
+page 79100 "RBK Master Card"
+{
+    PageType = Card;
+    SourceTable = "RBK Master";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field("Code"; Rec."Code") { ApplicationArea = All; }
+        }
+    }
+}
+
 // The log of what ran around a Rename of "RBK Trg Master". Used only by the test codeunit "RBK Rename Blank Trg".
 codeunit 79102 "RBK Rename Log"
 {
@@ -674,6 +692,14 @@ codeunit 79101 "RBK Rename Runner"
                             RecRef.Get(Master.RecordId());
                             RecRef.Rename(NewCode);
                         end;
+                    4:
+                        begin
+                            // The reporter's form: the variable that inserted the row renames it (no Get).
+                            Master.Init();
+                            Master."Code" := OldCode;
+                            Master.Insert();
+                            Master.Rename(NewCode);
+                        end;
                 end;
             Database::"RBK Int Master":
                 begin
@@ -830,7 +856,8 @@ codeunit 79101 "RBK Rename Runner"
         NewOption := ToOption;
     end;
 
-    // 0 = Get and Rename, 1 = Rename of a buffer whose row is not stored, 2 = the return value form, 3 = RecordRef.Rename (table "RBK Master" only).
+    // 0 = Get and Rename, 1 = Rename of a buffer whose row is not stored, 2 = the return value form, 3 = RecordRef.Rename,
+    // 4 = Insert and Rename through the same variable (table "RBK Master" only).
     procedure SetMode(NewMode: Integer)
     begin
         Mode := NewMode;
@@ -1908,6 +1935,7 @@ codeunit 79105 "RBK Rename Blank Shapes"
 
     var
         Observer: Codeunit "Probe Observer";
+        ConfirmQuestions: Text;
 
     local procedure Start(var Runner: Codeunit "RBK Rename Runner")
     begin
@@ -2454,5 +2482,103 @@ codeunit 79105 "RBK Rename Blank Shapes"
         Observer.Expect('master rows', '[X]');
         Observer.Expect('child rows', '[1][X]');
         Observer.Verify();
+    end;
+
+    // The reporter's form: the variable that inserted the row renames it (every other test renames a record that read its row with Get).
+    [Test]
+    procedure InsertThenRename_FromBlank()
+    var
+        Runner: Codeunit "RBK Rename Runner";
+    begin
+        Start(Runner);
+        AddChild(2, '');
+        Runner.SetCode(Database::"RBK Master", '', 'X');
+        Runner.SetMode(4);
+        RunRename(Runner, Database::"RBK Master", Database::"RBK Child");
+        Observer.Finish();
+    end;
+
+    local procedure PageCloseSetup()
+    var
+        Runner: Codeunit "RBK Rename Runner";
+    begin
+        Start(Runner);
+        AddMaster('');
+        AddChild(1, '');
+        Commit();
+    end;
+
+    // The page client renames at close: the key field of a card is edited from blank to X, then the page is closed. The pair
+    // differs only in where the error is expected (the edit or the close); the observation keeps the one that holds.
+    [Test]
+    procedure PageClose_FromBlank_ErrorAtClose()
+    var
+        Runner: Codeunit "RBK Rename Runner";
+        Master: Record "RBK Master";
+        Card: TestPage "RBK Master Card";
+    begin
+        PageCloseSetup();
+        Master.Get('');
+        Card.OpenEdit();
+        Card.GoToRecord(Master);
+        Card."Code".SetValue('X');
+        Observer.Observe('edit', 'no error');
+        asserterror Card.Close();
+        Observer.Observe('control chars', Runner.ControlCodes(GetLastErrorText()));
+        Observer.ObserveError('close');
+        Observer.Observe('master rows', Runner.Rows(Database::"RBK Master"));
+        Observer.Observe('child rows', Runner.Rows(Database::"RBK Child"));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure PageClose_FromBlank_ErrorAtEdit()
+    var
+        Runner: Codeunit "RBK Rename Runner";
+        Master: Record "RBK Master";
+        Card: TestPage "RBK Master Card";
+    begin
+        PageCloseSetup();
+        Master.Get('');
+        Card.OpenEdit();
+        Card.GoToRecord(Master);
+        asserterror Card."Code".SetValue('X');
+        Observer.Observe('control chars', Runner.ControlCodes(GetLastErrorText()));
+        Observer.ObserveError('edit');
+        Observer.Observe('master rows', Runner.Rows(Database::"RBK Master"));
+        Observer.Observe('child rows', Runner.Rows(Database::"RBK Child"));
+        Observer.Finish();
+    end;
+
+    // The same with a confirm handler that answers Yes and records the question (in case the client asks before it renames).
+    [Test]
+    [HandlerFunctions('ConfirmYes')]
+    procedure PageClose_FromBlank_ConfirmYes()
+    var
+        Runner: Codeunit "RBK Rename Runner";
+        Master: Record "RBK Master";
+        Card: TestPage "RBK Master Card";
+    begin
+        PageCloseSetup();
+        ConfirmQuestions := '';
+        Master.Get('');
+        Card.OpenEdit();
+        Card.GoToRecord(Master);
+        Card."Code".SetValue('X');
+        Observer.Observe('edit', 'no error');
+        asserterror Card.Close();
+        Observer.Observe('confirm questions', ConfirmQuestions);
+        Observer.Observe('control chars', Runner.ControlCodes(GetLastErrorText()));
+        Observer.ObserveError('close');
+        Observer.Observe('master rows', Runner.Rows(Database::"RBK Master"));
+        Observer.Observe('child rows', Runner.Rows(Database::"RBK Child"));
+        Observer.Finish();
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        ConfirmQuestions += Question + '|';
+        Reply := true;
     end;
 }
