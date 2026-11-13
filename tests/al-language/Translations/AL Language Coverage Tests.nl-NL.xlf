@@ -138,6 +138,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension LPX Territories Ext - Action LpxCount - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Enum 2429946758 - EnumValue 253238575 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Draft EN</source>
+          <target>Concept NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum RX Xl Status - EnumValue Draft - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2429946758 - EnumValue 2521603205 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ready EN</source>
+          <target>Gereed NL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum RX Xl Status - EnumValue Ready - Property Caption</note>
+        </trans-unit>
       </group>
     </body>
   </file>
