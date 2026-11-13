@@ -43,7 +43,7 @@ codeunit 62338 "RPT DecRound Tests"
     begin
         // Column R2: Round(2.5, 0.01), times one.
         Observer.Observe('value', ScaleValue('R2'));
-        Observer.Expect('value', '2.5,');
+        Observer.Expect('value', '2.50,');
         Observer.Verify();
     end;
 
@@ -87,7 +87,7 @@ codeunit 62338 "RPT DecRound Tests"
     begin
         // Column R6: Round(3, 0.25), times one.
         Observer.Observe('value', ScaleValue('R6'));
-        Observer.Expect('value', '3,');
+        Observer.Expect('value', '3.00,');
         Observer.Verify();
     end;
 
@@ -98,7 +98,7 @@ codeunit 62338 "RPT DecRound Tests"
     begin
         // Column R7: Round(3.5, 0.25), times one.
         Observer.Observe('value', ScaleValue('R7'));
-        Observer.Expect('value', '3.5,');
+        Observer.Expect('value', '3.50,');
         Observer.Verify();
     end;
 
@@ -142,7 +142,7 @@ codeunit 62338 "RPT DecRound Tests"
     begin
         // Column R11: Round(2.5, 0.01, '>'), times one.
         Observer.Observe('value', ScaleValue('R11'));
-        Observer.Expect('value', '2.5,');
+        Observer.Expect('value', '2.50,');
         Observer.Verify();
     end;
 
@@ -153,7 +153,7 @@ codeunit 62338 "RPT DecRound Tests"
     begin
         // Column R12: Round(2.5, 0.01, '<'), times one.
         Observer.Observe('value', ScaleValue('R12'));
-        Observer.Expect('value', '2.5,');
+        Observer.Expect('value', '2.50,');
         Observer.Verify();
     end;
 
@@ -164,7 +164,7 @@ codeunit 62338 "RPT DecRound Tests"
     begin
         // Column R13: Round(-2.5, 0.01), times one.
         Observer.Observe('value', ScaleValue('R13'));
-        Observer.Expect('value', '-2.5,');
+        Observer.Expect('value', '-2.50,');
         Observer.Verify();
     end;
 
