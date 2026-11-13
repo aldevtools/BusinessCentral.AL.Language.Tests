@@ -8,7 +8,7 @@
 //   - the read: is it whole (EOS after it), is it not empty, does ReadText of one line, a read without an encoding, a BigText read give the same text;
 //   - the moves of A3: Format, TextBuilder, StrSubstNo, Variant, List, Dictionary, BigText, stream round trips per encoding, a Blob field,
 //     Email Message.Create and GetBody, Email Item.SetBody and GetBodyTextFromBlob, the order of joined text, a #n field of StrSubstNo;
-//   - TestField.Value() of a plain, a MultiLine, a RichContent and a hidden MultiLine control over a Text variable (short, long, long with
+//   - TestField.Value() of a plain, a MultiLine, a RichContent control and (own test) a hidden MultiLine control over a Text variable (short, long, long with
 //     line breaks and markup, the Html body);
 //   - Format(BigText) of long texts;
 //   - SaveAs Html of a run with no dataset row and of runs ended by CurrReport.Quit (OnPreReport, OnAfterGetRecord, OnPostReport);
@@ -16,7 +16,8 @@
 //     user-defined Tenant Report Layout row named by a GUID, a name and a custom layout code that match nothing; the answer, the error and
 //     the Reporting Triggers events in their order inside SaveAs (the layoutname of OnDocumentReady says which layout was used).
 // Measured on BC 27.5 and 28.5 (Windows containers, identical answers); BC 29.0 not measured locally (its container failed to publish).
-// The four FieldValue_* tests are still in observe form: the local run reported them passed without an observation (not measured).
+// The FieldValue_* tests are still in observe form: the first CI run stopped at the hidden control (not found on the page); that read
+//   now has its own test, FieldValue_HiddenMultiLine.
 // BC versions: 27 - 29
 
 codeunit 75210 "HT Rendered Text Tests"
@@ -636,8 +637,6 @@ codeunit 75210 "HT Rendered Text Tests"
         Observer.Observe('multiline StrLen equal', Format(StrLen(BodyPage.MultiField.Value()) = StrLen(Value)));
         Observer.Observe('richcontent Value = text', Format(BodyPage.RichField.Value() = Value));
         Observer.Observe('richcontent StrLen equal', Format(StrLen(BodyPage.RichField.Value()) = StrLen(Value)));
-        Observer.Observe('hidden multiline Value = text', Format(BodyPage.HiddenMultiField.Value() = Value));
-        Observer.Observe('hidden multiline StrLen equal', Format(StrLen(BodyPage.HiddenMultiField.Value()) = StrLen(Value)));
         BodyPage.Close();
         HtLog.SetPageText('');
     end;
@@ -675,6 +674,27 @@ codeunit 75210 "HT Rendered Text Tests"
         Observer: Codeunit "Probe Observer";
     begin
         FieldFacts(Observer, RenderBody());
+        Observer.Finish();
+    end;
+
+    // A control inside a group with Visible = false: the CI matrix (27.5, 28.5, 29.0) showed that reading it raises a "field not found" error
+    // whose text names the generated control id, so only the error code is recorded.
+    [Test]
+    procedure FieldValue_HiddenMultiLine()
+    var
+        Observer: Codeunit "Probe Observer";
+        BodyPage: TestPage "HT Body Page";
+        Got: Text;
+    begin
+        HtLog.SetPageText('HTSHORT');
+        BodyPage.OpenEdit();
+        ClearLastError();
+        asserterror Got := BodyPage.HiddenMultiField.Value();
+        Observer.Observe('hidden multiline Value raises', Format(GetLastErrorText() <> ''));
+        Observer.Observe('hidden multiline error code', GetLastErrorCode());
+        ClearLastError();
+        BodyPage.Close();
+        HtLog.SetPageText('');
         Observer.Finish();
     end;
 

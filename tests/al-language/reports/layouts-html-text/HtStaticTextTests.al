@@ -13,7 +13,8 @@
 //   S1 to S4 which layout is used: default, a temporary selection by name, a user-defined Tenant Report Layout row named by a GUID,
 //   a Tenant Report Layout Selection row. Layouts other than the default (HtExtras, HtDefaults, HtOther) are chosen with
 //   Report Layout Selection.SetTempLayoutSelectedName before the save and cleared after it.
-// Not measured yet: every test is in observe form (Observer.Finish), to be measured on a Windows tier and converted.
+// Measured by the corpus CI matrix (BC 27.5, 28.5 and 29.0 on Linux): the three versions gave the same values; every literal asserted
+//   below is what that run produced.
 // BC versions: 27 - 29
 
 codeunit 75225 "HT Static Text Tests"
@@ -121,7 +122,13 @@ codeunit 75225 "HT Static Text Tests"
         Body := Save(Observer, Report::"HT Static Rpt", '');
         Has(Observer, Body, 'HTBODY1');
         Has(Observer, Body, 'HTCELL1');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('contains HTBODY1', 'Yes');
+        Observer.Expect('contains HTCELL1', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -135,7 +142,14 @@ codeunit 75225 "HT Static Text Tests"
         Has(Observer, Body, 'HTEXTRASBODY1');
         Has(Observer, Body, 'HTHEADER1');
         Has(Observer, Body, 'HTFOOTER1');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('contains HTEXTRASBODY1', 'Yes');
+        Observer.Expect('contains HTHEADER1', 'Yes');
+        Observer.Expect('contains HTFOOTER1', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -148,7 +162,13 @@ codeunit 75225 "HT Static Text Tests"
         Body := Save(Observer, Report::"HT Static Rpt", '');
         Has(Observer, Body, 'HTCONST1');
         Has(Observer, Body, 'HTPLACEHOLDER1');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('contains HTCONST1', 'Yes');
+        Observer.Expect('contains HTPLACEHOLDER1', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -163,7 +183,15 @@ codeunit 75225 "HT Static Text Tests"
         Has(Observer, Body, 'HTROWTXT1');
         Has(Observer, Body, 'HTROWTXT2');
         Has(Observer, Body, 'HTAFTERREPEAT1');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('HTINREPEAT1 occurrences', '0');
+        Observer.Expect('contains HTROWTXT1', 'No');
+        Observer.Expect('contains HTROWTXT2', 'No');
+        Observer.Expect('contains HTAFTERREPEAT1', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -179,7 +207,16 @@ codeunit 75225 "HT Static Text Tests"
         Has(Observer, Body, 'HTAFTERREPEAT1');
         Has(Observer, Body, 'HTBODY1');
         Has(Observer, Body, 'HTCONST1');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'No');
+        Observer.Expect('length > 0', 'No');
+        Observer.Expect('body <> empty', 'No');
+        Observer.Expect('HTINREPEAT1 occurrences', '0');
+        Observer.Expect('contains HTROWTXT1', 'No');
+        Observer.Expect('contains HTAFTERREPEAT1', 'No');
+        Observer.Expect('contains HTBODY1', 'No');
+        Observer.Expect('contains HTCONST1', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -193,7 +230,14 @@ codeunit 75225 "HT Static Text Tests"
         Has(Observer, Body, 'HTVISIBLE1');
         Has(Observer, Body, 'HTHIDDEN1');
         Has(Observer, Body, 'HTHIDDENSTYLE1');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('contains HTVISIBLE1', 'Yes');
+        Observer.Expect('contains HTHIDDEN1', 'Yes');
+        Observer.Expect('contains HTHIDDENSTYLE1', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -205,7 +249,12 @@ codeunit 75225 "HT Static Text Tests"
         Rows(2);
         Body := Save(Observer, Report::"HT Static Rpt", '');
         Has(Observer, Body, 'HTPLAINSDT1');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('contains HTPLAINSDT1', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -220,7 +269,15 @@ codeunit 75225 "HT Static Text Tests"
         Has(Observer, Body, 'IT1');
         Has(Observer, Body, 'HTSPLIT1');
         Between(Observer, Body, 'HTSPL', 'IT1');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('contains HTSPL', 'Yes');
+        Observer.Expect('contains IT1', 'Yes');
+        Observer.Expect('contains HTSPLIT1', 'No');
+        Observer.Expect('between HTSPL', '</span><span>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -240,7 +297,20 @@ codeunit 75225 "HT Static Text Tests"
         Has(Observer, Body, 'HTGT1 > HTGT2');
         Has(Observer, Body, 'HTGT1 &gt; HTGT2');
         Between(Observer, Body, 'HTGT1', 'HTGT2');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('contains HTAMP1 & HTAMP2', 'No');
+        Observer.Expect('contains HTAMP1 &amp; HTAMP2', 'Yes');
+        Observer.Expect('between HTAMP1', ' &amp; ');
+        Observer.Expect('contains HTLT1 < HTLT2', 'No');
+        Observer.Expect('contains HTLT1 &lt; HTLT2', 'Yes');
+        Observer.Expect('between HTLT1', ' &lt; ');
+        Observer.Expect('contains HTGT1 > HTGT2', 'No');
+        Observer.Expect('contains HTGT1 &gt; HTGT2', 'Yes');
+        Observer.Expect('between HTGT1', ' &gt; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -259,7 +329,17 @@ codeunit 75225 "HT Static Text Tests"
         Has(Observer, Body, 'HTUML1');
         Has(Observer, Body, 'HTUML2');
         Between(Observer, Body, 'HTUML1', 'HTUML2');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('contains literal letters', 'Yes');
+        Observer.Expect('contains HTUML1 &#228;&#246;&#252; &#233; &#8364; HTUML2', 'No');
+        Observer.Expect('contains HTUML1 &auml;&ouml;&uuml; &eacute; &euro; HTUML2', 'No');
+        Observer.Expect('contains HTUML1', 'Yes');
+        Observer.Expect('contains HTUML2', 'Yes');
+        Observer.Expect('between HTUML1', ' äöü é € ');
+        Observer.Verify();
     end;
 
     local procedure Chr(Code: Integer): Text
@@ -290,7 +370,22 @@ codeunit 75225 "HT Static Text Tests"
         Has(Observer, Body, 'HTSPTAB1');
         Has(Observer, Body, 'HTSPTAB2');
         Observer.Observe('contains HTSPTAB1 tab HTSPTAB2', Format(Body.Contains('HTSPTAB1' + Chr(9) + 'HTSPTAB2')));
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('contains HTSP1 HTSP2', 'Yes');
+        Observer.Expect('between HTSP1', ' ');
+        Observer.Expect('contains HTSPTWO1  HTSPTWO2', 'No');
+        Observer.Expect('between HTSPTWO1', '</span><span style="-aw-import:spaces">&#xa0; </span><span>');
+        Observer.Expect('contains HTSPNB1 nbsp HTSPNB2', 'No');
+        Observer.Expect('contains HTSPNB1&nbsp;HTSPNB2', 'No');
+        Observer.Expect('contains HTSPNB1&#160;HTSPNB2', 'No');
+        Observer.Expect('contains HTSPNB1 HTSPNB2', 'No');
+        Observer.Expect('contains HTSPTAB1', 'Yes');
+        Observer.Expect('contains HTSPTAB2', 'Yes');
+        Observer.Expect('contains HTSPTAB1 tab HTSPTAB2', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -305,7 +400,15 @@ codeunit 75225 "HT Static Text Tests"
         Has(Observer, Body, 'HTTEXTBOX1');
         Has(Observer, Body, 'HTNOTEANCHOR1');
         Has(Observer, Body, 'HTFOOTNOTE1');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('contains HTFIELD1', 'Yes');
+        Observer.Expect('contains HTTEXTBOX1', 'No');
+        Observer.Expect('contains HTNOTEANCHOR1', 'Yes');
+        Observer.Expect('contains HTFOOTNOTE1', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -318,7 +421,13 @@ codeunit 75225 "HT Static Text Tests"
         Body := Save(Observer, Report::"HT Static Rpt", '');
         Has(Observer, Body, 'HTCase1');
         Has(Observer, Body, 'HTCASE1');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('contains HTCase1', 'Yes');
+        Observer.Expect('contains HTCASE1', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -332,7 +441,14 @@ codeunit 75225 "HT Static Text Tests"
         Has(Observer, Body, 'HTKEEP1');
         Has(Observer, Body, 'HTINS1');
         Has(Observer, Body, 'HTDEL1');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('contains HTKEEP1', 'Yes');
+        Observer.Expect('contains HTINS1', 'Yes');
+        Observer.Expect('contains HTDEL1', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -347,7 +463,15 @@ codeunit 75225 "HT Static Text Tests"
         Has(Observer, Body, 'HTCAPS1');
         Has(Observer, Body, 'HTSmall1');
         Has(Observer, Body, 'HTSMALL1');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('contains HTCaps1', 'Yes');
+        Observer.Expect('contains HTCAPS1', 'No');
+        Observer.Expect('contains HTSmall1', 'Yes');
+        Observer.Expect('contains HTSMALL1', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -362,7 +486,15 @@ codeunit 75225 "HT Static Text Tests"
         Has(Observer, Body, 'HTRSTYLEHID1');
         Has(Observer, Body, 'HTRStyleCaps1');
         Has(Observer, Body, 'HTRSTYLECAPS1');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('contains HTRSTYLEVIS1', 'Yes');
+        Observer.Expect('contains HTRSTYLEHID1', 'Yes');
+        Observer.Expect('contains HTRStyleCaps1', 'Yes');
+        Observer.Expect('contains HTRSTYLECAPS1', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -376,7 +508,14 @@ codeunit 75225 "HT Static Text Tests"
         Has(Observer, Body, 'HTDefCaps1');
         Has(Observer, Body, 'HTDEFCAPS1');
         Has(Observer, Body, 'HTBODY1');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('contains HTDefCaps1', 'Yes');
+        Observer.Expect('contains HTDEFCAPS1', 'No');
+        Observer.Expect('contains HTBODY1', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -402,7 +541,22 @@ codeunit 75225 "HT Static Text Tests"
         Has(Observer, Got, 'rgb(1,2,3)');
         Between(Observer, Got, 'HTRGB1', 'HTRGB2');
         Between(Observer, Got, 'HTRGBS1', 'HTRGBS2');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('contains HTRGB1 rgba(1,2,3,1) HTRGB2', 'Yes');
+        Observer.Expect('between HTRGB1', ' rgba(1,2,3,1) ');
+        Observer.Expect('between HTRGBS1', ' rgba(1,2,3,</span><span style="font-weight:bold">1) ');
+        Observer.Expect('GetBody <> empty', 'Yes');
+        Observer.Expect('GetBody = body', 'No');
+        Observer.Expect('contains HTBODY1', 'Yes');
+        Observer.Expect('contains rgba(1,2,3,1)', 'No');
+        Observer.Expect('contains rgb(1, 2, 3)', 'Yes');
+        Observer.Expect('contains rgb(1,2,3)', 'No');
+        Observer.Expect('between HTRGB1', ' rgb(1, 2, 3) ');
+        Observer.Expect('between HTRGBS1', ' rgba(1,2,3,</span><span style="font-weight:bold">1) ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -415,7 +569,13 @@ codeunit 75225 "HT Static Text Tests"
         Body := Save(Observer, Report::"HT Static Rpt", '');
         Has(Observer, Body, 'HTBODY1');
         Has(Observer, Body, 'HTOTHERLAYOUT1');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('contains HTBODY1', 'Yes');
+        Observer.Expect('contains HTOTHERLAYOUT1', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -428,7 +588,13 @@ codeunit 75225 "HT Static Text Tests"
         Body := Save(Observer, Report::"HT Static Rpt", 'HtOther');
         Has(Observer, Body, 'HTBODY1');
         Has(Observer, Body, 'HTOTHERLAYOUT1');
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('contains HTBODY1', 'No');
+        Observer.Expect('contains HTOTHERLAYOUT1', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -476,7 +642,15 @@ codeunit 75225 "HT Static Text Tests"
         Has(Observer, Body, 'HTOTHERLAYOUT1');
         Layout.SetRange("Report ID", Report::"HT Static Rpt");
         Layout.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('HtOther in Report Layout List', 'Yes');
+        Observer.Expect('HtOther layout exported', 'Yes');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('contains HTBODY1', 'No');
+        Observer.Expect('contains HTOTHERLAYOUT1', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -502,6 +676,12 @@ codeunit 75225 "HT Static Text Tests"
         Has(Observer, Body, 'HTOTHERLAYOUT1');
         LayoutSelection.SetRange("Report ID", Report::"HT Static Rpt");
         LayoutSelection.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('length > 0', 'Yes');
+        Observer.Expect('body <> empty', 'Yes');
+        Observer.Expect('contains HTBODY1', 'No');
+        Observer.Expect('contains HTOTHERLAYOUT1', 'Yes');
+        Observer.Verify();
     end;
 }
