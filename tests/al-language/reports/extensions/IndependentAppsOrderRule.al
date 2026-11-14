@@ -49,7 +49,9 @@ codeunit 62361 "RPT Order Rule Tests"
         Log.Take();
         Observer.Observe('saved', Format(Dataset.Save(Report::"RPT XA Order Rule", '', Xml)));
         Observer.Observe('columns', Columns(Xml));
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('columns', 'HeadNo,ECol,BCol,DCol,FCol,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -63,7 +65,9 @@ codeunit 62361 "RPT Order Rule Tests"
         Log.Take();
         Observer.Observe('saved', Format(Dataset.Save(Report::"RPT XA Order Rule", '', Xml)));
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('log', 'A:pre;E:pre;B:pre;D:pre;F:pre;');
+        Observer.Verify();
     end;
 
     // The Label names of a dataset in document order, each followed by a comma.
@@ -87,7 +91,7 @@ codeunit 62361 "RPT Order Rule Tests"
         exit(Result);
     end;
 
-    local procedure ObserveLabels(ReportId: Integer)
+    local procedure ObserveLabels(ReportId: Integer; Expected: Text)
     var
         Observer: Codeunit "Probe Observer";
         Dataset: Codeunit "W3 Dataset";
@@ -95,25 +99,27 @@ codeunit 62361 "RPT Order Rule Tests"
     begin
         Observer.Observe('saved', Format(Dataset.Save(ReportId, '', Xml)));
         Observer.Observe('labels', LabelNames(Xml));
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('labels', Expected);
+        Observer.Verify();
     end;
 
     [Test]
     procedure OrderRule_Labels()
     begin
-        ObserveLabels(Report::"RPT XA Order Rule");
+        ObserveLabels(Report::"RPT XA Order Rule", 'BaseLabel,ELabel,BLabel,DLabel,FLabel,');
     end;
 
     [Test]
     procedure TwoApps_ReportOne_Labels()
     begin
-        ObserveLabels(Report::"RPT XA Indep One");
+        ObserveLabels(Report::"RPT XA Indep One", 'BaseLabel,BLabel,DLabel,');
     end;
 
     [Test]
     procedure TwoApps_ReportTwo_Labels()
     begin
-        ObserveLabels(Report::"RPT XA Indep Two");
+        ObserveLabels(Report::"RPT XA Indep Two", 'BaseLabel,BLabel,DLabel,');
     end;
 
     [Test]
@@ -136,7 +142,9 @@ codeunit 62361 "RPT Order Rule Tests"
                 Parameters := Parameters.Substring(1, At - 1);
         end;
         Observer.Observe('options', Parameters);
-        Observer.Finish();
+        Observer.Expect('log', 'A:rp open;E:rp open;B:rp open;D:rp open;F:rp open;A:rp close;E:rp close;B:rp close;D:rp close;F:rp close;');
+        Observer.Expect('options', '<Field name="BaseOptionValue">false</Field><Field name="EFieldValue">false</Field><Field name="BFieldValue">false</Field><Field name="DFieldValue">false</Field><Field name="FFieldValue">false</Field>');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -144,4 +152,53 @@ codeunit 62361 "RPT Order Rule Tests"
     begin
         RP.OK().Invoke();
     end;
+
+    [Test]
+    [HandlerFunctions('OkRunHandler')]
+    procedure OrderRule_RunModal_RequestPageOk()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "RPT XA Indep Log";
+    begin
+        Log.Take();
+        Report.RunModal(Report::"RPT XA Order Rule", true);
+        Observer.Observe('until handler', HandlerLog);
+        Observer.Observe('after handler', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('CancelRunHandler')]
+    procedure OrderRule_RunModal_RequestPageCancel()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "RPT XA Indep Log";
+    begin
+        Log.Take();
+        Report.RunModal(Report::"RPT XA Order Rule", true);
+        Observer.Observe('until handler', HandlerLog);
+        Observer.Observe('after handler', Log.Take());
+        Observer.Finish();
+    end;
+
+    [RequestPageHandler]
+    procedure OkRunHandler(var RP: TestRequestPage "RPT XA Order Rule")
+    var
+        Log: Codeunit "RPT XA Indep Log";
+    begin
+        HandlerLog := Log.Take();
+        RP.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure CancelRunHandler(var RP: TestRequestPage "RPT XA Order Rule")
+    var
+        Log: Codeunit "RPT XA Indep Log";
+    begin
+        HandlerLog := Log.Take();
+        RP.Cancel().Invoke();
+    end;
+
+    var
+        HandlerLog: Text;
 }
