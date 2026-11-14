@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (69160); SFF Mock Switch (76741, tests/al-language/permissions/SysFlowFilterMock.al) over Permissions Mock;
 //   the permission sets "SFF PA READ" (tabledata "Published Application" = R only) and "SFF NO PA" (nothing on it) declared below.
 // Probe: al-runner issue 8038, shape 1 (Guided Experience Impl. GetExtensionLogo): filters on the system table "Published Application"
-//   (2000000160) read directly, where "Tenant Visible" is itself a FlowField over the internal table "NAV App Extra". Forms: SetRange(ID)
+//   (2000000206) read directly, where "Tenant Visible" is itself a FlowField over the internal table "NAV App Extra". Forms: SetRange(ID)
 //   + SetRange("Tenant Visible", true) then FindFirst, FindSet, FindLast, Find('-'), IsEmpty and Count; the ID filter alone; the
 //   "Tenant Visible" filter alone; "Tenant Visible" = false; CalcFields("Tenant Visible") after a FindFirst, and the FlowField read
 //   without CalcFields. Permission states: a set that grants tabledata "Published Application" = R only, a set that grants nothing on
