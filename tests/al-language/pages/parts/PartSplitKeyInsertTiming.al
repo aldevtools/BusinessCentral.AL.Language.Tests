@@ -491,7 +491,12 @@ codeunit 62733 "PG ST Insert Timing"
         Card.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Descr SetValue a', '[]');
+        Observer.Expect('shown', '0 0 a 0.00');
+        Observer.Expect('close', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/0=a:0 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -513,7 +518,12 @@ codeunit 62733 "PG ST Insert Timing"
         Card.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Seq No  SetValue 25', '[]');
+        Observer.Expect('shown', '0 25  0.00');
+        Observer.Expect('close', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/25=:0 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -537,7 +547,13 @@ codeunit 62733 "PG ST Insert Timing"
         Card.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Descr SetValue a', '[]');
+        Observer.Expect('3 Seq No  SetValue 25', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('shown', '35000 25 a 0.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/25=a:0 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -561,7 +577,13 @@ codeunit 62733 "PG ST Insert Timing"
         Card.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Seq No  SetValue 25', '[]');
+        Observer.Expect('3 Descr SetValue a', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('shown', '35000 25 a 0.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/25=a:0 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -585,7 +607,13 @@ codeunit 62733 "PG ST Insert Timing"
         Card.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Qty SetValue 3', '[]');
+        Observer.Expect('3 Descr SetValue a', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('shown', '35000 0 a 3.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/0=a:3 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -611,7 +639,14 @@ codeunit 62733 "PG ST Insert Timing"
         Card.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Descr SetValue a', '[]');
+        Observer.Expect('3 Seq No  SetValue 25', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('4 Qty SetValue 3', '[]');
+        Observer.Expect('shown', '35000 25 a 3.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/25=a:3 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -637,7 +672,14 @@ codeunit 62733 "PG ST Insert Timing"
         Card.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Descr SetValue a', '[]');
+        Observer.Expect('3 Qty Activate', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('4 Seq No  Activate', '[]');
+        Observer.Expect('shown', '35000 0 a 0.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/0=a:0 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -663,7 +705,14 @@ codeunit 62733 "PG ST Insert Timing"
         Card.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Descr Activate', '[]');
+        Observer.Expect('3 Qty Activate', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('4 Seq No  Activate', '[]');
+        Observer.Expect('shown', '35000 0  0.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/0=:0 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -687,7 +736,13 @@ codeunit 62733 "PG ST Insert Timing"
         Card.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Descr SetValue a', '[]');
+        Observer.Expect('3 First', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('shown', '30000 10 old 0.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/0=a:0 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -711,7 +766,13 @@ codeunit 62733 "PG ST Insert Timing"
         Card.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Descr SetValue a', '[]');
+        Observer.Expect('3 Previous', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('shown', '20000 40 old 0.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/0=a:0 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -737,7 +798,14 @@ codeunit 62733 "PG ST Insert Timing"
         Card.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Descr SetValue a', '[]');
+        Observer.Expect('3 Seq No  SetValue 25', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('4 First', '[]');
+        Observer.Expect('shown', '30000 10 old 0.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/25=a:0 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -759,7 +827,12 @@ codeunit 62733 "PG ST Insert Timing"
         Card.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 First', '[]');
+        Observer.Expect('shown', '30000 10 old 0.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -785,7 +858,14 @@ codeunit 62733 "PG ST Insert Timing"
         Card.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Descr SetValue a', '[]');
+        Observer.Expect('3 New', '[INS 35000 x=20000 below=Yes | T-I 35000 | NEW 0 x=20000 below=Yes]');
+        Observer.Expect('4 Descr SetValue b', '[]');
+        Observer.Expect('shown', '0 0 b 0.00');
+        Observer.Expect('close', '[INS 45000 x=35000 below=Yes | T-I 45000]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/0=a:0 40000/30=old:0 45000/0=b:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -807,7 +887,12 @@ codeunit 62733 "PG ST Insert Timing"
         Card.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=40000 below=Yes]');
+        Observer.Expect('2 Descr SetValue a', '[]');
+        Observer.Expect('shown', '0 0 a 0.00');
+        Observer.Expect('close', '[INS 50000 x=40000 below=Yes | T-I 50000]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 40000/30=old:0 50000/0=a:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -831,7 +916,13 @@ codeunit 62733 "PG ST Insert Timing"
         Card.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=40000 below=Yes]');
+        Observer.Expect('2 Descr SetValue a', '[]');
+        Observer.Expect('3 Qty SetValue 3', '[INS 50000 x=40000 below=Yes | T-I 50000]');
+        Observer.Expect('shown', '50000 0 a 3.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 40000/30=old:0 50000/0=a:3 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -857,7 +948,14 @@ codeunit 62733 "PG ST Insert Timing"
         Card.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=40000 below=Yes]');
+        Observer.Expect('2 Descr SetValue a', '[]');
+        Observer.Expect('3 Seq No  SetValue 25', '[INS 50000 x=40000 below=Yes | T-I 50000]');
+        Observer.Expect('4 Qty SetValue 3', '[]');
+        Observer.Expect('shown', '50000 25 a 3.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 40000/30=old:0 50000/25=a:3 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -879,7 +977,12 @@ codeunit 62733 "PG ST Insert Timing"
         Doc.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Descr SetValue a', '[]');
+        Observer.Expect('shown', '0 0 a 0.00');
+        Observer.Expect('close', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/0=a:0 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -903,7 +1006,13 @@ codeunit 62733 "PG ST Insert Timing"
         Doc.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Descr SetValue a', '[]');
+        Observer.Expect('3 Seq No  SetValue 25', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('shown', '35000 25 a 0.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/25=a:0 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -929,7 +1038,14 @@ codeunit 62733 "PG ST Insert Timing"
         Doc.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Descr SetValue a', '[]');
+        Observer.Expect('3 Seq No  SetValue 25', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('4 Qty SetValue 3', '[]');
+        Observer.Expect('shown', '35000 25 a 3.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/25=a:3 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -953,7 +1069,13 @@ codeunit 62733 "PG ST Insert Timing"
         Doc.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Descr SetValue a', '[]');
+        Observer.Expect('3 Seq No  SetValue 25', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('shown', '35000 25 a 0.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/25=a:0 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -977,7 +1099,13 @@ codeunit 62733 "PG ST Insert Timing"
         Doc.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[]');
+        Observer.Expect('2 Descr SetValue a', '[]');
+        Observer.Expect('3 Seq No  SetValue 25', '[T-I 35000]');
+        Observer.Expect('shown', '35000 25 a 0.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/25=a:0 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1001,7 +1129,13 @@ codeunit 62733 "PG ST Insert Timing"
         Doc.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[]');
+        Observer.Expect('2 Descr SetValue a', '[]');
+        Observer.Expect('3 Seq No  SetValue 25', '[T-I 35000]');
+        Observer.Expect('shown', '35000 25 a 0.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/25=a:0 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1027,7 +1161,14 @@ codeunit 62733 "PG ST Insert Timing"
         Doc.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[]');
+        Observer.Expect('2 Descr SetValue a', '[]');
+        Observer.Expect('3 Seq No  SetValue 25', '[T-I 35000]');
+        Observer.Expect('4 Qty SetValue 3', '[]');
+        Observer.Expect('shown', '35000 25 a 3.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/25=a:3 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1051,7 +1192,13 @@ codeunit 62733 "PG ST Insert Timing"
         Card.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', LinesW('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Descr SetValue a', '[T-V Descr 0]');
+        Observer.Expect('3 Seq No  SetValue 25', '[INS 35000 x=20000 below=Yes | T-I 35000 | T-V Seq 35000]');
+        Observer.Expect('shown', '35000 25 a+ins 8.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/25=a+ins:8 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1075,7 +1222,13 @@ codeunit 62733 "PG ST Insert Timing"
         Card.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', LinesW('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Seq No  SetValue 25', '[T-V Seq 0]');
+        Observer.Expect('3 Descr SetValue a', '[INS 35000 x=20000 below=Yes | T-I 35000 | T-V Descr 35000]');
+        Observer.Expect('shown', '35000 25 a 7.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/25=a:7 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1097,7 +1250,12 @@ codeunit 62733 "PG ST Insert Timing"
         Card.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', LinesW('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Descr SetValue a', '[T-V Descr 0]');
+        Observer.Expect('shown', '0 0 a 7.00');
+        Observer.Expect('close', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/0=a+ins:7 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1123,7 +1281,14 @@ codeunit 62733 "PG ST Insert Timing"
         Card.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', LinesW('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Descr SetValue a', '[T-V Descr 0]');
+        Observer.Expect('3 Seq No  SetValue 25', '[INS 35000 x=20000 below=Yes | T-I 35000 | T-V Seq 35000]');
+        Observer.Expect('4 Qty SetValue 3', '[]');
+        Observer.Expect('shown', '35000 25 a+ins 3.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/25=a+ins:3 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1147,7 +1312,13 @@ codeunit 62733 "PG ST Insert Timing"
         Doc.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', LinesW('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Descr SetValue a', '[T-V Descr 0]');
+        Observer.Expect('3 Seq No  SetValue 25', '[INS 35000 x=20000 below=Yes | T-I 35000 | T-V Seq 35000]');
+        Observer.Expect('shown', '35000 25 a+ins 8.00');
+        Observer.Expect('close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/25=a+ins:8 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1169,7 +1340,12 @@ codeunit 62733 "PG ST Insert Timing"
         Doc.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('lines', LinesW('H1'));
-        Observer.Finish();
+        Observer.Expect('1 New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('2 Descr SetValue a', '[T-V Descr 0]');
+        Observer.Expect('shown', '0 0 a 7.00');
+        Observer.Expect('close', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/0=a+ins:7 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     // Cell 2: the Document host opened in view mode (the part is not editable, or New raises).
@@ -1197,7 +1373,12 @@ codeunit 62733 "PG ST Insert Timing"
         Observer.Observe('log', Log.Take());
         Doc.Close();
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('editable', 'No');
+        Observer.Expect('view|text', 'New method failed because Insert is not allowed. Page = PG ST Lines, Id = 62724.');
+        Observer.Expect('view|code', 'DB:ClientInsertDenied');
+        Observer.Expect('log', '[]');
+        Observer.Expect('lines', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1224,15 +1405,36 @@ codeunit 62733 "PG ST Insert Timing"
         Observer.Observe('log', Log.Take());
         Card.Close();
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('editable', 'No');
+        Observer.Expect('view|text', 'New method failed because Insert is not allowed. Page = PG ST Lines, Id = 62724.');
+        Observer.Expect('view|code', 'DB:ClientInsertDenied');
+        Observer.Expect('log', '[]');
+        Observer.Expect('lines', '[]');
+        Observer.Verify();
     end;
 
-    // Cell 2: a new host record (OpenNew) with the part: type the key, then a row.
+    // Cell 2: a new host record (OpenNew) with the part. The page is closed inside the asserterror block so that nothing is left pending
+    // after the rollback.
     [Test]
-    procedure Doc_OpenNew_Row()
+    procedure Doc_OpenNew_CodeOnly()
     var
         Doc: TestPage "PG ST Doc";
         Head: Record "PG ST Head";
+    begin
+        Observer.Discard();
+        Seed();
+        Doc.OpenNew();
+        Doc.Code.SetValue('H3');
+        Doc.Close();
+        Observer.Observe('log', Log.Take());
+        Observer.Observe('head', Format(Head.Get('H3')));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Doc_OpenNew_NewRow()
+    var
+        Doc: TestPage "PG ST Doc";
     begin
         Observer.Discard();
         Seed();
@@ -1246,21 +1448,20 @@ codeunit 62733 "PG ST Insert Timing"
             Doc.Lines.Descr.SetValue('a');
             Log.Add('after Descr');
             Doc.Lines."Seq No.".SetValue(25);
-            Log.Add('after Seq');
+            Log.Add('after Seq ' + Lines('H3'));
+            Doc.Close();
+            Log.Add('after Close ' + Lines('H3'));
             Error('');
         end;
         Observer.ObserveError('opennew');
         Observer.Observe('log', Log.Take());
-        Observer.Observe('head', Format(Head.Get('H3')));
-        Observer.Observe('lines', Lines('H3'));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Doc_HostTrig_OpenNew_Row()
+    procedure Doc_HostTrig_OpenNew_NewRow()
     var
         Doc: TestPage "PG ST Doc HostTrig";
-        Head: Record "PG ST Head";
     begin
         Observer.Discard();
         Seed();
@@ -1275,27 +1476,32 @@ codeunit 62733 "PG ST Insert Timing"
             Doc.Lines.Descr.SetValue('a');
             Log.Add('after Descr');
             Doc.Lines."Seq No.".SetValue(25);
-            Log.Add('after Seq');
+            Log.Add('after Seq ' + Lines('H3'));
+            Doc.Close();
+            Log.Add('after Close ' + Lines('H3'));
             Error('');
         end;
         Observer.ObserveError('opennew');
         Observer.Observe('log', Log.Take());
-        Observer.Observe('head', Format(Head.Get('H3')));
-        Observer.Observe('lines', Lines('H3'));
         Observer.Finish();
     end;
 
     // Cell 2: the Document host run by Page.RunModal with a handler, on rows and on the empty part.
     [Test]
     [HandlerFunctions('DocHandler')]
-    procedure Doc_RunModal_Rows()
+    procedure Doc_RunModal_RowsErr()
     var
         Head: Record "PG ST Head";
     begin
         Observer.Discard();
         Seed();
         Head.Get('H1');
-        Page.RunModal(Page::"PG ST Doc", Head);
+        asserterror
+        begin
+            Page.RunModal(Page::"PG ST Doc", Head);
+            Error('');
+        end;
+        Observer.ObserveError('RunModal');
         Observer.Observe('log', Log.Take());
         Observer.Observe('lines', Lines('H1'));
         Observer.Finish();
@@ -1313,7 +1519,13 @@ codeunit 62733 "PG ST Insert Timing"
         Page.RunModal(Page::"PG ST Doc", Head);
         Observer.Observe('log', Log.Take());
         Observer.Observe('lines', Lines('H2'));
-        Observer.Finish();
+        Observer.Expect('handler New', '[NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes]');
+        Observer.Expect('handler Descr', '[]');
+        Observer.Expect('handler Seq', '[INS 20000 x=0 below=Yes | T-I 20000]');
+        Observer.Expect('handler shown', '20000');
+        Observer.Expect('log', '[]');
+        Observer.Expect('lines', '[20000/25=modal:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1329,7 +1541,14 @@ codeunit 62733 "PG ST Insert Timing"
         Page.RunModal(Page::"PG ST Doc", Head);
         Observer.Observe('log', Log.Take());
         Observer.Observe('lines', Lines('H2'));
-        Observer.Finish();
+        Observer.Expect('handler New', '[NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes]');
+        Observer.Expect('handler Descr', '[]');
+        Observer.Expect('handler Seq', '[INS 20000 x=0 below=Yes | T-I 20000]');
+        Observer.Expect('handler Qty', '[]');
+        Observer.Expect('handler shown', '20000');
+        Observer.Expect('log', '[]');
+        Observer.Expect('lines', '[20000/25=modal:3 ]');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]

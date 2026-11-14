@@ -350,7 +350,11 @@ codeunit 62696 "PG SR Split Key RunModal"
         Observer.ObserveError('RunModal');
         Observer.Observe('log', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('RunModal|text', 'The line cannot be split.');
+        Observer.Expect('RunModal|code', 'TestWrapped');
+        Observer.Expect('log', '[]');
+        Observer.Expect('lines', '[]');
+        Observer.Verify();
     end;
 
     // Cell 1 and 2: RunModal as a statement on the empty part.
@@ -366,7 +370,13 @@ codeunit 62696 "PG SR Split Key RunModal"
         Page.RunModal(Page::"PG SR Card", Head);
         Observer.Observe('log', Log.Take());
         Observer.Observe('lines', Lines('H2'));
-        Observer.Finish();
+        Observer.Expect('handler New', '[NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes]');
+        Observer.Expect('handler Descr', '[]');
+        Observer.Expect('handler Seq', '[INS 20000 x=0 below=Yes | T-I 20000]');
+        Observer.Expect('handler shown', '20000');
+        Observer.Expect('log', '[]');
+        Observer.Expect('lines', '[20000/25=modal:0 ]');
+        Observer.Verify();
     end;
 
     // Cell 2: the return value used (lookup mode) on the empty part.
@@ -384,7 +394,14 @@ codeunit 62696 "PG SR Split Key RunModal"
         Observer.Observe('result', Format(Result));
         Observer.Observe('log', Log.Take());
         Observer.Observe('lines', Lines('H2'));
-        Observer.Finish();
+        Observer.Expect('handler New', '[NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes]');
+        Observer.Expect('handler Descr', '[]');
+        Observer.Expect('handler Seq', '[INS 20000 x=0 below=Yes | T-I 20000]');
+        Observer.Expect('handler shown', '20000');
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('log', '[]');
+        Observer.Expect('lines', '[20000/25=modal:0 ]');
+        Observer.Verify();
     end;
 
     // Cells 2 and 4: the reporter's handler, three values, lookup mode and as a statement, on the empty part.
@@ -403,7 +420,15 @@ codeunit 62696 "PG SR Split Key RunModal"
         Observer.Observe('result', Format(Result));
         Observer.Observe('log', Log.Take());
         Observer.Observe('lines', Lines('H2'));
-        Observer.Finish();
+        Observer.Expect('handler New', '[NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes]');
+        Observer.Expect('handler Descr', '[]');
+        Observer.Expect('handler Seq', '[INS 20000 x=0 below=Yes | T-I 20000]');
+        Observer.Expect('handler Qty', '[]');
+        Observer.Expect('handler shown', '20000');
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('log', '[]');
+        Observer.Expect('lines', '[20000/25=modal:3 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -419,7 +444,14 @@ codeunit 62696 "PG SR Split Key RunModal"
         Page.RunModal(Page::"PG SR Card", Head);
         Observer.Observe('log', Log.Take());
         Observer.Observe('lines', Lines('H2'));
-        Observer.Finish();
+        Observer.Expect('handler New', '[NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes]');
+        Observer.Expect('handler Descr', '[]');
+        Observer.Expect('handler Seq', '[INS 20000 x=0 below=Yes | T-I 20000]');
+        Observer.Expect('handler Qty', '[]');
+        Observer.Expect('handler shown', '20000');
+        Observer.Expect('log', '[]');
+        Observer.Expect('lines', '[20000/25=modal:3 ]');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
@@ -463,7 +495,14 @@ codeunit 62696 "PG SR Split Key RunModal"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('log New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('log Descr', '[]');
+        Observer.Expect('log Seq', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('log Qty', '[]');
+        Observer.Expect('shown', '35000');
+        Observer.Expect('log close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/25=new:3 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     // Cell 3: a Document host, after Last and on the empty part.
@@ -486,7 +525,12 @@ codeunit 62696 "PG SR Split Key RunModal"
         Doc.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('log New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('log Descr', '[]');
+        Observer.Expect('shown', '0');
+        Observer.Expect('log close', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/0=new:0 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -507,7 +551,12 @@ codeunit 62696 "PG SR Split Key RunModal"
         Doc.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', Lines('H2'));
-        Observer.Finish();
+        Observer.Expect('log New', '[NEW 0 x=30000 below=Yes]');
+        Observer.Expect('log Descr', '[]');
+        Observer.Expect('shown', '0');
+        Observer.Expect('log close', '[INS 20000 x=30000 below=Yes | T-I 20000]');
+        Observer.Expect('lines', '[20000/0=new:0 ]');
+        Observer.Verify();
     end;
 
     // Cell 5: a typed field with a table OnValidate trigger that sets another field, after Last.
@@ -532,6 +581,12 @@ codeunit 62696 "PG SR Split Key RunModal"
         Card.Close();
         Observer.Observe('log close', Log.Take());
         Observer.Observe('lines', LinesV('H1'));
-        Observer.Finish();
+        Observer.Expect('log New', '[NEW 0 x=20000 below=Yes]');
+        Observer.Expect('log Descr', '[T-V 0]');
+        Observer.Expect('log Seq', '[INS 35000 x=20000 below=Yes | T-I 35000]');
+        Observer.Expect('shown', '35000:7.00');
+        Observer.Expect('log close', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 35000/25=new:7 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 }
