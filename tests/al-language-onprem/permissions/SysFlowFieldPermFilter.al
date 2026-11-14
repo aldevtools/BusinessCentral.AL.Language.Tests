@@ -1,22 +1,35 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-testing-permissions
 // Scope: in-scope (OnPrem app: Published Application is Scope = OnPrem)
-// Fixtures used: Probe Observer (69160); SFP Mock Switch (76740, tests/al-language/permissions/SysFlowPermMock.al) over Permissions Mock;
-//   the permission sets "SFP PA READ" and "SFP NO PA" of tests/al-language-onprem/permissions/SysFlowFieldPerm.al.
+// Fixtures used: Probe Observer (69160); SFF Mock Switch (76741, tests/al-language/permissions/SysFlowFilterMock.al) over Permissions Mock;
+//   the permission sets "SFF PA READ" (tabledata "Published Application" = R only) and "SFF NO PA" (nothing on it) declared below.
 // Probe: al-runner issue 8038, shape 1 (Guided Experience Impl. GetExtensionLogo): filters on the system table "Published Application"
 //   (2000000160) read directly, where "Tenant Visible" is itself a FlowField over the internal table "NAV App Extra". Forms: SetRange(ID)
 //   + SetRange("Tenant Visible", true) then FindFirst, FindSet, FindLast, Find('-'), IsEmpty and Count; the ID filter alone; the
 //   "Tenant Visible" filter alone; "Tenant Visible" = false; CalcFields("Tenant Visible") after a FindFirst, and the FlowField read
 //   without CalcFields. Permission states: a set that grants tabledata "Published Application" = R only, a set that grants nothing on
 //   it, no mock (full permissions). The ID is this OnPrem app's or a fixed GUID no app has. Every case ends in the own error
-//   'SFP ok [...]', so the observed text is the value, or the error BC raised before that.
+//   'SFF ok [...]', so the observed text is the value, or the error BC raised before that.
 
-codeunit 98744 "SFP SysFlow Filter Perm"
+permissionset 98745 "SFF PA READ"
+{
+    Assignable = true;
+    Permissions = tabledata "Published Application" = R;
+}
+
+permissionset 98746 "SFF NO PA"
+{
+    Assignable = true;
+    Permissions = codeunit "Probe Observer" = X;
+}
+
+
+codeunit 98747 "SFF Filter Perm"
 {
     Subtype = Test;
     TestPermissions = Disabled;
 
     var
-        Switch: Codeunit "SFP Mock Switch";
+        Switch: Codeunit "SFF Mock Switch";
         NoAppIdTok: Label '{5F1D0C2E-7B44-4E1A-9A3C-2D6E8B9F0A11}', Locked = true;
 
 
@@ -27,12 +40,12 @@ codeunit 98744 "SFP SysFlow Filter Perm"
         AppId: Guid;
     begin
         AppId := ThisAppId();
-        RunCase(Observer, 'findfirst_id_tv', 'SFP PA READ', 1, AppId);
-        RunCase(Observer, 'findset_id_tv', 'SFP PA READ', 2, AppId);
-        RunCase(Observer, 'isempty_id_tv', 'SFP PA READ', 3, AppId);
-        RunCase(Observer, 'count_id_tv', 'SFP PA READ', 4, AppId);
-        RunCase(Observer, 'findfirst_id', 'SFP PA READ', 5, AppId);
-        RunCase(Observer, 'isempty_tv', 'SFP PA READ', 6, AppId);
+        RunCase(Observer, 'findfirst_id_tv', 'SFF PA READ', 1, AppId);
+        RunCase(Observer, 'findset_id_tv', 'SFF PA READ', 2, AppId);
+        RunCase(Observer, 'isempty_id_tv', 'SFF PA READ', 3, AppId);
+        RunCase(Observer, 'count_id_tv', 'SFF PA READ', 4, AppId);
+        RunCase(Observer, 'findfirst_id', 'SFF PA READ', 5, AppId);
+        RunCase(Observer, 'isempty_tv', 'SFF PA READ', 6, AppId);
         Observer.Finish();
     end;
 
@@ -43,12 +56,12 @@ codeunit 98744 "SFP SysFlow Filter Perm"
         AppId: Guid;
     begin
         AppId := ThisAppId();
-        RunCase(Observer, 'findfirst_id_tv_calc', 'SFP PA READ', 7, AppId);
-        RunCase(Observer, 'findfirst_id_calc', 'SFP PA READ', 8, AppId);
-        RunCase(Observer, 'findfirst_id_nocalc', 'SFP PA READ', 9, AppId);
-        RunCase(Observer, 'findfirst_id_tvfalse', 'SFP PA READ', 10, AppId);
-        RunCase(Observer, 'findlast_id_tv', 'SFP PA READ', 11, AppId);
-        RunCase(Observer, 'find_dash_id_tv', 'SFP PA READ', 12, AppId);
+        RunCase(Observer, 'findfirst_id_tv_calc', 'SFF PA READ', 7, AppId);
+        RunCase(Observer, 'findfirst_id_calc', 'SFF PA READ', 8, AppId);
+        RunCase(Observer, 'findfirst_id_nocalc', 'SFF PA READ', 9, AppId);
+        RunCase(Observer, 'findfirst_id_tvfalse', 'SFF PA READ', 10, AppId);
+        RunCase(Observer, 'findlast_id_tv', 'SFF PA READ', 11, AppId);
+        RunCase(Observer, 'find_dash_id_tv', 'SFF PA READ', 12, AppId);
         Observer.Finish();
     end;
 
@@ -59,12 +72,12 @@ codeunit 98744 "SFP SysFlow Filter Perm"
         AppId: Guid;
     begin
         AppId := NoAppId();
-        RunCase(Observer, 'findfirst_id_tv', 'SFP PA READ', 1, AppId);
-        RunCase(Observer, 'findset_id_tv', 'SFP PA READ', 2, AppId);
-        RunCase(Observer, 'isempty_id_tv', 'SFP PA READ', 3, AppId);
-        RunCase(Observer, 'count_id_tv', 'SFP PA READ', 4, AppId);
-        RunCase(Observer, 'findfirst_id', 'SFP PA READ', 5, AppId);
-        RunCase(Observer, 'isempty_tv', 'SFP PA READ', 6, AppId);
+        RunCase(Observer, 'findfirst_id_tv', 'SFF PA READ', 1, AppId);
+        RunCase(Observer, 'findset_id_tv', 'SFF PA READ', 2, AppId);
+        RunCase(Observer, 'isempty_id_tv', 'SFF PA READ', 3, AppId);
+        RunCase(Observer, 'count_id_tv', 'SFF PA READ', 4, AppId);
+        RunCase(Observer, 'findfirst_id', 'SFF PA READ', 5, AppId);
+        RunCase(Observer, 'isempty_tv', 'SFF PA READ', 6, AppId);
         Observer.Finish();
     end;
 
@@ -75,12 +88,12 @@ codeunit 98744 "SFP SysFlow Filter Perm"
         AppId: Guid;
     begin
         AppId := NoAppId();
-        RunCase(Observer, 'findfirst_id_tv_calc', 'SFP PA READ', 7, AppId);
-        RunCase(Observer, 'findfirst_id_calc', 'SFP PA READ', 8, AppId);
-        RunCase(Observer, 'findfirst_id_nocalc', 'SFP PA READ', 9, AppId);
-        RunCase(Observer, 'findfirst_id_tvfalse', 'SFP PA READ', 10, AppId);
-        RunCase(Observer, 'findlast_id_tv', 'SFP PA READ', 11, AppId);
-        RunCase(Observer, 'find_dash_id_tv', 'SFP PA READ', 12, AppId);
+        RunCase(Observer, 'findfirst_id_tv_calc', 'SFF PA READ', 7, AppId);
+        RunCase(Observer, 'findfirst_id_calc', 'SFF PA READ', 8, AppId);
+        RunCase(Observer, 'findfirst_id_nocalc', 'SFF PA READ', 9, AppId);
+        RunCase(Observer, 'findfirst_id_tvfalse', 'SFF PA READ', 10, AppId);
+        RunCase(Observer, 'findlast_id_tv', 'SFF PA READ', 11, AppId);
+        RunCase(Observer, 'find_dash_id_tv', 'SFF PA READ', 12, AppId);
         Observer.Finish();
     end;
 
@@ -91,12 +104,12 @@ codeunit 98744 "SFP SysFlow Filter Perm"
         AppId: Guid;
     begin
         AppId := ThisAppId();
-        RunCase(Observer, 'findfirst_id_tv', 'SFP NO PA', 1, AppId);
-        RunCase(Observer, 'findset_id_tv', 'SFP NO PA', 2, AppId);
-        RunCase(Observer, 'isempty_id_tv', 'SFP NO PA', 3, AppId);
-        RunCase(Observer, 'count_id_tv', 'SFP NO PA', 4, AppId);
-        RunCase(Observer, 'findfirst_id', 'SFP NO PA', 5, AppId);
-        RunCase(Observer, 'isempty_tv', 'SFP NO PA', 6, AppId);
+        RunCase(Observer, 'findfirst_id_tv', 'SFF NO PA', 1, AppId);
+        RunCase(Observer, 'findset_id_tv', 'SFF NO PA', 2, AppId);
+        RunCase(Observer, 'isempty_id_tv', 'SFF NO PA', 3, AppId);
+        RunCase(Observer, 'count_id_tv', 'SFF NO PA', 4, AppId);
+        RunCase(Observer, 'findfirst_id', 'SFF NO PA', 5, AppId);
+        RunCase(Observer, 'isempty_tv', 'SFF NO PA', 6, AppId);
         Observer.Finish();
     end;
 
@@ -107,12 +120,12 @@ codeunit 98744 "SFP SysFlow Filter Perm"
         AppId: Guid;
     begin
         AppId := ThisAppId();
-        RunCase(Observer, 'findfirst_id_tv_calc', 'SFP NO PA', 7, AppId);
-        RunCase(Observer, 'findfirst_id_calc', 'SFP NO PA', 8, AppId);
-        RunCase(Observer, 'findfirst_id_nocalc', 'SFP NO PA', 9, AppId);
-        RunCase(Observer, 'findfirst_id_tvfalse', 'SFP NO PA', 10, AppId);
-        RunCase(Observer, 'findlast_id_tv', 'SFP NO PA', 11, AppId);
-        RunCase(Observer, 'find_dash_id_tv', 'SFP NO PA', 12, AppId);
+        RunCase(Observer, 'findfirst_id_tv_calc', 'SFF NO PA', 7, AppId);
+        RunCase(Observer, 'findfirst_id_calc', 'SFF NO PA', 8, AppId);
+        RunCase(Observer, 'findfirst_id_nocalc', 'SFF NO PA', 9, AppId);
+        RunCase(Observer, 'findfirst_id_tvfalse', 'SFF NO PA', 10, AppId);
+        RunCase(Observer, 'findlast_id_tv', 'SFF NO PA', 11, AppId);
+        RunCase(Observer, 'find_dash_id_tv', 'SFF NO PA', 12, AppId);
         Observer.Finish();
     end;
 
@@ -123,12 +136,12 @@ codeunit 98744 "SFP SysFlow Filter Perm"
         AppId: Guid;
     begin
         AppId := NoAppId();
-        RunCase(Observer, 'findfirst_id_tv', 'SFP NO PA', 1, AppId);
-        RunCase(Observer, 'findset_id_tv', 'SFP NO PA', 2, AppId);
-        RunCase(Observer, 'isempty_id_tv', 'SFP NO PA', 3, AppId);
-        RunCase(Observer, 'count_id_tv', 'SFP NO PA', 4, AppId);
-        RunCase(Observer, 'findfirst_id', 'SFP NO PA', 5, AppId);
-        RunCase(Observer, 'isempty_tv', 'SFP NO PA', 6, AppId);
+        RunCase(Observer, 'findfirst_id_tv', 'SFF NO PA', 1, AppId);
+        RunCase(Observer, 'findset_id_tv', 'SFF NO PA', 2, AppId);
+        RunCase(Observer, 'isempty_id_tv', 'SFF NO PA', 3, AppId);
+        RunCase(Observer, 'count_id_tv', 'SFF NO PA', 4, AppId);
+        RunCase(Observer, 'findfirst_id', 'SFF NO PA', 5, AppId);
+        RunCase(Observer, 'isempty_tv', 'SFF NO PA', 6, AppId);
         Observer.Finish();
     end;
 
@@ -139,12 +152,12 @@ codeunit 98744 "SFP SysFlow Filter Perm"
         AppId: Guid;
     begin
         AppId := NoAppId();
-        RunCase(Observer, 'findfirst_id_tv_calc', 'SFP NO PA', 7, AppId);
-        RunCase(Observer, 'findfirst_id_calc', 'SFP NO PA', 8, AppId);
-        RunCase(Observer, 'findfirst_id_nocalc', 'SFP NO PA', 9, AppId);
-        RunCase(Observer, 'findfirst_id_tvfalse', 'SFP NO PA', 10, AppId);
-        RunCase(Observer, 'findlast_id_tv', 'SFP NO PA', 11, AppId);
-        RunCase(Observer, 'find_dash_id_tv', 'SFP NO PA', 12, AppId);
+        RunCase(Observer, 'findfirst_id_tv_calc', 'SFF NO PA', 7, AppId);
+        RunCase(Observer, 'findfirst_id_calc', 'SFF NO PA', 8, AppId);
+        RunCase(Observer, 'findfirst_id_nocalc', 'SFF NO PA', 9, AppId);
+        RunCase(Observer, 'findfirst_id_tvfalse', 'SFF NO PA', 10, AppId);
+        RunCase(Observer, 'findlast_id_tv', 'SFF NO PA', 11, AppId);
+        RunCase(Observer, 'find_dash_id_tv', 'SFF NO PA', 12, AppId);
         Observer.Finish();
     end;
 
@@ -321,6 +334,6 @@ codeunit 98744 "SFP SysFlow Filter Perm"
                     Result := Rec.Name;
                 end;
         end;
-        Error('SFP ok [%1]', Result);
+        Error('SFF ok [%1]', Result);
     end;
 }
