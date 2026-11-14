@@ -16,7 +16,7 @@
 //   'extension with its own Permissions' cell is a must-not-compile fact and is not measured here.
 // Shape: each case clears the assignment, seeds, assigns, runs ONE op inside asserterror that ends with the own error
 //   'LT PC ok', observes text and code, clears the assignment (as Y19PermWrites.al).
-// Expected values: filled in from the local observation run of each major (BC 27.5, 28.5, 29.0).
+// Expected values: observed on BC 27.5, 28.5 and 29.0 (corpus CI run); 27.5 and 28.5 agree.
 // BC versions: 27, 28, 29
 
 table 97330 "LT PC T"
@@ -271,26 +271,29 @@ codeunit 97349 "LT PC Probes"
         for Which := 1 to 6 do
             RunCase('a' + Format(Which), Which);
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('a1|rights', 'Yes,Yes,Yes,Yes, ');
+        Observer.Expect('a1|text', 'LT PC ok');
+        Observer.Expect('a1|code', 'Dialog');
+        Observer.Expect('a2|rights', 'Yes,Yes,Yes,Yes, ');
+        Observer.Expect('a2|text', 'LT PC ok');
+        Observer.Expect('a2|code', 'Dialog');
+        Observer.Expect('a3|rights', 'Yes,Yes,Yes,Yes, ');
+        Observer.Expect('a3|text', 'LT PC ok');
+        Observer.Expect('a3|code', 'Dialog');
+        Observer.Expect('a4|rights', 'Yes,Yes,Yes,Yes, ');
+        Observer.Expect('a4|text', 'LT PC ok');
+        Observer.Expect('a4|code', 'Dialog');
+        Observer.Expect('a5|rights', 'Yes,Yes,Yes,Yes, ');
+        Observer.Expect('a5|text', 'LT PC ok');
+        Observer.Expect('a5|code', 'Dialog');
+        Observer.Expect('a6|rights', 'Yes,Yes,Yes,Yes, ');
+        Observer.Expect('a6|text', 'LT PC ok');
+        Observer.Expect('a6|code', 'Dialog');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure PC_A_Composition_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure PC_A_Composition_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure PC_A_Composition_More3()
-    begin
-        Observer.More();
-    end;
 
     // B: 11-14 Insert(true) of E Plain, E ExtPerm, E TabPerm, E BothPerm (tableextension OnInsert writes B), user imd on B;
     // 15-18 the same, nothing on B; 21-24 WriteB() of each, imd on B; 25-28 nothing on B;
@@ -308,38 +311,83 @@ codeunit 97349 "LT PC Probes"
         foreach Which in Ops do
             RunCase('b' + Format(Which), Which);
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('b11|text', 'Sorry, the current permissions prevented the action. (TableData 97331 LT PC B Insert: AL Language Coverage Tests)');
+        Observer.Expect('b11|code', 'DB:ClientInsertDenied');
+        Observer.Expect('b12|text', 'Sorry, the current permissions prevented the action. (TableData 97331 LT PC B Insert: AL Language Coverage Tests)');
+        Observer.Expect('b12|code', 'DB:ClientInsertDenied');
+#if BC29PLUS
+        Observer.Expect('b13|text', 'Sorry, the current permissions prevented the action. (TableData 97331 LT PC B Insert: AL Language Coverage Tests)');
+        Observer.Expect('b13|code', 'DB:ClientInsertDenied');
+        Observer.Expect('b14|text', 'Sorry, the current permissions prevented the action. (TableData 97331 LT PC B Insert: AL Language Coverage Tests)');
+        Observer.Expect('b14|code', 'DB:ClientInsertDenied');
+#else
+        Observer.Expect('b13|text', 'LT PC ok');
+        Observer.Expect('b13|code', 'Dialog');
+        Observer.Expect('b14|text', 'LT PC ok');
+        Observer.Expect('b14|code', 'Dialog');
+#endif
+        Observer.Expect('b15|text', 'Sorry, the current permissions prevented the action. (TableData 97331 LT PC B Insert: AL Language Coverage Tests)');
+        Observer.Expect('b15|code', 'DB:ClientInsertDenied');
+        Observer.Expect('b16|text', 'Sorry, the current permissions prevented the action. (TableData 97331 LT PC B Insert: AL Language Coverage Tests)');
+        Observer.Expect('b16|code', 'DB:ClientInsertDenied');
+#if BC29PLUS
+        Observer.Expect('b17|text', 'Sorry, the current permissions prevented the action. (TableData 97331 LT PC B Insert: AL Language Coverage Tests)');
+#else
+        Observer.Expect('b17|text', 'Sorry, the current permissions prevented the action. (TableData 97331 LT PC B IndirectInsert: AL Language Coverage Tests)');
+#endif
+        Observer.Expect('b17|code', 'DB:ClientInsertDenied');
+#if BC29PLUS
+        Observer.Expect('b18|text', 'Sorry, the current permissions prevented the action. (TableData 97331 LT PC B Insert: AL Language Coverage Tests)');
+#else
+        Observer.Expect('b18|text', 'Sorry, the current permissions prevented the action. (TableData 97331 LT PC B IndirectInsert: AL Language Coverage Tests)');
+#endif
+        Observer.Expect('b18|code', 'DB:ClientInsertDenied');
+        Observer.Expect('b21|text', 'Sorry, the current permissions prevented the action. (TableData 97331 LT PC B Insert: AL Language Coverage Tests)');
+        Observer.Expect('b21|code', 'DB:ClientInsertDenied');
+        Observer.Expect('b22|text', 'Sorry, the current permissions prevented the action. (TableData 97331 LT PC B Insert: AL Language Coverage Tests)');
+        Observer.Expect('b22|code', 'DB:ClientInsertDenied');
+#if BC29PLUS
+        Observer.Expect('b23|text', 'Sorry, the current permissions prevented the action. (TableData 97331 LT PC B Insert: AL Language Coverage Tests)');
+        Observer.Expect('b23|code', 'DB:ClientInsertDenied');
+        Observer.Expect('b24|text', 'Sorry, the current permissions prevented the action. (TableData 97331 LT PC B Insert: AL Language Coverage Tests)');
+        Observer.Expect('b24|code', 'DB:ClientInsertDenied');
+#else
+        Observer.Expect('b23|text', 'LT PC ok');
+        Observer.Expect('b23|code', 'Dialog');
+        Observer.Expect('b24|text', 'LT PC ok');
+        Observer.Expect('b24|code', 'Dialog');
+#endif
+        Observer.Expect('b25|text', 'Sorry, the current permissions prevented the action. (TableData 97331 LT PC B Insert: AL Language Coverage Tests)');
+        Observer.Expect('b25|code', 'DB:ClientInsertDenied');
+        Observer.Expect('b26|text', 'Sorry, the current permissions prevented the action. (TableData 97331 LT PC B Insert: AL Language Coverage Tests)');
+        Observer.Expect('b26|code', 'DB:ClientInsertDenied');
+#if BC29PLUS
+        Observer.Expect('b27|text', 'Sorry, the current permissions prevented the action. (TableData 97331 LT PC B Insert: AL Language Coverage Tests)');
+#else
+        Observer.Expect('b27|text', 'Sorry, the current permissions prevented the action. (TableData 97331 LT PC B IndirectInsert: AL Language Coverage Tests)');
+#endif
+        Observer.Expect('b27|code', 'DB:ClientInsertDenied');
+#if BC29PLUS
+        Observer.Expect('b28|text', 'Sorry, the current permissions prevented the action. (TableData 97331 LT PC B Insert: AL Language Coverage Tests)');
+#else
+        Observer.Expect('b28|text', 'Sorry, the current permissions prevented the action. (TableData 97331 LT PC B IndirectInsert: AL Language Coverage Tests)');
+#endif
+        Observer.Expect('b28|code', 'DB:ClientInsertDenied');
+        Observer.Expect('b31|text', 'Page LT PC Page Plain has to close.');
+        Observer.Expect('b31|code', 'FormAbort:Permission');
+        Observer.Expect('b32|text', 'Page LT PC Page Plain has to close.');
+        Observer.Expect('b32|code', 'FormAbort:Permission');
+        Observer.Expect('b33|text', 'LT PC ok');
+        Observer.Expect('b33|code', 'Dialog');
+        Observer.Expect('b34|text', 'Page LT PC Page Perm has to close.');
+        Observer.Expect('b34|code', 'FormAbort:Permission');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure PC_B_ExtensionCode_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure PC_B_ExtensionCode_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure PC_B_ExtensionCode_More3()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure PC_B_ExtensionCode_More4()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure PC_B_ExtensionCode_More5()
-    begin
-        Observer.More();
-    end;
 
     // C: T holds rows 1 and 2; the set grants R on B only. SetRange(Id, 100) then 41 FindFirst (control), 42 FindSet,
     // 43 FindLast, 44 Find('-'), 45 Count, 46 IsEmpty; unfiltered 47 FindSet. Set "LT PC Only T": 48 Delete(true) of row 1,
@@ -354,26 +402,29 @@ codeunit 97349 "LT PC Probes"
         for Which := 41 to 49 do
             RunCase('c' + Format(Which), Which);
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('c41|text', 'Sorry, the current permissions prevented the action. (TableData 97330 LT PC T Read: AL Language Coverage Tests)');
+        Observer.Expect('c41|code', 'DB:ClientReadDenied');
+        Observer.Expect('c42|text', 'Sorry, the current permissions prevented the action. (TableData 97330 LT PC T Read: AL Language Coverage Tests)');
+        Observer.Expect('c42|code', 'DB:ClientReadDenied');
+        Observer.Expect('c43|text', 'Sorry, the current permissions prevented the action. (TableData 97330 LT PC T Read: AL Language Coverage Tests)');
+        Observer.Expect('c43|code', 'DB:ClientReadDenied');
+        Observer.Expect('c44|text', 'Sorry, the current permissions prevented the action. (TableData 97330 LT PC T Read: AL Language Coverage Tests)');
+        Observer.Expect('c44|code', 'DB:ClientReadDenied');
+        Observer.Expect('c45|text', 'Sorry, the current permissions prevented the action. (TableData 97330 LT PC T Read: AL Language Coverage Tests)');
+        Observer.Expect('c45|code', 'DB:ClientReadDenied');
+        Observer.Expect('c46|text', 'LT PC ok isempty Yes');
+        Observer.Expect('c46|code', 'Dialog');
+        Observer.Expect('c47|text', 'Sorry, the current permissions prevented the action. (TableData 97330 LT PC T Read: AL Language Coverage Tests)');
+        Observer.Expect('c47|code', 'DB:ClientReadDenied');
+        Observer.Expect('c48|text', 'LT PC ok');
+        Observer.Expect('c48|code', 'Dialog');
+        Observer.Expect('c49|text', 'LT PC ok');
+        Observer.Expect('c49|code', 'Dialog');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure PC_C_NoMatchReadsAndDelete_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure PC_C_NoMatchReadsAndDelete_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure PC_C_NoMatchReadsAndDelete_More3()
-    begin
-        Observer.More();
-    end;
 
     // D: a tenant set with one row each for Page, Report, Codeunit, Query and XMLport objects of this file, System object 1350
     // and Table "LT PC T", every permission column left at its InitValue Yes: the rows "Expanded Permission" lists.
@@ -396,7 +447,9 @@ codeunit 97349 "LT PC Probes"
             until ExpandedPermission.Next() = 0;
         Observer.Observe('rows', Rows);
         Observer.Observe('count', Format(ExpandedPermission.Count()));
-        Observer.Finish();
+        Observer.Expect('rows', '[Table 97330 Yes,Yes,Yes,Yes,Yes][Report 97350 Yes,Yes,Yes,Yes,Yes][Codeunit 97349 Yes,Yes,Yes,Yes,Yes][XMLport 97352 Yes,Yes,Yes,Yes,Yes][Page 97343 Yes,Yes,Yes,Yes,Yes][Query 97351 Yes,Yes,Yes,Yes,Yes][System 1350 Yes,Yes,Yes,Yes,Yes]');
+        Observer.Expect('count', '7');
+        Observer.Verify();
     end;
 
     local procedure SeedTenantSet()

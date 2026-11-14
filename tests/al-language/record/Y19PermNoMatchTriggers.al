@@ -13,7 +13,7 @@
 //   131 Delete(false), Insert, then Delete(true) of the same parent in one transaction.
 // Shape (as Y19PermNoMatchShapes.al): each case clears the assignment, seeds, assigns the set, runs ONE op inside asserterror that
 //   ends with the own error 'LT NT ok', observes text and code, clears the assignment.
-// Expected values: filled in from the observation run of each major (BC 27.5, 28.5, 29.0).
+// Expected values: observed on BC 27.5, 28.5 and 29.0 (corpus CI run); differences are guarded with BC29PLUS.
 // BC versions: 27, 28, 29
 
 table 97360 "LT NT Target"
@@ -180,98 +180,126 @@ codeunit 97371 "LT NT No Match Triggers"
     procedure NT_31_ParentFilteredDeleteAllTrue()
     begin
         Run(31);
-        Observer.Finish();
+        Observer.Expect('op31|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op31|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
     procedure NT_32_ParentDeleteAllTrue()
     begin
         Run(32);
-        Observer.Finish();
+        Observer.Expect('op32|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op32|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
     procedure NT_33_RecordRefDeleteTrue()
     begin
         Run(33);
-        Observer.Finish();
+        Observer.Expect('op33|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op33|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
     procedure NT_34_TemporaryParentDeleteTrue()
     begin
         Run(34);
-        Observer.Finish();
+        Observer.Expect('op34|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op34|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
     procedure NT_51_TargetUsedBeforeModifyAll()
     begin
         Run(51);
-        Observer.Finish();
+        Observer.Expect('op51|text', 'Sorry, the current permissions prevented the action. (TableData 97360 LT NT Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op51|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
     procedure NT_61_BlankParentCode()
     begin
         Run(61);
-        Observer.Finish();
+        Observer.Expect('op61|text', 'Sorry, the current permissions prevented the action. (TableData 97360 LT NT Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op61|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
     procedure NT_71_SecondaryKeyFilterField()
     begin
         Run(71);
-        Observer.Finish();
+        Observer.Expect('op71|text', 'Sorry, the current permissions prevented the action. (TableData 97360 LT NT Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op71|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
     procedure NT_81_Code20FilterField()
     begin
         Run(81);
-        Observer.Finish();
+        Observer.Expect('op81|text', 'Sorry, the current permissions prevented the action. (TableData 97360 LT NT Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op81|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
     procedure NT_91_CommitBeforeAssign()
     begin
         Run(91);
-        Observer.Finish();
+        Observer.Expect('op91|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op91|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
     procedure NT_101_LiteralFilter()
     begin
         Run(101);
-        Observer.Finish();
+        Observer.Expect('op101|text', 'Sorry, the current permissions prevented the action. (TableData 97360 LT NT Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op101|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
     procedure NT_102_OtherFieldOfParentFilter()
     begin
         Run(102);
-        Observer.Finish();
+        Observer.Expect('op102|text', 'Sorry, the current permissions prevented the action. (TableData 97360 LT NT Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op102|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
     procedure NT_121_TableExtensionOnDelete()
     begin
         Run(121);
-        Observer.Finish();
+        Observer.Expect('op121|text', 'Sorry, the current permissions prevented the action. (TableData 97360 LT NT Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op121|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
     procedure NT_122_OnBeforeDeleteSubscriber()
     begin
         Run(122);
-        Observer.Finish();
+        Observer.Expect('op122|text', 'Sorry, the current permissions prevented the action. (TableData 97360 LT NT Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op122|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
     procedure NT_131_DeleteFalseInsertDeleteTrue()
     begin
         Run(131);
-        Observer.Finish();
+        Observer.Expect('op131|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op131|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     local procedure Run(Which: Integer)

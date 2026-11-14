@@ -9,7 +9,7 @@
 // Shape (as Y19PermWrites.al): each case clears the assignment, seeds the target with N rows (Parent Code 'X', none matches the
 //   filter), seeds one row of each parent table, assigns the set (Permissions Mock.Set: the set plus All Objects), runs ONE op
 //   inside asserterror that ends with the own error 'LT NM ok', observes text and code, clears the assignment.
-// Expected values: filled in from the local observation run of each major (BC 27.5, 28.5, 29.0).
+// Expected values: observed on BC 27.5, 28.5 and 29.0 (corpus CI run); 27.5 and 28.5 agree.
 // BC versions: 27, 28, 29
 
 table 97300 "LT NM Target"
@@ -139,101 +139,137 @@ codeunit 97310 "LT NM No Match Shapes"
     procedure NM_OneRow_SetR()
     begin
         RunAll('1_r', 'LT NM R', 1);
-        Observer.Finish();
+        Observer.Expect('op1_1_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op1_1_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op2_1_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op2_1_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op3_1_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op3_1_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op4_1_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op4_1_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op5_1_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op5_1_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op6_1_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('op6_1_r|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('op11_1_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op11_1_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op12_1_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op12_1_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op13_1_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op13_1_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op14_1_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('op14_1_r|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('op21_1_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op21_1_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op22_1_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op22_1_r|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure NM_OneRow_SetR_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure NM_OneRow_SetR_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure NM_OneRow_SetR_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure NM_TwoRows_SetR()
     begin
         RunAll('2_r', 'LT NM R', 2);
-        Observer.Finish();
+        Observer.Expect('op1_2_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op1_2_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op2_2_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op2_2_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op3_2_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op3_2_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op4_2_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op4_2_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op5_2_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op5_2_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op6_2_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('op6_2_r|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('op11_2_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op11_2_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op12_2_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op12_2_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op13_2_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op13_2_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op14_2_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('op14_2_r|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('op21_2_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op21_2_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op22_2_r|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op22_2_r|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure NM_TwoRows_SetR_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure NM_TwoRows_SetR_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure NM_TwoRows_SetR_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure NM_OneRow_SetRI()
     begin
         RunAll('1_ri', 'LT NM RI', 1);
-        Observer.Finish();
+        Observer.Expect('op1_1_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op1_1_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op2_1_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op2_1_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op3_1_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op3_1_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op4_1_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op4_1_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op5_1_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op5_1_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op6_1_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('op6_1_ri|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('op11_1_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op11_1_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op12_1_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op12_1_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op13_1_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op13_1_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op14_1_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('op14_1_ri|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('op21_1_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op21_1_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op22_1_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op22_1_ri|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure NM_OneRow_SetRI_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure NM_OneRow_SetRI_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure NM_OneRow_SetRI_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure NM_TwoRows_SetRI()
     begin
         RunAll('2_ri', 'LT NM RI', 2);
-        Observer.Finish();
+        Observer.Expect('op1_2_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op1_2_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op2_2_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op2_2_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op3_2_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op3_2_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op4_2_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op4_2_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op5_2_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op5_2_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op6_2_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('op6_2_ri|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('op11_2_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op11_2_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op12_2_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op12_2_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op13_2_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op13_2_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op14_2_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('op14_2_ri|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('op21_2_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op21_2_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('op22_2_ri|text', 'Sorry, the current permissions prevented the action. (TableData 97300 LT NM Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('op22_2_ri|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure NM_TwoRows_SetRI_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure NM_TwoRows_SetRI_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure NM_TwoRows_SetRI_More3()
-    begin
-        Observer.More();
-    end;
 
     local procedure RunAll(Tag: Text; SetName: Code[20]; Rows: Integer)
     var

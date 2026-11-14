@@ -8,7 +8,7 @@
 //   Permissions = tabledata "No. Series Line" = rimd, local GetNextNoInternal with 'm') has the first shape.
 // Shape: each case clears the assignment, seeds T with row 1, assigns the set (Permissions Mock.Set: "LT IA None" plus All
 //   Objects), runs ONE op inside asserterror that ends with the own error 'LT IA ok', observes text and code, clears it.
-// Expected values: filled in from the local observation run of each major (BC 27.5, 28.5, 29.0).
+// Expected values: observed on BC 27.5, 28.5 and 29.0 (corpus CI run); 27.5 and 28.5 agree.
 // BC versions: 27, 28, 29
 
 table 97320 "LT IA Row"
@@ -163,20 +163,28 @@ codeunit 97325 "LT IA Inherent Lower Case"
         foreach Which in Ops do
             RunCase('op' + Format(Which), Which);
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('op1|text', 'LT IA ok');
+        Observer.Expect('op1|code', 'Dialog');
+        Observer.Expect('op2|text', 'Sorry, the current permissions prevented the action. (TableData 97320 LT IA Row IndirectRead: AL Language Coverage Tests)');
+        Observer.Expect('op2|code', 'DB:ClientReadDenied');
+        Observer.Expect('op3|text', 'Sorry, the current permissions prevented the action. (TableData 97320 LT IA Row IndirectRead: AL Language Coverage Tests)');
+        Observer.Expect('op3|code', 'DB:ClientReadDenied');
+        Observer.Expect('op4|text', 'LT IA ok');
+        Observer.Expect('op4|code', 'Dialog');
+        Observer.Expect('op5|text', 'LT IA ok');
+        Observer.Expect('op5|code', 'Dialog');
+        Observer.Expect('op6|text', 'Sorry, the current permissions prevented the action. (TableData 97320 LT IA Row IndirectRead: AL Language Coverage Tests)');
+        Observer.Expect('op6|code', 'DB:ClientReadDenied');
+        Observer.Expect('op11|text', 'Sorry, the current permissions prevented the action. (TableData 97320 LT IA Row Insert: AL Language Coverage Tests)');
+        Observer.Expect('op11|code', 'DB:ClientInsertDenied');
+        Observer.Expect('op12|text', 'Sorry, the current permissions prevented the action. (TableData 97320 LT IA Row Read: AL Language Coverage Tests)');
+        Observer.Expect('op12|code', 'DB:ClientReadDenied');
+        Observer.Expect('op13|text', 'Sorry, the current permissions prevented the action. (TableData 97320 LT IA Row Insert: AL Language Coverage Tests)');
+        Observer.Expect('op13|code', 'DB:ClientInsertDenied');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure IA_LowerCaseAttribute_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure IA_LowerCaseAttribute_More2()
-    begin
-        Observer.More();
-    end;
 
     local procedure RunCase(Name: Text; Which: Integer)
     var
