@@ -1,12 +1,14 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/variant/variant-data-type
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160), shared table 50001 "ALT Shape 01", self-contained codeunits 96470 and 96471
-// Probe: written against the CI run of its pull request (the Expect lines are generated from what BC did).
+// Probe: written against the CI run of its pull request on BC 27.5, 28.5 and 29.0 (the Expect lines are generated from what BC did).
 // Settles docs/probes-needed.md row: variant-from-variant-temp-record-keeps-rows (al-runner issue 8070)
 // Facts: a Variant assigned from another Variant that holds a temporary record (a Variant result, a by-value and a var
 //   Variant parameter, a local and a global Variant): the rows visible through it, whether a write through one side shows
 //   through the other, whether filters travel, a record that is not temporary, a target Variant that already holds a value.
-// BC versions: all (CI)
+//   Measured: a copy of a Variant that holds a temporary record keeps the 2 rows, IsTemporary = Yes and a filter (Id: 2); a row inserted
+//   through either Variant shows through the other (one table, not a copy); a stored record stays not temporary. Same on 27, 28 and 29.
+// BC versions: 27 - 29
 
 codeunit 96470 "LT VFV Source"
 {
@@ -98,7 +100,9 @@ codeunit 96471 "LT VFV Tests"
         V := Source.BuildTemp();
         Observer.Observe('recref', CountOf(V));
         Observer.Observe('copyshared', CountThroughTempRecord(V));
-        Observer.Finish();
+        Observer.Expect('recref', '2 temp=Yes filters=');
+        Observer.Expect('copyshared', '2');
+        Observer.Verify();
     end;
 
     // ---- C2: the reporter's shape, a by-value Variant parameter copied to a local Variant ----
@@ -110,7 +114,8 @@ codeunit 96471 "LT VFV Tests"
     begin
         Seed(Tmp);
         Observer.Observe('param_copy', CopyByValue(Tmp));
-        Observer.Finish();
+        Observer.Expect('param_copy', '2 temp=Yes filters=|2 temp=Yes filters=');
+        Observer.Verify();
     end;
 
     local procedure CopyByValue(P: Variant): Text
@@ -130,7 +135,8 @@ codeunit 96471 "LT VFV Tests"
     begin
         W := Source.BuildTemp();
         Observer.Observe('var_copy', CopyByVar(W));
-        Observer.Finish();
+        Observer.Expect('var_copy', '2 temp=Yes filters=');
+        Observer.Verify();
     end;
 
     local procedure CopyByVar(var P: Variant): Text
@@ -153,7 +159,9 @@ codeunit 96471 "LT VFV Tests"
         V := W;
         Observer.Observe('local_copy', CountOf(V));
         Observer.Observe('local_source', CountOf(W));
-        Observer.Finish();
+        Observer.Expect('local_copy', '2 temp=Yes filters=');
+        Observer.Expect('local_source', '2 temp=Yes filters=');
+        Observer.Verify();
     end;
 
     // ---- C5: a Variant result stored in a global Variant ----
@@ -164,7 +172,8 @@ codeunit 96471 "LT VFV Tests"
     begin
         GlobalV := Source.BuildTemp();
         Observer.Observe('global', CountOf(GlobalV));
-        Observer.Finish();
+        Observer.Expect('global', '2 temp=Yes filters=');
+        Observer.Verify();
     end;
 
     // ---- C6: one table or a copy: a row inserted through the new Variant, read through the old one, and back ----
@@ -182,7 +191,10 @@ codeunit 96471 "LT VFV Tests"
         Observer.Observe('after_insert_via_new_new', CountOf(V));
         InsertThrough(W, 4);
         Observer.Observe('after_insert_via_old_new', CountOf(V));
-        Observer.Finish();
+        Observer.Expect('after_insert_via_new_old', '3 temp=Yes filters=');
+        Observer.Expect('after_insert_via_new_new', '3 temp=Yes filters=');
+        Observer.Expect('after_insert_via_old_new', '4 temp=Yes filters=');
+        Observer.Verify();
     end;
 
     // ---- C7: a filtered temporary record: filters kept by the copy ----
@@ -194,7 +206,8 @@ codeunit 96471 "LT VFV Tests"
     begin
         V := Source.BuildFiltered();
         Observer.Observe('filtered', CountOf(V));
-        Observer.Finish();
+        Observer.Expect('filtered', '1 temp=Yes filters=Id: 2');
+        Observer.Verify();
     end;
 
     // ---- C8: a record that is not temporary ----
@@ -206,7 +219,8 @@ codeunit 96471 "LT VFV Tests"
     begin
         V := Source.BuildStored();
         Observer.Observe('stored', CountOf(V));
-        Observer.Finish();
+        Observer.Expect('stored', '2 temp=No filters=');
+        Observer.Verify();
     end;
 
     // ---- C9: a target Variant that already holds a value ----
@@ -221,6 +235,7 @@ codeunit 96471 "LT VFV Tests"
         V := I;
         V := Source.BuildTemp();
         Observer.Observe('reassigned', CountOf(V));
-        Observer.Finish();
+        Observer.Expect('reassigned', '2 temp=Yes filters=');
+        Observer.Verify();
     end;
 }
