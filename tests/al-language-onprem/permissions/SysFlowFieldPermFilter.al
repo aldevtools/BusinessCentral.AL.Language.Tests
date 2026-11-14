@@ -9,6 +9,17 @@
 //   without CalcFields. Permission states: a set that grants tabledata "Published Application" = R only, a set that grants nothing on
 //   it, no mock (full permissions). The ID is this OnPrem app's or a fixed GUID no app has. Every case ends in the own error
 //   'SFF ok [...]', so the observed text is the value, or the error BC raised before that.
+// Facts (BC 27.5, 28.5 and 29.0 behave the same):
+//   With tabledata "Published Application" = R only, and with no mock (full permissions), every form behaves alike. For this app's ID:
+//   SetRange(ID) + SetRange("Tenant Visible", true) then FindFirst, FindSet, FindLast and Find('-') find the row (Name = this app's
+//   name), IsEmpty is No, Count is 1; the ID filter alone finds it too; "Tenant Visible" = true alone is not empty. CalcFields("Tenant
+//   Visible") after a FindFirst gives Yes (with either filter); the FlowField read without CalcFields is No. "Tenant Visible" = false
+//   with this app's ID finds nothing: DB:NothingInsideFilter 'There is no Published Application within the filter.' plus the filters.
+//   For an ID no app has: FindFirst, FindSet, FindLast, Find('-') and the CalcFields forms raise DB:NothingInsideFilter, IsEmpty is Yes,
+//   Count is 0. Without any grant on the table, every form raises DB:ClientReadDenied 'Sorry, the current permissions prevented the
+//   action. (TableData 2000000206 Published Application Read: <app name>)', also for an ID no app has, except IsEmpty with the
+//   ID filter for an unknown ID, which returns Yes with no error.
+// BC versions: 27, 28, 29
 
 permissionset 98745 "SFF PA READ"
 {
@@ -46,7 +57,19 @@ codeunit 98747 "SFF Filter Perm"
         RunCase(Observer, 'count_id_tv', 'SFF PA READ', 4, AppId);
         RunCase(Observer, 'findfirst_id', 'SFF PA READ', 5, AppId);
         RunCase(Observer, 'isempty_tv', 'SFF PA READ', 6, AppId);
-        Observer.Finish();
+        Observer.Expect('findfirst_id_tv|text', 'SFF ok [AL Language Coverage Tests (OnPrem)]');
+        Observer.Expect('findfirst_id_tv|code', 'Dialog');
+        Observer.Expect('findset_id_tv|text', 'SFF ok [AL Language Coverage Tests (OnPrem)]');
+        Observer.Expect('findset_id_tv|code', 'Dialog');
+        Observer.Expect('isempty_id_tv|text', 'SFF ok [No]');
+        Observer.Expect('isempty_id_tv|code', 'Dialog');
+        Observer.Expect('count_id_tv|text', 'SFF ok [1]');
+        Observer.Expect('count_id_tv|code', 'Dialog');
+        Observer.Expect('findfirst_id|text', 'SFF ok [AL Language Coverage Tests (OnPrem)]');
+        Observer.Expect('findfirst_id|code', 'Dialog');
+        Observer.Expect('isempty_tv|text', 'SFF ok [No]');
+        Observer.Expect('isempty_tv|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -62,7 +85,19 @@ codeunit 98747 "SFF Filter Perm"
         RunCase(Observer, 'findfirst_id_tvfalse', 'SFF PA READ', 10, AppId);
         RunCase(Observer, 'findlast_id_tv', 'SFF PA READ', 11, AppId);
         RunCase(Observer, 'find_dash_id_tv', 'SFF PA READ', 12, AppId);
-        Observer.Finish();
+        Observer.Expect('findfirst_id_tv_calc|text', 'SFF ok [Yes]');
+        Observer.Expect('findfirst_id_tv_calc|code', 'Dialog');
+        Observer.Expect('findfirst_id_calc|text', 'SFF ok [Yes]');
+        Observer.Expect('findfirst_id_calc|code', 'Dialog');
+        Observer.Expect('findfirst_id_nocalc|text', 'SFF ok [No]');
+        Observer.Expect('findfirst_id_nocalc|code', 'Dialog');
+        Observer.Expect('findfirst_id_tvfalse|text', 'There is no Published Application within the filter.\\Filters: ID: {3F8C1A52-9D4E-4B17-8C26-5EA70B93D418}, Tenant Visible: No');
+        Observer.Expect('findfirst_id_tvfalse|code', 'DB:NothingInsideFilter');
+        Observer.Expect('findlast_id_tv|text', 'SFF ok [AL Language Coverage Tests (OnPrem)]');
+        Observer.Expect('findlast_id_tv|code', 'Dialog');
+        Observer.Expect('find_dash_id_tv|text', 'SFF ok [AL Language Coverage Tests (OnPrem)]');
+        Observer.Expect('find_dash_id_tv|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -78,7 +113,19 @@ codeunit 98747 "SFF Filter Perm"
         RunCase(Observer, 'count_id_tv', 'SFF PA READ', 4, AppId);
         RunCase(Observer, 'findfirst_id', 'SFF PA READ', 5, AppId);
         RunCase(Observer, 'isempty_tv', 'SFF PA READ', 6, AppId);
-        Observer.Finish();
+        Observer.Expect('findfirst_id_tv|text', 'There is no Published Application within the filter.\\Filters: ID: {5F1D0C2E-7B44-4E1A-9A3C-2D6E8B9F0A11}, Tenant Visible: Yes');
+        Observer.Expect('findfirst_id_tv|code', 'DB:NothingInsideFilter');
+        Observer.Expect('findset_id_tv|text', 'There is no Published Application within the filter.\\Filters: ID: {5F1D0C2E-7B44-4E1A-9A3C-2D6E8B9F0A11}, Tenant Visible: Yes');
+        Observer.Expect('findset_id_tv|code', 'DB:NothingInsideFilter');
+        Observer.Expect('isempty_id_tv|text', 'SFF ok [Yes]');
+        Observer.Expect('isempty_id_tv|code', 'Dialog');
+        Observer.Expect('count_id_tv|text', 'SFF ok [0]');
+        Observer.Expect('count_id_tv|code', 'Dialog');
+        Observer.Expect('findfirst_id|text', 'There is no Published Application within the filter.\\Filters: ID: {5F1D0C2E-7B44-4E1A-9A3C-2D6E8B9F0A11}');
+        Observer.Expect('findfirst_id|code', 'DB:NothingInsideFilter');
+        Observer.Expect('isempty_tv|text', 'SFF ok [No]');
+        Observer.Expect('isempty_tv|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -94,7 +141,19 @@ codeunit 98747 "SFF Filter Perm"
         RunCase(Observer, 'findfirst_id_tvfalse', 'SFF PA READ', 10, AppId);
         RunCase(Observer, 'findlast_id_tv', 'SFF PA READ', 11, AppId);
         RunCase(Observer, 'find_dash_id_tv', 'SFF PA READ', 12, AppId);
-        Observer.Finish();
+        Observer.Expect('findfirst_id_tv_calc|text', 'There is no Published Application within the filter.\\Filters: ID: {5F1D0C2E-7B44-4E1A-9A3C-2D6E8B9F0A11}, Tenant Visible: Yes');
+        Observer.Expect('findfirst_id_tv_calc|code', 'DB:NothingInsideFilter');
+        Observer.Expect('findfirst_id_calc|text', 'There is no Published Application within the filter.\\Filters: ID: {5F1D0C2E-7B44-4E1A-9A3C-2D6E8B9F0A11}');
+        Observer.Expect('findfirst_id_calc|code', 'DB:NothingInsideFilter');
+        Observer.Expect('findfirst_id_nocalc|text', 'There is no Published Application within the filter.\\Filters: ID: {5F1D0C2E-7B44-4E1A-9A3C-2D6E8B9F0A11}');
+        Observer.Expect('findfirst_id_nocalc|code', 'DB:NothingInsideFilter');
+        Observer.Expect('findfirst_id_tvfalse|text', 'There is no Published Application within the filter.\\Filters: ID: {5F1D0C2E-7B44-4E1A-9A3C-2D6E8B9F0A11}, Tenant Visible: No');
+        Observer.Expect('findfirst_id_tvfalse|code', 'DB:NothingInsideFilter');
+        Observer.Expect('findlast_id_tv|text', 'There is no Published Application within the filter.\\Filters: ID: {5F1D0C2E-7B44-4E1A-9A3C-2D6E8B9F0A11}, Tenant Visible: Yes');
+        Observer.Expect('findlast_id_tv|code', 'DB:NothingInsideFilter');
+        Observer.Expect('find_dash_id_tv|text', 'There is no Published Application within the filter.\\Filters: ID: {5F1D0C2E-7B44-4E1A-9A3C-2D6E8B9F0A11}, Tenant Visible: Yes');
+        Observer.Expect('find_dash_id_tv|code', 'DB:NothingInsideFilter');
+        Observer.Verify();
     end;
 
     [Test]
@@ -110,7 +169,19 @@ codeunit 98747 "SFF Filter Perm"
         RunCase(Observer, 'count_id_tv', 'SFF NO PA', 4, AppId);
         RunCase(Observer, 'findfirst_id', 'SFF NO PA', 5, AppId);
         RunCase(Observer, 'isempty_tv', 'SFF NO PA', 6, AppId);
-        Observer.Finish();
+        Observer.Expect('findfirst_id_tv|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('findfirst_id_tv|code', 'DB:ClientReadDenied');
+        Observer.Expect('findset_id_tv|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('findset_id_tv|code', 'DB:ClientReadDenied');
+        Observer.Expect('isempty_id_tv|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('isempty_id_tv|code', 'DB:ClientReadDenied');
+        Observer.Expect('count_id_tv|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('count_id_tv|code', 'DB:ClientReadDenied');
+        Observer.Expect('findfirst_id|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('findfirst_id|code', 'DB:ClientReadDenied');
+        Observer.Expect('isempty_tv|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('isempty_tv|code', 'DB:ClientReadDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -126,7 +197,19 @@ codeunit 98747 "SFF Filter Perm"
         RunCase(Observer, 'findfirst_id_tvfalse', 'SFF NO PA', 10, AppId);
         RunCase(Observer, 'findlast_id_tv', 'SFF NO PA', 11, AppId);
         RunCase(Observer, 'find_dash_id_tv', 'SFF NO PA', 12, AppId);
-        Observer.Finish();
+        Observer.Expect('findfirst_id_tv_calc|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('findfirst_id_tv_calc|code', 'DB:ClientReadDenied');
+        Observer.Expect('findfirst_id_calc|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('findfirst_id_calc|code', 'DB:ClientReadDenied');
+        Observer.Expect('findfirst_id_nocalc|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('findfirst_id_nocalc|code', 'DB:ClientReadDenied');
+        Observer.Expect('findfirst_id_tvfalse|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('findfirst_id_tvfalse|code', 'DB:ClientReadDenied');
+        Observer.Expect('findlast_id_tv|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('findlast_id_tv|code', 'DB:ClientReadDenied');
+        Observer.Expect('find_dash_id_tv|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('find_dash_id_tv|code', 'DB:ClientReadDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -142,7 +225,19 @@ codeunit 98747 "SFF Filter Perm"
         RunCase(Observer, 'count_id_tv', 'SFF NO PA', 4, AppId);
         RunCase(Observer, 'findfirst_id', 'SFF NO PA', 5, AppId);
         RunCase(Observer, 'isempty_tv', 'SFF NO PA', 6, AppId);
-        Observer.Finish();
+        Observer.Expect('findfirst_id_tv|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('findfirst_id_tv|code', 'DB:ClientReadDenied');
+        Observer.Expect('findset_id_tv|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('findset_id_tv|code', 'DB:ClientReadDenied');
+        Observer.Expect('isempty_id_tv|text', 'SFF ok [Yes]');
+        Observer.Expect('isempty_id_tv|code', 'Dialog');
+        Observer.Expect('count_id_tv|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('count_id_tv|code', 'DB:ClientReadDenied');
+        Observer.Expect('findfirst_id|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('findfirst_id|code', 'DB:ClientReadDenied');
+        Observer.Expect('isempty_tv|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('isempty_tv|code', 'DB:ClientReadDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -158,7 +253,19 @@ codeunit 98747 "SFF Filter Perm"
         RunCase(Observer, 'findfirst_id_tvfalse', 'SFF NO PA', 10, AppId);
         RunCase(Observer, 'findlast_id_tv', 'SFF NO PA', 11, AppId);
         RunCase(Observer, 'find_dash_id_tv', 'SFF NO PA', 12, AppId);
-        Observer.Finish();
+        Observer.Expect('findfirst_id_tv_calc|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('findfirst_id_tv_calc|code', 'DB:ClientReadDenied');
+        Observer.Expect('findfirst_id_calc|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('findfirst_id_calc|code', 'DB:ClientReadDenied');
+        Observer.Expect('findfirst_id_nocalc|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('findfirst_id_nocalc|code', 'DB:ClientReadDenied');
+        Observer.Expect('findfirst_id_tvfalse|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('findfirst_id_tvfalse|code', 'DB:ClientReadDenied');
+        Observer.Expect('findlast_id_tv|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('findlast_id_tv|code', 'DB:ClientReadDenied');
+        Observer.Expect('find_dash_id_tv|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application Read: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('find_dash_id_tv|code', 'DB:ClientReadDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -174,7 +281,19 @@ codeunit 98747 "SFF Filter Perm"
         RunCase(Observer, 'count_id_tv', '', 4, AppId);
         RunCase(Observer, 'findfirst_id', '', 5, AppId);
         RunCase(Observer, 'isempty_tv', '', 6, AppId);
-        Observer.Finish();
+        Observer.Expect('findfirst_id_tv|text', 'SFF ok [AL Language Coverage Tests (OnPrem)]');
+        Observer.Expect('findfirst_id_tv|code', 'Dialog');
+        Observer.Expect('findset_id_tv|text', 'SFF ok [AL Language Coverage Tests (OnPrem)]');
+        Observer.Expect('findset_id_tv|code', 'Dialog');
+        Observer.Expect('isempty_id_tv|text', 'SFF ok [No]');
+        Observer.Expect('isempty_id_tv|code', 'Dialog');
+        Observer.Expect('count_id_tv|text', 'SFF ok [1]');
+        Observer.Expect('count_id_tv|code', 'Dialog');
+        Observer.Expect('findfirst_id|text', 'SFF ok [AL Language Coverage Tests (OnPrem)]');
+        Observer.Expect('findfirst_id|code', 'Dialog');
+        Observer.Expect('isempty_tv|text', 'SFF ok [No]');
+        Observer.Expect('isempty_tv|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -190,7 +309,19 @@ codeunit 98747 "SFF Filter Perm"
         RunCase(Observer, 'findfirst_id_tvfalse', '', 10, AppId);
         RunCase(Observer, 'findlast_id_tv', '', 11, AppId);
         RunCase(Observer, 'find_dash_id_tv', '', 12, AppId);
-        Observer.Finish();
+        Observer.Expect('findfirst_id_tv_calc|text', 'SFF ok [Yes]');
+        Observer.Expect('findfirst_id_tv_calc|code', 'Dialog');
+        Observer.Expect('findfirst_id_calc|text', 'SFF ok [Yes]');
+        Observer.Expect('findfirst_id_calc|code', 'Dialog');
+        Observer.Expect('findfirst_id_nocalc|text', 'SFF ok [No]');
+        Observer.Expect('findfirst_id_nocalc|code', 'Dialog');
+        Observer.Expect('findfirst_id_tvfalse|text', 'There is no Published Application within the filter.\\Filters: ID: {3F8C1A52-9D4E-4B17-8C26-5EA70B93D418}, Tenant Visible: No');
+        Observer.Expect('findfirst_id_tvfalse|code', 'DB:NothingInsideFilter');
+        Observer.Expect('findlast_id_tv|text', 'SFF ok [AL Language Coverage Tests (OnPrem)]');
+        Observer.Expect('findlast_id_tv|code', 'Dialog');
+        Observer.Expect('find_dash_id_tv|text', 'SFF ok [AL Language Coverage Tests (OnPrem)]');
+        Observer.Expect('find_dash_id_tv|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -206,7 +337,19 @@ codeunit 98747 "SFF Filter Perm"
         RunCase(Observer, 'count_id_tv', '', 4, AppId);
         RunCase(Observer, 'findfirst_id', '', 5, AppId);
         RunCase(Observer, 'isempty_tv', '', 6, AppId);
-        Observer.Finish();
+        Observer.Expect('findfirst_id_tv|text', 'There is no Published Application within the filter.\\Filters: ID: {5F1D0C2E-7B44-4E1A-9A3C-2D6E8B9F0A11}, Tenant Visible: Yes');
+        Observer.Expect('findfirst_id_tv|code', 'DB:NothingInsideFilter');
+        Observer.Expect('findset_id_tv|text', 'There is no Published Application within the filter.\\Filters: ID: {5F1D0C2E-7B44-4E1A-9A3C-2D6E8B9F0A11}, Tenant Visible: Yes');
+        Observer.Expect('findset_id_tv|code', 'DB:NothingInsideFilter');
+        Observer.Expect('isempty_id_tv|text', 'SFF ok [Yes]');
+        Observer.Expect('isempty_id_tv|code', 'Dialog');
+        Observer.Expect('count_id_tv|text', 'SFF ok [0]');
+        Observer.Expect('count_id_tv|code', 'Dialog');
+        Observer.Expect('findfirst_id|text', 'There is no Published Application within the filter.\\Filters: ID: {5F1D0C2E-7B44-4E1A-9A3C-2D6E8B9F0A11}');
+        Observer.Expect('findfirst_id|code', 'DB:NothingInsideFilter');
+        Observer.Expect('isempty_tv|text', 'SFF ok [No]');
+        Observer.Expect('isempty_tv|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -222,7 +365,19 @@ codeunit 98747 "SFF Filter Perm"
         RunCase(Observer, 'findfirst_id_tvfalse', '', 10, AppId);
         RunCase(Observer, 'findlast_id_tv', '', 11, AppId);
         RunCase(Observer, 'find_dash_id_tv', '', 12, AppId);
-        Observer.Finish();
+        Observer.Expect('findfirst_id_tv_calc|text', 'There is no Published Application within the filter.\\Filters: ID: {5F1D0C2E-7B44-4E1A-9A3C-2D6E8B9F0A11}, Tenant Visible: Yes');
+        Observer.Expect('findfirst_id_tv_calc|code', 'DB:NothingInsideFilter');
+        Observer.Expect('findfirst_id_calc|text', 'There is no Published Application within the filter.\\Filters: ID: {5F1D0C2E-7B44-4E1A-9A3C-2D6E8B9F0A11}');
+        Observer.Expect('findfirst_id_calc|code', 'DB:NothingInsideFilter');
+        Observer.Expect('findfirst_id_nocalc|text', 'There is no Published Application within the filter.\\Filters: ID: {5F1D0C2E-7B44-4E1A-9A3C-2D6E8B9F0A11}');
+        Observer.Expect('findfirst_id_nocalc|code', 'DB:NothingInsideFilter');
+        Observer.Expect('findfirst_id_tvfalse|text', 'There is no Published Application within the filter.\\Filters: ID: {5F1D0C2E-7B44-4E1A-9A3C-2D6E8B9F0A11}, Tenant Visible: No');
+        Observer.Expect('findfirst_id_tvfalse|code', 'DB:NothingInsideFilter');
+        Observer.Expect('findlast_id_tv|text', 'There is no Published Application within the filter.\\Filters: ID: {5F1D0C2E-7B44-4E1A-9A3C-2D6E8B9F0A11}, Tenant Visible: Yes');
+        Observer.Expect('findlast_id_tv|code', 'DB:NothingInsideFilter');
+        Observer.Expect('find_dash_id_tv|text', 'There is no Published Application within the filter.\\Filters: ID: {5F1D0C2E-7B44-4E1A-9A3C-2D6E8B9F0A11}, Tenant Visible: Yes');
+        Observer.Expect('find_dash_id_tv|code', 'DB:NothingInsideFilter');
+        Observer.Verify();
     end;
 
     local procedure ThisAppId(): Guid
