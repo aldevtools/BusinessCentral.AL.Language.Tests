@@ -7,7 +7,7 @@
 //   comment): an OnAfterLogin subscriber sets a group 1 filter on table 98474 in every session; XApp B's install code clears it; what
 //   the main app's install code and the test session see. Each entry is 'count=<n>;g1=<group 1 filters>'; each table holds two rows,
 //   one with Qty >= 3.
-// Cells only: the Expect lines come from a local BC run.
+// Cells only: the Expect lines come from the CI run of the pull request.
 // BC versions: 27 - 29
 
 codeunit 98482 "LT G1S Main Install"
@@ -45,7 +45,7 @@ codeunit 98480 "LT G1S Install Session Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('A same session', Entry('A same session'));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -54,7 +54,7 @@ codeunit 98480 "LT G1S Install Session Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('B other session', Entry('B other session'));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -63,7 +63,7 @@ codeunit 98480 "LT G1S Install Session Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('Main other session', Entry('Main other session'));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -74,7 +74,7 @@ codeunit 98480 "LT G1S Install Session Tests"
         Log: Codeunit "LT G1S XA Log";
     begin
         Observer.Observe('test session', Log.Seen(Item));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -89,6 +89,6 @@ codeunit 98480 "LT G1S Install Session Tests"
         Observer.Observe('B after clear', Entry('B login item after clear'));
         Observer.Observe('Main login item', Entry('Main login item'));
         Observer.Observe('test session login item', Log.SeenLogin(LoginItem));
-        Observer.Verify();
+        Observer.Finish();
     end;
 }

@@ -14,6 +14,12 @@ import sys
 from pathlib import Path
 
 ALLOWED = {
+    # al-runner issue 8071: filter group 1 across install sessions; each install code logs what it sees and writes only `if Insert() then;` into
+    # DataPerCompany = false tables (rows and log); FilterGroup, SetFilter, SetRange and Count do not raise. (G1sXaInstall.al, G1sXbInstall.al,
+    # G1sInstallSessionTests.al)
+    'tests/al-language-xapp-a codeunit 98472',  # "LT G1S XA Install"
+    'tests/al-language-xapp-b codeunit 98475',  # "LT G1S XB Install"
+    'tests/al-language codeunit 98482',  # "LT G1S Main Install"
     # al-runner issue 7348: writes inside TryFunctions whose result is used, in install code, with DisableWriteInsideTryFunctions=false. Only the
     # CI job "BC TryWrites" publishes this app. Every write outside the TryFunctions is `if Insert() then;` or `if Modify() then;` into DataPerCompany =
     # false tables, and each TryFunction call is used by `Log(..)`, so nothing the install code does can fail the publish. (TryWriteInstall.al)
