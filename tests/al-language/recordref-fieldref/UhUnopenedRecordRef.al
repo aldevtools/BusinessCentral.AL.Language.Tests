@@ -1,10 +1,13 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/recordref/recordref-data-type
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160), self-contained table 66990
-// Probe: observed by the corpus CI matrix (BC 27.5, 28.5, 29.0); the values asserted below are what BC produced.
+// Probe: measured by the corpus CI matrix (BC 27.5, 28.5, 29.0, run 43643688944); the values are the same on all three.
 // Facts: what the members of a RecordRef that was never opened (and of one opened and closed) do, a value or the error text and code;
 //   RecordRef.GetTable of a Variant that holds an empty Text, an Integer, a non-empty Text and nothing; the members of a KeyRef nothing
 //   assigned. Every cell has its own test. Repros of aldevtools/BusinessCentral.AL.Runner#7760, #7764, #8084 and #8001.
+// Result: every member except Number (0), Close (no error) and Get (No) fails with "The record is not open." (code RecordNotOpened), untouched or
+//   closed; GetTable of a Variant holding a Text or an Integer fails with a Conversion error to INavRecordHandle, of an empty Variant with NavVariant
+//   variable not initialized.; every KeyRef member fails with NavKeyRef variable not initialized.
 // BC versions: 27.5, 28.5, 29.0
 
 table 66990 "LT UH Row"
@@ -276,7 +279,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_copylinks');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -285,7 +289,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_findset');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -294,7 +299,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_readpermission');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -303,7 +309,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_writepermission');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -312,7 +319,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_fieldcount');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -321,7 +329,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_findfirst');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -330,7 +339,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_findlast');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -339,7 +349,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_find');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -348,7 +359,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_setrecfilter');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -357,7 +369,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_getfilters');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -366,7 +379,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_keyindex');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -375,7 +389,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_setloadfields');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -384,7 +399,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_name');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -393,7 +409,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_keycount');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -402,7 +419,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_isempty');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -411,7 +429,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_count');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -420,7 +439,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_istemporary');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -429,7 +449,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_reset');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -438,7 +459,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_field');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -447,7 +469,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_caption');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -456,7 +479,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_init');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -465,7 +489,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_number');
-        Observer.Finish();
+        Observer.Expect('result', 'ok:0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -474,7 +499,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_close');
-        Observer.Finish();
+        Observer.Expect('result', 'ok:done');
+        Observer.Verify();
     end;
 
     [Test]
@@ -483,7 +509,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_insert');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -492,7 +519,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_modify');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -501,7 +529,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_delete');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -510,7 +539,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_get');
-        Observer.Finish();
+        Observer.Expect('result', 'ok:No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -519,7 +549,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_next');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -528,7 +559,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_recordid');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -537,7 +569,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_currentkey');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -546,7 +579,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'c_copylinks');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -555,7 +589,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'c_findset');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -564,7 +599,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'c_readpermission');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -573,7 +609,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'c_writepermission');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -582,7 +619,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'c_fieldcount');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -591,7 +629,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'c_findfirst');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -600,7 +639,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'c_name');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -609,7 +649,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'c_number');
-        Observer.Finish();
+        Observer.Expect('result', 'ok:0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -618,7 +659,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'c_close');
-        Observer.Finish();
+        Observer.Expect('result', 'ok:done');
+        Observer.Verify();
     end;
 
     [Test]
@@ -627,7 +669,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'u_copylinksrec');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -636,7 +679,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'c_copylinksrec');
-        Observer.Finish();
+        Observer.Expect('result', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -645,7 +689,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'gt_empty');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle.|Conversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -654,7 +699,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'gt_int');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle.|Conversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -663,7 +709,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'gt_unassigned');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Microsoft.Dynamics.Nav.Runtime.NavVariant variable not initialized.|NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -672,7 +719,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'gt_text');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle.|Conversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -681,7 +729,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'kr_fieldcount');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Microsoft.Dynamics.Nav.Runtime.NavKeyRef variable not initialized.|NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -690,7 +739,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'kr_active');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Microsoft.Dynamics.Nav.Runtime.NavKeyRef variable not initialized.|NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -699,7 +749,8 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'kr_fieldindex');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Microsoft.Dynamics.Nav.Runtime.NavKeyRef variable not initialized.|NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -708,6 +759,7 @@ codeunit 66991 "LT UH Unopened RecordRef"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'kr_record');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Microsoft.Dynamics.Nav.Runtime.NavKeyRef variable not initialized.|NotInitialized');
+        Observer.Verify();
     end;
 }

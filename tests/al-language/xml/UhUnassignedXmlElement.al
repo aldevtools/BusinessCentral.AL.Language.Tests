@@ -1,9 +1,12 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/xmlelement/xmlelement-data-type
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160)
-// Probe: observed by the corpus CI matrix (BC 27.5, 28.5, 29.0); the values asserted below are what BC produced.
+// Probe: measured by the corpus CI matrix (BC 27.5, 28.5, 29.0, run 43643688944); the values are the same on all three.
 // Facts: what each member of an XmlElement variable that nothing assigned does (a value, or the error text and code). Every member has its own
 //   test. Repro of aldevtools/BusinessCentral.AL.Runner#7760 (comment of 2026-11-14, the XmlElement cells).
+// Result: every member of an unassigned XmlElement fails with "<Nav type> variable not initialized." (code NotInitialized); the type in the
+//   text is the handle the member goes through: NavXmlElement, NavXmlAttributeCollection (SetAttribute, Attributes, HasAttributes) or NavXmlNode
+//   (AsXmlNode, WriteTo, Remove).
 // BC versions: 27.5, 28.5, 29.0
 
 codeunit 66992 "LT UH Unassigned XmlElement"
@@ -93,7 +96,8 @@ codeunit 66992 "LT UH Unassigned XmlElement"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'innerxml');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Microsoft.Dynamics.Nav.Runtime.NavXmlElement variable not initialized.|NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -102,7 +106,8 @@ codeunit 66992 "LT UH Unassigned XmlElement"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'setattribute');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Microsoft.Dynamics.Nav.Runtime.NavXmlAttributeCollection variable not initialized.|NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -111,7 +116,8 @@ codeunit 66992 "LT UH Unassigned XmlElement"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'getchildelements');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Microsoft.Dynamics.Nav.Runtime.NavXmlElement variable not initialized.|NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -120,7 +126,8 @@ codeunit 66992 "LT UH Unassigned XmlElement"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'attributes');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Microsoft.Dynamics.Nav.Runtime.NavXmlAttributeCollection variable not initialized.|NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -129,7 +136,8 @@ codeunit 66992 "LT UH Unassigned XmlElement"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'asxmlnode');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.|NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -138,7 +146,8 @@ codeunit 66992 "LT UH Unassigned XmlElement"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'name');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Microsoft.Dynamics.Nav.Runtime.NavXmlElement variable not initialized.|NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -147,7 +156,8 @@ codeunit 66992 "LT UH Unassigned XmlElement"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'innertext');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Microsoft.Dynamics.Nav.Runtime.NavXmlElement variable not initialized.|NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -156,7 +166,8 @@ codeunit 66992 "LT UH Unassigned XmlElement"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'add');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Microsoft.Dynamics.Nav.Runtime.NavXmlElement variable not initialized.|NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -165,7 +176,8 @@ codeunit 66992 "LT UH Unassigned XmlElement"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'writeto');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.|NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -174,7 +186,8 @@ codeunit 66992 "LT UH Unassigned XmlElement"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'getchildnodes');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Microsoft.Dynamics.Nav.Runtime.NavXmlElement variable not initialized.|NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -183,7 +196,8 @@ codeunit 66992 "LT UH Unassigned XmlElement"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'hasattributes');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Microsoft.Dynamics.Nav.Runtime.NavXmlAttributeCollection variable not initialized.|NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -192,7 +206,8 @@ codeunit 66992 "LT UH Unassigned XmlElement"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'isempty');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Microsoft.Dynamics.Nav.Runtime.NavXmlElement variable not initialized.|NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -201,6 +216,7 @@ codeunit 66992 "LT UH Unassigned XmlElement"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'remove');
-        Observer.Finish();
+        Observer.Expect('result', 'error:Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.|NotInitialized');
+        Observer.Verify();
     end;
 }
