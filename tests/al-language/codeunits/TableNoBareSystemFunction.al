@@ -1,4 +1,29 @@
-// HEADER-PLACEHOLDER
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-tableno-property
+// Scope: in-scope (Cloud-compatible)
+// Fixtures used: Probe Observer (codeunit 69160); own objects 83000 to 83005
+// BC versions: 27.5+
+// Probe (al-runner 7999, assumption tableno-procedure-bare-system-function): a codeunit with TableNo whose table has fields named
+// UserId, Today, WorkDate, CompanyName and Message (BC accepts all five field names). Each read is compared with the field of the record
+// given to Codeunit.Run, with the field of a second record (a parameter or a global variable named Rec) and with the system function read
+// in a codeunit without TableNo (codeunit 83001); only that relation is asserted, never the user name, company or date.
+// What BC did:
+// - OnRun: the bare names UserId, Today, WorkDate, CompanyName, Message and the quoted name "UserId" read the field of the run record
+//   (the compiler warns AL0604, implicit with). With parentheses (UserId(), Today(), WorkDate(), CompanyName()) they call the system function.
+//   Message('...') with arguments calls the system function (the MessageHandler gets the text) although a field is named Message.
+// - A global, local or internal procedure, a procedure with a parameter named Rec of the same table, and an event subscriber of the same
+//   codeunit: the bare names call the system function (no AL0604; a procedure has no implicit Rec, must-not-compile 3140), the parameter
+//   named Rec is not used for them, and bare Message('...') shows the message. The quoted names "UserId", "Today", "WorkDate",
+//   "CompanyName" in a procedure also call the system function.
+// - A TableNo codeunit that also declares a global variable Rec (BC compiles it): in OnRun the bare and quoted names read the run record,
+//   and Rec.UserId also reads the run record (the implicit Rec hides the global one in OnRun). In a procedure the bare and quoted names
+//   call the system function and Rec.UserId reads the global variable.
+// Compiles but not run here: a test codeunit with TableNo (its bare UserId has no AL0604, so it is the system function) was dropped,
+// because Microsoft's test runner session died running it on BC 28.5 ("hub connection closed" twice); an Install codeunit with TableNo
+// and OnInstallAppPerCompany reading bare UserId compiles without AL0604, but the corpus gate rejects install codeunits; a TestRunner
+// trigger (OnBeforeTestRun) reading bare UserId compiles without AL0604. Compile facts checked with AL 17 and 18.
+// Values measured on BC 28.5 (local Windows container); 27.5 and 29.0: see the corpus CI run of the pull request.
+// local object: the table must have fields with the names of system functions and every codeunit below is a shape of the question
+// (TableNo subject, event publisher, codeunit without TableNo for the system values, TableNo codeunit with a global Rec).
 
 table 83000 "TNBSF Table"
 {
@@ -294,7 +319,17 @@ codeunit 83005 "TNBSF Tests"
         OtherRec: Record "TNBSF Table";
     begin
         ObserveGroup(Observer, RunSubject(RunRec, OtherRec), 'OnRun', RunRec, OtherRec, 'parameter Rec');
-        Observer.Finish();
+        Observer.Expect('OnRun.UserId', 'run record field');
+        Observer.Expect('OnRun.UserIdParens', 'system function');
+        Observer.Expect('OnRun.QuotedUserId', 'run record field');
+        Observer.Expect('OnRun.Today', 'run record field');
+        Observer.Expect('OnRun.TodayParens', 'system function');
+        Observer.Expect('OnRun.WorkDate', 'run record field');
+        Observer.Expect('OnRun.WorkDateParens', 'system function');
+        Observer.Expect('OnRun.CompanyName', 'run record field');
+        Observer.Expect('OnRun.CompanyNameParens', 'system function');
+        Observer.Expect('OnRun.MessageRead', 'run record field');
+        Observer.Verify();
     end;
 
     [Test]
@@ -306,7 +341,12 @@ codeunit 83005 "TNBSF Tests"
         OtherRec: Record "TNBSF Table";
     begin
         ObserveGroup(Observer, RunSubject(RunRec, OtherRec), 'Global', RunRec, OtherRec, 'parameter Rec');
-        Observer.Finish();
+        Observer.Expect('Global.UserId', 'system function');
+        Observer.Expect('Global.UserIdParens', 'system function');
+        Observer.Expect('Global.Today', 'system function');
+        Observer.Expect('Global.WorkDate', 'system function');
+        Observer.Expect('Global.CompanyName', 'system function');
+        Observer.Verify();
     end;
 
     [Test]
@@ -318,7 +358,12 @@ codeunit 83005 "TNBSF Tests"
         OtherRec: Record "TNBSF Table";
     begin
         ObserveGroup(Observer, RunSubject(RunRec, OtherRec), 'Local', RunRec, OtherRec, 'parameter Rec');
-        Observer.Finish();
+        Observer.Expect('Local.UserId', 'system function');
+        Observer.Expect('Local.UserIdParens', 'system function');
+        Observer.Expect('Local.Today', 'system function');
+        Observer.Expect('Local.WorkDate', 'system function');
+        Observer.Expect('Local.CompanyName', 'system function');
+        Observer.Verify();
     end;
 
     [Test]
@@ -330,7 +375,12 @@ codeunit 83005 "TNBSF Tests"
         OtherRec: Record "TNBSF Table";
     begin
         ObserveGroup(Observer, RunSubject(RunRec, OtherRec), 'Internal', RunRec, OtherRec, 'parameter Rec');
-        Observer.Finish();
+        Observer.Expect('Internal.UserId', 'system function');
+        Observer.Expect('Internal.UserIdParens', 'system function');
+        Observer.Expect('Internal.Today', 'system function');
+        Observer.Expect('Internal.WorkDate', 'system function');
+        Observer.Expect('Internal.CompanyName', 'system function');
+        Observer.Verify();
     end;
 
     [Test]
@@ -342,7 +392,12 @@ codeunit 83005 "TNBSF Tests"
         OtherRec: Record "TNBSF Table";
     begin
         ObserveGroup(Observer, RunSubject(RunRec, OtherRec), 'ParamRec', RunRec, OtherRec, 'parameter Rec');
-        Observer.Finish();
+        Observer.Expect('ParamRec.UserId', 'system function');
+        Observer.Expect('ParamRec.UserIdParens', 'system function');
+        Observer.Expect('ParamRec.Today', 'system function');
+        Observer.Expect('ParamRec.WorkDate', 'system function');
+        Observer.Expect('ParamRec.CompanyName', 'system function');
+        Observer.Verify();
     end;
 
     [Test]
@@ -354,7 +409,11 @@ codeunit 83005 "TNBSF Tests"
         OtherRec: Record "TNBSF Table";
     begin
         ObserveGroup(Observer, RunSubject(RunRec, OtherRec), 'Quoted', RunRec, OtherRec, 'parameter Rec');
-        Observer.Finish();
+        Observer.Expect('Quoted.UserId', 'system function');
+        Observer.Expect('Quoted.Today', 'system function');
+        Observer.Expect('Quoted.WorkDate', 'system function');
+        Observer.Expect('Quoted.CompanyName', 'system function');
+        Observer.Verify();
     end;
 
     [Test]
@@ -367,7 +426,8 @@ codeunit 83005 "TNBSF Tests"
     begin
         RunSubject(RunRec, OtherRec);
         Observer.Observe('messages', Messages);
-        Observer.Finish();
+        Observer.Expect('messages', 'TNBSF OnRun;TNBSF Global;TNBSF Local;TNBSF Internal;TNBSF ParamRec;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -386,7 +446,13 @@ codeunit 83005 "TNBSF Tests"
         Publisher.Raise(Res);
         ObserveGroup(Observer, Res, 'Subscriber', RunRec, OtherRec, 'parameter Rec');
         Observer.Observe('messages', Messages);
-        Observer.Finish();
+        Observer.Expect('Subscriber.UserId', 'system function');
+        Observer.Expect('Subscriber.UserIdParens', 'system function');
+        Observer.Expect('Subscriber.Today', 'system function');
+        Observer.Expect('Subscriber.WorkDate', 'system function');
+        Observer.Expect('Subscriber.CompanyName', 'system function');
+        Observer.Expect('messages', 'TNBSF Subscriber;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -403,48 +469,16 @@ codeunit 83005 "TNBSF Tests"
         Subject.Run(RunRec);
         ObserveGroup(Observer, Subject.GetResults(), 'OnRun', RunRec, GlobalRec, 'global Rec');
         ObserveGroup(Observer, Subject.GetResults(), 'Proc', RunRec, GlobalRec, 'global Rec');
-        Observer.Finish();
-    end;
-
-    [MessageHandler]
-    procedure CollectMessage(Msg: Text[1024])
-    begin
-        Messages += Msg + ';';
-    end;
-}
-
-// A test codeunit with TableNo: BC compiles it. Its test procedures have no record at all.
-codeunit 83006 "TNBSF TableNo Tests"
-{
-    Subtype = Test;
-    TableNo = "TNBSF Table";
-
-    var
-        Messages: Text;
-
-    local procedure Classify(Got: Text; Sys: Text): Text
-    begin
-        if Got = Sys then
-            exit('system function');
-        exit('other value');
-    end;
-
-    [Test]
-    [HandlerFunctions('CollectMessage')]
-    procedure TestProcedure_BareNames_Source()
-    var
-        Observer: Codeunit "Probe Observer";
-        Plain: Codeunit "TNBSF Plain";
-    begin
-        Messages := '';
-        Observer.Observe('UserId', Classify(Format(UserId), Plain.SysUserId()));
-        Observer.Observe('QuotedUserId', Classify(Format("UserId"), Plain.SysUserId()));
-        Observer.Observe('Today', Classify(Format(Today, 0, 9), Plain.SysToday()));
-        Observer.Observe('WorkDate', Classify(Format(WorkDate, 0, 9), Plain.SysWorkDate()));
-        Observer.Observe('CompanyName', Classify(Format(CompanyName), Plain.SysCompanyName()));
-        Message('TNBSF Test');
-        Observer.Observe('messages', Messages);
-        Observer.Finish();
+        Observer.Expect('OnRun.UserId', 'run record field');
+        Observer.Expect('OnRun.QuotedUserId', 'run record field');
+        Observer.Expect('OnRun.UserIdParens', 'system function');
+        Observer.Expect('OnRun.Today', 'run record field');
+        Observer.Expect('OnRun.RecUserId', 'run record field');
+        Observer.Expect('Proc.UserId', 'system function');
+        Observer.Expect('Proc.QuotedUserId', 'system function');
+        Observer.Expect('Proc.Today', 'system function');
+        Observer.Expect('Proc.RecUserId', 'global Rec field');
+        Observer.Verify();
     end;
 
     [MessageHandler]
