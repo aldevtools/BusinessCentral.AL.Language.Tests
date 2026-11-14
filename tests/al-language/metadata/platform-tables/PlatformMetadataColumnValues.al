@@ -531,6 +531,112 @@ codeunit 71394 "LT PM Values Tests"
         Observer.Expect('xapp a 61101', 'pkgnull=Yes rtnull=Yes pkg=allobj:No');
         Observer.Verify();
     end;
+
+    local procedure PackageIdsAgainstTable(var F: Record Field; TableObj: Record AllObj): Text
+    begin
+        exit(
+            'pkgnull=' + Format(IsNullGuid(F."App Package ID")) +
+            ' rtnull=' + Format(IsNullGuid(F."App Runtime Package ID")) +
+            ' pkg=allobj:' + Format(F."App Package ID" = TableObj."App Package ID") +
+            ' rt=allobj:' + Format(F."App Runtime Package ID" = TableObj."App Runtime Package ID"));
+    end;
+
+    local procedure ObserveKeyLookups(var Observer: Codeunit "Probe Observer"; Prefix: Text; TableId: Integer)
+    var
+        F: Record Field;
+        TableObj: Record AllObj;
+    begin
+        TableObj.Get(TableObj."Object Type"::Table, TableId);
+        F.Get(TableId, 1);
+        Observer.Observe(Prefix + ' get', PackageIdsAgainstTable(F, TableObj));
+        Clear(F);
+        F.SetRange(TableNo, TableId);
+        F.SetRange("No.", 1);
+        F.FindFirst();
+        Observer.Observe(Prefix + ' key findfirst', PackageIdsAgainstTable(F, TableObj));
+        Clear(F);
+        F.SetRange(TableNo, TableId);
+        F.SetRange("No.", 1);
+        F.FindSet();
+        Observer.Observe(Prefix + ' key findset', PackageIdsAgainstTable(F, TableObj));
+        Clear(F);
+        F.SetRange(TableNo, TableId);
+        F.SetRange("No.", 1, 2);
+        F.FindFirst();
+        Observer.Observe(Prefix + ' range findfirst', PackageIdsAgainstTable(F, TableObj));
+    end;
+
+    // Follow-up of al-runner PR 8054: a Get of a table's own field, and a FindFirst or FindSet whose filters set TableNo and No. to
+    // one value each, give null package ids unless a table extension of the table's own app extends the table; then they give the
+    // table's AllObj ids. A filter on a range of No. gives the table's ids either way. Tables: this app's table 71390 (no extension)
+    // and 71397 (extended by this app's extension 71398, below), Base Application's Contact (no extension of Base Application) and
+    // Customer (Base Application's extension 6450), and cross-app fixture A's table 61101 (extended only by other apps).
+    // Measured with the same shapes on a local BC 29.1 (OnPrem w1); BC 27 and 28 by CI.
+    [Test]
+    procedure FieldTable_AppPackageIds_KeyLookupOfOwnField_NullUnlessSameAppTableExtension()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveKeyLookups(Observer, 'own 71390', Database::"LT PM Values Table");
+        ObserveKeyLookups(Observer, 'own 71397', Database::"LT PM Values Self Ext Table");
+        ObserveKeyLookups(Observer, 'base contact', Database::Contact);
+        ObserveKeyLookups(Observer, 'base customer', Database::Customer);
+        ObserveKeyLookups(Observer, 'xapp a 61101', Database::"LT BW XA Base");
+        Observer.Expect('own 71390 get', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('own 71390 key findfirst', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('own 71390 key findset', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('own 71390 range findfirst', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('own 71397 get', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('own 71397 key findfirst', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('own 71397 key findset', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('own 71397 range findfirst', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('base contact get', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('base contact key findfirst', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('base contact key findset', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('base contact range findfirst', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('base customer get', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('base customer key findfirst', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('base customer key findset', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('base customer range findfirst', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('xapp a 61101 get', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('xapp a 61101 key findfirst', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('xapp a 61101 key findset', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('xapp a 61101 range findfirst', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Verify();
+    end;
+
+    local procedure SystemFieldGet(TableId: Integer; FieldNo: Integer): Text
+    var
+        F: Record Field;
+        TableObj: Record AllObj;
+    begin
+        TableObj.Get(TableObj."Object Type"::Table, TableId);
+        F.Get(TableId, FieldNo);
+        exit(PackageIdsAgainstTable(F, TableObj));
+    end;
+
+    // Follow-up of al-runner PR 8054: a Get of a system field (SystemId 2000000000, SystemCreatedAt 2000000001, SystemModifiedAt
+    // 2000000003) gives the table's AllObj ids, also on a table no extension of its own app extends, where a Get of a declared field
+    // gives null ids. Measured as above.
+    [Test]
+    procedure FieldTable_AppPackageIds_GetOfSystemField_IsTheTablesWithoutSameAppTableExtension()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('own 71390 field 2', SystemFieldGet(Database::"LT PM Values Table", 2));
+        Observer.Observe('own 71390 systemid', SystemFieldGet(Database::"LT PM Values Table", 2000000000));
+        Observer.Observe('own 71390 systemcreatedat', SystemFieldGet(Database::"LT PM Values Table", 2000000001));
+        Observer.Observe('base contact field 2', SystemFieldGet(Database::Contact, 2));
+        Observer.Observe('base contact systemid', SystemFieldGet(Database::Contact, 2000000000));
+        Observer.Observe('base contact systemmodifiedat', SystemFieldGet(Database::Contact, 2000000003));
+        Observer.Expect('own 71390 field 2', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('own 71390 systemid', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('own 71390 systemcreatedat', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('base contact field 2', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('base contact systemid', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('base contact systemmodifiedat', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Verify();
+    end;
 }
 
 // local object: the tests read the Field rows of the fields these extensions declare (their obsolete state, class and Enabled are
@@ -575,6 +681,31 @@ tableextension 71396 "LT PM Values Feature Ext" extends "Feature Data Update Sta
     fields
     {
         field(71400; "LT PM Feature Note"; Text[30])
+        {
+            DataClassification = SystemMetadata;
+        }
+    }
+}
+
+// local object: the test varies whether an extension of the table's own app extends the table, which is the table's own definition.
+table 71397 "LT PM Values Self Ext Table"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; Description; Text[30]) { }
+    }
+
+    keys { key(PK; "No.") { Clustered = true; } }
+}
+
+tableextension 71398 "LT PM Values Self Ext" extends "LT PM Values Self Ext Table"
+{
+    fields
+    {
+        field(71401; "LT PM Self Note"; Text[30])
         {
             DataClassification = SystemMetadata;
         }
