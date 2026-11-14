@@ -2,7 +2,7 @@
 //   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-subpageview-property
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own tables 62690 62691 62697, log codeunit 62692, part pages 62693 62698, host pages
-//   62694 62695 62699, test codeunit 62696
+//   62694 62695 62735, test codeunit 62696
 // Probe: observe-only. Area: the line number AutoSplitKey gives a new row of a ListPart whose SubPageView sorts by a secondary key, in the
 //   shapes PartSplitKeyOtherSortKey.al does not measure (al-runner issue 7402):
 //   1. the Card host run by Page.RunModal as a statement (not in lookup mode); PartSplitKeyOtherSortKey.al:584 uses the return value;
@@ -239,7 +239,7 @@ page 62695 "PG SR Document"
     }
 }
 
-page 62699 "PG SR Card V"
+page 62735 "PG SR Card V"
 {
     PageType = Card;
     SourceTable = "PG SR Head";

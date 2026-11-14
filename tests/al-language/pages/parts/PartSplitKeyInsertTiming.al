@@ -1428,7 +1428,9 @@ codeunit 62733 "PG ST Insert Timing"
         Doc.Close();
         Observer.Observe('log', Log.Take());
         Observer.Observe('head', Format(Head.Get('H3')));
-        Observer.Finish();
+        Observer.Expect('log', '[NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes]');
+        Observer.Expect('head', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1455,7 +1457,10 @@ codeunit 62733 "PG ST Insert Timing"
         end;
         Observer.ObserveError('opennew');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('opennew|text', '');
+        Observer.Expect('opennew|code', 'Dialog');
+        Observer.Expect('log', '[NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes | NEW 0 x=0 below=Yes | after New | after Descr | INS 20000 x=0 below=Yes | T-I 20000 | after Seq [20000/0=a:0 ] | after Close [20000/25=a:0 ]]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1483,7 +1488,12 @@ codeunit 62733 "PG ST Insert Timing"
         end;
         Observer.ObserveError('opennew');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log open', '[H-N]');
+        Observer.Expect('log code', '[]');
+        Observer.Expect('opennew|text', '');
+        Observer.Expect('opennew|code', 'Dialog');
+        Observer.Expect('log', '[H-I | after New | after Descr | T-I 20000 | after Seq [20000/0=a:0 ] | after Close [20000/25=a:0 ]]');
+        Observer.Verify();
     end;
 
     // Cell 2: the Document host run by Page.RunModal with a handler, on rows and on the empty part.
@@ -1504,7 +1514,11 @@ codeunit 62733 "PG ST Insert Timing"
         Observer.ObserveError('RunModal');
         Observer.Observe('log', Log.Take());
         Observer.Observe('lines', Lines('H1'));
-        Observer.Finish();
+        Observer.Expect('RunModal|text', 'The line cannot be split.');
+        Observer.Expect('RunModal|code', 'TestWrapped');
+        Observer.Expect('log', '[]');
+        Observer.Expect('lines', '[10000/20=old:0 20000/40=old:0 30000/10=old:0 40000/30=old:0 ]');
+        Observer.Verify();
     end;
 
     [Test]
