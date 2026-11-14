@@ -17,8 +17,8 @@
 //   with this app's ID finds nothing: DB:NothingInsideFilter 'There is no Published Application within the filter.' plus the filters.
 //   For an ID no app has: FindFirst, FindSet, FindLast, Find('-') and the CalcFields forms raise DB:NothingInsideFilter, IsEmpty is Yes,
 //   Count is 0. Without any grant on the table, every form raises DB:ClientReadDenied 'Sorry, the current permissions prevented the
-//   action. (TableData 2000000206 Published Application Read: <app name>)', also for an ID no app has, except IsEmpty with the
-//   ID filter for an unknown ID, which returns Yes with no error.
+//   action. (TableData 2000000206 Published Application Read: <app name>)', also for an ID no app has, except IsEmpty with both filters (ID and "Tenant Visible" = true)
+//   for an unknown ID, which returns Yes with no error.
 // BC versions: 27, 28, 29
 
 permissionset 98745 "SFF PA READ"
