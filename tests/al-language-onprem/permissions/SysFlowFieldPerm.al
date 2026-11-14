@@ -9,7 +9,13 @@
 //   runs with full permissions). The lookup either finds a row (the ID of this OnPrem app, from NavApp.GetCurrentModuleInfo) or none
 //   (a fixed GUID no app has). Every case inserts its own row inside an asserterror that ends in the own error 'SFP ok [...]', so
 //   nothing stays.
-// Facts: observe form, values pending.
+// Facts (BC 27.5, 28.5 and 29.0 behave the same):
+//   With "Published Application" = R, and with no mock (full permissions): CalcFields gives the value with and without the
+//   "Tenant Visible" = true filter (Name = this app's name, Publisher = 'AL Language', Exist = Yes, Count = 1; for the unknown app
+//   '', No, 0), no error. Without a grant on "Published Application": every CalcFields form (Name, Publisher, Exist, Count, with
+//   and without the filter, row found or not) raises DB:ClientReadDenied 'Sorry, the current permissions prevented the action.
+//   (TableData 2000000206 Published Application IndirectRead: <this app's name>)'. SetAutoCalcFields + FindFirst and a filter on
+//   the FlowField (SetFilter on Name, SetRange on Exist) raise no error in that state and return the same values as with the grant.
 // BC versions: 27, 28, 29
 
 table 98740 "SFP Item"
@@ -94,7 +100,13 @@ codeunit 98743 "SFP SysFlow Perm"
         RunCase(Observer, 'calc_name_visible', 'SFP PA READ', 1, AppId);
         RunCase(Observer, 'calc_name_any', 'SFP PA READ', 2, AppId);
         RunCase(Observer, 'calc_publisher_visible', 'SFP PA READ', 3, AppId);
-        Observer.Finish();
+        Observer.Expect('calc_name_visible|text', 'SFP ok [AL Language Coverage Tests (OnPrem)]');
+        Observer.Expect('calc_name_visible|code', 'Dialog');
+        Observer.Expect('calc_name_any|text', 'SFP ok [AL Language Coverage Tests (OnPrem)]');
+        Observer.Expect('calc_name_any|code', 'Dialog');
+        Observer.Expect('calc_publisher_visible|text', 'SFP ok [AL Language]');
+        Observer.Expect('calc_publisher_visible|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -108,7 +120,15 @@ codeunit 98743 "SFP SysFlow Perm"
         RunCase(Observer, 'calc_exists_any', 'SFP PA READ', 5, AppId);
         RunCase(Observer, 'calc_count_visible', 'SFP PA READ', 6, AppId);
         RunCase(Observer, 'calc_count_any', 'SFP PA READ', 7, AppId);
-        Observer.Finish();
+        Observer.Expect('calc_exists_visible|text', 'SFP ok [Yes]');
+        Observer.Expect('calc_exists_visible|code', 'Dialog');
+        Observer.Expect('calc_exists_any|text', 'SFP ok [Yes]');
+        Observer.Expect('calc_exists_any|code', 'Dialog');
+        Observer.Expect('calc_count_visible|text', 'SFP ok [1]');
+        Observer.Expect('calc_count_visible|code', 'Dialog');
+        Observer.Expect('calc_count_any|text', 'SFP ok [1]');
+        Observer.Expect('calc_count_any|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -122,7 +142,15 @@ codeunit 98743 "SFP SysFlow Perm"
         RunCase(Observer, 'autocalc_findfirst_name_any', 'SFP PA READ', 9, AppId);
         RunCase(Observer, 'filter_name_visible_count', 'SFP PA READ', 10, AppId);
         RunCase(Observer, 'filter_exists_visible_count', 'SFP PA READ', 11, AppId);
-        Observer.Finish();
+        Observer.Expect('autocalc_findfirst_name_visible|text', 'SFP ok [AL Language Coverage Tests (OnPrem)]');
+        Observer.Expect('autocalc_findfirst_name_visible|code', 'Dialog');
+        Observer.Expect('autocalc_findfirst_name_any|text', 'SFP ok [AL Language Coverage Tests (OnPrem)]');
+        Observer.Expect('autocalc_findfirst_name_any|code', 'Dialog');
+        Observer.Expect('filter_name_visible_count|text', 'SFP ok [1]');
+        Observer.Expect('filter_name_visible_count|code', 'Dialog');
+        Observer.Expect('filter_exists_visible_count|text', 'SFP ok [1]');
+        Observer.Expect('filter_exists_visible_count|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -135,7 +163,13 @@ codeunit 98743 "SFP SysFlow Perm"
         RunCase(Observer, 'calc_name_visible', 'SFP PA READ', 1, AppId);
         RunCase(Observer, 'calc_name_any', 'SFP PA READ', 2, AppId);
         RunCase(Observer, 'calc_publisher_visible', 'SFP PA READ', 3, AppId);
-        Observer.Finish();
+        Observer.Expect('calc_name_visible|text', 'SFP ok []');
+        Observer.Expect('calc_name_visible|code', 'Dialog');
+        Observer.Expect('calc_name_any|text', 'SFP ok []');
+        Observer.Expect('calc_name_any|code', 'Dialog');
+        Observer.Expect('calc_publisher_visible|text', 'SFP ok []');
+        Observer.Expect('calc_publisher_visible|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -149,7 +183,15 @@ codeunit 98743 "SFP SysFlow Perm"
         RunCase(Observer, 'calc_exists_any', 'SFP PA READ', 5, AppId);
         RunCase(Observer, 'calc_count_visible', 'SFP PA READ', 6, AppId);
         RunCase(Observer, 'calc_count_any', 'SFP PA READ', 7, AppId);
-        Observer.Finish();
+        Observer.Expect('calc_exists_visible|text', 'SFP ok [No]');
+        Observer.Expect('calc_exists_visible|code', 'Dialog');
+        Observer.Expect('calc_exists_any|text', 'SFP ok [No]');
+        Observer.Expect('calc_exists_any|code', 'Dialog');
+        Observer.Expect('calc_count_visible|text', 'SFP ok [0]');
+        Observer.Expect('calc_count_visible|code', 'Dialog');
+        Observer.Expect('calc_count_any|text', 'SFP ok [0]');
+        Observer.Expect('calc_count_any|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -163,7 +205,15 @@ codeunit 98743 "SFP SysFlow Perm"
         RunCase(Observer, 'autocalc_findfirst_name_any', 'SFP PA READ', 9, AppId);
         RunCase(Observer, 'filter_name_visible_count', 'SFP PA READ', 10, AppId);
         RunCase(Observer, 'filter_exists_visible_count', 'SFP PA READ', 11, AppId);
-        Observer.Finish();
+        Observer.Expect('autocalc_findfirst_name_visible|text', 'SFP ok []');
+        Observer.Expect('autocalc_findfirst_name_visible|code', 'Dialog');
+        Observer.Expect('autocalc_findfirst_name_any|text', 'SFP ok []');
+        Observer.Expect('autocalc_findfirst_name_any|code', 'Dialog');
+        Observer.Expect('filter_name_visible_count|text', 'SFP ok [0]');
+        Observer.Expect('filter_name_visible_count|code', 'Dialog');
+        Observer.Expect('filter_exists_visible_count|text', 'SFP ok [0]');
+        Observer.Expect('filter_exists_visible_count|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -176,7 +226,13 @@ codeunit 98743 "SFP SysFlow Perm"
         RunCase(Observer, 'calc_name_visible', 'SFP NO PA', 1, AppId);
         RunCase(Observer, 'calc_name_any', 'SFP NO PA', 2, AppId);
         RunCase(Observer, 'calc_publisher_visible', 'SFP NO PA', 3, AppId);
-        Observer.Finish();
+        Observer.Expect('calc_name_visible|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application IndirectRead: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('calc_name_visible|code', 'DB:ClientReadDenied');
+        Observer.Expect('calc_name_any|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application IndirectRead: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('calc_name_any|code', 'DB:ClientReadDenied');
+        Observer.Expect('calc_publisher_visible|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application IndirectRead: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('calc_publisher_visible|code', 'DB:ClientReadDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -190,7 +246,15 @@ codeunit 98743 "SFP SysFlow Perm"
         RunCase(Observer, 'calc_exists_any', 'SFP NO PA', 5, AppId);
         RunCase(Observer, 'calc_count_visible', 'SFP NO PA', 6, AppId);
         RunCase(Observer, 'calc_count_any', 'SFP NO PA', 7, AppId);
-        Observer.Finish();
+        Observer.Expect('calc_exists_visible|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application IndirectRead: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('calc_exists_visible|code', 'DB:ClientReadDenied');
+        Observer.Expect('calc_exists_any|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application IndirectRead: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('calc_exists_any|code', 'DB:ClientReadDenied');
+        Observer.Expect('calc_count_visible|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application IndirectRead: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('calc_count_visible|code', 'DB:ClientReadDenied');
+        Observer.Expect('calc_count_any|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application IndirectRead: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('calc_count_any|code', 'DB:ClientReadDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -204,7 +268,15 @@ codeunit 98743 "SFP SysFlow Perm"
         RunCase(Observer, 'autocalc_findfirst_name_any', 'SFP NO PA', 9, AppId);
         RunCase(Observer, 'filter_name_visible_count', 'SFP NO PA', 10, AppId);
         RunCase(Observer, 'filter_exists_visible_count', 'SFP NO PA', 11, AppId);
-        Observer.Finish();
+        Observer.Expect('autocalc_findfirst_name_visible|text', 'SFP ok [AL Language Coverage Tests (OnPrem)]');
+        Observer.Expect('autocalc_findfirst_name_visible|code', 'Dialog');
+        Observer.Expect('autocalc_findfirst_name_any|text', 'SFP ok [AL Language Coverage Tests (OnPrem)]');
+        Observer.Expect('autocalc_findfirst_name_any|code', 'Dialog');
+        Observer.Expect('filter_name_visible_count|text', 'SFP ok [1]');
+        Observer.Expect('filter_name_visible_count|code', 'Dialog');
+        Observer.Expect('filter_exists_visible_count|text', 'SFP ok [1]');
+        Observer.Expect('filter_exists_visible_count|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -217,7 +289,13 @@ codeunit 98743 "SFP SysFlow Perm"
         RunCase(Observer, 'calc_name_visible', 'SFP NO PA', 1, AppId);
         RunCase(Observer, 'calc_name_any', 'SFP NO PA', 2, AppId);
         RunCase(Observer, 'calc_publisher_visible', 'SFP NO PA', 3, AppId);
-        Observer.Finish();
+        Observer.Expect('calc_name_visible|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application IndirectRead: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('calc_name_visible|code', 'DB:ClientReadDenied');
+        Observer.Expect('calc_name_any|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application IndirectRead: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('calc_name_any|code', 'DB:ClientReadDenied');
+        Observer.Expect('calc_publisher_visible|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application IndirectRead: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('calc_publisher_visible|code', 'DB:ClientReadDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -231,7 +309,15 @@ codeunit 98743 "SFP SysFlow Perm"
         RunCase(Observer, 'calc_exists_any', 'SFP NO PA', 5, AppId);
         RunCase(Observer, 'calc_count_visible', 'SFP NO PA', 6, AppId);
         RunCase(Observer, 'calc_count_any', 'SFP NO PA', 7, AppId);
-        Observer.Finish();
+        Observer.Expect('calc_exists_visible|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application IndirectRead: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('calc_exists_visible|code', 'DB:ClientReadDenied');
+        Observer.Expect('calc_exists_any|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application IndirectRead: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('calc_exists_any|code', 'DB:ClientReadDenied');
+        Observer.Expect('calc_count_visible|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application IndirectRead: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('calc_count_visible|code', 'DB:ClientReadDenied');
+        Observer.Expect('calc_count_any|text', 'Sorry, the current permissions prevented the action. (TableData 2000000206 Published Application IndirectRead: AL Language Coverage Tests (OnPrem))');
+        Observer.Expect('calc_count_any|code', 'DB:ClientReadDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -245,7 +331,15 @@ codeunit 98743 "SFP SysFlow Perm"
         RunCase(Observer, 'autocalc_findfirst_name_any', 'SFP NO PA', 9, AppId);
         RunCase(Observer, 'filter_name_visible_count', 'SFP NO PA', 10, AppId);
         RunCase(Observer, 'filter_exists_visible_count', 'SFP NO PA', 11, AppId);
-        Observer.Finish();
+        Observer.Expect('autocalc_findfirst_name_visible|text', 'SFP ok []');
+        Observer.Expect('autocalc_findfirst_name_visible|code', 'Dialog');
+        Observer.Expect('autocalc_findfirst_name_any|text', 'SFP ok []');
+        Observer.Expect('autocalc_findfirst_name_any|code', 'Dialog');
+        Observer.Expect('filter_name_visible_count|text', 'SFP ok [0]');
+        Observer.Expect('filter_name_visible_count|code', 'Dialog');
+        Observer.Expect('filter_exists_visible_count|text', 'SFP ok [0]');
+        Observer.Expect('filter_exists_visible_count|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -258,7 +352,13 @@ codeunit 98743 "SFP SysFlow Perm"
         RunCase(Observer, 'calc_name_visible', '', 1, AppId);
         RunCase(Observer, 'calc_name_any', '', 2, AppId);
         RunCase(Observer, 'calc_publisher_visible', '', 3, AppId);
-        Observer.Finish();
+        Observer.Expect('calc_name_visible|text', 'SFP ok [AL Language Coverage Tests (OnPrem)]');
+        Observer.Expect('calc_name_visible|code', 'Dialog');
+        Observer.Expect('calc_name_any|text', 'SFP ok [AL Language Coverage Tests (OnPrem)]');
+        Observer.Expect('calc_name_any|code', 'Dialog');
+        Observer.Expect('calc_publisher_visible|text', 'SFP ok [AL Language]');
+        Observer.Expect('calc_publisher_visible|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -272,7 +372,15 @@ codeunit 98743 "SFP SysFlow Perm"
         RunCase(Observer, 'calc_exists_any', '', 5, AppId);
         RunCase(Observer, 'calc_count_visible', '', 6, AppId);
         RunCase(Observer, 'calc_count_any', '', 7, AppId);
-        Observer.Finish();
+        Observer.Expect('calc_exists_visible|text', 'SFP ok [Yes]');
+        Observer.Expect('calc_exists_visible|code', 'Dialog');
+        Observer.Expect('calc_exists_any|text', 'SFP ok [Yes]');
+        Observer.Expect('calc_exists_any|code', 'Dialog');
+        Observer.Expect('calc_count_visible|text', 'SFP ok [1]');
+        Observer.Expect('calc_count_visible|code', 'Dialog');
+        Observer.Expect('calc_count_any|text', 'SFP ok [1]');
+        Observer.Expect('calc_count_any|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -286,7 +394,15 @@ codeunit 98743 "SFP SysFlow Perm"
         RunCase(Observer, 'autocalc_findfirst_name_any', '', 9, AppId);
         RunCase(Observer, 'filter_name_visible_count', '', 10, AppId);
         RunCase(Observer, 'filter_exists_visible_count', '', 11, AppId);
-        Observer.Finish();
+        Observer.Expect('autocalc_findfirst_name_visible|text', 'SFP ok [AL Language Coverage Tests (OnPrem)]');
+        Observer.Expect('autocalc_findfirst_name_visible|code', 'Dialog');
+        Observer.Expect('autocalc_findfirst_name_any|text', 'SFP ok [AL Language Coverage Tests (OnPrem)]');
+        Observer.Expect('autocalc_findfirst_name_any|code', 'Dialog');
+        Observer.Expect('filter_name_visible_count|text', 'SFP ok [1]');
+        Observer.Expect('filter_name_visible_count|code', 'Dialog');
+        Observer.Expect('filter_exists_visible_count|text', 'SFP ok [1]');
+        Observer.Expect('filter_exists_visible_count|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -299,7 +415,13 @@ codeunit 98743 "SFP SysFlow Perm"
         RunCase(Observer, 'calc_name_visible', '', 1, AppId);
         RunCase(Observer, 'calc_name_any', '', 2, AppId);
         RunCase(Observer, 'calc_publisher_visible', '', 3, AppId);
-        Observer.Finish();
+        Observer.Expect('calc_name_visible|text', 'SFP ok []');
+        Observer.Expect('calc_name_visible|code', 'Dialog');
+        Observer.Expect('calc_name_any|text', 'SFP ok []');
+        Observer.Expect('calc_name_any|code', 'Dialog');
+        Observer.Expect('calc_publisher_visible|text', 'SFP ok []');
+        Observer.Expect('calc_publisher_visible|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -313,7 +435,15 @@ codeunit 98743 "SFP SysFlow Perm"
         RunCase(Observer, 'calc_exists_any', '', 5, AppId);
         RunCase(Observer, 'calc_count_visible', '', 6, AppId);
         RunCase(Observer, 'calc_count_any', '', 7, AppId);
-        Observer.Finish();
+        Observer.Expect('calc_exists_visible|text', 'SFP ok [No]');
+        Observer.Expect('calc_exists_visible|code', 'Dialog');
+        Observer.Expect('calc_exists_any|text', 'SFP ok [No]');
+        Observer.Expect('calc_exists_any|code', 'Dialog');
+        Observer.Expect('calc_count_visible|text', 'SFP ok [0]');
+        Observer.Expect('calc_count_visible|code', 'Dialog');
+        Observer.Expect('calc_count_any|text', 'SFP ok [0]');
+        Observer.Expect('calc_count_any|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -327,7 +457,15 @@ codeunit 98743 "SFP SysFlow Perm"
         RunCase(Observer, 'autocalc_findfirst_name_any', '', 9, AppId);
         RunCase(Observer, 'filter_name_visible_count', '', 10, AppId);
         RunCase(Observer, 'filter_exists_visible_count', '', 11, AppId);
-        Observer.Finish();
+        Observer.Expect('autocalc_findfirst_name_visible|text', 'SFP ok []');
+        Observer.Expect('autocalc_findfirst_name_visible|code', 'Dialog');
+        Observer.Expect('autocalc_findfirst_name_any|text', 'SFP ok []');
+        Observer.Expect('autocalc_findfirst_name_any|code', 'Dialog');
+        Observer.Expect('filter_name_visible_count|text', 'SFP ok [0]');
+        Observer.Expect('filter_name_visible_count|code', 'Dialog');
+        Observer.Expect('filter_exists_visible_count|text', 'SFP ok [0]');
+        Observer.Expect('filter_exists_visible_count|code', 'Dialog');
+        Observer.Verify();
     end;
 
     local procedure ThisAppId(): Guid
