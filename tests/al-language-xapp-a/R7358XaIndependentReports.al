@@ -10,6 +10,7 @@
 // publish order of CI (A, D, B) say D,B.
 // Every trigger of the reports and of the extensions appends '<app>:<trigger>' to the SingleInstance log 97993.
 // Tests: tests/al-language/reports/extensions/IndependentAppsReportExtensions.al.
+// singleinstance-shared-on-purpose: the log records which trigger of which app ran; every test of both test codeunits empties it with Take() before it runs the report, so no test reads what another one left.
 
 codeunit 97993 "RPT XA Indep Log"
 {
