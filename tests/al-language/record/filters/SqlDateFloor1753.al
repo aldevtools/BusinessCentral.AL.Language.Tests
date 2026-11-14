@@ -14,6 +14,9 @@
 //   when the write succeeded), `|text`, `|code` (GetLastErrorText and GetLastErrorCode inside asserterror) and `|row` (row 1 after the asserterror).
 //   A temporary record, a FlowFilter and a filter on a 1753 value raise no error. The error of an Insert reaches the table triggers and subscribers
 //   (the log shows `beforeInsert;afterInsert;`), the error of a Modify stops before the after-event (`beforeModify;`).
+//   Dates before 1753 (1700-01-01, 1752-12-31) and DateTimes (1700-01-01 12:00, 1752-12-31 23:59) fail like 1753: Insert at the next access, Modify at the Modify call,
+//   same text and code. After the error of a Modify(true) on a table with an OnModify trigger the record variable keeps the assigned Date and the trigger's
+//   Hits (10) while the stored row has the old Date and Hits 0 (Kept_RecordAfterModifyError).
 // BC versions: 27, 28 and 29
 
 table 70031 "LT SD Floor Row"
@@ -1584,7 +1587,15 @@ codeunit 70039 "LT SD Floor 1753"
     begin
         OutCell(Observer, 'insert', 17000101D, 0T, false);
         OutCell(Observer, 'insert', 17521231D, 0T, false);
-        Observer.Finish();
+        Observer.Expect('insert 1700-01-01|stage', 'next');
+        Observer.Expect('insert 1700-01-01|text', 'Cannot write the value 01/01/1700 to the field Dt in the table LT SD Floor Row because the value is either too long or the content is invalid.');
+        Observer.Expect('insert 1700-01-01|code', 'NDBCS:BadCSideData');
+        Observer.Expect('insert 1700-01-01|row', '2024-01-02|2024-01-02T12:00:00Z');
+        Observer.Expect('insert 1752-12-31|stage', 'next');
+        Observer.Expect('insert 1752-12-31|text', 'Cannot write the value 12/31/1752 to the field Dt in the table LT SD Floor Row because the value is either too long or the content is invalid.');
+        Observer.Expect('insert 1752-12-31|code', 'NDBCS:BadCSideData');
+        Observer.Expect('insert 1752-12-31|row', '2024-01-02|2024-01-02T12:00:00Z');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1594,7 +1605,15 @@ codeunit 70039 "LT SD Floor 1753"
     begin
         OutCell(Observer, 'modify', 17000101D, 0T, false);
         OutCell(Observer, 'modify', 17521231D, 0T, false);
-        Observer.Finish();
+        Observer.Expect('modify 1700-01-01|stage', 'modify');
+        Observer.Expect('modify 1700-01-01|text', 'Cannot write the value 01/01/1700 to the field Dt in the table LT SD Floor Row because the value is either too long or the content is invalid.');
+        Observer.Expect('modify 1700-01-01|code', 'NDBCS:BadCSideData');
+        Observer.Expect('modify 1700-01-01|row', '2024-01-02|2024-01-02T12:00:00Z');
+        Observer.Expect('modify 1752-12-31|stage', 'modify');
+        Observer.Expect('modify 1752-12-31|text', 'Cannot write the value 12/31/1752 to the field Dt in the table LT SD Floor Row because the value is either too long or the content is invalid.');
+        Observer.Expect('modify 1752-12-31|code', 'NDBCS:BadCSideData');
+        Observer.Expect('modify 1752-12-31|row', '2024-01-02|2024-01-02T12:00:00Z');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1604,7 +1623,15 @@ codeunit 70039 "LT SD Floor 1753"
     begin
         OutCell(Observer, 'insert', 17000101D, 120000T, true);
         OutCell(Observer, 'insert', 17521231D, 235900T, true);
-        Observer.Finish();
+        Observer.Expect('insert 1700-01-01T12:00:00Z|stage', 'next');
+        Observer.Expect('insert 1700-01-01T12:00:00Z|text', 'Cannot write the value 01/01/1700 12:00 PM to the field Dtm in the table LT SD Floor Row because the value is either too long or the content is invalid.');
+        Observer.Expect('insert 1700-01-01T12:00:00Z|code', 'NDBCS:BadCSideData');
+        Observer.Expect('insert 1700-01-01T12:00:00Z|row', '2024-01-02|2024-01-02T12:00:00Z');
+        Observer.Expect('insert 1752-12-31T23:59:00Z|stage', 'next');
+        Observer.Expect('insert 1752-12-31T23:59:00Z|text', 'Cannot write the value 12/31/1752 11:59 PM to the field Dtm in the table LT SD Floor Row because the value is either too long or the content is invalid.');
+        Observer.Expect('insert 1752-12-31T23:59:00Z|code', 'NDBCS:BadCSideData');
+        Observer.Expect('insert 1752-12-31T23:59:00Z|row', '2024-01-02|2024-01-02T12:00:00Z');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1614,7 +1641,15 @@ codeunit 70039 "LT SD Floor 1753"
     begin
         OutCell(Observer, 'modify', 17000101D, 120000T, true);
         OutCell(Observer, 'modify', 17521231D, 235900T, true);
-        Observer.Finish();
+        Observer.Expect('modify 1700-01-01T12:00:00Z|stage', 'modify');
+        Observer.Expect('modify 1700-01-01T12:00:00Z|text', 'Cannot write the value 01/01/1700 12:00 PM to the field Dtm in the table LT SD Floor Row because the value is either too long or the content is invalid.');
+        Observer.Expect('modify 1700-01-01T12:00:00Z|code', 'NDBCS:BadCSideData');
+        Observer.Expect('modify 1700-01-01T12:00:00Z|row', '2024-01-02|2024-01-02T12:00:00Z');
+        Observer.Expect('modify 1752-12-31T23:59:00Z|stage', 'modify');
+        Observer.Expect('modify 1752-12-31T23:59:00Z|text', 'Cannot write the value 12/31/1752 11:59 PM to the field Dtm in the table LT SD Floor Row because the value is either too long or the content is invalid.');
+        Observer.Expect('modify 1752-12-31T23:59:00Z|code', 'NDBCS:BadCSideData');
+        Observer.Expect('modify 1752-12-31T23:59:00Z|row', '2024-01-02|2024-01-02T12:00:00Z');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1624,7 +1659,17 @@ codeunit 70039 "LT SD Floor 1753"
     begin
         KeptCell(Observer, 17530615D);
         KeptCell(Observer, 17540101D);
-        Observer.Finish();
+        Observer.Expect('kept 1753-06-15|stage', 'modify');
+        Observer.Expect('kept 1753-06-15|text', 'Cannot write the value 06/15/1753 to the field Dt in the table LT SD Floor Trig because the value is either too long or the content is invalid.');
+        Observer.Expect('kept 1753-06-15|code', 'NDBCS:BadCSideData');
+        Observer.Expect('kept 1753-06-15|var', '1753-06-15|10|2024-01-02T12:00:00Z');
+        Observer.Expect('kept 1753-06-15|row', '2024-01-02|2024-01-02T12:00:00Z|0');
+        Observer.Expect('kept 1754-01-01|stage', 'after');
+        Observer.Expect('kept 1754-01-01|text', 'no error');
+        Observer.Expect('kept 1754-01-01|code', 'Dialog');
+        Observer.Expect('kept 1754-01-01|var', '1754-01-01|10|2024-01-02T12:00:00Z');
+        Observer.Expect('kept 1754-01-01|row', '2024-01-02|2024-01-02T12:00:00Z|0');
+        Observer.Verify();
     end;
 
     [Test]
