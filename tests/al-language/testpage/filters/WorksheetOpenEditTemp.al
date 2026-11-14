@@ -500,7 +500,11 @@ codeunit 78903 "WOE Tests"
         Observer.Observe('after|=1', AfterEq('Edit', '=1'));
         Observer.Observe('after|0', AfterEq('Edit', '0'));
         Observer.Observe('after|1', AfterEq('Edit', '1'));
-        Observer.Finish();
+        Observer.Expect('after|=0', 'filter= rows=1:R1,2:R2,3:R3,4:R4,');
+        Observer.Expect('after|=1', 'filter= rows=1:R1,2:R2,3:R3,4:R4,');
+        Observer.Expect('after|0', 'filter=No rows=1:R1,2:R2,');
+        Observer.Expect('after|1', 'filter=Yes rows=3:R3,4:R4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -511,7 +515,9 @@ codeunit 78903 "WOE Tests"
         Initialize();
         Observer.Observe('before|=0', BeforeEq('Edit', '=0'));
         Observer.Observe('before|=1', BeforeEq('Edit', '=1'));
-        Observer.Finish();
+        Observer.Expect('before|=0', 'filter= rows=1:R1,2:R2,3:R3,4:R4,');
+        Observer.Expect('before|=1', 'filter= rows=1:R1,2:R2,3:R3,4:R4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -524,7 +530,11 @@ codeunit 78903 "WOE Tests"
         Observer.Observe('goto|=1|1', GoToEq('Edit', '=1', 1));
         Observer.Observe('goto|=0|1', GoToEq('Edit', '=0', 1));
         Observer.Observe('goto|=0|3', GoToEq('Edit', '=0', 3));
-        Observer.Finish();
+        Observer.Expect('goto|=1|3', 'filter= goto=ok cur=3 rows=1:R1,2:R2,3:R3,4:R4,');
+        Observer.Expect('goto|=1|1', 'filter= goto=ok cur=1 rows=1:R1,2:R2,3:R3,4:R4,');
+        Observer.Expect('goto|=0|1', 'filter= goto=ok cur=1 rows=1:R1,2:R2,3:R3,4:R4,');
+        Observer.Expect('goto|=0|3', 'filter= goto=ok cur=3 rows=1:R1,2:R2,3:R3,4:R4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -537,7 +547,11 @@ codeunit 78903 "WOE Tests"
         Observer.Observe('after|=1', AfterEq('View', '=1'));
         Observer.Observe('after|0', AfterEq('View', '0'));
         Observer.Observe('after|1', AfterEq('View', '1'));
-        Observer.Finish();
+        Observer.Expect('after|=0', 'filter= rows=1:R1,2:R2,3:R3,4:R4,');
+        Observer.Expect('after|=1', 'filter= rows=1:R1,2:R2,3:R3,4:R4,');
+        Observer.Expect('after|0', 'filter=No rows=1:R1,2:R2,');
+        Observer.Expect('after|1', 'filter=Yes rows=3:R3,4:R4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -548,7 +562,9 @@ codeunit 78903 "WOE Tests"
         Initialize();
         Observer.Observe('before|=0', BeforeEq('View', '=0'));
         Observer.Observe('before|=1', BeforeEq('View', '=1'));
-        Observer.Finish();
+        Observer.Expect('before|=0', 'filter= rows=1:R1,2:R2,3:R3,4:R4,');
+        Observer.Expect('before|=1', 'filter= rows=1:R1,2:R2,3:R3,4:R4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -561,7 +577,11 @@ codeunit 78903 "WOE Tests"
         Observer.Observe('goto|=1|1', GoToEq('View', '=1', 1));
         Observer.Observe('goto|=0|1', GoToEq('View', '=0', 1));
         Observer.Observe('goto|=0|3', GoToEq('View', '=0', 3));
-        Observer.Finish();
+        Observer.Expect('goto|=1|3', 'filter= goto=ok cur=3 rows=1:R1,2:R2,3:R3,4:R4,');
+        Observer.Expect('goto|=1|1', 'filter= goto=ok cur=1 rows=1:R1,2:R2,3:R3,4:R4,');
+        Observer.Expect('goto|=0|1', 'filter= goto=ok cur=1 rows=1:R1,2:R2,3:R3,4:R4,');
+        Observer.Expect('goto|=0|3', 'filter= goto=ok cur=3 rows=1:R1,2:R2,3:R3,4:R4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -574,7 +594,11 @@ codeunit 78903 "WOE Tests"
         Observer.Observe('after|=1', AfterAct('Edit', '=1'));
         Observer.Observe('after|0', AfterAct('Edit', '0'));
         Observer.Observe('after|1', AfterAct('Edit', '1'));
-        Observer.Finish();
+        Observer.Expect('after|=0', 'filter= rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('after|=1', 'filter= rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('after|0', 'filter=No rows=1:R1,2:R2,0:,');
+        Observer.Expect('after|1', 'filter=Yes rows=3:R3,4:R4,0:,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -585,7 +609,9 @@ codeunit 78903 "WOE Tests"
         Initialize();
         Observer.Observe('before|=0', BeforeAct('Edit', '=0'));
         Observer.Observe('before|=1', BeforeAct('Edit', '=1'));
-        Observer.Finish();
+        Observer.Expect('before|=0', 'filter= rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('before|=1', 'filter= rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -598,7 +624,11 @@ codeunit 78903 "WOE Tests"
         Observer.Observe('goto|=1|1', GoToAct('Edit', '=1', 1));
         Observer.Observe('goto|=0|1', GoToAct('Edit', '=0', 1));
         Observer.Observe('goto|=0|3', GoToAct('Edit', '=0', 3));
-        Observer.Finish();
+        Observer.Expect('goto|=1|3', 'filter= goto=ok cur=3 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('goto|=1|1', 'filter= goto=ok cur=1 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('goto|=0|1', 'filter= goto=ok cur=1 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('goto|=0|3', 'filter= goto=ok cur=3 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -611,7 +641,11 @@ codeunit 78903 "WOE Tests"
         Observer.Observe('after|=1', AfterAct('View', '=1'));
         Observer.Observe('after|0', AfterAct('View', '0'));
         Observer.Observe('after|1', AfterAct('View', '1'));
-        Observer.Finish();
+        Observer.Expect('after|=0', 'filter= rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('after|=1', 'filter= rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('after|0', 'filter=No rows=1:R1,2:R2,0:,');
+        Observer.Expect('after|1', 'filter=Yes rows=3:R3,4:R4,0:,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -622,7 +656,9 @@ codeunit 78903 "WOE Tests"
         Initialize();
         Observer.Observe('before|=0', BeforeAct('View', '=0'));
         Observer.Observe('before|=1', BeforeAct('View', '=1'));
-        Observer.Finish();
+        Observer.Expect('before|=0', 'filter= rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('before|=1', 'filter= rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -635,7 +671,11 @@ codeunit 78903 "WOE Tests"
         Observer.Observe('goto|=1|1', GoToAct('View', '=1', 1));
         Observer.Observe('goto|=0|1', GoToAct('View', '=0', 1));
         Observer.Observe('goto|=0|3', GoToAct('View', '=0', 3));
-        Observer.Finish();
+        Observer.Expect('goto|=1|3', 'filter= goto=ok cur=3 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('goto|=1|1', 'filter= goto=ok cur=1 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('goto|=0|1', 'filter= goto=ok cur=1 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('goto|=0|3', 'filter= goto=ok cur=3 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -648,7 +688,11 @@ codeunit 78903 "WOE Tests"
         Observer.Observe('after|=1', AfterShown('Edit', '=1'));
         Observer.Observe('after|0', AfterShown('Edit', '0'));
         Observer.Observe('after|1', AfterShown('Edit', '1'));
-        Observer.Finish();
+        Observer.Expect('after|=0', 'filter= rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('after|=1', 'filter= rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('after|0', 'filter=No rows=1:R1,2:R2,0:,');
+        Observer.Expect('after|1', 'filter=Yes rows=3:R3,4:R4,0:,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -659,7 +703,9 @@ codeunit 78903 "WOE Tests"
         Initialize();
         Observer.Observe('before|=0', BeforeShown('Edit', '=0'));
         Observer.Observe('before|=1', BeforeShown('Edit', '=1'));
-        Observer.Finish();
+        Observer.Expect('before|=0', 'filter= rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('before|=1', 'filter= rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -672,7 +718,11 @@ codeunit 78903 "WOE Tests"
         Observer.Observe('goto|=1|1', GoToShown('Edit', '=1', 1));
         Observer.Observe('goto|=0|1', GoToShown('Edit', '=0', 1));
         Observer.Observe('goto|=0|3', GoToShown('Edit', '=0', 3));
-        Observer.Finish();
+        Observer.Expect('goto|=1|3', 'filter= goto=ok cur=3 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('goto|=1|1', 'filter= goto=ok cur=1 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('goto|=0|1', 'filter= goto=ok cur=1 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('goto|=0|3', 'filter= goto=ok cur=3 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -685,7 +735,11 @@ codeunit 78903 "WOE Tests"
         Observer.Observe('after|=1', AfterShown('View', '=1'));
         Observer.Observe('after|0', AfterShown('View', '0'));
         Observer.Observe('after|1', AfterShown('View', '1'));
-        Observer.Finish();
+        Observer.Expect('after|=0', 'filter= rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('after|=1', 'filter= rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('after|0', 'filter=No rows=1:R1,2:R2,0:,');
+        Observer.Expect('after|1', 'filter=Yes rows=3:R3,4:R4,0:,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -696,7 +750,9 @@ codeunit 78903 "WOE Tests"
         Initialize();
         Observer.Observe('before|=0', BeforeShown('View', '=0'));
         Observer.Observe('before|=1', BeforeShown('View', '=1'));
-        Observer.Finish();
+        Observer.Expect('before|=0', 'filter= rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('before|=1', 'filter= rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -709,7 +765,11 @@ codeunit 78903 "WOE Tests"
         Observer.Observe('goto|=1|1', GoToShown('View', '=1', 1));
         Observer.Observe('goto|=0|1', GoToShown('View', '=0', 1));
         Observer.Observe('goto|=0|3', GoToShown('View', '=0', 3));
-        Observer.Finish();
+        Observer.Expect('goto|=1|3', 'filter= goto=ok cur=3 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('goto|=1|1', 'filter= goto=ok cur=1 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('goto|=0|1', 'filter= goto=ok cur=1 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('goto|=0|3', 'filter= goto=ok cur=3 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -722,7 +782,11 @@ codeunit 78903 "WOE Tests"
         Observer.Observe('after|=1', AfterOpen('Edit', '=1'));
         Observer.Observe('after|0', AfterOpen('Edit', '0'));
         Observer.Observe('after|1', AfterOpen('Edit', '1'));
-        Observer.Finish();
+        Observer.Expect('after|=0', 'filter= rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('after|=1', 'filter= rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('after|0', 'filter=No rows=1:R1,2:R2,0:,');
+        Observer.Expect('after|1', 'filter=Yes rows=3:R3,4:R4,0:,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -735,7 +799,11 @@ codeunit 78903 "WOE Tests"
         Observer.Observe('goto|=1|1', GoToOpen('Edit', '=1', 1));
         Observer.Observe('goto|=0|1', GoToOpen('Edit', '=0', 1));
         Observer.Observe('goto|=0|3', GoToOpen('Edit', '=0', 3));
-        Observer.Finish();
+        Observer.Expect('goto|=1|3', 'filter= goto=ok cur=3 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('goto|=1|1', 'filter= goto=ok cur=1 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('goto|=0|1', 'filter= goto=ok cur=1 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('goto|=0|3', 'filter= goto=ok cur=3 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -748,7 +816,11 @@ codeunit 78903 "WOE Tests"
         Observer.Observe('after|=1', AfterOpen('View', '=1'));
         Observer.Observe('after|0', AfterOpen('View', '0'));
         Observer.Observe('after|1', AfterOpen('View', '1'));
-        Observer.Finish();
+        Observer.Expect('after|=0', 'filter= rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('after|=1', 'filter= rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('after|0', 'filter=No rows=1:R1,2:R2,0:,');
+        Observer.Expect('after|1', 'filter=Yes rows=3:R3,4:R4,0:,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -761,6 +833,10 @@ codeunit 78903 "WOE Tests"
         Observer.Observe('goto|=1|1', GoToOpen('View', '=1', 1));
         Observer.Observe('goto|=0|1', GoToOpen('View', '=0', 1));
         Observer.Observe('goto|=0|3', GoToOpen('View', '=0', 3));
-        Observer.Finish();
+        Observer.Expect('goto|=1|3', 'filter= goto=ok cur=3 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('goto|=1|1', 'filter= goto=ok cur=1 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('goto|=0|1', 'filter= goto=ok cur=1 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Expect('goto|=0|3', 'filter= goto=ok cur=3 rows=1:R1,2:R2,3:R3,4:R4,0:,');
+        Observer.Verify();
     end;
 }

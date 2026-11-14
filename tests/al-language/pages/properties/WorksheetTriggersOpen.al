@@ -234,7 +234,10 @@ codeunit 78924 "TRG Tests"
         Page.Run(Page::"TRG WS", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | AGR A | DC=Cap RowA | AGR B | DC=Cap RowB | AGR C | DC=Cap RowC | AGR A | AGR A | DC=Cap RowA | AGC A | DC=Cap RowA | H0 | H1 cap=TRG WS - Cap RowA code=A | H2 first=A | AGR B | AGR B | DC=Cap RowB | AGC B | DC=Cap RowB | H3 next=B | QCP OK | CLOSE | after open');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -248,7 +251,10 @@ codeunit 78924 "TRG Tests"
         Page.RunModal(Page::"TRG WS", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | AGR A | DC=Cap RowA | AGR B | DC=Cap RowB | AGR C | DC=Cap RowC | AGR A | AGR A | DC=Cap RowA | AGC A | DC=Cap RowA | H0 | H1 cap=TRG WS - Cap RowA code=A | H2 first=A | AGR B | AGR B | DC=Cap RowB | AGC B | DC=Cap RowB | H3 next=B | QCP OK | CLOSE | after open');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -276,7 +282,10 @@ codeunit 78924 "TRG Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | AGR A | DC=Cap RowA | AGR B | DC=Cap RowB | AGR C | DC=Cap RowC | AGR A | AGR A | DC=Cap RowA | AGC A | DC=Cap RowA | T0 | T1 cap=TRG WS - Cap RowA code=A | T2 first=A | AGR B | AGR B | DC=Cap RowB | AGC B | DC=Cap RowB | T3 next=B | QCP OK | CLOSE | after open');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -303,7 +312,10 @@ codeunit 78924 "TRG Tests"
         TP.Close();
         Log.Add('closed');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | AGR A | DC=Cap RowA | AGR B | DC=Cap RowB | AGR C | DC=Cap RowC | AGR A | AGR A | DC=Cap RowA | AGC A | DC=Cap RowA | O0 | O1 cap=TRG WS - Cap RowA code=A | O2 first=A | AGR B | AGR B | DC=Cap RowB | AGC B | DC=Cap RowB | O3 next=B | QCP OK | CLOSE | closed');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -330,7 +342,10 @@ codeunit 78924 "TRG Tests"
         TP.Close();
         Log.Add('closed');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | AGR A | DC=Cap RowA | AGR B | DC=Cap RowB | AGR C | DC=Cap RowC | AGR A | AGR A | DC=Cap RowA | AGC A | DC=Cap RowA | O0 | O1 cap=TRG WS - Cap RowA code=A | O2 first=A | AGR B | AGR B | DC=Cap RowB | AGC B | DC=Cap RowB | O3 next=B | QCP OK | CLOSE | closed');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -348,7 +363,10 @@ codeunit 78924 "TRG Tests"
         TP.Close();
         Log.Add('closed');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | AGR A | DC=Cap RowA | AGR B | DC=Cap RowB | AGR C | DC=Cap RowC | AGR A | AGR A | DC=Cap RowA | AGC A | DC=Cap RowA | O0 | NEW | DC=Cap  | AGC  | DC=Cap  | O1 code= | QCP OK | CLOSE | closed');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -362,7 +380,10 @@ codeunit 78924 "TRG Tests"
         Page.Run(Page::"TRG WS", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | NEW | DC=Cap  | AGC  | DC=Cap  | NEW | DC=Cap  | AGC  | DC=Cap  | H0 | H1 cap=TRG WS - Cap code= | H2 first=none | H3 next=none | QCP OK | CLOSE | after open');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -376,7 +397,10 @@ codeunit 78924 "TRG Tests"
         Page.RunModal(Page::"TRG WS", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | NEW | DC=Cap  | AGC  | DC=Cap  | NEW | DC=Cap  | AGC  | DC=Cap  | H0 | H1 cap=TRG WS - Cap code= | H2 first=none | H3 next=none | QCP OK | CLOSE | after open');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -404,7 +428,10 @@ codeunit 78924 "TRG Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | NEW | DC=Cap  | AGC  | DC=Cap  | NEW | DC=Cap  | AGC  | DC=Cap  | T0 | T1 cap=TRG WS - Cap code= | T2 first=none | T3 next=none | QCP OK | CLOSE | after open');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -431,7 +458,10 @@ codeunit 78924 "TRG Tests"
         TP.Close();
         Log.Add('closed');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | NEW | DC=Cap  | AGC  | DC=Cap  | NEW | DC=Cap  | AGC  | DC=Cap  | O0 | O1 cap=TRG WS - Cap code= | O2 first=none | O3 next=none | QCP OK | CLOSE | closed');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -458,7 +488,10 @@ codeunit 78924 "TRG Tests"
         TP.Close();
         Log.Add('closed');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | NEW | DC=Cap  | AGC  | DC=Cap  | NEW | DC=Cap  | AGC  | DC=Cap  | O0 | O1 cap=TRG WS - Cap code= | O2 first=none | O3 next=none | QCP OK | CLOSE | closed');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -476,7 +509,10 @@ codeunit 78924 "TRG Tests"
         TP.Close();
         Log.Add('closed');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | NEW | DC=Cap  | AGC  | DC=Cap  | NEW | DC=Cap  | AGC  | DC=Cap  | O0 | NEW | DC=Cap  | AGC  | DC=Cap  | O1 code= | QCP OK | CLOSE | closed');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -490,7 +526,10 @@ codeunit 78924 "TRG Tests"
         Page.Run(Page::"TRG WS NoCap", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | AGR A | AGR B | AGR C | AGR A | AGR A | AGC A | H0 | H1 cap=TRG WS NoCap code=A | H2 first=A | AGR B | AGR B | AGC B | H3 next=B | QCP OK | CLOSE | after open');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -504,7 +543,10 @@ codeunit 78924 "TRG Tests"
         Page.RunModal(Page::"TRG WS NoCap", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | AGR A | AGR B | AGR C | AGR A | AGR A | AGC A | H0 | H1 cap=TRG WS NoCap code=A | H2 first=A | AGR B | AGR B | AGC B | H3 next=B | QCP OK | CLOSE | after open');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -532,7 +574,10 @@ codeunit 78924 "TRG Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | AGR A | AGR B | AGR C | AGR A | AGR A | AGC A | T0 | T1 cap=TRG WS NoCap code=A | T2 first=A | AGR B | AGR B | AGC B | T3 next=B | QCP OK | CLOSE | after open');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -559,7 +604,10 @@ codeunit 78924 "TRG Tests"
         TP.Close();
         Log.Add('closed');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | AGR A | AGR B | AGR C | AGR A | AGR A | AGC A | O0 | O1 cap=TRG WS NoCap code=A | O2 first=A | AGR B | AGR B | AGC B | O3 next=B | QCP OK | CLOSE | closed');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -586,7 +634,10 @@ codeunit 78924 "TRG Tests"
         TP.Close();
         Log.Add('closed');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | AGR A | AGR B | AGR C | AGR A | AGR A | AGC A | O0 | O1 cap=TRG WS NoCap code=A | O2 first=A | AGR B | AGR B | AGC B | O3 next=B | QCP OK | CLOSE | closed');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -600,7 +651,10 @@ codeunit 78924 "TRG Tests"
         Page.Run(Page::"TRG WS NoCap", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | NEW | AGC  | NEW | AGC  | H0 | H1 cap=TRG WS NoCap code= | H2 first=none | H3 next=none | QCP OK | CLOSE | after open');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -614,7 +668,10 @@ codeunit 78924 "TRG Tests"
         Page.RunModal(Page::"TRG WS NoCap", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | NEW | AGC  | NEW | AGC  | H0 | H1 cap=TRG WS NoCap code= | H2 first=none | H3 next=none | QCP OK | CLOSE | after open');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -642,7 +699,10 @@ codeunit 78924 "TRG Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | NEW | AGC  | NEW | AGC  | T0 | T1 cap=TRG WS NoCap code= | T2 first=none | T3 next=none | QCP OK | CLOSE | after open');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -669,7 +729,10 @@ codeunit 78924 "TRG Tests"
         TP.Close();
         Log.Add('closed');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | NEW | AGC  | NEW | AGC  | O0 | O1 cap=TRG WS NoCap code= | O2 first=none | O3 next=none | QCP OK | CLOSE | closed');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -696,7 +759,10 @@ codeunit 78924 "TRG Tests"
         TP.Close();
         Log.Add('closed');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'INIT | OPEN | NEW | AGC  | NEW | AGC  | O0 | O1 cap=TRG WS NoCap code= | O2 first=none | O3 next=none | QCP OK | CLOSE | closed');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [PageHandler]

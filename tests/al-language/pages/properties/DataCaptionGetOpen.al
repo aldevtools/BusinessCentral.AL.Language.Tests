@@ -334,7 +334,12 @@ codeunit 78916 "DCG Tests"
         Page.Run(Page::"DCG WS Get", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Title One | DC-start | DC=Title One | DC-start | DC=Title One | H0 | H1 cap=DCG WS Get - Title One g= code=A name=Alpha | after open');
+        Observer.Expect('runs', '3');
+        Observer.Expect('held', 'held=K1/Title One');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -348,7 +353,12 @@ codeunit 78916 "DCG Tests"
         Page.RunModal(Page::"DCG WS Get", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Title One | DC-start | DC=Title One | DC-start | DC=Title One | H0 | H1 cap=DCG WS Get - Title One g= code=A name=Alpha | after open');
+        Observer.Expect('runs', '3');
+        Observer.Expect('held', 'held=K1/Title One');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -368,7 +378,12 @@ codeunit 78916 "DCG Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Title One | DC-start | DC=Title One | DC-start | DC=Title One | T0 | T1 cap=DCG WS Get - Title One g= code=A name=Alpha | after open');
+        Observer.Expect('runs', '3');
+        Observer.Expect('held', 'held=K1/Title One');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -382,7 +397,12 @@ codeunit 78916 "DCG Tests"
         Page.Run(Page::"DCG WS Get", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Title One | DC-start | DC=Title One | H0 | H1 cap=DCG WS Get - Title One g= code=A name=Alpha | after open');
+        Observer.Expect('runs', '2');
+        Observer.Expect('held', 'held=K1/Title One');
+        Observer.Expect('rec', 'filters=Seq: 1..3, Kind: X code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -396,7 +416,12 @@ codeunit 78916 "DCG Tests"
         Page.RunModal(Page::"DCG WS Get", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Title One | DC-start | DC=Title One | H0 | H1 cap=DCG WS Get - Title One g= code=A name=Alpha | after open');
+        Observer.Expect('runs', '2');
+        Observer.Expect('held', 'held=K1/Title One');
+        Observer.Expect('rec', 'filters=Seq: 1..3, Kind: X code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -416,7 +441,12 @@ codeunit 78916 "DCG Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Title One | DC-start | DC=Title One | T0 | T1 cap=DCG WS Get - Title One g= code=A name=Alpha | after open');
+        Observer.Expect('runs', '2');
+        Observer.Expect('held', 'held=K1/Title One');
+        Observer.Expect('rec', 'filters=Seq: 1..3, Kind: X code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -430,7 +460,12 @@ codeunit 78916 "DCG Tests"
         Page.Run(Page::"DCG WS Get", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Title One | DC-start | DC=Title One | H0 | H1 cap=DCG WS Get - Title One g= code=A name=Alpha | after open');
+        Observer.Expect('runs', '2');
+        Observer.Expect('held', 'held=K1/Title One');
+        Observer.Expect('rec', 'filters=Code: A..B code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -444,7 +479,12 @@ codeunit 78916 "DCG Tests"
         Page.RunModal(Page::"DCG WS Get", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Title One | DC-start | DC=Title One | H0 | H1 cap=DCG WS Get - Title One g= code=A name=Alpha | after open');
+        Observer.Expect('runs', '2');
+        Observer.Expect('held', 'held=K1/Title One');
+        Observer.Expect('rec', 'filters=Code: A..B code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -464,7 +504,12 @@ codeunit 78916 "DCG Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Title One | DC-start | DC=Title One | T0 | T1 cap=DCG WS Get - Title One g= code=A name=Alpha | after open');
+        Observer.Expect('runs', '2');
+        Observer.Expect('held', 'held=K1/Title One');
+        Observer.Expect('rec', 'filters=Code: A..B code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -478,7 +523,12 @@ codeunit 78916 "DCG Tests"
         Page.Run(Page::"DCG WS Get", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Title One | DC-start | DC=Title One | H0 | H1 cap=DCG WS Get - Title One g=cap-ran code= name= | after open');
+        Observer.Expect('runs', '2');
+        Observer.Expect('held', 'held=K1/Title One');
+        Observer.Expect('rec', 'filters=Code: '''' code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -492,7 +542,12 @@ codeunit 78916 "DCG Tests"
         Page.RunModal(Page::"DCG WS Get", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Title One | DC-start | DC=Title One | H0 | H1 cap=DCG WS Get - Title One g=cap-ran code= name= | after open');
+        Observer.Expect('runs', '2');
+        Observer.Expect('held', 'held=K1/Title One');
+        Observer.Expect('rec', 'filters=Code: '''' code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -512,7 +567,12 @@ codeunit 78916 "DCG Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Title One | DC-start | DC=Title One | T0 | T1 cap=DCG WS Get - Title One g=cap-ran code= name= | after open');
+        Observer.Expect('runs', '2');
+        Observer.Expect('held', 'held=K1/Title One');
+        Observer.Expect('rec', 'filters=Code: '''' code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -526,7 +586,12 @@ codeunit 78916 "DCG Tests"
         Page.Run(Page::"DCG WS Get", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Title One | H0 | H1 cap=DCG WS Get - Title One g= code=B name=Beta | after open');
+        Observer.Expect('runs', '1');
+        Observer.Expect('held', 'held=K1/Title One');
+        Observer.Expect('rec', 'filters=Seq: 2 code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -540,7 +605,12 @@ codeunit 78916 "DCG Tests"
         Page.RunModal(Page::"DCG WS Get", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Title One | H0 | H1 cap=DCG WS Get - Title One g= code=B name=Beta | after open');
+        Observer.Expect('runs', '1');
+        Observer.Expect('held', 'held=K1/Title One');
+        Observer.Expect('rec', 'filters=Seq: 2 code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -560,11 +630,15 @@ codeunit 78916 "DCG Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Title One | T0 | T1 cap=DCG WS Get - Title One g= code=B name=Beta | after open');
+        Observer.Expect('runs', '1');
+        Observer.Expect('held', 'held=K1/Title One');
+        Observer.Expect('rec', 'filters=Seq: 2 code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
-    [HandlerFunctions('HMiss')]
     procedure Miss_None_Run()
     var
         Observer: Codeunit "Probe Observer";
@@ -575,11 +649,17 @@ codeunit 78916 "DCG Tests"
         asserterror RunMiss(Row);
         Observer.ObserveError('open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('open|text', ': The DCG Other does not exist. Identification fields and values: Code=''NOPE''');
+        Observer.Expect('open|code', 'TestWrapped');
+        Observer.Expect('log', 'OnOpenPage | DC-start');
+        Observer.Expect('runs', '1');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
-    [HandlerFunctions('MHMiss')]
     procedure Miss_None_RunModal()
     var
         Observer: Codeunit "Probe Observer";
@@ -590,7 +670,14 @@ codeunit 78916 "DCG Tests"
         asserterror RunModalMiss(Row);
         Observer.ObserveError('open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('open|text', ': The DCG Other does not exist. Identification fields and values: Code=''NOPE''');
+        Observer.Expect('open|code', 'TestWrapped');
+        Observer.Expect('log', 'OnOpenPage | DC-start');
+        Observer.Expect('runs', '1');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -604,11 +691,17 @@ codeunit 78916 "DCG Tests"
         asserterror TrapMiss(Row);
         Observer.ObserveError('open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('open|text', ': The DCG Other does not exist. Identification fields and values: Code=''NOPE''');
+        Observer.Expect('open|code', 'TestWrapped');
+        Observer.Expect('log', 'OnOpenPage | DC-start');
+        Observer.Expect('runs', '1');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
-    [HandlerFunctions('HMiss')]
     procedure Miss_Two_Run()
     var
         Observer: Codeunit "Probe Observer";
@@ -619,11 +712,17 @@ codeunit 78916 "DCG Tests"
         asserterror RunMiss(Row);
         Observer.ObserveError('open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('open|text', ': The DCG Other does not exist. Identification fields and values: Code=''NOPE''');
+        Observer.Expect('open|code', 'TestWrapped');
+        Observer.Expect('log', 'OnOpenPage | DC-start');
+        Observer.Expect('runs', '1');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters=Seq: 1..3, Kind: X code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
-    [HandlerFunctions('MHMiss')]
     procedure Miss_Two_RunModal()
     var
         Observer: Codeunit "Probe Observer";
@@ -634,7 +733,14 @@ codeunit 78916 "DCG Tests"
         asserterror RunModalMiss(Row);
         Observer.ObserveError('open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('open|text', ': The DCG Other does not exist. Identification fields and values: Code=''NOPE''');
+        Observer.Expect('open|code', 'TestWrapped');
+        Observer.Expect('log', 'OnOpenPage | DC-start');
+        Observer.Expect('runs', '1');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters=Seq: 1..3, Kind: X code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -648,11 +754,17 @@ codeunit 78916 "DCG Tests"
         asserterror TrapMiss(Row);
         Observer.ObserveError('open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('open|text', ': The DCG Other does not exist. Identification fields and values: Code=''NOPE''');
+        Observer.Expect('open|code', 'TestWrapped');
+        Observer.Expect('log', 'OnOpenPage | DC-start');
+        Observer.Expect('runs', '1');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters=Seq: 1..3, Kind: X code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
-    [HandlerFunctions('HMiss')]
     procedure Miss_Range_Run()
     var
         Observer: Codeunit "Probe Observer";
@@ -663,11 +775,17 @@ codeunit 78916 "DCG Tests"
         asserterror RunMiss(Row);
         Observer.ObserveError('open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('open|text', ': The DCG Other does not exist. Identification fields and values: Code=''NOPE''');
+        Observer.Expect('open|code', 'TestWrapped');
+        Observer.Expect('log', 'OnOpenPage | DC-start');
+        Observer.Expect('runs', '1');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters=Code: A..B code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
-    [HandlerFunctions('MHMiss')]
     procedure Miss_Range_RunModal()
     var
         Observer: Codeunit "Probe Observer";
@@ -678,7 +796,14 @@ codeunit 78916 "DCG Tests"
         asserterror RunModalMiss(Row);
         Observer.ObserveError('open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('open|text', ': The DCG Other does not exist. Identification fields and values: Code=''NOPE''');
+        Observer.Expect('open|code', 'TestWrapped');
+        Observer.Expect('log', 'OnOpenPage | DC-start');
+        Observer.Expect('runs', '1');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters=Code: A..B code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -692,7 +817,14 @@ codeunit 78916 "DCG Tests"
         asserterror TrapMiss(Row);
         Observer.ObserveError('open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('open|text', ': The DCG Other does not exist. Identification fields and values: Code=''NOPE''');
+        Observer.Expect('open|code', 'TestWrapped');
+        Observer.Expect('log', 'OnOpenPage | DC-start');
+        Observer.Expect('runs', '1');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters=Code: A..B code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -707,7 +839,14 @@ codeunit 78916 "DCG Tests"
         asserterror RunMiss(Row);
         Observer.ObserveError('open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('open|text', 'no error at the open');
+        Observer.Expect('open|code', 'Dialog');
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC-start | DC-start | H0 | H1 cap=DCG WS Miss g= code= name=');
+        Observer.Expect('runs', '3');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters=Code: '''' code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -722,7 +861,14 @@ codeunit 78916 "DCG Tests"
         asserterror RunModalMiss(Row);
         Observer.ObserveError('open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('open|text', 'no error at the open');
+        Observer.Expect('open|code', 'Dialog');
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC-start | DC-start | H0 | H1 cap=DCG WS Miss g= code= name=');
+        Observer.Expect('runs', '3');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters=Code: '''' code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -736,11 +882,17 @@ codeunit 78916 "DCG Tests"
         asserterror TrapMiss(Row);
         Observer.ObserveError('open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('open|text', 'no error at the open');
+        Observer.Expect('open|code', 'Dialog');
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC-start | DC-start | T0 | T1 cap=DCG WS Miss g= code= name=');
+        Observer.Expect('runs', '3');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters=Code: '''' code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
-    [HandlerFunctions('HMiss')]
     procedure Miss_IntRange_Run()
     var
         Observer: Codeunit "Probe Observer";
@@ -751,11 +903,17 @@ codeunit 78916 "DCG Tests"
         asserterror RunMiss(Row);
         Observer.ObserveError('open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('open|text', ': The DCG Other does not exist. Identification fields and values: Code=''NOPE''');
+        Observer.Expect('open|code', 'TestWrapped');
+        Observer.Expect('log', 'OnOpenPage | DC-start');
+        Observer.Expect('runs', '1');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters=Seq: 2 code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
-    [HandlerFunctions('MHMiss')]
     procedure Miss_IntRange_RunModal()
     var
         Observer: Codeunit "Probe Observer";
@@ -766,7 +924,14 @@ codeunit 78916 "DCG Tests"
         asserterror RunModalMiss(Row);
         Observer.ObserveError('open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('open|text', ': The DCG Other does not exist. Identification fields and values: Code=''NOPE''');
+        Observer.Expect('open|code', 'TestWrapped');
+        Observer.Expect('log', 'OnOpenPage | DC-start');
+        Observer.Expect('runs', '1');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters=Seq: 2 code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -780,7 +945,14 @@ codeunit 78916 "DCG Tests"
         asserterror TrapMiss(Row);
         Observer.ObserveError('open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('open|text', ': The DCG Other does not exist. Identification fields and values: Code=''NOPE''');
+        Observer.Expect('open|code', 'TestWrapped');
+        Observer.Expect('log', 'OnOpenPage | DC-start');
+        Observer.Expect('runs', '1');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters=Seq: 2 code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -794,7 +966,12 @@ codeunit 78916 "DCG Tests"
         Page.Run(Page::"DCG WS Own", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Alpha | DC-start | DC=Beta | DC-start | DC=Gamma | H0 | H1 cap=DCG WS Own - Alpha g= code=A name=Alpha | after open');
+        Observer.Expect('runs', '3');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -814,7 +991,12 @@ codeunit 78916 "DCG Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Alpha | DC-start | DC=Beta | DC-start | DC=Gamma | T0 | T1 cap=DCG WS Own - Alpha g= code=A name=Alpha | after open');
+        Observer.Expect('runs', '3');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters= code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -828,7 +1010,12 @@ codeunit 78916 "DCG Tests"
         Page.Run(Page::"DCG WS Own", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Alpha | DC-start | DC=Gamma | H0 | H1 cap=DCG WS Own - Alpha g= code=A name=Alpha | after open');
+        Observer.Expect('runs', '2');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters=Seq: 1..3, Kind: X code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -848,7 +1035,12 @@ codeunit 78916 "DCG Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Alpha | DC-start | DC=Gamma | T0 | T1 cap=DCG WS Own - Alpha g= code=A name=Alpha | after open');
+        Observer.Expect('runs', '2');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters=Seq: 1..3, Kind: X code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -862,7 +1054,12 @@ codeunit 78916 "DCG Tests"
         Page.Run(Page::"DCG WS Own", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Alpha | DC-start | DC=Beta | H0 | H1 cap=DCG WS Own - Alpha g= code=A name=Alpha | after open');
+        Observer.Expect('runs', '2');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters=Code: A..B code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -882,7 +1079,12 @@ codeunit 78916 "DCG Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Alpha | DC-start | DC=Beta | T0 | T1 cap=DCG WS Own - Alpha g= code=A name=Alpha | after open');
+        Observer.Expect('runs', '2');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters=Code: A..B code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -896,7 +1098,12 @@ codeunit 78916 "DCG Tests"
         Page.Run(Page::"DCG WS Own", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=none | DC-start | DC=none | H0 | H1 cap=DCG WS Own - none g=cap-ran code= name= | after open');
+        Observer.Expect('runs', '2');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters=Code: '''' code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -916,7 +1123,12 @@ codeunit 78916 "DCG Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=none | DC-start | DC=none | T0 | T1 cap=DCG WS Own - none g=cap-ran code= name= | after open');
+        Observer.Expect('runs', '2');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters=Code: '''' code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -930,7 +1142,12 @@ codeunit 78916 "DCG Tests"
         Page.Run(Page::"DCG WS Own", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Beta | H0 | H1 cap=DCG WS Own - Beta g= code=B name=Beta | after open');
+        Observer.Expect('runs', '1');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters=Seq: 2 code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -950,7 +1167,12 @@ codeunit 78916 "DCG Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC-start | DC=Beta | T0 | T1 cap=DCG WS Own - Beta g= code=B name=Beta | after open');
+        Observer.Expect('runs', '1');
+        Observer.Expect('held', 'held=/');
+        Observer.Expect('rec', 'filters=Seq: 2 code=');
+        Observer.Expect('store', '3');
+        Observer.Verify();
     end;
 
     [PageHandler]
