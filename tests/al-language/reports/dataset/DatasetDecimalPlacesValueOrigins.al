@@ -397,4 +397,277 @@ codeunit 62333 "RPT DecCol Tests"
         Observer.Expect('columns', '<Column name="VarLiteral" decimalformatter="#,##0.00">1</Column>|<Column name="VarRounded" decimalformatter="#,##0.00">1</Column>|<Column name="VarRoundedLong" decimalformatter="#,##0.00">1.23457</Column>|<Column name="VarProduct" decimalformatter="#,##0.00">1</Column>|<Column name="VarQuotient" decimalformatter="#,##0.00">1</Column>|<Column name="VarSum" decimalformatter="#,##0.00">1</Column>|<Column name="VarEvaluated" decimalformatter="#,##0.00">1</Column>|<Column name="VarLiteralZeros" decimalformatter="#,##0.00">1</Column>|<Column name="VarRoundedOwnPlaces" decimalformatter="#,##0.#####">1</Column>|<Column name="VarLiteralOwnPlaces" decimalformatter="#,##0.00000">1</Column>|<Column name="VarFromStored" decimalformatter="#,##0.00">1</Column>|');
         Observer.Verify();
     end;
+
+    // The source shapes the tests above do not cover (al-runner issue 7440, second round). One stored row 1 holds Round(1, 0.00001)
+    // in D, row 2 holds 1.50; the data item reads row 1, its trigger reads row 2 with Get and sets the variables. Each test
+    // observes one column of the same dataset.
+    local procedure MatrixValue(ColumnName: Text): Text
+    var
+        Row: Record "RPT DecCol Matrix Row";
+        Dataset: Codeunit "W3 Dataset";
+        Xml: Text;
+    begin
+        Row.DeleteAll();
+        Row.Init();
+        Row.Id := 1;
+        Row.D := Round(1, 0.00001);
+        Row.Insert();
+        Row.Init();
+        Row.Id := 2;
+        Row.D := 1.50;
+        Row.Insert();
+        if not Dataset.Save(Report::"RPT DecCol Matrix", '', Xml) then
+            exit('not saved: ' + GetLastErrorText());
+        exit(Dataset.ColumnValues(Xml, ColumnName));
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_Matrix_VariableTimesOne()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('value', MatrixValue('VarTimes1'));
+        Observer.Expect('value', '1,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_Matrix_ArrayElement()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('value', MatrixValue('ArrElem'));
+        Observer.Expect('value', '1,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_Matrix_UnaryMinus()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('value', MatrixValue('Neg'));
+        Observer.Expect('value', '-1,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_Matrix_Parentheses()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('value', MatrixValue('Paren'));
+        Observer.Expect('value', '1,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_Matrix_ProcedureCallWithParentheses()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('value', MatrixValue('CallParens'));
+        Observer.Expect('value', '1,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_Matrix_ProcedureCallWithoutParentheses()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('value', MatrixValue('CallNoParens'));
+        Observer.Expect('value', '1,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_Matrix_CodeunitMethodWithoutParentheses()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('value', MatrixValue('MemberCall'));
+        Observer.Expect('value', '1,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_Matrix_RecordReadByGet_Field()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('value', MatrixValue('GetName'));
+        Observer.Expect('value', '1.5,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_Matrix_RecordReadByGet_FieldTimesTwo()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('value', MatrixValue('GetTimes2'));
+        Observer.Expect('value', '3.0,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_Matrix_TriggerAssignedField()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('value', MatrixValue('Assigned'));
+        Observer.Expect('value', '1,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_Matrix_TriggerAssignedFieldTimesOne()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('value', MatrixValue('AssignedTimes1'));
+        Observer.Expect('value', '1,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_Matrix_FlowFieldAfterCalcFields()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('value', MatrixValue('FlowName'));
+        Observer.Expect('value', '2.5,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_Matrix_FlowFieldAfterCalcFieldsTimesOne()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('value', MatrixValue('FlowTimes1'));
+        Observer.Expect('value', '2.5,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Dataset_Decimal_Matrix_TemporaryDataItem()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "RPT DecCol Matrix Row";
+        Dataset: Codeunit "W3 Dataset";
+        Xml: Text;
+        Ok: Boolean;
+    begin
+        Row.DeleteAll();
+        Ok := Dataset.Save(Report::"RPT DecCol Matrix Temp", '', Xml);
+        Observer.Observe('saved', Format(Ok));
+        Observer.Observe('field', Dataset.ColumnValues(Xml, 'TmpName'));
+        Observer.Observe('times one', Dataset.ColumnValues(Xml, 'TmpTimes1'));
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('field', '1,');
+        Observer.Expect('times one', '1,');
+        Observer.Verify();
+    end;
+}
+
+// local object: the FieldClass and DecimalPlaces of the fields are under test (a FlowField next to stored fields).
+table 62334 "RPT DecCol Matrix Row"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; D; Decimal) { DecimalPlaces = 0 : 5; }
+        field(3; D2; Decimal) { DecimalPlaces = 0 : 5; }
+        field(4; S; Decimal) { FieldClass = FlowField; CalcFormula = sum("RPT DecCol Matrix Row".D); }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+// local object: the column source expressions are under test.
+report 62335 "RPT DecCol Matrix"
+{
+    UsageCategory = None;
+
+    dataset
+    {
+        dataitem(Row; "RPT DecCol Matrix Row")
+        {
+            DataItemTableView = sorting(Id) where(Id = const(1));
+
+            column(VarTimes1; V * 1) { }
+            column(ArrElem; Arr[1]) { }
+            column(Neg; -V) { }
+            column(Paren; (V)) { }
+            column(CallParens; GetV()) { }
+            column(CallNoParens; GetV) { }
+            column(MemberCall; Helper.GetV) { }
+            column(GetName; G.D) { }
+            column(GetTimes2; G.D * 2) { }
+            column(Assigned; D2) { }
+            column(AssignedTimes1; D2 * 1) { }
+            column(FlowName; S) { }
+            column(FlowTimes1; S * 1) { }
+
+            trigger OnAfterGetRecord()
+            begin
+                G.Get(2);
+                V := Round(1, 0.00001);
+                Arr[1] := Round(1, 0.00001);
+                D2 := Round(1, 0.00001);
+                CalcFields(S);
+            end;
+        }
+    }
+
+    var
+        G: Record "RPT DecCol Matrix Row";
+        Helper: Codeunit "RPT DecCol Matrix Helper";
+        V: Decimal;
+        Arr: array[2] of Decimal;
+
+    procedure GetV(): Decimal
+    begin
+        exit(Round(1, 0.00001));
+    end;
+}
+
+// local object: a temporary data item filled in OnPreReport is under test.
+report 62336 "RPT DecCol Matrix Temp"
+{
+    UsageCategory = None;
+
+    dataset
+    {
+        dataitem(Tmp; "RPT DecCol Matrix Row")
+        {
+            UseTemporary = true;
+
+            column(TmpName; D) { }
+            column(TmpTimes1; D * 1) { }
+        }
+    }
+
+    trigger OnPreReport()
+    begin
+        Tmp.Id := 1;
+        Tmp.D := Round(1, 0.00001);
+        Tmp.Insert();
+    end;
+}
+
+// local object: a codeunit method called without parentheses as a column source.
+codeunit 62337 "RPT DecCol Matrix Helper"
+{
+    procedure GetV(): Decimal
+    begin
+        exit(Round(1, 0.00001));
+    end;
 }

@@ -1,0 +1,532 @@
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/page/page-update-method
+// Scope: in-scope
+// Fixtures used: Probe Observer (codeunit 69160); own objects 67204-67210 (TP R7821V *)
+// local object: the page's Post action is what the test checks
+// Probe: from al-runner issue 7821 (follow-up of 6027, 6292, 7197; the repro itself is testpage/R7821JournalPostNewLine.al). The reporter
+//   changed one fact of the repro at a time and ran each variant on BC 29.0. This file has the same variants with own objects. The base
+//   case: a Worksheet with the new-row line (AutoSplitKey, DelayedInsert), filtered to batch B1 in FilterGroup(2) in OnOpenPage, with
+//   OnAfterGetRecord, OnNewRecord and OnAfterGetCurrRecord logging the line number. Its Post action copies Rec, deletes every line of
+//   the batch and, when Find('=><') answers false, resets the copy, sets the batch filter in FilterGroup(2), assigns "Line No." := 1 (a
+//   key no row has), copies it back into Rec and calls CurrPage.Update(false), as codeunit 241 "Item Jnl.-Post" leaves page 99000823
+//   "Output Journal". The test holds one B1 line, opens the page with Page.Run on the filtered record on a trapped TestPage, invokes
+//   Post and reads the page triggers that ran after the action, the line shown, the triggers of Close and the rows left.
+//   Each variant changes exactly one fact of that base case:
+//   - V1b: the page has one more field ("Batch Name") in the repeater.
+//   - V2: two (or three) B1 lines before Post.
+//   - V3: one more line in another batch (B2 after B1 in key order, or A1 before it), which Post does not delete.
+//   - V4: subscribers to OnBeforeActionEvent and OnAfterActionEvent of Post, bound manually in the test (counting their runs, or
+//     writing to the trigger log to show their order).
+//   - Open: OpenEdit instead of Page.Run (for V1b, V3 and V4; the base case with OpenEdit is in R7821JournalPostNewLine.al).
+//   The reporter saw on BC 29.0 for V1b, V3 and V4 the base case's `R:10000;N:0;C:0;N:0;C:0;N:0;C:0;`, for V2 five N:0;C:0 pairs.
+// Result (measured on Windows BC 27.5, 28.5 and 29.0 containers, before the corpus CI run): the base case, V1b (both opens), V3 (B2 and A1,
+//   both opens) and V4 (both opens) all give the base case's `R:10000;N:0;C:0;N:0;C:0;N:0;C:0;`, show line 0, run no trigger on Close and
+//   leave no B1 line (V3 keeps its other-batch line). V1b shows batch B1. The counting subscribers ran twice; the logging ones run after
+//   OnAfterGetRecord of the deleted line and before the blank line: `R:10000;BA;AA;N:0;C:0;...`. V2 with two lines gives five N:0;C:0
+//   pairs on BC 27.5 and 29.0 and four on BC 28.5 (as the OpenEdit case of R7821JournalPostNewLine.al); with three lines five pairs on all.
+// Not here: the reporter's V1a (the page under another id and name, same body: every page of this file already is one) and V5 (the real
+//   Output Journal posting a production order: it writes to Microsoft tables, which the corpus does not do).
+// BC versions: 27+ (tested by the corpus CI matrix)
+
+table 67204 "TP R7821V Line"
+{
+    fields
+    {
+        field(1; "Batch Name"; Code[10]) { }
+        field(2; "Line No."; Integer) { }
+        field(3; Quantity; Decimal) { }
+    }
+    keys
+    {
+        key(PK; "Batch Name", "Line No.") { Clustered = true; }
+    }
+}
+
+page 67206 "TP R7821V Wks"
+{
+    PageType = Worksheet;
+    SourceTable = "TP R7821V Line";
+    ApplicationArea = All;
+    UsageCategory = None;
+    AutoSplitKey = true;
+    DelayedInsert = true;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field("Line No."; Rec."Line No.") { ApplicationArea = All; }
+                field(Quantity; Rec.Quantity) { ApplicationArea = All; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(Post)
+            {
+                ApplicationArea = All;
+                Caption = 'Post';
+
+                trigger OnAction()
+                var
+                    Posted: Record "TP R7821V Line";
+                begin
+                    Posted.Copy(Rec);
+                    Rec.DeleteAll();
+                    if not Posted.Find('=><') then begin
+                        Posted.Reset();
+                        Posted.FilterGroup(2);
+                        Posted.SetRange("Batch Name", 'B1');
+                        Posted.FilterGroup(0);
+                        Posted."Line No." := 1;
+                    end;
+                    Rec.Copy(Posted);
+                    CurrPage.Update(false);
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Rec.FilterGroup(2);
+        Rec.SetRange("Batch Name", 'B1');
+        Rec.FilterGroup(0);
+    end;
+
+    trigger OnAfterGetRecord()
+    var
+        Log: Codeunit "TP R7821V Log";
+    begin
+        Log.Add('R:' + Format(Rec."Line No."));
+    end;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    var
+        Log: Codeunit "TP R7821V Log";
+    begin
+        Log.Add('N:' + Format(Rec."Line No."));
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    var
+        Log: Codeunit "TP R7821V Log";
+    begin
+        Log.Add('C:' + Format(Rec."Line No."));
+    end;
+}
+
+// V1b: the page above with one more field, "Batch Name", in the repeater; nothing else changed.
+page 67207 "TP R7821V Field Wks"
+{
+    PageType = Worksheet;
+    SourceTable = "TP R7821V Line";
+    ApplicationArea = All;
+    UsageCategory = None;
+    AutoSplitKey = true;
+    DelayedInsert = true;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field("Batch Name"; Rec."Batch Name") { ApplicationArea = All; }
+                field("Line No."; Rec."Line No.") { ApplicationArea = All; }
+                field(Quantity; Rec.Quantity) { ApplicationArea = All; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(Post)
+            {
+                ApplicationArea = All;
+                Caption = 'Post';
+
+                trigger OnAction()
+                var
+                    Posted: Record "TP R7821V Line";
+                begin
+                    Posted.Copy(Rec);
+                    Rec.DeleteAll();
+                    if not Posted.Find('=><') then begin
+                        Posted.Reset();
+                        Posted.FilterGroup(2);
+                        Posted.SetRange("Batch Name", 'B1');
+                        Posted.FilterGroup(0);
+                        Posted."Line No." := 1;
+                    end;
+                    Rec.Copy(Posted);
+                    CurrPage.Update(false);
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Rec.FilterGroup(2);
+        Rec.SetRange("Batch Name", 'B1');
+        Rec.FilterGroup(0);
+    end;
+
+    trigger OnAfterGetRecord()
+    var
+        Log: Codeunit "TP R7821V Log";
+    begin
+        Log.Add('R:' + Format(Rec."Line No."));
+    end;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    var
+        Log: Codeunit "TP R7821V Log";
+    begin
+        Log.Add('N:' + Format(Rec."Line No."));
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    var
+        Log: Codeunit "TP R7821V Log";
+    begin
+        Log.Add('C:' + Format(Rec."Line No."));
+    end;
+}
+
+codeunit 67205 "TP R7821V Log"
+{
+    SingleInstance = true;
+
+    var
+        Entries: Text;
+
+    procedure Add(Entry: Text)
+    begin
+        Entries += Entry + ';';
+    end;
+
+    procedure Take() Result: Text
+    begin
+        Result := Entries;
+        Entries := '';
+    end;
+}
+
+// V4: counts the runs of its subscribers to the Post action; bound manually by the test (the reporter's shape).
+codeunit 67208 "TP R7821V Subs"
+{
+    EventSubscriberInstance = Manual;
+
+    var
+        Runs: Integer;
+
+    [EventSubscriber(ObjectType::Page, Page::"TP R7821V Wks", 'OnBeforeActionEvent', 'Post', false, false)]
+    local procedure OnBeforePost()
+    begin
+        Runs += 1;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"TP R7821V Wks", 'OnAfterActionEvent', 'Post', false, false)]
+    local procedure OnAfterPost()
+    begin
+        Runs += 1;
+    end;
+
+    procedure Count(): Integer
+    begin
+        exit(Runs);
+    end;
+}
+
+// V4, logged: the same subscribers write BA (before action) and AA (after action) into the trigger log, to show where they run.
+codeunit 67209 "TP R7821V Log Subs"
+{
+    EventSubscriberInstance = Manual;
+
+    [EventSubscriber(ObjectType::Page, Page::"TP R7821V Wks", 'OnBeforeActionEvent', 'Post', false, false)]
+    local procedure OnBeforePost()
+    var
+        Log: Codeunit "TP R7821V Log";
+    begin
+        Log.Add('BA');
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"TP R7821V Wks", 'OnAfterActionEvent', 'Post', false, false)]
+    local procedure OnAfterPost()
+    var
+        Log: Codeunit "TP R7821V Log";
+    begin
+        Log.Add('AA');
+    end;
+}
+
+codeunit 67210 "TP R7821V Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    local procedure InsertLines(var Line: Record "TP R7821V Line"; Rows: Integer; OtherBatch: Code[10])
+    var
+        i: Integer;
+    begin
+        Line.Reset();
+        Line.DeleteAll();
+        for i := 1 to Rows do begin
+            Line.Init();
+            Line."Batch Name" := 'B1';
+            Line."Line No." := i * 10000;
+            Line.Quantity := 300;
+            Line.Insert();
+        end;
+        if OtherBatch <> '' then begin
+            Line.Init();
+            Line."Batch Name" := OtherBatch;
+            Line."Line No." := 10000;
+            Line.Quantity := 100;
+            Line.Insert();
+        end;
+        Line.SetRange("Batch Name", 'B1');
+        Line.FindFirst();
+        Commit();
+    end;
+
+    local procedure ObserveRows(var Observer: Codeunit "Probe Observer"; var Line: Record "TP R7821V Line")
+    var
+        Other: Record "TP R7821V Line";
+    begin
+        Observer.Observe('lines left', Format(Line.Count()));
+        Other.SetFilter("Batch Name", '<>%1', 'B1');
+        Observer.Observe('other batch lines left', Format(Other.Count()));
+    end;
+
+    // Subscribers: 0 none, 1 TP R7821V Subs (counting), 2 TP R7821V Log Subs (logging).
+    local procedure RunWks(var Observer: Codeunit "Probe Observer"; Rows: Integer; OtherBatch: Code[10]; WithPageRun: Boolean; Subscribers: Integer)
+    var
+        Line: Record "TP R7821V Line";
+        Log: Codeunit "TP R7821V Log";
+        Subs: Codeunit "TP R7821V Subs";
+        LogSubs: Codeunit "TP R7821V Log Subs";
+        Worksheet: TestPage "TP R7821V Wks";
+    begin
+        InsertLines(Line, Rows, OtherBatch);
+        case Subscribers of
+            1:
+                BindSubscription(Subs);
+            2:
+                BindSubscription(LogSubs);
+        end;
+        if WithPageRun then begin
+            Worksheet.Trap();
+            Page.Run(Page::"TP R7821V Wks", Line);
+        end else
+            Worksheet.OpenEdit();
+        Log.Take();
+        Worksheet.Post.Invoke();
+        Observer.Observe('after post', Log.Take());
+        Observer.Observe('shown line', Worksheet."Line No.".Value());
+        Worksheet.Close();
+        Observer.Observe('after close', Log.Take());
+        case Subscribers of
+            1:
+                begin
+                    UnbindSubscription(Subs);
+                    Observer.Observe('subscriber runs', Format(Subs.Count()));
+                end;
+            2:
+                UnbindSubscription(LogSubs);
+        end;
+        ObserveRows(Observer, Line);
+    end;
+
+    local procedure RunFieldWks(var Observer: Codeunit "Probe Observer"; WithPageRun: Boolean)
+    var
+        Line: Record "TP R7821V Line";
+        Log: Codeunit "TP R7821V Log";
+        Worksheet: TestPage "TP R7821V Field Wks";
+    begin
+        InsertLines(Line, 1, '');
+        if WithPageRun then begin
+            Worksheet.Trap();
+            Page.Run(Page::"TP R7821V Field Wks", Line);
+        end else
+            Worksheet.OpenEdit();
+        Log.Take();
+        Worksheet.Post.Invoke();
+        Observer.Observe('after post', Log.Take());
+        Observer.Observe('shown line', Worksheet."Line No.".Value());
+        Observer.Observe('shown batch', Worksheet."Batch Name".Value());
+        Worksheet.Close();
+        Observer.Observe('after close', Log.Take());
+        ObserveRows(Observer, Line);
+    end;
+
+    [Test]
+    procedure TPV7821_Base_OneLine_PageRun()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunWks(Observer, 1, '', true, 0);
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('after close', '');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TPV7821_ExtraField_OneLine_PageRun()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunFieldWks(Observer, true);
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown batch', 'B1');
+        Observer.Expect('after close', '');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TPV7821_ExtraField_OneLine_OpenEdit()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunFieldWks(Observer, false);
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('shown batch', 'B1');
+        Observer.Expect('after close', '');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TPV7821_TwoLines_PageRun()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunWks(Observer, 2, '', true, 0);
+#if BC28PLUS and not BC29PLUS
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;');
+#else
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;');
+#endif
+        Observer.Expect('shown line', '0');
+        Observer.Expect('after close', '');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TPV7821_ThreeLines_PageRun()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunWks(Observer, 3, '', true, 0);
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('after close', '');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TPV7821_OtherBatchAfter_OneLine_PageRun()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunWks(Observer, 1, 'B2', true, 0);
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('after close', '');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TPV7821_OtherBatchBefore_OneLine_PageRun()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunWks(Observer, 1, 'A1', true, 0);
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('after close', '');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TPV7821_OtherBatchAfter_OneLine_OpenEdit()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunWks(Observer, 1, 'B2', false, 0);
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('after close', '');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TPV7821_ActionSubs_OneLine_PageRun()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunWks(Observer, 1, '', true, 1);
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('after close', '');
+        Observer.Expect('subscriber runs', '2');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TPV7821_ActionSubsLogged_OneLine_PageRun()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunWks(Observer, 1, '', true, 2);
+        Observer.Expect('after post', 'R:10000;BA;AA;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('after close', '');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TPV7821_ActionSubs_OneLine_OpenEdit()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunWks(Observer, 1, '', false, 1);
+        Observer.Expect('after post', 'R:10000;N:0;C:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown line', '0');
+        Observer.Expect('after close', '');
+        Observer.Expect('subscriber runs', '2');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('other batch lines left', '0');
+        Observer.Verify();
+    end;
+}
