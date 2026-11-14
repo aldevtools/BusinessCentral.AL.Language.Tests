@@ -145,12 +145,12 @@ codeunit 75240 "B64 LineBreaks InStream"
         Observer.Observe('after_10_read_true_length', Format(StrLen(R)));
         Observer.Observe('after_10_read_true_codes_76_to_78', Codes(CopyStr(R, 76, 3)));
         Observer.Observe('after_10_read_true_first_8', CopyStr(R, 1, 8));
+        Observer.Observe('after_10_read_equals_full_text_form', Format(R = Base64.ToBase64(Digits(100), true)));
         // the same stream converted twice
         FillStream(TempBlob, 100, InS);
         R := Base64.ToBase64(InS, true);
         Observer.Observe('first_call_true_length', Format(StrLen(R)));
-        R := Base64.ToBase64(InS, true);
-        Observer.Observe('second_call_true', '[' + R + ']');
+        Observer.Observe('second_call_equals_first', Format(Base64.ToBase64(InS, true) = R));
         Observer.Finish();
     end;
 
@@ -186,6 +186,7 @@ codeunit 75240 "B64 LineBreaks InStream"
     var
         InS: InStream;
         B: Byte;
+        V: Integer;
         Pos: Integer;
         Result: Text;
     begin
@@ -193,8 +194,9 @@ codeunit 75240 "B64 LineBreaks InStream"
         while not InS.EOS() do begin
             InS.Read(B);
             Pos += 1;
+            V := B;
             if (Pos >= FromPos) and (Pos < FromPos + Count) then
-                Result += Format(B) + ' ';
+                Result += Format(V) + ' ';
         end;
         exit(Result);
     end;
@@ -276,6 +278,9 @@ codeunit 75240 "B64 LineBreaks InStream"
         Observer.Observe('readtext_strlen', Format(StrLen(ReadBack)));
         Observer.Observe('readtext_codes_76_to_78', Codes(CopyStr(ReadBack, 76, 3)));
         Observer.Observe('readtext_equals_text_form', Format(ReadBack = Base64.ToBase64(Digits(120), true)));
+        ReadLength := ResultInS.ReadText(ReadBack);
+        Observer.Observe('second_readtext_return', Format(ReadLength));
+        Observer.Observe('second_readtext_first_codes', Codes(CopyStr(ReadBack, 1, 2)));
         // an empty source writes nothing
         Clear(Source);
         Source.CreateOutStream(OutS);
@@ -382,7 +387,53 @@ codeunit 75241 "B64 FromBase64 Encodings"
         Observer.Observe('windows_65001_utf8bytes', From(Utf8Umlauts, TextEncoding::Windows, 65001));
         Observer.Observe('windows_1200_utf16bytes', From(Utf16AB, TextEncoding::Windows, 1200));
         Observer.Observe('windows_850_windowsbytes', From(WindowsUmlauts, TextEncoding::Windows, 850));
-        Observer.Observe('windows_99999', From(WindowsUmlauts, TextEncoding::Windows, 99999));
+        Observer.Finish();
+    end;
+
+    local procedure ErrorHead(): Text
+    var
+        T: Text;
+        P: Integer;
+    begin
+        T := GetLastErrorText();
+        P := StrPos(T, '    at ');
+        if P > 0 then
+            T := CopyStr(T, 1, P - 1);
+        exit(T);
+    end;
+
+    [Test]
+    procedure FromBase64_Windows_CodePage99999_Error()
+    var
+        Base64: Codeunit "Base64 Convert";
+        Observer: Codeunit "Probe Observer";
+    begin
+        asserterror Base64.FromBase64(WindowsUmlauts, TextEncoding::Windows, 99999);
+        Observer.Observe('windows_99999_text', ErrorHead());
+        Observer.Observe('windows_99999_code', GetLastErrorCode());
+        ClearLastError();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure FromBase64_MSDos_CodePage99999_Error()
+    var
+        Base64: Codeunit "Base64 Convert";
+        Observer: Codeunit "Probe Observer";
+    begin
+        asserterror Base64.FromBase64(WindowsUmlauts, TextEncoding::MSDos, 99999);
+        Observer.Observe('msdos_99999_text', ErrorHead());
+        Observer.Observe('msdos_99999_code', GetLastErrorCode());
+        ClearLastError();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure FromBase64_Windows_CodePage70000()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('windows_70000', From(WindowsUmlauts, TextEncoding::Windows, 70000));
         Observer.Finish();
     end;
 
