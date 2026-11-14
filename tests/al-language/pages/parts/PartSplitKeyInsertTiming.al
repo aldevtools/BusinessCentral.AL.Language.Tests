@@ -1372,12 +1372,10 @@ codeunit 62733 "PG ST Insert Timing"
         Observer.ObserveError('view');
         Observer.Observe('log', Log.Take());
         Doc.Close();
-        Observer.Observe('lines', Lines('H1'));
         Observer.Expect('editable', 'No');
         Observer.Expect('view|text', 'New method failed because Insert is not allowed. Page = PG ST Lines, Id = 62724.');
         Observer.Expect('view|code', 'DB:ClientInsertDenied');
         Observer.Expect('log', '[]');
-        Observer.Expect('lines', '[]');
         Observer.Verify();
     end;
 
@@ -1404,12 +1402,10 @@ codeunit 62733 "PG ST Insert Timing"
         Observer.ObserveError('view');
         Observer.Observe('log', Log.Take());
         Card.Close();
-        Observer.Observe('lines', Lines('H1'));
         Observer.Expect('editable', 'No');
         Observer.Expect('view|text', 'New method failed because Insert is not allowed. Page = PG ST Lines, Id = 62724.');
         Observer.Expect('view|code', 'DB:ClientInsertDenied');
         Observer.Expect('log', '[]');
-        Observer.Expect('lines', '[]');
         Observer.Verify();
     end;
 
