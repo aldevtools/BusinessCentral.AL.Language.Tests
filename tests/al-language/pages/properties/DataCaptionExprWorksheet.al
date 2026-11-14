@@ -12,8 +12,17 @@
 // Log: OnInit, OnOpenPage, every evaluation of the expression ("DC", with Rec.GetFilters and the key of Rec), what the handler reads ("H":
 //   caption, both filter controls), OnQueryClosePage, and "after run" once Page.Run returned.
 // local object: the page shapes are what the test checks.
-// Observation form: every test ends in Finish(); the values are what BC produced.
-// BC versions: 27.5, 28.5, 29.0
+// What BC did (identical on 28.5 and 29.0; 27.5 not observed locally, its fixture install failed, the PR's CI covers it):
+//   - Worksheet (DelayedInsert on or off), EMPTY view, Page.Run(0, Rec), Page.Run(Page::X, Rec) or Page.RunModal(0, Rec), from the subscriber or
+//     direct, CurrPage.Editable true or not set: the log reads OnInit, OnOpenPage (item= set), DC, DC, H, OnQueryClosePage, after run. The
+//     expression runs twice before the handler, and the handler SEES the filter (caption suffix '- Cap I9/', item=I9). A vendor filter
+//     shows vend=V9.
+//   - Worksheet with ONE row in the view: the expression runs once and the handler reads item= empty.
+//   - Card with DelayedInsert, empty view: the expression runs once, the caption has no suffix and the control is empty. One row: once, the
+//     caption has the suffix, item= empty.
+//   - CurrPage.Editable := false in OnOpenPage (Worksheet with DelayedInsert, empty view): the expression does not run at all; the handler
+//     reads the caption without suffix and empty controls.
+// BC versions: 28.5, 29.0
 
 table 76420 "DCW Row"
 {
@@ -408,7 +417,8 @@ codeunit 76428 "DCW Tests"
         Seed(false);
         Log.SetEditableMode('true');
         Observer.Observe('log', RunOpener('WSDI0', 'Item', 'I9'));
-        Observer.Finish();
+        Observer.Expect('log', 'OnInit | OnOpenPage(item=) | DC(filters=Item No.: I9 rec=I9/) | DC(filters=Item No.: I9 rec=I9/) | H cap=DCW WS DI - Cap I9/ item=I9 vend= | OnQueryClosePage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -420,7 +430,8 @@ codeunit 76428 "DCW Tests"
         Seed(false);
         Log.SetEditableMode('true');
         Observer.Observe('log', RunOpener('WSDI0', 'Vendor', 'V9'));
-        Observer.Finish();
+        Observer.Expect('log', 'OnInit | OnOpenPage(item=) | DC(filters=Vendor No.: V9 rec=/V9) | DC(filters=Vendor No.: V9 rec=/V9) | H cap=DCW WS DI - Cap /V9 item= vend=V9 | OnQueryClosePage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -432,7 +443,8 @@ codeunit 76428 "DCW Tests"
         Seed(true);
         Log.SetEditableMode('true');
         Observer.Observe('log', RunOpener('WSDI0', 'Item', 'I1'));
-        Observer.Finish();
+        Observer.Expect('log', 'OnInit | OnOpenPage(item=) | DC(filters=Item No.: I1 rec=I1/V1) | H cap=DCW WS DI - Cap I1/ item= vend= | OnQueryClosePage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -444,7 +456,8 @@ codeunit 76428 "DCW Tests"
         Seed(false);
         Log.SetEditableMode('false');
         Observer.Observe('log', RunOpener('WSDI0', 'Item', 'I9'));
-        Observer.Finish();
+        Observer.Expect('log', 'OnInit | OnOpenPage(item=) | H cap=DCW WS DI item= vend= | OnQueryClosePage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -456,7 +469,8 @@ codeunit 76428 "DCW Tests"
         Seed(true);
         Log.SetEditableMode('false');
         Observer.Observe('log', RunOpener('WSDI0', 'Item', 'I1'));
-        Observer.Finish();
+        Observer.Expect('log', 'OnInit | OnOpenPage(item=) | DC(filters=Item No.: I1 rec=I1/V1) | H cap=DCW WS DI - Cap I1/ item= vend= | OnQueryClosePage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -468,7 +482,8 @@ codeunit 76428 "DCW Tests"
         Seed(false);
         Log.SetEditableMode('false');
         Observer.Observe('log', RunOpener('WSX', 'Item', 'I9'));
-        Observer.Finish();
+        Observer.Expect('log', 'OnInit | OnOpenPage(item=) | H cap=DCW WS item= vend= | OnQueryClosePage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -479,7 +494,8 @@ codeunit 76428 "DCW Tests"
     begin
         Seed(false);
         Observer.Observe('log', RunOpener('CARDX', 'Item', 'I9'));
-        Observer.Finish();
+        Observer.Expect('log', 'OnInit | OnOpenPage(item=) | DC(filters=Item No.: I9 rec=I9/) | H cap=DCW Card item= vend= | OnQueryClosePage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -490,7 +506,8 @@ codeunit 76428 "DCW Tests"
     begin
         Seed(false);
         Observer.Observe('log', RunOpener('WSDI0', 'Item', 'I9'));
-        Observer.Finish();
+        Observer.Expect('log', 'OnInit | OnOpenPage(item=) | DC(filters=Item No.: I9 rec=I9/) | DC(filters=Item No.: I9 rec=I9/) | H cap=DCW WS DI - Cap I9/ item=I9 vend= | OnQueryClosePage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -502,7 +519,8 @@ codeunit 76428 "DCW Tests"
         Seed(false);
         Log.SetEditableMode('true');
         Observer.Observe('log', RunOpener('WSDIX', 'Item', 'I9'));
-        Observer.Finish();
+        Observer.Expect('log', 'OnInit | OnOpenPage(item=) | DC(filters=Item No.: I9 rec=I9/) | DC(filters=Item No.: I9 rec=I9/) | H cap=DCW WS DI - Cap I9/ item=I9 vend= | OnQueryClosePage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -514,7 +532,8 @@ codeunit 76428 "DCW Tests"
         Seed(true);
         Log.SetEditableMode('true');
         Observer.Observe('log', RunOpener('WSDIX', 'Item', 'I1'));
-        Observer.Finish();
+        Observer.Expect('log', 'OnInit | OnOpenPage(item=) | DC(filters=Item No.: I1 rec=I1/V1) | H cap=DCW WS DI - Cap I1/ item= vend= | OnQueryClosePage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -531,7 +550,8 @@ codeunit 76428 "DCW Tests"
         Page.Run(0, Row);
         Log.Add('after run');
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('log', 'OnInit | OnOpenPage(item=) | DC(filters=Item No.: I9 rec=I9/) | DC(filters=Item No.: I9 rec=I9/) | H cap=DCW WS DI - Cap I9/ item=I9 vend= | OnQueryClosePage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -543,7 +563,8 @@ codeunit 76428 "DCW Tests"
         Seed(false);
         Log.SetEditableMode('true');
         Observer.Observe('log', RunOpener('WSDIM0', 'Item', 'I9'));
-        Observer.Finish();
+        Observer.Expect('log', 'OnInit | OnOpenPage(item=) | DC(filters=Item No.: I9 rec=I9/) | DC(filters=Item No.: I9 rec=I9/) | H cap=DCW WS DI - Cap I9/ item=I9 vend= | OnQueryClosePage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -556,7 +577,8 @@ codeunit 76428 "DCW Tests"
         Seed(false);
         Log.SetEditableMode('true');
         Observer.Observe('log', RunOpener('WSX', 'Item', 'I9'));
-        Observer.Finish();
+        Observer.Expect('log', 'OnInit | OnOpenPage(item=) | DC(filters=Item No.: I9 rec=I9/) | DC(filters=Item No.: I9 rec=I9/) | H cap=DCW WS - Cap I9/ item=I9 vend= | OnQueryClosePage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -568,7 +590,8 @@ codeunit 76428 "DCW Tests"
         Seed(true);
         Log.SetEditableMode('true');
         Observer.Observe('log', RunOpener('WSX', 'Item', 'I1'));
-        Observer.Finish();
+        Observer.Expect('log', 'OnInit | OnOpenPage(item=) | DC(filters=Item No.: I1 rec=I1/V1) | H cap=DCW WS - Cap I1/ item= vend= | OnQueryClosePage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -581,7 +604,8 @@ codeunit 76428 "DCW Tests"
         Seed(false);
         Log.SetEditableMode('true');
         Observer.Observe('log', RunOpener('CARDX', 'Item', 'I9'));
-        Observer.Finish();
+        Observer.Expect('log', 'OnInit | OnOpenPage(item=) | DC(filters=Item No.: I9 rec=I9/) | H cap=DCW Card item= vend= | OnQueryClosePage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -593,7 +617,8 @@ codeunit 76428 "DCW Tests"
         Seed(true);
         Log.SetEditableMode('true');
         Observer.Observe('log', RunOpener('CARDX', 'Item', 'I1'));
-        Observer.Finish();
+        Observer.Expect('log', 'OnInit | OnOpenPage(item=) | DC(filters=Item No.: I1 rec=I1/V1) | H cap=DCW Card - Cap I1/ item= vend= | OnQueryClosePage | after run');
+        Observer.Verify();
     end;
 
     [PageHandler]

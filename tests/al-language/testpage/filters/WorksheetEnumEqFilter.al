@@ -14,8 +14,13 @@
 // Rows (Id, DocType = Kind = HidType, IsHist): 1 Quote No, 2 Order No, 3 Invoice Yes, 4 Order Yes. The temporary pages get them from the
 //   action Fill (DeleteAll, four rows, FindFirst, CurrPage.Update(false)).
 // local object: the page shapes (Worksheet, SourceTableTemporary, a field with no control) are what the test checks.
-// Observation form: every test ends in Finish(); the values are what BC produced.
-// BC versions: 27.5, 28.5, 29.0
+// What BC did (identical on 28.5 and 29.0; 27.5 not observed locally, its fixture install failed, the PR's CI covers it):
+//   - TestPage.Filter.SetFilter with any text that starts with '=' is ignored on every shape measured (Worksheet and List, temporary and
+//     database source, Enum with and without a control, Option, Boolean without a control; '=Quote', '=Order', '=Invoice', '=0', '=1').
+//     GetFilter returns '' and all four rows stay. The call does not replace an earlier filter: 'Order', then '=Quote', keeps 'Order'.
+//   - '<>Quote' filters: GetFilter '<>0' (Enum and Option show the ordinal), rows 2, 3, 4. Bare 'Order' gives 'Order'; bare '1' on the Enum
+//     gives 'Order'; Boolean '1' gives 'Yes'.
+// BC versions: 28.5, 29.0
 
 enum 76410 "WEQ Doc Type"
 {
@@ -404,7 +409,16 @@ codeunit 76414 "WEQ Tests"
         Observer.Observe('=0', WsCase('DocType', '=0'));
         Observer.Observe('=1', WsCase('DocType', '=1'));
         Observer.Observe('1', WsCase('DocType', '1'));
-        Observer.Finish();
+        Observer.Expect('=Quote', 'filter= rows=1,2,3,4,');
+        Observer.Expect('=Order', 'filter= rows=1,2,3,4,');
+        Observer.Expect('=Invoice', 'filter= rows=1,2,3,4,');
+        Observer.Expect('<>Quote', 'filter=<>0 rows=2,3,4,');
+        Observer.Expect('Quote', 'filter=Quote rows=1,');
+        Observer.Expect('Order', 'filter=Order rows=2,4,');
+        Observer.Expect('=0', 'filter= rows=1,2,3,4,');
+        Observer.Expect('=1', 'filter= rows=1,2,3,4,');
+        Observer.Expect('1', 'filter=Order rows=2,4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -417,7 +431,11 @@ codeunit 76414 "WEQ Tests"
         Observer.Observe('=Order', WsCase('HidType', '=Order'));
         Observer.Observe('<>Quote', WsCase('HidType', '<>Quote'));
         Observer.Observe('Order', WsCase('HidType', 'Order'));
-        Observer.Finish();
+        Observer.Expect('=Quote', 'filter= rows=1,2,3,4,');
+        Observer.Expect('=Order', 'filter= rows=1,2,3,4,');
+        Observer.Expect('<>Quote', 'filter=<>0 rows=2,3,4,');
+        Observer.Expect('Order', 'filter=Order rows=2,4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -432,7 +450,13 @@ codeunit 76414 "WEQ Tests"
         Observer.Observe('<>Quote', WsCase('Kind', '<>Quote'));
         Observer.Observe('Order', WsCase('Kind', 'Order'));
         Observer.Observe('=1', WsCase('Kind', '=1'));
-        Observer.Finish();
+        Observer.Expect('=Quote', 'filter= rows=1,2,3,4,');
+        Observer.Expect('=Order', 'filter= rows=1,2,3,4,');
+        Observer.Expect('=Invoice', 'filter= rows=1,2,3,4,');
+        Observer.Expect('<>Quote', 'filter=<>0 rows=2,3,4,');
+        Observer.Expect('Order', 'filter=Order rows=2,4,');
+        Observer.Expect('=1', 'filter= rows=1,2,3,4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -445,7 +469,11 @@ codeunit 76414 "WEQ Tests"
         Observer.Observe('=0', WsCase('IsHist', '=0'));
         Observer.Observe('1', WsCase('IsHist', '1'));
         Observer.Observe('0', WsCase('IsHist', '0'));
-        Observer.Finish();
+        Observer.Expect('=1', 'filter= rows=1,2,3,4,');
+        Observer.Expect('=0', 'filter= rows=1,2,3,4,');
+        Observer.Expect('1', 'filter=Yes rows=3,4,');
+        Observer.Expect('0', 'filter=No rows=1,2,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -470,7 +498,15 @@ codeunit 76414 "WEQ Tests"
         Observer.Observe('first after <>Quote', Format(P.First()));
         Observer.Observe('rows after <>Quote', WalkWs(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('first after action', 'Yes|1');
+        Observer.Expect('ishist filter', '');
+        Observer.Expect('doctype filter', '');
+        Observer.Expect('first after =Quote', 'Yes');
+        Observer.Expect('rows after =Quote', '1,2,3,4,');
+        Observer.Expect('doctype filter <>', '<>0');
+        Observer.Expect('first after <>Quote', 'Yes');
+        Observer.Expect('rows after <>Quote', '2,3,4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -495,7 +531,14 @@ codeunit 76414 "WEQ Tests"
         Observer.Observe('doctype filter <>Quote', P.Filter.GetFilter(DocType));
         Observer.Observe('rows after <>Quote', WalkWs(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('doctype filter', '');
+        Observer.Expect('first after =Order', 'Yes|1');
+        Observer.Expect('rows after =Order', '1,2,3,4,');
+        Observer.Expect('doctype filter <>Order', '<>1');
+        Observer.Expect('rows after <>Order', '1,3,');
+        Observer.Expect('doctype filter <>Quote', '<>0');
+        Observer.Expect('rows after <>Quote', '2,3,4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -518,7 +561,12 @@ codeunit 76414 "WEQ Tests"
         Observer.Observe('filters', P.Filter.GetFilter(IsHist) + '|' + P.Filter.GetFilter(DocType));
         Observer.Observe('rows after 1 and =Invoice', WalkWs(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('rows after Order', '2,4,');
+        Observer.Expect('filter after =Quote', 'Order');
+        Observer.Expect('rows after =Quote', '2,4,');
+        Observer.Expect('filters', 'Yes|Order');
+        Observer.Expect('rows after 1 and =Invoice', '4,');
+        Observer.Verify();
     end;
 
     // ---- Tests: Temp List ----
@@ -536,7 +584,14 @@ codeunit 76414 "WEQ Tests"
         Observer.Observe('Order', ListCase('DocType', 'Order'));
         Observer.Observe('hidden =Order', ListCase('HidType', '=Order'));
         Observer.Observe('hidden Order', ListCase('HidType', 'Order'));
-        Observer.Finish();
+        Observer.Expect('=Quote', 'filter= rows=1,2,3,4,');
+        Observer.Expect('=Order', 'filter= rows=1,2,3,4,');
+        Observer.Expect('=Invoice', 'filter= rows=1,2,3,4,');
+        Observer.Expect('<>Quote', 'filter=<>0 rows=2,3,4,');
+        Observer.Expect('Order', 'filter=Order rows=2,4,');
+        Observer.Expect('hidden =Order', 'filter= rows=1,2,3,4,');
+        Observer.Expect('hidden Order', 'filter=Order rows=2,4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -551,7 +606,12 @@ codeunit 76414 "WEQ Tests"
         Observer.Observe('<>Quote', ListCase('Kind', '<>Quote'));
         Observer.Observe('=1', ListCase('Kind', '=1'));
         Observer.Observe('ishist =1', ListCase('IsHist', '=1'));
-        Observer.Finish();
+        Observer.Expect('=Order', 'filter= rows=1,2,3,4,');
+        Observer.Expect('=Invoice', 'filter= rows=1,2,3,4,');
+        Observer.Expect('<>Quote', 'filter=<>0 rows=2,3,4,');
+        Observer.Expect('=1', 'filter= rows=1,2,3,4,');
+        Observer.Expect('ishist =1', 'filter= rows=1,2,3,4,');
+        Observer.Verify();
     end;
 
     // ---- Tests: Phys Worksheet ----
@@ -571,6 +631,14 @@ codeunit 76414 "WEQ Tests"
         Observer.Observe('option =Order', PhysCase('Kind', '=Order'));
         Observer.Observe('bool =1', PhysCase('IsHist', '=1'));
         Observer.Observe('bool 1', PhysCase('IsHist', '1'));
-        Observer.Finish();
+        Observer.Expect('enum =Quote', 'filter= rows=1,2,3,4,');
+        Observer.Expect('enum =Order', 'filter= rows=1,2,3,4,');
+        Observer.Expect('enum <>Quote', 'filter=<>0 rows=2,3,4,');
+        Observer.Expect('enum Order', 'filter=Order rows=2,4,');
+        Observer.Expect('hidden enum =Order', 'filter= rows=1,2,3,4,');
+        Observer.Expect('option =Order', 'filter= rows=1,2,3,4,');
+        Observer.Expect('bool =1', 'filter= rows=1,2,3,4,');
+        Observer.Expect('bool 1', 'filter=Yes rows=3,4,');
+        Observer.Verify();
     end;
 }
