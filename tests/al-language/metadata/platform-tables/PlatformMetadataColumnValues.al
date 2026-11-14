@@ -615,9 +615,9 @@ codeunit 71394 "LT PM Values Tests"
         exit(PackageIdsAgainstTable(F, TableObj));
     end;
 
-    // Follow-up of al-runner PR 8054: a Get of a system field (SystemId 2000000000, SystemCreatedAt 2000000001, SystemModifiedAt
-    // 2000000003) gives the table's AllObj ids, also on a table no extension of its own app extends, where a Get of a declared field
-    // gives null ids. Measured as above.
+    // Follow-up of al-runner PR 8054: a Get of a system field (SystemId 2000000000 to SystemModifiedBy 2000000004) gives the table's
+    // AllObj ids, also on a table no extension of its own app extends, where a Get of a declared field gives null ids; on Customer,
+    // which Base Application's extension 6450 extends, a Get of field 2 gives the table's ids too. Measured as above.
     [Test]
     procedure FieldTable_AppPackageIds_GetOfSystemField_IsTheTablesWithoutSameAppTableExtension()
     var
@@ -626,15 +626,23 @@ codeunit 71394 "LT PM Values Tests"
         Observer.Observe('own 71390 field 2', SystemFieldGet(Database::"LT PM Values Table", 2));
         Observer.Observe('own 71390 systemid', SystemFieldGet(Database::"LT PM Values Table", 2000000000));
         Observer.Observe('own 71390 systemcreatedat', SystemFieldGet(Database::"LT PM Values Table", 2000000001));
+        Observer.Observe('own 71390 systemcreatedby', SystemFieldGet(Database::"LT PM Values Table", 2000000002));
+        Observer.Observe('own 71390 systemmodifiedby', SystemFieldGet(Database::"LT PM Values Table", 2000000004));
         Observer.Observe('base contact field 2', SystemFieldGet(Database::Contact, 2));
         Observer.Observe('base contact systemid', SystemFieldGet(Database::Contact, 2000000000));
         Observer.Observe('base contact systemmodifiedat', SystemFieldGet(Database::Contact, 2000000003));
+        Observer.Observe('base contact systemcreatedby', SystemFieldGet(Database::Contact, 2000000002));
+        Observer.Observe('base customer field 2', SystemFieldGet(Database::Customer, 2));
         Observer.Expect('own 71390 field 2', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
         Observer.Expect('own 71390 systemid', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
         Observer.Expect('own 71390 systemcreatedat', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('own 71390 systemcreatedby', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('own 71390 systemmodifiedby', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
         Observer.Expect('base contact field 2', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
         Observer.Expect('base contact systemid', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
         Observer.Expect('base contact systemmodifiedat', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('base contact systemcreatedby', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('base customer field 2', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
         Observer.Verify();
     end;
 }
