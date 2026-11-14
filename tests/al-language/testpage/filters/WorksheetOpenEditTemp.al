@@ -261,11 +261,6 @@ codeunit 78903 "WOE Tests"
         P.GoToKey(KeyValue);
     end;
 
-    local procedure Err(): Text
-    begin
-        exit('error=' + GetLastErrorCode() + ':' + GetLastErrorText());
-    end;
-
     local procedure AfterAct(Mode: Text; FilterText: Text): Text
     var
         P: TestPage "WOE Temp WS Act";
@@ -357,11 +352,6 @@ codeunit 78903 "WOE Tests"
         P.GoToKey(KeyValue);
     end;
 
-    local procedure Err(): Text
-    begin
-        exit('error=' + GetLastErrorCode() + ':' + GetLastErrorText());
-    end;
-
     local procedure AfterShown(Mode: Text; FilterText: Text): Text
     var
         P: TestPage "WOE Temp WS Shown";
@@ -451,11 +441,6 @@ codeunit 78903 "WOE Tests"
     local procedure GoKeyOpen(var P: TestPage "WOE Temp WS Open"; KeyValue: Integer)
     begin
         P.GoToKey(KeyValue);
-    end;
-
-    local procedure Err(): Text
-    begin
-        exit('error=' + GetLastErrorCode() + ':' + GetLastErrorText());
     end;
 
     local procedure AfterOpen(Mode: Text; FilterText: Text): Text
