@@ -12,6 +12,8 @@
 //     Count, IsEmpty (FindFirst is the measured control); Delete(true) and Delete() under a set that grants only the table.
 //   D (7854) "Expanded Permission" rows of a tenant set that grants a Page, Report, Codeunit, Query, XMLport and System object:
 //     every permission column of each row.
+// Note: an extension cannot carry its own Permissions property (AL0246 on tableextension and pageextension), so the
+//   'extension with its own Permissions' cell is a must-not-compile fact and is not measured here.
 // Shape: each case clears the assignment, seeds, assigns, runs ONE op inside asserterror that ends with the own error
 //   'LT PC ok', observes text and code, clears the assignment (as Y19PermWrites.al).
 // Expected values: filled in from the local observation run of each major (BC 27.5, 28.5, 29.0).
@@ -110,7 +112,6 @@ tableextension 97330 "LT PC X Plain" extends "LT PC E Plain"
 
 tableextension 97331 "LT PC X ExtPerm" extends "LT PC E ExtPerm"
 {
-    Permissions = tabledata "LT PC B" = imd;
 
     trigger OnInsert()
     var
@@ -150,7 +151,6 @@ tableextension 97332 "LT PC X TabPerm" extends "LT PC E TabPerm"
 
 tableextension 97333 "LT PC X BothPerm" extends "LT PC E BothPerm"
 {
-    Permissions = tabledata "LT PC B" = imd;
 
     trigger OnInsert()
     var
@@ -197,7 +197,6 @@ pageextension 97330 "LT PC PX Plain" extends "LT PC Page Plain"
 
 pageextension 97331 "LT PC PX Own" extends "LT PC Page Plain"
 {
-    Permissions = tabledata "LT PC B" = imd;
 }
 
 pageextension 97332 "LT PC PX OnPerm" extends "LT PC Page Perm"
