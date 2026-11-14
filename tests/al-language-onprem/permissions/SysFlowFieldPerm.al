@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-flowfields
 // Scope: in-scope (OnPrem app: Published Application is Scope = OnPrem)
 // Fixtures used: Probe Observer (69160); SFP Mock Switch (76740, tests/al-language/permissions/SysFlowPermMock.al) over Permissions Mock.
-// Probe: al-runner issue 8038. FlowFields of an own table over the system table "Published Application" (2000000160), whose
+// Probe: al-runner issue 8038. FlowFields of an own table over the system table "Published Application" (2000000206), whose
 //   "Tenant Visible" is itself a FlowField over the internal table "NAV App Extra" (2000000157): lookup of Name and Publisher with
 //   "Tenant Visible" = const(true), lookup of Name without that filter, exist and count with and without it. Forms: CalcFields of each
 //   field, SetAutoCalcFields + FindFirst, and a filter on the FlowField (SetFilter / SetRange + Count). Permission states: (a) a set that
