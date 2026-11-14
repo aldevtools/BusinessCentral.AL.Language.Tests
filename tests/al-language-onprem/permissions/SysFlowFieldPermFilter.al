@@ -330,7 +330,7 @@ codeunit 98747 "SFF Filter Perm"
                 begin
                     Rec.SetRange(ID, AppId);
                     Rec.SetRange("Tenant Visible", true);
-                    Rec.Find(-);
+                    Rec.Find('-');
                     Result := Rec.Name;
                 end;
         end;
