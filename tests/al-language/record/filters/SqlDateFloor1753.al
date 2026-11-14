@@ -265,6 +265,9 @@ codeunit 70039 "LT SD Floor 1753"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    var
+        KeptRec: Record "LT SD Floor Trig";
+
     local procedure Seed()
     var
         Row: Record "LT SD Floor Row";
@@ -942,6 +945,42 @@ codeunit 70039 "LT SD Floor 1753"
         Observer.Observe(Which + '|state', XState(Which));
     end;
 
+    local procedure KeptAttempt(D: Date; var Stage: Text)
+    begin
+        Stage := 'get';
+        KeptRec.Get(1);
+        Stage := 'assign';
+        KeptRec.Dt := D;
+        Stage := 'modify';
+        KeptRec.Modify(true);
+        Stage := 'after';
+        Error('no error');
+    end;
+
+    // The record variable after the error of a Modify(true) on the trigger table: does it keep what the trigger set (Hits) and the assigned Date.
+    local procedure KeptCell(var Observer: Codeunit "Probe Observer"; D: Date)
+    var
+        Stage: Text;
+        Name: Text;
+    begin
+        Name := 'kept ' + Format(D, 0, 9);
+        Seed();
+        Clear(KeptRec);
+        asserterror KeptAttempt(D, Stage);
+        Observer.Observe(Name + '|stage', Stage);
+        Observer.ObserveError(Name);
+        Observer.Observe(Name + '|var', Format(KeptRec.Dt, 0, 9) + '|' + Format(KeptRec.Hits) + '|' + Format(KeptRec.Dtm, 0, 9));
+        Observer.Observe(Name + '|row', RowAfter('trig'));
+    end;
+
+    local procedure OutCell(var Observer: Codeunit "Probe Observer"; Op: Text; D: Date; T: Time; UseDt: Boolean)
+    begin
+        if UseDt then
+            Cell(Observer, 'row', Op, 0D, CreateDateTime(D, T), true, 'get', true)
+        else
+            Cell(Observer, 'row', Op, D, 0DT, false, 'get', true);
+    end;
+
     local procedure CellT(var Observer: Codeunit "Probe Observer"; Kind: Text; Op: Text; D: Date; T: Time)
     begin
         Cell(Observer, Kind, Op, 0D, CreateDateTime(D, T), true, 'get', false);
@@ -1338,7 +1377,10 @@ codeunit 70039 "LT SD Floor 1753"
         Observer: Codeunit "Probe Observer";
     begin
         CellD(Observer, 'row', 'modify', 0D);
-        Observer.Finish();
+        Observer.Expect('modify 0D|stage', 'after');
+        Observer.Expect('modify 0D|text', 'stored:|2024-01-02T12:00:00Z|0');
+        Observer.Expect('modify 0D|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1361,7 +1403,22 @@ codeunit 70039 "LT SD Floor 1753"
         XCell(Observer, 'tl-1753');
         XCell(Observer, 'tl-1754');
         XCell(Observer, 'tl-1753-notrig');
-        Observer.Finish();
+        Observer.Expect('tl-1753|stage', 'modify');
+        Observer.Expect('tl-1753|text', 'Cannot write the value 06/15/1753 to the field Dt in the table LT SD Floor Trig Log because the value is either too long or the content is invalid.');
+        Observer.Expect('tl-1753|code', 'NDBCS:BadCSideData');
+        Observer.Expect('tl-1753|log', 'trigModify:1753-06-15;');
+        Observer.Expect('tl-1753|state', '2024-01-02');
+        Observer.Expect('tl-1754|stage', 'after');
+        Observer.Expect('tl-1754|text', 'no error');
+        Observer.Expect('tl-1754|code', 'Dialog');
+        Observer.Expect('tl-1754|log', 'trigModify:1754-01-01;');
+        Observer.Expect('tl-1754|state', '2024-01-02');
+        Observer.Expect('tl-1753-notrig|stage', 'modify');
+        Observer.Expect('tl-1753-notrig|text', 'Cannot write the value 06/15/1753 to the field Dt in the table LT SD Floor Trig Log because the value is either too long or the content is invalid.');
+        Observer.Expect('tl-1753-notrig|code', 'NDBCS:BadCSideData');
+        Observer.Expect('tl-1753-notrig|log', '');
+        Observer.Expect('tl-1753-notrig|state', '2024-01-02');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1371,7 +1428,17 @@ codeunit 70039 "LT SD Floor 1753"
     begin
         XCell(Observer, 'tr-1753');
         XCell(Observer, 'tr-1754');
-        Observer.Finish();
+        Observer.Expect('tr-1753|stage', 'modify');
+        Observer.Expect('tr-1753|text', 'trigger raised');
+        Observer.Expect('tr-1753|code', 'Dialog');
+        Observer.Expect('tr-1753|log', '');
+        Observer.Expect('tr-1753|state', '2024-01-02');
+        Observer.Expect('tr-1754|stage', 'modify');
+        Observer.Expect('tr-1754|text', 'trigger raised');
+        Observer.Expect('tr-1754|code', 'Dialog');
+        Observer.Expect('tr-1754|log', '');
+        Observer.Expect('tr-1754|state', '2024-01-02');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1381,7 +1448,17 @@ codeunit 70039 "LT SD Floor 1753"
     begin
         XCell(Observer, 'ts-sets-1753');
         XCell(Observer, 'ts-1753-set-ok');
-        Observer.Finish();
+        Observer.Expect('ts-sets-1753|stage', 'modify');
+        Observer.Expect('ts-sets-1753|text', 'Cannot write the value 06/15/1753 to the field Dt in the table LT SD Floor Trig SetDt because the value is either too long or the content is invalid.');
+        Observer.Expect('ts-sets-1753|code', 'NDBCS:BadCSideData');
+        Observer.Expect('ts-sets-1753|log', '');
+        Observer.Expect('ts-sets-1753|state', '2024-01-02');
+        Observer.Expect('ts-1753-set-ok|stage', 'after');
+        Observer.Expect('ts-1753-set-ok|text', 'no error');
+        Observer.Expect('ts-1753-set-ok|code', 'Dialog');
+        Observer.Expect('ts-1753-set-ok|log', '');
+        Observer.Expect('ts-1753-set-ok|state', '2024-01-02');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1391,7 +1468,17 @@ codeunit 70039 "LT SD Floor 1753"
     begin
         XCell(Observer, 's2-insert-1753');
         XCell(Observer, 's2-insert-1754');
-        Observer.Finish();
+        Observer.Expect('s2-insert-1753|stage', 'next');
+        Observer.Expect('s2-insert-1753|text', 'Cannot write the value 06/15/1753 to the field Dt in the table LT SD Floor Sub Read because the value is either too long or the content is invalid.');
+        Observer.Expect('s2-insert-1753|code', 'NDBCS:BadCSideData');
+        Observer.Expect('s2-insert-1753|log', 'afterInsertRead:1753-06-15;');
+        Observer.Expect('s2-insert-1753|state', '1|No');
+        Observer.Expect('s2-insert-1754|stage', 'after');
+        Observer.Expect('s2-insert-1754|text', 'no error');
+        Observer.Expect('s2-insert-1754|code', 'Dialog');
+        Observer.Expect('s2-insert-1754|log', 'afterInsertRead:1754-01-01;');
+        Observer.Expect('s2-insert-1754|state', '1|No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1401,7 +1488,17 @@ codeunit 70039 "LT SD Floor 1753"
     begin
         XCell(Observer, 'blob-content-1753');
         XCell(Observer, 'blob-content-1754');
-        Observer.Finish();
+        Observer.Expect('blob-content-1753|stage', 'insert');
+        Observer.Expect('blob-content-1753|text', 'Cannot write the value 06/15/1753 to the field Dt in the table LT SD Floor Blob because the value is either too long or the content is invalid.');
+        Observer.Expect('blob-content-1753|code', 'NDBCS:BadCSideData');
+        Observer.Expect('blob-content-1753|log', '');
+        Observer.Expect('blob-content-1753|state', '1|No');
+        Observer.Expect('blob-content-1754|stage', 'after');
+        Observer.Expect('blob-content-1754|text', 'no error');
+        Observer.Expect('blob-content-1754|code', 'Dialog');
+        Observer.Expect('blob-content-1754|log', '');
+        Observer.Expect('blob-content-1754|state', '1|No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1411,7 +1508,13 @@ codeunit 70039 "LT SD Floor 1753"
     begin
         CellD(Observer, 'blob', 'insert-true', 17530615D);
         CellT(Observer, 'blob', 'insert-true', 17530615D, 030000T);
-        Observer.Finish();
+        Observer.Expect('blob insert-true 1753-06-15|stage', 'insert');
+        Observer.Expect('blob insert-true 1753-06-15|text', 'Cannot write the value 06/15/1753 to the field Dt in the table LT SD Floor Blob because the value is either too long or the content is invalid.');
+        Observer.Expect('blob insert-true 1753-06-15|code', 'NDBCS:BadCSideData');
+        Observer.Expect('blob insert-true 1753-06-15T03:00:00Z|stage', 'insert');
+        Observer.Expect('blob insert-true 1753-06-15T03:00:00Z|text', 'Cannot write the value 06/15/1753 03:00 AM to the field Dtm in the table LT SD Floor Blob because the value is either too long or the content is invalid.');
+        Observer.Expect('blob insert-true 1753-06-15T03:00:00Z|code', 'NDBCS:BadCSideData');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1421,7 +1524,17 @@ codeunit 70039 "LT SD Floor 1753"
     begin
         XCell(Observer, 'dk-absent-1753');
         XCell(Observer, 'dk-absent-1754');
-        Observer.Finish();
+        Observer.Expect('dk-absent-1753|stage', 'rename');
+        Observer.Expect('dk-absent-1753|text', 'The LT SD Floor Date Key does not exist. Identification fields and values: Dk=''05/05/25''');
+        Observer.Expect('dk-absent-1753|code', 'DB:RecordNotFound');
+        Observer.Expect('dk-absent-1753|log', '');
+        Observer.Expect('dk-absent-1753|state', '1|Yes|2024-01-02');
+        Observer.Expect('dk-absent-1754|stage', 'rename');
+        Observer.Expect('dk-absent-1754|text', 'The LT SD Floor Date Key does not exist. Identification fields and values: Dk=''05/05/25''');
+        Observer.Expect('dk-absent-1754|code', 'DB:RecordNotFound');
+        Observer.Expect('dk-absent-1754|log', '');
+        Observer.Expect('dk-absent-1754|state', '1|Yes|2024-01-02');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1431,7 +1544,17 @@ codeunit 70039 "LT SD Floor 1753"
     begin
         XCell(Observer, 'dtk-absent-1753');
         XCell(Observer, 'dtk-absent-1754');
-        Observer.Finish();
+        Observer.Expect('dtk-absent-1753|stage', 'rename');
+        Observer.Expect('dtk-absent-1753|text', 'The LT SD Floor DateTime Key does not exist. Identification fields and values: Dtk=''05/05/25 12:00 PM''');
+        Observer.Expect('dtk-absent-1753|code', 'DB:RecordNotFound');
+        Observer.Expect('dtk-absent-1753|log', '');
+        Observer.Expect('dtk-absent-1753|state', '1|Yes|2024-01-02T12:00:00Z');
+        Observer.Expect('dtk-absent-1754|stage', 'rename');
+        Observer.Expect('dtk-absent-1754|text', 'The LT SD Floor DateTime Key does not exist. Identification fields and values: Dtk=''05/05/25 12:00 PM''');
+        Observer.Expect('dtk-absent-1754|code', 'DB:RecordNotFound');
+        Observer.Expect('dtk-absent-1754|log', '');
+        Observer.Expect('dtk-absent-1754|state', '1|Yes|2024-01-02T12:00:00Z');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1442,6 +1565,65 @@ codeunit 70039 "LT SD Floor 1753"
         CellD(Observer, 'trig', 'modifyall-empty', 17530615D);
         CellT(Observer, 'row', 'modifyall-empty', 17530615D, 030000T);
         CellD(Observer, 'trig', 'modifyall-empty', 17540101D);
+        Observer.Expect('trig modifyall-empty 1753-06-15|stage', 'modifyall');
+        Observer.Expect('trig modifyall-empty 1753-06-15|text', 'Cannot write the value 06/15/1753 to the field Dt in the table LT SD Floor Trig because the value is either too long or the content is invalid.');
+        Observer.Expect('trig modifyall-empty 1753-06-15|code', 'NDBCS:BadCSideData');
+        Observer.Expect('modifyall-empty 1753-06-15T03:00:00Z|stage', 'modifyall');
+        Observer.Expect('modifyall-empty 1753-06-15T03:00:00Z|text', 'Cannot write the value 06/15/1753 03:00 AM to the field Dtm in the table LT SD Floor Row because the value is either too long or the content is invalid.');
+        Observer.Expect('modifyall-empty 1753-06-15T03:00:00Z|code', 'NDBCS:BadCSideData');
+        Observer.Expect('trig modifyall-empty 1754-01-01|stage', 'after');
+        Observer.Expect('trig modifyall-empty 1754-01-01|text', 'stored:2024-01-02|2024-01-02T12:00:00Z|0');
+        Observer.Expect('trig modifyall-empty 1754-01-01|code', 'Dialog');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Outside_Date_Insert()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        OutCell(Observer, 'insert', 17000101D, 0T, false);
+        OutCell(Observer, 'insert', 17521231D, 0T, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Outside_Date_Modify()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        OutCell(Observer, 'modify', 17000101D, 0T, false);
+        OutCell(Observer, 'modify', 17521231D, 0T, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Outside_DateTime_Insert()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        OutCell(Observer, 'insert', 17000101D, 120000T, true);
+        OutCell(Observer, 'insert', 17521231D, 235900T, true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Outside_DateTime_Modify()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        OutCell(Observer, 'modify', 17000101D, 120000T, true);
+        OutCell(Observer, 'modify', 17521231D, 235900T, true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Kept_RecordAfterModifyError()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        KeptCell(Observer, 17530615D);
+        KeptCell(Observer, 17540101D);
         Observer.Finish();
     end;
 
