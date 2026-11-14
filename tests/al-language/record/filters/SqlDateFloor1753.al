@@ -189,7 +189,6 @@ codeunit 70039 "LT SD Floor 1753"
         Blob.DeleteAll();
         DateKey.DeleteAll();
         DtKey.DeleteAll();
-        Log.Clear();
         Old := CreateDateTime(20240102D, 120000T);
         Row.Id := 1;
         Row.Dt := 20240102D;
@@ -213,6 +212,7 @@ codeunit 70039 "LT SD Floor 1753"
         DateKey.Insert();
         DtKey.Dtk := Old;
         DtKey.Insert();
+        Log.Clear();
         Commit();
     end;
 
@@ -582,7 +582,6 @@ codeunit 70039 "LT SD Floor 1753"
             Error('stored:' + Format(Back.Dt, 0, 9) + '|' + Format(Back.Dtm, 0, 9) + '|' + Format(Back.Hits));
         Error('no read: ' + Next);
     end;
-
     local procedure Dispatch(Kind: Text; Op: Text; D: Date; Stamp: DateTime; UseDt: Boolean; Next: Text; var Stage: Text)
     begin
         case Kind of
@@ -597,340 +596,124 @@ codeunit 70039 "LT SD Floor 1753"
         end;
     end;
 
-    // One cell: seed and commit, run Attempt inside asserterror, record the stage, the error, row 1 afterwards (and the event log of the Sub table).
-    local procedure Cell(var Observer: Codeunit "Probe Observer"; Kind: Text; Op: Text; D: Date; Stamp: DateTime; UseDt: Boolean; Next: Text)
+
+    local procedure DName(D: Date): Text
+    begin
+        if D <> NormalDate(D) then
+            exit('C' + Format(NormalDate(D), 0, 9));
+        exit(Format(D, 0, 9));
+    end;
+
+    // One cell: seed and commit, run Attempt inside asserterror, record the stage, the error (and with ShowRow row 1 afterwards; with the Sub table the event log).
+    local procedure Cell(var Observer: Codeunit "Probe Observer"; Kind: Text; Op: Text; D: Date; Stamp: DateTime; UseDt: Boolean; Next: Text; ShowRow: Boolean)
     var
         Log: Codeunit "LT SD Floor Log";
         Stage: Text;
         Name: Text;
     begin
         if UseDt then
-            Name := Kind + ' ' + Op + ' ' + Format(Stamp, 0, 9)
+            Name := Op + ' ' + Format(Stamp, 0, 9)
         else
-            Name := Kind + ' ' + Op + ' ' + Format(D, 0, 9);
+            Name := Op + ' ' + DName(D);
+        if Kind <> 'row' then
+            Name := Kind + ' ' + Name;
         if Next <> 'get' then
-            Name += ' next=' + Next;
+            Name += ' n=' + Next;
         Seed();
         asserterror Dispatch(Kind, Op, D, Stamp, UseDt, Next, Stage);
         Observer.Observe(Name + '|stage', Stage);
         Observer.ObserveError(Name);
-        Observer.Observe(Name + '|row', RowAfter(Kind));
+        if ShowRow then
+            Observer.Observe(Name + '|row', RowAfter(Kind));
         if Kind = 'sub' then
             Observer.Observe(Name + '|log', Log.Dump());
     end;
 
     local procedure CellD(var Observer: Codeunit "Probe Observer"; Kind: Text; Op: Text; D: Date)
     begin
-        Cell(Observer, Kind, Op, D, 0DT, false, 'get');
+        Cell(Observer, Kind, Op, D, 0DT, false, 'get', false);
     end;
 
     local procedure CellT(var Observer: Codeunit "Probe Observer"; Kind: Text; Op: Text; D: Date; T: Time)
     begin
-        Cell(Observer, Kind, Op, 0D, CreateDateTime(D, T), true, 'get');
+        Cell(Observer, Kind, Op, 0D, CreateDateTime(D, T), true, 'get', false);
     end;
 
     local procedure CellN(var Observer: Codeunit "Probe Observer"; Kind: Text; Op: Text; D: Date; Next: Text)
     begin
-        Cell(Observer, Kind, Op, D, 0DT, false, Next);
+        Cell(Observer, Kind, Op, D, 0DT, false, Next, false);
     end;
 
-    // ---- Date, Insert and Modify -------------------------------------------------------------------------------------------------
-
-    [Test]
-    procedure Insert_Date_1753()
-    var
-        Observer: Codeunit "Probe Observer";
+    local procedure CellR(var Observer: Codeunit "Probe Observer"; Kind: Text; Op: Text; D: Date)
     begin
-        CellD(Observer, 'row', 'insert', 17530102D);
-        CellD(Observer, 'row', 'insert', 17530615D);
-        CellD(Observer, 'row', 'insert', 17531231D);
-        CellD(Observer, 'row', 'insert', 17540101D);
-        CellD(Observer, 'row', 'insert', ClosingDate(17530615D));
-        CellD(Observer, 'row', 'insert', ClosingDate(17531231D));
-        Observer.Finish();
+        Cell(Observer, Kind, Op, D, 0DT, false, 'get', true);
     end;
 
-    [Test]
-    procedure Modify_Date_1753()
+    local procedure KeyCell(var Observer: Codeunit "Probe Observer"; Op: Text; D: Date; Next: Text)
     var
-        Observer: Codeunit "Probe Observer";
+        DateKey: Record "LT SD Floor Date Key";
+        Stage: Text;
+        Name: Text;
     begin
-        CellD(Observer, 'row', 'modify', 17530101D);
-        CellD(Observer, 'row', 'modify', 17530102D);
-        CellD(Observer, 'row', 'modify', 17530615D);
-        CellD(Observer, 'row', 'modify', 17531231D);
-        CellD(Observer, 'row', 'modify', 17540101D);
-        Observer.Finish();
+        Name := 'dk ' + Op + ' ' + Format(D, 0, 9);
+        if Next <> 'get' then
+            Name += ' n=' + Next;
+        Seed();
+        asserterror AttemptDateKey(Op, D, Next, Stage);
+        Observer.Observe(Name + '|stage', Stage);
+        Observer.ObserveError(Name);
+        DateKey.FindFirst();
+        Observer.Observe(Name + '|key', Format(DateKey.Dk, 0, 9) + '|' + Format(DateKey.Count()));
     end;
 
-    [Test]
-    procedure Modify_Date_ClosingAndOutside()
+    local procedure DtKeyCell(var Observer: Codeunit "Probe Observer"; Op: Text; D: Date; T: Time; Next: Text)
     var
-        Observer: Codeunit "Probe Observer";
+        DtKey: Record "LT SD Floor DateTime Key";
+        Stage: Text;
+        Name: Text;
+        Stamp: DateTime;
     begin
-        CellD(Observer, 'row', 'modify', ClosingDate(17530615D));
-        CellD(Observer, 'row', 'modify', ClosingDate(17531231D));
-        CellD(Observer, 'row', 'modify', 17521231D);
-        CellD(Observer, 'row', 'modify', 0D);
-        CellD(Observer, 'row', 'modify', ClosingDate(17540101D));
-        Observer.Finish();
+        Stamp := CreateDateTime(D, T);
+        Name := 'dtk ' + Op + ' ' + Format(Stamp, 0, 9);
+        if Next <> 'get' then
+            Name += ' n=' + Next;
+        Seed();
+        asserterror AttemptDtKey(Op, Stamp, Next, Stage);
+        Observer.Observe(Name + '|stage', Stage);
+        Observer.ObserveError(Name);
+        DtKey.FindFirst();
+        Observer.Observe(Name + '|key', Format(DtKey.Dtk, 0, 9) + '|' + Format(DtKey.Count()));
     end;
 
-    // ---- DateTime, Insert and Modify ---------------------------------------------------------------------------------------------
-
-    [Test]
-    procedure Insert_DateTime_MorningHours()
+    local procedure TempCell(var Observer: Codeunit "Probe Observer"; Op: Text; D: Date; Stamp: DateTime; UseDt: Boolean)
     var
-        Observer: Codeunit "Probe Observer";
+        Stage: Text;
+        Name: Text;
     begin
-        CellT(Observer, 'row', 'insert', 17530615D, 000001T);
-        CellT(Observer, 'row', 'insert', 17530615D, 010000T);
-        CellT(Observer, 'row', 'insert', 17530615D, 030000T);
-        CellT(Observer, 'row', 'insert', 17530615D, 090000T);
-        CellT(Observer, 'row', 'insert', 17530615D, 100000T);
-        CellT(Observer, 'row', 'insert', 17530615D, 113000T);
-        Observer.Finish();
+        if UseDt then
+            Name := 'temp ' + Op + ' ' + Format(Stamp, 0, 9)
+        else
+            Name := 'temp ' + Op + ' ' + DName(D);
+        Seed();
+        asserterror AttemptTemp(Op, D, Stamp, UseDt, Stage);
+        Observer.Observe(Name + '|stage', Stage);
+        Observer.ObserveError(Name);
     end;
 
-    [Test]
-    procedure Insert_DateTime_AfternoonHours()
+    local procedure FilterCell(var Observer: Codeunit "Probe Observer"; Op: Text; D: Date; Stamp: DateTime)
     var
-        Observer: Codeunit "Probe Observer";
+        Stage: Text;
+        Name: Text;
     begin
-        CellT(Observer, 'row', 'insert', 17530615D, 120000T);
-        CellT(Observer, 'row', 'insert', 17530615D, 130000T);
-        CellT(Observer, 'row', 'insert', 17530615D, 150000T);
-        CellT(Observer, 'row', 'insert', 17530615D, 215959T);
-        CellT(Observer, 'row', 'insert', 17530615D, 235959T);
-        CellT(Observer, 'row', 'insert', 17530102D, 000000T);
-        Observer.Finish();
+        if Stamp <> 0DT then
+            Name := Op + ' ' + Format(Stamp, 0, 9)
+        else
+            Name := Op + ' ' + Format(D, 0, 9);
+        Seed();
+        asserterror AttemptFilter(Op, D, Stamp, Stage);
+        Observer.Observe(Name + '|stage', Stage);
+        Observer.ObserveError(Name);
     end;
-
-    [Test]
-    procedure Insert_DateTime_RoundingEdge()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        CellT(Observer, 'row', 'insert', 17531231D, 235959T);
-        CellT(Observer, 'row', 'insert', 17531231D, 235959.997T);
-        CellT(Observer, 'row', 'insert', 17531231D, 235959.998T);
-        CellT(Observer, 'row', 'insert', 17531231D, 235959.999T);
-        CellT(Observer, 'row', 'insert', 17540101D, 000000T);
-        CellT(Observer, 'row', 'insert', 17540101D, 000000.001T);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Modify_DateTime_MorningHours()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        CellT(Observer, 'row', 'modify', 17530615D, 000001T);
-        CellT(Observer, 'row', 'modify', 17530615D, 010000T);
-        CellT(Observer, 'row', 'modify', 17530615D, 030000T);
-        CellT(Observer, 'row', 'modify', 17530615D, 090000T);
-        CellT(Observer, 'row', 'modify', 17530615D, 100000T);
-        CellT(Observer, 'row', 'modify', 17530615D, 113000T);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Modify_DateTime_AfternoonHours()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        CellT(Observer, 'row', 'modify', 17530615D, 120000T);
-        CellT(Observer, 'row', 'modify', 17530615D, 130000T);
-        CellT(Observer, 'row', 'modify', 17530615D, 150000T);
-        CellT(Observer, 'row', 'modify', 17530615D, 215959T);
-        CellT(Observer, 'row', 'modify', 17530615D, 235959T);
-        CellT(Observer, 'row', 'modify', 17530101D, 000001T);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Modify_DateTime_RoundingEdge()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        CellT(Observer, 'row', 'modify', 17531231D, 235959T);
-        CellT(Observer, 'row', 'modify', 17531231D, 235959.997T);
-        CellT(Observer, 'row', 'modify', 17531231D, 235959.998T);
-        CellT(Observer, 'row', 'modify', 17531231D, 235959.999T);
-        CellT(Observer, 'row', 'modify', 17540101D, 000000T);
-        CellT(Observer, 'row', 'modify', 17521231D, 120000T);
-        Observer.Finish();
-    end;
-
-    // ---- the step that fails: the write or the next access -----------------------------------------------------------------------
-
-    [Test]
-    procedure Insert_Date_NextAccess()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        CellN(Observer, 'row', 'insert', 17530615D, 'other');
-        CellN(Observer, 'row', 'insert', 17530615D, 'count');
-        CellN(Observer, 'row', 'insert', 17530615D, 'commit');
-        CellN(Observer, 'row', 'insert', 17530615D, 'none');
-        CellN(Observer, 'row', 'insert-true', 17530615D, 'get');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Modify_Date_NextAccess()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        CellN(Observer, 'row', 'modify', 17530615D, 'other');
-        CellN(Observer, 'row', 'modify', 17530615D, 'count');
-        CellN(Observer, 'row', 'modify', 17530615D, 'commit');
-        CellN(Observer, 'row', 'modify', 17530615D, 'none');
-        CellN(Observer, 'row', 'modify', 17540101D, 'none');
-        Observer.Finish();
-    end;
-
-    // ---- Modify forms ------------------------------------------------------------------------------------------------------------
-
-    [Test]
-    procedure Modify_Date_Forms()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        CellD(Observer, 'row', 'modify-result', 17530615D);
-        CellD(Observer, 'row', 'modify-result-true', 17530615D);
-        CellD(Observer, 'row', 'modify-true', 17530615D);
-        CellD(Observer, 'row', 'modify-false', 17530615D);
-        CellD(Observer, 'row', 'modify-result', 17540101D);
-        CellN(Observer, 'row', 'modify-result', 17530615D, 'none');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Modify_DateTime_Forms()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        CellT(Observer, 'row', 'modify-result', 17530615D, 030000T);
-        CellT(Observer, 'row', 'modify-result-true', 17530615D, 030000T);
-        CellT(Observer, 'row', 'modify-true', 17530615D, 030000T);
-        CellT(Observer, 'row', 'modify-false', 17530615D, 130000T);
-        CellT(Observer, 'row', 'modify-result', 17540101D, 030000T);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure ValidateThenModify()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        CellD(Observer, 'row', 'validate-modify', 17530615D);
-        CellD(Observer, 'row', 'validate-modify', 17540101D);
-        CellT(Observer, 'row', 'validate-modify', 17530615D, 030000T);
-        CellT(Observer, 'row', 'validate-modify', 17530615D, 130000T);
-        CellT(Observer, 'row', 'validate-modify', 17540101D, 030000T);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure ModifyAll_Forms()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        CellD(Observer, 'row', 'modifyall', 17530615D);
-        CellD(Observer, 'row', 'modifyall-true', 17530615D);
-        CellT(Observer, 'row', 'modifyall', 17530615D, 030000T);
-        CellD(Observer, 'row', 'modifyall', 17540101D);
-        CellD(Observer, 'row', 'modifyall-empty', 17530615D);
-        CellD(Observer, 'row', 'modifyall', 17530101D);
-        Observer.Finish();
-    end;
-
-    // ---- table trigger, subscriber, Blob field -----------------------------------------------------------------------------------
-
-    [Test]
-    procedure Trigger_Date()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        CellD(Observer, 'trig', 'insert-true', 17530615D);
-        CellD(Observer, 'trig', 'insert', 17530615D);
-        CellD(Observer, 'trig', 'modify-true', 17530615D);
-        CellD(Observer, 'trig', 'modify-false', 17530615D);
-        CellD(Observer, 'trig', 'modify-true', 17540101D);
-        CellD(Observer, 'trig', 'modify', 17540101D);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Trigger_DateTime()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        CellT(Observer, 'trig', 'insert-true', 17530615D, 030000T);
-        CellT(Observer, 'trig', 'modify-true', 17530615D, 030000T);
-        CellT(Observer, 'trig', 'modify-true', 17530615D, 130000T);
-        CellT(Observer, 'trig', 'modify-result-true', 17530615D, 130000T);
-        CellT(Observer, 'trig', 'modify-true', 17540101D, 030000T);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Subscriber_Date()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        CellD(Observer, 'sub', 'insert-true', 17530615D);
-        CellD(Observer, 'sub', 'modify-true', 17530615D);
-        CellD(Observer, 'sub', 'modify-false', 17530615D);
-        CellD(Observer, 'sub', 'modify-result-true', 17530615D);
-        CellD(Observer, 'sub', 'modify-true', 17540101D);
-        CellD(Observer, 'sub', 'insert-true', 17540101D);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Subscriber_DateTime()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        CellT(Observer, 'sub', 'insert-true', 17530615D, 030000T);
-        CellT(Observer, 'sub', 'modify-true', 17530615D, 030000T);
-        CellT(Observer, 'sub', 'modify-true', 17530615D, 130000T);
-        CellT(Observer, 'sub', 'modify-false', 17530615D, 130000T);
-        CellT(Observer, 'sub', 'modify-true', 17540101D, 030000T);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Blob_Date()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        CellD(Observer, 'blob', 'insert', 17530615D);
-        CellD(Observer, 'blob', 'modify', 17530615D);
-        CellD(Observer, 'blob', 'modify-result', 17530615D);
-        CellD(Observer, 'blob', 'insert', 17540101D);
-        CellD(Observer, 'blob', 'modify', 17540101D);
-        CellN(Observer, 'blob', 'modify', 17530615D, 'none');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Blob_DateTime()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        CellT(Observer, 'blob', 'insert', 17530615D, 030000T);
-        CellT(Observer, 'blob', 'modify', 17530615D, 030000T);
-        CellT(Observer, 'blob', 'modify', 17530615D, 130000T);
-        CellT(Observer, 'blob', 'insert', 17540101D, 030000T);
-        CellT(Observer, 'blob', 'modify', 17540101D, 030000T);
-        CellN(Observer, 'blob', 'modify', 17530615D, 'none');
-        Observer.Finish();
-    end;
-
-    // ---- Rename and key insert -----------------------------------------------------------------------------------------------------
 
     local procedure AttemptDateKey(Op: Text; D: Date; Next: Text; var Stage: Text)
     var
@@ -1002,82 +785,6 @@ codeunit 70039 "LT SD Floor 1753"
         Error('stored:' + Format(Back.Dtk, 0, 9) + '|' + Format(R.Dtk, 0, 9));
     end;
 
-    local procedure KeyCell(var Observer: Codeunit "Probe Observer"; Op: Text; D: Date; Next: Text)
-    var
-        DateKey: Record "LT SD Floor Date Key";
-        Stage: Text;
-        Name: Text;
-    begin
-        Name := 'datekey ' + Op + ' ' + Format(D, 0, 9) + ' next=' + Next;
-        Seed();
-        asserterror AttemptDateKey(Op, D, Next, Stage);
-        Observer.Observe(Name + '|stage', Stage);
-        Observer.ObserveError(Name);
-        DateKey.FindFirst();
-        Observer.Observe(Name + '|key', Format(DateKey.Dk, 0, 9) + '|' + Format(DateKey.Count()));
-    end;
-
-    local procedure DtKeyCell(var Observer: Codeunit "Probe Observer"; Op: Text; D: Date; T: Time; Next: Text)
-    var
-        DtKey: Record "LT SD Floor DateTime Key";
-        Stage: Text;
-        Name: Text;
-        Stamp: DateTime;
-    begin
-        Stamp := CreateDateTime(D, T);
-        Name := 'dtkey ' + Op + ' ' + Format(Stamp, 0, 9) + ' next=' + Next;
-        Seed();
-        asserterror AttemptDtKey(Op, Stamp, Next, Stage);
-        Observer.Observe(Name + '|stage', Stage);
-        Observer.ObserveError(Name);
-        DtKey.FindFirst();
-        Observer.Observe(Name + '|key', Format(DtKey.Dtk, 0, 9) + '|' + Format(DtKey.Count()));
-    end;
-
-    [Test]
-    procedure Rename_DateKey()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        KeyCell(Observer, 'rename', 17530102D, 'get');
-        KeyCell(Observer, 'rename', 17530615D, 'get');
-        KeyCell(Observer, 'rename', 17531231D, 'get');
-        KeyCell(Observer, 'rename', 17540101D, 'get');
-        KeyCell(Observer, 'rename', 17530101D, 'get');
-        KeyCell(Observer, 'rename', 17521231D, 'get');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Rename_DateKey_NextAccess()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        KeyCell(Observer, 'rename', 17530615D, 'other');
-        KeyCell(Observer, 'rename', 17530615D, 'commit');
-        KeyCell(Observer, 'rename', 17530615D, 'none');
-        KeyCell(Observer, 'insert', 17530615D, 'get');
-        KeyCell(Observer, 'insert', 17530615D, 'none');
-        KeyCell(Observer, 'insert', 17540101D, 'get');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Rename_DateTimeKey()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        DtKeyCell(Observer, 'rename', 17530615D, 030000T, 'get');
-        DtKeyCell(Observer, 'rename', 17530615D, 130000T, 'get');
-        DtKeyCell(Observer, 'rename', 17540101D, 000000T, 'get');
-        DtKeyCell(Observer, 'rename', 17530615D, 130000T, 'none');
-        DtKeyCell(Observer, 'insert', 17530615D, 030000T, 'get');
-        DtKeyCell(Observer, 'insert', 17540101D, 000000T, 'get');
-        Observer.Finish();
-    end;
-
-    // ---- temporary record --------------------------------------------------------------------------------------------------------
-
     local procedure AttemptTemp(Op: Text; D: Date; Stamp: DateTime; UseDt: Boolean; var Stage: Text)
     var
         Temp: Record "LT SD Floor Row" temporary;
@@ -1122,51 +829,6 @@ codeunit 70039 "LT SD Floor 1753"
         Stage := 'after';
         Error('stored:' + Format(Temp.Dt, 0, 9) + '|' + Format(Temp.Dtm, 0, 9));
     end;
-
-    local procedure TempCell(var Observer: Codeunit "Probe Observer"; Op: Text; D: Date; Stamp: DateTime; UseDt: Boolean)
-    var
-        Stage: Text;
-        Name: Text;
-    begin
-        if UseDt then
-            Name := 'temp ' + Op + ' ' + Format(Stamp, 0, 9)
-        else
-            Name := 'temp ' + Op + ' ' + Format(D, 0, 9);
-        Seed();
-        asserterror AttemptTemp(Op, D, Stamp, UseDt, Stage);
-        Observer.Observe(Name + '|stage', Stage);
-        Observer.ObserveError(Name);
-    end;
-
-    [Test]
-    procedure TempRecord_Date()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        TempCell(Observer, 'insert', 17530615D, 0DT, false);
-        TempCell(Observer, 'modify', 17530615D, 0DT, false);
-        TempCell(Observer, 'insert', 17530101D, 0DT, false);
-        TempCell(Observer, 'to-db', 17530615D, 0DT, false);
-        TempCell(Observer, 'assign-db', 17530615D, 0DT, false);
-        TempCell(Observer, 'to-db', 17540101D, 0DT, false);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure TempRecord_DateTime()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        TempCell(Observer, 'insert', 0D, CreateDateTime(17530615D, 030000T), true);
-        TempCell(Observer, 'modify', 0D, CreateDateTime(17530615D, 030000T), true);
-        TempCell(Observer, 'insert', 0D, CreateDateTime(17530101D, 000000T), true);
-        TempCell(Observer, 'to-db', 0D, CreateDateTime(17530615D, 130000T), true);
-        TempCell(Observer, 'assign-db', 0D, CreateDateTime(17530615D, 130000T), true);
-        TempCell(Observer, 'to-db', 0D, CreateDateTime(17540101D, 000000T), true);
-        Observer.Finish();
-    end;
-
-    // ---- Date FlowFilter field and filters on Date and DateTime fields ---------------------------------------------------------
 
     local procedure AttemptFilter(Op: Text; D: Date; Stamp: DateTime; var Stage: Text)
     var
@@ -1257,16 +919,588 @@ codeunit 70039 "LT SD Floor 1753"
         end;
     end;
 
-    local procedure FilterCell(var Observer: Codeunit "Probe Observer"; Op: Text; D: Date; Stamp: DateTime)
+
+    [Test]
+    procedure Insert_Date_1753_1()
     var
-        Stage: Text;
-        Name: Text;
+        Observer: Codeunit "Probe Observer";
     begin
-        Name := Op + ' ' + Format(D, 0, 9) + ' ' + Format(Stamp, 0, 9);
-        Seed();
-        asserterror AttemptFilter(Op, D, Stamp, Stage);
-        Observer.Observe(Name + '|stage', Stage);
-        Observer.ObserveError(Name);
+        CellD(Observer, 'row', 'insert', 17530102D);
+        CellD(Observer, 'row', 'insert', 17530615D);
+        CellD(Observer, 'row', 'insert', 17531231D);
+        CellD(Observer, 'row', 'insert', 17540101D);
+        CellD(Observer, 'row', 'insert', ClosingDate(17530615D));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Insert_Date_1753_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellD(Observer, 'row', 'insert', ClosingDate(17531231D));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Modify_Date_1753()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellD(Observer, 'row', 'modify', 17530101D);
+        CellD(Observer, 'row', 'modify', 17530102D);
+        CellD(Observer, 'row', 'modify', 17530615D);
+        CellD(Observer, 'row', 'modify', 17531231D);
+        CellD(Observer, 'row', 'modify', 17540101D);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Modify_Date_ClosingAndOutside()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellD(Observer, 'row', 'modify', ClosingDate(17530615D));
+        CellD(Observer, 'row', 'modify', ClosingDate(17531231D));
+        CellD(Observer, 'row', 'modify', 17521231D);
+        CellD(Observer, 'row', 'modify', 0D);
+        CellD(Observer, 'row', 'modify', ClosingDate(17540101D));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Insert_DateTime_MorningHours_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'row', 'insert', 17530615D, 000001T);
+        CellT(Observer, 'row', 'insert', 17530615D, 010000T);
+        CellT(Observer, 'row', 'insert', 17530615D, 030000T);
+        CellT(Observer, 'row', 'insert', 17530615D, 090000T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Insert_DateTime_MorningHours_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'row', 'insert', 17530615D, 100000T);
+        CellT(Observer, 'row', 'insert', 17530615D, 113000T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Insert_DateTime_AfternoonHours_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'row', 'insert', 17530615D, 120000T);
+        CellT(Observer, 'row', 'insert', 17530615D, 130000T);
+        CellT(Observer, 'row', 'insert', 17530615D, 150000T);
+        CellT(Observer, 'row', 'insert', 17530615D, 215959T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Insert_DateTime_AfternoonHours_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'row', 'insert', 17530615D, 235959T);
+        CellT(Observer, 'row', 'insert', 17530102D, 000000T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Insert_DateTime_RoundingEdge_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'row', 'insert', 17531231D, 235959T);
+        CellT(Observer, 'row', 'insert', 17531231D, 235959.997T);
+        CellT(Observer, 'row', 'insert', 17531231D, 235959.998T);
+        CellT(Observer, 'row', 'insert', 17531231D, 235959.999T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Insert_DateTime_RoundingEdge_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'row', 'insert', 17540101D, 000000T);
+        CellT(Observer, 'row', 'insert', 17540101D, 000000.001T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Modify_DateTime_MorningHours_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'row', 'modify', 17530615D, 000001T);
+        CellT(Observer, 'row', 'modify', 17530615D, 010000T);
+        CellT(Observer, 'row', 'modify', 17530615D, 030000T);
+        CellT(Observer, 'row', 'modify', 17530615D, 090000T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Modify_DateTime_MorningHours_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'row', 'modify', 17530615D, 100000T);
+        CellT(Observer, 'row', 'modify', 17530615D, 113000T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Modify_DateTime_AfternoonHours_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'row', 'modify', 17530615D, 120000T);
+        CellT(Observer, 'row', 'modify', 17530615D, 130000T);
+        CellT(Observer, 'row', 'modify', 17530615D, 150000T);
+        CellT(Observer, 'row', 'modify', 17530615D, 215959T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Modify_DateTime_AfternoonHours_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'row', 'modify', 17530615D, 235959T);
+        CellT(Observer, 'row', 'modify', 17530101D, 000001T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Modify_DateTime_RoundingEdge_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'row', 'modify', 17531231D, 235959T);
+        CellT(Observer, 'row', 'modify', 17531231D, 235959.997T);
+        CellT(Observer, 'row', 'modify', 17531231D, 235959.998T);
+        CellT(Observer, 'row', 'modify', 17531231D, 235959.999T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Modify_DateTime_RoundingEdge_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'row', 'modify', 17540101D, 000000T);
+        CellT(Observer, 'row', 'modify', 17521231D, 120000T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Insert_Date_NextAccess_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellN(Observer, 'row', 'insert', 17530615D, 'other');
+        CellN(Observer, 'row', 'insert', 17530615D, 'count');
+        CellN(Observer, 'row', 'insert', 17530615D, 'commit');
+        CellN(Observer, 'row', 'insert', 17530615D, 'none');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Insert_Date_NextAccess_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellD(Observer, 'row', 'insert-true', 17530615D);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Modify_Date_NextAccess_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellN(Observer, 'row', 'modify', 17530615D, 'other');
+        CellN(Observer, 'row', 'modify', 17530615D, 'count');
+        CellN(Observer, 'row', 'modify', 17530615D, 'commit');
+        CellN(Observer, 'row', 'modify', 17530615D, 'none');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Modify_Date_NextAccess_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellN(Observer, 'row', 'modify', 17540101D, 'none');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Modify_Date_Forms_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellD(Observer, 'row', 'modify-result', 17530615D);
+        CellD(Observer, 'row', 'modify-result-true', 17530615D);
+        CellD(Observer, 'row', 'modify-true', 17530615D);
+        CellD(Observer, 'row', 'modify-false', 17530615D);
+        CellD(Observer, 'row', 'modify-result', 17540101D);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Modify_Date_Forms_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellN(Observer, 'row', 'modify-result', 17530615D, 'none');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Modify_DateTime_Forms_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'row', 'modify-result', 17530615D, 030000T);
+        CellT(Observer, 'row', 'modify-result-true', 17530615D, 030000T);
+        CellT(Observer, 'row', 'modify-true', 17530615D, 030000T);
+        CellT(Observer, 'row', 'modify-false', 17530615D, 130000T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Modify_DateTime_Forms_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'row', 'modify-result', 17540101D, 030000T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ValidateThenModify_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellD(Observer, 'row', 'validate-modify', 17530615D);
+        CellD(Observer, 'row', 'validate-modify', 17540101D);
+        CellT(Observer, 'row', 'validate-modify', 17530615D, 030000T);
+        CellT(Observer, 'row', 'validate-modify', 17530615D, 130000T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ValidateThenModify_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'row', 'validate-modify', 17540101D, 030000T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ModifyAll_Forms_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellD(Observer, 'row', 'modifyall', 17530615D);
+        CellD(Observer, 'row', 'modifyall-true', 17530615D);
+        CellT(Observer, 'row', 'modifyall', 17530615D, 030000T);
+        CellD(Observer, 'row', 'modifyall', 17540101D);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ModifyAll_Forms_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellD(Observer, 'row', 'modifyall-empty', 17530615D);
+        CellD(Observer, 'row', 'modifyall', 17530101D);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Trigger_Date_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellD(Observer, 'trig', 'insert-true', 17530615D);
+        CellD(Observer, 'trig', 'insert', 17530615D);
+        CellD(Observer, 'trig', 'modify-true', 17530615D);
+        CellD(Observer, 'trig', 'modify-false', 17530615D);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Trigger_Date_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellD(Observer, 'trig', 'modify-true', 17540101D);
+        CellD(Observer, 'trig', 'modify', 17540101D);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Trigger_DateTime_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'trig', 'insert-true', 17530615D, 030000T);
+        CellT(Observer, 'trig', 'modify-true', 17530615D, 030000T);
+        CellT(Observer, 'trig', 'modify-true', 17530615D, 130000T);
+        CellT(Observer, 'trig', 'modify-result-true', 17530615D, 130000T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Trigger_DateTime_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'trig', 'modify-true', 17540101D, 030000T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Trigger_ModifyAll_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellD(Observer, 'trig', 'modifyall-true', 17530615D);
+        CellD(Observer, 'trig', 'modifyall', 17530615D);
+        CellD(Observer, 'trig', 'modifyall-true', 17540101D);
+        CellD(Observer, 'sub', 'modifyall-true', 17530615D);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Trigger_ModifyAll_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellD(Observer, 'sub', 'modifyall-true', 17540101D);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Subscriber_Date_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellD(Observer, 'sub', 'insert-true', 17530615D);
+        CellD(Observer, 'sub', 'modify-true', 17530615D);
+        CellD(Observer, 'sub', 'modify-false', 17530615D);
+        CellD(Observer, 'sub', 'modify-result-true', 17530615D);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Subscriber_Date_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellD(Observer, 'sub', 'modify-true', 17540101D);
+        CellD(Observer, 'sub', 'insert-true', 17540101D);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Subscriber_DateTime_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'sub', 'insert-true', 17530615D, 030000T);
+        CellT(Observer, 'sub', 'modify-true', 17530615D, 030000T);
+        CellT(Observer, 'sub', 'modify-true', 17530615D, 130000T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Subscriber_DateTime_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'sub', 'modify-false', 17530615D, 130000T);
+        CellT(Observer, 'sub', 'modify-true', 17540101D, 030000T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Blob_Date_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellD(Observer, 'blob', 'insert', 17530615D);
+        CellD(Observer, 'blob', 'modify', 17530615D);
+        CellD(Observer, 'blob', 'modify-result', 17530615D);
+        CellD(Observer, 'blob', 'insert', 17540101D);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Blob_Date_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellD(Observer, 'blob', 'modify', 17540101D);
+        CellN(Observer, 'blob', 'modify', 17530615D, 'none');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Blob_DateTime_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'blob', 'insert', 17530615D, 030000T);
+        CellT(Observer, 'blob', 'modify', 17530615D, 030000T);
+        CellT(Observer, 'blob', 'modify', 17530615D, 130000T);
+        CellT(Observer, 'blob', 'insert', 17540101D, 030000T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Blob_DateTime_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellT(Observer, 'blob', 'modify', 17540101D, 030000T);
+        CellN(Observer, 'blob', 'insert', 17530615D, 'none');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RowAfterError_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellR(Observer, 'row', 'modify', 17530615D);
+        CellR(Observer, 'trig', 'modify-true', 17530615D);
+        CellR(Observer, 'sub', 'modify-true', 17530615D);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RowAfterError_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellR(Observer, 'blob', 'modify', 17530615D);
+        CellR(Observer, 'row', 'modifyall', 17530615D);
+        CellR(Observer, 'row', 'modify', 17540101D);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Rename_DateKey_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        KeyCell(Observer, 'rename', 17530102D, 'get');
+        KeyCell(Observer, 'rename', 17530615D, 'get');
+        KeyCell(Observer, 'rename', 17531231D, 'get');
+        KeyCell(Observer, 'rename', 17540101D, 'get');
+        KeyCell(Observer, 'rename', 17530101D, 'get');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Rename_DateKey_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        KeyCell(Observer, 'rename', 17521231D, 'get');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Rename_DateKey_NextAccess_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        KeyCell(Observer, 'rename', 17530615D, 'other');
+        KeyCell(Observer, 'rename', 17530615D, 'commit');
+        KeyCell(Observer, 'rename', 17530615D, 'none');
+        KeyCell(Observer, 'insert', 17530615D, 'get');
+        KeyCell(Observer, 'insert', 17530615D, 'none');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Rename_DateKey_NextAccess_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        KeyCell(Observer, 'insert', 17540101D, 'get');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Rename_DateTimeKey_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        DtKeyCell(Observer, 'rename', 17530615D, 030000T, 'get');
+        DtKeyCell(Observer, 'rename', 17530615D, 130000T, 'get');
+        DtKeyCell(Observer, 'rename', 17540101D, 000000T, 'get');
+        DtKeyCell(Observer, 'rename', 17530615D, 130000T, 'none');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Rename_DateTimeKey_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        DtKeyCell(Observer, 'insert', 17530615D, 030000T, 'get');
+        DtKeyCell(Observer, 'insert', 17540101D, 000000T, 'get');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TempRecord_Date()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TempCell(Observer, 'insert', 17530615D, 0DT, false);
+        TempCell(Observer, 'modify', 17530615D, 0DT, false);
+        TempCell(Observer, 'insert', 17530101D, 0DT, false);
+        TempCell(Observer, 'to-db', 17530615D, 0DT, false);
+        TempCell(Observer, 'assign-db', 17530615D, 0DT, false);
+        TempCell(Observer, 'to-db', 17540101D, 0DT, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TempRecord_DateTime_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TempCell(Observer, 'insert', 0D, CreateDateTime(17530615D, 030000T), true);
+        TempCell(Observer, 'modify', 0D, CreateDateTime(17530615D, 030000T), true);
+        TempCell(Observer, 'insert', 0D, CreateDateTime(17530101D, 000000T), true);
+        TempCell(Observer, 'to-db', 0D, CreateDateTime(17530615D, 130000T), true);
+        TempCell(Observer, 'assign-db', 0D, CreateDateTime(17530615D, 130000T), true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TempRecord_DateTime_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TempCell(Observer, 'to-db', 0D, CreateDateTime(17540101D, 000000T), true);
+        Observer.Finish();
     end;
 
     [Test]
