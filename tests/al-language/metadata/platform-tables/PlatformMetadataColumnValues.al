@@ -311,4 +311,97 @@ codeunit 71394 "LT PM Values Tests"
         Observer.Expect('item next back', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes no=1');
         Observer.Verify();
     end;
+
+    // al-runner issue 8051: Field."App Package ID" and "App Runtime Package ID" of a field a table extension adds are the ids of the
+    // extension's app (the AllObj row of the table extension), not the table's, after Get, after FindFirst on the key and in a scan of
+    // the table's fields. Fields: the one cross-app fixture B's extension 61110 adds to cross-app fixture A's table 61101, the one this
+    // app's extension 83950 adds to that table (table-objects/extensions/BwCrossAppObjects.al), and the one this app's extension 96160
+    // adds to Base Application's Item (localization/app-xliff/lt-r7144-ext-caption/R7184BaseAppCaption.al). Measured with the same
+    // shapes on a local BC 29.1.57326.57497 (OnPrem w1); BC 27 and 28 by CI.
+    local procedure ExtFieldPackageIds(var F: Record Field; TableId: Integer; ExtensionId: Integer): Text
+    var
+        TableObj: Record AllObj;
+        ExtensionObj: Record AllObj;
+        Own: ModuleInfo;
+    begin
+        NavApp.GetCurrentModuleInfo(Own);
+        TableObj.Get(TableObj."Object Type"::Table, TableId);
+        ExtensionObj.Get(ExtensionObj."Object Type"::TableExtension, ExtensionId);
+        exit(
+            'pkgnull=' + Format(IsNullGuid(F."App Package ID")) +
+            ' rtnull=' + Format(IsNullGuid(F."App Runtime Package ID")) +
+            ' pkg=table:' + Format(F."App Package ID" = TableObj."App Package ID") +
+            ' pkg=ext:' + Format(F."App Package ID" = ExtensionObj."App Package ID") +
+            ' rt=ext:' + Format(F."App Runtime Package ID" = ExtensionObj."App Runtime Package ID") +
+            ' pkg=own:' + Format(F."App Package ID" = Own.PackageId));
+    end;
+
+    local procedure ObserveExtFieldPackageIds(var Observer: Codeunit "Probe Observer"; Prefix: Text; TableId: Integer; FieldNo: Integer; ExtensionId: Integer)
+    var
+        F: Record Field;
+    begin
+        F.Get(TableId, FieldNo);
+        Observer.Observe(Prefix + ' get', ExtFieldPackageIds(F, TableId, ExtensionId));
+        Clear(F);
+        F.SetRange(TableNo, TableId);
+        F.SetRange("No.", FieldNo);
+        F.FindFirst();
+        Observer.Observe(Prefix + ' findfirst', ExtFieldPackageIds(F, TableId, ExtensionId));
+        Clear(F);
+        F.SetRange(TableNo, TableId);
+        F.FindSet();
+        while F."No." <> FieldNo do
+            if F.Next() = 0 then
+                Error('Field %1 of table %2 is not in a scan of its table.', FieldNo, TableId);
+        Observer.Observe(Prefix + ' scan', ExtFieldPackageIds(F, TableId, ExtensionId));
+    end;
+
+    [Test]
+    procedure FieldTable_AppPackageIds_OfTableExtensionField_AreTheExtensionApps()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveExtFieldPackageIds(Observer, 'xapp b', Database::"LT BW XA Base", 61110, 61110);
+        ObserveExtFieldPackageIds(Observer, 'xapp own', Database::"LT BW XA Base", 83950, 83950);
+        ObserveExtFieldPackageIds(Observer, 'item own', Database::Item, 96160, 96160);
+        Observer.Expect('xapp b get', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:No');
+        Observer.Expect('xapp b findfirst', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:No');
+        Observer.Expect('xapp b scan', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:No');
+        Observer.Expect('xapp own get', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('xapp own findfirst', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('xapp own scan', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('item own get', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('item own findfirst', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('item own scan', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Verify();
+    end;
+
+    local procedure KeptByFilter(var F: Record Field; FieldNo: Integer): Text
+    begin
+        F.SetRange("No.", FieldNo);
+        exit(Format(not F.IsEmpty()));
+    end;
+
+    // al-runner issue 8051: a Field read filtered on "App Package ID" <> the table's package id (cross-app fixture A's) keeps the fields
+    // table extensions of other apps add to the table and drops the table's own fields. Measured as above.
+    [Test]
+    procedure FieldTable_FilterAppPackageIdNotTheTables_KeepsOnlyExtensionFields()
+    var
+        Observer: Codeunit "Probe Observer";
+        F: Record Field;
+        TableObj: Record AllObj;
+    begin
+        TableObj.Get(TableObj."Object Type"::Table, Database::"LT BW XA Base");
+        F.SetRange(TableNo, Database::"LT BW XA Base");
+        F.SetFilter("App Package ID", '<>%1', TableObj."App Package ID");
+        Observer.Observe('field 1 kept', KeptByFilter(F, 1));
+        Observer.Observe('field 2 kept', KeptByFilter(F, 2));
+        Observer.Observe('xapp b field kept', KeptByFilter(F, 61110));
+        Observer.Observe('own field kept', KeptByFilter(F, 83950));
+        Observer.Expect('field 1 kept', 'No');
+        Observer.Expect('field 2 kept', 'No');
+        Observer.Expect('xapp b field kept', 'Yes');
+        Observer.Expect('own field kept', 'Yes');
+        Observer.Verify();
+    end;
 }
