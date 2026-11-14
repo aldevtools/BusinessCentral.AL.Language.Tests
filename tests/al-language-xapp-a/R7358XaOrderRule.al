@@ -11,7 +11,9 @@
 //   app name: B D E F                  publisher then name, descending: B F D E
 //   publish order, descending: F E B D
 //   (not an app rule) extension object id: D E F B; extension name: D F B E.
-// Every trigger appends '<app>:<trigger>' to the SingleInstance log 97993.
+// Every trigger appends '<app>:<trigger>' to the SingleInstance log 97993. Each app also declares one label and adds one request
+// page field after the report's field BaseOption, with OnOpenPage and OnClosePage on its request page (the shape of the two-app
+// probe reports 97994 and 97995).
 // Tests: tests/al-language/reports/extensions/IndependentAppsOrderRule.al.
 report 97996 "RPT XA Order Rule"
 {
@@ -27,6 +29,36 @@ report 97996 "RPT XA Order Rule"
         }
     }
 
+    requestpage
+    {
+        layout
+        {
+            area(Content)
+            {
+                field(BaseOption; BaseOptionValue)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Base option';
+                }
+            }
+        }
+
+        trigger OnOpenPage()
+        begin
+            Log.Add('A:rp open');
+        end;
+
+        trigger OnClosePage()
+        begin
+            Log.Add('A:rp close');
+        end;
+    }
+
+    labels
+    {
+        BaseLabel = 'Base';
+    }
+
     trigger OnPreReport()
     begin
         Log.Add('A:pre');
@@ -34,4 +66,5 @@ report 97996 "RPT XA Order Rule"
 
     var
         Log: Codeunit "RPT XA Indep Log";
+        BaseOptionValue: Boolean;
 }

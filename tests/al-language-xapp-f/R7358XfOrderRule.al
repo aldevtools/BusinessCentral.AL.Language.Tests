@@ -10,6 +10,36 @@ reportextension 61198 "RPT Rule Ext 2" extends "RPT XA Order Rule"
         }
     }
 
+    requestpage
+    {
+        layout
+        {
+            addafter(BaseOption)
+            {
+                field(FField; FFieldValue)
+                {
+                    ApplicationArea = All;
+                    Caption = 'F field';
+                }
+            }
+        }
+
+        trigger OnOpenPage()
+        begin
+            Log.Add('F:rp open');
+        end;
+
+        trigger OnClosePage()
+        begin
+            Log.Add('F:rp close');
+        end;
+    }
+
+    labels
+    {
+        FLabel = 'F';
+    }
+
     trigger OnPreReport()
     begin
         FValue := 'F';
@@ -19,4 +49,5 @@ reportextension 61198 "RPT Rule Ext 2" extends "RPT XA Order Rule"
     var
         Log: Codeunit "RPT XA Indep Log";
         FValue: Text;
+        FFieldValue: Boolean;
 }
