@@ -11,7 +11,26 @@
 // Log: OnOpenPage, every run of the expression (DC=...), H0 when the handler starts and H1 with the caption and the controls it reads
 //   (T0 and T1 for a Trap), and "after open". Facts: the log, the test's record after the open, the row count, and for a page variable
 //   its globals, filters and current record read after the close.
-// Observation form: results follow from the CI run of the pull request.
+// What BC did (measured by the pull request's CI run; identical on 27.5, 28.5 and 29.0):
+//   - No open raises, for every expression, opening and view. Inside asserterror (Lit and FmtBlob, Page.Run) the only error is the
+//     test's own one raised after the open.
+//   - Empty view: the expression runs twice before the handler starts (H0) or before the test's first Trap read (T0); Rec holds the
+//     filter value (Code A) and blank other fields. One-row view: it runs once, on row A.
+//   - Reading TestPage.Caption() does not run it again. The caption is '<page caption> - <value>'; a value that is blank or only spaces
+//     gives the page caption alone, and a trailing space of the value is dropped ('CPO Lit - Cap').
+//   - The same counts for Page.Run, Page.RunModal, a page variable's Run and RunModal, Trap before Page.Run and Trap before a page
+//     variable's Run.
+//   - Values: Format of an Option field 'A' (blank row) or 'B'; Decimal '0' or '1,234.5'; Date '' or '01/15/26'; StrSubstNo with the
+//     label 'Row  (A)' or 'Row Alpha (A)'; GetFilter of the FlowFilter '01/01/26..12/31/26' on both views; Next(5) on a fresh local
+//     record '0' (no rows) or '2' (rows A and B); FindFirst and Next on a local record 'No//0/' or 'Yes/A/1/B'.
+//   - Format of a Blob field gives '*' when the row's Blob holds data and ' ' (one space) when it is empty or the view is empty; it
+//     does not raise.
+//   - The handler and the Trap read g=open (set in OnOpenPage) and code=A on both views. The test's record after the open keeps its
+//     filters and has an empty Code; the store keeps its rows.
+//   - The page variable after the close: after Run (with a handler or a Trap) its globals, filters and record are empty; after RunModal
+//     they are g=open, the filters of SetTableView, and code=A on both views.
+//   - Inside asserterror the rows Seed inserted are rolled back with the error (store 0 after it).
+// BC versions: 27.5, 28.5, 29.0
 
 table 76900 "CPO Row"
 {
@@ -671,7 +690,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS Lit", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Cap  | DC=Cap  | H0 | H1 cap=CPO Lit - Cap g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -685,7 +707,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS Lit", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Cap Alpha | H0 | H1 cap=CPO Lit - Cap Alpha g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -699,7 +724,10 @@ codeunit 76912 "CPO Tests"
         Page.RunModal(Page::"CPO WS Lit", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Cap  | DC=Cap  | H0 | H1 cap=CPO Lit - Cap g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -713,7 +741,10 @@ codeunit 76912 "CPO Tests"
         Page.RunModal(Page::"CPO WS Lit", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Cap Alpha | H0 | H1 cap=CPO Lit - Cap Alpha g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -730,7 +761,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Cap  | DC=Cap  | H0 | H1 cap=CPO Lit - Cap g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -747,7 +782,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Cap Alpha | H0 | H1 cap=CPO Lit - Cap Alpha g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -764,7 +803,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Cap  | DC=Cap  | H0 | H1 cap=CPO Lit - Cap g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g=open filters=Code: A, Date Filter: 01/01/26..12/31/26 code=A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -781,7 +824,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Cap Alpha | H0 | H1 cap=CPO Lit - Cap Alpha g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g=open filters=Code: A, Date Filter: 01/01/26..12/31/26 code=A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -801,7 +848,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Cap  | DC=Cap  | T0 | T1 cap=CPO Lit - Cap g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -821,7 +871,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Cap Alpha | T0 | T1 cap=CPO Lit - Cap Alpha g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -844,7 +897,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Cap  | DC=Cap  | T0 | T1 cap=CPO Lit - Cap g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -867,7 +924,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Cap Alpha | T0 | T1 cap=CPO Lit - Cap Alpha g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -881,7 +942,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS FmtOption", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=A | DC=A | H0 | H1 cap=CPO FmtOption - A g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -895,7 +959,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS FmtOption", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=B | H0 | H1 cap=CPO FmtOption - B g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -909,7 +976,10 @@ codeunit 76912 "CPO Tests"
         Page.RunModal(Page::"CPO WS FmtOption", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=A | DC=A | H0 | H1 cap=CPO FmtOption - A g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -923,7 +993,10 @@ codeunit 76912 "CPO Tests"
         Page.RunModal(Page::"CPO WS FmtOption", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=B | H0 | H1 cap=CPO FmtOption - B g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -940,7 +1013,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=A | DC=A | H0 | H1 cap=CPO FmtOption - A g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -957,7 +1034,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=B | H0 | H1 cap=CPO FmtOption - B g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -974,7 +1055,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=A | DC=A | H0 | H1 cap=CPO FmtOption - A g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g=open filters=Code: A, Date Filter: 01/01/26..12/31/26 code=A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -991,7 +1076,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=B | H0 | H1 cap=CPO FmtOption - B g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g=open filters=Code: A, Date Filter: 01/01/26..12/31/26 code=A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1011,7 +1100,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=A | DC=A | T0 | T1 cap=CPO FmtOption - A g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1031,7 +1123,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=B | T0 | T1 cap=CPO FmtOption - B g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1054,7 +1149,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=A | DC=A | T0 | T1 cap=CPO FmtOption - A g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1077,7 +1176,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=B | T0 | T1 cap=CPO FmtOption - B g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1091,7 +1194,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS FmtDecimal", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=0 | DC=0 | H0 | H1 cap=CPO FmtDecimal - 0 g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1105,7 +1211,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS FmtDecimal", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=1,234.5 | H0 | H1 cap=CPO FmtDecimal - 1,234.5 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1119,7 +1228,10 @@ codeunit 76912 "CPO Tests"
         Page.RunModal(Page::"CPO WS FmtDecimal", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=0 | DC=0 | H0 | H1 cap=CPO FmtDecimal - 0 g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1133,7 +1245,10 @@ codeunit 76912 "CPO Tests"
         Page.RunModal(Page::"CPO WS FmtDecimal", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=1,234.5 | H0 | H1 cap=CPO FmtDecimal - 1,234.5 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1150,7 +1265,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=0 | DC=0 | H0 | H1 cap=CPO FmtDecimal - 0 g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1167,7 +1286,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=1,234.5 | H0 | H1 cap=CPO FmtDecimal - 1,234.5 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1184,7 +1307,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=0 | DC=0 | H0 | H1 cap=CPO FmtDecimal - 0 g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g=open filters=Code: A, Date Filter: 01/01/26..12/31/26 code=A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1201,7 +1328,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=1,234.5 | H0 | H1 cap=CPO FmtDecimal - 1,234.5 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g=open filters=Code: A, Date Filter: 01/01/26..12/31/26 code=A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1221,7 +1352,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=0 | DC=0 | T0 | T1 cap=CPO FmtDecimal - 0 g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1241,7 +1375,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=1,234.5 | T0 | T1 cap=CPO FmtDecimal - 1,234.5 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1264,7 +1401,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=0 | DC=0 | T0 | T1 cap=CPO FmtDecimal - 0 g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1287,7 +1428,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=1,234.5 | T0 | T1 cap=CPO FmtDecimal - 1,234.5 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1301,7 +1446,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS FmtDate", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC= | DC= | H0 | H1 cap=CPO FmtDate g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1315,7 +1463,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS FmtDate", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=01/15/26 | H0 | H1 cap=CPO FmtDate - 01/15/26 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1329,7 +1480,10 @@ codeunit 76912 "CPO Tests"
         Page.RunModal(Page::"CPO WS FmtDate", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC= | DC= | H0 | H1 cap=CPO FmtDate g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1343,7 +1497,10 @@ codeunit 76912 "CPO Tests"
         Page.RunModal(Page::"CPO WS FmtDate", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=01/15/26 | H0 | H1 cap=CPO FmtDate - 01/15/26 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1360,7 +1517,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC= | DC= | H0 | H1 cap=CPO FmtDate g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1377,7 +1538,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=01/15/26 | H0 | H1 cap=CPO FmtDate - 01/15/26 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1394,7 +1559,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC= | DC= | H0 | H1 cap=CPO FmtDate g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g=open filters=Code: A, Date Filter: 01/01/26..12/31/26 code=A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1411,7 +1580,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=01/15/26 | H0 | H1 cap=CPO FmtDate - 01/15/26 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g=open filters=Code: A, Date Filter: 01/01/26..12/31/26 code=A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1431,7 +1604,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC= | DC= | T0 | T1 cap=CPO FmtDate g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1451,7 +1627,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=01/15/26 | T0 | T1 cap=CPO FmtDate - 01/15/26 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1474,7 +1653,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC= | DC= | T0 | T1 cap=CPO FmtDate g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1497,7 +1680,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=01/15/26 | T0 | T1 cap=CPO FmtDate - 01/15/26 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1511,7 +1698,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS SubstLabel", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Row  (A) | DC=Row  (A) | H0 | H1 cap=CPO SubstLabel - Row  (A) g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1525,7 +1715,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS SubstLabel", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Row Alpha (A) | H0 | H1 cap=CPO SubstLabel - Row Alpha (A) g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1539,7 +1732,10 @@ codeunit 76912 "CPO Tests"
         Page.RunModal(Page::"CPO WS SubstLabel", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Row  (A) | DC=Row  (A) | H0 | H1 cap=CPO SubstLabel - Row  (A) g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1553,7 +1749,10 @@ codeunit 76912 "CPO Tests"
         Page.RunModal(Page::"CPO WS SubstLabel", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Row Alpha (A) | H0 | H1 cap=CPO SubstLabel - Row Alpha (A) g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1570,7 +1769,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Row  (A) | DC=Row  (A) | H0 | H1 cap=CPO SubstLabel - Row  (A) g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1587,7 +1790,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Row Alpha (A) | H0 | H1 cap=CPO SubstLabel - Row Alpha (A) g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1604,7 +1811,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Row  (A) | DC=Row  (A) | H0 | H1 cap=CPO SubstLabel - Row  (A) g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g=open filters=Code: A, Date Filter: 01/01/26..12/31/26 code=A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1621,7 +1832,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Row Alpha (A) | H0 | H1 cap=CPO SubstLabel - Row Alpha (A) g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g=open filters=Code: A, Date Filter: 01/01/26..12/31/26 code=A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1641,7 +1856,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Row  (A) | DC=Row  (A) | T0 | T1 cap=CPO SubstLabel - Row  (A) g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1661,7 +1879,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Row Alpha (A) | T0 | T1 cap=CPO SubstLabel - Row Alpha (A) g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1684,7 +1905,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Row  (A) | DC=Row  (A) | T0 | T1 cap=CPO SubstLabel - Row  (A) g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1707,7 +1932,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Row Alpha (A) | T0 | T1 cap=CPO SubstLabel - Row Alpha (A) g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1721,7 +1950,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS ReadProc", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=A small a | DC=A small a | H0 | H1 cap=CPO ReadProc - A small a g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1735,7 +1967,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS ReadProc", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=A big b | H0 | H1 cap=CPO ReadProc - A big b g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1749,7 +1984,10 @@ codeunit 76912 "CPO Tests"
         Page.RunModal(Page::"CPO WS ReadProc", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=A small a | DC=A small a | H0 | H1 cap=CPO ReadProc - A small a g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1763,7 +2001,10 @@ codeunit 76912 "CPO Tests"
         Page.RunModal(Page::"CPO WS ReadProc", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=A big b | H0 | H1 cap=CPO ReadProc - A big b g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1780,7 +2021,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=A small a | DC=A small a | H0 | H1 cap=CPO ReadProc - A small a g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1797,7 +2042,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=A big b | H0 | H1 cap=CPO ReadProc - A big b g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1814,7 +2063,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=A small a | DC=A small a | H0 | H1 cap=CPO ReadProc - A small a g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g=open filters=Code: A, Date Filter: 01/01/26..12/31/26 code=A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1831,7 +2084,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=A big b | H0 | H1 cap=CPO ReadProc - A big b g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g=open filters=Code: A, Date Filter: 01/01/26..12/31/26 code=A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1851,7 +2108,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=A small a | DC=A small a | T0 | T1 cap=CPO ReadProc - A small a g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1871,7 +2131,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=A big b | T0 | T1 cap=CPO ReadProc - A big b g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1894,7 +2157,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=A small a | DC=A small a | T0 | T1 cap=CPO ReadProc - A small a g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1917,7 +2184,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=A big b | T0 | T1 cap=CPO ReadProc - A big b g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1931,7 +2202,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS FlowFilter", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=01/01/26..12/31/26 | DC=01/01/26..12/31/26 | H0 | H1 cap=CPO FlowFilter - 01/01/26..12/31/26 g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1945,7 +2219,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS FlowFilter", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=01/01/26..12/31/26 | H0 | H1 cap=CPO FlowFilter - 01/01/26..12/31/26 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1959,7 +2236,10 @@ codeunit 76912 "CPO Tests"
         Page.RunModal(Page::"CPO WS FlowFilter", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=01/01/26..12/31/26 | DC=01/01/26..12/31/26 | H0 | H1 cap=CPO FlowFilter - 01/01/26..12/31/26 g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1973,7 +2253,10 @@ codeunit 76912 "CPO Tests"
         Page.RunModal(Page::"CPO WS FlowFilter", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=01/01/26..12/31/26 | H0 | H1 cap=CPO FlowFilter - 01/01/26..12/31/26 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1990,7 +2273,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=01/01/26..12/31/26 | DC=01/01/26..12/31/26 | H0 | H1 cap=CPO FlowFilter - 01/01/26..12/31/26 g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2007,7 +2294,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=01/01/26..12/31/26 | H0 | H1 cap=CPO FlowFilter - 01/01/26..12/31/26 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2024,7 +2315,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=01/01/26..12/31/26 | DC=01/01/26..12/31/26 | H0 | H1 cap=CPO FlowFilter - 01/01/26..12/31/26 g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g=open filters=Code: A, Date Filter: 01/01/26..12/31/26 code=A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2041,7 +2336,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=01/01/26..12/31/26 | H0 | H1 cap=CPO FlowFilter - 01/01/26..12/31/26 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g=open filters=Code: A, Date Filter: 01/01/26..12/31/26 code=A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2061,7 +2360,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=01/01/26..12/31/26 | DC=01/01/26..12/31/26 | T0 | T1 cap=CPO FlowFilter - 01/01/26..12/31/26 g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2081,7 +2383,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=01/01/26..12/31/26 | T0 | T1 cap=CPO FlowFilter - 01/01/26..12/31/26 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2104,7 +2409,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=01/01/26..12/31/26 | DC=01/01/26..12/31/26 | T0 | T1 cap=CPO FlowFilter - 01/01/26..12/31/26 g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2127,7 +2436,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=01/01/26..12/31/26 | T0 | T1 cap=CPO FlowFilter - 01/01/26..12/31/26 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2141,7 +2454,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS Next5", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=0 | DC=0 | H0 | H1 cap=CPO Next5 - 0 g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2155,7 +2471,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS Next5", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=2 | H0 | H1 cap=CPO Next5 - 2 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2169,7 +2488,10 @@ codeunit 76912 "CPO Tests"
         Page.RunModal(Page::"CPO WS Next5", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=0 | DC=0 | H0 | H1 cap=CPO Next5 - 0 g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2183,7 +2505,10 @@ codeunit 76912 "CPO Tests"
         Page.RunModal(Page::"CPO WS Next5", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=2 | H0 | H1 cap=CPO Next5 - 2 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2200,7 +2525,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=0 | DC=0 | H0 | H1 cap=CPO Next5 - 0 g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2217,7 +2546,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=2 | H0 | H1 cap=CPO Next5 - 2 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2234,7 +2567,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=0 | DC=0 | H0 | H1 cap=CPO Next5 - 0 g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g=open filters=Code: A, Date Filter: 01/01/26..12/31/26 code=A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2251,7 +2588,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=2 | H0 | H1 cap=CPO Next5 - 2 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g=open filters=Code: A, Date Filter: 01/01/26..12/31/26 code=A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2271,7 +2612,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=0 | DC=0 | T0 | T1 cap=CPO Next5 - 0 g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2291,7 +2635,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=2 | T0 | T1 cap=CPO Next5 - 2 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2314,7 +2661,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=0 | DC=0 | T0 | T1 cap=CPO Next5 - 0 g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2337,7 +2688,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=2 | T0 | T1 cap=CPO Next5 - 2 g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2351,7 +2706,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS FindNext", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=No//0/ | DC=No//0/ | H0 | H1 cap=CPO FindNext - No//0/ g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2365,7 +2723,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS FindNext", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Yes/A/1/B | H0 | H1 cap=CPO FindNext - Yes/A/1/B g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2379,7 +2740,10 @@ codeunit 76912 "CPO Tests"
         Page.RunModal(Page::"CPO WS FindNext", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=No//0/ | DC=No//0/ | H0 | H1 cap=CPO FindNext - No//0/ g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2393,7 +2757,10 @@ codeunit 76912 "CPO Tests"
         Page.RunModal(Page::"CPO WS FindNext", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Yes/A/1/B | H0 | H1 cap=CPO FindNext - Yes/A/1/B g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2410,7 +2777,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=No//0/ | DC=No//0/ | H0 | H1 cap=CPO FindNext - No//0/ g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2427,7 +2798,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Yes/A/1/B | H0 | H1 cap=CPO FindNext - Yes/A/1/B g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2444,7 +2819,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=No//0/ | DC=No//0/ | H0 | H1 cap=CPO FindNext - No//0/ g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g=open filters=Code: A, Date Filter: 01/01/26..12/31/26 code=A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2461,7 +2840,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Yes/A/1/B | H0 | H1 cap=CPO FindNext - Yes/A/1/B g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g=open filters=Code: A, Date Filter: 01/01/26..12/31/26 code=A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2481,7 +2864,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=No//0/ | DC=No//0/ | T0 | T1 cap=CPO FindNext - No//0/ g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2501,7 +2887,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Yes/A/1/B | T0 | T1 cap=CPO FindNext - Yes/A/1/B g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2524,7 +2913,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=No//0/ | DC=No//0/ | T0 | T1 cap=CPO FindNext - No//0/ g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2547,7 +2940,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=Yes/A/1/B | T0 | T1 cap=CPO FindNext - Yes/A/1/B g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2561,7 +2958,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS FmtBlob", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=  | DC=  | H0 | H1 cap=CPO FmtBlob g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2575,7 +2975,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS FmtBlob", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=* | H0 | H1 cap=CPO FmtBlob - * g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2589,7 +2992,10 @@ codeunit 76912 "CPO Tests"
         Page.RunModal(Page::"CPO WS FmtBlob", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=  | DC=  | H0 | H1 cap=CPO FmtBlob g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2603,7 +3009,10 @@ codeunit 76912 "CPO Tests"
         Page.RunModal(Page::"CPO WS FmtBlob", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=* | H0 | H1 cap=CPO FmtBlob - * g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2620,7 +3029,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=  | DC=  | H0 | H1 cap=CPO FmtBlob g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2637,7 +3050,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=* | H0 | H1 cap=CPO FmtBlob - * g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2654,7 +3071,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=  | DC=  | H0 | H1 cap=CPO FmtBlob g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g=open filters=Code: A, Date Filter: 01/01/26..12/31/26 code=A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2671,7 +3092,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=* | H0 | H1 cap=CPO FmtBlob - * g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g=open filters=Code: A, Date Filter: 01/01/26..12/31/26 code=A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2691,7 +3116,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=  | DC=  | T0 | T1 cap=CPO FmtBlob g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2711,7 +3139,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=* | T0 | T1 cap=CPO FmtBlob - * g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2734,7 +3165,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=  | DC=  | T0 | T1 cap=CPO FmtBlob g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2757,7 +3192,11 @@ codeunit 76912 "CPO Tests"
         Log.Add('after open');
         Facts(Observer, Row);
         Observer.Observe('pagevar', PV.State());
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=* | T0 | T1 cap=CPO FmtBlob - * g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Expect('pagevar', 'g= filters= code=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2771,7 +3210,10 @@ codeunit 76912 "CPO Tests"
         Page.Run(Page::"CPO WS FmtBlob", Row);
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=  | H0 | H1 cap=CPO FmtBlob g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2791,7 +3233,10 @@ codeunit 76912 "CPO Tests"
         TP.Close();
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('log', 'OnOpenPage | DC=  | T0 | T1 cap=CPO FmtBlob g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2806,7 +3251,12 @@ codeunit 76912 "CPO Tests"
         Observer.ObserveError('open');
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('open|text', 'no error at the open');
+        Observer.Expect('open|code', 'Dialog');
+        Observer.Expect('log', 'OnOpenPage | DC=Cap  | DC=Cap  | H0 | H1 cap=CPO Lit - Cap g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2821,7 +3271,12 @@ codeunit 76912 "CPO Tests"
         Observer.ObserveError('open');
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('open|text', 'no error at the open');
+        Observer.Expect('open|code', 'Dialog');
+        Observer.Expect('log', 'OnOpenPage | DC=Cap Alpha | H0 | H1 cap=CPO Lit - Cap Alpha g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2836,7 +3291,12 @@ codeunit 76912 "CPO Tests"
         Observer.ObserveError('open');
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('open|text', 'no error at the open');
+        Observer.Expect('open|code', 'Dialog');
+        Observer.Expect('log', 'OnOpenPage | DC=  | DC=  | H0 | H1 cap=CPO FmtBlob g=open code=A name= | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2851,7 +3311,12 @@ codeunit 76912 "CPO Tests"
         Observer.ObserveError('open');
         Log.Add('after open');
         Facts(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('open|text', 'no error at the open');
+        Observer.Expect('open|code', 'Dialog');
+        Observer.Expect('log', 'OnOpenPage | DC=* | H0 | H1 cap=CPO FmtBlob - * g=open code=A name=Alpha | after open');
+        Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
+        Observer.Expect('store', '0');
+        Observer.Verify();
     end;
 
     local procedure OpenLitRun(var Row: Record "CPO Row")
