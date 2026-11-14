@@ -8,7 +8,7 @@
 // a single character, an unpadded "SGVsbG8") raises "The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an
 // illegal character among the padding characters." / AL:Format; an inner space is ignored. The InStream form reads all bytes; FromBase64(Text, OutStream) writes the decoded bytes.
 // ToBase64Url replaces + and / by - and _ and leaves out the padding. With InsertLineBreaks = true a text that needs more than 76 characters is broken with CR LF after 76 characters (164
-// characters instead of 160 for 120 bytes); the InStream form with line breaks does not break a 100 byte stream.
+// characters instead of 160 for 120 bytes); the InStream form breaks too (see Base64LineBreaks.al, corpus issue 1390).
 // Fixtures used: self-contained codeunit 69339
 // BC versions: 27.5, 29.0
 

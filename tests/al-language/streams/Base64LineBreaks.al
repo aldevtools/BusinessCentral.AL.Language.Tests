@@ -6,7 +6,20 @@
 // Lead: corpus issue 1390 (PVBase64.al searches for '\n' and '\r', which AL reads as two plain characters each, so those checks
 // measure nothing), al-runner issues 7996 (ToBase64(InStream, true) line breaks) and 7997 item 2 (FromBase64 with UTF16 and 1252).
 //
-// What BC did: see the facts block below (filled in from the observation).
+// What BC did (BC 28.5 and 29.0 gave the same results everywhere; 27.5 differs where a #if BC28PLUS block says so):
+// - ToBase64(InStream, true) breaks a line after 76 characters with CR LF (13 10), none after the last line: 57 bytes give 76
+//   characters, 100 bytes 138, 114 bytes 154, 120 bytes 164. With false: 76, 136, 152, 160. Removing CR LF from the true
+//   form gives the false form. The Text form with true gives the same string as the InStream form.
+// - Stream position: 28.5 and 29.0 convert the whole stream whatever was read before, and a second call on the same stream
+//   gives the same text. 27.5 converts from the read position (10 bytes read: 122 characters) and a second call gives another text.
+// - ToBase64(InStream, Boolean, OutStream) (System Application 28 and later) writes the same characters as the string form.
+//   One ReadText of the target returns only the first line (76); an empty source writes 0; a target that held 'AB' keeps it.
+// - FromBase64 with UTF16 or UTF8 ignores the code page. With Windows or MSDos the code page counts: 1252, 850, 437, 65001
+//   and 1200 decode as those pages. Code page 0 decodes as Windows-1252 on 28.5 and 29.0 and as UTF-8 on 27.5.
+// Held (not a test): code pages above 65535 (99999 and 70000) with Windows or MSDos. 27.5 raises a catchable error
+// (code DotNetInvoke:ArgumentOutOfRange, 'Valid values are between 0 and 65535, inclusive. (Parameter 'codepage')'); 28.5 and 29.0
+// raise 'Unexpected CLR exception thrown.: System.ArgumentOutOfRangeException' that asserterror and TryFunction do not
+// catch, so the test itself fails.
 
 codeunit 75240 "B64 LineBreaks InStream"
 {
@@ -92,7 +105,15 @@ codeunit 75240 "B64 LineBreaks InStream"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveInStream(Observer, 57);
-        Observer.Finish();
+        Observer.Expect('true_length', '76');
+        Observer.Expect('true_codes_76_to_78', '50 ');
+        Observer.Expect('true_codes_153_to_157', '');
+        Observer.Expect('true_last_two_codes', '85 50 ');
+        Observer.Expect('false_length', '76');
+        Observer.Expect('false_codes_76_to_78', '50 ');
+        Observer.Expect('false_last_two_codes', '85 50 ');
+        Observer.Expect('true_without_crlf_equals_false', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -101,7 +122,15 @@ codeunit 75240 "B64 LineBreaks InStream"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveInStream(Observer, 100);
-        Observer.Finish();
+        Observer.Expect('true_length', '138');
+        Observer.Expect('true_codes_76_to_78', '50 13 10 ');
+        Observer.Expect('true_codes_153_to_157', '');
+        Observer.Expect('true_last_two_codes', '61 61 ');
+        Observer.Expect('false_length', '136');
+        Observer.Expect('false_codes_76_to_78', '50 78 122 ');
+        Observer.Expect('false_last_two_codes', '61 61 ');
+        Observer.Expect('true_without_crlf_equals_false', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -110,7 +139,15 @@ codeunit 75240 "B64 LineBreaks InStream"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveInStream(Observer, 114);
-        Observer.Finish();
+        Observer.Expect('true_length', '154');
+        Observer.Expect('true_codes_76_to_78', '50 13 10 ');
+        Observer.Expect('true_codes_153_to_157', '73 122 ');
+        Observer.Expect('true_last_two_codes', '73 122 ');
+        Observer.Expect('false_length', '152');
+        Observer.Expect('false_codes_76_to_78', '50 78 122 ');
+        Observer.Expect('false_last_two_codes', '73 122 ');
+        Observer.Expect('true_without_crlf_equals_false', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -119,7 +156,15 @@ codeunit 75240 "B64 LineBreaks InStream"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveInStream(Observer, 120);
-        Observer.Finish();
+        Observer.Expect('true_length', '164');
+        Observer.Expect('true_codes_76_to_78', '50 13 10 ');
+        Observer.Expect('true_codes_153_to_157', '73 122 13 10 78 ');
+        Observer.Expect('true_last_two_codes', '103 53 ');
+        Observer.Expect('false_length', '160');
+        Observer.Expect('false_codes_76_to_78', '50 78 122 ');
+        Observer.Expect('false_last_two_codes', '103 53 ');
+        Observer.Expect('true_without_crlf_equals_false', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -151,7 +196,25 @@ codeunit 75240 "B64 LineBreaks InStream"
         R := Base64.ToBase64(InS, true);
         Observer.Observe('first_call_true_length', Format(StrLen(R)));
         Observer.Observe('second_call_equals_first', Format(Base64.ToBase64(InS, true) = R));
-        Observer.Finish();
+        Observer.Expect('empty_true', '[]');
+#if BC28PLUS
+        Observer.Expect('after_10_read_true_length', '138');
+        Observer.Expect('after_10_read_true_codes_76_to_78', '50 13 10 ');
+        Observer.Expect('after_10_read_true_first_8', 'MDEyMzQ1');
+        Observer.Expect('after_10_read_equals_full_text_form', 'Yes');
+#else
+        Observer.Expect('after_10_read_true_length', '122');
+        Observer.Expect('after_10_read_true_codes_76_to_78', '50 13 10 ');
+        Observer.Expect('after_10_read_true_first_8', 'MDEyMzQ1');
+        Observer.Expect('after_10_read_equals_full_text_form', 'No');
+#endif
+        Observer.Expect('first_call_true_length', '138');
+#if BC28PLUS
+        Observer.Expect('second_call_equals_first', 'Yes');
+#else
+        Observer.Expect('second_call_equals_first', 'No');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -178,7 +241,15 @@ codeunit 75240 "B64 LineBreaks InStream"
         Observer.Observe('text100_equals_instream100', Format(T100 = Base64.ToBase64(InS, true)));
         FillStream(TempBlob, 120, InS);
         Observer.Observe('text120_equals_instream120', Format(T120 = Base64.ToBase64(InS, true)));
-        Observer.Finish();
+        Observer.Expect('text57_true_length', '76');
+        Observer.Expect('text57_true_last_two_codes', '85 50 ');
+        Observer.Expect('text100_true_length', '138');
+        Observer.Expect('text100_true_codes_76_to_78', '50 13 10 ');
+        Observer.Expect('text120_true_length', '164');
+        Observer.Expect('text120_true_codes_153_to_157', '73 122 13 10 78 ');
+        Observer.Expect('text100_equals_instream100', 'Yes');
+        Observer.Expect('text120_equals_instream120', 'Yes');
+        Observer.Verify();
     end;
 
 #if BC28PLUS
@@ -234,7 +305,14 @@ codeunit 75240 "B64 LineBreaks InStream"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveOutStream(Observer, 57);
-        Observer.Finish();
+        Observer.Expect('true_written_length', '76');
+        Observer.Expect('true_codes_76_to_78', '50 ');
+        Observer.Expect('true_codes_153_to_157', '');
+        Observer.Expect('true_last_two_codes', '85 50 ');
+        Observer.Expect('false_written_length', '76');
+        Observer.Expect('false_codes_76_to_78', '50 ');
+        Observer.Expect('false_last_two_codes', '85 50 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -243,7 +321,14 @@ codeunit 75240 "B64 LineBreaks InStream"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveOutStream(Observer, 100);
-        Observer.Finish();
+        Observer.Expect('true_written_length', '138');
+        Observer.Expect('true_codes_76_to_78', '50 13 10 ');
+        Observer.Expect('true_codes_153_to_157', '');
+        Observer.Expect('true_last_two_codes', '61 61 ');
+        Observer.Expect('false_written_length', '136');
+        Observer.Expect('false_codes_76_to_78', '50 78 122 ');
+        Observer.Expect('false_last_two_codes', '61 61 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -252,7 +337,14 @@ codeunit 75240 "B64 LineBreaks InStream"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveOutStream(Observer, 120);
-        Observer.Finish();
+        Observer.Expect('true_written_length', '164');
+        Observer.Expect('true_codes_76_to_78', '50 13 10 ');
+        Observer.Expect('true_codes_153_to_157', '73 122 13 10 78 ');
+        Observer.Expect('true_last_two_codes', '103 53 ');
+        Observer.Expect('false_written_length', '160');
+        Observer.Expect('false_codes_76_to_78', '50 78 122 ');
+        Observer.Expect('false_last_two_codes', '103 53 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -298,7 +390,17 @@ codeunit 75240 "B64 LineBreaks InStream"
         Observer.Observe('after_ab_written_length', Format(Target.Length()));
         Observer.Observe('after_ab_codes_1_to_4', ByteCodes(Target, 1, 4));
         Observer.Observe('after_ab_codes_78_to_80', ByteCodes(Target, 78, 3));
-        Observer.Finish();
+        Observer.Expect('readtext_return', '76');
+        Observer.Expect('readtext_strlen', '76');
+        Observer.Expect('readtext_codes_76_to_78', '50 ');
+        Observer.Expect('readtext_equals_text_form', 'No');
+        Observer.Expect('second_readtext_return', '76');
+        Observer.Expect('second_readtext_first_codes', '78 122 ');
+        Observer.Expect('empty_written_length', '0');
+        Observer.Expect('after_ab_written_length', '140');
+        Observer.Expect('after_ab_codes_1_to_4', '65 66 77 68 ');
+        Observer.Expect('after_ab_codes_78_to_80', '50 13 10 ');
+        Observer.Verify();
     end;
 #endif
 }
@@ -359,7 +461,15 @@ codeunit 75241 "B64 FromBase64 Encodings"
         Observer.Observe('utf16_28591', From(Utf16AB, TextEncoding::UTF16, 28591));
         Observer.Observe('utf16_99999', From(Utf16AB, TextEncoding::UTF16, 99999));
         Observer.Observe('utf16_umlauts_1252', From('5AD2APwA', TextEncoding::UTF16, 1252));
-        Observer.Finish();
+        Observer.Expect('utf16_1252', 'ok 65 66 ');
+        Observer.Expect('utf16_0', 'ok 65 66 ');
+        Observer.Expect('utf16_65001', 'ok 65 66 ');
+        Observer.Expect('utf16_1200', 'ok 65 66 ');
+        Observer.Expect('utf16_1201', 'ok 65 66 ');
+        Observer.Expect('utf16_28591', 'ok 65 66 ');
+        Observer.Expect('utf16_99999', 'ok 65 66 ');
+        Observer.Expect('utf16_umlauts_1252', 'ok 228 246 252 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -373,7 +483,13 @@ codeunit 75241 "B64 FromBase64 Encodings"
         Observer.Observe('utf8_28591_windowsbytes', From(WindowsUmlauts, TextEncoding::UTF8, 28591));
         Observer.Observe('utf8_1200_utf16bytes', From(Utf16AB, TextEncoding::UTF8, 1200));
         Observer.Observe('utf8_99999', From(Utf8Umlauts, TextEncoding::UTF8, 99999));
-        Observer.Finish();
+        Observer.Expect('utf8_0_utf8bytes', 'ok 228 246 252 ');
+        Observer.Expect('utf8_1252_utf8bytes', 'ok 228 246 252 ');
+        Observer.Expect('utf8_1252_windowsbytes', 'ok 65533 65533 65533 ');
+        Observer.Expect('utf8_28591_windowsbytes', 'ok 65533 65533 65533 ');
+        Observer.Expect('utf8_1200_utf16bytes', 'ok 65 0 66 0 ');
+        Observer.Expect('utf8_99999', 'ok 228 246 252 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -387,54 +503,18 @@ codeunit 75241 "B64 FromBase64 Encodings"
         Observer.Observe('windows_65001_utf8bytes', From(Utf8Umlauts, TextEncoding::Windows, 65001));
         Observer.Observe('windows_1200_utf16bytes', From(Utf16AB, TextEncoding::Windows, 1200));
         Observer.Observe('windows_850_windowsbytes', From(WindowsUmlauts, TextEncoding::Windows, 850));
-        Observer.Finish();
-    end;
-
-    local procedure ErrorHead(): Text
-    var
-        T: Text;
-        P: Integer;
-    begin
-        T := GetLastErrorText();
-        P := StrPos(T, '    at ');
-        if P > 0 then
-            T := CopyStr(T, 1, P - 1);
-        exit(T);
-    end;
-
-    [Test]
-    procedure FromBase64_Windows_CodePage99999_Error()
-    var
-        Base64: Codeunit "Base64 Convert";
-        Observer: Codeunit "Probe Observer";
-    begin
-        asserterror Base64.FromBase64(WindowsUmlauts, TextEncoding::Windows, 99999);
-        Observer.Observe('windows_99999_text', ErrorHead());
-        Observer.Observe('windows_99999_code', GetLastErrorCode());
-        ClearLastError();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure FromBase64_MSDos_CodePage99999_Error()
-    var
-        Base64: Codeunit "Base64 Convert";
-        Observer: Codeunit "Probe Observer";
-    begin
-        asserterror Base64.FromBase64(WindowsUmlauts, TextEncoding::MSDos, 99999);
-        Observer.Observe('msdos_99999_text', ErrorHead());
-        Observer.Observe('msdos_99999_code', GetLastErrorCode());
-        ClearLastError();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure FromBase64_Windows_CodePage70000()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Observer.Observe('windows_70000', From(WindowsUmlauts, TextEncoding::Windows, 70000));
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('windows_0_windowsbytes', 'ok 228 246 252 ');
+        Observer.Expect('windows_0_utf8bytes', 'ok 195 164 195 182 195 188 ');
+#else
+        Observer.Expect('windows_0_windowsbytes', 'ok 65533 65533 65533 ');
+        Observer.Expect('windows_0_utf8bytes', 'ok 228 246 252 ');
+#endif
+        Observer.Expect('windows_1252_windowsbytes', 'ok 228 246 252 ');
+        Observer.Expect('windows_65001_utf8bytes', 'ok 228 246 252 ');
+        Observer.Expect('windows_1200_utf16bytes', 'ok 65 66 ');
+        Observer.Expect('windows_850_windowsbytes', 'ok 245 247 179 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -448,7 +528,18 @@ codeunit 75241 "B64 FromBase64 Encodings"
         Observer.Observe('msdos_850_windowsbytes', From(WindowsUmlauts, TextEncoding::MSDos, 850));
         Observer.Observe('msdos_437_windowsbytes', From(WindowsUmlauts, TextEncoding::MSDos, 437));
         Observer.Observe('msdos_65001_utf8bytes', From(Utf8Umlauts, TextEncoding::MSDos, 65001));
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('msdos_0_windowsbytes', 'ok 228 246 252 ');
+        Observer.Expect('msdos_0_utf8bytes', 'ok 195 164 195 182 195 188 ');
+#else
+        Observer.Expect('msdos_0_windowsbytes', 'ok 65533 65533 65533 ');
+        Observer.Expect('msdos_0_utf8bytes', 'ok 228 246 252 ');
+#endif
+        Observer.Expect('msdos_1252_windowsbytes', 'ok 228 246 252 ');
+        Observer.Expect('msdos_850_windowsbytes', 'ok 245 247 179 ');
+        Observer.Expect('msdos_437_windowsbytes', 'ok 931 247 8319 ');
+        Observer.Expect('msdos_65001_utf8bytes', 'ok 228 246 252 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -461,6 +552,10 @@ codeunit 75241 "B64 FromBase64 Encodings"
         Observer.Observe('windows_only', Codes(Base64.FromBase64(WindowsUmlauts, TextEncoding::Windows)));
         Observer.Observe('msdos_only', Codes(Base64.FromBase64(WindowsUmlauts, TextEncoding::MSDos)));
         Observer.Observe('utf8_only_windowsbytes', Codes(Base64.FromBase64(WindowsUmlauts, TextEncoding::UTF8)));
-        Observer.Finish();
+        Observer.Expect('utf16_only', '65 66 ');
+        Observer.Expect('windows_only', '228 246 252 ');
+        Observer.Expect('msdos_only', '228 246 252 ');
+        Observer.Expect('utf8_only_windowsbytes', '65533 65533 65533 ');
+        Observer.Verify();
     end;
 }
