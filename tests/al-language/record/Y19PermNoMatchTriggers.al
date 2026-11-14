@@ -366,7 +366,8 @@ codeunit 97371 "LT NT No Match Triggers"
             33:
                 begin
                     RecRef.Open(Database::"LT NM Parent");
-                    RecRef.Get('P1');
+                    RecRef.Field(1).SetRange('P1');
+                    RecRef.FindFirst();
                     RecRef.Delete(true);
                 end;
             34:
