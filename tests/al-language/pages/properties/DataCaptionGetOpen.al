@@ -639,6 +639,7 @@ codeunit 78916 "DCG Tests"
     end;
 
     [Test]
+    [HandlerFunctions('HMiss')]
     procedure Miss_None_Run()
     var
         Observer: Codeunit "Probe Observer";
@@ -660,6 +661,7 @@ codeunit 78916 "DCG Tests"
     end;
 
     [Test]
+    [HandlerFunctions('MHMiss')]
     procedure Miss_None_RunModal()
     var
         Observer: Codeunit "Probe Observer";
@@ -702,6 +704,7 @@ codeunit 78916 "DCG Tests"
     end;
 
     [Test]
+    [HandlerFunctions('HMiss')]
     procedure Miss_Two_Run()
     var
         Observer: Codeunit "Probe Observer";
@@ -723,6 +726,7 @@ codeunit 78916 "DCG Tests"
     end;
 
     [Test]
+    [HandlerFunctions('MHMiss')]
     procedure Miss_Two_RunModal()
     var
         Observer: Codeunit "Probe Observer";
@@ -765,6 +769,7 @@ codeunit 78916 "DCG Tests"
     end;
 
     [Test]
+    [HandlerFunctions('HMiss')]
     procedure Miss_Range_Run()
     var
         Observer: Codeunit "Probe Observer";
@@ -786,6 +791,7 @@ codeunit 78916 "DCG Tests"
     end;
 
     [Test]
+    [HandlerFunctions('MHMiss')]
     procedure Miss_Range_RunModal()
     var
         Observer: Codeunit "Probe Observer";
@@ -893,6 +899,7 @@ codeunit 78916 "DCG Tests"
     end;
 
     [Test]
+    [HandlerFunctions('HMiss')]
     procedure Miss_IntRange_Run()
     var
         Observer: Codeunit "Probe Observer";
@@ -914,6 +921,7 @@ codeunit 78916 "DCG Tests"
     end;
 
     [Test]
+    [HandlerFunctions('MHMiss')]
     procedure Miss_IntRange_RunModal()
     var
         Observer: Codeunit "Probe Observer";
