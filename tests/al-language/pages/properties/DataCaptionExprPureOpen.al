@@ -3247,6 +3247,7 @@ codeunit 76912 "CPO Tests"
         Row: Record "CPO Row";
     begin
         Seed('Empty', Row);
+        Commit();
         asserterror OpenLitRun(Row);
         Observer.ObserveError('open');
         Log.Add('after open');
@@ -3267,6 +3268,7 @@ codeunit 76912 "CPO Tests"
         Row: Record "CPO Row";
     begin
         Seed('OneRow', Row);
+        Commit();
         asserterror OpenLitRun(Row);
         Observer.ObserveError('open');
         Log.Add('after open');
@@ -3275,7 +3277,7 @@ codeunit 76912 "CPO Tests"
         Observer.Expect('open|code', 'Dialog');
         Observer.Expect('log', 'OnOpenPage | DC=Cap Alpha | H0 | H1 cap=CPO Lit - Cap Alpha g=open code=A name=Alpha | after open');
         Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
-        Observer.Expect('store', '0');
+        Observer.Expect('store', '2');
         Observer.Verify();
     end;
 
@@ -3287,6 +3289,7 @@ codeunit 76912 "CPO Tests"
         Row: Record "CPO Row";
     begin
         Seed('Empty', Row);
+        Commit();
         asserterror OpenFmtBlobRun(Row);
         Observer.ObserveError('open');
         Log.Add('after open');
@@ -3307,6 +3310,7 @@ codeunit 76912 "CPO Tests"
         Row: Record "CPO Row";
     begin
         Seed('OneRow', Row);
+        Commit();
         asserterror OpenFmtBlobRun(Row);
         Observer.ObserveError('open');
         Log.Add('after open');
@@ -3315,7 +3319,7 @@ codeunit 76912 "CPO Tests"
         Observer.Expect('open|code', 'Dialog');
         Observer.Expect('log', 'OnOpenPage | DC=* | H0 | H1 cap=CPO FmtBlob - * g=open code=A name=Alpha | after open');
         Observer.Expect('rec', 'filters=Code: A, Date Filter: 01/01/26..12/31/26 code=');
-        Observer.Expect('store', '0');
+        Observer.Expect('store', '2');
         Observer.Verify();
     end;
 
