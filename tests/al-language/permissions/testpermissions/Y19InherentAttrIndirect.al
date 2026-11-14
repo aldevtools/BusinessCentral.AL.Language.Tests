@@ -145,13 +145,13 @@ codeunit 97325 "LT IA Inherent Lower Case"
     TestPermissions = Disabled;
 
     var
+        Observer: Codeunit "Probe Observer";
         Helper: Codeunit "LT Y19 Perm Helper";
         Mock: Codeunit "Permissions Mock";
 
     [Test]
     procedure IA_LowerCaseAttribute()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
         Ops: List of [Integer];
         Which: Integer;
@@ -161,13 +161,24 @@ codeunit 97325 "LT IA Inherent Lower Case"
         // 11-12 without Permissions: i, m on the writer; 13 without Permissions: i on the caller.
         Ops.AddRange(1, 2, 3, 4, 5, 6, 11, 12, 13);
         foreach Which in Ops do
-            RunCase(Observer, 'op' + Format(Which), Which);
+            RunCase('op' + Format(Which), Which);
         Helper.RestoreMock(Mock, WasStarted);
-        // Expect lines: from the local observation run.
-        Observer.Verify();
+        Observer.Finish();
     end;
 
-    local procedure RunCase(var Observer: Codeunit "Probe Observer"; Name: Text; Which: Integer)
+    [Test]
+    procedure IA_LowerCaseAttribute_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure IA_LowerCaseAttribute_More2()
+    begin
+        Observer.More();
+    end;
+
+    local procedure RunCase(Name: Text; Which: Integer)
     var
         Row: Record "LT IA Row";
     begin

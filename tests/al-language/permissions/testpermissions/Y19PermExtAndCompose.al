@@ -254,6 +254,7 @@ codeunit 97349 "LT PC Probes"
     TestPermissions = Disabled;
 
     var
+        Observer: Codeunit "Probe Observer";
         Helper: Codeunit "LT Y19 Perm Helper";
         Mock: Codeunit "Permissions Mock";
         TenantRoleTok: Label 'LT PC TENANT', Locked = true;
@@ -263,15 +264,32 @@ codeunit 97349 "LT PC Probes"
     [Test]
     procedure PC_A_Composition()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
         Which: Integer;
     begin
         WasStarted := Helper.StartMock(Mock);
         for Which := 1 to 6 do
-            RunCase(Observer, 'a' + Format(Which), Which);
+            RunCase('a' + Format(Which), Which);
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Verify();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure PC_A_Composition_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure PC_A_Composition_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure PC_A_Composition_More3()
+    begin
+        Observer.More();
     end;
 
     // B: 11-14 Insert(true) of E Plain, E ExtPerm, E TabPerm, E BothPerm (tableextension OnInsert writes B), user imd on B;
@@ -281,7 +299,6 @@ codeunit 97349 "LT PC Probes"
     [Test]
     procedure PC_B_ExtensionCode()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
         Ops: List of [Integer];
         Which: Integer;
@@ -289,9 +306,39 @@ codeunit 97349 "LT PC Probes"
         WasStarted := Helper.StartMock(Mock);
         Ops.AddRange(11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27, 28, 31, 32, 33, 34);
         foreach Which in Ops do
-            RunCase(Observer, 'b' + Format(Which), Which);
+            RunCase('b' + Format(Which), Which);
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Verify();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure PC_B_ExtensionCode_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure PC_B_ExtensionCode_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure PC_B_ExtensionCode_More3()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure PC_B_ExtensionCode_More4()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure PC_B_ExtensionCode_More5()
+    begin
+        Observer.More();
     end;
 
     // C: T holds rows 1 and 2; the set grants R on B only. SetRange(Id, 100) then 41 FindFirst (control), 42 FindSet,
@@ -300,15 +347,32 @@ codeunit 97349 "LT PC Probes"
     [Test]
     procedure PC_C_NoMatchReadsAndDelete()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
         Which: Integer;
     begin
         WasStarted := Helper.StartMock(Mock);
         for Which := 41 to 49 do
-            RunCase(Observer, 'c' + Format(Which), Which);
+            RunCase('c' + Format(Which), Which);
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Verify();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure PC_C_NoMatchReadsAndDelete_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure PC_C_NoMatchReadsAndDelete_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure PC_C_NoMatchReadsAndDelete_More3()
+    begin
+        Observer.More();
     end;
 
     // D: a tenant set with one row each for Page, Report, Codeunit, Query and XMLport objects of this file, System object 1350
@@ -316,7 +380,6 @@ codeunit 97349 "LT PC Probes"
     [Test]
     procedure PC_D_ExpandedPermissionOfTenantObjectGrants()
     var
-        Observer: Codeunit "Probe Observer";
         ExpandedPermission: Record "Expanded Permission";
         NullGuid: Guid;
         Rows: Text;
@@ -333,7 +396,7 @@ codeunit 97349 "LT PC Probes"
             until ExpandedPermission.Next() = 0;
         Observer.Observe('rows', Rows);
         Observer.Observe('count', Format(ExpandedPermission.Count()));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     local procedure SeedTenantSet()
@@ -372,17 +435,17 @@ codeunit 97349 "LT PC Probes"
         TenantPermission.Insert();
     end;
 
-    local procedure RunCase(var Observer: Codeunit "Probe Observer"; Name: Text; Which: Integer)
+    local procedure RunCase(Name: Text; Which: Integer)
     begin
         Mock.ClearAssignments();
         Seed();
-        Assign(Observer, Name, Which);
+        Assign(Name, Which);
         asserterror Op(Which);
         Observer.ObserveError(Name);
         Mock.ClearAssignments();
     end;
 
-    local procedure Assign(var Observer: Codeunit "Probe Observer"; Name: Text; Which: Integer)
+    local procedure Assign(Name: Text; Which: Integer)
     begin
         case Which of
             1, 2:

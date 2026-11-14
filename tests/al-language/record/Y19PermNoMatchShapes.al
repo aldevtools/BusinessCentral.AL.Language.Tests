@@ -131,6 +131,7 @@ codeunit 97310 "LT NM No Match Shapes"
     TestPermissions = Disabled;
 
     var
+        Observer: Codeunit "Probe Observer";
         Helper: Codeunit "LT Y19 Perm Helper";
         Mock: Codeunit "Permissions Mock";
 
@@ -138,29 +139,104 @@ codeunit 97310 "LT NM No Match Shapes"
     procedure NM_OneRow_SetR()
     begin
         RunAll('1_r', 'LT NM R', 1);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NM_OneRow_SetR_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure NM_OneRow_SetR_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure NM_OneRow_SetR_More3()
+    begin
+        Observer.More();
     end;
 
     [Test]
     procedure NM_TwoRows_SetR()
     begin
         RunAll('2_r', 'LT NM R', 2);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NM_TwoRows_SetR_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure NM_TwoRows_SetR_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure NM_TwoRows_SetR_More3()
+    begin
+        Observer.More();
     end;
 
     [Test]
     procedure NM_OneRow_SetRI()
     begin
         RunAll('1_ri', 'LT NM RI', 1);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NM_OneRow_SetRI_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure NM_OneRow_SetRI_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure NM_OneRow_SetRI_More3()
+    begin
+        Observer.More();
     end;
 
     [Test]
     procedure NM_TwoRows_SetRI()
     begin
         RunAll('2_ri', 'LT NM RI', 2);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NM_TwoRows_SetRI_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure NM_TwoRows_SetRI_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure NM_TwoRows_SetRI_More3()
+    begin
+        Observer.More();
     end;
 
     local procedure RunAll(Tag: Text; SetName: Code[20]; Rows: Integer)
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
         Ops: List of [Integer];
         Which: Integer;
@@ -173,13 +249,11 @@ codeunit 97310 "LT NM No Match Shapes"
         // 21 app codeunit: as 3; 22 app codeunit: as 1.
         Ops.AddRange(1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 21, 22);
         foreach Which in Ops do
-            RunCase(Observer, 'op' + Format(Which) + '_' + Tag, SetName, Rows, Which);
+            RunCase('op' + Format(Which) + '_' + Tag, SetName, Rows, Which);
         Helper.RestoreMock(Mock, WasStarted);
-        // Expect lines: from the local observation run.
-        Observer.Verify();
     end;
 
-    local procedure RunCase(var Observer: Codeunit "Probe Observer"; Name: Text; SetName: Code[20]; Rows: Integer; Which: Integer)
+    local procedure RunCase(Name: Text; SetName: Code[20]; Rows: Integer; Which: Integer)
     begin
         Mock.ClearAssignments();
         Seed(Rows);
