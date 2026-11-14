@@ -49,9 +49,7 @@ codeunit 62361 "RPT Order Rule Tests"
         Log.Take();
         Observer.Observe('saved', Format(Dataset.Save(Report::"RPT XA Order Rule", '', Xml)));
         Observer.Observe('columns', Columns(Xml));
-        Observer.Expect('saved', 'Yes');
-        Observer.Expect('columns', 'HeadNo,ECol,BCol,DCol,FCol,');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -65,9 +63,7 @@ codeunit 62361 "RPT Order Rule Tests"
         Log.Take();
         Observer.Observe('saved', Format(Dataset.Save(Report::"RPT XA Order Rule", '', Xml)));
         Observer.Observe('log', Log.Take());
-        Observer.Expect('saved', 'Yes');
-        Observer.Expect('log', 'A:pre;E:pre;B:pre;D:pre;F:pre;');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     // The Label names of a dataset in document order, each followed by a comma.
@@ -91,7 +87,7 @@ codeunit 62361 "RPT Order Rule Tests"
         exit(Result);
     end;
 
-    local procedure ObserveLabels(ReportId: Integer; Expected: Text)
+    local procedure ObserveLabels(ReportId: Integer)
     var
         Observer: Codeunit "Probe Observer";
         Dataset: Codeunit "W3 Dataset";
@@ -99,27 +95,25 @@ codeunit 62361 "RPT Order Rule Tests"
     begin
         Observer.Observe('saved', Format(Dataset.Save(ReportId, '', Xml)));
         Observer.Observe('labels', LabelNames(Xml));
-        Observer.Expect('saved', 'Yes');
-        Observer.Expect('labels', Expected);
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
     procedure OrderRule_Labels()
     begin
-        ObserveLabels(Report::"RPT XA Order Rule", 'BaseLabel,ELabel,BLabel,DLabel,FLabel,');
+        ObserveLabels(Report::"RPT XA Order Rule");
     end;
 
     [Test]
     procedure TwoApps_ReportOne_Labels()
     begin
-        ObserveLabels(Report::"RPT XA Indep One", 'BaseLabel,BLabel,DLabel,');
+        ObserveLabels(Report::"RPT XA Indep One");
     end;
 
     [Test]
     procedure TwoApps_ReportTwo_Labels()
     begin
-        ObserveLabels(Report::"RPT XA Indep Two", 'BaseLabel,BLabel,DLabel,');
+        ObserveLabels(Report::"RPT XA Indep Two");
     end;
 
     [Test]
@@ -142,9 +136,7 @@ codeunit 62361 "RPT Order Rule Tests"
                 Parameters := Parameters.Substring(1, At - 1);
         end;
         Observer.Observe('options', Parameters);
-        Observer.Expect('log', 'A:rp open;E:rp open;B:rp open;D:rp open;F:rp open;A:rp close;E:rp close;B:rp close;D:rp close;F:rp close;');
-        Observer.Expect('options', '<Field name="BaseOptionValue">false</Field><Field name="EFieldValue">false</Field><Field name="BFieldValue">false</Field><Field name="DFieldValue">false</Field><Field name="FFieldValue">false</Field>');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [RequestPageHandler]
