@@ -18,8 +18,10 @@ codeunit 98482 "LT G1S Main Install"
     var
         Item: Record "LT G1S Item";
         LoginItem: Record "LT G1S Login Item";
+        CoItem: Record "LT G1S Company Item";
         Log: Codeunit "LT G1S XA Log";
     begin
+        Log.Log('Main company other session', Log.SeenCompany(CoItem));
         Log.Log('Main other session', Log.Seen(Item));
         Log.Log('Main login item', Log.SeenLogin(LoginItem));
     end;
@@ -99,5 +101,19 @@ codeunit 98480 "LT G1S Install Session Tests"
         Observer.Expect('Main login item', 'count=1;g1=Qty: >=3');
         Observer.Expect('test session login item', 'count=1;g1=Qty: >=3');
         Observer.Verify();
+    end;
+
+    [Test]
+    procedure G1S_PerCompany_AllSessions()
+    var
+        Observer: Codeunit "Probe Observer";
+        CoItem: Record "LT G1S Company Item";
+        Log: Codeunit "LT G1S XA Log";
+    begin
+        Observer.Observe('company A same session', Entry('A company same session'));
+        Observer.Observe('company B other session', Entry('B company other session'));
+        Observer.Observe('company Main other session', Entry('Main company other session'));
+        Observer.Observe('company test session', Log.SeenCompany(CoItem));
+        Observer.Finish();
     end;
 }
