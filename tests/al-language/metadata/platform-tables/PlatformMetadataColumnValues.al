@@ -404,4 +404,318 @@ codeunit 71394 "LT PM Values Tests"
         Observer.Expect('own field kept', 'Yes');
         Observer.Verify();
     end;
+
+    // Follow-up of al-runner PR 8054: the package ids of a field a table extension of a Microsoft app adds. Base Application's
+    // extensions 7049 and 3999 add field 7049 to System Application's table 2610 "Feature Data Update Status" and field 3999 to its
+    // table 3902 "Retention Policy Setup Line"; Base Application's extension 910 adds field 32 to its own table 6502 "Item Tracking
+    // Code"; this app's extension 71396 (below) adds field 71400 to table 2610. Measured with the same shapes on a local BC 29.1
+    // (OnPrem w1); BC 27 and 28 by CI.
+    [Test]
+    procedure FieldTable_AppPackageIds_OfMicrosoftAppExtensionField_AreTheExtensionApps()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveExtFieldPackageIds(Observer, 'base on sysapp 2610', 2610, 7049, 7049);
+        ObserveExtFieldPackageIds(Observer, 'base on sysapp 3902', 3902, 3999, 3999);
+        ObserveExtFieldPackageIds(Observer, 'base on own 6502', 6502, 32, 910);
+        ObserveExtFieldPackageIds(Observer, 'own on sysapp 2610', 2610, 71400, 71396);
+        Observer.Expect('base on sysapp 2610 get', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:No');
+        Observer.Expect('base on sysapp 2610 findfirst', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:No');
+        Observer.Expect('base on sysapp 2610 scan', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:No');
+        Observer.Expect('base on sysapp 3902 get', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:No');
+        Observer.Expect('base on sysapp 3902 findfirst', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:No');
+        Observer.Expect('base on sysapp 3902 scan', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:No');
+        Observer.Expect('base on own 6502 get', 'pkgnull=No rtnull=No pkg=table:Yes pkg=ext:Yes rt=ext:Yes pkg=own:No');
+        Observer.Expect('base on own 6502 findfirst', 'pkgnull=No rtnull=No pkg=table:Yes pkg=ext:Yes rt=ext:Yes pkg=own:No');
+        Observer.Expect('base on own 6502 scan', 'pkgnull=No rtnull=No pkg=table:Yes pkg=ext:Yes rt=ext:Yes pkg=own:No');
+        Observer.Expect('own on sysapp 2610 get', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('own on sysapp 2610 findfirst', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('own on sysapp 2610 scan', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Verify();
+    end;
+
+    // Follow-up of al-runner PR 8054: an obsolete (Pending and Removed), FlowField, FlowFilter and disabled field that this app's
+    // extension 71395 (below) adds to cross-app fixture A's table 61101 carries the extension's ids too. Measured as above.
+    [Test]
+    procedure FieldTable_AppPackageIds_OfObsoleteFlowAndDisabledExtensionFields_AreTheExtensionApps()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveExtFieldPackageIds(Observer, 'pending', Database::"LT BW XA Base", 71395, 71395);
+        ObserveExtFieldPackageIds(Observer, 'removed', Database::"LT BW XA Base", 71396, 71395);
+        ObserveExtFieldPackageIds(Observer, 'flowfield', Database::"LT BW XA Base", 71397, 71395);
+        ObserveExtFieldPackageIds(Observer, 'flowfilter', Database::"LT BW XA Base", 71398, 71395);
+        ObserveExtFieldPackageIds(Observer, 'disabled', Database::"LT BW XA Base", 71399, 71395);
+        Observer.Expect('pending get', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('pending findfirst', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('pending scan', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('removed get', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('removed findfirst', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('removed scan', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('flowfield get', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('flowfield findfirst', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('flowfield scan', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('flowfilter get', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('flowfilter findfirst', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('flowfilter scan', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('disabled get', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('disabled findfirst', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Expect('disabled scan', 'pkgnull=No rtnull=No pkg=table:No pkg=ext:Yes rt=ext:Yes pkg=own:Yes');
+        Observer.Verify();
+    end;
+
+    // Follow-up of al-runner PR 8054: a Field read filtered on "App Package ID" <> the table's package id keeps the obsolete,
+    // FlowField, FlowFilter and disabled extension fields of table 61101, and on System Application's table 2610 keeps the fields
+    // of Base Application's extension and of this app's and drops the table's own field 1. Measured as above.
+    [Test]
+    procedure FieldTable_FilterAppPackageIdNotTheTables_KeepsObsoleteFlowDisabledAndMicrosoftExtensionFields()
+    var
+        Observer: Codeunit "Probe Observer";
+        F: Record Field;
+        TableObj: Record AllObj;
+    begin
+        TableObj.Get(TableObj."Object Type"::Table, Database::"LT BW XA Base");
+        F.SetRange(TableNo, Database::"LT BW XA Base");
+        F.SetFilter("App Package ID", '<>%1', TableObj."App Package ID");
+        Observer.Observe('pending kept', KeptByFilter(F, 71395));
+        Observer.Observe('removed kept', KeptByFilter(F, 71396));
+        Observer.Observe('flowfield kept', KeptByFilter(F, 71397));
+        Observer.Observe('flowfilter kept', KeptByFilter(F, 71398));
+        Observer.Observe('disabled kept', KeptByFilter(F, 71399));
+        Clear(F);
+        TableObj.Get(TableObj."Object Type"::Table, 2610);
+        F.SetRange(TableNo, 2610);
+        F.SetFilter("App Package ID", '<>%1', TableObj."App Package ID");
+        Observer.Observe('2610 field 1 kept', KeptByFilter(F, 1));
+        Observer.Observe('2610 base field kept', KeptByFilter(F, 7049));
+        Observer.Observe('2610 own field kept', KeptByFilter(F, 71400));
+        Observer.Expect('pending kept', 'Yes');
+        Observer.Expect('removed kept', 'Yes');
+        Observer.Expect('flowfield kept', 'Yes');
+        Observer.Expect('flowfilter kept', 'Yes');
+        Observer.Expect('disabled kept', 'Yes');
+        Observer.Expect('2610 field 1 kept', 'No');
+        Observer.Expect('2610 base field kept', 'Yes');
+        Observer.Expect('2610 own field kept', 'Yes');
+        Observer.Verify();
+    end;
+
+    local procedure OwnFieldGetPackageIds(TableId: Integer): Text
+    var
+        F: Record Field;
+        TableObj: Record AllObj;
+    begin
+        TableObj.Get(TableObj."Object Type"::Table, TableId);
+        F.Get(TableId, 1);
+        exit(
+            'pkgnull=' + Format(IsNullGuid(F."App Package ID")) +
+            ' rtnull=' + Format(IsNullGuid(F."App Runtime Package ID")) +
+            ' pkg=allobj:' + Format(F."App Package ID" = TableObj."App Package ID"));
+    end;
+
+    // Follow-up of al-runner PR 8054: a Get of field 1 of a System Application table (2610, 3902) gives null package ids, as for a
+    // table of this app (FieldTable_AppPackageIds_AfterGetFindAndNext above) and of cross-app fixture A; for a Base Application table
+    // (6502) it gives the table's AllObj ids, as for Item above. Measured as above.
+    [Test]
+    procedure FieldTable_AppPackageIds_GetOfOwnField_NullForSystemApplicationAndFixtureTables()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('sysapp 2610', OwnFieldGetPackageIds(2610));
+        Observer.Observe('sysapp 3902', OwnFieldGetPackageIds(3902));
+        Observer.Observe('base 6502', OwnFieldGetPackageIds(6502));
+        Observer.Observe('xapp a 61101', OwnFieldGetPackageIds(Database::"LT BW XA Base"));
+        Observer.Expect('sysapp 2610', 'pkgnull=Yes rtnull=Yes pkg=allobj:No');
+        Observer.Expect('sysapp 3902', 'pkgnull=Yes rtnull=Yes pkg=allobj:No');
+        Observer.Expect('base 6502', 'pkgnull=No rtnull=No pkg=allobj:Yes');
+        Observer.Expect('xapp a 61101', 'pkgnull=Yes rtnull=Yes pkg=allobj:No');
+        Observer.Verify();
+    end;
+
+    local procedure PackageIdsAgainstTable(var F: Record Field; TableObj: Record AllObj): Text
+    begin
+        exit(
+            'pkgnull=' + Format(IsNullGuid(F."App Package ID")) +
+            ' rtnull=' + Format(IsNullGuid(F."App Runtime Package ID")) +
+            ' pkg=allobj:' + Format(F."App Package ID" = TableObj."App Package ID") +
+            ' rt=allobj:' + Format(F."App Runtime Package ID" = TableObj."App Runtime Package ID"));
+    end;
+
+    local procedure ObserveKeyLookups(var Observer: Codeunit "Probe Observer"; Prefix: Text; TableId: Integer)
+    var
+        F: Record Field;
+        TableObj: Record AllObj;
+    begin
+        TableObj.Get(TableObj."Object Type"::Table, TableId);
+        F.Get(TableId, 1);
+        Observer.Observe(Prefix + ' get', PackageIdsAgainstTable(F, TableObj));
+        Clear(F);
+        F.SetRange(TableNo, TableId);
+        F.SetRange("No.", 1);
+        F.FindFirst();
+        Observer.Observe(Prefix + ' key findfirst', PackageIdsAgainstTable(F, TableObj));
+        Clear(F);
+        F.SetRange(TableNo, TableId);
+        F.SetRange("No.", 1);
+        F.FindSet();
+        Observer.Observe(Prefix + ' key findset', PackageIdsAgainstTable(F, TableObj));
+        Clear(F);
+        F.SetRange(TableNo, TableId);
+        F.SetRange("No.", 1, 2);
+        F.FindFirst();
+        Observer.Observe(Prefix + ' range findfirst', PackageIdsAgainstTable(F, TableObj));
+    end;
+
+    // Follow-up of al-runner PR 8054: a Get of a table's own field, and a FindFirst or FindSet whose filters set TableNo and No. to
+    // one value each, give null package ids unless a table extension of the table's own app extends the table; then they give the
+    // table's AllObj ids. A filter on a range of No. gives the table's ids either way. Tables: this app's table 71390 (no extension)
+    // and 71397 (extended by this app's extension 71398, below), Base Application's Contact (no extension of Base Application) and
+    // Customer (Base Application's extension 6450), and cross-app fixture A's table 61101 (extended only by other apps).
+    // Measured with the same shapes on a local BC 29.1 (OnPrem w1); BC 27 and 28 by CI.
+    [Test]
+    procedure FieldTable_AppPackageIds_KeyLookupOfOwnField_NullUnlessSameAppTableExtension()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveKeyLookups(Observer, 'own 71390', Database::"LT PM Values Table");
+        ObserveKeyLookups(Observer, 'own 71397', Database::"LT PM Values Self Ext Table");
+        ObserveKeyLookups(Observer, 'base contact', Database::Contact);
+        ObserveKeyLookups(Observer, 'base customer', Database::Customer);
+        ObserveKeyLookups(Observer, 'xapp a 61101', Database::"LT BW XA Base");
+        Observer.Expect('own 71390 get', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('own 71390 key findfirst', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('own 71390 key findset', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('own 71390 range findfirst', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('own 71397 get', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('own 71397 key findfirst', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('own 71397 key findset', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('own 71397 range findfirst', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('base contact get', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('base contact key findfirst', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('base contact key findset', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('base contact range findfirst', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('base customer get', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('base customer key findfirst', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('base customer key findset', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('base customer range findfirst', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('xapp a 61101 get', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('xapp a 61101 key findfirst', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('xapp a 61101 key findset', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('xapp a 61101 range findfirst', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Verify();
+    end;
+
+    local procedure SystemFieldGet(TableId: Integer; FieldNo: Integer): Text
+    var
+        F: Record Field;
+        TableObj: Record AllObj;
+    begin
+        TableObj.Get(TableObj."Object Type"::Table, TableId);
+        F.Get(TableId, FieldNo);
+        exit(PackageIdsAgainstTable(F, TableObj));
+    end;
+
+    // Follow-up of al-runner PR 8054: a Get of a system field (SystemId 2000000000 to SystemModifiedBy 2000000004) gives the table's
+    // AllObj ids, also on a table no extension of its own app extends, where a Get of a declared field gives null ids; on Customer,
+    // which Base Application's extension 6450 extends, a Get of field 2 gives the table's ids too. Measured as above.
+    [Test]
+    procedure FieldTable_AppPackageIds_GetOfSystemField_IsTheTablesWithoutSameAppTableExtension()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('own 71390 field 2', SystemFieldGet(Database::"LT PM Values Table", 2));
+        Observer.Observe('own 71390 systemid', SystemFieldGet(Database::"LT PM Values Table", 2000000000));
+        Observer.Observe('own 71390 systemcreatedat', SystemFieldGet(Database::"LT PM Values Table", 2000000001));
+        Observer.Observe('own 71390 systemcreatedby', SystemFieldGet(Database::"LT PM Values Table", 2000000002));
+        Observer.Observe('own 71390 systemmodifiedby', SystemFieldGet(Database::"LT PM Values Table", 2000000004));
+        Observer.Observe('base contact field 2', SystemFieldGet(Database::Contact, 2));
+        Observer.Observe('base contact systemid', SystemFieldGet(Database::Contact, 2000000000));
+        Observer.Observe('base contact systemmodifiedat', SystemFieldGet(Database::Contact, 2000000003));
+        Observer.Observe('base contact systemcreatedby', SystemFieldGet(Database::Contact, 2000000002));
+        Observer.Observe('base customer field 2', SystemFieldGet(Database::Customer, 2));
+        Observer.Expect('own 71390 field 2', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('own 71390 systemid', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('own 71390 systemcreatedat', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('own 71390 systemcreatedby', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('own 71390 systemmodifiedby', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('base contact field 2', 'pkgnull=Yes rtnull=Yes pkg=allobj:No rt=allobj:No');
+        Observer.Expect('base contact systemid', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('base contact systemmodifiedat', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('base contact systemcreatedby', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Expect('base customer field 2', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
+        Observer.Verify();
+    end;
+}
+
+// local object: the tests read the Field rows of the fields these extensions declare (their obsolete state, class and Enabled are
+// what the tests vary), and the package ids of an extension field of this app on a System Application table.
+tableextension 71395 "LT PM Values XA Base Ext" extends "LT BW XA Base"
+{
+    fields
+    {
+        field(71395; "LT PM Pending"; Integer)
+        {
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Probe of the Field row of an obsolete extension field.';
+            ObsoleteTag = '1.0';
+        }
+        field(71396; "LT PM Removed"; Integer)
+        {
+            DataClassification = SystemMetadata;
+            ObsoleteState = Removed;
+            ObsoleteReason = 'Probe of the Field row of an obsolete extension field.';
+            ObsoleteTag = '1.0';
+        }
+        field(71397; "LT PM FlowField"; Integer)
+        {
+            FieldClass = FlowField;
+            CalcFormula = count("LT BW XA Base");
+        }
+        field(71398; "LT PM FlowFilter"; Integer)
+        {
+            FieldClass = FlowFilter;
+        }
+        field(71399; "LT PM Disabled"; Integer)
+        {
+            DataClassification = SystemMetadata;
+            Enabled = false;
+        }
+    }
+}
+
+tableextension 71396 "LT PM Values Feature Ext" extends "Feature Data Update Status"
+{
+    fields
+    {
+        field(71400; "LT PM Feature Note"; Text[30])
+        {
+            DataClassification = SystemMetadata;
+        }
+    }
+}
+
+// local object: the test varies whether an extension of the table's own app extends the table, which is the table's own definition.
+table 71397 "LT PM Values Self Ext Table"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; Description; Text[30]) { }
+    }
+
+    keys { key(PK; "No.") { Clustered = true; } }
+}
+
+tableextension 71398 "LT PM Values Self Ext" extends "LT PM Values Self Ext Table"
+{
+    fields
+    {
+        field(71401; "LT PM Self Note"; Text[30])
+        {
+            DataClassification = SystemMetadata;
+        }
+    }
 }
