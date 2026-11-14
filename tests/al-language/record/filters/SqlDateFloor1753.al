@@ -114,6 +114,86 @@ table 70036 "LT SD Floor DateTime Key"
     }
 }
 
+table 74985 "LT SD Floor Trig Log"
+{
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Dt; Date) { }
+        field(3; Dtm; DateTime) { }
+        field(4; Hits; Integer) { }
+    }
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+
+    trigger OnModify()
+    var
+        Log: Codeunit "LT SD Floor Log";
+    begin
+        Log.Add('trigModify:' + Format(Dt, 0, 9));
+    end;
+}
+
+table 74986 "LT SD Floor Trig Raise"
+{
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Dt; Date) { }
+        field(3; Dtm; DateTime) { }
+        field(4; Hits; Integer) { }
+    }
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+
+    trigger OnModify()
+    begin
+        Error('trigger raised');
+    end;
+}
+
+table 74987 "LT SD Floor Trig SetDt"
+{
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Dt; Date) { }
+        field(3; Dtm; DateTime) { }
+        field(4; Hits; Integer) { }
+    }
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+
+    trigger OnModify()
+    begin
+        if Dt = 20240103D then
+            Dt := 17530615D
+        else
+            Dt := 20240104D;
+    end;
+}
+
+table 74988 "LT SD Floor Sub Read"
+{
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Dt; Date) { }
+        field(3; Dtm; DateTime) { }
+        field(4; Hits; Integer) { }
+    }
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
 codeunit 70037 "LT SD Floor Log"
 {
     SingleInstance = true;
@@ -169,6 +249,14 @@ codeunit 70038 "LT SD Floor Subscribers"
         Log: Codeunit "LT SD Floor Log";
     begin
         Log.Add('afterModify');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"LT SD Floor Sub Read", 'OnAfterInsertEvent', '', false, false)]
+    local procedure OnAfterInsertSubRead(var Rec: Record "LT SD Floor Sub Read"; RunTrigger: Boolean)
+    var
+        Log: Codeunit "LT SD Floor Log";
+    begin
+        Log.Add('afterInsertRead:' + Format(Rec.Dt, 0, 9));
     end;
 }
 
@@ -604,6 +692,8 @@ codeunit 70039 "LT SD Floor 1753"
 
     local procedure DName(D: Date): Text
     begin
+        if D = 0D then
+            exit('0D');
         if D <> NormalDate(D) then
             exit('C' + Format(NormalDate(D), 0, 9));
         exit(Format(D, 0, 9));
@@ -654,6 +744,202 @@ codeunit 70039 "LT SD Floor 1753"
             exit;
         end;
         CellD(Observer, Kind, Op, D);
+    end;
+
+    local procedure SeedX()
+    var
+        TL: Record "LT SD Floor Trig Log";
+        TR: Record "LT SD Floor Trig Raise";
+        TS: Record "LT SD Floor Trig SetDt";
+        S2: Record "LT SD Floor Sub Read";
+        Blob: Record "LT SD Floor Blob";
+        DateKey: Record "LT SD Floor Date Key";
+        DtKey: Record "LT SD Floor DateTime Key";
+        Log: Codeunit "LT SD Floor Log";
+        Old: DateTime;
+    begin
+        TL.DeleteAll();
+        TR.DeleteAll();
+        TS.DeleteAll();
+        S2.DeleteAll();
+        Blob.DeleteAll();
+        DateKey.DeleteAll();
+        DtKey.DeleteAll();
+        Old := CreateDateTime(20240102D, 120000T);
+        TL.Id := 1;
+        TL.Dt := 20240102D;
+        TL.Dtm := Old;
+        TL.Insert();
+        TR.Id := 1;
+        TR.Dt := 20240102D;
+        TR.Dtm := Old;
+        TR.Insert();
+        TS.Id := 1;
+        TS.Dt := 20240102D;
+        TS.Dtm := Old;
+        TS.Insert();
+        S2.Id := 1;
+        S2.Dt := 20240102D;
+        S2.Dtm := Old;
+        S2.Insert();
+        Blob.Id := 1;
+        Blob.Dt := 20240102D;
+        Blob.Dtm := Old;
+        Blob.Insert();
+        DateKey.Dk := 20240102D;
+        DateKey.Insert();
+        DtKey.Dtk := Old;
+        DtKey.Insert();
+        Log.Clear();
+        Commit();
+    end;
+
+    local procedure XAttempt(Which: Text; var Stage: Text)
+    var
+        TL: Record "LT SD Floor Trig Log";
+        TR: Record "LT SD Floor Trig Raise";
+        TS: Record "LT SD Floor Trig SetDt";
+        S2: Record "LT SD Floor Sub Read";
+        Blob: Record "LT SD Floor Blob";
+        DateKey: Record "LT SD Floor Date Key";
+        DtKey: Record "LT SD Floor DateTime Key";
+        Out: OutStream;
+    begin
+        Stage := 'start';
+        case Which of
+            'tl-1753', 'tl-1754', 'tl-1753-notrig':
+                begin
+                    TL.Get(1);
+                    if Which = 'tl-1754' then
+                        TL.Dt := 17540101D
+                    else
+                        TL.Dt := 17530615D;
+                    Stage := 'modify';
+                    TL.Modify(Which <> 'tl-1753-notrig');
+                end;
+            'tr-1753', 'tr-1754':
+                begin
+                    TR.Get(1);
+                    if Which = 'tr-1754' then
+                        TR.Dt := 17540101D
+                    else
+                        TR.Dt := 17530615D;
+                    Stage := 'modify';
+                    TR.Modify(true);
+                end;
+            'ts-sets-1753', 'ts-1753-set-ok':
+                begin
+                    TS.Get(1);
+                    if Which = 'ts-sets-1753' then
+                        TS.Dt := 20240103D
+                    else
+                        TS.Dt := 17530615D;
+                    Stage := 'modify';
+                    TS.Modify(true);
+                end;
+            's2-insert-1753', 's2-insert-1754':
+                begin
+                    S2.Id := 900;
+                    if Which = 's2-insert-1754' then
+                        S2.Dt := 17540101D
+                    else
+                        S2.Dt := 17530615D;
+                    Stage := 'insert';
+                    S2.Insert(true);
+                end;
+            'blob-content-1753', 'blob-content-1754':
+                begin
+                    Blob.Id := 900;
+                    if Which = 'blob-content-1754' then
+                        Blob.Dt := 17540101D
+                    else
+                        Blob.Dt := 17530615D;
+                    Blob.Payload.CreateOutStream(Out);
+                    Out.WriteText('payload');
+                    Stage := 'insert';
+                    Blob.Insert();
+                end;
+            'dk-absent-1753', 'dk-absent-1754':
+                begin
+                    DateKey.Dk := 20250505D;
+                    Stage := 'rename';
+                    if Which = 'dk-absent-1754' then
+                        DateKey.Rename(17540101D)
+                    else
+                        DateKey.Rename(17530615D);
+                end;
+            'dtk-absent-1753', 'dtk-absent-1754':
+                begin
+                    DtKey.Dtk := CreateDateTime(20250505D, 120000T);
+                    Stage := 'rename';
+                    if Which = 'dtk-absent-1754' then
+                        DtKey.Rename(CreateDateTime(17540101D, 030000T))
+                    else
+                        DtKey.Rename(CreateDateTime(17530615D, 030000T));
+                end;
+        end;
+        Stage := 'next';
+        XState(Which);
+        Stage := 'after';
+        Error('no error');
+    end;
+
+    local procedure XState(Which: Text): Text
+    var
+        TL: Record "LT SD Floor Trig Log";
+        TR: Record "LT SD Floor Trig Raise";
+        TS: Record "LT SD Floor Trig SetDt";
+        S2: Record "LT SD Floor Sub Read";
+        Blob: Record "LT SD Floor Blob";
+        DateKey: Record "LT SD Floor Date Key";
+        DtKey: Record "LT SD Floor DateTime Key";
+    begin
+        case CopyStr(Which, 1, 2) of
+            'tl':
+                begin
+                    TL.Get(1);
+                    exit(Format(TL.Dt, 0, 9));
+                end;
+            'tr':
+                begin
+                    TR.Get(1);
+                    exit(Format(TR.Dt, 0, 9));
+                end;
+            'ts':
+                begin
+                    TS.Get(1);
+                    exit(Format(TS.Dt, 0, 9));
+                end;
+            's2':
+                begin
+                    exit(Format(S2.Count()) + '|' + Format(S2.Get(900)));
+                end;
+            'bl':
+                begin
+                    exit(Format(Blob.Count()) + '|' + Format(Blob.Get(900)));
+                end;
+            'dk':
+                begin
+                    exit(Format(DateKey.Count()) + '|' + Format(DateKey.FindFirst()) + '|' + Format(DateKey.Dk, 0, 9));
+                end;
+            'dt':
+                begin
+                    exit(Format(DtKey.Count()) + '|' + Format(DtKey.FindFirst()) + '|' + Format(DtKey.Dtk, 0, 9));
+                end;
+        end;
+    end;
+
+    local procedure XCell(var Observer: Codeunit "Probe Observer"; Which: Text)
+    var
+        Log: Codeunit "LT SD Floor Log";
+        Stage: Text;
+    begin
+        SeedX();
+        asserterror XAttempt(Which, Stage);
+        Observer.Observe(Which + '|stage', Stage);
+        Observer.ObserveError(Which);
+        Observer.Observe(Which + '|log', Log.Dump());
+        Observer.Observe(Which + '|state', XState(Which));
     end;
 
     local procedure CellT(var Observer: Codeunit "Probe Observer"; Kind: Text; Op: Text; D: Date; T: Time)
@@ -1052,6 +1338,98 @@ codeunit 70039 "LT SD Floor 1753"
         Observer: Codeunit "Probe Observer";
     begin
         CellC(Observer, 'row', 'modify', 17540101D);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Extra_TriggerLog()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        XCell(Observer, 'tl-1753');
+        XCell(Observer, 'tl-1754');
+        XCell(Observer, 'tl-1753-notrig');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Extra_TriggerRaise()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        XCell(Observer, 'tr-1753');
+        XCell(Observer, 'tr-1754');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Extra_TriggerSetsDate()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        XCell(Observer, 'ts-sets-1753');
+        XCell(Observer, 'ts-1753-set-ok');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Extra_SubscriberReadsDate()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        XCell(Observer, 's2-insert-1753');
+        XCell(Observer, 's2-insert-1754');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Extra_BlobContent()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        XCell(Observer, 'blob-content-1753');
+        XCell(Observer, 'blob-content-1754');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Extra_BlobInsertTrue()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellD(Observer, 'blob', 'insert-true', 17530615D);
+        CellT(Observer, 'blob', 'insert-true', 17530615D, 030000T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Extra_RenameAbsentKey_1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        XCell(Observer, 'dk-absent-1753');
+        XCell(Observer, 'dk-absent-1754');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Extra_RenameAbsentKey_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        XCell(Observer, 'dtk-absent-1753');
+        XCell(Observer, 'dtk-absent-1754');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Extra_ModifyAllNoRow()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CellD(Observer, 'trig', 'modifyall-empty', 17530615D);
+        CellT(Observer, 'row', 'modifyall-empty', 17530615D, 030000T);
+        CellD(Observer, 'trig', 'modifyall-empty', 17540101D);
         Observer.Finish();
     end;
 
