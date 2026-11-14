@@ -1,0 +1,415 @@
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/application/system-application/codeunit/system.text.base64-convert
+// Scope: in-scope
+// Fixtures used: codeunit 69160 "Probe Observer", System Application codeunits "Base64 Convert" and "Temp Blob"
+// Probe: written against local BC tiers; every literal asserted below is what those tiers produced. Other BC versions are checked by the corpus CI matrix.
+// BC versions: 27.5, 28.5, 29.0
+// Lead: corpus issue 1390 (PVBase64.al searches for '\n' and '\r', which AL reads as two plain characters each, so those checks
+// measure nothing), al-runner issues 7996 (ToBase64(InStream, true) line breaks) and 7997 item 2 (FromBase64 with UTF16 and 1252).
+//
+// What BC did: see the facts block below (filled in from the observation).
+
+codeunit 75240 "B64 LineBreaks InStream"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    local procedure Codes(Value: Text): Text
+    var
+        i: Integer;
+        C: Char;
+        V: Integer;
+        Result: Text;
+    begin
+        for i := 1 to StrLen(Value) do begin
+            C := Value[i];
+            V := C;
+            Result += Format(V) + ' ';
+        end;
+        exit(Result);
+    end;
+
+    local procedure Digits(Count: Integer): Text
+    var
+        Result: Text;
+    begin
+        while StrLen(Result) < Count do
+            Result += '0123456789';
+        exit(CopyStr(Result, 1, Count));
+    end;
+
+    local procedure FillStream(var TempBlob: Codeunit "Temp Blob"; Count: Integer; var InS: InStream)
+    var
+        OutS: OutStream;
+    begin
+        Clear(TempBlob);
+        TempBlob.CreateOutStream(OutS);
+        OutS.WriteText(Digits(Count));
+        TempBlob.CreateInStream(InS);
+    end;
+
+    local procedure LastCodes(Value: Text; Count: Integer): Text
+    begin
+        if StrLen(Value) < Count then
+            exit(Codes(Value));
+        exit(Codes(CopyStr(Value, StrLen(Value) - Count + 1, Count)));
+    end;
+
+    local procedure CrLf(): Text
+    var
+        Cr: Char;
+        Lf: Char;
+    begin
+        Cr := 13;
+        Lf := 10;
+        exit(Format(Cr) + Format(Lf));
+    end;
+
+    local procedure ObserveInStream(var Observer: Codeunit "Probe Observer"; Count: Integer)
+    var
+        Base64: Codeunit "Base64 Convert";
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+        WithBreaks: Text;
+        WithoutBreaks: Text;
+    begin
+        FillStream(TempBlob, Count, InS);
+        WithBreaks := Base64.ToBase64(InS, true);
+        FillStream(TempBlob, Count, InS);
+        WithoutBreaks := Base64.ToBase64(InS, false);
+        Observer.Observe('true_length', Format(StrLen(WithBreaks)));
+        Observer.Observe('true_codes_76_to_78', Codes(CopyStr(WithBreaks, 76, 3)));
+        Observer.Observe('true_codes_153_to_157', Codes(CopyStr(WithBreaks, 153, 5)));
+        Observer.Observe('true_last_two_codes', LastCodes(WithBreaks, 2));
+        Observer.Observe('false_length', Format(StrLen(WithoutBreaks)));
+        Observer.Observe('false_codes_76_to_78', Codes(CopyStr(WithoutBreaks, 76, 3)));
+        Observer.Observe('false_last_two_codes', LastCodes(WithoutBreaks, 2));
+        Observer.Observe('true_without_crlf_equals_false', Format(DelChr(WithBreaks, '=', CrLf()) = WithoutBreaks));
+    end;
+
+    [Test]
+    procedure ToBase64_InStream57Bytes_OneFullLine()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveInStream(Observer, 57);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ToBase64_InStream100Bytes_TwoLines()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveInStream(Observer, 100);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ToBase64_InStream114Bytes_TwoFullLines()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveInStream(Observer, 114);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ToBase64_InStream120Bytes_ThreeLines()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveInStream(Observer, 120);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ToBase64_InStream_EmptyPartReadAndSecondCall()
+    var
+        Base64: Codeunit "Base64 Convert";
+        TempBlob: Codeunit "Temp Blob";
+        Observer: Codeunit "Probe Observer";
+        OutS: OutStream;
+        InS: InStream;
+        Skipped: Text;
+        R: Text;
+    begin
+        // an empty stream
+        Clear(TempBlob);
+        TempBlob.CreateOutStream(OutS);
+        TempBlob.CreateInStream(InS);
+        Observer.Observe('empty_true', '[' + Base64.ToBase64(InS, true) + ']');
+        // 100 bytes of which 10 were read before the call
+        FillStream(TempBlob, 100, InS);
+        InS.ReadText(Skipped, 10);
+        R := Base64.ToBase64(InS, true);
+        Observer.Observe('after_10_read_true_length', Format(StrLen(R)));
+        Observer.Observe('after_10_read_true_codes_76_to_78', Codes(CopyStr(R, 76, 3)));
+        Observer.Observe('after_10_read_true_first_8', CopyStr(R, 1, 8));
+        // the same stream converted twice
+        FillStream(TempBlob, 100, InS);
+        R := Base64.ToBase64(InS, true);
+        Observer.Observe('first_call_true_length', Format(StrLen(R)));
+        R := Base64.ToBase64(InS, true);
+        Observer.Observe('second_call_true', '[' + R + ']');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ToBase64_Text_LineBreaksControl()
+    var
+        Base64: Codeunit "Base64 Convert";
+        TempBlob: Codeunit "Temp Blob";
+        Observer: Codeunit "Probe Observer";
+        InS: InStream;
+        T57: Text;
+        T100: Text;
+        T120: Text;
+    begin
+        T57 := Base64.ToBase64(Digits(57), true);
+        T100 := Base64.ToBase64(Digits(100), true);
+        T120 := Base64.ToBase64(Digits(120), true);
+        Observer.Observe('text57_true_length', Format(StrLen(T57)));
+        Observer.Observe('text57_true_last_two_codes', LastCodes(T57, 2));
+        Observer.Observe('text100_true_length', Format(StrLen(T100)));
+        Observer.Observe('text100_true_codes_76_to_78', Codes(CopyStr(T100, 76, 3)));
+        Observer.Observe('text120_true_length', Format(StrLen(T120)));
+        Observer.Observe('text120_true_codes_153_to_157', Codes(CopyStr(T120, 153, 5)));
+        FillStream(TempBlob, 100, InS);
+        Observer.Observe('text100_equals_instream100', Format(T100 = Base64.ToBase64(InS, true)));
+        FillStream(TempBlob, 120, InS);
+        Observer.Observe('text120_equals_instream120', Format(T120 = Base64.ToBase64(InS, true)));
+        Observer.Finish();
+    end;
+
+#if BC28PLUS
+    local procedure ByteCodes(var TempBlob: Codeunit "Temp Blob"; FromPos: Integer; Count: Integer): Text
+    var
+        InS: InStream;
+        B: Byte;
+        Pos: Integer;
+        Result: Text;
+    begin
+        TempBlob.CreateInStream(InS);
+        while not InS.EOS() do begin
+            InS.Read(B);
+            Pos += 1;
+            if (Pos >= FromPos) and (Pos < FromPos + Count) then
+                Result += Format(B) + ' ';
+        end;
+        exit(Result);
+    end;
+
+    local procedure ObserveOutStream(var Observer: Codeunit "Probe Observer"; Count: Integer)
+    var
+        Base64: Codeunit "Base64 Convert";
+        Source: Codeunit "Temp Blob";
+        Target: Codeunit "Temp Blob";
+        InS: InStream;
+        OutS: OutStream;
+        Len: Integer;
+    begin
+        FillStream(Source, Count, InS);
+        Target.CreateOutStream(OutS);
+        Base64.ToBase64(InS, true, OutS);
+        Len := Target.Length();
+        Observer.Observe('true_written_length', Format(Len));
+        Observer.Observe('true_codes_76_to_78', ByteCodes(Target, 76, 3));
+        Observer.Observe('true_codes_153_to_157', ByteCodes(Target, 153, 5));
+        Observer.Observe('true_last_two_codes', ByteCodes(Target, Len - 1, 2));
+        FillStream(Source, Count, InS);
+        Clear(Target);
+        Target.CreateOutStream(OutS);
+        Base64.ToBase64(InS, false, OutS);
+        Len := Target.Length();
+        Observer.Observe('false_written_length', Format(Len));
+        Observer.Observe('false_codes_76_to_78', ByteCodes(Target, 76, 3));
+        Observer.Observe('false_last_two_codes', ByteCodes(Target, Len - 1, 2));
+    end;
+
+    [Test]
+    procedure ToBase64_OutStream57Bytes_OneFullLine()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveOutStream(Observer, 57);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ToBase64_OutStream100Bytes_TwoLines()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveOutStream(Observer, 100);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ToBase64_OutStream120Bytes_ThreeLines()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveOutStream(Observer, 120);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ToBase64_OutStream_ReadBackEmptyAndAppend()
+    var
+        Base64: Codeunit "Base64 Convert";
+        Source: Codeunit "Temp Blob";
+        Target: Codeunit "Temp Blob";
+        Observer: Codeunit "Probe Observer";
+        InS: InStream;
+        OutS: OutStream;
+        ResultInS: InStream;
+        ReadBack: Text;
+        ReadLength: Integer;
+    begin
+        // read back with one ReadText, as Microsoft's InStreamToBase64WithLineBreaksToOutStreamTest does
+        FillStream(Source, 120, InS);
+        Target.CreateOutStream(OutS);
+        Target.CreateInStream(ResultInS);
+        Base64.ToBase64(InS, true, OutS);
+        ReadLength := ResultInS.ReadText(ReadBack);
+        Observer.Observe('readtext_return', Format(ReadLength));
+        Observer.Observe('readtext_strlen', Format(StrLen(ReadBack)));
+        Observer.Observe('readtext_codes_76_to_78', Codes(CopyStr(ReadBack, 76, 3)));
+        Observer.Observe('readtext_equals_text_form', Format(ReadBack = Base64.ToBase64(Digits(120), true)));
+        // an empty source writes nothing
+        Clear(Source);
+        Source.CreateOutStream(OutS);
+        Source.CreateInStream(InS);
+        Clear(Target);
+        Target.CreateOutStream(OutS);
+        Base64.ToBase64(InS, true, OutS);
+        Observer.Observe('empty_written_length', Format(Target.Length()));
+        // a target that already holds two bytes
+        FillStream(Source, 100, InS);
+        Clear(Target);
+        Target.CreateOutStream(OutS);
+        OutS.WriteText('AB');
+        Base64.ToBase64(InS, true, OutS);
+        Observer.Observe('after_ab_written_length', Format(Target.Length()));
+        Observer.Observe('after_ab_codes_1_to_4', ByteCodes(Target, 1, 4));
+        Observer.Observe('after_ab_codes_78_to_80', ByteCodes(Target, 78, 3));
+        Observer.Finish();
+    end;
+#endif
+}
+
+codeunit 75241 "B64 FromBase64 Encodings"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Utf16AB: Label 'QQBCAA==', Locked = true;
+        WindowsUmlauts: Label '5Pb8', Locked = true;
+        Utf8Umlauts: Label 'w6TDtsO8', Locked = true;
+
+    local procedure Codes(Value: Text): Text
+    var
+        i: Integer;
+        C: Char;
+        V: Integer;
+        Result: Text;
+    begin
+        for i := 1 to StrLen(Value) do begin
+            C := Value[i];
+            V := C;
+            Result += Format(V) + ' ';
+        end;
+        exit(Result);
+    end;
+
+    [TryFunction]
+    local procedure TryFrom(Value: Text; Encoding: TextEncoding; CodePage: Integer; var Result: Text)
+    var
+        Base64: Codeunit "Base64 Convert";
+    begin
+        Result := Base64.FromBase64(Value, Encoding, CodePage);
+    end;
+
+    local procedure From(Value: Text; Encoding: TextEncoding; CodePage: Integer): Text
+    var
+        Result: Text;
+    begin
+        ClearLastError();
+        if TryFrom(Value, Encoding, CodePage, Result) then
+            exit('ok ' + Codes(Result));
+        exit('error ' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    [Test]
+    procedure FromBase64_UTF16_CodePages()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('utf16_1252', From(Utf16AB, TextEncoding::UTF16, 1252));
+        Observer.Observe('utf16_0', From(Utf16AB, TextEncoding::UTF16, 0));
+        Observer.Observe('utf16_65001', From(Utf16AB, TextEncoding::UTF16, 65001));
+        Observer.Observe('utf16_1200', From(Utf16AB, TextEncoding::UTF16, 1200));
+        Observer.Observe('utf16_1201', From(Utf16AB, TextEncoding::UTF16, 1201));
+        Observer.Observe('utf16_28591', From(Utf16AB, TextEncoding::UTF16, 28591));
+        Observer.Observe('utf16_99999', From(Utf16AB, TextEncoding::UTF16, 99999));
+        Observer.Observe('utf16_umlauts_1252', From('5AD2APwA', TextEncoding::UTF16, 1252));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure FromBase64_UTF8_CodePages()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('utf8_0_utf8bytes', From(Utf8Umlauts, TextEncoding::UTF8, 0));
+        Observer.Observe('utf8_1252_utf8bytes', From(Utf8Umlauts, TextEncoding::UTF8, 1252));
+        Observer.Observe('utf8_1252_windowsbytes', From(WindowsUmlauts, TextEncoding::UTF8, 1252));
+        Observer.Observe('utf8_28591_windowsbytes', From(WindowsUmlauts, TextEncoding::UTF8, 28591));
+        Observer.Observe('utf8_1200_utf16bytes', From(Utf16AB, TextEncoding::UTF8, 1200));
+        Observer.Observe('utf8_99999', From(Utf8Umlauts, TextEncoding::UTF8, 99999));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure FromBase64_Windows_CodePages()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('windows_0_windowsbytes', From(WindowsUmlauts, TextEncoding::Windows, 0));
+        Observer.Observe('windows_0_utf8bytes', From(Utf8Umlauts, TextEncoding::Windows, 0));
+        Observer.Observe('windows_1252_windowsbytes', From(WindowsUmlauts, TextEncoding::Windows, 1252));
+        Observer.Observe('windows_65001_utf8bytes', From(Utf8Umlauts, TextEncoding::Windows, 65001));
+        Observer.Observe('windows_1200_utf16bytes', From(Utf16AB, TextEncoding::Windows, 1200));
+        Observer.Observe('windows_850_windowsbytes', From(WindowsUmlauts, TextEncoding::Windows, 850));
+        Observer.Observe('windows_99999', From(WindowsUmlauts, TextEncoding::Windows, 99999));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure FromBase64_MSDos_CodePages()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('msdos_0_windowsbytes', From(WindowsUmlauts, TextEncoding::MSDos, 0));
+        Observer.Observe('msdos_0_utf8bytes', From(Utf8Umlauts, TextEncoding::MSDos, 0));
+        Observer.Observe('msdos_1252_windowsbytes', From(WindowsUmlauts, TextEncoding::MSDos, 1252));
+        Observer.Observe('msdos_850_windowsbytes', From(WindowsUmlauts, TextEncoding::MSDos, 850));
+        Observer.Observe('msdos_437_windowsbytes', From(WindowsUmlauts, TextEncoding::MSDos, 437));
+        Observer.Observe('msdos_65001_utf8bytes', From(Utf8Umlauts, TextEncoding::MSDos, 65001));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure FromBase64_EncodingOnly_Defaults()
+    var
+        Base64: Codeunit "Base64 Convert";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('utf16_only', Codes(Base64.FromBase64(Utf16AB, TextEncoding::UTF16)));
+        Observer.Observe('windows_only', Codes(Base64.FromBase64(WindowsUmlauts, TextEncoding::Windows)));
+        Observer.Observe('msdos_only', Codes(Base64.FromBase64(WindowsUmlauts, TextEncoding::MSDos)));
+        Observer.Observe('utf8_only_windowsbytes', Codes(Base64.FromBase64(WindowsUmlauts, TextEncoding::UTF8)));
+        Observer.Finish();
+    end;
+}
