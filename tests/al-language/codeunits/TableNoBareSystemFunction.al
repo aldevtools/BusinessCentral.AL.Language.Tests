@@ -21,7 +21,7 @@
 // because Microsoft's test runner session died running it on BC 28.5 ("hub connection closed" twice); an Install codeunit with TableNo
 // and OnInstallAppPerCompany reading bare UserId compiles without AL0604, but the corpus gate rejects install codeunits; a TestRunner
 // trigger (OnBeforeTestRun) reading bare UserId compiles without AL0604. Compile facts checked with AL 17 and 18.
-// Values measured on BC 28.5 (local Windows container); 27.5 and 29.0: see the corpus CI run of the pull request.
+// Values measured on BC 27.5, 28.5 and 29.0 (local Windows containers), identical on all three.
 // local object: the table must have fields with the names of system functions and every codeunit below is a shape of the question
 // (TableNo subject, event publisher, codeunit without TableNo for the system values, TableNo codeunit with a global Rec).
 
