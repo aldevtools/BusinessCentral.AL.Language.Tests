@@ -1302,7 +1302,10 @@ codeunit 70039 "LT SD Floor 1753"
         Observer: Codeunit "Probe Observer";
     begin
         CellC(Observer, 'row', 'modify', 17530615D);
-        Observer.Finish();
+        Observer.Expect('modify C1753-06-15|stage', 'modify');
+        Observer.Expect('modify C1753-06-15|text', 'Cannot write the value C06/15/1753 to the field Dt in the table LT SD Floor Row because the value is either too long or the content is invalid.');
+        Observer.Expect('modify C1753-06-15|code', 'NDBCS:BadCSideData');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1311,7 +1314,10 @@ codeunit 70039 "LT SD Floor 1753"
         Observer: Codeunit "Probe Observer";
     begin
         CellC(Observer, 'row', 'modify', 17531231D);
-        Observer.Finish();
+        Observer.Expect('modify C1753-12-31|stage', 'modify');
+        Observer.Expect('modify C1753-12-31|text', 'Cannot write the value C12/31/1753 to the field Dt in the table LT SD Floor Row because the value is either too long or the content is invalid.');
+        Observer.Expect('modify C1753-12-31|code', 'NDBCS:BadCSideData');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1320,7 +1326,10 @@ codeunit 70039 "LT SD Floor 1753"
         Observer: Codeunit "Probe Observer";
     begin
         CellD(Observer, 'row', 'modify', 17521231D);
-        Observer.Finish();
+        Observer.Expect('modify 1752-12-31|stage', 'modify');
+        Observer.Expect('modify 1752-12-31|text', 'Cannot write the value 12/31/1752 to the field Dt in the table LT SD Floor Row because the value is either too long or the content is invalid.');
+        Observer.Expect('modify 1752-12-31|code', 'NDBCS:BadCSideData');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1338,7 +1347,10 @@ codeunit 70039 "LT SD Floor 1753"
         Observer: Codeunit "Probe Observer";
     begin
         CellC(Observer, 'row', 'modify', 17540101D);
-        Observer.Finish();
+        Observer.Expect('modify C1754-01-01|stage', 'after');
+        Observer.Expect('modify C1754-01-01|text', 'stored:1754-01-01|2024-01-02T12:00:00Z|0');
+        Observer.Expect('modify C1754-01-01|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
