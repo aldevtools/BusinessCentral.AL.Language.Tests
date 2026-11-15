@@ -6,7 +6,7 @@
 // Probe (outside issue al-runner 8061): next to UsAppLogo.al, the Logo (Media) of the Published Application row of an app whose
 //   logo is a JPEG: has it a value, which Media columns (Mime Type, Height, Width), are the bytes the file unchanged; and does the
 //   login's registration of fixture E's assisted setup (Guided Experience GetExtensionLogo + Icon.ImportStream) run without an error.
-// Observe form: the first CI run records what BC did; the assertions follow.
+// Values: what BC 27.5, 28.5 and 29.0 produced; the Media Mime Type is image/png on 27.5 and 28.5 and image/jpeg on 29.0 (#if BC29PLUS).
 // BC versions: 27, 28, 29
 codeunit 98012 "LT US App Logo Jpeg"
 {
@@ -103,11 +103,26 @@ codeunit 98012 "LT US App Logo Jpeg"
         Observer.Observe('content has value', Format(Media.Content.HasValue()));
         Observer.Observe('length', Format(LenOf(Media)));
         Observer.Observe('equals file', Format(ReadSha256(Media) = JpegSha256));
-        Observer.Finish();
+        Observer.Expect('row found', 'Yes');
+        Observer.Expect('logo has value', 'Yes');
+        Observer.Expect('media id null', 'No');
+        Observer.Expect('same media id on second FindFirst', 'Yes');
+        Observer.Expect('media row found', 'Yes');
+#if BC29PLUS
+        Observer.Expect('columns', 'ID=<guid null=No>;Description=;Content=<blob>;Mime Type=image/jpeg;Height=8;Width=8;Company Name=;Expiration Date=<datetime empty=Yes>;Prohibit Cache=No;File Name=;Security Token=;Creating User=;');
+#else
+        Observer.Expect('columns', 'ID=<guid null=No>;Description=;Content=<blob>;Mime Type=image/png;Height=8;Width=8;Company Name=;Expiration Date=<datetime empty=Yes>;Prohibit Cache=No;File Name=;Security Token=;Creating User=;');
+#endif
+        Observer.Expect('content has value', 'Yes');
+        Observer.Expect('length', '307');
+        Observer.Expect('equals file', 'Yes');
+        Observer.Verify();
     end;
 
     // The login raised OnRegisterAssistedSetup before this test; fixture E's subscriber registered its wizard with E's logo as the
-    // icon. The test reads the Tenant Media rows the registration adds for E, as UsLogo_GuidedExperienceIcon_CallerD does for D.
+    // icon (Guided Experience GetExtensionLogo + Icon.ImportStream) without an error. The Tenant Media row counts it adds belong to
+    // Microsoft's tables and differ per version (image/jpeg 42, 45, 46 and image/png 130, 138, 138 on 27.5, 28.5, 29.0), so
+    // they are not asserted.
     [Test]
     procedure UsLogo_Jpeg_GuidedExperienceIcon_AppE()
     var
@@ -116,8 +131,6 @@ codeunit 98012 "LT US App Logo Jpeg"
     begin
         TenantMedia.SetRange("Mime Type", 'image/jpeg');
         Observer.Observe('jpeg tenant media rows', Format(TenantMedia.Count()));
-        TenantMedia.SetRange("Mime Type", 'image/png');
-        Observer.Observe('png tenant media rows', Format(TenantMedia.Count()));
-        Observer.Finish();
+        Observer.Discard();
     end;
 }

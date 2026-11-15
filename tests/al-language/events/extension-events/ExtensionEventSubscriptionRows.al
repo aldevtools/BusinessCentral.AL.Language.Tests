@@ -8,7 +8,7 @@
 // subscriber codeunit alone counts. Cells: integration event of a table extension (same app), of a page extension (same app),
 // of a report extension (same app); a business event and an IncludeSender integration event of a table extension; a manual
 // subscriber; SkipOnMissingLicense/SkipOnMissingPermission true; a table extension of a System Application table (another app).
-// Observe form: the first CI run records what BC did; the assertions follow.
+// Values: what BC 27.5, 28.5 and 29.0 produced (identical on all three).
 // BC versions: 27, 28, 29
 
 table 61500 "LT EER Rec"
@@ -182,7 +182,9 @@ codeunit 61509 "LT EER Rows"
     begin
         Observer.Observe('row', Dump(Codeunit::"LT EER Table Sub", 'OnTableExtIntegrationSub'));
         Observer.Observe('count', Format(CountOf(Codeunit::"LT EER Table Sub")));
-        Observer.Finish();
+        Observer.Expect('row', 'Event Type=Integration;Publisher Object Type=Table;Publisher Object ID=61500;Published Function=OnTableExtIntegration;Active=Yes;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;Originating App Name=AL Language Coverage Tests');
+        Observer.Expect('count', '4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -191,7 +193,8 @@ codeunit 61509 "LT EER Rows"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('row', Dump(Codeunit::"LT EER Table Sub", 'OnTableExtSenderSub'));
-        Observer.Finish();
+        Observer.Expect('row', 'Event Type=Integration;Publisher Object Type=Table;Publisher Object ID=61500;Published Function=OnTableExtSender;Active=Yes;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;Originating App Name=AL Language Coverage Tests');
+        Observer.Verify();
     end;
 
     [Test]
@@ -200,7 +203,8 @@ codeunit 61509 "LT EER Rows"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('row', Dump(Codeunit::"LT EER Table Sub", 'OnTableExtBusinessSub'));
-        Observer.Finish();
+        Observer.Expect('row', 'Event Type=Business;Publisher Object Type=Table;Publisher Object ID=61500;Published Function=OnTableExtBusiness;Active=Yes;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;Originating App Name=AL Language Coverage Tests');
+        Observer.Verify();
     end;
 
     [Test]
@@ -209,7 +213,8 @@ codeunit 61509 "LT EER Rows"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('row', Dump(Codeunit::"LT EER Table Sub", 'OnTableExtSkipFlagsSub'));
-        Observer.Finish();
+        Observer.Expect('row', 'Event Type=Integration;Publisher Object Type=Table;Publisher Object ID=61500;Published Function=OnTableExtIntegration;Active=Yes;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;Originating App Name=AL Language Coverage Tests');
+        Observer.Verify();
     end;
 
     [Test]
@@ -219,7 +224,9 @@ codeunit 61509 "LT EER Rows"
     begin
         Observer.Observe('row', Dump(Codeunit::"LT EER Page Sub", 'OnPageExtIntegrationSub'));
         Observer.Observe('count', Format(CountOf(Codeunit::"LT EER Page Sub")));
-        Observer.Finish();
+        Observer.Expect('row', 'Event Type=Integration;Publisher Object Type=Page;Publisher Object ID=61501;Published Function=OnPageExtIntegration;Active=Yes;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;Originating App Name=AL Language Coverage Tests');
+        Observer.Expect('count', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -229,7 +236,9 @@ codeunit 61509 "LT EER Rows"
     begin
         Observer.Observe('row', Dump(Codeunit::"LT EER Report Sub", 'OnReportExtIntegrationSub'));
         Observer.Observe('count', Format(CountOf(Codeunit::"LT EER Report Sub")));
-        Observer.Finish();
+        Observer.Expect('row', 'Event Type=Integration;Publisher Object Type=Report;Publisher Object ID=61502;Published Function=OnReportExtIntegration;Active=Yes;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;Originating App Name=AL Language Coverage Tests');
+        Observer.Expect('count', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -238,7 +247,8 @@ codeunit 61509 "LT EER Rows"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('row', Dump(Codeunit::"LT EER Manual Sub", 'OnTableExtIntegrationManual'));
-        Observer.Finish();
+        Observer.Expect('row', 'Event Type=Integration;Publisher Object Type=Table;Publisher Object ID=61500;Published Function=OnTableExtIntegration;Active=Yes;Error Information=;Subscriber Instance=Manual;Active Manual Instances=0;Originating App Name=AL Language Coverage Tests');
+        Observer.Verify();
     end;
 
     [Test]
@@ -248,7 +258,9 @@ codeunit 61509 "LT EER Rows"
     begin
         Observer.Observe('row', Dump(Codeunit::"LT EER Other App Sub", 'OnOtherAppTableExtIntegrationSub'));
         Observer.Observe('count', Format(CountOf(Codeunit::"LT EER Other App Sub")));
-        Observer.Finish();
+        Observer.Expect('row', 'Event Type=Integration;Publisher Object Type=Table;Publisher Object ID=3901;Published Function=OnOtherAppTableExtIntegration;Active=Yes;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;Originating App Name=AL Language Coverage Tests');
+        Observer.Expect('count', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -263,6 +275,8 @@ codeunit 61509 "LT EER Rows"
         E.SetRange(Active);
         E.SetFilter("Error Information", '<>%1', '');
         Observer.Observe('withError', Format(E.Count()));
-        Observer.Finish();
+        Observer.Expect('inactive', '0');
+        Observer.Expect('withError', '0');
+        Observer.Verify();
     end;
 }
