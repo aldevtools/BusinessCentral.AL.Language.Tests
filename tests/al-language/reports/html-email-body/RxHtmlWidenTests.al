@@ -14,7 +14,21 @@
 //   built by a script from RxHashBound.docx: the namespace of the report is rewritten in the bindings and the two custom XML parts.
 // Facts observed per cell: completed, returned, error, char count and SHA-256 of the saved Html and of Email Message.GetBody after
 //   Create(.., Body, true), whether the hash equals the hash of the plain layout, the title, the font-family values, the visible text.
-// Observed on the CI builds BC 27.5, 28.5 and 29.0: the converter writes its version into the Html, so hashes differ per Aspose version.
+// Observed on the CI builds BC 27.5.46862.58057, 28.5.54151.58194 and 29.0.54011.55816: the 27 and 28 values are equal (Aspose.Words 26.10.0),
+//   29 differs (Aspose.Words 26.8.0, one char less); the converter writes its version into the Html, so every hash is per Aspose version.
+// What BC did (same on all three builds unless noted):
+//   - Title: the Html <title> is the report Caption when the report has one ('Rx Cap'), else the report name ('RX Wd Plain'). The caption
+//     changes the char count by -5 against the plain layout ('Rx Cap' is 6 chars, 'RX Wd Plain' 11).
+//   - Styles part: the paragraph style with font Arial gives font-family 'Times New Roman' and Arial
+//     (the first is not named in the layout); +89 chars against the plain layout, whose only font-family is Calibri.
+//   - Theme part: the theme fonts resolve to the font scheme: font-family Verdana (minor) and Georgia (major); +21 chars.
+//   - Numbering part: each bulleted paragraph gets the marker U+2022 in its own span, then a span of nine &#xa0; (no tab character is
+//     written), then the paragraph text; +926 chars.
+//   - Header part: the header text is written into the Html in a div with the header-primary style before the body paragraphs and is part of
+//     the visible text; +153 chars.
+//   - BlankZero = true on a table field: the column over that field and a column over a plain Integer field both render 0 (no blank).
+//   - Date 1 Feb 2026 is rendered 2/1/2026, Decimal 1,234.50, as in the bound layout probe. The control RX Wd Plain does not hash equal to
+//     RX Hash Bound: the report name is part of the Html (title).
 // local object: the reports' own layouts and their dataset tables are what the tests check.
 // BC versions: 27 - 29
 
@@ -376,19 +390,6 @@ codeunit 80045 "RX Html Widen Tests"
         Observer.Observe('chars - plain chars', Format(StrLen(Body) - StrLen(PlainBody)));
     end;
 
-    // One chunk of the Html, to read what the converter wrote (observation only).
-    local procedure Chunk(var Observer: Codeunit "Probe Observer"; ReportId: Integer; Part: Integer)
-    var
-        Body: Text;
-        Completed: Boolean;
-        Ok: Boolean;
-        Eos: Boolean;
-    begin
-        Html.Rows(2);
-        Html.Render(ReportId, Body, Completed, Ok, Eos);
-        Observer.Observe('html ' + Format(Part), CopyStr(Body, (Part - 1) * 1500 + 1, 1500));
-    end;
-
     [Test]
     procedure Plain_TwoRows()
     var
@@ -403,7 +404,36 @@ codeunit 80045 "RX Html Widen Tests"
         Cell(Observer, Report::"RX Wd Plain", Body);
         Html.Render(Report::"RX Hash Bound", BoundBody, Completed, Ok, Eos);
         Observer.Observe('sha256 = RX Hash Bound sha256', Format(Sha(Body) = Sha(BoundBody)));
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '2212');
+#else
+        Observer.Expect('chars', '2213');
+#endif
+#if BC29PLUS
+        Observer.Expect('sha256', '8A4B210CD0B62D1F5F750AAFDAB38D34805E626F89A669A3ACE1C9518EF878F8');
+#else
+        Observer.Expect('sha256', '8002BE6A1B9CBC1ABD0FD156D5F1DFA4C07067AED1274BBEB9B86548FAE48CD5');
+#endif
+#if BC29PLUS
+        Observer.Expect('getbody chars', '2211');
+#else
+        Observer.Expect('getbody chars', '2212');
+#endif
+#if BC29PLUS
+        Observer.Expect('getbody sha256', '8061CCB32FB329DBBB81E49BE8B18BAAFCAD23A77E0DFB80EC640A15F813D458');
+#else
+        Observer.Expect('getbody sha256', 'ACC582AC89DFD5FE3CC47254646C56D482D7757D9CBD0BA7470FFAB4E6154190');
+#endif
+        Observer.Expect('title', 'RX Wd Plain');
+        Observer.Expect('font-family', '[Calibri]');
+        Observer.Expect('count RXROW', '2');
+        Observer.Expect('text', '|RX Wd Plain|STATIC rgba(1,2,3,1) END|RUN rgba(4,5,6,0.5) END|1|RXROW1|1,234.50|2/1/2026|2|RXROW2|2,469.00|2/1/2026|END|');
+        Observer.Expect('sha256 = RX Hash Bound sha256', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -415,7 +445,37 @@ codeunit 80045 "RX Html Widen Tests"
         Html.Rows(2);
         Cell(Observer, Report::"RX Wd Styles", Body);
         VersusPlain(Observer, Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '2301');
+#else
+        Observer.Expect('chars', '2302');
+#endif
+#if BC29PLUS
+        Observer.Expect('sha256', 'ACAA5D7FF49398AA4F8D7C832525FC6C01B762F24C6AC4DB18399A3C15D0ABC0');
+#else
+        Observer.Expect('sha256', '35AF7EE8E5190BA249BB28AF6F871D164234FE7068C0D32C966C5F7E848111AF');
+#endif
+#if BC29PLUS
+        Observer.Expect('getbody chars', '2300');
+#else
+        Observer.Expect('getbody chars', '2301');
+#endif
+#if BC29PLUS
+        Observer.Expect('getbody sha256', '943B6CF7D51EBCF8A6B2B09ED43772F316317B0A29A445BB6062C1636FA67244');
+#else
+        Observer.Expect('getbody sha256', '26A610D3600E78766A7BC6076495051EA9FC41712CC953028CA7D79446E240F8');
+#endif
+        Observer.Expect('title', 'RX Wd Styles');
+        Observer.Expect('font-family', '[''Times New Roman''][Arial]');
+        Observer.Expect('count RXROW', '2');
+        Observer.Expect('text', '|RX Wd Styles|STATIC rgba(1,2,3,1) END|RUN rgba(4,5,6,0.5) END|1|RXROW1|1,234.50|2/1/2026|2|RXROW2|2,469.00|2/1/2026|END|');
+        Observer.Expect('sha256 = plain sha256', 'No');
+        Observer.Expect('chars - plain chars', '89');
+        Observer.Verify();
     end;
 
     [Test]
@@ -427,7 +487,37 @@ codeunit 80045 "RX Html Widen Tests"
         Html.Rows(2);
         Cell(Observer, Report::"RX Wd Theme", Body);
         VersusPlain(Observer, Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '2233');
+#else
+        Observer.Expect('chars', '2234');
+#endif
+#if BC29PLUS
+        Observer.Expect('sha256', '3E7C625E9C244CE6EEEAA90467F7BF5C3E2BC9D8D101379C0966D803E671674F');
+#else
+        Observer.Expect('sha256', 'DC21E402F29C48FE2155A4276451F041AD12CCFDAA3353904C45331F99828C2C');
+#endif
+#if BC29PLUS
+        Observer.Expect('getbody chars', '2232');
+#else
+        Observer.Expect('getbody chars', '2233');
+#endif
+#if BC29PLUS
+        Observer.Expect('getbody sha256', 'E6AE200CA82EF0AA39519044BED006417F9B8963A4E15C56928E0D6BA2EB1F38');
+#else
+        Observer.Expect('getbody sha256', '7015F7B0305B2B8EBE6E67F2927CA30FE34EB9A1889C39106FBE9DA7D796356D');
+#endif
+        Observer.Expect('title', 'RX Wd Theme');
+        Observer.Expect('font-family', '[Verdana][Georgia]');
+        Observer.Expect('count RXROW', '2');
+        Observer.Expect('text', '|RX Wd Theme|STATIC rgba(1,2,3,1) END|RUN rgba(4,5,6,0.5) END|1|RXROW1|1,234.50|2/1/2026|2|RXROW2|2,469.00|2/1/2026|END|');
+        Observer.Expect('sha256 = plain sha256', 'No');
+        Observer.Expect('chars - plain chars', '21');
+        Observer.Verify();
     end;
 
     [Test]
@@ -440,7 +530,38 @@ codeunit 80045 "RX Html Widen Tests"
         Cell(Observer, Report::"RX Wd Numbering", Body);
         VersusPlain(Observer, Body);
         Observer.Observe('around LISTITEM', Around(Body, 'LISTITEM one', 120, 20));
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '3138');
+#else
+        Observer.Expect('chars', '3139');
+#endif
+#if BC29PLUS
+        Observer.Expect('sha256', 'D32A79D5C5EBC5F307E76797A8FD075A3B4088DC877ADCB7838A50A239DBE9AC');
+#else
+        Observer.Expect('sha256', 'FADA0FBA887D1240B58BCBBA2A1AC35697509312288067E6866ADF182837FAAF');
+#endif
+#if BC29PLUS
+        Observer.Expect('getbody chars', '3137');
+#else
+        Observer.Expect('getbody chars', '3138');
+#endif
+#if BC29PLUS
+        Observer.Expect('getbody sha256', '4020087487815CDC1D5AFE86FCD0CDCAD28339E565A8B4164C7B23BF192536C8');
+#else
+        Observer.Expect('getbody sha256', '8718716F416C25C851BE567CAC7ACB169D06E2441A4E92C05EB7E4D5BB26EA28');
+#endif
+        Observer.Expect('title', 'RX Wd Numbering');
+        Observer.Expect('font-family', '[Calibri]');
+        Observer.Expect('count RXROW', '2');
+        Observer.Expect('text', '|RX Wd Numbering|STATIC rgba(1,2,3,1) END|RUN rgba(4,5,6,0.5) END|•|&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; |LISTITEM one|•|&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; |LISTITEM two|1|RXROW1|1,234.50|2/1/2026|2|RXROW2|2,469.00|2/1/2026|END|');
+        Observer.Expect('sha256 = plain sha256', 'No');
+        Observer.Expect('chars - plain chars', '926');
+        Observer.Expect('around LISTITEM', 'n''; display:inline-block; -aw-import:spaces">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span></span><span>LISTITEM one</span></p><p style=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -454,7 +575,39 @@ codeunit 80045 "RX Html Widen Tests"
         VersusPlain(Observer, Body);
         Observer.Observe('has HEADERTEXT', Format(StrPos(Body, 'HEADERTEXT') > 0));
         Observer.Observe('around HEADERTEXT', Around(Body, 'HEADERTEXT', 80, 40));
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '2365');
+#else
+        Observer.Expect('chars', '2366');
+#endif
+#if BC29PLUS
+        Observer.Expect('sha256', 'B04B60B950E56F71CF6937AB70D997821A137CC5E33DA79F8E1FD669D8B5C44C');
+#else
+        Observer.Expect('sha256', 'E71F717FB2C0CB44864D78B0A82A383F5F48175ACE2FC18992D068B624595F19');
+#endif
+#if BC29PLUS
+        Observer.Expect('getbody chars', '2364');
+#else
+        Observer.Expect('getbody chars', '2365');
+#endif
+#if BC29PLUS
+        Observer.Expect('getbody sha256', 'DAEC1ED6F092AC2E203B7E7363770CE39F6D4E1F506913B0485185708050521A');
+#else
+        Observer.Expect('getbody sha256', 'E590A5ED4AB0346ACB69B85D3059180B59A21DF955E15F489F2F7EE35150A506');
+#endif
+        Observer.Expect('title', 'RX Wd Header');
+        Observer.Expect('font-family', '[Calibri]');
+        Observer.Expect('count RXROW', '2');
+        Observer.Expect('text', '|RX Wd Header|HEADERTEXT page header|STATIC rgba(1,2,3,1) END|RUN rgba(4,5,6,0.5) END|1|RXROW1|1,234.50|2/1/2026|2|RXROW2|2,469.00|2/1/2026|END|');
+        Observer.Expect('sha256 = plain sha256', 'No');
+        Observer.Expect('chars - plain chars', '153');
+        Observer.Expect('has HEADERTEXT', 'Yes');
+        Observer.Expect('around HEADERTEXT', ':header-primary; clear:both"><p style="margin-top:0pt; margin-bottom:8pt"><span>HEADERTEXT page header</span></p></div><p style="m');
+        Observer.Verify();
     end;
 
     [Test]
@@ -468,7 +621,43 @@ codeunit 80045 "RX Html Widen Tests"
         VersusPlain(Observer, Body);
         Observer.Observe('has Rx Cap', Format(StrPos(Body, 'Rx Cap') > 0));
         Observer.Observe('around Rx Cap', Around(Body, 'Rx Cap', 60, 40));
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '2207');
+#else
+        Observer.Expect('chars', '2208');
+#endif
+#if BC29PLUS
+        Observer.Expect('sha256', '08B2E7097961B225D2786B647D64E51A685231F37C1554A7CAAF518BD6C19CEC');
+#else
+        Observer.Expect('sha256', 'CA6C288729B989F0D8AFBF5EE149C2DAE7EEAE8AD794BAF43167442E30BFE5D9');
+#endif
+#if BC29PLUS
+        Observer.Expect('getbody chars', '2206');
+#else
+        Observer.Expect('getbody chars', '2207');
+#endif
+#if BC29PLUS
+        Observer.Expect('getbody sha256', '74B8ABAAA3225FCCE90B453C6A5837C5DCD93753C1490044ED165A21E5B9ED26');
+#else
+        Observer.Expect('getbody sha256', '496361EFE5C78ACC9A5E70F9A5CD1EB9DA846D94C32B9806EA2A381CE6D105C1');
+#endif
+        Observer.Expect('title', 'Rx Cap');
+        Observer.Expect('font-family', '[Calibri]');
+        Observer.Expect('count RXROW', '2');
+        Observer.Expect('text', '|Rx Cap|STATIC rgba(1,2,3,1) END|RUN rgba(4,5,6,0.5) END|1|RXROW1|1,234.50|2/1/2026|2|RXROW2|2,469.00|2/1/2026|END|');
+        Observer.Expect('sha256 = plain sha256', 'No');
+        Observer.Expect('chars - plain chars', '-5');
+        Observer.Expect('has Rx Cap', 'Yes');
+#if BC29PLUS
+        Observer.Expect('around Rx Cap', '"generator" content="Aspose.Words for .NET 26.8.0" /><title>Rx Cap</title></head><body style="line-height:');
+#else
+        Observer.Expect('around Rx Cap', 'generator" content="Aspose.Words for .NET 26.10.0" /><title>Rx Cap</title></head><body style="line-height:');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -486,96 +675,44 @@ codeunit 80045 "RX Html Widen Tests"
         Zero.QtyField := 0;
         Zero.Insert();
         Cell(Observer, Report::"RX Wd Blank Zero", Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '1245');
+#else
+        Observer.Expect('chars', '1246');
+#endif
+#if BC29PLUS
+        Observer.Expect('sha256', '5381DCC20B4EE01570FF4847535F35AA8A961CF051371C9D092731DE74AB1BCE');
+#else
+        Observer.Expect('sha256', 'DAC06CA9A1C8C016A63C3D93439EC6D240830317B0B0D6CB80B54EC27514CB43');
+#endif
+#if BC29PLUS
+        Observer.Expect('getbody chars', '1244');
+#else
+        Observer.Expect('getbody chars', '1245');
+#endif
+#if BC29PLUS
+        Observer.Expect('getbody sha256', '5C738BEF80A1727409E0475A564FB648A88C1FEA6888E4A5B30E90EAB18CCEB1');
+#else
+        Observer.Expect('getbody sha256', '8A2DDAF7252C167D6267A3AEE46605B4E84C752C5216F6EC077C175EECED113F');
+#endif
+        Observer.Expect('title', 'RX Wd Blank Zero');
+        Observer.Expect('font-family', '[Calibri]');
+        Observer.Expect('count RXROW', '1');
+        Observer.Expect('text', '|RX Wd Blank Zero|STATIC rgba(1,2,3,1) END|RUN rgba(4,5,6,0.5) END|RXROW1|0|0|END|');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Dump_Styles_1()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Chunk(Observer, Report::"RX Wd Styles", 1);
-        Observer.Finish();
-    end;
 
-    [Test]
-    procedure Dump_Styles_2()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Chunk(Observer, Report::"RX Wd Styles", 2);
-        Observer.Finish();
-    end;
 
-    [Test]
-    procedure Dump_Theme_1()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Chunk(Observer, Report::"RX Wd Theme", 1);
-        Observer.Finish();
-    end;
 
-    [Test]
-    procedure Dump_Theme_2()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Chunk(Observer, Report::"RX Wd Theme", 2);
-        Observer.Finish();
-    end;
 
-    [Test]
-    procedure Dump_Numbering_1()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Chunk(Observer, Report::"RX Wd Numbering", 1);
-        Observer.Finish();
-    end;
 
-    [Test]
-    procedure Dump_Numbering_2()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Chunk(Observer, Report::"RX Wd Numbering", 2);
-        Observer.Finish();
-    end;
 
-    [Test]
-    procedure Dump_Header_1()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Chunk(Observer, Report::"RX Wd Header", 1);
-        Observer.Finish();
-    end;
 
-    [Test]
-    procedure Dump_Header_2()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Chunk(Observer, Report::"RX Wd Header", 2);
-        Observer.Finish();
-    end;
 
-    [Test]
-    procedure Dump_Caption_1()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Chunk(Observer, Report::"RX Wd Caption", 1);
-        Observer.Finish();
-    end;
 
-    [Test]
-    procedure Dump_Caption_2()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Chunk(Observer, Report::"RX Wd Caption", 2);
-        Observer.Finish();
-    end;
 }
