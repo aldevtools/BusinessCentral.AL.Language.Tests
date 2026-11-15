@@ -1,7 +1,12 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/list/list-contains-method
 // Scope: in-scope
 // Fixtures used: codeunit 69160 "Probe Observer"
-// Probe: observe form. Each test ends with Observer.Finish(); its failure message carries what BC did. The assert form replaces it.
+// Probe: written for aldevtools/BusinessCentral.AL.Runner#8165; measured by this pull request's CI run 43770911754 (BC 27.5, 28.5,
+//   29.0); the values are the same on all three.
+// Result: Contains, IndexOf, LastIndexOf and Remove find the handle that was added (Same), a copy of it (Copy) and a new handle
+//   of the same node read again from the tree (Refetched): Yes, 2, 3, Yes, count 2 after Remove. A new node with the same name
+//   and content (SameContent) is not found: No, 0, 0, No, count 3. An unassigned variable added twice is found: Yes, 1, 2, Yes,
+//   count 1. An XmlNode in an empty list: No, 0, 0, No, count 0. No call raises an error.
 // BC versions: 27.5, 28.5, 29.0
 // Lead: al-runner issue 8165 (List.Contains, IndexOf, LastIndexOf and Remove on a list of XML handles).
 //
@@ -195,7 +200,12 @@ codeunit 76810 "COL List Search Xml"
         L.Add(N);
         L.Add(N);
         ObserveNode(Observer, L, N);
-        Observer.Finish();
+        Observer.Expect('contains', 'Yes');
+        Observer.Expect('indexof', '2');
+        Observer.Expect('lastindexof', '3');
+        Observer.Expect('remove', 'Yes');
+        Observer.Expect('count_after', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -216,7 +226,12 @@ codeunit 76810 "COL List Search Xml"
         L.Add(N);
         S := N;
         ObserveNode(Observer, L, S);
-        Observer.Finish();
+        Observer.Expect('contains', 'Yes');
+        Observer.Expect('indexof', '2');
+        Observer.Expect('lastindexof', '3');
+        Observer.Expect('remove', 'Yes');
+        Observer.Expect('count_after', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -237,7 +252,12 @@ codeunit 76810 "COL List Search Xml"
         L.Add(N);
         S := E.AsXmlNode();
         ObserveNode(Observer, L, S);
-        Observer.Finish();
+        Observer.Expect('contains', 'Yes');
+        Observer.Expect('indexof', '2');
+        Observer.Expect('lastindexof', '3');
+        Observer.Expect('remove', 'Yes');
+        Observer.Expect('count_after', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -258,7 +278,12 @@ codeunit 76810 "COL List Search Xml"
         L.Add(N);
         S := XmlElement.Create('a', '', 'x').AsXmlNode();
         ObserveNode(Observer, L, S);
-        Observer.Finish();
+        Observer.Expect('contains', 'No');
+        Observer.Expect('indexof', '0');
+        Observer.Expect('lastindexof', '0');
+        Observer.Expect('remove', 'No');
+        Observer.Expect('count_after', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -279,7 +304,12 @@ codeunit 76810 "COL List Search Xml"
         L.Add(E);
         L.Add(E);
         ObserveElement(Observer, L, E);
-        Observer.Finish();
+        Observer.Expect('contains', 'Yes');
+        Observer.Expect('indexof', '2');
+        Observer.Expect('lastindexof', '3');
+        Observer.Expect('remove', 'Yes');
+        Observer.Expect('count_after', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -301,7 +331,12 @@ codeunit 76810 "COL List Search Xml"
         L.Add(E);
         S := E;
         ObserveElement(Observer, L, S);
-        Observer.Finish();
+        Observer.Expect('contains', 'Yes');
+        Observer.Expect('indexof', '2');
+        Observer.Expect('lastindexof', '3');
+        Observer.Expect('remove', 'Yes');
+        Observer.Expect('count_after', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -323,7 +358,12 @@ codeunit 76810 "COL List Search Xml"
         L.Add(E);
         D.GetRoot(S);
         ObserveElement(Observer, L, S);
-        Observer.Finish();
+        Observer.Expect('contains', 'Yes');
+        Observer.Expect('indexof', '2');
+        Observer.Expect('lastindexof', '3');
+        Observer.Expect('remove', 'Yes');
+        Observer.Expect('count_after', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -345,7 +385,12 @@ codeunit 76810 "COL List Search Xml"
         L.Add(E);
         S := XmlElement.Create('a', '', 'x');
         ObserveElement(Observer, L, S);
-        Observer.Finish();
+        Observer.Expect('contains', 'No');
+        Observer.Expect('indexof', '0');
+        Observer.Expect('lastindexof', '0');
+        Observer.Expect('remove', 'No');
+        Observer.Expect('count_after', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -367,7 +412,12 @@ codeunit 76810 "COL List Search Xml"
         L.Add(D);
         L.Add(D);
         ObserveDocument(Observer, L, D);
-        Observer.Finish();
+        Observer.Expect('contains', 'Yes');
+        Observer.Expect('indexof', '2');
+        Observer.Expect('lastindexof', '3');
+        Observer.Expect('remove', 'Yes');
+        Observer.Expect('count_after', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -390,7 +440,12 @@ codeunit 76810 "COL List Search Xml"
         L.Add(D);
         S := D;
         ObserveDocument(Observer, L, S);
-        Observer.Finish();
+        Observer.Expect('contains', 'Yes');
+        Observer.Expect('indexof', '2');
+        Observer.Expect('lastindexof', '3');
+        Observer.Expect('remove', 'Yes');
+        Observer.Expect('count_after', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -413,7 +468,12 @@ codeunit 76810 "COL List Search Xml"
         L.Add(D);
         E.GetDocument(S);
         ObserveDocument(Observer, L, S);
-        Observer.Finish();
+        Observer.Expect('contains', 'Yes');
+        Observer.Expect('indexof', '2');
+        Observer.Expect('lastindexof', '3');
+        Observer.Expect('remove', 'Yes');
+        Observer.Expect('count_after', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -437,7 +497,12 @@ codeunit 76810 "COL List Search Xml"
         S := XmlDocument.Create();
         S.Add(XmlElement.Create('a', '', 'x'));
         ObserveDocument(Observer, L, S);
-        Observer.Finish();
+        Observer.Expect('contains', 'No');
+        Observer.Expect('indexof', '0');
+        Observer.Expect('lastindexof', '0');
+        Observer.Expect('remove', 'No');
+        Observer.Expect('count_after', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -458,7 +523,13 @@ codeunit 76810 "COL List Search Xml"
         L.Add(A);
         L.Add(A);
         ObserveAttribute(Observer, L, A);
-        Observer.Finish();
+        Observer.Expect('found', 'Yes');
+        Observer.Expect('contains', 'Yes');
+        Observer.Expect('indexof', '2');
+        Observer.Expect('lastindexof', '3');
+        Observer.Expect('remove', 'Yes');
+        Observer.Expect('count_after', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -480,7 +551,13 @@ codeunit 76810 "COL List Search Xml"
         L.Add(A);
         S := A;
         ObserveAttribute(Observer, L, S);
-        Observer.Finish();
+        Observer.Expect('found', 'Yes');
+        Observer.Expect('contains', 'Yes');
+        Observer.Expect('indexof', '2');
+        Observer.Expect('lastindexof', '3');
+        Observer.Expect('remove', 'Yes');
+        Observer.Expect('count_after', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -503,7 +580,14 @@ codeunit 76810 "COL List Search Xml"
         Found := E.Attributes().Get('x', S);
         Observer.Observe('found_again', Format(Found));
         ObserveAttribute(Observer, L, S);
-        Observer.Finish();
+        Observer.Expect('found', 'Yes');
+        Observer.Expect('found_again', 'Yes');
+        Observer.Expect('contains', 'Yes');
+        Observer.Expect('indexof', '2');
+        Observer.Expect('lastindexof', '3');
+        Observer.Expect('remove', 'Yes');
+        Observer.Expect('count_after', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -525,7 +609,13 @@ codeunit 76810 "COL List Search Xml"
         L.Add(A);
         S := XmlAttribute.Create('x', '1');
         ObserveAttribute(Observer, L, S);
-        Observer.Finish();
+        Observer.Expect('found', 'Yes');
+        Observer.Expect('contains', 'No');
+        Observer.Expect('indexof', '0');
+        Observer.Expect('lastindexof', '0');
+        Observer.Expect('remove', 'No');
+        Observer.Expect('count_after', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -544,7 +634,13 @@ codeunit 76810 "COL List Search Xml"
             else
                 ObserveNode(Observer, L, U);
         end;
-        Observer.Finish();
+        Observer.Expect('add', 'ok');
+        Observer.Expect('contains', 'Yes');
+        Observer.Expect('indexof', '1');
+        Observer.Expect('lastindexof', '2');
+        Observer.Expect('remove', 'Yes');
+        Observer.Expect('count_after', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -563,7 +659,13 @@ codeunit 76810 "COL List Search Xml"
             else
                 ObserveElement(Observer, L, U);
         end;
-        Observer.Finish();
+        Observer.Expect('add', 'ok');
+        Observer.Expect('contains', 'Yes');
+        Observer.Expect('indexof', '1');
+        Observer.Expect('lastindexof', '2');
+        Observer.Expect('remove', 'Yes');
+        Observer.Expect('count_after', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -582,7 +684,13 @@ codeunit 76810 "COL List Search Xml"
             else
                 ObserveDocument(Observer, L, U);
         end;
-        Observer.Finish();
+        Observer.Expect('add', 'ok');
+        Observer.Expect('contains', 'Yes');
+        Observer.Expect('indexof', '1');
+        Observer.Expect('lastindexof', '2');
+        Observer.Expect('remove', 'Yes');
+        Observer.Expect('count_after', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -594,6 +702,11 @@ codeunit 76810 "COL List Search Xml"
     begin
         S := XmlElement.Create('a', '', 'x').AsXmlNode();
         ObserveNode(Observer, L, S);
-        Observer.Finish();
+        Observer.Expect('contains', 'No');
+        Observer.Expect('indexof', '0');
+        Observer.Expect('lastindexof', '0');
+        Observer.Expect('remove', 'No');
+        Observer.Expect('count_after', '0');
+        Observer.Verify();
     end;
 }
