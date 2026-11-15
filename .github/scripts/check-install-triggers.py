@@ -15,7 +15,8 @@ from pathlib import Path
 
 ALLOWED = {
     # al-runner issue 8071: filter group 1 across install sessions; each install code logs what it sees and writes only `if Insert() then;` into
-    # DataPerCompany = false tables (rows and log); FilterGroup, SetFilter, SetRange and Count do not raise. (G1sXaInstall.al, G1sXbInstall.al,
+    # DataPerCompany = false tables (rows and log), and one DataPerCompany = true table (98485) from OnInstallAppPerCompany, where a company is set;
+    # FilterGroup, SetFilter, SetRange and Count do not raise. (G1sXaInstall.al, G1sXbInstall.al,
     # G1sInstallSessionTests.al)
     'tests/al-language-xapp-a codeunit 98472',  # "LT G1S XA Install"
     'tests/al-language-xapp-b codeunit 98475',  # "LT G1S XB Install"

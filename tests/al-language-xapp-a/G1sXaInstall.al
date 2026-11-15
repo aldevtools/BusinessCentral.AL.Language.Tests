@@ -8,6 +8,8 @@
 //   Cell c (al-runner issue 7586 comment): 98473 subscribes to "System Initialization".OnAfterLogin and sets Qty >= 3 in filter group 1
 //   on table 98474 in every session; XApp B's install code clears it (FilterGroup(1); SetRange(Qty)) and counts before and after.
 // Install code must never fail (check-install-triggers.py): it writes only `if Insert() then;` into DataPerCompany = false tables.
+//   Per-company cell: the same shape on table 98485 (DataPerCompany = true). The install code runs once per company; the log is keyed by
+//   entry, so the first company's values are kept (the same code runs in each company).
 // BC versions: 27 - 29
 
 table 98470 "LT G1S Item"
@@ -52,6 +54,21 @@ table 98474 "LT G1S Login Item"
     keys { key(PK; "No.") { Clustered = true; } }
 }
 
+// Per-company cell: the same shape as 98470, on a table with DataPerCompany = true.
+table 98485 "LT G1S Company Item"
+{
+    DataClassification = SystemMetadata;
+    DataPerCompany = true;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; Qty; Integer) { }
+    }
+
+    keys { key(PK; "No.") { Clustered = true; } }
+}
+
 codeunit 98473 "LT G1S XA Log"
 {
     procedure Log(Entry: Text; Detail: Text)
@@ -85,6 +102,17 @@ codeunit 98473 "LT G1S XA Log"
         exit(StrSubstNo('count=%1;g1=%2', Item.Count(), G1));
     end;
 
+    // The same for 98485 (DataPerCompany = true).
+    procedure SeenCompany(var Item: Record "LT G1S Company Item"): Text
+    var
+        G1: Text;
+    begin
+        Item.FilterGroup(1);
+        G1 := Item.GetFilters();
+        Item.FilterGroup(0);
+        exit(StrSubstNo('count=%1;g1=%2', Item.Count(), G1));
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]
     local procedure OnAfterLogin()
     var
@@ -105,8 +133,16 @@ codeunit 98472 "LT G1S XA Install"
         Item: Record "LT G1S Item";
         Fresh: Record "LT G1S Item";
         LoginItem: Record "LT G1S Login Item";
+        CoItem: Record "LT G1S Company Item";
+        CoFresh: Record "LT G1S Company Item";
         Log: Codeunit "LT G1S XA Log";
     begin
+        SeedCompany('C1', 1);
+        SeedCompany('C2', 5);
+        CoItem.FilterGroup(1);
+        CoItem.SetFilter(Qty, '>=3');
+        CoItem.FilterGroup(0);
+        Log.Log('A company same session', Log.SeenCompany(CoFresh));
         Seed('R1', 1);
         Seed('R2', 5);
         SeedLogin('L1', 1);
@@ -121,6 +157,15 @@ codeunit 98472 "LT G1S XA Install"
     local procedure Seed(No: Code[20]; Qty: Integer)
     var
         Item: Record "LT G1S Item";
+    begin
+        Item."No." := No;
+        Item.Qty := Qty;
+        if Item.Insert() then;
+    end;
+
+    local procedure SeedCompany(No: Code[20]; Qty: Integer)
+    var
+        Item: Record "LT G1S Company Item";
     begin
         Item."No." := No;
         Item.Qty := Qty;

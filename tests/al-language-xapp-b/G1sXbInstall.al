@@ -16,9 +16,11 @@ codeunit 98475 "LT G1S XB Install"
         Item: Record "LT G1S Item";
         LoginItem: Record "LT G1S Login Item";
         Cleared: Record "LT G1S Login Item";
+        CoItem: Record "LT G1S Company Item";
         Log: Codeunit "LT G1S XA Log";
     begin
         Log.Log('B other session', Log.Seen(Item));
+        Log.Log('B company other session', Log.SeenCompany(CoItem));
         Log.Log('B login item before clear', Log.SeenLogin(LoginItem));
         LoginItem.FilterGroup(1);
         LoginItem.SetRange(Qty);
