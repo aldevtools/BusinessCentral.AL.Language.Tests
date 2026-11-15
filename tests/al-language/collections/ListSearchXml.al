@@ -13,6 +13,7 @@
 // - Refetched: a new handle of the same node, read again from the tree (AsXmlNode, GetRoot, GetDocument, Attributes().Get).
 // - SameContent: a new node with the same name and content.
 // - Unassigned: a variable never assigned, added twice and searched (XmlNode, XmlElement, XmlDocument).
+// - EmptyList: an XmlNode searched in an empty List of [XmlNode].
 // Each call runs in a TryFunction: a call that raises records the error text and code instead of the answer.
 // Remove runs last; the count after it is recorded.
 
@@ -581,6 +582,18 @@ codeunit 76810 "COL List Search Xml"
             else
                 ObserveDocument(Observer, L, U);
         end;
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure XmlNodeList_Search_EmptyList()
+    var
+        Observer: Codeunit "Probe Observer";
+        L: List of [XmlNode];
+        S: XmlNode;
+    begin
+        S := XmlElement.Create('a', '', 'x').AsXmlNode();
+        ObserveNode(Observer, L, S);
         Observer.Finish();
     end;
 }
