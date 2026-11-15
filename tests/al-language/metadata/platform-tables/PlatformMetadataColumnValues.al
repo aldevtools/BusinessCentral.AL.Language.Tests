@@ -645,6 +645,228 @@ codeunit 71394 "LT PM Values Tests"
         Observer.Expect('base customer field 2', 'pkgnull=No rtnull=No pkg=allobj:Yes rt=allobj:Yes');
         Observer.Verify();
     end;
+
+    // The package ids of a Field row: null (both empty), table (both the table's AllObj ids) or other.
+    local procedure PackageIdsKind(var F: Record Field; TableId: Integer): Text
+    var
+        TableObj: Record AllObj;
+    begin
+        TableObj.Get(TableObj."Object Type"::Table, TableId);
+        if IsNullGuid(F."App Package ID") and IsNullGuid(F."App Runtime Package ID") then
+            exit('null');
+        if (F."App Package ID" = TableObj."App Package ID") and (F."App Runtime Package ID" = TableObj."App Runtime Package ID") then
+            exit('table');
+        exit('other');
+    end;
+
+    local procedure ObserveReadForms(var Observer: Codeunit "Probe Observer"; Prefix: Text; TableId: Integer)
+    var
+        F: Record Field;
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+    begin
+        F.SetRange(TableNo, TableId);
+        F.SetRange("No.", 1);
+        F.FindLast();
+        Observer.Observe(Prefix + ' findlast', PackageIdsKind(F, TableId));
+        Clear(F);
+        F.SetRange(TableNo, TableId);
+        F.SetRange("No.", 1);
+        F.Find('-');
+        Observer.Observe(Prefix + ' find-', PackageIdsKind(F, TableId));
+        Clear(F);
+        F.SetRange(TableNo, TableId);
+        F.SetRange("No.", 1);
+        F.Find('+');
+        Observer.Observe(Prefix + ' find+', PackageIdsKind(F, TableId));
+        Clear(F);
+        F.TableNo := TableId;
+        F."No." := 1;
+        F.Find('=');
+        Observer.Observe(Prefix + ' find=', PackageIdsKind(F, TableId));
+        Clear(F);
+        F.SetRange(TableNo, TableId);
+        F.SetRange("No.", 1);
+        F.SetAscending("No.", false);
+        F.FindFirst();
+        Observer.Observe(Prefix + ' descending findfirst', PackageIdsKind(F, TableId));
+        Clear(F);
+        F.SetRange(TableNo, TableId);
+        F.SetRange("No.", 1);
+        F.Next();
+        Observer.Observe(Prefix + ' next from blank', PackageIdsKind(F, TableId));
+        Clear(F);
+        F.SetRange(TableNo, TableId);
+        F.SetRange("No.", 1);
+        F.SetRange(Class, F.Class::Normal);
+        F.FindFirst();
+        Observer.Observe(Prefix + ' third filter', PackageIdsKind(F, TableId));
+        Clear(F);
+        F.FilterGroup(2);
+        F.SetRange(TableNo, TableId);
+        F.SetRange("No.", 1);
+        F.FilterGroup(0);
+        F.FindFirst();
+        Observer.Observe(Prefix + ' filtergroup 2', PackageIdsKind(F, TableId));
+        Clear(F);
+        F.FilterGroup(2);
+        F.SetRange(TableNo, TableId);
+        F.FilterGroup(0);
+        F.SetRange("No.", 1);
+        F.FindFirst();
+        Observer.Observe(Prefix + ' filtergroups 2 and 0', PackageIdsKind(F, TableId));
+        RecRef.Open(Database::Field);
+        FldRef := RecRef.Field(1);
+        FldRef.SetRange(TableId);
+        FldRef := RecRef.Field(2);
+        FldRef.SetRange(1);
+        RecRef.FindFirst();
+        RecRef.SetTable(F);
+        Observer.Observe(Prefix + ' recordref findfirst', PackageIdsKind(F, TableId));
+        RecRef.Close();
+        RecRef.Open(Database::Field);
+        FldRef := RecRef.Field(1);
+        FldRef.Value := TableId;
+        FldRef := RecRef.Field(2);
+        FldRef.Value := 1;
+        RecRef.Find('=');
+        RecRef.SetTable(F);
+        Observer.Observe(Prefix + ' recordref find=', PackageIdsKind(F, TableId));
+        RecRef.Close();
+    end;
+
+    local procedure ExpectReadForms(var Observer: Codeunit "Probe Observer"; Prefix: Text; Kind: Text)
+    begin
+        Observer.Expect(Prefix + ' findlast', Kind);
+        Observer.Expect(Prefix + ' find-', Kind);
+        Observer.Expect(Prefix + ' find+', Kind);
+        Observer.Expect(Prefix + ' find=', Kind);
+        Observer.Expect(Prefix + ' descending findfirst', Kind);
+        Observer.Expect(Prefix + ' next from blank', Kind);
+        Observer.Expect(Prefix + ' third filter', Kind);
+        Observer.Expect(Prefix + ' filtergroup 2', Kind);
+        Observer.Expect(Prefix + ' filtergroups 2 and 0', Kind);
+        Observer.Expect(Prefix + ' recordref findfirst', Kind);
+        Observer.Expect(Prefix + ' recordref find=', Kind);
+    end;
+
+    // Follow-up of al-runner PR 8112: every other read of field 1 whose filters set TableNo and No. to one value each answers as
+    // a Get does (null unless a table extension of the table's own app extends the table, :569-605): FindLast, Find('-'), Find('+'),
+    // Find('=') on the key, a descending FindFirst, Next from a blank record, a third filter (Class), the filters in FilterGroup 2,
+    // TableNo in FilterGroup 2 and No. in 0, RecordRef.FindFirst and RecordRef.Find('='). Tables: this app's 71390 (no same-app
+    // extension) and 71397 (extended by this app), Base Application's Contact and Customer. Measured with the same shapes on a local
+    // BC 29.1 (OnPrem w1); BC 27 and 28 by CI.
+    [Test]
+    procedure FieldTable_AppPackageIds_OtherKeyReadForms_AnswerAsGet()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveReadForms(Observer, 'own 71390', Database::"LT PM Values Table");
+        ObserveReadForms(Observer, 'own 71397', Database::"LT PM Values Self Ext Table");
+        ObserveReadForms(Observer, 'base contact', Database::Contact);
+        ObserveReadForms(Observer, 'base customer', Database::Customer);
+        ExpectReadForms(Observer, 'own 71390', 'null');
+        ExpectReadForms(Observer, 'own 71397', 'table');
+        ExpectReadForms(Observer, 'base contact', 'null');
+        ExpectReadForms(Observer, 'base customer', 'table');
+        Observer.Verify();
+    end;
+
+    local procedure GetKind(TableId: Integer; FieldNo: Integer): Text
+    var
+        F: Record Field;
+    begin
+        if not F.Get(TableId, FieldNo) then
+            exit('no row');
+        exit(PackageIdsKind(F, TableId));
+    end;
+
+    // Follow-up of al-runner PR 8112: a Get of a declared field of a table no extension of its own app extends gives null ids for
+    // every kind of field: an obsolete Pending and Removed field, a FlowField, a FlowFilter, a disabled field and a Blob (table 71399,
+    // below), and for a TableType = Temporary table (71400, below). A table extension of the table's own app that declares no field,
+    // only a modify (71402 on 71401, below), makes the Get give the table's ids. Measured as above.
+    [Test]
+    procedure FieldTable_AppPackageIds_GetOfFieldKinds_TemporaryTable_AndSameAppExtensionWithoutField()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('kinds normal', GetKind(Database::"LT PM Values Kinds", 1));
+        Observer.Observe('kinds pending', GetKind(Database::"LT PM Values Kinds", 2));
+        Observer.Observe('kinds removed', GetKind(Database::"LT PM Values Kinds", 3));
+        Observer.Observe('kinds flowfield', GetKind(Database::"LT PM Values Kinds", 4));
+        Observer.Observe('kinds flowfilter', GetKind(Database::"LT PM Values Kinds", 5));
+        Observer.Observe('kinds disabled', GetKind(Database::"LT PM Values Kinds", 6));
+        Observer.Observe('kinds blob', GetKind(Database::"LT PM Values Kinds", 7));
+        Observer.Observe('temporary field 1', GetKind(Database::"LT PM Values Temp", 1));
+        Observer.Observe('temporary field 2', GetKind(Database::"LT PM Values Temp", 2));
+        Observer.Observe('modify-only extension field 1', GetKind(Database::"LT PM Values Modify Ext Table", 1));
+        Observer.Observe('modify-only extension field 2', GetKind(Database::"LT PM Values Modify Ext Table", 2));
+        Observer.Expect('kinds normal', 'null');
+        Observer.Expect('kinds pending', 'null');
+        Observer.Expect('kinds removed', 'null');
+        Observer.Expect('kinds flowfield', 'null');
+        Observer.Expect('kinds flowfilter', 'null');
+        Observer.Expect('kinds disabled', 'null');
+        Observer.Expect('kinds blob', 'null');
+        Observer.Expect('temporary field 1', 'null');
+        Observer.Expect('temporary field 2', 'null');
+        Observer.Expect('modify-only extension field 1', 'table');
+        Observer.Expect('modify-only extension field 2', 'table');
+        Observer.Verify();
+    end;
+
+    local procedure PackageFilterReads(var F: Record Field): Text
+    begin
+        exit(
+            'findfirst=' + Format(F.FindFirst()) +
+            ' findset=' + Format(F.FindSet()) +
+            ' isempty=' + Format(F.IsEmpty()) +
+            ' count=' + Format(F.Count()));
+    end;
+
+    local procedure ObservePackageFilters(var Observer: Codeunit "Probe Observer"; Prefix: Text; TableId: Integer)
+    var
+        F: Record Field;
+        TableObj: Record AllObj;
+        EmptyId: Guid;
+    begin
+        TableObj.Get(TableObj."Object Type"::Table, TableId);
+        F.SetRange(TableNo, TableId);
+        F.SetRange("No.", 1);
+        F.SetRange("App Package ID", TableObj."App Package ID");
+        Observer.Observe(Prefix + ' = table', PackageFilterReads(F));
+        F.SetFilter("App Package ID", '<>%1', TableObj."App Package ID");
+        Observer.Observe(Prefix + ' <> table', PackageFilterReads(F));
+        F.SetRange("App Package ID", EmptyId);
+        Observer.Observe(Prefix + ' = empty', PackageFilterReads(F));
+    end;
+
+    // Follow-up of al-runner PR 8112: TableNo and No. set to one value each plus a filter on App Package ID. On a table whose key
+    // lookup gives null ids, FindFirst and FindSet test the filter against the null ids, while IsEmpty and Count test it against
+    // the table's ids; on a table whose key lookup gives the table's ids, all four agree. Measured as above.
+    [Test]
+    procedure FieldTable_AppPackageIds_KeyLookupWithPackageFilter_FindReadsNullCountReadsTable()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObservePackageFilters(Observer, 'own 71390', Database::"LT PM Values Table");
+        ObservePackageFilters(Observer, 'own 71397', Database::"LT PM Values Self Ext Table");
+        ObservePackageFilters(Observer, 'base contact', Database::Contact);
+        ObservePackageFilters(Observer, 'base customer', Database::Customer);
+        Observer.Expect('own 71390 = table', 'findfirst=No findset=No isempty=No count=1');
+        Observer.Expect('own 71390 <> table', 'findfirst=Yes findset=Yes isempty=Yes count=0');
+        Observer.Expect('own 71390 = empty', 'findfirst=Yes findset=Yes isempty=Yes count=0');
+        Observer.Expect('own 71397 = table', 'findfirst=Yes findset=Yes isempty=No count=1');
+        Observer.Expect('own 71397 <> table', 'findfirst=No findset=No isempty=Yes count=0');
+        Observer.Expect('own 71397 = empty', 'findfirst=No findset=No isempty=Yes count=0');
+        Observer.Expect('base contact = table', 'findfirst=No findset=No isempty=No count=1');
+        Observer.Expect('base contact <> table', 'findfirst=Yes findset=Yes isempty=Yes count=0');
+        Observer.Expect('base contact = empty', 'findfirst=Yes findset=Yes isempty=Yes count=0');
+        Observer.Expect('base customer = table', 'findfirst=Yes findset=Yes isempty=No count=1');
+        Observer.Expect('base customer <> table', 'findfirst=No findset=No isempty=Yes count=0');
+        Observer.Expect('base customer = empty', 'findfirst=No findset=No isempty=Yes count=0');
+        Observer.Verify();
+    end;
 }
 
 // local object: the tests read the Field rows of the fields these extensions declare (their obsolete state, class and Enabled are
@@ -716,6 +938,83 @@ tableextension 71398 "LT PM Values Self Ext" extends "LT PM Values Self Ext Tabl
         field(71401; "LT PM Self Note"; Text[30])
         {
             DataClassification = SystemMetadata;
+        }
+    }
+}
+
+// local object: the test reads the Field rows of declared fields of every kind (obsolete, FlowField, FlowFilter, disabled, Blob), of a
+// temporary table, and of a table whose only same-app extension declares no field, which is each table's own definition.
+table 71399 "LT PM Values Kinds"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; Pending; Integer)
+        {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Probe of the Field row of an obsolete field.';
+            ObsoleteTag = '1.0';
+        }
+        field(3; Removed; Integer)
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'Probe of the Field row of an obsolete field.';
+            ObsoleteTag = '1.0';
+        }
+        field(4; Flow; Integer)
+        {
+            FieldClass = FlowField;
+            CalcFormula = count("LT PM Values Table");
+        }
+        field(5; "Flow Filter"; Integer)
+        {
+            FieldClass = FlowFilter;
+        }
+        field(6; Disabled; Integer)
+        {
+            Enabled = false;
+        }
+        field(7; Picture; Blob) { }
+    }
+
+    keys { key(PK; "No.") { Clustered = true; } }
+}
+
+table 71400 "LT PM Values Temp"
+{
+    TableType = Temporary;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; Description; Text[30]) { }
+    }
+
+    keys { key(PK; "No.") { Clustered = true; } }
+}
+
+table 71401 "LT PM Values Modify Ext Table"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; Description; Text[30]) { Caption = 'Description'; }
+    }
+
+    keys { key(PK; "No.") { Clustered = true; } }
+}
+
+tableextension 71402 "LT PM Values Modify Ext" extends "LT PM Values Modify Ext Table"
+{
+    fields
+    {
+        modify(Description)
+        {
+            Caption = 'Extended Description';
         }
     }
 }
