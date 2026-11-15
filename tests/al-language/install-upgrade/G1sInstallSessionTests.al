@@ -8,6 +8,7 @@
 //   the main app's install code and the test session see. Each entry is 'count=<n>;g1=<group 1 filters>'; each table holds two rows,
 //   one with Qty >= 3.
 // Measured in the CI run of the pull request (BC 27.5, 28.5 and 29.0 gave the same values); the Expect lines are what BC did.
+//   G1S_PerCompany_AllSessions repeats a, b, d and the main app on table 98485 (DataPerCompany = true, install code from OnInstallAppPerCompany).
 // BC versions: 27 - 29
 
 codeunit 98482 "LT G1S Main Install"
@@ -114,6 +115,10 @@ codeunit 98480 "LT G1S Install Session Tests"
         Observer.Observe('company B other session', Entry('B company other session'));
         Observer.Observe('company Main other session', Entry('Main company other session'));
         Observer.Observe('company test session', Log.SeenCompany(CoItem));
-        Observer.Finish();
+        Observer.Expect('company A same session', 'count=1;g1=Qty: >=3');
+        Observer.Expect('company B other session', 'count=2;g1=');
+        Observer.Expect('company Main other session', 'count=2;g1=');
+        Observer.Expect('company test session', 'count=2;g1=');
+        Observer.Verify();
     end;
 }
