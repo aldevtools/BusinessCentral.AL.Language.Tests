@@ -138,6 +138,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension LPX Territories Ext - Action LpxCount - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Table 809936682 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales Invoice Header</source>
+          <target>Verkoopfactuurkop</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">cross-app: the unit id of Base Application's own Sales Invoice Header table caption</note>
+        </trans-unit>
+        <trans-unit id="Table 70619526 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Internal Movement Line</source>
+          <target>Interne verplaatsingsregel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">cross-app: the unit id of Base Application's own Internal Movement Line table caption</note>
+        </trans-unit>
       </group>
     </body>
   </file>
