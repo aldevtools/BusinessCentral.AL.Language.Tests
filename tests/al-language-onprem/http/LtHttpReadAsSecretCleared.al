@@ -8,6 +8,9 @@
 // Steps (same order as CzHttpNoNetwork.al): Create(Secret).GetHttpContent() -> copy taken by value -> GetHeaders -> IsSecretContent
 //   -> ReadAs(SecretText) as a statement -> read the destination (IsEmpty, Length, Unwrap). Also: the destination before the read
 //   (unchanged or not), a second statement read, a result-used read, and the variant with Create(SecretText; ContentType).
+// Result (identical on 27.5, 28.5 and 29.0): the statement read puts the whole body into the destination: "test" (len 4), not empty;
+//   the destination is overwritten (it held "before"); a second statement read and a result-used read (returns true) give the same text;
+//   IsSecretContent is true before and after GetHeaders. A typed Create and a longer body (len 32) behave the same.
 // BC versions: 27.5, 28.5, 29.0 (measured by the corpus CI)
 
 codeunit 98795 "LT HTTP ReadAs Secret Cleared"
@@ -53,7 +56,14 @@ codeunit 98795 "LT HTTP ReadAs Secret Cleared"
         HttpContent: Codeunit "Http Content";
     begin
         StatementOnCopy(HttpContent.Create(Sec('test')).GetHttpContent(), Observer, 'create');
-        Observer.Finish();
+        Observer.Expect('create_dest_before', 'empty=No len=6 text=[before]');
+        Observer.Expect('create_is_secret_1', 'Yes');
+        Observer.Expect('create_is_secret_2', 'Yes');
+        Observer.Expect('create_statement', 'empty=No len=4 text=[test]');
+        Observer.Expect('create_statement_second', 'empty=No len=4 text=[test]');
+        Observer.Expect('create_used_result', 'Yes');
+        Observer.Expect('create_used', 'empty=No len=4 text=[test]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -63,7 +73,14 @@ codeunit 98795 "LT HTTP ReadAs Secret Cleared"
         HttpContent: Codeunit "Http Content";
     begin
         StatementOnCopy(HttpContent.Create(Sec('test'), 'application/json').GetHttpContent(), Observer, 'typed');
-        Observer.Finish();
+        Observer.Expect('typed_dest_before', 'empty=No len=6 text=[before]');
+        Observer.Expect('typed_is_secret_1', 'Yes');
+        Observer.Expect('typed_is_secret_2', 'Yes');
+        Observer.Expect('typed_statement', 'empty=No len=4 text=[test]');
+        Observer.Expect('typed_statement_second', 'empty=No len=4 text=[test]');
+        Observer.Expect('typed_used_result', 'Yes');
+        Observer.Expect('typed_used', 'empty=No len=4 text=[test]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -73,7 +90,14 @@ codeunit 98795 "LT HTTP ReadAs Secret Cleared"
         HttpContent: Codeunit "Http Content";
     begin
         StatementOnCopy(HttpContent.Create(Sec('Line one' + ' and some more text, 123')).GetHttpContent(), Observer, 'long');
-        Observer.Finish();
+        Observer.Expect('long_dest_before', 'empty=No len=6 text=[before]');
+        Observer.Expect('long_is_secret_1', 'Yes');
+        Observer.Expect('long_is_secret_2', 'Yes');
+        Observer.Expect('long_statement', 'empty=No len=32 text=[Line one and some more text, 123]');
+        Observer.Expect('long_statement_second', 'empty=No len=32 text=[Line one and some more text, 123]');
+        Observer.Expect('long_used_result', 'Yes');
+        Observer.Expect('long_used', 'empty=No len=32 text=[Line one and some more text, 123]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -89,6 +113,7 @@ codeunit 98795 "LT HTTP ReadAs Secret Cleared"
         Secret := Sec('before');
         Content.ReadAs(Secret);
         Observer.Observe('direct_statement', Show(Secret));
-        Observer.Finish();
+        Observer.Expect('direct_statement', 'empty=No len=4 text=[test]');
+        Observer.Verify();
     end;
 }
