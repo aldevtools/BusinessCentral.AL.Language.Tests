@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/media/media-importstream-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160), tables 66993 "LT UH Pic" (UhUntouchedStreams.al) and 66990 "LT UH Row" (UhUnopenedRecordRef.al)
-// Probe: observe form, not yet measured.
+// Probe: written against BC 27.5, 28.5 and 29.0 (corpus PR 1411 CI run). All three versions gave the same result, so no version guard.
 // Facts: what a record holds after Media.ImportStream and MediaSet.ImportStream from an InStream that was never created: HasValue,
 //   MediaId and MediaSet Count right after the import; the same after Insert and Get; the import into a record already inserted
 //   (then Modify and Get) and into a temporary record. Neighbors of UhUntouchedStreams.al (corpus PR 1408); al-runner PR 8120
@@ -103,7 +103,8 @@ codeunit 66995 "LT UH Streams After Import"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'media_fresh');
-        Observer.Finish();
+        Observer.Expect('result', '{00000000-0000-0000-0000-000000000000}|No|{00000000-0000-0000-0000-000000000000}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -112,7 +113,8 @@ codeunit 66995 "LT UH Streams After Import"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'media_fresh_insert_get');
-        Observer.Finish();
+        Observer.Expect('result', 'No|{00000000-0000-0000-0000-000000000000}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -121,7 +123,8 @@ codeunit 66995 "LT UH Streams After Import"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'mediaset_fresh');
-        Observer.Finish();
+        Observer.Expect('result', '{00000000-0000-0000-0000-000000000000}|0|{00000000-0000-0000-0000-000000000000}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -130,7 +133,8 @@ codeunit 66995 "LT UH Streams After Import"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'mediaset_fresh_insert_get');
-        Observer.Finish();
+        Observer.Expect('result', '0|{00000000-0000-0000-0000-000000000000}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -139,7 +143,8 @@ codeunit 66995 "LT UH Streams After Import"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'media_inserted');
-        Observer.Finish();
+        Observer.Expect('result', '{00000000-0000-0000-0000-000000000000}|No|{00000000-0000-0000-0000-000000000000}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -148,7 +153,8 @@ codeunit 66995 "LT UH Streams After Import"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'media_inserted_modify_get');
-        Observer.Finish();
+        Observer.Expect('result', 'No|{00000000-0000-0000-0000-000000000000}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -157,7 +163,8 @@ codeunit 66995 "LT UH Streams After Import"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'mediaset_inserted');
-        Observer.Finish();
+        Observer.Expect('result', '{00000000-0000-0000-0000-000000000000}|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -166,7 +173,8 @@ codeunit 66995 "LT UH Streams After Import"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'media_temporary');
-        Observer.Finish();
+        Observer.Expect('result', '{00000000-0000-0000-0000-000000000000}|No|{00000000-0000-0000-0000-000000000000}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -175,7 +183,8 @@ codeunit 66995 "LT UH Streams After Import"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 'mediaset_temporary');
-        Observer.Finish();
+        Observer.Expect('result', '{00000000-0000-0000-0000-000000000000}|0');
+        Observer.Verify();
     end;
 }
 
@@ -316,7 +325,13 @@ codeunit 66996 "LT UH RecordRef After Calls"
         Observer: Codeunit "Probe Observer";
     begin
         RunAll(Observer, 'failed_open');
-        Observer.Finish();
+        Observer.Expect('failed_open|findlast', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('failed_open|getfilters', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('failed_open|next', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('failed_open|keyindex', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('failed_open|setrecfilter', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('failed_open|setloadfields', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -325,7 +340,13 @@ codeunit 66996 "LT UH RecordRef After Calls"
         Observer: Codeunit "Probe Observer";
     begin
         RunAll(Observer, 'missed_get');
-        Observer.Finish();
+        Observer.Expect('missed_get|findlast', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('missed_get|getfilters', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('missed_get|next', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('missed_get|keyindex', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('missed_get|setrecfilter', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('missed_get|setloadfields', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -334,7 +355,13 @@ codeunit 66996 "LT UH RecordRef After Calls"
         Observer: Codeunit "Probe Observer";
     begin
         RunAll(Observer, 'open_zero');
-        Observer.Finish();
+        Observer.Expect('open_zero|findlast', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('open_zero|getfilters', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('open_zero|next', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('open_zero|keyindex', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('open_zero|setrecfilter', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('open_zero|setloadfields', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -343,7 +370,13 @@ codeunit 66996 "LT UH RecordRef After Calls"
         Observer: Codeunit "Probe Observer";
     begin
         RunAll(Observer, 'open_clear');
-        Observer.Finish();
+        Observer.Expect('open_clear|findlast', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('open_clear|getfilters', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('open_clear|next', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('open_clear|keyindex', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('open_clear|setrecfilter', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('open_clear|setloadfields', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -359,7 +392,11 @@ codeunit 66996 "LT UH RecordRef After Calls"
         Run(Observer, 'new', 'copylinks_filtered');
         Run(Observer, 'new', 'copylinks_positioned');
         Run(Observer, 'new', 'copylinks_ref_filtered');
-        Observer.Finish();
+        Observer.Expect('new|copylinks_variant', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('new|copylinks_filtered', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('new|copylinks_positioned', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('new|copylinks_ref_filtered', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -378,6 +415,8 @@ codeunit 66996 "LT UH RecordRef After Calls"
             Observer.Observe('active', 'ok:' + Result)
         else
             Observer.Observe('active', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
-        Observer.Finish();
+        Observer.Expect('active', 'error:Microsoft.Dynamics.Nav.Runtime.NavKeyRef variable not initialized.|NotInitialized');
+        Observer.Ignore('fieldcount'); // a dump or environment data: observed, not asserted
+        Observer.Verify();
     end;
 }
