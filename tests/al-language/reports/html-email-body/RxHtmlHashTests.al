@@ -399,8 +399,33 @@ codeunit 80029 "RX Html Hash Tests"
         HashCell(Observer, Report::"RX Hash Bound", 1, Body);
         BoundFacts(Observer, Body);
         GetBodyCell(Observer, Body);
-        Observer.Observe('OBSHTML', Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '1442');
+        Observer.Expect('sha256', '98179F947EC44226830B77796ADC753B270CA3993AE9811F1DBC65BDA4436286');
+#else
+        Observer.Expect('chars', '1443');
+        Observer.Expect('sha256', 'BFDED14D7DA92062A2DED3074D0984C9ABF692092D1663A3B1836833A73E94A8');
+#endif
+        Observer.Expect('count RXROW', '1');
+        Observer.Expect('has RXROW1', 'Yes');
+        Observer.Expect('has RXROW3', 'No');
+        Observer.Expect('has 1,234.5', 'Yes');
+        Observer.Expect('has 3,703.5', 'No');
+        Observer.Expect('has 1/2/2026', 'No');
+        Observer.Expect('has 01/02/2026', 'No');
+        Observer.Expect('has 2026-02-01', 'No');
+#if BC29PLUS
+        Observer.Expect('getbody chars', '1441');
+        Observer.Expect('getbody sha256', '97A845E022309E20DA87091ABDB2AF03F91A8133240A506E10614D367DC01AA2');
+#else
+        Observer.Expect('getbody chars', '1442');
+        Observer.Expect('getbody sha256', '2E3211DB325BDC8A4857A0CAF9620BA304657FF2BACD6CC5A110808994D860FC');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -412,8 +437,33 @@ codeunit 80029 "RX Html Hash Tests"
         HashCell(Observer, Report::"RX Hash Bound", 3, Body);
         BoundFacts(Observer, Body);
         GetBodyCell(Observer, Body);
-        Observer.Observe('OBSHTML', Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '2986');
+        Observer.Expect('sha256', 'B10772A6C995FD0BC067AE49DE2A07703AC15A7A771FDA537FB5D0805766DB0E');
+#else
+        Observer.Expect('chars', '2987');
+        Observer.Expect('sha256', 'AB8185113763729DE655C022C6B4EF8974FC7CD6B11E233D03C5F7BD6D8FCB43');
+#endif
+        Observer.Expect('count RXROW', '3');
+        Observer.Expect('has RXROW1', 'Yes');
+        Observer.Expect('has RXROW3', 'Yes');
+        Observer.Expect('has 1,234.5', 'Yes');
+        Observer.Expect('has 3,703.5', 'Yes');
+        Observer.Expect('has 1/2/2026', 'No');
+        Observer.Expect('has 01/02/2026', 'No');
+        Observer.Expect('has 2026-02-01', 'No');
+#if BC29PLUS
+        Observer.Expect('getbody chars', '2985');
+        Observer.Expect('getbody sha256', '5F5B84CDD171A541F97F0B315295D1A952BEC717469E112C87D9977ABEDF76F2');
+#else
+        Observer.Expect('getbody chars', '2986');
+        Observer.Expect('getbody sha256', 'D0EB55D4A677E35FB7D038AEDB32D9D9F88500821B318D42B3E4E0076D028B2A');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -426,7 +476,30 @@ codeunit 80029 "RX Html Hash Tests"
         HashCell(Observer, Report::"RX Hash Bound", 1, One);
         HashCell(Observer, Report::"RX Hash Bound", 3, Three);
         Observer.Observe('sha 1 row = sha 3 rows', Format(Sha(One) = Sha(Three)));
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '1442');
+        Observer.Expect('sha256', '98179F947EC44226830B77796ADC753B270CA3993AE9811F1DBC65BDA4436286');
+#else
+        Observer.Expect('chars', '1443');
+        Observer.Expect('sha256', 'BFDED14D7DA92062A2DED3074D0984C9ABF692092D1663A3B1836833A73E94A8');
+#endif
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '2986');
+        Observer.Expect('sha256', 'B10772A6C995FD0BC067AE49DE2A07703AC15A7A771FDA537FB5D0805766DB0E');
+#else
+        Observer.Expect('chars', '2987');
+        Observer.Expect('sha256', 'AB8185113763729DE655C022C6B4EF8974FC7CD6B11E233D03C5F7BD6D8FCB43');
+#endif
+        Observer.Expect('sha 1 row = sha 3 rows', 'No');
+        Observer.Verify();
     end;
 
     // Save-table neighbors of al-runner issue 6924 (not rendering): what SaveAs Pdf answers for a Word layout report with two data
