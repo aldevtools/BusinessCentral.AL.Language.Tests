@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-datacaptionexpression-property
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own objects 77600-77609 (DKO Entry, DKO Log, DKO Mgt, six DKO pages, DKO Tests)
-// Probe: for al-runner's assumption data-caption-two-microsoft-opens-skipped. Two Worksheet opens outside the cells of
+// Measured on BC 27.5, 28.5 and 29.0 (identical on all three). Probe: for al-runner's assumption data-caption-two-microsoft-opens-skipped. Two Worksheet opens outside the cells of
 //   DataCaptionExprWorksheet.al and DataCaptionGetOpen.al. Both pages: SourceTableTemporary = true, InsertAllowed = false, a
 //   DataCaptionExpression of their own; OnOpenPage inserts 0 or 1 rows into the temporary Rec.
 //   Shape N: a Page variable's own procedure (SetDoc), then Run(), caught by a TestPage Trap; the expression is a page procedure
@@ -451,7 +451,11 @@ codeunit 77609 "DKO Tests"
         Observer.Observe('caption', P.Caption());
         P.Close();
         Observer.Observe('log after', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'doc=D1 filter= first=No name= next=No');
+        Observer.Expect('log', 'OnOpenPage | after run');
+        Observer.Expect('caption', 'DKO Nav');
+        Observer.Expect('log after', 'OnOpenPage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -473,7 +477,11 @@ codeunit 77609 "DKO Tests"
         Observer.Observe('caption', P.Caption());
         P.Close();
         Observer.Observe('log after', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'doc=D1 filter= first=Yes name=Doc D1 next=No');
+        Observer.Expect('log', 'OnOpenPage | after run');
+        Observer.Expect('caption', 'DKO Nav - Picked - Doc D1');
+        Observer.Expect('log after', 'OnOpenPage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -494,7 +502,10 @@ codeunit 77609 "DKO Tests"
         Observer.Observe('log', Log.Joined());
         P.Close();
         Observer.Observe('log after', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'doc=D1 filter= first=No name= next=No');
+        Observer.Expect('log', 'OnOpenPage | after run');
+        Observer.Expect('log after', 'OnOpenPage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -515,7 +526,10 @@ codeunit 77609 "DKO Tests"
         Observer.Observe('log', Log.Joined());
         P.Close();
         Observer.Observe('log after', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'doc=D1 filter= first=Yes name=Doc D1 next=No');
+        Observer.Expect('log', 'OnOpenPage | after run');
+        Observer.Expect('log after', 'OnOpenPage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -535,7 +549,11 @@ codeunit 77609 "DKO Tests"
         Observer.Observe('caption', P.Caption());
         Observer.Observe('log after caption', Log.Joined());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('doc', 'D1');
+        Observer.Expect('log', 'OnOpenPage | DC= | after run');
+        Observer.Expect('caption', 'DKO Nav Logged');
+        Observer.Expect('log after caption', 'OnOpenPage | DC= | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -555,55 +573,88 @@ codeunit 77609 "DKO Tests"
         Observer.Observe('caption', P.Caption());
         Observer.Observe('log after caption', Log.Joined());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('doc', 'D1');
+        Observer.Expect('log', 'OnOpenPage | DC=Doc D1 | after run');
+        Observer.Expect('caption', 'DKO Nav Logged - Picked - Doc D1');
+        Observer.Expect('log after caption', 'OnOpenPage | DC=Doc D1 | after run');
+        Observer.Verify();
     end;
 
     // Shape O: the handler invokes the action, reads the row and (in the caption handlers) the caption.
     [Test]
     [HandlerFunctions('LinesPureHandler')]
     procedure O_Pure_Modal_Empty()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        LinesPure(0);
+        LinesPure(0, Observer);
+        Observer.Expect('reads', 'first=No qty= filter=1 cap=DKO Lines');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
     [HandlerFunctions('LinesPureHandler')]
     procedure O_Pure_Modal_OneRow()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        LinesPure(1);
+        LinesPure(1, Observer);
+        Observer.Expect('reads', 'first=Yes qty=7.00 filter=1 cap=DKO Lines - Src');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
     [HandlerFunctions('LinesPlainHandler')]
     procedure O_Plain_Modal_Empty()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        LinesPlain(0);
+        LinesPlain(0, Observer);
+        Observer.Expect('reads', 'first=No qty= filter=1');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
     [HandlerFunctions('LinesPlainHandler')]
     procedure O_Plain_Modal_OneRow()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        LinesPlain(1);
+        LinesPlain(1, Observer);
+        Observer.Expect('reads', 'first=Yes qty=7.00 filter=1');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
     [HandlerFunctions('LinesLoggedHandler')]
     procedure O_Logged_Modal_Empty()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        LinesLogged(0);
+        LinesLogged(0, Observer);
+        Observer.Expect('reads', 'cap=DKO Lines Logged');
+        Observer.Expect('log', 'OnOpenPage | DC=Src | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
     [HandlerFunctions('LinesLoggedHandler')]
     procedure O_Logged_Modal_OneRow()
-    begin
-        LinesLogged(1);
-    end;
-
-    local procedure LinesPure(Rows: Integer)
     var
         Observer: Codeunit "Probe Observer";
+    begin
+        LinesLogged(1, Observer);
+        Observer.Expect('reads', 'cap=DKO Lines Logged - Src');
+        Observer.Expect('log', 'OnOpenPage | DC=Src | H0 | H1 | after run');
+        Observer.Verify();
+    end;
+
+    local procedure LinesPure(Rows: Integer; var Observer: Codeunit "Probe Observer")
+    var
         LinesPage: Page "DKO Lines Pure";
         View: Record "DKO Entry" temporary;
     begin
@@ -616,12 +667,10 @@ codeunit 77609 "DKO Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
     end;
 
-    local procedure LinesPlain(Rows: Integer)
+    local procedure LinesPlain(Rows: Integer; var Observer: Codeunit "Probe Observer")
     var
-        Observer: Codeunit "Probe Observer";
         LinesPage: Page "DKO Lines Plain";
         View: Record "DKO Entry" temporary;
     begin
@@ -634,12 +683,10 @@ codeunit 77609 "DKO Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
     end;
 
-    local procedure LinesLogged(Rows: Integer)
+    local procedure LinesLogged(Rows: Integer; var Observer: Codeunit "Probe Observer")
     var
-        Observer: Codeunit "Probe Observer";
         LinesPage: Page "DKO Lines Logged";
         View: Record "DKO Entry" temporary;
     begin
@@ -652,7 +699,6 @@ codeunit 77609 "DKO Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
     end;
 
     [ModalPageHandler]
