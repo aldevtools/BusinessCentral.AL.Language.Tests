@@ -220,4 +220,119 @@ codeunit 96162 "LT R7184 Base App Caption"
         RecRef.Close();
         exit(Caption);
     end;
+
+    // Probe (al-runner issue 8123): Format(RecordId, 0, 9) and Format(RecordId, 0, 1) under GlobalLanguage 1043, where this app ships
+    //   an nl-NL file. Cells: Base Application tables this app extends (Item, without a unit for the table caption; Sales Invoice
+    //   Header, with a cross-app unit for it in the file), Base Application tables it does not extend (Unit of Measure, without a
+    //   unit; Internal Movement Line, with a cross-app unit), and the app's own table whose caption the file translates (LT TA Item,
+    //   whose TableCaption reads 'LT TA Artikel' under 1043, TaXliff.al:216). No Microsoft language app is installed in the test
+    //   container, so Base Application's own texts stay en-US under 1043 (R7184_ItemFieldCaptions_Dutch above).
+    // Facts (a local BC 29.0 OnPrem w1 container, the same shapes; 1030 without a file gave the same texts): format 9 names each
+    //   table as under 1033, `[<namespace>.<name>]` or the plain name, whatever the file holds; format 1 names each table by its
+    //   source caption under 1043 too: neither the app's own unit nor a cross-app unit changes it.
+
+    [Test]
+    procedure R8123_RecordIdFormat9_ExtendedBaseAppTables_Dutch_EnglishText()
+    var
+        Observer: Codeunit "Probe Observer";
+        Item: Record Item;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        Saved: Integer;
+    begin
+        Item."No." := 'R8123';
+        SalesInvoiceHeader."No." := 'R8123';
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        Observer.Observe('Item 1033', Format(Item.RecordId(), 0, 9));
+        Observer.Observe('Sales Invoice Header 1033', Format(SalesInvoiceHeader.RecordId(), 0, 9));
+        GlobalLanguage(1043);
+        Observer.Observe('Item 1043 (extended, no unit)', Format(Item.RecordId(), 0, 9));
+        Observer.Observe('Sales Invoice Header 1043 (extended, cross-app unit)', Format(SalesInvoiceHeader.RecordId(), 0, 9));
+        GlobalLanguage(Saved);
+        Observer.Expect('Item 1033', '[Microsoft.Inventory.Item.Item]: R8123');
+        Observer.Expect('Sales Invoice Header 1033', '[Microsoft.Sales.History.Sales Invoice Header]: R8123');
+        Observer.Expect('Item 1043 (extended, no unit)', '[Microsoft.Inventory.Item.Item]: R8123');
+        Observer.Expect('Sales Invoice Header 1043 (extended, cross-app unit)', '[Microsoft.Sales.History.Sales Invoice Header]: R8123');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R8123_RecordIdFormat9_NotExtendedBaseAppTables_Dutch_EnglishText()
+    var
+        Observer: Codeunit "Probe Observer";
+        UnitOfMeasure: Record "Unit of Measure";
+        InternalMovementLine: Record "Internal Movement Line";
+        Saved: Integer;
+    begin
+        UnitOfMeasure.Code := 'R8123';
+        InternalMovementLine."No." := 'R8123';
+        InternalMovementLine."Line No." := 10000;
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        Observer.Observe('Unit of Measure 1033', Format(UnitOfMeasure.RecordId(), 0, 9));
+        Observer.Observe('Internal Movement Line 1033', Format(InternalMovementLine.RecordId(), 0, 9));
+        GlobalLanguage(1043);
+        Observer.Observe('Unit of Measure 1043 (no unit)', Format(UnitOfMeasure.RecordId(), 0, 9));
+        Observer.Observe('Internal Movement Line 1043 (cross-app unit)', Format(InternalMovementLine.RecordId(), 0, 9));
+        GlobalLanguage(Saved);
+        Observer.Expect('Unit of Measure 1033', '[Microsoft.Foundation.UOM.Unit of Measure]: R8123');
+        Observer.Expect('Internal Movement Line 1033', '[Microsoft.Warehouse.InternalDocument.Internal Movement Line]: R8123,10000');
+        Observer.Expect('Unit of Measure 1043 (no unit)', '[Microsoft.Foundation.UOM.Unit of Measure]: R8123');
+        Observer.Expect('Internal Movement Line 1043 (cross-app unit)', '[Microsoft.Warehouse.InternalDocument.Internal Movement Line]: R8123,10000');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R8123_RecordIdFormat9_OwnTableWithTranslatedCaption_Dutch_TableName()
+    var
+        Observer: Codeunit "Probe Observer";
+        TaItem: Record "LT TA Item";
+        Saved: Integer;
+    begin
+        TaItem."No." := 'R8123';
+        Saved := GlobalLanguage();
+        GlobalLanguage(1033);
+        Observer.Observe('LT TA Item 1033', Format(TaItem.RecordId(), 0, 9));
+        GlobalLanguage(1043);
+        Observer.Observe('LT TA Item 1043 (own unit)', Format(TaItem.RecordId(), 0, 9));
+        GlobalLanguage(Saved);
+        Observer.Expect('LT TA Item 1033', 'LT TA Item: R8123');
+        Observer.Expect('LT TA Item 1043 (own unit)', 'LT TA Item: R8123');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure R8123_RecordIdFormat1_Dutch_SourceCaptions()
+    var
+        Observer: Codeunit "Probe Observer";
+        Item: Record Item;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        UnitOfMeasure: Record "Unit of Measure";
+        InternalMovementLine: Record "Internal Movement Line";
+        TaItem: Record "LT TA Item";
+        Saved: Integer;
+    begin
+        Item."No." := 'R8123';
+        SalesInvoiceHeader."No." := 'R8123';
+        UnitOfMeasure.Code := 'R8123';
+        InternalMovementLine."No." := 'R8123';
+        InternalMovementLine."Line No." := 10000;
+        TaItem."No." := 'R8123';
+        Saved := GlobalLanguage();
+        GlobalLanguage(1043);
+        Observer.Observe('Item (extended, no unit)', Format(Item.RecordId(), 0, 1));
+        Observer.Observe('Sales Invoice Header (extended, cross-app unit)', Format(SalesInvoiceHeader.RecordId(), 0, 1));
+        Observer.Observe('Unit of Measure (no unit)', Format(UnitOfMeasure.RecordId(), 0, 1));
+        Observer.Observe('Internal Movement Line (cross-app unit)', Format(InternalMovementLine.RecordId(), 0, 1));
+        Observer.Observe('LT TA Item (own unit)', Format(TaItem.RecordId(), 0, 1));
+        Observer.Observe('LT TA Item TableCaption', TaItem.TableCaption());
+        GlobalLanguage(Saved);
+        Observer.Expect('Item (extended, no unit)', 'Item: R8123');
+        Observer.Expect('Sales Invoice Header (extended, cross-app unit)', 'Sales Invoice Header: R8123');
+        Observer.Expect('Unit of Measure (no unit)', 'Unit of Measure: R8123');
+        Observer.Expect('Internal Movement Line (cross-app unit)', 'Internal Movement Line: R8123,10000');
+        Observer.Expect('LT TA Item (own unit)', 'LT TA Item: R8123');
+        Observer.Expect('LT TA Item TableCaption', 'LT TA Artikel');
+        Observer.Verify();
+    end;
 }
