@@ -8,11 +8,12 @@
 //   WordTransformation.ConvertToHtml(OfficeWordDocumentMerger.MergeWordDocument(layout, dataset, null, ..)); the runner calls the
 //   same two methods from the artifact. A hash equal to the runner's own render on each major is the gate of that amendment.
 //   Also the hash of Email Message.GetBody after Create(.., Body, true), where System Application runs its rgba replace.
-// Observed on BC 27.5, 28.5 and 29.0 (CI run of the probe pull request): the 27 and 28 values are equal, 29 differs (Aspose.Words version).
+// Observed on the CI builds BC 27.5.46862.58057, 28.5.54151.58194 and 29.0.54011.55816: the 27 and 28 values are equal (the converter is
+//   Aspose.Words 26.10.0 there), 29 differs (Aspose.Words 26.8.0). The converter writes its version into the Html as a generator meta
+//   tag, so the hash and the char count include the converter version string: a different BC build can give a different hash.
 // Facts observed per cell: completed, returned, error text and code, byte count, SHA-256 of the saved bytes, SHA-256 of GetBody,
 //   and for the tenant cells whether the hash equals the hash of the same report's own layout (no rewrite of a Tenant Report Layout
-//   row's docx on Insert). Expected values differ by major (Aspose.Words 25.7 / 26.3 / 26.10 writes its version into the Html):
-//   filled from the local observe host per major, guarded per version.
+//   row's docx on Insert). Values taken from the CI observation run of the probe pull request, guarded per version.
 // Bound cells: RX Hash Bound (report 80031) with the hand-built RxHashBound.docx binds Text, Integer, Decimal and Date columns in a repeating row section.
 // Linux suspect: none of these layouts has a picture (a picture cell is queued separately; it needs the Windows nightly).
 // local object: the reports' own layouts and their dataset table are what the tests check.
