@@ -10,7 +10,7 @@
 //   a ReportHandler; Report.RunRequestPage with and without a handler; a TestPage OpenView; a read of the Session table and of
 //   the Active Session table.
 // How to run: publish this app next to the main corpus app, then call codeunit 130454 over OData for the test codeunit range
-//   97880..97889. ci.yml and the Windows nightly cannot run it: they run every test in a session with a client (TestRunnerHub,
+//   97880..97899. ci.yml and the Windows nightly cannot run it: they run every test in a session with a client (TestRunnerHub,
 //   or page 130455 through Run-TestsInBcContainer), and a test cannot start a web-service session
 //   (pages/background-tasks/BjNoClientDialogs.al:7-8). So the expected values are not filled in yet: each test ends with
 //   Finish, and its failure message carries what BC did.
@@ -24,6 +24,8 @@
 //   Report.RunRequestPage fails; a TestPage open fails (NotSupportedException); a Session read fails ("The Active Session does
 //   not exist", with and without the Read grant). Not measured yet: Confirm, StrMenu and Notification.Send without a handler,
 //   Page.Run and Page.RunModal of a page id, Dialog.Open, the Active Session read.
+// The report is the reporter's report 51440 of al-runner issue 8028 member for member (ProcessingOnly = true, one data item with
+//   nothing in it, an empty Content area, nothing else). Neighbors of these cells: WsSessionNeighbors.al.
 // BC versions: 27, 28, 29 (to run)
 
 table 97880 "LT WS Row"
@@ -57,7 +59,6 @@ page 97881 "LT WS Card"
 report 97882 "LT WS Report"
 {
     ProcessingOnly = true;
-    UsageCategory = None;
 
     dataset
     {
