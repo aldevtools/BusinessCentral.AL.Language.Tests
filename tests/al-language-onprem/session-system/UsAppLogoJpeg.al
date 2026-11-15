@@ -1,12 +1,12 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-json-files
 // Scope: in-scope (OnPrem app: the Published Application table is OnPrem)
 // Fixtures used: Probe Observer (codeunit 69160); a NEW cross-app fixture E whose app.json declares "logo": "logo.jpg" (an 8 x 8
-//   baseline JPEG; the writer records its byte length and SHA-256 in the labels below) and that registers an assisted setup in an
+//   baseline JPEG, 307 bytes; its SHA-256 is in the label below) and that registers an assisted setup in an
 //   OnRegisterAssistedSetup subscriber, as fixture D does for its PNG.
 // Probe (outside issue al-runner 8061): next to UsAppLogo.al, the Logo (Media) of the Published Application row of an app whose
 //   logo is a JPEG: has it a value, which Media columns (Mime Type, Height, Width), are the bytes the file unchanged; and does the
 //   login's registration of fixture E's assisted setup (Guided Experience GetExtensionLogo + Icon.ImportStream) run without an error.
-// Observe form: no Expect yet; the writer fills them from the local BC run.
+// Observe form: the first CI run records what BC did; the assertions follow.
 // BC versions: 27, 28, 29
 codeunit 98012 "LT US App Logo Jpeg"
 {
@@ -14,8 +14,8 @@ codeunit 98012 "LT US App Logo Jpeg"
     TestPermissions = Disabled;
 
     var
-        AppEId: Label '00000000-0000-0000-0000-000000000000', Locked = true; // the writer puts fixture E's app id here
-        JpegSha256: Label '', Locked = true; // the writer puts the SHA-256 of fixture E's logo.jpg here
+        AppEId: Label 'b4f0ccbc-b970-4e2c-8d83-94481f40e804', Locked = true;
+        JpegSha256: Label 'fe4b2404523616a34f078cf93dfd7d437016df51bf0c3a5ab40d50a70a8f7d20', Locked = true;
 
     local procedure ColumnDump(var Media: Record Media): Text
     var
@@ -103,7 +103,7 @@ codeunit 98012 "LT US App Logo Jpeg"
         Observer.Observe('content has value', Format(Media.Content.HasValue()));
         Observer.Observe('length', Format(LenOf(Media)));
         Observer.Observe('equals file', Format(ReadSha256(Media) = JpegSha256));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     // The login raised OnRegisterAssistedSetup before this test; fixture E's subscriber registered its wizard with E's logo as the
@@ -118,6 +118,6 @@ codeunit 98012 "LT US App Logo Jpeg"
         Observer.Observe('jpeg tenant media rows', Format(TenantMedia.Count()));
         TenantMedia.SetRange("Mime Type", 'image/png');
         Observer.Observe('png tenant media rows', Format(TenantMedia.Count()));
-        Observer.Verify();
+        Observer.Finish();
     end;
 }

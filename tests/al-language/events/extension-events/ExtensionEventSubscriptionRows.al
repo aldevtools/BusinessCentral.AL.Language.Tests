@@ -8,7 +8,7 @@
 // subscriber codeunit alone counts. Cells: integration event of a table extension (same app), of a page extension (same app),
 // of a report extension (same app); a business event and an IncludeSender integration event of a table extension; a manual
 // subscriber; SkipOnMissingLicense/SkipOnMissingPermission true; a table extension of a System Application table (another app).
-// Observe form: no Expect yet; the writer fills them from the local BC run.
+// Observe form: the first CI run records what BC did; the assertions follow.
 // BC versions: 27, 28, 29
 
 table 61500 "LT EER Rec"
@@ -182,7 +182,7 @@ codeunit 61509 "LT EER Rows"
     begin
         Observer.Observe('row', Dump(Codeunit::"LT EER Table Sub", 'OnTableExtIntegrationSub'));
         Observer.Observe('count', Format(CountOf(Codeunit::"LT EER Table Sub")));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -191,7 +191,7 @@ codeunit 61509 "LT EER Rows"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('row', Dump(Codeunit::"LT EER Table Sub", 'OnTableExtSenderSub'));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -200,7 +200,7 @@ codeunit 61509 "LT EER Rows"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('row', Dump(Codeunit::"LT EER Table Sub", 'OnTableExtBusinessSub'));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -209,7 +209,7 @@ codeunit 61509 "LT EER Rows"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('row', Dump(Codeunit::"LT EER Table Sub", 'OnTableExtSkipFlagsSub'));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -219,7 +219,7 @@ codeunit 61509 "LT EER Rows"
     begin
         Observer.Observe('row', Dump(Codeunit::"LT EER Page Sub", 'OnPageExtIntegrationSub'));
         Observer.Observe('count', Format(CountOf(Codeunit::"LT EER Page Sub")));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -229,7 +229,7 @@ codeunit 61509 "LT EER Rows"
     begin
         Observer.Observe('row', Dump(Codeunit::"LT EER Report Sub", 'OnReportExtIntegrationSub'));
         Observer.Observe('count', Format(CountOf(Codeunit::"LT EER Report Sub")));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -238,7 +238,7 @@ codeunit 61509 "LT EER Rows"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('row', Dump(Codeunit::"LT EER Manual Sub", 'OnTableExtIntegrationManual'));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -248,7 +248,7 @@ codeunit 61509 "LT EER Rows"
     begin
         Observer.Observe('row', Dump(Codeunit::"LT EER Other App Sub", 'OnOtherAppTableExtIntegrationSub'));
         Observer.Observe('count', Format(CountOf(Codeunit::"LT EER Other App Sub")));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -263,6 +263,6 @@ codeunit 61509 "LT EER Rows"
         E.SetRange(Active);
         E.SetFilter("Error Information", '<>%1', '');
         Observer.Observe('withError', Format(E.Count()));
-        Observer.Verify();
+        Observer.Finish();
     end;
 }
