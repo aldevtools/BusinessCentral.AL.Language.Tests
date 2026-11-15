@@ -13,6 +13,7 @@
 //   and for the tenant cells whether the hash equals the hash of the same report's own layout (no rewrite of a Tenant Report Layout
 //   row's docx on Insert). Expected values differ by major (Aspose.Words 25.7 / 26.3 / 26.10 writes its version into the Html):
 //   filled from the local observe host per major, guarded per version.
+// Bound cells: RX Hash Bound (report 80031) with the hand-built RxHashBound.docx binds Text, Integer, Decimal and Date columns in a repeating row section.
 // Linux suspect: none of these layouts has a picture (a picture cell is queued separately; it needs the Windows nightly).
 // local object: the reports' own layouts and their dataset table are what the tests check.
 // BC versions: 27 - 29
@@ -41,6 +42,33 @@ report 80030 "RX Hash Values"
         {
             Type = Word;
             LayoutFile = './reports/html-email-body/RxHashValues.docx';
+        }
+    }
+}
+
+report 80031 "RX Hash Bound"
+{
+    UsageCategory = None;
+    UseRequestPage = false;
+    DefaultRenderingLayout = RxHashBound;
+
+    dataset
+    {
+        dataitem(Row; "RX Row")
+        {
+            column(RowId; Id) { }
+            column(RowTxt; Txt) { }
+            column(Amount; Id * 1234.5) { AutoFormatType = 1; }
+            column(Day; DMY2Date(1, 2, 2026)) { }
+        }
+    }
+
+    rendering
+    {
+        layout(RxHashBound)
+        {
+            Type = Word;
+            LayoutFile = './reports/html-email-body/RxHashBound.docx';
         }
     }
 }
@@ -346,6 +374,59 @@ codeunit 80029 "RX Html Hash Tests"
         Observer.Expect('sha256', '1F295BA297A97A8DCA8DB1FEE05269DE5B2F6844E9BED71B7F2F8CD98AD2AC7F');
 #endif
         Observer.Verify();
+    end;
+
+    // Hand-built layout RxHashBound.docx: two static paragraphs with rgba(), and a repeating row section whose cells are bound to a
+    // Text, an Integer, a Decimal (AutoFormatType 1) and a Date column of the dataset.
+    local procedure BoundFacts(var Observer: Codeunit "Probe Observer"; Body: Text)
+    begin
+        Observer.Observe('count RXROW', Format(Html.CountOf(Body, 'RXROW')));
+        Observer.Observe('has RXROW1', Format(StrPos(Body, 'RXROW1') > 0));
+        Observer.Observe('has RXROW3', Format(StrPos(Body, 'RXROW3') > 0));
+        Observer.Observe('has 1,234.5', Format(StrPos(Body, '1,234.5') > 0));
+        Observer.Observe('has 3,703.5', Format(StrPos(Body, '3,703.5') > 0));
+        Observer.Observe('has 1/2/2026', Format(StrPos(Body, '1/2/2026') > 0));
+        Observer.Observe('has 01/02/2026', Format(StrPos(Body, '01/02/2026') > 0));
+        Observer.Observe('has 2026-02-01', Format(StrPos(Body, '2026-02-01') > 0));
+    end;
+
+    [Test]
+    procedure Bound_OneRow()
+    var
+        Observer: Codeunit "Probe Observer";
+        Body: Text;
+    begin
+        HashCell(Observer, Report::"RX Hash Bound", 1, Body);
+        BoundFacts(Observer, Body);
+        GetBodyCell(Observer, Body);
+        Observer.Observe('OBSHTML', Body);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Bound_ThreeRows()
+    var
+        Observer: Codeunit "Probe Observer";
+        Body: Text;
+    begin
+        HashCell(Observer, Report::"RX Hash Bound", 3, Body);
+        BoundFacts(Observer, Body);
+        GetBodyCell(Observer, Body);
+        Observer.Observe('OBSHTML', Body);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Bound_RowCountChangesHash()
+    var
+        Observer: Codeunit "Probe Observer";
+        One: Text;
+        Three: Text;
+    begin
+        HashCell(Observer, Report::"RX Hash Bound", 1, One);
+        HashCell(Observer, Report::"RX Hash Bound", 3, Three);
+        Observer.Observe('sha 1 row = sha 3 rows', Format(Sha(One) = Sha(Three)));
+        Observer.Finish();
     end;
 
     // Save-table neighbors of al-runner issue 6924 (not rendering): what SaveAs Pdf answers for a Word layout report with two data
