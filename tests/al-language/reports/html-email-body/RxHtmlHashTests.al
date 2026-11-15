@@ -8,6 +8,7 @@
 //   WordTransformation.ConvertToHtml(OfficeWordDocumentMerger.MergeWordDocument(layout, dataset, null, ..)); the runner calls the
 //   same two methods from the artifact. A hash equal to the runner's own render on each major is the gate of that amendment.
 //   Also the hash of Email Message.GetBody after Create(.., Body, true), where System Application runs its rgba replace.
+// Observed on BC 27.5, 28.5 and 29.0 (CI run of the probe pull request): the 27 and 28 values are equal, 29 differs (Aspose.Words version).
 // Facts observed per cell: completed, returned, error text and code, byte count, SHA-256 of the saved bytes, SHA-256 of GetBody,
 //   and for the tenant cells whether the hash equals the hash of the same report's own layout (no rewrite of a Tenant Report Layout
 //   row's docx on Insert). Expected values differ by major (Aspose.Words 25.7 / 26.3 / 26.10 writes its version into the Html):
@@ -119,7 +120,22 @@ codeunit 80029 "RX Html Hash Tests"
     begin
         HashCell(Observer, Report::"RX Word Default", 1, Body);
         GetBodyCell(Observer, Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '428');
+        Observer.Expect('sha256', 'F17FE0E0CF4E23671E7C3221256F3F46F58505B479EB209E39C9C25AF872AE20');
+        Observer.Expect('getbody chars', '428');
+        Observer.Expect('getbody sha256', 'F17FE0E0CF4E23671E7C3221256F3F46F58505B479EB209E39C9C25AF872AE20');
+#else
+        Observer.Expect('chars', '429');
+        Observer.Expect('sha256', '08A98ED74F8ED6422E0F47C6C79DE89A54CD73DCB8A7A5CD1541E107FB99DE5D');
+        Observer.Expect('getbody chars', '429');
+        Observer.Expect('getbody sha256', '08A98ED74F8ED6422E0F47C6C79DE89A54CD73DCB8A7A5CD1541E107FB99DE5D');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -129,7 +145,18 @@ codeunit 80029 "RX Html Hash Tests"
         Body: Text;
     begin
         HashCell(Observer, Report::"RX Word Default", 3, Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '428');
+        Observer.Expect('sha256', 'F17FE0E0CF4E23671E7C3221256F3F46F58505B479EB209E39C9C25AF872AE20');
+#else
+        Observer.Expect('chars', '429');
+        Observer.Expect('sha256', '08A98ED74F8ED6422E0F47C6C79DE89A54CD73DCB8A7A5CD1541E107FB99DE5D');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -140,7 +167,22 @@ codeunit 80029 "RX Html Hash Tests"
     begin
         HashCell(Observer, Report::"RX Word Alpha", 2, Body);
         GetBodyCell(Observer, Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '1747');
+        Observer.Expect('sha256', '096C6CDFFA8D335E84FE37FABAA8A070C77F03103898FAE81DDE30BC2D69BB30');
+        Observer.Expect('getbody chars', '1747');
+        Observer.Expect('getbody sha256', '096C6CDFFA8D335E84FE37FABAA8A070C77F03103898FAE81DDE30BC2D69BB30');
+#else
+        Observer.Expect('chars', '1748');
+        Observer.Expect('sha256', 'B9A3BCDDC928B21D9A7371CBE7A841BEF74C17FC4364A7D73DDDD9C5EBB4387B');
+        Observer.Expect('getbody chars', '1748');
+        Observer.Expect('getbody sha256', 'B9A3BCDDC928B21D9A7371CBE7A841BEF74C17FC4364A7D73DDDD9C5EBB4387B');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -152,7 +194,22 @@ codeunit 80029 "RX Html Hash Tests"
         // The layout's static text holds rgba(r,g,b,1): GetBody differs from the body by System Application's replace.
         HashCell(Observer, Report::"RX Word Rgba", 2, Body);
         GetBodyCell(Observer, Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '1336');
+        Observer.Expect('sha256', '2F6A43A8F0CE15CFED0C90D266F2F9CE2B1FA62A9052A2B025BFA1854AC84C29');
+        Observer.Expect('getbody chars', '1329');
+        Observer.Expect('getbody sha256', 'CA6543A38BA5626FE3A2C0082923C6FA62D7B4D663523CD01BA2114B471BA50E');
+#else
+        Observer.Expect('chars', '1337');
+        Observer.Expect('sha256', '66C10E37E1C9D3B4EAF515472E216CDEC0041F471855636C88A5DF1AD91E6D1F');
+        Observer.Expect('getbody chars', '1330');
+        Observer.Expect('getbody sha256', '2FBCF34F41BF065F463724DD4422B0891D253AA2CF2B3A6CAA124A607864C55E');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -173,7 +230,37 @@ codeunit 80029 "RX Html Hash Tests"
         Cleanup(Report::"RX Word Rgba");
         Observer.Observe('tenant sha256 = own sha256', Format(Sha(Body) = Sha(OwnBody)));
         GetBodyCell(Observer, Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '1336');
+        Observer.Expect('sha256', '2F6A43A8F0CE15CFED0C90D266F2F9CE2B1FA62A9052A2B025BFA1854AC84C29');
+#else
+        Observer.Expect('chars', '1337');
+        Observer.Expect('sha256', '66C10E37E1C9D3B4EAF515472E216CDEC0041F471855636C88A5DF1AD91E6D1F');
+#endif
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '1336');
+        Observer.Expect('sha256', '2F6A43A8F0CE15CFED0C90D266F2F9CE2B1FA62A9052A2B025BFA1854AC84C29');
+#else
+        Observer.Expect('chars', '1337');
+        Observer.Expect('sha256', '66C10E37E1C9D3B4EAF515472E216CDEC0041F471855636C88A5DF1AD91E6D1F');
+#endif
+        Observer.Expect('tenant sha256 = own sha256', 'Yes');
+#if BC29PLUS
+        Observer.Expect('getbody chars', '1329');
+        Observer.Expect('getbody sha256', 'CA6543A38BA5626FE3A2C0082923C6FA62D7B4D663523CD01BA2114B471BA50E');
+#else
+        Observer.Expect('getbody chars', '1330');
+        Observer.Expect('getbody sha256', '2FBCF34F41BF065F463724DD4422B0891D253AA2CF2B3A6CAA124A607864C55E');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -183,7 +270,18 @@ codeunit 80029 "RX Html Hash Tests"
         Body: Text;
     begin
         HashCell(Observer, Report::"RX Two Items", 2, Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '425');
+        Observer.Expect('sha256', '210B3BD7FE0076834F035CBF470223568A35CB3C06328A835EFD87FC431AC5DB');
+#else
+        Observer.Expect('chars', '426');
+        Observer.Expect('sha256', 'D019C73543B39C0383ABADADF021884226F954F6C98737BFC40C270E8CA89A81');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -193,7 +291,18 @@ codeunit 80029 "RX Html Hash Tests"
         Body: Text;
     begin
         HashCell(Observer, Report::"RX Ext Base", 2, Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '424');
+        Observer.Expect('sha256', '290F1C18D4D8623D231D944466A499DB960DC83D33D2FC0471688DCF0C5D9F73');
+#else
+        Observer.Expect('chars', '425');
+        Observer.Expect('sha256', '509E377892CD7B011484D4AFDD04ADC261BB7901240EA03EC8DFE9D5D8DEA044');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -203,7 +312,18 @@ codeunit 80029 "RX Html Hash Tests"
         Body: Text;
     begin
         HashCell(Observer, Report::"RX Legacy Word", 2, Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '427');
+        Observer.Expect('sha256', '7ADB40FAB2163897CACE9EE3F231B99C69C72B46DF32BEA860563DD2E1CEAF60');
+#else
+        Observer.Expect('chars', '428');
+        Observer.Expect('sha256', '929BBA7B63A62913DFB5B26CE8110F33434412034A9FB18068198C97AF91B307');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -214,7 +334,18 @@ codeunit 80029 "RX Html Hash Tests"
     begin
         // Decimal with AutoFormat, a Date, and & < > " in a value: the dataset text the merger binds.
         HashCell(Observer, Report::"RX Hash Values", 2, Body);
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+#if BC29PLUS
+        Observer.Expect('chars', '427');
+        Observer.Expect('sha256', 'AFCF8B6262AAF294A49A4F0D0F25601B7B87CC7A5D4B1B179A99996C7E968664');
+#else
+        Observer.Expect('chars', '428');
+        Observer.Expect('sha256', '1F295BA297A97A8DCA8DB1FEE05269DE5B2F6844E9BED71B7F2F8CD98AD2AC7F');
+#endif
+        Observer.Verify();
     end;
 
     // Save-table neighbors of al-runner issue 6924 (not rendering): what SaveAs Pdf answers for a Word layout report with two data
@@ -234,7 +365,11 @@ codeunit 80029 "RX Html Hash Tests"
         Observer.Observe('returned', Format(Ok));
         Observer.ObserveError('err');
         Observer.Observe('has value', Format(TempBlob.HasValue()));
-        Observer.Finish();
+        Observer.Expect('returned', 'No');
+        Observer.Expect('err|text', 'The report couldn’t be generated, because it was empty. Adjust your filters and try again.');
+        Observer.Expect('err|code', 'ReportResultEmpty');
+        Observer.Expect('has value', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -260,6 +395,10 @@ codeunit 80029 "RX Html Hash Tests"
         Observer.Observe('returned', Format(Ok));
         Observer.ObserveError('err');
         Observer.Observe('has value', Format(TempBlob.HasValue()));
-        Observer.Finish();
+        Observer.Expect('returned', 'Yes');
+        Observer.Expect('err|text', '');
+        Observer.Expect('err|code', '');
+        Observer.Expect('has value', 'Yes');
+        Observer.Verify();
     end;
 }
