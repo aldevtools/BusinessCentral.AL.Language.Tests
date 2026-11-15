@@ -451,7 +451,7 @@ codeunit 77609 "DKO Tests"
         Observer.Observe('caption', P.Caption());
         P.Close();
         Observer.Observe('log after', Log.Joined());
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -473,7 +473,7 @@ codeunit 77609 "DKO Tests"
         Observer.Observe('caption', P.Caption());
         P.Close();
         Observer.Observe('log after', Log.Joined());
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -494,7 +494,7 @@ codeunit 77609 "DKO Tests"
         Observer.Observe('log', Log.Joined());
         P.Close();
         Observer.Observe('log after', Log.Joined());
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -515,7 +515,7 @@ codeunit 77609 "DKO Tests"
         Observer.Observe('log', Log.Joined());
         P.Close();
         Observer.Observe('log after', Log.Joined());
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -535,7 +535,7 @@ codeunit 77609 "DKO Tests"
         Observer.Observe('caption', P.Caption());
         Observer.Observe('log after caption', Log.Joined());
         P.Close();
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -555,7 +555,7 @@ codeunit 77609 "DKO Tests"
         Observer.Observe('caption', P.Caption());
         Observer.Observe('log after caption', Log.Joined());
         P.Close();
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     // Shape O: the handler invokes the action, reads the row and (in the caption handlers) the caption.
@@ -616,7 +616,7 @@ codeunit 77609 "DKO Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     local procedure LinesPlain(Rows: Integer)
@@ -634,7 +634,7 @@ codeunit 77609 "DKO Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     local procedure LinesLogged(Rows: Integer)
@@ -652,7 +652,7 @@ codeunit 77609 "DKO Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [ModalPageHandler]
