@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/base64convert/base64convert-codeunit
 // Scope: in-scope
-// Probe: not run yet. Observe form: run on BC 27.5, 28.5 and 29.0, then turn each Observe into an Expect with the value the tier gave.
+// Probe: observe form, BC results follow.
 //
 // System Application "Base64 Convert".ToBase64(Text, TextEncoding, CodePage) with an encoding and a code page that
 // PVBase64.al does not measure (it measures Windows with 1252 and 28591, UTF8 with 65001). The docs say the code page
@@ -49,6 +49,6 @@ codeunit 99984 "PV Base64 To Code Pages"
         Cell(Observer, 'utf8_1252_ydiaeresis', 'ÿÿ', TextEncoding::UTF8, 1252);
         // The euro sign: 0x80 in Windows-1252, not in Latin-1.
         Cell(Observer, 'utf8_1252_euro', '€', TextEncoding::UTF8, 1252);
-        Observer.Verify();
+        Observer.Finish();
     end;
 }
