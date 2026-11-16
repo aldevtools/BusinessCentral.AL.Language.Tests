@@ -8,6 +8,7 @@
 // This file is in namespace LT.SN.Alpha, the namespace of twin 77150, and has no `using`.
 // Each test binds this codeunit, calls Ping of one twin (named by its qualified name) and records the log the subscribers wrote.
 // The subscriber that names the publisher by its plain name writes 'plain;'.
+// Measured on BC 27.5, 28.5 and 29.0 (observe run 43805337922): the results are the same on all three majors.
 // Compiled with the AL compilers of BC 28 and 29: the file compiles without a diagnostic.
 namespace LT.SN.Alpha;
 
@@ -31,7 +32,8 @@ codeunit 77153 "LT SN Own Ns Tests"
         Shared.Ping(Log);
         UnbindSubscription(this);
         Observer.Observe('log', Log);
-        Observer.Finish();
+        Observer.Expect('log', 'plain;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -45,7 +47,8 @@ codeunit 77153 "LT SN Own Ns Tests"
         Shared.Ping(Log);
         UnbindSubscription(this);
         Observer.Observe('log', Log);
-        Observer.Finish();
+        Observer.Expect('log', '');
+        Observer.Verify();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"LT SN Shared", 'OnPing', '', false, false)]

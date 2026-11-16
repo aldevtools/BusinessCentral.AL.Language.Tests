@@ -10,6 +10,7 @@
 // The subscriber that names the publisher by its plain name writes 'plain;'.
 // Two more subscribers name each twin by its qualified name (Codeunit::LT.SN.Alpha."LT SN Shared" writes 'qualified alpha;', the Beta
 // one 'qualified beta;').
+// Measured on BC 27.5, 28.5 and 29.0 (observe run 43805337922): the results are the same on all three majors.
 // Compiled with the AL compilers of BC 28 and 29: the file compiles without a diagnostic.
 namespace LT.SN.Tests;
 using LT.SN.Beta;
@@ -34,7 +35,8 @@ codeunit 77152 "LT SN Using Tests"
         Shared.Ping(Log);
         UnbindSubscription(this);
         Observer.Observe('log', Log);
-        Observer.Finish();
+        Observer.Expect('log', 'qualified alpha;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -48,7 +50,8 @@ codeunit 77152 "LT SN Using Tests"
         Shared.Ping(Log);
         UnbindSubscription(this);
         Observer.Observe('log', Log);
-        Observer.Finish();
+        Observer.Expect('log', 'plain;qualified beta;');
+        Observer.Verify();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"LT SN Shared", 'OnPing', '', false, false)]
