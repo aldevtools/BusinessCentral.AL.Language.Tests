@@ -714,7 +714,7 @@ codeunit 72020 "LT HtT Content Stream"
     end;
 
     [Test]
-    procedure HttpContent_WriteStream_FreshChangedType()
+    procedure HttpContent_WriteStream_FreshAndChangedTypesPreserved()
     var
         Scenario: Integer;
     begin
@@ -730,7 +730,7 @@ codeunit 72020 "LT HtT Content Stream"
     end;
 
     [Test]
-    procedure HttpContent_WriteStream_ResetCopiedType()
+    procedure HttpContent_WriteStream_ResetAndCopyPreserveType()
     var
         Scenario: Integer;
     begin
@@ -745,7 +745,7 @@ codeunit 72020 "LT HtT Content Stream"
     end;
 
     [Test]
-    procedure HttpContent_WriteStream_IndependentCopy()
+    procedure HttpContent_WriteStream_CopiesPreserveIndependentTypes()
     var
         Scenario: Integer;
     begin
@@ -763,7 +763,7 @@ codeunit 72020 "LT HtT Content Stream"
     end;
 
     [Test]
-    procedure HttpContent_WriteStream_ResponseContent()
+    procedure HttpContent_WriteStream_ResponseContentPreservesType()
     var
         Scenario: Integer;
     begin
@@ -779,7 +779,7 @@ codeunit 72020 "LT HtT Content Stream"
     end;
 
     [Test]
-    procedure HttpContent_WriteStream_AfterRewriteAndClear()
+    procedure HttpContent_WriteStream_RewriteAndClearLeavesTypeAbsent()
     var
         Scenario: Integer;
     begin
