@@ -1,12 +1,16 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/page/page-update-method
 // Scope: in-scope
 // local object: the table field's OnValidate that inserts the page's new line, and the page triggers that log, are what is under test
-// Fixtures used: shared Assert (60021); own table 97030, log codeunit 97031, pages 97032 and 97033, opener codeunit 97034, test codeunit 97035
+// Fixtures used: shared Assert (60021); own table 97030, log codeunit 97031, pages 97032, 97033, 97036 to 97039, opener codeunit 97034,
+//   test codeunit 97035
 // Probe (al-runner issue 8186): a List page stands on its new line (New()). SetValue on Name runs the table field's OnValidate, which inserts
 //   Rec itself (Insert(true), with an AutoIncrement key field), and then the control's OnValidate, which calls CurrPage.Update() or
-//   CurrPage.Update(false). Readings: the page and table triggers each step runs, the row the page shows after the refresh, the rows the
-//   table holds, where a later SetValue lands, and Previous()/Next() from there. Cells: a page with and without AutoSplitKey, opened with
-//   OpenEdit and with Page.RunModal, on an empty view and on a view with one row before, Update() and Update(false).
+//   CurrPage.Update(false). Readings: the page, part and table triggers each step runs, the row the page shows after the refresh, the rows
+//   the table holds, where a later SetValue lands, and Previous()/Next() from there. Cells: a page with OnAfterGetRecord and
+//   OnAfterGetCurrRecord, with and without AutoSplitKey, opened with OpenEdit and with Page.RunModal, on an empty view and on a view with
+//   one row before, Update() and Update(false); a page with OnAfterGetRecord only and two CardPart FactBoxes linked to the line's key,
+//   opened with OpenEdit and with Page.RunModal on a record filtered to one group (a row of another group outside the view); a page
+//   without page triggers.
 //   Measured on a local BC 29.1 OnPrem w1 container; BC 27.5 and 28.5 are left to CI.
 // BC versions: 27, 28, 29
 
@@ -231,6 +235,140 @@ codeunit 97034 "LT NI Opener"
     begin
         Page.RunModal(Page::"LT NI Lines", Line);
     end;
+
+    procedure OpenWithParts(GroupCode: Code[10])
+    var
+        Line: Record "LT NI Line";
+    begin
+        Line.SetRange("Group Code", GroupCode);
+        Page.RunModal(Page::"LT NI Lines Parts", Line);
+    end;
+}
+
+// The host's shape in al-runner issue 8186: only OnAfterGetRecord, and CardPart FactBoxes linked to the line's key.
+page 97036 "LT NI Lines Parts"
+{
+    PageType = List;
+    SourceTable = "LT NI Line";
+    AutoSplitKey = true;
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                field(Name; Rec.Name)
+                {
+                    ApplicationArea = All;
+
+                    trigger OnValidate()
+                    begin
+                        Log.Add('P.V(' + Log.Bool(Rec."Entry No." <> 0) + ')');
+                        CurrPage.Update();
+                        Log.Add('P.V.end');
+                    end;
+                }
+                field(Value; Rec.Value) { ApplicationArea = All; }
+            }
+        }
+        area(FactBoxes)
+        {
+            part(Peek; "LT NI Peek")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Group Code" = field("Group Code"), "Entry No." = field("Entry No.");
+            }
+            part(PeekPlain; "LT NI Peek Plain")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Group Code" = field("Group Code"), "Entry No." = field("Entry No.");
+            }
+        }
+    }
+
+    trigger OnAfterGetRecord()
+    begin
+        Log.Add('P.AGR(' + Rec.Name + ')');
+    end;
+
+    var
+        Log: Codeunit "LT NI Log";
+}
+
+page 97037 "LT NI Peek"
+{
+    PageType = CardPart;
+    SourceTable = "LT NI Line";
+    ApplicationArea = All;
+
+    layout
+    {
+        area(Content)
+        {
+            field(Name; Rec.Name) { ApplicationArea = All; }
+        }
+    }
+
+    trigger OnAfterGetRecord()
+    begin
+        Log.Add('F.AGR(' + Rec.Name + ')');
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        Log.Add('F.AGCR(' + Rec.Name + ')');
+    end;
+
+    var
+        Log: Codeunit "LT NI Log";
+}
+
+page 97038 "LT NI Peek Plain"
+{
+    PageType = CardPart;
+    SourceTable = "LT NI Line";
+    ApplicationArea = All;
+
+    layout
+    {
+        area(Content)
+        {
+            field(Value; Rec.Value) { ApplicationArea = All; }
+        }
+    }
+}
+
+// The reporter's repro page: no page trigger.
+page 97039 "LT NI Lines Quiet"
+{
+    PageType = List;
+    SourceTable = "LT NI Line";
+    AutoSplitKey = true;
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                field(Name; Rec.Name)
+                {
+                    ApplicationArea = All;
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update();
+                    end;
+                }
+                field(Value; Rec.Value) { ApplicationArea = All; }
+            }
+        }
+    }
 }
 
 codeunit 97035 "LT NI Tests"
@@ -242,6 +380,8 @@ codeunit 97035 "LT NI Tests"
         Assert: Codeunit Assert;
         Log: Codeunit "LT NI Log";
         ModalRowBefore: Boolean;
+        Expected: List of [Text];
+        StepNo: Integer;
 
     local procedure Initialize(RowBefore: Boolean; UpdateFalse: Boolean)
     var
@@ -472,5 +612,208 @@ codeunit 97035 "LT NI Tests"
     begin
         DriveSplit(Lines, ModalRowBefore, false);
         Lines.OK().Invoke();
+    end;
+
+    // The host's shape in al-runner issue 8186 (only OnAfterGetRecord, two CardPart FactBoxes linked to the line's key) and the
+    // reporter's page without page triggers. Each step's reading is compared with the next expected `name=value` in order.
+
+    local procedure InitializeGroups(OtherGroupRow: Boolean; RowBefore: Boolean; GroupCode: Code[10])
+    var
+        Line: Record "LT NI Line";
+    begin
+        Line.DeleteAll();
+        if OtherGroupRow then begin
+            Line.Init();
+            Line."Group Code" := 'G1';
+            Line.Name := 'O';
+            Line.Insert();
+        end;
+        if RowBefore then begin
+            Line.Init();
+            Line."Group Code" := GroupCode;
+            Line.Name := 'A';
+            Line.Insert();
+        end;
+        Commit();
+        Log.Reset(false);
+        Clear(Expected);
+        StepNo := 0;
+    end;
+
+    local procedure Expect(Steps: Text)
+    var
+        Step: Text;
+    begin
+        foreach Step in Steps.Split(' | ') do
+            Expected.Add(Step);
+    end;
+
+    local procedure Check(Name: Text; Actual: Text)
+    begin
+        StepNo += 1;
+        Assert.AreEqual(Expected.Get(StepNo), Name + '=' + Actual, 'step ' + Format(StepNo));
+    end;
+
+    local procedure GroupRows(): Text
+    var
+        Line: Record "LT NI Line";
+        Result: Text;
+    begin
+        if Line.FindSet() then
+            repeat
+                Result += Line."Group Code" + ':' + Line.Name + '/' + Line.Value + ',';
+            until Line.Next() = 0;
+        exit(Result);
+    end;
+
+    local procedure DriveParts(var Lines: TestPage "LT NI Lines Parts")
+    begin
+        Check('open', Log.Take());
+        Check('openparts', Lines.Peek.Name.Value() + '/' + Lines.PeekPlain.Value.Value());
+        Lines.New();
+        Check('new', Log.Take());
+        Check('newparts', Lines.Peek.Name.Value() + '/' + Lines.PeekPlain.Value.Value());
+        Lines.Name.SetValue('X');
+        Check('setname', Log.Take());
+        Check('shown', Lines.Name.Value() + '/' + Lines.Value.Value());
+        Check('parts', Lines.Peek.Name.Value() + '/' + Lines.PeekPlain.Value.Value());
+        Check('partslog', Log.Take());
+        Check('rows1', GroupRows());
+        Lines.Value.SetValue('V');
+        Check('setvalue', Log.Take());
+        Check('shown2', Lines.Name.Value() + '/' + Lines.Value.Value());
+        Check('parts2', Lines.Peek.Name.Value() + '/' + Lines.PeekPlain.Value.Value());
+        Check('rows2', GroupRows());
+        Check('prev', Log.Bool(Lines.Previous()) + '/' + Lines.Name.Value());
+        Check('prevlog', Log.Take());
+        Check('prevparts', Lines.Peek.Name.Value() + '/' + Lines.PeekPlain.Value.Value());
+        Check('next', Log.Bool(Lines.Next()) + '/' + Lines.Name.Value());
+        Check('nextlog', Log.Take());
+        Check('nextparts', Lines.Peek.Name.Value() + '/' + Lines.PeekPlain.Value.Value());
+    end;
+
+    local procedure DriveQuiet(var Lines: TestPage "LT NI Lines Quiet")
+    begin
+        Lines.New();
+        Lines.Name.SetValue('X');
+        Check('setname', Log.Take());
+        Check('shown', Lines.Name.Value() + '/' + Lines.Value.Value());
+        Check('rows1', GroupRows());
+        Lines.Value.SetValue('V');
+        Check('setvalue', Log.Take());
+        Check('shown2', Lines.Name.Value() + '/' + Lines.Value.Value());
+        Check('rows2', GroupRows());
+        Check('prev', Log.Bool(Lines.Previous()) + '/' + Lines.Name.Value());
+        Check('prevlog', Log.Take());
+        Check('next', Log.Bool(Lines.Next()) + '/' + Lines.Name.Value());
+        Check('nextlog', Log.Take());
+    end;
+
+    [Test]
+    procedure ListNewLine_PartsHost_FieldValidateInserts_Update_RowBefore_PartsFollowTheLine()
+    var
+        Lines: TestPage "LT NI Lines Parts";
+    begin
+        InitializeGroups(false, true, '');
+        Expect('open=P.AGR(A);F.AGR(A);F.AGCR(A); | openparts=A/ | new= | newparts=A/' +
+            ' | setname=F.AGCR();T.V(X);T.I(X);P.V(T);T.M(X/);P.V.end;P.AGR(X);P.AGR(A);F.AGR(X);F.AGCR(X); | shown=X/ | parts=X/' +
+            ' | partslog= | rows1=:A/,:X/, | setvalue=F.AGR(X);F.AGCR(X); | shown2=X/V | parts2=X/ | rows2=:A/,:X/,' +
+            ' | prev=T/A | prevlog=P.AGR(X);T.M(X/V);F.AGR(A);F.AGCR(A); | prevparts=A/' +
+            ' | next=T/X | nextlog=F.AGR(X);F.AGCR(X); | nextparts=X/V | close= | rows3=:A/,:X/V,');
+        Lines.OpenEdit();
+        DriveParts(Lines);
+        Lines.Close();
+        Check('close', Log.Take());
+        Check('rows3', GroupRows());
+    end;
+
+    [Test]
+    procedure ListNewLine_PartsHost_FieldValidateInserts_Update_EmptyView_PartsFollowTheLine()
+    var
+        Lines: TestPage "LT NI Lines Parts";
+    begin
+        InitializeGroups(false, false, '');
+        Expect('open=F.AGCR(); | openparts=/ | new= | newparts=/' +
+            ' | setname=F.AGCR();T.V(X);T.I(X);P.V(T);T.M(X/);P.V.end;P.AGR(X);F.AGR(X);F.AGCR(X); | shown=X/ | parts=X/' +
+            ' | partslog= | rows1=:X/, | setvalue=F.AGR(X);F.AGCR(X); | shown2=X/V | parts2=X/ | rows2=:X/,' +
+            ' | prev=F/X | prevlog= | prevparts=X/' +
+            ' | next=T/ | nextlog=T.M(X/V);F.AGCR(); | nextparts=/ | close= | rows3=:X/V,');
+        Lines.OpenEdit();
+        DriveParts(Lines);
+        Lines.Close();
+        Check('close', Log.Take());
+        Check('rows3', GroupRows());
+    end;
+
+    [Test]
+    [HandlerFunctions('PartsModalHandler')]
+    procedure ListNewLine_PartsHost_RunModalFiltered_FieldValidateInserts_Update_EmptyView_PartsFollowTheLine()
+    var
+        Opener: Codeunit "LT NI Opener";
+    begin
+        InitializeGroups(true, false, 'G2');
+        Expect('open=F.AGCR(); | openparts=/ | new= | newparts=/' +
+            ' | setname=F.AGCR();T.V(X);T.I(X);P.V(T);T.M(X/);P.V.end;P.AGR(X);F.AGR(X);F.AGCR(X); | shown=X/ | parts=X/' +
+            ' | partslog= | rows1=G1:O/,G2:X/, | setvalue= | shown2=X/V | parts2=X/ | rows2=G1:O/,G2:X/,' +
+            ' | prev=F/X | prevlog= | prevparts=X/' +
+            ' | next=T/ | nextlog=T.M(X/V);F.AGCR(); | nextparts=/ | ok= | afterrun= | rows3=G1:O/,G2:X/V,');
+        Opener.OpenWithParts('G2');
+        Check('afterrun', Log.Take());
+        Check('rows3', GroupRows());
+    end;
+
+    [Test]
+    [HandlerFunctions('PartsModalHandler')]
+    procedure ListNewLine_PartsHost_RunModalFiltered_FieldValidateInserts_Update_RowBefore_PartsFollowTheLine()
+    var
+        Opener: Codeunit "LT NI Opener";
+    begin
+        InitializeGroups(true, true, 'G2');
+        Expect('open=P.AGR(A);F.AGR(A);F.AGCR(A); | openparts=A/ | new= | newparts=A/' +
+            ' | setname=F.AGCR();T.V(X);T.I(X);P.V(T);T.M(X/);P.V.end;P.AGR(X);P.AGR(A);F.AGR(X);F.AGCR(X); | shown=X/ | parts=X/' +
+            ' | partslog= | rows1=G1:O/,G2:A/,G2:X/, | setvalue= | shown2=X/V | parts2=X/ | rows2=G1:O/,G2:A/,G2:X/,' +
+            ' | prev=T/A | prevlog=P.AGR(X);T.M(X/V);F.AGR(A);F.AGCR(A); | prevparts=A/' +
+            ' | next=T/X | nextlog=F.AGR(X);F.AGCR(X); | nextparts=X/V | ok= | afterrun= | rows3=G1:O/,G2:A/,G2:X/V,');
+        Opener.OpenWithParts('G2');
+        Check('afterrun', Log.Take());
+        Check('rows3', GroupRows());
+    end;
+
+    [Test]
+    procedure ListNewLine_NoPageTriggers_FieldValidateInserts_Update_RowBefore_ModifiesTheLine()
+    var
+        Lines: TestPage "LT NI Lines Quiet";
+    begin
+        InitializeGroups(false, true, '');
+        Expect('setname=T.V(X);T.I(X);T.M(X/); | shown=X/ | rows1=:A/,:X/, | setvalue= | shown2=X/V | rows2=:A/,:X/,' +
+            ' | prev=T/A | prevlog=T.M(X/V); | next=T/X | nextlog= | close= | rows3=:A/,:X/V,');
+        Lines.OpenEdit();
+        DriveQuiet(Lines);
+        Lines.Close();
+        Check('close', Log.Take());
+        Check('rows3', GroupRows());
+    end;
+
+    [Test]
+    procedure ListNewLine_NoPageTriggers_FieldValidateInserts_Update_EmptyView_ModifiesTheLine()
+    var
+        Lines: TestPage "LT NI Lines Quiet";
+    begin
+        InitializeGroups(false, false, '');
+        Expect('setname=T.V(X);T.I(X);T.M(X/); | shown=X/ | rows1=:X/, | setvalue= | shown2=X/V | rows2=:X/,' +
+            ' | prev=F/X | prevlog= | next=T/ | nextlog=T.M(X/V); | close= | rows3=:X/V,');
+        Lines.OpenEdit();
+        DriveQuiet(Lines);
+        Lines.Close();
+        Check('close', Log.Take());
+        Check('rows3', GroupRows());
+    end;
+
+    [ModalPageHandler]
+    procedure PartsModalHandler(var Lines: TestPage "LT NI Lines Parts")
+    begin
+        DriveParts(Lines);
+        Lines.OK().Invoke();
+        Check('ok', Log.Take());
     end;
 }
