@@ -1,8 +1,8 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-data-type
 // Scope: in-scope
-// Fixtures used: LT RcA tables and seed codeunit in RcAObjects.al, Probe Observer (69160)
-// Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
-// BC versions: 29 (27 and 28 by CI)
+// Fixtures used: LT RcA tables and seed codeunit in RcAObjects.al, Probe Observer (69160), REC Decimal Unique
+// Probe: existing tests were written against BC 29.0.54011.55816; DecimalStorage probes were observed on BC 27.5, 28.5 and 29.1.
+// BC versions: 27, 28, 29 (DecimalStorage); 29 with 27 and 28 checked by CI (existing tests)
 
 codeunit 71500 "LT RcA GetFind"
 {
@@ -712,6 +712,264 @@ codeunit 71500 "LT RcA GetFind"
         Observer.Expect('setRange', 'Yes main 20 count=1');
         Observer.Expect('getMissing', 'No ');
         Observer.Expect('count', 'count=1');
+        Observer.Verify();
+    end;
+
+    local procedure Initialize()
+    var
+        Row: Record "LT RcA Main";
+        DecimalKey: Record "LT RcA DecKey";
+        UniqueRow: Record "REC Decimal Unique";
+    begin
+        Row.DeleteAll();
+        DecimalKey.DeleteAll();
+        UniqueRow.DeleteAll();
+    end;
+
+    local procedure FormatStoredDecimal(Amount: Decimal) Result: Text
+    begin
+        Result := Format((Amount * 100000000000000.0) * 10000.0, 0, 9);
+    end;
+
+    local procedure ObserveDecimalInsert(EntryNo: Integer; Amount: Decimal)
+    var
+        Row: Record "LT RcA Main";
+        Stored: Record "LT RcA Main";
+    begin
+        Row.No := EntryNo;
+        Row.Amt := Amount;
+        Row.Insert();
+        Stored.Get(EntryNo);
+        Observer.Observe(Format(EntryNo) + '_stored_scaled', FormatStoredDecimal(Stored.Amt));
+        Observer.Observe(Format(EntryNo) + '_stored_equal', Format(Stored.Amt = Amount));
+        Observer.Observe(Format(EntryNo) + '_buffer_equal', Format(Row.Amt = Amount));
+    end;
+
+    [Test]
+    procedure DecimalStorage_Insert_ReadAndBuffer()
+    begin
+        Initialize();
+        ObserveDecimalInsert(1, 1000 / 3600000);
+        ObserveDecimalInsert(2, -1000 / 3600000);
+        ObserveDecimalInsert(3, 0.000000000000000000019);
+        ObserveDecimalInsert(4, -0.000000000000000000019);
+        ObserveDecimalInsert(5, 0.00012345678901234567891);
+        ObserveDecimalInsert(6, 0.0000123456789012345678);
+        Observer.Expect('1_stored_scaled', '277777777777777.77');
+        Observer.Expect('1_stored_equal', 'No');
+        Observer.Expect('1_buffer_equal', 'Yes');
+        Observer.Expect('2_stored_scaled', '-277777777777777.77');
+        Observer.Expect('2_stored_equal', 'No');
+        Observer.Expect('2_buffer_equal', 'Yes');
+        Observer.Expect('3_stored_scaled', '0.01');
+        Observer.Expect('3_stored_equal', 'No');
+        Observer.Expect('3_buffer_equal', 'Yes');
+        Observer.Expect('4_stored_scaled', '-0.01');
+        Observer.Expect('4_stored_equal', 'No');
+        Observer.Expect('4_buffer_equal', 'Yes');
+        Observer.Expect('5_stored_scaled', '123456789012345.67');
+        Observer.Expect('5_stored_equal', 'No');
+        Observer.Expect('5_buffer_equal', 'Yes');
+        Observer.Expect('6_stored_scaled', '12345678901234.56');
+        Observer.Expect('6_stored_equal', 'No');
+        Observer.Expect('6_buffer_equal', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure DecimalStorage_Modify_ReadAndBuffer()
+    var
+        Row: Record "LT RcA Main";
+        Stored: Record "LT RcA Main";
+    begin
+        Initialize();
+        Row.No := 1;
+        Row.Insert();
+        Row.Amt := 1000 / 3600000;
+        Row.Modify();
+        Stored.Get(1);
+        Observer.Observe('stored_scaled', FormatStoredDecimal(Stored.Amt));
+        Observer.Observe('stored_equal', Format(Stored.Amt = 1000 / 3600000));
+        Observer.Observe('buffer_equal', Format(Row.Amt = 1000 / 3600000));
+        Observer.Expect('stored_scaled', '277777777777777.77');
+        Observer.Expect('stored_equal', 'No');
+        Observer.Expect('buffer_equal', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure DecimalStorage_Filter_FullAndStoredValues()
+    var
+        Row: Record "LT RcA Main";
+        Full: Decimal;
+        Cut: Decimal;
+    begin
+        Initialize();
+        Full := 1000 / 3600000;
+        Cut := 0.00027777777777777777;
+        Row.No := 1;
+        Row.Amt := Full;
+        Row.Insert();
+        Row.SetRange(Amt, Full);
+        Observer.Observe('equal_full', Format(Row.Count()));
+        Row.SetRange(Amt, Cut);
+        Observer.Observe('equal_cut', Format(Row.Count()));
+        Row.SetFilter(Amt, '<%1', Full);
+        Observer.Observe('less_full', Format(Row.Count()));
+        Row.SetFilter(Amt, '<%1', Cut);
+        Observer.Observe('less_cut', Format(Row.Count()));
+        Row.SetFilter(Amt, '>%1', Full);
+        Observer.Observe('greater_full', Format(Row.Count()));
+        Row.SetFilter(Amt, '>%1', Cut);
+        Observer.Observe('greater_cut', Format(Row.Count()));
+        Row.SetRange(Amt, Full, Full);
+        Observer.Observe('range_full', Format(Row.Count()));
+        Row.SetRange(Amt, Cut, Cut);
+        Observer.Observe('range_cut', Format(Row.Count()));
+        Row.SetRange(Amt, Cut, Full);
+        Observer.Observe('range_cut_full', Format(Row.Count()));
+        Observer.Expect('equal_full', '1');
+        Observer.Expect('equal_cut', '1');
+        Observer.Expect('less_full', '0');
+        Observer.Expect('less_cut', '0');
+        Observer.Expect('greater_full', '0');
+        Observer.Expect('greater_cut', '0');
+        Observer.Expect('range_full', '1');
+        Observer.Expect('range_cut', '1');
+        Observer.Expect('range_cut_full', '1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure DecimalStorage_PrimaryKey_InsertAndGet()
+    var
+        Row: Record "LT RcA DecKey";
+        Found: Record "LT RcA DecKey";
+        Full: Decimal;
+        Cut: Decimal;
+    begin
+        Initialize();
+        Full := 1000 / 3600000;
+        Cut := 0.00027777777777777777;
+        Row.Dc := Full;
+        Row.Insert();
+        Observer.Observe('buffer_equal', Format(Row.Dc = Full));
+        Observer.Observe('get_full', Format(Found.Get(Full)));
+        Observer.Observe('get_cut', Format(Found.Get(Cut)));
+        if Found.FindFirst() then
+            Observer.Observe('stored_key_scaled', FormatStoredDecimal(Found.Dc))
+        else
+            Observer.Observe('stored_key_scaled', 'no row');
+        Observer.Expect('buffer_equal', 'Yes');
+        Observer.Expect('get_full', 'Yes');
+        Observer.Expect('get_cut', 'Yes');
+        Observer.Expect('stored_key_scaled', '277777777777777.77');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure DecimalStorage_UniqueSecondary_Collision()
+    var
+        Row: Record "REC Decimal Unique";
+        Stored: Record "REC Decimal Unique";
+    begin
+        Initialize();
+        Row.Id := 1;
+        Row.Amount := 0.00000000000000000001;
+        Row.Insert();
+        Row.Id := 2;
+        Row.Amount := 0.000000000000000000019;
+        Observer.Observe('second_insert', Format(Row.Insert()));
+        Observer.Observe('buffer_equal', Format(Row.Amount = 0.000000000000000000019));
+        Observer.Observe('count', Format(Stored.Count()));
+        if Stored.FindFirst() then
+            Observer.Observe('first_amount_scaled', FormatStoredDecimal(Stored.Amount));
+        if Stored.FindLast() then
+            Observer.Observe('last_amount_scaled', FormatStoredDecimal(Stored.Amount));
+        Observer.Expect('second_insert', 'No');
+        Observer.Expect('buffer_equal', 'Yes');
+        Observer.Expect('count', '1');
+        Observer.Expect('first_amount_scaled', '0.01');
+        Observer.Expect('last_amount_scaled', '0.01');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure DecimalStorage_UniqueSecondary_Modify()
+    var
+        Row: Record "REC Decimal Unique";
+        Stored: Record "REC Decimal Unique";
+    begin
+        Initialize();
+        Row.Id := 1;
+        Row.Amount := 0.00000000000000000001;
+        Row.Insert();
+        Row.Id := 2;
+        Row.Amount := 0.1;
+        Row.Insert();
+        Row.Amount := 0.000000000000000000019;
+        Observer.Observe('modify', Format(Row.Modify()));
+        Observer.Observe('buffer_equal', Format(Row.Amount = 0.000000000000000000019));
+        Observer.Observe('count', Format(Stored.Count()));
+        if Stored.Get(2) then
+            Observer.Observe('stored_amount', Format(Stored.Amount, 0, 9));
+        Observer.Expect('modify', 'No');
+        Observer.Expect('buffer_equal', 'Yes');
+        Observer.Expect('count', '2');
+        Observer.Expect('stored_amount', '0.1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure DecimalStorage_UniqueSecondary_Rename()
+    var
+        Row: Record "REC Decimal Unique";
+        Stored: Record "REC Decimal Unique";
+    begin
+        Initialize();
+        Row.Id := 1;
+        Row.Amount := 0.00000000000000000001;
+        Row.Insert();
+        Row.Id := 2;
+        Row.Amount := 0.1;
+        Row.Insert();
+        Commit();
+        Row.Amount := 0.000000000000000000019;
+        asserterror Row.Rename(3);
+        Observer.ObserveError('rename_error');
+        Observer.Observe('buffer_equal', Format(Row.Amount = 0.000000000000000000019));
+        Observer.Observe('count', Format(Stored.Count()));
+        Observer.Observe('old_id_found', Format(Stored.Get(2)));
+        if Stored.Get(2) then
+            Observer.Observe('stored_amount', Format(Stored.Amount, 0, 9));
+        Observer.Observe('new_id_found', Format(Stored.Get(3)));
+        Observer.Expect('rename_error|text', 'There is already a record in table REC Decimal Unique that has the same values in a unique index for the following fields: Amount=''0''');
+        Observer.Expect('rename_error|code', 'DB:RecordExists');
+        Observer.Expect('buffer_equal', 'Yes');
+        Observer.Expect('count', '2');
+        Observer.Expect('old_id_found', 'Yes');
+        Observer.Expect('stored_amount', '0.1');
+        Observer.Expect('new_id_found', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure DecimalStorage_Temporary_ReadAndBuffer()
+    var
+        Row: Record "LT RcA Main" temporary;
+        Buffer: Decimal;
+    begin
+        Initialize();
+        Row.DeleteAll();
+        Row.No := 1;
+        Row.Amt := 1000 / 3600000;
+        Row.Insert();
+        Buffer := Row.Amt;
+        Row.Get(1);
+        Observer.Observe('buffer_equal_original', Format(Buffer = 1000 / 3600000));
+        Observer.Observe('stored_equal_buffer', Format(Row.Amt = Buffer));
+        Observer.Expect('buffer_equal_original', 'Yes');
+        Observer.Expect('stored_equal_buffer', 'Yes');
         Observer.Verify();
     end;
 }
