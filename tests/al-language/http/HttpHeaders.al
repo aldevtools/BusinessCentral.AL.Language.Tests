@@ -481,7 +481,7 @@ codeunit 72022 "LT HtT Headers Errors"
     end;
 #endif
 
-    // The empty-name cases below were measured on BC 28.5; the PR matrix checks the other versions.
+    // Measured on BC 27.5, 28.5, and 29.1; CI checks BC 29.0.
     local procedure Initialize()
     begin
         Observer.Discard();
@@ -559,6 +559,24 @@ codeunit 72022 "LT HtT Headers Errors"
         ObserveContainsEmpty('secretContent', Headers);
         ExpectContainsEmpty('secretHeader');
         ExpectContainsEmpty('secretContent');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure HttpHeaders_ContainsEmpty_RequestAndResponseContentError()
+    var
+        Request: HttpRequestMessage;
+        Response: HttpResponseMessage;
+        Headers: HttpHeaders;
+    begin
+        Initialize();
+        Request.Content.WriteFrom('request body');
+        Request.Content.GetHeaders(Headers);
+        ObserveContainsEmpty('requestContent', Headers);
+        Response.Content.GetHeaders(Headers);
+        ObserveContainsEmpty('responseContent', Headers);
+        ExpectContainsEmpty('requestContent');
+        ExpectContainsEmpty('responseContent');
         Observer.Verify();
     end;
 }
