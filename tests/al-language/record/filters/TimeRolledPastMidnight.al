@@ -31,8 +31,9 @@ table 75012 "LT TRM Sum"
     {
         field(1; Id; Integer) { }
         field(2; MaxTm; Time) { FieldClass = FlowField; CalcFormula = max("LT TRM Row".Tm); }
-        field(3; MinTm; Time) { FieldClass = FlowField; CalcFormula = min("LT TRM Row".Tm); }
+        field(3; MinTm; Time) { FieldClass = FlowField; CalcFormula = min("LT TRM Row".Tm where(Id = filter(2..4))); }
         field(4; LookupTm; Time) { FieldClass = FlowField; CalcFormula = lookup("LT TRM Row".Tm where(Id = field(Id))); }
+        field(5; MinSelectedTm; Time) { FieldClass = FlowField; CalcFormula = min("LT TRM Row".Tm where(Id = field(Id))); }
     }
     keys
     {
@@ -209,6 +210,8 @@ codeunit 75013 "LT TRM Time Rolled Over"
         R.Get(4);
         R.Note := 'x';
         R.Modify();
+        R.Get(4);
+        Observer.Observe('note_read', R.Note);
         R.Reset();
         R.SetRange(Tm, 235959.999T);
         Observer.Observe('note_eq999', Cell(R));
@@ -240,8 +243,12 @@ codeunit 75013 "LT TRM Time Rolled Over"
         Observer.Observe('modifyall_eq999', Cell(R));
         R.Reset();
         R.ModifyAll(Note, 'y');
+        R.SetRange(Note, 'y');
+        Observer.Observe('modifyallnote_read', Cell(R));
+        R.SetRange(Note);
         R.SetRange(Tm, 235959.999T);
         Observer.Observe('modifyallnote_eq999', Cell(R));
+        Observer.Expect('note_read', 'x');
         Observer.Expect('note_eq999', '4/1');
         Observer.Expect('note_eq0', '15/2');
         Observer.Expect('midnight_eq999', '4/1');
@@ -249,6 +256,7 @@ codeunit 75013 "LT TRM Time Rolled Over"
         Observer.Expect('set_eq999', '24/2');
         Observer.Expect('set_read', '00:00:00');
         Observer.Expect('modifyall_eq999', '124/3');
+        Observer.Expect('modifyallnote_read', '12345/5');
         Observer.Expect('modifyallnote_eq999', '124/3');
         Observer.Verify();
     end;
@@ -348,9 +356,10 @@ codeunit 75013 "LT TRM Time Rolled Over"
         Seed();
         S.Id := 4;
         S.Insert();
-        S.CalcFields(MaxTm, MinTm, LookupTm);
+        S.CalcFields(MaxTm, MinTm, LookupTm, MinSelectedTm);
         Observer.Observe('max', Format(S.MaxTm, 0, 9));
         Observer.Observe('min', Format(S.MinTm, 0, 9));
+        Observer.Observe('min_selected', Format(S.MinSelectedTm, 0, 9));
         Observer.Observe('lookup', Format(S.LookupTm, 0, 9));
         RR.Open(Database::"LT TRM Row");
         RR.Field(1).SetRange(4);
@@ -360,7 +369,8 @@ codeunit 75013 "LT TRM Time Rolled Over"
         RR.Field(2).SetRange(235959.999T);
         Observer.Observe('fieldref_eq999', Format(RR.Count()));
         Observer.Expect('max', '00:00:00');
-        Observer.Expect('min', '00:00:00');
+        Observer.Expect('min', '12:00:00');
+        Observer.Expect('min_selected', '00:00:00');
         Observer.Expect('lookup', '00:00:00');
         Observer.Expect('fieldref', '00:00:00');
         Observer.Expect('fieldref_eq999', '1');
