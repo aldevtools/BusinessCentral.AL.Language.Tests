@@ -4,6 +4,8 @@
 // Probe: written against al-runner issue 6363. A lookup opened with Page.RunModal(Page, Rec) on a list that sorts descending on a key other than the primary key
 //        and declares OnAfterGetRecord and OnAfterGetCurrRecord (the shape of Posted Sales Invoices): what a ModalPageHandler sees after GoToKey (result, current
 //        row, trigger log) and what Rec holds after OK. The same list ascending is the comparison. R:<no> = OnAfterGetRecord, C:<no> = OnAfterGetCurrRecord.
+//        The _Desc<N>_ tests (al-runner issue 8172) seed 31 to 100 rows, more rows above the 21 the list holds than _Last, and log the reads
+//        of a GoToKey to the first row of the view, the row above the rows held, a row inside them, and a key the view does not have.
 // BC versions: 27, 28, 29
 
 table 90796 "LT WD Doc"
@@ -215,6 +217,202 @@ codeunit 90799 "LT WD Modal GoToKey Desc"
         Observer.Expect('RunModal', 'LookupOK');
         Observer.Expect('picked', 'D01');
         Observer.Verify();
+    end;
+
+    // Like Seed, with three digits so 100 rows keep their numbers: D001, D002, ...
+    local procedure SeedWide(Rows: Integer)
+    var
+        Doc: Record "LT WD Doc";
+        i: Integer;
+    begin
+        Doc.DeleteAll();
+        for i := 1 to Rows do begin
+            Doc."No." := 'D' + Format(i, 3, '<Integer,3><Filler Character,0>');
+            Doc."Posting Date" := 20260101D + i;
+            Doc.Insert();
+        end;
+    end;
+
+    // al-runner issue 8172: the reads after GoToKey with more rows above the 21 the list holds than the 9 of _Last. The open reads
+    // the last 21 rows of the view (D001..D021); Wanted is the first row of the view, the row just above the rows held (D022), a
+    // row inside them (D010), or a key the view does not have.
+    local procedure RunWide(Rows: Integer; Wanted: Code[20])
+    var
+        Doc: Record "LT WD Doc";
+    begin
+        SeedWide(Rows);
+        WantedNo := Wanted;
+        Observer.Observe('RunModal', Format(Page.RunModal(Page::"LT WD Docs Desc", Doc)));
+        Observer.Observe('picked', Doc."No.");
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc31_First()
+    begin
+        RunWide(31, 'D031');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc31_Above()
+    begin
+        RunWide(31, 'D022');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc31_Held()
+    begin
+        RunWide(31, 'D010');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc31_Missing()
+    begin
+        RunWide(31, 'X999');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc35_First()
+    begin
+        RunWide(35, 'D035');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc35_Above()
+    begin
+        RunWide(35, 'D022');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc35_Held()
+    begin
+        RunWide(35, 'D010');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc35_Missing()
+    begin
+        RunWide(35, 'X999');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc41_First()
+    begin
+        RunWide(41, 'D041');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc41_Above()
+    begin
+        RunWide(41, 'D022');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc41_Held()
+    begin
+        RunWide(41, 'D010');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc41_Missing()
+    begin
+        RunWide(41, 'X999');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc42_First()
+    begin
+        RunWide(42, 'D042');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc42_Above()
+    begin
+        RunWide(42, 'D022');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc42_Held()
+    begin
+        RunWide(42, 'D010');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc42_Missing()
+    begin
+        RunWide(42, 'X999');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc60_First()
+    begin
+        RunWide(60, 'D060');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc60_Above()
+    begin
+        RunWide(60, 'D022');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc60_Held()
+    begin
+        RunWide(60, 'D010');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc60_Missing()
+    begin
+        RunWide(60, 'X999');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc100_First()
+    begin
+        RunWide(100, 'D100');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc100_Above()
+    begin
+        RunWide(100, 'D022');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc100_Held()
+    begin
+        RunWide(100, 'D010');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickDescHandler')]
+    procedure WD_ModalGoToKey_Desc100_Missing()
+    begin
+        RunWide(100, 'X999');
     end;
 
     [ModalPageHandler]
