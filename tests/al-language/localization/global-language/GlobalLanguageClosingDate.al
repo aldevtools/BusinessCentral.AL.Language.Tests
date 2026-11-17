@@ -3,7 +3,17 @@
 // Fixtures used: Probe Observer (codeunit 69160); own objects 75401 (LT GL Closing Date)
 // Probe: from al-runner issues 8178, 8182, 8183, 8197, 8199 and 8200 (an outside reporter measured BC 28.4 W1, en-US region). Observed on
 //   Windows BC containers 27.5, 28.5 and 29.0; every literal asserted below is what BC produced. The corpus CI matrix checks it on BC on Linux.
-// Facts: TODO
+// Facts (identical on 27.5, 28.5 and 29.0):
+//   - The closing-date letter follows the GlobalLanguage: 1033 C, 1036 C, 1030 U, 1031 U, 1044 U, 1053 S. The date order and
+//     separators stay those of the session region (en-US): Format gives C12/31/23, std 2 gives 123123CD, std 4 puts the letter
+//     before the day (December C31, 2023), std 7 and std 9 have no letter. Format(CD, 12) pads on the left.
+//   - Picture <Closing> gives the letter for a closing date and nothing for a normal date.
+//   - Evaluate(Date, Text) accepts only the letter of the current language, in either case; another letter returns false and
+//     leaves the variable unchanged. Evaluate of the date's own Format gives the same closing date back.
+//   - CD - D, D - CD, CD + 1 and CD - 1 raise "The operation cannot be performed on a closing date value." (code
+//     ClosingDateOperation). CD - CD = 0; NormalDate(CD) - D = 0; CD > D, CD <> D, CD < next day; CalcDate(<1D>, CD) is the next
+//     normal day; Date2DMY and Date2DWY read the normal date; ClosingDate(CD) = CD; CreateDateTime(CD) <> CreateDateTime(D).
+//   - WorkDate(closing date) keeps the closing flag: WorkDate() returns the same closing date.
 // BC versions: 27, 28, 29
 
 codeunit 75401 "LT GL Closing Date"
@@ -111,7 +121,24 @@ codeunit 75401 "LT GL Closing Date"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 1033);
-        Observer.Finish();
+        Observer.Expect('Format', '[C12/31/23]');
+        Observer.Expect('Format 5 Jan 2024', '[C01/05/24]');
+        Observer.Expect('Format length 12', '[   C12/31/23]');
+        Observer.Expect('std 0, 1, 2', '[C12/31/23][C12/31/23][123123CD]');
+        Observer.Expect('std 4, 7, 9', '[December C31, 2023][Dec 31, 2023][2023-12-31]');
+        Observer.Expect('picture <Closing>', '[C]');
+        Observer.Expect('picture <Closing><Day,2>.<Month,2>.<Year4>', '[C31.12.2023]');
+        Observer.Expect('picture <Closing> of a normal date', '[2023]');
+        Observer.Expect('Evaluate of its own Format', 'true|2023-12-31|closing=true');
+        Observer.Expect('Evaluate C12/31/23', 'true|2023-12-31|closing=true');
+        Observer.Expect('Evaluate U12/31/23', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate S12/31/23', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate c12/31/23', 'true|2023-12-31|closing=true');
+        Observer.Expect('Evaluate u12/31/23', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate C01/05/24', 'true|2024-01-05|closing=true');
+        Observer.Expect('Evaluate U01/05/24', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate 12/31/23', 'true|2023-12-31|closing=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -120,7 +147,24 @@ codeunit 75401 "LT GL Closing Date"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 1030);
-        Observer.Finish();
+        Observer.Expect('Format', '[U12/31/23]');
+        Observer.Expect('Format 5 Jan 2024', '[U01/05/24]');
+        Observer.Expect('Format length 12', '[   U12/31/23]');
+        Observer.Expect('std 0, 1, 2', '[U12/31/23][U12/31/23][123123UD]');
+        Observer.Expect('std 4, 7, 9', '[december U31, 2023][dec 31, 2023][2023-12-31]');
+        Observer.Expect('picture <Closing>', '[U]');
+        Observer.Expect('picture <Closing><Day,2>.<Month,2>.<Year4>', '[U31.12.2023]');
+        Observer.Expect('picture <Closing> of a normal date', '[2023]');
+        Observer.Expect('Evaluate of its own Format', 'true|2023-12-31|closing=true');
+        Observer.Expect('Evaluate C12/31/23', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate U12/31/23', 'true|2023-12-31|closing=true');
+        Observer.Expect('Evaluate S12/31/23', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate c12/31/23', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate u12/31/23', 'true|2023-12-31|closing=true');
+        Observer.Expect('Evaluate C01/05/24', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate U01/05/24', 'true|2024-01-05|closing=true');
+        Observer.Expect('Evaluate 12/31/23', 'true|2023-12-31|closing=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -129,7 +173,24 @@ codeunit 75401 "LT GL Closing Date"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 1031);
-        Observer.Finish();
+        Observer.Expect('Format', '[U12/31/23]');
+        Observer.Expect('Format 5 Jan 2024', '[U01/05/24]');
+        Observer.Expect('Format length 12', '[   U12/31/23]');
+        Observer.Expect('std 0, 1, 2', '[U12/31/23][U12/31/23][123123UD]');
+        Observer.Expect('std 4, 7, 9', '[Dezember U31, 2023][Dez 31, 2023][2023-12-31]');
+        Observer.Expect('picture <Closing>', '[U]');
+        Observer.Expect('picture <Closing><Day,2>.<Month,2>.<Year4>', '[U31.12.2023]');
+        Observer.Expect('picture <Closing> of a normal date', '[2023]');
+        Observer.Expect('Evaluate of its own Format', 'true|2023-12-31|closing=true');
+        Observer.Expect('Evaluate C12/31/23', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate U12/31/23', 'true|2023-12-31|closing=true');
+        Observer.Expect('Evaluate S12/31/23', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate c12/31/23', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate u12/31/23', 'true|2023-12-31|closing=true');
+        Observer.Expect('Evaluate C01/05/24', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate U01/05/24', 'true|2024-01-05|closing=true');
+        Observer.Expect('Evaluate 12/31/23', 'true|2023-12-31|closing=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -138,7 +199,24 @@ codeunit 75401 "LT GL Closing Date"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 1036);
-        Observer.Finish();
+        Observer.Expect('Format', '[C12/31/23]');
+        Observer.Expect('Format 5 Jan 2024', '[C01/05/24]');
+        Observer.Expect('Format length 12', '[   C12/31/23]');
+        Observer.Expect('std 0, 1, 2', '[C12/31/23][C12/31/23][123123CD]');
+        Observer.Expect('std 4, 7, 9', '[décembre C31, 2023][déc. 31, 2023][2023-12-31]');
+        Observer.Expect('picture <Closing>', '[C]');
+        Observer.Expect('picture <Closing><Day,2>.<Month,2>.<Year4>', '[C31.12.2023]');
+        Observer.Expect('picture <Closing> of a normal date', '[2023]');
+        Observer.Expect('Evaluate of its own Format', 'true|2023-12-31|closing=true');
+        Observer.Expect('Evaluate C12/31/23', 'true|2023-12-31|closing=true');
+        Observer.Expect('Evaluate U12/31/23', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate S12/31/23', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate c12/31/23', 'true|2023-12-31|closing=true');
+        Observer.Expect('Evaluate u12/31/23', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate C01/05/24', 'true|2024-01-05|closing=true');
+        Observer.Expect('Evaluate U01/05/24', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate 12/31/23', 'true|2023-12-31|closing=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -147,7 +225,24 @@ codeunit 75401 "LT GL Closing Date"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 1044);
-        Observer.Finish();
+        Observer.Expect('Format', '[U12/31/23]');
+        Observer.Expect('Format 5 Jan 2024', '[U01/05/24]');
+        Observer.Expect('Format length 12', '[   U12/31/23]');
+        Observer.Expect('std 0, 1, 2', '[U12/31/23][U12/31/23][123123UD]');
+        Observer.Expect('std 4, 7, 9', '[desember U31, 2023][des. 31, 2023][2023-12-31]');
+        Observer.Expect('picture <Closing>', '[U]');
+        Observer.Expect('picture <Closing><Day,2>.<Month,2>.<Year4>', '[U31.12.2023]');
+        Observer.Expect('picture <Closing> of a normal date', '[2023]');
+        Observer.Expect('Evaluate of its own Format', 'true|2023-12-31|closing=true');
+        Observer.Expect('Evaluate C12/31/23', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate U12/31/23', 'true|2023-12-31|closing=true');
+        Observer.Expect('Evaluate S12/31/23', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate c12/31/23', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate u12/31/23', 'true|2023-12-31|closing=true');
+        Observer.Expect('Evaluate C01/05/24', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate U01/05/24', 'true|2024-01-05|closing=true');
+        Observer.Expect('Evaluate 12/31/23', 'true|2023-12-31|closing=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -156,7 +251,24 @@ codeunit 75401 "LT GL Closing Date"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 1053);
-        Observer.Finish();
+        Observer.Expect('Format', '[S12/31/23]');
+        Observer.Expect('Format 5 Jan 2024', '[S01/05/24]');
+        Observer.Expect('Format length 12', '[   S12/31/23]');
+        Observer.Expect('std 0, 1, 2', '[S12/31/23][S12/31/23][123123SD]');
+        Observer.Expect('std 4, 7, 9', '[december S31, 2023][dec 31, 2023][2023-12-31]');
+        Observer.Expect('picture <Closing>', '[S]');
+        Observer.Expect('picture <Closing><Day,2>.<Month,2>.<Year4>', '[S31.12.2023]');
+        Observer.Expect('picture <Closing> of a normal date', '[2023]');
+        Observer.Expect('Evaluate of its own Format', 'true|2023-12-31|closing=true');
+        Observer.Expect('Evaluate C12/31/23', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate U12/31/23', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate S12/31/23', 'true|2023-12-31|closing=true');
+        Observer.Expect('Evaluate c12/31/23', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate u12/31/23', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate C01/05/24', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate U01/05/24', 'false|2000-01-01|closing=false');
+        Observer.Expect('Evaluate 12/31/23', 'true|2023-12-31|closing=false');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -219,7 +331,18 @@ codeunit 75401 "LT GL Closing Date"
         Observer.Observe('Date2DMY 1 2 3, Date2DWY 1 of CD', Op(9));
         Observer.Observe('ClosingDate(CD) = CD', Op(10));
         Observer.Observe('CreateDateTime(CD) = CreateDateTime(D)', Op(11));
-        Observer.Finish();
+        Observer.Expect('CD - D', 'error:The operation cannot be performed on a closing date value.|ClosingDateOperation');
+        Observer.Expect('D - CD', 'error:The operation cannot be performed on a closing date value.|ClosingDateOperation');
+        Observer.Expect('CD - CD', '[0]');
+        Observer.Expect('CD + 1', 'error:The operation cannot be performed on a closing date value.|ClosingDateOperation');
+        Observer.Expect('CD - 1', 'error:The operation cannot be performed on a closing date value.|ClosingDateOperation');
+        Observer.Expect('NormalDate(CD) - D', '[0]');
+        Observer.Expect('CD > D, CD = D, CD < next day', '[true|false|true]');
+        Observer.Expect('CalcDate <1D> of CD', '[2024-01-01]');
+        Observer.Expect('Date2DMY 1 2 3, Date2DWY 1 of CD', '[31|12|2023|7]');
+        Observer.Expect('ClosingDate(CD) = CD', '[true]');
+        Observer.Expect('CreateDateTime(CD) = CreateDateTime(D)', '[false]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -251,6 +374,9 @@ codeunit 75401 "LT GL Closing Date"
         Observer.Observe('WorkDate(closing 2023-12-31)', WorkDateLine(ClosingDate(DMY2Date(31, 12, 2023))));
         Observer.Observe('WorkDate(closing 2024-02-29)', WorkDateLine(ClosingDate(DMY2Date(29, 2, 2024))));
         Observer.Observe('WorkDate(normal 2023-12-31)', WorkDateLine(DMY2Date(31, 12, 2023)));
-        Observer.Finish();
+        Observer.Expect('WorkDate(closing 2023-12-31)', '2023-12-31|closing=true|equal=true|[C12/31/23]');
+        Observer.Expect('WorkDate(closing 2024-02-29)', '2024-02-29|closing=true|equal=true|[C02/29/24]');
+        Observer.Expect('WorkDate(normal 2023-12-31)', '2023-12-31|closing=false|equal=true|[12/31/23]');
+        Observer.Verify();
     end;
 }

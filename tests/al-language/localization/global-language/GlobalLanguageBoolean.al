@@ -3,7 +3,13 @@
 // Fixtures used: Probe Observer (codeunit 69160); own objects 75400 (LT GL Boolean Words)
 // Probe: from al-runner issues 8178, 8182, 8183, 8197, 8199 and 8200 (an outside reporter measured BC 28.4 W1, en-US region). Observed on
 //   Windows BC containers 27.5, 28.5 and 29.0; every literal asserted below is what BC produced. The corpus CI matrix checks it on BC on Linux.
-// Facts: TODO
+// Facts (identical on 27.5, 28.5 and 29.0):
+//   - Format(Boolean), std 0 and std 1 give the words of the GlobalLanguage: 1033 Yes/No, 1030 Ja/Nej, 1031 Ja/Nein, 1036 Oui/Non,
+//     1044 Ja/Nei, 1053 Ja/Nej. Std 2 gives 1/0 and std 9 true/false in every language. Format(B, 6) pads on the right.
+//   - Evaluate(Boolean, Text) accepts the words of the current language in any case, plus true/false and 1/0 in every language.
+//     Words of another language and the empty text return false and leave the variable unchanged.
+//   - One exception: under 1036 Evaluate also accepts No (gives false), while Yes is refused.
+//   - Evaluate without a return value raises the localized "The value "Maybe" can't be evaluated into type Boolean." with code Evaluate.
 // BC versions: 27, 28, 29
 
 codeunit 75400 "LT GL Boolean Words"
@@ -93,7 +99,28 @@ codeunit 75400 "LT GL Boolean Words"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 1033);
-        Observer.Finish();
+        Observer.Expect('Format true, false, (true, 6), (false, -6)', '[Yes][No][Yes   ][No]');
+        Observer.Expect('Format std 0, 1, 2, 9 of true and false', '[Yes][No][Yes][No][1][0][true][false]');
+        Observer.Expect('Evaluate [Ja]', 'false|false|true');
+        Observer.Expect('Evaluate [ja]', 'false|false|true');
+        Observer.Expect('Evaluate [JA]', 'false|false|true');
+        Observer.Expect('Evaluate [Nej]', 'false|false|true');
+        Observer.Expect('Evaluate [Nei]', 'false|false|true');
+        Observer.Expect('Evaluate [Nein]', 'false|false|true');
+        Observer.Expect('Evaluate [Yes]', 'true|true|true');
+        Observer.Expect('Evaluate [No]', 'true|false|false');
+        Observer.Expect('Evaluate [yes]', 'true|true|true');
+        Observer.Expect('Evaluate [Oui]', 'false|false|true');
+        Observer.Expect('Evaluate [Non]', 'false|false|true');
+        Observer.Expect('Evaluate [Sand]', 'false|false|true');
+        Observer.Expect('Evaluate [Falsk]', 'false|false|true');
+        Observer.Expect('Evaluate [true]', 'true|true|true');
+        Observer.Expect('Evaluate [False]', 'true|false|false');
+        Observer.Expect('Evaluate [1]', 'true|true|true');
+        Observer.Expect('Evaluate [0]', 'true|false|false');
+        Observer.Expect('Evaluate []', 'false|false|true');
+        Observer.Expect('Evaluate Maybe without return value', 'The value "Maybe" can''t be evaluated into type Boolean.|Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -102,7 +129,28 @@ codeunit 75400 "LT GL Boolean Words"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 1030);
-        Observer.Finish();
+        Observer.Expect('Format true, false, (true, 6), (false, -6)', '[Ja][Nej][Ja    ][Nej]');
+        Observer.Expect('Format std 0, 1, 2, 9 of true and false', '[Ja][Nej][Ja][Nej][1][0][true][false]');
+        Observer.Expect('Evaluate [Ja]', 'true|true|true');
+        Observer.Expect('Evaluate [ja]', 'true|true|true');
+        Observer.Expect('Evaluate [JA]', 'true|true|true');
+        Observer.Expect('Evaluate [Nej]', 'true|false|false');
+        Observer.Expect('Evaluate [Nei]', 'false|false|true');
+        Observer.Expect('Evaluate [Nein]', 'false|false|true');
+        Observer.Expect('Evaluate [Yes]', 'false|false|true');
+        Observer.Expect('Evaluate [No]', 'false|false|true');
+        Observer.Expect('Evaluate [yes]', 'false|false|true');
+        Observer.Expect('Evaluate [Oui]', 'false|false|true');
+        Observer.Expect('Evaluate [Non]', 'false|false|true');
+        Observer.Expect('Evaluate [Sand]', 'false|false|true');
+        Observer.Expect('Evaluate [Falsk]', 'false|false|true');
+        Observer.Expect('Evaluate [true]', 'true|true|true');
+        Observer.Expect('Evaluate [False]', 'true|false|false');
+        Observer.Expect('Evaluate [1]', 'true|true|true');
+        Observer.Expect('Evaluate [0]', 'true|false|false');
+        Observer.Expect('Evaluate []', 'false|false|true');
+        Observer.Expect('Evaluate Maybe without return value', 'Værdien "Maybe" kan ikke evalueres til typen Boolean.|Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -111,7 +159,28 @@ codeunit 75400 "LT GL Boolean Words"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 1031);
-        Observer.Finish();
+        Observer.Expect('Format true, false, (true, 6), (false, -6)', '[Ja][Nein][Ja    ][Nein]');
+        Observer.Expect('Format std 0, 1, 2, 9 of true and false', '[Ja][Nein][Ja][Nein][1][0][true][false]');
+        Observer.Expect('Evaluate [Ja]', 'true|true|true');
+        Observer.Expect('Evaluate [ja]', 'true|true|true');
+        Observer.Expect('Evaluate [JA]', 'true|true|true');
+        Observer.Expect('Evaluate [Nej]', 'false|false|true');
+        Observer.Expect('Evaluate [Nei]', 'true|false|false');
+        Observer.Expect('Evaluate [Nein]', 'true|false|false');
+        Observer.Expect('Evaluate [Yes]', 'false|false|true');
+        Observer.Expect('Evaluate [No]', 'false|false|true');
+        Observer.Expect('Evaluate [yes]', 'false|false|true');
+        Observer.Expect('Evaluate [Oui]', 'false|false|true');
+        Observer.Expect('Evaluate [Non]', 'false|false|true');
+        Observer.Expect('Evaluate [Sand]', 'false|false|true');
+        Observer.Expect('Evaluate [Falsk]', 'false|false|true');
+        Observer.Expect('Evaluate [true]', 'true|true|true');
+        Observer.Expect('Evaluate [False]', 'true|false|false');
+        Observer.Expect('Evaluate [1]', 'true|true|true');
+        Observer.Expect('Evaluate [0]', 'true|false|false');
+        Observer.Expect('Evaluate []', 'false|false|true');
+        Observer.Expect('Evaluate Maybe without return value', 'Der Wert „Maybe“ kann nicht in Typ Boolean ausgewertet werden.|Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -120,7 +189,28 @@ codeunit 75400 "LT GL Boolean Words"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 1036);
-        Observer.Finish();
+        Observer.Expect('Format true, false, (true, 6), (false, -6)', '[Oui][Non][Oui   ][Non]');
+        Observer.Expect('Format std 0, 1, 2, 9 of true and false', '[Oui][Non][Oui][Non][1][0][true][false]');
+        Observer.Expect('Evaluate [Ja]', 'false|false|true');
+        Observer.Expect('Evaluate [ja]', 'false|false|true');
+        Observer.Expect('Evaluate [JA]', 'false|false|true');
+        Observer.Expect('Evaluate [Nej]', 'false|false|true');
+        Observer.Expect('Evaluate [Nei]', 'false|false|true');
+        Observer.Expect('Evaluate [Nein]', 'false|false|true');
+        Observer.Expect('Evaluate [Yes]', 'false|false|true');
+        Observer.Expect('Evaluate [No]', 'true|false|false');
+        Observer.Expect('Evaluate [yes]', 'false|false|true');
+        Observer.Expect('Evaluate [Oui]', 'true|true|true');
+        Observer.Expect('Evaluate [Non]', 'true|false|false');
+        Observer.Expect('Evaluate [Sand]', 'false|false|true');
+        Observer.Expect('Evaluate [Falsk]', 'false|false|true');
+        Observer.Expect('Evaluate [true]', 'true|true|true');
+        Observer.Expect('Evaluate [False]', 'true|false|false');
+        Observer.Expect('Evaluate [1]', 'true|true|true');
+        Observer.Expect('Evaluate [0]', 'true|false|false');
+        Observer.Expect('Evaluate []', 'false|false|true');
+        Observer.Expect('Evaluate Maybe without return value', 'La valeur « Maybe » ne peut pas être évaluée en type Boolean.|Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -129,7 +219,28 @@ codeunit 75400 "LT GL Boolean Words"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 1044);
-        Observer.Finish();
+        Observer.Expect('Format true, false, (true, 6), (false, -6)', '[Ja][Nei][Ja    ][Nei]');
+        Observer.Expect('Format std 0, 1, 2, 9 of true and false', '[Ja][Nei][Ja][Nei][1][0][true][false]');
+        Observer.Expect('Evaluate [Ja]', 'true|true|true');
+        Observer.Expect('Evaluate [ja]', 'true|true|true');
+        Observer.Expect('Evaluate [JA]', 'true|true|true');
+        Observer.Expect('Evaluate [Nej]', 'false|false|true');
+        Observer.Expect('Evaluate [Nei]', 'true|false|false');
+        Observer.Expect('Evaluate [Nein]', 'false|false|true');
+        Observer.Expect('Evaluate [Yes]', 'false|false|true');
+        Observer.Expect('Evaluate [No]', 'false|false|true');
+        Observer.Expect('Evaluate [yes]', 'false|false|true');
+        Observer.Expect('Evaluate [Oui]', 'false|false|true');
+        Observer.Expect('Evaluate [Non]', 'false|false|true');
+        Observer.Expect('Evaluate [Sand]', 'false|false|true');
+        Observer.Expect('Evaluate [Falsk]', 'false|false|true');
+        Observer.Expect('Evaluate [true]', 'true|true|true');
+        Observer.Expect('Evaluate [False]', 'true|false|false');
+        Observer.Expect('Evaluate [1]', 'true|true|true');
+        Observer.Expect('Evaluate [0]', 'true|false|false');
+        Observer.Expect('Evaluate []', 'false|false|true');
+        Observer.Expect('Evaluate Maybe without return value', 'Verdien Maybe kan ikke evalueres til typen Boolean.|Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -138,6 +249,27 @@ codeunit 75400 "LT GL Boolean Words"
         Observer: Codeunit "Probe Observer";
     begin
         Run(Observer, 1053);
-        Observer.Finish();
+        Observer.Expect('Format true, false, (true, 6), (false, -6)', '[Ja][Nej][Ja    ][Nej]');
+        Observer.Expect('Format std 0, 1, 2, 9 of true and false', '[Ja][Nej][Ja][Nej][1][0][true][false]');
+        Observer.Expect('Evaluate [Ja]', 'true|true|true');
+        Observer.Expect('Evaluate [ja]', 'true|true|true');
+        Observer.Expect('Evaluate [JA]', 'true|true|true');
+        Observer.Expect('Evaluate [Nej]', 'true|false|false');
+        Observer.Expect('Evaluate [Nei]', 'false|false|true');
+        Observer.Expect('Evaluate [Nein]', 'false|false|true');
+        Observer.Expect('Evaluate [Yes]', 'false|false|true');
+        Observer.Expect('Evaluate [No]', 'false|false|true');
+        Observer.Expect('Evaluate [yes]', 'false|false|true');
+        Observer.Expect('Evaluate [Oui]', 'false|false|true');
+        Observer.Expect('Evaluate [Non]', 'false|false|true');
+        Observer.Expect('Evaluate [Sand]', 'false|false|true');
+        Observer.Expect('Evaluate [Falsk]', 'false|false|true');
+        Observer.Expect('Evaluate [true]', 'true|true|true');
+        Observer.Expect('Evaluate [False]', 'true|false|false');
+        Observer.Expect('Evaluate [1]', 'true|true|true');
+        Observer.Expect('Evaluate [0]', 'true|false|false');
+        Observer.Expect('Evaluate []', 'false|false|true');
+        Observer.Expect('Evaluate Maybe without return value', 'Det går inte att utvärdera värdet Maybe till typen Boolean.|Evaluate');
+        Observer.Verify();
     end;
 }
