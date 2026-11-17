@@ -1,8 +1,8 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-data-type
 // Scope: in-scope
 // Fixtures used: LT RcA tables and seed codeunit in RcAObjects.al, Probe Observer (69160), REC Decimal Unique
-// Probe: existing tests were written against BC 29.0.54011.55816; DecimalStorage probes were observed on BC 27.5, 28.5 and 29.1.
-// BC versions: 27, 28, 29 (DecimalStorage); 29 with 27 and 28 checked by CI (existing tests)
+// Probe: existing tests were written against BC 29.0.54011.55816; Decimal storage probes were observed on BC 27.5, 28.5 and 29.1.
+// BC versions: 27, 28, 29 (Decimal storage); 29 with 27 and 28 checked by CI (existing tests)
 
 codeunit 71500 "LT RcA GetFind"
 {
@@ -746,7 +746,7 @@ codeunit 71500 "LT RcA GetFind"
     end;
 
     [Test]
-    procedure DecimalStorage_Insert_ReadAndBuffer()
+    procedure Record_Insert_HighScaleDecimal_TruncatesStoredValue()
     begin
         Initialize();
         ObserveDecimalInsert(1, 1000 / 3600000);
@@ -777,7 +777,7 @@ codeunit 71500 "LT RcA GetFind"
     end;
 
     [Test]
-    procedure DecimalStorage_Modify_ReadAndBuffer()
+    procedure Record_Modify_HighScaleDecimal_TruncatesStoredValue()
     var
         Row: Record "LT RcA Main";
         Stored: Record "LT RcA Main";
@@ -798,7 +798,7 @@ codeunit 71500 "LT RcA GetFind"
     end;
 
     [Test]
-    procedure DecimalStorage_Filter_FullAndStoredValues()
+    procedure Record_SetFilter_HighScaleDecimal_UsesStoredPrecision()
     var
         Row: Record "LT RcA Main";
         Full: Decimal;
@@ -841,7 +841,7 @@ codeunit 71500 "LT RcA GetFind"
     end;
 
     [Test]
-    procedure DecimalStorage_PrimaryKey_InsertAndGet()
+    procedure Record_Get_HighScaleDecimalKey_UsesStoredPrecision()
     var
         Row: Record "LT RcA DecKey";
         Found: Record "LT RcA DecKey";
@@ -868,7 +868,7 @@ codeunit 71500 "LT RcA GetFind"
     end;
 
     [Test]
-    procedure DecimalStorage_UniqueSecondary_Collision()
+    procedure Record_Insert_UniqueDecimalCollision_ReturnsFalse()
     var
         Row: Record "REC Decimal Unique";
         Stored: Record "REC Decimal Unique";
@@ -895,7 +895,7 @@ codeunit 71500 "LT RcA GetFind"
     end;
 
     [Test]
-    procedure DecimalStorage_UniqueSecondary_Modify()
+    procedure Record_Modify_UniqueDecimalCollision_ReturnsFalse()
     var
         Row: Record "REC Decimal Unique";
         Stored: Record "REC Decimal Unique";
@@ -921,7 +921,7 @@ codeunit 71500 "LT RcA GetFind"
     end;
 
     [Test]
-    procedure DecimalStorage_UniqueSecondary_Rename()
+    procedure Record_Rename_UniqueDecimalCollision_ThrowsRecordExists()
     var
         Row: Record "REC Decimal Unique";
         Stored: Record "REC Decimal Unique";
@@ -954,7 +954,7 @@ codeunit 71500 "LT RcA GetFind"
     end;
 
     [Test]
-    procedure DecimalStorage_Temporary_ReadAndBuffer()
+    procedure Record_Insert_TemporaryDecimal_PreservesPrecision()
     var
         Row: Record "LT RcA Main" temporary;
         Buffer: Decimal;
