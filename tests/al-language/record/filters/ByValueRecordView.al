@@ -18,6 +18,10 @@
 //   - a by-value parameter of an integration event (what the subscriber sees);
 //   - a temporary record handed by value to a parameter that is not declared temporary;
 //   - in every cell, the caller's filters after the call.
+//   Added for al-runner issue 8248: a filter on a FlowField (with its FlowFilter) handed to a codeunit procedure and to a
+//   local procedure; two filters in filter group -1 (the reporter's shape); a table procedure that gets its own Rec by value
+//   (Rec.CountSameStatus(Rec), the shape of "Item Attribute Value".CheckValueUniqueness) after Get, with a FlowField filter
+//   in the caller; whether a filter in filter group 1 is seen by another, fresh record variable of the same table.
 // Already pinned elsewhere, not repeated: the primary key of the copy (record/keys-sorting/PwFlowFieldKeyRule.al).
 // Observation form: every test ends in Finish(); the values are what BC produced.
 // BC versions: 27.5, 28.5, 29.0 (to be measured by the corpus CI)
@@ -45,6 +49,16 @@ table 78720 "BVV Row"
         key(PK; Id) { Clustered = true; }
         key(ByName; Name) { }
     }
+
+    procedure CountSameStatus(Copy: Record "BVV Row"): Text
+    var
+        Result: Text;
+    begin
+        Result := 'self f={' + Rec.GetFilters() + '} copy f={' + Copy.GetFilters() + '}';
+        Copy.SetFilter(Id, '<>%1', Copy.Id);
+        Copy.SetRange(Status, Copy.Status);
+        exit(Result + ' same n=' + Format(Copy.Count()));
+    end;
 }
 
 table 78721 "BVV Line"
@@ -311,6 +325,11 @@ codeunit 78728 "BVV By Value View Tests"
         Line.Day := 2;
         Line.Amt := 7;
         Line.Insert();
+        // A filter in filter group 1 set by an earlier test is still seen here (measured: ByValue_Group1Filter_OtherInstance),
+        // so every test starts by clearing it.
+        Row.FilterGroup(1);
+        Row.SetRange(Status);
+        Row.FilterGroup(0);
         Log.Take();
     end;
 
@@ -333,7 +352,7 @@ codeunit 78728 "BVV By Value View Tests"
             First := Format(R.Id)
         else
             First := 'none';
-        exit('f={' + R.GetFilters() + '} first=' + First);
+        exit('f={' + R.GetFilters() + '} n=' + Format(R.Count()) + ' first=' + First);
     end;
 
     local procedure ObserveCaller(var Observer: Codeunit "Probe Observer"; var Row: Record "BVV Row")
@@ -418,6 +437,28 @@ codeunit 78728 "BVV By Value View Tests"
     end;
 
     [Test]
+    procedure ByValue_Group1Filter_OtherInstance()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "BVV Row";
+        Other: Record "BVV Row";
+    begin
+        Seed();
+        SetGroupFilter(Row, 1);
+        Other.FilterGroup(1);
+        Observer.Observe('other group 1', 'f={' + Other.GetFilters() + '}');
+        Other.FilterGroup(0);
+        Observer.Observe('other', 'f={' + Other.GetFilters() + '} n=' + Format(Other.Count()));
+        Observer.Observe('callee', Callee.Describe(Row));
+        ObserveCaller(Observer, Row);
+        Row.FilterGroup(1);
+        Row.SetRange(Status);
+        Row.FilterGroup(0);
+        Observer.Observe('other after clear', 'n=' + Format(Other.Count()));
+        Observer.Finish();
+    end;
+
+    [Test]
     procedure ByValue_Group2Filter()
     var
         Observer: Codeunit "Probe Observer";
@@ -455,6 +496,68 @@ codeunit 78728 "BVV By Value View Tests"
         SetGroupFilter(Row, -1);
         Observer.Observe('callee', Callee.Describe(Row));
         Observer.Observe('callee groups', Callee.Groups(Row));
+        ObserveCaller(Observer, Row);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ByValue_GroupMinus1_TwoFields()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "BVV Row";
+    begin
+        Seed();
+        Row.FilterGroup(-1);
+        Row.SetFilter(Id, '2');
+        Row.SetFilter(Name, 'NOTHING');
+        Row.FilterGroup(0);
+        Observer.Observe('callee', Callee.Describe(Row));
+        Observer.Observe('callee local', DescribeLocal(Row));
+        Observer.Observe('callee groups', Callee.Groups(Row));
+        ObserveCaller(Observer, Row);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ByValue_FlowFieldFilter_Codeunit()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "BVV Row";
+    begin
+        Seed();
+        Row.SetRange("Day Filter", 1);
+        Row.SetRange(Total, 0);
+        Observer.Observe('callee', Callee.Describe(Row));
+        Observer.Observe('callee view', Callee.View(Row));
+        ObserveCaller(Observer, Row);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ByValue_FlowFieldFilter_LocalProcedure()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "BVV Row";
+    begin
+        Seed();
+        Row.SetRange("Day Filter", 1);
+        Row.SetRange(Total, 0);
+        Observer.Observe('callee', DescribeLocal(Row));
+        ObserveCaller(Observer, Row);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ByValue_TableProcedure_OwnRecByValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "BVV Row";
+    begin
+        Seed();
+        Row.SetRange("Day Filter", 1);
+        Row.SetRange(Total, 0);
+        Row.Get(3);
+        Observer.Observe('same status', Row.CountSameStatus(Row));
         ObserveCaller(Observer, Row);
         Observer.Finish();
     end;
