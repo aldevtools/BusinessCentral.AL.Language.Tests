@@ -8,6 +8,20 @@
 //   Metadata Permission (the platform's own sets hold such grants too); and reads of the three tables under Permissions Mock,
 //   whose All Objects set holds table * = X, with a set that grants tabledata Permission = R by name, by tabledata *, or not.
 // Row format: <object type ordinal>:<object id>:<R I M D X letters; lower case = indirect; - = none>.
+// Measured on BC 27.5 and 28.5 (same result on both):
+// - A whole-type grant is ONE row with Object ID 0 in all three tables: table * = X gives 1:0:----X, tabledata * = RIMD gives
+//   0:0:RIMD-, codeunit * = X gives 5:0:----X, tabledata * = rimd gives 0:0:rimd-. It is not expanded into one row per object.
+// - Every whole-type grant of a set keeps its own Object ID 0 row (LT Y93 W All: 8 rows, one per object type).
+// - * next to a named grant of the same type: Metadata Permission keeps the named row as declared (0:94981:R----); Expanded
+//   Permission and Permission show the named row merged with * (0:94981:RIMD-). A named row of another type stays as declared.
+// - IncludedPermissionSets with ExcludedPermissionSets: Metadata Permission has no row for the set itself (0 rows); Expanded
+//   Permission and Permission hold the included rows with the excluded letters removed from a named row (0:94980:R-MD-) and the
+//   Object ID 0 rows unchanged.
+// - Unfiltered Metadata Permission: FindSet finds rows, Count equals the rows a loop visits, IsEmpty is false. Unfiltered
+//   Expanded Permission and Permission: IsEmpty false, FindFirst true.
+// - Under Permissions Mock (Set with tabledata Permission = R by name, tabledata *, table * or neither): every read of the three
+//   tables succeeds (no permission error): Permission FindFirst true, IsEmpty false, Count of one set 1, Metadata Permission
+//   Count 1 and IsEmpty false, Expanded Permission Count 1.
 // BC versions: 27, 28, 29
 
 // local object: the test checks the rows of this set's own grants (a named grant next to *).
@@ -49,7 +63,10 @@ codeunit 91000 "PERM Wildcard Grant Rows"
         Observer.Observe('metadata', MetadataRows('LT Y93 W Table'));
         Observer.Observe('expanded', ExpandedRows('LT Y93 W Table'));
         Observer.Observe('permission', PermissionRows('LT Y93 W Table'));
-        Observer.Finish();
+        Observer.Expect('metadata', '1 rows 1:0:----X;');
+        Observer.Expect('expanded', '1 rows 1:0:----X;');
+        Observer.Expect('permission', '1 rows 1:0:----X;');
+        Observer.Verify();
     end;
 
     // The rows of 'LT Y93 W Data' in Metadata Permission, Expanded Permission and Permission (filtered on Role ID): count, and the rows of
@@ -62,7 +79,10 @@ codeunit 91000 "PERM Wildcard Grant Rows"
         Observer.Observe('metadata', MetadataRows('LT Y93 W Data'));
         Observer.Observe('expanded', ExpandedRows('LT Y93 W Data'));
         Observer.Observe('permission', PermissionRows('LT Y93 W Data'));
-        Observer.Finish();
+        Observer.Expect('metadata', '1 rows 0:0:RIMD-;');
+        Observer.Expect('expanded', '1 rows 0:0:RIMD-;');
+        Observer.Expect('permission', '1 rows 0:0:RIMD-;');
+        Observer.Verify();
     end;
 
     // The rows of 'LT Y93 W Cu' in Metadata Permission, Expanded Permission and Permission (filtered on Role ID): count, and the rows of
@@ -75,7 +95,10 @@ codeunit 91000 "PERM Wildcard Grant Rows"
         Observer.Observe('metadata', MetadataRows('LT Y93 W Cu'));
         Observer.Observe('expanded', ExpandedRows('LT Y93 W Cu'));
         Observer.Observe('permission', PermissionRows('LT Y93 W Cu'));
-        Observer.Finish();
+        Observer.Expect('metadata', '1 rows 5:0:----X;');
+        Observer.Expect('expanded', '1 rows 5:0:----X;');
+        Observer.Expect('permission', '1 rows 5:0:----X;');
+        Observer.Verify();
     end;
 
     // The rows of 'LT Y93 W Mix Data' in Metadata Permission, Expanded Permission and Permission (filtered on Role ID): count, and the rows of
@@ -88,7 +111,10 @@ codeunit 91000 "PERM Wildcard Grant Rows"
         Observer.Observe('metadata', MetadataRows('LT Y93 W Mix Data'));
         Observer.Observe('expanded', ExpandedRows('LT Y93 W Mix Data'));
         Observer.Observe('permission', PermissionRows('LT Y93 W Mix Data'));
-        Observer.Finish();
+        Observer.Expect('metadata', '2 rows 0:0:RIMD-;0:94981:R----;');
+        Observer.Expect('expanded', '2 rows 0:0:RIMD-;0:94981:RIMD-;');
+        Observer.Expect('permission', '2 rows 0:0:RIMD-;0:94981:RIMD-;');
+        Observer.Verify();
     end;
 
     // The rows of 'LT Y93 W Mix Cu' in Metadata Permission, Expanded Permission and Permission (filtered on Role ID): count, and the rows of
@@ -101,7 +127,10 @@ codeunit 91000 "PERM Wildcard Grant Rows"
         Observer.Observe('metadata', MetadataRows('LT Y93 W Mix Cu'));
         Observer.Observe('expanded', ExpandedRows('LT Y93 W Mix Cu'));
         Observer.Observe('permission', PermissionRows('LT Y93 W Mix Cu'));
-        Observer.Finish();
+        Observer.Expect('metadata', '2 rows 5:0:----X;');
+        Observer.Expect('expanded', '2 rows 5:0:----X;');
+        Observer.Expect('permission', '2 rows 5:0:----X;');
+        Observer.Verify();
     end;
 
     // The rows of 'LT Y93 W All' in Metadata Permission, Expanded Permission and Permission (filtered on Role ID): count, and the rows of
@@ -114,7 +143,10 @@ codeunit 91000 "PERM Wildcard Grant Rows"
         Observer.Observe('metadata', MetadataRows('LT Y93 W All'));
         Observer.Observe('expanded', ExpandedRows('LT Y93 W All'));
         Observer.Observe('permission', PermissionRows('LT Y93 W All'));
-        Observer.Finish();
+        Observer.Expect('metadata', '8 rows 0:0:RIMD-;1:0:----X;3:0:----X;5:0:----X;6:0:----X;8:0:----X;9:0:----X;10:0:----X;');
+        Observer.Expect('expanded', '8 rows 0:0:RIMD-;1:0:----X;3:0:----X;5:0:----X;6:0:----X;8:0:----X;9:0:----X;10:0:----X;');
+        Observer.Expect('permission', '8 rows 0:0:RIMD-;1:0:----X;3:0:----X;5:0:----X;6:0:----X;8:0:----X;9:0:----X;10:0:----X;');
+        Observer.Verify();
     end;
 
     // The rows of 'LT Y93 W Ind' in Metadata Permission, Expanded Permission and Permission (filtered on Role ID): count, and the rows of
@@ -127,7 +159,10 @@ codeunit 91000 "PERM Wildcard Grant Rows"
         Observer.Observe('metadata', MetadataRows('LT Y93 W Ind'));
         Observer.Observe('expanded', ExpandedRows('LT Y93 W Ind'));
         Observer.Observe('permission', PermissionRows('LT Y93 W Ind'));
-        Observer.Finish();
+        Observer.Expect('metadata', '1 rows 0:0:rimd-;');
+        Observer.Expect('expanded', '1 rows 0:0:rimd-;');
+        Observer.Expect('permission', '1 rows 0:0:rimd-;');
+        Observer.Verify();
     end;
 
     // The rows of 'LT Y93 W Excl' in Metadata Permission, Expanded Permission and Permission (filtered on Role ID): count, and the rows of
@@ -140,7 +175,10 @@ codeunit 91000 "PERM Wildcard Grant Rows"
         Observer.Observe('metadata', MetadataRows('LT Y93 W Excl'));
         Observer.Observe('expanded', ExpandedRows('LT Y93 W Excl'));
         Observer.Observe('permission', PermissionRows('LT Y93 W Excl'));
-        Observer.Finish();
+        Observer.Expect('metadata', '0 rows ');
+        Observer.Expect('expanded', '10 rows 0:0:RIMD-;0:94980:R-MD-;1:0:----X;3:0:----X;5:0:----X;6:0:----X;8:0:----X;9:0:----X;10:0:----X;');
+        Observer.Expect('permission', '10 rows 0:0:RIMD-;0:94980:R-MD-;1:0:----X;3:0:----X;5:0:----X;6:0:----X;8:0:----X;9:0:----X;10:0:----X;');
+        Observer.Verify();
     end;
 
     // The rows of 'PERM W Mix Table' in Metadata Permission, Expanded Permission and Permission (filtered on Role ID): count, and the rows of
@@ -153,7 +191,10 @@ codeunit 91000 "PERM Wildcard Grant Rows"
         Observer.Observe('metadata', MetadataRows('PERM W Mix Table'));
         Observer.Observe('expanded', ExpandedRows('PERM W Mix Table'));
         Observer.Observe('permission', PermissionRows('PERM W Mix Table'));
-        Observer.Finish();
+        Observer.Expect('metadata', '3 rows 0:94980:R----;1:0:----X;1:94981:----X;');
+        Observer.Expect('expanded', '3 rows 0:94980:R----;1:0:----X;1:94981:----X;');
+        Observer.Expect('permission', '3 rows 0:94980:R----;1:0:----X;1:94981:----X;');
+        Observer.Verify();
     end;
 
     // The rows of 'PERM Grant Perm Tbl' in Metadata Permission, Expanded Permission and Permission (filtered on Role ID): count, and the rows of
@@ -166,7 +207,10 @@ codeunit 91000 "PERM Wildcard Grant Rows"
         Observer.Observe('metadata', MetadataRows('PERM Grant Perm Tbl'));
         Observer.Observe('expanded', ExpandedRows('PERM Grant Perm Tbl'));
         Observer.Observe('permission', PermissionRows('PERM Grant Perm Tbl'));
-        Observer.Finish();
+        Observer.Expect('metadata', '2 rows 0:94980:R----;0:2000000005:R----;');
+        Observer.Expect('expanded', '2 rows 0:94980:R----;0:2000000005:R----;');
+        Observer.Expect('permission', '2 rows 0:94980:R----;0:2000000005:R----;');
+        Observer.Verify();
     end;
 
     // An unfiltered FindSet over Metadata Permission (every set, the platform's own included): it runs, and the rows of
@@ -189,7 +233,11 @@ codeunit 91000 "PERM Wildcard Grant Rows"
         Observer.Observe('count_equals_loop', Format(MetadataPermission.Count() = N));
         Observer.Observe('is_empty', Format(MetadataPermission.IsEmpty()));
         Observer.Observe('seen_w_table', Seen);
-        Observer.Finish();
+        Observer.Expect('any_rows', 'Yes');
+        Observer.Expect('count_equals_loop', 'Yes');
+        Observer.Expect('is_empty', 'No');
+        Observer.Expect('seen_w_table', '1:0:----X;');
+        Observer.Verify();
     end;
 
     // The same over Expanded Permission and Permission.
@@ -204,7 +252,11 @@ codeunit 91000 "PERM Wildcard Grant Rows"
         Observer.Observe('expanded_findfirst', Format(ExpandedPermission.FindFirst()));
         Observer.Observe('permission_is_empty', Format(Permission.IsEmpty()));
         Observer.Observe('permission_findfirst', Format(Permission.FindFirst()));
-        Observer.Finish();
+        Observer.Expect('expanded_is_empty', 'No');
+        Observer.Expect('expanded_findfirst', 'Yes');
+        Observer.Expect('permission_is_empty', 'No');
+        Observer.Expect('permission_findfirst', 'Yes');
+        Observer.Verify();
     end;
 
     // Reads of Permission, Metadata Permission and Expanded Permission under Permissions Mock.Set('PERM Grant Perm Tbl') (the mock adds its
@@ -227,7 +279,19 @@ codeunit 91000 "PERM Wildcard Grant Rows"
             Mock.ClearAssignments();
         end;
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('op1|text', 'PERM ok Yes');
+        Observer.Expect('op1|code', 'Dialog');
+        Observer.Expect('op2|text', 'PERM ok No');
+        Observer.Expect('op2|code', 'Dialog');
+        Observer.Expect('op3|text', 'PERM ok 1');
+        Observer.Expect('op3|code', 'Dialog');
+        Observer.Expect('op4|text', 'PERM ok 1');
+        Observer.Expect('op4|code', 'Dialog');
+        Observer.Expect('op5|text', 'PERM ok No');
+        Observer.Expect('op5|code', 'Dialog');
+        Observer.Expect('op6|text', 'PERM ok 1');
+        Observer.Expect('op6|code', 'Dialog');
+        Observer.Verify();
     end;
 
     // Reads of Permission, Metadata Permission and Expanded Permission under Permissions Mock.Set('LT Y93 W Data') (the mock adds its
@@ -250,7 +314,19 @@ codeunit 91000 "PERM Wildcard Grant Rows"
             Mock.ClearAssignments();
         end;
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('op1|text', 'PERM ok Yes');
+        Observer.Expect('op1|code', 'Dialog');
+        Observer.Expect('op2|text', 'PERM ok No');
+        Observer.Expect('op2|code', 'Dialog');
+        Observer.Expect('op3|text', 'PERM ok 1');
+        Observer.Expect('op3|code', 'Dialog');
+        Observer.Expect('op4|text', 'PERM ok 1');
+        Observer.Expect('op4|code', 'Dialog');
+        Observer.Expect('op5|text', 'PERM ok No');
+        Observer.Expect('op5|code', 'Dialog');
+        Observer.Expect('op6|text', 'PERM ok 1');
+        Observer.Expect('op6|code', 'Dialog');
+        Observer.Verify();
     end;
 
     // Reads of Permission, Metadata Permission and Expanded Permission under Permissions Mock.Set('LT Y93 W Cu') (the mock adds its
@@ -273,7 +349,19 @@ codeunit 91000 "PERM Wildcard Grant Rows"
             Mock.ClearAssignments();
         end;
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('op1|text', 'PERM ok Yes');
+        Observer.Expect('op1|code', 'Dialog');
+        Observer.Expect('op2|text', 'PERM ok No');
+        Observer.Expect('op2|code', 'Dialog');
+        Observer.Expect('op3|text', 'PERM ok 1');
+        Observer.Expect('op3|code', 'Dialog');
+        Observer.Expect('op4|text', 'PERM ok 1');
+        Observer.Expect('op4|code', 'Dialog');
+        Observer.Expect('op5|text', 'PERM ok No');
+        Observer.Expect('op5|code', 'Dialog');
+        Observer.Expect('op6|text', 'PERM ok 1');
+        Observer.Expect('op6|code', 'Dialog');
+        Observer.Verify();
     end;
 
     // Reads of Permission, Metadata Permission and Expanded Permission under Permissions Mock.Set('LT Y93 W Table') (the mock adds its
@@ -296,7 +384,19 @@ codeunit 91000 "PERM Wildcard Grant Rows"
             Mock.ClearAssignments();
         end;
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('op1|text', 'PERM ok Yes');
+        Observer.Expect('op1|code', 'Dialog');
+        Observer.Expect('op2|text', 'PERM ok No');
+        Observer.Expect('op2|code', 'Dialog');
+        Observer.Expect('op3|text', 'PERM ok 1');
+        Observer.Expect('op3|code', 'Dialog');
+        Observer.Expect('op4|text', 'PERM ok 1');
+        Observer.Expect('op4|code', 'Dialog');
+        Observer.Expect('op5|text', 'PERM ok No');
+        Observer.Expect('op5|code', 'Dialog');
+        Observer.Expect('op6|text', 'PERM ok 1');
+        Observer.Expect('op6|code', 'Dialog');
+        Observer.Verify();
     end;
 
     local procedure ReadOp(Which: Integer)
