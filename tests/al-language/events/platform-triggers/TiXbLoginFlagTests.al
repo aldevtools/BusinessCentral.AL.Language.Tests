@@ -4,7 +4,9 @@
 //   subscriber 98477 of "System Initialization".OnAfterLogin sets it to true).
 // Probe (al-runner issue 8239): what the test session reads of a Boolean global that a dependency app's OnAfterLogin subscriber set in that
 //   app's SingleInstance codeunit. Cells: first read in the first test; the second test after the first set it to false.
-// BC result: (filled in after the measurement)
+// BC result (measured on BC 28.5 and 27.5): the first test reads true (the value the dependency app's OnAfterLogin subscriber set in its
+//   SingleInstance codeunit reaches the test session); the second test reads false (the value the first test set stays for the next test
+//   of the codeunit).
 // BC versions: 27 - 29
 // singleinstance-shared-on-purpose: the XApp B instance is the probe.
 codeunit 73606 "LT TI XB Login Flag Tests"
@@ -20,7 +22,8 @@ codeunit 73606 "LT TI XB Login Flag Tests"
     begin
         Observer.Observe('flag', Format(LoginFlag.GetFlag()));
         LoginFlag.SetFlag(false);
-        Observer.Finish();
+        Observer.Expect('flag', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -30,6 +33,7 @@ codeunit 73606 "LT TI XB Login Flag Tests"
         LoginFlag: Codeunit "LT TI XB Login Flag";
     begin
         Observer.Observe('flag', Format(LoginFlag.GetFlag()));
-        Observer.Finish();
+        Observer.Expect('flag', 'No');
+        Observer.Verify();
     end;
 }

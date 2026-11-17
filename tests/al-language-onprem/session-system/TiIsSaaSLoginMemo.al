@@ -5,7 +5,9 @@
 // Probe (al-runner issue 8239): the first statement of the test is SetTestabilitySandbox(true), then IsSaaS(). IsSaaS() fills its memo with
 //   IsSandbox() or the membership entitlement setting on its first call; with TestabilitySandbox set, an empty memo gives Yes. No means the
 //   memo the login filled stayed in the test session; Yes means an empty memo or a tier that is a sandbox anyway.
-// BC result: (filled in after the measurement)
+// BC result (measured on BC 28.5 and 27.5): IsSaaS() and IsSandbox() are Yes after SetTestabilitySandbox(true) and still Yes after
+//   SetTestabilitySandbox(false). The corpus hosts are sandboxes (IsSandbox() is natively Yes), so this cell does NOT tell the login memo
+//   apart from an empty memo: it pins only these values on a sandbox tier.
 // BC versions: 27 - 29
 codeunit 98994 "LT TI IsSaaS Login Memo"
 {
@@ -25,6 +27,10 @@ codeunit 98994 "LT TI IsSaaS Login Memo"
         EnvTestLib.SetTestabilitySandbox(false);
         Observer.Observe('sandbox_false_is_saas', Format(EnvInfo.IsSaaS()));
         Observer.Observe('sandbox_false_is_sandbox', Format(EnvInfo.IsSandbox()));
-        Observer.Finish();
+        Observer.Expect('sandbox_true_is_saas', 'Yes');
+        Observer.Expect('sandbox_true_is_sandbox', 'Yes');
+        Observer.Expect('sandbox_false_is_saas', 'Yes');
+        Observer.Expect('sandbox_false_is_sandbox', 'Yes');
+        Observer.Verify();
     end;
 }

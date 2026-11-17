@@ -4,7 +4,11 @@
 // Probe (al-runner issue 8238): which table events of the platform table Company a read raises (install code that counts or picks companies).
 //   Each statement runs alone and the test observes the names of the events it raised ([] = no table event). Company data (count, names) is
 //   not observed. The control validates "Display Name" with its own value (no write).
-// BC result: (filled in after the measurement)
+// BC result (measured on BC 28.5 and 27.5): no read of Company raises a table event (IsEmpty, Count, FindFirst, Get, FindSet with Next,
+//   SetRange + Count, Reset, a field read, RecordRef IsEmpty/Count). The control: Validate "Display Name" raises OnBeforeValidate then
+//   OnAfterValidate; Insert, Modify, Rename and Delete of a temporary Company record raise their OnBefore/OnAfter pair.
+//   Side finding (first version of this probe): install code raises the Company OnBeforeInsertEvent inside OnInstallAppPerCompany, so a
+//   Company subscriber that writes to the database breaks the app install (the subscribers here log in memory).
 // BC versions: 27 - 29
 codeunit 73605 "LT TI Company Read Events"
 {
@@ -53,7 +57,16 @@ codeunit 73605 "LT TI Company Read Events"
         N := RecRef.Count();
         Observer.Observe('RecordRef IsEmpty Count', Take());
         RecRef.Close();
-        Observer.Finish();
+        Observer.Expect('IsEmpty', '[]');
+        Observer.Expect('Count', '[]');
+        Observer.Expect('FindFirst', '[]');
+        Observer.Expect('Get CompanyName', 'Yes []');
+        Observer.Expect('FindSet Next', '[]');
+        Observer.Expect('SetRange Count', '1 []');
+        Observer.Expect('Reset', '[]');
+        Observer.Expect('field read', '[]');
+        Observer.Expect('RecordRef IsEmpty Count', '[]');
+        Observer.Verify();
     end;
 
     // The control: the Company subscribers are bound (Validate raises its events without a write).
@@ -67,7 +80,8 @@ codeunit 73605 "LT TI Company Read Events"
         Company.Get(CompanyName());
         Company.Validate("Display Name", Company."Display Name");
         Observer.Observe('Validate Display Name', Take());
-        Observer.Finish();
+        Observer.Expect('Validate Display Name', '[Company.OnBeforeValidate,Company.OnAfterValidate]');
+        Observer.Verify();
     end;
 
     // The control on a temporary Company record: writes raise the table events without touching the database.
@@ -89,6 +103,10 @@ codeunit 73605 "LT TI Company Read Events"
         Observer.Observe('temp Rename', Take());
         TempCompany.Delete();
         Observer.Observe('temp Delete', Take());
-        Observer.Finish();
+        Observer.Expect('temp Insert', '[Company.OnBeforeInsert,Company.OnAfterInsert]');
+        Observer.Expect('temp Modify', '[Company.OnBeforeModify,Company.OnAfterModify]');
+        Observer.Expect('temp Rename', '[Company.OnBeforeRename,Company.OnAfterRename]');
+        Observer.Expect('temp Delete', '[Company.OnBeforeDelete,Company.OnAfterDelete]');
+        Observer.Verify();
     end;
 }

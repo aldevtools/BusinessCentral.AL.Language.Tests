@@ -3,7 +3,12 @@
 // Fixtures used: Probe Observer (69160); TiReadEventObjects.al (table 73600 with subscribers to its ten table events, in-memory log codeunit 73601)
 // Probe (al-runner issue 8238): which table events a read of a record raises. Each test fills three rows, empties the log, runs one statement
 //   at a time and observes the names of the events the statement raised ([] = no table event).
-// BC result: (filled in after the measurement)
+// BC result (measured on BC 28.5 and 27.5): no read raises a table event: IsEmpty, Get (found and missing), Find('-'/'+'/'='), FindFirst,
+//   FindLast, FindSet/FindSet(true) with Next, Next(-1), Count, CountApprox, SetRange, SetFilter, Reset, SetCurrentKey, SetAscending, a field
+//   read, a field assignment without Validate, Init, Copy, TransferFields, SetLoadFields + Get, LockTable + FindLast, GetFilters/HasFilter, and
+//   RecordRef Open/IsEmpty/FindFirst/Next/Count/FieldRef read/FieldRef SetRange/Close; also not on an empty table. The control: Insert,
+//   Modify, Delete (false and true), Rename and Validate of the subscribed field raise their OnBefore/OnAfter pair; Validate of another field
+//   raises none; ModifyAll and DeleteAll raise the pair once per row, for RunTrigger false as well as true (the table has subscribers).
 // BC versions: 27 - 29
 codeunit 73604 "LT TI Read Events"
 {
@@ -70,7 +75,20 @@ codeunit 73604 "LT TI Read Events"
         Observer.Observe('Count', Format(Row.Count()) + ' ' + Take());
         N := Row.CountApprox();
         Observer.Observe('CountApprox', Take());
-        Observer.Finish();
+        Observer.Expect('IsEmpty', 'No []');
+        Observer.Expect('Get found', 'Yes []');
+        Observer.Expect('Get missing', 'No []');
+        Observer.Expect('Find -', 'Yes []');
+        Observer.Expect('Find +', 'Yes []');
+        Observer.Expect('Find =', 'Yes []');
+        Observer.Expect('FindFirst', 'Yes []');
+        Observer.Expect('FindLast', 'Yes []');
+        Observer.Expect('FindSet Next', '3 []');
+        Observer.Expect('FindSet ForUpdate Next', '3 []');
+        Observer.Expect('Next -1', '-1 []');
+        Observer.Expect('Count', '3 []');
+        Observer.Expect('CountApprox', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -86,7 +104,12 @@ codeunit 73604 "LT TI Read Events"
         Observer.Observe('FindFirst', Format(Row.FindFirst()) + ' ' + Take());
         Observer.Observe('FindSet', Format(Row.FindSet()) + ' ' + Take());
         Observer.Observe('Count', Format(Row.Count()) + ' ' + Take());
-        Observer.Finish();
+        Observer.Expect('DeleteAll false on three rows', '[Row.OnBeforeDelete,Row.OnAfterDelete,Row.OnBeforeDelete,Row.OnAfterDelete,Row.OnBeforeDelete,Row.OnAfterDelete]');
+        Observer.Expect('IsEmpty', 'Yes []');
+        Observer.Expect('FindFirst', 'No []');
+        Observer.Expect('FindSet', 'No []');
+        Observer.Expect('Count', '0 []');
+        Observer.Verify();
     end;
 
     [Test]
@@ -127,7 +150,22 @@ codeunit 73604 "LT TI Read Events"
         Row.LockTable();
         Observer.Observe('LockTable FindLast', Format(Row.FindLast()) + ' ' + Take());
         Observer.Observe('GetFilters HasFilter', Row.GetFilters() + ' ' + Format(Row.HasFilter()) + ' ' + Take());
-        Observer.Finish();
+        Observer.Expect('SetRange', '[]');
+        Observer.Expect('SetFilter', '[]');
+        Observer.Expect('Count filtered', '1 []');
+        Observer.Expect('Reset', '[]');
+        Observer.Expect('SetCurrentKey', '[]');
+        Observer.Expect('SetAscending', '[]');
+        Observer.Expect('FindFirst by key', 'Yes C []');
+        Observer.Expect('field read', 'Gamma 3 []');
+        Observer.Expect('field assign without Validate', '[]');
+        Observer.Expect('Init', '[]');
+        Observer.Expect('Copy', '[]');
+        Observer.Expect('TransferFields', '[]');
+        Observer.Expect('SetLoadFields Get', 'Yes []');
+        Observer.Expect('LockTable FindLast', 'Yes []');
+        Observer.Expect('GetFilters HasFilter', ' No []');
+        Observer.Verify();
     end;
 
     [Test]
@@ -150,7 +188,15 @@ codeunit 73604 "LT TI Read Events"
         Observer.Observe('FieldRef SetRange FindFirst', Format(RecRef.FindFirst()) + ' ' + Take());
         RecRef.Close();
         Observer.Observe('Close', Take());
-        Observer.Finish();
+        Observer.Expect('Open', '[]');
+        Observer.Expect('IsEmpty', 'No []');
+        Observer.Expect('FindFirst', 'Yes []');
+        Observer.Expect('Next', '1 []');
+        Observer.Expect('Count', '3 []');
+        Observer.Expect('FieldRef read', 'Beta []');
+        Observer.Expect('FieldRef SetRange FindFirst', 'Yes []');
+        Observer.Expect('Close', '[]');
+        Observer.Verify();
     end;
 
     // The control: the subscribers are bound, and which events each write raises.
@@ -196,6 +242,19 @@ codeunit 73604 "LT TI Read Events"
         Row.SetRange(Code);
         Row.DeleteAll(true);
         Observer.Observe('DeleteAll true', Take());
-        Observer.Finish();
+        Observer.Expect('Insert false', '[Row.OnBeforeInsert,Row.OnAfterInsert]');
+        Observer.Expect('Insert true', '[Row.OnBeforeInsert,Row.OnAfterInsert]');
+        Observer.Expect('Modify false', '[Row.OnBeforeModify,Row.OnAfterModify]');
+        Observer.Expect('Modify true', '[Row.OnBeforeModify,Row.OnAfterModify]');
+        Observer.Expect('Validate', '[Row.OnBeforeValidate,Row.OnAfterValidate]');
+        Observer.Expect('Validate other field', '[]');
+        Observer.Expect('Rename', '[Row.OnBeforeRename,Row.OnAfterRename]');
+        Observer.Expect('Delete false', '[Row.OnBeforeDelete,Row.OnAfterDelete]');
+        Observer.Expect('Delete true', '[Row.OnBeforeDelete,Row.OnAfterDelete]');
+        Observer.Expect('ModifyAll false', '[Row.OnBeforeModify,Row.OnAfterModify,Row.OnBeforeModify,Row.OnAfterModify,Row.OnBeforeModify,Row.OnAfterModify]');
+        Observer.Expect('ModifyAll true', '[Row.OnBeforeModify,Row.OnAfterModify,Row.OnBeforeModify,Row.OnAfterModify,Row.OnBeforeModify,Row.OnAfterModify]');
+        Observer.Expect('DeleteAll false one row', '[Row.OnBeforeDelete,Row.OnAfterDelete]');
+        Observer.Expect('DeleteAll true', '[Row.OnBeforeDelete,Row.OnAfterDelete,Row.OnBeforeDelete,Row.OnAfterDelete]');
+        Observer.Verify();
     end;
 }
