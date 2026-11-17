@@ -3,11 +3,13 @@
 // Fixtures used: none (objects of this folder only)
 // Probe (al-runner issue 8238): objects for tests/al-language/record/table-events-reads/TiReadEventTests.al and TiCompanyReadEventTests.al.
 //   A table with subscribers to all ten table events (Before and After of Insert, Modify, Delete, Rename and Validate of field Description),
-//   and subscribers to the same ten events of the platform table Company (Validate of field "Display Name"). Every subscriber adds one row
-//   to the log table "LT TI Event Log". No subscriber fails.
+//   and subscribers to the same ten events of the platform table Company (Validate of field "Display Name"). Every subscriber adds its event name
+//   to an in-memory SingleInstance log (73601 for the row table, 73607 for Company) and never fails. A first version wrote a log table; its
+//   Company subscriber broke the app install on BC 28.5: install code raises OnBeforeInsertEvent of Company (on a temporary record) inside
+//   OnInstallAppPerCompany, where a database write is not allowed.
 // BC versions: 27 - 29
 
-// local object: the row table whose reads the tests run; its ten table events log to "LT TI Event Log"
+// local object: the row table whose reads the tests run; its ten table events log to codeunit 73601
 table 73600 "LT TI Read Row"
 {
     DataClassification = SystemMetadata;
@@ -26,21 +28,64 @@ table 73600 "LT TI Read Row"
     }
 }
 
-// local object: the log the subscribers write
-table 73601 "LT TI Event Log"
+// local object: the in-memory log of the row subscribers (no database write: a subscriber that writes fails when the event is raised inside install code)
+// singleinstance-shared-on-purpose: written by the subscribers of codeunit 73602, read by the one test codeunit 73604
+codeunit 73601 "LT TI Row Event Log"
 {
-    DataClassification = SystemMetadata;
+    SingleInstance = true;
 
-    fields
-    {
-        field(1; "Entry No."; Integer) { AutoIncrement = true; }
-        field(2; "Event Name"; Text[100]) { }
-    }
+    var
+        Names: List of [Text];
 
-    keys
-    {
-        key(PK; "Entry No.") { Clustered = true; }
-    }
+    procedure Add(EventName: Text)
+    begin
+        Names.Add(EventName);
+    end;
+
+    // The names added since the last call, then empties the log.
+    procedure Take(): Text
+    var
+        Name: Text;
+        Result: Text;
+    begin
+        foreach Name in Names do begin
+            if Result <> '' then
+                Result += ',';
+            Result += Name;
+        end;
+        Clear(Names);
+        exit('[' + Result + ']');
+    end;
+}
+
+// local object: the in-memory log of the Company subscribers (no database write: install code of other apps raises Company events on a temporary record)
+// singleinstance-shared-on-purpose: written by the subscribers of codeunit 73603, read by the one test codeunit 73605
+codeunit 73607 "LT TI Company Event Log"
+{
+    SingleInstance = true;
+
+    var
+        Names: List of [Text];
+
+    procedure Add(EventName: Text)
+    begin
+        Names.Add(EventName);
+    end;
+
+    // The names added since the last call, then empties the log.
+    procedure Take(): Text
+    var
+        Name: Text;
+        Result: Text;
+    begin
+        foreach Name in Names do begin
+            if Result <> '' then
+                Result += ',';
+            Result += Name;
+        end;
+        Clear(Names);
+        exit('[' + Result + ']');
+    end;
 }
 
 // local object: subscribers to all ten table events of "LT TI Read Row"
@@ -108,11 +153,9 @@ codeunit 73602 "LT TI Row Event Subs"
 
     local procedure Add(EventName: Text)
     var
-        Log: Record "LT TI Event Log";
+        Log: Codeunit "LT TI Row Event Log";
     begin
-        Log.Init();
-        Log."Event Name" := CopyStr(EventName, 1, MaxStrLen(Log."Event Name"));
-        Log.Insert();
+        Log.Add(EventName);
     end;
 }
 
@@ -181,10 +224,8 @@ codeunit 73603 "LT TI Company Event Subs"
 
     local procedure Add(EventName: Text)
     var
-        Log: Record "LT TI Event Log";
+        Log: Codeunit "LT TI Company Event Log";
     begin
-        Log.Init();
-        Log."Event Name" := CopyStr(EventName, 1, MaxStrLen(Log."Event Name"));
-        Log.Insert();
+        Log.Add(EventName);
     end;
 }

@@ -1,8 +1,8 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-events-in-al
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); TiReadEventObjects.al (table 73600 with subscribers to its ten table events, log table 73601)
+// Fixtures used: Probe Observer (69160); TiReadEventObjects.al (table 73600 with subscribers to its ten table events, in-memory log codeunit 73601)
 // Probe (al-runner issue 8238): which table events a read of a record raises. Each test fills three rows, empties the log, runs one statement
-//   at a time and observes the names of the log rows the statement left ([] = no table event).
+//   at a time and observes the names of the events the statement raised ([] = no table event).
 // BC result: (filled in after the measurement)
 // BC versions: 27 - 29
 codeunit 73604 "LT TI Read Events"
@@ -13,7 +13,6 @@ codeunit 73604 "LT TI Read Events"
     local procedure Setup()
     var
         Row: Record "LT TI Read Row";
-        Log: Record "LT TI Event Log";
     begin
         Row.DeleteAll();
         Row.Init();
@@ -29,23 +28,14 @@ codeunit 73604 "LT TI Read Events"
         Row.Description := 'Gamma';
         Row.Amount := 3;
         Row.Insert();
-        Log.DeleteAll();
+        Take();
     end;
 
-    // The names of the log rows written since the last call, then empties the log.
     local procedure Take(): Text
     var
-        Log: Record "LT TI Event Log";
-        Names: Text;
+        Log: Codeunit "LT TI Row Event Log";
     begin
-        if Log.FindSet() then
-            repeat
-                if Names <> '' then
-                    Names += ',';
-                Names += Log."Event Name";
-            until Log.Next() = 0;
-        Log.DeleteAll();
-        exit('[' + Names + ']');
+        exit(Log.Take());
     end;
 
     [Test]

@@ -1,8 +1,8 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-events-in-al
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); TiReadEventObjects.al (codeunit 73603: subscribers to the ten table events of Company, log table 73601)
+// Fixtures used: Probe Observer (69160); TiReadEventObjects.al (codeunit 73603: subscribers to the ten table events of Company, in-memory log codeunit 73607)
 // Probe (al-runner issue 8238): which table events of the platform table Company a read raises (install code that counts or picks companies).
-//   Each statement runs alone and the test observes the names of the log rows it left ([] = no table event). Company data (count, names) is
+//   Each statement runs alone and the test observes the names of the events it raised ([] = no table event). Company data (count, names) is
 //   not observed. The control validates "Display Name" with its own value (no write).
 // BC result: (filled in after the measurement)
 // BC versions: 27 - 29
@@ -11,20 +11,11 @@ codeunit 73605 "LT TI Company Read Events"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    // The names of the log rows written since the last call, then empties the log.
     local procedure Take(): Text
     var
-        Log: Record "LT TI Event Log";
-        Names: Text;
+        Log: Codeunit "LT TI Company Event Log";
     begin
-        if Log.FindSet() then
-            repeat
-                if Names <> '' then
-                    Names += ',';
-                Names += Log."Event Name";
-            until Log.Next() = 0;
-        Log.DeleteAll();
-        exit('[' + Names + ']');
+        exit(Log.Take());
     end;
 
     [Test]
@@ -76,6 +67,28 @@ codeunit 73605 "LT TI Company Read Events"
         Company.Get(CompanyName());
         Company.Validate("Display Name", Company."Display Name");
         Observer.Observe('Validate Display Name', Take());
+        Observer.Finish();
+    end;
+
+    // The control on a temporary Company record: writes raise the table events without touching the database.
+    [Test]
+    procedure Company_TemporaryRecordWrites_RaiseTheirEvents()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempCompany: Record Company temporary;
+    begin
+        Take();
+        TempCompany.Init();
+        TempCompany.Name := 'LT TI TEMP';
+        TempCompany.Insert();
+        Observer.Observe('temp Insert', Take());
+        TempCompany."Display Name" := 'Temp';
+        TempCompany.Modify();
+        Observer.Observe('temp Modify', Take());
+        TempCompany.Rename('LT TI TEMP2');
+        Observer.Observe('temp Rename', Take());
+        TempCompany.Delete();
+        Observer.Observe('temp Delete', Take());
         Observer.Finish();
     end;
 }
