@@ -21,8 +21,18 @@
 //     transaction modified through another variable (a committed row, and a row the transaction inserted).
 // Already pinned elsewhere, not repeated: Rec.Proc(), this.Proc() and Proc() called from a field's OnValidate
 //   (record/validate/XRecTableProcCalls.al).
-// Observation form: every test ends in Finish(); the values are what BC produced.
-// BC versions: 27.5, 28.5, 29.0 (to be measured by the corpus CI)
+// Facts (the same on 27.5, 28.5 and 29.0):
+//   - a table procedure called through a codeunit (plain or behind an interface) on the var Rec of a running field trigger reads the
+//     trigger's xRec (10), after Insert, after Get, on a fresh record, from a TestPage SetValue and from FieldRef.Validate, on a
+//     temporary record, after FindFirst and after Get of a committed row or of a row another variable modified;
+//   - xRec assigned in that procedure (99) is what the trigger reads after the call;
+//   - Rec.Validate of another field inside the table procedure: that field's trigger reads the outer trigger's xRec (10); the same
+//     Validate written in the codeunit on its var parameter: that trigger reads the record as it was at the call (15);
+//   - in OnInsert the xRec is the inserted record (10); in OnModify and OnDelete called from code it equals Rec (15); a procedure
+//     reached from those triggers, directly or through the codeunit, reads the same xRec as the trigger;
+//   - a table extension field trigger and OnBeforeModify behave the same as the base triggers; a table extension procedure called
+//     through the codeunit reads the base trigger's xRec.
+// BC versions: 27.5, 28.5, 29.0
 
 table 78701 "XTC Item"
 {
@@ -359,7 +369,9 @@ codeunit 78706 "XTC XRec Through Cu Tests"
     begin
         AfterInsert(Item);
         ValidateAndObserve(Observer, Item, 'way3');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=10;C x=10;');
+        Observer.Expect('value', '15/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -370,7 +382,9 @@ codeunit 78706 "XTC XRec Through Cu Tests"
     begin
         AfterGet(Item);
         ValidateAndObserve(Observer, Item, 'way3');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=10;C x=10;');
+        Observer.Expect('value', '15/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -381,7 +395,9 @@ codeunit 78706 "XTC XRec Through Cu Tests"
     begin
         AfterInsert(Item);
         ValidateAndObserve(Observer, Item, 'way4');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=10;I x=10;');
+        Observer.Expect('value', '15/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -392,7 +408,9 @@ codeunit 78706 "XTC XRec Through Cu Tests"
     begin
         AfterGet(Item);
         ValidateAndObserve(Observer, Item, 'way4');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=10;I x=10;');
+        Observer.Expect('value', '15/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -403,7 +421,9 @@ codeunit 78706 "XTC XRec Through Cu Tests"
     begin
         AfterGet(Item);
         ValidateAndObserve(Observer, Item, 'direct');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=10;C x=10;');
+        Observer.Expect('value', '15/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -418,7 +438,9 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Item."No." := 'T1';
         Item.Value := 10;
         ValidateAndObserve(Observer, Item, 'way3');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=10;C x=10;');
+        Observer.Expect('value', '15/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -438,7 +460,9 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Card.Close();
         Item.Get('T1');
         Observer.Observe('stored value', Format(Item.Value));
-        Observer.Finish();
+        Observer.Expect('log', 'T x=10;C x=10;');
+        Observer.Expect('stored value', '15');
+        Observer.Verify();
     end;
 
     [Test]
@@ -455,7 +479,9 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Observer.Observe('log', Cfg.Take());
         Cfg.Set('');
         Observer.Observe('recref value', Format(RecRef.Field(Item.FieldNo(Value)).Value()));
-        Observer.Finish();
+        Observer.Expect('log', 'T x=10;C x=10;');
+        Observer.Expect('recref value', '15');
+        Observer.Verify();
     end;
 
     [Test]
@@ -466,7 +492,9 @@ codeunit 78706 "XTC XRec Through Cu Tests"
     begin
         AfterGet(Item);
         ValidateAndObserve(Observer, Item, 'assign');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=10;C x=10;T after x=99;');
+        Observer.Expect('value', '15/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -477,7 +505,9 @@ codeunit 78706 "XTC XRec Through Cu Tests"
     begin
         AfterGet(Item);
         ValidateAndObserve(Observer, Item, 'validate-in-proc');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=10;O x=10/0;');
+        Observer.Expect('value', '15/5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -488,7 +518,9 @@ codeunit 78706 "XTC XRec Through Cu Tests"
     begin
         AfterGet(Item);
         ValidateAndObserve(Observer, Item, 'validate-in-cu');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=10;O x=15/0;');
+        Observer.Expect('value', '15/7');
+        Observer.Verify();
     end;
 
     // OnInsert, OnModify and OnDelete as the running trigger.
@@ -537,7 +569,8 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Observer: Codeunit "Probe Observer";
     begin
         InsertWith(Observer, 'ins-cu');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=10;C x=10;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -546,7 +579,8 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Observer: Codeunit "Probe Observer";
     begin
         InsertWith(Observer, 'ins-proc');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=10;R x=10;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -555,7 +589,8 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Observer: Codeunit "Probe Observer";
     begin
         InsertWith(Observer, 'ins-proc-val');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=10;O x=10/0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -564,7 +599,8 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ModifyWith(Observer, 'mod-cu');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=15;C x=15;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -573,7 +609,8 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ModifyWith(Observer, 'mod-proc');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=15;R x=15;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -582,7 +619,8 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ModifyWith(Observer, 'mod-proc-val');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=15;O x=15/0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -591,7 +629,8 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Observer: Codeunit "Probe Observer";
     begin
         DeleteWith(Observer, 'del-cu');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=15;C x=15;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -600,7 +639,8 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Observer: Codeunit "Probe Observer";
     begin
         DeleteWith(Observer, 'del-proc');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=15;R x=15;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -609,7 +649,8 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Observer: Codeunit "Probe Observer";
     begin
         DeleteWith(Observer, 'del-proc-val');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=15;O x=15/0;');
+        Observer.Verify();
     end;
 
     // Table extension cells.
@@ -630,7 +671,8 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ValidateExtAndObserve(Observer, 'ext-cu');
-        Observer.Finish();
+        Observer.Expect('log', 'E x=10;C x=10;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -639,7 +681,8 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ValidateExtAndObserve(Observer, 'ext-proc');
-        Observer.Finish();
+        Observer.Expect('log', 'E x=10;R x=10;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -648,7 +691,8 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ValidateExtAndObserve(Observer, 'ext-proc-val');
-        Observer.Finish();
+        Observer.Expect('log', 'E x=10;O x=10/0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -659,7 +703,9 @@ codeunit 78706 "XTC XRec Through Cu Tests"
     begin
         AfterGet(Item);
         ValidateAndObserve(Observer, Item, 'base-cu-ext');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=10;X x=10;');
+        Observer.Expect('value', '15/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -668,7 +714,8 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ModifyWith(Observer, 'extmod-cu');
-        Observer.Finish();
+        Observer.Expect('log', 'E x=15;C x=15;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -677,7 +724,8 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ModifyWith(Observer, 'extmod-proc');
-        Observer.Finish();
+        Observer.Expect('log', 'E x=15;R x=15;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -686,7 +734,8 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ModifyWith(Observer, 'extmod-proc-val');
-        Observer.Finish();
+        Observer.Expect('log', 'E x=15;O x=15/0;');
+        Observer.Verify();
     end;
 
     // Record states of the measured chain (way 3).
@@ -701,7 +750,9 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         TempItem.Value := 10;
         TempItem.Insert(false);
         ValidateAndObserve(Observer, TempItem, 'way3');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=10;C x=10;');
+        Observer.Expect('value', '15/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -714,7 +765,9 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         AfterInsert(Item);
         Read.FindFirst();
         ValidateAndObserve(Observer, Read, 'way3');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=10;C x=10;');
+        Observer.Expect('value', '15/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -728,7 +781,9 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Commit();
         Read.Get('T1');
         ValidateAndObserve(Observer, Read, 'way3');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=10;C x=10;');
+        Observer.Expect('value', '15/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -746,7 +801,9 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Other.Modify(false);
         Read.Get('T1');
         ValidateAndObserve(Observer, Read, 'way3');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=10;C x=10;');
+        Observer.Expect('value', '15/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -763,6 +820,8 @@ codeunit 78706 "XTC XRec Through Cu Tests"
         Other.Modify(false);
         Read.Get('T1');
         ValidateAndObserve(Observer, Read, 'way3');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=10;C x=10;');
+        Observer.Expect('value', '15/0');
+        Observer.Verify();
     end;
 }
