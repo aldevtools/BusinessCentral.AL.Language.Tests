@@ -27,7 +27,8 @@ suite's timestamp is not changed.
 manifest: writes the run's results manifest (artifact results-manifest) from the leg files of the run, DIR/<bc
 version>/<artifact folder>/<junit file>; per JUnit file name the last artifact folder in name order wins. Exit 1 when a
 test job of ci.yml has no file or no codeunit for a version, or a suite lacks this run's provenance (run, commit, app
-full) or names another build.
+full) or names another build. The manifest of a nightly run (event schedule) is written the same way; the job
+"Nightly comparison" then adds versions.<v>.comparison (set_comparison, called by compare-results.py).
 
 check-manifest: whether a downloaded results manifest counts for its run, given the run as the GitHub API returns it
 (gh api repos/<repo>/actions/runs/<id>). It counts only when the run is completed with conclusion success and the
@@ -60,6 +61,11 @@ PINNED = {'29.': RELEASED + '/sandbox/29.0.54011.55816/w1'}
 
 PROPS = ('source_run', 'source_attempt', 'source_commit', 'bc_build', 'app')
 SCHEMA = 1
+# versions.<v>.comparison of a nightly run's manifest (compare-results.py): al-runtime-rs refuses a bump while the newest
+# nightly at or before the bumped run's commit does not say "identical" for every BC version, unless the bumped run is
+# that nightly and the comparison job is its only failed job (its ADR-077, decisions 5 and 6).
+# "incomplete": the base run holds results reused from an earlier run that the comparison did not look at.
+COMPARISONS = ('identical', 'differs', 'incomplete')
 
 
 # ---------- resolve ----------
@@ -229,6 +235,20 @@ def manifest(versions, jobs, run, attempt, commit, event, root):
         out['versions'][v] = {'bc_build': build, 'bc_artifact_url': entry.get('bc_artifact_url', ''), 'mode': 'full',
                               'chain': 0, 'app': 'full', 'legs': legs}
     return out, errors
+
+
+def set_comparison(manifest, results):
+    """Writes the nightly comparison into a manifest: versions.<v>.comparison (one of COMPARISONS) and
+    versions.<v>.comparison_detail (the rest of the result of compare-results.py). Exit 1 when a version of the
+    manifest has no result or another answer."""
+    for v, entry in sorted(manifest['versions'].items()):
+        r = dict(results.get(v) or {})
+        answer = r.pop('comparison', None)
+        if answer not in COMPARISONS:
+            raise SystemExit('set_comparison: BC %s: comparison %r, expected one of %s' % (v, answer, ', '.join(COMPARISONS)))
+        entry['comparison'] = answer
+        entry['comparison_detail'] = r
+    return manifest
 
 
 def check_manifest(manifest, run):
