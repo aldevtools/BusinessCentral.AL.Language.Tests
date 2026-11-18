@@ -17,19 +17,22 @@
 //   record's before-image.
 // Cells:
 //   - the subscriber of an integration event the table raises from a field OnValidate with var Rec calls a table extension procedure
-//     and a table procedure on it: after Insert, after Get, on a fresh record, on a temporary record; the event with a second var
-//     record parameter of another table, as Base Application's;
+//     and a table procedure on it: after Insert, after Get, after FindLast, on a fresh record, on a temporary record; the event with a
+//     second var record parameter of another table, as Base Application's;
 //   - the same Validate nested by the table's own code: "Item No." OnValidate changes Series, then calls Validate(Mode) itself, or
-//     through one, two or three table procedures; the two-procedure case also after Get and after an earlier Validate of another field;
+//     through one, two or three table procedures; the two-procedure case also after Get, after FindLast, after an earlier Validate of
+//     another field, and on a line FindLast read and Init then gave a new key, validated with the value already in the field (Base
+//     Application's planning: Inventory Profile Offsetting.MaintainPlanningLine);
 //   - the table extension procedure assigning xRec, directly under the Mode Validate and nested in the "Item No." Validate;
 //   - a field OnValidate handing Rec to a codeunit that calls a table extension procedure (also assigning xRec) or a table procedure;
 //   - neighbors: the event's record parameter by value; an OnAfterValidateEvent subscriber calling the same procedures on Rec.
 // Facts (measured on 29.1):
 //   - a table extension procedure and a table procedure that an event subscriber calls on the var record the field trigger raised the
-//     event with read the trigger's xRec (0/NEW/I1, the record before the Validate, not the stored row), after Insert, after Get, on
-//     a fresh record and on a temporary record, with one or two var parameters;
+//     event with read the trigger's xRec (0/NEW/I1, the record before the Validate, not the stored row), after Insert, after Get,
+//     after FindLast, on a fresh record and on a temporary record, with one or two var parameters;
 //   - a Validate that the field trigger nests, itself or through one, two or three table procedures, in another field's OnValidate:
-//     the inner trigger and the procedures the subscriber calls read the before-image of the outer Validate (0/NEW/I1, not 0/MID/I1);
+//     the inner trigger and the procedures the subscriber calls read the before-image of the outer Validate (0/NEW/I1, not 0/MID/I1;
+//     0/NEW/I2 on the new line);
 //   - xRec assigned in the table extension procedure is what the trigger reads after the call; nested, both triggers read it;
 //   - a codeunit the field trigger hands Rec to: the table extension procedure and the table procedure it calls read the trigger's
 //     xRec, not the stored row, and an assignment shows in the trigger;
@@ -608,6 +611,66 @@ codeunit 97095 "XRS Tests"
         Observer.Observe('log', Cfg.Take());
         Cfg.Set('');
         Observer.Expect('log', 'V x=0/NEW/I1;XS x=0/NEW/I1;V after x=0/SET/I1;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Subscriber_VarRec_ReadByFindLast()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+        Found: Record "XRS Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        Found.FindLast();
+        Found.Series := 'NEW';
+        ValidateModeAndObserve(Observer, Found, 'sub');
+        Observer.Expect('log', 'T x=0/NEW/I1;X x=0/NEW/I1;P x=0/NEW/I1;');
+        Observer.Expect('record', '1/NEW/I1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Subscriber_VarRec_NestedReadByFindLast()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+        Found: Record "XRS Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        Found.FindLast();
+        Found.Series := 'NEW';
+        ValidateItemAndObserve(Observer, Found, 'nested');
+        Observer.Expect('log', 'I x=0/NEW/I1;T x=0/NEW/I1;X x=0/NEW/I1;P x=0/NEW/I1;');
+        Observer.Expect('record', '1/MID/I2');
+        Observer.Verify();
+    end;
+
+    // Base Application's planning (Inventory Profile Offsetting.MaintainPlanningLine): FindLast, Init, a new key, the fields
+    // assigned, then Validate("No.") with the value already in the field.
+    [Test]
+    procedure Subscriber_VarRec_NestedFoundThenInitNewLine()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+        Found: Record "XRS Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        Found.FindLast();
+        Found.Init();
+        Found."Line No." := 2;
+        Found.Series := 'NEW';
+        Found."Item No." := 'I2';
+        Cfg.Set('nested');
+        Found.Validate(Found."Item No.");
+        Observer.Observe('log', Cfg.Take());
+        Observer.Observe('record', Cfg.Fmt(Found));
+        Cfg.Set('');
+        Observer.Expect('log', 'I x=0/NEW/I2;T x=0/NEW/I2;X x=0/NEW/I2;P x=0/NEW/I2;');
+        Observer.Expect('record', '1/MID/I2');
         Observer.Verify();
     end;
 }
