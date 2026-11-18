@@ -7,6 +7,7 @@ import importlib.util
 import json
 import os
 import re
+import subprocess
 import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -41,14 +42,16 @@ def raises(fn):
     return None
 
 
-def junit(path, suites, run='300', commit='head', build='27.5.10.0', ts='2026-11-18T02:00:00Z'):
-    """suites: {codeunit id: {test name: outcome}}; outcome passed, failure, error or skipped."""
+def junit(path, suites, run='300', commit='head', build='27.5.10.0', ts='2026-11-18T02:00:00Z', runs=None):
+    """suites: {codeunit id: {test name: outcome}}; outcome passed, failure, error or skipped. runs: {codeunit id:
+    (source run, source commit)} for suites reused from another run."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
     root = ET.Element('testsuites', {'name': 'DEFAULT'})
     for cu, tests in suites.items():
         s = ET.SubElement(root, 'testsuite', {'name': 'Codeunit %d' % cu, 'tests': str(len(tests)), 'timestamp': ts})
         props = ET.SubElement(s, 'properties')
-        for k, v in zip(pv.PROPS, (run, '1', commit, build, 'full')):
+        src_run, src_commit = (runs or {}).get(cu, (run, commit))
+        for k, v in zip(pv.PROPS, (src_run, '1', src_commit, build, 'full')):
             ET.SubElement(props, 'property', {'name': k, 'value': v})
         for name, outcome in tests.items():
             c = ET.SubElement(s, 'testcase', {'classname': 'Codeunit %d' % cu, 'name': name, 'time': '0.1'})
@@ -138,14 +141,18 @@ def main():
 
     every = lambda app, ids: set(ids)
     same = {50001: {'A': 'passed'}, 50002: {'B': 'passed'}}
+    BM = manifest(200, 'base', {'27.5': version()})
     with tempfile.TemporaryDirectory() as d:
         nf, bf = setup(d, same, same)
-        r = cr.compare_version(version(), nf, version(), bf, every)
+        r = cr.compare_version(version(), nf, version(), bf, every, BM)
         check('compare: equal results are identical', (r['comparison'], r['compared'], r['differences'])
               == ('identical', 2, []), r)
+        check('compare: the detail names the run compared with and the runs it confirmed',
+              (r['compared_run'], r['compared_commit'], r['source_runs'], r['base_reused'], r['base_reused_compared'])
+              == (200, 'base', {'200': 2}, 0, 0), r)
     with tempfile.TemporaryDirectory() as d:
         nf, bf = setup(d, {50001: {'A': 'failure'}, 50002: {'B': 'passed'}}, same)
-        r = cr.compare_version(version(), nf, version(), bf, every)
+        r = cr.compare_version(version(), nf, version(), bf, every, BM)
         check('compare: another outcome differs, with the source of the reused result',
               r['comparison'] == 'differs' and r['differences'] == [
                   {'leg': 'junit-al-language.xml', 'codeunit': 50001, 'test': 'A', 'nightly': ['failure'],
@@ -153,37 +160,91 @@ def main():
                    'timestamp': '2026-11-17T09:00:00Z'}], r)
     with tempfile.TemporaryDirectory() as d:
         nf, bf = setup(d, {50001: {'A': 'passed'}, 50002: {}}, same)
-        r = cr.compare_version(version(), nf, version(), bf, every)
+        r = cr.compare_version(version(), nf, version(), bf, every, BM)
         check('compare: a lost test differs', r['comparison'] == 'differs'
               and [(x['test'], x['nightly'], x['base']) for x in r['differences']] == [('B', [], ['passed'])], r)
     with tempfile.TemporaryDirectory() as d:
         nf, bf = setup(d, {50001: {'A': 'passed', 'A2': 'passed'}, 50002: {'B': 'passed'}}, same)
-        r = cr.compare_version(version(), nf, version(), bf, every)
+        r = cr.compare_version(version(), nf, version(), bf, every, BM)
         check('compare: an added test differs', r['comparison'] == 'differs', r)
     with tempfile.TemporaryDirectory() as d:
         nf, bf = setup(d, {**same, 50003: {'C': 'passed'}}, same)
-        r = cr.compare_version(version(), nf, version(), bf, every)
+        r = cr.compare_version(version(), nf, version(), bf, every, BM)
         check('compare: a reused codeunit without a base result differs', r['comparison'] == 'differs'
               and [(x['codeunit'], x['test'], x['base']) for x in r['differences']] == [(50003, None, None)], r)
     with tempfile.TemporaryDirectory() as d:
         nf, bf = setup(d, {50001: {'A': 'passed'}}, same)
-        r = cr.compare_version(version(), nf, version(), bf, every)
-        check('compare: a base codeunit the nightly no longer has is dropped, not a difference',
+        r = cr.compare_version(version(), nf, version(), bf, every, BM)
+        check('compare: a base codeunit the nightly lost, nothing deleted (same commit): a difference',
+              r['comparison'] == 'differs' and r['dropped'] == 0
+              and [(x['codeunit'], x['test'], x['nightly'], x['base'], x['source_run']) for x in r['differences']]
+              == [(50002, None, None, {'B': ['passed']}, '200')], r)
+        r = cr.compare_version(version(), nf, version(), bf, every, BM, gone=lambda app, cu: cu == 50002)
+        check('compare: a base codeunit whose files the diff deleted or renamed is dropped, not a difference',
               (r['comparison'], r['compared'], r['dropped']) == ('identical', 1, 1), r)
+        r = cr.compare_version(version(), nf, version(), bf, every, BM, gone=lambda app, cu: False)
+        check('compare: a base codeunit whose file is still there (changed) is a difference',
+              r['comparison'] == 'differs' and r['dropped'] == 0, r)
+    with tempfile.TemporaryDirectory() as d:
+        p = os.path.join(d, 'twice.xml')
+        junit(p, {50001: {'A': 'failure'}})
+        root = ET.parse(p).getroot()
+        root.append(ET.fromstring(ET.tostring(root.find('testsuite'))))
+        ET.ElementTree(root).write(p)
+        err = raises(lambda: cr.read_leg(p))
+        check('read_leg: two suites of one codeunit stop the comparison', err and '50001' in err, err)
+
+    with tempfile.TemporaryDirectory() as d:
+        nf, bf = setup(d, same, same)
+        root = ET.parse(bf['junit-al-language.xml']).getroot()
+        s = root.find('testsuite')
+        s.remove(s.find('properties'))
+        ET.ElementTree(root).write(bf['junit-al-language.xml'])
+        err = raises(lambda: cr.compare_version(version(), nf, version(), bf, every, BM))
+        check('compare: a base suite without provenance stops the comparison', err and '50001' in err, err)
+
+    # ---- the base run's reused results must all be compared ----
+    with tempfile.TemporaryDirectory() as d:
+        nf = os.path.join(d, 'n', 'junit-al-language.xml')
+        bf = os.path.join(d, 'b', 'junit-al-language.xml')
+        junit(nf, same)
+        junit(bf, same, run='200', commit='base', runs={50001: ('100', 'older')})
+        nf, bf = {'junit-al-language.xml': nf}, {'junit-al-language.xml': bf}
+        r = cr.compare_version(version(), nf, version(), bf, every, BM)
+        check('reused: every reused base result compared: identical, the earlier run confirmed',
+              (r['comparison'], r['base_reused'], r['base_reused_compared'], r['source_runs'])
+              == ('identical', 1, 1, {'100': 1, '200': 1}), r)
+        r = cr.compare_version(version(), nf, version(), bf, lambda app, ids: set(), BM)
+        check('reused: nothing compared (full selection or no selection) while the base reused: incomplete',
+              (r['comparison'], r['base_reused'], r['base_reused_compared']) == ('incomplete', 1, 0), r)
+        r = cr.compare_version(version(), nf, version(), bf, lambda app, ids: set(ids) - {50001}, BM)
+        check('reused: the reused base codeunit not compared: incomplete',
+              (r['comparison'], r['compared']) == ('incomplete', 1), r)
+        r = cr.compare_version(version(), nf, version(build='27.5.9.0'), bf, every, BM)
+        check('reused: another BC build while the base reused: incomplete',
+              (r['comparison'], r['compared'], r['base_reused']) == ('incomplete', 0, 1), r)
+        r = cr.compare_version(version(), nf, None, {}, every, BM)
+        check('reused: a version the base run lacks: identical, nothing reused there',
+              (r['comparison'], r['base_reused']) == ('identical', 0), r)
+        r = cr.compare_version(version(), nf, version(legs=()), bf, every, BM)
+        check('reused: a base leg its manifest does not name is not read', r['base_reused'] == 0, r)
     with tempfile.TemporaryDirectory() as d:
         nf, bf = setup(d, {50001: {'A': 'passed'}, 50002: {'B': 'failure'}}, same)
-        r = cr.compare_version(version(), nf, version(), bf, lambda app, ids: set(ids) - {50002})
+        r = cr.compare_version(version(), nf, version(), bf, lambda app, ids: set(ids) - {50002}, BM)
         check('compare: a codeunit the master run would run again is not compared',
               (r['comparison'], r['compared']) == ('identical', 1), r)
     with tempfile.TemporaryDirectory() as d:
         nf, bf = setup(d, {50001: {'A': 'failure'}}, same)
-        r = cr.compare_version(version(), nf, version(build='27.5.9.0'), bf, every)
+        r = cr.compare_version(version(), nf, version(build='27.5.9.0'), bf, every, BM)
         check('compare: another BC build is not compared', (r['comparison'], r['compared']) == ('identical', 0)
               and '27.5.9.0' in r['note'], r)
-        r = cr.compare_version(version(), nf, None, {}, every)
+        err = raises(lambda: cr.compare_version(version(build='27.5.9.0'), nf, version(), {}, every, BM))
+        check('compare: another BC build still reads the base legs (their reused results)',
+              err and 'junit-al-language.xml' in err, err)
+        r = cr.compare_version(version(), nf, None, {}, every, BM)
         check('compare: a version the base run lacks is not compared',
               (r['comparison'], r['compared']) == ('identical', 0) and r['note'], r)
-        err = raises(lambda: cr.compare_version(version(), nf, version(), {}, every))
+        err = raises(lambda: cr.compare_version(version(), nf, version(), {}, every, BM))
         check('compare: a leg the base manifest names without its file stops the comparison',
               err and 'junit-al-language.xml' in err, err)
 
@@ -214,12 +275,12 @@ def main():
         bm = manifest(202, 'good', {'27.5': version(), '29.0': version(build='29.0.1.0')})
         results = cr.compare(nm, legs, bm, base, every)
         check('compare: per version', (results['27.5']['comparison'], results['29.0']['comparison'])
-              == ('differs', 'identical') and results['27.5']['base_run'] == 202, results)
+              == ('differs', 'identical') and results['27.5']['compared_run'] == 202, results)
         pv.set_comparison(nm, results)
         check('manifest: comparison per version', [nm['versions'][v]['comparison'] for v in ('27.5', '29.0')]
               == ['differs', 'identical'], nm)
-        check('manifest: the detail names the base run and the differences',
-              nm['versions']['27.5']['comparison_detail']['base_run'] == 202
+        check('manifest: the detail names the run compared with and the differences',
+              nm['versions']['27.5']['comparison_detail']['compared_run'] == 202
               and nm['versions']['27.5']['comparison_detail']['differences'][0]['codeunit'] == 50002, nm)
         check('manifest: still a full run, base_run null (al-runtime-rs reads both)',
               nm['base_run'] is None and all(e['mode'] == 'full' and e['chain'] == 0 for e in nm['versions'].values()))
@@ -228,11 +289,13 @@ def main():
         check('manifest: a version without a comparison is an error', err and '27.5' in err, err)
         err = raises(lambda: pv.set_comparison(manifest(1, 'x', {'27.5': version()}),
                                                {'27.5': dict(results['27.5'], comparison='unknown')}))
-        check('manifest: only identical or differs', err and 'unknown' in err, err)
+        check('manifest: only identical, differs or incomplete', err and 'unknown' in err, err)
+        pv.set_comparison(nm, dict(results, **{'27.5': dict(results['27.5'], comparison='incomplete')}))
+        check('manifest: incomplete is an answer', nm['versions']['27.5']['comparison'] == 'incomplete', nm)
 
         results = cr.compare(nm, legs, None, None, every)
         check('compare: no base run: identical, nothing compared, with the reason',
-              all(r['comparison'] == 'identical' and r['compared'] == 0 and r['base_run'] is None and r['note']
+              all(r['comparison'] == 'identical' and r['compared'] == 0 and r['compared_run'] is None and r['note']
                   for r in results.values()), results)
 
     # ---- the command nightly, with fake I/O ----
@@ -269,19 +332,74 @@ def main():
         out = os.path.join(d, 'out.json')
         a = cr.argparse.Namespace(repo='o/r', head='head', manifest_dir=os.path.join(d, 'manifest'),
                                   legs=os.path.join(d, 'legs'), work=os.path.join(d, 'work'), out=out, github=False)
-        cr.nightly(a, gh_json=gh_json, download=download, is_ancestor=lambda x, y: x != 'later', select=select)
+        never_gone = lambda base, head: (lambda app, cu: False)
+        gh_out = os.path.join(d, 'github-output')
+        os.environ['GITHUB_OUTPUT'] = gh_out
+        os.environ.pop('GITHUB_STEP_SUMMARY', None)
+        cr.nightly(cr.argparse.Namespace(**dict(vars(a), github=True)), gh_json=gh_json, download=download,
+                   is_ancestor=lambda x, y: x != 'later', select=select, gone_rule=never_gone)
         written = json.load(open(out))
+        check('nightly: --github writes the answer to GITHUB_OUTPUT', open(gh_out).read() == 'answer=differs\n',
+              open(gh_out).read())
         e = written['versions']['27.5']
         check('nightly: base run 202, its JUnit downloaded, the selection from its commit',
-              e['comparison_detail']['base_run'] == 202 and (202, 'junit-test-results-27.5', 'work/base/27.5') in calls
+              e['comparison_detail']['compared_run'] == 202 and (202, 'junit-test-results-27.5', 'work/base/27.5') in calls
               and selected == [('good', 'head')], (e, calls, selected))
         check('nightly: the changed outcome of a reused codeunit is written as differs',
               e['comparison'] == 'differs' and [x['codeunit'] for x in e['comparison_detail']['differences']] == [50002], e)
         check('nightly: the rest of the manifest is unchanged',
               (written['run_id'], written['event'], written['base_run'], e['mode']) == (300, 'schedule', None, 'full'))
         err = raises(lambda: cr.nightly(cr.argparse.Namespace(**dict(vars(a), manifest_dir=os.path.join(d, 'none'))),
-                                        gh_json=gh_json, download=download, is_ancestor=lambda x, y: True, select=select))
+                                        gh_json=gh_json, download=download, is_ancestor=lambda x, y: True, select=select,
+                                        gone_rule=never_gone))
         check('nightly: no manifest of this run stops the comparison', err and 'results-manifest.json' in err, err)
+        os.remove(gh_out)
+        cr.nightly(cr.argparse.Namespace(**dict(vars(a), github=True)), gh_json=gh_json, download=download,
+                   is_ancestor=lambda x, y: False, select=select, gone_rule=never_gone)
+        written = json.load(open(out))
+        check('nightly: no base run: identical with the reason, answer identical',
+              written['versions']['27.5']['comparison'] == 'identical'
+              and written['versions']['27.5']['comparison_detail']['note'] and open(gh_out).read() == 'answer=identical\n',
+              (written['versions']['27.5'], open(gh_out).read()))
+        del os.environ['GITHUB_OUTPUT']
+
+    # ---- git: ancestry and the files a diff deleted or renamed ----
+    with tempfile.TemporaryDirectory() as d:
+        def git(*args):
+            return subprocess.run(['git', '-C', d, '-c', 'user.name=t', '-c', 'user.email=t@t', *args], check=True,
+                                  capture_output=True, text=True).stdout.strip()
+
+        def put(path, text):
+            os.makedirs(os.path.dirname(os.path.join(d, path)), exist_ok=True)
+            open(os.path.join(d, path), 'w').write(text)
+
+        git('init', '-q')
+        put('tests/al-language/a.al', 'codeunit 50001 "A"\n{\n}\n')
+        put('tests/al-language/b.al', 'codeunit 50002 "B"\n{\n}\n')
+        put('tests/al-language/c.al', 'codeunit 50003 "C"\n{\n}\n')
+        put('tests/al-language/d.al', '// codeunit 50004 is in e.al\n')
+        put('tests/al-language/e.al', '  Codeunit 50004 "D"\n{\n}\n')
+        put('tests/al-language-onprem/f.al', 'codeunit 50005 "F"\n{\n}\n')
+        git('add', '.')
+        git('commit', '-q', '-m', 'one')
+        c1 = git('rev-parse', 'HEAD')
+        git('rm', '-q', 'tests/al-language/a.al', 'tests/al-language-onprem/f.al')
+        git('mv', 'tests/al-language/b.al', 'tests/al-language/b2.al')
+        put('tests/al-language/c.al', 'codeunit 50003 "C"\n{\n  // changed\n}\n')
+        git('add', '.')
+        git('commit', '-q', '-m', 'two')
+        c2 = git('rev-parse', 'HEAD')
+        check('git: an ancestor is yes, a later commit is no',
+              cr._is_ancestor(c1, c2, cwd=d) is True and cr._is_ancestor(c2, c1, cwd=d) is False)
+        err = raises(lambda: cr._is_ancestor('0' * 40, c2, cwd=d))
+        check('git: a commit git cannot read stops the comparison', err and '0' * 12 in err and c2[:12] in err, err)
+        gone = cr.make_gone(c1, c2, cwd=d)
+        check('git: deleted and renamed files make their codeunits gone; a changed file does not',
+              [gone('tests/al-language', cu) for cu in (50001, 50002, 50003, 50004)] == [True, True, False, False],
+              [gone('tests/al-language', cu) for cu in (50001, 50002, 50003, 50004)])
+        check('git: only files under the leg\'s test app count', gone('tests/al-language', 50005) is False
+              and gone('tests/al-language-onprem', 50005) is True)
+        check('git: a codeunit no file declared is not gone', gone('tests/al-language', 59999) is False)
 
     # ---- the real ci.yml ----
     ci = (HERE.parent / 'workflows' / 'ci.yml').read_text()
@@ -295,6 +413,10 @@ def main():
           and re.search(r"^    if: .*github\.event_name == 'schedule'", body, re.M), body[:300])
     check('real ci.yml: it runs compare-results.py and replaces the manifest artifact',
           'compare-results.py nightly' in body and 'name: results-manifest' in body and 'overwrite: true' in body)
+    final = re.search(r'- name: Comparison result\n((?:        .*\n|\n)*)', body)
+    check('real ci.yml: the last step fails unless the answer is identical (an empty answer fails too)',
+          final and 'steps.compare.outputs.answer' in final.group(1)
+          and re.search(r'if \[ "\$ANSWER" != identical \]', final.group(1)), final and final.group(1))
     m = re.search(r'^  manifest:\n((?:    .*\n|\n)*)', ci, re.M)
     cond = m and re.search(r'^    if: (.*)$', m.group(1), re.M)
     check('real ci.yml: the manifest job runs for push and schedule runs',

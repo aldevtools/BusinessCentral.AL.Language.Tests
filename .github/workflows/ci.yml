@@ -251,8 +251,8 @@ jobs:
       # Test selection (CONTRIBUTING.md, "Test selection in CI"). "Run AL tests" is about 21 of the 26 minutes of a
       # BC leg, so a pull request runs only the test codeunits its change can affect; .github/scripts/select-tests.py
       # decides which, or falls back to a full run, and writes why into this job's summary. Always a full run: a push
-      # (master), the nightly (schedule), a corpus bump pull request (head al-runtime-rs-staging), a pull request with the label full-run, and
-      # a manual dispatch without select_base. A failure of this step also means a full run, never a red check.
+      # (master), the nightly (schedule), a corpus bump pull request (head al-runtime-rs-staging), a pull request with
+      # the label full-run, and a manual dispatch without select_base. A failure of this step also means a full run, never a red check.
       # A dispatch with select_codeunits (the corpus CI batcher: the union of the selections of the branches it merged,
       # because the merged diff has too many files to select from) runs that list as it is; select_base is then ignored.
       - id: select
@@ -700,11 +700,13 @@ jobs:
   # The nightly comparison (CONTRIBUTING.md, "Nightly full run"). For each BC version it compares this run's fresh
   # results with the results of the latest green master push run at or before this commit (the base run), for the
   # codeunits a master run at this commit would have taken from the base run, key by key (compare-results.py). It writes
-  # versions.<v>.comparison ("identical" or "differs") into this run's results manifest and uploads it again under the
-  # same name. On a difference this job fails after the upload: it is then the run's only failed job, and al-runtime-rs
-  # still takes this run's results (all fresh) but no other run's until a nightly says "identical" again (its ADR-077,
-  # decisions 5 and 6). The job name is the one al-runtime-rs looks for. When the comparison cannot run, the job fails
-  # and the manifest keeps no comparison.
+  # versions.<v>.comparison ("identical", "differs" or "incomplete") into this run's results manifest and uploads it
+  # again under the same name. Unless every version is "identical" this job fails after the upload: it is then the run's
+  # only failed job, and al-runtime-rs still takes this run's results (all fresh) but no other run's until a nightly
+  # says "identical" again (its ADR-077, decisions 5 and 6). The job name is the one al-runtime-rs looks for. When the
+  # comparison cannot run, the job fails and the manifest keeps no comparison. Never use "Re-run failed jobs" for this
+  # job: the run moves to a new attempt while the manifest keeps the attempt of the job "Results manifest", and
+  # al-runtime-rs then refuses it (CONTRIBUTING.md, "Nightly full run").
   nightly-comparison:
     name: Nightly comparison
     needs: [prepare, manifest]
@@ -745,11 +747,12 @@ jobs:
           path: results-manifest.json
           retention-days: 14
           overwrite: true
+      # identical, differs or incomplete (compare-results.py); empty when the step above failed
       - name: Comparison result
         env:
-          DIFFERS: ${{ steps.compare.outputs.differs }}
+          ANSWER: ${{ steps.compare.outputs.answer }}
         run: |
-          if [ "$DIFFERS" != 0 ]; then
-            echo "::error title=Nightly comparison::a result differs from the latest green master run; see the job summary"
+          if [ "$ANSWER" != identical ]; then
+            echo "::error title=Nightly comparison::the comparison says '$ANSWER', not identical; see the job summary"
             exit 1
           fi

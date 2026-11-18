@@ -64,7 +64,8 @@ SCHEMA = 1
 # versions.<v>.comparison of a nightly run's manifest (compare-results.py): al-runtime-rs refuses a bump while the newest
 # nightly at or before the bumped run's commit does not say "identical" for every BC version, unless the bumped run is
 # that nightly and the comparison job is its only failed job (its ADR-077, decisions 5 and 6).
-COMPARISONS = ('identical', 'differs')
+# "incomplete": the base run holds results reused from an earlier run that the comparison did not look at.
+COMPARISONS = ('identical', 'differs', 'incomplete')
 
 
 # ---------- resolve ----------

@@ -11,24 +11,30 @@ newest nightly at or before the bump's commit does not say "identical" for every
 and 6).
 
 What is compared, per BC version: the codeunits that a master run at the nightly's commit would have reused from the
-base run (reuse_rule), each test of them key by key (leg, codeunit, test name -> outcome). The base run is the newest
-green master push run of this workflow whose commit is the nightly's commit or an ancestor of it and whose results
-manifest counts (provenance.py check-manifest). Another BC build than the base's, a version the base run lacks, or no
-base run at all: nothing of that version would have been reused, so nothing is compared and the version is "identical"
-with "compared": 0 and the reason in "note". A codeunit the base has and the nightly does not was deleted or compiled
-out since the base: it is dropped (counted, never a difference). A reused codeunit without a base result is a
-difference.
+base run (reuse_rule), each test of them key by key (leg, codeunit, test name -> list of outcomes). The base run is the
+newest green master push run of this workflow whose commit is the nightly's commit or an ancestor of it and whose
+results manifest counts (provenance.py check-manifest). A reused codeunit without a base result is a difference. A
+codeunit the base run has and the nightly lacks is dropped (counted, not a difference) only when the base commit is not
+the nightly's commit and the diff between them deleted or renamed every file that declared it (make_gone); otherwise it
+is a difference.
+
+The answer of a version (result): "differs" with a difference; else "incomplete" when the base run holds results it
+reused from an earlier run and not all of them were compared or dropped; else "identical". Another BC build than the
+base's, a version the base run lacks, or no base run at all: nothing is compared ("compared": 0, the reason in
+"note"), so the answer is "identical" only when the base run reused nothing there.
 
 nightly: finds the base run, downloads its manifest and its legs' JUnit files into WORK (run-artifacts.sh), runs
 select-tests.py from the base commit to SHA, compares, and writes the nightly's manifest (the job manifest's
 results-manifest.json, downloaded into --manifest-dir by run-artifacts.sh) with versions.<v>.comparison and
-versions.<v>.comparison_detail to OUT (provenance.py set_comparison). Prints "differs=1" or "differs=0" to $GITHUB_OUTPUT with --github. Exit 1 when the comparison could
-not run; OUT is then not written, so the manifest keeps no comparison.
+versions.<v>.comparison_detail to OUT (provenance.py set_comparison). With --github it writes "answer=" and the answer
+of the run ("differs" if a version differs, else "incomplete" if one is, else "identical") to $GITHUB_OUTPUT. Exit 1
+when the comparison could not run (a git error included); OUT is then not written, so the manifest keeps no comparison.
 """
 import argparse
 import importlib.util
 import json
 import os
+import re
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -67,6 +73,8 @@ def read_leg(path):
         name = (s.get('name') or '').split()
         if len(name) != 2 or name[0] != 'Codeunit' or not name[1].isdigit():
             raise SystemExit('%s: suite %r is not a codeunit' % (path, s.get('name')))
+        if int(name[1]) in out:
+            raise SystemExit('%s: codeunit %s has two suites' % (path, name[1]))
         tests = {}
         for c in s.iter('testcase'):
             tests.setdefault(c.get('name'), []).append(outcome(c))
@@ -117,50 +125,75 @@ def reuse_rule(selection, base_commit, head_commit, jobs=(), conf=None, versions
 
 # ---------- the comparison ----------
 
-def result(base_manifest, compared=0, differences=(), dropped=0, note=None):
-    return {'comparison': 'differs' if differences else 'identical',
-            'base_run': base_manifest.get('run_id') if base_manifest else None,
-            'base_commit': base_manifest.get('commit') if base_manifest else None,
-            'compared': compared, 'dropped': dropped, 'differences': list(differences), 'note': note}
+def result(base_manifest, compared=0, differences=(), dropped=0, base_reused=0, base_reused_compared=0,
+           source_runs=None, note=None):
+    """The answer of one version: "differs" with a difference; else "incomplete" when the base run holds results reused
+    from an earlier run that were not compared (or dropped); else "identical"."""
+    answer = 'differs' if differences else 'incomplete' if base_reused != base_reused_compared else 'identical'
+    return {'comparison': answer,
+            'compared_run': base_manifest.get('run_id') if base_manifest else None,
+            'compared_commit': base_manifest.get('commit') if base_manifest else None,
+            'compared': compared, 'dropped': dropped, 'base_reused': base_reused,
+            'base_reused_compared': base_reused_compared, 'source_runs': dict(sorted((source_runs or {}).items())),
+            'differences': list(differences), 'note': note}
 
 
-def compare_version(nightly_ver, nightly_files, base_ver, base_files, reuse, base_manifest=None):
+def compare_version(nightly_ver, nightly_files, base_ver, base_files, reuse, base_manifest, gone=None):
     """The comparison of one BC version. *_ver: the version entry of a manifest (base_ver None: the base run lacks it);
-    *_files: {JUnit file name: path}; reuse: the first value of reuse_rule."""
+    *_files: {JUnit file name: path}; reuse: the first value of reuse_rule; gone(test app dir, codeunit): True when the
+    diff from the base commit deleted or renamed every file that declared it (make_gone; None: the same commit).
+
+    base_reused counts the base run's suites that it reused from an earlier run (source_run is not the base run);
+    base_reused_compared those of them that were compared or dropped. source_runs: {source run: compared codeunits},
+    the runs whose results the comparison looked at. A base suite without source_run stops the comparison."""
     if base_ver is None:
         return result(base_manifest, note='the base run has no results for this BC version')
+    base_run = str(base_manifest.get('run_id'))
+    then_legs = {}
+    for name in sorted(base_ver.get('legs') or {}):
+        if name not in base_files:
+            raise SystemExit('the base run has no %s, its manifest names it' % name)
+        then_legs[name] = read_leg(base_files[name])
+        unstamped = sorted(cu for cu, b in then_legs[name].items() if not b['source_run'])
+        if unstamped:
+            raise SystemExit('the base run\'s %s has no source_run for codeunits %s' % (name, unstamped[:5]))
+    base_reused = sum(1 for then in then_legs.values() for b in then.values() if b['source_run'] != base_run)
     if base_ver.get('bc_build') != nightly_ver.get('bc_build'):
-        return result(base_manifest, note='the base run ran BC %s, this run BC %s'
+        return result(base_manifest, base_reused=base_reused, note='the base run ran BC %s, this run BC %s'
                       % (base_ver.get('bc_build'), nightly_ver.get('bc_build')))
-    compared, dropped, diffs = 0, 0, []
+    compared, dropped, looked, diffs, runs = 0, 0, 0, [], {}
+
+    def source(b):
+        return {'source_run': b and b['source_run'], 'source_commit': b and b['source_commit'],
+                'timestamp': b and b['timestamp']}
     for name, leg in sorted((nightly_ver.get('legs') or {}).items()):
         if name not in nightly_files:
             raise SystemExit('this run has no %s, its manifest names it' % name)
-        now = read_leg(nightly_files[name])
-        if name in (base_ver.get('legs') or {}):
-            if name not in base_files:
-                raise SystemExit('the base run has no %s, its manifest names it' % name)
-            then = read_leg(base_files[name])
-        else:
-            then = {}
-        reused = reuse(leg.get('test_app_dir'), now)
-        dropped += len([cu for cu in then if cu not in now and cu in reuse(leg.get('test_app_dir'), then)])
-        for cu in sorted(reused):
+        now, then, app = read_leg(nightly_files[name]), then_legs.get(name, {}), leg.get('test_app_dir')
+        for cu in sorted(reuse(app, now)):
             compared += 1
             b = then.get(cu)
-            src = {'source_run': b and b['source_run'], 'source_commit': b and b['source_commit'],
-                   'timestamp': b and b['timestamp']}
             if b is None:
-                diffs.append(dict({'leg': name, 'codeunit': cu, 'test': None, 'nightly': None, 'base': None}, **src))
+                diffs.append(dict({'leg': name, 'codeunit': cu, 'test': None, 'nightly': None, 'base': None}, **source(b)))
                 continue
+            looked += b['source_run'] != base_run
+            runs[b['source_run']] = runs.get(b['source_run'], 0) + 1
             for test in sorted(set(now[cu]['tests']) | set(b['tests'])):
                 n, o = now[cu]['tests'].get(test, []), b['tests'].get(test, [])
                 if n != o:
-                    diffs.append(dict({'leg': name, 'codeunit': cu, 'test': test, 'nightly': n, 'base': o}, **src))
-    return result(base_manifest, compared, diffs, dropped)
+                    diffs.append(dict({'leg': name, 'codeunit': cu, 'test': test, 'nightly': n, 'base': o}, **source(b)))
+        for cu in sorted(reuse(app, [cu for cu in then if cu not in now])):
+            b = then[cu]
+            looked += b['source_run'] != base_run
+            if gone is not None and gone(app, cu):
+                dropped += 1
+            else:
+                diffs.append(dict({'leg': name, 'codeunit': cu, 'test': None, 'nightly': None, 'base': b['tests']},
+                                  **source(b)))
+    return result(base_manifest, compared, diffs, dropped, base_reused, looked, runs)
 
 
-def compare(nightly_manifest, legs_dir, base_manifest, base_dir, reuse, note=None):
+def compare(nightly_manifest, legs_dir, base_manifest, base_dir, reuse, note=None, gone=None):
     """{bc version: result} for every version of the nightly's manifest. legs_dir and base_dir hold
     <bc version>/<artifact folder>/<JUnit file> (run-artifacts.sh); base_manifest None: no base run."""
     out = {}
@@ -169,7 +202,7 @@ def compare(nightly_manifest, legs_dir, base_manifest, base_dir, reuse, note=Non
             out[v] = result(None, note=note or 'no base run')
             continue
         r = compare_version(ver, pv.leg_files(os.path.join(legs_dir, v)), base_manifest['versions'].get(v),
-                            pv.leg_files(os.path.join(base_dir, v)), reuse, base_manifest)
+                            pv.leg_files(os.path.join(base_dir, v)), reuse, base_manifest, gone)
         if note and r['note'] is None:
             r['note'] = note
         out[v] = r
@@ -202,9 +235,54 @@ def _gh_json(*args):
     return json.loads(subprocess.run(['gh', *args], check=True, capture_output=True, text=True).stdout)
 
 
-def _is_ancestor(a, b):
-    """git merge-base --is-ancestor; a commit git cannot read counts as no (the search then takes an older run)."""
-    return subprocess.run(['git', 'merge-base', '--is-ancestor', a, b], capture_output=True).returncode == 0
+def _git(args, cwd=None):
+    return subprocess.run(['git', *args], cwd=cwd, capture_output=True, text=True)
+
+
+def _is_ancestor(a, b, cwd=None):
+    """git merge-base --is-ancestor: exit 0 is yes, exit 1 is no; any other exit (a commit git cannot read) stops the
+    comparison."""
+    p = _git(['merge-base', '--is-ancestor', a, b], cwd)
+    if p.returncode not in (0, 1):
+        raise SystemExit('git merge-base --is-ancestor %s %s failed (exit %d): %s'
+                         % (a[:12], b[:12], p.returncode, p.stderr.strip()))
+    return p.returncode == 0
+
+
+# A line that declares a codeunit: the same rule and the same git grep as al-runtime-rs (DECLARATION and tree in
+# tools/corpus_bump_provenance.py).
+DECLARATION = re.compile(r'\s*codeunit\s+(\d+)(\s|$)', re.I)
+
+
+def make_gone(base, head, cwd=None):
+    """gone(test app dir, codeunit): True when the diff base..head deleted or renamed every file under the test app
+    dir that declared the codeunit at base (the rule of al-runtime-rs, check_missing in
+    tools/corpus_bump_provenance.py). A codeunit no file declared is not gone."""
+    p = _git(['diff', '--name-status', '-M', base, head], cwd)
+    if p.returncode != 0:
+        raise SystemExit('git diff %s %s failed: %s' % (base[:12], head[:12], p.stderr.strip()))
+    deleted = {f[1] for f in (line.split('\t') for line in p.stdout.splitlines()) if f[0] == 'D' or f[0].startswith('R')}
+    declared = {}
+
+    def files_of(app):
+        if app not in declared:
+            p = _git(['grep', '-I', '-i', '-E', '--null', '-e', r'^[[:space:]]*codeunit[[:space:]]+[0-9]+([[:space:]]|$)',
+                      base, '--', app], cwd)
+            if p.returncode not in (0, 1):
+                raise SystemExit('git grep at %s failed: %s' % (base[:12], p.stderr.strip()))
+            out = {}
+            for line in p.stdout.splitlines():
+                name, _, text = line.partition('\0')
+                m = DECLARATION.match(text)
+                if m:
+                    out.setdefault(int(m.group(1)), set()).add(name.split(':', 1)[1])
+            declared[app] = out
+        return declared[app]
+
+    def gone(app, cu):
+        files = files_of(app).get(cu, [])
+        return bool(files) and all(f in deleted for f in files)
+    return gone
 
 
 def _download(run_id, name, into):
@@ -229,11 +307,13 @@ def _select(base, head, out):
 
 
 def summary(results):
-    lines = ['## Nightly comparison\n', '| BC version | Comparison | Base run | Compared codeunits | Differences | Note |',
-             '|---|---|---|---|---|---|']
+    lines = ['## Nightly comparison\n',
+             '| BC version | Comparison | Base run | Compared codeunits | Dropped | Reused in the base run (compared / all) '
+             '| Differences | Note |', '|---|---|---|---|---|---|---|---|']
     for v, r in sorted(results.items()):
-        lines.append('| %s | %s | %s | %d | %d | %s |' % (v, r['comparison'], r['base_run'] or '-', r['compared'],
-                                                        len(r['differences']), r['note'] or ''))
+        lines.append('| %s | %s | %s | %d | %d | %d / %d | %d | %s |' % (
+            v, r['comparison'], r['compared_run'] or '-', r['compared'], r['dropped'], r['base_reused_compared'],
+            r['base_reused'], len(r['differences']), r['note'] or ''))
     diffs = [(v, d) for v, r in sorted(results.items()) for d in r['differences']]
     if diffs:
         lines += ['', '| BC | Leg | Codeunit | Test | This run | Base | Source run | Source commit | Ran at |',
@@ -247,7 +327,7 @@ def summary(results):
     return '\n'.join(lines) + '\n'
 
 
-def nightly(a, gh_json=_gh_json, download=_download, is_ancestor=_is_ancestor, select=_select):
+def nightly(a, gh_json=_gh_json, download=_download, is_ancestor=_is_ancestor, select=_select, gone_rule=make_gone):
     """The command nightly; the I/O functions are parameters for the self-test."""
     nightly_manifest = _manifest_in(a.manifest_dir)
     if nightly_manifest is None:
@@ -262,33 +342,36 @@ def nightly(a, gh_json=_gh_json, download=_download, is_ancestor=_is_ancestor, s
     run, base_manifest, notes = find_base(runs, a.head, is_ancestor, fetch)
     for n in notes:
         print(n)
-    note, reuse = None, None
+    note, reuse, gone = None, None, None
     if run is None:
         note = 'no green master push run at or before this commit with a results manifest that counts'
     else:
         print('base run %s at %s' % (run['id'], run['head_sha']))
         for v in sorted(nightly_manifest['versions']):
             download(run['id'], 'junit-test-results-%s' % v, os.path.join(a.work, 'base', v))
-        selection = None if run['head_sha'] == a.head else select(run['head_sha'], a.head, os.path.join(a.work, 'selection.json'))
+        same = run['head_sha'] == a.head
+        selection = None if same else select(run['head_sha'], a.head, os.path.join(a.work, 'selection.json'))
+        gone = None if same else gone_rule(run['head_sha'], a.head)
         ci = os.path.join(HERE, '..', 'workflows', 'ci.yml')
         reuse, note = reuse_rule(selection, run['head_sha'], a.head, cs.parse_ci(open(ci).read()),
                                  json.load(open(os.path.join(HERE, '..', 'ci-shards.json'))),
                                  {'include': [{'bc_version': v} for v in sorted(nightly_manifest['versions'])]})
-    results = compare(nightly_manifest, a.legs, base_manifest, os.path.join(a.work, 'base'), reuse, note)
+    results = compare(nightly_manifest, a.legs, base_manifest, os.path.join(a.work, 'base'), reuse, note, gone)
     pv.set_comparison(nightly_manifest, results)
     with open(a.out, 'w') as f:
         json.dump(nightly_manifest, f, indent=2, sort_keys=True)
         f.write('\n')
     text = summary(results)
     print(text)
-    differs = any(r['comparison'] == 'differs' for r in results.values())
+    answers = {r['comparison'] for r in results.values()}
+    answer = 'differs' if 'differs' in answers else 'incomplete' if 'incomplete' in answers else 'identical'
     if a.github:
         if os.environ.get('GITHUB_STEP_SUMMARY'):
             with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as f:
                 f.write(text)
         if os.environ.get('GITHUB_OUTPUT'):
             with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-                f.write('differs=%d\n' % differs)
+                f.write('answer=%s\n' % answer)
     return 0
 
 
