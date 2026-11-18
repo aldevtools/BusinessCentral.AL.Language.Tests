@@ -322,6 +322,11 @@ codeunit 78728 "BVV By Value View Tests"
         Row: Record "BVV Row";
         Line: Record "BVV Line";
     begin
+        // A filter in filter group 1 that an earlier test left is seen by this variable too (measured:
+        // ByValue_Group1Filter_OtherInstance), and DeleteAll would keep the rows it hides. So clear it first.
+        Row.FilterGroup(1);
+        Row.SetRange(Status);
+        Row.FilterGroup(0);
         Row.DeleteAll();
         Line.DeleteAll();
         AddRow(1, 'C-NAME', Row.Status::Open, 30);
@@ -337,11 +342,6 @@ codeunit 78728 "BVV By Value View Tests"
         Line.Day := 2;
         Line.Amt := 7;
         Line.Insert();
-        // A filter in filter group 1 set by an earlier test is still seen here (measured: ByValue_Group1Filter_OtherInstance),
-        // so every test starts by clearing it.
-        Row.FilterGroup(1);
-        Row.SetRange(Status);
-        Row.FilterGroup(0);
         Log.Take();
     end;
 
@@ -456,6 +456,9 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('callee', Callee.Describe(Row));
         Observer.Observe('callee groups', Callee.Groups(Row));
         ObserveCaller(Observer, Row);
+        Row.FilterGroup(1);
+        Row.SetRange(Status);
+        Row.FilterGroup(0);
         Observer.Expect('callee', 'f={} n=1 key=Id asc=Yes grp=0 first=2');
         Observer.Expect('callee groups', '-1={} 0={} 1={Status: Posted} 2={} 4={} n=1');
         Observer.Expect('caller after', 'f={} n=1 grp=0');
