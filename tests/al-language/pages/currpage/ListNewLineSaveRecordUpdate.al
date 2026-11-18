@@ -246,7 +246,7 @@ page 97474 "LT NS Lines Part"
 
     trigger OnAfterGetRecord()
     begin
-        Log.Add('P.AGR(' + Rec.Name + ')');
+        Log.Add('P.AGR(' + Rec.Name + '/' + Rec.Value + ')');
     end;
 
     var
@@ -679,7 +679,7 @@ codeunit 97477 "LT NS Tests"
         Lines: TestPage "LT NS Lines Part";
     begin
         Initialize(false, false, '', true);
-        Expect('open= | new= | setname=T.V(X);T.I(X);T.M(X/);P.AGR(X); | shown=X/ | part=X/ | rows1=:X/,' +
+        Expect('open= | new= | setname=T.V(X);T.I(X);T.M(X/);P.AGR(X/); | shown=X/ | part=X/ | rows1=:X/,' +
             ' | setvalue= | shown2=X/V | part2=X/ | rows2=:X/, | prev=F/X | prevlog= | prevpart=X/ | next=T/' +
             ' | nextlog=T.M(X/V); | nextpart=/ | close= | rows3=:X/V,');
         Lines.OpenEdit();
@@ -694,9 +694,9 @@ codeunit 97477 "LT NS Tests"
         Lines: TestPage "LT NS Lines Part";
     begin
         Initialize(false, true, '', true);
-        Expect('open=P.AGR(A); | new= | setname=T.V(X);T.I(X);T.M(X/);P.AGR(X);P.AGR(A); | shown=X/ | part=X/' +
+        Expect('open=P.AGR(A/); | new= | setname=T.V(X);T.I(X);T.M(X/);P.AGR(X/);P.AGR(A/); | shown=X/ | part=X/' +
             ' | rows1=:A/,:X/, | setvalue= | shown2=X/V | part2=X/ | rows2=:A/,:X/, | prev=T/A' +
-            ' | prevlog=P.AGR(X);T.M(X/V); | prevpart=A/ | next=T/X | nextlog= | nextpart=X/V | close=' +
+            ' | prevlog=P.AGR(X/);T.M(X/V); | prevpart=A/ | next=T/X | nextlog= | nextpart=X/V | close=' +
             ' | rows3=:A/,:X/V,');
         Lines.OpenEdit();
         DrivePart(Lines);
@@ -711,9 +711,9 @@ codeunit 97477 "LT NS Tests"
         Opener: Codeunit "LT NS Opener";
     begin
         Initialize(true, true, 'G1', true);
-        Expect('open=P.AGR(A); | new= | setname=T.V(X);T.I(X);T.M(X/);P.AGR(X);P.AGR(A); | shown=X/ | part=X/' +
+        Expect('open=P.AGR(A/); | new= | setname=T.V(X);T.I(X);T.M(X/);P.AGR(X/);P.AGR(A/); | shown=X/ | part=X/' +
             ' | rows1=G0:O/,G1:A/,G1:X/, | setvalue= | shown2=X/V | part2=X/ | rows2=G0:O/,G1:A/,G1:X/,' +
-            ' | prev=T/A | prevlog=P.AGR(X);T.M(X/V); | prevpart=A/ | next=T/X | nextlog= | nextpart=X/V' +
+            ' | prev=T/A | prevlog=P.AGR(X/);T.M(X/V); | prevpart=A/ | next=T/X | nextlog= | nextpart=X/V' +
             ' | close= | rows3=G0:O/,G1:A/,G1:X/V,');
         Opener.Open(Page::"LT NS Lines Part", 'G1');
         Closed();
@@ -726,7 +726,7 @@ codeunit 97477 "LT NS Tests"
         Opener: Codeunit "LT NS Opener";
     begin
         Initialize(true, false, 'G1', true);
-        Expect('open= | new= | setname=T.V(X);T.I(X);T.M(X/);P.AGR(X); | shown=X/ | part=X/' +
+        Expect('open= | new= | setname=T.V(X);T.I(X);T.M(X/);P.AGR(X/); | shown=X/ | part=X/' +
             ' | rows1=G0:O/,G1:X/, | setvalue= | shown2=X/V | part2=X/ | rows2=G0:O/,G1:X/, | prev=F/X' +
             ' | prevlog= | prevpart=X/ | next=T/ | nextlog=T.M(X/V); | nextpart=/ | close=' +
             ' | rows3=G0:O/,G1:X/V,');
@@ -787,9 +787,9 @@ codeunit 97477 "LT NS Tests"
     begin
         Initialize(false, true, '', true);
         CloseAfterValue := true;
-        Expect('open=P.AGR(A); | new= | setname=T.V(X);T.I(X);T.M(X/);P.AGR(X);P.AGR(A); | shown=X/ | part=X/' +
+        Expect('open=P.AGR(A/); | new= | setname=T.V(X);T.I(X);T.M(X/);P.AGR(X/);P.AGR(A/); | shown=X/ | part=X/' +
             ' | rows1=:A/,:X/, | setvalue= | shown2=X/V | part2=X/ | rows2=:A/,:X/,' +
-            ' | close=P.AGR(X);T.M(X/V); | rows3=:A/,:X/V,');
+            ' | close=P.AGR(X/);T.M(X/V); | rows3=:A/,:X/V,');
         Lines.OpenEdit();
         DrivePart(Lines);
         Lines.Close();
@@ -804,9 +804,9 @@ codeunit 97477 "LT NS Tests"
     begin
         Initialize(true, true, 'G1', true);
         CloseAfterValue := true;
-        Expect('open=P.AGR(A); | new= | setname=T.V(X);T.I(X);T.M(X/);P.AGR(X);P.AGR(A); | shown=X/ | part=X/' +
+        Expect('open=P.AGR(A/); | new= | setname=T.V(X);T.I(X);T.M(X/);P.AGR(X/);P.AGR(A/); | shown=X/ | part=X/' +
             ' | rows1=G0:O/,G1:A/,G1:X/, | setvalue= | shown2=X/V | part2=X/ | rows2=G0:O/,G1:A/,G1:X/,' +
-            ' | close=P.AGR(X);T.M(X/V); | rows3=G0:O/,G1:A/,G1:X/V,');
+            ' | close=P.AGR(X/);T.M(X/V); | rows3=G0:O/,G1:A/,G1:X/V,');
         Opener.Open(Page::"LT NS Lines Part", 'G1');
         Closed();
     end;
@@ -819,7 +819,7 @@ codeunit 97477 "LT NS Tests"
     begin
         Initialize(true, false, 'G1', true);
         CloseAfterValue := true;
-        Expect('open= | new= | setname=T.V(X);T.I(X);T.M(X/);P.AGR(X); | shown=X/ | part=X/' +
+        Expect('open= | new= | setname=T.V(X);T.I(X);T.M(X/);P.AGR(X/); | shown=X/ | part=X/' +
             ' | rows1=G0:O/,G1:X/, | setvalue= | shown2=X/V | part2=X/ | rows2=G0:O/,G1:X/,' +
             ' | close=T.M(X/V); | rows3=G0:O/,G1:X/V,');
         Opener.Open(Page::"LT NS Lines Part", 'G1');
