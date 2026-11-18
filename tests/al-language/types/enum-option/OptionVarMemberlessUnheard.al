@@ -2,7 +2,7 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own objects 75270..75276 and the interface OVU Formatter (OVU Row,
 //   OVU Publisher, OVU Subscriber, OVU Formatter Impl, OVU Unheard Callers Tests, OVU Unheard Hand On Tests,
-//   OVU Unheard Element Store Tests)
+//   OVU Unheard Elem Store Tests)
 // local object: an Option variable handed to a var parameter of an event publisher that no subscriber hears is what is
 //   under test.
 // Probe (al-runner PR 8299, follow-up of OptionVarMemberlessWrites.al): FACTS TO BE FILLED AFTER OBSERVATION.
@@ -702,7 +702,7 @@ codeunit 75275 "OVU Unheard Hand On Tests"
     end;
 }
 
-codeunit 75276 "OVU Unheard Element Store Tests"
+codeunit 75276 "OVU Unheard Elem Store Tests"
 {
     Subtype = Test;
 
