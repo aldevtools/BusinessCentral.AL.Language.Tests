@@ -108,8 +108,32 @@ batch, and the old rules "one claim per codeunit" and "never define an object in
    A file that defines its own object for one of these reasons says so in one line: `// local object: <reason>`.
 3. **Object budget.** A new test codeunit may add at most 3 objects that are not tests (tables, pages, reports, xmlports and so on)
    without the `// local object:` line. Enforced by an object budget check in CI (added in a later restructure pull request).
-   Shared fixtures do not change once they are merged: never change their fields, keys or triggers. Add a new fixture instead,
-   with an id in 50000..50999.
+   A merged shared fixture (an object under `tests/*/_fixtures/`) changes in place only by one of the additions below. Each
+   addition is invisible to code that does not name the new member. For anything else, add a new fixture with an id in
+   50000..50999.
+
+   | Object | Allowed addition | Condition |
+   |---|---|---|
+   | Table | a field | a number no field has; outside every key; no `FieldClass`; only `Caption`, `DataClassification` and `ToolTip`; no trigger |
+   | Table, codeunit, page | a procedure | after every existing member; no attribute; existing code unchanged |
+   | Cleanup codeunit (`ALTFixtureCleanup`) | a `Record` variable and one `DeleteAll` line | for a table that the same pull request adds |
+   | Enum | a value | after every existing value; an ordinal no value has; only `Caption`; the enum has no `implements` |
+   | Page | a field control | last control of an existing group or repeater; source is `Rec.<field>` of a Normal field; only `ApplicationArea`, `Caption` and `ToolTip`; no trigger; `PageType` is set to `Card`, `List`, `ListPart`, `CardPart`, `Worksheet` or `Document` |
+   | Page | an action | last in an existing action area or group; no trigger or other block inside it |
+
+   An `enumextension` of a fixture enum counts as an edit of that enum and follows the same rule. The enum rule is narrow
+   because names, ordinals, `Format` and option strings follow the order of the values. The page rule is narrow because a
+   control at the end keeps the order of the other controls and every extension anchor, and a control with a trigger, a part
+   or a FlowField source can run code for tests that only open the page.
+
+   Every other change to a fixture needs the label `shared-change`: a key, a changed or removed member, a changed property, a
+   trigger, changed code in an existing procedure, a new part or group, a moved control, a deleted or renamed fixture. The
+   owner reviews the change, and CI runs every test codeunit (see "When everything runs"). The check `Shared fixtures change
+   only by additions` (`.github/scripts/check-fixture-edit.py`) fails a pull request with such a change and no label. It
+   passes after the owner adds the label and you use **Re-run all jobs**.
+
+   An allowed addition does not promise that the tests that use the fixture keep passing. They run again in the pull request.
+   If one fails, add a new object.
 4. **Look for a duplicate before writing.** Run `find-similar.py <draft>`: it lists existing tests with the same calls and asserted
    values (enforced by `find-similar.py`, added in a later restructure pull request; until then, search the corpus by hand). When it
    finds one, cite the existing test and write nothing.
@@ -335,6 +359,7 @@ The "Run AL tests" step of a full `al-language` leg takes about 50 minutes (in t
 - every test codeunit declared in a changed file;
 - every test codeunit that uses an object the change touches, directly or through other objects. A codeunit uses an object when its source code names the object by name or by id (an object's own id and name in its header do not count). A changed extension object (`tableextension`, `pageextension`, `enumextension`, `reportextension`) also counts as a change to the object it extends;
 - for a changed file that is not AL code (a report layout, an add-in script), the objects that name the file, and the test codeunits that use those objects.
+- when a shared fixture changes by an allowed addition (standing rule 3), also every test codeunit that can read an object without naming it: it names a metadata or system table (`AllObj`, `Field`, `Page Control Field` and similar, or a table id from 2000000000), opens a `RecordRef` or `Query` by a value that is not a literal id, or runs a page, codeunit, report, xmlport or query by a variable. On master in November 2026 that is 367 test codeunits.
 
 An object the change touches is one whose code changed. An object in a changed file whose code is the same before and after (comments and line breaks do not count) is not one, unless the file's `namespace`, `using` or `#define` lines changed. If only comments changed in a file, the test codeunits that use its objects run.
 
@@ -370,6 +395,7 @@ Every test codeunit runs when one of these is true:
   - an `Install` or `Upgrade` codeunit that uses an object the change touches;
   - a codeunit with `Subtype = Install`, `Upgrade` or `TestRunner`;
   - a permission set, permission set extension or entitlement;
+  - a shared fixture, beyond the allowed additions of standing rule 3 (the pull request has the label `shared-change`), or a fixture change the check cannot read;
   - more than 50 files in the test apps;
   - a file outside the test apps that CI may read. These paths are known to be unused by CI and do not count: `docs/`, `scripts/`, `.claude/`, `tests/must-not-compile/`, Markdown files, `tests/al-surface*.json`, `v2-classification.json`, `.gitignore`, and apps under `tests/` that no CI job builds (the isolation probe).
 - The selection is uncertain: a changed object that no test codeunit uses (a test can still reach it through metadata, for example `AllObj` filtered on an id range), an AL file with no object the script can read, or a changed non-AL file that no object names.
@@ -470,6 +496,7 @@ Before opening a PR, verify:
 - [ ] `Initialize()` calls `DeleteAll()` on every table used in the codeunit
 - [ ] The file is in `<area>/<topic>/` (no writer id, issue number or batch name in a folder name), and a new topic is in the area README
 - [ ] Shared fixtures used; each local object has a `// local object: <reason>` line
+- [ ] A merged shared fixture changes only by the additions of standing rule 3, or the pull request has the label `shared-change`
 - [ ] New tests are at the end of the topic's existing codeunit; no codeunit renumbered, no test or must-not-compile case renamed
 - [ ] A removed or merged test has a line in `tests/rename-map.tsv`
 - [ ] Test name uniquely identifies the claim without opening the body

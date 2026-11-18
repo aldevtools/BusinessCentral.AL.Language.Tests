@@ -320,6 +320,118 @@ def given_cases():
           'prepare job does not use the input')
 
 
+def fixture_cases():
+    """Shared fixtures (CONTRIBUTING.md, standing rule 3): an edit beyond an addition is a full run; an additive edit also
+    runs the scan-blind codeunits (SCAN_BLIND)."""
+    fx = dict(BASE_FILES)
+    fx['tests/main/_fixtures/FxTab.al'] = ('table 50006 "Fx Tab"\n{\n    fields\n    {\n        field(1; "No."; Integer) { }\n'
+                                           '    }\n}\n')
+    fx['tests/main/FxUser.al'] = ('codeunit 50030 "Uses Fx"\n{\n    Subtype = Test;\n    [Test]\n    procedure A()\n'
+                                  '    var R: Record "Fx Tab";\n    begin end;\n}\n')
+    fx['tests/main/Meta.al'] = ('codeunit 50031 "Reads Field"\n{\n    Subtype = Test;\n    [Test]\n    procedure A()\n'
+                                '    var F: Record Field;\n    begin F.SetRange(TableNo, 50000, 50099); end;\n}\n')
+    fx['tests/main/OpenVar.al'] = ('codeunit 50032 "Opens By Id"\n{\n    Subtype = Test;\n    [Test]\n    procedure A()\n'
+                                   '    var RR: RecordRef; Id: Integer;\n    begin RR.Open(Id); end;\n}\n')
+    fx['tests/main/RunVar.al'] = ('codeunit 50033 "Runs By Id"\n{\n    Subtype = Test;\n    [Test]\n    procedure A()\n'
+                                  '    var Id: Integer;\n    begin Page.Run(Id); end;\n}\n')
+    fx['tests/main/OpenLit.al'] = ('codeunit 50034 "Opens Literal"\n{\n    Subtype = Test;\n    [Test]\n    procedure A()\n'
+                                   '    var RR: RecordRef;\n    begin RR.Open(18); Page.Run(Page::"X"); end;\n}\n')
+    objs = []
+    for p in ('tests/main/Meta.al', 'tests/main/OpenVar.al', 'tests/main/RunVar.al', 'tests/main/OpenLit.al'):
+        objs.extend(st.parse_al(p, fx[p]))
+    check('SCAN_BLIND: one codeunit per pattern (metadata table, Open of a variable, Run of a variable), not literal ids',
+          [[bool(p.search(o.text)) for p in st.SCAN_BLIND] for o in objs]
+          == [[True, False, False], [False, True, False], [False, False, True], [False, False, False]],
+          [[bool(p.search(o.text)) for p in st.SCAN_BLIND] for o in objs])
+
+    field = fx['tests/main/_fixtures/FxTab.al'].replace('(1; "No."; Integer) { }\n', '(1; "No."; Integer) { }\n'
+                                                       '        field(2; Note; Text[20]) { Caption = \'Note\'; }\n')
+    r = make({'tests/main/_fixtures/FxTab.al': field}, fx)
+    check('additive fixture edit: its users and every scan-blind codeunit', r['mode'] == 'subset'
+          and ids(r, 'tests/main') == [50030, 50031, 50032, 50033], r.get('reasons') or r['apps'])
+    r = make({'tests/main/_fixtures/FxTab.al': fx['tests/main/_fixtures/FxTab.al'].replace('Integer', 'Code[20]')}, fx)
+    check('fixture edit beyond an addition: full run of kind fixture-edit-other', r['mode'] == 'full'
+          and 'fixture-edit-other' in r['reason_kinds'], r['reasons'])
+    r = make({'tests/main/FxUser.al': fx['tests/main/FxUser.al'] + '\n'}, fx)
+    check('no fixture edit: no scan-blind codeunit', r['mode'] == 'subset' and ids(r, 'tests/main') == [50030], r)
+    real = st.fixture_check
+
+    def broken():
+        raise RuntimeError('boom')
+    st.fixture_check = broken
+    try:
+        r = make({'tests/main/_fixtures/FxTab.al': field}, fx)
+    finally:
+        st.fixture_check = real
+    check('fixture edit check failed: full run of kind fixture-check-failed', r['mode'] == 'full'
+          and r['reason_kinds'] == ['fixture-check-failed'], r['reasons'])
+    return fx
+
+
+def reason_kinds():
+    for name, changes, kind in (('more than MAX_FILES', {'tests/main/gen/T%d.al' % i: 'codeunit %d "G%d"\n{\n}\n' % (50100 + i, i)
+                                                         for i in range(st.MAX_FILES + 1)}, 'file-cap'),
+                                ('CI file', {'.github/scripts/x.py': 'print(1)'}, 'ci-config'),
+                                ('docs only', {'README.md': '# changed\n'}, 'nothing-to-select'),
+                                ('empty diff', {}, 'no-changed-files')):
+        r = make(changes)
+        check('reason kind: %s is %s' % (name, kind), kind in r['reason_kinds']
+              and len(r['reason_kinds']) == len(r['reasons']), (r['reason_kinds'], r['reasons']))
+    r = make(touch('tests/main/T1.al'))
+    check('subset: no reason kinds', r['reason_kinds'] == [], r)
+
+
+def reuse_cases(fx):
+    """--check-reuse: a reused result of codeunit K from commit S stays valid at HEAD only when the selection of S..HEAD
+    is a subset without K; the file cap and "nothing to select" do not count."""
+    repo = tempfile.mkdtemp(prefix='repo-', dir=ROOT)
+    git(repo, 'init', '-q', '-b', 'main')
+
+    def commit(files, msg):
+        for p_, t in files.items():
+            f = Path(repo, p_)
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_bytes(t) if isinstance(t, bytes) else f.write_text(t)
+        git(repo, 'add', '-A')
+        git(repo, 'commit', '-q', '--allow-empty', '-m', msg)
+        return git(repo, 'rev-parse', 'HEAD')
+    s0 = commit(fx, 'base')
+    s1 = commit(touch('tests/main/Probe.Table.al'), 'table')
+    s2 = commit({'tests/main/gen/G%d.al' % i: ('codeunit %d "G%d"\n{\n    Subtype = Test;\n    [Test]\n'
+                                                '    procedure A() begin end;\n}\n') % (50200 + i, i)
+                 for i in range(st.MAX_FILES + 1)}, 'more test codeunits than MAX_FILES')
+    s3 = commit({'README.md': '# changed\n'}, 'docs')
+    s4 = commit({'.github/scripts/x.py': 'print(1)'}, 'ci')
+
+    def run(given, head):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            code = st.main(['--repo', repo, '--check-reuse', json.dumps(given), '--head', head])
+        return code, buf.getvalue()
+    code, out = run({s0: {'tests/main': '50010'}}, s1)
+    check('check-reuse: a reused codeunit the span selects is refused', code == 1 and '50010' in out, out)
+    code, out = run({s0: {'tests/main': '50012,50030', 'tests/onprem': '60011'}}, s1)
+    check('check-reuse: codeunits the span does not select are kept', code == 0, out)
+    code, out = run({s1: {'tests/main': '50012'}}, s3)
+    check('check-reuse: more than MAX_FILES files in the span does not count', code == 0, out)
+    code, out = run({s0: {'tests/main': '50010'}}, s3)
+    check('check-reuse: the file cap does not hide a selected codeunit', code == 1 and '50010' in out, out)
+    code, out = run({s3: {'tests/main': '50012'}}, s3)
+    check('check-reuse: no changed files does not count', code == 0, out)
+    code, out = run({s2: {'tests/main': '50012'}}, s3)
+    check('check-reuse: nothing to select does not count', code == 0, out)
+    code, out = run({s3: {'tests/main': '50012'}}, s4)
+    check('check-reuse: a span with any other full-run reason is refused', code == 1 and 'ci-config' in out, out)
+    code, out = run({s0: {'tests/main': '50010,50011'}, s1: {'tests/main': '50012'}}, s3)
+    check('check-reuse: every refusal is printed', code == 1 and 'codeunit 50010' in out and 'codeunit 50011' in out
+          and out.count('refused:') == 2, out)
+    code, out = run('not json', s4)
+    check('check-reuse: an input that cannot be read is refused', code == 1, out)
+    one = st.Head(st.Git(repo), git(repo, 'rev-parse', s3))
+    a, b = st.select(st.Git(repo), s0, s3, False, loaded=one), st.select(st.Git(repo), s0, s3, False)
+    check('select with a loaded head gives the same result as without', a == b, (a, b))
+
+
 FAILED = []
 ROOT = tempfile.mkdtemp(prefix='select-tests-')
 
@@ -377,6 +489,8 @@ def main():
 
     subscribers()
     given_cases()
+    reason_kinds()
+    reuse_cases(fixture_cases())
 
     fulls = {
         'install codeunit': ({'tests/main/I.al': 'codeunit 50021 Inst\n{\n    Subtype = Install;\n}\n'}, 'Subtype = Install'),

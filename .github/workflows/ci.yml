@@ -168,6 +168,26 @@ jobs:
           BASE_REF=origin/${{ github.event.pull_request.base.ref }} \
             python3 .github/scripts/check-cross-pr-object-ids.py
 
+      # Shared fixtures change in place only by additions (CONTRIBUTING.md, standing rule 3). Any other edit needs the
+      # label shared-change: the owner reviews it, and select-tests.py makes it a full run. The labels come from the API,
+      # so "Re-run all jobs" after adding the label passes.
+      - name: Shared fixtures change only by additions
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -uo pipefail
+          code=0
+          python3 .github/scripts/check-fixture-edit.py --base "$(git rev-parse HEAD^1)" --head HEAD || code=$?
+          [ "$code" -eq 1 ] || exit "$code"
+          if gh api "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/labels" --jq '.[].name' | grep -qx 'shared-change'; then
+            echo "::notice title=Fixture edit::a shared fixture changed beyond an addition; the label shared-change allows it"
+            exit 0
+          fi
+          echo "::error title=Fixture edit::a shared fixture changed beyond an addition (see the lines above). Add a new object instead, or ask the owner for the label shared-change (CONTRIBUTING.md, standing rule 3)."
+          exit 1
+
       # Every open PR against every other, after master moved. NON-blocking on
       # purpose: a collision between two open PRs is not this merge commit's
       # fault, and a red master costs more than the annotation is worth. It runs
