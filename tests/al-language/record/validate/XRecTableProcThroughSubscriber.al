@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-validate-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own objects 97090..97096 (XRS Line, XRS Line Ext, XRS Cfg, XRS Subscriber,
-//   XRS Helper, XRS Tests, XRS Other Row)
+// Fixtures used: Probe Observer (codeunit 69160); own objects 97090..97097 (XRS Line, XRS Line Ext, XRS Cfg, XRS Subscriber,
+//   XRS Helper, XRS Tests, XRS Other Row, XRS Line Card)
 // local object: the table and table extension procedures, the field triggers and the event subscribers that read xRec are what is under
 //   test.
 // Probe (al-runner issues 8284 and 8306): what xRec a procedure of a table or of its table extension reads when an event subscriber or a codeunit
@@ -12,7 +12,8 @@
 //   the call returned), then what each procedure read of xRec ('X' the table extension procedure, 'P' the table procedure; 'X2' and
 //   'P2' through the event with two var parameters; 'XV' and 'PV' on the by-value copy; 'XA' and 'PA' from an OnAfterValidateEvent
 //   subscriber, 'A' its xRec parameter; 'C' the table extension procedure and 'CP' the table procedure through a codeunit; 'XS' the
-//   table extension procedure that then assigns xRec.Series := 'SET'). A record is logged as Mode ordinal/Series/"Item No.". Before
+//   table extension procedure that then assigns xRec.Series := 'SET', 'XF' the filters it set on xRec, 'CT' through a TryFunction,
+//   'O' the trigger of the other field the procedure validates). A record is logged as Mode ordinal/Series/"Item No.". Before
 //   the Validate the stored row holds 0/OLD/I1 and the record variable 0/NEW/I1, so a read of the stored row shows apart from the
 //   record's before-image.
 // Cells:
@@ -27,23 +28,39 @@
 //   - a field OnValidate handing Rec to a codeunit that calls a table extension procedure (also assigning xRec) or a table procedure;
 //   - neighbors: the event's record parameter by value; an OnAfterValidateEvent subscriber calling the same procedures on Rec;
 //   - (al-runner issue 8306) OnAfterValidateEvent and OnBeforeValidateEvent subscribers calling them on Rec: after Insert, Get,
-//     FindFirst, fresh, temporary, a subscriber that does not declare xRec, the table extension procedure assigning xRec.
+//     FindFirst, fresh, temporary, a subscriber that does not declare xRec, the table extension procedure assigning xRec;
+//   - the nested Validate with other writers of xRec: the outer trigger assigns xRec before it nests, the inner trigger assigns xRec
+//     before it raises the event, the table extension procedure sets a filter on xRec; the outer trigger nesting through
+//     Rec.UpdateMode() and through a one-argument Validate(Mode); the nested case on a temporary and on a fresh record; a subscriber
+//     on a temporary record never inserted; the subscriber's procedure validating another field whose trigger reads xRec; a codeunit
+//     TryFunction calling the table extension procedure;
+//   - (al-runner issue 8306) the Validate that raises OnAfterValidateEvent run from a page action, from TestPage SetValue, as a
+//     one-argument Validate, as FieldRef.Validate, and from an OnAfterModifyEvent subscriber; the subscriber reaching the table
+//     procedure through a table extension procedure and a codeunit; an OnBeforeValidateEvent subscriber that declares only Rec, and
+//     one whose procedure assigns xRec before the trigger reads it.
 // Facts (measured on 29.1):
 //   - a table extension procedure and a table procedure that an event subscriber calls on the var record the field trigger raised the
 //     event with read the trigger's xRec (0/NEW/I1, the record before the Validate, not the stored row), after Insert, after Get,
-//     after FindLast, FindFirst, FindSet, Find('=') and Next, on a fresh record and on a temporary record, with one or two var
-//     parameters;
-//   - a Validate that the field trigger nests, itself or through one, two or three table procedures, in another field's OnValidate:
-//     the inner trigger and the procedures the subscriber calls read the before-image of the outer Validate (0/NEW/I1, not 0/MID/I1;
-//     0/NEW/I2 on the new line);
+//     after FindLast, FindFirst, FindSet, Find('=') and Next, on a fresh record and on a temporary record (also never inserted), with
+//     one or two var parameters;
+//   - a Validate that the field trigger nests, itself or through one, two or three table procedures, through Rec.UpdateMode() or as
+//     a one-argument Validate, in another field's OnValidate: the inner trigger and the procedures the subscriber calls read the
+//     before-image of the outer Validate (0/NEW/I1, not 0/MID/I1; 0/NEW/I2 on the new line), also on a temporary and a fresh record;
+//   - nested Validates share one xRec: what the outer trigger assigns before it nests is what the inner trigger and the procedures
+//     read (0/OUT/I1); what the inner trigger assigns, the procedures and the outer trigger read after (0/INN/I1); a filter the
+//     procedure sets on xRec shows in both triggers' xRec.GetFilters();
 //   - xRec assigned in the table extension procedure is what the trigger reads after the call; nested, both triggers read it;
-//   - a codeunit the field trigger hands Rec to: the table extension procedure and the table procedure it calls read the trigger's
-//     xRec, not the stored row, and an assignment shows in the trigger;
+//   - a codeunit the field trigger hands Rec to, also a TryFunction: the table extension procedure and the table procedure it calls
+//     read the trigger's xRec, not the stored row, and an assignment shows in the trigger;
+//   - the subscriber's procedure validating another field: that field's trigger reads the record as it is then (0/NEW/I1);
 //   - the event's record parameter by value: the procedures called on the copy read a blank xRec (0//);
-//   - an OnAfterValidateEvent subscriber: its xRec parameter and the procedures it calls on Rec read the trigger's xRec, also after
-//     Get, on a fresh record and when the subscriber does not declare xRec; xRec assigned in the table extension procedure is
-//     what the subscriber's xRec parameter reads after the call; an OnBeforeValidateEvent subscriber: the same, before the
-//     trigger runs.
+//   - an OnAfterValidateEvent subscriber: its xRec parameter and the procedures it calls on Rec, directly or through a table
+//     extension procedure and a codeunit, read the trigger's xRec, also after Get, on a fresh record and when the subscriber does not
+//     declare xRec, with the Validate run from a page action or TestPage SetValue (the page's before-image, 0/OLD/I1), as a
+//     one-argument Validate (the record with the new value already in it, 1/NEW/I1), as FieldRef.Validate and from an
+//     OnAfterModifyEvent subscriber; xRec assigned in the table extension procedure is what the subscriber's xRec parameter reads
+//     after the call; an OnBeforeValidateEvent subscriber: the same, before the trigger runs, also when it declares only Rec, and
+//     xRec its procedure assigns is what the trigger reads (0/SET/I1).
 // BC versions: 27.5, 28.5, 29.0
 
 table 97090 "XRS Line"
@@ -64,8 +81,11 @@ table 97090 "XRS Line"
                 if Cfg.Get() = '' then
                     exit;
                 Cfg.Add('T x=' + Cfg.Fmt(xRec));
+                if Cfg.Get() = 'nested-inner-assign' then
+                    xRec.Series := 'INN';
                 case Cfg.Get() of
-                    'sub', 'nested', 'nested-direct', 'nested-three', 'nested-one', 'nested-get', 'sub-assign', 'nested-assign':
+                    'sub', 'nested', 'nested-direct', 'nested-three', 'nested-one', 'nested-get', 'sub-assign', 'nested-assign',
+                    'nested-outer-assign', 'nested-inner-assign', 'nested-filter', 'nested-recproc', 'nested-onearg', 'sub-proc-val':
                         OnValidateModeCaseElse(Rec);
                     'sub-byvalue':
                         OnValidateModeByValue(Rec);
@@ -74,6 +94,8 @@ table 97090 "XRS Line"
                 end;
                 if Cfg.Get() in ['sub-assign', 'nested-assign'] then
                     Cfg.Add('T after x=' + Cfg.Fmt(xRec));
+                if Cfg.Get() = 'nested-filter' then
+                    Cfg.Add('T filters=' + xRec.GetFilters());
             end;
         }
         field(3; Series; Code[20]) { }
@@ -83,12 +105,16 @@ table 97090 "XRS Line"
             var
                 Cfg: Codeunit "XRS Cfg";
             begin
-                if not (Cfg.Get() in ['nested', 'nested-direct', 'nested-three', 'nested-one', 'nested-get', 'nested-assign']) then
+                if not (Cfg.Get() in ['nested', 'nested-direct', 'nested-three', 'nested-one', 'nested-get', 'nested-assign',
+                    'nested-outer-assign', 'nested-inner-assign', 'nested-filter', 'nested-recproc', 'nested-onearg'])
+                then
                     exit;
                 Cfg.Add('I x=' + Cfg.Fmt(xRec));
                 Series := 'MID';
+                if Cfg.Get() = 'nested-outer-assign' then
+                    xRec.Series := 'OUT';
                 case Cfg.Get() of
-                    'nested', 'nested-get', 'nested-assign':
+                    'nested', 'nested-get', 'nested-assign', 'nested-outer-assign', 'nested-inner-assign', 'nested-filter':
                         CopyFromItem();
                     'nested-direct':
                         Validate(Mode, Mode::Production);
@@ -96,9 +122,18 @@ table 97090 "XRS Line"
                         PrepareFromItem();
                     'nested-one':
                         UpdateMode();
+                    'nested-recproc':
+                        Rec.UpdateMode();
+                    'nested-onearg':
+                        begin
+                            Mode := Mode::Production;
+                            Validate(Mode);
+                        end;
                 end;
-                if Cfg.Get() = 'nested-assign' then
+                if Cfg.Get() in ['nested-assign', 'nested-outer-assign', 'nested-inner-assign'] then
                     Cfg.Add('I after x=' + Cfg.Fmt(xRec));
+                if Cfg.Get() = 'nested-filter' then
+                    Cfg.Add('I filters=' + xRec.GetFilters());
             end;
         }
         field(5; ViaCodeunit; Boolean)
@@ -108,7 +143,7 @@ table 97090 "XRS Line"
                 Cfg: Codeunit "XRS Cfg";
                 Helper: Codeunit "XRS Helper";
             begin
-                if not (Cfg.Get() in ['codeunit', 'codeunit-base', 'codeunit-assign']) then
+                if not (Cfg.Get() in ['codeunit', 'codeunit-base', 'codeunit-assign', 'codeunit-try']) then
                     exit;
                 Cfg.Add('V x=' + Cfg.Fmt(xRec));
                 case Cfg.Get() of
@@ -121,7 +156,20 @@ table 97090 "XRS Line"
                             Helper.CallExtProcAssign(Rec);
                             Cfg.Add('V after x=' + Cfg.Fmt(xRec));
                         end;
+                    'codeunit-try':
+                        if Helper.TryCallExtProc(Rec) then
+                            Cfg.Add('try ok');
                 end;
+            end;
+        }
+        field(6; Other; Integer)
+        {
+            trigger OnValidate()
+            var
+                Cfg: Codeunit "XRS Cfg";
+            begin
+                if Cfg.Get() <> '' then
+                    Cfg.Add('O x=' + Cfg.Fmt(xRec));
             end;
         }
     }
@@ -144,7 +192,7 @@ table 97090 "XRS Line"
         UpdateMode();
     end;
 
-    local procedure UpdateMode()
+    procedure UpdateMode()
     begin
         Validate(Mode, Mode::Production);
     end;
@@ -203,6 +251,59 @@ tableextension 97091 "XRS Line Ext" extends "XRS Line"
         Cfg.Add('XS x=' + Cfg.Fmt(xRec));
         xRec.Series := 'SET';
     end;
+
+    procedure ExtProcFilter()
+    var
+        Cfg: Codeunit "XRS Cfg";
+    begin
+        xRec.SetRange(Series, 'F');
+        Cfg.Add('XF filters=' + xRec.GetFilters());
+    end;
+
+    procedure ExtProcValidateOther()
+    begin
+        Rec.Validate(Other, 5);
+    end;
+
+    procedure ExtProcThroughHelper()
+    var
+        Helper: Codeunit "XRS Helper";
+    begin
+        Helper.CallTableProc(Rec);
+    end;
+}
+
+page 97097 "XRS Line Card"
+{
+    PageType = Card;
+    SourceTable = "XRS Line";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field("Line No."; Rec."Line No.") { ApplicationArea = All; }
+            field(Mode; Rec.Mode) { ApplicationArea = All; }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(SetProduction)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Rec.Validate(Mode, Rec.Mode::Production);
+                end;
+            }
+        }
+    }
 }
 
 codeunit 97092 "XRS Cfg"
@@ -255,6 +356,14 @@ codeunit 97093 "XRS Subscriber"
             Line.ExtProcAssign();
             exit;
         end;
+        if Cfg.Get() = 'nested-filter' then begin
+            Line.ExtProcFilter();
+            exit;
+        end;
+        if Cfg.Get() = 'sub-proc-val' then begin
+            Line.ExtProcValidateOther();
+            exit;
+        end;
         Line.ExtProcRead('X');
         Line.TableProcRead('P');
     end;
@@ -283,7 +392,12 @@ codeunit 97093 "XRS Subscriber"
             Cfg.Add('A after x=' + Cfg.Fmt(xRec));
             exit;
         end;
-        if Cfg.Get() <> 'after-event' then
+        if Cfg.Get() = 'after-descendant' then begin
+            Cfg.Add('A x=' + Cfg.Fmt(xRec));
+            Rec.ExtProcThroughHelper();
+            exit;
+        end;
+        if not (Cfg.Get() in ['after-event', 'modify-sub']) then
             exit;
         Cfg.Add('A x=' + Cfg.Fmt(xRec));
         Rec.ExtProcRead('XA');
@@ -295,11 +409,35 @@ codeunit 97093 "XRS Subscriber"
     var
         Cfg: Codeunit "XRS Cfg";
     begin
+        if Cfg.Get() = 'before-assign' then begin
+            Rec.ExtProcAssign();
+            exit;
+        end;
         if Cfg.Get() <> 'before-event' then
             exit;
         Cfg.Add('B x=' + Cfg.Fmt(xRec));
         Rec.ExtProcRead('XB');
         Rec.TableProcRead('PB');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"XRS Line", 'OnBeforeValidateEvent', 'Mode', false, false)]
+    local procedure OnBeforeValidateModeRecOnly(var Rec: Record "XRS Line")
+    var
+        Cfg: Codeunit "XRS Cfg";
+    begin
+        if Cfg.Get() <> 'before-reconly' then
+            exit;
+        Rec.ExtProcRead('XNB');
+        Rec.TableProcRead('PNB');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"XRS Line", 'OnAfterModifyEvent', '', false, false)]
+    local procedure OnAfterModifyLine(var Rec: Record "XRS Line"; var xRec: Record "XRS Line"; RunTrigger: Boolean)
+    var
+        Cfg: Codeunit "XRS Cfg";
+    begin
+        if Cfg.Get() = 'modify-sub' then
+            Rec.Validate(Mode, Rec.Mode::Production);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"XRS Line", 'OnAfterValidateEvent', 'Mode', false, false)]
@@ -329,6 +467,12 @@ codeunit 97094 "XRS Helper"
     procedure CallExtProcAssign(var Line: Record "XRS Line")
     begin
         Line.ExtProcAssign();
+    end;
+
+    [TryFunction]
+    procedure TryCallExtProc(var Line: Record "XRS Line")
+    begin
+        Line.ExtProcRead('CT');
     end;
 }
 
@@ -890,6 +1034,304 @@ codeunit 97095 "XRS Tests"
         Found.Series := 'NEW';
         ValidateModeAndObserve(Observer, Found, 'after-event');
         Observer.Expect('log', 'T x=0/NEW/I1;A x=0/NEW/I1;XA x=0/NEW/I1;PA x=0/NEW/I1;');
+        Observer.Expect('record', '1/NEW/I1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Subscriber_VarRec_NestedOuterAssignsXRecFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        ValidateItemAndObserve(Observer, Line, 'nested-outer-assign');
+        Observer.Expect('log', 'I x=0/NEW/I1;T x=0/OUT/I1;X x=0/OUT/I1;P x=0/OUT/I1;I after x=0/OUT/I1;');
+        Observer.Expect('record', '1/MID/I2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Subscriber_VarRec_NestedInnerAssignsXRecFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        ValidateItemAndObserve(Observer, Line, 'nested-inner-assign');
+        Observer.Expect('log', 'I x=0/NEW/I1;T x=0/NEW/I1;X x=0/INN/I1;P x=0/INN/I1;I after x=0/INN/I1;');
+        Observer.Expect('record', '1/MID/I2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Subscriber_VarRec_NestedProcedureFiltersXRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        ValidateItemAndObserve(Observer, Line, 'nested-filter');
+        Observer.Expect('log', 'I x=0/NEW/I1;T x=0/NEW/I1;XF filters=Series: F;T filters=Series: F;I filters=Series: F;');
+        Observer.Expect('record', '1/MID/I2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Subscriber_VarRec_NestedThroughRecDotProcedure()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        ValidateItemAndObserve(Observer, Line, 'nested-recproc');
+        Observer.Expect('log', 'I x=0/NEW/I1;T x=0/NEW/I1;X x=0/NEW/I1;P x=0/NEW/I1;');
+        Observer.Expect('record', '1/MID/I2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Subscriber_VarRec_NestedOneArgumentValidate()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        ValidateItemAndObserve(Observer, Line, 'nested-onearg');
+        Observer.Expect('log', 'I x=0/NEW/I1;T x=0/NEW/I1;X x=0/NEW/I1;P x=0/NEW/I1;');
+        Observer.Expect('record', '1/MID/I2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Subscriber_VarRec_NestedOnTemporaryRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempLine: Record "XRS Line" temporary;
+    begin
+        Initialize();
+        AfterInsert(TempLine);
+        ValidateItemAndObserve(Observer, TempLine, 'nested');
+        Observer.Expect('log', 'I x=0/NEW/I1;T x=0/NEW/I1;X x=0/NEW/I1;P x=0/NEW/I1;');
+        Observer.Expect('record', '1/MID/I2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Subscriber_VarRec_NestedOnFreshRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+    begin
+        Initialize();
+        Line.Init();
+        Line."Line No." := 1;
+        Line.Series := 'NEW';
+        Line."Item No." := 'I1';
+        ValidateItemAndObserve(Observer, Line, 'nested');
+        Observer.Expect('log', 'I x=0/NEW/I1;T x=0/NEW/I1;X x=0/NEW/I1;P x=0/NEW/I1;');
+        Observer.Expect('record', '1/MID/I2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Subscriber_VarRec_TemporaryNeverInserted()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempLine: Record "XRS Line" temporary;
+    begin
+        Initialize();
+        TempLine.Init();
+        TempLine."Line No." := 1;
+        TempLine.Series := 'NEW';
+        TempLine."Item No." := 'I1';
+        ValidateModeAndObserve(Observer, TempLine, 'sub');
+        Observer.Expect('log', 'T x=0/NEW/I1;X x=0/NEW/I1;P x=0/NEW/I1;');
+        Observer.Expect('record', '1/NEW/I1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Subscriber_ProcedureValidatesFieldReadingXRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        ValidateModeAndObserve(Observer, Line, 'sub-proc-val');
+        Observer.Observe('other', Format(Line.Other));
+        Observer.Expect('log', 'T x=0/NEW/I1;O x=0/NEW/I1;');
+        Observer.Expect('record', '1/NEW/I1');
+        Observer.Expect('other', '5');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Codeunit_TryFunctionCallsTableExtensionProcedure()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        Cfg.Set('codeunit-try');
+        Line.Validate(ViaCodeunit, true);
+        Observer.Observe('log', Cfg.Take());
+        Cfg.Set('');
+        Observer.Expect('log', 'V x=0/NEW/I1;CT x=0/NEW/I1;try ok;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure AfterValidateEvent_PageAction()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+        Card: TestPage "XRS Line Card";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        Card.OpenEdit();
+        Card.GoToRecord(Line);
+        Cfg.Set('after-event');
+        Card.SetProduction.Invoke();
+        Card.Close();
+        Observer.Observe('log', Cfg.Take());
+        Cfg.Set('');
+        Line.Get(1);
+        Observer.Observe('stored', Cfg.Fmt(Line));
+        Observer.Expect('log', 'T x=0/OLD/I1;A x=0/OLD/I1;XA x=0/OLD/I1;PA x=0/OLD/I1;');
+        Observer.Expect('stored', '1/OLD/I1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure AfterValidateEvent_TestPageSetValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+        Card: TestPage "XRS Line Card";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        Card.OpenEdit();
+        Card.GoToRecord(Line);
+        Cfg.Set('after-event');
+        Card.Mode.SetValue(Line.Mode::Production);
+        Card.Close();
+        Observer.Observe('log', Cfg.Take());
+        Cfg.Set('');
+        Line.Get(1);
+        Observer.Observe('stored', Cfg.Fmt(Line));
+        Observer.Expect('log', 'T x=0/OLD/I1;A x=0/OLD/I1;XA x=0/OLD/I1;PA x=0/OLD/I1;');
+        Observer.Expect('stored', '1/OLD/I1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure AfterValidateEvent_OneArgumentValidate()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        Line.Mode := Line.Mode::Production;
+        Cfg.Set('after-event');
+        Line.Validate(Mode);
+        Observer.Observe('log', Cfg.Take());
+        Observer.Observe('record', Cfg.Fmt(Line));
+        Cfg.Set('');
+        Observer.Expect('log', 'T x=1/NEW/I1;A x=1/NEW/I1;XA x=1/NEW/I1;PA x=1/NEW/I1;');
+        Observer.Expect('record', '1/NEW/I1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure AfterValidateEvent_FieldRefValidate()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+    begin
+        Initialize();
+        AfterInsert(Line);
+        RecRef.GetTable(Line);
+        FldRef := RecRef.Field(Line.FieldNo(Mode));
+        Cfg.Set('after-event');
+        FldRef.Validate(Line.Mode::Production);
+        Observer.Observe('log', Cfg.Take());
+        Cfg.Set('');
+        RecRef.SetTable(Line);
+        Observer.Observe('record', Cfg.Fmt(Line));
+        Observer.Expect('log', 'T x=0/NEW/I1;A x=0/NEW/I1;XA x=0/NEW/I1;PA x=0/NEW/I1;');
+        Observer.Expect('record', '1/NEW/I1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure AfterValidateEvent_DescendantThroughCodeunit()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        ValidateModeAndObserve(Observer, Line, 'after-descendant');
+        Observer.Expect('log', 'T x=0/NEW/I1;A x=0/NEW/I1;CP x=0/NEW/I1;');
+        Observer.Expect('record', '1/NEW/I1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure AfterModifyEvent_SubscriberValidates()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        Cfg.Set('modify-sub');
+        Line.Modify(true);
+        Observer.Observe('log', Cfg.Take());
+        Observer.Observe('record', Cfg.Fmt(Line));
+        Cfg.Set('');
+        Observer.Expect('log', 'T x=0/NEW/I1;A x=0/NEW/I1;XA x=0/NEW/I1;PA x=0/NEW/I1;');
+        Observer.Expect('record', '1/NEW/I1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure BeforeValidateEvent_RecOnly()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        ValidateModeAndObserve(Observer, Line, 'before-reconly');
+        Observer.Expect('log', 'XNB x=0/NEW/I1;PNB x=0/NEW/I1;T x=0/NEW/I1;');
+        Observer.Expect('record', '1/NEW/I1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure BeforeValidateEvent_ProcedureAssignsXRecTriggerReads()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        ValidateModeAndObserve(Observer, Line, 'before-assign');
+        Observer.Expect('log', 'XS x=0/NEW/I1;T x=0/SET/I1;');
         Observer.Expect('record', '1/NEW/I1');
         Observer.Verify();
     end;
