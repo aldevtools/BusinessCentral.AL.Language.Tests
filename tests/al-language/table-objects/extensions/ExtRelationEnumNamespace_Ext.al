@@ -7,7 +7,7 @@
 // member of the enum of "LT ERN Order".Status, though this file cannot name those enums: the
 // members are those of the fields' own types. Shaped like Base Application's "Mfg. Item Journal
 // Line" (modify("Order No.") and its own fields) and "Mfg. Standard Cost Worksheet" (modify("No.")
-// with members of an enumextension).
+// with members of an enumextension). "Order Ref Q" names the member qualified with the field.
 // local object: the table extension under test.
 
 namespace ALLanguage.Coverage.ErnMfg;
@@ -23,6 +23,11 @@ tableextension 97044 "LT ERN Line Ext" extends "LT ERN Line"
         {
             DataClassification = CustomerContent;
             TableRelation = if ("Order Type" = const(Production)) "LT ERN Order"."No." where(Status = const(Released));
+        }
+        field(97045; "Order Ref Q"; Code[20])
+        {
+            DataClassification = CustomerContent;
+            TableRelation = if ("Order Type" = const("Order Type"::Production)) "LT ERN Order"."No." where(Status = const(Released));
         }
         modify("Order No.")
         {
