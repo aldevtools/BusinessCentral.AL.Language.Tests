@@ -38,7 +38,10 @@ codeunit 67000 "Test Second Id Range"
         CodeunitMetadata: Record "CodeUnit Metadata";
     begin
         // 60962 is in the first range and 67000 is in the second. A filter from one to the
-        // other, restricted to test codeunits, starts at 60962 and ends at 67000.
+        // other, restricted to test codeunits, starts at 60962 and ends at 67000. The name filter
+        // keeps the rows to these two codeunits, so a test codeunit that another file adds
+        // between them does not change the result (CONTRIBUTING.md, standing rule 3).
+        CodeunitMetadata.SetFilter(Name, '%1|%2', 'Test Codeunit Metadata Virt T', 'Test Second Id Range');
         CodeunitMetadata.SetRange(Subtype, CodeunitMetadata.Subtype::Test);
         CodeunitMetadata.SetRange(ID, Codeunit::"Test Codeunit Metadata Virt T", Codeunit::"Test Second Id Range");
 

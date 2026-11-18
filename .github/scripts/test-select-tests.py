@@ -321,50 +321,33 @@ def given_cases():
 
 
 def fixture_cases():
-    """Shared fixtures (CONTRIBUTING.md, standing rule 3): an edit beyond an addition is a full run; an additive edit also
-    runs the scan-blind codeunits (SCAN_BLIND)."""
+    """Shared fixtures (CONTRIBUTING.md, standing rule 3): every in-place edit of a file under tests/<app>/_fixtures/ (a
+    change, a deletion, a move out) is a full run of kind fixture-edit; a new fixture file is selected as usual."""
     fx = dict(BASE_FILES)
     fx['tests/main/_fixtures/FxTab.al'] = ('table 50006 "Fx Tab"\n{\n    fields\n    {\n        field(1; "No."; Integer) { }\n'
                                            '    }\n}\n')
     fx['tests/main/FxUser.al'] = ('codeunit 50030 "Uses Fx"\n{\n    Subtype = Test;\n    [Test]\n    procedure A()\n'
                                   '    var R: Record "Fx Tab";\n    begin end;\n}\n')
-    fx['tests/main/Meta.al'] = ('codeunit 50031 "Reads Field"\n{\n    Subtype = Test;\n    [Test]\n    procedure A()\n'
-                                '    var F: Record Field;\n    begin F.SetRange(TableNo, 50000, 50099); end;\n}\n')
-    fx['tests/main/OpenVar.al'] = ('codeunit 50032 "Opens By Id"\n{\n    Subtype = Test;\n    [Test]\n    procedure A()\n'
-                                   '    var RR: RecordRef; Id: Integer;\n    begin RR.Open(Id); end;\n}\n')
-    fx['tests/main/RunVar.al'] = ('codeunit 50033 "Runs By Id"\n{\n    Subtype = Test;\n    [Test]\n    procedure A()\n'
-                                  '    var Id: Integer;\n    begin Page.Run(Id); end;\n}\n')
-    fx['tests/main/OpenLit.al'] = ('codeunit 50034 "Opens Literal"\n{\n    Subtype = Test;\n    [Test]\n    procedure A()\n'
-                                   '    var RR: RecordRef;\n    begin RR.Open(18); Page.Run(Page::"X"); end;\n}\n')
-    objs = []
-    for p in ('tests/main/Meta.al', 'tests/main/OpenVar.al', 'tests/main/RunVar.al', 'tests/main/OpenLit.al'):
-        objs.extend(st.parse_al(p, fx[p]))
-    check('SCAN_BLIND: one codeunit per pattern (metadata table, Open of a variable, Run of a variable), not literal ids',
-          [[bool(p.search(o.text)) for p in st.SCAN_BLIND] for o in objs]
-          == [[True, False, False], [False, True, False], [False, False, True], [False, False, False]],
-          [[bool(p.search(o.text)) for p in st.SCAN_BLIND] for o in objs])
-
-    field = fx['tests/main/_fixtures/FxTab.al'].replace('(1; "No."; Integer) { }\n', '(1; "No."; Integer) { }\n'
-                                                       '        field(2; Note; Text[20]) { Caption = \'Note\'; }\n')
-    r = make({'tests/main/_fixtures/FxTab.al': field}, fx)
-    check('additive fixture edit: its users and every scan-blind codeunit', r['mode'] == 'subset'
-          and ids(r, 'tests/main') == [50030, 50031, 50032, 50033], r.get('reasons') or r['apps'])
-    r = make({'tests/main/_fixtures/FxTab.al': fx['tests/main/_fixtures/FxTab.al'].replace('Integer', 'Code[20]')}, fx)
-    check('fixture edit beyond an addition: full run of kind fixture-edit-other', r['mode'] == 'full'
-          and 'fixture-edit-other' in r['reason_kinds'], r['reasons'])
-    r = make({'tests/main/FxUser.al': fx['tests/main/FxUser.al'] + '\n'}, fx)
-    check('no fixture edit: no scan-blind codeunit', r['mode'] == 'subset' and ids(r, 'tests/main') == [50030], r)
-    real = st.fixture_check
-
-    def broken():
-        raise RuntimeError('boom')
-    st.fixture_check = broken
-    try:
-        r = make({'tests/main/_fixtures/FxTab.al': field}, fx)
-    finally:
-        st.fixture_check = real
-    check('fixture edit check failed: full run of kind fixture-check-failed', r['mode'] == 'full'
-          and r['reason_kinds'] == ['fixture-check-failed'], r['reasons'])
+    fx['tests/main/_fixtures/README.md'] = '# Fixtures\n'
+    tab = fx['tests/main/_fixtures/FxTab.al']
+    field = tab.replace('(1; "No."; Integer) { }\n', '(1; "No."; Integer) { }\n        field(2; Note; Text[20]) { }\n')
+    for name, changes in (('a field added', {'tests/main/_fixtures/FxTab.al': field}),
+                          ('a field type changed', {'tests/main/_fixtures/FxTab.al': tab.replace('Integer', 'Code[20]')}),
+                          ('only a comment added', {'tests/main/_fixtures/FxTab.al': tab + '// note\n'}),
+                          ('the file deleted', {'tests/main/_fixtures/FxTab.al': None}),
+                          ('the file moved out of _fixtures', {'tests/main/_fixtures/FxTab.al': None,
+                                                               'tests/main/FxTab.al': tab})):
+        r = make(changes, fx)
+        check('fixture edit, %s: full run of kind fixture-edit' % name, r['mode'] == 'full'
+              and 'fixture-edit' in r['reason_kinds'], [r['reason_kinds'], r['reasons']])
+    r = make({'tests/main/_fixtures/FxNew.al': 'table 50007 "Fx New"\n{\n}\n',
+              'tests/main/FxNewUser.al': ('codeunit 50031 "Uses Fx New"\n{\n    Subtype = Test;\n    [Test]\n'
+                                          '    procedure A()\n    var R: Record "Fx New";\n    begin end;\n}\n')}, fx)
+    check('a new fixture file is no in-place edit: selected as usual', r['mode'] == 'subset'
+          and ids(r, 'tests/main') == [50031], r.get('reasons') or r['apps'])
+    r = make({'tests/main/FxUser.al': fx['tests/main/FxUser.al'] + '\n', 'tests/main/_fixtures/README.md': '# Fixtures.\n'}, fx)
+    check('a user of a fixture and an ignored file under _fixtures: selected as usual', r['mode'] == 'subset'
+          and ids(r, 'tests/main') == [50030], r.get('reasons') or r['apps'])
     return fx
 
 
@@ -427,6 +410,15 @@ def reuse_cases(fx):
           and out.count('refused:') == 2, out)
     code, out = run('not json', s4)
     check('check-reuse: an input that cannot be read is refused', code == 1, out)
+    code, out = run({s0: {'tests/mian': '50012'}}, s1)
+    check('check-reuse: an app dir that is no test app reading the selection is refused', code == 1
+          and 'tests/mian' in out, out)
+    code, out = run({s0: {'tests/main': '50012,59999'}}, s1)
+    check('check-reuse: an id that is no runnable test codeunit at HEAD is refused', code == 1
+          and '59999' in out and '50012' not in out, out)
+    code, out = run({s0: {'tests/main': '50012,59999'}}, s3)
+    check('check-reuse: an unknown id is refused also when the span is a full run of a kind that does not count',
+          code == 1 and '59999' in out, out)
     one = st.Head(st.Git(repo), git(repo, 'rev-parse', s3))
     a, b = st.select(st.Git(repo), s0, s3, False, loaded=one), st.select(st.Git(repo), s0, s3, False)
     check('select with a loaded head gives the same result as without', a == b, (a, b))

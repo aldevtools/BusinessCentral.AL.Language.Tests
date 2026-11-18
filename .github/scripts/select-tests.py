@@ -22,9 +22,8 @@ What is selected, per test job of .github/workflows/ci.yml:
     publisher are selected for a changed subscriber (Graph.fires). A Manual subscriber runs only once bound, which names
     its codeunit. A subscriber that can run in any test (platform publisher, install or upgrade event, a publisher more
     than MAX_PUBLISHER_USERS test codeunits use, a name the scan cannot resolve) means a full run.
-  * shared fixtures (CONTRIBUTING.md, standing rule 3; check-fixture-edit.py classifies the edit): an edit that is an
-    allowed addition also selects every test codeunit that can read an object without naming it (SCAN_BLIND); any other
-    edit, or a failed check, means a full run.
+  * shared fixtures (CONTRIBUTING.md, standing rule 3): a change to a file the base already has under
+    tests/<app>/_fixtures/ (an edit, a deletion, a move out) means a full run. A new fixture file is selected as usual.
   * every job also runs one small test codeunit outside any #if (the sentinel): the reusable workflow fails a leg that
     ran no test at all, and a selected codeunit can be compiled out on an older BC version. The leg still compiles and
     publishes every app.
@@ -47,14 +46,14 @@ Every full-run reason has a kind (reason_kinds in --json, same order as reasons)
 --check-reuse (the al-runtime-rs corpus bump, ADR-077) asks whether results reused from an older commit still hold at
 HEAD: a JSON object {source commit: {test app dir: "ids"}}. A result of codeunit K from commit S holds at HEAD only when
 the selection of S..HEAD (two dots, no file cap) is a subset run that does not select K; a full-run reason of a kind in
-REUSE_KINDS does not count. The exit code is 1 when any result is refused (each is printed) or the check fails, else 0.
+REUSE_KINDS does not count. A test app dir that no job reads the selection of, a range, or an id that is no runnable test
+codeunit at HEAD is refused. The exit code is 1 when any result is refused (each is printed) or the check fails, else 0.
 
 Output: the step summary (--github: $GITHUB_STEP_SUMMARY), and the job output `subset` ($GITHUB_OUTPUT): a JSON object
 {test app dir: "id,id,..."}; {} means a full run. ci.yml passes the value as codeunit_range, or the job's full range
 when its key is missing. --json FILE writes the whole result (mode, reasons, per app selection with the why).
 """
 import argparse
-import importlib.util
 import io
 import json
 import os
@@ -63,12 +62,14 @@ import subprocess
 import sys
 import zipfile
 
-HERE = os.path.dirname(os.path.abspath(__file__))
 CI_YML = '.github/workflows/ci.yml'
 MAX_FILES = 50
 # The full-run reasons that do not make a reused result stale (--check-reuse): the file cap (a span of many merges passes
 # it, and --check-reuse computes the selection without it), and an empty diff or one that no test app reads.
 REUSE_KINDS = {'file-cap', 'nothing-to-select', 'no-changed-files'}
+
+# Shared fixtures (CONTRIBUTING.md, standing rule 3). A change to a file under one that the base already has is a full run.
+FIXTURE_FILE = re.compile(r'^tests/[^/]+/_fixtures/')
 
 # Paths outside the CI apps that no CI leg reads. A change to anything else outside the CI apps means a full run.
 IGNORED_OUTSIDE_APPS = (
@@ -125,24 +126,6 @@ GLOBAL_EVENT = re.compile(r'install|upgrade', re.I)
 # through "ALTFixtureCleanup". 40 is three times the largest narrow one and far below the shared ones.
 MAX_PUBLISHER_USERS = 40
 PREPROCESSOR_IF = re.compile(r'^\s*#if\b', re.I | re.M)
-# Test codeunits the name scan cannot tie to the objects they read (scan-blind): they name a metadata or system table
-# (AllObj, Field, Page Control Field, ..., or a table id 2000000000 and up), Open a RecordRef or Query by a value that is
-# no literal id, or Run a page, codeunit, report, xmlport or query by a variable. A shared fixture changed by an addition
-# also runs every one of them (CONTRIBUTING.md, standing rule 3). On master 2cf60e0e: 213, 81 and 103 test codeunits,
-# 367 in all.
-_META = (r'AllObj|AllObjWithCaption|Field|Key|Table Metadata|Page Metadata|Page Control Field|All Control Fields|'
-         r'Codeunit Metadata|CodeUnit Metadata|Report Metadata|Query Metadata|Table Information|Event Subscription|'
-         r'Application Object Metadata|Page Action|Table Field Types|Table Relations Metadata|Page Table Field|'
-         r'Report Data Items|Object|Object Metadata|Expanded Permission|Permission|Tenant Permission|Enum Metadata|'
-         r'Table Synch\. Setup|Database Key Groups|Page Info And Fields|Page Data Personalization|Api Web Service|'
-         r'Page Documentation')
-SCAN_BLIND = (
-    re.compile(r'\b(?:Record|Database\s*::|RecordRef|Query)\s+"?(?:%s)"?\s*(?:;|\)|,|temporary)|\bDatabase\s*::\s*"?(?:%s)"?'
-               r'(?![\w ])|\b20000000\d\d\b|\b2000000[12]\d\d\b' % (_META, _META), re.I),
-    re.compile(r'\.\s*Open\s*\(\s*(?!Database\s*::)(?!\d+\s*[,)])[A-Za-z_"]', re.I),
-    re.compile(r'\b(?:Page|Codeunit|Report|Xmlport|Query)\s*\.\s*(?:Run|RunModal|Execute|SaveAs\w*|Export|Import)\s*\(\s*'
-               r'(?!(?:Page|Codeunit|Report|Xmlport|Query)\s*::)(?!\d+\s*[,)])[A-Za-z_"]', re.I),
-)
 
 
 KIND_WORD = re.compile(r'\b(?:%s)\b' % '|'.join(KINDS), re.I)
@@ -478,16 +461,7 @@ class Head:
         self.runnable = runnable_fn(self.objs, self.test_apps)
         self.graph = Graph(self.objs, index, self.runnable,
                            lambda: microsoft_names(self.git, self.head, self.all_files, self.ci_apps))
-        self.scan_blind = [n for n, o in enumerate(self.objs) if self.runnable(n) and any(p.search(o.text) for p in SCAN_BLIND)]
         return self
-
-
-def fixture_check():
-    """check-fixture-edit.py, the owner of the fixture edit rule (CONTRIBUTING.md, standing rule 3)."""
-    spec = importlib.util.spec_from_file_location('check_fixture_edit', os.path.join(HERE, 'check-fixture-edit.py'))
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
 
 
 def select(git, base, head, merge_base=True, ci_text=None, max_files=MAX_FILES, loaded=None):
@@ -541,6 +515,10 @@ def select(git, base, head, merge_base=True, ci_text=None, max_files=MAX_FILES, 
         else:
             relevant.append(f)
     result['ignored_files'] = ignored
+    # shared fixtures (CONTRIBUTING.md, standing rule 3): a fixture file the base already has, changed, deleted or moved
+    edited = [f for f in relevant if FIXTURE_FILE.match(f)]
+    for f in sorted(git.read(base, edited)) if edited else ():
+        reasons.append(('fixture-edit', 'shared fixture changed in place (an edit, a deletion or a move): %s' % f))
     if max_files is not None and len(relevant) > max_files:
         reasons.append(('file-cap', '%d changed files in the test apps (more than %d)' % (len(relevant), max_files)))
     if reasons:
@@ -548,19 +526,6 @@ def select(git, base, head, merge_base=True, ci_text=None, max_files=MAX_FILES, 
     if not relevant:
         return full(result, ('nothing-to-select', 'no changed file in the test apps, so nothing to select'))
 
-    # shared fixtures (CONTRIBUTING.md, standing rule 3): an edit beyond an addition, or a failed check, is a full run
-    fixture_edits = []
-    if any(f.endswith('.al') for f in relevant):
-        try:
-            fixture_edits = fixture_check().classify(git, base, head)
-        except Exception as e:  # noqa: BLE001 - the edit could not be classified: run everything
-            reasons.append(('fixture-check-failed', 'the fixture edit check failed (%s: %s)' % (type(e).__name__, e)))
-        for r in fixture_edits:
-            if r['class'] != 'additive':
-                reasons.append(('fixture-edit-other', 'shared fixture changed beyond an addition (%s, %s): %s'
-                                % (r['path'], r['object'], r['reason'])))
-    if reasons:
-        return full(result, *reasons)
 
     h.load()
     texts, objs, by_path, runnable, graph = h.texts, h.objs, h.by_path, h.runnable, h.graph
@@ -646,12 +611,6 @@ def select(git, base, head, merge_base=True, ci_text=None, max_files=MAX_FILES, 
             app = runnable(n)
             if app and n not in why and not in_spans(base_ranges.get(app, []), int(objs[n].id)):
                 why[n] = 'brought into codeunit_range by the CI range edit in %s' % CI_YML
-    additive = [r for r in fixture_edits if r['class'] == 'additive']
-    if additive:
-        seen = '%s, %s' % (additive[0]['path'], additive[0]['object'])
-        for n in h.scan_blind:
-            if n not in why:
-                why[n] = 'can read an object without naming it (SCAN_BLIND), and a shared fixture changed by an addition: %s' % seen
     if not why:
         return full(result, ('nothing-to-select', 'nothing selected'))
 
@@ -1004,6 +963,26 @@ def summary(result):
     return '\n'.join(out) + '\n'
 
 
+def known_reuse(h, wanted):
+    """[refusal text] for reused results the check cannot place at HEAD: an app dir that is no test app whose job reads
+    the selection, a range instead of an id, or an id that is no runnable test codeunit of that app."""
+    wired = {d for d, jobs in h.test_apps.items() if any(j['key'] for j in jobs)}
+    refused = []
+    for src, apps in sorted(wanted.items()):
+        for app, sp in sorted(apps.items()):
+            if app not in wired:
+                refused.append('%s: %s is no test app whose job reads the selection' % (src[:10], app))
+                continue
+            h.load()
+            ids = {int(h.objs[n].id) for n in range(len(h.objs)) if h.runnable(n) == app}
+            for lo, hi in sp:
+                if lo != hi:
+                    refused.append('%s: %s %d..%d is a range; a reused result is listed by its id' % (src[:10], app, lo, hi))
+                elif lo not in ids:
+                    refused.append('%s: %s codeunit %d is no runnable test codeunit at HEAD' % (src[:10], app, lo))
+    return refused
+
+
 def check_reuse(git, head, text, ci_text=None):
     """--check-reuse: [refusal text] for reused results that HEAD may have made stale. text: {source commit: {test app
     dir: "ids"}}. A reused codeunit is refused when the selection of source..HEAD (two dots, no file cap) selects it, and
@@ -1017,7 +996,7 @@ def check_reuse(git, head, text, ci_text=None):
         return ['the --check-reuse input is not {source commit: {test app dir: "ids"}} (%s)' % e]
     head = git.rev(head)
     loaded = Head(git, head, ci_text)
-    refused = []
+    refused = known_reuse(loaded, wanted)
     for src in sorted(wanted):
         r = select(git, src, head, False, ci_text, max_files=None, loaded=loaded)
         span = '%s..%s' % (src[:10], head[:10])

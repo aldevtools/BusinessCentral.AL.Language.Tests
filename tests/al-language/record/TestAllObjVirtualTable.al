@@ -187,13 +187,18 @@ codeunit 60802 "Test AllObj Virtual Table"
         Initialize();
 
         // Tables 60028, 60029 and 60030 are three consecutive fixture tables, so the count is
-        // a concrete number rather than "more than zero".
+        // a concrete number rather than "more than zero". The name filter lists the four objects
+        // of 60028..60030 these counts are about, so an object that another file adds in that
+        // range does not change them (CONTRIBUTING.md, standing rule 3).
+        AllObj.SetFilter(
+            "Object Name", '%1|%2|%3|%4',
+            'ALT Relation Parent', 'ALT Relation Child', 'ALT Relation Parent B', 'ALT Event Mutation Control');
         AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
         AllObj.SetRange("Object ID", 60028, 60030);
         Assert.AreEqual(3, AllObj.Count(), 'The Table rows for object ids 60028..60030 are exactly three.');
 
         // The same id range under Object Type::Codeunit selects only 60030, the one codeunit
-        // in that span -- so the Object Type half of the filter is doing work.
+        // on the list -- so the Object Type half of the filter is doing work.
         AllObj.SetRange("Object Type", AllObj."Object Type"::Codeunit);
         Assert.AreEqual(1, AllObj.Count(), 'Exactly one codeunit is declared in the id range 60028..60030.');
         Assert.IsTrue(AllObj.FindFirst(), 'FindFirst must succeed for the one codeunit in the range.');
@@ -201,7 +206,9 @@ codeunit 60802 "Test AllObj Virtual Table"
             'ALT Event Mutation Control', AllObj."Object Name",
             'The one codeunit in the id range 60028..60030 is ALT Event Mutation Control.');
 
-        // And a range no object of that type occupies selects nothing.
+        // And a range no object of that type occupies selects nothing. No app may declare an id
+        // there, so this range needs no name filter.
+        AllObj.SetRange("Object Name");
         AllObj.SetRange("Object ID", 99999998, 99999999);
         Assert.AreEqual(0, AllObj.Count(), 'A range no object occupies must select no rows.');
         Assert.IsTrue(AllObj.IsEmpty(), 'IsEmpty must be true for a range no object occupies.');
