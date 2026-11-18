@@ -7,8 +7,8 @@
 //   do not cover: the set D365 BASIC (alone or with a second set), the writer, the extended table and the permission sets in
 //   another app (xapp-a), and the test method calling the writer directly (one test frame, no asserterror).
 // Shape: each test starts the mock if needed, clears the assignment, seeds, assigns, makes ONE call, clears the assignment and
-//   then reads the rows the call wrote. A call that raises is wrapped in asserterror (the rows read after it are the rolled
-//   back state).
+//   then reads the rows the call wrote. A call that raises is wrapped in asserterror; those tests assert only the error
+//   text and code (the rows read after the rollback are what earlier tests committed, so they are not asserted).
 // Measured on BC 27.5 and 28.5 (same result on both):
 // - Writer of xapp-a with Permissions = rimd and InherentPermissions 'i', D365 BASIC or a set of xapp-a that grants another
 //   table only: the insert succeeds. Same for the writer of this app (LT IA With Perms) with D365 BASIC.
@@ -18,6 +18,8 @@
 // - Table extension OnInsert of xapp-a that inserts into PERM XA Audit, the user granted RIMD on the extended table only: Insert
 //   raises "Sorry, the current permissions prevented the action. (TableData 95837 PERM XA Audit Insert: AL Language XApp A)",
 //   with and without D365 BASIC, for a base table with no property and one with DataClassification.
+// - Every permission error above has the code DB:ClientReadDenied (IndirectRead) or DB:ClientInsertDenied (Insert)
+//   (measured again on BC 27.5 with the call in asserterror).
 // - Composition: a set that includes a set that includes RIMD on Item B and excludes a set with Item B: Insert into Item B raises
 //   "... (TableData 95839 PERM XA Item B Insert: AL Language Coverage Tests)", with and without D365 BASIC; Insert into Item A
 //   succeeds. An exclusion in one assigned set does not remove the grant of another assigned set (Set Grants B, Assign Excludes
@@ -112,11 +114,9 @@ codeunit 91001 "PERM XApp Lowered"
         Observer.ObserveError('call');
         Mock.ClearAssignments();
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Observe('log', LogRows());
-        Observer.Observe('ia_row', IaRows());
-        Observer.Observe('audit', AuditRows());
-        Observer.Observe('item_b', ItemBRows());
-        Observer.Finish();
+        Observer.Expect('call|text', 'Sorry, the current permissions prevented the action. (TableData 95834 PERM XA Log IndirectRead: AL Language XApp A)');
+        Observer.Expect('call|code', 'DB:ClientReadDenied');
+        Observer.Verify();
     end;
 
     // 8066 No. Series shape: D365 BASIC plus a set that grants R on the table, Modify covered by lower-case m.
@@ -228,11 +228,9 @@ codeunit 91001 "PERM XApp Lowered"
         Observer.ObserveError('call');
         Mock.ClearAssignments();
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Observe('log', LogRows());
-        Observer.Observe('ia_row', IaRows());
-        Observer.Observe('audit', AuditRows());
-        Observer.Observe('item_b', ItemBRows());
-        Observer.Finish();
+        Observer.Expect('call|text', 'Sorry, the current permissions prevented the action. (TableData 97320 LT IA Row IndirectRead: AL Language Coverage Tests)');
+        Observer.Expect('call|code', 'DB:ClientReadDenied');
+        Observer.Verify();
     end;
 
     // 8093 reporter shape: D365 BASIC plus a set that grants the extended table; the table extension OnInsert of another app inserts into a third table; the base table declares no property.
@@ -256,11 +254,9 @@ codeunit 91001 "PERM XApp Lowered"
         Observer.ObserveError('call');
         Mock.ClearAssignments();
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Observe('log', LogRows());
-        Observer.Observe('ia_row', IaRows());
-        Observer.Observe('audit', AuditRows());
-        Observer.Observe('item_b', ItemBRows());
-        Observer.Finish();
+        Observer.Expect('call|text', 'Sorry, the current permissions prevented the action. (TableData 95837 PERM XA Audit Insert: AL Language XApp A)');
+        Observer.Expect('call|code', 'DB:ClientInsertDenied');
+        Observer.Verify();
     end;
 
     // 8093: only the set that grants the extended table; the base table declares no property.
@@ -283,11 +279,9 @@ codeunit 91001 "PERM XApp Lowered"
         Observer.ObserveError('call');
         Mock.ClearAssignments();
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Observe('log', LogRows());
-        Observer.Observe('ia_row', IaRows());
-        Observer.Observe('audit', AuditRows());
-        Observer.Observe('item_b', ItemBRows());
-        Observer.Finish();
+        Observer.Expect('call|text', 'Sorry, the current permissions prevented the action. (TableData 95837 PERM XA Audit Insert: AL Language XApp A)');
+        Observer.Expect('call|code', 'DB:ClientInsertDenied');
+        Observer.Verify();
     end;
 
     // 8093: D365 BASIC plus the set; the base table declares DataClassification only.
@@ -311,11 +305,9 @@ codeunit 91001 "PERM XApp Lowered"
         Observer.ObserveError('call');
         Mock.ClearAssignments();
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Observe('log', LogRows());
-        Observer.Observe('ia_row', IaRows());
-        Observer.Observe('audit', AuditRows());
-        Observer.Observe('item_b', ItemBRows());
-        Observer.Finish();
+        Observer.Expect('call|text', 'Sorry, the current permissions prevented the action. (TableData 95837 PERM XA Audit Insert: AL Language XApp A)');
+        Observer.Expect('call|code', 'DB:ClientInsertDenied');
+        Observer.Verify();
     end;
 
     // 8093: only the set; the base table declares DataClassification only.
@@ -338,11 +330,9 @@ codeunit 91001 "PERM XApp Lowered"
         Observer.ObserveError('call');
         Mock.ClearAssignments();
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Observe('log', LogRows());
-        Observer.Observe('ia_row', IaRows());
-        Observer.Observe('audit', AuditRows());
-        Observer.Observe('item_b', ItemBRows());
-        Observer.Finish();
+        Observer.Expect('call|text', 'Sorry, the current permissions prevented the action. (TableData 95837 PERM XA Audit Insert: AL Language XApp A)');
+        Observer.Expect('call|code', 'DB:ClientInsertDenied');
+        Observer.Verify();
     end;
 
     // 8092 reporter shape 1: the assigned set includes a set that includes a set and excludes the set that grants B.
@@ -365,11 +355,9 @@ codeunit 91001 "PERM XApp Lowered"
         Observer.ObserveError('call');
         Mock.ClearAssignments();
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Observe('log', LogRows());
-        Observer.Observe('ia_row', IaRows());
-        Observer.Observe('audit', AuditRows());
-        Observer.Observe('item_b', ItemBRows());
-        Observer.Finish();
+        Observer.Expect('call|text', 'Sorry, the current permissions prevented the action. (TableData 95839 PERM XA Item B Insert: AL Language Coverage Tests)');
+        Observer.Expect('call|code', 'DB:ClientInsertDenied');
+        Observer.Verify();
     end;
 
     // 8092 shape 1, the table the excluded set does not grant.
@@ -454,11 +442,9 @@ codeunit 91001 "PERM XApp Lowered"
         Observer.ObserveError('call');
         Mock.ClearAssignments();
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Observe('log', LogRows());
-        Observer.Observe('ia_row', IaRows());
-        Observer.Observe('audit', AuditRows());
-        Observer.Observe('item_b', ItemBRows());
-        Observer.Finish();
+        Observer.Expect('call|text', 'Sorry, the current permissions prevented the action. (TableData 95839 PERM XA Item B Insert: AL Language Coverage Tests)');
+        Observer.Expect('call|code', 'DB:ClientInsertDenied');
+        Observer.Verify();
     end;
 
     // 8092 shape 2 with D365 BASIC.

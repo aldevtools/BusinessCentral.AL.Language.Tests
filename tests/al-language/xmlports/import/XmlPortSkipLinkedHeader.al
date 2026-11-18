@@ -15,7 +15,12 @@
 // - Never skipped: the header row is kept, OnAfterInsertRecord runs before the lines ("HH1 hH1 L1(H1) L2(H1)").
 // - Two headers, the first skipped: all three lines stored, only H2 kept.
 // - A header with no lines and the line element at its default MinOccurs: Import raises "Imported XML cannot validate with the
-//   schema: The element 'Header' has incomplete content. List of possible elements expected: 'Line'."
+//   schema: The element 'Header' has incomplete content. List of possible elements expected: 'Line'." (error code
+//   XmlPortInvalidXml); no insert trigger of the port ran.
+// Measured on BC 27.5 only (the 28.5 leg did not publish locally), the line element optional (xmlport 91022):
+// - A header with no lines and the reporter's guard: the header's OnBeforeInsertRecord runs ("HH1"), Skip() drops it, no row.
+// - A header with no lines, never skipped: the temporary header row H1 is kept ("HH1 hH1").
+// - A header with two lines and the reporter's guard: the same as the default port ("HH1 L1(H1) L2(H1)", both lines stored).
 // BC versions: 27, 28, 29
 
 // local object: the test checks the rows an import of this exact table shape stores.
@@ -343,10 +348,11 @@ codeunit 91020 "XP Skip Linked Header"
         Port.SetSource(InS);
         asserterror Port.Import();
         Observer.ObserveError('no_lines|import');
-        Observer.Observe('no_lines|lines', LineRows());
-        Observer.Observe('no_lines|real_headers', RealHeaderRows());
         Observer.Observe('no_lines|trace', Port.GetTrace());
-        Observer.Finish();
+        Observer.Expect('no_lines|import|text', 'Imported XML cannot validate with the schema: The element ''Header'' has incomplete content. List of possible elements expected: ''Line''.');
+        Observer.Expect('no_lines|import|code', 'XmlPortInvalidXml');
+        Observer.Expect('no_lines|trace', '');
+        Observer.Verify();
     end;
 
     // The reporter's guard on a header with no lines, the line element optional: the schema accepts the header.
@@ -356,7 +362,11 @@ codeunit 91020 "XP Skip Linked Header"
         Observer: Codeunit "Probe Observer";
     begin
         RunTempOpt(Observer, 'opt_no_lines', 0, NoLinesTok);
-        Observer.Finish();
+        Observer.Expect('opt_no_lines|lines', '');
+        Observer.Expect('opt_no_lines|temp_headers', '');
+        Observer.Expect('opt_no_lines|real_headers', '');
+        Observer.Expect('opt_no_lines|trace', 'HH1');
+        Observer.Verify();
     end;
 
     // Control: the line element optional, a header with no lines, never skipped.
@@ -366,7 +376,11 @@ codeunit 91020 "XP Skip Linked Header"
         Observer: Codeunit "Probe Observer";
     begin
         RunTempOpt(Observer, 'opt_no_lines_never', 1, NoLinesTok);
-        Observer.Finish();
+        Observer.Expect('opt_no_lines_never|lines', '');
+        Observer.Expect('opt_no_lines_never|temp_headers', 'H1:First;');
+        Observer.Expect('opt_no_lines_never|real_headers', '');
+        Observer.Expect('opt_no_lines_never|trace', 'HH1 hH1');
+        Observer.Verify();
     end;
 
     // The line element optional, a header with two lines, the reporter's guard.
@@ -376,7 +390,11 @@ codeunit 91020 "XP Skip Linked Header"
         Observer: Codeunit "Probe Observer";
     begin
         RunTempOpt(Observer, 'opt_guard', 0, OneHeaderTwoLinesTok);
-        Observer.Finish();
+        Observer.Expect('opt_guard|lines', 'H1/1/5;H1/2/7;');
+        Observer.Expect('opt_guard|temp_headers', '');
+        Observer.Expect('opt_guard|real_headers', '');
+        Observer.Expect('opt_guard|trace', 'HH1 L1(H1) L2(H1)');
+        Observer.Verify();
     end;
 
     // A non-temporary header, always skipped.
