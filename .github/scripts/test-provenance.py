@@ -27,7 +27,7 @@ FAILED = []
 
 
 def check(name, cond, detail=''):
-    print('%s %s%s' % ('ok  ' if cond else 'FAIL', name, '' if cond else ': %s' % detail))
+    print('%s %s%s' % ('ok  ' if cond else 'FAIL', name, '' if cond else ': %s' % (detail,)))
     if not cond:
         FAILED.append(name)
 
@@ -56,6 +56,10 @@ def suites_of(path):
 
 
 REL = pv.RELEASED + '/sandbox/indexes/w1.json'
+
+
+def U(build):
+    return pv.RELEASED + '/sandbox/%s/w1' % build
 INS = pv.INSIDER + '/sandbox/indexes/w1.json'
 
 
@@ -80,6 +84,9 @@ def main():
     check('newest: numeric order, not text order', pv.newest(idx, '27.5') == '27.5.10.0', pv.newest(idx, '27.5'))
     check('newest: 27.5 does not match 27.50', pv.newest([{'Version': '27.50.1.0'}], '27.5') is None)
     check('newest: none', pv.newest(idx, '26.0') is None)
+    check('newest: only four groups of ASCII digits', pv.newest(
+        [{'Version': '27.5.9.9\n'}, {'Version': '27.5.1_0.0'}, {'Version': '27.5.٣.0'}, {'Version': '27.5.1'},
+         {'Version': 27.5}, {'Version': '27.5.2.0'}], '27.5') == '27.5.2.0')
 
     f = fake({REL: idx})
     url, build = pv.resolve_one('27.5', fetch=f, pause=0)
@@ -91,13 +98,33 @@ def main():
           pv.resolve_one('30.0', fetch=f, pause=0) == (pv.INSIDER + '/sandbox/30.0.2.0/w1', '30.0.2.0'))
 
     f = fake({REL: OSError('timeout'), INS: [{'Version': '27.5.3.0'}]})
-    check('resolve: a released index error tries the insider storage',
-          pv.resolve_one('27.5', fetch=f, pause=0) == (pv.INSIDER + '/sandbox/27.5.3.0/w1', '27.5.3.0'))
+    err = raises(lambda: pv.resolve_one('27.5', fetch=f, pause=0))
+    check('resolve: a released index error is retried, never answered from the insider storage',
+          err and '27.5.x' in err and f.calls == [REL, REL, REL], (err, f.calls))
+
+    answers = [OSError('timeout'), [{'Version': '27.5.4.0'}]]
+
+    def flaky(url):
+        flaky.calls.append(url)
+        a = answers.pop(0)
+        if isinstance(a, Exception):
+            raise a
+        return a
+    flaky.calls = []
+    check('resolve: a released index error, then the released index on the next attempt',
+          pv.resolve_one('27.5', fetch=flaky, pause=0) == (pv.RELEASED + '/sandbox/27.5.4.0/w1', '27.5.4.0')
+          and flaky.calls == [REL, REL], flaky.calls)
+
+    f = fake({REL: [{'Version': '28.5.1.0'}], INS: OSError('timeout')})
+    err = raises(lambda: pv.resolve_one('27.5', fetch=f, pause=0))
+    check('resolve: an insider index error is retried', err and f.calls == [REL, INS] * 3, f.calls)
 
     f = fake({REL: [{'Version': '28.5.1.0'}], INS: []})
     err = raises(lambda: pv.resolve_one('27.5', fetch=f, pause=0))
     check('resolve: no build anywhere is an error', err and '::error' in err and '27.5.x' in err, err)
-    check('resolve: three attempts on both storages', len(f.calls) == 6, f.calls)
+    check('resolve: both indexes read without the minor: no second attempt', f.calls == [REL, INS], f.calls)
+    check('resolve: an artifact URL without a full build is an error',
+          raises(lambda: pv.build_of(pv.RELEASED + '/sandbox/29.0/w1')) and raises(lambda: pv.build_of('')))
 
     for v in ('29.0', '29.1'):
         f = fake({})
@@ -120,7 +147,7 @@ def main():
     with tempfile.TemporaryDirectory() as d:
         p = os.path.join(d, 'junit-al-language.xml')
         junit(p, [50001, 50002])
-        n = pv.stamp(p, '100', '1', 'abc', '27.5.10.0', 'full')
+        n = pv.stamp(p, '100', '1', 'abc', U('27.5.10.0'), 'full')
         s = suites_of(p)
         first = list(s['Codeunit 50001'])[0]
         check('stamp: every suite stamped', n == 2, n)
@@ -131,10 +158,10 @@ def main():
         check('stamp: the suite timestamp is unchanged', s['Codeunit 50001'].get('timestamp') == '2026-11-01T04:00:00Z')
         check('stamp: the test case is kept', s['Codeunit 50001'].find('testcase').get('name') == 'T50001')
 
-        n = pv.stamp(p, '100', '2', 'abc', '27.5.10.0', 'full')
+        n = pv.stamp(p, '100', '2', 'abc', U('27.5.10.0'), 'full')
         check('stamp: an earlier stamp of the run is kept', n == 0
               and pv.provenance(suites_of(p)['Codeunit 50001'])['source_attempt'] == '1')
-        err = raises(lambda: pv.stamp(p, '100', '2', 'abc', '27.5.11.0', 'full'))
+        err = raises(lambda: pv.stamp(p, '100', '2', 'abc', U('27.5.11.0'), 'full'))
         check('stamp: another build is an error', err and 'was run on BC 27.5.10.0' in err, err)
 
         q = os.path.join(d, 'other.xml')
@@ -144,7 +171,7 @@ def main():
         ET.SubElement(props, 'property', {'name': 'codeunit', 'value': '50003'})
         t.getroot().find('testsuite').insert(0, props)
         t.write(q, encoding='unicode', xml_declaration=True)
-        pv.stamp(q, '100', '1', 'abc', '27.5.10.0', 'full')
+        pv.stamp(q, '100', '1', 'abc', U('27.5.10.0'), 'full')
         got = suites_of(q)['Codeunit 50003'].find('properties')
         check('stamp: an existing <properties> keeps its properties and gets the five',
               [x.get('name') for x in got] == ['codeunit'] + list(pv.PROPS), [x.get('name') for x in got])
@@ -153,22 +180,30 @@ def main():
         pr = t.getroot().find('testsuite').find('properties')
         pr.remove([x for x in pr if x.get('name') == 'app'][0])
         t.write(q, encoding='unicode', xml_declaration=True)
-        err = raises(lambda: pv.stamp(q, '100', '1', 'abc', '27.5.10.0', 'full'))
+        err = raises(lambda: pv.stamp(q, '100', '1', 'abc', U('27.5.10.0'), 'full'))
         check('stamp: a partial stamp is an error', err and 'only' in err, err)
-        check('stamp: an empty build is an error', raises(lambda: pv.stamp(p, '100', '1', 'abc', '', 'full')))
+        check('stamp: an artifact URL without a build is an error',
+              raises(lambda: pv.stamp(p, '100', '1', 'abc', U(''), 'full')))
+        empty = os.path.join(d, 'empty.xml')
+        junit(empty, [])
+        check('stamp: a file without a codeunit is an error',
+              'no <testsuite>' in (raises(lambda: pv.stamp(empty, '100', '1', 'abc', U('27.5.10.0'), 'full')) or ''))
+        ET.ElementTree(ET.Element('testsuite', {'name': 'x'})).write(empty, encoding='unicode', xml_declaration=True)
+        check('stamp: a root that is not <testsuites> is an error',
+              raises(lambda: pv.stamp(empty, '100', '1', 'abc', U('27.5.10.0'), 'full')))
         check('stamp: app other than full or partial is an error',
-              raises(lambda: pv.stamp(p, '100', '1', 'abc', '27.5.10.0', 'mixed')))
+              raises(lambda: pv.stamp(p, '100', '1', 'abc', U('27.5.10.0'), 'mixed')))
 
         # Re-run failed jobs: the earlier merged (stamped) file plus the re-run shard's file; the merge replaces the
         # re-run codeunit, the stamp gives only that one the new attempt.
         merged1 = os.path.join(d, 'merged1.xml')
         junit(merged1, [60001, 60002])
-        pv.stamp(merged1, '200', '1', 'def', '28.5.1.0', 'full')
+        pv.stamp(merged1, '200', '1', 'def', U('28.5.1.0'), 'full')
         rerun = os.path.join(d, 'rerun.xml')
         junit(rerun, [60002], stamp_ts='2026-11-01T05:00:00Z')
         out = os.path.join(d, 'merged2.xml')
         cs.merge([merged1, rerun], out)
-        pv.stamp(out, '200', '2', 'def', '28.5.1.0', 'full')
+        pv.stamp(out, '200', '2', 'def', U('28.5.1.0'), 'full')
         s = suites_of(out)
         check('re-run: the kept codeunit keeps attempt 1',
               pv.provenance(s['Codeunit 60001'])['source_attempt'] == '1')
@@ -188,7 +223,7 @@ def main():
                 os.makedirs(os.path.join(d, v, folder), exist_ok=True)
                 p = os.path.join(d, v, folder, name)
                 junit(p, cus)
-                pv.stamp(p, '300', '1', 'sha', build, 'full')
+                pv.stamp(p, '300', '1', 'sha', U(build), 'full')
 
     with tempfile.TemporaryDirectory() as d:
         tree(d)
@@ -209,7 +244,7 @@ def main():
         later = os.path.join(d, '27.5', '2026-11-18T02:00:00Z-9')
         os.makedirs(later)
         junit(os.path.join(later, 'junit-al-language.xml'), [50001, 50002, 50003])
-        pv.stamp(os.path.join(later, 'junit-al-language.xml'), '300', '1', 'sha', '27.5.10.0', 'full')
+        pv.stamp(os.path.join(later, 'junit-al-language.xml'), '300', '1', 'sha', U('27.5.10.0'), 'full')
         out, errors = pv.manifest(versions, jobs, '300', '1', 'sha', 'push', d)
         check('manifest: the later artifact wins', out['versions']['27.5']['legs']['junit-al-language.xml']['fresh'] == 3)
 
@@ -224,16 +259,35 @@ def main():
         tree(d)
         p = os.path.join(d, '27.5', '2026-11-18T01:00:00Z-1', 'junit-al-language.xml')
         junit(p, [50001])
-        pv.stamp(p, '300', '1', 'sha', '27.5.9.0', 'full')
+        pv.stamp(p, '300', '1', 'sha', U('27.5.9.0'), 'full')
         _, errors = pv.manifest(versions, jobs, '300', '1', 'sha', 'push', d)
         check('manifest: a suite of another build is an error', any('Codeunit 50001' in e for e in errors), errors)
         junit(p, [50001])
         _, errors = pv.manifest(versions, jobs, '300', '1', 'sha', 'push', d)
         check('manifest: an unstamped suite is an error', any('missing' in e for e in errors), errors)
         junit(p, [50001])
-        pv.stamp(p, '299', '1', 'sha', '27.5.10.0', 'full')
+        pv.stamp(p, '299', '1', 'sha', U('27.5.10.0'), 'full')
         _, errors = pv.manifest(versions, jobs, '300', '1', 'sha', 'push', d)
         check('manifest: a suite of another run is an error (no reuse yet)', any('299' in e for e in errors), errors)
+        junit(p, [50001])
+        pv.stamp(p, '300', '1', 'other', U('27.5.10.0'), 'full')
+        _, errors = pv.manifest(versions, jobs, '300', '1', 'sha', 'push', d)
+        check('manifest: a suite of another commit is an error', any("'other'" in e for e in errors), errors)
+        junit(p, [])
+        _, errors = pv.manifest(versions, jobs, '300', '1', 'sha', 'push', d)
+        check('manifest: a leg without a codeunit is an error', any('no codeunit of this run' in e for e in errors),
+              errors)
+
+    # ---- check-manifest ----
+    man = {'schema': 1, 'run_id': 300, 'run_attempt': 1, 'commit': 'sha'}
+    run = {'id': 300, 'run_attempt': 1, 'head_sha': 'sha', 'status': 'completed', 'conclusion': 'success'}
+    check('check-manifest: the latest attempt of a green run counts', pv.check_manifest(man, run) == [])
+    for label, change in (('a later attempt exists', {'run_attempt': 2}), ('the run is red', {'conclusion': 'failure'}),
+                          ('the run is cancelled', {'conclusion': 'cancelled'}),
+                          ('the run still runs', {'status': 'in_progress', 'conclusion': None}),
+                          ('another run', {'id': 301}), ('another commit', {'head_sha': 'x'})):
+        check('check-manifest: does not count when %s' % label, pv.check_manifest(man, dict(run, **change)) != [])
+    check('check-manifest: another schema does not count', pv.check_manifest(dict(man, schema=2), run) != [])
 
     # ---- the real workflows ----
     ci = (HERE.parent / 'workflows' / 'ci.yml').read_text()
@@ -242,8 +296,7 @@ def main():
     check('real ci.yml: no artifact URL is written in the test jobs', 'bcartifacts' not in ci and 'bcinsider' not in ci)
     check('real ci.yml: every leg takes the resolved URL',
           len(re.findall(r'^\s+bc_artifact_url:\s+\$\{\{ matrix\.bc_artifact_url \}\}$', ci, re.M)) == calls, calls)
-    check('real ci.yml: every leg takes the resolved build',
-          len(re.findall(r'^\s+bc_build:\s+\$\{\{ matrix\.bc_build \}\}$', ci, re.M)) == calls, calls)
+    check('real ci.yml: no leg passes the build apart from its URL', 'bc_build:' not in ci)
     check('real ci.yml: the prepare job resolves the builds', 'provenance.py resolve' in ci)
     check('real ci.yml: a manifest job on push runs provenance.py manifest and uploads results-manifest',
           re.search(r'^  manifest:\n(?:    .*\n|\n)*?    if: .*github\.event_name == .push.', ci, re.M) is not None
@@ -254,8 +307,11 @@ def main():
     check('real ci.yml: the manifest job needs every test job and prepare',
           needs and set(x.strip() for x in needs.group(1).split(',')) == {'prepare'} | {j['job'] for j in real_jobs},
           needs and needs.group(1))
-    check('real bc-leg.yml: has the bc_build input and stamps the leg file',
-          re.search(r'^      bc_build:', leg, re.M) is not None and 'provenance.py stamp' in leg)
+    check('real bc-leg.yml: the artifact URL is required and the stamp takes the build from it',
+          re.search(r'^      bc_artifact_url:\s+\{type: string, required: true\}', leg, re.M) is not None
+          and 'bc_build' not in leg and '--bc-artifact-url "$BC_ARTIFACT_URL"' in leg)
+    check('real workflows: every artifact download goes through run-artifacts.sh',
+          'run-artifacts.sh' in leg and 'run-artifacts.sh' in ci and '/zip' not in leg and '/zip' not in ci)
 
     if FAILED:
         raise SystemExit('%d check(s) failed: %s' % (len(FAILED), FAILED))

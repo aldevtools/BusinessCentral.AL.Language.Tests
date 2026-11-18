@@ -284,8 +284,9 @@ jobs:
           fi || { echo "::warning title=Test selection::select-tests.py failed; every test runs"; echo 'subset={}' >> "$GITHUB_OUTPUT"; }
 
       - id: set
+        env:
+          OVERRIDE: ${{ github.event.inputs.bc_version }}
         run: |
-          OVERRIDE='${{ github.event.inputs.bc_version }}'
           if [ -n "$OVERRIDE" ]; then
             MAJOR=$(echo "$OVERRIDE" | cut -d. -f1)
             SYMS=""
@@ -294,7 +295,7 @@ jobs:
               SYMS="${SYMS:+$SYMS,}BC${v}PLUS"
             done
             case "$MAJOR" in 27) RT=16.1;; 28) RT=17.1;; *) RT=18.0;; esac
-            JSON=$(python3 -c "import json; print(json.dumps({'include':[{'bc_version':'$OVERRIDE','runtime':'$RT','preprocessor_symbols':'$SYMS'}]}))")
+            JSON=$(python3 -c 'import json,sys; v,rt,s=sys.argv[1:]; print(json.dumps({"include":[{"bc_version":v,"runtime":rt,"preprocessor_symbols":s}]}))' "$OVERRIDE" "$RT" "$SYMS")
           else
             # The newest minor of each major: al-runtime-rs reads these legs as its oracle.
             # Use the bc_version input to run another minor.
@@ -364,7 +365,6 @@ jobs:
       runtime_version:      ${{ matrix.runtime }}
       # The build the prepare job resolved for this version, the same for every shard (provenance.py resolve).
       bc_artifact_url:      ${{ matrix.bc_artifact_url }}
-      bc_build:             ${{ matrix.bc_build }}
       # Creating a company creates its tables, including Base Application's
       # OptimizeForTextSearch indexes, so a test that inserts a Company needs SQL Server
       # Full-Text Search. No official SQL Server Linux image ships it; this tag adds it
@@ -459,7 +459,6 @@ jobs:
       runtime_version:      ${{ matrix.runtime }}
       # The build the prepare job resolved for this version, the same for every shard (provenance.py resolve).
       bc_artifact_url:      ${{ matrix.bc_artifact_url }}
-      bc_build:             ${{ matrix.bc_build }}
       # Full-text search: a table with OptimizeForTextSearch = true needs it to install (corpus #633).
       sql_image:            "ghcr.io/aldevtools/msdyn365bc.on.linux/mssql:2022-fts"
       # RDLC rendering for the OnPrem SaveAs* file forms: see the test job above.
@@ -509,7 +508,6 @@ jobs:
       runtime_version:      ${{ matrix.runtime }}
       # The build the prepare job resolved for this version, the same for every shard (provenance.py resolve).
       bc_artifact_url:      ${{ matrix.bc_artifact_url }}
-      bc_build:             ${{ matrix.bc_build }}
       # Full-text search: a table with OptimizeForTextSearch = true needs it to install (corpus #633).
       sql_image:            "ghcr.io/aldevtools/msdyn365bc.on.linux/mssql:2022-fts"
 
@@ -587,7 +585,6 @@ jobs:
       runtime_version:      ${{ matrix.runtime }}
       # The build the prepare job resolved for this version, the same for every shard (provenance.py resolve).
       bc_artifact_url:      ${{ matrix.bc_artifact_url }}
-      bc_build:             ${{ matrix.bc_build }}
       # Full-text search: al-language has tables with OptimizeForTextSearch = true (corpus #633).
       sql_image:            "ghcr.io/aldevtools/msdyn365bc.on.linux/mssql:2022-fts"
       # RDLC rendering: see the test job above (al-language holds RDLC reports).
@@ -639,15 +636,16 @@ jobs:
       runtime_version:      ${{ matrix.runtime }}
       # The build the prepare job resolved for this version, the same for every shard (provenance.py resolve).
       bc_artifact_url:      ${{ matrix.bc_artifact_url }}
-      bc_build:             ${{ matrix.bc_build }}
       sql_image:            "ghcr.io/aldevtools/msdyn365bc.on.linux/mssql:2022-fts"
       rdlc_renderer:        true
       rdlc_trust_layouts:   true
 
   # The results manifest of a green master run (CONTRIBUTING.md, "BC build and result provenance"): one JSON file, the
   # artifact results-manifest, that names the run, its commit and, per BC version, the build and the codeunits of each
-  # leg. al-runtime-rs reads it when it takes this run's JUnit files as its oracle. It runs only when every leg succeeded,
-  # so a run that has it is green. Pull request runs and dispatched runs do not write it.
+  # leg. al-runtime-rs reads it when it takes this run's JUnit files as its oracle. It runs only when every leg succeeded.
+  # A later attempt of the run (a re-run) replaces the legs' files and, when it ends red, skips this job, so the
+  # manifest of the earlier attempt stays: a manifest counts only for the run's latest attempt with conclusion success
+  # (provenance.py check-manifest). Pull request runs and dispatched runs do not write it.
   manifest:
     name: Results manifest
     needs: [prepare, test, test-onprem, test-onprem-dotnet, test-testlibraries, test-trywrite-allowed]
@@ -671,13 +669,7 @@ jobs:
         run: |
           set -euo pipefail
           for v in $(python3 -c 'import json,sys; print(" ".join(e["bc_version"] for e in json.loads(sys.argv[1])["include"]))' "$MATRIX"); do
-            gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?per_page=100" \
-              --jq ".artifacts[] | select(.name == \"junit-test-results-$v\" and (.expired | not)) | \"\(.created_at)-\(.id) \(.id)\"" |
-            while read -r folder id; do
-              d="legs/$v/$folder"; mkdir -p "$d"
-              gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$id/zip" > "$d/a.zip"
-              unzip -o -q "$d/a.zip" -d "$d"; rm "$d/a.zip"
-            done
+            bash .github/scripts/run-artifacts.sh "junit-test-results-$v" "legs/$v" > /dev/null
           done
       - name: Write the manifest
         env:

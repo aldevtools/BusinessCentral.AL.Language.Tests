@@ -437,7 +437,7 @@ python3 .github/scripts/ci-shards.py plan --ci-yml .github/workflows/ci.yml --fi
 
 al-runtime-rs takes the JUnit files of a green master run as its oracle. These files now say which BC build produced each result, and a green master run writes a manifest of its results.
 
-- **One build per version and run.** The `prepare` job resolves the BC build of each version once (`provenance.py resolve`). For a short version like `27.5` it takes the newest `27.5.x` build from Microsoft's index file, the same way bc-linux does: the released storage first, then the insider storage. A full build like `28.5.54151.58194` is used as it is. Every leg and shard of the run gets the same `bc_artifact_url` and `bc_build` from the matrix. Before, each shard resolved the newest build on its own, so two shards of one run could run different builds when Microsoft published a build during the run. The job summary of `prepare` lists the builds. When a version has no build in either index, `prepare` fails and no BC container starts.
+- **One build per version and run attempt.** The `prepare` job resolves the BC build of each version once (`provenance.py resolve`). For a short version like `27.5` it takes the newest `27.5.x` build from Microsoft's index file, the same way bc-linux does: the released storage, and the insider storage only when the released index was read and has no build of the minor. A read error is retried; it never moves the run to an insider build. A full build like `28.5.54151.58194` is used as it is. Every leg and shard of the run gets the same `bc_artifact_url` from the matrix; the matrix also carries `bc_build` for the job summary and the manifest. Before, each shard resolved the newest build on its own, so two shards of one run could run different builds when Microsoft published a build during the run. The job summary of `prepare` lists the builds. When a version has no build in either index, `prepare` fails and no BC container starts. **Re-run failed jobs** keeps the builds of the first attempt. **Re-run all jobs** resolves again, so one attempt can run another build than the attempt before it. A codeunit that keeps the stamp of an earlier attempt must name the same build, or the merging job fails.
 - **The BC 29 pin.** `PINNED` in `provenance.py` holds the artifact URL that every `29.x` version uses, with the reason (#561). It used to be written into each test job of `ci.yml`.
 - **Provenance in the JUnit file.** The merging job of each leg (`bc-leg.yml`) gives every `<testsuite>` (one per codeunit) a `<properties>` element (`provenance.py stamp`):
 
@@ -445,18 +445,21 @@ al-runtime-rs takes the JUnit files of a green master run as its oracle. These f
   |---|---|
   | `source_run` | the run that ran the codeunit on BC |
   | `source_attempt` | the attempt of that run in which the merging job first wrote the codeunit |
-  | `source_commit` | the commit of that run |
-  | `bc_build` | the full BC build |
+  | `source_commit` | the commit of that run; on a pull request run, the temporary merge commit GitHub made for it |
+  | `bc_build` | the full BC build, taken from the artifact URL the leg's shards ran |
   | `app` | `full`: the run published the full test app |
 
   After **Re-run failed jobs**, a codeunit that the earlier attempt stamped keeps its stamp; a codeunit of a re-run shard gets the new attempt. The test results and the timestamps do not change.
-- **Results manifest.** When every leg of a push run (master) succeeded, the job `manifest` writes `results-manifest.json` and uploads it as the artifact `results-manifest` (`provenance.py manifest`). It names the run, the attempt, the commit and, per BC version, the build, the artifact URL and, per leg, the number of codeunits. The job fails when a leg has no JUnit file or a codeunit lacks this run's provenance or names another build. Pull request runs and dispatched runs do not write a manifest.
+- **Results manifest.** When every leg of a push run (master) succeeded, the job `manifest` writes `results-manifest.json` and uploads it as the artifact `results-manifest` (`provenance.py manifest`). It names the run, the attempt, the commit and, per BC version, the build, the artifact URL and, per leg, the number of codeunits. The job fails when a leg has no JUnit file or no codeunit, or a codeunit lacks this run's provenance (run, commit, `app` full) or names another build. Pull request runs and dispatched runs do not write a manifest.
+- **When a manifest counts.** Only for the run's latest attempt, and only when the run's conclusion is success. A later attempt (**Re-run all jobs**, or a re-run of one job) replaces the legs' JUnit files; when it ends red, the job `manifest` is skipped and the manifest of the earlier attempt stays. Every reader checks this with `provenance.py check-manifest --manifest results-manifest.json --run-json run.json`, where `run.json` is `gh api repos/<repo>/actions/runs/<run id>`.
+- **Downloads.** The merging job and the job `manifest` download the run's artifacts with `.github/scripts/run-artifacts.sh`. A download that answers HTTP 404 is skipped: another leg's merging job deleted that shard artifact after the listing. Every other failure fails the job.
 
 To see the builds a run would use, and to check a JUnit file:
 
 ```bash
 python3 .github/scripts/provenance.py resolve --versions '{"include":[{"bc_version":"27.5"},{"bc_version":"28.5"},{"bc_version":"29.0"}]}'
-python3 .github/scripts/provenance.py stamp --run 1 --attempt 1 --commit HEAD --bc-build 27.5.0.0 --app full /tmp/junit-al-language.xml
+python3 .github/scripts/provenance.py stamp --run 1 --attempt 1 --commit HEAD --app full \
+  --bc-artifact-url https://bcartifacts-exdbf9fwegejdqak.b02.azurefd.net/sandbox/27.5.0.0/w1 /tmp/junit-al-language.xml
 ```
 
 ## Pull request checklist

@@ -35,9 +35,8 @@ on:
       preprocessor_symbols:   {type: string, default: ""}
       al_tool_version:        {type: string, default: ""}
       runtime_version:        {type: string, default: ""}
-      bc_artifact_url:        {type: string, default: ""}
-      # The full build bc_artifact_url points to (ci.yml prepare, provenance.py resolve); written into every suite.
-      bc_build:               {type: string, required: true}
+      # The build every shard of the leg runs (ci.yml prepare, provenance.py resolve); the stamp takes the build from it.
+      bc_artifact_url:        {type: string, required: true}
       sql_image:              {type: string, default: ""}
       timeout_minutes:        {type: number, default: 45}
       test_timeout_minutes:   {type: number, default: 30}
@@ -106,32 +105,27 @@ jobs:
           NAME: junit-test-results-${{ inputs.bc_version }}
           TEST_APP_DIRS: ${{ inputs.test_app_dirs }}
           SHARDS: ${{ inputs.shards }}
-          BC_BUILD: ${{ inputs.bc_build }}
+          BC_ARTIFACT_URL: ${{ inputs.bc_artifact_url }}
         run: |
           set -euo pipefail
           xml="junit-$(basename "$(printf '%s\n' "$TEST_APP_DIRS" | sed '/^$/d' | head -n 1)").xml"
           n=$(python3 -c 'import json,sys; s=sys.argv[1]; print(1 if s == "null" else len(json.loads(s)))' "$SHARDS")
           echo "xml=$xml" >> "$GITHUB_OUTPUT"
           [ "$n" -gt 0 ] || { echo "no shard planned: nothing to merge"; exit 0; }
-          mkdir -p shards merged
-          # This run's artifacts of this leg: the name is shared by every test app of the BC version, so keep those that
-          # hold this app's JUnit file. Oldest first: a later one (a re-run shard) wins in the merge.
-          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?per_page=100" \
-            --jq ".artifacts[] | select(.name == \"$NAME\") | \"\(.created_at) \(.id)\"" | sort | while read -r _ id; do
-            d="shards/$id"; mkdir -p "$d"
-            gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$id/zip" > "$d/a.zip"
-            if unzip -o -q "$d/a.zip" "$xml" -d "$d" 2>/dev/null; then echo "$id" >> ids.txt; else rm -rf "$d"; fi
-          done
-          touch ids.txt
+          mkdir -p merged
+          # This run's artifacts of this leg, oldest first: a later one (a re-run shard) wins in the merge. The name is
+          # shared by every test app of the BC version, so only those that hold this app's JUnit file are kept.
+          bash .github/scripts/run-artifacts.sh "$NAME" shards "$xml" > folders.txt
+          sed 's/.*-//' folders.txt > ids.txt
           count=$(grep -c . ids.txt || true)
           echo "artifacts of this leg: $count (shards planned: $n)"
           if [ "$count" -eq 0 ]; then echo "::warning::no JUnit artifact of this leg"; exit 0; fi
-          files=(); while read -r id; do files+=("shards/$id/$xml"); done < ids.txt
+          files=(); while read -r f; do files+=("shards/$f/$xml"); done < folders.txt
           python3 .github/scripts/ci-shards.py merge --out "merged/$xml" "${files[@]}"
           # Where each codeunit's result came from (CONTRIBUTING.md, "BC build and result provenance"). A codeunit that
           # an earlier attempt of this run stamped keeps its stamp.
           python3 .github/scripts/provenance.py stamp --run "$GITHUB_RUN_ID" --attempt "$GITHUB_RUN_ATTEMPT" \
-            --commit "$GITHUB_SHA" --bc-build "$BC_BUILD" --app full "merged/$xml"
+            --commit "$GITHUB_SHA" --bc-artifact-url "$BC_ARTIFACT_URL" --app full "merged/$xml"
           python3 - "merged/$xml" <<'EOF' >> "$GITHUB_STEP_SUMMARY"
           import sys, xml.etree.ElementTree as ET
           r = ET.parse(sys.argv[1]).getroot()
