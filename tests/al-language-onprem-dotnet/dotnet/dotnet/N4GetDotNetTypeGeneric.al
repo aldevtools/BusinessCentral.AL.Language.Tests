@@ -13,8 +13,8 @@
 //     'System.Collections.Generic.Dictionary`2', Name 'Dictionary`2', Format 'System.Collections.Generic.Dictionary`2[TKey,TValue]',
 //     IsGenericTypeDefinition Yes. An assigned Dictionary`2 variable gives the same values.
 //   - The Microsoft pattern runs: GetDotNetType of an unassigned DotNet String variable is System.Object here, so MakeGenericType builds
-//     Dictionary`2[System.Object,System.Int32]; its FullName names System.Private.CoreLib Version=8.0.0.0 on 27.5 and 28.5 and
-//     Version=10.0.0.0 on 29.0 (#if BC29PLUS).
+//     Dictionary`2[System.Object,System.Int32]; its FullName names System.Private.CoreLib Version=8.0.0.0 on the .NET 8 builds of 27.5
+//     and 28.5 and Version=10.0.0.0 on 29.0 (#if BC29PLUS) and on the .NET 10 builds of 27.5 and 28.5 (ALT Platform Build, CI 2026-11-17).
 // BC versions: 27.5, 28.5, 29.0
 dotnet
 {
@@ -138,13 +138,17 @@ codeunit 99009 "N4 GetDotNetType Generic"
     procedure N4_GetDotNetType_MakeGenericType_MicrosoftPattern()
     var
         Shown: Text;
+        PlatformBuild: Codeunit "ALT Platform Build";
     begin
         ClearLastError();
         Run('make_generic', TryMakeGeneric(Shown), Shown);
 #if BC29PLUS
         Observer.Expect('make_generic', 'System.Collections.Generic.Dictionary`2[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]|Dictionary`2|System.Collections.Generic.Dictionary`2[System.Object,System.Int32]|No|count=2');
 #else
-        Observer.Expect('make_generic', 'System.Collections.Generic.Dictionary`2[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]|Dictionary`2|System.Collections.Generic.Dictionary`2[System.Object,System.Int32]|No|count=2');
+        if PlatformBuild.IsNet10Build() then
+            Observer.Expect('make_generic', 'System.Collections.Generic.Dictionary`2[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]|Dictionary`2|System.Collections.Generic.Dictionary`2[System.Object,System.Int32]|No|count=2')
+        else
+            Observer.Expect('make_generic', 'System.Collections.Generic.Dictionary`2[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]|Dictionary`2|System.Collections.Generic.Dictionary`2[System.Object,System.Int32]|No|count=2');
 #endif
         Observer.Verify();
     end;
