@@ -26,8 +26,8 @@
 //   - the table extension procedure assigning xRec, directly under the Mode Validate and nested in the "Item No." Validate;
 //   - a field OnValidate handing Rec to a codeunit that calls a table extension procedure (also assigning xRec) or a table procedure;
 //   - neighbors: the event's record parameter by value; an OnAfterValidateEvent subscriber calling the same procedures on Rec;
-//   - (al-runner issue 8306) OnAfterValidateEvent and OnBeforeValidateEvent subscribers calling them on Rec: after Insert, after
-//     Get, on a fresh record, a subscriber that does not declare xRec, and the table extension procedure assigning xRec.
+//   - (al-runner issue 8306) OnAfterValidateEvent and OnBeforeValidateEvent subscribers calling them on Rec: after Insert, Get,
+//     FindFirst, fresh, temporary, a subscriber that does not declare xRec, the table extension procedure assigning xRec.
 // Facts (measured on 29.1):
 //   - a table extension procedure and a table procedure that an event subscriber calls on the var record the field trigger raised the
 //     event with read the trigger's xRec (0/NEW/I1, the record before the Validate, not the stored row), after Insert, after Get,
@@ -859,6 +859,37 @@ codeunit 97095 "XRS Tests"
         AfterInsert(Line);
         ValidateModeAndObserve(Observer, Line, 'after-reconly');
         Observer.Expect('log', 'T x=0/NEW/I1;XN x=0/NEW/I1;PN x=0/NEW/I1;');
+        Observer.Expect('record', '1/NEW/I1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure AfterValidateEventSubscriber_RecProcs_TemporaryRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempLine: Record "XRS Line" temporary;
+    begin
+        Initialize();
+        AfterInsert(TempLine);
+        ValidateModeAndObserve(Observer, TempLine, 'after-event');
+        Observer.Expect('log', 'T x=0/NEW/I1;A x=0/NEW/I1;XA x=0/NEW/I1;PA x=0/NEW/I1;');
+        Observer.Expect('record', '1/NEW/I1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure AfterValidateEventSubscriber_RecProcs_ReadByFindFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+        Found: Record "XRS Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        Found.FindFirst();
+        Found.Series := 'NEW';
+        ValidateModeAndObserve(Observer, Found, 'after-event');
+        Observer.Expect('log', 'T x=0/NEW/I1;A x=0/NEW/I1;XA x=0/NEW/I1;PA x=0/NEW/I1;');
         Observer.Expect('record', '1/NEW/I1');
         Observer.Verify();
     end;
