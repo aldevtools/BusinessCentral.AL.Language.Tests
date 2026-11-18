@@ -13,6 +13,10 @@
 //   (Insert(true)) of a table without Permissions; DP = OnDelete of a table with that Permissions property.
 //   Sets: R = R on the target; RInd = R plus indirect imd on the target; RIMD = direct RIMD (control). Every set grants RIMD on
 //   the two host tables.
+// Expected values: observed on Business Central on Windows (official BC containers) 27.5, 28.5 and 29.0; all three agree. On
+//   those hosts a write whose filter matches no row is not denied in any place or set, and the pinned no-match cases of
+//   record/Y19PermNoMatchShapes.al and Y19PermNoMatchTriggers.al (denied on the Linux corpus CI) are not denied either. Windows
+//   is the reference: a Linux CI failure of the no-match cells here is a BC on Linux difference.
 // BC versions: 27, 28, 29
 
 table 77741 "PRM BW Target"
@@ -287,7 +291,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('T', 'PRM BW R', 1);
         RunMatches('T', 'PRM BW R', 2);
         RunMatches('T', 'PRM BW R', 3);
-        Observer.Finish();
+        Observer.Expect('T_R_op1_e|text', 'PRM BW ok');
+        Observer.Expect('T_R_op1_e|code', 'Dialog');
+        Observer.Expect('T_R_op1_0|text', 'PRM BW ok');
+        Observer.Expect('T_R_op1_0|code', 'Dialog');
+        Observer.Expect('T_R_op1_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('T_R_op1_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('T_R_op1_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('T_R_op1_3|code', 'DB:ClientModifyDenied');
+        Observer.Expect('T_R_op2_e|text', 'PRM BW ok');
+        Observer.Expect('T_R_op2_e|code', 'Dialog');
+        Observer.Expect('T_R_op2_0|text', 'PRM BW ok');
+        Observer.Expect('T_R_op2_0|code', 'Dialog');
+        Observer.Expect('T_R_op2_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('T_R_op2_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('T_R_op2_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('T_R_op2_3|code', 'DB:ClientModifyDenied');
+        Observer.Expect('T_R_op3_e|text', 'PRM BW ok');
+        Observer.Expect('T_R_op3_e|code', 'Dialog');
+        Observer.Expect('T_R_op3_0|text', 'PRM BW ok');
+        Observer.Expect('T_R_op3_0|code', 'Dialog');
+        Observer.Expect('T_R_op3_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('T_R_op3_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('T_R_op3_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('T_R_op3_3|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -296,7 +324,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('T', 'PRM BW R', 4);
         RunMatches('T', 'PRM BW R', 5);
         RunMatches('T', 'PRM BW R', 6);
-        Observer.Finish();
+        Observer.Expect('T_R_op4_e|text', 'PRM BW ok');
+        Observer.Expect('T_R_op4_e|code', 'Dialog');
+        Observer.Expect('T_R_op4_0|text', 'PRM BW ok');
+        Observer.Expect('T_R_op4_0|code', 'Dialog');
+        Observer.Expect('T_R_op4_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('T_R_op4_1|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('T_R_op4_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('T_R_op4_3|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('T_R_op5_e|text', 'PRM BW ok');
+        Observer.Expect('T_R_op5_e|code', 'Dialog');
+        Observer.Expect('T_R_op5_0|text', 'PRM BW ok');
+        Observer.Expect('T_R_op5_0|code', 'Dialog');
+        Observer.Expect('T_R_op5_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('T_R_op5_1|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('T_R_op5_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('T_R_op5_3|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('T_R_op6_e|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('T_R_op6_e|code', 'DB:ClientModifyDenied');
+        Observer.Expect('T_R_op6_0|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('T_R_op6_0|code', 'DB:ClientModifyDenied');
+        Observer.Expect('T_R_op6_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('T_R_op6_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('T_R_op6_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('T_R_op6_3|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -305,7 +357,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('T', 'PRM BW R IND', 1);
         RunMatches('T', 'PRM BW R IND', 2);
         RunMatches('T', 'PRM BW R IND', 3);
-        Observer.Finish();
+        Observer.Expect('T_RIND_op1_e|text', 'PRM BW ok');
+        Observer.Expect('T_RIND_op1_e|code', 'Dialog');
+        Observer.Expect('T_RIND_op1_0|text', 'PRM BW ok');
+        Observer.Expect('T_RIND_op1_0|code', 'Dialog');
+        Observer.Expect('T_RIND_op1_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('T_RIND_op1_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('T_RIND_op1_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('T_RIND_op1_3|code', 'DB:ClientModifyDenied');
+        Observer.Expect('T_RIND_op2_e|text', 'PRM BW ok');
+        Observer.Expect('T_RIND_op2_e|code', 'Dialog');
+        Observer.Expect('T_RIND_op2_0|text', 'PRM BW ok');
+        Observer.Expect('T_RIND_op2_0|code', 'Dialog');
+        Observer.Expect('T_RIND_op2_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('T_RIND_op2_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('T_RIND_op2_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('T_RIND_op2_3|code', 'DB:ClientModifyDenied');
+        Observer.Expect('T_RIND_op3_e|text', 'PRM BW ok');
+        Observer.Expect('T_RIND_op3_e|code', 'Dialog');
+        Observer.Expect('T_RIND_op3_0|text', 'PRM BW ok');
+        Observer.Expect('T_RIND_op3_0|code', 'Dialog');
+        Observer.Expect('T_RIND_op3_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('T_RIND_op3_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('T_RIND_op3_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('T_RIND_op3_3|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -314,7 +390,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('T', 'PRM BW R IND', 4);
         RunMatches('T', 'PRM BW R IND', 5);
         RunMatches('T', 'PRM BW R IND', 6);
-        Observer.Finish();
+        Observer.Expect('T_RIND_op4_e|text', 'PRM BW ok');
+        Observer.Expect('T_RIND_op4_e|code', 'Dialog');
+        Observer.Expect('T_RIND_op4_0|text', 'PRM BW ok');
+        Observer.Expect('T_RIND_op4_0|code', 'Dialog');
+        Observer.Expect('T_RIND_op4_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('T_RIND_op4_1|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('T_RIND_op4_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('T_RIND_op4_3|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('T_RIND_op5_e|text', 'PRM BW ok');
+        Observer.Expect('T_RIND_op5_e|code', 'Dialog');
+        Observer.Expect('T_RIND_op5_0|text', 'PRM BW ok');
+        Observer.Expect('T_RIND_op5_0|code', 'Dialog');
+        Observer.Expect('T_RIND_op5_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('T_RIND_op5_1|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('T_RIND_op5_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('T_RIND_op5_3|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('T_RIND_op6_e|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('T_RIND_op6_e|code', 'DB:ClientModifyDenied');
+        Observer.Expect('T_RIND_op6_0|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('T_RIND_op6_0|code', 'DB:ClientModifyDenied');
+        Observer.Expect('T_RIND_op6_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('T_RIND_op6_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('T_RIND_op6_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('T_RIND_op6_3|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -323,7 +423,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('T', 'PRM BW RIMD', 1);
         RunMatches('T', 'PRM BW RIMD', 2);
         RunMatches('T', 'PRM BW RIMD', 3);
-        Observer.Finish();
+        Observer.Expect('T_RIMD_op1_e|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op1_e|code', 'Dialog');
+        Observer.Expect('T_RIMD_op1_0|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op1_0|code', 'Dialog');
+        Observer.Expect('T_RIMD_op1_1|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op1_1|code', 'Dialog');
+        Observer.Expect('T_RIMD_op1_3|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op1_3|code', 'Dialog');
+        Observer.Expect('T_RIMD_op2_e|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op2_e|code', 'Dialog');
+        Observer.Expect('T_RIMD_op2_0|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op2_0|code', 'Dialog');
+        Observer.Expect('T_RIMD_op2_1|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op2_1|code', 'Dialog');
+        Observer.Expect('T_RIMD_op2_3|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op2_3|code', 'Dialog');
+        Observer.Expect('T_RIMD_op3_e|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op3_e|code', 'Dialog');
+        Observer.Expect('T_RIMD_op3_0|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op3_0|code', 'Dialog');
+        Observer.Expect('T_RIMD_op3_1|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op3_1|code', 'Dialog');
+        Observer.Expect('T_RIMD_op3_3|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op3_3|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -332,7 +456,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('T', 'PRM BW RIMD', 4);
         RunMatches('T', 'PRM BW RIMD', 5);
         RunMatches('T', 'PRM BW RIMD', 6);
-        Observer.Finish();
+        Observer.Expect('T_RIMD_op4_e|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op4_e|code', 'Dialog');
+        Observer.Expect('T_RIMD_op4_0|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op4_0|code', 'Dialog');
+        Observer.Expect('T_RIMD_op4_1|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op4_1|code', 'Dialog');
+        Observer.Expect('T_RIMD_op4_3|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op4_3|code', 'Dialog');
+        Observer.Expect('T_RIMD_op5_e|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op5_e|code', 'Dialog');
+        Observer.Expect('T_RIMD_op5_0|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op5_0|code', 'Dialog');
+        Observer.Expect('T_RIMD_op5_1|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op5_1|code', 'Dialog');
+        Observer.Expect('T_RIMD_op5_3|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op5_3|code', 'Dialog');
+        Observer.Expect('T_RIMD_op6_e|text', 'The PRM BW Target does not exist. Identification fields and values: Id=''999''');
+        Observer.Expect('T_RIMD_op6_e|code', 'DB:RecordNotFound');
+        Observer.Expect('T_RIMD_op6_0|text', 'The PRM BW Target does not exist. Identification fields and values: Id=''999''');
+        Observer.Expect('T_RIMD_op6_0|code', 'DB:RecordNotFound');
+        Observer.Expect('T_RIMD_op6_1|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op6_1|code', 'Dialog');
+        Observer.Expect('T_RIMD_op6_3|text', 'PRM BW ok');
+        Observer.Expect('T_RIMD_op6_3|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -341,7 +489,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('D', 'PRM BW R', 1);
         RunMatches('D', 'PRM BW R', 2);
         RunMatches('D', 'PRM BW R', 3);
-        Observer.Finish();
+        Observer.Expect('D_R_op1_e|text', 'PRM BW ok');
+        Observer.Expect('D_R_op1_e|code', 'Dialog');
+        Observer.Expect('D_R_op1_0|text', 'PRM BW ok');
+        Observer.Expect('D_R_op1_0|code', 'Dialog');
+        Observer.Expect('D_R_op1_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('D_R_op1_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('D_R_op1_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('D_R_op1_3|code', 'DB:ClientModifyDenied');
+        Observer.Expect('D_R_op2_e|text', 'PRM BW ok');
+        Observer.Expect('D_R_op2_e|code', 'Dialog');
+        Observer.Expect('D_R_op2_0|text', 'PRM BW ok');
+        Observer.Expect('D_R_op2_0|code', 'Dialog');
+        Observer.Expect('D_R_op2_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('D_R_op2_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('D_R_op2_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('D_R_op2_3|code', 'DB:ClientModifyDenied');
+        Observer.Expect('D_R_op3_e|text', 'PRM BW ok');
+        Observer.Expect('D_R_op3_e|code', 'Dialog');
+        Observer.Expect('D_R_op3_0|text', 'PRM BW ok');
+        Observer.Expect('D_R_op3_0|code', 'Dialog');
+        Observer.Expect('D_R_op3_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('D_R_op3_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('D_R_op3_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('D_R_op3_3|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -350,7 +522,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('D', 'PRM BW R', 4);
         RunMatches('D', 'PRM BW R', 5);
         RunMatches('D', 'PRM BW R', 6);
-        Observer.Finish();
+        Observer.Expect('D_R_op4_e|text', 'PRM BW ok');
+        Observer.Expect('D_R_op4_e|code', 'Dialog');
+        Observer.Expect('D_R_op4_0|text', 'PRM BW ok');
+        Observer.Expect('D_R_op4_0|code', 'Dialog');
+        Observer.Expect('D_R_op4_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('D_R_op4_1|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('D_R_op4_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('D_R_op4_3|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('D_R_op5_e|text', 'PRM BW ok');
+        Observer.Expect('D_R_op5_e|code', 'Dialog');
+        Observer.Expect('D_R_op5_0|text', 'PRM BW ok');
+        Observer.Expect('D_R_op5_0|code', 'Dialog');
+        Observer.Expect('D_R_op5_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('D_R_op5_1|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('D_R_op5_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('D_R_op5_3|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('D_R_op6_e|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('D_R_op6_e|code', 'DB:ClientModifyDenied');
+        Observer.Expect('D_R_op6_0|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('D_R_op6_0|code', 'DB:ClientModifyDenied');
+        Observer.Expect('D_R_op6_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('D_R_op6_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('D_R_op6_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('D_R_op6_3|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -359,7 +555,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('D', 'PRM BW R IND', 1);
         RunMatches('D', 'PRM BW R IND', 2);
         RunMatches('D', 'PRM BW R IND', 3);
-        Observer.Finish();
+        Observer.Expect('D_RIND_op1_e|text', 'PRM BW ok');
+        Observer.Expect('D_RIND_op1_e|code', 'Dialog');
+        Observer.Expect('D_RIND_op1_0|text', 'PRM BW ok');
+        Observer.Expect('D_RIND_op1_0|code', 'Dialog');
+        Observer.Expect('D_RIND_op1_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('D_RIND_op1_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('D_RIND_op1_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('D_RIND_op1_3|code', 'DB:ClientModifyDenied');
+        Observer.Expect('D_RIND_op2_e|text', 'PRM BW ok');
+        Observer.Expect('D_RIND_op2_e|code', 'Dialog');
+        Observer.Expect('D_RIND_op2_0|text', 'PRM BW ok');
+        Observer.Expect('D_RIND_op2_0|code', 'Dialog');
+        Observer.Expect('D_RIND_op2_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('D_RIND_op2_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('D_RIND_op2_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('D_RIND_op2_3|code', 'DB:ClientModifyDenied');
+        Observer.Expect('D_RIND_op3_e|text', 'PRM BW ok');
+        Observer.Expect('D_RIND_op3_e|code', 'Dialog');
+        Observer.Expect('D_RIND_op3_0|text', 'PRM BW ok');
+        Observer.Expect('D_RIND_op3_0|code', 'Dialog');
+        Observer.Expect('D_RIND_op3_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('D_RIND_op3_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('D_RIND_op3_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('D_RIND_op3_3|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -368,7 +588,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('D', 'PRM BW R IND', 4);
         RunMatches('D', 'PRM BW R IND', 5);
         RunMatches('D', 'PRM BW R IND', 6);
-        Observer.Finish();
+        Observer.Expect('D_RIND_op4_e|text', 'PRM BW ok');
+        Observer.Expect('D_RIND_op4_e|code', 'Dialog');
+        Observer.Expect('D_RIND_op4_0|text', 'PRM BW ok');
+        Observer.Expect('D_RIND_op4_0|code', 'Dialog');
+        Observer.Expect('D_RIND_op4_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('D_RIND_op4_1|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('D_RIND_op4_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('D_RIND_op4_3|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('D_RIND_op5_e|text', 'PRM BW ok');
+        Observer.Expect('D_RIND_op5_e|code', 'Dialog');
+        Observer.Expect('D_RIND_op5_0|text', 'PRM BW ok');
+        Observer.Expect('D_RIND_op5_0|code', 'Dialog');
+        Observer.Expect('D_RIND_op5_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('D_RIND_op5_1|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('D_RIND_op5_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('D_RIND_op5_3|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('D_RIND_op6_e|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('D_RIND_op6_e|code', 'DB:ClientModifyDenied');
+        Observer.Expect('D_RIND_op6_0|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('D_RIND_op6_0|code', 'DB:ClientModifyDenied');
+        Observer.Expect('D_RIND_op6_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('D_RIND_op6_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('D_RIND_op6_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('D_RIND_op6_3|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -377,7 +621,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('D', 'PRM BW RIMD', 1);
         RunMatches('D', 'PRM BW RIMD', 2);
         RunMatches('D', 'PRM BW RIMD', 3);
-        Observer.Finish();
+        Observer.Expect('D_RIMD_op1_e|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op1_e|code', 'Dialog');
+        Observer.Expect('D_RIMD_op1_0|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op1_0|code', 'Dialog');
+        Observer.Expect('D_RIMD_op1_1|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op1_1|code', 'Dialog');
+        Observer.Expect('D_RIMD_op1_3|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op1_3|code', 'Dialog');
+        Observer.Expect('D_RIMD_op2_e|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op2_e|code', 'Dialog');
+        Observer.Expect('D_RIMD_op2_0|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op2_0|code', 'Dialog');
+        Observer.Expect('D_RIMD_op2_1|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op2_1|code', 'Dialog');
+        Observer.Expect('D_RIMD_op2_3|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op2_3|code', 'Dialog');
+        Observer.Expect('D_RIMD_op3_e|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op3_e|code', 'Dialog');
+        Observer.Expect('D_RIMD_op3_0|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op3_0|code', 'Dialog');
+        Observer.Expect('D_RIMD_op3_1|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op3_1|code', 'Dialog');
+        Observer.Expect('D_RIMD_op3_3|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op3_3|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -386,7 +654,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('D', 'PRM BW RIMD', 4);
         RunMatches('D', 'PRM BW RIMD', 5);
         RunMatches('D', 'PRM BW RIMD', 6);
-        Observer.Finish();
+        Observer.Expect('D_RIMD_op4_e|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op4_e|code', 'Dialog');
+        Observer.Expect('D_RIMD_op4_0|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op4_0|code', 'Dialog');
+        Observer.Expect('D_RIMD_op4_1|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op4_1|code', 'Dialog');
+        Observer.Expect('D_RIMD_op4_3|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op4_3|code', 'Dialog');
+        Observer.Expect('D_RIMD_op5_e|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op5_e|code', 'Dialog');
+        Observer.Expect('D_RIMD_op5_0|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op5_0|code', 'Dialog');
+        Observer.Expect('D_RIMD_op5_1|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op5_1|code', 'Dialog');
+        Observer.Expect('D_RIMD_op5_3|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op5_3|code', 'Dialog');
+        Observer.Expect('D_RIMD_op6_e|text', 'The PRM BW Target does not exist. Identification fields and values: Id=''999''');
+        Observer.Expect('D_RIMD_op6_e|code', 'DB:RecordNotFound');
+        Observer.Expect('D_RIMD_op6_0|text', 'The PRM BW Target does not exist. Identification fields and values: Id=''999''');
+        Observer.Expect('D_RIMD_op6_0|code', 'DB:RecordNotFound');
+        Observer.Expect('D_RIMD_op6_1|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op6_1|code', 'Dialog');
+        Observer.Expect('D_RIMD_op6_3|text', 'PRM BW ok');
+        Observer.Expect('D_RIMD_op6_3|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -395,7 +687,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('C', 'PRM BW R', 1);
         RunMatches('C', 'PRM BW R', 4);
         RunMatches('C', 'PRM BW R', 6);
-        Observer.Finish();
+        Observer.Expect('C_R_op1_e|text', 'PRM BW ok');
+        Observer.Expect('C_R_op1_e|code', 'Dialog');
+        Observer.Expect('C_R_op1_0|text', 'PRM BW ok');
+        Observer.Expect('C_R_op1_0|code', 'Dialog');
+        Observer.Expect('C_R_op1_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('C_R_op1_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('C_R_op1_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('C_R_op1_3|code', 'DB:ClientModifyDenied');
+        Observer.Expect('C_R_op4_e|text', 'PRM BW ok');
+        Observer.Expect('C_R_op4_e|code', 'Dialog');
+        Observer.Expect('C_R_op4_0|text', 'PRM BW ok');
+        Observer.Expect('C_R_op4_0|code', 'Dialog');
+        Observer.Expect('C_R_op4_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('C_R_op4_1|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('C_R_op4_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('C_R_op4_3|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('C_R_op6_e|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('C_R_op6_e|code', 'DB:ClientModifyDenied');
+        Observer.Expect('C_R_op6_0|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('C_R_op6_0|code', 'DB:ClientModifyDenied');
+        Observer.Expect('C_R_op6_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('C_R_op6_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('C_R_op6_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('C_R_op6_3|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -404,7 +720,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('C', 'PRM BW R IND', 1);
         RunMatches('C', 'PRM BW R IND', 4);
         RunMatches('C', 'PRM BW R IND', 6);
-        Observer.Finish();
+        Observer.Expect('C_RIND_op1_e|text', 'PRM BW ok');
+        Observer.Expect('C_RIND_op1_e|code', 'Dialog');
+        Observer.Expect('C_RIND_op1_0|text', 'PRM BW ok');
+        Observer.Expect('C_RIND_op1_0|code', 'Dialog');
+        Observer.Expect('C_RIND_op1_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('C_RIND_op1_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('C_RIND_op1_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('C_RIND_op1_3|code', 'DB:ClientModifyDenied');
+        Observer.Expect('C_RIND_op4_e|text', 'PRM BW ok');
+        Observer.Expect('C_RIND_op4_e|code', 'Dialog');
+        Observer.Expect('C_RIND_op4_0|text', 'PRM BW ok');
+        Observer.Expect('C_RIND_op4_0|code', 'Dialog');
+        Observer.Expect('C_RIND_op4_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('C_RIND_op4_1|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('C_RIND_op4_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('C_RIND_op4_3|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('C_RIND_op6_e|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('C_RIND_op6_e|code', 'DB:ClientModifyDenied');
+        Observer.Expect('C_RIND_op6_0|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('C_RIND_op6_0|code', 'DB:ClientModifyDenied');
+        Observer.Expect('C_RIND_op6_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('C_RIND_op6_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('C_RIND_op6_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('C_RIND_op6_3|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -413,7 +753,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('C', 'PRM BW RIMD', 1);
         RunMatches('C', 'PRM BW RIMD', 4);
         RunMatches('C', 'PRM BW RIMD', 6);
-        Observer.Finish();
+        Observer.Expect('C_RIMD_op1_e|text', 'PRM BW ok');
+        Observer.Expect('C_RIMD_op1_e|code', 'Dialog');
+        Observer.Expect('C_RIMD_op1_0|text', 'PRM BW ok');
+        Observer.Expect('C_RIMD_op1_0|code', 'Dialog');
+        Observer.Expect('C_RIMD_op1_1|text', 'PRM BW ok');
+        Observer.Expect('C_RIMD_op1_1|code', 'Dialog');
+        Observer.Expect('C_RIMD_op1_3|text', 'PRM BW ok');
+        Observer.Expect('C_RIMD_op1_3|code', 'Dialog');
+        Observer.Expect('C_RIMD_op4_e|text', 'PRM BW ok');
+        Observer.Expect('C_RIMD_op4_e|code', 'Dialog');
+        Observer.Expect('C_RIMD_op4_0|text', 'PRM BW ok');
+        Observer.Expect('C_RIMD_op4_0|code', 'Dialog');
+        Observer.Expect('C_RIMD_op4_1|text', 'PRM BW ok');
+        Observer.Expect('C_RIMD_op4_1|code', 'Dialog');
+        Observer.Expect('C_RIMD_op4_3|text', 'PRM BW ok');
+        Observer.Expect('C_RIMD_op4_3|code', 'Dialog');
+        Observer.Expect('C_RIMD_op6_e|text', 'The PRM BW Target does not exist. Identification fields and values: Id=''999''');
+        Observer.Expect('C_RIMD_op6_e|code', 'DB:RecordNotFound');
+        Observer.Expect('C_RIMD_op6_0|text', 'The PRM BW Target does not exist. Identification fields and values: Id=''999''');
+        Observer.Expect('C_RIMD_op6_0|code', 'DB:RecordNotFound');
+        Observer.Expect('C_RIMD_op6_1|text', 'PRM BW ok');
+        Observer.Expect('C_RIMD_op6_1|code', 'Dialog');
+        Observer.Expect('C_RIMD_op6_3|text', 'PRM BW ok');
+        Observer.Expect('C_RIMD_op6_3|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -422,7 +786,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('CP', 'PRM BW R', 1);
         RunMatches('CP', 'PRM BW R', 4);
         RunMatches('CP', 'PRM BW R', 6);
-        Observer.Finish();
+        Observer.Expect('CP_R_op1_e|text', 'PRM BW ok');
+        Observer.Expect('CP_R_op1_e|code', 'Dialog');
+        Observer.Expect('CP_R_op1_0|text', 'PRM BW ok');
+        Observer.Expect('CP_R_op1_0|code', 'Dialog');
+        Observer.Expect('CP_R_op1_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target IndirectModify: AL Language Coverage Tests)');
+        Observer.Expect('CP_R_op1_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('CP_R_op1_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target IndirectModify: AL Language Coverage Tests)');
+        Observer.Expect('CP_R_op1_3|code', 'DB:ClientModifyDenied');
+        Observer.Expect('CP_R_op4_e|text', 'PRM BW ok');
+        Observer.Expect('CP_R_op4_e|code', 'Dialog');
+        Observer.Expect('CP_R_op4_0|text', 'PRM BW ok');
+        Observer.Expect('CP_R_op4_0|code', 'Dialog');
+        Observer.Expect('CP_R_op4_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target IndirectDelete: AL Language Coverage Tests)');
+        Observer.Expect('CP_R_op4_1|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('CP_R_op4_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target IndirectDelete: AL Language Coverage Tests)');
+        Observer.Expect('CP_R_op4_3|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('CP_R_op6_e|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target IndirectModify: AL Language Coverage Tests)');
+        Observer.Expect('CP_R_op6_e|code', 'DB:ClientModifyDenied');
+        Observer.Expect('CP_R_op6_0|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target IndirectModify: AL Language Coverage Tests)');
+        Observer.Expect('CP_R_op6_0|code', 'DB:ClientModifyDenied');
+        Observer.Expect('CP_R_op6_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target IndirectModify: AL Language Coverage Tests)');
+        Observer.Expect('CP_R_op6_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('CP_R_op6_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target IndirectModify: AL Language Coverage Tests)');
+        Observer.Expect('CP_R_op6_3|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -431,7 +819,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('CP', 'PRM BW R IND', 1);
         RunMatches('CP', 'PRM BW R IND', 4);
         RunMatches('CP', 'PRM BW R IND', 6);
-        Observer.Finish();
+        Observer.Expect('CP_RIND_op1_e|text', 'PRM BW ok');
+        Observer.Expect('CP_RIND_op1_e|code', 'Dialog');
+        Observer.Expect('CP_RIND_op1_0|text', 'PRM BW ok');
+        Observer.Expect('CP_RIND_op1_0|code', 'Dialog');
+        Observer.Expect('CP_RIND_op1_1|text', 'PRM BW ok');
+        Observer.Expect('CP_RIND_op1_1|code', 'Dialog');
+        Observer.Expect('CP_RIND_op1_3|text', 'PRM BW ok');
+        Observer.Expect('CP_RIND_op1_3|code', 'Dialog');
+        Observer.Expect('CP_RIND_op4_e|text', 'PRM BW ok');
+        Observer.Expect('CP_RIND_op4_e|code', 'Dialog');
+        Observer.Expect('CP_RIND_op4_0|text', 'PRM BW ok');
+        Observer.Expect('CP_RIND_op4_0|code', 'Dialog');
+        Observer.Expect('CP_RIND_op4_1|text', 'PRM BW ok');
+        Observer.Expect('CP_RIND_op4_1|code', 'Dialog');
+        Observer.Expect('CP_RIND_op4_3|text', 'PRM BW ok');
+        Observer.Expect('CP_RIND_op4_3|code', 'Dialog');
+        Observer.Expect('CP_RIND_op6_e|text', 'The PRM BW Target does not exist. Identification fields and values: Id=''999''');
+        Observer.Expect('CP_RIND_op6_e|code', 'DB:RecordNotFound');
+        Observer.Expect('CP_RIND_op6_0|text', 'The PRM BW Target does not exist. Identification fields and values: Id=''999''');
+        Observer.Expect('CP_RIND_op6_0|code', 'DB:RecordNotFound');
+        Observer.Expect('CP_RIND_op6_1|text', 'PRM BW ok');
+        Observer.Expect('CP_RIND_op6_1|code', 'Dialog');
+        Observer.Expect('CP_RIND_op6_3|text', 'PRM BW ok');
+        Observer.Expect('CP_RIND_op6_3|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -440,7 +852,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('CP', 'PRM BW RIMD', 1);
         RunMatches('CP', 'PRM BW RIMD', 4);
         RunMatches('CP', 'PRM BW RIMD', 6);
-        Observer.Finish();
+        Observer.Expect('CP_RIMD_op1_e|text', 'PRM BW ok');
+        Observer.Expect('CP_RIMD_op1_e|code', 'Dialog');
+        Observer.Expect('CP_RIMD_op1_0|text', 'PRM BW ok');
+        Observer.Expect('CP_RIMD_op1_0|code', 'Dialog');
+        Observer.Expect('CP_RIMD_op1_1|text', 'PRM BW ok');
+        Observer.Expect('CP_RIMD_op1_1|code', 'Dialog');
+        Observer.Expect('CP_RIMD_op1_3|text', 'PRM BW ok');
+        Observer.Expect('CP_RIMD_op1_3|code', 'Dialog');
+        Observer.Expect('CP_RIMD_op4_e|text', 'PRM BW ok');
+        Observer.Expect('CP_RIMD_op4_e|code', 'Dialog');
+        Observer.Expect('CP_RIMD_op4_0|text', 'PRM BW ok');
+        Observer.Expect('CP_RIMD_op4_0|code', 'Dialog');
+        Observer.Expect('CP_RIMD_op4_1|text', 'PRM BW ok');
+        Observer.Expect('CP_RIMD_op4_1|code', 'Dialog');
+        Observer.Expect('CP_RIMD_op4_3|text', 'PRM BW ok');
+        Observer.Expect('CP_RIMD_op4_3|code', 'Dialog');
+        Observer.Expect('CP_RIMD_op6_e|text', 'The PRM BW Target does not exist. Identification fields and values: Id=''999''');
+        Observer.Expect('CP_RIMD_op6_e|code', 'DB:RecordNotFound');
+        Observer.Expect('CP_RIMD_op6_0|text', 'The PRM BW Target does not exist. Identification fields and values: Id=''999''');
+        Observer.Expect('CP_RIMD_op6_0|code', 'DB:RecordNotFound');
+        Observer.Expect('CP_RIMD_op6_1|text', 'PRM BW ok');
+        Observer.Expect('CP_RIMD_op6_1|code', 'Dialog');
+        Observer.Expect('CP_RIMD_op6_3|text', 'PRM BW ok');
+        Observer.Expect('CP_RIMD_op6_3|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -449,7 +885,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('DP', 'PRM BW R', 1);
         RunMatches('DP', 'PRM BW R', 4);
         RunMatches('DP', 'PRM BW R', 6);
-        Observer.Finish();
+        Observer.Expect('DP_R_op1_e|text', 'PRM BW ok');
+        Observer.Expect('DP_R_op1_e|code', 'Dialog');
+        Observer.Expect('DP_R_op1_0|text', 'PRM BW ok');
+        Observer.Expect('DP_R_op1_0|code', 'Dialog');
+        Observer.Expect('DP_R_op1_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target IndirectModify: AL Language Coverage Tests)');
+        Observer.Expect('DP_R_op1_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('DP_R_op1_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target IndirectModify: AL Language Coverage Tests)');
+        Observer.Expect('DP_R_op1_3|code', 'DB:ClientModifyDenied');
+        Observer.Expect('DP_R_op4_e|text', 'PRM BW ok');
+        Observer.Expect('DP_R_op4_e|code', 'Dialog');
+        Observer.Expect('DP_R_op4_0|text', 'PRM BW ok');
+        Observer.Expect('DP_R_op4_0|code', 'Dialog');
+        Observer.Expect('DP_R_op4_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target IndirectDelete: AL Language Coverage Tests)');
+        Observer.Expect('DP_R_op4_1|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('DP_R_op4_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target IndirectDelete: AL Language Coverage Tests)');
+        Observer.Expect('DP_R_op4_3|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('DP_R_op6_e|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target IndirectModify: AL Language Coverage Tests)');
+        Observer.Expect('DP_R_op6_e|code', 'DB:ClientModifyDenied');
+        Observer.Expect('DP_R_op6_0|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target IndirectModify: AL Language Coverage Tests)');
+        Observer.Expect('DP_R_op6_0|code', 'DB:ClientModifyDenied');
+        Observer.Expect('DP_R_op6_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target IndirectModify: AL Language Coverage Tests)');
+        Observer.Expect('DP_R_op6_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('DP_R_op6_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target IndirectModify: AL Language Coverage Tests)');
+        Observer.Expect('DP_R_op6_3|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -458,7 +918,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('DP', 'PRM BW R IND', 1);
         RunMatches('DP', 'PRM BW R IND', 4);
         RunMatches('DP', 'PRM BW R IND', 6);
-        Observer.Finish();
+        Observer.Expect('DP_RIND_op1_e|text', 'PRM BW ok');
+        Observer.Expect('DP_RIND_op1_e|code', 'Dialog');
+        Observer.Expect('DP_RIND_op1_0|text', 'PRM BW ok');
+        Observer.Expect('DP_RIND_op1_0|code', 'Dialog');
+        Observer.Expect('DP_RIND_op1_1|text', 'PRM BW ok');
+        Observer.Expect('DP_RIND_op1_1|code', 'Dialog');
+        Observer.Expect('DP_RIND_op1_3|text', 'PRM BW ok');
+        Observer.Expect('DP_RIND_op1_3|code', 'Dialog');
+        Observer.Expect('DP_RIND_op4_e|text', 'PRM BW ok');
+        Observer.Expect('DP_RIND_op4_e|code', 'Dialog');
+        Observer.Expect('DP_RIND_op4_0|text', 'PRM BW ok');
+        Observer.Expect('DP_RIND_op4_0|code', 'Dialog');
+        Observer.Expect('DP_RIND_op4_1|text', 'PRM BW ok');
+        Observer.Expect('DP_RIND_op4_1|code', 'Dialog');
+        Observer.Expect('DP_RIND_op4_3|text', 'PRM BW ok');
+        Observer.Expect('DP_RIND_op4_3|code', 'Dialog');
+        Observer.Expect('DP_RIND_op6_e|text', 'The PRM BW Target does not exist. Identification fields and values: Id=''999''');
+        Observer.Expect('DP_RIND_op6_e|code', 'DB:RecordNotFound');
+        Observer.Expect('DP_RIND_op6_0|text', 'The PRM BW Target does not exist. Identification fields and values: Id=''999''');
+        Observer.Expect('DP_RIND_op6_0|code', 'DB:RecordNotFound');
+        Observer.Expect('DP_RIND_op6_1|text', 'PRM BW ok');
+        Observer.Expect('DP_RIND_op6_1|code', 'Dialog');
+        Observer.Expect('DP_RIND_op6_3|text', 'PRM BW ok');
+        Observer.Expect('DP_RIND_op6_3|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -467,7 +951,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('DP', 'PRM BW RIMD', 1);
         RunMatches('DP', 'PRM BW RIMD', 4);
         RunMatches('DP', 'PRM BW RIMD', 6);
-        Observer.Finish();
+        Observer.Expect('DP_RIMD_op1_e|text', 'PRM BW ok');
+        Observer.Expect('DP_RIMD_op1_e|code', 'Dialog');
+        Observer.Expect('DP_RIMD_op1_0|text', 'PRM BW ok');
+        Observer.Expect('DP_RIMD_op1_0|code', 'Dialog');
+        Observer.Expect('DP_RIMD_op1_1|text', 'PRM BW ok');
+        Observer.Expect('DP_RIMD_op1_1|code', 'Dialog');
+        Observer.Expect('DP_RIMD_op1_3|text', 'PRM BW ok');
+        Observer.Expect('DP_RIMD_op1_3|code', 'Dialog');
+        Observer.Expect('DP_RIMD_op4_e|text', 'PRM BW ok');
+        Observer.Expect('DP_RIMD_op4_e|code', 'Dialog');
+        Observer.Expect('DP_RIMD_op4_0|text', 'PRM BW ok');
+        Observer.Expect('DP_RIMD_op4_0|code', 'Dialog');
+        Observer.Expect('DP_RIMD_op4_1|text', 'PRM BW ok');
+        Observer.Expect('DP_RIMD_op4_1|code', 'Dialog');
+        Observer.Expect('DP_RIMD_op4_3|text', 'PRM BW ok');
+        Observer.Expect('DP_RIMD_op4_3|code', 'Dialog');
+        Observer.Expect('DP_RIMD_op6_e|text', 'The PRM BW Target does not exist. Identification fields and values: Id=''999''');
+        Observer.Expect('DP_RIMD_op6_e|code', 'DB:RecordNotFound');
+        Observer.Expect('DP_RIMD_op6_0|text', 'The PRM BW Target does not exist. Identification fields and values: Id=''999''');
+        Observer.Expect('DP_RIMD_op6_0|code', 'DB:RecordNotFound');
+        Observer.Expect('DP_RIMD_op6_1|text', 'PRM BW ok');
+        Observer.Expect('DP_RIMD_op6_1|code', 'Dialog');
+        Observer.Expect('DP_RIMD_op6_3|text', 'PRM BW ok');
+        Observer.Expect('DP_RIMD_op6_3|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -476,7 +984,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('M', 'PRM BW R', 1);
         RunMatches('M', 'PRM BW R', 4);
         RunMatches('M', 'PRM BW R', 6);
-        Observer.Finish();
+        Observer.Expect('M_R_op1_e|text', 'PRM BW ok');
+        Observer.Expect('M_R_op1_e|code', 'Dialog');
+        Observer.Expect('M_R_op1_0|text', 'PRM BW ok');
+        Observer.Expect('M_R_op1_0|code', 'Dialog');
+        Observer.Expect('M_R_op1_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('M_R_op1_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('M_R_op1_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('M_R_op1_3|code', 'DB:ClientModifyDenied');
+        Observer.Expect('M_R_op4_e|text', 'PRM BW ok');
+        Observer.Expect('M_R_op4_e|code', 'Dialog');
+        Observer.Expect('M_R_op4_0|text', 'PRM BW ok');
+        Observer.Expect('M_R_op4_0|code', 'Dialog');
+        Observer.Expect('M_R_op4_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('M_R_op4_1|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('M_R_op4_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('M_R_op4_3|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('M_R_op6_e|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('M_R_op6_e|code', 'DB:ClientModifyDenied');
+        Observer.Expect('M_R_op6_0|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('M_R_op6_0|code', 'DB:ClientModifyDenied');
+        Observer.Expect('M_R_op6_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('M_R_op6_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('M_R_op6_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('M_R_op6_3|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -485,7 +1017,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('M', 'PRM BW R IND', 1);
         RunMatches('M', 'PRM BW R IND', 4);
         RunMatches('M', 'PRM BW R IND', 6);
-        Observer.Finish();
+        Observer.Expect('M_RIND_op1_e|text', 'PRM BW ok');
+        Observer.Expect('M_RIND_op1_e|code', 'Dialog');
+        Observer.Expect('M_RIND_op1_0|text', 'PRM BW ok');
+        Observer.Expect('M_RIND_op1_0|code', 'Dialog');
+        Observer.Expect('M_RIND_op1_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('M_RIND_op1_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('M_RIND_op1_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('M_RIND_op1_3|code', 'DB:ClientModifyDenied');
+        Observer.Expect('M_RIND_op4_e|text', 'PRM BW ok');
+        Observer.Expect('M_RIND_op4_e|code', 'Dialog');
+        Observer.Expect('M_RIND_op4_0|text', 'PRM BW ok');
+        Observer.Expect('M_RIND_op4_0|code', 'Dialog');
+        Observer.Expect('M_RIND_op4_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('M_RIND_op4_1|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('M_RIND_op4_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('M_RIND_op4_3|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('M_RIND_op6_e|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('M_RIND_op6_e|code', 'DB:ClientModifyDenied');
+        Observer.Expect('M_RIND_op6_0|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('M_RIND_op6_0|code', 'DB:ClientModifyDenied');
+        Observer.Expect('M_RIND_op6_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('M_RIND_op6_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('M_RIND_op6_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('M_RIND_op6_3|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -494,7 +1050,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('M', 'PRM BW RIMD', 1);
         RunMatches('M', 'PRM BW RIMD', 4);
         RunMatches('M', 'PRM BW RIMD', 6);
-        Observer.Finish();
+        Observer.Expect('M_RIMD_op1_e|text', 'PRM BW ok');
+        Observer.Expect('M_RIMD_op1_e|code', 'Dialog');
+        Observer.Expect('M_RIMD_op1_0|text', 'PRM BW ok');
+        Observer.Expect('M_RIMD_op1_0|code', 'Dialog');
+        Observer.Expect('M_RIMD_op1_1|text', 'PRM BW ok');
+        Observer.Expect('M_RIMD_op1_1|code', 'Dialog');
+        Observer.Expect('M_RIMD_op1_3|text', 'PRM BW ok');
+        Observer.Expect('M_RIMD_op1_3|code', 'Dialog');
+        Observer.Expect('M_RIMD_op4_e|text', 'PRM BW ok');
+        Observer.Expect('M_RIMD_op4_e|code', 'Dialog');
+        Observer.Expect('M_RIMD_op4_0|text', 'PRM BW ok');
+        Observer.Expect('M_RIMD_op4_0|code', 'Dialog');
+        Observer.Expect('M_RIMD_op4_1|text', 'PRM BW ok');
+        Observer.Expect('M_RIMD_op4_1|code', 'Dialog');
+        Observer.Expect('M_RIMD_op4_3|text', 'PRM BW ok');
+        Observer.Expect('M_RIMD_op4_3|code', 'Dialog');
+        Observer.Expect('M_RIMD_op6_e|text', 'The PRM BW Target does not exist. Identification fields and values: Id=''999''');
+        Observer.Expect('M_RIMD_op6_e|code', 'DB:RecordNotFound');
+        Observer.Expect('M_RIMD_op6_0|text', 'The PRM BW Target does not exist. Identification fields and values: Id=''999''');
+        Observer.Expect('M_RIMD_op6_0|code', 'DB:RecordNotFound');
+        Observer.Expect('M_RIMD_op6_1|text', 'PRM BW ok');
+        Observer.Expect('M_RIMD_op6_1|code', 'Dialog');
+        Observer.Expect('M_RIMD_op6_3|text', 'PRM BW ok');
+        Observer.Expect('M_RIMD_op6_3|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -503,7 +1083,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('I', 'PRM BW R', 1);
         RunMatches('I', 'PRM BW R', 4);
         RunMatches('I', 'PRM BW R', 6);
-        Observer.Finish();
+        Observer.Expect('I_R_op1_e|text', 'PRM BW ok');
+        Observer.Expect('I_R_op1_e|code', 'Dialog');
+        Observer.Expect('I_R_op1_0|text', 'PRM BW ok');
+        Observer.Expect('I_R_op1_0|code', 'Dialog');
+        Observer.Expect('I_R_op1_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('I_R_op1_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('I_R_op1_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('I_R_op1_3|code', 'DB:ClientModifyDenied');
+        Observer.Expect('I_R_op4_e|text', 'PRM BW ok');
+        Observer.Expect('I_R_op4_e|code', 'Dialog');
+        Observer.Expect('I_R_op4_0|text', 'PRM BW ok');
+        Observer.Expect('I_R_op4_0|code', 'Dialog');
+        Observer.Expect('I_R_op4_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('I_R_op4_1|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('I_R_op4_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('I_R_op4_3|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('I_R_op6_e|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('I_R_op6_e|code', 'DB:ClientModifyDenied');
+        Observer.Expect('I_R_op6_0|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('I_R_op6_0|code', 'DB:ClientModifyDenied');
+        Observer.Expect('I_R_op6_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('I_R_op6_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('I_R_op6_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('I_R_op6_3|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -512,7 +1116,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('I', 'PRM BW R IND', 1);
         RunMatches('I', 'PRM BW R IND', 4);
         RunMatches('I', 'PRM BW R IND', 6);
-        Observer.Finish();
+        Observer.Expect('I_RIND_op1_e|text', 'PRM BW ok');
+        Observer.Expect('I_RIND_op1_e|code', 'Dialog');
+        Observer.Expect('I_RIND_op1_0|text', 'PRM BW ok');
+        Observer.Expect('I_RIND_op1_0|code', 'Dialog');
+        Observer.Expect('I_RIND_op1_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('I_RIND_op1_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('I_RIND_op1_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('I_RIND_op1_3|code', 'DB:ClientModifyDenied');
+        Observer.Expect('I_RIND_op4_e|text', 'PRM BW ok');
+        Observer.Expect('I_RIND_op4_e|code', 'Dialog');
+        Observer.Expect('I_RIND_op4_0|text', 'PRM BW ok');
+        Observer.Expect('I_RIND_op4_0|code', 'Dialog');
+        Observer.Expect('I_RIND_op4_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('I_RIND_op4_1|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('I_RIND_op4_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Delete: AL Language Coverage Tests)');
+        Observer.Expect('I_RIND_op4_3|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('I_RIND_op6_e|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('I_RIND_op6_e|code', 'DB:ClientModifyDenied');
+        Observer.Expect('I_RIND_op6_0|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('I_RIND_op6_0|code', 'DB:ClientModifyDenied');
+        Observer.Expect('I_RIND_op6_1|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('I_RIND_op6_1|code', 'DB:ClientModifyDenied');
+        Observer.Expect('I_RIND_op6_3|text', 'Sorry, the current permissions prevented the action. (TableData 77741 PRM BW Target Modify: AL Language Coverage Tests)');
+        Observer.Expect('I_RIND_op6_3|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -521,7 +1149,31 @@ codeunit 77750 "PRM BW Match Counts"
         RunMatches('I', 'PRM BW RIMD', 1);
         RunMatches('I', 'PRM BW RIMD', 4);
         RunMatches('I', 'PRM BW RIMD', 6);
-        Observer.Finish();
+        Observer.Expect('I_RIMD_op1_e|text', 'PRM BW ok');
+        Observer.Expect('I_RIMD_op1_e|code', 'Dialog');
+        Observer.Expect('I_RIMD_op1_0|text', 'PRM BW ok');
+        Observer.Expect('I_RIMD_op1_0|code', 'Dialog');
+        Observer.Expect('I_RIMD_op1_1|text', 'PRM BW ok');
+        Observer.Expect('I_RIMD_op1_1|code', 'Dialog');
+        Observer.Expect('I_RIMD_op1_3|text', 'PRM BW ok');
+        Observer.Expect('I_RIMD_op1_3|code', 'Dialog');
+        Observer.Expect('I_RIMD_op4_e|text', 'PRM BW ok');
+        Observer.Expect('I_RIMD_op4_e|code', 'Dialog');
+        Observer.Expect('I_RIMD_op4_0|text', 'PRM BW ok');
+        Observer.Expect('I_RIMD_op4_0|code', 'Dialog');
+        Observer.Expect('I_RIMD_op4_1|text', 'PRM BW ok');
+        Observer.Expect('I_RIMD_op4_1|code', 'Dialog');
+        Observer.Expect('I_RIMD_op4_3|text', 'PRM BW ok');
+        Observer.Expect('I_RIMD_op4_3|code', 'Dialog');
+        Observer.Expect('I_RIMD_op6_e|text', 'The PRM BW Target does not exist. Identification fields and values: Id=''999''');
+        Observer.Expect('I_RIMD_op6_e|code', 'DB:RecordNotFound');
+        Observer.Expect('I_RIMD_op6_0|text', 'The PRM BW Target does not exist. Identification fields and values: Id=''999''');
+        Observer.Expect('I_RIMD_op6_0|code', 'DB:RecordNotFound');
+        Observer.Expect('I_RIMD_op6_1|text', 'PRM BW ok');
+        Observer.Expect('I_RIMD_op6_1|code', 'Dialog');
+        Observer.Expect('I_RIMD_op6_3|text', 'PRM BW ok');
+        Observer.Expect('I_RIMD_op6_3|code', 'Dialog');
+        Observer.Verify();
     end;
 
     local procedure RunMatches(Place: Text; SetName: Text; Op: Integer)

@@ -14,6 +14,10 @@
 //   Plain tests run the same steps without asserterror. The codeunits "PRM BW Rep TP ..." repeat the reporter's shape with
 //   TestPermissions not set, Restrictive and NonRestrictive (this app has no Tests-TestLibraries, whose per-test reset reads
 //   TestPermissions).
+// Expected values: observed on Business Central on Windows (official BC containers) 27.5, 28.5 and 29.0; all three agree. On
+//   those hosts a write whose filter matches no row is not denied in any place or set, and the pinned no-match cases of
+//   record/Y19PermNoMatchShapes.al and Y19PermNoMatchTriggers.al (denied on the Linux corpus CI) are not denied either. Windows
+//   is the reference: a Linux CI failure of the no-match cells here is a BC on Linux difference.
 // BC versions: 27, 28, 29
 
 table 77770 "PRM BW Rep Parent"
@@ -283,7 +287,27 @@ codeunit 77780 "PRM BW Rep Shapes"
         Cell('intkey_setonly', 'int', 1, 'set', 'trigger');
         Cell('intkey_setonly_direct', 'int', 1, 'set', 'direct');
         Cell('dataclass_direct', 'dc', 1, 'basic+assign', 'direct');
-        Observer.Finish();
+        Observer.Expect('r0|text', 'PRM BW ok');
+        Observer.Expect('r0|code', 'Dialog');
+        Observer.Expect('intkey|text', 'PRM BW ok');
+        Observer.Expect('intkey|code', 'Dialog');
+        Observer.Expect('dataclass|text', 'PRM BW ok');
+        Observer.Expect('dataclass|code', 'Dialog');
+        Observer.Expect('setonly|text', 'PRM BW ok');
+        Observer.Expect('setonly|code', 'Dialog');
+        Observer.Expect('rows0|text', 'PRM BW ok');
+        Observer.Expect('rows0|code', 'Dialog');
+        Observer.Expect('rows2|text', 'PRM BW ok');
+        Observer.Expect('rows2|code', 'Dialog');
+        Observer.Expect('direct|text', 'PRM BW ok');
+        Observer.Expect('direct|code', 'Dialog');
+        Observer.Expect('intkey_setonly|text', 'PRM BW ok');
+        Observer.Expect('intkey_setonly|code', 'Dialog');
+        Observer.Expect('intkey_setonly_direct|text', 'PRM BW ok');
+        Observer.Expect('intkey_setonly_direct|code', 'Dialog');
+        Observer.Expect('dataclass_direct|text', 'PRM BW ok');
+        Observer.Expect('dataclass_direct|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -296,7 +320,9 @@ codeunit 77780 "PRM BW Rep Shapes"
         Observer.Observe('plain run', 'no error');
         Observer.Observe('state', Steps.State());
         Steps.StopMock();
-        Observer.Finish();
+        Observer.Expect('plain run', 'no error');
+        Observer.Expect('state', 'parent P1 exists=No;target rows X=1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -309,7 +335,9 @@ codeunit 77780 "PRM BW Rep Shapes"
         Observer.Observe('plain run', 'no error');
         Observer.Observe('state', Steps.State());
         Steps.StopMock();
-        Observer.Finish();
+        Observer.Expect('plain run', 'no error');
+        Observer.Expect('state', 'parent P1 exists=Yes;target rows X=1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -322,7 +350,9 @@ codeunit 77780 "PRM BW Rep Shapes"
         Observer.Observe('plain run', 'no error');
         Observer.Observe('state', Steps.State());
         Steps.StopMock();
-        Observer.Finish();
+        Observer.Expect('plain run', 'no error');
+        Observer.Expect('state', 'parent P1 exists=No;target rows X=1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -334,7 +364,8 @@ codeunit 77780 "PRM BW Rep Shapes"
         Steps.Op('int', 'trigger');
         Observer.Observe('plain run', 'no error');
         Steps.StopMock();
-        Observer.Finish();
+        Observer.Expect('plain run', 'no error');
+        Observer.Verify();
     end;
 
     [Test]
@@ -346,7 +377,8 @@ codeunit 77780 "PRM BW Rep Shapes"
         Steps.Op('int', 'trigger');
         Observer.Observe('plain run', 'no error');
         Steps.StopMock();
-        Observer.Finish();
+        Observer.Expect('plain run', 'no error');
+        Observer.Verify();
     end;
 
     [Test]
@@ -358,7 +390,8 @@ codeunit 77780 "PRM BW Rep Shapes"
         Steps.Op('dc', 'trigger');
         Observer.Observe('plain run', 'no error');
         Steps.StopMock();
-        Observer.Finish();
+        Observer.Expect('plain run', 'no error');
+        Observer.Verify();
     end;
 
     local procedure Cell(Name: Text; Table: Text; OtherRows: Integer; Sets: Text; Where: Text)
@@ -391,7 +424,11 @@ codeunit 77781 "PRM BW Rep TP Default"
     begin
         Cell('r0', 'code', 1, 'basic+assign', 'trigger');
         Cell('direct', 'code', 1, 'basic+assign', 'direct');
-        Observer.Finish();
+        Observer.Expect('r0|text', 'PRM BW ok');
+        Observer.Expect('r0|code', 'Dialog');
+        Observer.Expect('direct|text', 'PRM BW ok');
+        Observer.Expect('direct|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -404,7 +441,9 @@ codeunit 77781 "PRM BW Rep TP Default"
         Observer.Observe('plain run', 'no error');
         Observer.Observe('state', Steps.State());
         Steps.StopMock();
-        Observer.Finish();
+        Observer.Expect('plain run', 'no error');
+        Observer.Expect('state', 'parent P1 exists=No;target rows X=1');
+        Observer.Verify();
     end;
 
     local procedure Cell(Name: Text; Table: Text; OtherRows: Integer; Sets: Text; Where: Text)
@@ -438,7 +477,11 @@ codeunit 77782 "PRM BW Rep TP Restrictive"
     begin
         Cell('r0', 'code', 1, 'basic+assign', 'trigger');
         Cell('direct', 'code', 1, 'basic+assign', 'direct');
-        Observer.Finish();
+        Observer.Expect('r0|text', 'PRM BW ok');
+        Observer.Expect('r0|code', 'Dialog');
+        Observer.Expect('direct|text', 'PRM BW ok');
+        Observer.Expect('direct|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -451,7 +494,9 @@ codeunit 77782 "PRM BW Rep TP Restrictive"
         Observer.Observe('plain run', 'no error');
         Observer.Observe('state', Steps.State());
         Steps.StopMock();
-        Observer.Finish();
+        Observer.Expect('plain run', 'no error');
+        Observer.Expect('state', 'parent P1 exists=No;target rows X=1');
+        Observer.Verify();
     end;
 
     local procedure Cell(Name: Text; Table: Text; OtherRows: Integer; Sets: Text; Where: Text)
@@ -485,7 +530,11 @@ codeunit 77783 "PRM BW Rep TP NonRestrictive"
     begin
         Cell('r0', 'code', 1, 'basic+assign', 'trigger');
         Cell('direct', 'code', 1, 'basic+assign', 'direct');
-        Observer.Finish();
+        Observer.Expect('r0|text', 'PRM BW ok');
+        Observer.Expect('r0|code', 'Dialog');
+        Observer.Expect('direct|text', 'PRM BW ok');
+        Observer.Expect('direct|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -498,7 +547,9 @@ codeunit 77783 "PRM BW Rep TP NonRestrictive"
         Observer.Observe('plain run', 'no error');
         Observer.Observe('state', Steps.State());
         Steps.StopMock();
-        Observer.Finish();
+        Observer.Expect('plain run', 'no error');
+        Observer.Expect('state', 'parent P1 exists=No;target rows X=1');
+        Observer.Verify();
     end;
 
     local procedure Cell(Name: Text; Table: Text; OtherRows: Integer; Sets: Text; Where: Text)
