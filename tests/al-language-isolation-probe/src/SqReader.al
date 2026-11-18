@@ -1,7 +1,7 @@
 namespace ALLanguage.IsolationProbe;
 
 // READER-HEADER-PLACEHOLDER
-codeunit 75919 "LT SQ Reader"
+codeunit 76089 "LT SQ Reader"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -33,6 +33,10 @@ codeunit 75919 "LT SQ Reader"
         Helper.Read('D1 later', Log.Seq('D1'));
         Helper.Read('D2 later', Log.Seq('D2'));
         Helper.Read('D3 later', Log.Seq('D3'));
+        Helper.Read('D4 later', Log.Seq('D4'));
+        Helper.Read('D5 later', Log.Seq('D5'));
+        Helper.Read('D6 later', Log.Seq('D6'));
+        Helper.Read('D7 later', Log.Seq('D7'));
         Helper.Read('B1 later', Log.Seq('B1'));
         Helper.Read('B2 later', Log.Seq('B2'));
         Helper.Read('B3 later', Log.Seq('B3'));
@@ -153,6 +157,30 @@ codeunit 75919 "LT SQ Reader"
     procedure D3_Reading()
     begin
         Check('D3', 'D3 first next|D3 rows|D3 after state|D3 after next|D3 later state|D3 later next');
+    end;
+
+    [Test]
+    procedure D4_Reading()
+    begin
+        Check('D4', 'D4 first next|D4 after state|D4 after next|D4 later state|D4 later next');
+    end;
+
+    [Test]
+    procedure D5_Reading()
+    begin
+        Check('D5', 'D5 first next|D5 rows|D5 after state|D5 after next|D5 later state|D5 later next');
+    end;
+
+    [Test]
+    procedure D6_Reading()
+    begin
+        Check('D6', 'D6 first next|D6 after state|D6 after next|D6 later state|D6 later next');
+    end;
+
+    [Test]
+    procedure D7_Reading()
+    begin
+        Check('D7', 'D7 first next|D7 rows|D7 after state|D7 after next|D7 later state|D7 later next');
     end;
 
     [Test]

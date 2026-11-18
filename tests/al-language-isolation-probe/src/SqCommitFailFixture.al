@@ -1,12 +1,12 @@
 namespace ALLanguage.IsolationProbe;
 
-// singleinstance-shared-on-purpose: "LT SQ Log" (75882) is written by the test codeunits 75885-75913 and read by "LT SQ Reader" (75919) in a later one; that is the measurement.
+// singleinstance-shared-on-purpose: "LT SQ Log" (76042) is written by the test codeunits 76045-76073 and read by "LT SQ Reader" (76089) in a later one; that is the measurement.
 
 // Fixtures of the NumberSequence and manual-binding probes after a test that fails (SqCommitFail.al, SqBindFailed.al,
 // SqReader.al): what a test codeunit's later tests, and the later test codeunits, see of a number sequence after a test
 // that called Commit() (or caused a commit) and then failed. AL Runner issues 8152 and 8337.
 
-table 75880 "LT SQ Row"
+table 76040 "LT SQ Row"
 {
     DataClassification = SystemMetadata;
 
@@ -23,7 +23,7 @@ table 75880 "LT SQ Row"
 
 // The reporter's table of AL Runner issue 8152 (comment of 2026-11-18): OnInsert takes the key from a company-wide
 // number sequence it inserts when missing. The sequence name comes from "LT SQ Log".EntrySequence().
-table 75881 "LT SQ Entry"
+table 76041 "LT SQ Entry"
 {
     DataClassification = SystemMetadata;
 
@@ -51,10 +51,10 @@ table 75881 "LT SQ Entry"
 }
 
 // The probe log. SingleInstance: its state is not part of any transaction, so no rollback of a test or a test codeunit
-// erases it, and "LT SQ Reader" (75919) reads it in a later test codeunit of the same session.
+// erases it, and "LT SQ Reader" (76089) reads it in a later test codeunit of the same session.
 // Sequence names: 'LTSQ' + a base + a token made once per session, because a number sequence outlives the uninstall of the
 // app with its data (IsolProbeAfterRollback.Codeunit.al, S3): a fixed name would find what an earlier run left.
-codeunit 75882 "LT SQ Log"
+codeunit 76042 "LT SQ Log"
 {
     SingleInstance = true;
 
@@ -93,7 +93,7 @@ codeunit 75882 "LT SQ Log"
         EntrySequenceName: Text;
 }
 
-codeunit 75883 "LT SQ Helper"
+codeunit 76043 "LT SQ Helper"
 {
     // Run guarded by C6 (Codeunit.Run commits its own transaction).
     trigger OnRun()
@@ -168,7 +168,7 @@ codeunit 75883 "LT SQ Helper"
     end;
 }
 
-codeunit 75884 "LT SQ Isolated Sub"
+codeunit 76044 "LT SQ Isolated Sub"
 {
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"LT SQ Helper", 'OnIsolated', '', false, false)]
     local procedure WriteRow()

@@ -3,9 +3,9 @@ namespace ALLanguage.IsolationProbe;
 // P5 (AL Runner issue 8337): what a failed test leaves bound of a manual event subscription. The reporter's three codeunits
 // (91506 "P161 Events", 91507 "P161 Manual Sub", 91558 "P161 Binding"), renamed, plus a binding held in a local variable
 // and an UnbindSubscription of the global in the test after the failed one. Every test also writes its reading to
-// "LT SQ Log"; "LT SQ Reader" (75919) states them.
+// "LT SQ Log"; "LT SQ Reader" (76089) states them.
 
-codeunit 75909 "LT SQ Bind Events"
+codeunit 76069 "LT SQ Bind Events"
 {
     [IntegrationEvent(false, false)]
     procedure OnPing(var Hits: Integer)
@@ -21,7 +21,7 @@ codeunit 75909 "LT SQ Bind Events"
     end;
 }
 
-codeunit 75910 "LT SQ Manual Sub"
+codeunit 76070 "LT SQ Manual Sub"
 {
     EventSubscriberInstance = Manual;
 
@@ -33,7 +33,7 @@ codeunit 75910 "LT SQ Manual Sub"
 }
 
 // The reporter's test codeunit: each test fails on purpose, its error text carries the value.
-codeunit 75911 "LT SQ P5 Global Binding"
+codeunit 76071 "LT SQ P5 Global Binding"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -82,7 +82,7 @@ codeunit 75911 "LT SQ P5 Global Binding"
 }
 
 // A binding held in a local variable of the failed test.
-codeunit 75912 "LT SQ P5 Local Binding"
+codeunit 76072 "LT SQ P5 Local Binding"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -111,7 +111,7 @@ codeunit 75912 "LT SQ P5 Local Binding"
 }
 
 // A global binding left by a failed test, unbound by the next test.
-codeunit 75913 "LT SQ P5 Unbind After Fail"
+codeunit 76073 "LT SQ P5 Unbind After Fail"
 {
     Subtype = Test;
     TestPermissions = Disabled;

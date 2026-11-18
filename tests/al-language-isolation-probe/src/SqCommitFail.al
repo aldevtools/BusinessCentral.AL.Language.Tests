@@ -3,7 +3,7 @@ namespace ALLanguage.IsolationProbe;
 // HEADER-PLACEHOLDER
 
 // C1 (spec P4): a test inserts a sequence, takes a number, calls Commit() and fails. The next test reads it.
-codeunit 75885 "LT SQ C1 Commit Then Fail"
+codeunit 76045 "LT SQ C1 Commit Then Fail"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -36,7 +36,7 @@ codeunit 75885 "LT SQ C1 Commit Then Fail"
 
 // C2 (spec P4): a passing test inserts a sequence, takes a number and calls Commit(); a later test fails without a
 // Commit(); the test after it reads the sequence.
-codeunit 75886 "LT SQ C2 Pass Commit Then Fail"
+codeunit 76046 "LT SQ C2 Pass Commit Then Fail"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -72,7 +72,7 @@ codeunit 75886 "LT SQ C2 Pass Commit Then Fail"
 }
 
 // C3 (spec P4): a test calls Commit() first, then inserts a sequence, takes a number and fails. The next test reads it.
-codeunit 75887 "LT SQ C3 Commit Before Insert"
+codeunit 76047 "LT SQ C3 Commit Before Insert"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -102,7 +102,7 @@ codeunit 75887 "LT SQ C3 Commit Before Insert"
 
 // C4 (AL Runner issue 8152, the reporter's repro of 2026-11-18): rows take their key from a number sequence in OnInsert;
 // the first test commits two rows and fails, the second inserts one more row.
-codeunit 75888 "LT SQ C4 Keyed Rows Fail"
+codeunit 76048 "LT SQ C4 Keyed Rows Fail"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -162,7 +162,7 @@ codeunit 75888 "LT SQ C4 Keyed Rows Fail"
 }
 
 // C4 control (the reporter's second codeunit): the same with a first test that passes.
-codeunit 75889 "LT SQ C4 Keyed Rows Pass"
+codeunit 76049 "LT SQ C4 Keyed Rows Pass"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -220,7 +220,7 @@ codeunit 75889 "LT SQ C4 Keyed Rows Pass"
 }
 
 // C5 (review follow-up 2): the Commit() runs in a MessageHandler the test body triggers.
-codeunit 75890 "LT SQ C5 Handler Commit"
+codeunit 76050 "LT SQ C5 Handler Commit"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -261,7 +261,7 @@ codeunit 75890 "LT SQ C5 Handler Commit"
 }
 
 // C6 (review follow-up 2): a guarded Codeunit.Run in the test body (it runs in a transaction of its own), then the test fails.
-codeunit 75891 "LT SQ C6 Guarded Run"
+codeunit 76051 "LT SQ C6 Guarded Run"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -294,7 +294,7 @@ codeunit 75891 "LT SQ C6 Guarded Run"
 
 // C7 (review follow-up 2): an isolated event (IntegrationEvent Isolated = true) whose subscriber writes a row, raised in
 // the test body, then the test fails.
-codeunit 75892 "LT SQ C7 Isolated Subscriber"
+codeunit 76052 "LT SQ C7 Isolated Subscriber"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -326,7 +326,7 @@ codeunit 75892 "LT SQ C7 Isolated Subscriber"
 
 // C8 (review follow-up 2): the test codeunit's OnRun writes a row and calls Commit(); a test inserts a sequence and fails;
 // the next test reads it.
-codeunit 75893 "LT SQ C8 OnRun Commit"
+codeunit 76053 "LT SQ C8 OnRun Commit"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -364,7 +364,7 @@ codeunit 75893 "LT SQ C8 OnRun Commit"
 
 // C9 (review neighbor N3): a TransactionModel None test passes (the runner commits around it), then a test inserts a
 // sequence and fails, then a test reads it.
-codeunit 75894 "LT SQ C9 TxNone Then Fail"
+codeunit 76054 "LT SQ C9 TxNone Then Fail"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -399,7 +399,7 @@ codeunit 75894 "LT SQ C9 TxNone Then Fail"
 
 // C10 (review neighbor N5): a test inserts a sequence and fails without a Commit(); a later test calls Commit(); then a
 // test reads the sequence.
-codeunit 75895 "LT SQ C10 Commit After Fail"
+codeunit 76055 "LT SQ C10 Commit After Fail"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -435,7 +435,7 @@ codeunit 75895 "LT SQ C10 Commit After Fail"
 }
 
 // C11, first codeunit (review neighbor N6): a Commit() only in an earlier test codeunit.
-codeunit 75896 "LT SQ C11 Other Commits"
+codeunit 76056 "LT SQ C11 Other Commits"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -454,7 +454,7 @@ codeunit 75896 "LT SQ C11 Other Commits"
 
 // C11, second codeunit (review neighbor N6): no Commit() in this codeunit; a test inserts a sequence and fails, the next
 // test reads it.
-codeunit 75897 "LT SQ C11 Fresh Codeunit"
+codeunit 76057 "LT SQ C11 Fresh Codeunit"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -482,7 +482,7 @@ codeunit 75897 "LT SQ C11 Fresh Codeunit"
 }
 
 // C12 (review neighbor N8): a Commit() under [CommitBehavior(CommitBehavior::Ignore)] in the test body, then the test fails.
-codeunit 75898 "LT SQ C12 Ignored Commit"
+codeunit 76058 "LT SQ C12 Ignored Commit"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -513,7 +513,7 @@ codeunit 75898 "LT SQ C12 Ignored Commit"
 }
 
 // C13, the control without any Commit(): a test inserts a sequence and fails, the next test reads it.
-codeunit 75899 "LT SQ C13 No Commit"
+codeunit 76059 "LT SQ C13 No Commit"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -542,7 +542,7 @@ codeunit 75899 "LT SQ C13 No Commit"
 
 // C14 (ERM Intercompany shape, review of runner PR 8363): the first test's Initialize commits; a later passing test inserts the
 // sequence; a later test fails; the test after it reads the sequence.
-codeunit 75900 "LT SQ C14 ERM Insert Later"
+codeunit 76060 "LT SQ C14 ERM Insert Later"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -610,7 +610,7 @@ codeunit 75900 "LT SQ C14 ERM Insert Later"
 
 // C15 (ERM Intercompany shape): the first test's Initialize commits; a later test inserts the sequence, takes a number and
 // fails; the test after it reads the sequence.
-codeunit 75901 "LT SQ C15 ERM Insert Fails"
+codeunit 76061 "LT SQ C15 ERM Insert Fails"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -670,7 +670,7 @@ codeunit 75901 "LT SQ C15 ERM Insert Fails"
 
 // C16 (ERM Intercompany shape): the first test's Initialize commits and the same test then inserts the sequence and takes a
 // number; a later test fails; the test after it reads the sequence.
-codeunit 75902 "LT SQ C16 ERM Same Test"
+codeunit 76062 "LT SQ C16 ERM Same Test"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -730,7 +730,7 @@ codeunit 75902 "LT SQ C16 ERM Same Test"
 
 // D1: a passing test writes a row without a Commit(); a later passing test inserts a sequence; a later test fails without a
 // write; the test after it reads the sequence and the row.
-codeunit 75914 "LT SQ D1 Row Earlier Test"
+codeunit 76074 "LT SQ D1 Row Earlier Test"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -772,7 +772,7 @@ codeunit 75914 "LT SQ D1 Row Earlier Test"
 
 // D2: a passing test writes a row and calls Commit(); a later passing test inserts a sequence; a later test fails without a
 // write; the test after it reads the sequence and the row.
-codeunit 75915 "LT SQ D2 Row Commit Earlier"
+codeunit 76075 "LT SQ D2 Row Commit Earlier"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -814,7 +814,7 @@ codeunit 75915 "LT SQ D2 Row Commit Earlier"
 
 // D3: a passing test writes a row without a Commit(); the next test inserts a sequence and fails without a write of its
 // own; the test after it reads the sequence and the row.
-codeunit 75916 "LT SQ D3 Row Then Insert Fail"
+codeunit 76076 "LT SQ D3 Row Then Insert Fail"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -848,8 +848,94 @@ codeunit 75916 "LT SQ D3 Row Then Insert Fail"
     end;
 }
 
+// D4: a passing test sets an IsolatedStorage value; a later passing test inserts a sequence; a later test fails without a
+// write; the test after it reads the sequence.
+codeunit 76077 "LT SQ D4 Storage Earlier Test"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Log: Codeunit "LT SQ Log";
+        Helper: Codeunit "LT SQ Helper";
+
+    [Test]
+    procedure D4a_SetsIsolatedStorage()
+    begin
+        IsolatedStorage.Set('LTSQD4', Format(CreateGuid()), DataScope::Module);
+    end;
+
+    [Test]
+    procedure D4b_InsertsSequence()
+    var
+        Name: Text;
+    begin
+        Name := Log.Seq('D4');
+        NumberSequence.Insert(Name, 1, 1);
+        Log.Put('D4 first next', Format(NumberSequence.Next(Name)));
+    end;
+
+    [Test]
+    procedure D4c_Fails()
+    begin
+        Error('D4c fails on purpose');
+    end;
+
+    [Test]
+    procedure D4d_ReadsSequence()
+    begin
+        Helper.Read('D4 after', Log.Seq('D4'));
+    end;
+}
+
+// D5: the shape of IsolProbeAfterRollback.Codeunit.al S1, S3, S4, S8: a passing test writes a row, a later passing test
+// inserts a sequence, a later test reads the row with Get and fails, the test after it reads the sequence.
+codeunit 76078 "LT SQ D5 Get Then Fail"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Log: Codeunit "LT SQ Log";
+        Helper: Codeunit "LT SQ Helper";
+
+    [Test]
+    procedure D5a_WritesRow()
+    begin
+        Helper.InsertRow('D5-ROW');
+    end;
+
+    [Test]
+    procedure D5b_InsertsSequence()
+    var
+        Name: Text;
+    begin
+        Name := Log.Seq('D5');
+        if not NumberSequence.Exists(Name) then
+            NumberSequence.Insert(Name, 1, 1);
+        Log.Put('D5 first next', Format(NumberSequence.Next(Name)));
+    end;
+
+    [Test]
+    procedure D5c_GetsRowFails()
+    var
+        Row: Record "LT SQ Row";
+    begin
+        if Row.Get('D5-ROW') then
+            Error('D5c fails on purpose: the row is there');
+        Error('D5c fails on purpose: the row is gone');
+    end;
+
+    [Test]
+    procedure D5d_ReadsSequence()
+    begin
+        Log.Put('D5 rows', Helper.Rows('D5-ROW'));
+        Helper.Read('D5 after', Log.Seq('D5'));
+    end;
+}
+
 // B1 (spec P4b): Restart(500) of a sequence that existed when the tests began, Commit(), then the test fails.
-codeunit 75903 "LT SQ B1 Restart Commit Fail"
+codeunit 76063 "LT SQ B1 Restart Commit Fail"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -893,7 +979,7 @@ codeunit 75903 "LT SQ B1 Restart Commit Fail"
 }
 
 // B2 (spec P4b): Delete of a sequence that existed when the tests began, Commit(), then the test fails.
-codeunit 75904 "LT SQ B2 Delete Commit Fail"
+codeunit 76064 "LT SQ B2 Delete Commit Fail"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -937,7 +1023,7 @@ codeunit 75904 "LT SQ B2 Delete Commit Fail"
 }
 
 // B3 (spec P4b): Restart(500) of a sequence that existed when the tests began, then the test fails without a Commit().
-codeunit 75905 "LT SQ B3 Restart Fail"
+codeunit 76065 "LT SQ B3 Restart Fail"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -980,7 +1066,7 @@ codeunit 75905 "LT SQ B3 Restart Fail"
 }
 
 // B4 (spec P4b): Delete of a sequence that existed when the tests began, then the test fails without a Commit().
-codeunit 75906 "LT SQ B4 Delete Fail"
+codeunit 76066 "LT SQ B4 Delete Fail"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -1023,7 +1109,7 @@ codeunit 75906 "LT SQ B4 Delete Fail"
 }
 
 // B5 (spec P4b): Next of a sequence that existed when the tests began, Commit(), then the test fails.
-codeunit 75907 "LT SQ B5 Next Commit Fail"
+codeunit 76067 "LT SQ B5 Next Commit Fail"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -1067,7 +1153,7 @@ codeunit 75907 "LT SQ B5 Next Commit Fail"
 }
 
 // B6 (spec P4b): Next of a sequence that existed when the tests began, then the test fails without a Commit().
-codeunit 75908 "LT SQ B6 Next Fail"
+codeunit 76068 "LT SQ B6 Next Fail"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -1106,5 +1192,76 @@ codeunit 75908 "LT SQ B6 Next Fail"
     procedure B6b_ReadsSequence()
     begin
         Helper.Read('B6 after', Log.Seq('B6'));
+    end;
+}
+
+// D6: as C2 (a passing test inserts a sequence and calls Commit()), but the later test fails without a write of its own;
+// the test after it reads the sequence.
+codeunit 76080 "LT SQ D6 Commit Then Bare Fail"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Log: Codeunit "LT SQ Log";
+        Helper: Codeunit "LT SQ Helper";
+
+    [Test]
+    procedure D6a_InsertsCommits()
+    var
+        Name: Text;
+    begin
+        Name := Log.Seq('D6');
+        NumberSequence.Insert(Name, 1, 1);
+        Log.Put('D6 first next', Format(NumberSequence.Next(Name)));
+        Commit();
+    end;
+
+    [Test]
+    procedure D6b_Fails()
+    begin
+        Error('D6b fails on purpose');
+    end;
+
+    [Test]
+    procedure D6c_ReadsSequence()
+    begin
+        Helper.Read('D6 after', Log.Seq('D6'));
+    end;
+}
+
+// D7: as C2, but without the Commit(): a passing test inserts a sequence; the later test writes a row and fails; the test
+// after it reads the sequence and the row.
+codeunit 76081 "LT SQ D7 Insert Write Fail"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Log: Codeunit "LT SQ Log";
+        Helper: Codeunit "LT SQ Helper";
+
+    [Test]
+    procedure D7a_Inserts()
+    var
+        Name: Text;
+    begin
+        Name := Log.Seq('D7');
+        NumberSequence.Insert(Name, 1, 1);
+        Log.Put('D7 first next', Format(NumberSequence.Next(Name)));
+    end;
+
+    [Test]
+    procedure D7b_WritesFails()
+    begin
+        Helper.InsertRow('D7-FAILED');
+        Error('D7b fails on purpose');
+    end;
+
+    [Test]
+    procedure D7c_ReadsSequence()
+    begin
+        Log.Put('D7 rows', Helper.Rows('D7-FAILED'));
+        Helper.Read('D7 after', Log.Seq('D7'));
     end;
 }
