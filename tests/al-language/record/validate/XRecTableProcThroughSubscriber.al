@@ -4,7 +4,7 @@
 //   XRS Helper, XRS Tests, XRS Other Row)
 // local object: the table and table extension procedures, the field triggers and the event subscribers that read xRec are what is under
 //   test.
-// Probe (al-runner issue 8284): what xRec a procedure of a table or of its table extension reads when an event subscriber or a codeunit
+// Probe (al-runner issues 8284 and 8306): what xRec a procedure of a table or of its table extension reads when an event subscriber or a codeunit
 //   calls it on the record that a field OnValidate trigger hands on as a var parameter. Base Application's path: the OnValidate of
 //   Requisition Line "Replenishment System" raises OnValidateReplenishmentSystemCaseElse(Rec, StockkeepingUnit), and the subscriber in
 //   codeunit "Mfg. Requisition Line" calls the table extension procedure SetReplenishmentSystemFromProdOrder, which reads xRec. Every
@@ -25,7 +25,9 @@
 //     Application's planning: Inventory Profile Offsetting.MaintainPlanningLine);
 //   - the table extension procedure assigning xRec, directly under the Mode Validate and nested in the "Item No." Validate;
 //   - a field OnValidate handing Rec to a codeunit that calls a table extension procedure (also assigning xRec) or a table procedure;
-//   - neighbors: the event's record parameter by value; an OnAfterValidateEvent subscriber calling the same procedures on Rec.
+//   - neighbors: the event's record parameter by value; an OnAfterValidateEvent subscriber calling the same procedures on Rec;
+//   - (al-runner issue 8306) OnAfterValidateEvent and OnBeforeValidateEvent subscribers calling them on Rec: after Insert, after
+//     Get, on a fresh record, a subscriber that does not declare xRec, and the table extension procedure assigning xRec.
 // Facts (measured on 29.1):
 //   - a table extension procedure and a table procedure that an event subscriber calls on the var record the field trigger raised the
 //     event with read the trigger's xRec (0/NEW/I1, the record before the Validate, not the stored row), after Insert, after Get,
@@ -38,7 +40,10 @@
 //   - a codeunit the field trigger hands Rec to: the table extension procedure and the table procedure it calls read the trigger's
 //     xRec, not the stored row, and an assignment shows in the trigger;
 //   - the event's record parameter by value: the procedures called on the copy read a blank xRec (0//);
-//   - an OnAfterValidateEvent subscriber: its xRec parameter and the procedures it calls on Rec read the trigger's xRec.
+//   - an OnAfterValidateEvent subscriber: its xRec parameter and the procedures it calls on Rec read the trigger's xRec, also after
+//     Get, on a fresh record and when the subscriber does not declare xRec; xRec assigned in the table extension procedure is
+//     what the subscriber's xRec parameter reads after the call; an OnBeforeValidateEvent subscriber: the same, before the
+//     trigger runs.
 // BC versions: 27.5, 28.5, 29.0
 
 table 97090 "XRS Line"
@@ -273,11 +278,39 @@ codeunit 97093 "XRS Subscriber"
     var
         Cfg: Codeunit "XRS Cfg";
     begin
+        if Cfg.Get() = 'after-assign' then begin
+            Rec.ExtProcAssign();
+            Cfg.Add('A after x=' + Cfg.Fmt(xRec));
+            exit;
+        end;
         if Cfg.Get() <> 'after-event' then
             exit;
         Cfg.Add('A x=' + Cfg.Fmt(xRec));
         Rec.ExtProcRead('XA');
         Rec.TableProcRead('PA');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"XRS Line", 'OnBeforeValidateEvent', 'Mode', false, false)]
+    local procedure OnBeforeValidateMode(var Rec: Record "XRS Line"; var xRec: Record "XRS Line"; CurrFieldNo: Integer)
+    var
+        Cfg: Codeunit "XRS Cfg";
+    begin
+        if Cfg.Get() <> 'before-event' then
+            exit;
+        Cfg.Add('B x=' + Cfg.Fmt(xRec));
+        Rec.ExtProcRead('XB');
+        Rec.TableProcRead('PB');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"XRS Line", 'OnAfterValidateEvent', 'Mode', false, false)]
+    local procedure OnAfterValidateModeRecOnly(var Rec: Record "XRS Line")
+    var
+        Cfg: Codeunit "XRS Cfg";
+    begin
+        if Cfg.Get() <> 'after-reconly' then
+            exit;
+        Rec.ExtProcRead('XN');
+        Rec.TableProcRead('PN');
     end;
 }
 
@@ -749,6 +782,83 @@ codeunit 97095 "XRS Tests"
         Initialize();
         ReadWithAndValidate(Observer, 'Next');
         Observer.Expect('log', 'T x=0/NEW/I1;X x=0/NEW/I1;P x=0/NEW/I1;');
+        Observer.Expect('record', '1/NEW/I1');
+        Observer.Verify();
+    end;
+
+    // OnAfterValidateEvent and OnBeforeValidateEvent subscribers calling procedures on Rec (al-runner issue 8306).
+    [Test]
+    procedure AfterValidateEventSubscriber_RecProcs_AfterGet()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        Clear(Line);
+        Line.Get(1);
+        Line.Series := 'NEW';
+        ValidateModeAndObserve(Observer, Line, 'after-event');
+        Observer.Expect('log', 'T x=0/NEW/I1;A x=0/NEW/I1;XA x=0/NEW/I1;PA x=0/NEW/I1;');
+        Observer.Expect('record', '1/NEW/I1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure AfterValidateEventSubscriber_RecProcs_FreshRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+    begin
+        Initialize();
+        Line.Init();
+        Line."Line No." := 1;
+        Line.Series := 'NEW';
+        Line."Item No." := 'I1';
+        ValidateModeAndObserve(Observer, Line, 'after-event');
+        Observer.Expect('log', 'T x=0/NEW/I1;A x=0/NEW/I1;XA x=0/NEW/I1;PA x=0/NEW/I1;');
+        Observer.Expect('record', '1/NEW/I1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure AfterValidateEventSubscriber_ExtProcAssignsXRec_SubscriberReadsAfter()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        ValidateModeAndObserve(Observer, Line, 'after-assign');
+        Observer.Expect('log', 'T x=0/NEW/I1;XS x=0/NEW/I1;A after x=0/SET/I1;');
+        Observer.Expect('record', '1/NEW/I1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure BeforeValidateEventSubscriber_RecProcs_AfterInsert()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        ValidateModeAndObserve(Observer, Line, 'before-event');
+        Observer.Expect('log', 'B x=0/NEW/I1;XB x=0/NEW/I1;PB x=0/NEW/I1;T x=0/NEW/I1;');
+        Observer.Expect('record', '1/NEW/I1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure AfterValidateEventSubscriberWithoutXRec_RecProcs_AfterInsert()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRS Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        ValidateModeAndObserve(Observer, Line, 'after-reconly');
+        Observer.Expect('log', 'T x=0/NEW/I1;XN x=0/NEW/I1;PN x=0/NEW/I1;');
         Observer.Expect('record', '1/NEW/I1');
         Observer.Verify();
     end;
