@@ -26,7 +26,22 @@
 //   The reader (BVS Reader.Describe) gets the parameter by var, so it reads the subscriber's own record: temp, same company, filters of
 //   group 0, 2 and -1, Count, key, order, MarkedOnly, marked count, GetFilter and CopyFilter of the FlowFilter, the current Id and Name, and
 //   the FlowField Total after CalcFields; GetView is observed next to it.
-// Facts: see the assertions (filled from the observation).
+// Facts (measured on BC 27.5 and 29.0, the same in every test): a by-value subscriber Record parameter holds the field values of the
+//   caller's current row (Id, Name; FlowField Total recalculated without the caller's FlowFilter: 12, not 5) and nothing of the view:
+//   no filters in group 0, 2 or -1, no FlowFilter, primary key ascending, MarkedOnly No, no marks, filter group 0, GetView
+//   'VERSION(1) SORTING(Id)'. This holds for every cell: a var or a by-value publisher parameter (codeunit and table publishers),
+//   two by-value subscribers, a report publisher with and without IncludeSender, a codeunit publisher with IncludeSender, a
+//   SingleInstance publisher, CommitBehavior(Ignore), a business event, an internal event, a manual subscriber bound with
+//   BindSubscription, filters in group 2, -1 and 4 only, a caller left in filter group 2, two parameters, a public publisher called
+//   from the test, and the by-value Rec and xRec of OnBefore/OnAfterModifyEvent, OnAfterInsertEvent, OnAfterDeleteEvent,
+//   OnAfterValidateEvent and OnAfterRenameEvent.
+//   - A temporary caller record: the by-value subscriber's record is NOT temporary (it counts the 3 rows of the real table) and
+//     holds the caller's current row values (Id 5, T-FIVE).
+//   - A record of another company (ChangeCompany): the subscriber's record is in the session company (it counts the 3 session rows)
+//     and holds the other company's row values (Id 12, O-TWO). Asserted only when the host has a second company.
+//   - A var Rec subscriber of OnAfterModifyEvent (next to the by-value ones) keeps the caller's whole view.
+//   - The caller's own view is unchanged after the event in every cell.
+//   - A var subscriber parameter on a by-value publisher parameter does not compile (AL0288, must-not-compile case 3180).
 // BC versions: 27.5, 28.5, 29.0
 
 table 78740 "BVS Row"
@@ -562,7 +577,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Publisher.RaiseByValue(Row);
         ObserveSlot(Observer, 'by value');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('by value', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('by value view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -578,7 +596,12 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Publisher.RaiseByValue(Row);
         ObserveSlot(Observer, 'by value');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('caller', 'temp=No same=Yes f={Status: Open, Day Filter: 1} g2={Amount: >15} gm1={} grp=0 n=1 key=Name asc=No mo=No m=1 ff={1} cf={Day Filter: 1} id=1 name=C-NAME total=5');
+        Observer.Expect('caller view', 'VERSION(1) SORTING(Name) ORDER(Descending) WHERE(Status=FILTER(Open),Day Filter=FILTER(1))');
+        Observer.Expect('by value', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=1 name=C-NAME total=12');
+        Observer.Expect('by value view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Open, Day Filter: 1} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -592,7 +615,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Publisher.RaiseVarPublisher(Row);
         ObserveSlot(Observer, 'var publisher');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('var publisher', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('var publisher view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -608,7 +634,12 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Publisher.RaiseVarPublisher(Row);
         ObserveSlot(Observer, 'var publisher');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('caller', 'temp=No same=Yes f={Status: Open, Day Filter: 1} g2={Amount: >15} gm1={} grp=0 n=1 key=Name asc=No mo=No m=1 ff={1} cf={Day Filter: 1} id=1 name=C-NAME total=5');
+        Observer.Expect('caller view', 'VERSION(1) SORTING(Name) ORDER(Descending) WHERE(Status=FILTER(Open),Day Filter=FILTER(1))');
+        Observer.Expect('var publisher', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=1 name=C-NAME total=12');
+        Observer.Expect('var publisher view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Open, Day Filter: 1} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -622,7 +653,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Row.RaiseTableVar();
         ObserveSlot(Observer, 'table var');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('table var', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('table var view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -638,7 +672,12 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Row.RaiseTableVar();
         ObserveSlot(Observer, 'table var');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('caller', 'temp=No same=Yes f={Status: Open, Day Filter: 1} g2={Amount: >15} gm1={} grp=0 n=1 key=Name asc=No mo=No m=1 ff={1} cf={Day Filter: 1} id=1 name=C-NAME total=5');
+        Observer.Expect('caller view', 'VERSION(1) SORTING(Name) ORDER(Descending) WHERE(Status=FILTER(Open),Day Filter=FILTER(1))');
+        Observer.Expect('table var', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=1 name=C-NAME total=12');
+        Observer.Expect('table var view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Open, Day Filter: 1} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -652,7 +691,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Row.RaiseTableByValue();
         ObserveSlot(Observer, 'table by value');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('table by value', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('table by value view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -668,7 +710,12 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Row.RaiseTableByValue();
         ObserveSlot(Observer, 'table by value');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('caller', 'temp=No same=Yes f={Status: Open, Day Filter: 1} g2={Amount: >15} gm1={} grp=0 n=1 key=Name asc=No mo=No m=1 ff={1} cf={Day Filter: 1} id=1 name=C-NAME total=5');
+        Observer.Expect('caller view', 'VERSION(1) SORTING(Name) ORDER(Descending) WHERE(Status=FILTER(Open),Day Filter=FILTER(1))');
+        Observer.Expect('table by value', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=1 name=C-NAME total=12');
+        Observer.Expect('table by value view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Open, Day Filter: 1} n=1 grp=0');
+        Observer.Verify();
     end;
 
 
@@ -685,7 +732,12 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         ObserveSlot(Observer, 'two by value');
         ObserveSlot(Observer, 'two second');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('two by value', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('two by value view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('two second', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('two second view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -703,7 +755,12 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         ObserveSlot(Observer, 'report item');
         ObserveSlot(Observer, 'report sender');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('report item', 'temp=No same=Yes f={Status: Posted} g2={} gm1={} grp=0 n=1 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('report item view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Posted))');
+        Observer.Expect('report sender', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('report sender view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -723,7 +780,14 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         ObserveSlot(Observer, 'report item');
         ObserveSlot(Observer, 'report sender');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('caller', 'temp=No same=Yes f={Status: Open, Day Filter: 1} g2={Amount: >15} gm1={} grp=0 n=1 key=Name asc=No mo=No m=1 ff={1} cf={Day Filter: 1} id=1 name=C-NAME total=5');
+        Observer.Expect('caller view', 'VERSION(1) SORTING(Name) ORDER(Descending) WHERE(Status=FILTER(Open),Day Filter=FILTER(1))');
+        Observer.Expect('report item', 'temp=No same=Yes f={Status: Open, Day Filter: 1} g2={Amount: >15} gm1={} grp=0 n=1 key=Name asc=No mo=No m=1 ff={1} cf={Day Filter: 1} id=0 name= total=0');
+        Observer.Expect('report item view', 'VERSION(1) SORTING(Name) ORDER(Descending) WHERE(Status=FILTER(Open),Day Filter=FILTER(1))');
+        Observer.Expect('report sender', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('report sender view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Open, Day Filter: 1} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -741,7 +805,12 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         ObserveSlot(Observer, 'report item');
         ObserveSlot(Observer, 'report');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('report item', 'temp=No same=Yes f={Status: Posted} g2={} gm1={} grp=0 n=1 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('report item view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Posted))');
+        Observer.Expect('report', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('report view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -755,7 +824,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Publisher.RaiseSender(Row);
         ObserveSlot(Observer, 'sender');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('sender', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('sender view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -770,7 +842,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         SinglePublisher.RaiseSingle(Row);
         ObserveSlot(Observer, 'single');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('single', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('single view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -787,7 +862,12 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         SinglePublisher.RaiseSingle(Row);
         ObserveSlot(Observer, 'single');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('caller', 'temp=No same=Yes f={Status: Open, Day Filter: 1} g2={Amount: >15} gm1={} grp=0 n=1 key=Name asc=No mo=No m=1 ff={1} cf={Day Filter: 1} id=1 name=C-NAME total=5');
+        Observer.Expect('caller view', 'VERSION(1) SORTING(Name) ORDER(Descending) WHERE(Status=FILTER(Open),Day Filter=FILTER(1))');
+        Observer.Expect('single', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=1 name=C-NAME total=12');
+        Observer.Expect('single view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Open, Day Filter: 1} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -801,7 +881,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Publisher.RaiseCommitIgnore(Row);
         ObserveSlot(Observer, 'commit ignore');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('commit ignore', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('commit ignore view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -817,7 +900,12 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Publisher.RaiseCommitIgnore(Row);
         ObserveSlot(Observer, 'commit ignore');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('caller', 'temp=No same=Yes f={Status: Open, Day Filter: 1} g2={Amount: >15} gm1={} grp=0 n=1 key=Name asc=No mo=No m=1 ff={1} cf={Day Filter: 1} id=1 name=C-NAME total=5');
+        Observer.Expect('caller view', 'VERSION(1) SORTING(Name) ORDER(Descending) WHERE(Status=FILTER(Open),Day Filter=FILTER(1))');
+        Observer.Expect('commit ignore', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=1 name=C-NAME total=12');
+        Observer.Expect('commit ignore view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Open, Day Filter: 1} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -831,7 +919,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Publisher.RaiseBusiness(Row);
         ObserveSlot(Observer, 'business');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('business', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('business view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -847,7 +938,12 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Publisher.RaiseBusiness(Row);
         ObserveSlot(Observer, 'business');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('caller', 'temp=No same=Yes f={Status: Open, Day Filter: 1} g2={Amount: >15} gm1={} grp=0 n=1 key=Name asc=No mo=No m=1 ff={1} cf={Day Filter: 1} id=1 name=C-NAME total=5');
+        Observer.Expect('caller view', 'VERSION(1) SORTING(Name) ORDER(Descending) WHERE(Status=FILTER(Open),Day Filter=FILTER(1))');
+        Observer.Expect('business', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=1 name=C-NAME total=12');
+        Observer.Expect('business view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Open, Day Filter: 1} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -861,7 +957,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Publisher.RaiseInternal(Row);
         ObserveSlot(Observer, 'internal');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('internal', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('internal view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -878,7 +977,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         UnbindSubscription(Manual);
         ObserveSlot(Observer, 'manual');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('manual', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('manual view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -897,7 +999,12 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         UnbindSubscription(Manual);
         ObserveSlot(Observer, 'manual');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('caller', 'temp=No same=Yes f={Status: Open, Day Filter: 1} g2={Amount: >15} gm1={} grp=0 n=1 key=Name asc=No mo=No m=1 ff={1} cf={Day Filter: 1} id=1 name=C-NAME total=5');
+        Observer.Expect('caller view', 'VERSION(1) SORTING(Name) ORDER(Descending) WHERE(Status=FILTER(Open),Day Filter=FILTER(1))');
+        Observer.Expect('manual', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=1 name=C-NAME total=12');
+        Observer.Expect('manual view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Open, Day Filter: 1} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -913,7 +1020,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Publisher.RaiseByValue(Row);
         ObserveSlot(Observer, 'by value');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('by value', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('by value view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -929,7 +1039,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Publisher.RaiseByValue(Row);
         ObserveSlot(Observer, 'by value');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('by value', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('by value view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={} n=2 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -945,7 +1058,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Publisher.RaiseByValue(Row);
         ObserveSlot(Observer, 'by value');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('by value', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('by value view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -961,7 +1077,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         ObserveSlot(Observer, 'by value');
         Row.FilterGroup(0);
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('by value', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('by value view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -977,7 +1096,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Publisher.RaiseVarPublisher(Row);
         ObserveSlot(Observer, 'var publisher');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('var publisher', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('var publisher view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -993,7 +1115,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Publisher.RaiseVarPublisher(Row);
         ObserveSlot(Observer, 'var publisher');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('var publisher', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('var publisher view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={} n=2 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1007,7 +1132,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Publisher.RaiseTwoParameters(Row);
         ObserveSlot(Observer, 'two parameters');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('two parameters', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('two parameters view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1021,7 +1149,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Publisher.OnPublic(Row);
         ObserveSlot(Observer, 'public');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('public', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('public view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1047,7 +1178,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Publisher.RaiseByValue(TempRow);
         ObserveSlot(Observer, 'by value');
         ObserveCaller(Observer, TempRow);
-        Observer.Finish();
+        Observer.Expect('by value', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=5 name=T-FIVE total=0');
+        Observer.Expect('by value view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Posted} n=2 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1073,7 +1207,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Publisher.RaiseVarPublisher(TempRow);
         ObserveSlot(Observer, 'var publisher');
         ObserveCaller(Observer, TempRow);
-        Observer.Finish();
+        Observer.Expect('var publisher', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=5 name=T-FIVE total=0');
+        Observer.Expect('var publisher view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Posted} n=2 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1087,7 +1224,6 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Seed();
         Company.SetFilter(Name, '<>%1', CompanyName());
         Found := Company.FindFirst();
-        Observer.Observe('other company found', Format(Found));
         if Found then begin
             // Rows of the other company: 11 (Open) and 12 (Posted); the session company keeps rows 1, 2, 3.
             Other.ChangeCompany(Company.Name);
@@ -1103,7 +1239,13 @@ codeunit 78756 "BVS By Value Subscriber Tests"
             Other.Reset();
             Other.DeleteAll();
         end;
-        Observer.Finish();
+        // A host with one company measures nothing here (the other-company cell needs a second company).
+        if Found then begin
+            Observer.Expect('by value', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=12 name=O-TWO total=0');
+            Observer.Expect('by value view', 'VERSION(1) SORTING(Id)');
+            Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        end;
+        Observer.Verify();
     end;
 
     [Test]
@@ -1117,7 +1259,6 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Seed();
         Company.SetFilter(Name, '<>%1', CompanyName());
         Found := Company.FindFirst();
-        Observer.Observe('other company found', Format(Found));
         if Found then begin
             // Rows of the other company: 11 (Open) and 12 (Posted); the session company keeps rows 1, 2, 3.
             Other.ChangeCompany(Company.Name);
@@ -1133,7 +1274,13 @@ codeunit 78756 "BVS By Value Subscriber Tests"
             Other.Reset();
             Other.DeleteAll();
         end;
-        Observer.Finish();
+        // A host with one company measures nothing here (the other-company cell needs a second company).
+        if Found then begin
+            Observer.Expect('var publisher', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=12 name=O-TWO total=0');
+            Observer.Expect('var publisher view', 'VERSION(1) SORTING(Id)');
+            Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        end;
+        Observer.Verify();
     end;
 
     [Test]
@@ -1153,7 +1300,18 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         ObserveSlot(Observer, 'after modify xrec');
         ObserveSlot(Observer, 'after modify var');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('before modify', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=3 name=Z-NAME total=0');
+        Observer.Expect('before modify view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('before modify xrec', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=3 name=Z-NAME total=0');
+        Observer.Expect('before modify xrec view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('after modify', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=3 name=Z-NAME total=0');
+        Observer.Expect('after modify view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('after modify xrec', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=3 name=Z-NAME total=0');
+        Observer.Expect('after modify xrec view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('after modify var', 'temp=No same=Yes f={Status: Open} g2={} gm1={} grp=0 n=2 key=Id asc=Yes mo=No m=0 ff={} cf={} id=3 name=Z-NAME total=0');
+        Observer.Expect('after modify var view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open))');
+        Observer.Expect('caller after', 'f={Status: Open} n=2 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1172,7 +1330,15 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         ObserveSlot(Observer, 'after modify');
         ObserveSlot(Observer, 'after modify var');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('caller', 'temp=No same=Yes f={Status: Open, Day Filter: 1} g2={Amount: >15} gm1={} grp=0 n=1 key=Name asc=No mo=No m=1 ff={1} cf={Day Filter: 1} id=1 name=C-NAME total=5');
+        Observer.Expect('before modify', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=1 name=Z-NAME total=12');
+        Observer.Expect('before modify view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('after modify', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=1 name=Z-NAME total=12');
+        Observer.Expect('after modify view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('after modify var', 'temp=No same=Yes f={Status: Open, Day Filter: 1} g2={Amount: >15} gm1={} grp=0 n=1 key=Name asc=No mo=No m=1 ff={1} cf={Day Filter: 1} id=1 name=Z-NAME total=5');
+        Observer.Expect('after modify var view', 'VERSION(1) SORTING(Name) ORDER(Descending) WHERE(Status=FILTER(Open),Day Filter=FILTER(1))');
+        Observer.Expect('caller after', 'f={Status: Open, Day Filter: 1} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1189,7 +1355,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Row.Insert(false);
         ObserveSlot(Observer, 'after insert');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('after insert', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=4 key=Id asc=Yes mo=No m=0 ff={} cf={} id=4 name=D-NAME total=0');
+        Observer.Expect('after insert view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1204,7 +1373,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Row.Delete(false);
         ObserveSlot(Observer, 'after delete');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('after delete', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=2 key=Id asc=Yes mo=No m=0 ff={} cf={} id=2 name=B-NAME total=0');
+        Observer.Expect('after delete view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Posted} n=0 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1219,7 +1391,10 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Row.Validate(Name, 'V-NAME');
         ObserveSlot(Observer, 'after validate');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('after validate', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=1 name=V-NAME total=12');
+        Observer.Expect('after validate view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Open} n=2 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1234,6 +1409,9 @@ codeunit 78756 "BVS By Value Subscriber Tests"
         Row.Rename(9);
         ObserveSlot(Observer, 'after rename');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('after rename', 'temp=No same=Yes f={} g2={} gm1={} grp=0 n=3 key=Id asc=Yes mo=No m=0 ff={} cf={} id=9 name=A-NAME total=0');
+        Observer.Expect('after rename view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Open} n=2 grp=0');
+        Observer.Verify();
     end;
 }
