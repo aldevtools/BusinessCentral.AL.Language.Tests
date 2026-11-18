@@ -108,8 +108,9 @@ batch, and the old rules "one claim per codeunit" and "never define an object in
    A file that defines its own object for one of these reasons says so in one line: `// local object: <reason>`.
 3. **Object budget.** A new test codeunit may add at most 3 objects that are not tests (tables, pages, reports, xmlports and so on)
    without the `// local object:` line. Enforced by an object budget check in CI (added in a later restructure pull request).
-   Shared fixtures do not change once they are merged: never change their fields, keys or triggers. Add a new fixture instead,
-   with an id in 50000..50999.
+   A merged shared fixture may change in place. Every change to a file that is already under `tests/*/_fixtures/` (an edit, a
+   deletion, or a move out of the folder) makes CI run every test codeunit for that pull request (see "When everything runs").
+   A new fixture file, with an id in 50000..50999, is selected as usual.
 4. **Look for a duplicate before writing.** Run `find-similar.py <draft>`: it lists existing tests with the same calls and asserted
    values (enforced by `find-similar.py`, added in a later restructure pull request; until then, search the corpus by hand). When it
    finds one, cite the existing test and write nothing.
@@ -129,6 +130,13 @@ batch, and the old rules "one claim per codeunit" and "never define an object in
    must-not-compile case also adds its line `<file stem><TAB><area>` to `tests/must-not-compile/areas.tsv`.
 9. **No build outputs.** Do not commit build outputs or generated layouts (`.app` files, `bc-full-results.json`). Microsoft's symbol packages are not committed either; `.alpackages/` folders are git-ignored.
    One claim per test procedure; many test procedures per codeunit of a topic.
+10. **Name the objects you assert on.** A test must not assert over an object id range that other files can add to. CI runs a
+    test again only when it names a changed object, and results of tests that did not run are reused. So a test that counts
+    the rows of `AllObj`, `Table Metadata`, `CodeUnit Metadata` or a similar table over an id range keeps an old result when
+    another pull request adds an object in that range. Filter single ids, or add a filter on the name field with a fixed list
+    of names (`SetFilter("Object Name", '%1|%2', ...)`). A range is fine when an object of the table's kind already exists at
+    every id in it, or when it lies outside every app's `idRanges`. `.github/scripts/check-id-ranges.py` checks this in the
+    `Object IDs must be unique and in range` job.
 
 ---
 
@@ -370,6 +378,7 @@ Every test codeunit runs when one of these is true:
   - an `Install` or `Upgrade` codeunit that uses an object the change touches;
   - a codeunit with `Subtype = Install`, `Upgrade` or `TestRunner`;
   - a permission set, permission set extension or entitlement;
+  - a shared fixture file that the base branch already has: an edit, a deletion or a move (standing rule 3);
   - more than 50 files in the test apps;
   - a file outside the test apps that CI may read. These paths are known to be unused by CI and do not count: `docs/`, `scripts/`, `.claude/`, `tests/must-not-compile/`, Markdown files, `tests/al-surface*.json`, `v2-classification.json`, `.gitignore`, and apps under `tests/` that no CI job builds (the isolation probe).
 - The selection is uncertain: a changed object that no test codeunit uses (a test can still reach it through metadata, for example `AllObj` filtered on an id range), an AL file with no object the script can read, or a changed non-AL file that no object names.
@@ -488,6 +497,7 @@ Before opening a PR, verify:
 - [ ] `Initialize()` calls `DeleteAll()` on every table used in the codeunit
 - [ ] The file is in `<area>/<topic>/` (no writer id, issue number or batch name in a folder name), and a new topic is in the area README
 - [ ] Shared fixtures used; each local object has a `// local object: <reason>` line
+- [ ] No test asserts over an object id range that other files can add to (standing rule 10)
 - [ ] New tests are at the end of the topic's existing codeunit; no codeunit renumbered, no test or must-not-compile case renamed
 - [ ] A removed or merged test has a line in `tests/rename-map.tsv`
 - [ ] Test name uniquely identifies the claim without opening the body

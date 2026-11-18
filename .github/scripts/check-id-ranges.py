@@ -2,7 +2,7 @@
 """Fail the build when a test filters the object ids of a metadata table by a range that another file can add to.
 
 Why: CI selects the test codeunits that name a changed object, and the al-runtime-rs corpus bump reuses the results of
-the codeunits it did not select (CONTRIBUTING.md, standing rule 3 and "Test selection in CI"). A test that reads AllObj,
+the codeunits it did not select (CONTRIBUTING.md, standing rule 10 and "Test selection in CI"). A test that reads AllObj,
 Table Metadata or a similar table over an id range names no object of that range. A new object in the range changes
 the rows it reads, the selection does not run it again, and its old result would be reused.
 
@@ -249,7 +249,7 @@ def main(argv=None):
             bad.append((rel, line, msg))
     for rel, line, msg in bad:
         print('::error file=%s,line=%d::%s. Name the objects you assert on: add a filter on the name field with a closed '
-              'list, or filter single ids (CONTRIBUTING.md, standing rule 3).' % (rel, line, msg))
+              'list, or filter single ids (CONTRIBUTING.md, standing rule 10).' % (rel, line, msg))
     if not bad:
         print('No test filters the object ids of a metadata table by an open range.')
     return 1 if bad else 0

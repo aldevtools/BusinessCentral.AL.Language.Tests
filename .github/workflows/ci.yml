@@ -160,7 +160,7 @@ jobs:
       - run: python3 .github/scripts/check-object-ids.py .
 
       # A test must not filter object ids over a range that another file can add to: CI does not run it again
-      # when an object is added there (CONTRIBUTING.md, standing rule 3).
+      # when an object is added there (CONTRIBUTING.md, standing rule 10).
       - run: python3 .github/scripts/check-id-ranges.py .
 
       # An install/upgrade trigger that raises breaks the publish of the corpus app on every BC version.

@@ -189,7 +189,7 @@ codeunit 60802 "Test AllObj Virtual Table"
         // Tables 60028, 60029 and 60030 are three consecutive fixture tables, so the count is
         // a concrete number rather than "more than zero". The name filter lists the four objects
         // of 60028..60030 these counts are about, so an object that another file adds in that
-        // range does not change them (CONTRIBUTING.md, standing rule 3).
+        // range does not change them (CONTRIBUTING.md, standing rule 10).
         AllObj.SetFilter(
             "Object Name", '%1|%2|%3|%4',
             'ALT Relation Parent', 'ALT Relation Child', 'ALT Relation Parent B', 'ALT Event Mutation Control');
