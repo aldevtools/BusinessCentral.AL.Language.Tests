@@ -1,5 +1,7 @@
 // Shared fixture: tells two service-tier builds of one BC major apart at run time, for a fact that changed inside a major.
-// Microsoft republished BC 27.5 and 28.5 on .NET 10 in November 2026. Corpus CI of 2026-11-17 resolved the new artifacts: Base Application
+// Microsoft republished BC 27.5, 28.4 and 28.5 on .NET 10 in November 2026 (the Windows nightly of 2026-11-17 ran 28.4.54974.58381 on
+// platform 28.0.58336.0). PlatformFileVersion() is a constant built into Base Application, not read from the service tier: a tier whose
+// platform is updated without Base Application keeps the old value. Corpus CI of 2026-11-17 resolved the new artifacts: Base Application
 // "Application System Constants".PlatformFileVersion() gave 27.0.58331.0 and 28.0.58336.0. The builds before ran on .NET 8 and gave
 // 27.0.54968.56214 and 28.0.54946.56347. BC 29.0 runs on .NET 10. A preprocessor symbol (BC28PLUS, BC29PLUS) is per major, so it cannot
 // tell the two builds of 27.5 or 28.5 apart. A test that asserts a fact that changed with the new build holds both values:

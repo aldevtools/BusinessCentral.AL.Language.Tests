@@ -268,7 +268,7 @@ codeunit 97000 "LT TRL Resource Rows"
         Observer.Expect('own length', '5451');
 #else
         // The .NET 10 builds of 27.5 and 28.5 store 4455 bytes on the Linux CI tier (corpus CI 2026-11-17); the Windows container of the
-        // same 28.5 build stores 4467 (nightly 2026-11-17), the earlier Windows build 4484.
+        // BC 28.4 .NET 10 build (28.4.54974.58381, platform 28.0.58336) stores 4467 (nightly 2026-11-17), the earlier Windows build 4484.
         if PlatformBuild.IsNet10Build() then
             Observer.Expect('own length', '4455')
         else

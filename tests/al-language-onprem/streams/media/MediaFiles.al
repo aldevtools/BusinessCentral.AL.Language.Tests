@@ -519,7 +519,9 @@ codeunit 61286 "LT S Media Files"
         Observer.Ignore('export is the file');
 #else
         // BC 27.5 and 28.5 store a re-zipped package too: Windows BC 28.4 (nightly 2026-11-16) and the .NET 10 builds on the Linux CI tier
-        // (CI 2026-11-17). The .NET 8 builds kept the file's bytes on the Linux tier only. The compressed length depends on the host.
+        // (CI 2026-11-17). The .NET 8 builds kept the file's bytes on the Linux tier only. 'export is the file' = 'No' is measured on the
+        // .NET 10 builds on Linux only (corpus CI run 44239002147); Windows has not measured it. The export length is not asserted: no
+        // Windows length and no length on the .NET 10 builds is known (Linux BC 29: 919 bytes).
         Observer.Expect('tenant content is the file', 'No');
         Observer.Ignore('export length');
         Observer.Expect('export is the file', 'No');

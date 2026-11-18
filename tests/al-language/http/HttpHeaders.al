@@ -476,8 +476,7 @@ codeunit 72022 "LT HtT Headers Errors"
         Observer.Expect('emptyName|code', 'InvalidHeader:Argument');
         Observer.Expect('blankName|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
         // The .NET 10 build of 27.5 answers a name of one blank with InvalidHeader:Format, as BC 29 and the .NET 10 build of 28.5 do (corpus CI
-        // 2026-11-17). The code of three blanks on that build is not measured yet (only the first mismatch is reported); the CI run of this
-        // change measures it.
+        // 2026-11-17). The code of three blanks gives InvalidHeader:Format on that build too (corpus CI run 44239002147, 2026-11-18).
         if PlatformBuild.IsNet10Build() then
             Observer.Expect('blankName|code', 'InvalidHeader:Format')
         else
