@@ -6,8 +6,9 @@
 // Facts: the fresh tenant has no rows; Report.WordLayout, RdlcLayout and ExcelLayout return the bytes of the layout file (length, first bytes, SHA-256)
 //   and Report.RdlcLayout of a report without an RDLC layout answers Yes with an empty stream; Insert of a row for Microsoft report 1305 and for
 //   own reports with an RDLC, Word, Excel or Custom layout (Custom Type empty or an unknown GUID: Layout Format External): the answer, the stored row,
-//   and whether the stored layout has the length of the file (an own Word layout is 4463 bytes on 27 and 28 and 5451 on 29; an RDLC layout of an own
-//   report is 2022, an Excel layout 19696 on 27 and 28 and 20313 on 29, a Microsoft report's layout grows or changes with its data set).
+//   and whether the stored layout has the length of the file (an own Word layout is 4463 bytes on the .NET 8 builds of 27.5 and 28.5, 4455 on
+//   their .NET 10 builds and 5451 on 29; an RDLC layout of an own report is 2022, an Excel layout 19696 on the .NET 8 builds and 20313 on the
+//   .NET 10 builds and 29, a Microsoft report's layout grows or changes with its data set). Lengths are the Linux CI tier's.
 //   A Word layout with field bindings for other columns is accepted on a Microsoft report without an error.
 // Every inserted row is deleted again by the test.
 
@@ -246,6 +247,7 @@ codeunit 97000 "LT TRL Resource Rows"
         Observer: Codeunit "Probe Observer";
         Layout: Record "Tenant Report Layout";
         NoType: Guid;
+        PlatformBuild: Codeunit "ALT Platform Build";
     begin
         DoInsert(Observer, 'own', Report::"LT Y17 Lay R1", Layout."Layout Format"::Word, 'trl/Y17LayR1.docx', NoType, false);
         Observer.Expect('own insert', 'Yes');
@@ -265,11 +267,12 @@ codeunit 97000 "LT TRL Resource Rows"
 #if BC29PLUS
         Observer.Expect('own length', '5451');
 #else
-#if BC28PLUS
-        Observer.Expect('own length', '4463');
-#else
-        Observer.Expect('own length', '4463');
-#endif
+        // The .NET 10 builds of 27.5 and 28.5 store 4455 bytes on the Linux CI tier (corpus CI 2026-11-17); the Windows container of the
+        // BC 28.4 .NET 10 build (28.4.54974.58381, platform 28.0.58336) stores 4467 (nightly 2026-11-17), the earlier Windows build 4484.
+        if PlatformBuild.IsNet10Build() then
+            Observer.Expect('own length', '4455')
+        else
+            Observer.Expect('own length', '4463');
 #endif
         Observer.Verify();
     end;
@@ -332,6 +335,7 @@ codeunit 97000 "LT TRL Resource Rows"
         Observer: Codeunit "Probe Observer";
         Layout: Record "Tenant Report Layout";
         NoType: Guid;
+        PlatformBuild: Codeunit "ALT Platform Build";
     begin
         DoInsert(Observer, 'excel own', Report::"LT Y17 Lay R4", Layout."Layout Format"::Excel, 'trl/Y17LayR4.xlsx', NoType, false);
         Observer.Expect('excel own insert', 'Yes');
@@ -343,11 +347,11 @@ codeunit 97000 "LT TRL Resource Rows"
 #if BC29PLUS
         Observer.Expect('excel own length', '20313');
 #else
-#if BC28PLUS
-        Observer.Expect('excel own length', '19696');
-#else
-        Observer.Expect('excel own length', '19696');
-#endif
+        // The .NET 10 builds of 27.5 and 28.5 store 20313 bytes, as BC 29 does (corpus CI and the Windows nightly, 2026-11-17).
+        if PlatformBuild.IsNet10Build() then
+            Observer.Expect('excel own length', '20313')
+        else
+            Observer.Expect('excel own length', '19696');
 #endif
         Observer.Verify();
     end;
