@@ -4,7 +4,33 @@
 // local object: an Option variable handed to a var parameter declared without members is what is under test.
 // Probe (al-runner issues 7994 and 8291, follow-up of OptionVarMemberLists.al): what a var Value: Option parameter without
 //   members shows after the callee wrote to it, and what the caller shows after the call.
-// FACTS: to be filled from the observation.
+//   Cells: the callee assigns (Value := 1) and then reads, evaluates (result form, statement form, statement form inside a
+//   TryFunction), clears, hands on, or stores another Option (other members, memberless, same members); a global read by name
+//   during the call; the caller's readers after the call (Format 0 1, Variant, SetRange, SetFilter, Validate, FieldRef); a var
+//   parameter with the same or other members handed on; fields of a var record parameter and of Rec (with OptionCaption);
+//   var arrays of memberless Option (store, Clear of the array and of an element, CopyArray); CopyArray into a local memberless
+//   array; a by-value memberless array parameter.
+// Facts: after Value := 1 the memberless var parameter keeps the caller's member list: Format and StrSubstNo inside show Second,
+//   Evaluate('Third'), ('third') and ('2') succeed with Third, a hop shows Second. Evaluate('Nope') with the result used returns
+//   false, keeps Second and leaves no last error; as a statement it raises "'Nope' is not an option. The existing options are:
+//   First,Second,Third" (code InvalidOptionString), the same for '' ("'' is not an option. ..."), and the value stays Second.
+//   Clear gives First (0) inside and in the caller; Clear then Value := 1 gives Second. A global handed in reads Second by name
+//   during the call. Storing an Option with members P,Q,R (R), a memberless Option (2) or an Option with the caller's members
+//   (Third) into the parameter: Third inside and in the caller. Every reader of the caller after the call shows Second (Two
+//   for a caption field). A var parameter with the caller's members handed on behaves like the local caller. A var parameter
+//   with other members (A,B,C) handed on: the memberless callee sees B, Evaluate('C') succeeds (caller Third), Evaluate('Third')
+//   fails and the value becomes A (caller First). Fields of a var record parameter and of Rec (from another codeunit or the
+//   table itself): Second, or the caption Two for an OptionCaption field; Evaluate into the caption field accepts the caption
+//   (Three) and the name (Second, shown as Two). var array of memberless Option: a store of an Option with other members shows
+//   Third, but a store of a memberless Option or of an Option with the caller's members shows the ordinal 2 inside and in the
+//   caller. Clear of the array or of an element gives First (0); a later A[1] := 1 shows Second. CopyArray from the var array
+//   into a local memberless array shows Second, also after a store of 1; CopyArray from a memberless array into the var array
+//   shows the ordinals (2, 1) inside and in the caller. CopyArray from a local array with members into a local memberless
+//   array shows Second, also after a store of 1. A by-value memberless array parameter shows Second, then Third after a store
+//   of 2; the caller is unchanged.
+//   Whole-array assignment between an array with members and a memberless array does not compile (AL0145).
+// BC versions: identical on 28.5 and 29.0 (local Windows BC tiers). 27.5: the local leg did not run (infrastructure); the
+//   corpus CI run of the pull request measures it.
 table 75250 "OVN Row"
 {
     DataClassification = SystemMetadata;
@@ -93,7 +119,11 @@ codeunit 75255 "OVN Memberless Writes Tests"
         Observer.Observe('after', Format(V));
         Observer.Observe('after 0 2', Format(V, 0, 2));
         Observer.Observe('after StrSubstNo', StrSubstNo('%1', V));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|Second|1');
+        Observer.Expect('after', 'Second');
+        Observer.Expect('after 0 2', '1');
+        Observer.Expect('after StrSubstNo', 'Second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -116,7 +146,16 @@ codeunit 75255 "OVN Memberless Writes Tests"
         Observer.Observe('Nope inside', Assign1ThenEvalResult(V, 'Nope'));
         Observer.Observe('Nope after', Format(V));
         Observer.Observe('Nope last error', GetLastErrorText());
-        Observer.Finish();
+        Observer.Expect('Third inside', 'Yes|Third|2');
+        Observer.Expect('Third after', 'Third');
+        Observer.Expect('third inside', 'Yes|Third|2');
+        Observer.Expect('third after', 'Third');
+        Observer.Expect('2 inside', 'Yes|Third|2');
+        Observer.Expect('2 after', 'Third');
+        Observer.Expect('Nope inside', 'No|Second|1');
+        Observer.Expect('Nope after', 'Second');
+        Observer.Expect('Nope last error', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -151,7 +190,22 @@ codeunit 75255 "OVN Memberless Writes Tests"
         Observer.Observe('empty last error', GetLastErrorText());
         Observer.Observe('empty last code', GetLastErrorCode());
         Observer.Observe('empty after', Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('Third try', 'Yes');
+        Observer.Expect('Third inside', 'Third|2');
+        Observer.Expect('Third last error', '');
+        Observer.Expect('Third last code', '');
+        Observer.Expect('Third after', 'Third|2');
+        Observer.Expect('Nope try', 'No');
+        Observer.Expect('Nope inside', 'not reached');
+        Observer.Expect('Nope last error', '''Nope'' is not an option. The existing options are: First,Second,Third');
+        Observer.Expect('Nope last code', 'InvalidOptionString');
+        Observer.Expect('Nope after', 'Second|1');
+        Observer.Expect('empty try', 'No');
+        Observer.Expect('empty inside', 'not reached');
+        Observer.Expect('empty last error', ''''' is not an option. The existing options are: First,Second,Third');
+        Observer.Expect('empty last code', 'InvalidOptionString');
+        Observer.Expect('empty after', 'Second|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -163,7 +217,9 @@ codeunit 75255 "OVN Memberless Writes Tests"
         V := V::First;
         Observer.Observe('inside', Assign1ThenEvalStatement(V, 'Third'));
         Observer.Observe('after', Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Third|2');
+        Observer.Expect('after', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -181,7 +237,13 @@ codeunit 75255 "OVN Memberless Writes Tests"
         V := V::Third;
         Observer.Observe('clear then assign inside', ClearThenAssign1(V));
         Observer.Observe('clear then assign after', Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('assign then clear inside', 'First|0');
+        Observer.Expect('assign then clear after', 'First|0');
+        Observer.Expect('clear only inside', 'First|0');
+        Observer.Expect('clear only after', 'First|0');
+        Observer.Expect('clear then assign inside', 'Second|1');
+        Observer.Expect('clear then assign after', 'Second|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -196,7 +258,11 @@ codeunit 75255 "OVN Memberless Writes Tests"
         V := V::First;
         Observer.Observe('hop evaluate', Assign1ThenHopEval(V));
         Observer.Observe('hop evaluate after', Format(V));
-        Observer.Finish();
+        Observer.Expect('hop format', 'Second|Second|1');
+        Observer.Expect('hop format after', 'Second');
+        Observer.Expect('hop evaluate', 'Yes|Third|2');
+        Observer.Expect('hop evaluate after', 'Third');
+        Observer.Verify();
     end;
 
     [Test]
@@ -214,7 +280,13 @@ codeunit 75255 "OVN Memberless Writes Tests"
         V := V::First;
         Observer.Observe('same members inside', StoreSameMembers(V));
         Observer.Observe('same members after', Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('other members inside', 'Third|2');
+        Observer.Expect('other members after', 'Third|2');
+        Observer.Expect('memberless local inside', 'Third|2');
+        Observer.Expect('memberless local after', 'Third|2');
+        Observer.Expect('same members inside', 'Third|2');
+        Observer.Expect('same members after', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -227,7 +299,10 @@ codeunit 75255 "OVN Memberless Writes Tests"
         GlobalV := GlobalV::First;
         Observer.Observe('assign then read', Assign1ReadGlobalInside(GlobalV));
         Observer.Observe('after', Format(GlobalV) + '|' + Format(GlobalV, 0, 2));
-        Observer.Finish();
+        Observer.Expect('read only', 'Second|Second|1');
+        Observer.Expect('assign then read', 'Second|Second|1');
+        Observer.Expect('after', 'Second|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -262,7 +337,17 @@ codeunit 75255 "OVN Memberless Writes Tests"
         Observer.Observe('FieldRef SetRange', FldRef.GetFilter());
         FldRef.SetFilter('%1', V);
         Observer.Observe('FieldRef SetFilter', FldRef.GetFilter());
-        Observer.Finish();
+        Observer.Expect('Format 0 1', 'Second');
+        Observer.Expect('Format 0 0', 'Second');
+        Observer.Expect('Variant', 'Second');
+        Observer.Expect('SetRange GetFilter', 'Second');
+        Observer.Expect('SetFilter GetFilter', 'Second');
+        Observer.Expect('field assign', 'Second');
+        Observer.Expect('Validate caption field', 'Two');
+        Observer.Expect('FieldRef Value', 'Second');
+        Observer.Expect('FieldRef SetRange', 'Second');
+        Observer.Expect('FieldRef SetFilter', 'Second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -277,7 +362,11 @@ codeunit 75255 "OVN Memberless Writes Tests"
         V := V::First;
         Observer.Observe('level 1 evaluate', Level1SameMembersEval(V));
         Observer.Observe('after evaluate', Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('level 1', 'Second|Second|1#Second#Second|1#Second|Second|1#Second');
+        Observer.Expect('after', 'Second|1');
+        Observer.Expect('level 1 evaluate', 'Yes|Third|2#Third');
+        Observer.Expect('after evaluate', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -289,7 +378,9 @@ codeunit 75255 "OVN Memberless Writes Tests"
         V := V::Second;
         Observer.Observe('level 1', Level1OtherMembers(V));
         Observer.Observe('after', Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('level 1', 'B|B|1#B#B|1#B|B|1#B');
+        Observer.Expect('after', 'Second|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -307,7 +398,13 @@ codeunit 75255 "OVN Memberless Writes Tests"
         V := V::First;
         Observer.Observe('evaluate 2', Level1OtherMembersEval(V, '2'));
         Observer.Observe('after 2', Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('evaluate C', 'Yes|C|2#C');
+        Observer.Expect('after C', 'Third|2');
+        Observer.Expect('evaluate Third', 'No|A|0#A');
+        Observer.Expect('after Third', 'First|0');
+        Observer.Expect('evaluate 2', 'Yes|C|2#C');
+        Observer.Expect('after 2', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -321,7 +418,10 @@ codeunit 75255 "OVN Memberless Writes Tests"
         Observer.Observe('inside', VarRecordFields(Row));
         Observer.Observe('after field', Format(Row.Opt) + '|' + Format(Row.Opt, 0, 2));
         Observer.Observe('after caption field', Format(Row.OptCap) + '|' + Format(Row.OptCap, 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|Second|1#Two|Two|1#Second#Two#Second|Second|1#Two|Two|1');
+        Observer.Expect('after field', 'Second|1');
+        Observer.Expect('after caption field', 'Two|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -336,7 +436,11 @@ codeunit 75255 "OVN Memberless Writes Tests"
         Row.OptCap := Row.OptCap::First;
         Observer.Observe('name Second', VarRecordCaptionEval(Row, 'Second'));
         Observer.Observe('after Second', Format(Row.OptCap) + '|' + Format(Row.OptCap, 0, 2));
-        Observer.Finish();
+        Observer.Expect('caption Three', 'Yes|Three|2#Three');
+        Observer.Expect('after Three', 'Three|2');
+        Observer.Expect('name Second', 'Yes|Two|1#Two');
+        Observer.Expect('after Second', 'Two|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -355,7 +459,13 @@ codeunit 75255 "OVN Memberless Writes Tests"
         Observer.Observe('via table procedure', Row.FieldsViaOwnProcedure());
         Observer.Observe('after own field', Format(Row.Opt) + '|' + Format(Row.Opt, 0, 2));
         Observer.Observe('after own caption field', Format(Row.OptCap) + '|' + Format(Row.OptCap, 0, 2));
-        Observer.Finish();
+        Observer.Expect('via other codeunit', 'Second|Second|1#Two|Two|1#Two|Two|1#Second#Two');
+        Observer.Expect('after lib field', 'Second|1');
+        Observer.Expect('after lib caption field', 'Two|1');
+        Observer.Expect('via table procedure', 'Second|Second|1#Two|Two|1#Two|Two|1#Second#Two');
+        Observer.Expect('after own field', 'Second|1');
+        Observer.Expect('after own caption field', 'Two|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -373,7 +483,13 @@ codeunit 75255 "OVN Memberless Writes Tests"
         Arr[1] := Arr[1]::First;
         Observer.Observe('same members inside', ArrayStoreSameMembers(Arr));
         Observer.Observe('same members after', Format(Arr[1]) + '|' + Format(Arr[1], 0, 2));
-        Observer.Finish();
+        Observer.Expect('other members inside', 'Third|2');
+        Observer.Expect('other members after', 'Third|2');
+        Observer.Expect('memberless local inside', '2|2');
+        Observer.Expect('memberless local after', '2|2');
+        Observer.Expect('same members inside', '2|2');
+        Observer.Expect('same members after', '2|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -387,7 +503,10 @@ codeunit 75255 "OVN Memberless Writes Tests"
         Observer.Observe('inside', ArrayClearAll(Arr));
         Observer.Observe('after 1', Format(Arr[1]) + '|' + Format(Arr[1], 0, 2));
         Observer.Observe('after 2', Format(Arr[2]) + '|' + Format(Arr[2], 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'First|0#First|0#Second|1');
+        Observer.Expect('after 1', 'Second|1');
+        Observer.Expect('after 2', 'First|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -401,7 +520,10 @@ codeunit 75255 "OVN Memberless Writes Tests"
         Observer.Observe('inside', ArrayClearElement(Arr));
         Observer.Observe('after 1', Format(Arr[1]) + '|' + Format(Arr[1], 0, 2));
         Observer.Observe('after 2', Format(Arr[2]) + '|' + Format(Arr[2], 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'First|0#Third|2#Second|1');
+        Observer.Expect('after 1', 'Second|1');
+        Observer.Expect('after 2', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -417,7 +539,12 @@ codeunit 75255 "OVN Memberless Writes Tests"
         Observer.Observe('copy in', ArrayCopyIn(Arr));
         Observer.Observe('after copy in 1', Format(Arr[1]) + '|' + Format(Arr[1], 0, 2));
         Observer.Observe('after copy in 2', Format(Arr[2]) + '|' + Format(Arr[2], 0, 2));
-        Observer.Finish();
+        Observer.Expect('copy out', 'Second|1#Second|1');
+        Observer.Expect('after copy out', 'Second|1');
+        Observer.Expect('copy in', '2|2#1|1');
+        Observer.Expect('after copy in 1', '2|2');
+        Observer.Expect('after copy in 2', '1|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -432,7 +559,9 @@ codeunit 75255 "OVN Memberless Writes Tests"
         Observer.Observe('CopyArray read', Format(Arr1[1]) + '|' + Format(Arr1[1], 0, 2));
         Arr1[1] := 1;
         Observer.Observe('CopyArray store', Format(Arr1[1]) + '|' + Format(Arr1[1], 0, 2));
-        Observer.Finish();
+        Observer.Expect('CopyArray read', 'Second|1');
+        Observer.Expect('CopyArray store', 'Second|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -444,7 +573,9 @@ codeunit 75255 "OVN Memberless Writes Tests"
         Arr[1] := Arr[1]::Second;
         Observer.Observe('inside', ByValueArrayStore(Arr));
         Observer.Observe('after', Format(Arr[1]) + '|' + Format(Arr[1], 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|1#Third|2');
+        Observer.Expect('after', 'Second|1');
+        Observer.Verify();
     end;
 
     local procedure FormatInsideVar(var Value: Option): Text
