@@ -300,6 +300,10 @@ jobs:
             # Use the bc_version input to run another minor.
             JSON='{"include":[{"bc_version":"27.5","runtime":"16.1","preprocessor_symbols":"BC27PLUS"},{"bc_version":"28.5","runtime":"17.1","preprocessor_symbols":"BC27PLUS,BC28PLUS"},{"bc_version":"29.0","runtime":"18.0","preprocessor_symbols":"BC27PLUS,BC28PLUS,BC29PLUS"}]}'
           fi
+          # The BC build of each version, resolved once here for every leg and shard of the run, and added to the matrix
+          # as bc_artifact_url and bc_build (CONTRIBUTING.md, "BC build and result provenance"). A version without a build
+          # fails this job, so no leg starts.
+          JSON=$(python3 .github/scripts/provenance.py resolve --versions "$JSON" --github) || exit 1
           echo "matrix=$JSON" >> "$GITHUB_OUTPUT"
 
       # Shards (CONTRIBUTING.md, "Shards in CI"): the al-language legs run their codeunits in three or four containers.
@@ -358,12 +362,9 @@ jobs:
       preprocessor_symbols: ${{ matrix.preprocessor_symbols }}
       al_tool_version:      "30.0.43.45776-beta"
       runtime_version:      ${{ matrix.runtime }}
-      # Pinned to the 29.0 build before 29.0.54011.55892 (published 2026-10-07). That build
-      # reports debugger protocol 9.0, and no published al tool supports it yet: 18.0.37.11445-beta
-      # and 18.0.43.1464 stop at 7.0, 30.0.42.60748-beta at 8.0, so every codeunit ended "al
-      # runtests exited 1 with no results" (corpus #561). Remove this once an al tool lists
-      # debugger 9.0.
-      bc_artifact_url: ${{ startsWith(matrix.bc_version, '29.') && 'https://bcartifacts-exdbf9fwegejdqak.b02.azurefd.net/sandbox/29.0.54011.55816/w1' || '' }}
+      # The build the prepare job resolved for this version, the same for every shard (provenance.py resolve).
+      bc_artifact_url:      ${{ matrix.bc_artifact_url }}
+      bc_build:             ${{ matrix.bc_build }}
       # Creating a company creates its tables, including Base Application's
       # OptimizeForTextSearch indexes, so a test that inserts a Company needs SQL Server
       # Full-Text Search. No official SQL Server Linux image ships it; this tag adds it
@@ -456,12 +457,9 @@ jobs:
       preprocessor_symbols: ${{ matrix.preprocessor_symbols }}
       al_tool_version:      "30.0.43.45776-beta"
       runtime_version:      ${{ matrix.runtime }}
-      # Pinned to the 29.0 build before 29.0.54011.55892 (published 2026-10-07). That build
-      # reports debugger protocol 9.0, and no published al tool supports it yet: 18.0.37.11445-beta
-      # and 18.0.43.1464 stop at 7.0, 30.0.42.60748-beta at 8.0, so every codeunit ended "al
-      # runtests exited 1 with no results" (corpus #561). Remove this once an al tool lists
-      # debugger 9.0.
-      bc_artifact_url: ${{ startsWith(matrix.bc_version, '29.') && 'https://bcartifacts-exdbf9fwegejdqak.b02.azurefd.net/sandbox/29.0.54011.55816/w1' || '' }}
+      # The build the prepare job resolved for this version, the same for every shard (provenance.py resolve).
+      bc_artifact_url:      ${{ matrix.bc_artifact_url }}
+      bc_build:             ${{ matrix.bc_build }}
       # Full-text search: a table with OptimizeForTextSearch = true needs it to install (corpus #633).
       sql_image:            "ghcr.io/aldevtools/msdyn365bc.on.linux/mssql:2022-fts"
       # RDLC rendering for the OnPrem SaveAs* file forms: see the test job above.
@@ -509,7 +507,9 @@ jobs:
       preprocessor_symbols: ${{ matrix.preprocessor_symbols }}
       al_tool_version:      "30.0.43.45776-beta"
       runtime_version:      ${{ matrix.runtime }}
-      bc_artifact_url: ${{ startsWith(matrix.bc_version, '29.') && 'https://bcartifacts-exdbf9fwegejdqak.b02.azurefd.net/sandbox/29.0.54011.55816/w1' || '' }}
+      # The build the prepare job resolved for this version, the same for every shard (provenance.py resolve).
+      bc_artifact_url:      ${{ matrix.bc_artifact_url }}
+      bc_build:             ${{ matrix.bc_build }}
       # Full-text search: a table with OptimizeForTextSearch = true needs it to install (corpus #633).
       sql_image:            "ghcr.io/aldevtools/msdyn365bc.on.linux/mssql:2022-fts"
 
@@ -585,7 +585,9 @@ jobs:
       preprocessor_symbols: ${{ matrix.preprocessor_symbols }}
       al_tool_version:      "30.0.43.45776-beta"
       runtime_version:      ${{ matrix.runtime }}
-      bc_artifact_url: ${{ startsWith(matrix.bc_version, '29.') && 'https://bcartifacts-exdbf9fwegejdqak.b02.azurefd.net/sandbox/29.0.54011.55816/w1' || '' }}
+      # The build the prepare job resolved for this version, the same for every shard (provenance.py resolve).
+      bc_artifact_url:      ${{ matrix.bc_artifact_url }}
+      bc_build:             ${{ matrix.bc_build }}
       # Full-text search: al-language has tables with OptimizeForTextSearch = true (corpus #633).
       sql_image:            "ghcr.io/aldevtools/msdyn365bc.on.linux/mssql:2022-fts"
       # RDLC rendering: see the test job above (al-language holds RDLC reports).
@@ -635,7 +637,60 @@ jobs:
       preprocessor_symbols: ${{ matrix.preprocessor_symbols }}
       al_tool_version:      "30.0.43.45776-beta"
       runtime_version:      ${{ matrix.runtime }}
-      bc_artifact_url: ${{ startsWith(matrix.bc_version, '29.') && 'https://bcartifacts-exdbf9fwegejdqak.b02.azurefd.net/sandbox/29.0.54011.55816/w1' || '' }}
+      # The build the prepare job resolved for this version, the same for every shard (provenance.py resolve).
+      bc_artifact_url:      ${{ matrix.bc_artifact_url }}
+      bc_build:             ${{ matrix.bc_build }}
       sql_image:            "ghcr.io/aldevtools/msdyn365bc.on.linux/mssql:2022-fts"
       rdlc_renderer:        true
       rdlc_trust_layouts:   true
+
+  # The results manifest of a green master run (CONTRIBUTING.md, "BC build and result provenance"): one JSON file, the
+  # artifact results-manifest, that names the run, its commit and, per BC version, the build and the codeunits of each
+  # leg. al-runtime-rs reads it when it takes this run's JUnit files as its oracle. It runs only when every leg succeeded,
+  # so a run that has it is green. Pull request runs and dispatched runs do not write it.
+  manifest:
+    name: Results manifest
+    needs: [prepare, test, test-onprem, test-onprem-dotnet, test-testlibraries, test-trywrite-allowed]
+    if: ${{ github.event_name == 'push' && success() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/scripts
+            .github/workflows
+      # One folder per artifact, named <created_at>-<id>, so a later artifact of the same JUnit file name sorts last.
+      - name: Download the legs' JUnit files
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MATRIX: ${{ needs.prepare.outputs.matrix }}
+        run: |
+          set -euo pipefail
+          for v in $(python3 -c 'import json,sys; print(" ".join(e["bc_version"] for e in json.loads(sys.argv[1])["include"]))' "$MATRIX"); do
+            gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?per_page=100" \
+              --jq ".artifacts[] | select(.name == \"junit-test-results-$v\" and (.expired | not)) | \"\(.created_at)-\(.id) \(.id)\"" |
+            while read -r folder id; do
+              d="legs/$v/$folder"; mkdir -p "$d"
+              gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$id/zip" > "$d/a.zip"
+              unzip -o -q "$d/a.zip" -d "$d"; rm "$d/a.zip"
+            done
+          done
+      - name: Write the manifest
+        env:
+          MATRIX: ${{ needs.prepare.outputs.matrix }}
+        run: |
+          python3 .github/scripts/provenance.py manifest --versions "$MATRIX" --ci-yml .github/workflows/ci.yml \
+            --run "$GITHUB_RUN_ID" --attempt "$GITHUB_RUN_ATTEMPT" --commit "$GITHUB_SHA" --event "$GITHUB_EVENT_NAME" \
+            --dir legs --out results-manifest.json
+      - name: Upload the manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-manifest
+          path: results-manifest.json
+          retention-days: 14
+          # a re-run of this job replaces the manifest of the earlier attempt
+          overwrite: true

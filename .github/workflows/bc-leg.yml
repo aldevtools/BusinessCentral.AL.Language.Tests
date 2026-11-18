@@ -9,9 +9,10 @@ name: BC leg (shards of one test app on one BC version)
 # "BC 29.0 / test" (the job `test` below). The second is the name the master ruleset requires, so the required checks
 # and the names the CI batcher and corpus_bump.sh read did not change when the legs were split into shards.
 #
-# ARTIFACT. Every shard uploads junit-test-results-<bc_version> (the name is fixed in bc-linux). With more than one shard
-# the job `test` merges them, uploads the merged file under the same name and deletes the shards' artifacts, so a run
-# keeps one artifact per leg holding one JUnit file, as before. A shard re-run ("Re-run failed jobs") uploads a new
+# ARTIFACT. Every shard uploads junit-test-results-<bc_version> (the name is fixed in bc-linux). The job `test` merges
+# them (also a single one), gives each <testsuite> its provenance properties (run, attempt, commit, BC build; provenance.py
+# stamp), uploads the result under the same name and deletes the shards' artifacts, so a run keeps one artifact per leg
+# holding one JUnit file, as before. A shard re-run ("Re-run failed jobs") uploads a new
 # artifact; the merge then takes the earlier merged file and replaces the re-run shard's codeunits with the new results.
 #
 # SKIPPED LEG. In a subset run (a pull request, or a dispatch with select_codeunits or select_base) a leg whose app has
@@ -35,6 +36,8 @@ on:
       al_tool_version:        {type: string, default: ""}
       runtime_version:        {type: string, default: ""}
       bc_artifact_url:        {type: string, default: ""}
+      # The full build bc_artifact_url points to (ci.yml prepare, provenance.py resolve); written into every suite.
+      bc_build:               {type: string, required: true}
       sql_image:              {type: string, default: ""}
       timeout_minutes:        {type: number, default: 45}
       test_timeout_minutes:   {type: number, default: 30}
@@ -97,12 +100,13 @@ jobs:
         with:
           sparse-checkout: .github/scripts
       - id: merge
-        name: Merge the shards' JUnit
+        name: Merge the shards' JUnit and stamp their provenance
         env:
           GH_TOKEN: ${{ github.token }}
           NAME: junit-test-results-${{ inputs.bc_version }}
           TEST_APP_DIRS: ${{ inputs.test_app_dirs }}
           SHARDS: ${{ inputs.shards }}
+          BC_BUILD: ${{ inputs.bc_build }}
         run: |
           set -euo pipefail
           xml="junit-$(basename "$(printf '%s\n' "$TEST_APP_DIRS" | sed '/^$/d' | head -n 1)").xml"
@@ -122,9 +126,12 @@ jobs:
           count=$(grep -c . ids.txt || true)
           echo "artifacts of this leg: $count (shards planned: $n)"
           if [ "$count" -eq 0 ]; then echo "::warning::no JUnit artifact of this leg"; exit 0; fi
-          if [ "$count" -eq 1 ] && [ "$n" -eq 1 ]; then echo "one shard: its artifact is the leg's artifact"; exit 0; fi
           files=(); while read -r id; do files+=("shards/$id/$xml"); done < ids.txt
           python3 .github/scripts/ci-shards.py merge --out "merged/$xml" "${files[@]}"
+          # Where each codeunit's result came from (CONTRIBUTING.md, "BC build and result provenance"). A codeunit that
+          # an earlier attempt of this run stamped keeps its stamp.
+          python3 .github/scripts/provenance.py stamp --run "$GITHUB_RUN_ID" --attempt "$GITHUB_RUN_ATTEMPT" \
+            --commit "$GITHUB_SHA" --bc-build "$BC_BUILD" --app full "merged/$xml"
           python3 - "merged/$xml" <<'EOF' >> "$GITHUB_STEP_SUMMARY"
           import sys, xml.etree.ElementTree as ET
           r = ET.parse(sys.argv[1]).getroot()

@@ -409,7 +409,7 @@ python3 .github/scripts/select-tests.py --head HEAD --codeunits '{"tests/al-lang
 Each test job of `ci.yml` (one test app on one BC version, a "leg") calls `.github/workflows/bc-leg.yml`. That workflow runs the leg in one or more shards, each in a BC container of its own, and then merges their JUnit. The `al-language` legs run in three or four shards; the other test apps run in one.
 
 - **Check names.** The leg "BC 29.0" has the checks `BC 29.0 / shard 1 of 3 / test` to `BC 29.0 / shard 3 of 3 / test`, one per shard, and `BC 29.0 / test`. The last one is the job that merges and reports; it is the check the master ruleset requires. It fails when any shard failed or was cancelled.
-- **Artifact.** Each shard uploads `junit-test-results-<bc version>`. The merging job uploads the merged file under the same name and deletes the shards' artifacts, so each leg still has one artifact with one JUnit file. After **Re-run failed jobs**, the merge takes the earlier merged file and replaces the codeunits of the re-run shard.
+- **Artifact.** Each shard uploads `junit-test-results-<bc version>`. The merging job merges them (also when there is only one), adds the provenance of each codeunit (see "BC build and result provenance"), uploads the result under the same name and deletes the shards' artifacts, so each leg still has one artifact with one JUnit file. After **Re-run failed jobs**, the merge takes the earlier merged file and replaces the codeunits of the re-run shard.
 - **Shard ranges.** A shard is a range of codeunit ids. `.github/ci-shards.json` holds the first id of each shard per BC major. The ranges are balanced by the wall time of each codeunit in a full master run. A new codeunit falls into the shard of its neighbours, so adding tests needs no edit there. When the shards' times drift apart (see the "Run AL tests" step of each shard), measure them again from the JUnit files of a green master run:
 
   ```bash
@@ -431,6 +431,32 @@ To see the shards of a run without CI:
 python3 .github/scripts/select-tests.py --base origin/master --head HEAD --json /tmp/sel.json
 python3 .github/scripts/ci-shards.py plan --ci-yml .github/workflows/ci.yml --file .github/ci-shards.json \
   --event pull_request --selection /tmp/sel.json --versions '{"include":[{"bc_version":"29.0"}]}'
+```
+
+## BC build and result provenance
+
+al-runtime-rs takes the JUnit files of a green master run as its oracle. These files now say which BC build produced each result, and a green master run writes a manifest of its results.
+
+- **One build per version and run.** The `prepare` job resolves the BC build of each version once (`provenance.py resolve`). For a short version like `27.5` it takes the newest `27.5.x` build from Microsoft's index file, the same way bc-linux does: the released storage first, then the insider storage. A full build like `28.5.54151.58194` is used as it is. Every leg and shard of the run gets the same `bc_artifact_url` and `bc_build` from the matrix. Before, each shard resolved the newest build on its own, so two shards of one run could run different builds when Microsoft published a build during the run. The job summary of `prepare` lists the builds. When a version has no build in either index, `prepare` fails and no BC container starts.
+- **The BC 29 pin.** `PINNED` in `provenance.py` holds the artifact URL that every `29.x` version uses, with the reason (#561). It used to be written into each test job of `ci.yml`.
+- **Provenance in the JUnit file.** The merging job of each leg (`bc-leg.yml`) gives every `<testsuite>` (one per codeunit) a `<properties>` element (`provenance.py stamp`):
+
+  | Property | Value |
+  |---|---|
+  | `source_run` | the run that ran the codeunit on BC |
+  | `source_attempt` | the attempt of that run in which the merging job first wrote the codeunit |
+  | `source_commit` | the commit of that run |
+  | `bc_build` | the full BC build |
+  | `app` | `full`: the run published the full test app |
+
+  After **Re-run failed jobs**, a codeunit that the earlier attempt stamped keeps its stamp; a codeunit of a re-run shard gets the new attempt. The test results and the timestamps do not change.
+- **Results manifest.** When every leg of a push run (master) succeeded, the job `manifest` writes `results-manifest.json` and uploads it as the artifact `results-manifest` (`provenance.py manifest`). It names the run, the attempt, the commit and, per BC version, the build, the artifact URL and, per leg, the number of codeunits. The job fails when a leg has no JUnit file or a codeunit lacks this run's provenance or names another build. Pull request runs and dispatched runs do not write a manifest.
+
+To see the builds a run would use, and to check a JUnit file:
+
+```bash
+python3 .github/scripts/provenance.py resolve --versions '{"include":[{"bc_version":"27.5"},{"bc_version":"28.5"},{"bc_version":"29.0"}]}'
+python3 .github/scripts/provenance.py stamp --run 1 --attempt 1 --commit HEAD --bc-build 27.5.0.0 --app full /tmp/junit-al-language.xml
 ```
 
 ## Pull request checklist
