@@ -23,8 +23,20 @@
 //   (Rec.CountSameStatus(Rec), the shape of "Item Attribute Value".CheckValueUniqueness) after Get, with a FlowField filter
 //   in the caller; whether a filter in filter group 1 is seen by another, fresh record variable of the same table.
 // Already pinned elsewhere, not repeated: the primary key of the copy (record/keys-sorting/PwFlowFieldKeyRule.al).
-// Observation form: every test ends in Finish(); the values are what BC produced.
-// BC versions: 27.5, 28.5, 29.0 (to be measured by the corpus CI)
+// Facts (measured on 29.0; 27.5 and 28.5 by the final observe run and the corpus CI):
+//   - a Record parameter without var starts with no filters in groups -1, 0, 2 and 4, whatever group the caller stands in
+//     (GetFilters empty, Count of the whole table, FilterGroup 0); this holds for a plain filter, a filter on a FlowField with its
+//     FlowFilter, two filters in filter group -1, a FlowFilter in group 0 or 2 (CalcFields in the callee sums every day);
+//   - the copy has the primary key, ascending, GetView 'VERSION(1) SORTING(Id)', no marks (MarkedOnly No, 0 marked), all fields
+//     loaded after SetLoadFields in the caller, and the caller's company; a temporary record given to a parameter not declared
+//     temporary arrives as a non-temporary record of the table;
+//   - Copy, CopyFilters, RecordRef.GetTable, Page.Run, Page.SetTableView, Report.SetTableView in the callee and a by-value event
+//     subscriber parameter see no filter either;
+//   - a table procedure called as Rec.Proc(Rec): its own Rec keeps the caller's filters, the by-value parameter has none;
+//   - a filter set in filter group 1 is seen by every record variable of the table in the session (a fresh variable, the callee's
+//     copy), until one of them clears it (ByValue_Group1Filter_OtherInstance); Seed clears it for that reason;
+//   - the caller's own filters, filter group, key, order and marks are unchanged after every call.
+// BC versions: 27.5, 28.5, 29.0
 
 table 78720 "BVV Row"
 {
@@ -376,7 +388,9 @@ codeunit 78728 "BVV By Value View Tests"
         Seed();
         Observer.Observe('callee', Callee.Describe(Row));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('callee', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Expect('caller after', 'f={} n=3 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -391,7 +405,11 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('callee view', Callee.View(Row));
         Observer.Observe('callee groups', Callee.Groups(Row));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('callee', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Expect('callee view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('callee groups', '-1={} 0={} 1={} 2={} 4={} n=3');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -404,7 +422,9 @@ codeunit 78728 "BVV By Value View Tests"
         Row.SetRange(Status, Row.Status::Posted);
         Observer.Observe('callee', DescribeLocal(Row));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('callee', 'f={} n=3 first=1');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -419,7 +439,10 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('caller row', Format(Row.Id));
         Observer.Observe('callee', Callee.Describe(Row));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('caller row', '3');
+        Observer.Expect('callee', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Expect('caller after', 'f={Status: Open} n=2 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -433,7 +456,10 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('callee', Callee.Describe(Row));
         Observer.Observe('callee groups', Callee.Groups(Row));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('callee', 'f={} n=1 key=Id asc=Yes grp=0 first=2');
+        Observer.Expect('callee groups', '-1={} 0={} 1={Status: Posted} 2={} 4={} n=1');
+        Observer.Expect('caller after', 'f={} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -455,7 +481,12 @@ codeunit 78728 "BVV By Value View Tests"
         Row.SetRange(Status);
         Row.FilterGroup(0);
         Observer.Observe('other after clear', 'n=' + Format(Other.Count()));
-        Observer.Finish();
+        Observer.Expect('other group 1', 'f={Status: Posted}');
+        Observer.Expect('other', 'f={} n=1');
+        Observer.Expect('callee', 'f={} n=1 key=Id asc=Yes grp=0 first=2');
+        Observer.Expect('caller after', 'f={} n=1 grp=0');
+        Observer.Expect('other after clear', 'n=3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -469,7 +500,10 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('callee', Callee.Describe(Row));
         Observer.Observe('callee groups', Callee.Groups(Row));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('callee', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Expect('callee groups', '-1={} 0={} 1={} 2={} 4={} n=3');
+        Observer.Expect('caller after', 'f={} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -483,7 +517,10 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('callee', Callee.Describe(Row));
         Observer.Observe('callee groups', Callee.Groups(Row));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('callee', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Expect('callee groups', '-1={} 0={} 1={} 2={} 4={} n=3');
+        Observer.Expect('caller after', 'f={} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -497,7 +534,10 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('callee', Callee.Describe(Row));
         Observer.Observe('callee groups', Callee.Groups(Row));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('callee', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Expect('callee groups', '-1={} 0={} 1={} 2={} 4={} n=3');
+        Observer.Expect('caller after', 'f={} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -515,7 +555,11 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('callee local', DescribeLocal(Row));
         Observer.Observe('callee groups', Callee.Groups(Row));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('callee', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Expect('callee local', 'f={} n=3 first=1');
+        Observer.Expect('callee groups', '-1={} 0={} 1={} 2={} 4={} n=3');
+        Observer.Expect('caller after', 'f={} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -530,7 +574,10 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('callee', Callee.Describe(Row));
         Observer.Observe('callee view', Callee.View(Row));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('callee', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Expect('callee view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Day Filter: 1, Total: 0} n=2 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -544,7 +591,9 @@ codeunit 78728 "BVV By Value View Tests"
         Row.SetRange(Total, 0);
         Observer.Observe('callee', DescribeLocal(Row));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('callee', 'f={} n=3 first=1');
+        Observer.Expect('caller after', 'f={Day Filter: 1, Total: 0} n=2 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -559,7 +608,9 @@ codeunit 78728 "BVV By Value View Tests"
         Row.Get(3);
         Observer.Observe('same status', Row.CountSameStatus(Row));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('same status', 'self f={Day Filter: 1, Total: 0} copy f={} same n=1');
+        Observer.Expect('caller after', 'f={Day Filter: 1, Total: 0} n=2 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -575,7 +626,10 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('callee groups', Callee.Groups(Row));
         ObserveCaller(Observer, Row);
         Row.FilterGroup(0);
-        Observer.Finish();
+        Observer.Expect('callee', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Expect('callee groups', '-1={} 0={} 1={} 2={} 4={} n=3');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -591,7 +645,10 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('callee groups', Callee.Groups(Row));
         ObserveCaller(Observer, Row);
         Row.FilterGroup(0);
-        Observer.Finish();
+        Observer.Expect('callee', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Expect('callee groups', '-1={} 0={} 1={} 2={} 4={} n=3');
+        Observer.Expect('caller after', 'f={} n=1 grp=2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -605,7 +662,10 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('callee', Callee.Describe(Row));
         Observer.Observe('caller asc', Format(Row.Ascending()));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('callee', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Expect('caller asc', 'No');
+        Observer.Expect('caller after', 'f={} n=3 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -620,7 +680,10 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('callee', Callee.Describe(Row));
         Observer.Observe('callee view', Callee.View(Row));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('callee', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Expect('callee view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Open} n=2 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -636,7 +699,10 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('callee', Callee.Describe(Row));
         Row.MarkedOnly(true);
         Observer.Observe('caller marked n', Format(Row.Count()));
-        Observer.Finish();
+        Observer.Expect('callee marks', 'mo=No n=3 marked n=0');
+        Observer.Expect('callee', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Expect('caller marked n', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -652,7 +718,10 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('callee marks', Callee.Marks(Row));
         Observer.Observe('callee', Callee.Describe(Row));
         Observer.Observe('caller marked n', Format(Row.Count()));
-        Observer.Finish();
+        Observer.Expect('callee marks', 'mo=No n=3 marked n=0');
+        Observer.Expect('callee', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Expect('caller marked n', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -667,7 +736,10 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('callee load', Callee.LoadFields(Row));
         Observer.Observe('callee', Callee.Describe(Row));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('callee load', 'first=1 amount loaded=Yes name loaded=Yes');
+        Observer.Expect('callee', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -682,7 +754,10 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('callee company', Callee.Company(Row));
         Observer.Observe('callee', Callee.Describe(Row));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('callee company', 'company=<Company> f={} n=3');
+        Observer.Expect('callee', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -696,7 +771,10 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('callee', Callee.Describe(Row));
         Observer.Observe('callee view', Callee.View(Row));
         Observer.Observe('caller key', Row.CurrentKey());
-        Observer.Finish();
+        Observer.Expect('callee', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Expect('callee view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller key', 'Name');
+        Observer.Verify();
     end;
 
     [Test]
@@ -711,7 +789,10 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('callee', Callee.Describe(Row));
         Observer.Observe('callee view', Callee.View(Row));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('callee', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Expect('callee view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'f={Status: Open} n=2 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -727,7 +808,11 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('callee view', Callee.View(Row));
         Observer.Observe('caller key', Row.CurrentKey());
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('callee', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Expect('callee view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller key', 'Amount');
+        Observer.Expect('caller after', 'f={Status: Open} n=2 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -743,7 +828,10 @@ codeunit 78728 "BVV By Value View Tests"
         Row.CalcFields(Total);
         Observer.Observe('caller total', Format(Row.Total));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('callee total', 'id=1 total=12 f={}');
+        Observer.Expect('caller total', '5');
+        Observer.Expect('caller after', 'f={Day Filter: 1} n=3 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -761,7 +849,10 @@ codeunit 78728 "BVV By Value View Tests"
         Row.CalcFields(Total);
         Observer.Observe('caller total', Format(Row.Total));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('callee total', 'id=1 total=12 f={}');
+        Observer.Expect('caller total', '5');
+        Observer.Expect('caller after', 'f={} n=3 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -776,7 +867,11 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('copy filters', Callee.CopyFiltersTo(Row));
         Observer.Observe('recref', Callee.RecRefOf(Row));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('copy', 'f={} n=3');
+        Observer.Expect('copy filters', 'f={} n=3');
+        Observer.Expect('recref', 'f={} n=3');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -791,7 +886,11 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('copy filters', Callee.CopyFiltersTo(Row));
         Observer.Observe('recref', Callee.RecRefOf(Row));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('copy', 'f={} n=3');
+        Observer.Expect('copy filters', 'f={} n=3');
+        Observer.Expect('recref', 'f={} n=3');
+        Observer.Expect('caller after', 'f={} n=1 grp=0');
+        Observer.Verify();
     end;
 
     local procedure PageRows(var Rows: TestPage "BVV Rows"): Text
@@ -819,7 +918,9 @@ codeunit 78728 "BVV By Value View Tests"
         Callee.RunPage(Row);
         Observer.Observe('page rows', PageRows(Rows));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('page rows', '1 2 3 ');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -835,7 +936,9 @@ codeunit 78728 "BVV By Value View Tests"
         Callee.RunPageSetTableView(Row);
         Observer.Observe('page rows', PageRows(Rows));
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('page rows', '1 2 3 ');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -849,7 +952,9 @@ codeunit 78728 "BVV By Value View Tests"
         Callee.RunReport(Row);
         Observer.Observe('report', Log.Take());
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('report', 'report f={} n=3;row 1;row 2;row 3;');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -864,7 +969,9 @@ codeunit 78728 "BVV By Value View Tests"
         Publisher.Raise(Row);
         Observer.Observe('subscriber', Log.Take());
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('subscriber', 'sub f={} n=3;');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -886,6 +993,9 @@ codeunit 78728 "BVV By Value View Tests"
         Observer.Observe('callee temp', Callee.Temp(TempRow));
         Observer.Observe('callee', Callee.Describe(TempRow));
         ObserveCaller(Observer, TempRow);
-        Observer.Finish();
+        Observer.Expect('callee temp', 'temp=No f={} n=0');
+        Observer.Expect('callee', 'f={} n=0 key=Id asc=Yes grp=0 first=none');
+        Observer.Expect('caller after', 'f={Status: Posted} n=1 grp=0');
+        Observer.Verify();
     end;
 }
