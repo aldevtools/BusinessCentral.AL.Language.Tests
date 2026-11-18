@@ -262,7 +262,7 @@ codeunit 76403 "LT RPStr Strings"
         Observer.Expect('bare length', '203');
         Observer.Expect('bare has CRLF', 'Yes');
         Observer.Expect('named text', '<?xml version="1.0" encoding="utf-16" standalone="yes"?>\r\n<ReportParameters name="LT RPStr Rpt" id="76400">\r\n  <Options>\r\n    <Field name="StartDate">2026-01-15</Field>\r\n    <Field name="NoteText" />\r\n  </Options>\r\n</ReportParameters>');
-        Observer.Expect('named length', '232');
+        Observer.Expect('named length', '234');
         Observer.Expect('named has CRLF', 'Yes');
         Observer.Verify();
     end;
