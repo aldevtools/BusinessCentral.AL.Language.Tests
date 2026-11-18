@@ -290,6 +290,7 @@ codeunit 97477 "LT NS Tests"
         Log: Codeunit "LT NS Log";
         Expected: List of [Text];
         StepNo: Integer;
+        CloseAfterValue: Boolean;
 
     // Rows of group G1 hold the line under test; with OtherGroupRow a row of group G0 lies outside a view filtered to G1.
     local procedure Initialize(OtherGroupRow: Boolean; RowBefore: Boolean; GroupCode: Code[10]; SaveThenUpdateFalse: Boolean)
@@ -313,6 +314,7 @@ codeunit 97477 "LT NS Tests"
         Log.Reset(SaveThenUpdateFalse);
         Clear(Expected);
         StepNo := 0;
+        CloseAfterValue := false;
     end;
 
     local procedure Expect(Steps: Text)
@@ -359,6 +361,8 @@ codeunit 97477 "LT NS Tests"
         Check('setvalue', Log.Take());
         Check('shown2', Lines.Name.Value() + '/' + Lines.Value.Value());
         Check('rows2', GroupRows());
+        if CloseAfterValue then
+            exit;
         Check('prev', Log.Bool(Lines.Previous()) + '/' + Lines.Name.Value());
         Check('prevlog', Log.Take());
         Check('next', Log.Bool(Lines.Next()) + '/' + Lines.Name.Value());
@@ -378,6 +382,8 @@ codeunit 97477 "LT NS Tests"
         Check('setvalue', Log.Take());
         Check('shown2', Lines.Name.Value() + '/' + Lines.Value.Value());
         Check('rows2', GroupRows());
+        if CloseAfterValue then
+            exit;
         Check('prev', Log.Bool(Lines.Previous()) + '/' + Lines.Name.Value());
         Check('prevlog', Log.Take());
         Check('next', Log.Bool(Lines.Next()) + '/' + Lines.Name.Value());
@@ -400,6 +406,8 @@ codeunit 97477 "LT NS Tests"
         Check('shown2', Lines.Name.Value() + '/' + Lines.Value.Value());
         Check('part2', Lines.Peek.Name.Value() + '/' + Lines.Peek.Value.Value());
         Check('rows2', GroupRows());
+        if CloseAfterValue then
+            exit;
         Check('prev', Log.Bool(Lines.Previous()) + '/' + Lines.Name.Value());
         Check('prevlog', Log.Take());
         Check('prevpart', Lines.Peek.Name.Value() + '/' + Lines.Peek.Value.Value());
@@ -722,6 +730,98 @@ codeunit 97477 "LT NS Tests"
             ' | rows1=G0:O/,G1:X/, | setvalue= | shown2=X/V | part2=X/ | rows2=G0:O/,G1:X/, | prev=F/X' +
             ' | prevlog= | prevpart=X/ | next=T/ | nextlog=T.M(X/V); | nextpart=/ | close=' +
             ' | rows3=G0:O/,G1:X/V,');
+        Opener.Open(Page::"LT NS Lines Part", 'G1');
+        Closed();
+    end;
+
+
+    [Test]
+    procedure ListNewLine_SaveRecordUpdateFalse_RowBefore_CloseSavesTheValue()
+    var
+        Lines: TestPage "LT NS Lines";
+    begin
+        Initialize(false, true, '', true);
+        CloseAfterValue := true;
+        Expect('open=P.AGR(A);P.AGR(A);P.AGCR(A); | new=P.NEW;P.AGCR();' +
+            ' | setname=T.V(X);T.I(X);P.V(T);P.MOD(X/);T.M(X/);P.SR;P.V.end;P.AGR(X);P.AGR(A);P.AGR(X);P.AGR(X);P.AGCR(X);' +
+            ' | shown=X/ | rows1=:A/,:X/, | setvalue= | shown2=X/V | rows2=:A/,:X/,' +
+            ' | close=P.MOD(X/V);T.M(X/V); | rows3=:A/,:X/V,');
+        Lines.OpenEdit();
+        DriveLines(Lines);
+        Lines.Close();
+        Closed();
+    end;
+
+    [Test]
+    [HandlerFunctions('QuietModalHandler')]
+    procedure ListNewLine_Quiet_RunModalFiltered_SaveRecordUpdateFalse_RowBefore_OkSavesTheValue()
+    var
+        Opener: Codeunit "LT NS Opener";
+    begin
+        Initialize(true, true, 'G1', true);
+        CloseAfterValue := true;
+        Expect('open= | new= | setname=T.V(X);T.I(X);T.M(X/); | shown=X/ | rows1=G0:O/,G1:A/,G1:X/, | setvalue=' +
+            ' | shown2=X/V | rows2=G0:O/,G1:A/,G1:X/, | close=T.M(X/V); | rows3=G0:O/,G1:A/,G1:X/V,');
+        Opener.Open(Page::"LT NS Lines Quiet", 'G1');
+        Closed();
+    end;
+
+    [Test]
+    [HandlerFunctions('QuietModalHandler')]
+    procedure ListNewLine_Quiet_RunModalFiltered_UpdateTrue_RowBefore_OkSavesTheValue()
+    var
+        Opener: Codeunit "LT NS Opener";
+    begin
+        Initialize(true, true, 'G1', false);
+        CloseAfterValue := true;
+        Expect('open= | new= | setname=T.V(X);T.I(X);T.M(X/); | shown=X/ | rows1=G0:O/,G1:A/,G1:X/, | setvalue=' +
+            ' | shown2=X/V | rows2=G0:O/,G1:A/,G1:X/, | close=T.M(X/V); | rows3=G0:O/,G1:A/,G1:X/V,');
+        Opener.Open(Page::"LT NS Lines Quiet", 'G1');
+        Closed();
+    end;
+
+    [Test]
+    procedure ListNewLine_PartHost_SaveRecordUpdateFalse_RowBefore_CloseSavesTheValue()
+    var
+        Lines: TestPage "LT NS Lines Part";
+    begin
+        Initialize(false, true, '', true);
+        CloseAfterValue := true;
+        Expect('open=P.AGR(A); | new= | setname=T.V(X);T.I(X);T.M(X/);P.AGR(X);P.AGR(A); | shown=X/ | part=X/' +
+            ' | rows1=:A/,:X/, | setvalue= | shown2=X/V | part2=X/ | rows2=:A/,:X/,' +
+            ' | close=P.AGR(X);T.M(X/V); | rows3=:A/,:X/V,');
+        Lines.OpenEdit();
+        DrivePart(Lines);
+        Lines.Close();
+        Closed();
+    end;
+
+    [Test]
+    [HandlerFunctions('PartModalHandler')]
+    procedure ListNewLine_PartHost_RunModalFiltered_SaveRecordUpdateFalse_RowBefore_OkSavesTheValue()
+    var
+        Opener: Codeunit "LT NS Opener";
+    begin
+        Initialize(true, true, 'G1', true);
+        CloseAfterValue := true;
+        Expect('open=P.AGR(A); | new= | setname=T.V(X);T.I(X);T.M(X/);P.AGR(X);P.AGR(A); | shown=X/ | part=X/' +
+            ' | rows1=G0:O/,G1:A/,G1:X/, | setvalue= | shown2=X/V | part2=X/ | rows2=G0:O/,G1:A/,G1:X/,' +
+            ' | close=P.AGR(X);T.M(X/V); | rows3=G0:O/,G1:A/,G1:X/V,');
+        Opener.Open(Page::"LT NS Lines Part", 'G1');
+        Closed();
+    end;
+
+    [Test]
+    [HandlerFunctions('PartModalHandler')]
+    procedure ListNewLine_PartHost_RunModalFiltered_SaveRecordUpdateFalse_EmptyView_OkSavesTheValue()
+    var
+        Opener: Codeunit "LT NS Opener";
+    begin
+        Initialize(true, false, 'G1', true);
+        CloseAfterValue := true;
+        Expect('open= | new= | setname=T.V(X);T.I(X);T.M(X/);P.AGR(X); | shown=X/ | part=X/' +
+            ' | rows1=G0:O/,G1:X/, | setvalue= | shown2=X/V | part2=X/ | rows2=G0:O/,G1:X/,' +
+            ' | close=T.M(X/V); | rows3=G0:O/,G1:X/V,');
         Opener.Open(Page::"LT NS Lines Part", 'G1');
         Closed();
     end;
