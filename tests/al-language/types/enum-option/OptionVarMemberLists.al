@@ -11,7 +11,15 @@
 //   events (memberless publisher; publisher with members and a memberless subscriber); a TryFunction callee; a callee that
 //   raises after the assignment; by-value memberless parameters as the control. After the call: Format, Format 0 2, Format 0 9,
 //   StrSubstNo, concatenation, compare, case, Evaluate(V, 'Third'), a Variant copy, Error('%1', V).
-// Facts: (observation form, filled after the run)
+// Facts: a var Value: Option parameter without members uses the member list of the variable handed in. Inside the callee,
+//   Format and StrSubstNo show the caller's member name (Second), or its caption for a record field with OptionCaption (Two);
+//   Format 0 2 shows the ordinal. After an empty body the caller is unchanged; Value := 1 in the callee shows Second in the caller.
+//   A by-value memberless parameter shows the ordinal (1) and does not change the caller. A parameter with other members (A,B,C)
+//   shows its own name (B); Value := Value::C gives the caller Third. A parameter Option " " shows the ordinal (1); a parameter
+//   Option "" shows the caller's name. A memberless caller handed to a parameter with members: the callee shows Second, the
+//   caller still shows 1. Globals, record fields, array elements, another codeunit, two hops, var arrays, integration event
+//   subscribers, a TryFunction callee and a callee that raises after the assignment all behave like the local caller.
+// BC versions: identical on 27.5, 28.5 and 29.0 (Linux, corpus CI) and on a local Windows BC 29.0 tier.
 table 75242 "OVM Row"
 {
     DataClassification = SystemMetadata;
@@ -105,7 +113,12 @@ codeunit 75246 "OVM Member Lists Tests"
         Observer.Observe('Format 0 9', Format(V, 0, 9));
         Observer.Observe('StrSubstNo', StrSubstNo('%1', V));
         Observer.Observe('Concat', 'x' + Format(V) + 'y');
-        Observer.Finish();
+        Observer.Expect('Format', 'Second');
+        Observer.Expect('Format 0 2', '1');
+        Observer.Expect('Format 0 9', '1');
+        Observer.Expect('StrSubstNo', 'Second');
+        Observer.Expect('Concat', 'xSecondy');
+        Observer.Verify();
     end;
 
     [Test]
@@ -127,7 +140,9 @@ codeunit 75246 "OVM Member Lists Tests"
                 T := 'else';
         end;
         Observer.Observe('case', T);
-        Observer.Finish();
+        Observer.Expect('V = V::Second', 'Yes');
+        Observer.Expect('case', 'Second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -141,7 +156,9 @@ codeunit 75246 "OVM Member Lists Tests"
         Evaluate(V, 'Third');
         Observer.Observe('Format', Format(V));
         Observer.Observe('Format 0 2', Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('Format', 'Third');
+        Observer.Expect('Format 0 2', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -159,7 +176,11 @@ codeunit 75246 "OVM Member Lists Tests"
         Observer.Observe('Format', Format(V));
         Observer.Observe('Format 0 2', Format(V, 0, 2));
         Observer.Observe('last error', GetLastErrorText());
-        Observer.Finish();
+        Observer.Expect('result', 'Yes');
+        Observer.Expect('Format', 'Third');
+        Observer.Expect('Format 0 2', '2');
+        Observer.Expect('last error', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -178,7 +199,11 @@ codeunit 75246 "OVM Member Lists Tests"
         Observer.Observe('copy Format', Format(Copy));
         asserterror Error('%1', V);
         Observer.ObserveError('Error %1');
-        Observer.Finish();
+        Observer.Expect('Variant Format', 'Second');
+        Observer.Expect('copy Format', 'Second');
+        Observer.Expect('Error %1|text', 'Second');
+        Observer.Expect('Error %1|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -191,7 +216,8 @@ codeunit 75246 "OVM Member Lists Tests"
         Nop(V);
         V := V::Third;
         Observer.Observe('Format', Format(V));
-        Observer.Finish();
+        Observer.Expect('Format', 'Third');
+        Observer.Verify();
     end;
 
     [Test]
@@ -205,7 +231,10 @@ codeunit 75246 "OVM Member Lists Tests"
         Observer.Observe('Format', Format(V));
         Observer.Observe('Format 0 2', Format(V, 0, 2));
         Observer.Observe('StrSubstNo', StrSubstNo('%1', V));
-        Observer.Finish();
+        Observer.Expect('Format', 'Second');
+        Observer.Expect('Format 0 2', '1');
+        Observer.Expect('StrSubstNo', 'Second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -217,7 +246,9 @@ codeunit 75246 "OVM Member Lists Tests"
         V := V::Second;
         Observer.Observe('inside', FormatInsideVar(V));
         Observer.Observe('after', Format(V));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|Second|1');
+        Observer.Expect('after', 'Second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -229,7 +260,9 @@ codeunit 75246 "OVM Member Lists Tests"
         V := V::Second;
         Observer.Observe('inside', FormatInsideByValue(V));
         Observer.Observe('after', Format(V));
-        Observer.Finish();
+        Observer.Expect('inside', '1|1|1');
+        Observer.Expect('after', 'Second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -241,7 +274,9 @@ codeunit 75246 "OVM Member Lists Tests"
         V := V::Second;
         Observer.Observe('inside', AssignByValue(V));
         Observer.Observe('after', Format(V));
-        Observer.Finish();
+        Observer.Expect('inside', '2');
+        Observer.Expect('after', 'Second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -258,7 +293,13 @@ codeunit 75246 "OVM Member Lists Tests"
         Observer.Observe('by value caption field', FormatInsideByValue(Row.OptCap));
         Observer.Observe('after field', Format(Row.Opt));
         Observer.Observe('after caption field', Format(Row.OptCap));
-        Observer.Finish();
+        Observer.Expect('var field', 'Second|Second|1');
+        Observer.Expect('var caption field', 'Two|Two|1');
+        Observer.Expect('by value field', '1|1|1');
+        Observer.Expect('by value caption field', '1|1|1');
+        Observer.Expect('after field', 'Second');
+        Observer.Expect('after caption field', 'Two');
+        Observer.Verify();
     end;
 
     [Test]
@@ -278,7 +319,11 @@ codeunit 75246 "OVM Member Lists Tests"
         Assign1(Row.OptCap);
         Observer.Observe('field after Assign1', Format(Row.Opt));
         Observer.Observe('caption field after Assign1', Format(Row.OptCap));
-        Observer.Finish();
+        Observer.Expect('field', 'Second');
+        Observer.Expect('caption field', 'Two');
+        Observer.Expect('field after Assign1', 'Second');
+        Observer.Expect('caption field after Assign1', 'Two');
+        Observer.Verify();
     end;
 
     [Test]
@@ -292,7 +337,9 @@ codeunit 75246 "OVM Member Lists Tests"
         GlobalV := GlobalV::First;
         Assign1(GlobalV);
         Observer.Observe('Format after Assign1', Format(GlobalV));
-        Observer.Finish();
+        Observer.Expect('Format', 'Second');
+        Observer.Expect('Format after Assign1', 'Second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -308,7 +355,9 @@ codeunit 75246 "OVM Member Lists Tests"
         V := V::First;
         Lib.Assign1(V);
         Observer.Observe('Format after Assign1', Format(V));
-        Observer.Finish();
+        Observer.Expect('Format after Nop', 'Second');
+        Observer.Expect('Format after Assign1', 'Second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -323,7 +372,9 @@ codeunit 75246 "OVM Member Lists Tests"
         V := V::First;
         HopAssign1(V);
         Observer.Observe('Format after HopAssign1', Format(V));
-        Observer.Finish();
+        Observer.Expect('Format after HopNop', 'Second');
+        Observer.Expect('Format after HopAssign1', 'Second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -337,7 +388,10 @@ codeunit 75246 "OVM Member Lists Tests"
         Observer.Observe('Format', Format(V));
         Observer.Observe('Format 0 2', Format(V, 0, 2));
         Observer.Observe('StrSubstNo', StrSubstNo('%1', V));
-        Observer.Finish();
+        Observer.Expect('Format', 'Second');
+        Observer.Expect('Format 0 2', '1');
+        Observer.Expect('StrSubstNo', 'Second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -352,7 +406,11 @@ codeunit 75246 "OVM Member Lists Tests"
         OtherMembersAssignC(V);
         Observer.Observe('after Value::C', Format(V));
         Observer.Observe('after Value::C 0 2', Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'B|B|1');
+        Observer.Expect('after', 'Second');
+        Observer.Expect('after Value::C', 'Third');
+        Observer.Expect('after Value::C 0 2', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -365,7 +423,9 @@ codeunit 75246 "OVM Member Lists Tests"
         SameMembersNop(V);
         Observer.Observe('Format', Format(V));
         Observer.Observe('inside', SameMembersFormat(V));
-        Observer.Finish();
+        Observer.Expect('Format', 'Second');
+        Observer.Expect('inside', 'Second|Second|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -381,7 +441,12 @@ codeunit 75246 "OVM Member Lists Tests"
         SameMembersNop(V0);
         Observer.Observe('Format after empty body', Format(V0));
         Observer.Observe('StrSubstNo after empty body', StrSubstNo('%1', V0));
-        Observer.Finish();
+        Observer.Expect('Format before', '1');
+        Observer.Expect('inside', 'Second|Second|1');
+        Observer.Expect('Format after', '1');
+        Observer.Expect('Format after empty body', '1');
+        Observer.Expect('StrSubstNo after empty body', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -394,7 +459,9 @@ codeunit 75246 "OVM Member Lists Tests"
         Nop(V0);
         Observer.Observe('Format', Format(V0));
         Observer.Observe('inside', FormatInsideVar(V0));
-        Observer.Finish();
+        Observer.Expect('Format', '1');
+        Observer.Expect('inside', '1|1|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -412,7 +479,12 @@ codeunit 75246 "OVM Member Lists Tests"
         ArrayAssign1(Arr);
         Observer.Observe('after A[1] := 1', Format(Arr[1]));
         Observer.Observe('after A[1] := 1 0 2', Format(Arr[1], 0, 2));
-        Observer.Finish();
+        Observer.Expect('after empty body', 'Second');
+        Observer.Expect('inside', 'Second|Second|1');
+        Observer.Expect('after inside', 'Second');
+        Observer.Expect('after A[1] := 1', 'Second');
+        Observer.Expect('after A[1] := 1 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -428,7 +500,10 @@ codeunit 75246 "OVM Member Lists Tests"
         Arr[2] := Arr[2]::First;
         Assign1(Arr[2]);
         Observer.Observe('after Assign1', Format(Arr[2]));
-        Observer.Finish();
+        Observer.Expect('after empty body', 'Second');
+        Observer.Expect('inside', 'Second|Second|1');
+        Observer.Expect('after Assign1', 'Second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -446,7 +521,10 @@ codeunit 75246 "OVM Member Lists Tests"
         V := V::First;
         Publisher.RaiseMemberless(V, true, Seen);
         Observer.Observe('after write 2', Format(V));
-        Observer.Finish();
+        Observer.Expect('subscriber saw', 'Second/1');
+        Observer.Expect('after', 'Second');
+        Observer.Expect('after write 2', 'Third');
+        Observer.Verify();
     end;
 
     [Test]
@@ -464,7 +542,10 @@ codeunit 75246 "OVM Member Lists Tests"
         V := V::First;
         Publisher.RaiseWithMembers(V, true, Seen);
         Observer.Observe('after write 2', Format(V));
-        Observer.Finish();
+        Observer.Expect('subscriber saw', 'Second/1');
+        Observer.Expect('after', 'Second');
+        Observer.Expect('after write 2', 'Third');
+        Observer.Verify();
     end;
 
     [Test]
@@ -476,7 +557,9 @@ codeunit 75246 "OVM Member Lists Tests"
         V := V::First;
         Observer.Observe('try result', Format(TryAssign1(V)));
         Observer.Observe('Format', Format(V));
-        Observer.Finish();
+        Observer.Expect('try result', 'Yes');
+        Observer.Expect('Format', 'Second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -489,7 +572,10 @@ codeunit 75246 "OVM Member Lists Tests"
         asserterror Assign1ThenError(V);
         Observer.ObserveError('error');
         Observer.Observe('Format', Format(V));
-        Observer.Finish();
+        Observer.Expect('error|text', 'stop after the assignment');
+        Observer.Expect('error|code', 'Dialog');
+        Observer.Expect('Format', 'Second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -502,7 +588,9 @@ codeunit 75246 "OVM Member Lists Tests"
         BlankMemberNop(V);
         Observer.Observe('Format', Format(V));
         Observer.Observe('inside', BlankMemberFormat(V));
-        Observer.Finish();
+        Observer.Expect('Format', 'Second');
+        Observer.Expect('inside', '1|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -515,7 +603,9 @@ codeunit 75246 "OVM Member Lists Tests"
         EmptyNameMemberNop(V);
         Observer.Observe('Format', Format(V));
         Observer.Observe('inside', EmptyNameMemberFormat(V));
-        Observer.Finish();
+        Observer.Expect('Format', 'Second');
+        Observer.Expect('inside', 'Second|1');
+        Observer.Verify();
     end;
 
     local procedure Nop(var Value: Option)

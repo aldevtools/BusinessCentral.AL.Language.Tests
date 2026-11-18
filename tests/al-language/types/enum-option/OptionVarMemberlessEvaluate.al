@@ -9,7 +9,16 @@
 //   the callee after Evaluate; the caller an Option " ",First, a memberless Option, a record field (with and without
 //   OptionCaption, by name and by caption), a global; a callee in another codeunit; two hops; a by-value memberless parameter;
 //   integration event subscribers (memberless publisher, publisher with members); a var array of memberless Option.
-// Facts: (observation form, filled after the run)
+// Facts: Evaluate into a var Value: Option parameter without members uses the member list of the variable handed in. Member
+//   names match without regard to case and with leading and trailing blanks ignored; '1' gives Second; '7' succeeds and stores
+//   ordinal 7 (Format shows 7). 'Nope' and '' fail: with the result used, Evaluate returns false, the value stays, and
+//   GetLastErrorText is empty; as a statement it raises "'Nope' is not an option. The existing options are: First,Second,Third"
+//   (code InvalidOptionString). For a caller Option " ",First, '' gives the blank member. A memberless caller has no members:
+//   'Second' fails ("The existing options are: " with an empty list), '1' works. A by-value memberless parameter has no members
+//   either, and the caller is unchanged. A record field with OptionCaption accepts both the caption (Two) and the name (Second).
+//   Format number 9, Format inside the callee, globals, another codeunit, two hops, events, var array elements and an Option ""
+//   parameter behave like the local caller.
+// BC versions: identical on 27.5, 28.5 and 29.0 (Linux, corpus CI) and on a local Windows BC 29.0 tier.
 
 // Callees in another codeunit, and the events whose subscribers evaluate into a memberless var Option parameter.
 codeunit 75247 "OVM Eval Lib"
@@ -74,7 +83,9 @@ codeunit 75249 "OVM Memberless Eval Tests"
         EvalStatement(V, 'Second');
         Observer.Observe('Format', Format(V));
         Observer.Observe('Format 0 2', Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('Format', 'Second');
+        Observer.Expect('Format 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -87,7 +98,9 @@ codeunit 75249 "OVM Memberless Eval Tests"
         EvalStatement(V, 'second');
         Observer.Observe('Format', Format(V));
         Observer.Observe('Format 0 2', Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('Format', 'Second');
+        Observer.Expect('Format 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -100,7 +113,9 @@ codeunit 75249 "OVM Memberless Eval Tests"
         EvalStatement(V, ' Second ');
         Observer.Observe('Format', Format(V));
         Observer.Observe('Format 0 2', Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('Format', 'Second');
+        Observer.Expect('Format 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -113,7 +128,9 @@ codeunit 75249 "OVM Memberless Eval Tests"
         EvalStatement(V, '1');
         Observer.Observe('Format', Format(V));
         Observer.Observe('Format 0 2', Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('Format', 'Second');
+        Observer.Expect('Format 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -126,7 +143,9 @@ codeunit 75249 "OVM Memberless Eval Tests"
         EvalStatement(V, '7');
         Observer.Observe('Format', Format(V));
         Observer.Observe('Format 0 2', Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('Format', '7');
+        Observer.Expect('Format 0 2', '7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -140,7 +159,11 @@ codeunit 75249 "OVM Memberless Eval Tests"
         Observer.ObserveError('error');
         Observer.Observe('Format', Format(V));
         Observer.Observe('Format 0 2', Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('error|text', '''Nope'' is not an option. The existing options are: First,Second,Third');
+        Observer.Expect('error|code', 'InvalidOptionString');
+        Observer.Expect('Format', 'Third');
+        Observer.Expect('Format 0 2', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -150,7 +173,8 @@ codeunit 75249 "OVM Memberless Eval Tests"
         V: Option First,Second,Third;
     begin
         V := V::Third;
-        EvalStatement(V, '');
+        asserterror EvalStatement(V, '');
+        Observer.ObserveError('error');
         Observer.Observe('Format', Format(V));
         Observer.Observe('Format 0 2', Format(V, 0, 2));
         Observer.Finish();
@@ -165,7 +189,23 @@ codeunit 75249 "OVM Memberless Eval Tests"
         ObserveResult(Observer, 'second', 'second');
         ObserveResult(Observer, 'blanks', ' Second ');
         ObserveResult(Observer, 'First', 'First');
-        Observer.Finish();
+        Observer.Expect('Second result', 'Yes');
+        Observer.Expect('Second Format', 'Second');
+        Observer.Expect('Second Format 0 2', '1');
+        Observer.Expect('Second error', '');
+        Observer.Expect('second result', 'Yes');
+        Observer.Expect('second Format', 'Second');
+        Observer.Expect('second Format 0 2', '1');
+        Observer.Expect('second error', '');
+        Observer.Expect('blanks result', 'Yes');
+        Observer.Expect('blanks Format', 'Second');
+        Observer.Expect('blanks Format 0 2', '1');
+        Observer.Expect('blanks error', '');
+        Observer.Expect('First result', 'Yes');
+        Observer.Expect('First Format', 'First');
+        Observer.Expect('First Format 0 2', '0');
+        Observer.Expect('First error', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -177,7 +217,23 @@ codeunit 75249 "OVM Memberless Eval Tests"
         ObserveResult(Observer, '7', '7');
         ObserveResult(Observer, 'Nope', 'Nope');
         ObserveResult(Observer, 'empty', '');
-        Observer.Finish();
+        Observer.Expect('1 result', 'Yes');
+        Observer.Expect('1 Format', 'Second');
+        Observer.Expect('1 Format 0 2', '1');
+        Observer.Expect('1 error', '');
+        Observer.Expect('7 result', 'Yes');
+        Observer.Expect('7 Format', '7');
+        Observer.Expect('7 Format 0 2', '7');
+        Observer.Expect('7 error', '');
+        Observer.Expect('Nope result', 'No');
+        Observer.Expect('Nope Format', 'Third');
+        Observer.Expect('Nope Format 0 2', '2');
+        Observer.Expect('Nope error', '');
+        Observer.Expect('empty result', 'No');
+        Observer.Expect('empty Format', 'Third');
+        Observer.Expect('empty Format 0 2', '2');
+        Observer.Expect('empty error', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -192,7 +248,11 @@ codeunit 75249 "OVM Memberless Eval Tests"
         V := V::Third;
         Observer.Observe('inside 1', EvalThenFormat(V, '1'));
         Observer.Observe('after 1', Format(V));
-        Observer.Finish();
+        Observer.Expect('inside Second', 'Yes|Second|Second|1');
+        Observer.Expect('after Second', 'Second');
+        Observer.Expect('inside 1', 'Yes|Second|Second|1');
+        Observer.Expect('after 1', 'Second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -211,7 +271,13 @@ codeunit 75249 "OVM Memberless Eval Tests"
         Observer.Observe('result 1', Format(EvalResult9(V, '1')));
         Observer.Observe('Format 1', Format(V));
         Observer.Observe('error 1', GetLastErrorText());
-        Observer.Finish();
+        Observer.Expect('result Second', 'Yes');
+        Observer.Expect('Format Second', 'Second');
+        Observer.Expect('error Second', '');
+        Observer.Expect('result 1', 'Yes');
+        Observer.Expect('Format 1', 'Second');
+        Observer.Expect('error 1', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -231,7 +297,14 @@ codeunit 75249 "OVM Memberless Eval Tests"
         Observer.Observe('result First', Format(EvalResult(V, 'First')));
         Observer.Observe('Format First', Format(V));
         Observer.Observe('error First', GetLastErrorText());
-        Observer.Finish();
+        Observer.Expect('result', 'Yes');
+        Observer.Expect('Format', ' ');
+        Observer.Expect('Format 0 2', '0');
+        Observer.Expect('error', '');
+        Observer.Expect('result First', 'Yes');
+        Observer.Expect('Format First', 'First');
+        Observer.Expect('error First', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -244,7 +317,9 @@ codeunit 75249 "OVM Memberless Eval Tests"
         EvalStatement(V, '');
         Observer.Observe('Format', Format(V));
         Observer.Observe('Format 0 2', Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('Format', ' ');
+        Observer.Expect('Format 0 2', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -263,7 +338,13 @@ codeunit 75249 "OVM Memberless Eval Tests"
         Observer.Observe('result 1', Format(EvalResult(V0, '1')));
         Observer.Observe('Format 1', Format(V0));
         Observer.Observe('error 1', GetLastErrorText());
-        Observer.Finish();
+        Observer.Expect('result Second', 'No');
+        Observer.Expect('Format Second', '0');
+        Observer.Expect('error Second', '');
+        Observer.Expect('result 1', 'Yes');
+        Observer.Expect('Format 1', '1');
+        Observer.Expect('error 1', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -275,7 +356,8 @@ codeunit 75249 "OVM Memberless Eval Tests"
         V0 := 0;
         EvalStatement(V0, '1');
         Observer.Observe('Format', Format(V0));
-        Observer.Finish();
+        Observer.Expect('Format', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -288,7 +370,10 @@ codeunit 75249 "OVM Memberless Eval Tests"
         asserterror EvalStatement(V0, 'Second');
         Observer.ObserveError('error');
         Observer.Observe('Format', Format(V0));
-        Observer.Finish();
+        Observer.Expect('error|text', '''Second'' is not an option. The existing options are: ');
+        Observer.Expect('error|code', 'InvalidOptionString');
+        Observer.Expect('Format', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -312,7 +397,16 @@ codeunit 75249 "OVM Memberless Eval Tests"
         Observer.Observe('caption field result Second', Format(EvalResult(Row.OptCap, 'Second')));
         Observer.Observe('caption field Format Second', Format(Row.OptCap));
         Observer.Observe('caption field error Second', GetLastErrorText());
-        Observer.Finish();
+        Observer.Expect('field result Second', 'Yes');
+        Observer.Expect('field Format', 'Second');
+        Observer.Expect('field error', '');
+        Observer.Expect('caption field result Two', 'Yes');
+        Observer.Expect('caption field Format Two', 'Two');
+        Observer.Expect('caption field error Two', '');
+        Observer.Expect('caption field result Second', 'Yes');
+        Observer.Expect('caption field Format Second', 'Two');
+        Observer.Expect('caption field error Second', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -324,7 +418,8 @@ codeunit 75249 "OVM Memberless Eval Tests"
         Row.Opt := Row.Opt::Third;
         EvalStatement(Row.Opt, 'Second');
         Observer.Observe('field Format', Format(Row.Opt));
-        Observer.Finish();
+        Observer.Expect('field Format', 'Second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -337,7 +432,9 @@ codeunit 75249 "OVM Memberless Eval Tests"
         HopEvalStatement(V, 'Second');
         Observer.Observe('Format', Format(V));
         Observer.Observe('Format 0 2', Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('Format', 'Second');
+        Observer.Expect('Format 0 2', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -351,7 +448,10 @@ codeunit 75249 "OVM Memberless Eval Tests"
         Observer.Observe('result', Format(HopEvalResult(V, 'Second')));
         Observer.Observe('Format', Format(V));
         Observer.Observe('error', GetLastErrorText());
-        Observer.Finish();
+        Observer.Expect('result', 'Yes');
+        Observer.Expect('Format', 'Second');
+        Observer.Expect('error', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -368,7 +468,12 @@ codeunit 75249 "OVM Memberless Eval Tests"
         Observer.Observe('inside 1', EvalByValueResult(V, '1'));
         Observer.Observe('error 1', GetLastErrorText());
         Observer.Observe('after', Format(V));
-        Observer.Finish();
+        Observer.Expect('inside Second', 'No|2|2');
+        Observer.Expect('error Second', '');
+        Observer.Expect('inside 1', 'Yes|1|1');
+        Observer.Expect('error 1', '');
+        Observer.Expect('after', 'Third');
+        Observer.Verify();
     end;
 
     [Test]
@@ -381,7 +486,10 @@ codeunit 75249 "OVM Memberless Eval Tests"
         asserterror EvalByValueStatement(V, 'Second');
         Observer.ObserveError('error');
         Observer.Observe('after', Format(V));
-        Observer.Finish();
+        Observer.Expect('error|text', '''Second'' is not an option. The existing options are: ');
+        Observer.Expect('error|code', 'InvalidOptionString');
+        Observer.Expect('after', 'Third');
+        Observer.Verify();
     end;
 
     [Test]
@@ -402,7 +510,12 @@ codeunit 75249 "OVM Memberless Eval Tests"
         Lib.RaiseMemberless(V, '1', Ok, Seen);
         Observer.Observe('result 1', Format(Ok));
         Observer.Observe('after 1', Format(V));
-        Observer.Finish();
+        Observer.Expect('result Second', 'Yes');
+        Observer.Expect('subscriber Second', 'Second|1');
+        Observer.Expect('after Second', 'Second');
+        Observer.Expect('result 1', 'Yes');
+        Observer.Expect('after 1', 'Second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -423,7 +536,12 @@ codeunit 75249 "OVM Memberless Eval Tests"
         Lib.RaiseWithMembers(V, '1', Ok, Seen);
         Observer.Observe('result 1', Format(Ok));
         Observer.Observe('after 1', Format(V));
-        Observer.Finish();
+        Observer.Expect('result Second', 'Yes');
+        Observer.Expect('subscriber Second', 'Second|1');
+        Observer.Expect('after Second', 'Second');
+        Observer.Expect('result 1', 'Yes');
+        Observer.Expect('after 1', 'Second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -437,7 +555,10 @@ codeunit 75249 "OVM Memberless Eval Tests"
         Observer.Observe('inside', ArrayEvalResult(Arr, 'Second'));
         Observer.Observe('after', Format(Arr[1]));
         Observer.Observe('error', GetLastErrorText());
-        Observer.Finish();
+        Observer.Expect('inside', 'Yes|Second|1');
+        Observer.Expect('after', 'Second');
+        Observer.Expect('error', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -457,7 +578,13 @@ codeunit 75249 "OVM Memberless Eval Tests"
         Observer.Observe('other codeunit result', Format(Lib.EvalResult(V, 'Second')));
         Observer.Observe('other codeunit Format', Format(V));
         Observer.Observe('other codeunit error', GetLastErrorText());
-        Observer.Finish();
+        Observer.Expect('global result', 'Yes');
+        Observer.Expect('global Format', 'Second');
+        Observer.Expect('global error', '');
+        Observer.Expect('other codeunit result', 'Yes');
+        Observer.Expect('other codeunit Format', 'Second');
+        Observer.Expect('other codeunit error', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -476,7 +603,13 @@ codeunit 75249 "OVM Memberless Eval Tests"
         Observer.Observe('inside 1', EmptyNameEvalResult(V, '1'));
         Observer.Observe('after 1', Format(V));
         Observer.Observe('error 1', GetLastErrorText());
-        Observer.Finish();
+        Observer.Expect('inside Second', 'Yes|Second|1');
+        Observer.Expect('after Second', 'Second');
+        Observer.Expect('error Second', '');
+        Observer.Expect('inside 1', 'Yes|Second|1');
+        Observer.Expect('after 1', 'Second');
+        Observer.Expect('error 1', '');
+        Observer.Verify();
     end;
 
     local procedure ObserveResult(var Observer: Codeunit "Probe Observer"; Name: Text; T: Text)
