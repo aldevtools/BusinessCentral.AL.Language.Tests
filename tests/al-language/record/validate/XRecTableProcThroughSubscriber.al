@@ -17,8 +17,8 @@
 //   record's before-image.
 // Cells:
 //   - the subscriber of an integration event the table raises from a field OnValidate with var Rec calls a table extension procedure
-//     and a table procedure on it: after Insert, after Get, after FindLast, on a fresh record, on a temporary record; the event with a
-//     second var record parameter of another table, as Base Application's;
+//     and a table procedure on it: after Insert, after Get, after FindLast, FindFirst, FindSet, Find('=') and Next, on a fresh record,
+//     on a temporary record; the event with a second var record parameter of another table, as Base Application's;
 //   - the same Validate nested by the table's own code: "Item No." OnValidate changes Series, then calls Validate(Mode) itself, or
 //     through one, two or three table procedures; the two-procedure case also after Get, after FindLast, after an earlier Validate of
 //     another field, and on a line FindLast read and Init then gave a new key, validated with the value already in the field (Base
@@ -29,7 +29,8 @@
 // Facts (measured on 29.1):
 //   - a table extension procedure and a table procedure that an event subscriber calls on the var record the field trigger raised the
 //     event with read the trigger's xRec (0/NEW/I1, the record before the Validate, not the stored row), after Insert, after Get,
-//     after FindLast, on a fresh record and on a temporary record, with one or two var parameters;
+//     after FindLast, FindFirst, FindSet, Find('=') and Next, on a fresh record and on a temporary record, with one or two var
+//     parameters;
 //   - a Validate that the field trigger nests, itself or through one, two or three table procedures, in another field's OnValidate:
 //     the inner trigger and the procedures the subscriber calls read the before-image of the outer Validate (0/NEW/I1, not 0/MID/I1;
 //     0/NEW/I2 on the new line);
@@ -671,6 +672,84 @@ codeunit 97095 "XRS Tests"
         Cfg.Set('');
         Observer.Expect('log', 'I x=0/NEW/I2;T x=0/NEW/I2;X x=0/NEW/I2;P x=0/NEW/I2;');
         Observer.Expect('record', '1/MID/I2');
+        Observer.Verify();
+    end;
+
+    // Row 1 stored as 0/OLD/I1 and row 2 as 0/OLD2/I1; Found reads one of them with Method, then holds Series NEW.
+    local procedure ReadWithAndValidate(var Observer: Codeunit "Probe Observer"; Method: Text)
+    var
+        Line: Record "XRS Line";
+        Found: Record "XRS Line";
+    begin
+        AfterInsert(Line);
+        Line."Line No." := 2;
+        Line.Series := 'OLD2';
+        Line.Insert(false);
+        case Method of
+            'FindFirst':
+                Found.FindFirst();
+            'FindSet':
+                Found.FindSet();
+            'Find=':
+                begin
+                    Found."Line No." := 2;
+                    Found.Find('=');
+                end;
+            'Next':
+                begin
+                    Found.FindFirst();
+                    Found.Next();
+                end;
+        end;
+        Found.Series := 'NEW';
+        ValidateModeAndObserve(Observer, Found, 'sub');
+    end;
+
+    [Test]
+    procedure Subscriber_VarRec_ReadByFindFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        ReadWithAndValidate(Observer, 'FindFirst');
+        Observer.Expect('log', 'T x=0/NEW/I1;X x=0/NEW/I1;P x=0/NEW/I1;');
+        Observer.Expect('record', '1/NEW/I1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Subscriber_VarRec_ReadByFindSet()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        ReadWithAndValidate(Observer, 'FindSet');
+        Observer.Expect('log', 'T x=0/NEW/I1;X x=0/NEW/I1;P x=0/NEW/I1;');
+        Observer.Expect('record', '1/NEW/I1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Subscriber_VarRec_ReadByFindEqual()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        ReadWithAndValidate(Observer, 'Find=');
+        Observer.Expect('log', 'T x=0/NEW/I1;X x=0/NEW/I1;P x=0/NEW/I1;');
+        Observer.Expect('record', '1/NEW/I1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Subscriber_VarRec_ReadByNext()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        ReadWithAndValidate(Observer, 'Next');
+        Observer.Expect('log', 'T x=0/NEW/I1;X x=0/NEW/I1;P x=0/NEW/I1;');
+        Observer.Expect('record', '1/NEW/I1');
         Observer.Verify();
     end;
 }
