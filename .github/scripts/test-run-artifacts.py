@@ -25,8 +25,15 @@ def check(name, cond, detail=''):
 FAKE_GH = r'''#!/usr/bin/env python3
 import json, os, subprocess, sys
 a = sys.argv[1:]
+fake = os.environ['FAKE_DIR']
+if '-i' in a:  # the metadata of one artifact: gh api -i repos/o/r/actions/artifacts/<id>; headers first, like gh
+    id_ = a[-1].rstrip('/').split('/')[-1]
+    meta = dict(l.split() for l in open(os.path.join(fake, 'meta.txt')) if l.strip())
+    code = meta.get(id_, '200')
+    sys.stdout.write('HTTP/2.0 %s X\r\nContent-Type: application/json\r\n\r\n{}' % code)
+    sys.exit(0 if code == '200' else 1)
 jq = a[a.index('--jq') + 1]
-data = open(os.path.join(os.environ['FAKE_DIR'], 'artifacts.json')).read()
+data = open(os.path.join(fake, 'artifacts.json')).read()
 sys.stdout.write(subprocess.run(['jq', '-r', jq], input=data, capture_output=True, text=True, check=True).stdout)
 '''
 
@@ -57,8 +64,9 @@ def zipped(files):
     return b.getvalue()
 
 
-def run(artifacts, answers, args):
-    """artifacts: [(id, name, created_at, expired, {file: text} or bytes)]; answers: {id: '404' | '500' | 'neterr'}"""
+def run(artifacts, answers, args, meta=None):
+    """artifacts: [(id, name, created_at, expired, {file: text} or bytes)]; answers: {id: '404' | '500' | 'neterr'}
+    (the zip download); meta: {id: '404' | '500'} (the artifact's metadata; default 200, the artifact exists)"""
     w = Path(tempfile.mkdtemp())
     try:
         fake, bin_ = w / 'fake', w / 'bin'
@@ -71,6 +79,7 @@ def run(artifacts, answers, args):
             (fake / ('%d.zip' % id_)).write_bytes(content if isinstance(content, bytes) else zipped(content))
         (fake / 'artifacts.json').write_text(json.dumps({'total_count': len(lst), 'artifacts': lst}))
         (fake / 'answers.txt').write_text(''.join('%s %s\n' % kv for kv in answers.items()))
+        (fake / 'meta.txt').write_text(''.join('%s %s\n' % kv for kv in (meta or {}).items()))
         env = {'PATH': '%s:%s' % (bin_, os.environ['PATH']), 'FAKE_DIR': str(fake), 'GH_TOKEN': 'tok',
                'GITHUB_REPOSITORY': 'o/r', 'GITHUB_RUN_ID': '7', 'GITHUB_API_URL': 'https://api.example'}
         p = subprocess.run(['bash', str(SCRIPT), args[0], str(w / 'out')] + args[1:],
@@ -107,10 +116,15 @@ def main():
           code == 0 and out == ['2026-11-18T04:40:00Z-101', '2026-11-18T04:40:30Z-102', '2026-11-18T04:41:00Z-105']
           and tree['2026-11-18T04:40:30Z-102'] == [OTHER], (code, out, tree, err))
 
-    code, out, tree, err = run(ARTS, {'102': '404'}, [N, OWN])
-    check('race: another leg deleted its artifact after the listing (404): skipped, success',
+    code, out, tree, err = run(ARTS, {'102': '404'}, [N, OWN], {'102': '404'})
+    check('race: zip 404 and the artifact itself gone (metadata 404): skipped, success',
           code == 0 and out == ['2026-11-18T04:40:00Z-101', '2026-11-18T04:41:00Z-105'] and '102' not in ''.join(tree)
           and 'HTTP 404' in err, (code, out, err))
+    code, out, tree, err = run(ARTS, {'102': '404'}, [N, OWN], {'102': '200'})
+    check('zip 404 but the artifact still exists (metadata 200): the script fails',
+          code != 0 and 'exists' in err, (code, out, err))
+    code, out, tree, err = run(ARTS, {'102': '404'}, [N, OWN], {'102': '500'})
+    check('zip 404 and the metadata answers 500: the script fails', code != 0, (code, out, err))
 
     for answer in ('500', '403', '410', 'neterr'):
         code, out, _, err = run(ARTS, {'102': answer}, [N, OWN])

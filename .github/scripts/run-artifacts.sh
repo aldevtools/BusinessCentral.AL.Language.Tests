@@ -7,9 +7,10 @@
 # per line. With MEMBER, only the artifacts that hold that file are kept, and only that file is unzipped (the name
 # junit-test-results-<bc version> is shared by every test app of the version). Expired artifacts are left out.
 #
-# A download that answers HTTP 404 is skipped: the artifact was deleted after the listing, by the merge job of another
-# leg (bc-leg.yml deletes only its own leg's artifacts, so a leg never skips its own shard this way). Every other
-# failure exits non-zero.
+# A download that answers HTTP 404 is skipped only when the artifact itself is gone: the metadata of the artifact
+# (gh api .../actions/artifacts/<id>) also answers 404. Then the merge job of another leg deleted it after the listing
+# (bc-leg.yml deletes only its own leg's artifacts). A 404 download of an artifact that still exists, a metadata answer
+# of 200 or of anything else than 404, and every other download failure exit non-zero.
 #
 # Needs GH_TOKEN, GITHUB_REPOSITORY and GITHUB_RUN_ID (set in every GitHub job); GITHUB_API_URL defaults to github.com.
 # Self-test: test-run-artifacts.py.
@@ -26,7 +27,15 @@ while read -r folder id; do
   code=$(curl -sS -L -o "$d/a.zip" -w '%{http_code}' -H "Authorization: Bearer $GH_TOKEN" \
     -H 'Accept: application/vnd.github+json' "$api/repos/$GITHUB_REPOSITORY/actions/artifacts/$id/zip")
   if [ "$code" = 404 ]; then
-    echo "artifact $id: HTTP 404, deleted after the listing by another leg; skipped" >&2; rm -rf "$d"; continue
+    # gh api -i puts the status line first; it exits non-zero on 404, so read the line, not the exit code.
+    meta=$(gh api -i "repos/$GITHUB_REPOSITORY/actions/artifacts/$id" 2>/dev/null || true)
+    mcode=$(printf '%s' "$meta" | sed -n '1s|^HTTP/[0-9.]* \([0-9][0-9]*\).*|\1|p')
+    if [ "$mcode" = 404 ]; then
+      echo "artifact $id: HTTP 404 and the artifact is gone, deleted after the listing by another leg; skipped" >&2
+      rm -rf "$d"; continue
+    fi
+    echo "::error title=Artifacts::artifact $id ($name): download answered HTTP 404, but the artifact still exists or its metadata answered HTTP ${mcode:-none} (not 404)" >&2
+    exit 1
   fi
   if [ "$code" != 200 ]; then echo "::error title=Artifacts::artifact $id ($name): download answered HTTP $code" >&2; exit 1; fi
   rc=0
