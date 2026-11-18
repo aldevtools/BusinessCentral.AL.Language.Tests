@@ -5,7 +5,32 @@
 //   OVU Unheard Elem Store Tests)
 // local object: an Option variable handed to a var parameter of an event publisher that no subscriber hears is what is
 //   under test.
-// Probe (al-runner PR 8299, follow-up of OptionVarMemberlessWrites.al): FACTS TO BE FILLED AFTER OBSERVATION.
+// Probe (al-runner PR 8299, follow-up of OptionVarMemberlessWrites.al): a var Option argument handed to an event publisher
+//   that no subscriber hears. Publishers: var parameter with members P,Q,R, without members, with the caller's members
+//   First,Second,Third, and a memberless var array.
+//   Cells: (1) a local First,Second,Third holding Second after each publisher, and then V := 2, V := V::Third, Evaluate.
+//   (2) after the unheard call, V handed to a memberless var parameter, a var parameter X,Y,Z, an interface method and a
+//   heard memberless publisher; Value := 2 there. (3) Evaluate(Value, 'Third') and Evaluate(Value, 'Q') in that callee, with
+//   the result used and as a statement (inside a TryFunction). (4) a local (memberless, First,Second,Third or P,Q,R) after an
+//   unheard publisher, stored into A[1] of a var memberless array whose caller array has First,Second,Third. (5) caller
+//   kinds: local, global, by-value parameter, field, caption field, local, global and CopyArray-filled array elements, whole
+//   array, var and by-value memberless array elements, var record field, memberless local, var parameter with members,
+//   memberless var parameter (holding Second or a memberless 1), named return value, and a parameter X,Y,Z that hands the
+//   value on (local, memberless, by-value and global callers). (6) A[1] := a by-value parameter, a named return value, a
+//   function result, an element of a local array (each with members P,Q,R, without members, with First,Second,Third), an
+//   Option constant (L::R, L::Third), a global, a record field, a var parameter, a parenthesized local.
+// Facts: values are Format|ordinal. An unheard publisher changes nothing: every caller keeps its own members and its value
+//   (Second|1, a caption field Two|1, a field P,Q,R Q|1, a memberless local 1|1), also after two unheard calls in a row.
+//   Afterwards V := 2 gives Third|2, Evaluate(V, 'Third') Yes|Third|2, Evaluate(V, 'R') No|Second|1. A memberless var
+//   parameter reached after the unheard call shows the caller's names (Second|1); Value := 2 gives Third|2 inside and in the
+//   caller; Evaluate 'Third' succeeds (Third|2), Evaluate 'Q' fails (result used: No, value unchanged; statement: error
+//   "'Q' is not an option. The existing options are: First,Second,Third", value unchanged). A heard memberless subscriber
+//   sees Second|1. A parameter X,Y,Z shows Y|1 and the caller keeps Second|1 (P := P::Z gives the caller Third|2). Element
+//   stores: a source with members gives the element the caller's name for the ordinal (Third|2, also after an unheard
+//   publisher); a memberless source gives 2|2; the caller's array shows the same. Into a local memberless array every
+//   source gives 2|2.
+// BC versions: measured on 29.0 (local Windows BC tier). The local 27.5 and 28.5 legs were not run; the corpus CI run of the
+//   pull request measures them.
 table 75270 "OVU Row"
 {
     DataClassification = SystemMetadata;
@@ -76,7 +101,7 @@ codeunit 75273 "OVU Formatter Impl" implements "OVU Formatter"
     end;
 }
 
-// Facts: see the header of the file.
+// Caller kinds handed to the unheard publishers.
 codeunit 75274 "OVU Unheard Callers Tests"
 {
     Subtype = Test;
@@ -134,7 +159,17 @@ codeunit 75274 "OVU Unheard Callers Tests"
         V9 := V9::First;
         Pub.OnUnheardMembers(V9);
         Observer.Observe('members P,Q,R from First', Format(V9) + '|' + Format(V9, 0, 2));
-        Observer.Finish();
+        Observer.Expect('members P,Q,R', 'Second|1');
+        Observer.Expect('memberless', 'Second|1');
+        Observer.Expect('same members', 'Second|1');
+        Observer.Expect('memberless, then', 'Second|1');
+        Observer.Expect('then members P,Q,R', 'Second|1');
+        Observer.Expect('members P,Q,R then V := 2', 'Third|2');
+        Observer.Expect('members P,Q,R then V := V::Third', 'Third|2');
+        Observer.Expect('members P,Q,R then Evaluate Third', 'Yes|Third|2');
+        Observer.Expect('members P,Q,R then Evaluate R', 'No|Second|1');
+        Observer.Expect('members P,Q,R from First', 'First|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -157,7 +192,10 @@ codeunit 75274 "OVU Unheard Callers Tests"
         Pub.OnUnheardMembers(GlobalV);
         GlobalV := 2;
         Observer.Observe('members P,Q,R then V := 2', Format(GlobalV) + '|' + Format(GlobalV, 0, 2));
-        Observer.Finish();
+        Observer.Expect('memberless then members P,Q,R', 'Second|1>Second|1');
+        Observer.Expect('members P,Q,R', 'Second|1');
+        Observer.Expect('members P,Q,R then V := 2', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -169,7 +207,9 @@ codeunit 75274 "OVU Unheard Callers Tests"
         V := V::First;
         Observer.Observe('memberless then members P,Q,R', ByValueTShape(V));
         Observer.Observe('caller after', Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('memberless then members P,Q,R', 'Second|1>Second|1');
+        Observer.Expect('caller after', 'First|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -194,7 +234,10 @@ codeunit 75274 "OVU Unheard Callers Tests"
         Row.OptPQR := Row.OptPQR::Q;
         Pub.OnUnheardSame(Row.OptPQR);
         Observer.Observe('field P,Q,R to publisher First,Second,Third', Format(Row.OptPQR) + '|' + Format(Row.OptPQR, 0, 2));
-        Observer.Finish();
+        Observer.Expect('field memberless then members P,Q,R', 'Second|1>Second|1');
+        Observer.Expect('caption field memberless then members P,Q,R', 'Two|1>Two|1');
+        Observer.Expect('field P,Q,R to publisher First,Second,Third', 'Q|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -227,7 +270,11 @@ codeunit 75274 "OVU Unheard Callers Tests"
         Arr[1] := Arr[1]::Second;
         Pub.OnUnheardArr(Arr);
         Observer.Observe('whole array to memberless array publisher', Format(Arr[1]) + '|' + Format(Arr[1], 0, 2));
-        Observer.Finish();
+        Observer.Expect('local element memberless then members P,Q,R', 'Second|1>Second|1');
+        Observer.Expect('global element memberless then members P,Q,R', 'Second|1>Second|1');
+        Observer.Expect('CopyArray filled memberless element', 'Second|1>Second|1');
+        Observer.Expect('whole array to memberless array publisher', 'Second|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -251,7 +298,15 @@ codeunit 75274 "OVU Unheard Callers Tests"
         Arr[1] := Arr[1]::Second;
         Observer.Observe('var memberless array, A[1] unheard then A[2] := 2, inside', VarArrayMixed(Arr));
         Observer.Observe('var memberless array, A[1] unheard then A[2] := 2, caller after', Format(Arr[1]) + '|' + Format(Arr[1], 0, 2) + '#' + Format(Arr[2]) + '|' + Format(Arr[2], 0, 2));
-        Observer.Finish();
+        Observer.Expect('var memberless array element, inside', 'Second|1>Second|1');
+        Observer.Expect('var memberless array element, caller after', 'Second|1');
+        Observer.Expect('by-value memberless array element, inside', 'Second|1>Second|1');
+        Observer.Expect('by-value memberless array element, caller after', 'Second|1');
+        Observer.Expect('whole var memberless array, inside', 'Second|1');
+        Observer.Expect('whole var memberless array, caller after', 'Second|1');
+        Observer.Expect('var memberless array, A[1] unheard then A[2] := 2, inside', 'Second|1#Third|2');
+        Observer.Expect('var memberless array, A[1] unheard then A[2] := 2, caller after', 'Second|1#Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -263,7 +318,9 @@ codeunit 75274 "OVU Unheard Callers Tests"
         Row.OptPQR := Row.OptPQR::Q;
         Observer.Observe('var record field P,Q,R, inside', VarRecordField(Row));
         Observer.Observe('var record field P,Q,R, caller after', Format(Row.OptPQR) + '|' + Format(Row.OptPQR, 0, 2));
-        Observer.Finish();
+        Observer.Expect('var record field P,Q,R, inside', 'Q|1>Q|1');
+        Observer.Expect('var record field P,Q,R, caller after', 'Q|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -281,7 +338,9 @@ codeunit 75274 "OVU Unheard Callers Tests"
         Pub.OnUnheardMembers(W0);
         Ok := Evaluate(W0, 'R');
         Observer.Observe('then Evaluate R', Format(Ok) + '|' + Format(W0) + '|' + Format(W0, 0, 2));
-        Observer.Finish();
+        Observer.Expect('memberless local 1 to members P,Q,R', '1|1');
+        Observer.Expect('then Evaluate R', 'No|1|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -300,7 +359,13 @@ codeunit 75274 "OVU Unheard Callers Tests"
         V0 := 1;
         Observer.Observe('memberless var parameter holding memberless 1, inside', VarParamMemberlessMembers(V0));
         Observer.Observe('memberless var parameter holding memberless 1, caller after', Format(V0) + '|' + Format(V0, 0, 2));
-        Observer.Finish();
+        Observer.Expect('var parameter First,Second,Third, inside', 'Second|1>Second|1');
+        Observer.Expect('var parameter First,Second,Third, caller after', 'Second|1');
+        Observer.Expect('memberless var parameter holding Second, inside', 'Second|1>Second|1');
+        Observer.Expect('memberless var parameter holding Second, caller after', 'Second|1');
+        Observer.Expect('memberless var parameter holding memberless 1, inside', '1|1');
+        Observer.Expect('memberless var parameter holding memberless 1, caller after', '1|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -313,7 +378,9 @@ codeunit 75274 "OVU Unheard Callers Tests"
         V := NamedReturnTShape(T);
         Observer.Observe('named return value, inside', T);
         Observer.Observe('caller after', Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('named return value, inside', 'Second|1>Second|1');
+        Observer.Expect('caller after', 'Second|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -346,7 +413,15 @@ codeunit 75274 "OVU Unheard Callers Tests"
         GlobalV := GlobalV::Second;
         T := OtherParamMembers(GlobalV);
         Observer.Observe('global caller, X,Y,Z parameter to members P,Q,R', T + '>' + Format(GlobalV) + '|' + Format(GlobalV, 0, 2));
-        Observer.Finish();
+        Observer.Expect('X,Y,Z parameter to members P,Q,R', 'Y|1>Second|1');
+        Observer.Expect('X,Y,Z parameter to memberless', 'Y|1>Second|1');
+        Observer.Expect('memberless caller, X,Y,Z parameter to members P,Q,R', 'Y|1>1|1');
+        Observer.Expect('by-value caller, X,Y,Z parameter to members P,Q,R', 'Y|1>Second|1');
+        Observer.Expect('X,Y,Z parameter to members First,Second,Third', 'Y|1>Second|1');
+        Observer.Expect('X,Y,Z parameter, no publisher', 'Y|1>Second|1');
+        Observer.Expect('X,Y,Z parameter to members P,Q,R then P := P::Z', 'Z|2>Third|2');
+        Observer.Expect('global caller, X,Y,Z parameter to members P,Q,R', 'Y|1>Second|1');
+        Observer.Verify();
     end;
 
     local procedure ByValueTShape(P: Option First,Second,Third) T: Text
@@ -466,6 +541,7 @@ codeunit 75274 "OVU Unheard Callers Tests"
     end;
 }
 
+// After an unheard publisher, the variable handed on to memberless var parameters.
 codeunit 75275 "OVU Unheard Hand On Tests"
 {
     Subtype = Test;
@@ -520,7 +596,15 @@ codeunit 75275 "OVU Unheard Hand On Tests"
         Pub.OnUnheardMembers(V);
         T := RaiseHeard(V);
         Observer.Observe('members P,Q,R, then heard memberless publisher: subscriber>after', T + '>' + Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('no publisher (control): inside>after', 'Second|1>Second|1');
+        Observer.Expect('members P,Q,R: before>inside>after', 'Second|1>Second|1>Second|1');
+        Observer.Expect('memberless: before>inside>after', 'Second|1>Second|1>Second|1');
+        Observer.Expect('memberless local, members P,Q,R: before>inside>after', '1|1>1|1>1|1');
+        Observer.Expect('members P,Q,R, then X,Y,Z parameter: inside>after', 'Y|1>Second|1');
+        Observer.Expect('members P,Q,R, then interface method: inside>after', 'Second|1>Second|1');
+        Observer.Expect('global, members P,Q,R: inside>after', 'Second|1>Second|1');
+        Observer.Expect('members P,Q,R, then heard memberless publisher: subscriber>after', 'Second|1>Second|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -541,7 +625,10 @@ codeunit 75275 "OVU Unheard Hand On Tests"
         Pub.OnUnheardMemberless(V);
         T := Store2(V);
         Observer.Observe('memberless, Value := 2: inside>after', T + '>' + Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('no publisher (control), Value := 2: inside>after', 'Third|2>Third|2');
+        Observer.Expect('members P,Q,R, Value := 2: inside>after', 'Third|2>Third|2');
+        Observer.Expect('memberless, Value := 2: inside>after', 'Third|2>Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -573,7 +660,13 @@ codeunit 75275 "OVU Unheard Hand On Tests"
         Pub.OnUnheardMemberless(V);
         T := EvaluateUsed(V, 'Third');
         Observer.Observe('memberless, Evaluate Third result used: inside>after', T + '>' + Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('no publisher (control), Evaluate Third result used: inside>after', 'Yes|Third|2>Third|2');
+        Observer.Expect('no publisher (control), Evaluate Q result used: inside>after', 'No|Second|1>Second|1');
+        Observer.Expect('members P,Q,R, Evaluate Third result used: inside>after', 'Yes|Third|2>Third|2');
+        Observer.Expect('members P,Q,R, Evaluate Q result used: inside>after', 'No|Second|1>Second|1');
+        Observer.Expect('members P,Q,R, Evaluate R result used: inside>after', 'No|Second|1>Second|1');
+        Observer.Expect('memberless, Evaluate Third result used: inside>after', 'Yes|Third|2>Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -597,7 +690,11 @@ codeunit 75275 "OVU Unheard Hand On Tests"
         Pub.OnUnheardMembers(V);
         T := EvaluateStatementOutcome(V, 'Q');
         Observer.Observe('members P,Q,R, Evaluate Q statement: outcome>after', T + '>' + Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('no publisher (control), Evaluate Third statement: outcome>after', 'no error|Third|2>Third|2');
+        Observer.Expect('no publisher (control), Evaluate Q statement: outcome>after', 'error ''Q'' is not an option. The existing options are: First,Second,Third|before>Second|1');
+        Observer.Expect('members P,Q,R, Evaluate Third statement: outcome>after', 'no error|Third|2>Third|2');
+        Observer.Expect('members P,Q,R, Evaluate Q statement: outcome>after', 'error ''Q'' is not an option. The existing options are: First,Second,Third|before>Second|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -622,7 +719,13 @@ codeunit 75275 "OVU Unheard Hand On Tests"
         V := NamedReturnUnheardThenHandOn(T);
         Observer.Observe('named return value First,Second,Third: inside~handed on', T);
         Observer.Observe('named return value, caller after', Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('memberless var parameter holding Second: inside~handed on>after', 'Second|1~Second|1>Second|1');
+        Observer.Expect('memberless var parameter holding memberless 1: inside~handed on>after', '1|1~1|1>1|1');
+        Observer.Expect('memberless var parameter holding Second, then Value := 2: inside>after', 'Third|2>Third|2');
+        Observer.Expect('by-value parameter First,Second,Third: inside~handed on', 'Second|1~Second|1');
+        Observer.Expect('named return value First,Second,Third: inside~handed on', 'Second|1~Second|1');
+        Observer.Expect('named return value, caller after', 'Second|1');
+        Observer.Verify();
     end;
 
     local procedure FormatInside(var Value: Option): Text
@@ -702,6 +805,7 @@ codeunit 75275 "OVU Unheard Hand On Tests"
     end;
 }
 
+// Stores into an element of a var memberless array (the caller's array has the members First,Second,Third).
 codeunit 75276 "OVU Unheard Elem Store Tests"
 {
     Subtype = Test;
@@ -730,7 +834,10 @@ codeunit 75276 "OVU Unheard Elem Store Tests"
         Arr[1] := Arr[1]::Second;
         T := ByValueSame(Arr);
         Observer.Observe('by-value parameter Same: inside>caller after', T + '>' + Format(Arr[1]) + '|' + Format(Arr[1], 0, 2));
-        Observer.Finish();
+        Observer.Expect('by-value parameter PQR: inside>caller after', 'Third|2>Third|2');
+        Observer.Expect('by-value parameter Memberless: inside>caller after', '2|2>2|2');
+        Observer.Expect('by-value parameter Same: inside>caller after', 'Third|2>Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -752,7 +859,10 @@ codeunit 75276 "OVU Unheard Elem Store Tests"
         Arr[1] := Arr[1]::Second;
         T := NamedReturnSame(Arr);
         Observer.Observe('named return value Same: inside>caller after', T + '>' + Format(Arr[1]) + '|' + Format(Arr[1], 0, 2));
-        Observer.Finish();
+        Observer.Expect('named return value PQR: inside>caller after', 'Third|2>Third|2');
+        Observer.Expect('named return value Memberless: inside>caller after', '2|2>2|2');
+        Observer.Expect('named return value Same: inside>caller after', 'Third|2>Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -774,7 +884,10 @@ codeunit 75276 "OVU Unheard Elem Store Tests"
         Arr[1] := Arr[1]::Second;
         T := FunctionResultSame(Arr);
         Observer.Observe('function result Same: inside>caller after', T + '>' + Format(Arr[1]) + '|' + Format(Arr[1], 0, 2));
-        Observer.Finish();
+        Observer.Expect('function result PQR: inside>caller after', 'Third|2>Third|2');
+        Observer.Expect('function result Memberless: inside>caller after', '2|2>2|2');
+        Observer.Expect('function result Same: inside>caller after', 'Third|2>Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -796,7 +909,10 @@ codeunit 75276 "OVU Unheard Elem Store Tests"
         Arr[1] := Arr[1]::Second;
         T := LocalArrayElementSame(Arr);
         Observer.Observe('local array element Same: inside>caller after', T + '>' + Format(Arr[1]) + '|' + Format(Arr[1], 0, 2));
-        Observer.Finish();
+        Observer.Expect('local array element PQR: inside>caller after', 'Third|2>Third|2');
+        Observer.Expect('local array element Memberless: inside>caller after', '2|2>2|2');
+        Observer.Expect('local array element Same: inside>caller after', 'Third|2>Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -814,7 +930,9 @@ codeunit 75276 "OVU Unheard Elem Store Tests"
         Arr[1] := Arr[1]::Second;
         T := ConstantSame(Arr);
         Observer.Observe('constant L::Third of Option First,Second,Third: inside>caller after', T + '>' + Format(Arr[1]) + '|' + Format(Arr[1], 0, 2));
-        Observer.Finish();
+        Observer.Expect('constant L::R of Option P,Q,R: inside>caller after', 'Third|2>Third|2');
+        Observer.Expect('constant L::Third of Option First,Second,Third: inside>caller after', 'Third|2>Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -844,7 +962,12 @@ codeunit 75276 "OVU Unheard Elem Store Tests"
         Arr[1] := Arr[1]::Second;
         T := ParenLocalSource(Arr);
         Observer.Observe('parenthesized local P,Q,R: inside>caller after', T + '>' + Format(Arr[1]) + '|' + Format(Arr[1], 0, 2));
-        Observer.Finish();
+        Observer.Expect('global P,Q,R: inside>caller after', 'Third|2>Third|2');
+        Observer.Expect('global memberless: inside>caller after', '2|2>2|2');
+        Observer.Expect('record field P,Q,R: inside>caller after', 'Third|2>Third|2');
+        Observer.Expect('var parameter P,Q,R: inside>caller after', 'Third|2>Third|2');
+        Observer.Expect('parenthesized local P,Q,R: inside>caller after', 'Third|2>Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -890,7 +1013,16 @@ codeunit 75276 "OVU Unheard Elem Store Tests"
         Arr[1] := Arr[1]::Second;
         T := PQRLocalNoPublisher(Arr);
         Observer.Observe('local P,Q,R R, no publisher (control): inside>caller after', T + '>' + Format(Arr[1]) + '|' + Format(Arr[1], 0, 2));
-        Observer.Finish();
+        Observer.Expect('memberless local 2, unheard members P,Q,R: inside>caller after', '2|2~2|2>2|2');
+        Observer.Expect('memberless local 2, unheard members First,Second,Third: inside>caller after', '2|2~2|2>2|2');
+        Observer.Expect('memberless local 2, unheard memberless: inside>caller after', '2|2~2|2>2|2');
+        Observer.Expect('memberless local 2, no publisher (control): inside>caller after', '2|2~2|2>2|2');
+        Observer.Expect('local First,Second,Third Third, unheard members P,Q,R: inside>caller after', 'Third|2~Third|2>Third|2');
+        Observer.Expect('local First,Second,Third Third, no publisher (control): inside>caller after', 'Third|2~Third|2>Third|2');
+        Observer.Expect('local P,Q,R R, unheard memberless: inside>caller after', 'R|2~Third|2>Third|2');
+        Observer.Expect('local P,Q,R R, unheard members First,Second,Third: inside>caller after', 'R|2~Third|2>Third|2');
+        Observer.Expect('local P,Q,R R, no publisher (control): inside>caller after', 'R|2~Third|2>Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -910,7 +1042,10 @@ codeunit 75276 "OVU Unheard Elem Store Tests"
         Arr[2] := Arr[2]::Third;
         Arr0[1] := Arr[2];
         Observer.Observe('element First,Second,Third into local memberless array', Format(Arr0[1]) + '|' + Format(Arr0[1], 0, 2));
-        Observer.Finish();
+        Observer.Expect('local P,Q,R into local memberless array', '2|2');
+        Observer.Expect('global P,Q,R into local memberless array', '2|2');
+        Observer.Expect('element First,Second,Third into local memberless array', '2|2');
+        Observer.Verify();
     end;
 
     local procedure ByValuePQR(var A: array[2] of Option): Text
