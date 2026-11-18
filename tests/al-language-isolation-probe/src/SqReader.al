@@ -30,6 +30,9 @@ codeunit 75919 "LT SQ Reader"
         Helper.Read('C14 later', Log.Seq('C14'));
         Helper.Read('C15 later', Log.Seq('C15'));
         Helper.Read('C16 later', Log.Seq('C16'));
+        Helper.Read('D1 later', Log.Seq('D1'));
+        Helper.Read('D2 later', Log.Seq('D2'));
+        Helper.Read('D3 later', Log.Seq('D3'));
         Helper.Read('B1 later', Log.Seq('B1'));
         Helper.Read('B2 later', Log.Seq('B2'));
         Helper.Read('B3 later', Log.Seq('B3'));
@@ -132,6 +135,24 @@ codeunit 75919 "LT SQ Reader"
     procedure C16_Reading()
     begin
         Check('C16', 'C16 first no|C16 after state|C16 after no|C16 later state|C16 later next');
+    end;
+
+    [Test]
+    procedure D1_Reading()
+    begin
+        Check('D1', 'D1 write tx at start|D1 first next|D1 rows|D1 after state|D1 after next|D1 later state|D1 later next');
+    end;
+
+    [Test]
+    procedure D2_Reading()
+    begin
+        Check('D2', 'D2 first next|D2 rows|D2 after state|D2 after next|D2 later state|D2 later next');
+    end;
+
+    [Test]
+    procedure D3_Reading()
+    begin
+        Check('D3', 'D3 first next|D3 rows|D3 after state|D3 after next|D3 later state|D3 later next');
     end;
 
     [Test]

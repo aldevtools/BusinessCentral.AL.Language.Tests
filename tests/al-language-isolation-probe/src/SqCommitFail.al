@@ -728,6 +728,126 @@ codeunit 75902 "LT SQ C16 ERM Same Test"
     end;
 }
 
+// D1: a passing test writes a row without a Commit(); a later passing test inserts a sequence; a later test fails without a
+// write; the test after it reads the sequence and the row.
+codeunit 75914 "LT SQ D1 Row Earlier Test"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Log: Codeunit "LT SQ Log";
+        Helper: Codeunit "LT SQ Helper";
+
+    [Test]
+    procedure D1a_WritesRow()
+    begin
+        Helper.InsertRow('D1-ROW');
+    end;
+
+    [Test]
+    procedure D1b_InsertsSequence()
+    var
+        Name: Text;
+    begin
+        Log.Put('D1 write tx at start', Format(Database.IsInWriteTransaction()));
+        Name := Log.Seq('D1');
+        NumberSequence.Insert(Name, 1, 1);
+        Log.Put('D1 first next', Format(NumberSequence.Next(Name)));
+    end;
+
+    [Test]
+    procedure D1c_Fails()
+    begin
+        Error('D1c fails on purpose');
+    end;
+
+    [Test]
+    procedure D1d_ReadsSequence()
+    begin
+        Log.Put('D1 rows', Helper.Rows('D1-ROW'));
+        Helper.Read('D1 after', Log.Seq('D1'));
+    end;
+}
+
+// D2: a passing test writes a row and calls Commit(); a later passing test inserts a sequence; a later test fails without a
+// write; the test after it reads the sequence and the row.
+codeunit 75915 "LT SQ D2 Row Commit Earlier"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Log: Codeunit "LT SQ Log";
+        Helper: Codeunit "LT SQ Helper";
+
+    [Test]
+    procedure D2a_WritesRowCommits()
+    begin
+        Helper.InsertRow('D2-ROW');
+        Commit();
+    end;
+
+    [Test]
+    procedure D2b_InsertsSequence()
+    var
+        Name: Text;
+    begin
+        Name := Log.Seq('D2');
+        NumberSequence.Insert(Name, 1, 1);
+        Log.Put('D2 first next', Format(NumberSequence.Next(Name)));
+    end;
+
+    [Test]
+    procedure D2c_Fails()
+    begin
+        Error('D2c fails on purpose');
+    end;
+
+    [Test]
+    procedure D2d_ReadsSequence()
+    begin
+        Log.Put('D2 rows', Helper.Rows('D2-ROW'));
+        Helper.Read('D2 after', Log.Seq('D2'));
+    end;
+}
+
+// D3: a passing test writes a row without a Commit(); the next test inserts a sequence and fails without a write of its
+// own; the test after it reads the sequence and the row.
+codeunit 75916 "LT SQ D3 Row Then Insert Fail"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Log: Codeunit "LT SQ Log";
+        Helper: Codeunit "LT SQ Helper";
+
+    [Test]
+    procedure D3a_WritesRow()
+    begin
+        Helper.InsertRow('D3-ROW');
+    end;
+
+    [Test]
+    procedure D3b_InsertsFails()
+    var
+        Name: Text;
+    begin
+        Name := Log.Seq('D3');
+        NumberSequence.Insert(Name, 1, 1);
+        Log.Put('D3 first next', Format(NumberSequence.Next(Name)));
+        Error('D3b fails on purpose');
+    end;
+
+    [Test]
+    procedure D3c_ReadsSequence()
+    begin
+        Log.Put('D3 rows', Helper.Rows('D3-ROW'));
+        Helper.Read('D3 after', Log.Seq('D3'));
+    end;
+}
+
 // B1 (spec P4b): Restart(500) of a sequence that existed when the tests began, Commit(), then the test fails.
 codeunit 75903 "LT SQ B1 Restart Commit Fail"
 {
