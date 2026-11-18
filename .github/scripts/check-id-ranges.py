@@ -16,13 +16,16 @@ Not flagged:
 - a range on a table whose rows are objects of one kind (Table Metadata: tables, ...) where an app of this repository
   already declares an object of that kind at every id from the low to the high bound. Object ids are unique per kind
   (check-object-ids.py), so no file can add a row. A bound is a number or <Kind>::"<name>" of a declared object;
-- a filter in a procedure or trigger that also filters the name field of the same variable to a closed list (no '*',
-  '?', '@', '..', '<' or '>' in the filter text) that holds, for every object type the test asserts on, a declared
-  object of that type below the low bound and one above the high bound: an object another file adds is not on the
-  list, and the range still excludes a listed row of each type on each side. The types are the fixed kind of Table
-  Metadata and the like, or for AllObj the '<Enum>::Kind' values of the filters on its Object Type (none, or one that
-  names no literal kind: flagged). A name filter that is cleared (a SetRange or SetFilter on the name field without a
-  value, or Reset) between its setting and the range does not count;
+- a filter in a procedure or trigger of which a closed name list is in force at the read (no '*', '?', '@', '..', '<' or
+  '>' in the filter text). The list holds, for every object type the test asserts on, a declared object of that type
+  below the low bound and one above the high bound: an object another file adds is not on the list, and the range
+  still excludes a listed row of each type on each side. In force means: the list is set before the range, or after
+  it with no use of the variable between, nothing but filter calls on other fields lies between the list and the range,
+  and a later call on the name field that is not such a list is followed by an id filter or Reset() before the next use
+  of the variable that is no filter call. The types are the fixed kind of Table Metadata and the like. For AllObj and
+  AllObjWithCaption they are the kinds of the literal filter on Object Type in force at the range and of every one set
+  after it: SetRange(type, Enum::Kind) with one value, or SetFilter(type, '%1|%2', Enum::Kind, ...). Any other type
+  filter, or none, is flagged. Object Type::TableData is flagged: no object has that kind;
 - a key in ALLOWED: a reviewed exception, "<path> <procedure or trigger name>", each with its reason.
 
 Exit code 0: nothing flagged. 1: flagged lines (each printed as a GitHub error annotation).
@@ -74,7 +77,7 @@ OBJECT = re.compile(r'^\s*(?:table|tableextension|page|pageextension|report|repo
                     re.I | re.M)
 MEMBER = re.compile(r'\b(?:procedure|trigger)\s+(' + NAME + r')\s*\(', re.I)
 CALL = re.compile(r'\b([A-Za-z_]\w*)\s*\.\s*(SetRange|SetFilter)\s*\(\s*(' + NAME + r')\s*(,[^;]*)?\)\s*;', re.I)
-RESET = re.compile(r'\b([A-Za-z_]\w*)\s*\.\s*Reset\s*\(\s*\)\s*;', re.I)
+RESET_CALL = re.compile(r'\w+\s*\.\s*Reset\s*\(\s*\)', re.I)
 STRING = re.compile(r"'(?:[^']|'')*'")
 OPEN_TEXT = re.compile(r'\.\.|<|>|\*|\?|@')
 RANGE_TEXT = re.compile(r'\.\.|<|>')
@@ -227,32 +230,81 @@ def outside_both_bounds(names, kinds, lo, hi, objects):
         and all(any(i < lo for i in ids(k)) and any(i > hi for i in ids(k)) for k in kinds)
 
 
-def asserted_kinds(table, var, calls, resets, at, objects_kind):
+TYPE_VALUE = re.compile(r'(?:' + NAME + r'\s*\.\s*)?(' + NAME + r')\s*::\s*(' + NAME + ')')
+TYPE_FIELD = 'object type'
+
+
+def type_kinds(method, args):
+    """The kinds one filter call on the object type field selects, or None when it is not one of the two shapes read:
+    SetRange(type, <Enum>::Kind) with one value, or SetFilter(type, text, values) whose text is only %n joined by '|'
+    and whose values are all <Enum>::Kind of the Object Type enum."""
+    if method.lower() == 'setrange':
+        values = args if len(args) == 1 else []
+    else:
+        text = unquote(args[0]) if args else None
+        parts = text.split('|') if text else []
+        ok = bool(parts) and all(re.fullmatch(r'%\d+', p) for p in parts) \
+            and sorted(int(p[1:]) for p in parts) == list(range(1, len(args)))
+        values = args[1:] if ok else []
+    found = [TYPE_VALUE.fullmatch(v) for v in values]
+    if not found or not all(found) or any(bare(m.group(1)) != TYPE_FIELD for m in found):
+        return None
+    return {bare(m.group(2)) for m in found}
+
+
+def asserted_kinds(var, calls, uses, at, fixed_kind):
     """The object kinds the rows of the variable are asserted on at position at: the fixed kind of a metadata table, or
-    for the tables with rows of every kind the Kind of each '<Enum>::Kind' named by an active filter on the object type
-    field. Empty when a filter names no literal kind."""
-    if objects_kind:
-        return {objects_kind}
+    for the tables with rows of every kind the kinds of the filter on the object type field in force at at (the last one
+    set before it, nothing but filter calls on var between) and of every one set after it. Empty when there is none,
+    or one of them is not read by type_kinds."""
+    if fixed_kind:
+        return {fixed_kind}
+    calls_at = {c.start() for c, v, _, _, _ in calls if v == var}
+    typed = sorted((c.start(), m, a) for c, v, m, f, a in calls if v == var and f == TYPE_FIELD)
+    before = [t for t in typed if t[0] < at]
+    if not before or not all(u in calls_at for u in uses if before[-1][0] < u < at):
+        return set()
     kinds = set()
-    for c, v, method, field, args in calls:
-        if v == var and field == 'object type' and active(c.start(), at, var, field, calls, resets):
-            found = {bare(k).lower() for a in args for k in re.findall(r'::\s*(' + NAME + ')', a)}
-            if not found:
-                if args:
-                    return set()
-                continue
-            kinds |= found
+    for _, method, args in [before[-1]] + [t for t in typed if t[0] > at]:
+        found = type_kinds(method, args)
+        if found is None:
+            return set()
+        kinds |= found
     return kinds
 
 
-def active(placed, at, var, field, calls, resets):
-    """A filter on var.field set at position placed still holds at position at: no Reset of var and no filter on the
-    field without a value lies between them. Before the filter was set, or after it, the clear does not count."""
-    lo, hi = min(placed, at), max(placed, at)
-    if placed > at:
+def name_list_in_force(g, var, table, kinds, lo, hi, calls, uses, tail, objects):
+    """The range call g reads rows under a closed name list that keeps its bounds (outside_both_bounds). All three hold
+    for one name filter call n on the name field of var:
+    1. n is a closed list that keeps the bounds of every kind in kinds;
+    2. between n and g, in either order, var occurs only as the start of a filter call on a field other than the name
+       field (any other use: Reset in any spelling, Clear, Copy, CopyFilters, SetView, a read, an argument);
+    3. after the later of the two, every other call on the name field is accepted only when the next use of var that is
+       no filter call comes after a filter on an id field or is Reset(): the range is gone when var is read."""
+    name_field, id_fields = METADATA[table][1], METADATA[table][0]
+    starts = {c.start(): f for c, v, _, f, _ in calls if v == var}
+
+    def keeps(method, args):
+        names = closed_names(method, args)
+        return names is not None and outside_both_bounds(names, kinds, lo, hi, objects)
+
+    def gone_before_read(c):
+        id_seen = False
+        for u in (u for u in uses if u > c.end()):
+            if u in starts:
+                id_seen = id_seen or starts[u] in id_fields
+            elif RESET_CALL.match(tail, u):
+                return True
+            else:
+                return id_seen
         return True
-    return not any(lo < r < hi for r, v in resets if v == var) and not any(
-        lo < c.start() < hi for c, v, _, f, args in calls if v == var and f == field and not args)
+    named = [(c, m, a) for c, v, m, f, a in calls if v == var and f == name_field]
+    for n, method, args in named:
+        first, last = sorted((n.start(), g.start()))
+        if keeps(method, args) and all(u in starts and starts[u] != name_field for u in uses if first < u < last) \
+                and all(keeps(m, a) or gone_before_read(c) for c, m, a in named if c.start() > last):
+            return True
+    return False
 
 
 def find(path, text, objects):
@@ -278,7 +330,8 @@ def find(path, text, objects):
             tables.update({v.lower(): bare(t) for v, t in RECORD_VAR.findall(head)})
             calls = [(c, c.group(1).lower(), c.group(2), bare(c.group(3)), split_args((c.group(4) or ',')[1:]))
                      for c in CALL.finditer(body)]
-            resets = [(r.start(), r.group(1).lower()) for r in RESET.finditer(body)]
+            # the body with its strings blanked, so that no use of a variable hides in a string
+            tail = re.sub(r"'(?:[^']|'')*'", lambda m: ' ' * len(m.group()), body)
             for c, var, method, field, args in calls:
                 table = tables.get(var)
                 if table not in METADATA or field not in METADATA[table][0]:
@@ -287,11 +340,11 @@ def find(path, text, objects):
                 if not is_range or outside(lo, hi, objects['ranges']) or occupied(METADATA[table][2], lo, hi, objects):
                     continue
                 name_field = METADATA[table][1]
-                kinds = asserted_kinds(table, var, calls, resets, c.start(), METADATA[table][2])
-                if name_field and any(v2 == var and f2 == name_field and closed_names(m2, a2) is not None
-                                      and active(c2.start(), c.start(), var, name_field, calls, resets)
-                                      and outside_both_bounds(closed_names(m2, a2), kinds, lo, hi, objects)
-                                      for c2, v2, m2, f2, a2 in calls):
+                # a use of var is any word var but the enum qualifier of 'var."Object Type"::Kind'
+                use = re.compile(r'\b%s\b(?!\s*\.\s*%s\s*::)' % (re.escape(var), NAME), re.I)
+                uses = [m.start() for m in use.finditer(tail)]
+                kinds = asserted_kinds(var, calls, uses, c.start(), METADATA[table][2])
+                if METADATA[table][1] and name_list_in_force(c, var, table, kinds, lo, hi, calls, uses, tail, objects):
                     continue
                 if '%s %s' % (path, member) in ALLOWED:
                     continue
@@ -312,8 +365,8 @@ def main(argv=None):
             bad.append((rel, line, msg))
     for rel, line, msg in bad:
         print('::error file=%s,line=%d::%s. Name the objects you assert on: add a filter on the name field with a closed '
-              'list that keeps, for every object type you assert on, one listed object below and one above the range, or filter single ids (CONTRIBUTING.md, '
-              'standing rule 10).' % (rel, line, msg))
+              'list that keeps, for every object type you assert on, one listed object below and one above the range, '
+              'or filter single ids (CONTRIBUTING.md, standing rule 10).' % (rel, line, msg))
     if not bad:
         print('No test filters the object ids of a metadata table by an open range.')
     return 1 if bad else 0

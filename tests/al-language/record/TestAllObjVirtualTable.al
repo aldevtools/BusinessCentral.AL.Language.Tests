@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-table-object
 // Scope: in-scope
-// Fixtures used: ALT Relation Parent (60028), ALT Relation Parent B (60030),
+// Fixtures used: ALT Relation Parent (60028), ALT Relation Child (60029), ALT Relation Parent B (60030),
 //                ALT Event Mutation Control (codeunit 60030), ALT Captioned (60830),
 //                ALT Card Page (60017), ALT List Page (60016),
 //                ALT Profile RC SameApp (page 60904), Install Seeder (codeunit 60618),
