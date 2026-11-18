@@ -389,6 +389,7 @@ codeunit 98736 "LT Y67 RC Tests"
     var
         Observer: Codeunit "Probe Observer";
         Row: Record "LT Y67 RC Row";
+        PlatformBuild: Codeunit "ALT Platform Build";
     begin
         Row.DeleteAll();
         ObserveRun(Observer, 'no row', Report::"LT Y67 RC Media");
@@ -397,13 +398,19 @@ codeunit 98736 "LT Y67 RC Tests"
 #if BC29PLUS
         Observer.Expect('no row schema', 'IdC=int PicC msdata:DataType=System.Guid, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e=string PicsC msdata:DataType=System.Guid, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e=string PicHas=boolean PicsCount=int ');
 #else
-        Observer.Expect('no row schema', 'IdC=int PicC msdata:DataType=System.Guid, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e=string PicsC msdata:DataType=System.Guid, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e=string PicHas=boolean PicsCount=int ');
+        if PlatformBuild.IsNet10Build() then
+            Observer.Expect('no row schema', 'IdC=int PicC msdata:DataType=System.Guid, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e=string PicsC msdata:DataType=System.Guid, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e=string PicHas=boolean PicsCount=int ')
+        else
+            Observer.Expect('no row schema', 'IdC=int PicC msdata:DataType=System.Guid, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e=string PicsC msdata:DataType=System.Guid, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e=string PicHas=boolean PicsCount=int ');
 #endif
         Observer.Expect('no row rows', '');
 #if BC29PLUS
         Observer.Expect('row no media schema', 'IdC=int PicC msdata:DataType=System.Guid, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e=string PicsC msdata:DataType=System.Guid, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e=string PicHas=boolean PicsCount=int ');
 #else
-        Observer.Expect('row no media schema', 'IdC=int PicC msdata:DataType=System.Guid, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e=string PicsC msdata:DataType=System.Guid, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e=string PicHas=boolean PicsCount=int ');
+        if PlatformBuild.IsNet10Build() then
+            Observer.Expect('row no media schema', 'IdC=int PicC msdata:DataType=System.Guid, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e=string PicsC msdata:DataType=System.Guid, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e=string PicHas=boolean PicsCount=int ')
+        else
+            Observer.Expect('row no media schema', 'IdC=int PicC msdata:DataType=System.Guid, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e=string PicsC msdata:DataType=System.Guid, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e=string PicHas=boolean PicsCount=int ');
 #endif
         Observer.Expect('row no media rows', 'R:IdC=1 PicHas=false PicsCount=0 ; ');
         Observer.Verify();
