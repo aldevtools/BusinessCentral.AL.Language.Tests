@@ -265,6 +265,7 @@ codeunit 98699 "LT Y51 OP SaveAsXml Time"
     var
         Observer: Codeunit "Probe Observer";
         Content: Text;
+        PlatformBuild: Codeunit "ALT Platform Build";
     begin
         SeedRows();
         Prepare();
@@ -276,8 +277,13 @@ codeunit 98699 "LT Y51 OP SaveAsXml Time"
         Observer.Expect('schema', '<xs:element name="IdC" type="xs:int"|<xs:element name="TmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DtmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DurC" type="xs:string"|<xs:element name="BigC" type="xs:long"|<xs:element name="GC" msdata:DataType="System.Guid, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e" type="xs:string"|');
         Observer.Expect('rows', '<Result>|<IdC>1</IdC>|<TmC>1899-12-30T14:30:15+00:00</TmC>|<DtmC>2024-03-15T14:30:15.123+00:00</DtmC>|<DurC>20 minutes 34 seconds 567 milliseconds</DurC>|<BigC>9007199254740993</BigC>|<GC>0b3e2c7a-1d4f-4e5a-9c6b-7d8e9f0a1b2c</GC>|</Result>|<Result>|<IdC>2</IdC>|<TmC>1899-12-30T00:00:00+00:00</TmC>|<DurC />|<BigC>0</BigC>|<GC>00000000-0000-0000-0000-000000000000</GC>|</Result>|<Result>|<IdC>3</IdC>|<TmC>1899-12-30T00:00:00+00:00</TmC>|<DurC />|<BigC>0</BigC>|<GC>00000000-0000-0000-0000-000000000000</GC>|</Result>|<Result>|<IdC>4</IdC>|<DurC />|<BigC>0</BigC>|<GC>00000000-0000-0000-0000-000000000000</GC>|</Result>|</DataSet>||');
 #else
-        Observer.Expect('schema', '<xs:element name="IdC" type="xs:int"|<xs:element name="TmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DtmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DurC" type="xs:string"|<xs:element name="BigC" type="xs:long"|<xs:element name="GC" msdata:DataType="System.Guid, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e" type="xs:string"|');
-        Observer.Expect('rows', '<Result>|<IdC>1</IdC>|<TmC>1899-12-30T14:30:15+00:00</TmC>|<DtmC>2024-03-15T14:30:15.123+00:00</DtmC>|<DurC>20 minutes 34 seconds 567 milliseconds</DurC>|<BigC>9007199254740993</BigC>|<GC>0b3e2c7a-1d4f-4e5a-9c6b-7d8e9f0a1b2c</GC>|</Result>|<Result>|<IdC>2</IdC>|<TmC>1899-12-30T00:00:00+00:00</TmC>|<DurC />|<BigC>0</BigC>|<GC>00000000-0000-0000-0000-000000000000</GC>|</Result>|<Result>|<IdC>3</IdC>|<TmC>1899-12-30T00:00:00+00:00</TmC>|<DurC />|<BigC>0</BigC>|<GC>00000000-0000-0000-0000-000000000000</GC>|</Result>|<Result>|<IdC>4</IdC>|<DurC />|<BigC>0</BigC>|<GC>00000000-0000-0000-0000-000000000000</GC>|</Result>|</DataSet>||');
+        if PlatformBuild.IsNet10Build() then begin
+            Observer.Expect('schema', '<xs:element name="IdC" type="xs:int"|<xs:element name="TmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DtmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DurC" type="xs:string"|<xs:element name="BigC" type="xs:long"|<xs:element name="GC" msdata:DataType="System.Guid, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e" type="xs:string"|');
+            Observer.Expect('rows', '<Result>|<IdC>1</IdC>|<TmC>1899-12-30T14:30:15+00:00</TmC>|<DtmC>2024-03-15T14:30:15.123+00:00</DtmC>|<DurC>20 minutes 34 seconds 567 milliseconds</DurC>|<BigC>9007199254740993</BigC>|<GC>0b3e2c7a-1d4f-4e5a-9c6b-7d8e9f0a1b2c</GC>|</Result>|<Result>|<IdC>2</IdC>|<TmC>1899-12-30T00:00:00+00:00</TmC>|<DurC />|<BigC>0</BigC>|<GC>00000000-0000-0000-0000-000000000000</GC>|</Result>|<Result>|<IdC>3</IdC>|<TmC>1899-12-30T00:00:00+00:00</TmC>|<DurC />|<BigC>0</BigC>|<GC>00000000-0000-0000-0000-000000000000</GC>|</Result>|<Result>|<IdC>4</IdC>|<DurC />|<BigC>0</BigC>|<GC>00000000-0000-0000-0000-000000000000</GC>|</Result>|</DataSet>||');
+        end else begin
+            Observer.Expect('schema', '<xs:element name="IdC" type="xs:int"|<xs:element name="TmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DtmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DurC" type="xs:string"|<xs:element name="BigC" type="xs:long"|<xs:element name="GC" msdata:DataType="System.Guid, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e" type="xs:string"|');
+            Observer.Expect('rows', '<Result>|<IdC>1</IdC>|<TmC>1899-12-30T14:30:15+00:00</TmC>|<DtmC>2024-03-15T14:30:15.123+00:00</DtmC>|<DurC>20 minutes 34 seconds 567 milliseconds</DurC>|<BigC>9007199254740993</BigC>|<GC>0b3e2c7a-1d4f-4e5a-9c6b-7d8e9f0a1b2c</GC>|</Result>|<Result>|<IdC>2</IdC>|<TmC>1899-12-30T00:00:00+00:00</TmC>|<DurC />|<BigC>0</BigC>|<GC>00000000-0000-0000-0000-000000000000</GC>|</Result>|<Result>|<IdC>3</IdC>|<TmC>1899-12-30T00:00:00+00:00</TmC>|<DurC />|<BigC>0</BigC>|<GC>00000000-0000-0000-0000-000000000000</GC>|</Result>|<Result>|<IdC>4</IdC>|<DurC />|<BigC>0</BigC>|<GC>00000000-0000-0000-0000-000000000000</GC>|</Result>|</DataSet>||');
+        end;
 #endif
         Observer.Verify();
     end;
@@ -306,6 +312,7 @@ codeunit 98699 "LT Y51 OP SaveAsXml Time"
         Observer: Codeunit "Probe Observer";
         Row: Record "LT Y51 OP Time Row";
         Content: Text;
+        PlatformBuild: Codeunit "ALT Platform Build";
     begin
         Row.DeleteAll();
         Prepare();
@@ -317,8 +324,13 @@ codeunit 98699 "LT Y51 OP SaveAsXml Time"
         Observer.Expect('schema', '<xs:element name="IdC" type="xs:int"|<xs:element name="TmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DtmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DurC" type="xs:string"|<xs:element name="BigC" type="xs:long"|<xs:element name="GC" msdata:DataType="System.Guid, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e" type="xs:string"|');
         Observer.Expect('rows', '</DataSet>||');
 #else
-        Observer.Expect('schema', '<xs:element name="IdC" type="xs:int"|<xs:element name="TmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DtmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DurC" type="xs:string"|<xs:element name="BigC" type="xs:long"|<xs:element name="GC" msdata:DataType="System.Guid, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e" type="xs:string"|');
-        Observer.Expect('rows', '</DataSet>||');
+        if PlatformBuild.IsNet10Build() then begin
+            Observer.Expect('schema', '<xs:element name="IdC" type="xs:int"|<xs:element name="TmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DtmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DurC" type="xs:string"|<xs:element name="BigC" type="xs:long"|<xs:element name="GC" msdata:DataType="System.Guid, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e" type="xs:string"|');
+            Observer.Expect('rows', '</DataSet>||');
+        end else begin
+            Observer.Expect('schema', '<xs:element name="IdC" type="xs:int"|<xs:element name="TmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DtmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DurC" type="xs:string"|<xs:element name="BigC" type="xs:long"|<xs:element name="GC" msdata:DataType="System.Guid, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e" type="xs:string"|');
+            Observer.Expect('rows', '</DataSet>||');
+        end;
 #endif
         Observer.Verify();
     end;

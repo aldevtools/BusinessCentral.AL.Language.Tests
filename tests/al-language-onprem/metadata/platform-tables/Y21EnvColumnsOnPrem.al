@@ -6,7 +6,8 @@
 // where the runs gave the same value; a column that changed between runs (the container host name, SQL usage counters) is asserted by
 // a rule or a relation, or left out.
 // Facts (CI containers):
-//  - Drive: BC 27.5 and 28.5 refuse the read ("Server file access by AL functions is disabled. ..."); BC 29.0 gives no row.
+//  - Drive: no row on every version. (The .NET 8 builds of 27.5 and 28.5 refused the read on the Linux tier only: "Server file access by AL
+//    functions is disabled. ..."; Windows BC 28.4 read the table.)
 //  - File: Path is Code[98], so the filter is upper-cased and TemporaryPath() (165 characters here) does not fit. On the Linux
 //    container a filter on /tmp/ finds no file (Suspect_File_ListsOwnFile, not a test: the file system is case-sensitive).
 //  - Table Information: per company rows (both companies) for a per-company table; Record Size = Data Size (KB) * 1024 / No. of
@@ -55,15 +56,11 @@ codeunit 98660 "LT Y21 Env Columns OnPrem"
         Observer.Observe('rows', Result);
         Observer.Observe('error', GetLastErrorText());
         ClearLastError();
-#if BC29PLUS
+        // The refusal the Linux CI tier gave on the .NET 8 builds of 27.5 and 28.5 was a host difference: Windows BC 28.4 (nightly 2026-11-16)
+        // and the .NET 10 builds on Linux (CI 2026-11-17) read the table.
         Observer.Expect('read', 'Yes');
         Observer.Expect('rows', 'n=0;');
         Observer.Expect('error', '');
-#else
-        Observer.Expect('read', 'No');
-        Observer.Expect('rows', '');
-        Observer.Expect('error', 'Server file access by AL functions is disabled. Contact your system administrator.');
-#endif
         Observer.Verify();
     end;
 
