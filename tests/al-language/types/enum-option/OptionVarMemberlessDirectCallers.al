@@ -6,9 +6,35 @@
 // local object: an Option value handed to a var parameter declared without members, by a direct event publisher call, an
 //   interface method or a procedure, is what is under test.
 // Probe (al-runner issues 7994 and 8291, review of al-runner PR 8299; follow-up of OptionVarMemberlessCallers.al):
-//   CELLS_PLACEHOLDER
-// Facts: FACTS_PLACEHOLDER
-// BC versions: VERSIONS_PLACEHOLDER
+//   Cells: an event publisher with public integration events raised directly (no var parameter in between), once without
+//   members and once with the caller's members (First,Second,Third), each with a memberless subscriber, from a local, a global,
+//   a local record field, a global record field, a local and a global array element, a field with OptionCaption One,Two,Three,
+//   a field whose OptionCaption equals its members, a memberless local, a by-value parameter, a named return value, a field of
+//   a var record and of a by-value record, Rec's own field, a by-value array element, a var parameter with the members and a
+//   memberless var parameter. Through OVN Publisher.RaiseWithMembers (a var parameter with the members): a global record field,
+//   a global record caption field, the field whose caption equals its members, a memberless local, and a caption field through
+//   two var parameters with members. Interface method with a memberless var Option parameter: a by-value parameter, a named
+//   return value, a field of a var record, of a by-value record and of Rec, a local and a by-value array element, the field
+//   whose caption equals its members, a memberless var parameter. Interface method with a memberless var Option array
+//   parameter: a local, a global, a var and a by-value array. Procedure with a memberless var Option parameter: a global array
+//   element, the field whose caption equals its members. A memberless var parameter (caller with members) handed to a var
+//   parameter with members A,B,C.
+// Facts: Values are Format|ordinal. Direct publisher calls: the memberless subscriber sees Second|1 (caption field Two|1) under
+//   both publishers, the caller still shows Second|1 after, and the subscriber's Value := 2 gives the caller Third|2 (caption
+//   field Three|2). By-value callers (parameter, record, array element) keep their own value: their caller shows Second|1
+//   after; var callers (var record, Rec, var parameters with or without members) show Third|2 after; a named return value
+//   returns Third|2. A memberless local (value 1): under the memberless publisher the subscriber sees 1|1 and the write gives
+//   2|2; under the publisher with members the subscriber sees Second|1, the local shows 1|1 after and 2|2 after the write.
+//   Through RaiseWithMembers: the same, Second|1 or Two|1, then Third|2 or Three|2; the memberless local shows Second|1 in the
+//   subscriber and 1|1, 2|2 in the caller. The field whose OptionCaption equals its members behaves like a field without
+//   caption. Interface methods and procedures: inside Second|Second|1, Assign1 gives Second|1, Evaluate('Third') gives
+//   Yes|Third|2. Interface with a memberless var array parameter: A[1] Second|1, A[2] Third|2, after A[1] := 2 Third|2,
+//   Evaluate(A[2], 'First') Yes|First|0; a local, global or var array caller then shows Third|2 and First|0; a by-value array
+//   parameter shows them too, and its caller stays Second|1 and Third|2. A memberless var parameter handed on to a var
+//   parameter with members A,B,C shows Second there (not B); Value := Value::C gives Third|2 in the memberless parameter and in
+//   the caller.
+// BC versions: measured on 29.0 (local Windows BC tier). The local 27.5 and 28.5 legs did not run (host lock timeout on 28.5,
+//   service unavailable on 27.5); the corpus CI run of the pull request measures them.
 // A publisher whose integration events are public, so callers raise them directly (no var parameter in between).
 codeunit 75257 "OVN Direct Publisher"
 {
@@ -152,7 +178,13 @@ codeunit 75261 "OVN Direct Callers Tests"
         V := V::First;
         Publisher.OnWithMembers(V, true, Seen);
         Observer.Observe('publisher with members after write 2', Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('memberless publisher saw', 'Second|1');
+        Observer.Expect('memberless publisher after', 'Second|1');
+        Observer.Expect('memberless publisher after write 2', 'Third|2');
+        Observer.Expect('publisher with members saw', 'Second|1');
+        Observer.Expect('publisher with members after', 'Second|1');
+        Observer.Expect('publisher with members after write 2', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -176,7 +208,13 @@ codeunit 75261 "OVN Direct Callers Tests"
         GlobalV := GlobalV::First;
         Publisher.OnWithMembers(GlobalV, true, Seen);
         Observer.Observe('publisher with members after write 2', Format(GlobalV) + '|' + Format(GlobalV, 0, 2));
-        Observer.Finish();
+        Observer.Expect('memberless publisher saw', 'Second|1');
+        Observer.Expect('memberless publisher after', 'Second|1');
+        Observer.Expect('memberless publisher after write 2', 'Third|2');
+        Observer.Expect('publisher with members saw', 'Second|1');
+        Observer.Expect('publisher with members after', 'Second|1');
+        Observer.Expect('publisher with members after write 2', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -201,7 +239,13 @@ codeunit 75261 "OVN Direct Callers Tests"
         Row.Opt := Row.Opt::First;
         Publisher.OnWithMembers(Row.Opt, true, Seen);
         Observer.Observe('publisher with members after write 2', Format(Row.Opt) + '|' + Format(Row.Opt, 0, 2));
-        Observer.Finish();
+        Observer.Expect('memberless publisher saw', 'Second|1');
+        Observer.Expect('memberless publisher after', 'Second|1');
+        Observer.Expect('memberless publisher after write 2', 'Third|2');
+        Observer.Expect('publisher with members saw', 'Second|1');
+        Observer.Expect('publisher with members after', 'Second|1');
+        Observer.Expect('publisher with members after write 2', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -226,7 +270,13 @@ codeunit 75261 "OVN Direct Callers Tests"
         GlobalRow.Opt := GlobalRow.Opt::First;
         Publisher.OnWithMembers(GlobalRow.Opt, true, Seen);
         Observer.Observe('publisher with members after write 2', Format(GlobalRow.Opt) + '|' + Format(GlobalRow.Opt, 0, 2));
-        Observer.Finish();
+        Observer.Expect('memberless publisher saw', 'Second|1');
+        Observer.Expect('memberless publisher after', 'Second|1');
+        Observer.Expect('memberless publisher after write 2', 'Third|2');
+        Observer.Expect('publisher with members saw', 'Second|1');
+        Observer.Expect('publisher with members after', 'Second|1');
+        Observer.Expect('publisher with members after write 2', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -251,7 +301,13 @@ codeunit 75261 "OVN Direct Callers Tests"
         Arr[2] := Arr[2]::First;
         Publisher.OnWithMembers(Arr[2], true, Seen);
         Observer.Observe('publisher with members after write 2', Format(Arr[2]) + '|' + Format(Arr[2], 0, 2));
-        Observer.Finish();
+        Observer.Expect('memberless publisher saw', 'Second|1');
+        Observer.Expect('memberless publisher after', 'Second|1');
+        Observer.Expect('memberless publisher after write 2', 'Third|2');
+        Observer.Expect('publisher with members saw', 'Second|1');
+        Observer.Expect('publisher with members after', 'Second|1');
+        Observer.Expect('publisher with members after write 2', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -276,7 +332,13 @@ codeunit 75261 "OVN Direct Callers Tests"
         GlobalArr[2] := GlobalArr[2]::First;
         Publisher.OnWithMembers(GlobalArr[2], true, Seen);
         Observer.Observe('publisher with members after write 2', Format(GlobalArr[2]) + '|' + Format(GlobalArr[2], 0, 2));
-        Observer.Finish();
+        Observer.Expect('memberless publisher saw', 'Second|1');
+        Observer.Expect('memberless publisher after', 'Second|1');
+        Observer.Expect('memberless publisher after write 2', 'Third|2');
+        Observer.Expect('publisher with members saw', 'Second|1');
+        Observer.Expect('publisher with members after', 'Second|1');
+        Observer.Expect('publisher with members after write 2', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -301,7 +363,13 @@ codeunit 75261 "OVN Direct Callers Tests"
         Row.OptCap := Row.OptCap::First;
         Publisher.OnWithMembers(Row.OptCap, true, Seen);
         Observer.Observe('publisher with members after write 2', Format(Row.OptCap) + '|' + Format(Row.OptCap, 0, 2));
-        Observer.Finish();
+        Observer.Expect('memberless publisher saw', 'Two|1');
+        Observer.Expect('memberless publisher after', 'Two|1');
+        Observer.Expect('memberless publisher after write 2', 'Three|2');
+        Observer.Expect('publisher with members saw', 'Two|1');
+        Observer.Expect('publisher with members after', 'Two|1');
+        Observer.Expect('publisher with members after write 2', 'Three|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -326,7 +394,13 @@ codeunit 75261 "OVN Direct Callers Tests"
         Row.OptSame := Row.OptSame::First;
         Publisher.OnWithMembers(Row.OptSame, true, Seen);
         Observer.Observe('publisher with members after write 2', Format(Row.OptSame) + '|' + Format(Row.OptSame, 0, 2));
-        Observer.Finish();
+        Observer.Expect('memberless publisher saw', 'Second|1');
+        Observer.Expect('memberless publisher after', 'Second|1');
+        Observer.Expect('memberless publisher after write 2', 'Third|2');
+        Observer.Expect('publisher with members saw', 'Second|1');
+        Observer.Expect('publisher with members after', 'Second|1');
+        Observer.Expect('publisher with members after write 2', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -351,7 +425,13 @@ codeunit 75261 "OVN Direct Callers Tests"
         M := 0;
         Publisher.OnWithMembers(M, true, Seen);
         Observer.Observe('publisher with members after write 2', Format(M) + '|' + Format(M, 0, 2));
-        Observer.Finish();
+        Observer.Expect('memberless publisher saw', '1|1');
+        Observer.Expect('memberless publisher after', '1|1');
+        Observer.Expect('memberless publisher after write 2', '2|2');
+        Observer.Expect('publisher with members saw', 'Second|1');
+        Observer.Expect('publisher with members after', '1|1');
+        Observer.Expect('publisher with members after write 2', '2|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -363,7 +443,9 @@ codeunit 75261 "OVN Direct Callers Tests"
         V := V::Second;
         Observer.Observe('inside', ByValueToPublishers(V));
         Observer.Observe('caller after', Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|1#Second|1#Third|2#Second|1#Second|1#Third|2');
+        Observer.Expect('caller after', 'Second|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -376,7 +458,9 @@ codeunit 75261 "OVN Direct Callers Tests"
         V := ReturnNamedToPublishers();
         Observer.Observe('inside', GSeen);
         Observer.Observe('returned', Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|1#Second|1#Third|2#Second|1#Second|1#Third|2');
+        Observer.Expect('returned', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -387,7 +471,9 @@ codeunit 75261 "OVN Direct Callers Tests"
     begin
         Observer.Observe('inside', VarRecordToPublishers(Row));
         Observer.Observe('caller after', Format(Row.Opt) + '|' + Format(Row.Opt, 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|1#Second|1#Third|2#Second|1#Second|1#Third|2');
+        Observer.Expect('caller after', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -399,7 +485,9 @@ codeunit 75261 "OVN Direct Callers Tests"
         Row.Opt := Row.Opt::Second;
         Observer.Observe('inside', ByValueRecordToPublishers(Row));
         Observer.Observe('caller after', Format(Row.Opt) + '|' + Format(Row.Opt, 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|1#Second|1#Third|2#Second|1#Second|1#Third|2');
+        Observer.Expect('caller after', 'Second|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -410,7 +498,9 @@ codeunit 75261 "OVN Direct Callers Tests"
     begin
         Observer.Observe('inside', Row.OptToPublishers());
         Observer.Observe('caller after', Format(Row.Opt) + '|' + Format(Row.Opt, 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|1#Second|1#Third|2#Second|1#Second|1#Third|2');
+        Observer.Expect('caller after', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -422,7 +512,9 @@ codeunit 75261 "OVN Direct Callers Tests"
         Arr[2] := Arr[2]::Second;
         Observer.Observe('inside', ByValueArrayElementToPublishers(Arr));
         Observer.Observe('caller after', Format(Arr[2]) + '|' + Format(Arr[2], 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|1#Second|1#Third|2#Second|1#Second|1#Third|2');
+        Observer.Expect('caller after', 'Second|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -433,7 +525,9 @@ codeunit 75261 "OVN Direct Callers Tests"
     begin
         Observer.Observe('inside', MembersVarToPublishers(V));
         Observer.Observe('caller after', Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|1#Second|1#Third|2#Second|1#Second|1#Third|2');
+        Observer.Expect('caller after', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -445,7 +539,9 @@ codeunit 75261 "OVN Direct Callers Tests"
         V := V::Second;
         Observer.Observe('inside', MemberlessVarToPublishers(V));
         Observer.Observe('caller after', Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|1#Second|1#Third|2#Second|1#Second|1#Third|2');
+        Observer.Expect('caller after', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -463,7 +559,10 @@ codeunit 75261 "OVN Direct Callers Tests"
         GlobalRow.Opt := GlobalRow.Opt::First;
         HopPublisher.RaiseWithMembers(GlobalRow.Opt, true, Seen);
         Observer.Observe('after write 2', Format(GlobalRow.Opt) + '|' + Format(GlobalRow.Opt, 0, 2));
-        Observer.Finish();
+        Observer.Expect('subscriber saw', 'Second|1');
+        Observer.Expect('after', 'Second|1');
+        Observer.Expect('after write 2', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -481,7 +580,10 @@ codeunit 75261 "OVN Direct Callers Tests"
         GlobalRow.OptCap := GlobalRow.OptCap::First;
         HopPublisher.RaiseWithMembers(GlobalRow.OptCap, true, Seen);
         Observer.Observe('after write 2', Format(GlobalRow.OptCap) + '|' + Format(GlobalRow.OptCap, 0, 2));
-        Observer.Finish();
+        Observer.Expect('subscriber saw', 'Two|1');
+        Observer.Expect('after', 'Two|1');
+        Observer.Expect('after write 2', 'Three|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -499,7 +601,10 @@ codeunit 75261 "OVN Direct Callers Tests"
         Row.OptSame := Row.OptSame::First;
         HopPublisher.RaiseWithMembers(Row.OptSame, true, Seen);
         Observer.Observe('after write 2', Format(Row.OptSame) + '|' + Format(Row.OptSame, 0, 2));
-        Observer.Finish();
+        Observer.Expect('subscriber saw', 'Second|1');
+        Observer.Expect('after', 'Second|1');
+        Observer.Expect('after write 2', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -517,7 +622,10 @@ codeunit 75261 "OVN Direct Callers Tests"
         M := 0;
         HopPublisher.RaiseWithMembers(M, true, Seen);
         Observer.Observe('after write 2', Format(M) + '|' + Format(M, 0, 2));
-        Observer.Finish();
+        Observer.Expect('subscriber saw', 'Second|1');
+        Observer.Expect('after', '1|1');
+        Observer.Expect('after write 2', '2|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -529,7 +637,9 @@ codeunit 75261 "OVN Direct Callers Tests"
         Row.OptCap := Row.OptCap::Second;
         Observer.Observe('inside', TwoHopsToMembersPublisher(Row.OptCap));
         Observer.Observe('caller after', Format(Row.OptCap) + '|' + Format(Row.OptCap, 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Two|1#Two|1#Three|2');
+        Observer.Expect('caller after', 'Three|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -541,7 +651,9 @@ codeunit 75261 "OVN Direct Callers Tests"
         V := V::Second;
         Observer.Observe('inside', ByValueToInterface(V));
         Observer.Observe('caller after', Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|Second|1#Second|1#Second|1#Yes|Third|2#Third|2');
+        Observer.Expect('caller after', 'Second|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -554,7 +666,9 @@ codeunit 75261 "OVN Direct Callers Tests"
         V := ReturnNamedToInterface();
         Observer.Observe('inside', GSeen);
         Observer.Observe('returned', Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|Second|1#Second|1#Second|1#Yes|Third|2#Third|2');
+        Observer.Expect('returned', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -565,7 +679,9 @@ codeunit 75261 "OVN Direct Callers Tests"
     begin
         Observer.Observe('inside', VarRecordToInterface(Row));
         Observer.Observe('caller after', Format(Row.Opt) + '|' + Format(Row.Opt, 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|Second|1#Second|1#Second|1#Yes|Third|2#Third|2');
+        Observer.Expect('caller after', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -577,7 +693,9 @@ codeunit 75261 "OVN Direct Callers Tests"
         Row.Opt := Row.Opt::Second;
         Observer.Observe('inside', ByValueRecordToInterface(Row));
         Observer.Observe('caller after', Format(Row.Opt) + '|' + Format(Row.Opt, 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|Second|1#Second|1#Second|1#Yes|Third|2#Third|2');
+        Observer.Expect('caller after', 'Second|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -591,7 +709,9 @@ codeunit 75261 "OVN Direct Callers Tests"
         Formatter := Impl;
         Observer.Observe('inside', Row.OptToInterface(Formatter));
         Observer.Observe('caller after', Format(Row.Opt) + '|' + Format(Row.Opt, 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|Second|1#Second|1#Second|1#Yes|Third|2#Third|2');
+        Observer.Expect('caller after', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -600,7 +720,8 @@ codeunit 75261 "OVN Direct Callers Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('inside', LocalArrayElementToInterface());
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|Second|1#Second|1#Second|1#Yes|Third|2#Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -612,7 +733,9 @@ codeunit 75261 "OVN Direct Callers Tests"
         Arr[2] := Arr[2]::Second;
         Observer.Observe('inside', ByValueArrayElementToInterface(Arr));
         Observer.Observe('caller after', Format(Arr[2]) + '|' + Format(Arr[2], 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|Second|1#Second|1#Second|1#Yes|Third|2#Third|2');
+        Observer.Expect('caller after', 'Second|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -623,7 +746,9 @@ codeunit 75261 "OVN Direct Callers Tests"
     begin
         Observer.Observe('inside', SameCaptionFieldToInterface(Row));
         Observer.Observe('caller after', Format(Row.OptSame) + '|' + Format(Row.OptSame, 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|Second|1#Second|1#Second|1#Yes|Third|2#Third|2');
+        Observer.Expect('caller after', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -635,7 +760,9 @@ codeunit 75261 "OVN Direct Callers Tests"
         V := V::Second;
         Observer.Observe('inside', MemberlessVarToInterface(V));
         Observer.Observe('caller after', Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|Second|1#Second|1#Second|1#Yes|Third|2#Third|2');
+        Observer.Expect('caller after', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -656,7 +783,11 @@ codeunit 75261 "OVN Direct Callers Tests"
         GlobalArr[2] := GlobalArr[2]::Third;
         Observer.Observe('global inside', ArrayFormatter.StoreAndFormat(GlobalArr));
         Observer.Observe('global after', Format(GlobalArr[1]) + '|' + Format(GlobalArr[1], 0, 2) + '#' + Format(GlobalArr[2]) + '|' + Format(GlobalArr[2], 0, 2));
-        Observer.Finish();
+        Observer.Expect('local inside', 'Second|1#Third|2#Third|2#Yes|First|0');
+        Observer.Expect('local after', 'Third|2#First|0');
+        Observer.Expect('global inside', 'Second|1#Third|2#Third|2#Yes|First|0');
+        Observer.Expect('global after', 'Third|2#First|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -673,7 +804,11 @@ codeunit 75261 "OVN Direct Callers Tests"
         Arr[2] := Arr[2]::Third;
         Observer.Observe('by-value parameter inside', ByValueArrayToInterface(Arr));
         Observer.Observe('by-value parameter after', Format(Arr[1]) + '|' + Format(Arr[1], 0, 2) + '#' + Format(Arr[2]) + '|' + Format(Arr[2], 0, 2));
-        Observer.Finish();
+        Observer.Expect('var parameter inside', 'Second|1#Third|2#Third|2#Yes|First|0#Third|2#First|0');
+        Observer.Expect('var parameter after', 'Third|2#First|0');
+        Observer.Expect('by-value parameter inside', 'Second|1#Third|2#Third|2#Yes|First|0#Third|2#First|0');
+        Observer.Expect('by-value parameter after', 'Second|1#Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -685,7 +820,9 @@ codeunit 75261 "OVN Direct Callers Tests"
         Clear(GlobalArr);
         Observer.Observe('inside', GlobalArrayElementToProcedure());
         Observer.Observe('caller after', Format(GlobalArr[2]) + '|' + Format(GlobalArr[2], 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|Second|1#Second|1#Second|1#Yes|Third|2#Third|2');
+        Observer.Expect('caller after', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -696,7 +833,9 @@ codeunit 75261 "OVN Direct Callers Tests"
     begin
         Observer.Observe('inside', SameCaptionFieldToProcedure(Row));
         Observer.Observe('caller after', Format(Row.OptSame) + '|' + Format(Row.OptSame, 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|Second|1#Second|1#Second|1#Yes|Third|2#Third|2');
+        Observer.Expect('caller after', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -708,7 +847,9 @@ codeunit 75261 "OVN Direct Callers Tests"
         V := V::Second;
         Observer.Observe('inside', MemberlessVarToOtherMembers(V));
         Observer.Observe('caller after', Format(V) + '|' + Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('inside', 'Second|Second|1#Second|1#Third|2');
+        Observer.Expect('caller after', 'Third|2');
+        Observer.Verify();
     end;
 
     local procedure ByValueToPublishers(Value: Option First,Second,Third): Text

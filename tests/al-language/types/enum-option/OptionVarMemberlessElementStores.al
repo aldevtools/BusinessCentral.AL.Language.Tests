@@ -3,9 +3,20 @@
 // Fixtures used: Probe Observer (codeunit 69160); own object 75262 (OVN Element Stores Tests)
 // local object: a memberless Option array element that holds a value of an array with members is what is under test.
 // Probe (al-runner issues 7994 and 8291, review of al-runner PR 8299; follow-up of OptionVarMemberlessWrites.al):
-//   CELLS_PLACEHOLDER
-// Facts: FACTS_PLACEHOLDER
-// BC versions: VERSIONS_PLACEHOLDER
+//   Cells: element stores into a by-value memberless array parameter (the caller's array has members First,Second,Third), a
+//   local memberless array and a global memberless array filled by CopyArray from an array with those members, and a var
+//   memberless array parameter. Store kinds: none (read), Evaluate(A[1], 'Third') with the result used, Clear(A[1]), Clear then
+//   A[1] := 1, A[1] := an Option P,Q,R (R), A[1] := a memberless Option (2), A[1] := an Option with the caller's members
+//   (Third), A[1] := 2, A[1] := A[2], A[2] := A[2] (A[2] holds Third). The var array only for A[1] := A[2] and A[2] := A[2];
+//   the other store kinds into a var array are in OptionVarMemberlessWrites.al.
+// Facts: Values are Format|ordinal. By-value memberless array: read Second|1; Evaluate('Third') Yes|Third|2; Clear First|0;
+//   Clear then 1 Second|1; store of R (P,Q,R) Third|2; store of a memberless Option 2|2; store of Third Third|2; A[1] := 2
+//   Third|2; A[1] := A[2] Third|2; A[2] := A[2] Third|2; the caller's array stays Second|1 and Third|2. Local and global
+//   memberless arrays filled by CopyArray: the same, except Clear gives 0|0 and Clear then 1 gives 1|1 (the element loses the
+//   names after Clear). Var memberless array: A[1] := A[2] Third|2, and the caller shows Third|2 and Third|2; A[2] := A[2]
+//   Third|2, and the caller shows Second|1 and Third|2.
+// BC versions: measured on 29.0 (local Windows BC tier). The local 27.5 and 28.5 legs did not run (host lock timeout on 28.5,
+//   service unavailable on 27.5); the corpus CI run of the pull request measures them.
 codeunit 75262 "OVN Element Stores Tests"
 {
     Subtype = Test;
@@ -32,7 +43,18 @@ codeunit 75262 "OVN Element Stores Tests"
         Observer.Observe('store A[2] into A[1]', ByValueStore(Arr, 8));
         Observer.Observe('store A[2] into itself', ByValueStore(Arr, 9));
         Observer.Observe('caller after', Format(Arr[1]) + '|' + Format(Arr[1], 0, 2) + '#' + Format(Arr[2]) + '|' + Format(Arr[2], 0, 2));
-        Observer.Finish();
+        Observer.Expect('read', 'Second|1');
+        Observer.Expect('evaluate Third', 'Yes|Third|2');
+        Observer.Expect('clear', 'First|0');
+        Observer.Expect('clear then 1', 'Second|1');
+        Observer.Expect('store Option P,Q,R', 'Third|2');
+        Observer.Expect('store memberless Option', '2|2');
+        Observer.Expect('store same members', 'Third|2');
+        Observer.Expect('store integer 2', 'Third|2');
+        Observer.Expect('store A[2] into A[1]', 'Third|2');
+        Observer.Expect('store A[2] into itself', 'Third|2');
+        Observer.Expect('caller after', 'Second|1#Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -51,7 +73,17 @@ codeunit 75262 "OVN Element Stores Tests"
         Observer.Observe('store integer 2', LocalCopyStore(7));
         Observer.Observe('store A[2] into A[1]', LocalCopyStore(8));
         Observer.Observe('store A[2] into itself', LocalCopyStore(9));
-        Observer.Finish();
+        Observer.Expect('read', 'Second|1');
+        Observer.Expect('evaluate Third', 'Yes|Third|2');
+        Observer.Expect('clear', '0|0');
+        Observer.Expect('clear then 1', '1|1');
+        Observer.Expect('store Option P,Q,R', 'Third|2');
+        Observer.Expect('store memberless Option', '2|2');
+        Observer.Expect('store same members', 'Third|2');
+        Observer.Expect('store integer 2', 'Third|2');
+        Observer.Expect('store A[2] into A[1]', 'Third|2');
+        Observer.Expect('store A[2] into itself', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -70,7 +102,17 @@ codeunit 75262 "OVN Element Stores Tests"
         Observer.Observe('store integer 2', GlobalCopyStore(7));
         Observer.Observe('store A[2] into A[1]', GlobalCopyStore(8));
         Observer.Observe('store A[2] into itself', GlobalCopyStore(9));
-        Observer.Finish();
+        Observer.Expect('read', 'Second|1');
+        Observer.Expect('evaluate Third', 'Yes|Third|2');
+        Observer.Expect('clear', '0|0');
+        Observer.Expect('clear then 1', '1|1');
+        Observer.Expect('store Option P,Q,R', 'Third|2');
+        Observer.Expect('store memberless Option', '2|2');
+        Observer.Expect('store same members', 'Third|2');
+        Observer.Expect('store integer 2', 'Third|2');
+        Observer.Expect('store A[2] into A[1]', 'Third|2');
+        Observer.Expect('store A[2] into itself', 'Third|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -87,7 +129,11 @@ codeunit 75262 "OVN Element Stores Tests"
         Arr[2] := Arr[2]::Third;
         Observer.Observe('store A[2] into itself', VarStore(Arr, 9));
         Observer.Observe('caller after A[2] := A[2]', Format(Arr[1]) + '|' + Format(Arr[1], 0, 2) + '#' + Format(Arr[2]) + '|' + Format(Arr[2], 0, 2));
-        Observer.Finish();
+        Observer.Expect('store A[2] into A[1]', 'Third|2');
+        Observer.Expect('caller after A[1] := A[2]', 'Third|2#Third|2');
+        Observer.Expect('store A[2] into itself', 'Third|2');
+        Observer.Expect('caller after A[2] := A[2]', 'Second|1#Third|2');
+        Observer.Verify();
     end;
 
     local procedure ByValueStore(A: array[2] of Option; Kind: Integer): Text
