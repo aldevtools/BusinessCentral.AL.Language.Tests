@@ -12,7 +12,9 @@
 //                EEM Status Ext (enumextension 60881 over EEM Status 60880),
 //                TP CurrFieldNo Job Ext (tableextension 60390 over Job),
 //                Spaced Action Base Ext (pageextension 60245 over Item Attribute Values),
-//                TP Precompiled Capture Ext (pageextension 60735 over Item Attribute)
+//                TP Precompiled Capture Ext (pageextension 60735 over Item Attribute),
+//                ALT Separator Captioned (60026), ALT Global Trigger Sub (codeunit 60025),
+//                ALT Event Mutation Sub (codeunit 60031)
 // BC versions: 27.5+
 //
 // Pins the built-in "AllObj" (2000000038) and "AllObjWithCaption" (2000000058) system

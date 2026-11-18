@@ -17,8 +17,12 @@ Not flagged:
   already declares an object of that kind at every id from the low to the high bound. Object ids are unique per kind
   (check-object-ids.py), so no file can add a row. A bound is a number or <Kind>::"<name>" of a declared object;
 - a filter in a procedure or trigger that also filters the name field of the same variable to a closed list (no '*',
-  '?', '@', '..', '<' or '>' in the filter text) that holds a declared object below the low bound and one above the
-  high bound: an object another file adds is not on the list, and the range still excludes a listed row on each side;
+  '?', '@', '..', '<' or '>' in the filter text) that holds, for every object type the test asserts on, a declared
+  object of that type below the low bound and one above the high bound: an object another file adds is not on the
+  list, and the range still excludes a listed row of each type on each side. The types are the fixed kind of Table
+  Metadata and the like, or for AllObj the '<Enum>::Kind' values of the filters on its Object Type (none, or one that
+  names no literal kind: flagged). A name filter that is cleared (a SetRange or SetFilter on the name field without a
+  value, or Reset) between its setting and the range does not count;
 - a key in ALLOWED: a reviewed exception, "<path> <procedure or trigger name>", each with its reason.
 
 Exit code 0: nothing flagged. 1: flagged lines (each printed as a GitHub error annotation).
@@ -70,6 +74,7 @@ OBJECT = re.compile(r'^\s*(?:table|tableextension|page|pageextension|report|repo
                     re.I | re.M)
 MEMBER = re.compile(r'\b(?:procedure|trigger)\s+(' + NAME + r')\s*\(', re.I)
 CALL = re.compile(r'\b([A-Za-z_]\w*)\s*\.\s*(SetRange|SetFilter)\s*\(\s*(' + NAME + r')\s*(,[^;]*)?\)\s*;', re.I)
+RESET = re.compile(r'\b([A-Za-z_]\w*)\s*\.\s*Reset\s*\(\s*\)\s*;', re.I)
 STRING = re.compile(r"'(?:[^']|'')*'")
 OPEN_TEXT = re.compile(r'\.\.|<|>|\*|\?|@')
 RANGE_TEXT = re.compile(r'\.\.|<|>')
@@ -210,12 +215,44 @@ def closed_names(method, args):
     return [p.strip() for p in text.split('|')]
 
 
-def outside_both_bounds(names, kind, lo, hi, objects):
-    """A listed name is a declared object (of kind, or of any kind when kind is None) below lo, and another above hi: the
-    range still has to exclude a named row on each side."""
+def outside_both_bounds(names, kinds, lo, hi, objects):
+    """For every kind of kinds (the object types the test asserts on, at least one): a listed name is a declared object
+    of that kind below lo, and another one of that kind above hi. The range still has to exclude a named row of each
+    asserted type on each side."""
     wanted = {x.lower() for x in names}
-    ids = [i for (k, n), i in objects['names'].items() if n in wanted and kind in (None, k)]
-    return lo is not None and hi is not None and any(i < lo for i in ids) and any(i > hi for i in ids)
+
+    def ids(kind):
+        return [i for (k, n), i in objects['names'].items() if n in wanted and k == kind]
+    return bool(kinds) and lo is not None and hi is not None \
+        and all(any(i < lo for i in ids(k)) and any(i > hi for i in ids(k)) for k in kinds)
+
+
+def asserted_kinds(table, var, calls, resets, at, objects_kind):
+    """The object kinds the rows of the variable are asserted on at position at: the fixed kind of a metadata table, or
+    for the tables with rows of every kind the Kind of each '<Enum>::Kind' named by an active filter on the object type
+    field. Empty when a filter names no literal kind."""
+    if objects_kind:
+        return {objects_kind}
+    kinds = set()
+    for c, v, method, field, args in calls:
+        if v == var and field == 'object type' and active(c.start(), at, var, field, calls, resets):
+            found = {bare(k).lower() for a in args for k in re.findall(r'::\s*(' + NAME + ')', a)}
+            if not found:
+                if args:
+                    return set()
+                continue
+            kinds |= found
+    return kinds
+
+
+def active(placed, at, var, field, calls, resets):
+    """A filter on var.field set at position placed still holds at position at: no Reset of var and no filter on the
+    field without a value lies between them. Before the filter was set, or after it, the clear does not count."""
+    lo, hi = min(placed, at), max(placed, at)
+    if placed > at:
+        return True
+    return not any(lo < r < hi for r, v in resets if v == var) and not any(
+        lo < c.start() < hi for c, v, _, f, args in calls if v == var and f == field and not args)
 
 
 def find(path, text, objects):
@@ -241,6 +278,7 @@ def find(path, text, objects):
             tables.update({v.lower(): bare(t) for v, t in RECORD_VAR.findall(head)})
             calls = [(c, c.group(1).lower(), c.group(2), bare(c.group(3)), split_args((c.group(4) or ',')[1:]))
                      for c in CALL.finditer(body)]
+            resets = [(r.start(), r.group(1).lower()) for r in RESET.finditer(body)]
             for c, var, method, field, args in calls:
                 table = tables.get(var)
                 if table not in METADATA or field not in METADATA[table][0]:
@@ -249,9 +287,11 @@ def find(path, text, objects):
                 if not is_range or outside(lo, hi, objects['ranges']) or occupied(METADATA[table][2], lo, hi, objects):
                     continue
                 name_field = METADATA[table][1]
+                kinds = asserted_kinds(table, var, calls, resets, c.start(), METADATA[table][2])
                 if name_field and any(v2 == var and f2 == name_field and closed_names(m2, a2) is not None
-                                      and outside_both_bounds(closed_names(m2, a2), METADATA[table][2], lo, hi, objects)
-                                      for _, v2, m2, f2, a2 in calls):
+                                      and active(c2.start(), c.start(), var, name_field, calls, resets)
+                                      and outside_both_bounds(closed_names(m2, a2), kinds, lo, hi, objects)
+                                      for c2, v2, m2, f2, a2 in calls):
                     continue
                 if '%s %s' % (path, member) in ALLOWED:
                     continue
@@ -272,7 +312,7 @@ def main(argv=None):
             bad.append((rel, line, msg))
     for rel, line, msg in bad:
         print('::error file=%s,line=%d::%s. Name the objects you assert on: add a filter on the name field with a closed '
-              'list that keeps one listed object below and one above the range, or filter single ids (CONTRIBUTING.md, '
+              'list that keeps, for every object type you assert on, one listed object below and one above the range, or filter single ids (CONTRIBUTING.md, '
               'standing rule 10).' % (rel, line, msg))
     if not bad:
         print('No test filters the object ids of a metadata table by an open range.')
