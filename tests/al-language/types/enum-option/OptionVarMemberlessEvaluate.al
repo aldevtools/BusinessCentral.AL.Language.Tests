@@ -177,7 +177,11 @@ codeunit 75249 "OVM Memberless Eval Tests"
         Observer.ObserveError('error');
         Observer.Observe('Format', Format(V));
         Observer.Observe('Format 0 2', Format(V, 0, 2));
-        Observer.Finish();
+        Observer.Expect('error|text', ''''' is not an option. The existing options are: First,Second,Third');
+        Observer.Expect('error|code', 'InvalidOptionString');
+        Observer.Expect('Format', 'Third');
+        Observer.Expect('Format 0 2', '2');
+        Observer.Verify();
     end;
 
     [Test]
