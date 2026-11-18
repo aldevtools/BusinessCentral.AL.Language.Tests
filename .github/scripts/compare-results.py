@@ -14,7 +14,7 @@ What is compared, per BC version: the codeunits that a master run at the nightly
 base run (reuse_rule), each test of them key by key (leg, codeunit, test name -> list of outcomes). The base run is the
 newest green master push run of this workflow whose commit is the nightly's commit or an ancestor of it and whose
 results manifest counts (provenance.py check-manifest). A reused codeunit without a base result is a difference. A
-codeunit the base run has and the nightly lacks is dropped (counted, not a difference) only when the base commit is not
+compared codeunit that the base run has and the nightly lacks is dropped (counted, not a difference) only when the base commit is not
 the nightly's commit and the diff between them deleted or renamed every file that declared it (make_gone); otherwise it
 is a difference.
 
