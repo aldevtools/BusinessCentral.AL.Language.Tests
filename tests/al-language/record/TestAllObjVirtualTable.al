@@ -187,18 +187,22 @@ codeunit 60802 "Test AllObj Virtual Table"
         Initialize();
 
         // Tables 60028, 60029 and 60030 are three consecutive fixture tables, so the count is
-        // a concrete number rather than "more than zero". The name filter lists the four objects
-        // of 60028..60030 these counts are about, so an object that another file adds in that
-        // range does not change them (CONTRIBUTING.md, standing rule 10).
+        // a concrete number rather than "more than zero". The name filter lists the objects the
+        // counts are about, so an object that another file adds in 60028..60030 does not change
+        // them (CONTRIBUTING.md, standing rule 10). It also lists, per object type, one object
+        // below and one above the range: tables ALT Separator Captioned (60026) and ALT Captioned
+        // (60830), codeunits ALT Global Trigger Sub (60025) and ALT Event Mutation Sub (60031).
+        // The counts 3 and 1 hold only when the range excludes those rows on both sides.
         AllObj.SetFilter(
-            "Object Name", '%1|%2|%3|%4',
-            'ALT Relation Parent', 'ALT Relation Child', 'ALT Relation Parent B', 'ALT Event Mutation Control');
+            "Object Name", '%1|%2|%3|%4|%5|%6|%7|%8',
+            'ALT Relation Parent', 'ALT Relation Child', 'ALT Relation Parent B', 'ALT Event Mutation Control',
+            'ALT Separator Captioned', 'ALT Captioned', 'ALT Global Trigger Sub', 'ALT Event Mutation Sub');
         AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
         AllObj.SetRange("Object ID", 60028, 60030);
         Assert.AreEqual(3, AllObj.Count(), 'The Table rows for object ids 60028..60030 are exactly three.');
 
-        // The same id range under Object Type::Codeunit selects only 60030, the one codeunit
-        // on the list -- so the Object Type half of the filter is doing work.
+        // The same id range under Object Type::Codeunit selects only 60030: the listed codeunits
+        // 60025 and 60031 lie outside the range -- and the Object Type half of the filter is doing work.
         AllObj.SetRange("Object Type", AllObj."Object Type"::Codeunit);
         Assert.AreEqual(1, AllObj.Count(), 'Exactly one codeunit is declared in the id range 60028..60030.');
         Assert.IsTrue(AllObj.FindFirst(), 'FindFirst must succeed for the one codeunit in the range.');

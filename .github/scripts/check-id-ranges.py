@@ -17,7 +17,8 @@ Not flagged:
   already declares an object of that kind at every id from the low to the high bound. Object ids are unique per kind
   (check-object-ids.py), so no file can add a row. A bound is a number or <Kind>::"<name>" of a declared object;
 - a filter in a procedure or trigger that also filters the name field of the same variable to a closed list (no '*',
-  '?', '@', '..', '<' or '>' in the filter text): an object another file adds is not on the list;
+  '?', '@', '..', '<' or '>' in the filter text) that holds a declared object below the low bound and one above the
+  high bound: an object another file adds is not on the list, and the range still excludes a listed row on each side;
 - a key in ALLOWED: a reviewed exception, "<path> <procedure or trigger name>", each with its reason.
 
 Exit code 0: nothing flagged. 1: flagged lines (each printed as a GitHub error annotation).
@@ -55,6 +56,10 @@ ALLOWED = {
     # The walk over SubType = Test and 60000..60999 asserts only that the ids come strictly ascending and that there are at
     # least 50 of them. An added test codeunit is one more row of the same walk; it cannot make either assertion false.
     'tests/al-language/record/TestCodeunitInventoryOrder.al Record_CodeunitMetadata_TestCodeunitsInThisAppsRange_AreStrictlyAscending',
+    # The range runs from Codeunit::"Test Codeunit Metadata Virt T" (60962) to Codeunit::"Test Second Id Range" (67000), and
+    # the test asserts only that FindFirst returns the low bound and FindLast the high bound. A codeunit another file adds
+    # lies between them and cannot change either; a change to a bound selects this test, because it names both.
+    'tests/al-language/codeunits/TestSecondIdRange.al Codeunit_SecondIdRange_FilterAcrossBothRanges_ReturnsRowsFromBoth',
 }
 
 NAME = r'(?:"[^"\n]+"|[A-Za-z_]\w*)'
@@ -187,13 +192,30 @@ def range_bounds(method, args, objects):
     return True, (int(found.group(1)) if found else None), (int(found.group(2)) if found else None)
 
 
-def closed_name_filter(method, args):
+def unquote(arg):
+    return arg[1:-1].replace("''", "'") if STRING.fullmatch(arg) else None
+
+
+def closed_names(method, args):
+    """The names of a filter on a name field when it is a fixed list (no '*', '?', '@', '..', '<' or '>'), else None.
+    The list is the SetRange value, the %n values of a SetFilter, or the '|' parts of a SetFilter text without %n."""
     if method.lower() == 'setrange':
-        return len(args) == 1
-    if not args:
-        return False
-    m = STRING.fullmatch(args[0])
-    return bool(m) and not OPEN_TEXT.search(args[0][1:-1])
+        return [unquote(args[0])] if len(args) == 1 and unquote(args[0]) is not None else None
+    text = unquote(args[0]) if args else None
+    if text is None or OPEN_TEXT.search(text):
+        return None
+    if re.search(r'%\d', text):
+        values = [unquote(a) for a in args[1:]]
+        return None if any(v is None for v in values) else values
+    return [p.strip() for p in text.split('|')]
+
+
+def outside_both_bounds(names, kind, lo, hi, objects):
+    """A listed name is a declared object (of kind, or of any kind when kind is None) below lo, and another above hi: the
+    range still has to exclude a named row on each side."""
+    wanted = {x.lower() for x in names}
+    ids = [i for (k, n), i in objects['names'].items() if n in wanted and kind in (None, k)]
+    return lo is not None and hi is not None and any(i < lo for i in ids) and any(i > hi for i in ids)
 
 
 def find(path, text, objects):
@@ -227,7 +249,8 @@ def find(path, text, objects):
                 if not is_range or outside(lo, hi, objects['ranges']) or occupied(METADATA[table][2], lo, hi, objects):
                     continue
                 name_field = METADATA[table][1]
-                if name_field and any(v2 == var and f2 == name_field and closed_name_filter(m2, a2)
+                if name_field and any(v2 == var and f2 == name_field and closed_names(m2, a2) is not None
+                                      and outside_both_bounds(closed_names(m2, a2), METADATA[table][2], lo, hi, objects)
                                       for _, v2, m2, f2, a2 in calls):
                     continue
                 if '%s %s' % (path, member) in ALLOWED:
@@ -249,7 +272,8 @@ def main(argv=None):
             bad.append((rel, line, msg))
     for rel, line, msg in bad:
         print('::error file=%s,line=%d::%s. Name the objects you assert on: add a filter on the name field with a closed '
-              'list, or filter single ids (CONTRIBUTING.md, standing rule 10).' % (rel, line, msg))
+              'list that keeps one listed object below and one above the range, or filter single ids (CONTRIBUTING.md, '
+              'standing rule 10).' % (rel, line, msg))
     if not bad:
         print('No test filters the object ids of a metadata table by an open range.')
     return 1 if bad else 0

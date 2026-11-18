@@ -31,7 +31,7 @@ with tempfile.TemporaryDirectory() as d:
     app.mkdir(parents=True)
     (app / 'app.json').write_text('{"name": "Main", "idRanges": [{"from": 50000, "to": 50999}]}')
     (app / 'Tables.al').write_text('table 50001 "T One"\n{\n}\ntable 50002 "T Two"\n{\n}\npage 50001 "P One"\n{\n}\n'
-                                   'page 50002 "P Two"\n{\n}\n')
+                                   'page 50002 "P Two"\n{\n}\ntable 50005 "T Five"\n{\n}\ntable 50009 "T Nine"\n{\n}\n')
     objects = chk.repository(root)
 
     def flagged(text, path='tests/main/X.al'):
@@ -57,11 +57,20 @@ with tempfile.TemporaryDirectory() as d:
                                                                       'R: Record "Page Metadata";'), 1),
         ('Codeunit Metadata over a range of declared tables', codeunit('R.SetRange(ID, 50001, 50002);',
                                                                        'R: Record "CodeUnit Metadata";'), 1),
-        ('a closed name list on the same variable', codeunit(
-            "R.SetFilter(\"Object Name\", '%1|%2', 'A', 'B'); R.SetRange(\"Object ID\", 50001, 50005);"), 0),
+        ('a closed name list with a declared object below and one above the range', codeunit(
+            "R.SetFilter(\"Object Name\", '%1|%2|%3', 'T One', 'T Five', 'T Nine'); R.SetRange(\"Object ID\", 50002, 50005);"), 0),
+        ('a closed name list whose names all lie inside the range', codeunit(
+            "R.SetFilter(\"Object Name\", '%1|%2', 'T Two', 'T Five'); R.SetRange(\"Object ID\", 50002, 50005);"), 1),
+        ('a closed name list with a name below the range only', codeunit(
+            "R.SetFilter(\"Object Name\", '%1|%2', 'T One', 'T Five'); R.SetRange(\"Object ID\", 50002, 50005);"), 1),
+        ('a closed name list of names no object has', codeunit(
+            "R.SetFilter(\"Object Name\", '%1|%2', 'A', 'B'); R.SetRange(\"Object ID\", 50002, 50005);"), 1),
+        ('a closed name list written in the filter text', codeunit(
+            "R.SetFilter(\"Object Name\", 'T One|T Nine'); R.SetRange(\"Object ID\", 50002, 50005);"), 0),
         ('a name filter with a wildcard', codeunit(
             "R.SetFilter(\"Object Name\", 'A*'); R.SetRange(\"Object ID\", 50001, 50005);"), 1),
-        ('a single name by SetRange', codeunit("R.SetRange(\"Object Name\", 'A'); R.SetRange(\"Object ID\", 50001, 50005);"), 0),
+        ('a single name by SetRange cannot lie on both sides', codeunit(
+            "R.SetRange(\"Object Name\", 'T One'); R.SetRange(\"Object ID\", 50002, 50005);"), 1),
         ('a name filter on another variable', codeunit(
             "S.SetRange(\"Object Name\", 'A'); R.SetRange(\"Object ID\", 50001, 50005);", 'R: Record AllObj; S: Record AllObj;'), 1),
         ('the id field of a table that is no metadata table', codeunit('R.SetRange(Id, 1, 3);', 'R: Record "W3 Row";'), 0),
