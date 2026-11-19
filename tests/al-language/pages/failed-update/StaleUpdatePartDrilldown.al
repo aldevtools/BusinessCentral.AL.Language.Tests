@@ -5,6 +5,8 @@
 //   with UpdatePropagation = Both whose drilldown changes the stored header and calls CurrPage.Update(false); the host's next SetValue
 //   validates against the stored header), here after an earlier step on the host: a host control whose OnValidate errors, alone or after
 //   CurrPage.Update(true) or Update(false). What the host shows after the drilldown, which package the scan used, and what is stored.
+// Facts (measured on BC 28.5; 27.5 and 29.0 see the pull request): the earlier failed step changes nothing. In every variant the host
+//   shows FIRST after the drilldown, the scan uses SECOND (the stored header), and the host shows SECOND after the scan.
 // BC versions: 27, 28, 29
 
 table 73686 "LT FU Packing"
@@ -200,7 +202,13 @@ codeunit 73690 "LT FU Drilldown Tests"
     procedure Drilldown_NoEarlierStep()
     begin
         Run(false, 0);
-        Observer.Finish();
+        Observer.Expect('shown after drilldown', 'FIRST');
+        Observer.Expect('stored after drilldown', 'SECOND/');
+        Observer.Expect('scan', 'Yes');
+        Observer.Expect('shown after scan', 'SECOND');
+        Observer.Expect('stored after scan', 'SECOND/SECOND');
+        Observer.Expect('stored', 'SECOND/SECOND');
+        Observer.Verify();
     end;
 
     // Earlier step: a host OnValidate that only errors.
@@ -208,7 +216,17 @@ codeunit 73690 "LT FU Drilldown Tests"
     procedure Drilldown_AfterErrorOnly()
     begin
         Run(true, 0);
-        Observer.Finish();
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('stored after boom', 'FIRST/');
+        Observer.Expect('shown after drilldown', 'FIRST');
+        Observer.Expect('stored after drilldown', 'SECOND/');
+        Observer.Expect('scan', 'Yes');
+        Observer.Expect('shown after scan', 'SECOND');
+        Observer.Expect('stored after scan', 'SECOND/SECOND');
+        Observer.Expect('stored', 'SECOND/SECOND');
+        Observer.Verify();
     end;
 
     // Earlier step: a host OnValidate that calls CurrPage.Update(true), then errors.
@@ -216,7 +234,17 @@ codeunit 73690 "LT FU Drilldown Tests"
     procedure Drilldown_AfterFailedUpdateTrue()
     begin
         Run(true, 1);
-        Observer.Finish();
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('stored after boom', 'FIRST/');
+        Observer.Expect('shown after drilldown', 'FIRST');
+        Observer.Expect('stored after drilldown', 'SECOND/');
+        Observer.Expect('scan', 'Yes');
+        Observer.Expect('shown after scan', 'SECOND');
+        Observer.Expect('stored after scan', 'SECOND/SECOND');
+        Observer.Expect('stored', 'SECOND/SECOND');
+        Observer.Verify();
     end;
 
     // Earlier step: a host OnValidate that calls CurrPage.Update(false), then errors.
@@ -224,6 +252,16 @@ codeunit 73690 "LT FU Drilldown Tests"
     procedure Drilldown_AfterFailedUpdateFalse()
     begin
         Run(true, 2);
-        Observer.Finish();
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('stored after boom', 'FIRST/');
+        Observer.Expect('shown after drilldown', 'FIRST');
+        Observer.Expect('stored after drilldown', 'SECOND/');
+        Observer.Expect('scan', 'Yes');
+        Observer.Expect('shown after scan', 'SECOND');
+        Observer.Expect('stored after scan', 'SECOND/SECOND');
+        Observer.Expect('stored', 'SECOND/SECOND');
+        Observer.Verify();
     end;
 }

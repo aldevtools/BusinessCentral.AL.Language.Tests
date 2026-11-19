@@ -8,6 +8,17 @@
 //   table's OnModify), and what is stored. Rows: B1 10000 A; B2 10000 B, 20000 D; B3 none (the page opens on B3).
 //   Log: V:start/V:done <Line No.> around the batch OnValidate, B:start/B:error around the failing one, R: OnAfterGetRecord,
 //   C: OnAfterGetCurrRecord, N: OnNewRecord, M: OnModifyRecord (Rec and xRec), I: OnInsertRecord, L.*: table triggers.
+// Facts (measured on BC 28.5; 27.5 and 29.0 see the pull request):
+//   - A CurrPage.SaveRecord() or CurrPage.Update(true) after Find('-') moved Rec from the new-row line onto stored row B2/10000 modifies
+//     that row inside the OnValidate: OnModifyRecord (xRec still the new line B3/0) and the table's OnModify run, with or without the
+//     first SaveRecord, with or without an earlier step, on Worksheet and List. A Description that code set is stored. Update(false)
+//     and no second step modify nothing.
+//   - Which earlier step failed does not matter: an OnValidate that only errors gives the same result as one that called
+//     Update(true), Update(false) or SaveRecord() before its error (none of those ran: no reads, no save).
+//   - After any failed earlier step the TestPage shows blank controls, and a batch OnValidate that ends without CurrPage.Update
+//     (SaveRecord or nothing as the second step) reads no rows: the page stays blank and Next returns false. With Update(true) or
+//     Update(false) it reads the view as without the earlier step.
+//   - Without the first SaveRecord and without an earlier step, Update(false) or no second step lands on the new-row line of B2.
 // BC versions: 27, 28, 29
 
 table 73680 "LT FU Line"
@@ -487,7 +498,15 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_SaveRecord_NoEarlierStep()
     begin
         RunWs(true, 1, false, false, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, then CurrPage.SaveRecord(); earlier step: an OnValidate that only errors.
@@ -495,7 +514,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_SaveRecord_AfterErrorOnly()
     begin
         RunWs(true, 1, false, true, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000');
+        Observer.Expect('current', '//:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'No//:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, then CurrPage.SaveRecord(); earlier step: CurrPage.Update(true) then an error.
@@ -503,7 +536,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_SaveRecord_AfterFailedUpdateTrue()
     begin
         RunWs(true, 1, false, true, 1);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000');
+        Observer.Expect('current', '//:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'No//:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, then CurrPage.SaveRecord(); earlier step: CurrPage.Update(false) then an error.
@@ -511,7 +558,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_SaveRecord_AfterFailedUpdateFalse()
     begin
         RunWs(true, 1, false, true, 2);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000');
+        Observer.Expect('current', '//:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'No//:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, then CurrPage.SaveRecord(); earlier step: CurrPage.SaveRecord() then an error.
@@ -519,7 +580,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_SaveRecord_AfterFailedSaveRecord()
     begin
         RunWs(true, 1, false, true, 3);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000');
+        Observer.Expect('current', '//:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'No//:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, then CurrPage.Update(true); earlier step: none.
@@ -527,7 +602,15 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_UpdateTrue_NoEarlierStep()
     begin
         RunWs(true, 2, false, false, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, then CurrPage.Update(true); earlier step: an OnValidate that only errors.
@@ -535,7 +618,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_UpdateTrue_AfterErrorOnly()
     begin
         RunWs(true, 2, false, true, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, then CurrPage.Update(true); earlier step: CurrPage.Update(true) then an error.
@@ -543,7 +640,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_UpdateTrue_AfterFailedUpdateTrue()
     begin
         RunWs(true, 2, false, true, 1);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, then CurrPage.Update(true); earlier step: CurrPage.Update(false) then an error.
@@ -551,7 +662,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_UpdateTrue_AfterFailedUpdateFalse()
     begin
         RunWs(true, 2, false, true, 2);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, then CurrPage.Update(true); earlier step: CurrPage.SaveRecord() then an error.
@@ -559,7 +684,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_UpdateTrue_AfterFailedSaveRecord()
     begin
         RunWs(true, 2, false, true, 3);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, then CurrPage.Update(false); earlier step: none.
@@ -567,7 +706,15 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_UpdateFalse_NoEarlierStep()
     begin
         RunWs(true, 3, false, false, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, then CurrPage.Update(false); earlier step: an OnValidate that only errors.
@@ -575,7 +722,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_UpdateFalse_AfterErrorOnly()
     begin
         RunWs(true, 3, false, true, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, then CurrPage.Update(false); earlier step: CurrPage.Update(true) then an error.
@@ -583,7 +744,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_UpdateFalse_AfterFailedUpdateTrue()
     begin
         RunWs(true, 3, false, true, 1);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, then CurrPage.Update(false); earlier step: CurrPage.Update(false) then an error.
@@ -591,7 +766,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_UpdateFalse_AfterFailedUpdateFalse()
     begin
         RunWs(true, 3, false, true, 2);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, then CurrPage.Update(false); earlier step: CurrPage.SaveRecord() then an error.
@@ -599,7 +788,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_UpdateFalse_AfterFailedSaveRecord()
     begin
         RunWs(true, 3, false, true, 3);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, then no second step; earlier step: none.
@@ -607,7 +810,15 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_NoSecond_NoEarlierStep()
     begin
         RunWs(true, 0, false, false, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, then no second step; earlier step: an OnValidate that only errors.
@@ -615,7 +826,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_NoSecond_AfterErrorOnly()
     begin
         RunWs(true, 0, false, true, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000');
+        Observer.Expect('current', '//:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'No//:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, then no second step; earlier step: CurrPage.Update(true) then an error.
@@ -623,7 +848,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_NoSecond_AfterFailedUpdateTrue()
     begin
         RunWs(true, 0, false, true, 1);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000');
+        Observer.Expect('current', '//:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'No//:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, then no second step; earlier step: CurrPage.Update(false) then an error.
@@ -631,7 +870,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_NoSecond_AfterFailedUpdateFalse()
     begin
         RunWs(true, 0, false, true, 2);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000');
+        Observer.Expect('current', '//:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'No//:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, then no second step; earlier step: CurrPage.SaveRecord() then an error.
@@ -639,7 +892,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_NoSecond_AfterFailedSaveRecord()
     begin
         RunWs(true, 0, false, true, 3);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000');
+        Observer.Expect('current', '//:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'No//:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: SetBatch, then CurrPage.SaveRecord(); earlier step: none.
@@ -647,7 +914,15 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_NoSave_SaveRecord_NoEarlierStep()
     begin
         RunWs(false, 1, false, false, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: SetBatch, then CurrPage.SaveRecord(); earlier step: an OnValidate that only errors.
@@ -655,7 +930,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_NoSave_SaveRecord_AfterErrorOnly()
     begin
         RunWs(false, 1, false, true, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000');
+        Observer.Expect('current', '//:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'No//:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: SetBatch, then CurrPage.SaveRecord(); earlier step: CurrPage.Update(true) then an error.
@@ -663,7 +952,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_NoSave_SaveRecord_AfterFailedUpdateTrue()
     begin
         RunWs(false, 1, false, true, 1);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000');
+        Observer.Expect('current', '//:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'No//:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: SetBatch, then CurrPage.SaveRecord(); earlier step: CurrPage.Update(false) then an error.
@@ -671,7 +974,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_NoSave_SaveRecord_AfterFailedUpdateFalse()
     begin
         RunWs(false, 1, false, true, 2);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000');
+        Observer.Expect('current', '//:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'No//:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: SetBatch, then CurrPage.Update(true); earlier step: none.
@@ -679,7 +996,15 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_NoSave_UpdateTrue_NoEarlierStep()
     begin
         RunWs(false, 2, false, false, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: SetBatch, then CurrPage.Update(true); earlier step: an OnValidate that only errors.
@@ -687,7 +1012,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_NoSave_UpdateTrue_AfterErrorOnly()
     begin
         RunWs(false, 2, false, true, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: SetBatch, then CurrPage.Update(true); earlier step: CurrPage.Update(true) then an error.
@@ -695,7 +1034,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_NoSave_UpdateTrue_AfterFailedUpdateTrue()
     begin
         RunWs(false, 2, false, true, 1);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: SetBatch, then CurrPage.Update(true); earlier step: CurrPage.Update(false) then an error.
@@ -703,7 +1056,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_NoSave_UpdateTrue_AfterFailedUpdateFalse()
     begin
         RunWs(false, 2, false, true, 2);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: SetBatch, then CurrPage.Update(false); earlier step: none.
@@ -711,7 +1078,15 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_NoSave_UpdateFalse_NoEarlierStep()
     begin
         RunWs(false, 3, false, false, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000;N:B2/0 below=Yes;C:B2/0');
+        Observer.Expect('current', '0//:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'No/0/:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: SetBatch, then CurrPage.Update(false); earlier step: an OnValidate that only errors.
@@ -719,7 +1094,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_NoSave_UpdateFalse_AfterErrorOnly()
     begin
         RunWs(false, 3, false, true, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: SetBatch, then CurrPage.Update(false); earlier step: CurrPage.Update(true) then an error.
@@ -727,7 +1116,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_NoSave_UpdateFalse_AfterFailedUpdateTrue()
     begin
         RunWs(false, 3, false, true, 1);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: SetBatch, then CurrPage.Update(false); earlier step: CurrPage.Update(false) then an error.
@@ -735,7 +1138,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_NoSave_UpdateFalse_AfterFailedUpdateFalse()
     begin
         RunWs(false, 3, false, true, 2);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: SetBatch, then no second step; earlier step: none.
@@ -743,7 +1160,15 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_NoSave_NoSecond_NoEarlierStep()
     begin
         RunWs(false, 0, false, false, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000;N:B2/0 below=Yes;C:B2/0');
+        Observer.Expect('current', '0//:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'No/0/:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: SetBatch, then no second step; earlier step: an OnValidate that only errors.
@@ -751,7 +1176,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_NoSave_NoSecond_AfterErrorOnly()
     begin
         RunWs(false, 0, false, true, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000');
+        Observer.Expect('current', '//:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'No//:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: SetBatch, then no second step; earlier step: CurrPage.Update(true) then an error.
@@ -759,7 +1198,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_NoSave_NoSecond_AfterFailedUpdateTrue()
     begin
         RunWs(false, 0, false, true, 1);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000');
+        Observer.Expect('current', '//:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'No//:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: SetBatch, then no second step; earlier step: CurrPage.Update(false) then an error.
@@ -767,7 +1220,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_NoSave_NoSecond_AfterFailedUpdateFalse()
     begin
         RunWs(false, 0, false, true, 2);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000');
+        Observer.Expect('current', '//:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'No//:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // List page: first CurrPage.SaveRecord(), SetBatch, then CurrPage.SaveRecord(); earlier step: none.
@@ -775,7 +1242,15 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure List_Save_SaveRecord_NoEarlierStep()
     begin
         RunList(true, 1, false, false, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // List page: first CurrPage.SaveRecord(), SetBatch, then CurrPage.SaveRecord(); earlier step: CurrPage.Update(true) then an error.
@@ -783,7 +1258,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure List_Save_SaveRecord_AfterFailedUpdateTrue()
     begin
         RunList(true, 1, false, true, 1);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000');
+        Observer.Expect('current', '//:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'No//:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // List page: first CurrPage.SaveRecord(), SetBatch, then CurrPage.Update(true); earlier step: none.
@@ -791,7 +1280,15 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure List_Save_UpdateTrue_NoEarlierStep()
     begin
         RunList(true, 2, false, false, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // List page: first CurrPage.SaveRecord(), SetBatch, then CurrPage.Update(true); earlier step: CurrPage.Update(true) then an error.
@@ -799,7 +1296,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure List_Save_UpdateTrue_AfterFailedUpdateTrue()
     begin
         RunList(true, 2, false, true, 1);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/dB x=B3/0;L.OnModify:B2/10000/dB;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, Rec.Description := 'code', then CurrPage.SaveRecord(); earlier step: none.
@@ -807,7 +1318,15 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_SaveRecord_CodeChange_NoEarlierStep()
     begin
         RunWs(true, 1, true, false, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/code x=B3/0;L.OnModify:B2/10000/code;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/code:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/code;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/code;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, Rec.Description := 'code', then CurrPage.SaveRecord(); earlier step: CurrPage.Update(true) then an error.
@@ -815,7 +1334,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_SaveRecord_CodeChange_AfterFailedUpdateTrue()
     begin
         RunWs(true, 1, true, true, 1);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/code x=B3/0;L.OnModify:B2/10000/code;V:done 10000;R:B2/10000;C:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/code:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/code;B2/20000/D/dD;');
+        Observer.Expect('next', 'No/10000/B:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/code;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, Rec.Description := 'code', then CurrPage.Update(true); earlier step: none.
@@ -823,7 +1356,15 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_UpdateTrue_CodeChange_NoEarlierStep()
     begin
         RunWs(true, 2, true, false, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/code x=B3/0;L.OnModify:B2/10000/code;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/code:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/code;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/code;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, Rec.Description := 'code', then CurrPage.Update(true); earlier step: CurrPage.Update(true) then an error.
@@ -831,7 +1372,21 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_UpdateTrue_CodeChange_AfterFailedUpdateTrue()
     begin
         RunWs(true, 2, true, true, 1);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000/code x=B3/0;L.OnModify:B2/10000/code;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/code:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/code;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/code;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, Rec.Description := 'code', then no second step; earlier step: none.
@@ -839,7 +1394,15 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_NoSecond_CodeChange_NoEarlierStep()
     begin
         RunWs(true, 0, true, false, 0);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // Worksheet: first CurrPage.SaveRecord(), SetBatch, Rec.Description := 'code', then no second step; earlier step: CurrPage.Update(true) then an error.
@@ -847,6 +1410,20 @@ codeunit 73684 "LT FU NewLine Tests"
     procedure Ws_Save_NoSecond_CodeChange_AfterFailedUpdateTrue()
     begin
         RunWs(true, 0, true, true, 1);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom log', 'B:start 0;B:error');
+        Observer.Expect('after boom', '/:');
+        Observer.Expect('stored after boom', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('validate', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000');
+        Observer.Expect('current', '//:');
+        Observer.Expect('stored after validate', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Expect('next', 'No//:');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 }

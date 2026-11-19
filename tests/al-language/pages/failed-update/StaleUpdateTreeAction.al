@@ -5,6 +5,9 @@
 //   with a collapsed tree and both row triggers; an action leaves Rec on a child row the page does not show, with or without
 //   CurrPage.Update(false)), here with a header control whose OnValidate errors, alone or after CurrPage.Update(true) or Update(false),
 //   run before the action on the same open page. Rows: 1 WC1 (0), 2 MC1 (1), 3 MC2 (1), 4 WC2 (0), 5 MC3 (1).
+// Facts (measured on BC 28.5; 27.5 and 29.0 see the pull request): without an earlier step both actions give the R7168 result. After
+//   any failed header OnValidate (error only, or after Update(true) or Update(false)) the action's Invoke raises nothing and its
+//   OnAction does not run: no trigger runs, the page stays on WC1 and shows WC1, WC2.
 // BC versions: 27, 28, 29
 
 table 73692 "LT FU Tree Row"
@@ -241,7 +244,15 @@ codeunit 73695 "LT FU Tree Action Tests"
     procedure TreeGetChild_NoEarlierStep()
     begin
         Run(false, 0, false);
-        Observer.Finish();
+        Observer.Expect('open-log', 'open n=5 cur=WC1;agrWC1;agrMC1;agrMC2;agrWC2;agrMC3;agrWC1;agrWC1;agcrWC1;');
+        Observer.Expect('first', 'Yes/WC1');
+        Observer.Expect('action-log', 'agrWC1;act-get=Yes;agrMC1;agrMC1;agrMC2;agrWC2;agrMC3;agrMC1;agrWC1;agrMC1;agrMC1;agcrMC1;');
+        Observer.Expect('current', 'MC1');
+        Observer.Expect('current-cell', 'cell of MC1');
+        Observer.Expect('current-expanded', 'No');
+        Observer.Expect('walk', 'WC1 MC1 MC2 WC2');
+        Observer.Expect('close-log', '');
+        Observer.Verify();
     end;
 
     // Earlier step: a header OnValidate that only errors.
@@ -249,7 +260,19 @@ codeunit 73695 "LT FU Tree Action Tests"
     procedure TreeGetChild_AfterErrorOnly()
     begin
         Run(true, 0, false);
-        Observer.Finish();
+        Observer.Expect('open-log', 'open n=5 cur=WC1;agrWC1;agrMC1;agrMC2;agrWC2;agrMC3;agrWC1;agrWC1;agcrWC1;');
+        Observer.Expect('first', 'Yes/WC1');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom-log', 'B:start WC1;B:error;');
+        Observer.Expect('action-log', '');
+        Observer.Expect('current', 'WC1');
+        Observer.Expect('current-cell', 'cell of WC1');
+        Observer.Expect('current-expanded', 'No');
+        Observer.Expect('walk', 'WC1 WC2');
+        Observer.Expect('close-log', '');
+        Observer.Verify();
     end;
 
     // Earlier step: a header OnValidate that calls CurrPage.Update(true), then errors.
@@ -257,7 +280,19 @@ codeunit 73695 "LT FU Tree Action Tests"
     procedure TreeGetChild_AfterFailedUpdateTrue()
     begin
         Run(true, 1, false);
-        Observer.Finish();
+        Observer.Expect('open-log', 'open n=5 cur=WC1;agrWC1;agrMC1;agrMC2;agrWC2;agrMC3;agrWC1;agrWC1;agcrWC1;');
+        Observer.Expect('first', 'Yes/WC1');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom-log', 'B:start WC1;B:error;');
+        Observer.Expect('action-log', '');
+        Observer.Expect('current', 'WC1');
+        Observer.Expect('current-cell', 'cell of WC1');
+        Observer.Expect('current-expanded', 'No');
+        Observer.Expect('walk', 'WC1 WC2');
+        Observer.Expect('close-log', '');
+        Observer.Verify();
     end;
 
     // Earlier step: a header OnValidate that calls CurrPage.Update(false), then errors.
@@ -265,7 +300,19 @@ codeunit 73695 "LT FU Tree Action Tests"
     procedure TreeGetChild_AfterFailedUpdateFalse()
     begin
         Run(true, 2, false);
-        Observer.Finish();
+        Observer.Expect('open-log', 'open n=5 cur=WC1;agrWC1;agrMC1;agrMC2;agrWC2;agrMC3;agrWC1;agrWC1;agcrWC1;');
+        Observer.Expect('first', 'Yes/WC1');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom-log', 'B:start WC1;B:error;');
+        Observer.Expect('action-log', '');
+        Observer.Expect('current', 'WC1');
+        Observer.Expect('current-cell', 'cell of WC1');
+        Observer.Expect('current-expanded', 'No');
+        Observer.Expect('walk', 'WC1 WC2');
+        Observer.Expect('close-log', '');
+        Observer.Verify();
     end;
 
     // The action with CurrPage.Update(false), no earlier step.
@@ -273,7 +320,15 @@ codeunit 73695 "LT FU Tree Action Tests"
     procedure TreeGetChildRefresh_NoEarlierStep()
     begin
         Run(false, 0, true);
-        Observer.Finish();
+        Observer.Expect('open-log', 'open n=5 cur=WC1;agrWC1;agrMC1;agrMC2;agrWC2;agrMC3;agrWC1;agrWC1;agcrWC1;');
+        Observer.Expect('first', 'Yes/WC1');
+        Observer.Expect('action-log', 'agrWC1;act-get=Yes;agrMC1;agrMC1;agrMC2;agrWC2;agrMC3;agrMC1;agrWC1;agrMC1;agrMC1;agcrMC1;');
+        Observer.Expect('current', 'MC1');
+        Observer.Expect('current-cell', 'cell of MC1');
+        Observer.Expect('current-expanded', 'No');
+        Observer.Expect('walk', 'WC1 MC1 MC2 WC2');
+        Observer.Expect('close-log', '');
+        Observer.Verify();
     end;
 
     // The action with CurrPage.Update(false), after a header OnValidate that calls CurrPage.Update(true), then errors.
@@ -281,6 +336,18 @@ codeunit 73695 "LT FU Tree Action Tests"
     procedure TreeGetChildRefresh_AfterFailedUpdateTrue()
     begin
         Run(true, 1, true);
-        Observer.Finish();
+        Observer.Expect('open-log', 'open n=5 cur=WC1;agrWC1;agrMC1;agrMC2;agrWC2;agrMC3;agrWC1;agrWC1;agcrWC1;');
+        Observer.Expect('first', 'Yes/WC1');
+        Observer.Expect('boom', 'No');
+        Observer.Expect('boom error|text', 'Validation error for Field: Boom,  Message = ''LT FU boom''');
+        Observer.Expect('boom error|code', 'TestValidation');
+        Observer.Expect('boom-log', 'B:start WC1;B:error;');
+        Observer.Expect('action-log', '');
+        Observer.Expect('current', 'WC1');
+        Observer.Expect('current-cell', 'cell of WC1');
+        Observer.Expect('current-expanded', 'No');
+        Observer.Expect('walk', 'WC1 WC2');
+        Observer.Expect('close-log', '');
+        Observer.Verify();
     end;
 }
