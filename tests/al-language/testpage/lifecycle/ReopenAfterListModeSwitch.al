@@ -112,11 +112,13 @@ codeunit 75643 "RLS Reopen After Switch"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "RLS Log";
+        Got: Text;
 
     local procedure Initialize()
     var
         Line: Record "RLS Line";
     begin
+        Observer.Discard();
         Line.DeleteAll();
         AddLine(10000, 'a');
         AddLine(20000, 'b');
@@ -165,6 +167,55 @@ codeunit 75643 "RLS Reopen After Switch"
         Observer.Observe(Prefix + 'row', P."Line No.".Value() + '/' + P.Description.Value());
         Observer.Observe(Prefix + 'opens', P.Opens.Value());
         Step(Prefix + 'reads log');
+    end;
+
+    // Runs one built-in action inside asserterror: 'ok' or the error text, then the log.
+    local procedure TryInvoke(var P: TestPage "RLS Lines"; Which: Text; Name: Text)
+    begin
+        asserterror begin
+            if Which = 'View' then
+                P.View().Invoke()
+            else
+                P.Edit().Invoke();
+            Error('NO_ERROR');
+        end;
+        SayEnd(Name);
+    end;
+
+    // The four mode reads in one text, inside asserterror: the text, or the error text.
+    local procedure TryModes(var P: TestPage "RLS Lines"; Name: Text)
+    begin
+        Got := '';
+        asserterror begin
+            Got := Format(P.Editable()) + '|' + Format(P.Description.Editable()) + '|' + Format(P.Edit().Enabled()) + '|' + Format(P.View().Enabled());
+            Error('NO_ERROR');
+        end;
+        if GetLastErrorText() = 'NO_ERROR' then begin
+            ClearLastError();
+            Observer.Observe(Name, Got);
+            Step(Name + ' log');
+        end else
+            SayEnd(Name);
+    end;
+
+    local procedure TryClose(var P: TestPage "RLS Lines"; Name: Text)
+    begin
+        asserterror begin
+            P.Close();
+            Error('NO_ERROR');
+        end;
+        SayEnd(Name);
+    end;
+
+    local procedure SayEnd(Name: Text)
+    var
+        Txt: Text;
+    begin
+        Txt := GetLastErrorText();
+        if Txt = 'NO_ERROR' then
+            Txt := 'ok';
+        ClearLastError();
+        Observer.Observe(Name, Txt + ' ' + Log.Take());
     end;
 
     local procedure Walk(var P: TestPage "RLS Lines"; Name: Text)
@@ -238,15 +289,119 @@ codeunit 75643 "RLS Reopen After Switch"
         P.OpenEdit();
         P.First();
         Step('open-2');
-        P.View().Invoke();
-        Step('view-2');
-        Modes(P, 'view2|');
-        P.Edit().Invoke();
-        Step('edit-2');
-        Modes(P, 'edit2|');
-        Observer.Observe('edit2|row', P."Line No.".Value());
+        TryInvoke(P, 'View', 'view-2');
+        TryModes(P, 'after view-2');
+        TryInvoke(P, 'Edit', 'edit-2');
+        TryModes(P, 'after edit-2');
+        TryClose(P, 'close-2');
+        Observer.Finish();
+    end;
+
+    // No built-in action touched on the first open: the reopened page switches with View, then Edit.
+    [Test]
+    procedure Close_OpenEdit_ViewThenEdit()
+    var
+        P: TestPage "RLS Lines";
+    begin
+        Initialize();
+        P.OpenEdit();
+        P.First();
         P.Close();
-        Step('close-2');
+        Step('first open log');
+        P.OpenEdit();
+        P.First();
+        Step('open-2');
+        TryInvoke(P, 'View', 'view-2');
+        TryModes(P, 'after view-2');
+        TryInvoke(P, 'Edit', 'edit-2');
+        TryModes(P, 'after edit-2');
+        TryClose(P, 'close-2');
+        Observer.Finish();
+    end;
+
+    // The first open only reads Enabled of the built-in View; the reopened page then invokes it.
+    [Test]
+    procedure ReadViewEnabled_Close_OpenEdit_View()
+    var
+        P: TestPage "RLS Lines";
+    begin
+        Initialize();
+        P.OpenEdit();
+        P.First();
+        Observer.Observe('first|viewEnabled', Format(P.View().Enabled()));
+        P.Close();
+        Step('first open log');
+        P.OpenEdit();
+        P.First();
+        Step('open-2');
+        TryInvoke(P, 'View', 'view-2');
+        TryModes(P, 'after view-2');
+        TryClose(P, 'close-2');
+        Observer.Finish();
+    end;
+
+    // Clear between Close and the second open.
+    [Test]
+    procedure ViewEdit_Close_Clear_OpenEdit_SwitchAgain()
+    var
+        P: TestPage "RLS Lines";
+    begin
+        Initialize();
+        OpenSwitchClose(P, true);
+        Clear(P);
+        P.OpenEdit();
+        P.First();
+        Step('open-2');
+        TryModes(P, 'reopened');
+        TryInvoke(P, 'View', 'view-2');
+        TryModes(P, 'after view-2');
+        TryInvoke(P, 'Edit', 'edit-2');
+        TryModes(P, 'after edit-2');
+        TryClose(P, 'close-2');
+        Observer.Finish();
+    end;
+
+    // The mode reads of a first open, per open mode (the contrast for the reopened pages).
+    [Test]
+    procedure FirstOpen_Modes_PerOpenMode()
+    var
+        E: TestPage "RLS Lines";
+        V: TestPage "RLS Lines";
+        N: TestPage "RLS Lines";
+    begin
+        Initialize();
+        E.OpenEdit();
+        TryModes(E, 'openEdit');
+        E.Close();
+        V.OpenView();
+        TryModes(V, 'openView');
+        V.Close();
+        N.OpenNew();
+        TryModes(N, 'openNew');
+        N.Close();
+        Step('log');
+        Observer.Finish();
+    end;
+
+    // Close and open again without a switch, per open mode of the second open.
+    [Test]
+    procedure Close_Reopen_Modes_PerOpenMode()
+    var
+        P: TestPage "RLS Lines";
+    begin
+        Initialize();
+        P.OpenEdit();
+        P.Close();
+        P.OpenView();
+        TryModes(P, 'edit then openView');
+        P.Close();
+        P.OpenNew();
+        TryModes(P, 'view then openNew');
+        P.Close();
+        P.OpenEdit();
+        TryModes(P, 'new then openEdit');
+        P.Close();
+        Step('log');
         Observer.Finish();
     end;
 
@@ -302,11 +457,10 @@ codeunit 75643 "RLS Reopen After Switch"
         Step('open-2');
         Walk(P, 'walk');
         P.First();
-        P.Edit().Invoke();
-        Step('edit-2');
-        Modes(P, 'edit2|');
-        P.Close();
-        Step('close-2');
+        Step('first log');
+        TryInvoke(P, 'Edit', 'edit-2');
+        TryModes(P, 'after edit-2');
+        TryClose(P, 'close-2');
         Observer.Finish();
     end;
 
