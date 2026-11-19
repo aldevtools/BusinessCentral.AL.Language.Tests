@@ -1185,6 +1185,16 @@ report 78729 "BVV Proc Report"
         R.CalcFields(Total);
         exit('id=' + Format(R.Id) + ' total=' + Format(R.Total) + ' f={' + R.GetFilters() + '}');
     end;
+
+    procedure KeyAndLoad(R: Record "BVV Row"): Text
+    var
+        Result: Text;
+    begin
+        Result := 'key=' + R.CurrentKey();
+        if not R.FindFirst() then
+            exit(Result + ' none');
+        exit(Result + ' first=' + Format(R.Id) + ' amount loaded=' + Format(R.AreFieldsLoaded(R.Amount)) + ' name loaded=' + Format(R.AreFieldsLoaded(R.Name)));
+    end;
 }
 
 page 78730 "BVV Proc Page"
@@ -1224,6 +1234,17 @@ page 78730 "BVV Proc Page"
                     Error('%1', Rep.Describe(Row) + ' caller after f={' + Row.GetFilters() + '} key=' + Row.CurrentKey());
                 end;
             }
+            action(DescribeRec)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                var
+                    Rep: Report "BVV Proc Report";
+                begin
+                    Error('%1', Rep.Describe(Rec));
+                end;
+            }
         }
     }
 }
@@ -1236,11 +1257,14 @@ codeunit 78731 "BVV Report Procedure Tests"
     // calls SetCurrentKey on its copy); the data item with its DataItemTableView (sorting and a where filter) and a
     // SetTableView filter, to a local procedure and to a codeunit procedure; a local procedure that hands its own copy, after
     // SetCurrentKey on a declared secondary key, three filters and FindFirst, to itself; a child data item with a DataItemLink
-    // to a local procedure; a local record handed from OnPreReport; the data item handed to another instance of the same
+    // to a local procedure; a local record handed from OnPreReport and from the request page's OnOpenPage; the data item
+    // handed to another instance of the same
     // report; the report's global procedures called on a Report variable that is not run, from the test
     // codeunit (a filter in group 0; a declared secondary key with and without a filter; an ad hoc key with Ascending(false);
     // filters in groups -1, 4 and 2 with the caller standing in group 2; a mark with MarkedOnly; SetLoadFields before a read
-    // and a FlowField filter; CalcFields with a FlowFilter) and from a page action.
+    // and a FlowField filter; CalcFields with a FlowFilter) and from a page action, with a local record and with the page's
+    // own Rec (under a SourceTableView, and under a user filter); a key on a FlowField with a SetLoadFields before a read,
+    // handed to a codeunit procedure and to a report procedure.
     // Facts (measured on 29.1): in every cell the report procedure's copy has the view of a fresh record (no filters in
     // groups -1 to 7, the primary key, ascending, filter group 0, no marks, all fields loaded) and the current row's fields;
     // a DataItemTableView filter and a DataItemLink filter are not handed either; the caller's view is unchanged.
@@ -1559,6 +1583,95 @@ codeunit 78731 "BVV Report Procedure Tests"
     end;
 
     [Test]
+    procedure ByValue_FlowFieldKeyLoadFields_CodeunitProcedure()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "BVV Row";
+        KeyCallee: Codeunit "BVV Key Callee";
+    begin
+        Seed();
+        Row.SetLoadFields(Name);
+        Row.SetCurrentKey(Total);
+        Observer.Observe('callee', KeyCallee.KeyAndLoad(Row));
+        Observer.Observe('caller key', Row.CurrentKey());
+        Observer.Expect('callee', 'key=Id first=1 amount loaded=Yes name loaded=Yes');
+        Observer.Expect('caller key', 'Total');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValue_FlowFieldKeyLoadFields_ReportProcedure()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "BVV Row";
+        Rep: Report "BVV Proc Report";
+    begin
+        Seed();
+        Row.SetLoadFields(Name);
+        Row.SetCurrentKey(Total);
+        Observer.Observe('callee', Rep.KeyAndLoad(Row));
+        Observer.Observe('caller key', Row.CurrentKey());
+        Observer.Expect('callee', 'key=Id first=1 amount loaded=Yes name loaded=Yes');
+        Observer.Expect('caller key', 'Total');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValue_ReportProcedure_FromPageRec_SourceTableView()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rows: TestPage "BVV Proc View Page";
+    begin
+        Seed();
+        Rows.OpenView();
+        Rows.First();
+        asserterror Rows.DescribeRec.Invoke();
+        Observer.Observe('page rec', GetLastErrorText());
+        Rows.Close();
+        Observer.Expect('page rec', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValue_ReportProcedure_FromPageRec_UserFilter()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rows: TestPage "BVV Proc Page";
+    begin
+        Seed();
+        Rows.OpenView();
+        Rows.Filter.SetFilter(Id, '2..3');
+        Rows.First();
+        asserterror Rows.DescribeRec.Invoke();
+        Observer.Observe('page rec', GetLastErrorText());
+        Rows.Close();
+        Observer.Expect('page rec', 'f={} n=3 key=Id asc=Yes grp=0 first=1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('ProcReportRequestPageHandler')]
+    procedure ByValue_ReportProcedure_FromRequestPage()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rep: Report "BVV Request Report";
+    begin
+        Seed();
+        // A run whose request page opens needs a transaction of its own: no write may be pending.
+        Commit();
+        Rep.RunModal();
+        Observer.Observe('report', Rep.GetResult());
+        Observer.Expect('report', 'request page f={} n=3 key=Id grp=0 first=1 caller after f={Status: Open} key=Name');
+        Observer.Verify();
+    end;
+
+    [RequestPageHandler]
+    procedure ProcReportRequestPageHandler(var RequestPage: TestRequestPage "BVV Request Report")
+    begin
+        RequestPage.OK().Invoke();
+    end;
+
+    [Test]
     procedure ByValue_ReportProcedure_DataItemView()
     var
         Observer: Codeunit "Probe Observer";
@@ -1586,5 +1699,113 @@ codeunit 78731 "BVV Report Procedure Tests"
         Observer.Expect('report', 'callee f={} n=3 key=Id asc=Yes grp=0 first=1 groups -1={} 0={} 1={} 2={} 4={} n=3 item after f={Amount: >=20} n=1 key=Name');
         Observer.Expect('caller after', 'f={Amount: >=20} n=2 grp=0');
         Observer.Verify();
+    end;
+}
+
+page 78733 "BVV Proc View Page"
+{
+    PageType = List;
+    SourceTable = "BVV Row";
+    SourceTableView = where(Status = const(Open));
+    ApplicationArea = All;
+    UsageCategory = None;
+    Editable = false;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(Id; Rec.Id) { ApplicationArea = All; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(DescribeRec)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                var
+                    Rep: Report "BVV Proc Report";
+                begin
+                    Error('%1', Rep.Describe(Rec));
+                end;
+            }
+        }
+    }
+}
+
+codeunit 78732 "BVV Key Callee"
+{
+    procedure KeyAndLoad(R: Record "BVV Row"): Text
+    var
+        Result: Text;
+    begin
+        Result := 'key=' + R.CurrentKey();
+        if not R.FindFirst() then
+            exit(Result + ' none');
+        exit(Result + ' first=' + Format(R.Id) + ' amount loaded=' + Format(R.AreFieldsLoaded(R.Amount)) + ' name loaded=' + Format(R.AreFieldsLoaded(R.Name)));
+    end;
+}
+
+report 78734 "BVV Request Report"
+{
+    ProcessingOnly = true;
+
+    dataset
+    {
+        dataitem(Row; "BVV Row")
+        {
+        }
+    }
+
+    requestpage
+    {
+        layout
+        {
+            area(Content)
+            {
+                field(ShownField; Shown)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Shown';
+                }
+            }
+        }
+
+        trigger OnOpenPage()
+        var
+            ReqRow: Record "BVV Row";
+        begin
+            ReqRow.SetCurrentKey(Name);
+            ReqRow.SetRange(Status, ReqRow.Status::Open);
+            Outcome := 'request page ' + Describe(ReqRow) + ' caller after f={' + ReqRow.GetFilters() + '} key=' + ReqRow.CurrentKey();
+        end;
+    }
+
+    var
+        Shown: Boolean;
+        Outcome: Text;
+
+    procedure GetResult(): Text
+    begin
+        exit(Outcome);
+    end;
+
+    local procedure Describe(R: Record "BVV Row"): Text
+    var
+        First: Text;
+    begin
+        if R.FindFirst() then
+            First := Format(R.Id)
+        else
+            First := 'none';
+        exit('f={' + R.GetFilters() + '} n=' + Format(R.Count()) + ' key=' + R.CurrentKey() + ' grp=' + Format(R.FilterGroup()) + ' first=' + First);
     end;
 }
