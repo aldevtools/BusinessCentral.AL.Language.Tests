@@ -13,19 +13,20 @@
 //   own (a new Guid), except the AutoRollback pairs, which use a fixed key and never commit it.
 // Readings: what each worker read answered; what the page shows; what the test session's own Get answers.
 // Cells:
-//   - the same read again after the test changed the row, not committed: Get (:313, :512, after a Delete :550), FindFirst on both
-//     key fields (:335, :532; Get and it answer alike), FindFirst and Count on the group (:587, :604, :621), a Get that found
-//     nothing and an empty group (:570, :638), another worker codeunit and SetLoadFields (:512), a first read with SetLoadFields
-//     and a later full read (:660), the task of a new page (:423);
-//   - a first read: it sees the test's change (:357, :468), unless the test session read the row before its change while it had
-//     not written the table since its last commit (:446, also when it had written another table :487, and when the change was to
-//     another row :836); a read the test session made after it wrote the table does not count (:857);
-//   - a commit: of the change of the row, the next read sees it (:376, ModifyAll :771); of another table (:397), or of another row of the
-//     table (ModifyAll :687, Modify :708, FindFirst on both key fields :729, an insert :751), the next read does not see a later
-//     change of the row; of any change of the table, the next FindFirst and Count on a group see it (:790, another group :812);
-//   - a rollback: asserterror (:881) and the end of an AutoRollback test (:914, :927) do not change what the next read answers;
-//     the test session's own Get answers like a worker read then, until it writes the table (:881);
-//   - another test codeunit: its read sees its own row (:942, :965).
+//   - the same read again after the test changed the row, not committed: Get (:343, :542, after a Delete :580), FindFirst on both
+//     key fields (:365, :562; Get and it answer alike), FindFirst and Count on the group (:617, :634, :651), a Get that found
+//     nothing and an empty group (:600, :668), another worker codeunit and SetLoadFields (:542), a first read with SetLoadFields
+//     and a later full read (:690), the task of a new page (:453);
+//     FindFirst and Count with a SetRange on a field outside the key (:867, :888; a commit of the table ends it);
+//   - a first read: it sees the test's change (:387, :498), unless the test session read the row before its change while it had
+//     not written the table since its last commit (:476, also when it had written another table :517, and when the change was to
+//     another row :913); a read the test session made after it wrote the table does not count (:934);
+//   - a commit: of the change of the row, the next read sees it (:406, ModifyAll :801); of another table (:427), or of another row of the
+//     table (ModifyAll :717, Modify :738, FindFirst on both key fields :759, an insert :781), the next read does not see a later
+//     change of the row; of any change of the table, the next FindFirst and Count on a group see it (:820, another group :842);
+//   - a rollback: asserterror (:958) and the end of an AutoRollback test (:991, :1004) do not change what the next read answers;
+//     the test session's own Get answers like a worker read then, until it writes the table (:958);
+//   - another test codeunit: its read sees its own row (:1019, :1042).
 // BC versions: 29.1 (local W1 container).
 
 table 97500 "BQ Row"
@@ -147,6 +148,20 @@ codeunit 97503 "BQ Reader"
                 begin
                     Row.SetRange("Group", Group);
                     Seen := Format(Row.Count());
+                end;
+            'groupdesccount':
+                begin
+                    Row.SetRange("Group", Group);
+                    Row.SetRange(Description, Parameters.Get('Desc'));
+                    Seen := Format(Row.Count());
+                end;
+            'descfirst':
+                begin
+                    Row.SetRange(Description, Parameters.Get('Desc'));
+                    if Row.FindFirst() then
+                        Seen := Row."Group" + '/' + Format(Row."Line No.") + '/' + Row.Note
+                    else
+                        Seen := '-';
                 end;
         end;
         Results.Add('Seen', Seen);
@@ -298,6 +313,22 @@ codeunit 97506 "BQ Tests"
         Parameters.Add('Line', Format(LineNo));
         Parameters.Add('Mode', Mode);
         Results := Rows.RunPageBackgroundTask(Worker, Parameters, false);
+        Results.Get('Seen', Seen);
+        exit(Seen);
+    end;
+
+    // As Run, with the Description the worker filters on.
+    local procedure RunDesc(var Rows: TestPage "BQ Rows"; Mode: Text; Group: Code[20]; Description: Text): Text
+    var
+        Parameters: Dictionary of [Text, Text];
+        Results: Dictionary of [Text, Text];
+        Seen: Text;
+    begin
+        Parameters.Add('Group', Group);
+        Parameters.Add('Line', '0');
+        Parameters.Add('Mode', Mode);
+        Parameters.Add('Desc', Description);
+        Results := Rows.RunPageBackgroundTask(Codeunit::"BQ Reader", Parameters, false);
         Results.Get('Seen', Seen);
         exit(Seen);
     end;
@@ -828,6 +859,53 @@ codeunit 97506 "BQ Tests"
         AddRow(G, 1, 'a');
         Assert.AreEqual('2', Run(Rows, Reader(), 'count', G, 0), 'Count after the commit');
         Assert.AreEqual('1/a', Run(Rows, Reader(), 'groupfirst', G, 0), 'FindFirst after the commit');
+        Rows.Close();
+    end;
+
+    // Count with a SetRange on the group and on Description (not a key field); the test inserts a matching line: the first
+    // answer. Then the test commits: Count sees it.
+    [Test]
+    procedure BgQueryCache_Run_NonKeyFilterCount_Insert_FirstAnswerUntilCommit()
+    var
+        Rows: TestPage "BQ Rows";
+        G: Code[20];
+    begin
+        G := NewGroup();
+        BqMode.Set('');
+        AddRow(G, 1, 'x');
+        AddRow(G, 2, 'y');
+        OpenOn(Rows, G);
+        Assert.AreEqual('1', RunDesc(Rows, 'groupdesccount', G, 'x'), 'Count');
+        AddRow(G, 3, 'x');
+        Assert.AreEqual('1', RunDesc(Rows, 'groupdesccount', G, 'x'), 'Count after the insert');
+        Commit();
+        Assert.AreEqual('2', RunDesc(Rows, 'groupdesccount', G, 'x'), 'Count after the commit');
+        Rows.Close();
+    end;
+
+    // FindFirst with a SetRange on Description only; the test changes the line it found and inserts a line with that
+    // Description that sorts first: the line as read first. Then the test commits: FindFirst sees the new first line.
+    [Test]
+    procedure BgQueryCache_Run_NonKeyFilterFindFirst_FirstAnswerUntilCommit()
+    var
+        Rows: TestPage "BQ Rows";
+        Row: Record "BQ Row";
+        G: Code[20];
+        Desc: Text[50];
+    begin
+        G := NewGroup();
+        Desc := CopyStr('d' + G, 1, 50);
+        BqMode.Set('');
+        AddRow(G, 2, Desc);
+        OpenOn(Rows, G);
+        Assert.AreEqual(G + '/2/', RunDesc(Rows, 'descfirst', G, Desc), 'FindFirst');
+        Row.Get(G, 2);
+        Row.Note := 'n';
+        Row.Modify();
+        AddRow(G, 1, Desc);
+        Assert.AreEqual(G + '/2/', RunDesc(Rows, 'descfirst', G, Desc), 'FindFirst after the changes');
+        Commit();
+        Assert.AreEqual(G + '/1/', RunDesc(Rows, 'descfirst', G, Desc), 'FindFirst after the commit');
         Rows.Close();
     end;
 
