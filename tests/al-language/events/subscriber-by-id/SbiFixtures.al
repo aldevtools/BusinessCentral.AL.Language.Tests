@@ -2,7 +2,7 @@
 // Scope: in-scope
 // Fixtures for SbiSubscriberByIdTests.al (al-runner issue 8470 part 1): event subscribers that name their publisher by its object id
 //   ([EventSubscriber(ObjectType::Codeunit, 76257, ...)]) instead of by name (Codeunit::"LT SBI Publisher"). The forms Codeunit::76257 and
-//   Database::76250 do not compile (syntax error AL0104, must-not-compile cases 3216 to 3218).
+//   Database::76250 do not compile (syntax error AL0104, must-not-compile cases 3216 to 3221).
 // Publishers: an own codeunit (integration, business and IncludeSender events), an own table, an own page, an own report, and the platform
 //   codeunits by literal id: Global Triggers 2000000002, Company Triggers 2000000003, UI Helper Triggers 2000000004, Reporting Triggers
 //   2000000005, Filter Helper Triggers 2000000007, Extension Triggers 2000000010, and the System Application codeunits Caption Class 42 and
@@ -71,7 +71,7 @@ table 76253 "LT SBI Install Log"
     keys { key(PK; Id) { Clustered = true; } }
 }
 
-// local object: page events by id, and the Auto Format cell (AutoFormatType is the enum extension value 76270).
+// local object: page events by id.
 page 76254 "LT SBI Card"
 {
     PageType = Card;
@@ -85,6 +85,24 @@ page 76254 "LT SBI Card"
         {
             field(Id; Rec.Id) { ApplicationArea = All; }
             field(Name; Rec.Name) { ApplicationArea = All; }
+        }
+    }
+}
+
+// local object: the Auto Format cell (AutoFormatType is the enum extension value 76270). Only the Auto Format test opens this page: in a
+// first run the Auto Format events ran at the first open of a page with this control and not at a later open in the same session.
+page 76268 "LT SBI Format Card"
+{
+    PageType = Card;
+    SourceTable = "LT SBI Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field(Id; Rec.Id) { ApplicationArea = All; }
             field(Amount; Rec.Amount)
             {
                 ApplicationArea = All;

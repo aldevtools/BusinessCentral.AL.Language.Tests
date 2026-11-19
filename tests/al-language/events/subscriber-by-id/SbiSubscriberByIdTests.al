@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods/devenv-eventsubscriber-attribute
 // Scope: in-scope
-// Fixtures used: SbiFixtures.al (tables 76250 - 76253, page 76254, report 76255, log 76256, publisher 76257, subscribers 76258 - 76269,
+// Fixtures used: SbiFixtures.al (tables 76250 - 76253, pages 76254 and 76268, report 76255, log 76256, publisher 76257, subscribers 76258 - 76267 and 76269,
 //   enum extension 76270), Probe Observer (69160).
 // Probe (al-runner issue 8470 part 1): is a subscriber that names its publisher by object id ([EventSubscriber(ObjectType::Codeunit, 76257, ...)],
 //   ObjectType::Table, 76250 and so on) called when the event is raised, and in what order next to subscribers that name the same publisher by
@@ -8,7 +8,7 @@
 //   and the platform codeunits by literal id: Global Triggers 2000000002, Company Triggers 2000000003, UI Helper Triggers 2000000004, Reporting
 //   Triggers 2000000005, Filter Helper Triggers 2000000007, Extension Triggers 2000000010, Caption Class 42 and Auto Format 45.
 //   Compile cells: the bare id compiles with AL 16, 17 and 18 (this file); Codeunit::<id>, Database::<id> and Page::<id> are syntax errors, and a
-//   bare id that names no object is AL0185 (must-not-compile cases 3216 to 3220).
+//   bare id that names no object is AL0185 (must-not-compile cases 3216 to 3221).
 //   Method names in one subscriber codeunit start with a letter that orders them (the corpus pins the alphabetical order of the subscriber methods
 //   of one codeunit: events/ProbeEventSubscriberOrder.al).
 // Probe: written against a local BC service tier; every literal asserted below is what BC produced. Other BC versions are checked by the corpus CI matrix.
@@ -179,7 +179,7 @@ codeunit 76271 "LT SBI Subscriber By Id Tests"
     var
         Row: Record "LT SBI Row";
         L: Codeunit "LT SBI Log";
-        Card: TestPage "LT SBI Card";
+        Card: TestPage "LT SBI Format Card";
         Observer: Codeunit "Probe Observer";
     begin
         Row.DeleteAll();
@@ -191,6 +191,10 @@ codeunit 76271 "LT SBI Subscriber By Id Tests"
         Observer.Observe('value', Card.Amount.Value());
         Card.Close();
         Observer.Observe('log', L.Take());
+        Card.OpenView();
+        Observer.Observe('value second open', Card.Amount.Value());
+        Card.Close();
+        Observer.Observe('log second open', L.Take());
         L.Stop();
         Row.DeleteAll();
         Observer.Finish();
