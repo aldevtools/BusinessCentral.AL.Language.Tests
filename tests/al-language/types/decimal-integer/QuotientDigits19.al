@@ -3,7 +3,8 @@
 // Fixtures used: Probe Observer (69160)
 // Probe: observe form (values not yet asserted).
 // Facts: the "/" quotient of a 19-digit BigInteger (9223372036854775807, 4611686018427387905) or a 19-digit Duration by an Integer, a BigInteger, a
-//   Decimal and a Duration: the Format(.., 0, 9) text, or the Decimal range error text and code; div and mod as controls; 18-digit controls.
+//   Decimal and a Duration: the Format(.., 0, 9) text, or the Decimal range error text and code; div and mod as controls; 18-digit controls; and
+//   Format of a Duration at and past 922337203685477 milliseconds.
 // BC versions: measured locally, checked by the corpus CI matrix
 
 codeunit 96387 "FLN Quotient Digits"
@@ -15,23 +16,89 @@ codeunit 96387 "FLN Quotient Digits"
         Got: Text;
 
     [Test]
-    procedure BigInteger_Quotients()
+    procedure BigInteger_Quotients_1()
     var
         Observer: Codeunit "Probe Observer";
         N: Integer;
     begin
-        for N := 1 to 20 do
+        for N := 1 to 5 do
             Observer.Observe(CellName(N), Cell(N));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Duration_Quotients()
+    procedure BigInteger_Quotients_2()
     var
         Observer: Codeunit "Probe Observer";
         N: Integer;
     begin
-        for N := 21 to 31 do
+        for N := 6 to 10 do
+            Observer.Observe(CellName(N), Cell(N));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure BigInteger_Quotients_InRange_1()
+    var
+        Observer: Codeunit "Probe Observer";
+        N: Integer;
+    begin
+        for N := 11 to 21 do
+            Observer.Observe(CellName(N), Cell(N));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Duration_Quotients_1()
+    var
+        Observer: Codeunit "Probe Observer";
+        N: Integer;
+    begin
+        for N := 22 to 25 do
+            Observer.Observe(CellName(N), Cell(N));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Duration_Quotients_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        N: Integer;
+    begin
+        for N := 26 to 29 do
+            Observer.Observe(CellName(N), Cell(N));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Duration_Quotients_InRange_1()
+    var
+        Observer: Codeunit "Probe Observer";
+        N: Integer;
+    begin
+        for N := 30 to 33 do
+            Observer.Observe(CellName(N), Cell(N));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Duration_Format_Range_1()
+    var
+        Observer: Codeunit "Probe Observer";
+        N: Integer;
+    begin
+        for N := 34 to 38 do
+            Observer.Observe(CellName(N), Cell(N));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Duration_Format_Range_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        N: Integer;
+    begin
+        for N := 39 to 42 do
             Observer.Observe(CellName(N), Cell(N));
         Observer.Finish();
     end;
@@ -64,35 +131,35 @@ codeunit 96387 "FLN Quotient Digits"
             6:
                 exit('B19 / 2L N=9');
             7:
-                exit('B19 / 10000 N=9');
-            8:
-                exit('B19 / 10000 N=0');
-            9:
-                exit('B19 / 100000 N=9');
-            10:
-                exit('H19 / 1 N=9');
-            11:
-                exit('H19 / 7 N=9');
-            12:
-                exit('H19 / 10000 N=9');
-            13:
-                exit('1 / H19 N=9');
-            14:
-                exit('B19 / H19 N=9');
-            15:
-                exit('B19 div 2 N=9');
-            16:
-                exit('B19 mod 2 N=9');
-            17:
-                exit('E18 / 2 N=9');
-            18:
-                exit('E18 / 10000 N=9');
-            19:
-                exit('Dec := B19, Dec / 10000 N=9');
-            20:
                 exit('B19 / 2 into Decimal N=9');
+            8:
+                exit('H19 / 1 N=9');
+            9:
+                exit('H19 / 7 N=9');
+            10:
+                exit('E18 / 2 N=9');
+            11:
+                exit('B19 / 10000 N=9');
+            12:
+                exit('B19 / 10000 N=0');
+            13:
+                exit('B19 / 100000 N=9');
+            14:
+                exit('H19 / 10000 N=9');
+            15:
+                exit('E18 / 10000 N=9');
+            16:
+                exit('1 / H19 N=9');
+            17:
+                exit('1000 / B19 N=9');
+            18:
+                exit('B19 / H19 N=9');
+            19:
+                exit('B19 div 2 N=9');
+            20:
+                exit('B19 mod 2 N=9');
             21:
-                exit('Dur19 N=9');
+                exit('Dec := B19, Dec / 10000 N=9');
             22:
                 exit('Dur19 / 2 N=9');
             23:
@@ -104,15 +171,37 @@ codeunit 96387 "FLN Quotient Digits"
             26:
                 exit('Dur19 / Dur2 N=9');
             27:
-                exit('Dur19 / 10000 N=9');
-            28:
                 exit('Dur19 / 3 N=9');
-            29:
-                exit('DurE18 / DurH19 N=9');
-            30:
+            28:
                 exit('DurH19 / 7 N=9');
-            31:
+            29:
                 exit('DurE18 / 2 N=9');
+            30:
+                exit('Dur19 / 10000 N=9');
+            31:
+                exit('DurE18 / DurH19 N=9');
+            32:
+                exit('Dur19 / DurH19 N=9');
+            33:
+                exit('DurE18 / 10000 N=9');
+            34:
+                exit('Format(Dur19, 0, 9)');
+            35:
+                exit('Format(DurE18, 0, 9)');
+            36:
+                exit('Format(DurE18)');
+            37:
+                exit('Format(Dur 922337203685477, 0, 9)');
+            38:
+                exit('Format(Dur 922337203685477)');
+            39:
+                exit('Format(Dur 922337203685478, 0, 9)');
+            40:
+                exit('Format(Dur 922337203685478)');
+            41:
+                exit('Format(Dur 922337203685478, 10)');
+            42:
+                exit('Format(-Dur 922337203685478, 0, 9)');
         end;
     end;
 
@@ -134,11 +223,16 @@ codeunit 96387 "FLN Quotient Digits"
         Dur19: Duration;
         DurH19: Duration;
         DurE18: Duration;
+        DurMax: Duration;
         Dur2: Duration;
     begin
         B19 := 9223372036854775807L;
         H19 := 4611686018427387905L;
         E18 := 999999999999999999L;
+        Dur19 := B19;
+        DurH19 := H19;
+        DurE18 := E18;
+        DurMax := 922337203685477L;
         Dur2 := 2;
         case N of
             1:
@@ -167,137 +261,148 @@ codeunit 96387 "FLN Quotient Digits"
                 end;
             7:
                 begin
-                    Got := Format(B19 / 10000, 0, 9);
+                    Got := DivInto(B19, 2);
                 end;
             8:
                 begin
-                    Got := Format(B19 / 10000);
+                    Got := Format(H19 / 1, 0, 9);
                 end;
             9:
                 begin
-                    Got := Format(B19 / 100000, 0, 9);
+                    Got := Format(H19 / 7, 0, 9);
                 end;
             10:
                 begin
-                    Got := Format(H19 / 1, 0, 9);
+                    Got := Format(E18 / 2, 0, 9);
                 end;
             11:
                 begin
-                    Got := Format(H19 / 7, 0, 9);
+                    Got := Format(B19 / 10000, 0, 9);
                 end;
             12:
                 begin
-                    Got := Format(H19 / 10000, 0, 9);
+                    Got := Format(B19 / 10000);
                 end;
             13:
                 begin
-                    Got := Format(1 / H19, 0, 9);
+                    Got := Format(B19 / 100000, 0, 9);
                 end;
             14:
                 begin
-                    Got := Format(B19 / H19, 0, 9);
+                    Got := Format(H19 / 10000, 0, 9);
                 end;
             15:
                 begin
-                    Got := Format(B19 div 2, 0, 9);
+                    Got := Format(E18 / 10000, 0, 9);
                 end;
             16:
                 begin
-                    Got := Format(B19 mod 2, 0, 9);
+                    Got := Format(1 / H19, 0, 9);
                 end;
             17:
                 begin
-                    Got := Format(E18 / 2, 0, 9);
+                    Got := Format(1000 / B19, 0, 9);
                 end;
             18:
                 begin
-                    Got := Format(E18 / 10000, 0, 9);
+                    Got := Format(B19 / H19, 0, 9);
                 end;
             19:
+                begin
+                    Got := Format(B19 div 2, 0, 9);
+                end;
+            20:
+                begin
+                    Got := Format(B19 mod 2, 0, 9);
+                end;
+            21:
                 begin
                     Dec19 := B19;
                     Got := Format(Dec19 / 10000, 0, 9);
                 end;
-            20:
-                begin
-                    Got := DivInto(B19, 2);
-                end;
-            21:
-                begin
-                    Dur19 := B19;
-                    DurH19 := H19;
-                    DurE18 := E18;
-                    Got := Format(Dur19, 0, 9);
-                end;
             22:
                 begin
-                    Dur19 := B19;
-                    DurH19 := H19;
-                    DurE18 := E18;
                     Got := Format(Dur19 / 2, 0, 9);
                 end;
             23:
                 begin
-                    Dur19 := B19;
-                    DurH19 := H19;
-                    DurE18 := E18;
                     Got := Format(Dur19 / 2);
                 end;
             24:
                 begin
-                    Dur19 := B19;
-                    DurH19 := H19;
-                    DurE18 := E18;
                     Got := Format(Dur19 / 2L, 0, 9);
                 end;
             25:
                 begin
-                    Dur19 := B19;
-                    DurH19 := H19;
-                    DurE18 := E18;
                     Got := Format(Dur19 / 2.0, 0, 9);
                 end;
             26:
                 begin
-                    Dur19 := B19;
-                    DurH19 := H19;
-                    DurE18 := E18;
                     Got := Format(Dur19 / Dur2, 0, 9);
                 end;
             27:
                 begin
-                    Dur19 := B19;
-                    DurH19 := H19;
-                    DurE18 := E18;
-                    Got := Format(Dur19 / 10000, 0, 9);
+                    Got := Format(Dur19 / 3, 0, 9);
                 end;
             28:
                 begin
-                    Dur19 := B19;
-                    DurH19 := H19;
-                    DurE18 := E18;
-                    Got := Format(Dur19 / 3, 0, 9);
+                    Got := Format(DurH19 / 7, 0, 9);
                 end;
             29:
                 begin
-                    Dur19 := B19;
-                    DurH19 := H19;
-                    DurE18 := E18;
-                    Got := Format(DurE18 / DurH19, 0, 9);
+                    Got := Format(DurE18 / 2, 0, 9);
                 end;
             30:
                 begin
-                    Dur19 := B19;
-                    DurH19 := H19;
-                    DurE18 := E18;
-                    Got := Format(DurH19 / 7, 0, 9);
+                    Got := Format(Dur19 / 10000, 0, 9);
                 end;
             31:
                 begin
-                    Dur19 := B19;
-                    DurH19 := H19;
-                    DurE18 := E18;
-                    Got := Format(DurE18 / 2, 0, 9);
+                    Got := Format(DurE18 / DurH19, 0, 9);
+                end;
+            32:
+                begin
+                    Got := Format(Dur19 / DurH19, 0, 9);
+                end;
+            33:
+                begin
+                    Got := Format(DurE18 / 10000, 0, 9);
+                end;
+            34:
+                begin
+                    Got := Format(Dur19, 0, 9);
+                end;
+            35:
+                begin
+                    Got := Format(DurE18, 0, 9);
+                end;
+            36:
+                begin
+                    Got := Format(DurE18);
+                end;
+            37:
+                begin
+                    Got := Format(DurMax, 0, 9);
+                end;
+            38:
+                begin
+                    Got := Format(DurMax);
+                end;
+            39:
+                begin
+                    Got := Format(DurMax + 1, 0, 9);
+                end;
+            40:
+                begin
+                    Got := Format(DurMax + 1);
+                end;
+            41:
+                begin
+                    Got := Format(DurMax + 1, 10);
+                end;
+            42:
+                begin
+                    Got := Format(-(DurMax + 1), 0, 9);
                 end;
         end;
     end;

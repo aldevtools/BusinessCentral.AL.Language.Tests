@@ -174,6 +174,7 @@ codeunit 96382 "FLN Type Lengths"
     begin
         V := 200;
         Observer.Observe('byte 200 plain', '[' + Format(V) + ']');
+        Observer.Observe('byte 200 plain char code', Format(CharCode(Format(V))));
         Observer.Observe('byte 200 L=1', F.Byte(V, 1, -1));
         Observer.Observe('byte 200 L=3', F.Byte(V, 3, -1));
         Observer.Observe('byte 200 L=10', F.Byte(V, 10, -1));
@@ -587,5 +588,15 @@ codeunit 96382 "FLN Type Lengths"
         Observer.Observe('text abcde L=-3 N=0', F.Text(V, -3, 0));
         Observer.Observe('text abcde L=-30 N=0', F.Text(V, -30, 0));
         Observer.Finish();
+    end;
+
+    local procedure CharCode(Value: Text): Integer
+    var
+        C: Char;
+    begin
+        if Value = '' then
+            exit(-1);
+        C := Value[1];
+        exit(C);
     end;
 }
