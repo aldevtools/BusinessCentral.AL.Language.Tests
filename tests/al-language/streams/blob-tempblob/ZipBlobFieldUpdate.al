@@ -1,9 +1,14 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/application/system-application/codeunit-system-data-compression-data-compression
 // Scope: in-scope (System Application "Data Compression": a zip kept in a Blob field, opened for update from the field's InStream and saved back into the same field)
 // Fixtures used: Probe Observer (69160); own tables 75291, 75292 and codeunit 75293
-// Probe: written against local BC service tiers; every literal asserted below is what BC produced. Other BC versions are checked by the corpus CI matrix.
-// Facts: FACTS_PLACEHOLDER
-// BC versions: VERSIONS_PLACEHOLDER
+// Probe: written against a local BC 27.5 service tier; every literal asserted below is what BC produced. Other BC versions are checked by the corpus CI matrix.
+// Facts: Data Compression OpenZipArchive(InStream of a Blob field, true) + AddEntry + Clear of the field + CreateOutStream of the same field + SaveZipArchive, repeated:
+//   the field holds the zip with every entry added so far (1, 2 and 3 rounds, temporary table and stored table with Modify and CalcFields between rounds, also without Modify
+//   between rounds); lengths 119 and 216 bytes after one and two rounds. Without Clear the result is the same. An update round without a change keeps the zip; RemoveEntry
+//   removes; the same name added twice gives two entries (ExtractEntry by name reads the first). OpenZipArchive(Temp Blob, true) + SaveZipArchive(var Temp Blob) into the same
+//   Temp Blob keeps both entries. AddEntry on an archive opened for read raises "A call to System.IO.Compression.ZipArchive.CreateEntry failed with this message: Cannot create
+//   entries on an archive opened in read mode." (DotNetInvoke:NotSupported)
+// BC versions: 27.5 measured on a local Windows BC 27.5 container (28.5 and 29.0 by the corpus CI matrix on BC on Linux)
 
 table 75291 "GZZ Zip Holder Tmp"
 {
@@ -186,7 +191,9 @@ codeunit 75293 "GZZ Zip Blob Update"
         Holder.AddToZip('a.txt', 'Content A', true);
         Observer.Observe('entries', Holder.Entries());
         Observer.Observe('length', Format(Holder."File Blob".Length));
-        Observer.Finish();
+        Observer.Expect('entries', 'a.txt[Content A],');
+        Observer.Expect('length', '119');
+        Observer.Verify();
     end;
 
     [Test]
@@ -202,7 +209,10 @@ codeunit 75293 "GZZ Zip Blob Update"
         Observer.Observe('entries', Holder.Entries());
         Observer.Observe('length_round1', Format(Len1));
         Observer.Observe('length_round2', Format(Holder."File Blob".Length));
-        Observer.Finish();
+        Observer.Expect('entries', 'a.txt[Content A],b.txt[Content B],');
+        Observer.Expect('length_round1', '119');
+        Observer.Expect('length_round2', '216');
+        Observer.Verify();
     end;
 
     [Test]
@@ -216,7 +226,9 @@ codeunit 75293 "GZZ Zip Blob Update"
         Holder.AddToZip('dir/c.txt', 'Content C', true);
         Observer.Observe('entries', Holder.Entries());
         Observer.Observe('length', Format(Holder."File Blob".Length));
-        Observer.Finish();
+        Observer.Expect('entries', 'a.txt[Content A],b.txt[Content B],dir/c.txt[Content C],');
+        Observer.Expect('length', '321');
+        Observer.Verify();
     end;
 
     [Test]
@@ -232,7 +244,10 @@ codeunit 75293 "GZZ Zip Blob Update"
         Observer.Observe('entries', Holder.Entries());
         Observer.Observe('length_round1', Format(Len1));
         Observer.Observe('length_round2', Format(Holder."File Blob".Length));
-        Observer.Finish();
+        Observer.Expect('entries', 'a.txt[Content A],b.txt[Content B],');
+        Observer.Expect('length_round1', '119');
+        Observer.Expect('length_round2', '216');
+        Observer.Verify();
     end;
 
     [Test]
@@ -248,7 +263,10 @@ codeunit 75293 "GZZ Zip Blob Update"
         Observer.Observe('entries', Holder.Entries());
         Observer.Observe('length_round1', Format(Len1));
         Observer.Observe('length_round2', Format(Holder."File Blob".Length));
-        Observer.Finish();
+        Observer.Expect('entries', 'a.txt[Content A],');
+        Observer.Expect('length_round1', '119');
+        Observer.Expect('length_round2', '119');
+        Observer.Verify();
     end;
 
     [Test]
@@ -260,7 +278,8 @@ codeunit 75293 "GZZ Zip Blob Update"
         Holder.AddToZip('a.txt', 'Content A', true);
         Holder.AddToZip('a.txt', 'Second A', true);
         Observer.Observe('entries', Holder.Entries());
-        Observer.Finish();
+        Observer.Expect('entries', 'a.txt[Content A],a.txt[Content A],');
+        Observer.Verify();
     end;
 
     [Test]
@@ -273,7 +292,8 @@ codeunit 75293 "GZZ Zip Blob Update"
         Holder.AddToZip('b.txt', 'Content B', true);
         Holder.RemoveFromZip('a.txt');
         Observer.Observe('entries', Holder.Entries());
-        Observer.Finish();
+        Observer.Expect('entries', 'b.txt[Content B],');
+        Observer.Verify();
     end;
 
     [Test]
@@ -301,7 +321,11 @@ codeunit 75293 "GZZ Zip Blob Update"
         Observer.Observe('entries_round2', Holder.Entries());
         Observer.Observe('length_round1', Format(Len1));
         Observer.Observe('length_round2', Format(Holder."File Blob".Length));
-        Observer.Finish();
+        Observer.Expect('entries_round1', 'a.txt[Content A],');
+        Observer.Expect('entries_round2', 'a.txt[Content A],b.txt[Content B],');
+        Observer.Expect('length_round1', '119');
+        Observer.Expect('length_round2', '216');
+        Observer.Verify();
     end;
 
     [Test]
@@ -321,7 +345,9 @@ codeunit 75293 "GZZ Zip Blob Update"
         Holder.Get('Z');
         Holder.CalcFields("File Blob");
         Observer.Observe('entries_stored', Holder.Entries());
-        Observer.Finish();
+        Observer.Expect('entries_in_memory', 'a.txt[Content A],b.txt[Content B],');
+        Observer.Expect('entries_stored', 'a.txt[Content A],b.txt[Content B],');
+        Observer.Verify();
     end;
 
     [Test]
@@ -340,7 +366,10 @@ codeunit 75293 "GZZ Zip Blob Update"
         Observer.Observe('entries', TempBlobEntries(Zip));
         Observer.Observe('length_round1', Format(Len1));
         Observer.Observe('length_round2', Format(Zip.Length()));
-        Observer.Finish();
+        Observer.Expect('entries', 'e1.txt,e2.txt,');
+        Observer.Expect('length_round1', '121');
+        Observer.Expect('length_round2', '220');
+        Observer.Verify();
     end;
 
     // OpenZipArchive(Temp Blob, true), AddEntry, SaveZipArchive(var Temp Blob) into the same Temp Blob.
@@ -394,6 +423,9 @@ codeunit 75293 "GZZ Zip Blob Update"
         asserterror DataCompression.AddEntry(EntryIn, 'b.txt');
         Observer.ObserveError('add_in_read_mode');
         Observer.Observe('entries_after', Holder.Entries());
-        Observer.Finish();
+        Observer.Expect('add_in_read_mode|text', 'A call to System.IO.Compression.ZipArchive.CreateEntry failed with this message: Cannot create entries on an archive opened in read mode.');
+        Observer.Expect('add_in_read_mode|code', 'DotNetInvoke:NotSupported');
+        Observer.Expect('entries_after', 'a.txt[Content A],');
+        Observer.Verify();
     end;
 }
