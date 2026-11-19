@@ -136,4 +136,209 @@ codeunit 74936 "LT VarNum Enum Option"
         Observer.Expect('table option format', 'First Caption');
         Observer.Verify();
     end;
+
+    // Measured on BC 27.5.46862.58266, 28.5.54976.58543 and 29.1.57326.58275.
+    [Test]
+    procedure FieldRef_Value_OptionToTextAndCode_UsesCaption()
+    var
+        Observer: Codeunit "Probe Observer";
+        Source: Record "LT VarNum Opt Row" temporary;
+        Target: Record "LT VarNum Opt Row" temporary;
+        Ref: RecordRef;
+        Field: FieldRef;
+        TextValue: Text[50];
+        CodeValue: Code[50];
+    begin
+        Initialize();
+        Source.Choice := Source.Choice::First;
+        Ref.GetTable(Source);
+        Field := Ref.Field(4);
+        Target."Text Value" := Field.Value();
+        Target."Code Value" := Field.Value();
+        TextValue := Field.Value();
+        CodeValue := Field.Value();
+        Observer.Observe('text field', Target."Text Value");
+        Observer.Observe('code field', Target."Code Value");
+        Observer.Observe('text variable', TextValue);
+        Observer.Observe('code variable', CodeValue);
+        Source.Choice := Source.Choice::" ";
+        Ref.GetTable(Source);
+        Field := Ref.Field(4);
+        Target."Text Value" := Field.Value();
+        Target."Code Value" := Field.Value();
+        TextValue := Field.Value();
+        CodeValue := Field.Value();
+        Observer.Observe('blank text field', Target."Text Value");
+        Observer.Observe('blank code field', Target."Code Value");
+        Observer.Observe('blank text variable', TextValue);
+        Observer.Observe('blank code variable', CodeValue);
+        Observer.Expect('text field', 'First Caption');
+        Observer.Expect('code field', 'FIRST CAPTION');
+        Observer.Expect('text variable', 'First Caption');
+        Observer.Expect('code variable', 'FIRST CAPTION');
+        Observer.Expect('blank text field', ' ');
+        Observer.Expect('blank code field', '');
+        Observer.Expect('blank text variable', ' ');
+        Observer.Expect('blank code variable', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Variant_OptionToTextAndCode_DirectAssignmentErrors()
+    var
+        Observer: Codeunit "Probe Observer";
+        Source: Record "LT VarNum Opt Row" temporary;
+        Target: Record "LT VarNum Opt Row" temporary;
+        Ref: RecordRef;
+        Field: FieldRef;
+        V: Variant;
+        I: Integer;
+    begin
+        Initialize();
+        for I := 0 to 1 do begin
+            Source.Choice := I;
+            Ref.GetTable(Source);
+            Field := Ref.Field(4);
+            V := Field.Value();
+            ObserveVariantErrors(Observer, Target, V, Format(I) + ' fieldref');
+            V := Source.Choice;
+            ObserveVariantErrors(Observer, Target, V, Format(I) + ' option');
+            if TryReturnedText(Target, Field) then
+                Error('Text assignment unexpectedly succeeded');
+            Observer.Observe(Format(I) + ' return text', GetLastErrorText());
+            if TryReturnedCode(Target, Field) then
+                Error('Code assignment unexpectedly succeeded');
+            Observer.Observe(Format(I) + ' return code', GetLastErrorText());
+            if TryReturnedOptionText(Target, Source) then
+                Error('Text assignment unexpectedly succeeded');
+            Observer.Observe(Format(I) + ' option return text', GetLastErrorText());
+            if TryReturnedOptionCode(Target, Source) then
+                Error('Code assignment unexpectedly succeeded');
+            Observer.Observe(Format(I) + ' option return code', GetLastErrorText());
+        end;
+        ExpectVariantErrors(Observer, '0 fieldref');
+        ExpectVariantErrors(Observer, '0 option');
+        ExpectVariantErrors(Observer, '0 return');
+        ExpectVariantErrors(Observer, '0 option return');
+        ExpectVariantErrors(Observer, '1 fieldref');
+        ExpectVariantErrors(Observer, '1 option');
+        ExpectVariantErrors(Observer, '1 return');
+        ExpectVariantErrors(Observer, '1 option return');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FieldRef_Value_VariantOptionToTextAndCode_UsesCaption()
+    var
+        Observer: Codeunit "Probe Observer";
+        Source: Record "LT VarNum Opt Row" temporary;
+        Target: Record "LT VarNum Opt Row" temporary;
+        SourceRef: RecordRef;
+        TargetRef: RecordRef;
+        Field: FieldRef;
+        TargetField: FieldRef;
+        V: Variant;
+        I: Integer;
+    begin
+        Initialize();
+        for I := 0 to 1 do begin
+            Source.Choice := I;
+            SourceRef.GetTable(Source);
+            Field := SourceRef.Field(4);
+            TargetRef.GetTable(Target);
+            TargetField := TargetRef.Field(2);
+            V := Field.Value();
+            TargetField.Value := V;
+            Observer.Observe(Format(I) + ' variant text', Format(TargetField.Value));
+            TargetField.Value := ReturnedField(Field);
+            Observer.Observe(Format(I) + ' return text', Format(TargetField.Value));
+            TargetField.Value := Field.Value();
+            Observer.Observe(Format(I) + ' direct text', Format(TargetField.Value));
+            TargetField.Value := ReturnedOption(Source);
+            Observer.Observe(Format(I) + ' option return text', Format(TargetField.Value));
+            TargetField := TargetRef.Field(3);
+            TargetField.Value := V;
+            Observer.Observe(Format(I) + ' variant code', Format(TargetField.Value));
+            TargetField.Value := ReturnedField(Field);
+            Observer.Observe(Format(I) + ' return code', Format(TargetField.Value));
+            TargetField.Value := Field.Value();
+            Observer.Observe(Format(I) + ' direct code', Format(TargetField.Value));
+            TargetField.Value := ReturnedOption(Source);
+            Observer.Observe(Format(I) + ' option return code', Format(TargetField.Value));
+        end;
+        Observer.Expect('0 variant text', ' ');
+        Observer.Expect('0 return text', ' ');
+        Observer.Expect('0 direct text', ' ');
+        Observer.Expect('0 option return text', ' ');
+        Observer.Expect('0 variant code', '');
+        Observer.Expect('0 return code', '');
+        Observer.Expect('0 direct code', '');
+        Observer.Expect('0 option return code', '');
+        Observer.Expect('1 variant text', 'First Caption');
+        Observer.Expect('1 return text', 'First Caption');
+        Observer.Expect('1 direct text', 'First Caption');
+        Observer.Expect('1 option return text', 'First Caption');
+        Observer.Expect('1 variant code', 'FIRST CAPTION');
+        Observer.Expect('1 return code', 'FIRST CAPTION');
+        Observer.Expect('1 direct code', 'FIRST CAPTION');
+        Observer.Expect('1 option return code', 'FIRST CAPTION');
+        Observer.Verify();
+    end;
+
+    local procedure Initialize()
+    var
+        Row: Record "LT VarNum Opt Row" temporary;
+    begin
+        Row.DeleteAll();
+    end;
+
+    local procedure ObserveVariantErrors(var Observer: Codeunit "Probe Observer"; var Target: Record "LT VarNum Opt Row"; V: Variant; Name: Text)
+    begin
+        if TryText(V, Target) then
+            Error('Text assignment unexpectedly succeeded');
+        Observer.Observe(Name + ' text', GetLastErrorText());
+        if TryCode(V, Target) then
+            Error('Code assignment unexpectedly succeeded');
+        Observer.Observe(Name + ' code', GetLastErrorText());
+    end;
+
+    local procedure ExpectVariantErrors(var Observer: Codeunit "Probe Observer"; Name: Text)
+    begin
+        Observer.Expect(Name + ' text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect(Name + ' code', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+    end;
+
+    [TryFunction]
+    local procedure TryReturnedText(var Target: Record "LT VarNum Opt Row"; Field: FieldRef)
+    begin
+        Target."Text Value" := ReturnedField(Field);
+    end;
+
+    [TryFunction]
+    local procedure TryReturnedCode(var Target: Record "LT VarNum Opt Row"; Field: FieldRef)
+    begin
+        Target."Code Value" := ReturnedField(Field);
+    end;
+
+    local procedure ReturnedField(Field: FieldRef): Variant
+    begin
+        exit(Field.Value());
+    end;
+
+    [TryFunction]
+    local procedure TryReturnedOptionText(var Target: Record "LT VarNum Opt Row"; Source: Record "LT VarNum Opt Row")
+    begin
+        Target."Text Value" := ReturnedOption(Source);
+    end;
+
+    [TryFunction]
+    local procedure TryReturnedOptionCode(var Target: Record "LT VarNum Opt Row"; Source: Record "LT VarNum Opt Row")
+    begin
+        Target."Code Value" := ReturnedOption(Source);
+    end;
+
+    local procedure ReturnedOption(Source: Record "LT VarNum Opt Row"): Variant
+    begin
+        exit(Source.Choice);
+    end;
 }
