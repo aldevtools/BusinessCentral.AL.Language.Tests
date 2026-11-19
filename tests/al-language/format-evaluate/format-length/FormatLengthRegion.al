@@ -1,0 +1,258 @@
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/report/reportinstance-formatregion-method
+// Scope: in-scope
+// Fixtures used: Probe Observer (69160); helper codeunit 96388 "FLN Fmt" (FormatLengthHelper.al); SingleInstance log 96383 is used only by test codeunit 96385
+// Probe: observe form (values not yet asserted).
+// Facts: Format(Value, Length [, FormatNumber]) inside OnPreReport of a processing-only report after CurrReport.FormatRegion := 'de-DE', 'en-US' or
+//   without setting it: Decimal, Integer, Date, undefined Date, Text, Duration and Time with positive and negative lengths; and the same Decimal
+//   formatted by a codeunit the report calls.
+// BC versions: measured locally, checked by the corpus CI matrix
+
+codeunit 96383 "FLN Region Log"
+{
+    SingleInstance = true;
+
+    var
+        Entries: List of [Text];
+        Region: Text;
+
+    procedure Add(Entry: Text)
+    begin
+        Entries.Add(Entry);
+    end;
+
+    procedure Take(var Result: List of [Text])
+    begin
+        Result := Entries;
+        Clear(Entries);
+    end;
+
+    procedure SetRegion(NewRegion: Text)
+    begin
+        Region := NewRegion;
+    end;
+
+    procedure GetRegion(): Text
+    begin
+        exit(Region);
+    end;
+}
+
+report 96384 "FLN Region Lengths"
+{
+    ProcessingOnly = true;
+    UseRequestPage = false;
+
+    dataset
+    {
+        dataitem(Row; Integer)
+        {
+            DataItemTableView = sorting(Number) where(Number = const(1));
+        }
+    }
+
+    trigger OnPreReport()
+    var
+        F: Codeunit "FLN Fmt";
+        N: Integer;
+    begin
+        if L.GetRegion() <> '' then
+            CurrReport.FormatRegion := L.GetRegion();
+        L.Add('region=[' + CurrReport.FormatRegion() + ']');
+        for N := 1 to 24 do
+            L.Add(Cell(N));
+        L.Add('codeunit dec 1234.5 L=10=' + F.Decimal(1234.5, 10, -1));
+        L.Add('codeunit dec 1234.5 L=-10=' + F.Decimal(1234.5, -10, -1));
+    end;
+
+    local procedure Cell(N: Integer): Text
+    var
+        Name: Text;
+        Result: Text;
+    begin
+        Name := CellName(N);
+        Got := '';
+        if TryCell(N) then
+            exit(Name + '=[' + Got + ']');
+        Result := Name + '=ERR ' + GetLastErrorText() + ' | ' + GetLastErrorCode();
+        ClearLastError();
+        exit(Result);
+    end;
+
+    local procedure CellName(N: Integer): Text
+    begin
+        case N of
+            1:
+                exit('dec 1234.5 L=0');
+            2:
+                exit('dec 1234.5 L=3');
+            3:
+                exit('dec 1234.5 L=10');
+            4:
+                exit('dec 1234.5 L=30');
+            5:
+                exit('dec 1234.5 L=-3');
+            6:
+                exit('dec 1234.5 L=-10');
+            7:
+                exit('dec 1234.5 L=-30');
+            8:
+                exit('dec 1234.5 L=10 N=9');
+            9:
+                exit('dec 1234.5 L=-10 N=9');
+            10:
+                exit('dec 1234.5 L=10 N=1');
+            11:
+                exit('int 1234567 L=0');
+            12:
+                exit('int 1234567 L=3');
+            13:
+                exit('int 1234567 L=10');
+            14:
+                exit('int 1234567 L=-10');
+            15:
+                exit('date L=0');
+            16:
+                exit('date L=3');
+            17:
+                exit('date L=10');
+            18:
+                exit('date L=30');
+            19:
+                exit('date L=-10');
+            20:
+                exit('0D L=10');
+            21:
+                exit('0D L=10 N=9');
+            22:
+                exit('text ab L=5');
+            23:
+                exit('dur L=30');
+            24:
+                exit('time L=30');
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TryCell(N: Integer)
+    var
+        Dec: Decimal;
+        Int: Integer;
+        D: Date;
+        Dur: Duration;
+        T: Time;
+    begin
+        Dec := 1234.5;
+        Int := 1234567;
+        D := DMY2Date(15, 1, 2024);
+        Dur := 3723004;
+        T := 134501T;
+        case N of
+            1:
+                Got := Format(Dec);
+            2:
+                Got := Format(Dec, 3);
+            3:
+                Got := Format(Dec, 10);
+            4:
+                Got := Format(Dec, 30);
+            5:
+                Got := Format(Dec, -3);
+            6:
+                Got := Format(Dec, -10);
+            7:
+                Got := Format(Dec, -30);
+            8:
+                Got := Format(Dec, 10, 9);
+            9:
+                Got := Format(Dec, -10, 9);
+            10:
+                Got := Format(Dec, 10, 1);
+            11:
+                Got := Format(Int);
+            12:
+                Got := Format(Int, 3);
+            13:
+                Got := Format(Int, 10);
+            14:
+                Got := Format(Int, -10);
+            15:
+                Got := Format(D);
+            16:
+                Got := Format(D, 3);
+            17:
+                Got := Format(D, 10);
+            18:
+                Got := Format(D, 30);
+            19:
+                Got := Format(D, -10);
+            20:
+                Got := Format(0D, 10);
+            21:
+                Got := Format(0D, 10, 9);
+            22:
+                Got := Format('ab', 5);
+            23:
+                Got := Format(Dur, 30);
+            24:
+                Got := Format(T, 30);
+        end;
+    end;
+
+    var
+        L: Codeunit "FLN Region Log";
+        Got: Text;
+}
+
+codeunit 96385 "FLN Region Length Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        L: Codeunit "FLN Region Log";
+
+    local procedure RunWith(Region: Text; var Observer: Codeunit "Probe Observer")
+    var
+        Entries: List of [Text];
+        Entry: Text;
+        Discarded: List of [Text];
+        Index: Integer;
+    begin
+        L.Take(Discarded);
+        L.SetRegion(Region);
+        Report.Run(Report::"FLN Region Lengths");
+        L.SetRegion('');
+        L.Take(Entries);
+        foreach Entry in Entries do begin
+            Index += 1;
+            Observer.Observe(Format(Index), Entry);
+        end;
+    end;
+
+    [Test]
+    procedure Region_de_DE()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunWith('de-DE', Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Region_en_US()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunWith('en-US', Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Region_NotSet()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunWith('', Observer);
+        Observer.Finish();
+    end;
+}
