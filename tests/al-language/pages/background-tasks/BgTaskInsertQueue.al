@@ -3,17 +3,17 @@
 //   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-insert-method
 // Scope: in-scope
 // local object: the rows the test session inserts and what a page background task's worker reads of them are what is under test
-// Fixtures used: shared Assert (60021); own tables 97520 to 97523, worker codeunit 97524, page 97525, test codeunit 97526
+// Fixtures used: shared Assert (60021); own tables 97520 to 97523 and 97527, worker codeunit 97524, page 97525, test codeunit 97526
 // Probe (al-runner issue 8491): the test session's statement-form Insert() into a table without a Blob or AutoIncrement field is
 //   held back (the insert queue that record/duplicate-insert/Y7407DuplicateInsertBuffer.al pins for the session's own errors);
 //   a page background task's worker, run with TestPage.RunPageBackgroundTask, does not see a row that is held back. Every test
 //   uses keys of its own (a new Guid), and the worker never reads a key twice.
-// Readings: what the worker's Get, Count, IsEmpty, FindFirst and FindSet answer.
-// Cells: held back until the test reads the table (:201, :214), a read of another table does not (:229); four inserts are
-//   held back, the fifth lets all five through, a sixth is held back again (:244, :261, :279); a Commit, an Insert whose result is
-//   used, a table with a Blob field and a Modify of another row of the table let the row through (:298, :312, :344, :360); Insert(true)
-//   into a table with an OnInsert trigger is held back (:328); the worker's own reads do not let rows through
-//   (:379); Count, IsEmpty, FindFirst and FindSet leave held-back rows out (:394, :410).
+// Readings: what the worker's Get, Count, IsEmpty, FindFirst, FindSet and a FlowField that counts the rows answer.
+// Cells: held back until the test reads the table (:233, :246), a read of another table does not (:261); four inserts are
+//   held back, the fifth lets all five through, a sixth is held back again (:276, :293, :311); a Commit, an Insert whose result is
+//   used, a table with a Blob field and a Modify of another row of the table let the row through (:330, :344, :376, :392); Insert(true)
+//   into a table with an OnInsert trigger is held back (:360); the worker's own reads do not let rows through
+//   (:411); Count, IsEmpty, FindFirst, FindSet and a FlowField leave held-back rows out (:426, :442, :464).
 // BC versions: 29.1 (local W1 container).
 
 table 97520 "IQ Row"
@@ -89,6 +89,31 @@ table 97523 "IQ Blob Row"
     }
 }
 
+table 97527 "IQ Counter"
+{
+    DataClassification = SystemMetadata;
+    ReplicateData = false;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; "Prefix Filter"; Code[20])
+        {
+            FieldClass = FlowFilter;
+        }
+        field(3; Rows; Integer)
+        {
+            FieldClass = FlowField;
+            CalcFormula = count("IQ Row" where("No." = field("Prefix Filter")));
+        }
+    }
+
+    keys
+    {
+        key(PK; "No.") { Clustered = true; }
+    }
+}
+
 // The worker: Get of a row of the table the Table parameter names, or Count of IQ Row rows with a key prefix.
 codeunit 97524 "IQ Reader"
 {
@@ -97,6 +122,7 @@ codeunit 97524 "IQ Reader"
         Row: Record "IQ Row";
         TriggerRow: Record "IQ Trigger Row";
         BlobRow: Record "IQ Blob Row";
+        Counter: Record "IQ Counter";
         Parameters: Dictionary of [Text, Text];
         Results: Dictionary of [Text, Text];
         No: Text;
@@ -119,6 +145,12 @@ codeunit 97524 "IQ Reader"
                 begin
                     Row.SetFilter("No.", No + '*');
                     Seen := Format(Row.Count());
+                end;
+            'flow':
+                begin
+                    Counter.SetFilter("Prefix Filter", No + '*');
+                    Counter.CalcFields(Rows);
+                    Seen := Format(Counter.Rows);
                 end;
             'isempty':
                 begin
@@ -425,5 +457,21 @@ codeunit 97526 "IQ Tests"
         Assert.AreEqual('Yes', Run(Host, 'isempty', L), 'empty');
         Assert.AreEqual('b', Run(Host, 'first', K), 'first');
         Assert.AreEqual('b', Run(Host, 'set', K), 'set');
+    end;
+
+    // A row the test read, and a new insert: a FlowField of the worker that counts the rows leaves the new one out.
+    [Test]
+    procedure BgTaskInsertQueue_Insert_TaskFlowFieldLeavesItOut()
+    var
+        Host: TestPage "IQ Host";
+        Row: Record "IQ Row";
+        K: Code[20];
+    begin
+        K := NewKey();
+        AddRow(K + 'A', 'a');
+        Row.Get(K + 'A');
+        Host.OpenView();
+        AddRow(K + 'B', 'b');
+        Assert.AreEqual('1', Run(Host, 'flow', K), 'FlowField count');
     end;
 }
