@@ -313,6 +313,14 @@ codeunit 75290 "GZZ GZip Trailer"
         TrailerCells(65537, 'n65537_', Observer);
         TrailerCells(131072, 'n131072_', Observer);
         TrailerCells(131073, 'n131073_', Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure GZipDecompress_TrailerWrong_MoreSizes2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         TrailerCells(196608, 'n196608_', Observer);
         TrailerCells(262144, 'n262144_', Observer);
         TrailerCells(524288, 'n524288_', Observer);
