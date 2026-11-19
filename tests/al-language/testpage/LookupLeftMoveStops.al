@@ -424,18 +424,48 @@ codeunit 75656 "LLM Lookup Move Stops"
         Observer.Finish();
     end;
 
-    // The host row was typed before the Lookup; the move's save fails in the table's OnModify.
+    // The host row was typed before the Lookup; the save that the Lookup runs fails in the table's OnModify.
     [Test]
     [HandlerFunctions('PickSecondResource')]
-    procedure Next_SaveFails()
+    procedure Lookup_SaveFails()
     var
         Schedule: TestPage "LLM Three Link Schedule";
     begin
         Setup();
-        OpenAndLookup(Schedule, 0, false, 'FAILMOD');
+        Schedule.OpenEdit();
+        Schedule.Name.SetValue('FAILMOD');
+        Observer.Observe('open log', Log.Take());
+        asserterror begin
+            Schedule.ResourceNo.Lookup();
+            Error('NO_ERROR');
+        end;
+        SayEnd('lookup');
+        TrySnap(Schedule, 'read');
+        TryMove(Schedule, 'Next', 'move');
+        TryClose(Schedule, 'close');
+        Observer.Observe('stored', Stored());
+        Observer.Finish();
+    end;
+
+    // The host stands on the new-row line: the move after the Lookup finds no row.
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Next_FindsNoRow()
+    var
+        Schedule: TestPage "LLM Three Link Schedule";
+    begin
+        Setup();
+        Schedule.OpenEdit();
+        Schedule.Last();
+        Schedule.Next();
+        Observer.Observe('open log', Log.Take());
+        Observer.Observe('row', Schedule."No.".Value());
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Commit();
         TryMove(Schedule, 'Next', 'move');
         TrySnap(Schedule, 'read');
-        TryMove(Schedule, 'Next', 'second move');
+        TryMove(Schedule, 'First', 'second move');
         TrySnap(Schedule, 'second read');
         TryClose(Schedule, 'close');
         Observer.Observe('stored', Stored());
