@@ -650,7 +650,8 @@ codeunit 76248 "LT SQ R14R Record Read"
 }
 
 // R2O (C2 shape): a passing test inserts the sequence, takes a number and calls Commit(); a later test accesses the
-// table through RecordRef.Open, FindLast and a field read (a row is there) and fails; the test after it reads the sequence.
+// table through RecordRef.Open, FindLast and a field read (no row of the document exists, so it finds none) and fails;
+// the test after it reads the sequence.
 codeunit 76249 "LT SQ R2O RecRef Read"
 {
     Subtype = Test;
