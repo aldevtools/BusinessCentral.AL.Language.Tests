@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods/devenv-passing-parameters
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own objects 78790..78794 (BVT Entry, BVT Buffer, BVT Holder, BVT Caller,
-//   BVT By Value Table Proc Tests)
+// Fixtures used: Probe Observer (codeunit 69160); own objects 78790..78799 (BVT Entry, BVT Buffer, BVT Holder, BVT Caller,
+//   BVT By Value Table Proc Tests, BVT Log, BVT More Callers, BVT Entry Runner, BVT Publisher, BVT Trigger Holder)
 // local object: the parameter of a table procedure (a record of another table, by value) and the callee table's TableType are what
 //   is under test.
 // Probe (al-runner issue 8385): what a procedure of one table sees of the caller's view when it gets a record of ANOTHER, stored
@@ -22,11 +22,14 @@
 //   - the copy handed on to Other.Copy in the callee;
 //   - the callee table a normal table (BVT Holder), called on a stored record and on a temporary record variable;
 //   - the procedure called from a procedure and from the OnInsert trigger of another table (BVT Holder);
+//   - the source a global record of a codeunit, a var parameter, Rec of a codeunit with TableNo (Codeunit.Run), the var parameter
+//     of an event subscriber; the procedure called from OnValidate, OnModify and OnDelete of a third table (BVT Trigger Holder);
 //   - in every cell, the caller's filters, filter group and key after the call.
 // Facts (observed on a local BC 29.1 OnPrem W1 container; 27.5 and 28.5 by the corpus CI):
 //   - the by-value copy of a record of another table starts with the view of a fresh record, whatever the callee table's
-//     TableType, the record variable the procedure runs on and the caller (a test codeunit, another codeunit, a procedure or
-//     trigger of another table): no filters in groups -1, 0, 1, 2 and 4, filter group 0, the primary key, ascending
+//     TableType, the record variable the procedure runs on, the source (a local, a global, a var parameter, Rec of a TableNo
+//     codeunit, an event subscriber's var parameter) and the caller (a test codeunit, another codeunit, an event subscriber, a
+//     procedure or trigger of another table): no filters in groups -1, 0, 1, 2 and 4, filter group 0, the primary key, ascending
 //     (GetView 'VERSION(1) SORTING(Entry No.)'), no marks (MarkedOnly No, 0 marked), all fields loaded after SetLoadFields in
 //     the caller, no FlowFilter (CalcFields sums every location), Count and FindFirst over the whole table;
 //   - it keeps the field values of the caller's current row (RecordRef.GetTable: RecordId 'BVT Entry: 3' after FindFirst);
@@ -242,9 +245,13 @@ codeunit 78794 "BVT By Value Table Proc Tests"
     var
         Entry: Record "BVT Entry";
         Holder: Record "BVT Holder";
+        TriggerHolder: Record "BVT Trigger Holder";
+        Log: Codeunit "BVT Log";
     begin
         Entry.DeleteAll();
         Holder.DeleteAll();
+        TriggerHolder.DeleteAll();
+        Log.Take();
         AddEntry(1, 'ITEM-A', 'BLUE', 2);
         AddEntry(2, 'ITEM-A', 'BLUE', 3);
         AddEntry(3, 'ITEM-A', 'RED', 5);
@@ -705,5 +712,248 @@ codeunit 78794 "BVT By Value Table Proc Tests"
         Observer.Expect('callee total', 'id=0 qty=0 f={}');
         Observer.Expect('caller after', 'f={Location Filter: BLUE, Item Qty: >6} n=1 grp=0 key=Entry No. asc=Yes');
         Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValueTableProc_OtherTable_GlobalRecordSource()
+    var
+        Observer: Codeunit "Probe Observer";
+        More: Codeunit "BVT More Callers";
+    begin
+        Initialize();
+        Observer.Observe('callee', More.FromGlobal());
+        Observer.Expect('callee', 'id=1 f={} n=4 key=Entry No. asc=Yes grp=0 first=1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValueTableProc_OtherTable_VarParameterSource()
+    var
+        Observer: Codeunit "Probe Observer";
+        Entry: Record "BVT Entry";
+        More: Codeunit "BVT More Callers";
+    begin
+        Initialize();
+        Entry.SetCurrentKey("Item Code", "Location Code");
+        Entry.SetRange("Item Code", 'ITEM-A');
+        Entry.FindLast();
+        Observer.Observe('callee', More.FromVarParameter(Entry));
+        ObserveCaller(Observer, Entry);
+        Observer.Expect('callee', 'id=3 f={} n=4 key=Entry No. asc=Yes grp=0 first=1');
+        Observer.Expect('caller after', 'f={Item Code: ITEM-A} n=3 grp=0 key=Item Code,Location Code asc=Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValueTableProc_OtherTable_CodeunitTableNoRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Entry: Record "BVT Entry";
+        Log: Codeunit "BVT Log";
+    begin
+        Initialize();
+        Entry.SetRange("Item Code", 'ITEM-A');
+        Entry.FindFirst();
+        Codeunit.Run(Codeunit::"BVT Entry Runner", Entry);
+        Observer.Observe('callee', Log.Take());
+        ObserveCaller(Observer, Entry);
+        Observer.Expect('callee', 'id=1 f={} n=4 key=Entry No. asc=Yes grp=0 first=1;');
+        Observer.Expect('caller after', 'f={Item Code: ITEM-A} n=3 grp=0 key=Entry No. asc=Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValueTableProc_OtherTable_FromEventSubscriber()
+    var
+        Observer: Codeunit "Probe Observer";
+        Entry: Record "BVT Entry";
+        Publisher: Codeunit "BVT Publisher";
+        Log: Codeunit "BVT Log";
+    begin
+        Initialize();
+        Entry.SetRange("Location Code", 'RED');
+        Entry.FindFirst();
+        Publisher.Raise(Entry);
+        Observer.Observe('callee', Log.Take());
+        ObserveCaller(Observer, Entry);
+        Observer.Expect('callee', 'id=3 f={} n=4 key=Entry No. asc=Yes grp=0 first=1;');
+        Observer.Expect('caller after', 'f={Location Code: RED} n=1 grp=0 key=Entry No. asc=Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValueTableProc_OtherTable_FromOtherTableOnValidate()
+    var
+        Observer: Codeunit "Probe Observer";
+        TriggerHolder: Record "BVT Trigger Holder";
+        Log: Codeunit "BVT Log";
+    begin
+        Initialize();
+        TriggerHolder."Line No." := 1;
+        TriggerHolder.Insert();
+        TriggerHolder.Validate(Mode, 1);
+        Observer.Observe('callee', Log.Take());
+        Observer.Expect('callee', 'validate id=3 f={} n=4 key=Entry No. asc=Yes grp=0 first=1;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValueTableProc_OtherTable_FromOtherTableOnModify()
+    var
+        Observer: Codeunit "Probe Observer";
+        TriggerHolder: Record "BVT Trigger Holder";
+        Log: Codeunit "BVT Log";
+    begin
+        Initialize();
+        TriggerHolder."Line No." := 1;
+        TriggerHolder.Insert();
+        TriggerHolder.Mode := 2;
+        TriggerHolder.Modify(true);
+        Observer.Observe('callee', Log.Take());
+        Observer.Expect('callee', 'modify id=3 f={} n=4 key=Entry No. asc=Yes grp=0 first=1;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValueTableProc_OtherTable_FromOtherTableOnDelete()
+    var
+        Observer: Codeunit "Probe Observer";
+        TriggerHolder: Record "BVT Trigger Holder";
+        Log: Codeunit "BVT Log";
+    begin
+        Initialize();
+        TriggerHolder."Line No." := 1;
+        TriggerHolder.Insert();
+        TriggerHolder.Delete(true);
+        Observer.Observe('callee', Log.Take());
+        Observer.Expect('callee', 'delete id=3 f={} n=4 key=Entry No. asc=Yes grp=0 first=1;');
+        Observer.Verify();
+    end;
+}
+
+// Added for the review of al-runner PR 8390: more callers of Buffer.Proc(Entry).
+codeunit 78795 "BVT Log"
+{
+    SingleInstance = true;
+
+    var
+        Log: Text;
+
+    procedure Add(Value: Text)
+    begin
+        Log += Value + ';';
+    end;
+
+    procedure Take(): Text
+    var
+        Result: Text;
+    begin
+        Result := Log;
+        Log := '';
+        exit(Result);
+    end;
+}
+
+codeunit 78796 "BVT More Callers"
+{
+    var
+        GlobalEntry: Record "BVT Entry";
+
+    // A global record of the codeunit as the source.
+    procedure FromGlobal(): Text
+    var
+        Buffer: Record "BVT Buffer";
+    begin
+        GlobalEntry.SetCurrentKey("Item Code", "Location Code");
+        GlobalEntry.SetRange("Item Code", 'ITEM-A');
+        GlobalEntry.FindFirst();
+        exit(Buffer.DescribeEntry(GlobalEntry));
+    end;
+
+    // A var parameter as the source.
+    procedure FromVarParameter(var E: Record "BVT Entry"): Text
+    var
+        Buffer: Record "BVT Buffer";
+    begin
+        exit(Buffer.DescribeEntry(E));
+    end;
+
+    // An event subscriber hands on the publisher's var parameter.
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"BVT Publisher", 'OnEntry', '', false, false)]
+    local procedure HandleEntry(var E: Record "BVT Entry")
+    var
+        Buffer: Record "BVT Buffer";
+        Log: Codeunit "BVT Log";
+    begin
+        Log.Add(Buffer.DescribeEntry(E));
+    end;
+}
+
+// Rec of a codeunit with TableNo as the source.
+codeunit 78797 "BVT Entry Runner"
+{
+    TableNo = "BVT Entry";
+
+    trigger OnRun()
+    var
+        Buffer: Record "BVT Buffer";
+        Log: Codeunit "BVT Log";
+    begin
+        Log.Add(Buffer.DescribeEntry(Rec));
+    end;
+}
+
+codeunit 78798 "BVT Publisher"
+{
+    procedure Raise(var E: Record "BVT Entry")
+    begin
+        OnEntry(E);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEntry(var E: Record "BVT Entry")
+    begin
+    end;
+}
+
+// OnValidate, OnModify and OnDelete of a third table call Buffer.Proc(Entry) on a filtered local record.
+table 78799 "BVT Trigger Holder"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Line No."; Integer) { }
+        field(2; Mode; Integer)
+        {
+            trigger OnValidate()
+            begin
+                Describe('validate');
+            end;
+        }
+    }
+
+    keys { key(PK; "Line No.") { Clustered = true; } }
+
+    trigger OnModify()
+    begin
+        Describe('modify');
+    end;
+
+    trigger OnDelete()
+    begin
+        Describe('delete');
+    end;
+
+    local procedure Describe(Name: Text)
+    var
+        Entry: Record "BVT Entry";
+        Buffer: Record "BVT Buffer";
+        Log: Codeunit "BVT Log";
+    begin
+        Entry.SetCurrentKey("Item Code", "Location Code");
+        Entry.SetRange("Item Code", 'ITEM-A');
+        Entry.FindLast();
+        Log.Add(Name + ' ' + Buffer.DescribeEntry(Entry));
     end;
 }
