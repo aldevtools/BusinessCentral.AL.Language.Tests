@@ -27,7 +27,9 @@ codeunit 76271 "LT SBI Subscriber By Id Tests"
     begin
         Observer.Observe('raise', Publisher.RaiseOne());
         Observer.Observe('raise again', Publisher.RaiseOne());
-        Observer.Finish();
+        Observer.Expect('raise', 'A_Id;B_Name;C_Id2;D_Name2;');
+        Observer.Expect('raise again', 'A_Id;B_Name;C_Id2;D_Name2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -37,7 +39,8 @@ codeunit 76271 "LT SBI Subscriber By Id Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('raise', Publisher.RaiseCross());
-        Observer.Finish();
+        Observer.Expect('raise', 'ZLow_Name;MMid_Id;AHigh_Name;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -52,7 +55,10 @@ codeunit 76271 "LT SBI Subscriber By Id Tests"
         Observer.Observe('bound', Publisher.RaiseManual());
         UnbindSubscription(Manual);
         Observer.Observe('after unbind', Publisher.RaiseManual());
-        Observer.Finish();
+        Observer.Expect('before bind', 'M_StaticName;');
+        Observer.Expect('bound', 'M_StaticName;ManualId;');
+        Observer.Expect('after unbind', 'M_StaticName;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -63,7 +69,9 @@ codeunit 76271 "LT SBI Subscriber By Id Tests"
     begin
         Observer.Observe('business event', Publisher.RaiseBusiness());
         Observer.Observe('include sender', Publisher.RaiseSender());
-        Observer.Finish();
+        Observer.Expect('business event', 'Biz_Id;Biz_Name;');
+        Observer.Expect('include sender', 'Snd_Id(pub);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -89,7 +97,12 @@ codeunit 76271 "LT SBI Subscriber By Id Tests"
         Observer.Observe('delete', L.Take());
         L.Stop();
         Row.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('insert true', 'A_BeforeInsertId(1,Yes);B_BeforeInsertName(1);AfterInsertId(1);');
+        Observer.Expect('insert false', 'A_BeforeInsertId(2,No);B_BeforeInsertName(2);AfterInsertId(2);');
+        Observer.Expect('validate', 'V_AfterValidateNameId(n1);W_AfterValidateNameName(n1);');
+        Observer.Expect('modify', 'AfterModifyId(n1);');
+        Observer.Expect('delete', 'AfterDeleteId(2);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -111,7 +124,9 @@ codeunit 76271 "LT SBI Subscriber By Id Tests"
         Card.Close();
         L.Stop();
         Row.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('open', 'A_OpenId;B_OpenName;');
+        Observer.Expect('validate', 'V_AfterValidateNameId(p1);W_AfterValidateNameName(p1);C_ValidateNameId(p1);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -121,7 +136,8 @@ codeunit 76271 "LT SBI Subscriber By Id Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('raise', Rep.RaiseIt());
-        Observer.Finish();
+        Observer.Expect('raise', 'A_ReportId;B_ReportName;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -145,7 +161,10 @@ codeunit 76271 "LT SBI Subscriber By Id Tests"
         L.Stop();
         A.DeleteAll();
         B.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('deleteall', 'G1_SetupId(A);G2_SetupName(A);G1_SetupId(B);G2_SetupName(B);');
+        Observer.Expect('insert A (setup by id)', 'G3_InsertId(A);G4_InsertName(A);');
+        Observer.Expect('insert B (setup by name)', 'G3_InsertId(B);G4_InsertName(B);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -158,7 +177,9 @@ codeunit 76271 "LT SBI Subscriber By Id Tests"
         Observer.Observe('result', CaptionClassTranslate('LTSBIU,x'));
         Observer.Observe('log', L.Take());
         L.Stop();
-        Observer.Finish();
+        Observer.Expect('result', 'U-id');
+        Observer.Expect('log', 'U1_TranslateId(in=LTSBIU,x);U2_TranslateName(in=U-id);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -171,7 +192,9 @@ codeunit 76271 "LT SBI Subscriber By Id Tests"
         Observer.Observe('result', CaptionClassTranslate('LTSBIC,x'));
         Observer.Observe('log', L.Take());
         L.Stop();
-        Observer.Finish();
+        Observer.Expect('result', 'C-id:x');
+        Observer.Expect('log', 'C1_ResolveId(x,resolved=No);C2_ResolveName(x,resolved=Yes,caption=C-id:x);C3_AfterResolveId(C-id:x);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -197,7 +220,11 @@ codeunit 76271 "LT SBI Subscriber By Id Tests"
         Observer.Observe('log second open', L.Take());
         L.Stop();
         Row.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('value', '2.3');
+        Observer.Expect('log', 'F1_ResolveId(LTSBI,resolved=No);F2_ResolveName(LTSBI,resolved=Yes);F3_AfterResolveId(<Precision,1:1><Standard Format,0>);');
+        Observer.Expect('value second open', '2.3');
+        Observer.Expect('log second open', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -210,7 +237,8 @@ codeunit 76271 "LT SBI Subscriber By Id Tests"
         Report.Run(Report::"LT SBI Report", false, false);
         Observer.Observe('run', L.Take());
         L.Stop();
-        Observer.Finish();
+        Observer.Expect('run', 'R1_SubstituteId(Normal);R2_SubstituteName(Normal);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -228,7 +256,9 @@ codeunit 76271 "LT SBI Subscriber By Id Tests"
         ClearLastError();
         Observer.Observe('log', L.Take());
         L.Stop();
-        Observer.Finish();
+        Observer.Expect('setfilter', 'ok 12/31/20');
+        Observer.Expect('log', 'M1_DateFilterId(ltsbi);M2_DateFilterName(2020-12-31);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -238,7 +268,8 @@ codeunit 76271 "LT SBI Subscriber By Id Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('company open', L.OpenText());
-        Observer.Finish();
+        Observer.Expect('company open', 'A_OpenId;B_OpenName;C_CompletedId;D_CompletedName;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -260,7 +291,9 @@ codeunit 76271 "LT SBI Subscriber By Id Tests"
             until Row.Next() = 0;
         Observer.Observe('per database', Db);
         Observer.Observe('per company', Comp);
-        Observer.Finish();
+        Observer.Expect('per database', 'A_DatabaseId;B_DatabaseName;');
+        Observer.Expect('per company', 'C_CompanyId;D_CompanyName;');
+        Observer.Verify();
     end;
 
     [TryFunction]
