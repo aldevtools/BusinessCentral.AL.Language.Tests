@@ -8,7 +8,7 @@
 // Observed: the trigger log of each step (open = OnOpenPage, agr(N) = OnAfterGetRecord, agcr(N) = OnAfterGetCurrRecord, new =
 //   OnNewRecord, close = OnClosePage), Editable of the page and of Description, Enabled of the built-in Edit and View, the row the page
 //   stands on, the page global Opens (OnOpenPage counts it up), a First/Next walk (visited rows and count) and the stored rows.
-// Facts (BC 27.5 and 28.5 alike): the reopened page is a fresh page in every open mode. OpenEdit after View, Edit and Close runs
+// Facts (BC 27.5, 28.5 and 29.0 alike): the reopened page is a fresh page in every open mode. OpenEdit after View, Edit and Close runs
 //   OnOpenPage and the same reads as a first open, Opens is 1, the page and Description are editable, it stands on the first row, a
 //   First/Next walk visits the 3 rows and the new-row line (n=4), a value typed before Close is stored and shown. OpenView gives a page
 //   that is not editable and a walk without the new-row line (n=3); OpenNew runs OnNewRecord on a blank row and stores the typed row.

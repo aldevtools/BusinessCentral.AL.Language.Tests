@@ -9,7 +9,7 @@
 //   is committed first so the rollback keeps it. Then the next call: a second host Next, a TestPart Next, Close, or a second Lookup.
 // Observed: the error, the trigger log of each step (lookup, validate X, agcr X), the values after it (ResourceNo | host row | part row |
 //   part group) and the stored setting.
-// Facts (BC 27.5 and 28.5 alike): an error raised by OnAfterGetCurrRecord during the host's move (the move's own read or the
+// Facts (BC 27.5, 28.5 and 29.0 alike): an error raised by OnAfterGetCurrRecord during the host's move (the move's own read or the
 //   refresh's read; Next, or First from the last row) reaches the test and closes the TestPage: a read, a TestPart Next and Close then
 //   raise 'The TestPage is not open.'. The same variable opens again as a fresh page (one OnAfterGetCurrRecord, its Next reads once);
 //   nothing of the refresh left by the Lookup comes back. An error raised by OnAfterGetCurrRecord on the new-row line while Last moves
