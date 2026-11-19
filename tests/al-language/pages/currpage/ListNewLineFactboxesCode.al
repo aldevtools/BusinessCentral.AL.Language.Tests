@@ -18,8 +18,10 @@
 //   OnValidate triggers the test does not reach; it has actions (Processing, Prompting, Promoted); its FactBoxes are the Notes
 //   system part and three CardParts linked to the line's key: one with OnAfterGetRecord and UpdatePropagation SubPart, one
 //   showing a MediaSet field, one without ApplicationArea that enqueues a page background task in OnAfterGetCurrRecord (a control
-//   with OnDrillDown, OnPageBackgroundTaskCompleted and OnPageBackgroundTaskError). The table has a manual event subscriber that
-//   the tests do not bind, except one. The background task reads only a table the tests do not change while the page is open.
+//   with OnDrillDown, a cue group of fields of a temporary record with StyleExpr, OnPageBackgroundTaskCompleted and
+//   OnPageBackgroundTaskError); each part declares UsageCategory, ApplicationArea and Extensible, one a MultiLine control, one
+//   two actions and a control without ApplicationArea. The table and the page have manual event subscribers that the tests do
+//   not bind, except one. The background task reads only a table the tests do not change while the page is open.
 //   Readings: the page, part and table triggers each step runs, the row the page shows, what the parts show, the rows the tables
 //   hold. Cells (all on Page.RunModal of a record filtered to group G1, then OK): the page in the secondary key and the same page
 //   without SourceTableView (the primary key), each on an empty view, with and without reads of the parts between the steps; the
@@ -243,7 +245,7 @@ codeunit 97485 "LT NF Log"
     end;
 }
 
-// A manual subscriber: it runs only while a test binds it (ListNewLine_FactboxesCode_SubscriberBound).
+// Manual subscribers to the table and to page 97492: they run only while a test binds them (the SubscriberBound test).
 codeunit 97486 "LT NF Spy"
 {
     EventSubscriberInstance = Manual;
@@ -254,6 +256,14 @@ codeunit 97486 "LT NF Spy"
         Log: Codeunit "LT NF Log";
     begin
         Log.Add('E.M(' + Rec.Name + '/' + Rec.Value + ')');
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"LT NF Lines", 'OnModifyRecordEvent', '', false, false)]
+    local procedure LinesOnModifyRecord(var Rec: Record "LT NF Line"; var xRec: Record "LT NF Line"; var AllowModify: Boolean)
+    var
+        Log: Codeunit "LT NF Log";
+    begin
+        Log.Add('E.PM(' + Rec.Name + '/' + Rec.Value + ')');
     end;
 }
 
@@ -292,6 +302,9 @@ page 97489 "LT NF Rules"
     Editable = false;
     PageType = CardPart;
     SourceTable = "LT NF Line";
+    UsageCategory = None;
+    ApplicationArea = All;
+    Extensible = false;
 
     layout
     {
@@ -300,6 +313,7 @@ page 97489 "LT NF Rules"
             field(Lines; RulesText)
             {
                 ApplicationArea = All;
+                MultiLine = true;
                 ShowCaption = false;
             }
         }
@@ -326,6 +340,9 @@ page 97490 "LT NF Picture"
     Editable = false;
     PageType = CardPart;
     SourceTable = "LT NF Line";
+    UsageCategory = None;
+    ApplicationArea = All;
+    Extensible = false;
 
     layout
     {
@@ -333,8 +350,36 @@ page 97490 "LT NF Picture"
         {
             field(Image; Rec.Image)
             {
-                ApplicationArea = All;
                 ShowCaption = false;
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(ImportPicture)
+            {
+                Caption = 'Import';
+                Image = Import;
+                ToolTip = 'Imports a picture.';
+
+                trigger OnAction()
+                begin
+                    Clear(Rec.Image);
+                end;
+            }
+            action(ClearPicture)
+            {
+                Caption = 'Clear';
+                Image = Delete;
+                ToolTip = 'Clears the picture.';
+
+                trigger OnAction()
+                begin
+                    Clear(Rec.Image);
+                end;
             }
         }
     }
@@ -344,8 +389,11 @@ page 97491 "LT NF Usage"
 {
     Caption = 'Usage';
     Editable = false;
+    Extensible = false;
     PageType = CardPart;
     SourceTable = "LT NF Line";
+    UsageCategory = None;
+    ApplicationArea = All;
 
     layout
     {
@@ -360,6 +408,23 @@ page 97491 "LT NF Usage"
                 begin
                     Stale := true;
                 end;
+            }
+            cuegroup(Kinds)
+            {
+                Caption = 'Kinds';
+
+                field(KindName; TempKind.Name)
+                {
+                    Caption = 'Kind';
+                    DrillDown = true;
+                    Style = Unfavorable;
+                    StyleExpr = Stale;
+
+                    trigger OnDrillDown()
+                    begin
+                        Stale := true;
+                    end;
+                }
             }
         }
     }
@@ -409,6 +474,7 @@ page 97491 "LT NF Usage"
         TaskId: Integer;
         Stale: Boolean;
         UsageText: Text;
+        TempKind: Record "LT NF Kind" temporary;
 
     procedure Invalidate()
     begin
@@ -1519,9 +1585,9 @@ codeunit 97495 "LT NF Tests"
     begin
         Initialize(false, Mode::Parts);
         Expect('open=P.OPEN;W.AGCR(); | new=' +
-            ' | setname=W.AGCR();T.VN(Station);T.I(Station/0);P.VN(Station);T.M(Station/);E.M(Station/);P.SR;S.CALC(Station/);P.UPD;P.UPD.end;P.VN.end;P.AGR(Station/);P.AGR(Station/);R.AGR(Station/0);W.AGCR(Station/s);W.DONE(K2);' +
+            ' | setname=W.AGCR();T.VN(Station);T.I(Station/0);P.VN(Station);E.PM(Station/);T.M(Station/);E.M(Station/);P.SR;S.CALC(Station/);P.UPD;P.UPD.end;P.VN.end;P.AGR(Station/);P.AGR(Station/);R.AGR(Station/0);W.AGCR(Station/s);W.DONE(K2);' +
             ' | shown=Station//0 | parts=0/K2 | partslog= | rows1=G1:Station//7/0, calc=1 changes=0' +
-            ' | setvalue=T.VV(>ST-07);P.VV(ST-07);T.M(Station/ST-07);E.M(Station/ST-07);P.SR;S.CALC(Station/ST-07);P.UPD;P.UPD.end;P.VV.end;P.AGR(Station/ST-07);P.AGR(Station/ST-07);R.AGR(Station/1);W.AGCR(Station/s);W.DONE(K2);' +
+            ' | setvalue=T.VV(>ST-07);P.VV(ST-07);E.PM(Station/ST-07);T.M(Station/ST-07);E.M(Station/ST-07);P.SR;S.CALC(Station/ST-07);P.UPD;P.UPD.end;P.VV.end;P.AGR(Station/ST-07);P.AGR(Station/ST-07);R.AGR(Station/1);W.AGCR(Station/s);W.DONE(K2);' +
             ' | shown2=Station/ST-07 | parts2=1/K2 | parts2log= | rows2=G1:Station/ST-07/7/0, calc=2 changes=1' +
             ' | ok= | after= | rows3=G1:Station/ST-07/7/0, calc=2 changes=1');
         BindSubscription(Spy);
