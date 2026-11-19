@@ -710,5 +710,8 @@ BC container. Run locally with the tools in `~/.al-tool-cache` it passes today w
 | 3211, 3212 | AL0122 | `I := CurrPage.Caption` and `I := CurrPage.Caption()` (I: Integer) in a page that declares its own Caption(): Integer: both reads are the platform caption (Text) |
 | 3213, 3214 | AL0122 | the unqualified Caption() (and the bare Caption) in a page with its own Caption() without a return value / Caption(): Integer calls the own procedure |
 | 3215 | AL0122 | `S := P.Caption()` on a Page variable whose page declares its own Caption() without a return value (inside the page CurrPage.Caption() reads the platform caption) |
+| 3216 to 3218 | AL0104 | an event subscriber names its publisher as `Codeunit::<id>`, `Database::<id>` or `Page::<id>`: a syntax error; the bare id compiles (tests/al-language/events/subscriber-by-id/SbiSubscriberByIdTests.al) |
+| 3219, 3220 | AL0185 | an event subscriber names a codeunit or a table by a bare id that no object has |
+| 3221 | AL0284 | a table event subscriber by bare id is type-checked against that table: Rec of another table |
 
 Legacy Statistics compatibility: cases 2971 (extension anchor, AL0271) and 2972 (TestPage member, AL0132) apply from BC29. The public replacements are SalesOrderStatistics and SalesStatistics.
