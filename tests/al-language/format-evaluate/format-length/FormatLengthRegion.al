@@ -1,11 +1,14 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/report/reportinstance-formatregion-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); helper codeunit 96388 "FLN Fmt" (FormatLengthHelper.al); SingleInstance log 96383 is used only by test codeunit 96385
-// Probe: observe form (values not yet asserted).
+// Probe: written against a local BC 27.5 service tier (Windows); every literal asserted below is what BC produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: Format(Value, Length [, FormatNumber]) inside OnPreReport of a processing-only report after CurrReport.FormatRegion := 'de-DE', 'en-US' or
 //   without setting it: Decimal, Integer, Date, undefined Date, Text, Duration and Time with positive and negative lengths; and the same Decimal
 //   formatted by a codeunit the report calls.
-// BC versions: measured locally, checked by the corpus CI matrix
+// Results (BC 27.5): inside OnPreReport, after CurrReport.FormatRegion := 'de-DE', a length cuts and pads the de-DE text (Format(1234.5, 10) = '   1.234,5',
+//   Format(1234.5, 3) = '1.2', Format(1234.5, 10, 1) = '    1234,5'); format 9 is not affected. CurrReport.FormatRegion := 'en-US' reads back as ''.
+//   A codeunit called from the report formats with the report's region too.
+// BC versions: 27.5 measured on a local Windows container (28.5 and 29.0 by the corpus CI matrix on BC on Linux)
 
 codeunit 96383 "FLN Region Log"
 {
@@ -235,7 +238,34 @@ codeunit 96385 "FLN Region Length Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunWith('de-DE', Observer);
-        Observer.Finish();
+        Observer.Expect('1', 'region=[de-DE]');
+        Observer.Expect('2', 'dec 1234.5 L=0=[1.234,5]');
+        Observer.Expect('3', 'dec 1234.5 L=3=[1.2]');
+        Observer.Expect('4', 'dec 1234.5 L=10=[   1.234,5]');
+        Observer.Expect('5', 'dec 1234.5 L=30=[                       1.234,5]');
+        Observer.Expect('6', 'dec 1234.5 L=-3=[1.2]');
+        Observer.Expect('7', 'dec 1234.5 L=-10=[1.234,5]');
+        Observer.Expect('8', 'dec 1234.5 L=-30=[1.234,5]');
+        Observer.Expect('9', 'dec 1234.5 L=10 N=9=[    1234.5]');
+        Observer.Expect('10', 'dec 1234.5 L=-10 N=9=[1234.5]');
+        Observer.Expect('11', 'dec 1234.5 L=10 N=1=[    1234,5]');
+        Observer.Expect('12', 'int 1234567 L=0=[1234567]');
+        Observer.Expect('13', 'int 1234567 L=3=[123]');
+        Observer.Expect('14', 'int 1234567 L=10=[   1234567]');
+        Observer.Expect('15', 'int 1234567 L=-10=[1234567]');
+        Observer.Expect('16', 'date L=0=[15.01.24]');
+        Observer.Expect('17', 'date L=3=[15.]');
+        Observer.Expect('18', 'date L=10=[  15.01.24]');
+        Observer.Expect('19', 'date L=30=[                      15.01.24]');
+        Observer.Expect('20', 'date L=-10=[15.01.24]');
+        Observer.Expect('21', '0D L=10=[          ]');
+        Observer.Expect('22', '0D L=10 N=9=[          ]');
+        Observer.Expect('23', 'text ab L=5=[ab   ]');
+        Observer.Expect('24', 'dur L=30=[1 hour 2 minutes 3 seconds 4 m]');
+        Observer.Expect('25', 'time L=30=[                      13:45:01]');
+        Observer.Expect('26', 'codeunit dec 1234.5 L=10=[   1.234,5]');
+        Observer.Expect('27', 'codeunit dec 1234.5 L=-10=[1.234,5]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -244,7 +274,34 @@ codeunit 96385 "FLN Region Length Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunWith('en-US', Observer);
-        Observer.Finish();
+        Observer.Expect('1', 'region=[]');
+        Observer.Expect('2', 'dec 1234.5 L=0=[1,234.5]');
+        Observer.Expect('3', 'dec 1234.5 L=3=[1,2]');
+        Observer.Expect('4', 'dec 1234.5 L=10=[   1,234.5]');
+        Observer.Expect('5', 'dec 1234.5 L=30=[                       1,234.5]');
+        Observer.Expect('6', 'dec 1234.5 L=-3=[1,2]');
+        Observer.Expect('7', 'dec 1234.5 L=-10=[1,234.5]');
+        Observer.Expect('8', 'dec 1234.5 L=-30=[1,234.5]');
+        Observer.Expect('9', 'dec 1234.5 L=10 N=9=[    1234.5]');
+        Observer.Expect('10', 'dec 1234.5 L=-10 N=9=[1234.5]');
+        Observer.Expect('11', 'dec 1234.5 L=10 N=1=[    1234.5]');
+        Observer.Expect('12', 'int 1234567 L=0=[1234567]');
+        Observer.Expect('13', 'int 1234567 L=3=[123]');
+        Observer.Expect('14', 'int 1234567 L=10=[   1234567]');
+        Observer.Expect('15', 'int 1234567 L=-10=[1234567]');
+        Observer.Expect('16', 'date L=0=[01/15/24]');
+        Observer.Expect('17', 'date L=3=[01/]');
+        Observer.Expect('18', 'date L=10=[  01/15/24]');
+        Observer.Expect('19', 'date L=30=[                      01/15/24]');
+        Observer.Expect('20', 'date L=-10=[01/15/24]');
+        Observer.Expect('21', '0D L=10=[          ]');
+        Observer.Expect('22', '0D L=10 N=9=[          ]');
+        Observer.Expect('23', 'text ab L=5=[ab   ]');
+        Observer.Expect('24', 'dur L=30=[1 hour 2 minutes 3 seconds 4 m]');
+        Observer.Expect('25', 'time L=30=[                    1:45:01 PM]');
+        Observer.Expect('26', 'codeunit dec 1234.5 L=10=[   1,234.5]');
+        Observer.Expect('27', 'codeunit dec 1234.5 L=-10=[1,234.5]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -253,6 +310,33 @@ codeunit 96385 "FLN Region Length Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunWith('', Observer);
-        Observer.Finish();
+        Observer.Expect('1', 'region=[]');
+        Observer.Expect('2', 'dec 1234.5 L=0=[1,234.5]');
+        Observer.Expect('3', 'dec 1234.5 L=3=[1,2]');
+        Observer.Expect('4', 'dec 1234.5 L=10=[   1,234.5]');
+        Observer.Expect('5', 'dec 1234.5 L=30=[                       1,234.5]');
+        Observer.Expect('6', 'dec 1234.5 L=-3=[1,2]');
+        Observer.Expect('7', 'dec 1234.5 L=-10=[1,234.5]');
+        Observer.Expect('8', 'dec 1234.5 L=-30=[1,234.5]');
+        Observer.Expect('9', 'dec 1234.5 L=10 N=9=[    1234.5]');
+        Observer.Expect('10', 'dec 1234.5 L=-10 N=9=[1234.5]');
+        Observer.Expect('11', 'dec 1234.5 L=10 N=1=[    1234.5]');
+        Observer.Expect('12', 'int 1234567 L=0=[1234567]');
+        Observer.Expect('13', 'int 1234567 L=3=[123]');
+        Observer.Expect('14', 'int 1234567 L=10=[   1234567]');
+        Observer.Expect('15', 'int 1234567 L=-10=[1234567]');
+        Observer.Expect('16', 'date L=0=[01/15/24]');
+        Observer.Expect('17', 'date L=3=[01/]');
+        Observer.Expect('18', 'date L=10=[  01/15/24]');
+        Observer.Expect('19', 'date L=30=[                      01/15/24]');
+        Observer.Expect('20', 'date L=-10=[01/15/24]');
+        Observer.Expect('21', '0D L=10=[          ]');
+        Observer.Expect('22', '0D L=10 N=9=[          ]');
+        Observer.Expect('23', 'text ab L=5=[ab   ]');
+        Observer.Expect('24', 'dur L=30=[1 hour 2 minutes 3 seconds 4 m]');
+        Observer.Expect('25', 'time L=30=[                    1:45:01 PM]');
+        Observer.Expect('26', 'codeunit dec 1234.5 L=10=[   1,234.5]');
+        Observer.Expect('27', 'codeunit dec 1234.5 L=-10=[1,234.5]');
+        Observer.Verify();
     end;
 }

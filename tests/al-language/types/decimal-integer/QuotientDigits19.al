@@ -1,11 +1,15 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/biginteger/biginteger-data-type
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160)
-// Probe: observe form (values not yet asserted).
+// Probe: written against a local BC 27.5 service tier (Windows); every literal asserted below is what BC produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: the "/" quotient of a 19-digit BigInteger (9223372036854775807, 4611686018427387905) or a 19-digit Duration by an Integer, a BigInteger, a
 //   Decimal and a Duration: the Format(.., 0, 9) text, or the Decimal range error text and code; div and mod as controls; 18-digit controls; and
 //   Format of a Duration at and past 922337203685477 milliseconds.
-// BC versions: measured locally, checked by the corpus CI matrix
+// Results (BC 27.5): 9223372036854775807 / 2 (Integer, BigInteger, Decimal or
+//   Duration divisor) raises the Decimal range error with the current value 4,611,686,018,427,387,910 (OutsidePermittedRange); / 10000 gives
+//   922337203685477.581, / 100000 gives 92233720368547.7581. div and mod stay exact. Format(Duration, 0, 9) of
+//   900000000000000000 ms and of 9223372036854775807 ms raises "Arithmetic operation resulted in an overflow." (AL:Overflow); 1E17 ms formats.
+// BC versions: 27.5 measured on a local Windows container (28.5 and 29.0 by the corpus CI matrix on BC on Linux)
 
 codeunit 96387 "FLN Quotient Digits"
 {
@@ -23,7 +27,12 @@ codeunit 96387 "FLN Quotient Digits"
     begin
         for N := 1 to 5 do
             Observer.Observe(CellName(N), Cell(N));
-        Observer.Finish();
+        Observer.Expect('B19 / 2 N=0', 'ERR The value of Decimal parameter  is outside of the permitted range. The current value is: 4,611,686,018,427,387,910. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
+        Observer.Expect('B19 / 2 N=9', 'ERR The value of Decimal parameter  is outside of the permitted range. The current value is: 4,611,686,018,427,387,910. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
+        Observer.Expect('-B19 / 2 N=9', 'ERR The value of Decimal parameter  is outside of the permitted range. The current value is: -4,611,686,018,427,387,910. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
+        Observer.Expect('B19 / 3 N=9', 'ERR The value of Decimal parameter  is outside of the permitted range. The current value is: 3,074,457,345,618,258,600. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
+        Observer.Expect('B19 / 2.0 N=9', 'ERR The value of Decimal parameter  is outside of the permitted range. The current value is: 4,611,686,018,427,387,910. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
+        Observer.Verify();
     end;
 
     [Test]
@@ -34,7 +43,12 @@ codeunit 96387 "FLN Quotient Digits"
     begin
         for N := 6 to 10 do
             Observer.Observe(CellName(N), Cell(N));
-        Observer.Finish();
+        Observer.Expect('B19 / 2L N=9', 'ERR The value of Decimal parameter  is outside of the permitted range. The current value is: 4,611,686,018,427,387,910. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
+        Observer.Expect('B19 / 2 into Decimal N=9', 'ERR The value of Decimal parameter  is outside of the permitted range. The current value is: 4,611,686,018,427,387,910. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
+        Observer.Expect('H19 / 1 N=9', 'ERR The value of Decimal parameter  is outside of the permitted range. The current value is: 4,611,686,018,427,387,910. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
+        Observer.Expect('H19 / 7 N=9', 'ERR The value of Decimal parameter  is outside of the permitted range. The current value is: 658,812,288,346,769,701. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
+        Observer.Expect('E18 / 2 N=9', 'ERR The value of Decimal parameter  is outside of the permitted range. The current value is: 500,000,000,000,000,000. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
+        Observer.Verify();
     end;
 
     [Test]
@@ -45,7 +59,18 @@ codeunit 96387 "FLN Quotient Digits"
     begin
         for N := 11 to 21 do
             Observer.Observe(CellName(N), Cell(N));
-        Observer.Finish();
+        Observer.Expect('B19 / 10000 N=9', '[922337203685477.581]');
+        Observer.Expect('B19 / 10000 N=0', '[922,337,203,685,477.581]');
+        Observer.Expect('B19 / 100000 N=9', '[92233720368547.7581]');
+        Observer.Expect('H19 / 10000 N=9', '[461168601842738.791]');
+        Observer.Expect('E18 / 10000 N=9', '[99999999999999.9999]');
+        Observer.Expect('1 / H19 N=9', '[0]');
+        Observer.Expect('1000 / B19 N=9', '[0.000000000000000108]');
+        Observer.Expect('B19 / H19 N=9', '[2]');
+        Observer.Expect('B19 div 2 N=9', '[4611686018427387903]');
+        Observer.Expect('B19 mod 2 N=9', '[1]');
+        Observer.Expect('Dec := B19, Dec / 10000 N=9', '[922337203685477.581]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -56,7 +81,11 @@ codeunit 96387 "FLN Quotient Digits"
     begin
         for N := 22 to 25 do
             Observer.Observe(CellName(N), Cell(N));
-        Observer.Finish();
+        Observer.Expect('Dur19 / 2 N=9', 'ERR The value of Decimal parameter  is outside of the permitted range. The current value is: 4,611,686,018,427,387,910. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
+        Observer.Expect('Dur19 / 2 N=0', 'ERR The value of Decimal parameter  is outside of the permitted range. The current value is: 4,611,686,018,427,387,910. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
+        Observer.Expect('Dur19 / 2L N=9', 'ERR The value of Decimal parameter  is outside of the permitted range. The current value is: 4,611,686,018,427,387,910. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
+        Observer.Expect('Dur19 / 2.0 N=9', 'ERR The value of Decimal parameter  is outside of the permitted range. The current value is: 4,611,686,018,427,387,910. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
+        Observer.Verify();
     end;
 
     [Test]
@@ -67,7 +96,11 @@ codeunit 96387 "FLN Quotient Digits"
     begin
         for N := 26 to 29 do
             Observer.Observe(CellName(N), Cell(N));
-        Observer.Finish();
+        Observer.Expect('Dur19 / Dur2 N=9', 'ERR The value of Decimal parameter  is outside of the permitted range. The current value is: 4,611,686,018,427,387,910. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
+        Observer.Expect('Dur19 / 3 N=9', 'ERR The value of Decimal parameter  is outside of the permitted range. The current value is: 3,074,457,345,618,258,600. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
+        Observer.Expect('DurH19 / 7 N=9', 'ERR The value of Decimal parameter  is outside of the permitted range. The current value is: 658,812,288,346,769,701. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
+        Observer.Expect('DurE18 / 2 N=9', 'ERR The value of Decimal parameter  is outside of the permitted range. The current value is: 500,000,000,000,000,000. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
+        Observer.Verify();
     end;
 
     [Test]
@@ -78,7 +111,11 @@ codeunit 96387 "FLN Quotient Digits"
     begin
         for N := 30 to 33 do
             Observer.Observe(CellName(N), Cell(N));
-        Observer.Finish();
+        Observer.Expect('Dur19 / 10000 N=9', '[922337203685477.581]');
+        Observer.Expect('DurE18 / DurH19 N=9', '[0.216840434497100886]');
+        Observer.Expect('Dur19 / DurH19 N=9', '[2]');
+        Observer.Expect('DurE18 / 10000 N=9', '[99999999999999.9999]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -89,7 +126,12 @@ codeunit 96387 "FLN Quotient Digits"
     begin
         for N := 34 to 38 do
             Observer.Observe(CellName(N), Cell(N));
-        Observer.Finish();
+        Observer.Expect('Format(Dur19, 0, 9)', 'ERR Arithmetic operation resulted in an overflow. | AL:Overflow');
+        Observer.Expect('Format(DurE18, 0, 9)', 'ERR Arithmetic operation resulted in an overflow. | AL:Overflow');
+        Observer.Expect('Format(DurE18)', 'ERR Arithmetic operation resulted in an overflow. | AL:Overflow');
+        Observer.Expect('Format(Dur 922337203685477, 0, 9)', '[P10675199DT2H48M5.477S]');
+        Observer.Expect('Format(Dur 922337203685477)', '[10675199 days 2 hours 48 minutes 5 seconds 477 milliseconds]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -100,7 +142,11 @@ codeunit 96387 "FLN Quotient Digits"
     begin
         for N := 39 to 42 do
             Observer.Observe(CellName(N), Cell(N));
-        Observer.Finish();
+        Observer.Expect('Format(DurMax + 1, 0, 9)', '[922337203685478]');
+        Observer.Expect('Format(DurMax + 1)', '[922337203685478]');
+        Observer.Expect('Format(DurMax + 1, 10)', '[9223372036]');
+        Observer.Expect('Format(-(DurMax + 1), 0, 9)', '[-922337203685478]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -111,7 +157,15 @@ codeunit 96387 "FLN Quotient Digits"
     begin
         for N := 43 to 50 do
             Observer.Observe(CellName(N), Cell(N));
-        Observer.Finish();
+        Observer.Expect('Format(DurOver 922337203685478, 0, 9)', '[P10675199DT2H48M5.478S]');
+        Observer.Expect('Format(DurOver 922337203685478)', '[10675199 days 2 hours 48 minutes 5 seconds 478 milliseconds]');
+        Observer.Expect('Format(DurOver 922337203685478, 10)', '[10675199 d]');
+        Observer.Expect('Format(DurMax, 10)', '[10675199 d]');
+        Observer.Expect('Format(Dur 1E15, 0, 9)', '[P11574074DT1H46M40.0S]');
+        Observer.Expect('Format(Dur 1E16, 0, 9)', '[P115740740DT17H46M40.0S]');
+        Observer.Expect('Format(Dur 1E17, 0, 9)', '[P1157407407DT9H46M40.0S]');
+        Observer.Expect('Format(Dur 9E17, 0, 9)', 'ERR Arithmetic operation resulted in an overflow. | AL:Overflow');
+        Observer.Verify();
     end;
 
     local procedure Cell(N: Integer): Text
