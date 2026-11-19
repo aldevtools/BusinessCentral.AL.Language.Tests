@@ -1,6 +1,221 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testfield/testfield-lookup-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own tables 75650 75651, pages 75652 75653 75654, log codeunit 75655, test codeunit 75656 "LLM Lookup Move Stops"
+// Fixtures used: Probe Observer (codeunit 69160); own tables 75650 75651, pages 75652 75653 75654, log codeunit 75655, test codeunit 75656
+// local object: a copy of the testpage/Y15LookupThreeFieldLink.al host (91714) whose OnAfterGetCurrRecord can be told to raise once
+// Probe (al-runner 8503): testpage/Y15LookupThreeFieldLink.al Y80_Y15_Host_* pins the host's move as the first call after
+//   TestField.Lookup: the move runs OnAfterGetCurrRecord for the new row, then the refresh of the OnValidate's CurrPage.Update(false)
+//   runs it again (Next: 'agcr R2;agcr R2'). Here the move stops in between: the host's OnAfterGetCurrRecord raises on its first call
+//   after the Lookup (the move's own read) or on its second (the refresh's read). The move runs inside asserterror; the Lookup's write
+//   is committed first so the rollback keeps it. Then the next call: a second host Next, a TestPart Next, Close, or a second Lookup.
+// Observed: the error, the trigger log of each step (lookup, validate X, agcr X), the values after it (ResourceNo | host row | part row |
+//   part group) and the stored setting.
+// Facts: (filled from the observation)
+// BC versions: 27, 28, 29
+
+table 75650 "LLM Setting"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Primary Key"; Code[10]) { DataClassification = SystemMetadata; }
+        field(2; "Resource No."; Code[20]) { DataClassification = SystemMetadata; }
+    }
+    keys
+    {
+        key(PK; "Primary Key") { Clustered = true; }
+    }
+}
+
+table 75651 "LLM Resource"
+{
+    DataClassification = SystemMetadata;
+    LookupPageId = "LLM Resource List";
+
+    fields
+    {
+        field(1; "No."; Code[20]) { DataClassification = SystemMetadata; }
+        field(2; "Group Code"; Code[20]) { DataClassification = SystemMetadata; }
+        field(3; "Region Code"; Code[20]) { DataClassification = SystemMetadata; }
+        field(4; Name; Text[30]) { DataClassification = SystemMetadata; }
+    }
+    keys
+    {
+        key(PK; "No.") { Clustered = true; }
+    }
+
+    trigger OnModify()
+    var
+        Log: Codeunit "LLM Log";
+    begin
+        Log.Add('T-mod ' + Rec."No." + ' ' + Rec.Name);
+        if Rec.Name = 'FAILMOD' then
+            Error('LLM table modify refused');
+    end;
+}
+
+page 75652 "LLM Resource List"
+{
+    PageType = List;
+    SourceTable = "LLM Resource";
+    ApplicationArea = All;
+    UsageCategory = None;
+    Editable = false;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+                field("Group Code"; Rec."Group Code") { ApplicationArea = All; }
+            }
+        }
+    }
+}
+
+page 75653 "LLM Resource Part"
+{
+    PageType = ListPart;
+    SourceTable = "LLM Resource";
+    ApplicationArea = All;
+    UsageCategory = None;
+    Editable = false;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+                field("Group Code"; Rec."Group Code") { ApplicationArea = All; }
+            }
+        }
+    }
+}
+
+page 75654 "LLM Three Link Schedule"
+{
+    PageType = List;
+    SourceTable = "LLM Resource";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(Filters)
+            {
+                field(ResourceNo; Setting."Resource No.")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Resource No.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        Resource: Record "LLM Resource";
+                    begin
+                        Log.Add('lookup');
+                        if Page.RunModal(Page::"LLM Resource List", Resource) <> Action::LookupOK then
+                            exit(false);
+                        Text := Resource."No.";
+                        exit(true);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        Log.Add('validate ' + Setting."Resource No.");
+                        Setting.Modify();
+                        CurrPage.Update(false);
+                    end;
+                }
+            }
+            repeater(Lines)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+                field(Name; Rec.Name) { ApplicationArea = All; }
+            }
+            part(Resources; "LLM Resource Part")
+            {
+                ApplicationArea = All;
+                SubPageLink = "No." = field("No."),
+                              "Group Code" = field("Group Code"),
+                              "Region Code" = field("Region Code");
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        if not Setting.Get() then
+            Setting.Insert();
+    end;
+
+    trigger OnModifyRecord(): Boolean
+    begin
+        Log.Add('M ' + Rec."No." + ' ' + Rec.Name);
+        exit(Rec.Name <> 'DENY');
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        Log.Add('agcr ' + Rec."No.");
+        Log.MaybeFail(Rec."No.");
+    end;
+
+    var
+        Setting: Record "LLM Setting";
+        Log: Codeunit "LLM Log";
+}
+
+codeunit 75655 "LLM Log"
+{
+    SingleInstance = true;
+
+    var
+        Entries: Text;
+        FailAt: Integer;
+        Calls: Integer;
+
+    procedure Add(Entry: Text)
+    begin
+        if Entries <> '' then
+            Entries += ';';
+        Entries += Entry;
+    end;
+
+    procedure Take(): Text
+    var
+        Result: Text;
+    begin
+        Result := Entries;
+        Entries := '';
+        exit(Result);
+    end;
+
+    // The Nth OnAfterGetCurrRecord from now raises once; 0 disarms.
+    procedure Arm(N: Integer)
+    begin
+        FailAt := N;
+        Calls := 0;
+    end;
+
+    procedure MaybeFail(No: Code[20])
+    begin
+        if FailAt = 0 then
+            exit;
+        Calls += 1;
+        if Calls = FailAt then begin
+            FailAt := 0;
+            Error('LLM agcr failed on %1', No);
+        end;
+    end;
+}
+
+codeunit 75656 "LLM Lookup Move Stops"
 {
     Subtype = Test;
     TestPermissions = Disabled;
