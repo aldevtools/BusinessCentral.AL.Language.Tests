@@ -9,7 +9,15 @@
 //   is committed first so the rollback keeps it. Then the next call: a second host Next, a TestPart Next, Close, or a second Lookup.
 // Observed: the error, the trigger log of each step (lookup, validate X, agcr X), the values after it (ResourceNo | host row | part row |
 //   part group) and the stored setting.
-// Facts: (filled from the observation)
+// Facts (BC 27.5 and 28.5 alike): an error raised by OnAfterGetCurrRecord during the host's move (the move's own read or the
+//   refresh's read; Next, or First from the last row) reaches the test and closes the TestPage: a read, a TestPart Next and Close then
+//   raise 'The TestPage is not open.'. The same variable opens again as a fresh page (one OnAfterGetCurrRecord, its Next reads once);
+//   nothing of the refresh left by the Lookup comes back. An error raised by OnAfterGetCurrRecord on the new-row line while Last moves
+//   does not reach the test: Last answers true and runs its reads and the refresh as without it. A move that finds no row (Next on the
+//   new-row line) answers false, then runs OnAfterGetCurrRecord for the last row and for the new-row line; the controls show the blank
+//   row. A Lookup whose save of the typed host row fails in the table's OnModify raises a validation error after OnValidate (the save
+//   runs before OnValidate and again after it); the page stays open, the next read runs OnAfterGetCurrRecord of the row and Next then
+//   reads once. OnModifyRecord returning false skips the save, and the move after the Lookup runs as in Y80.
 // BC versions: 27, 28, 29
 
 table 75650 "LLM Setting"
@@ -365,7 +373,23 @@ codeunit 75656 "LLM Lookup Move Stops"
         OpenAndLookup(Schedule, 1, false, '');
         TryMove(Schedule, 'Next', 'move');
         AfterStop(Schedule);
-        Observer.Finish();
+        Observer.Expect('open log', 'agcr R1');
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('move', 'LLM agcr failed on R2');
+        Observer.Expect('move log', 'agcr R2');
+        Observer.Expect('read', 'The TestPage is not open.');
+        Observer.Expect('read log', '');
+        Observer.Expect('close', 'The TestPage is not open.');
+        Observer.Expect('close log', '');
+        Observer.Expect('reopen log', 'agcr R1');
+        Observer.Expect('reopened read', 'ok R2|R1|r1|R1|G1');
+        Observer.Expect('reopened read log', '');
+        Observer.Expect('reopened next', 'ok true');
+        Observer.Expect('reopened next log', 'agcr R2');
+        Observer.Expect('reopened close', 'ok ');
+        Observer.Expect('reopened close log', '');
+        Observer.Expect('stored', 'setting=R2 R1=r1 R2=r2 R3=r3');
+        Observer.Verify();
     end;
 
     // The second OnAfterGetCurrRecord after the Lookup (the refresh's read in Y80) raises.
@@ -379,7 +403,23 @@ codeunit 75656 "LLM Lookup Move Stops"
         OpenAndLookup(Schedule, 2, false, '');
         TryMove(Schedule, 'Next', 'move');
         AfterStop(Schedule);
-        Observer.Finish();
+        Observer.Expect('open log', 'agcr R1');
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('move', 'LLM agcr failed on R2');
+        Observer.Expect('move log', 'agcr R2;agcr R2');
+        Observer.Expect('read', 'The TestPage is not open.');
+        Observer.Expect('read log', '');
+        Observer.Expect('close', 'The TestPage is not open.');
+        Observer.Expect('close log', '');
+        Observer.Expect('reopen log', 'agcr R1');
+        Observer.Expect('reopened read', 'ok R2|R1|r1|R1|G1');
+        Observer.Expect('reopened read log', '');
+        Observer.Expect('reopened next', 'ok true');
+        Observer.Expect('reopened next log', 'agcr R2');
+        Observer.Expect('reopened close', 'ok ');
+        Observer.Expect('reopened close log', '');
+        Observer.Expect('stored', 'setting=R2 R1=r1 R2=r2 R3=r3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -393,7 +433,15 @@ codeunit 75656 "LLM Lookup Move Stops"
         TryMove(Schedule, 'Next', 'move');
         TryMove(Schedule, 'PartNext', 'part move');
         TryClose(Schedule, 'close');
-        Observer.Finish();
+        Observer.Expect('open log', 'agcr R1');
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('move', 'LLM agcr failed on R2');
+        Observer.Expect('move log', 'agcr R2');
+        Observer.Expect('part move', 'The TestPage is not open.');
+        Observer.Expect('part move log', '');
+        Observer.Expect('close', 'The TestPage is not open.');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     // From the last row: First's own read (R1) raises.
@@ -407,7 +455,23 @@ codeunit 75656 "LLM Lookup Move Stops"
         OpenAndLookup(Schedule, 1, true, '');
         TryMove(Schedule, 'First', 'move');
         AfterStop(Schedule);
-        Observer.Finish();
+        Observer.Expect('open log', 'agcr R1;agcr ;agcr R3');
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('move', 'LLM agcr failed on R1');
+        Observer.Expect('move log', 'agcr R1');
+        Observer.Expect('read', 'The TestPage is not open.');
+        Observer.Expect('read log', '');
+        Observer.Expect('close', 'The TestPage is not open.');
+        Observer.Expect('close log', '');
+        Observer.Expect('reopen log', 'agcr R1');
+        Observer.Expect('reopened read', 'ok R2|R1|r1|R1|G1');
+        Observer.Expect('reopened read log', '');
+        Observer.Expect('reopened next', 'ok true');
+        Observer.Expect('reopened next log', 'agcr R2');
+        Observer.Expect('reopened close', 'ok ');
+        Observer.Expect('reopened close log', '');
+        Observer.Expect('stored', 'setting=R2 R1=r1 R2=r2 R3=r3');
+        Observer.Verify();
     end;
 
     // Last reads the new-row line first in Y80 ('agcr ;agcr R3;agcr R3'): that first read raises.
@@ -421,7 +485,23 @@ codeunit 75656 "LLM Lookup Move Stops"
         OpenAndLookup(Schedule, 1, false, '');
         TryMove(Schedule, 'Last', 'move');
         AfterStop(Schedule);
-        Observer.Finish();
+        Observer.Expect('open log', 'agcr R1');
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('move', 'ok true');
+        Observer.Expect('move log', 'agcr ;agcr R3;agcr R3');
+        Observer.Expect('read', 'ok R2|R3|r3|R3|G2');
+        Observer.Expect('read log', '');
+        Observer.Expect('close', 'ok ');
+        Observer.Expect('close log', '');
+        Observer.Expect('reopen log', 'agcr R1');
+        Observer.Expect('reopened read', 'ok R2|R1|r1|R1|G1');
+        Observer.Expect('reopened read log', '');
+        Observer.Expect('reopened next', 'ok true');
+        Observer.Expect('reopened next log', 'agcr R2');
+        Observer.Expect('reopened close', 'ok ');
+        Observer.Expect('reopened close log', '');
+        Observer.Expect('stored', 'setting=R2 R1=r1 R2=r2 R3=r3');
+        Observer.Verify();
     end;
 
     // The host row was typed before the Lookup; the save that the Lookup runs fails in the table's OnModify.
@@ -444,7 +524,17 @@ codeunit 75656 "LLM Lookup Move Stops"
         TryMove(Schedule, 'Next', 'move');
         TryClose(Schedule, 'close');
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('open log', 'agcr R1');
+        Observer.Expect('lookup', 'Validation error for Field: ,  Message = ''LLM table modify refused''');
+        Observer.Expect('lookup log', 'lookup;M R1 FAILMOD;T-mod R1 FAILMOD;validate R2;M R1 FAILMOD;T-mod R1 FAILMOD');
+        Observer.Expect('read', 'ok R2|R1|FAILMOD|R1|G1');
+        Observer.Expect('read log', 'agcr R1');
+        Observer.Expect('move', 'ok true');
+        Observer.Expect('move log', 'agcr R2');
+        Observer.Expect('close', 'ok ');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'setting=<none> R1=r1 R2=r2 R3=r3');
+        Observer.Verify();
     end;
 
     // The host stands on the new-row line: the move after the Lookup finds no row.
@@ -469,7 +559,21 @@ codeunit 75656 "LLM Lookup Move Stops"
         TrySnap(Schedule, 'second read');
         TryClose(Schedule, 'close');
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('open log', 'agcr R1;agcr ;agcr R3;agcr ');
+        Observer.Expect('row', '');
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('move', 'ok false');
+        Observer.Expect('move log', 'agcr R3;agcr ');
+        Observer.Expect('read', 'ok R2||||');
+        Observer.Expect('read log', '');
+        Observer.Expect('second move', 'ok true');
+        Observer.Expect('second move log', 'agcr R1');
+        Observer.Expect('second read', 'ok R2|R1|r1|R1|G1');
+        Observer.Expect('second read log', '');
+        Observer.Expect('close', 'ok ');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'setting=R2 R1=r1 R2=r2 R3=r3');
+        Observer.Verify();
     end;
 
     // The host row was typed before the Lookup; OnModifyRecord returns false on the move's save.
@@ -487,7 +591,20 @@ codeunit 75656 "LLM Lookup Move Stops"
         TrySnap(Schedule, 'second read');
         TryClose(Schedule, 'close');
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('open log', 'agcr R1');
+        Observer.Expect('lookup log', 'lookup;M R1 DENY;validate R2');
+        Observer.Expect('move', 'ok true');
+        Observer.Expect('move log', 'agcr R2;agcr R2');
+        Observer.Expect('read', 'ok R2|R2|r2|R2|G1');
+        Observer.Expect('read log', '');
+        Observer.Expect('second move', 'ok true');
+        Observer.Expect('second move log', 'agcr R3');
+        Observer.Expect('second read', 'ok R2|R3|r3|R3|G2');
+        Observer.Expect('second read log', '');
+        Observer.Expect('close', 'ok ');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'setting=R2 R1=r1 R2=r2 R3=r3');
+        Observer.Verify();
     end;
 
     // The contrast: the row typed with a value that saves.
@@ -504,7 +621,18 @@ codeunit 75656 "LLM Lookup Move Stops"
         TryMove(Schedule, 'Next', 'second move');
         TryClose(Schedule, 'close');
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('open log', 'agcr R1');
+        Observer.Expect('lookup log', 'lookup;M R1 typed;T-mod R1 typed;validate R2');
+        Observer.Expect('move', 'ok true');
+        Observer.Expect('move log', 'agcr R2;agcr R2');
+        Observer.Expect('read', 'ok R2|R2|r2|R2|G1');
+        Observer.Expect('read log', '');
+        Observer.Expect('second move', 'ok true');
+        Observer.Expect('second move log', 'agcr R3');
+        Observer.Expect('close', 'ok ');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'setting=R2 R1=typed R2=r2 R3=r3');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]

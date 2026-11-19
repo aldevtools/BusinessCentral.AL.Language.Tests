@@ -8,7 +8,16 @@
 // Observed: the trigger log of each step (open = OnOpenPage, agr(N) = OnAfterGetRecord, agcr(N) = OnAfterGetCurrRecord, new =
 //   OnNewRecord, close = OnClosePage), Editable of the page and of Description, Enabled of the built-in Edit and View, the row the page
 //   stands on, the page global Opens (OnOpenPage counts it up), a First/Next walk (visited rows and count) and the stored rows.
-// Facts: (filled from the observation)
+// Facts (BC 27.5 and 28.5 alike): the reopened page is a fresh page in every open mode. OpenEdit after View, Edit and Close runs
+//   OnOpenPage and the same reads as a first open, Opens is 1, the page and Description are editable, it stands on the first row, a
+//   First/Next walk visits the 3 rows and the new-row line (n=4), a value typed before Close is stored and shown. OpenView gives a page
+//   that is not editable and a walk without the new-row line (n=3); OpenNew runs OnNewRecord on a blank row and stores the typed row.
+//   OpenEdit on the page while it is still open raises 'The TestPage is already open.' and leaves the page as it was.
+//   The built-in View and Edit actions are the exception: once a test took one of them from the variable (an Invoke, or only an Enabled
+//   read), the variable keeps it after Close. On the next open, Invoke of it raises 'Server page is not open.' and runs nothing (the page
+//   stays open, Close works), and its Enabled answers what it was on the earlier page (after View then Edit: Edit No, View Yes, also on a
+//   page opened for view). An action first taken on the reopened page is fresh, and Clear(variable) between Close and the open makes
+//   both fresh again.
 // BC versions: 27, 28, 29
 
 table 75640 "RLS Line"
@@ -260,7 +269,20 @@ codeunit 75643 "RLS Reopen After Switch"
         Reads(P, 'reopened|');
         P.Close();
         Step('close-2');
-        Observer.Finish();
+        Observer.Expect('open-1', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('view-1', '[agr(10000) agcr(10000)]');
+        Observer.Expect('edit-1', '[agr(10000) agcr(10000)]');
+        Observer.Expect('close-1', '[close]');
+        Observer.Expect('open-2', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('reopened|page', 'Yes');
+        Observer.Expect('reopened|desc', 'Yes');
+        Observer.Expect('reopened|editEnabled', 'No');
+        Observer.Expect('reopened|viewEnabled', 'Yes');
+        Observer.Expect('reopened|row', '10000/a');
+        Observer.Expect('reopened|opens', '1');
+        Observer.Expect('reopened|reads log', '[]');
+        Observer.Expect('close-2', '[close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -275,7 +297,15 @@ codeunit 75643 "RLS Reopen After Switch"
         Walk(P, 'walk');
         P.Close();
         Step('close-2');
-        Observer.Finish();
+        Observer.Expect('open-1', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('view-1', '[agr(10000) agcr(10000)]');
+        Observer.Expect('edit-1', '[agr(10000) agcr(10000)]');
+        Observer.Expect('close-1', '[close]');
+        Observer.Expect('open-2', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('walk', '10000/a;20000/b;30000/c;0/; n=4');
+        Observer.Expect('walk log', '[agr(20000) agr(20000) agcr(20000) agr(30000) agr(30000) agcr(30000) new agcr(0)]');
+        Observer.Expect('close-2', '[close]');
+        Observer.Verify();
     end;
 
     // The reopened page switches again: View, then Edit.
@@ -294,7 +324,19 @@ codeunit 75643 "RLS Reopen After Switch"
         TryInvoke(P, 'Edit', 'edit-2');
         TryModes(P, 'after edit-2');
         TryClose(P, 'close-2');
-        Observer.Finish();
+        Observer.Expect('open-1', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('view-1', '[agr(10000) agcr(10000)]');
+        Observer.Expect('edit-1', '[agr(10000) agcr(10000)]');
+        Observer.Expect('close-1', '[close]');
+        Observer.Expect('open-2', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('view-2', 'Server page is not open. []');
+        Observer.Expect('after view-2', 'Yes|Yes|No|Yes');
+        Observer.Expect('after view-2 log', '[]');
+        Observer.Expect('edit-2', 'Server page is not open. []');
+        Observer.Expect('after edit-2', 'Yes|Yes|No|Yes');
+        Observer.Expect('after edit-2 log', '[]');
+        Observer.Expect('close-2', 'ok [close]');
+        Observer.Verify();
     end;
 
     // No built-in action touched on the first open: the reopened page switches with View, then Edit.
@@ -316,7 +358,16 @@ codeunit 75643 "RLS Reopen After Switch"
         TryInvoke(P, 'Edit', 'edit-2');
         TryModes(P, 'after edit-2');
         TryClose(P, 'close-2');
-        Observer.Finish();
+        Observer.Expect('first open log', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000) close]');
+        Observer.Expect('open-2', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('view-2', 'ok [agr(10000) agcr(10000)]');
+        Observer.Expect('after view-2', 'No|No|Yes|No');
+        Observer.Expect('after view-2 log', '[]');
+        Observer.Expect('edit-2', 'ok [agr(10000) agcr(10000)]');
+        Observer.Expect('after edit-2', 'Yes|Yes|No|Yes');
+        Observer.Expect('after edit-2 log', '[]');
+        Observer.Expect('close-2', 'ok [close]');
+        Observer.Verify();
     end;
 
     // The first open only reads Enabled of the built-in View; the reopened page then invokes it.
@@ -337,7 +388,14 @@ codeunit 75643 "RLS Reopen After Switch"
         TryInvoke(P, 'View', 'view-2');
         TryModes(P, 'after view-2');
         TryClose(P, 'close-2');
-        Observer.Finish();
+        Observer.Expect('first|viewEnabled', 'Yes');
+        Observer.Expect('first open log', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000) close]');
+        Observer.Expect('open-2', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('view-2', 'Server page is not open. []');
+        Observer.Expect('after view-2', 'Yes|Yes|No|Yes');
+        Observer.Expect('after view-2 log', '[]');
+        Observer.Expect('close-2', 'ok [close]');
+        Observer.Verify();
     end;
 
     // Clear between Close and the second open.
@@ -358,7 +416,21 @@ codeunit 75643 "RLS Reopen After Switch"
         TryInvoke(P, 'Edit', 'edit-2');
         TryModes(P, 'after edit-2');
         TryClose(P, 'close-2');
-        Observer.Finish();
+        Observer.Expect('open-1', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('view-1', '[agr(10000) agcr(10000)]');
+        Observer.Expect('edit-1', '[agr(10000) agcr(10000)]');
+        Observer.Expect('close-1', '[close]');
+        Observer.Expect('open-2', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('reopened', 'Yes|Yes|No|Yes');
+        Observer.Expect('reopened log', '[]');
+        Observer.Expect('view-2', 'ok [agr(10000) agcr(10000)]');
+        Observer.Expect('after view-2', 'No|No|Yes|No');
+        Observer.Expect('after view-2 log', '[]');
+        Observer.Expect('edit-2', 'ok [agr(10000) agcr(10000)]');
+        Observer.Expect('after edit-2', 'Yes|Yes|No|Yes');
+        Observer.Expect('after edit-2 log', '[]');
+        Observer.Expect('close-2', 'ok [close]');
+        Observer.Verify();
     end;
 
     // The mode reads of a first open, per open mode (the contrast for the reopened pages).
@@ -380,7 +452,14 @@ codeunit 75643 "RLS Reopen After Switch"
         TryModes(N, 'openNew');
         N.Close();
         Step('log');
-        Observer.Finish();
+        Observer.Expect('openEdit', 'Yes|Yes|No|Yes');
+        Observer.Expect('openEdit log', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('openView', 'No|No|Yes|No');
+        Observer.Expect('openView log', '[close open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('openNew', 'Yes|Yes|No|Yes');
+        Observer.Expect('openNew log', '[close open new agcr(0)]');
+        Observer.Expect('log', '[close]');
+        Observer.Verify();
     end;
 
     // Close and open again without a switch, per open mode of the second open.
@@ -402,7 +481,14 @@ codeunit 75643 "RLS Reopen After Switch"
         TryModes(P, 'new then openEdit');
         P.Close();
         Step('log');
-        Observer.Finish();
+        Observer.Expect('edit then openView', 'No|No|Yes|No');
+        Observer.Expect('edit then openView log', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000) close open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('view then openNew', 'Yes|Yes|Yes|No');
+        Observer.Expect('view then openNew log', '[close open new agcr(0)]');
+        Observer.Expect('new then openEdit', 'Yes|Yes|Yes|No');
+        Observer.Expect('new then openEdit log', '[close open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('log', '[close]');
+        Observer.Verify();
     end;
 
     // A value typed after the switch back is stored at Close and shown by the reopened page.
@@ -428,7 +514,14 @@ codeunit 75643 "RLS Reopen After Switch"
         P.Close();
         Step('close-2');
         Observer.Observe('stored-2', Stored());
-        Observer.Finish();
+        Observer.Expect('typed log', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000) agr(10000) agcr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('close-1', '[close]');
+        Observer.Expect('stored-1', '10000/x;20000/b;30000/c;');
+        Observer.Expect('open-2', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('reopened|row', '10000/x');
+        Observer.Expect('close-2', '[close]');
+        Observer.Expect('stored-2', '10000/y;20000/b;30000/c;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -443,7 +536,20 @@ codeunit 75643 "RLS Reopen After Switch"
         Reads(P, 'reopened|');
         P.Close();
         Step('close-2');
-        Observer.Finish();
+        Observer.Expect('open-1', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('view-1', '[agr(10000) agcr(10000)]');
+        Observer.Expect('edit-1', '[agr(10000) agcr(10000)]');
+        Observer.Expect('close-1', '[close]');
+        Observer.Expect('open-2', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('reopened|page', 'No');
+        Observer.Expect('reopened|desc', 'No');
+        Observer.Expect('reopened|editEnabled', 'No');
+        Observer.Expect('reopened|viewEnabled', 'Yes');
+        Observer.Expect('reopened|row', '10000/a');
+        Observer.Expect('reopened|opens', '1');
+        Observer.Expect('reopened|reads log', '[]');
+        Observer.Expect('close-2', '[close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -461,7 +567,19 @@ codeunit 75643 "RLS Reopen After Switch"
         TryInvoke(P, 'Edit', 'edit-2');
         TryModes(P, 'after edit-2');
         TryClose(P, 'close-2');
-        Observer.Finish();
+        Observer.Expect('open-1', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('view-1', '[agr(10000) agcr(10000)]');
+        Observer.Expect('edit-1', '[agr(10000) agcr(10000)]');
+        Observer.Expect('close-1', '[close]');
+        Observer.Expect('open-2', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('walk', '10000/a;20000/b;30000/c; n=3');
+        Observer.Expect('walk log', '[agr(20000) agr(20000) agcr(20000) agr(30000) agr(30000) agcr(30000)]');
+        Observer.Expect('first log', '[agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('edit-2', 'Server page is not open. []');
+        Observer.Expect('after edit-2', 'No|No|No|Yes');
+        Observer.Expect('after edit-2 log', '[]');
+        Observer.Expect('close-2', 'ok [close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -480,7 +598,22 @@ codeunit 75643 "RLS Reopen After Switch"
         P.Close();
         Step('close-2');
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('open-1', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('view-1', '[agr(10000) agcr(10000)]');
+        Observer.Expect('edit-1', '[agr(10000) agcr(10000)]');
+        Observer.Expect('close-1', '[close]');
+        Observer.Expect('open-2', '[open new agcr(0)]');
+        Observer.Expect('reopened|page', 'Yes');
+        Observer.Expect('reopened|desc', 'Yes');
+        Observer.Expect('reopened|editEnabled', 'No');
+        Observer.Expect('reopened|viewEnabled', 'Yes');
+        Observer.Expect('reopened|row', '0/');
+        Observer.Expect('reopened|opens', '1');
+        Observer.Expect('reopened|reads log', '[]');
+        Observer.Expect('typed log', '[]');
+        Observer.Expect('close-2', '[close]');
+        Observer.Expect('stored', '10000/a;20000/b;30000/c;40000/n;');
+        Observer.Verify();
     end;
 
     // View only (the list is still in view when it closes).
@@ -497,7 +630,21 @@ codeunit 75643 "RLS Reopen After Switch"
         Walk(P, 'walk');
         P.Close();
         Step('close-2');
-        Observer.Finish();
+        Observer.Expect('open-1', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('view-1', '[agr(10000) agcr(10000)]');
+        Observer.Expect('close-1', '[close]');
+        Observer.Expect('open-2', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('reopened|page', 'Yes');
+        Observer.Expect('reopened|desc', 'Yes');
+        Observer.Expect('reopened|editEnabled', 'No');
+        Observer.Expect('reopened|viewEnabled', 'No');
+        Observer.Expect('reopened|row', '10000/a');
+        Observer.Expect('reopened|opens', '1');
+        Observer.Expect('reopened|reads log', '[]');
+        Observer.Expect('walk', '10000/a;20000/b;30000/c;0/; n=4');
+        Observer.Expect('walk log', '[agr(20000) agr(20000) agcr(20000) agr(30000) agr(30000) agcr(30000) new agcr(0)]');
+        Observer.Expect('close-2', '[close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -512,7 +659,19 @@ codeunit 75643 "RLS Reopen After Switch"
         Reads(P, 'reopened|');
         P.Close();
         Step('close-2');
-        Observer.Finish();
+        Observer.Expect('open-1', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('view-1', '[agr(10000) agcr(10000)]');
+        Observer.Expect('close-1', '[close]');
+        Observer.Expect('open-2', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('reopened|page', 'No');
+        Observer.Expect('reopened|desc', 'No');
+        Observer.Expect('reopened|editEnabled', 'Yes');
+        Observer.Expect('reopened|viewEnabled', 'No');
+        Observer.Expect('reopened|row', '10000/a');
+        Observer.Expect('reopened|opens', '1');
+        Observer.Expect('reopened|reads log', '[]');
+        Observer.Expect('close-2', '[close]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -528,7 +687,20 @@ codeunit 75643 "RLS Reopen After Switch"
         P.Close();
         Step('close-2');
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('open-1', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('view-1', '[agr(10000) agcr(10000)]');
+        Observer.Expect('close-1', '[close]');
+        Observer.Expect('open-2', '[open new agcr(0)]');
+        Observer.Expect('reopened|page', 'Yes');
+        Observer.Expect('reopened|desc', 'Yes');
+        Observer.Expect('reopened|editEnabled', 'No');
+        Observer.Expect('reopened|viewEnabled', 'No');
+        Observer.Expect('reopened|row', '0/');
+        Observer.Expect('reopened|opens', '1');
+        Observer.Expect('reopened|reads log', '[]');
+        Observer.Expect('close-2', '[close]');
+        Observer.Expect('stored', '10000/a;20000/b;30000/c;');
+        Observer.Verify();
     end;
 
     // Opened for view, Edit invoked (it switches nothing on a list opened for view), closed, opened for edit.
@@ -551,7 +723,23 @@ codeunit 75643 "RLS Reopen After Switch"
         Reads(P, 'reopened|');
         P.Close();
         Step('close-2');
-        Observer.Finish();
+        Observer.Expect('open-1', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('edit-1', '[agr(10000) agcr(10000)]');
+        Observer.Expect('edit1|page', 'Yes');
+        Observer.Expect('edit1|desc', 'Yes');
+        Observer.Expect('edit1|editEnabled', 'No');
+        Observer.Expect('edit1|viewEnabled', 'Yes');
+        Observer.Expect('close-1', '[close]');
+        Observer.Expect('open-2', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('reopened|page', 'Yes');
+        Observer.Expect('reopened|desc', 'Yes');
+        Observer.Expect('reopened|editEnabled', 'No');
+        Observer.Expect('reopened|viewEnabled', 'Yes');
+        Observer.Expect('reopened|row', '10000/a');
+        Observer.Expect('reopened|opens', '1');
+        Observer.Expect('reopened|reads log', '[]');
+        Observer.Expect('close-2', '[close]');
+        Observer.Verify();
     end;
 
     // The contrast: no switch before Close.
@@ -572,7 +760,20 @@ codeunit 75643 "RLS Reopen After Switch"
         Walk(P, 'walk');
         P.Close();
         Step('close-2');
-        Observer.Finish();
+        Observer.Expect('open-1', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('close-1', '[close]');
+        Observer.Expect('open-2', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('reopened|page', 'Yes');
+        Observer.Expect('reopened|desc', 'Yes');
+        Observer.Expect('reopened|editEnabled', 'No');
+        Observer.Expect('reopened|viewEnabled', 'Yes');
+        Observer.Expect('reopened|row', '10000/a');
+        Observer.Expect('reopened|opens', '1');
+        Observer.Expect('reopened|reads log', '[]');
+        Observer.Expect('walk', '10000/a;20000/b;30000/c;0/; n=4');
+        Observer.Expect('walk log', '[agr(20000) agr(20000) agcr(20000) agr(30000) agr(30000) agcr(30000) new agcr(0)]');
+        Observer.Expect('close-2', '[close]');
+        Observer.Verify();
     end;
 
     // OpenEdit on the variable while the switched page is still open.
@@ -601,6 +802,14 @@ codeunit 75643 "RLS Reopen After Switch"
         Modes(P, 'after|');
         P.Close();
         Step('close');
-        Observer.Finish();
+        Observer.Expect('switched log', '[open agr(10000) agr(20000) agr(30000) agr(10000) agr(10000) agcr(10000) agr(10000) agcr(10000) agr(10000) agcr(10000)]');
+        Observer.Expect('second open', 'The TestPage is already open.');
+        Observer.Expect('second open log', '[]');
+        Observer.Expect('after|page', 'Yes');
+        Observer.Expect('after|desc', 'Yes');
+        Observer.Expect('after|editEnabled', 'No');
+        Observer.Expect('after|viewEnabled', 'Yes');
+        Observer.Expect('close', '[close]');
+        Observer.Verify();
     end;
 }
