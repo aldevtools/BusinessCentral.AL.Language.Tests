@@ -706,5 +706,9 @@ BC container. Run locally with the tools in `~/.al-tool-cache` it passes today w
 | 3158 to 3160 | AL0107 (AL0104, AL0224, AL0111) | an unquoted `::In` after an option field, an Option variable and an enum type (`::"In"` compiles); AL 16 stops the texts after the first sentence |
 | 3161 to 3163 | AL0118 | an unknown quoted name in a table trigger, a page trigger and a codeunit: the text keeps the quotes (`'"Entry No."'`) |
 | 3171 to 3173 | AL0275, AL0118 | an event subscriber names a codeunit by its plain name that two dependency apps declare in two namespaces (XApp A and B): no namespace and no `using`, and a `using` of both namespaces, are AL0275; a namespace without a `using` is AL0118 |
+| 3210 | AL0129 | the bare `Caption := 'X'` in a page that declares its own Caption(): Text (CurrPage.Caption := 'X' compiles there: tests/al-language/pages/lifecycle/CurrPageCaptionOwnPublic.al) |
+| 3211, 3212 | AL0122 | `I := CurrPage.Caption` and `I := CurrPage.Caption()` (I: Integer) in a page that declares its own Caption(): Integer: both reads are the platform caption (Text) |
+| 3213, 3214 | AL0122 | the unqualified Caption() (and the bare Caption) in a page with its own Caption() without a return value / Caption(): Integer calls the own procedure |
+| 3215 | AL0122 | `S := P.Caption()` on a Page variable whose page declares its own Caption() without a return value (inside the page CurrPage.Caption() reads the platform caption) |
 
 Legacy Statistics compatibility: cases 2971 (extension anchor, AL0271) and 2972 (TestPage member, AL0132) apply from BC29. The public replacements are SalesOrderStatistics and SalesStatistics.
