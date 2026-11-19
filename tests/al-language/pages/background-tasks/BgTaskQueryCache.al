@@ -26,7 +26,7 @@
 //   - a rollback: asserterror (:881) and the end of an AutoRollback test (:914, :927) do not change what the next read answers;
 //     the test session's own Get answers like a worker read then, until it writes the table (:881);
 //   - another test codeunit: its read sees its own row (:942, :965).
-// BC versions: 29.1 (local W1 container); 27.5, 28.5 and 29.0 in CI.
+// BC versions: 29.1 (local W1 container).
 
 table 97500 "BQ Row"
 {
