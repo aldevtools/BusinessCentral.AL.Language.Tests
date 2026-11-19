@@ -364,4 +364,32 @@ codeunit 96388 "FLN Fmt"
         Got := '';
         Got := Format(V, L, S);
     end;
+    // Format(V, L) when N < 0, else Format(V, L, N).
+    procedure Boolean(V: Boolean; L: Integer; N: Integer): Text
+    begin
+        exit(Done(TryBoolean(V, L, N)));
+    end;
+
+    // Format(V, L, S).
+    procedure BooleanS(V: Boolean; L: Integer; S: Text): Text
+    begin
+        exit(Done(TryBooleanS(V, L, S)));
+    end;
+
+    [TryFunction]
+    local procedure TryBoolean(V: Boolean; L: Integer; N: Integer)
+    begin
+        Got := '';
+        if N < 0 then
+            Got := Format(V, L)
+        else
+            Got := Format(V, L, N);
+    end;
+
+    [TryFunction]
+    local procedure TryBooleanS(V: Boolean; L: Integer; S: Text)
+    begin
+        Got := '';
+        Got := Format(V, L, S);
+    end;
 }

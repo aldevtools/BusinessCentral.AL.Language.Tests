@@ -103,6 +103,17 @@ codeunit 96387 "FLN Quotient Digits"
         Observer.Finish();
     end;
 
+    [Test]
+    procedure Duration_Format_Range_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        N: Integer;
+    begin
+        for N := 43 to 46 do
+            Observer.Observe(CellName(N), Cell(N));
+        Observer.Finish();
+    end;
+
     local procedure Cell(N: Integer): Text
     var
         Result: Text;
@@ -195,13 +206,21 @@ codeunit 96387 "FLN Quotient Digits"
             38:
                 exit('Format(Dur 922337203685477)');
             39:
-                exit('Format(Dur 922337203685478, 0, 9)');
+                exit('Format(DurMax + 1, 0, 9)');
             40:
-                exit('Format(Dur 922337203685478)');
+                exit('Format(DurMax + 1)');
             41:
-                exit('Format(Dur 922337203685478, 10)');
+                exit('Format(DurMax + 1, 10)');
             42:
-                exit('Format(-Dur 922337203685478, 0, 9)');
+                exit('Format(-(DurMax + 1), 0, 9)');
+            43:
+                exit('Format(DurOver 922337203685478, 0, 9)');
+            44:
+                exit('Format(DurOver 922337203685478)');
+            45:
+                exit('Format(DurOver 922337203685478, 10)');
+            46:
+                exit('Format(DurMax, 10)');
         end;
     end;
 
@@ -225,6 +244,7 @@ codeunit 96387 "FLN Quotient Digits"
         DurE18: Duration;
         DurMax: Duration;
         Dur2: Duration;
+        DurOver: Duration;
     begin
         B19 := 9223372036854775807L;
         H19 := 4611686018427387905L;
@@ -234,6 +254,7 @@ codeunit 96387 "FLN Quotient Digits"
         DurE18 := E18;
         DurMax := 922337203685477L;
         Dur2 := 2;
+        DurOver := 922337203685478L;
         case N of
             1:
                 begin
@@ -403,6 +424,22 @@ codeunit 96387 "FLN Quotient Digits"
             42:
                 begin
                     Got := Format(-(DurMax + 1), 0, 9);
+                end;
+            43:
+                begin
+                    Got := Format(DurOver, 0, 9);
+                end;
+            44:
+                begin
+                    Got := Format(DurOver);
+                end;
+            45:
+                begin
+                    Got := Format(DurOver, 10);
+                end;
+            46:
+                begin
+                    Got := Format(DurMax, 10);
                 end;
         end;
     end;
