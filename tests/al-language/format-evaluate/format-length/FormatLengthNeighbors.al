@@ -87,7 +87,7 @@ codeunit 96389 "FLN Length Neighbors"
         Observer.Finish();
     end;
 
-    // Standard format 4 of a DateTime raises an error that a TryFunction does not catch.
+    // Standard format 4 of a DateTime (a direct Format(DT, 0, 4) outside a TryFunction failed the whole test in an earlier observation).
     [Test]
     procedure DateTime_Length_Format4()
     var
@@ -96,8 +96,10 @@ codeunit 96389 "FLN Length Neighbors"
         DT: DateTime;
     begin
         DT := CreateDateTime(DMY2Date(15, 1, 2024), 134501T);
-        asserterror F.DateTime(DT, 10, 4);
-        Observer.ObserveError('DT L=10 N=4');
+        Observer.Observe('DT N=4 plain', F.DateTime(DT, 0, 4));
+        Observer.Observe('DT L=3 N=4', F.DateTime(DT, 3, 4));
+        Observer.Observe('DT L=30 N=4', F.DateTime(DT, 30, 4));
+        Observer.Observe('DT L=-3 N=4', F.DateTime(DT, -3, 4));
         Observer.Finish();
     end;
 
