@@ -10,7 +10,20 @@ namespace ALLanguage.IsolationProbe;
 // Record passed to a RecordRef parameter.
 // Fixtures used: SqCommitFailFixture.al ("LT SQ Log", "LT SQ Helper"); "LT SQ Line" and "LT SQ Ref Access" below.
 // "LT SQ Ref Reader" (76269, SqRecordRefReader.al) asserts every reading.
-// Probe: FACTS-PENDING
+// Probe: written against BC 27.5, 28.5 and 29.0 (Windows sandbox containers), runner 61301 (TestIsolation =
+// Codeunit), and 28.5 under 130450 (Microsoft's test runner): the same readings on every version and both runners. Each
+// cell codeunit below fails on purpose; the reader is the assertion.
+//
+// What BC does under TestIsolation = Codeunit (C14 cells R14*, C2 cells R2*):
+// - A RecordRef access in the failed test counts as table access, the same as a Record access: the sequence an earlier
+//   test inserted is gone in the next test of the codeunit (C14 shape: GetNextNo inserts it again and gives 1; C2 shape:
+//   missing). That holds for a RecordRef read that finds a row (R14O), one that finds no row (R14E, R2O), the
+//   Library - Utility.GetNewRecNo copy through a Variant (R14V, R2V), a Record passed to a RecordRef parameter (R14P,
+//   R2P), RecordRef.Insert (R14W, R2W) and the ERM Intercompany III mock, GetNewRecNo then Record.Insert (R14M, R2M).
+//   The Record control (R14R, R2R) reads the same.
+// - RecordRef.Open and Close with no read or write is not table access: the sequence stays (R14N, R2N: cur=1, Next 2).
+// - Rows the failed test inserted (R14W, R14M, R2W, R2M) are gone; the row Initialize committed stays (R14*: 10000).
+// - A later test codeunit never finds any of these sequences.
 
 table 76240 "LT SQ Line"
 {
