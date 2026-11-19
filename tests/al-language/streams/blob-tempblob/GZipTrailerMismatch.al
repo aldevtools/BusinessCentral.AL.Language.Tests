@@ -306,6 +306,45 @@ codeunit 75290 "GZZ GZip Trailer"
     end;
 
     [Test]
+    procedure GZipDecompress_TrailerWrong_MoreSizes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TrailerCells(65537, 'n65537_', Observer);
+        TrailerCells(131072, 'n131072_', Observer);
+        TrailerCells(131073, 'n131073_', Observer);
+        TrailerCells(196608, 'n196608_', Observer);
+        TrailerCells(262144, 'n262144_', Observer);
+        TrailerCells(524288, 'n524288_', Observer);
+        Observer.Finish();
+    end;
+
+    // Pseudo-random member of N bytes with the first CRC32 byte flipped.
+    local procedure NoiseCrcCell(N: Integer; Prefix: Text; var Observer: Codeunit "Probe Observer")
+    var
+        Plain: Codeunit "Temp Blob";
+        Packed: Codeunit "Temp Blob";
+        Bad: Codeunit "Temp Blob";
+    begin
+        NoiseBlob(N, Plain);
+        Compress(Plain, Packed);
+        Flipped(Packed, Packed.Length() - 7, Bad);
+        Observer.Observe(Prefix + 'crc_wrong', Outcome(Bad, Plain));
+    end;
+
+    [Test]
+    procedure GZipDecompress_NoiseSizes_CrcWrong()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        NoiseCrcCell(1000, 'n1000_', Observer);
+        NoiseCrcCell(65536, 'n65536_', Observer);
+        NoiseCrcCell(131072, 'n131072_', Observer);
+        NoiseCrcCell(200000, 'n200000_', Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
     procedure GZipDecompress_Noise1MB_TrailerAndMiddle()
     var
         Observer: Codeunit "Probe Observer";
@@ -397,10 +436,14 @@ codeunit 75290 "GZZ GZip Trailer"
         PackedB: Codeunit "Temp Blob";
         BadB: Codeunit "Temp Blob";
         Joined: Codeunit "Temp Blob";
+        PlainAB: Codeunit "Temp Blob";
         OutS: OutStream;
     begin
         PatternBlob(200000, PlainA);
         TextBlob('second member', PlainB);
+        PlainAB.CreateOutStream(OutS);
+        Append(PlainA, OutS);
+        Append(PlainB, OutS);
         Compress(PlainA, PackedA);
         Compress(PlainB, PackedB);
         Flipped(PackedB, PackedB.Length() - 7, BadB);
@@ -412,7 +455,7 @@ codeunit 75290 "GZZ GZip Trailer"
         Joined.CreateOutStream(OutS);
         Append(PackedA, OutS);
         Append(PackedB, OutS);
-        Observer.Observe('large_good_then_good_len', Outcome(Joined, PlainA));
+        Observer.Observe('large_good_then_good', Outcome(Joined, PlainAB));
         Observer.Finish();
     end;
 
@@ -490,6 +533,147 @@ codeunit 75290 "GZZ GZip Trailer"
         Clear(Shaped);
         WithHeaderField(Packed, 2, Extra, Shaped);
         Observer.Observe('fhcrc_zero_valid_trailer', Outcome(Shaped, Plain));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure GZipDecompress_TrailerWrong_Size2And82()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TrailerCells(2, 'n2_', Observer);
+        TrailerCells(82, 'n82_', Observer);
+        Observer.Finish();
+    end;
+
+    // The first Count bytes of Source.
+    local procedure Truncated(Source: Codeunit "Temp Blob"; Count: Integer; var Target: Codeunit "Temp Blob")
+    var
+        InS: InStream;
+        OutS: OutStream;
+    begin
+        Source.CreateInStream(InS);
+        Target.CreateOutStream(OutS);
+        CopyStream(OutS, InS, Count);
+    end;
+
+    [Test]
+    procedure GZipDecompress_CutInsideTrailer()
+    var
+        Observer: Codeunit "Probe Observer";
+        Plain: Codeunit "Temp Blob";
+        Packed: Codeunit "Temp Blob";
+        BadCrc: Codeunit "Temp Blob";
+        Cut: Codeunit "Temp Blob";
+        Len: Integer;
+    begin
+        TextBlob('corrupt me after the header corrupt me after the header corrupt me after the header', Plain);
+        Compress(Plain, Packed);
+        Len := Packed.Length();
+        Flipped(Packed, Len - 7, BadCrc);
+        Truncated(Packed, Len - 8, Cut);
+        Observer.Observe('trailer_0_bytes', Outcome(Cut, Plain));
+        Clear(Cut);
+        Truncated(Packed, Len - 4, Cut);
+        Observer.Observe('trailer_4_bytes', Outcome(Cut, Plain));
+        Clear(Cut);
+        Truncated(Packed, Len - 1, Cut);
+        Observer.Observe('trailer_7_bytes', Outcome(Cut, Plain));
+        Clear(Cut);
+        Truncated(BadCrc, Len - 4, Cut);
+        Observer.Observe('crc_wrong_trailer_4_bytes', Outcome(Cut, Plain));
+        Clear(Cut);
+        Truncated(BadCrc, Len - 1, Cut);
+        Observer.Observe('crc_wrong_trailer_7_bytes', Outcome(Cut, Plain));
+        Observer.Finish();
+    end;
+
+    // The 10 header bytes 31 139 Method 0 0 0 0 0 0 Os, then the bytes of Tail.
+    local procedure HeaderThen(Method: Integer; Os: Integer; Tail: List of [Integer]; var Blob: Codeunit "Temp Blob")
+    var
+        Bytes: List of [Integer];
+        V: Integer;
+        i: Integer;
+    begin
+        Bytes.Add(31);
+        Bytes.Add(139);
+        Bytes.Add(Method);
+        for i := 1 to 6 do
+            Bytes.Add(0);
+        Bytes.Add(Os);
+        foreach V in Tail do
+            Bytes.Add(V);
+        BlobOf(Bytes, Blob);
+    end;
+
+    [Test]
+    procedure GZipDecompress_Method99_HeaderShapes()
+    var
+        Observer: Codeunit "Probe Observer";
+        Plain: Codeunit "Temp Blob";
+        Packed: Codeunit "Temp Blob";
+        Shaped: Codeunit "Temp Blob";
+        Empty: Codeunit "Temp Blob";
+        Tail: List of [Integer];
+    begin
+        HeaderThen(99, 3, Tail, Shaped);
+        Observer.Observe('m99_header_only', Outcome(Shaped, Empty));
+        Clear(Shaped);
+        HeaderThen(99, 255, Tail, Shaped);
+        Observer.Observe('m99_header_only_os255', Outcome(Shaped, Empty));
+        TextBlob('A', Plain);
+        Compress(Plain, Packed);
+        Clear(Shaped);
+        WithMethod(Packed, 99, Shaped);
+        Observer.Observe('m99_then_valid_data', Outcome(Shaped, Plain));
+        Observer.Finish();
+    end;
+
+    // Packed with the method byte (third byte) set to Method.
+    local procedure WithMethod(Packed: Codeunit "Temp Blob"; Method: Integer; var Target: Codeunit "Temp Blob")
+    var
+        InS: InStream;
+        OutS: OutStream;
+        B: Byte;
+    begin
+        Packed.CreateInStream(InS);
+        Target.CreateOutStream(OutS);
+        CopyStream(OutS, InS, 2);
+        InS.Read(B);
+        AppendByte(Method, OutS);
+        CopyStream(OutS, InS);
+    end;
+
+    [Test]
+    procedure GZipDecompress_CorruptFirstBlock_Shapes()
+    var
+        Observer: Codeunit "Probe Observer";
+        Shaped: Codeunit "Temp Blob";
+        Empty: Codeunit "Temp Blob";
+        Tail: List of [Integer];
+        i: Integer;
+    begin
+        Tail.Add(255);
+        HeaderThen(8, 3, Tail, Shaped);
+        Observer.Observe('one_byte_255', Outcome(Shaped, Empty));
+        Clear(Shaped);
+        Clear(Tail);
+        Tail.Add(7);
+        HeaderThen(8, 3, Tail, Shaped);
+        Observer.Observe('one_byte_7', Outcome(Shaped, Empty));
+        Clear(Shaped);
+        Clear(Tail);
+        for i := 1 to 5 do
+            Tail.Add(65);
+        HeaderThen(8, 3, Tail, Shaped);
+        Observer.Observe('five_bytes_65', Outcome(Shaped, Empty));
+        Clear(Shaped);
+        Clear(Tail);
+        Tail.Add(1);
+        for i := 1 to 4 do
+            Tail.Add(0);
+        HeaderThen(8, 3, Tail, Shaped);
+        Observer.Observe('stored_len0_nlen0', Outcome(Shaped, Empty));
         Observer.Finish();
     end;
 
