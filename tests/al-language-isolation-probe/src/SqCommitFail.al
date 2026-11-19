@@ -1,6 +1,31 @@
 namespace ALLanguage.IsolationProbe;
 
-// HEADER-PLACEHOLDER
+// Probe P4 / P4b (AL Runner issue 8152, and the ERM Intercompany tests that runner PR 8363 refuses): what the later tests
+// of a test codeunit, and the later test codeunits, see of a NumberSequence after a test that called Commit() (or caused
+// a commit) and then failed. P5 (manual bindings after a failed test) is in SqBindFailed.al.
+//
+// BC Documentation: https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/methods-auto/numbersequence/numbersequence-data-type
+// Scope: NumberSequence.Insert / Exists / Current / Next / Restart / Delete, Commit(), test isolation of a failed test.
+// Fixtures used: SqCommitFailFixture.al ("LT SQ Log" keeps every reading; "LT SQ Reader" (76089, SqReader.al) asserts them).
+// Probe: written against BC 27.5, 28.5 and 29.0 (Windows sandbox containers), runners 61301 (TestIsolation = Codeunit)
+// and 130450 (Microsoft's test runner): the same readings on every version and both runners. Each cell codeunit below
+// fails on purpose; the reader is the assertion.
+//
+// What BC does under TestIsolation = Codeunit:
+// - A later test codeunit never finds a sequence that a test inserted (every C and D cell), even after a Commit().
+// - Of a sequence that existed before the codeunit, Restart and Delete are undone at the end of the codeunit; numbers
+//   taken with Next stay taken (B1-B6). Inside the codeunit the change stays after the failed test.
+// - Inside the codeunit, after the failed test, the sequence is still there with the numbers already taken in C1, C3,
+//   C4, C5-C11, C13, C15, C16, D1-D4 and D6.
+// - It is gone in C2, C12, C14, D5 and D7. In each of them the failed test read or wrote a table row (D5: only a Get),
+//   and the sequence was not inserted and then really committed in that failed test (C2 and C14 inserted it in an
+//   earlier test, C2 with a Commit() after it; C12 commits under CommitBehavior Ignore; D7 never commits).
+//   Compare C1 (insert, Commit(), write, fail: kept), C5-C7 (commit inside the failed test after the write: kept),
+//   C13 and D6 (failed test with no table access: kept).
+// - Rows: what the failed test wrote after its last real commit is gone (C1 keeps the row written before its Commit()
+//   and loses the one after; C2, C12, C14 and D7 lose theirs); rows written before a commit in the failed test stay
+//   (C5-C7).
+// Under TestIsolation = Function (runner 61300) the reader fails; its messages carry those readings.
 
 // C1 (spec P4): a test inserts a sequence, takes a number, calls Commit() and fails. The next test reads it.
 codeunit 76045 "LT SQ C1 Commit Then Fail"
