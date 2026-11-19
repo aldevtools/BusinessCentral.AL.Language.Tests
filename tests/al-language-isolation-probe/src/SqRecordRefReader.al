@@ -3,7 +3,7 @@ namespace ALLanguage.IsolationProbe;
 // Asserts every reading of the RecordRef cells after a failed test (SqRecordRefFail.al; facts in its header). Runs after
 // the cell codeunits 76241-76255 (a higher id). Expected values: measured on BC 27.5, 28.5 and 29.0
 // under runner 61301 (TestIsolation = Codeunit) and on 28.5 under 130450, the same on each.
-codeunit 76269 "LT SQ Ref Reader"
+codeunit 76239 "LT SQ Ref Reader"
 {
     Subtype = Test;
     TestPermissions = Disabled;

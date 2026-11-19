@@ -9,7 +9,7 @@ namespace ALLanguage.IsolationProbe;
 // Scope: NumberSequence after a failed test; RecordRef.Open / GetTable / FindLast / Insert, FieldRef.SetRange / Value, a
 // Record passed to a RecordRef parameter.
 // Fixtures used: SqCommitFailFixture.al ("LT SQ Log", "LT SQ Helper"); "LT SQ Line" and "LT SQ Ref Access" below.
-// "LT SQ Ref Reader" (76269, SqRecordRefReader.al) asserts every reading.
+// "LT SQ Ref Reader" (76239, SqRecordRefReader.al) asserts every reading.
 // Probe: written against BC 27.5, 28.5 and 29.0 (Windows sandbox containers), runner 61301 (TestIsolation =
 // Codeunit), and 28.5 under 130450 (Microsoft's test runner): the same readings on every version and both runners. Each
 // cell codeunit below fails on purpose; the reader is the assertion.
