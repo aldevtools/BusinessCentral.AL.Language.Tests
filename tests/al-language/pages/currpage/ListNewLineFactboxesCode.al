@@ -8,9 +8,10 @@
 // Probe (al-runner issue 8434, the follow-up of 8285 measured in ListNewLineSaveRecordUpdate.al): a List page opened with
 //   Page.RunModal on a record filtered to one group stands on its new line (New()). SetValue on Name runs the table field's
 //   OnValidate, which inserts Rec itself (Insert(true), with an AutoIncrement key field), and then the control's OnValidate, which
-//   calls CurrPage.SaveRecord() and a procedure: a codeunit writes another table and reads Rec again by SystemId, the procedure
+//   calls CurrPage.SaveRecord() and a procedure: a codeunit writes another table, writes the line itself without its trigger
+//   when the Value marked it (Modify(false)), and reads Rec again by SystemId, the procedure
 //   calls a procedure of a FactBox part, then CurrPage.Update(false). SetValue on Value then runs the table field's OnValidate
-//   (it inserts a row in another table) and the control's OnValidate: CurrPage.SaveRecord(), Rec.GetBySystemId and the same
+//   (it inserts a row in another table and marks the line) and the control's OnValidate: CurrPage.SaveRecord(), Rec.GetBySystemId and the same
 //   procedure. Unlike the pages of ListNewLineSaveRecordUpdate.al, the page declares Caption, Editable, Extensible and a
 //   SourceTableView in a secondary key, OnOpenPage, OnAfterGetRecord (reads two tables, sets the variables of control
 //   expressions) and OnDeleteRecord; its controls carry Caption, ToolTip, StyleExpr, Style, TableRelation, Editable, Visible,
@@ -76,6 +77,7 @@ table 97480 "LT NF Line"
                     Change."New Value" := Value;
                     Change.Insert();
                 end;
+                "Calc State" := "Calc State"::Pending;
             end;
         }
         field(5; "Kind ID"; Integer) { }
@@ -95,6 +97,10 @@ table 97480 "LT NF Line"
         field(16; Billable; Boolean) { }
         field(17; Active; Boolean) { }
         field(18; "Old Flag"; Boolean) { }
+        field(19; "Calc State"; Option)
+        {
+            OptionMembers = " ",Pending,Processed;
+        }
     }
 
     keys
@@ -275,10 +281,15 @@ codeunit 97487 "LT NF Calc"
         Log: Codeunit "LT NF Log";
     begin
         if Line.GetBySystemId(Line.SystemId) then;
-        Log.Add('S.CALC(' + Line.Name + '/' + Line.Value + ')');
+        Log.Add('S.CALC(' + Line.Name + '/' + Line.Value + '/' + Format(Line."Calc State", 0, 2) + ')');
         Setup.Get();
         Setup."Calc Count" += 1;
         Setup.Modify();
+        // As a recalculation does: the line the Value marked is processed and written without its trigger, then read again.
+        if Line."Calc State" = Line."Calc State"::Pending then begin
+            Line."Calc State" := Line."Calc State"::Processed;
+            Line.Modify(false);
+        end;
         if Line.GetBySystemId(Line.SystemId) then;
     end;
 }
@@ -1237,7 +1248,7 @@ codeunit 97495 "LT NF Tests"
         if Line.FindSet() then
             repeat
                 Result += Line."Group Code" + ':' + Line.Name + '/' + Line.Value + '/' + Format(Line."Kind ID") + '/' +
-                    Format(Line."Sorting") + ',';
+                    Format(Line."Sorting") + '/' + Format(Line."Calc State", 0, 2) + ',';
             until Line.Next() = 0;
         Setup.Get();
         exit(Result + ' calc=' + Format(Setup."Calc Count") + ' changes=' + Format(Change.Count()));
@@ -1394,11 +1405,11 @@ codeunit 97495 "LT NF Tests"
     begin
         Initialize(false, Mode::Parts);
         Expect('open=P.OPEN;W.AGCR(); | new=' +
-            ' | setname=W.AGCR();T.VN(Station);T.I(Station/0);P.VN(Station);T.M(Station/);P.SR;S.CALC(Station/);P.UPD;P.UPD.end;P.VN.end;P.AGR(Station/);P.AGR(Station/);R.AGR(Station/0);W.AGCR(Station/s);W.DONE(K2);' +
-            ' | shown=Station//0 | parts=0/K2 | partslog= | rows1=G1:Station//7/0, calc=1 changes=0' +
-            ' | setvalue=T.VV(>ST-07);P.VV(ST-07);T.M(Station/ST-07);P.SR;S.CALC(Station/ST-07);P.UPD;P.UPD.end;P.VV.end;P.AGR(Station/ST-07);P.AGR(Station/ST-07);R.AGR(Station/1);W.AGCR(Station/s);W.DONE(K2);' +
-            ' | shown2=Station/ST-07 | parts2=1/K2 | parts2log= | rows2=G1:Station/ST-07/7/0, calc=2 changes=1' +
-            ' | ok= | after= | rows3=G1:Station/ST-07/7/0, calc=2 changes=1');
+            ' | setname=W.AGCR();T.VN(Station);T.I(Station/0);P.VN(Station);T.M(Station/);P.SR;S.CALC(Station//0);P.UPD;P.UPD.end;P.VN.end;P.AGR(Station/);P.AGR(Station/);R.AGR(Station/0);W.AGCR(Station/s);W.DONE(K2);' +
+            ' | shown=Station//0 | parts=0/K2 | partslog= | rows1=G1:Station//7/0/0, calc=1 changes=0' +
+            ' | setvalue=T.VV(>ST-07);P.VV(ST-07);T.M(Station/ST-07);P.SR;S.CALC(Station/ST-07/1);P.UPD;P.UPD.end;P.VV.end;P.AGR(Station/ST-07);P.AGR(Station/ST-07);R.AGR(Station/1);W.AGCR(Station/s);W.DONE(K2);' +
+            ' | shown2=Station/ST-07 | parts2=1/K2 | parts2log= | rows2=G1:Station/ST-07/7/0/2, calc=2 changes=1' +
+            ' | ok= | after= | rows3=G1:Station/ST-07/7/0/2, calc=2 changes=1');
         Opener.Open(Page::"LT NF Lines", 'G1');
         Check('after', Log.Take());
         Check('rows3', Rows());
@@ -1414,9 +1425,9 @@ codeunit 97495 "LT NF Tests"
     begin
         Initialize(false, Mode::NoPartReads);
         Expect('open=P.OPEN;W.AGCR(); | new=' +
-            ' | setname=W.AGCR();T.VN(Station);T.I(Station/0);P.VN(Station);T.M(Station/);P.SR;S.CALC(Station/);P.UPD;P.UPD.end;P.VN.end;P.AGR(Station/);P.AGR(Station/);R.AGR(Station/0);W.AGCR(Station/s);W.DONE(K2);' +
-            ' | setvalue=T.VV(>ST-07);P.VV(ST-07);T.M(Station/ST-07);P.SR;S.CALC(Station/ST-07);P.UPD;P.UPD.end;P.VV.end;P.AGR(Station/ST-07);P.AGR(Station/ST-07);R.AGR(Station/1);W.AGCR(Station/s);W.DONE(K2);' +
-            ' | ok= | after= | rows3=G1:Station/ST-07/7/0, calc=2 changes=1');
+            ' | setname=W.AGCR();T.VN(Station);T.I(Station/0);P.VN(Station);T.M(Station/);P.SR;S.CALC(Station//0);P.UPD;P.UPD.end;P.VN.end;P.AGR(Station/);P.AGR(Station/);R.AGR(Station/0);W.AGCR(Station/s);W.DONE(K2);' +
+            ' | setvalue=T.VV(>ST-07);P.VV(ST-07);T.M(Station/ST-07);P.SR;S.CALC(Station/ST-07/1);P.UPD;P.UPD.end;P.VV.end;P.AGR(Station/ST-07);P.AGR(Station/ST-07);R.AGR(Station/1);W.AGCR(Station/s);W.DONE(K2);' +
+            ' | ok= | after= | rows3=G1:Station/ST-07/7/0/2, calc=2 changes=1');
         Opener.Open(Page::"LT NF Lines", 'G1');
         Check('after', Log.Take());
         Check('rows3', Rows());
@@ -1432,11 +1443,11 @@ codeunit 97495 "LT NF Tests"
     begin
         Initialize(false, Mode::Parts);
         Expect('open=P.OPEN;W.AGCR(); | new=' +
-            ' | setname=W.AGCR();T.VN(Station);T.I(Station/0);P.VN(Station);T.M(Station/);P.SR;S.CALC(Station/);P.UPD;P.UPD.end;P.VN.end;P.AGR(Station/);R.AGR(Station/0);W.AGCR(Station/s);W.DONE(K2);' +
-            ' | shown=Station//0 | parts=0/K2 | partslog= | rows1=G1:Station//7/0, calc=1 changes=0' +
-            ' | setvalue=T.VV(>ST-07);P.VV(ST-07);T.M(Station/ST-07);P.SR;S.CALC(Station/ST-07);P.UPD;P.UPD.end;P.VV.end;P.AGR(Station/ST-07);R.AGR(Station/1);W.AGCR(Station/s);W.DONE(K2);' +
-            ' | shown2=Station/ST-07 | parts2=1/K2 | parts2log= | rows2=G1:Station/ST-07/7/0, calc=2 changes=1' +
-            ' | ok= | after= | rows3=G1:Station/ST-07/7/0, calc=2 changes=1');
+            ' | setname=W.AGCR();T.VN(Station);T.I(Station/0);P.VN(Station);T.M(Station/);P.SR;S.CALC(Station//0);P.UPD;P.UPD.end;P.VN.end;P.AGR(Station/);R.AGR(Station/0);W.AGCR(Station/s);W.DONE(K2);' +
+            ' | shown=Station//0 | parts=0/K2 | partslog= | rows1=G1:Station//7/0/0, calc=1 changes=0' +
+            ' | setvalue=T.VV(>ST-07);P.VV(ST-07);T.M(Station/ST-07);P.SR;S.CALC(Station/ST-07/1);P.UPD;P.UPD.end;P.VV.end;P.AGR(Station/ST-07);R.AGR(Station/1);W.AGCR(Station/s);W.DONE(K2);' +
+            ' | shown2=Station/ST-07 | parts2=1/K2 | parts2log= | rows2=G1:Station/ST-07/7/0/2, calc=2 changes=1' +
+            ' | ok= | after= | rows3=G1:Station/ST-07/7/0/2, calc=2 changes=1');
         Opener.Open(Page::"LT NF Lines Pk", 'G1');
         Check('after', Log.Take());
         Check('rows3', Rows());
@@ -1452,9 +1463,9 @@ codeunit 97495 "LT NF Tests"
     begin
         Initialize(false, Mode::NoPartReads);
         Expect('open=P.OPEN;W.AGCR(); | new=' +
-            ' | setname=W.AGCR();T.VN(Station);T.I(Station/0);P.VN(Station);T.M(Station/);P.SR;S.CALC(Station/);P.UPD;P.UPD.end;P.VN.end;P.AGR(Station/);R.AGR(Station/0);W.AGCR(Station/s);W.DONE(K2);' +
-            ' | setvalue=T.VV(>ST-07);P.VV(ST-07);T.M(Station/ST-07);P.SR;S.CALC(Station/ST-07);P.UPD;P.UPD.end;P.VV.end;P.AGR(Station/ST-07);R.AGR(Station/1);W.AGCR(Station/s);W.DONE(K2);' +
-            ' | ok= | after= | rows3=G1:Station/ST-07/7/0, calc=2 changes=1');
+            ' | setname=W.AGCR();T.VN(Station);T.I(Station/0);P.VN(Station);T.M(Station/);P.SR;S.CALC(Station//0);P.UPD;P.UPD.end;P.VN.end;P.AGR(Station/);R.AGR(Station/0);W.AGCR(Station/s);W.DONE(K2);' +
+            ' | setvalue=T.VV(>ST-07);P.VV(ST-07);T.M(Station/ST-07);P.SR;S.CALC(Station/ST-07/1);P.UPD;P.UPD.end;P.VV.end;P.AGR(Station/ST-07);R.AGR(Station/1);W.AGCR(Station/s);W.DONE(K2);' +
+            ' | ok= | after= | rows3=G1:Station/ST-07/7/0/2, calc=2 changes=1');
         Opener.Open(Page::"LT NF Lines Pk", 'G1');
         Check('after', Log.Take());
         Check('rows3', Rows());
@@ -1470,13 +1481,13 @@ codeunit 97495 "LT NF Tests"
     begin
         Initialize(true, Mode::Parts);
         Expect('open=P.OPEN;P.AGR(Before/);R.AGR(Before/0);W.AGCR(Before);W.DONE(K2); | new=' +
-            ' | setname=W.AGCR();W.DONE(K2);T.VN(Station);T.I(Station/10);P.VN(Station);T.M(Station/);P.SR;S.CALC(Station/);P.UPD;P.UPD.end;P.VN.end;P.AGR(Station/);P.AGR(Station/);P.AGR(Before/);R.AGR(Station/0);W.AGCR(Station/s);W.DONE(K2);' +
+            ' | setname=W.AGCR();W.DONE(K2);T.VN(Station);T.I(Station/10);P.VN(Station);T.M(Station/);P.SR;S.CALC(Station//0);P.UPD;P.UPD.end;P.VN.end;P.AGR(Station/);P.AGR(Station/);P.AGR(Before/);R.AGR(Station/0);W.AGCR(Station/s);W.DONE(K2);' +
             ' | shown=Station//10 | parts=0/K2 | partslog=' +
-            ' | rows1=G1:Before//0/0,G1:Station//7/10, calc=1 changes=0' +
-            ' | setvalue=P.AGR(Station/);T.VV(>ST-07);P.VV(ST-07);T.M(Station/ST-07);P.SR;S.CALC(Station/ST-07);P.UPD;P.UPD.end;P.VV.end;P.AGR(Station/ST-07);P.AGR(Station/ST-07);P.AGR(Before/);R.AGR(Station/1);W.AGCR(Station/s);W.DONE(K2);' +
+            ' | rows1=G1:Before//0/0/0,G1:Station//7/10/0, calc=1 changes=0' +
+            ' | setvalue=P.AGR(Station/);T.VV(>ST-07);P.VV(ST-07);T.M(Station/ST-07);P.SR;S.CALC(Station/ST-07/1);P.UPD;P.UPD.end;P.VV.end;P.AGR(Station/ST-07);P.AGR(Station/ST-07);P.AGR(Before/);R.AGR(Station/1);W.AGCR(Station/s);W.DONE(K2);' +
             ' | shown2=Station/ST-07 | parts2=1/K2 | parts2log=' +
-            ' | rows2=G1:Before//0/0,G1:Station/ST-07/7/10, calc=2 changes=1 | ok=P.AGR(Station/ST-07); | after=' +
-            ' | rows3=G1:Before//0/0,G1:Station/ST-07/7/10, calc=2 changes=1');
+            ' | rows2=G1:Before//0/0/0,G1:Station/ST-07/7/10/2, calc=2 changes=1 | ok=P.AGR(Station/ST-07);' +
+            ' | after= | rows3=G1:Before//0/0/0,G1:Station/ST-07/7/10/2, calc=2 changes=1');
         Opener.Open(Page::"LT NF Lines", 'G1');
         Check('after', Log.Take());
         Check('rows3', Rows());
@@ -1509,8 +1520,8 @@ codeunit 97495 "LT NF Tests"
     begin
         Initialize(false, Mode::BlockedName);
         Expect('open=P.OPEN;W.AGCR(); | new=' +
-            ' | setname=W.AGCR();T.VN(Old);T.I(Old/0);P.VN(Old);T.M(Old/);P.SR;S.CALC(Old/);P.UPD;P.UPD.end;P.VN.end;P.AGR(Old/);P.AGR(Old/);R.AGR(Old/0);W.AGCR(Old/s);W.DONE(K2);' +
-            ' | rows=G1:Old//8/0, calc=1 changes=0 | ok= | after= | rows3=G1:Old//8/0, calc=1 changes=0');
+            ' | setname=W.AGCR();T.VN(Old);T.I(Old/0);P.VN(Old);T.M(Old/);P.SR;S.CALC(Old//0);P.UPD;P.UPD.end;P.VN.end;P.AGR(Old/);P.AGR(Old/);R.AGR(Old/0);W.AGCR(Old/s);W.DONE(K2);' +
+            ' | rows=G1:Old//8/0/0, calc=1 changes=0 | ok= | after= | rows3=G1:Old//8/0/0, calc=1 changes=0');
         Opener.Open(Page::"LT NF Lines", 'G1');
         Check('after', Log.Take());
         Check('rows3', Rows());
@@ -1526,11 +1537,11 @@ codeunit 97495 "LT NF Tests"
     begin
         Initialize(false, Mode::SameValue);
         Expect('open=P.OPEN;W.AGCR(); | new=' +
-            ' | setname=W.AGCR();T.VN(Station);T.I(Station/0);P.VN(Station);T.M(Station/);P.SR;S.CALC(Station/);P.UPD;P.UPD.end;P.VN.end;P.AGR(Station/);P.AGR(Station/);R.AGR(Station/0);W.AGCR(Station/s);W.DONE(K2);' +
-            ' | shown=Station//0 | parts=0/K2 | partslog= | rows1=G1:Station//7/0, calc=1 changes=0' +
-            ' | setvalue=T.VV(>);P.VV();P.SR;S.CALC(Station/);P.UPD;P.UPD.end;P.VV.end;P.AGR(Station/);P.AGR(Station/);R.AGR(Station/0);W.AGCR(Station/s);W.DONE(K2);' +
-            ' | shown2=Station/ | parts2=0/K2 | parts2log= | rows2=G1:Station//7/0, calc=2 changes=0 | ok=' +
-            ' | after= | rows3=G1:Station//7/0, calc=2 changes=0');
+            ' | setname=W.AGCR();T.VN(Station);T.I(Station/0);P.VN(Station);T.M(Station/);P.SR;S.CALC(Station//0);P.UPD;P.UPD.end;P.VN.end;P.AGR(Station/);P.AGR(Station/);R.AGR(Station/0);W.AGCR(Station/s);W.DONE(K2);' +
+            ' | shown=Station//0 | parts=0/K2 | partslog= | rows1=G1:Station//7/0/0, calc=1 changes=0' +
+            ' | setvalue=T.VV(>);P.VV();T.M(Station/);P.SR;S.CALC(Station//1);P.UPD;P.UPD.end;P.VV.end;P.AGR(Station/);P.AGR(Station/);R.AGR(Station/0);W.AGCR(Station/s);W.DONE(K2);' +
+            ' | shown2=Station/ | parts2=0/K2 | parts2log= | rows2=G1:Station//7/0/2, calc=2 changes=0 | ok=' +
+            ' | after= | rows3=G1:Station//7/0/2, calc=2 changes=0');
         Opener.Open(Page::"LT NF Lines", 'G1');
         Check('after', Log.Take());
         Check('rows3', Rows());
@@ -1546,8 +1557,8 @@ codeunit 97495 "LT NF Tests"
     begin
         Initialize(false, Mode::ValueFirst);
         Expect('open=P.OPEN;W.AGCR(); | new=' +
-            ' | setvalue=W.AGCR();T.VV(>ST-07);P.VV(ST-07);T.I(/0);P.SR;S.CALC(/ST-07);P.UPD;P.UPD.end;P.VV.end;P.AGR(/ST-07);P.AGR(/ST-07);R.AGR(/0);W.AGCR(/s);W.DONE(K2);' +
-            ' | rows=G1:/ST-07/0/0, calc=1 changes=1 | ok= | after= | rows3=G1:/ST-07/0/0, calc=1 changes=1');
+            ' | setvalue=W.AGCR();T.VV(>ST-07);P.VV(ST-07);T.I(/0);P.SR;S.CALC(/ST-07/1);P.UPD;P.UPD.end;P.VV.end;P.AGR(/ST-07);P.AGR(/ST-07);R.AGR(/0);W.AGCR(/s);W.DONE(K2);' +
+            ' | rows=G1:/ST-07/0/0/2, calc=1 changes=1 | ok= | after= | rows3=G1:/ST-07/0/0/2, calc=1 changes=1');
         Opener.Open(Page::"LT NF Lines", 'G1');
         Check('after', Log.Take());
         Check('rows3', Rows());
@@ -1563,13 +1574,13 @@ codeunit 97495 "LT NF Tests"
     begin
         Initialize(false, Mode::SecondValue);
         Expect('open=P.OPEN;W.AGCR(); | new=' +
-            ' | setname=W.AGCR();T.VN(Station);T.I(Station/0);P.VN(Station);T.M(Station/);P.SR;S.CALC(Station/);P.UPD;P.UPD.end;P.VN.end;P.AGR(Station/);P.AGR(Station/);R.AGR(Station/0);W.AGCR(Station/s);W.DONE(K2);' +
-            ' | shown=Station//0 | parts=0/K2 | partslog= | rows1=G1:Station//7/0, calc=1 changes=0' +
-            ' | setvalue=T.VV(>ST-07);P.VV(ST-07);T.M(Station/ST-07);P.SR;S.CALC(Station/ST-07);P.UPD;P.UPD.end;P.VV.end;P.AGR(Station/ST-07);P.AGR(Station/ST-07);R.AGR(Station/1);W.AGCR(Station/s);W.DONE(K2);' +
-            ' | shown2=Station/ST-07 | parts2=1/K2 | parts2log= | rows2=G1:Station/ST-07/7/0, calc=2 changes=1' +
-            ' | setvalue2=T.VV(ST-07>ST-08);P.VV(ST-08);T.M(Station/ST-08);P.SR;S.CALC(Station/ST-08);P.UPD;P.UPD.end;P.VV.end;P.AGR(Station/ST-08);P.AGR(Station/ST-08);R.AGR(Station/2);W.AGCR(Station/s);W.DONE(K2);' +
-            ' | shown3=Station/ST-08 | rows2b=G1:Station/ST-08/7/0, calc=3 changes=2 | ok= | after=' +
-            ' | rows3=G1:Station/ST-08/7/0, calc=3 changes=2');
+            ' | setname=W.AGCR();T.VN(Station);T.I(Station/0);P.VN(Station);T.M(Station/);P.SR;S.CALC(Station//0);P.UPD;P.UPD.end;P.VN.end;P.AGR(Station/);P.AGR(Station/);R.AGR(Station/0);W.AGCR(Station/s);W.DONE(K2);' +
+            ' | shown=Station//0 | parts=0/K2 | partslog= | rows1=G1:Station//7/0/0, calc=1 changes=0' +
+            ' | setvalue=T.VV(>ST-07);P.VV(ST-07);T.M(Station/ST-07);P.SR;S.CALC(Station/ST-07/1);P.UPD;P.UPD.end;P.VV.end;P.AGR(Station/ST-07);P.AGR(Station/ST-07);R.AGR(Station/1);W.AGCR(Station/s);W.DONE(K2);' +
+            ' | shown2=Station/ST-07 | parts2=1/K2 | parts2log= | rows2=G1:Station/ST-07/7/0/2, calc=2 changes=1' +
+            ' | setvalue2=T.VV(ST-07>ST-08);P.VV(ST-08);T.M(Station/ST-08);P.SR;S.CALC(Station/ST-08/1);P.UPD;P.UPD.end;P.VV.end;P.AGR(Station/ST-08);P.AGR(Station/ST-08);R.AGR(Station/2);W.AGCR(Station/s);W.DONE(K2);' +
+            ' | shown3=Station/ST-08 | rows2b=G1:Station/ST-08/7/0/2, calc=3 changes=2 | ok= | after=' +
+            ' | rows3=G1:Station/ST-08/7/0/2, calc=3 changes=2');
         Opener.Open(Page::"LT NF Lines", 'G1');
         Check('after', Log.Take());
         Check('rows3', Rows());
@@ -1585,11 +1596,11 @@ codeunit 97495 "LT NF Tests"
     begin
         Initialize(false, Mode::Parts);
         Expect('open=P.OPEN;W.AGCR(); | new=' +
-            ' | setname=W.AGCR();T.VN(Station);T.I(Station/0);P.VN(Station);E.PM(Station/);T.M(Station/);E.M(Station/);P.SR;S.CALC(Station/);P.UPD;P.UPD.end;P.VN.end;P.AGR(Station/);P.AGR(Station/);R.AGR(Station/0);W.AGCR(Station/s);W.DONE(K2);' +
-            ' | shown=Station//0 | parts=0/K2 | partslog= | rows1=G1:Station//7/0, calc=1 changes=0' +
-            ' | setvalue=T.VV(>ST-07);P.VV(ST-07);E.PM(Station/ST-07);T.M(Station/ST-07);E.M(Station/ST-07);P.SR;S.CALC(Station/ST-07);P.UPD;P.UPD.end;P.VV.end;P.AGR(Station/ST-07);P.AGR(Station/ST-07);R.AGR(Station/1);W.AGCR(Station/s);W.DONE(K2);' +
-            ' | shown2=Station/ST-07 | parts2=1/K2 | parts2log= | rows2=G1:Station/ST-07/7/0, calc=2 changes=1' +
-            ' | ok= | after= | rows3=G1:Station/ST-07/7/0, calc=2 changes=1');
+            ' | setname=W.AGCR();T.VN(Station);T.I(Station/0);P.VN(Station);E.PM(Station/);T.M(Station/);E.M(Station/);P.SR;S.CALC(Station//0);P.UPD;P.UPD.end;P.VN.end;P.AGR(Station/);P.AGR(Station/);R.AGR(Station/0);W.AGCR(Station/s);W.DONE(K2);' +
+            ' | shown=Station//0 | parts=0/K2 | partslog= | rows1=G1:Station//7/0/0, calc=1 changes=0' +
+            ' | setvalue=T.VV(>ST-07);P.VV(ST-07);E.PM(Station/ST-07);T.M(Station/ST-07);E.M(Station/ST-07);P.SR;S.CALC(Station/ST-07/1);E.M(Station/ST-07);P.UPD;P.UPD.end;P.VV.end;P.AGR(Station/ST-07);P.AGR(Station/ST-07);R.AGR(Station/1);W.AGCR(Station/s);W.DONE(K2);' +
+            ' | shown2=Station/ST-07 | parts2=1/K2 | parts2log= | rows2=G1:Station/ST-07/7/0/2, calc=2 changes=1' +
+            ' | ok= | after= | rows3=G1:Station/ST-07/7/0/2, calc=2 changes=1');
         BindSubscription(Spy);
         Opener.Open(Page::"LT NF Lines", 'G1');
         UnbindSubscription(Spy);
