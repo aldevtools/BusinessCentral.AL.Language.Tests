@@ -11,7 +11,7 @@
 // Readings: what the worker's Get, Count, IsEmpty, FindFirst, FindSet and a FlowField that counts the rows answer.
 // Cells: held back until the test reads the table (:233, :246), a read of another table does not (:261); four inserts are
 //   held back, the fifth lets all five through, a sixth is held back again (:276, :293, :311); a Commit, an Insert whose result is
-//   used, a table with a Blob field and a Modify of another row of the table let the row through (:330, :344, :376, :392); Insert(true)
+//   used, a table with a Blob field, a Modify of another row of the table and a FlowField of the test session that counts the rows let the row through (:330, :344, :376, :392, :480); Insert(true)
 //   into a table with an OnInsert trigger is held back (:360); the worker's own reads do not let rows through
 //   (:411); Count, IsEmpty, FindFirst, FindSet and a FlowField leave held-back rows out (:426, :442, :464).
 // BC versions: 29.1 (local W1 container).
@@ -473,5 +473,22 @@ codeunit 97526 "IQ Tests"
         Host.OpenView();
         AddRow(K + 'B', 'b');
         Assert.AreEqual('1', Run(Host, 'flow', K), 'FlowField count');
+    end;
+
+    // The test inserts a row, then reads a FlowField that counts the rows of the table: the worker finds the row.
+    [Test]
+    procedure BgTaskInsertQueue_Insert_TestFlowField_TaskFindsIt()
+    var
+        Host: TestPage "IQ Host";
+        Counter: Record "IQ Counter";
+        K: Code[20];
+    begin
+        K := NewKey();
+        Host.OpenView();
+        AddRow(K + 'A', 'a');
+        Counter.SetFilter("Prefix Filter", K + '*');
+        Counter.CalcFields(Rows);
+        Assert.AreEqual(1, Counter.Rows, 'the test''s FlowField');
+        Assert.AreEqual('a', Run(Host, 'get', K + 'A'), 'Get');
     end;
 }
