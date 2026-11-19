@@ -13,20 +13,21 @@
 //   own (a new Guid), except the AutoRollback pairs, which use a fixed key and never commit it.
 // Readings: what each worker read answered; what the page shows; what the test session's own Get answers.
 // Cells:
-//   - the same read again after the test changed the row, not committed: Get (:344, :543, after a Delete :581), FindFirst on both
-//     key fields (:366, :563; Get and it answer alike), FindFirst and Count on the group (:618, :635, :652), a Get that found
-//     nothing and an empty group (:601, :669), another worker codeunit and SetLoadFields (:543), a first read with SetLoadFields
-//     and a later full read (:691), the task of a new page (:454);
-//     FindFirst and Count with a SetRange on a field outside the key (:868, :889; a commit of the table ends it);
-//   - a first read: it sees the test's change (:388, :499), unless the test session read the row before its change while it had
-//     not written the table since its last commit (:477, also when it had written another table :518, and when the change was to
-//     another row :914); a read the test session made after it wrote the table does not count (:935);
-//   - a commit: of the change of the row, the next read sees it (:407, ModifyAll :802); of another table (:428), or of another row of the
-//     table (ModifyAll :718, Modify :739, FindFirst on both key fields :760, an insert :782), the next read does not see a later
-//     change of the row; of any change of the table, the next FindFirst and Count on a group see it (:821, another group :843);
-//   - a rollback: asserterror (:959) and the end of an AutoRollback test (:992, :1005) do not change what the next read answers;
-//     the test session's own Get answers like a worker read then, until it writes the table (:959);
-//   - another test codeunit: its read sees its own row (:1020, :1043).
+//   - the same read again after the test changed the row, not committed: Get (:365, :564, after a Delete :602), FindFirst on both
+//     key fields (:387, :584; Get and it answer alike), FindFirst and Count on the group (:639, :656, :673), a Get that found
+//     nothing and an empty group (:622, :690), another worker codeunit and SetLoadFields (:564), a first read with SetLoadFields
+//     and a later full read (:712), the task of a new page (:475);
+//     FindFirst and Count with a SetRange on a field outside the key (:889, :910; a commit of the table ends it), and Count with that filter
+//     set by SetRange to the value twice, by SetFilter of a range from the value to itself and by FieldRef.SetRange (:936);
+//   - a first read: it sees the test's change (:409, :520), unless the test session read the row before its change while it had
+//     not written the table since its last commit (:498, also when it had written another table :539, and when the change was to
+//     another row :957); a read the test session made after it wrote the table does not count (:978);
+//   - a commit: of the change of the row, the next read sees it (:428, ModifyAll :823); of another table (:449), or of another row of the
+//     table (ModifyAll :739, Modify :760, FindFirst on both key fields :781, an insert :803), the next read does not see a later
+//     change of the row; of any change of the table, the next FindFirst and Count on a group see it (:842, another group :864);
+//   - a rollback: asserterror (:1002) and the end of an AutoRollback test (:1035, :1048) do not change what the next read answers;
+//     the test session's own Get answers like a worker read then, until it writes the table (:1002);
+//   - another test codeunit: its read sees its own row (:1063, :1086).
 // BC versions: 29.1 (local W1 container).
 
 table 97500 "BQ Row"
@@ -89,6 +90,7 @@ codeunit 97503 "BQ Reader"
     trigger OnRun()
     var
         Row: Record "BQ Row";
+        RowRef: RecordRef;
         Parameters: Dictionary of [Text, Text];
         Results: Dictionary of [Text, Text];
         Group: Text;
@@ -154,6 +156,25 @@ codeunit 97503 "BQ Reader"
                     Row.SetRange("Group", Group);
                     Row.SetRange(Description, Parameters.Get('Desc'));
                     Seen := Format(Row.Count());
+                end;
+            'rangecount':
+                begin
+                    Row.SetRange("Group", Group);
+                    Row.SetRange(Description, Parameters.Get('Desc'), Parameters.Get('Desc'));
+                    Seen := Format(Row.Count());
+                end;
+            'filtercount':
+                begin
+                    Row.SetRange("Group", Group);
+                    Row.SetFilter(Description, '%1..%1', Parameters.Get('Desc'));
+                    Seen := Format(Row.Count());
+                end;
+            'refcount':
+                begin
+                    RowRef.Open(Database::"BQ Row");
+                    RowRef.Field(Row.FieldNo("Group")).SetRange(Group);
+                    RowRef.Field(Row.FieldNo(Description)).SetRange(Parameters.Get('Desc'));
+                    Seen := Format(RowRef.Count());
                 end;
             'descfirst':
                 begin
@@ -906,6 +927,28 @@ codeunit 97506 "BQ Tests"
         Assert.AreEqual(G + '/2/', RunDesc(Rows, 'descfirst', G, Desc), 'FindFirst after the changes');
         Commit();
         Assert.AreEqual(G + '/1/', RunDesc(Rows, 'descfirst', G, Desc), 'FindFirst after the commit');
+        Rows.Close();
+    end;
+
+    // Count with the Description filter set three other ways: SetRange to the same value twice, SetFilter of a range from a
+    // value to itself, and FieldRef.SetRange on a RecordRef; the test inserts a matching line: each answers its first answer.
+    [Test]
+    procedure BgQueryCache_Run_OtherFilterForms_Insert_FirstAnswer()
+    var
+        Rows: TestPage "BQ Rows";
+        G: Code[20];
+    begin
+        G := NewGroup();
+        BqMode.Set('');
+        AddRow(G, 1, 'x');
+        OpenOn(Rows, G);
+        Assert.AreEqual('1', RunDesc(Rows, 'rangecount', G, 'x'), 'SetRange from and to');
+        Assert.AreEqual('1', RunDesc(Rows, 'filtercount', G, 'x'), 'SetFilter range');
+        Assert.AreEqual('1', RunDesc(Rows, 'refcount', G, 'x'), 'FieldRef.SetRange');
+        AddRow(G, 2, 'x');
+        Assert.AreEqual('1', RunDesc(Rows, 'rangecount', G, 'x'), 'SetRange from and to after the insert');
+        Assert.AreEqual('1', RunDesc(Rows, 'filtercount', G, 'x'), 'SetFilter range after the insert');
+        Assert.AreEqual('1', RunDesc(Rows, 'refcount', G, 'x'), 'FieldRef.SetRange after the insert');
         Rows.Close();
     end;
 
