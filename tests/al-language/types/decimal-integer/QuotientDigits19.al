@@ -109,7 +109,7 @@ codeunit 96387 "FLN Quotient Digits"
         Observer: Codeunit "Probe Observer";
         N: Integer;
     begin
-        for N := 43 to 46 do
+        for N := 43 to 50 do
             Observer.Observe(CellName(N), Cell(N));
         Observer.Finish();
     end;
@@ -221,6 +221,14 @@ codeunit 96387 "FLN Quotient Digits"
                 exit('Format(DurOver 922337203685478, 10)');
             46:
                 exit('Format(DurMax, 10)');
+            47:
+                exit('Format(Dur 1E15, 0, 9)');
+            48:
+                exit('Format(Dur 1E16, 0, 9)');
+            49:
+                exit('Format(Dur 1E17, 0, 9)');
+            50:
+                exit('Format(Dur 9E17, 0, 9)');
         end;
     end;
 
@@ -245,6 +253,10 @@ codeunit 96387 "FLN Quotient Digits"
         DurMax: Duration;
         Dur2: Duration;
         DurOver: Duration;
+        DurL15: Duration;
+        DurL16: Duration;
+        DurL17: Duration;
+        DurL9E17: Duration;
     begin
         B19 := 9223372036854775807L;
         H19 := 4611686018427387905L;
@@ -255,6 +267,10 @@ codeunit 96387 "FLN Quotient Digits"
         DurMax := 922337203685477L;
         Dur2 := 2;
         DurOver := 922337203685478L;
+        DurL15 := 1000000000000000L;
+        DurL16 := 10000000000000000L;
+        DurL17 := 100000000000000000L;
+        DurL9E17 := 900000000000000000L;
         case N of
             1:
                 begin
@@ -440,6 +456,22 @@ codeunit 96387 "FLN Quotient Digits"
             46:
                 begin
                     Got := Format(DurMax, 10);
+                end;
+            47:
+                begin
+                    Got := Format(DurL15, 0, 9);
+                end;
+            48:
+                begin
+                    Got := Format(DurL16, 0, 9);
+                end;
+            49:
+                begin
+                    Got := Format(DurL17, 0, 9);
+                end;
+            50:
+                begin
+                    Got := Format(DurL9E17, 0, 9);
                 end;
         end;
     end;

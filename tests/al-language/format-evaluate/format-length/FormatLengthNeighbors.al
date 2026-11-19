@@ -84,11 +84,20 @@ codeunit 96389 "FLN Length Neighbors"
         Observer.Observe('DT L=30 N=1', F.DateTime(DT, 30, 1));
         Observer.Observe('DT L=-3 N=1', F.DateTime(DT, -3, 1));
         Observer.Observe('DT L=exact N=1', F.DateTime(DT, StrLen(Format(DT, 0, 1)), 1));
-        Observer.Observe('DT N=4 plain', F.DateTime(DT, 0, 4));
-        Observer.Observe('DT L=3 N=4', F.DateTime(DT, 3, 4));
-        Observer.Observe('DT L=30 N=4', F.DateTime(DT, 30, 4));
-        Observer.Observe('DT L=-3 N=4', F.DateTime(DT, -3, 4));
-        Observer.Observe('DT L=exact N=4', F.DateTime(DT, StrLen(Format(DT, 0, 4)), 4));
+        Observer.Finish();
+    end;
+
+    // Standard format 4 of a DateTime raises an error that a TryFunction does not catch.
+    [Test]
+    procedure DateTime_Length_Format4()
+    var
+        Observer: Codeunit "Probe Observer";
+        F: Codeunit "FLN Fmt";
+        DT: DateTime;
+    begin
+        DT := CreateDateTime(DMY2Date(15, 1, 2024), 134501T);
+        asserterror F.DateTime(DT, 10, 4);
+        Observer.ObserveError('DT L=10 N=4');
         Observer.Finish();
     end;
 
