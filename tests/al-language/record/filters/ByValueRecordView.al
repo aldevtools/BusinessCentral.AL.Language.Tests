@@ -1030,8 +1030,9 @@ report 78729 "BVV Proc Report"
             trigger OnAfterGetRecord()
             var
                 Callee: Codeunit "BVV Callee";
+                OtherInstance: Report "BVV Proc Report";
             begin
-                if Done or (Mode = 5) then
+                if Done or (Mode in [5, 6]) then
                     exit;
                 Done := true;
                 case Mode of
@@ -1051,6 +1052,12 @@ report 78729 "BVV Proc Report"
                             SetRange(Status, Status);
                             Outcome := Recurse(Row, 1);
                         end;
+                    7:
+                        begin
+                            Reset();
+                            SetRange(Status, Status);
+                            Outcome := 'other instance ' + OtherInstance.Describe(Row);
+                        end;
                 end;
                 Outcome += ' item after f={' + GetFilters() + '} n=' + Format(Count()) + ' key=' + CurrentKey();
             end;
@@ -1062,6 +1069,17 @@ report 78729 "BVV Proc Report"
         Done: Boolean;
         LineDone: Boolean;
         Outcome: Text;
+
+    trigger OnPreReport()
+    var
+        PreRow: Record "BVV Row";
+    begin
+        if Mode <> 6 then
+            exit;
+        PreRow.SetCurrentKey(Name);
+        PreRow.SetRange(Status, PreRow.Status::Open);
+        Outcome := 'pre report ' + Describe(PreRow) + ' caller after f={' + PreRow.GetFilters() + '} key=' + PreRow.CurrentKey();
+    end;
 
     procedure SetMode(NewMode: Integer)
     begin
@@ -1218,7 +1236,8 @@ codeunit 78731 "BVV Report Procedure Tests"
     // calls SetCurrentKey on its copy); the data item with its DataItemTableView (sorting and a where filter) and a
     // SetTableView filter, to a local procedure and to a codeunit procedure; a local procedure that hands its own copy, after
     // SetCurrentKey on a declared secondary key, three filters and FindFirst, to itself; a child data item with a DataItemLink
-    // to a local procedure; the report's global procedures called on a Report variable that is not run, from the test
+    // to a local procedure; a local record handed from OnPreReport; the data item handed to another instance of the same
+    // report; the report's global procedures called on a Report variable that is not run, from the test
     // codeunit (a filter in group 0; a declared secondary key with and without a filter; an ad hoc key with Ascending(false);
     // filters in groups -1, 4 and 2 with the caller standing in group 2; a mark with MarkedOnly; SetLoadFields before a read
     // and a FlowField filter; CalcFields with a FlowFilter) and from a page action.
@@ -1506,6 +1525,36 @@ codeunit 78731 "BVV Report Procedure Tests"
         ObserveCaller(Observer, Row);
         Observer.Expect('callee total', 'id=1 total=12 f={}');
         Observer.Expect('caller after', 'f={Day Filter: 1} n=3 grp=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValue_ReportProcedure_FromOnPreReport()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "BVV Row";
+    begin
+        Seed();
+        Row.SetFilter(Amount, '>=%1', 20);
+        Observer.Observe('report', RunProcReport(6, Row));
+        ObserveCaller(Observer, Row);
+        Observer.Expect('report', 'pre report f={} n=3 key=Id asc=Yes grp=0 first=1 caller after f={Status: Open} key=Name');
+        Observer.Expect('caller after', 'f={Amount: >=20} n=2 grp=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValue_ReportProcedure_DataItemToOtherInstance()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "BVV Row";
+    begin
+        Seed();
+        Row.SetFilter(Amount, '>=%1', 20);
+        Observer.Observe('report', RunProcReport(7, Row));
+        ObserveCaller(Observer, Row);
+        Observer.Expect('report', 'other instance f={} n=3 key=Id asc=Yes grp=0 first=1 item after f={Status: Open} n=2 key=Id');
+        Observer.Expect('caller after', 'f={Amount: >=20} n=2 grp=0');
         Observer.Verify();
     end;
 
