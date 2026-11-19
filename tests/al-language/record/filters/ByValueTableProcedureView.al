@@ -17,7 +17,7 @@
 //   - a filter in filter group 2, 4 and -1; the caller standing in group 2 (with its filter there, and with a filter in group 0);
 //   - Ascending(false) with a filter; a marked row with MarkedOnly off and on; SetLoadFields before any read;
 //   - a declared secondary key without a filter; an ad hoc key (fields no key starts with) with a filter;
-//   - CalcFields of a FlowField with its FlowFilter in group 0;
+//   - CalcFields of a FlowField with its FlowFilter in group 0; a filter on the FlowField itself (with its FlowFilter);
 //   - a rich view (secondary key, descending, a filter and a FlowFilter in group 0, a filter in group 2, a marked current row);
 //   - the copy handed on to Other.Copy in the callee;
 //   - the callee table a normal table (BVT Holder), called on a stored record and on a temporary record variable;
@@ -685,6 +685,25 @@ codeunit 78794 "BVT By Value Table Proc Tests"
         Holder.Get(1);
         Observer.Observe('callee', Holder.Info);
         Observer.Expect('callee', 'id=0 f={} n=4 key=Entry No. asc=Yes grp=0 first=1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValueTableProc_OtherTable_FlowFieldFilter()
+    var
+        Observer: Codeunit "Probe Observer";
+        Entry: Record "BVT Entry";
+        Buffer: Record "BVT Buffer";
+    begin
+        Initialize();
+        Entry.SetRange("Location Filter", 'BLUE');
+        Entry.SetFilter("Item Qty", '>%1', 6);
+        Observer.Observe('callee', Buffer.DescribeEntry(Entry));
+        Observer.Observe('callee total', Buffer.TotalOf(Entry));
+        ObserveCaller(Observer, Entry);
+        Observer.Expect('callee', 'id=0 f={} n=4 key=Entry No. asc=Yes grp=0 first=1');
+        Observer.Expect('callee total', 'id=0 qty=0 f={}');
+        Observer.Expect('caller after', 'f={Location Filter: BLUE, Item Qty: >6} n=1 grp=0 key=Entry No. asc=Yes');
         Observer.Verify();
     end;
 }
