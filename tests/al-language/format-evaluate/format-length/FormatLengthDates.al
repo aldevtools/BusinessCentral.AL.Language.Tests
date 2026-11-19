@@ -10,6 +10,7 @@
 //   10 blanks (the shape of Base Application codeunit "Onboarding Signal"). A closing Date and a defined Date or DateTime: a positive length longer than the
 //   text right-aligns it (padded on the left), a negative length longer than the text keeps the text, and any length shorter than the text cuts it to its
 //   first |L| characters (Format(ClosingDate(D), 10) = ' C01/15/24', Format(D, 8, 9) = '2024-01-'). ClosingDate(0D) raises "The date is not valid." (DateInvalid).
+//   Format(D, 10, '<Year4>-<Month,2>-<Day,2>') is '2024-01-15'; 8 gives '2024-01-', 12 gives '  2024-01-15'; the same holds for WorkDate().
 // BC versions: 27.5 measured on a local Windows container (28.5 and 29.0 by the corpus CI matrix on BC on Linux)
 
 table 96381 "FLN Date Holder"
@@ -202,7 +203,25 @@ codeunit 96380 "FLN Date Lengths"
         Observer.Observe('WorkDate: Format(WorkDate(), 8, S) = CopyStr(plain, 1, 8)', Format(Format(WorkDate(), 8, '<Year4>-<Month,2>-<Day,2>') = CopyStr(Plain, 1, 8)));
         Observer.Observe('WorkDate: Format(WorkDate(), 12, S) = two blanks + plain', Format(Format(WorkDate(), 12, '<Year4>-<Month,2>-<Day,2>') = '  ' + Plain));
         Observer.Observe('WorkDate: Format(WorkDate(), -12, S) = plain', Format(Format(WorkDate(), -12, '<Year4>-<Month,2>-<Day,2>') = Plain));
-        Observer.Finish();
+        Observer.Expect('Format(D, 10, S)', '[2024-01-15]');
+        Observer.Expect('Format(D, 8, S)', '[2024-01-]');
+        Observer.Expect('Format(D, 12, S)', '[  2024-01-15]');
+        Observer.Expect('Format(D, 9, S)', '[2024-01-1]');
+        Observer.Expect('Format(D, 11, S)', '[ 2024-01-15]');
+        Observer.Expect('Format(D, 0, S)', '[2024-01-15]');
+        Observer.Expect('Format(D, -10, S)', '[2024-01-15]');
+        Observer.Expect('Format(D, -8, S)', '[2024-01-]');
+        Observer.Expect('Format(D, -12, S)', '[2024-01-15]');
+        Observer.Expect('literal Format(20240115D, 10, S)', '[2024-01-15]');
+        Observer.Expect('Format(0D, 10, S)', '[          ]');
+        Observer.Expect('Format(0D, -10, S)', '[]');
+        Observer.Expect('Format(ClosingDate(D), 10, S)', '[2024-01-15]');
+        Observer.Expect('WorkDate: StrLen(Format(WorkDate(), 0, S))', '10');
+        Observer.Expect('WorkDate: Format(WorkDate(), 10, S) = Format(WorkDate(), 0, S)', 'Yes');
+        Observer.Expect('WorkDate: Format(WorkDate(), 8, S) = CopyStr(plain, 1, 8)', 'Yes');
+        Observer.Expect('WorkDate: Format(WorkDate(), 12, S) = two blanks + plain', 'Yes');
+        Observer.Expect('WorkDate: Format(WorkDate(), -12, S) = plain', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
