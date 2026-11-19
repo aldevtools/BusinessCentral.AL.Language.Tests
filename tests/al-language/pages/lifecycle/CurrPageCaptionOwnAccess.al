@@ -10,7 +10,19 @@
 // (must-not-compile 3211, 3212); CurrPage.Caption := 'Assigned' compiles beside every own Caption shape, also beside Caption(): Integer;
 // the bare Caption := 'X' beside an own parameterless Caption is AL0129 (3210); an unqualified Caption() calls the own procedure (3213, 3214),
 // and so does P.Caption() on a Page variable (3215).
-// BC versions: OBSERVATION FORM (not yet measured)
+// Measured on BC 29.0 (Windows container, local observation; corpus CI measures 27.5, 28.5 and 29.0 on Linux):
+// - CurrPage.Caption and CurrPage.Caption() read the platform caption beside every own Caption shape ('Static' before the assignment,
+//   'Assigned' after it); they never call the own procedure (Called stays empty, OwnCall is unchanged).
+// - CurrPage.Caption := 'Assigned' sets the platform caption (TestPage.Caption 'Assigned') beside every own Caption shape, also beside
+//   Caption(): Integer and Caption(NewCaption: Text); the own procedure does not run.
+// - CurrPage.Caption('ByCall') and the unqualified Caption('Bare') set the platform caption, also beside Caption(NewCaption: Text): the
+//   one-argument call never reaches the own procedure with one Text parameter.
+// - The unqualified Caption() calls the own procedure when there is one ('Own', '5', Called 'own;'), whatever its access (public, local,
+//   protected, internal); without one it reads the platform caption ('Assigned').
+// - A Page variable: P.Caption() and P.Caption call the own parameterless procedure ('Own', '5', Called 'own;'); P.Caption('Out') is the
+//   platform setter (beside Caption(): Text the next P.Caption() is still 'Own'; beside Caption(NewCaption: Text) the own procedure does not
+//   run and P.Caption() reads 'Out'); without an own procedure P.Caption() and P.Caption read 'Static'.
+// BC versions: 29.0 measured locally (Windows); 27.5, 28.5 and 29.0 through corpus CI
 
 // local object: a page that declares its own procedure named Caption (local procedure Caption(): Text).
 page 75413 "CPC Own Local Text"
@@ -280,7 +292,20 @@ codeunit 75411 "CPC Own Access Tests"
         Observer.Observe('Caption(Bare): ReadBare', P.ReadBare.Value());
         Observer.Observe('Caption(Bare): Called', P.Called.Value());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open: TestPage.Caption', 'Assigned');
+        Observer.Expect('open: ReadBefore', 'Static');
+        Observer.Expect('open: ReadBeforeParens', 'Static');
+        Observer.Expect('open: ReadAfter', 'Assigned');
+        Observer.Expect('open: ReadAfterParens', 'Assigned');
+        Observer.Expect('open: OwnCall', 'Own');
+        Observer.Expect('open: Called', '');
+        Observer.Expect('CurrPage.Caption(ByCall): TestPage.Caption', 'ByCall');
+        Observer.Expect('CurrPage.Caption(ByCall): ReadByCall', 'ByCall');
+        Observer.Expect('CurrPage.Caption(ByCall): Called', '');
+        Observer.Expect('Caption(Bare): TestPage.Caption', 'Bare');
+        Observer.Expect('Caption(Bare): ReadBare', 'Bare');
+        Observer.Expect('Caption(Bare): Called', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -306,7 +331,20 @@ codeunit 75411 "CPC Own Access Tests"
         Observer.Observe('Caption(Bare): ReadBare', P.ReadBare.Value());
         Observer.Observe('Caption(Bare): Called', P.Called.Value());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open: TestPage.Caption', 'Assigned');
+        Observer.Expect('open: ReadBefore', 'Static');
+        Observer.Expect('open: ReadBeforeParens', 'Static');
+        Observer.Expect('open: ReadAfter', 'Assigned');
+        Observer.Expect('open: ReadAfterParens', 'Assigned');
+        Observer.Expect('open: OwnCall', 'Own');
+        Observer.Expect('open: Called', '');
+        Observer.Expect('CurrPage.Caption(ByCall): TestPage.Caption', 'ByCall');
+        Observer.Expect('CurrPage.Caption(ByCall): ReadByCall', 'ByCall');
+        Observer.Expect('CurrPage.Caption(ByCall): Called', '');
+        Observer.Expect('Caption(Bare): TestPage.Caption', 'Bare');
+        Observer.Expect('Caption(Bare): ReadBare', 'Bare');
+        Observer.Expect('Caption(Bare): Called', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -332,7 +370,20 @@ codeunit 75411 "CPC Own Access Tests"
         Observer.Observe('Caption(Bare): ReadBare', P.ReadBare.Value());
         Observer.Observe('Caption(Bare): Called', P.Called.Value());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open: TestPage.Caption', 'Assigned');
+        Observer.Expect('open: ReadBefore', 'Static');
+        Observer.Expect('open: ReadBeforeParens', 'Static');
+        Observer.Expect('open: ReadAfter', 'Assigned');
+        Observer.Expect('open: ReadAfterParens', 'Assigned');
+        Observer.Expect('open: OwnCall', 'Own');
+        Observer.Expect('open: Called', '');
+        Observer.Expect('CurrPage.Caption(ByCall): TestPage.Caption', 'ByCall');
+        Observer.Expect('CurrPage.Caption(ByCall): ReadByCall', 'ByCall');
+        Observer.Expect('CurrPage.Caption(ByCall): Called', '');
+        Observer.Expect('Caption(Bare): TestPage.Caption', 'Bare');
+        Observer.Expect('Caption(Bare): ReadBare', 'Bare');
+        Observer.Expect('Caption(Bare): Called', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -342,6 +393,7 @@ codeunit 75411 "CPC Own Access Tests"
         OwnInternal: Page "CPC Own Internal Text";
     begin
         Observer.Observe('own internal: Caption()', OwnInternal.Caption());
-        Observer.Finish();
+        Observer.Expect('own internal: Caption()', 'Own');
+        Observer.Verify();
     end;
 }

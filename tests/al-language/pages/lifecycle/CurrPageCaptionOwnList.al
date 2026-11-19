@@ -4,7 +4,9 @@
 // Probe: the page of al-runner issue 8193 (a List that declares its own public Caption(): Text, reads CurrPage.Caption in OnOpenPage and assigns CurrPage.Caption := Caption() + the stored text in OnAfterGetCurrRecord), the shape of Base Application page 5911.
 // Read: CaptionRead (CurrPage.Caption) and CaptionReadParens (CurrPage.Caption()) are stored in OnOpenPage; the test reads TestPage.Caption after
 // the open and after First.
-// BC versions: OBSERVATION FORM (not yet measured)
+// Measured on BC 29.0 (Windows container, local observation): both reads in OnOpenPage are the platform caption 'Static'; the unqualified
+// Caption() in OnAfterGetCurrRecord calls the own procedure, so TestPage.Caption is 'X Static' after the open and after First.
+// BC versions: 29.0 measured locally (Windows); 27.5, 28.5 and 29.0 through corpus CI
 
 table 75410 "CPC Row"
 {
@@ -85,6 +87,10 @@ codeunit 75413 "CPC Own Caption List Tests"
         P.First();
         Observer.Observe('First: TestPage.Caption', P.Caption());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open: TestPage.Caption', 'X Static');
+        Observer.Expect('open: CaptionRead', 'Static');
+        Observer.Expect('open: CaptionReadParens', 'Static');
+        Observer.Expect('First: TestPage.Caption', 'X Static');
+        Observer.Verify();
     end;
 }

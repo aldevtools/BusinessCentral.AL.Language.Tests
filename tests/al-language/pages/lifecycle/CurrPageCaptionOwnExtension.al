@@ -4,7 +4,11 @@
 // Probe: a procedure named Caption and the CurrPage.Caption assignment and reads split between a page and its page extension (al-runner 8193, 8444, PR 8439): own Caption(): Text in the base page with the code in the extension; own Caption(): Text in the extension with the code in the base page; both in the extension.
 // OnOpenPage (of the base page or of the extension) reads CurrPage.Caption and CurrPage.Caption(), assigns CurrPage.Caption := 'Assigned', reads
 // both forms again and stores the unqualified Caption() (OwnCall). Every page has Caption = 'Static'.
-// BC versions: OBSERVATION FORM (not yet measured)
+// Measured on BC 29.0 (Windows container, local observation): in all three splits both reads are the platform caption ('Static', then
+// 'Assigned') and TestPage.Caption is 'Assigned'. The unqualified Caption() calls the own procedure of the same object ('Own' with base
+// procedure and extension code, 'ExtOwn' with both in the extension); in the base page beside a procedure declared only in the extension it
+// reads the platform caption ('Assigned').
+// BC versions: 29.0 measured locally (Windows); 27.5, 28.5 and 29.0 through corpus CI
 
 // local object: base page with its own Caption(): Text; the extension holds the code.
 page 75420 "CPC Base Own Caption"
@@ -182,7 +186,13 @@ codeunit 75414 "CPC Own Caption Ext Tests"
         Observer.Observe('open: ReadAfterParens', P.ReadAfterParens.Value());
         Observer.Observe('open: OwnCall', P.OwnCall.Value());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open: TestPage.Caption', 'Assigned');
+        Observer.Expect('open: ReadBefore', 'Static');
+        Observer.Expect('open: ReadBeforeParens', 'Static');
+        Observer.Expect('open: ReadAfter', 'Assigned');
+        Observer.Expect('open: ReadAfterParens', 'Assigned');
+        Observer.Expect('open: OwnCall', 'Own');
+        Observer.Verify();
     end;
 
     [Test]
@@ -199,7 +209,13 @@ codeunit 75414 "CPC Own Caption Ext Tests"
         Observer.Observe('open: ReadAfterParens', P.ReadAfterParens.Value());
         Observer.Observe('open: OwnCall', P.OwnCall.Value());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open: TestPage.Caption', 'Assigned');
+        Observer.Expect('open: ReadBefore', 'Static');
+        Observer.Expect('open: ReadBeforeParens', 'Static');
+        Observer.Expect('open: ReadAfter', 'Assigned');
+        Observer.Expect('open: ReadAfterParens', 'Assigned');
+        Observer.Expect('open: OwnCall', 'Assigned');
+        Observer.Verify();
     end;
 
     [Test]
@@ -216,6 +232,12 @@ codeunit 75414 "CPC Own Caption Ext Tests"
         Observer.Observe('open: ReadAfterParens', P.ReadAfterParens.Value());
         Observer.Observe('open: OwnCall', P.OwnCall.Value());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open: TestPage.Caption', 'Assigned');
+        Observer.Expect('open: ReadBefore', 'Static');
+        Observer.Expect('open: ReadBeforeParens', 'Static');
+        Observer.Expect('open: ReadAfter', 'Assigned');
+        Observer.Expect('open: ReadAfterParens', 'Assigned');
+        Observer.Expect('open: OwnCall', 'ExtOwn');
+        Observer.Verify();
     end;
 }
