@@ -9,11 +9,12 @@
 //   a page background task's worker, run with TestPage.RunPageBackgroundTask, does not see a row that is held back. Every test
 //   uses keys of its own (a new Guid), and the worker never reads a key twice.
 // Readings: what the worker's Get, Count, IsEmpty, FindFirst, FindSet and a FlowField that counts the rows answer.
-// Cells: held back until the test reads the table (:233, :246), a read of another table does not (:261); four inserts are
-//   held back, the fifth lets all five through, a sixth is held back again (:276, :293, :311); a Commit, an Insert whose result is
-//   used, a table with a Blob field, a Modify of another row of the table and a FlowField of the test session that counts the rows let the row through (:330, :344, :376, :392, :480); Insert(true)
-//   into a table with an OnInsert trigger is held back (:360); the worker's own reads do not let rows through
-//   (:411); Count, IsEmpty, FindFirst, FindSet and a FlowField leave held-back rows out (:426, :442, :464).
+// Cells: held back until the test reads the table (:234, :247), a read of another table does not (:262); four inserts are held
+//   back, the fifth lets all five through, a sixth is held back again (:277, :294, :312); a Commit, an Insert whose result is
+//   used, a table with a Blob field, a Modify of another row of the table and a FlowField of the test session that counts the
+//   rows let the row through (:331, :345, :377, :393, :481); Insert(true) into a table with an OnInsert trigger is held back
+//   (:361); the worker's own reads do not let rows through (:412); Count, IsEmpty, FindFirst, FindSet and a FlowField leave held-
+//   back rows out (:427, :443, :465).
 // BC versions: 29.1 (local W1 container).
 
 table 97520 "IQ Row"
