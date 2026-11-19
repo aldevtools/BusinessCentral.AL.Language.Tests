@@ -12,7 +12,7 @@
 // Results: see the Expect lines of each test.
 // BC versions: measured on a local container (the other majors by the corpus CI matrix)
 
-table 96395 "FLN Date Holder"
+table 96395 "FLN Str Holder"
 {
     TableType = Temporary;
     DataClassification = SystemMetadata;
@@ -106,7 +106,7 @@ codeunit 96391 "FLN Fmt Strings"
     procedure DayMonthYear2_DateField_Length()
     var
         Observer: Codeunit "Probe Observer";
-        Rec: Record "FLN Date Holder";
+        Rec: Record "FLN Str Holder";
     begin
         Rec.DeleteAll();
         Rec.Id := 1;
@@ -155,7 +155,7 @@ codeunit 96391 "FLN Fmt Strings"
     procedure Time_StandardFormat0_Length_Field()
     var
         Observer: Codeunit "Probe Observer";
-        Rec: Record "FLN Date Holder";
+        Rec: Record "FLN Str Holder";
         X: Integer;
     begin
         Rec.DeleteAll();
@@ -512,7 +512,7 @@ codeunit 96391 "FLN Fmt Strings"
     procedure UndefinedDateTime_Field_Length()
     var
         Observer: Codeunit "Probe Observer";
-        Rec: Record "FLN Date Holder";
+        Rec: Record "FLN Str Holder";
     begin
         Rec.DeleteAll();
         Rec.Id := 1;
