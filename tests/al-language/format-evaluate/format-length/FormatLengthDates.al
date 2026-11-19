@@ -174,6 +174,37 @@ codeunit 96380 "FLN Date Lengths"
         Observer.Verify();
     end;
 
+    // The shape of a Microsoft ERM test: Format(WorkDate(), 10, '<Year4>-<Month,2>-<Day,2>'), a format string whose text is exactly 10 characters.
+    [Test]
+    procedure FormatString_Year4_Length()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: Date;
+        Plain: Text;
+    begin
+        D := 20240115D;
+        Observer.Observe('Format(D, 10, S)', '[' + Format(D, 10, '<Year4>-<Month,2>-<Day,2>') + ']');
+        Observer.Observe('Format(D, 8, S)', '[' + Format(D, 8, '<Year4>-<Month,2>-<Day,2>') + ']');
+        Observer.Observe('Format(D, 12, S)', '[' + Format(D, 12, '<Year4>-<Month,2>-<Day,2>') + ']');
+        Observer.Observe('Format(D, 9, S)', '[' + Format(D, 9, '<Year4>-<Month,2>-<Day,2>') + ']');
+        Observer.Observe('Format(D, 11, S)', '[' + Format(D, 11, '<Year4>-<Month,2>-<Day,2>') + ']');
+        Observer.Observe('Format(D, 0, S)', '[' + Format(D, 0, '<Year4>-<Month,2>-<Day,2>') + ']');
+        Observer.Observe('Format(D, -10, S)', '[' + Format(D, -10, '<Year4>-<Month,2>-<Day,2>') + ']');
+        Observer.Observe('Format(D, -8, S)', '[' + Format(D, -8, '<Year4>-<Month,2>-<Day,2>') + ']');
+        Observer.Observe('Format(D, -12, S)', '[' + Format(D, -12, '<Year4>-<Month,2>-<Day,2>') + ']');
+        Observer.Observe('literal Format(20240115D, 10, S)', '[' + Format(20240115D, 10, '<Year4>-<Month,2>-<Day,2>') + ']');
+        Observer.Observe('Format(0D, 10, S)', '[' + Format(0D, 10, '<Year4>-<Month,2>-<Day,2>') + ']');
+        Observer.Observe('Format(0D, -10, S)', '[' + Format(0D, -10, '<Year4>-<Month,2>-<Day,2>') + ']');
+        Observer.Observe('Format(ClosingDate(D), 10, S)', '[' + Format(ClosingDate(D), 10, '<Year4>-<Month,2>-<Day,2>') + ']');
+        Plain := Format(WorkDate(), 0, '<Year4>-<Month,2>-<Day,2>');
+        Observer.Observe('WorkDate: StrLen(Format(WorkDate(), 0, S))', Format(StrLen(Plain)));
+        Observer.Observe('WorkDate: Format(WorkDate(), 10, S) = Format(WorkDate(), 0, S)', Format(Format(WorkDate(), 10, '<Year4>-<Month,2>-<Day,2>') = Plain));
+        Observer.Observe('WorkDate: Format(WorkDate(), 8, S) = CopyStr(plain, 1, 8)', Format(Format(WorkDate(), 8, '<Year4>-<Month,2>-<Day,2>') = CopyStr(Plain, 1, 8)));
+        Observer.Observe('WorkDate: Format(WorkDate(), 12, S) = two blanks + plain', Format(Format(WorkDate(), 12, '<Year4>-<Month,2>-<Day,2>') = '  ' + Plain));
+        Observer.Observe('WorkDate: Format(WorkDate(), -12, S) = plain', Format(Format(WorkDate(), -12, '<Year4>-<Month,2>-<Day,2>') = Plain));
+        Observer.Finish();
+    end;
+
     [Test]
     procedure Field_Forms()
     var
