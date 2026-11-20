@@ -1,4 +1,20 @@
-// DRAFT HEADER
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-transferfields-method
+// Scope: in-scope
+// Fixtures used: Probe Observer (codeunit 69160); self-contained objects tables 79860-79870, table extensions 79871-79872, codeunit 79880
+// Probe: written against Business Central 27.5, 28.5 and 29.0 (Windows containers, W1); the values were identical on the three builds.
+// Facts: Record.TransferFields where a field is declared ObsoleteState = Removed (no AL code can name such a field, so only the other fields
+//   and the call result are observed). Source and target tables of one app, and table extension fields of one app.
+//   - A removed TARGET field never raises and never blocks the other fields: no type check against the source field, whatever the types
+//     (Boolean source into a removed Code[5], Text into a removed Integer), no length check (a 10 character Code value into a removed Code[5]).
+//     The primary key is copied with default arguments and kept with InitPrimaryKeyFields false; live fields are copied.
+//     The same holds with SkipFieldsNotMatchingType true, with two removed target fields, and for table extension fields.
+//   - A removed SOURCE field is not copied: a live target field of the same number keeps its value, for another type (Boolean into Integer)
+//     and for the same type (Integer into Integer), with default arguments and with SkipFieldsNotMatchingType true. A removed field on both
+//     sides raises nothing.
+//   - Control: a live Boolean source field into a live Code[5] target field raises DB:TypeMisMatch with default arguments (the other
+//     fields before it are not copied: Keep stays 3) and is skipped with SkipFieldsNotMatchingType true (the target field stays blank).
+// Not measured: removed fields of two different apps (cross-app), RecordRef.Copy and FieldRef based transfers.
+// BC versions: 27, 28, 29 (identical)
 
 table 79860 "TFR Src"
 {
@@ -421,7 +437,10 @@ codeunit 79880 "TFR TransferFields Removed"
         Report(Observer, TryBoolToCode(Src, Tgt, 0));
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'A');
+        Observer.Expect('keep', '5');
+        Observer.Verify();
     end;
 
     // same shape, InitPrimaryKeyFields false.
@@ -438,7 +457,10 @@ codeunit 79880 "TFR TransferFields Removed"
         Report(Observer, TryBoolToCode(Src, Tgt, 2));
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'T');
+        Observer.Expect('keep', '5');
+        Observer.Verify();
     end;
 
     // same shape, SkipFieldsNotMatchingType true.
@@ -455,7 +477,10 @@ codeunit 79880 "TFR TransferFields Removed"
         Report(Observer, TryBoolToCode(Src, Tgt, 3));
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'A');
+        Observer.Expect('keep', '5');
+        Observer.Verify();
     end;
 
     // same shape, InitPrimaryKeyFields false and SkipFieldsNotMatchingType true.
@@ -472,7 +497,10 @@ codeunit 79880 "TFR TransferFields Removed"
         Report(Observer, TryBoolToCode(Src, Tgt, 4));
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'T');
+        Observer.Expect('keep', '5');
+        Observer.Verify();
     end;
 
     // removed Integer target field, live Integer source field.
@@ -489,7 +517,10 @@ codeunit 79880 "TFR TransferFields Removed"
         Report(Observer, TrySameType(Src, Tgt, 0));
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'A');
+        Observer.Expect('keep', '5');
+        Observer.Verify();
     end;
 
     // removed Integer target field, live Integer source field, InitPrimaryKeyFields false.
@@ -506,7 +537,10 @@ codeunit 79880 "TFR TransferFields Removed"
         Report(Observer, TrySameType(Src, Tgt, 2));
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'T');
+        Observer.Expect('keep', '5');
+        Observer.Verify();
     end;
 
     // removed Integer target field, live Text source field.
@@ -523,7 +557,10 @@ codeunit 79880 "TFR TransferFields Removed"
         Report(Observer, TryIntFromText(Src, Tgt, 0));
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'A');
+        Observer.Expect('keep', '5');
+        Observer.Verify();
     end;
 
     // removed Integer target field, live Text source field, SkipFieldsNotMatchingType true.
@@ -540,7 +577,10 @@ codeunit 79880 "TFR TransferFields Removed"
         Report(Observer, TryIntFromText(Src, Tgt, 3));
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'A');
+        Observer.Expect('keep', '5');
+        Observer.Verify();
     end;
 
     // removed Code[5] target field, live Code[20] source value that fits (ABC).
@@ -557,7 +597,10 @@ codeunit 79880 "TFR TransferFields Removed"
         Report(Observer, TryLongCode(Src, Tgt, 0));
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'A');
+        Observer.Expect('keep', '5');
+        Observer.Verify();
     end;
 
     // removed Code[5] target field, live Code[20] source value of 10 characters.
@@ -575,7 +618,10 @@ codeunit 79880 "TFR TransferFields Removed"
         Report(Observer, TryLongCode(Src, Tgt, 0));
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'A');
+        Observer.Expect('keep', '5');
+        Observer.Verify();
     end;
 
     // removed Code[5] target field, 10 character value, SkipFieldsNotMatchingType true.
@@ -593,7 +639,10 @@ codeunit 79880 "TFR TransferFields Removed"
         Report(Observer, TryLongCode(Src, Tgt, 3));
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'A');
+        Observer.Expect('keep', '5');
+        Observer.Verify();
     end;
 
     // two removed target fields (Code[5] from Boolean, Integer from Text).
@@ -610,7 +659,10 @@ codeunit 79880 "TFR TransferFields Removed"
         Report(Observer, TryTwoRemoved(Src, Tgt, 0));
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'A');
+        Observer.Expect('keep', '5');
+        Observer.Verify();
     end;
 
     // removed Boolean source field into a removed Code[5] target field, default arguments.
@@ -627,7 +679,10 @@ codeunit 79880 "TFR TransferFields Removed"
         Report(Observer, TryBoth(Src, Tgt, 0));
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'A');
+        Observer.Expect('keep', '5');
+        Observer.Verify();
     end;
 
     // removed Boolean source field into a removed Code[5] target field, SkipFieldsNotMatchingType true.
@@ -644,7 +699,10 @@ codeunit 79880 "TFR TransferFields Removed"
         Report(Observer, TryBoth(Src, Tgt, 3));
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'A');
+        Observer.Expect('keep', '5');
+        Observer.Verify();
     end;
 
     // removed Boolean source field into a live Integer target field, default arguments.
@@ -663,7 +721,11 @@ codeunit 79880 "TFR TransferFields Removed"
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
         Observer.Observe('f2', Format(Tgt.F2));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'A');
+        Observer.Expect('keep', '5');
+        Observer.Expect('f2', '7');
+        Observer.Verify();
     end;
 
     // removed Boolean source field into a live Integer target field, SkipFieldsNotMatchingType true.
@@ -682,7 +744,11 @@ codeunit 79880 "TFR TransferFields Removed"
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
         Observer.Observe('f2', Format(Tgt.F2));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'A');
+        Observer.Expect('keep', '5');
+        Observer.Expect('f2', '7');
+        Observer.Verify();
     end;
 
     // removed Boolean source field into a live Integer target field, InitPrimaryKeyFields false and SkipFieldsNotMatchingType true.
@@ -701,7 +767,11 @@ codeunit 79880 "TFR TransferFields Removed"
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
         Observer.Observe('f2', Format(Tgt.F2));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'T');
+        Observer.Expect('keep', '5');
+        Observer.Expect('f2', '7');
+        Observer.Verify();
     end;
 
     // removed Integer source field into a live Integer target field, default arguments.
@@ -720,7 +790,11 @@ codeunit 79880 "TFR TransferFields Removed"
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
         Observer.Observe('f5', Format(Tgt.F5));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'A');
+        Observer.Expect('keep', '5');
+        Observer.Expect('f5', '7');
+        Observer.Verify();
     end;
 
     // removed Integer source field into a live Integer target field, SkipFieldsNotMatchingType true.
@@ -739,7 +813,11 @@ codeunit 79880 "TFR TransferFields Removed"
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
         Observer.Observe('f5', Format(Tgt.F5));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'A');
+        Observer.Expect('keep', '5');
+        Observer.Expect('f5', '7');
+        Observer.Verify();
     end;
 
     // control: live Boolean source field, live Code[5] target field, default arguments.
@@ -757,7 +835,12 @@ codeunit 79880 "TFR TransferFields Removed"
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
         Observer.Observe('f2', Tgt.F2);
-        Observer.Finish();
+        Observer.Expect('result|text', 'The following fields must have the same type:\\Field: F2 <-- F2\Table: TFR T LiveCode <-- TFR Src\Type: Code <-- Boolean');
+        Observer.Expect('result|code', 'DB:TypeMisMatch');
+        Observer.Expect('no', 'A');
+        Observer.Expect('keep', '3');
+        Observer.Expect('f2', '');
+        Observer.Verify();
     end;
 
     // control: live Boolean source field, live Code[5] target field, SkipFieldsNotMatchingType true.
@@ -775,7 +858,11 @@ codeunit 79880 "TFR TransferFields Removed"
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
         Observer.Observe('f2', Tgt.F2);
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'A');
+        Observer.Expect('keep', '5');
+        Observer.Expect('f2', '');
+        Observer.Verify();
     end;
 
     // table extension fields of one app: live Boolean source field, removed Code[5] target field (same field number), default arguments.
@@ -793,7 +880,10 @@ codeunit 79880 "TFR TransferFields Removed"
         Report(Observer, TryPlain(Src, Tgt, 0));
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'A');
+        Observer.Expect('keep', '5');
+        Observer.Verify();
     end;
 
     // table extension fields of one app: live Boolean source field, removed Code[5] target field, SkipFieldsNotMatchingType true.
@@ -811,6 +901,9 @@ codeunit 79880 "TFR TransferFields Removed"
         Report(Observer, TryPlain(Src, Tgt, 3));
         Observer.Observe('no', Tgt."No.");
         Observer.Observe('keep', Format(Tgt.Keep));
-        Observer.Finish();
+        Observer.Expect('result', 'no error');
+        Observer.Expect('no', 'A');
+        Observer.Expect('keep', '5');
+        Observer.Verify();
     end;
 }
