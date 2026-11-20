@@ -17,8 +17,8 @@
 //   holds 0/OLD/I1 and the record variable 0/NEW/I1, so a read of the stored row shows apart from the record's before-image.
 // Cells:
 //   - the Validate of Mode, whose trigger raises an integration event with one subscriber, called from a codeunit procedure,
-//     from a codeunit's OnRun through Codeunit.Run, from a TryFunction, and from a processing-only report's OnAfterGetRecord
-//     through Codeunit.Run, as a statement and guarded after a Commit;
+//     from a codeunit's OnRun through Codeunit.Run, from a TryFunction (its result used, and called as a statement), and from a
+//     processing-only report's OnAfterGetRecord through Codeunit.Run, as a statement and guarded after a Commit;
 //   - the Validate of "Item No.", whose trigger nests the Validate of Mode through two table procedures, called from a codeunit
 //     procedure, through Codeunit.Run, and through Codeunit.Run on a line the codeunit read by FindLast and gave a new key by
 //     Init (Base Application's MaintainPlanningLine), also from a report, as a statement and guarded;
@@ -760,6 +760,22 @@ codeunit 97158 "XRC Tests"
     end;
 
     // The report commits and runs the codeunit guarded (`if Codeunit.Run(...)`), as Calculate Plan - Plan. Wksh. does.
+    [Test]
+    procedure Sub_FromTryFunctionAsStatement()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRC Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        Cfg.Set('sub');
+        Planner.TryValidateMode(Line);
+        Observe(Observer, Line);
+        Observer.Expect('log', 'T x=0/NEW/I1;X x=0/NEW/I1;P x=0/NEW/I1;');
+        Observer.Expect('record', '1/NEW/I1');
+        Observer.Verify();
+    end;
+
     [Test]
     procedure Sub_FromReportThroughGuardedCodeunitRun()
     var
