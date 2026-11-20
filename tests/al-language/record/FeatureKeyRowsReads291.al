@@ -1,8 +1,17 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/administration/feature-management
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160)
-// Probe: reads of the platform table "Feature Key" (2000000211) on BC 29.1, measured for al-runner pull request 8504 (the Feature Key rows of BC 29.1).
-// DRAFT
+// Probe: reads of the platform table "Feature Key" (2000000211) on BC 29.1, written for al-runner issue 8192 and pull request 8504 (the Feature Key rows of BC 29.1).
+// The tests only run on 29.1; on every other version they do nothing (the version is the last word of "Application System Constants".ApplicationVersion()).
+// Measured locally, not by the corpus CI (it has no 29.1 leg; the CI legs skip this file): BC 29.1 builds 29.1.57326.58076 (platform 29.0.57943) and 29.1.57326.58379
+// (platform 29.0.58337), each in country W1 and DE. All four gave the same values for every test, so there is one set of assertions for 29.1.
+// Difference to 29.0 (FeatureKeyRowsReads290.al): 14 rows instead of 13, the new row is NewNotificationBar (Enabled All Users, Mandatory By Version 30.0, Can Try Yes).
+// Cells (one test each): every row with all columns but Description (Rows_ScanColumnsPerId), Description per row (Rows_DescriptionPerId), Get of each id equals the scan
+// (Rows_GetEachId_EqualsScan), Count, IsEmpty, FindFirst, FindLast and the order of the ids (Rows_FindCountFirstLast), filters on Enabled, Can Try, Is One Way, Data Update
+// Required, ID and Mandatory By (Rows_FiltersOnServedColumns), filters on Description, Description In English and Learn More Link (Rows_FiltersOnTextColumns), a Get and a
+// filter that find no row (Rows_NoRow_GetAndFind), the same through a RecordRef (Rows_RecordRefScan) and a temporary record (Rows_TemporaryRecordStartsEmpty).
+// Not covered: writes (Modify, Insert, Delete) on the platform table, other 29.1 builds, countries other than W1 and DE.
+// BC versions: 29.1
 codeunit 99986 "LT FK Rows Reads 29.1"
 {
     Subtype = Test;
@@ -14,8 +23,8 @@ codeunit 99986 "LT FK Rows Reads 29.1"
         Version: Text;
     begin
         Version := AppConstants.ApplicationVersion();
-        // The text starts with the country ('W1 29.1.57326.0' or 'DE 29.1.57326.0'): keep the version.
-        if Version.Contains(' ') then
+        // The text starts with the country and may carry words ('W1 29.1.57326.0', 'DE Business Central 29.1'): keep the last word, the version.
+        while Version.Contains(' ') do
             Version := CopyStr(Version, StrPos(Version, ' ') + 1);
         exit((Version + '.').StartsWith('29.1.'));
     end;
@@ -47,8 +56,26 @@ codeunit 99986 "LT FK Rows Reads 29.1"
                 Observer.Observe('row ' + FeatureKey.ID, Row(FeatureKey));
             until FeatureKey.Next() = 0;
         Observer.Observe('rows', Format(N));
-        Observer.Finish();
+        Observer.Expect('row AcceleratedDepreciation', 'Enabled=None | Mandatory By=2027 Wave 2 (from October 2027 to March 2028) | Mandatory By Version=31.0 | Can Try=No | Is One Way=Yes | Data Update Required=Yes | Learn More Link=TODO | Description In English=Feature Update: Accelerated Depreciation');
+        Observer.Expect('row AdvancedTellMe', 'Enabled=All Users | Mandatory By=2027 Wave 1 (from April to September 2027) | Mandatory By Version=30.0 | Can Try=No | Is One Way=No | Data Update Required=No | Learn More Link=https://go.microsoft.com/fwlink/?linkid=2331650 | Description In English=Feature: Advanced Tell Me');
+        Observer.Expect('row ConcurrentInventoryPosting', 'Enabled=All Users | Mandatory By=2027 Wave 2 (from October 2027 to March 2028) | Mandatory By Version=31.0 | Can Try=No | Is One Way=No | Data Update Required=No | Learn More Link=https://go.microsoft.com/fwlink/?linkid=2299833 | Description In English=Feature Update: Enable multiple users to post item ledger entries and value entries at the same time');
+        Observer.Expect('row ConcurrentJobPosting', 'Enabled=All Users | Mandatory By=2027 Wave 2 (from October 2027 to March 2028) | Mandatory By Version=31.0 | Can Try=No | Is One Way=No | Data Update Required=No | Learn More Link=https://go.microsoft.com/fwlink/?linkid=2299833 | Description In English=Feature Update: Enable multiple users to post job ledger entries at the same time');
+        Observer.Expect('row ConcurrentResourcePosting', 'Enabled=All Users | Mandatory By=2027 Wave 2 (from October 2027 to March 2028) | Mandatory By Version=31.0 | Can Try=No | Is One Way=No | Data Update Required=No | Learn More Link=https://go.microsoft.com/fwlink/?linkid=2299833 | Description In English=Feature Update: Enable multiple users to post resource ledger entries at the same time');
+        Observer.Expect('row DisableSoapWebServicesOnMicrosoftUIPages', 'Enabled=All Users | Mandatory By=2026 Wave 2 (from October 2026 to March 2027) | Mandatory By Version=29.0 | Can Try=No | Is One Way=No | Data Update Required=No | Learn More Link=https://go.microsoft.com/fwlink/?linkid=2312202 | Description In English=Feature: Disable SOAP web services on Microsoft UI pages');
+        Observer.Expect('row DocumentReportExperience', 'Enabled=All Users | Mandatory By=2027 Wave 2 (from October 2027 to March 2028) | Mandatory By Version=31.0 | Can Try=No | Is One Way=No | Data Update Required=No | Learn More Link=https://learn.microsoft.com/en-us/dynamics365/business-central/ui-manage-report-layouts | Description In English=Feature: New Document Report Experience');
+        Observer.Expect('row EXRPerformantTrialBalance', 'Enabled=All Users | Mandatory By=2027 Wave 2 (from October 2027 to March 2028) | Mandatory By Version=31.0 | Can Try=Yes | Is One Way=No | Data Update Required=No | Learn More Link=https://learn.microsoft.com/dynamics365/business-central/reports/report-4405 | Description In English=Feature Update: Improved performance in Trial Balance-related Excel reports');
+        Observer.Expect('row FinancialReportDefaults', 'Enabled=All Users | Mandatory By=2026 Wave 2 (from October 2026 to March 2027) | Mandatory By Version=29.0 | Can Try=Yes | Is One Way=No | Data Update Required=No | Learn More Link=https://learn.microsoft.com/en-us/dynamics365/release-plan/2025wave2/smb/dynamics365-business-central/use-enhanced-financial-reporting | Description In English=Feature Update: Provides functionality for having default values for financial reports');
+        Observer.Expect('row FullTextSearch', 'Enabled=None | Mandatory By=2027 Wave 1 (from April to September 2027) | Mandatory By Version=30.0 | Can Try=Yes | Is One Way=No | Data Update Required=No | Learn More Link=https://go.microsoft.com/fwlink/?linkid=2280603 | Description In English=Feature: Use optimized text search in lists');
+        Observer.Expect('row NewNotificationBar', 'Enabled=All Users | Mandatory By=2027 Wave 1 (from April to September 2027) | Mandatory By Version=30.0 | Can Try=Yes | Is One Way=No | Data Update Required=No | Learn More Link=https://go.microsoft.com/fwlink/?LinkId=2384311 | Description In English=Feature: New notification bar');
+        Observer.Expect('row SalesPrices', 'Enabled=None | Mandatory By=2027 Wave 2 (from October 2027 to March 2028) | Mandatory By Version=31.0 | Can Try=No | Is One Way=Yes | Data Update Required=Yes | Learn More Link=https://go.microsoft.com/fwlink/?linkid=2136722 | Description In English=Feature Update: New sales pricing experience');
+        Observer.Expect('row SaveValueToDatabasePromptly', 'Enabled=All Users | Mandatory By=2027 Wave 1 (from April to September 2027) | Mandatory By Version=30.0 | Can Try=Yes | Is One Way=No | Data Update Required=No | Learn More Link=https://go.microsoft.com/fwlink/?linkid=2212032 | Description In English=Feature Update: Auto-save with every field change');
+        Observer.Expect('row SemanticMetadataSearch', 'Enabled=All Users | Mandatory By=2027 Wave 1 (from April to September 2027) | Mandatory By Version=30.0 | Can Try=No | Is One Way=No | Data Update Required=No | Learn More Link=https://go.microsoft.com/fwlink/?linkid=2312404 | Description In English=Feature: Preview semantic similarity search on application metadata.');
+        Observer.Expect('rows', '14');
+        Observer.Verify();
     end;
+
+
+
 
     [Test]
     procedure Rows_DescriptionPerId()
@@ -62,8 +89,25 @@ codeunit 99986 "LT FK Rows Reads 29.1"
             repeat
                 Observer.Observe('desc ' + FeatureKey.ID, FeatureKey.Description);
             until FeatureKey.Next() = 0;
-        Observer.Finish();
+        Observer.Expect('desc AcceleratedDepreciation', 'Feature Update: Accelerated Depreciation');
+        Observer.Expect('desc AdvancedTellMe', 'Feature: Advanced Tell Me');
+        Observer.Expect('desc ConcurrentInventoryPosting', 'Feature Update: Enable multiple users to post item ledger entries and value entries at the same time');
+        Observer.Expect('desc ConcurrentJobPosting', 'Feature Update: Enable multiple users to post job ledger entries at the same time');
+        Observer.Expect('desc ConcurrentResourcePosting', 'Feature Update: Enable multiple users to post resource ledger entries at the same time');
+        Observer.Expect('desc DisableSoapWebServicesOnMicrosoftUIPages', 'Feature: Disable SOAP web services on Microsoft UI pages');
+        Observer.Expect('desc DocumentReportExperience', 'Feature: New Document Report Experience');
+        Observer.Expect('desc EXRPerformantTrialBalance', 'Feature Update: Improved performance in Trial Balance-related Excel reports');
+        Observer.Expect('desc FinancialReportDefaults', 'Feature Update: Provides functionality for having default values for financial reports');
+        Observer.Expect('desc FullTextSearch', 'Feature: Use optimized text search in lists');
+        Observer.Expect('desc NewNotificationBar', 'Feature: New notification bar');
+        Observer.Expect('desc SalesPrices', 'Feature Update: New sales pricing experience');
+        Observer.Expect('desc SaveValueToDatabasePromptly', 'Feature Update: Auto-save with every field change');
+        Observer.Expect('desc SemanticMetadataSearch', 'Feature: Preview semantic similarity search on application metadata.');
+        Observer.Verify();
     end;
+
+
+
 
     [Test]
     procedure Rows_GetEachId_EqualsScan()
@@ -79,8 +123,25 @@ codeunit 99986 "LT FK Rows Reads 29.1"
                 Clear(ByGet);
                 Observer.Observe('get ' + FeatureKey.ID, Format(ByGet.Get(FeatureKey.ID)) + ' ' + Format(Row(ByGet) = Row(FeatureKey)) + ' ' + Format(ByGet.Description = FeatureKey.Description));
             until FeatureKey.Next() = 0;
-        Observer.Finish();
+        Observer.Expect('get AcceleratedDepreciation', 'Yes Yes Yes');
+        Observer.Expect('get AdvancedTellMe', 'Yes Yes Yes');
+        Observer.Expect('get ConcurrentInventoryPosting', 'Yes Yes Yes');
+        Observer.Expect('get ConcurrentJobPosting', 'Yes Yes Yes');
+        Observer.Expect('get ConcurrentResourcePosting', 'Yes Yes Yes');
+        Observer.Expect('get DisableSoapWebServicesOnMicrosoftUIPages', 'Yes Yes Yes');
+        Observer.Expect('get DocumentReportExperience', 'Yes Yes Yes');
+        Observer.Expect('get EXRPerformantTrialBalance', 'Yes Yes Yes');
+        Observer.Expect('get FinancialReportDefaults', 'Yes Yes Yes');
+        Observer.Expect('get FullTextSearch', 'Yes Yes Yes');
+        Observer.Expect('get NewNotificationBar', 'Yes Yes Yes');
+        Observer.Expect('get SalesPrices', 'Yes Yes Yes');
+        Observer.Expect('get SaveValueToDatabasePromptly', 'Yes Yes Yes');
+        Observer.Expect('get SemanticMetadataSearch', 'Yes Yes Yes');
+        Observer.Verify();
     end;
+
+
+
 
     [Test]
     procedure Rows_FindCountFirstLast()
@@ -108,8 +169,17 @@ codeunit 99986 "LT FK Rows Reads 29.1"
         until FeatureKey.Next() = 0;
         Observer.Observe('ids in order', Ids);
         Observer.Observe('ascending by upper-cased id', Format(Ascending));
-        Observer.Finish();
+        Observer.Expect('count', '14');
+        Observer.Expect('isempty', 'No');
+        Observer.Expect('findfirst', 'Yes AcceleratedDepreciation');
+        Observer.Expect('findlast', 'Yes SemanticMetadataSearch');
+        Observer.Expect('ids in order', 'AcceleratedDepreciation,AdvancedTellMe,ConcurrentInventoryPosting,ConcurrentJobPosting,ConcurrentResourcePosting,DisableSoapWebServicesOnMicrosoftUIPages,DocumentReportExperience,EXRPerformantTrialBalance,FinancialReportDefaults,FullTextSearch,NewNotificationBar,SalesPrices,SaveValueToDatabasePromptly,SemanticMetadataSearch,');
+        Observer.Expect('ascending by upper-cased id', 'Yes');
+        Observer.Verify();
     end;
+
+
+
 
     [Test]
     procedure Rows_FiltersOnServedColumns()
@@ -141,7 +211,15 @@ codeunit 99986 "LT FK Rows Reads 29.1"
         FeatureKey.Reset();
         FeatureKey.SetFilter("Mandatory By", '*Wave 1*');
         Observer.Observe('mandatory by wave 1', Format(FeatureKey.Count()));
-        Observer.Finish();
+        Observer.Expect('enabled none', '3');
+        Observer.Expect('enabled all users', '11');
+        Observer.Expect('can try', '5');
+        Observer.Expect('is one way', '2');
+        Observer.Expect('data update required', '2');
+        Observer.Expect('id concurrent*', '3');
+        Observer.Expect('mandatory by version 31.0', '7');
+        Observer.Expect('mandatory by wave 1', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -160,7 +238,10 @@ codeunit 99986 "LT FK Rows Reads 29.1"
         FeatureKey.Reset();
         FeatureKey.SetFilter("Learn More Link", 'https*');
         Observer.Observe('learn more link https', Format(FeatureKey.Count()));
-        Observer.Finish();
+        Observer.Expect('description sales', '1');
+        Observer.Expect('description in english sales', '1');
+        Observer.Expect('learn more link https', '13');
+        Observer.Verify();
     end;
 
     [Test]
@@ -178,7 +259,13 @@ codeunit 99986 "LT FK Rows Reads 29.1"
         Observer.Observe('find missing', Format(FeatureKey.FindFirst()));
         Observer.Observe('isempty missing', Format(FeatureKey.IsEmpty()));
         Observer.Observe('count missing', Format(FeatureKey.Count()));
-        Observer.Finish();
+        Observer.Expect('get missing', 'No');
+        Observer.Expect('get missing error|text', 'The Feature Key does not exist. Identification fields and values: ID=''NoSuchFeatureKeyZzz''');
+        Observer.Expect('get missing error|code', 'DB:RecordNotFound');
+        Observer.Expect('find missing', 'No');
+        Observer.Expect('isempty missing', 'Yes');
+        Observer.Expect('count missing', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -207,8 +294,15 @@ codeunit 99986 "LT FK Rows Reads 29.1"
                 Ids += Format(FldRef.Value()) + ',';
             until RecRef.Next() = 0;
         Observer.Observe('ids in order', Ids);
-        Observer.Finish();
+        Observer.Expect('fields', '1=ID 2=Enabled 3=Description 4=Learn More Link 5=Mandatory By 6=Can Try 7=Is One Way 8=Data Update Required 9=Mandatory By Version 10=Description In English ');
+        Observer.Expect('count', '14');
+        Observer.Expect('isempty', 'No');
+        Observer.Expect('ids in order', 'AcceleratedDepreciation,AdvancedTellMe,ConcurrentInventoryPosting,ConcurrentJobPosting,ConcurrentResourcePosting,DisableSoapWebServicesOnMicrosoftUIPages,DocumentReportExperience,EXRPerformantTrialBalance,FinancialReportDefaults,FullTextSearch,NewNotificationBar,SalesPrices,SaveValueToDatabasePromptly,SemanticMetadataSearch,');
+        Observer.Verify();
     end;
+
+
+
 
     [Test]
     procedure Rows_TemporaryRecordStartsEmpty()
@@ -223,6 +317,9 @@ codeunit 99986 "LT FK Rows Reads 29.1"
         FeatureKey.Insert();
         Observer.Observe('count after', Format(FeatureKey.Count()));
         Observer.Observe('get', Format(FeatureKey.Get('TempOnly')));
-        Observer.Finish();
+        Observer.Expect('count before', '0');
+        Observer.Expect('count after', '1');
+        Observer.Expect('get', 'Yes');
+        Observer.Verify();
     end;
 }
