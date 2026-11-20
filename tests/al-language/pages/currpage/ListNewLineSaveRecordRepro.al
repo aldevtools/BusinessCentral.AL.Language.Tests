@@ -13,7 +13,7 @@
 //   Measured on a local BC 29.1 OnPrem w1 container.
 // BC versions: 27, 28, 29
 
-table 97510 "LT NR Line"
+table 97510 "LT SRR Line"
 {
     DataClassification = CustomerContent;
 
@@ -41,10 +41,10 @@ table 97510 "LT NR Line"
     }
 }
 
-page 97511 "LT NR Line FactBox"
+page 97511 "LT SRR Line FactBox"
 {
     PageType = CardPart;
-    SourceTable = "LT NR Line";
+    SourceTable = "LT SRR Line";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -57,10 +57,10 @@ page 97511 "LT NR Line FactBox"
     }
 }
 
-page 97512 "LT NR Lines With FactBox"
+page 97512 "LT SRR Lines With FactBox"
 {
     PageType = List;
-    SourceTable = "LT NR Line";
+    SourceTable = "LT SRR Line";
     AutoSplitKey = true;
     ApplicationArea = All;
     UsageCategory = None;
@@ -84,7 +84,7 @@ page 97512 "LT NR Lines With FactBox"
         }
         area(FactBoxes)
         {
-            part(LineFactBox; "LT NR Line FactBox")
+            part(LineFactBox; "LT SRR Line FactBox")
             {
                 SubPageLink = "Group Code" = field("Group Code"), "Entry No." = field("Entry No.");
             }
@@ -100,10 +100,10 @@ page 97512 "LT NR Lines With FactBox"
         RowsRead: Integer;
 }
 
-page 97513 "LT NR Lines Save Update"
+page 97513 "LT SRR Lines Save Update"
 {
     PageType = List;
-    SourceTable = "LT NR Line";
+    SourceTable = "LT SRR Line";
     AutoSplitKey = true;
     ApplicationArea = All;
     UsageCategory = None;
@@ -128,10 +128,10 @@ page 97513 "LT NR Lines Save Update"
     }
 }
 
-page 97514 "LT NR Lines Update True"
+page 97514 "LT SRR Lines Update True"
 {
     PageType = List;
-    SourceTable = "LT NR Line";
+    SourceTable = "LT SRR Line";
     AutoSplitKey = true;
     ApplicationArea = All;
     UsageCategory = None;
@@ -155,18 +155,18 @@ page 97514 "LT NR Lines Update True"
     }
 }
 
-codeunit 97515 "LT NR Opener"
+codeunit 97515 "LT SRR Opener"
 {
     procedure Open(PageId: Integer; GroupCode: Code[10])
     var
-        Line: Record "LT NR Line";
+        Line: Record "LT SRR Line";
     begin
         Line.SetRange("Group Code", GroupCode);
         Page.RunModal(PageId, Line);
     end;
 }
 
-codeunit 97516 "LT NR Tests"
+codeunit 97516 "LT SRR Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -180,7 +180,7 @@ codeunit 97516 "LT NR Tests"
     [TransactionModel(TransactionModel::AutoCommit)]
     procedure ListNewLineRepro_SaveRecordUpdateFalse_WithFactBox_ShowsAndSavesTheLine()
     begin
-        RunWithOneRow(Page::"LT NR Lines With FactBox", 'G1');
+        RunWithOneRow(Page::"LT SRR Lines With FactBox", 'G1');
     end;
 
     [Test]
@@ -188,7 +188,7 @@ codeunit 97516 "LT NR Tests"
     [TransactionModel(TransactionModel::AutoCommit)]
     procedure ListNewLineRepro_SaveRecordUpdateFalse_WithoutParts_ShowsAndSavesTheLine()
     begin
-        RunWithOneRow(Page::"LT NR Lines Save Update", 'G2');
+        RunWithOneRow(Page::"LT SRR Lines Save Update", 'G2');
     end;
 
     [Test]
@@ -196,14 +196,14 @@ codeunit 97516 "LT NR Tests"
     [TransactionModel(TransactionModel::AutoCommit)]
     procedure ListNewLineRepro_UpdateTrue_WithoutParts_ShowsAndSavesTheLine()
     begin
-        RunWithOneRow(Page::"LT NR Lines Update True", 'G3');
+        RunWithOneRow(Page::"LT SRR Lines Update True", 'G3');
     end;
 
     // One row 'A' in the group before the new line; after OK the group holds 'A' with no Value and the new line 'X' with Value 'V'.
     local procedure RunWithOneRow(PageId: Integer; GroupCode: Code[10])
     var
-        Line: Record "LT NR Line";
-        Opener: Codeunit "LT NR Opener";
+        Line: Record "LT SRR Line";
+        Opener: Codeunit "LT SRR Opener";
     begin
         Line.DeleteAll();
         Line.Init();
@@ -228,7 +228,7 @@ codeunit 97516 "LT NR Tests"
     end;
 
     [ModalPageHandler]
-    procedure WithFactBoxHandler(var Lines: TestPage "LT NR Lines With FactBox")
+    procedure WithFactBoxHandler(var Lines: TestPage "LT SRR Lines With FactBox")
     begin
         Lines.New();
         Lines.Name.SetValue('X');
@@ -238,7 +238,7 @@ codeunit 97516 "LT NR Tests"
     end;
 
     [ModalPageHandler]
-    procedure SaveUpdateHandler(var Lines: TestPage "LT NR Lines Save Update")
+    procedure SaveUpdateHandler(var Lines: TestPage "LT SRR Lines Save Update")
     begin
         Lines.New();
         Lines.Name.SetValue('X');
@@ -248,7 +248,7 @@ codeunit 97516 "LT NR Tests"
     end;
 
     [ModalPageHandler]
-    procedure UpdateTrueHandler(var Lines: TestPage "LT NR Lines Update True")
+    procedure UpdateTrueHandler(var Lines: TestPage "LT SRR Lines Update True")
     begin
         Lines.New();
         Lines.Name.SetValue('X');
