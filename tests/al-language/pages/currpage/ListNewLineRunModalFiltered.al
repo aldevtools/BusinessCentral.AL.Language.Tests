@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/page/page-update-method
 // Scope: in-scope
 // local object: the table field's OnValidate that inserts the page's new line, and the page triggers that log, are what is under test
-// Fixtures used: Probe Observer (69160); own table 97067, log codeunit 97068, pages 97069 to 97072, opener codeunits 97073 and 97075,
+// Fixtures used: Probe Observer (69160); own table 97067, log codeunit 97068, pages 97069 to 97072, opener codeunits 97077 and 97075,
 //   test codeunit 97074
 // Probe (al-runner issue 8186, the reporter's open path): the same new-line steps as pages/currpage/ListNewLineCodeInsertUpdate.al, but the
 //   page is opened through Page.RunModal on a record filtered to one group, as the reporter's repro does. A List page stands on its new
@@ -319,7 +319,7 @@ codeunit 97068 "LT NR Log"
 }
 
 // Opens a page on a record, as the reporter's app codeunit does. FilterMode: 0 no filter, 1 SetRange to group G2, 2 SetFilter G2|G3.
-codeunit 97073 "LT NR Opener"
+codeunit 97077 "LT NR Opener"
 {
     procedure Open(PageId: Integer; FilterMode: Integer; Modal: Boolean)
     var
