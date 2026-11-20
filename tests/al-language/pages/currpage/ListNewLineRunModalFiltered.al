@@ -27,9 +27,9 @@
 //   - Page.RunModal on a record filtered with SetFilter to two groups: the new line gets no group, so the inserted row lies outside
 //     the view. After Update() the page shows the row before (or an empty new line on an empty view), the next SetValue lands there,
 //     and Next() saves it there (on an empty view Next() inserts that empty line as a second row with Value V).
-//   - TestPage.Trap does not catch Page.RunModal: the trapped TestPage stays closed. Without a ModalPageHandler, BC 27 raises
-//     "Unhandled UI: ModalPage <id>"; BC 28 and 29 raise nothing and Page.RunModal returns.
-//   Measured on local BC 27.5, 28.5 and 29.0 containers.
+//   - TestPage.Trap does not catch Page.RunModal: the trapped TestPage stays closed and nothing is written. Whether Page.RunModal
+//     without a ModalPageHandler raises "Unhandled UI: ModalPage <id>" depends on the test host, so that reading is not asserted.
+//   Measured on local BC 27.5, 28.5 and 29.0 containers, and in corpus CI.
 // BC versions: 27, 28, 29
 
 table 97067 "LT NR Line"
@@ -1433,23 +1433,16 @@ codeunit 97074 "LT NR Tests"
         Observer.Observe('read error', GetLastErrorText());
         ClearLastError();
         Observer.Observe('rows', GroupRows());
-#if BC28PLUS
-        Observer.Expect('runmodal raised', 'F');
-        Observer.Expect('runmodal error', '');
-        Observer.Expect('log', 'runmodal returned;');
+        // Whether Page.RunModal without a ModalPageHandler raises depends on the test host, not on the BC version: the local
+        // TestRunnerHub raised "Unhandled UI: ModalPage 97069" on BC 27.5 and nothing on 28.5 and 29.0; the CI test host raised on
+        // 28.5 and 29.0 too. So the three readings that follow from it are not asserted.
+        Observer.Ignore('runmodal raised');
+        Observer.Ignore('runmodal error');
+        Observer.Ignore('log');
         Observer.Expect('trapped page readable', 'F');
         Observer.Expect('trapped page shows', '');
         Observer.Expect('read error', 'The TestPage is not open.');
         Observer.Expect('rows', 'G1:O/,');
-#else
-        Observer.Expect('runmodal raised', 'T');
-        Observer.Expect('runmodal error', 'Unhandled UI: ModalPage 97069');
-        Observer.Expect('log', '');
-        Observer.Expect('trapped page readable', 'F');
-        Observer.Expect('trapped page shows', '');
-        Observer.Expect('read error', 'The TestPage is not open.');
-        Observer.Expect('rows', 'G1:O/,');
-#endif
         Observer.Verify();
     end;
 
