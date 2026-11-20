@@ -3,7 +3,7 @@
 // local object: the hosts and parts each vary one fact of the refill measured in PartRefillTestFilter.al, which is what is under test
 // Fixtures used: shared Assert (60021); from PartRefillTestFilter.al the tables "LT PR Op" (97100), "LT PR Booking" (97101),
 //   "LT PR Load Line" (97102), codeunits "LT PR Load Calc" (97103) and "LT PR Load Task" (97108), page "LT PR Load Part" (97104);
-//   Base Application table "Load Buffer" (933, temporary); own enums 90440-90441, pages 90442-90459, 90462 and 90464-90466,
+//   Base Application table "Load Buffer" (933, temporary); own enums 90440-90441, pages 90442-90459, 90462, 90464-90466 and 90471-90474,
 //   codeunit 90463, test codeunit 90461
 // Probe (al-runner issue 8537, follow-up of PartRefillTestFilter.al): the measured Worksheet cell (a host's OnAfterGetCurrRecord makes
 //   a ListPart on a temporary table delete and insert its rows through two part procedures, each ending with CurrPage.Update(false);
@@ -14,9 +14,10 @@
 //   (filter group 2) applied in Refresh; the part over a temporary Load Buffer (key Period Type, Period Start); a group with an
 //   enum variable control (OnValidate) and a non-editable control above an Editable = false repeater; fields with OnDrillDown and
 //   StyleExpr, OnOpenPage and OnAfterGetRecord on the part; part procedures with an enum parameter; the part handing Rec by var to a
-//   codeunit that inserts the rows (and clearing them in a local procedure); OnOpenPage and OnAfterGetRecord on the host; and all of
-//   them together, with First, First-Next-Previous and Last. Results are `name=Found:Period Start - TheDay:Allocated Qty.`; every cell finds the
-//   refilled row (30). Measured on a local BC 29.1 OnPrem w1 container (14/14 green); BC 27.5, 28.5 and 29.0 are left to CI.
+//   codeunit that inserts the rows (and clearing them in a local procedure); OnOpenPage and OnAfterGetRecord on the host; other parts
+//   with code (a linked ListPart with record triggers, a ListPart FactBox with OnAfterGetRecord, a CardPart FactBox with its own page
+//   background task); and all of them together, with First, First-Next-Previous and Last. Results are `name=Found:Period Start - TheDay:Allocated Qty.`; every cell finds the
+//   refilled row (30). Measured on a local BC 29.1 OnPrem w1 container (15/15 green); BC 27.5, 28.5 and 29.0 are left to CI.
 // BC versions: 27, 28, 29
 enum 90440 "LT PS Load Level"
 {
@@ -117,6 +118,125 @@ page 90444 "LT PS Op FB B"
             field("No."; Rec."No.") { ApplicationArea = All; }
         }
     }
+}
+page 90471 "LT PS Op Lines Code"
+{
+    PageType = ListPart;
+    SourceTable = "LT PR Op";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+            }
+        }
+    }
+
+    trigger OnAfterGetRecord()
+    begin
+        Reads += 1;
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        exit(true);
+    end;
+
+    trigger OnModifyRecord(): Boolean
+    begin
+        exit(true);
+    end;
+
+    trigger OnDeleteRecord(): Boolean
+    begin
+        exit(true);
+    end;
+
+    var
+        Reads: Integer;
+        Touched: Integer;
+
+    procedure Touch()
+    begin
+        Touched += 1;
+    end;
+}
+
+page 90472 "LT PS Op FB List"
+{
+    PageType = ListPart;
+    SourceTable = "LT PR Op";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field("Resource No."; Rec."Resource No.") { ApplicationArea = All; }
+            }
+        }
+    }
+
+    trigger OnAfterGetRecord()
+    begin
+        Reads += 1;
+    end;
+
+    var
+        Reads: Integer;
+}
+
+page 90473 "LT PS Op FB Bg"
+{
+    PageType = CardPart;
+    SourceTable = "LT PR Op";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field("No."; Rec."No.") { ApplicationArea = All; }
+            field(Info; Info) { ApplicationArea = All; }
+        }
+    }
+
+    trigger OnAfterGetCurrRecord()
+    var
+        Params: Dictionary of [Text, Text];
+    begin
+        if TaskId <> 0 then
+            CurrPage.CancelBackgroundTask(TaskId);
+        Params.Add('Resource', Rec."Resource No.");
+        CurrPage.EnqueueBackgroundTask(TaskId, Codeunit::"LT PR Load Task", Params, 120000, PageBackgroundTaskErrorLevel::Warning);
+    end;
+
+    trigger OnPageBackgroundTaskCompleted(CompletedTaskId: Integer; Results: Dictionary of [Text, Text])
+    begin
+        if CompletedTaskId <> TaskId then
+            exit;
+        TaskId := 0;
+        Info := Format(Results.Count());
+    end;
+
+    trigger OnPageBackgroundTaskError(FailedTaskId: Integer; ErrorCode: Text; ErrorText: Text; ErrorCallStack: Text; var IsHandled: Boolean)
+    begin
+        IsHandled := true;
+        TaskId := 0;
+    end;
+
+    var
+        TaskId: Integer;
+        Info: Text;
 }
 
 page 90445 "LT PS Parts Host"
@@ -1388,6 +1508,88 @@ page 90458 "LT PS Full Part"
     end;
 }
 
+page 90474 "LT PS PartsCode Host"
+{
+    PageType = Worksheet;
+    SourceTable = "LT PR Op";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Ops)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+                field("Resource No."; Rec."Resource No.") { ApplicationArea = All; }
+            }
+            part(Lines; "LT PS Op Lines Code")
+            {
+                ApplicationArea = All;
+                SubPageLink = "No." = field("No.");
+                UpdatePropagation = Both;
+            }
+            part(Load; "LT PR Load Part")
+            {
+                ApplicationArea = All;
+            }
+        }
+        area(FactBoxes)
+        {
+            part(InfoA; "LT PS Op FB List")
+            {
+                ApplicationArea = All;
+                SubPageLink = "No." = field("No.");
+            }
+            part(InfoB; "LT PS Op FB Bg")
+            {
+                ApplicationArea = All;
+                SubPageLink = "No." = field("No.");
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(Refresh)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    CurrPage.Load.Page.Invalidate();
+                    CurrPage.Update(false);
+                end;
+            }
+        }
+    }
+
+    var
+        IsMachine: Boolean;
+        CurrentCount: Integer;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        IsMachine := Rec."Resource No." <> '';
+        CurrentCount += 1;
+        CurrPage.Lines.Page.Touch();
+        LoadNow();
+    end;
+
+    local procedure LoadNow()
+    var
+        LoadCalc: Codeunit "LT PR Load Calc";
+    begin
+        if CurrPage.Load.Page.IsLoadedFor(Rec."Resource No.") then
+            exit;
+        CurrPage.Load.Page.ClearLines(Rec."Resource No.");
+        CurrPage.Load.Page.SetLoadLines(LoadCalc.Calculate(Rec."Resource No."));
+    end;
+}
+
 page 90459 "LT PS Full Host"
 {
     PageType = Worksheet;
@@ -1404,7 +1606,7 @@ page 90459 "LT PS Full Host"
                 field("No."; Rec."No.") { ApplicationArea = All; }
                 field("Resource No."; Rec."Resource No.") { ApplicationArea = All; }
             }
-            part(Lines; "LT PS Op Lines")
+            part(Lines; "LT PS Op Lines Code")
             {
                 ApplicationArea = All;
                 SubPageLink = "No." = field("No.");
@@ -1418,12 +1620,12 @@ page 90459 "LT PS Full Host"
         }
         area(FactBoxes)
         {
-            part(InfoA; "LT PS Op FB A")
+            part(InfoA; "LT PS Op FB List")
             {
                 ApplicationArea = All;
                 SubPageLink = "No." = field("No.");
             }
-            part(InfoB; "LT PS Op FB B")
+            part(InfoB; "LT PS Op FB Bg")
             {
                 ApplicationArea = All;
                 SubPageLink = "No." = field("No.");
@@ -1835,6 +2037,32 @@ codeunit 90461 "LT PS Tests"
         Seen += Fact('after', Found, Host.Load."Period Start".AsDate(), Host.Load."Allocated Qty.".AsDecimal());
         Host.Close();
         Assert.AreEqual('before=T:0:10;after=T:0:30;', Seen, 'OnOpenPage and OnAfterGetRecord on the host: Refresh, then Filter.SetFilter and first on the part');
+    end;
+
+    [Test]
+    procedure PartRefillShape_OtherPartsWithCode_FindsRefilledRow()
+    var
+        Op: Record "LT PR Op";
+        Host: TestPage "LT PS PartsCode Host";
+        Found: Boolean;
+        Seen: Text;
+    begin
+        Initialize();
+        Seed(Op);
+        Commit();
+        Host.OpenView();
+        Host.GoToRecord(Op);
+        Host.Load.Filter.SetFilter("Period Start", Format(TheDay()));
+        Found := Host.Load.First();
+        Seen := Fact('before', Found, Host.Load."Period Start".AsDate(), Host.Load."Allocated Qty.".AsDecimal());
+        AddBooking(3, TheDay(), 20);
+        Commit();
+        Host.Refresh.Invoke();
+        Host.Load.Filter.SetFilter("Period Start", Format(TheDay()));
+        Found := Host.Load.First();
+        Seen += Fact('after', Found, Host.Load."Period Start".AsDate(), Host.Load."Allocated Qty.".AsDecimal());
+        Host.Close();
+        Assert.AreEqual('before=T:0:10;after=T:0:30;', Seen, 'other parts with code: a linked ListPart with record triggers, a ListPart FactBox with OnAfterGetRecord, a CardPart FactBox with its own page background task; the host calls a procedure of the ListPart: Refresh, then Filter.SetFilter and first on the part');
     end;
 
     [Test]
