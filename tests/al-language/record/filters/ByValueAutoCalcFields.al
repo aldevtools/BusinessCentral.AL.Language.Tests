@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-setautocalcfields-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own objects 78810..78814 (BVA Head, BVA Detail, BVA Buffer, BVA Callee,
-//   BVA By Value AutoCalc Tests)
+// Fixtures used: Probe Observer (codeunit 69160); own objects 78810..78815 (BVA Head, BVA Detail, BVA Buffer, BVA Callee,
+//   BVA By Value AutoCalc Tests, BVA Holder)
 // local object: the FlowFields of the table, the callee table's procedures and the caller's SetAutoCalcFields are what is
 //   under test.
 // Probe (al-runner issue 8538): what a procedure sees of the caller's SetAutoCalcFields when it gets a record of a stored table
@@ -19,13 +19,17 @@
 //   In each callee: the FlowField's value at entry, the filters, Count, the key, then FindLast and the FlowField's value of
 //   the row it reads, and in every cell the caller's filters, key and FlowField after a FindLast of its own.
 //   Each table procedure also has a rich view (secondary key, descending, filters in groups 0 and 2, two FlowFields, a mark).
+//   Added: Get of the copy, Other.Copy of the copy then FindLast, the callee's own SetAutoCalcFields of another FlowField, a
+//   FlowField whose formula reads a FlowFilter (none set), and Buffer.Proc(Head) from the OnInsert of a third table.
 // Facts (observed on a local BC 29.1 OnPrem W1 container; 27.5 and 28.5 by the corpus CI):
 //   - RecordRef.GetTable of the caller's own record keeps its SetAutoCalcFields (FindLast calculates 30);
 //   - a by-value copy keeps the field values of the caller's current row, its calculated FlowFields included (total=10,
 //     count=2 for two FlowFields), and has the view of a fresh record (no filters, primary key, ascending);
 //   - the copy does not keep the caller's SetAutoCalcFields: its own FindLast, and a FindLast of a RecordRef that GetTable
 //     took of it through a Variant, leave the FlowFields 0 (lastTotal=0 lastCount=0), for a codeunit procedure, a local
-//     procedure of the test codeunit, a table procedure of another table and Head.Proc(Head);
+//     procedure of the test codeunit, a table procedure of another table and Head.Proc(Head); so do its Get, a FindLast of
+//     another record that copied it with Copy, and a FlowFilter-dependent FlowField; a SetAutoCalcFields of its own
+//     calculates only the field it names (total=0 count=1);
 //   - the caller keeps its filters, key and SetAutoCalcFields after every call.
 // BC versions: 27.5, 28.5, 29.0
 
@@ -47,6 +51,13 @@ table 78810 "BVA Head"
         {
             FieldClass = FlowField;
             CalcFormula = count("BVA Detail" where("Head No." = field("No.")));
+            Editable = false;
+        }
+        field(5; "Line Filter"; Integer) { FieldClass = FlowFilter; }
+        field(6; "Filtered Total"; Decimal)
+        {
+            FieldClass = FlowField;
+            CalcFormula = sum("BVA Detail".Amount where("Head No." = field("No."), "Line No." = field("Line Filter")));
             Editable = false;
         }
     }
@@ -136,6 +147,60 @@ codeunit 78813 "BVA Callee"
     begin
         exit(DescribeVariant(HeadCopy));
     end;
+
+    // Added for the review of the runtime change: other reads of the copy.
+    procedure GetOfCopy(H: Record "BVA Head"): Text
+    begin
+        H.Get('H3');
+        exit('get no=' + H."No." + ' total=' + Format(H."Line Total", 0, 9));
+    end;
+
+    procedure CopyOfCopy(H: Record "BVA Head"): Text
+    var
+        Other: Record "BVA Head";
+    begin
+        Other.Copy(H);
+        Other.FindLast();
+        exit('other no=' + Other."No." + ' total=' + Format(Other."Line Total", 0, 9));
+    end;
+
+    procedure AddAutoCalcOnCopy(H: Record "BVA Head"): Text
+    begin
+        H.SetAutoCalcFields("Line Count");
+        H.FindLast();
+        exit('no=' + H."No." + ' total=' + Format(H."Line Total", 0, 9) + ' count=' + Format(H."Line Count"));
+    end;
+
+    procedure FilteredTotalOfCopy(H: Record "BVA Head"): Text
+    begin
+        H.FindLast();
+        exit('no=' + H."No." + ' filtered=' + Format(H."Filtered Total", 0, 9));
+    end;
+}
+
+// A third table whose OnInsert hands a filtered record with SetAutoCalcFields to Buffer.Proc(Head).
+table 78815 "BVA Holder"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Line No."; Integer) { }
+        field(2; Info; Text[250]) { }
+    }
+
+    keys { key(PK; "Line No.") { Clustered = true; } }
+
+    trigger OnInsert()
+    var
+        Head: Record "BVA Head";
+        Buffer: Record "BVA Buffer";
+    begin
+        Head.SetRange(Kind, 'A');
+        Head.SetAutoCalcFields("Line Total");
+        Head.FindFirst();
+        Info := CopyStr(Buffer.DescribeHead(Head), 1, MaxStrLen(Info));
+    end;
 }
 
 codeunit 78814 "BVA By Value AutoCalc Tests"
@@ -151,9 +216,11 @@ codeunit 78814 "BVA By Value AutoCalc Tests"
     var
         Head: Record "BVA Head";
         Detail: Record "BVA Detail";
+        Holder: Record "BVA Holder";
     begin
         Head.DeleteAll();
         Detail.DeleteAll();
+        Holder.DeleteAll();
         AddHead('H1', 'A');
         AddHead('H2', 'A');
         AddHead('H3', 'B');
@@ -445,6 +512,95 @@ codeunit 78814 "BVA By Value AutoCalc Tests"
         Observer.Expect('callee', 'self f={Kind: A} copy no=H2 total=20 count=1 f={} n=3 key=No. asc=Yes last=H3 lastTotal=0 lastCount=0');
         Observer.Expect('caller after', 'f={Kind: A} key=Kind total=20');
         Observer.Expect('caller findlast', 'no=H1 total=10 count=2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValueAutoCalc_Codeunit_GetOfCopy()
+    var
+        Observer: Codeunit "Probe Observer";
+        Head: Record "BVA Head";
+    begin
+        Initialize();
+        Head.SetRange(Kind, 'A');
+        Head.SetAutoCalcFields("Line Total");
+        Head.FindFirst();
+        Observer.Observe('callee', Callee.GetOfCopy(Head));
+        ObserveCaller(Observer, Head);
+        Observer.Expect('callee', 'get no=H3 total=0');
+        Observer.Expect('caller after', 'f={Kind: A} key=No. total=10');
+        Observer.Expect('caller findlast', 'no=H2 total=20 count=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValueAutoCalc_Codeunit_CopyOfCopy()
+    var
+        Observer: Codeunit "Probe Observer";
+        Head: Record "BVA Head";
+    begin
+        Initialize();
+        Head.SetRange(Kind, 'A');
+        Head.SetAutoCalcFields("Line Total");
+        Head.FindFirst();
+        Observer.Observe('callee', Callee.CopyOfCopy(Head));
+        ObserveCaller(Observer, Head);
+        Observer.Expect('callee', 'other no=H3 total=0');
+        Observer.Expect('caller after', 'f={Kind: A} key=No. total=10');
+        Observer.Expect('caller findlast', 'no=H2 total=20 count=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValueAutoCalc_Codeunit_CalleeAddsAutoCalc()
+    var
+        Observer: Codeunit "Probe Observer";
+        Head: Record "BVA Head";
+    begin
+        Initialize();
+        Head.SetRange(Kind, 'A');
+        Head.SetAutoCalcFields("Line Total");
+        Head.FindFirst();
+        Observer.Observe('callee', Callee.AddAutoCalcOnCopy(Head));
+        ObserveCaller(Observer, Head);
+        Observer.Expect('callee', 'no=H3 total=0 count=1');
+        Observer.Expect('caller after', 'f={Kind: A} key=No. total=10');
+        Observer.Expect('caller findlast', 'no=H2 total=20 count=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValueAutoCalc_Codeunit_FlowFilterFormula()
+    var
+        Observer: Codeunit "Probe Observer";
+        Head: Record "BVA Head";
+    begin
+        Initialize();
+        Head.SetRange(Kind, 'A');
+        Head.SetAutoCalcFields("Filtered Total");
+        Head.FindFirst();
+        Observer.Observe('caller filtered', Format(Head."Filtered Total", 0, 9));
+        Observer.Observe('callee', Callee.FilteredTotalOfCopy(Head));
+        ObserveCaller(Observer, Head);
+        Observer.Expect('caller filtered', '10');
+        Observer.Expect('callee', 'no=H3 filtered=0');
+        Observer.Expect('caller after', 'f={Kind: A} key=No. total=0');
+        Observer.Expect('caller findlast', 'no=H2 total=0 count=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValueAutoCalc_TableProcOtherTable_FromThirdTableTrigger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Holder: Record "BVA Holder";
+    begin
+        Initialize();
+        Holder."Line No." := 1;
+        Holder.Insert(true);
+        Holder.Get(1);
+        Observer.Observe('callee', Holder.Info);
+        Observer.Expect('callee', 'no=H1 total=10 count=0 f={} n=3 key=No. asc=Yes last=H3 lastTotal=0 lastCount=0');
         Observer.Verify();
     end;
 }
