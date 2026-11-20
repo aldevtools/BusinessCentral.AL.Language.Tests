@@ -77,7 +77,7 @@ codeunit 71927 "LT P160 Emit Version"
 #if BC29PLUS
         Observer.Observe('codeunit number', Number);
 #endif
-        Observer.Expect('codeunit|text', 'You tried to invoke the CodeUnit object with the ID 71998 from the object Test Runner - Mgt. An object with that ID does not exist in the current application compiled with emit version n.');
+        Observer.Expect('codeunit|text', 'You tried to invoke the CodeUnit object with the ID 71998 from the object LT P160 Emit Version. An object with that ID does not exist in the current application compiled with emit version n.');
         Observer.Expect('codeunit|code', 'AL:MetadataNotFound');
         ExpectMajor('codeunit');
 #if BC29PLUS
@@ -105,20 +105,17 @@ codeunit 71927 "LT P160 Emit Version"
         asserterror Report.Run(71998);
         Report_ := ObserveMissing('report');
         Observer.Observe('same number', Format((Table_ = Codeunit_) and (Page_ = Codeunit_) and (Report_ = Codeunit_)));
-        Observer.Expect('codeunit|text', 'You tried to invoke the CodeUnit object with the ID 71998 from the object Test Runner - Mgt. An object with that ID does not exist in the current application compiled with emit version n.');
-        Observer.Expect('codeunit|code', 'AL:MetadataNotFound');
-        ExpectMajor('codeunit');
-        Observer.Expect('table|text', 'You tried to invoke the Table object with the ID 71998 from the object Test Runner - Mgt. An object with that ID does not exist in the current application compiled with emit version n.');
-        Observer.Expect('table|code', 'AL:MetadataNotFound');
-        ExpectMajor('table');
-        Observer.Expect('page|text', 'You tried to invoke the Page object with the ID 71998 from the object Test Runner - Mgt. An object with that ID does not exist in the current application compiled with emit version n.');
-        Observer.Expect('page|code', 'AL:MetadataNotFound');
-        ExpectMajor('page');
-        Observer.Expect('report|text', 'You tried to invoke the Report object with the ID 71998 from the object Test Runner - Mgt. An object with that ID does not exist in the current application compiled with emit version n.');
-        Observer.Expect('report|code', 'AL:MetadataNotFound');
-        ExpectMajor('report');
-        Observer.Expect('same number', 'Yes');
-        Observer.Verify();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure MissingCodeunit_ReturnValueUsed()
+    var
+        Ok: Boolean;
+    begin
+        asserterror Ok := Codeunit.Run(71998);
+        ObserveMissing('used');
+        Observer.Finish();
     end;
 
     [Test]
