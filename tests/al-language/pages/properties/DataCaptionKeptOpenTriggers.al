@@ -1,7 +1,29 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-datacaptionexpression-property
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own objects 77610-77643 (DKT Entry, DKT Log, DKT Mgt, DKT Mgt SI, 29 DKT pages, DKT Tests)
-// Probe: draft, facts filled in after observation.
+// Probe: for al-runner's data caption at the open of a Worksheet (the cells next to DataCaptionKeptOpen.al). The same two opens as
+//   there, on pages with other trigger sets, plus four variations of the modal open:
+//   Shape N: a Page variable's own procedure (SetDoc), then Run(), caught by a TestPage Trap; the expression is a page procedure
+//     `if Rec."Doc Name" <> '' then exit(StrSubstNo(SelectedLbl, Rec."Doc Name")); exit('');`.
+//   Shape L: a Page variable's own procedure (SetSource), then SetTableView and RunModal(), answered by a ModalPageHandler; the
+//     expression is `Mgt.GetCaption()`, a codeunit variable of the page whose procedure returns a Text variable of that codeunit.
+//   Trigger sets (pages DKT N/L <set>): Init = OnInit + OnOpenPage, Close = OnOpenPage + OnClosePage, Both = all three,
+//     NoOpen = OnInit + OnClosePage (no rows). OnInit sets the page variable that enables the page's action and logs; OnClosePage
+//     logs the row count. Base = OnOpenPage only (the trigger set of DataCaptionKeptOpen.al).
+//   Each on three pages: Pure (the expression), Logged (the same expression, which also logs DC=<value>) and Plain (none).
+//   Variations of shape L on the Base pages: W0 as DataCaptionKeptOpen.al, W1 the RunModal result assigned, W2 SetTableView of a
+//     stored (not temporary) record, W3 a SingleInstance codeunit as the expression's source, W4 the view filters a non-key field.
+// Facts:
+//   - For every trigger set and variation, what the test reads after the open on the Pure page (page-variable and Rec controls,
+//     First and Next, Filter.GetFilter, the action's Enabled, an action that modifies Rec, the log) equals what it reads on the
+//     Plain page.
+//   - The expression runs once per open: after OnInit and OnOpenPage, before the Trap's first read or the handler. A Caption read
+//     does not run it again, nor does the close. OnClosePage runs at TestPage.Close (shape N) or after the handler returns and
+//     before RunModal returns (shape L).
+//   - OnInit sees the page variable DocNo empty, although SetDoc ran before Run.
+//   - Caption: '<page Caption> - <expression>' when the expression is not empty, else the page Caption.
+//   - W1: RunModal returns Action::OK when the handler sets no response.
+// BC versions: 27.5, 28.5, 29.0
 
 table 77610 "DKT Entry"
 {
@@ -2161,7 +2183,12 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('caption', P.Caption());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'doc=D1 filter= first=No name= next=No');
+        Observer.Expect('enabled', 'Yes');
+        Observer.Expect('log', 'OnInit doc= | OnOpenPage | after run');
+        Observer.Expect('caption', 'DKT N Init Pure');
+        Observer.Expect('log after close', 'OnInit doc= | OnOpenPage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2184,7 +2211,12 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('caption', P.Caption());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'doc=D1 filter= first=Yes name=Doc D1 next=No');
+        Observer.Expect('enabled', 'Yes');
+        Observer.Expect('log', 'OnInit doc= | OnOpenPage | after run');
+        Observer.Expect('caption', 'DKT N Init Pure - Picked - Doc D1');
+        Observer.Expect('log after close', 'OnInit doc= | OnOpenPage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2206,7 +2238,11 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('log', Log.Joined());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'doc=D1 filter= first=No name= next=No');
+        Observer.Expect('enabled', 'Yes');
+        Observer.Expect('log', 'OnInit doc= | OnOpenPage | after run');
+        Observer.Expect('log after close', 'OnInit doc= | OnOpenPage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2228,7 +2264,11 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('log', Log.Joined());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'doc=D1 filter= first=Yes name=Doc D1 next=No');
+        Observer.Expect('enabled', 'Yes');
+        Observer.Expect('log', 'OnInit doc= | OnOpenPage | after run');
+        Observer.Expect('log after close', 'OnInit doc= | OnOpenPage | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2249,7 +2289,12 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('log after caption', Log.Joined());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('doc', 'D1');
+        Observer.Expect('log', 'OnInit doc= | OnOpenPage | DC= | after run');
+        Observer.Expect('caption', 'DKT N Init Logged');
+        Observer.Expect('log after caption', 'OnInit doc= | OnOpenPage | DC= | after run');
+        Observer.Expect('log after close', 'OnInit doc= | OnOpenPage | DC= | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2270,7 +2315,12 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('log after caption', Log.Joined());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('doc', 'D1');
+        Observer.Expect('log', 'OnInit doc= | OnOpenPage | DC=Doc D1 | after run');
+        Observer.Expect('caption', 'DKT N Init Logged - Picked - Doc D1');
+        Observer.Expect('log after caption', 'OnInit doc= | OnOpenPage | DC=Doc D1 | after run');
+        Observer.Expect('log after close', 'OnInit doc= | OnOpenPage | DC=Doc D1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2292,7 +2342,11 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('caption', P.Caption());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'doc=D1 filter= first=No name= next=No');
+        Observer.Expect('log', 'OnOpenPage | after run');
+        Observer.Expect('caption', 'DKT N Close Pure');
+        Observer.Expect('log after close', 'OnOpenPage | after run | OnClosePage rows=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2314,7 +2368,11 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('caption', P.Caption());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'doc=D1 filter= first=Yes name=Doc D1 next=No');
+        Observer.Expect('log', 'OnOpenPage | after run');
+        Observer.Expect('caption', 'DKT N Close Pure - Picked - Doc D1');
+        Observer.Expect('log after close', 'OnOpenPage | after run | OnClosePage rows=1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2335,7 +2393,10 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('log', Log.Joined());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'doc=D1 filter= first=No name= next=No');
+        Observer.Expect('log', 'OnOpenPage | after run');
+        Observer.Expect('log after close', 'OnOpenPage | after run | OnClosePage rows=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2356,7 +2417,10 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('log', Log.Joined());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'doc=D1 filter= first=Yes name=Doc D1 next=No');
+        Observer.Expect('log', 'OnOpenPage | after run');
+        Observer.Expect('log after close', 'OnOpenPage | after run | OnClosePage rows=1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2377,7 +2441,12 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('log after caption', Log.Joined());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('doc', 'D1');
+        Observer.Expect('log', 'OnOpenPage | DC= | after run');
+        Observer.Expect('caption', 'DKT N Close Logged');
+        Observer.Expect('log after caption', 'OnOpenPage | DC= | after run');
+        Observer.Expect('log after close', 'OnOpenPage | DC= | after run | OnClosePage rows=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2398,7 +2467,12 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('log after caption', Log.Joined());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('doc', 'D1');
+        Observer.Expect('log', 'OnOpenPage | DC=Doc D1 | after run');
+        Observer.Expect('caption', 'DKT N Close Logged - Picked - Doc D1');
+        Observer.Expect('log after caption', 'OnOpenPage | DC=Doc D1 | after run');
+        Observer.Expect('log after close', 'OnOpenPage | DC=Doc D1 | after run | OnClosePage rows=1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2421,7 +2495,12 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('caption', P.Caption());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'doc=D1 filter= first=No name= next=No');
+        Observer.Expect('enabled', 'Yes');
+        Observer.Expect('log', 'OnInit doc= | OnOpenPage | after run');
+        Observer.Expect('caption', 'DKT N Both Pure');
+        Observer.Expect('log after close', 'OnInit doc= | OnOpenPage | after run | OnClosePage rows=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2444,7 +2523,12 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('caption', P.Caption());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'doc=D1 filter= first=Yes name=Doc D1 next=No');
+        Observer.Expect('enabled', 'Yes');
+        Observer.Expect('log', 'OnInit doc= | OnOpenPage | after run');
+        Observer.Expect('caption', 'DKT N Both Pure - Picked - Doc D1');
+        Observer.Expect('log after close', 'OnInit doc= | OnOpenPage | after run | OnClosePage rows=1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2466,7 +2550,11 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('log', Log.Joined());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'doc=D1 filter= first=No name= next=No');
+        Observer.Expect('enabled', 'Yes');
+        Observer.Expect('log', 'OnInit doc= | OnOpenPage | after run');
+        Observer.Expect('log after close', 'OnInit doc= | OnOpenPage | after run | OnClosePage rows=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2488,7 +2576,11 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('log', Log.Joined());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'doc=D1 filter= first=Yes name=Doc D1 next=No');
+        Observer.Expect('enabled', 'Yes');
+        Observer.Expect('log', 'OnInit doc= | OnOpenPage | after run');
+        Observer.Expect('log after close', 'OnInit doc= | OnOpenPage | after run | OnClosePage rows=1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2509,7 +2601,12 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('log after caption', Log.Joined());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('doc', 'D1');
+        Observer.Expect('log', 'OnInit doc= | OnOpenPage | DC= | after run');
+        Observer.Expect('caption', 'DKT N Both Logged');
+        Observer.Expect('log after caption', 'OnInit doc= | OnOpenPage | DC= | after run');
+        Observer.Expect('log after close', 'OnInit doc= | OnOpenPage | DC= | after run | OnClosePage rows=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2530,7 +2627,12 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('log after caption', Log.Joined());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('doc', 'D1');
+        Observer.Expect('log', 'OnInit doc= | OnOpenPage | DC=Doc D1 | after run');
+        Observer.Expect('caption', 'DKT N Both Logged - Picked - Doc D1');
+        Observer.Expect('log after caption', 'OnInit doc= | OnOpenPage | DC=Doc D1 | after run');
+        Observer.Expect('log after close', 'OnInit doc= | OnOpenPage | DC=Doc D1 | after run | OnClosePage rows=1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2553,7 +2655,12 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('caption', P.Caption());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'doc=D1 filter= first=No name= next=No');
+        Observer.Expect('enabled', 'Yes');
+        Observer.Expect('log', 'OnInit doc= | after run');
+        Observer.Expect('caption', 'DKT N NoOpen Pure');
+        Observer.Expect('log after close', 'OnInit doc= | after run | OnClosePage rows=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2575,7 +2682,11 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('log', Log.Joined());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'doc=D1 filter= first=No name= next=No');
+        Observer.Expect('enabled', 'Yes');
+        Observer.Expect('log', 'OnInit doc= | after run');
+        Observer.Expect('log after close', 'OnInit doc= | after run | OnClosePage rows=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2596,7 +2707,12 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('log after caption', Log.Joined());
         P.Close();
         Observer.Observe('log after close', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('doc', 'D1');
+        Observer.Expect('log', 'OnInit doc= | DC= | after run');
+        Observer.Expect('caption', 'DKT N NoOpen Logged');
+        Observer.Expect('log after caption', 'OnInit doc= | DC= | after run');
+        Observer.Expect('log after close', 'OnInit doc= | DC= | after run | OnClosePage rows=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2616,7 +2732,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=No qty= filter=1 qtyfilter= enabled=Yes cap=DKT L Init Pure');
+        Observer.Expect('log', 'OnInit | OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2636,7 +2754,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=Yes qty=7.00 filter=1 qtyfilter= enabled=Yes cap=DKT L Init Pure - Src');
+        Observer.Expect('log', 'OnInit | OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2656,7 +2776,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=No qty= filter=1 qtyfilter= enabled=Yes');
+        Observer.Expect('log', 'OnInit | OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2676,7 +2798,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=Yes qty=7.00 filter=1 qtyfilter= enabled=Yes');
+        Observer.Expect('log', 'OnInit | OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2696,7 +2820,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'cap=DKT L Init Logged');
+        Observer.Expect('log', 'OnInit | OnOpenPage | DC=Src | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2716,7 +2842,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'cap=DKT L Init Logged - Src');
+        Observer.Expect('log', 'OnInit | OnOpenPage | DC=Src | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2736,7 +2864,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=No qty= filter=1 qtyfilter= enabled=Yes cap=DKT L Close Pure');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | OnClosePage rows=0 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2756,7 +2886,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=Yes qty=7.00 filter=1 qtyfilter= enabled=Yes cap=DKT L Close Pure - Src');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | OnClosePage rows=1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2776,7 +2908,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=No qty= filter=1 qtyfilter= enabled=Yes');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | OnClosePage rows=0 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2796,7 +2930,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=Yes qty=7.00 filter=1 qtyfilter= enabled=Yes');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | OnClosePage rows=1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2816,7 +2952,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'cap=DKT L Close Logged');
+        Observer.Expect('log', 'OnOpenPage | DC=Src | H0 | H1 | OnClosePage rows=0 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2836,7 +2974,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'cap=DKT L Close Logged - Src');
+        Observer.Expect('log', 'OnOpenPage | DC=Src | H0 | H1 | OnClosePage rows=1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2856,7 +2996,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=No qty= filter=1 qtyfilter= enabled=Yes cap=DKT L Both Pure');
+        Observer.Expect('log', 'OnInit | OnOpenPage | H0 | H1 | OnClosePage rows=0 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2876,7 +3018,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=Yes qty=7.00 filter=1 qtyfilter= enabled=Yes cap=DKT L Both Pure - Src');
+        Observer.Expect('log', 'OnInit | OnOpenPage | H0 | H1 | OnClosePage rows=1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2896,7 +3040,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=No qty= filter=1 qtyfilter= enabled=Yes');
+        Observer.Expect('log', 'OnInit | OnOpenPage | H0 | H1 | OnClosePage rows=0 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2916,7 +3062,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=Yes qty=7.00 filter=1 qtyfilter= enabled=Yes');
+        Observer.Expect('log', 'OnInit | OnOpenPage | H0 | H1 | OnClosePage rows=1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2936,7 +3084,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'cap=DKT L Both Logged');
+        Observer.Expect('log', 'OnInit | OnOpenPage | DC=Src | H0 | H1 | OnClosePage rows=0 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2956,7 +3106,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'cap=DKT L Both Logged - Src');
+        Observer.Expect('log', 'OnInit | OnOpenPage | DC=Src | H0 | H1 | OnClosePage rows=1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2976,7 +3128,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=No qty= filter=1 qtyfilter= enabled=Yes cap=DKT L NoOpen Pure');
+        Observer.Expect('log', 'OnInit | H0 | H1 | OnClosePage rows=0 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2996,7 +3150,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=No qty= filter=1 qtyfilter= enabled=Yes');
+        Observer.Expect('log', 'OnInit | H0 | H1 | OnClosePage rows=0 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3016,7 +3172,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'cap=DKT L NoOpen Logged');
+        Observer.Expect('log', 'OnInit | DC=Src | H0 | H1 | OnClosePage rows=0 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3036,7 +3194,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=No qty= filter=1 qtyfilter= enabled=Yes cap=DKT L Base Pure');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3056,7 +3216,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=Yes qty=7.00 filter=1 qtyfilter= enabled=Yes cap=DKT L Base Pure - Src');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3076,7 +3238,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=No qty= filter=1 qtyfilter= enabled=Yes');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3096,7 +3260,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=Yes qty=7.00 filter=1 qtyfilter= enabled=Yes');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3116,7 +3282,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'cap=DKT L Base Logged');
+        Observer.Expect('log', 'OnOpenPage | DC=Src | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3136,7 +3304,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'cap=DKT L Base Logged - Src');
+        Observer.Expect('log', 'OnOpenPage | DC=Src | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3158,7 +3328,10 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('reads', Reads);
         Observer.Observe('result', Format(Result));
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=No qty= filter=1 qtyfilter= enabled=Yes cap=DKT L Base Pure');
+        Observer.Expect('result', 'OK');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3180,7 +3353,10 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('reads', Reads);
         Observer.Observe('result', Format(Result));
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=Yes qty=7.00 filter=1 qtyfilter= enabled=Yes cap=DKT L Base Pure - Src');
+        Observer.Expect('result', 'OK');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3202,7 +3378,10 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('reads', Reads);
         Observer.Observe('result', Format(Result));
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=No qty= filter=1 qtyfilter= enabled=Yes');
+        Observer.Expect('result', 'OK');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3224,7 +3403,10 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('reads', Reads);
         Observer.Observe('result', Format(Result));
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=Yes qty=7.00 filter=1 qtyfilter= enabled=Yes');
+        Observer.Expect('result', 'OK');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3246,7 +3428,10 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('reads', Reads);
         Observer.Observe('result', Format(Result));
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'cap=DKT L Base Logged');
+        Observer.Expect('result', 'OK');
+        Observer.Expect('log', 'OnOpenPage | DC=Src | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3268,7 +3453,10 @@ codeunit 77643 "DKT Tests"
         Observer.Observe('reads', Reads);
         Observer.Observe('result', Format(Result));
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'cap=DKT L Base Logged - Src');
+        Observer.Expect('result', 'OK');
+        Observer.Expect('log', 'OnOpenPage | DC=Src | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3289,7 +3477,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=No qty= filter=1 qtyfilter= enabled=Yes cap=DKT L Base Pure');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3310,7 +3500,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=Yes qty=7.00 filter=1 qtyfilter= enabled=Yes cap=DKT L Base Pure - Src');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3331,7 +3523,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=No qty= filter=1 qtyfilter= enabled=Yes');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3352,7 +3546,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=Yes qty=7.00 filter=1 qtyfilter= enabled=Yes');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3373,7 +3569,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'cap=DKT L Base Logged');
+        Observer.Expect('log', 'OnOpenPage | DC=Src | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3394,7 +3592,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'cap=DKT L Base Logged - Src');
+        Observer.Expect('log', 'OnOpenPage | DC=Src | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3414,7 +3614,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=No qty= filter= qtyfilter=3 enabled=Yes cap=DKT L Base Pure');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3434,7 +3636,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=Yes qty=3.00 filter= qtyfilter=3 enabled=Yes cap=DKT L Base Pure - Src');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3454,7 +3658,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=No qty= filter= qtyfilter=3 enabled=Yes');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3474,7 +3680,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=Yes qty=3.00 filter= qtyfilter=3 enabled=Yes');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3494,7 +3702,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'cap=DKT L Base Logged');
+        Observer.Expect('log', 'OnOpenPage | DC=Src | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3514,7 +3724,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'cap=DKT L Base Logged - Src');
+        Observer.Expect('log', 'OnOpenPage | DC=Src | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3534,7 +3746,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=No qty= filter=1 qtyfilter= enabled=Yes cap=DKT L Base SI Pure');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3554,7 +3768,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'first=Yes qty=7.00 filter=1 qtyfilter= enabled=Yes cap=DKT L Base SI Pure - Src');
+        Observer.Expect('log', 'OnOpenPage | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3574,7 +3790,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'cap=DKT L Base SI Logged');
+        Observer.Expect('log', 'OnOpenPage | DC=Src | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3594,7 +3812,9 @@ codeunit 77643 "DKT Tests"
         Log.Add('after run');
         Observer.Observe('reads', Reads);
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('reads', 'cap=DKT L Base SI Logged - Src');
+        Observer.Expect('log', 'OnOpenPage | DC=Src | H0 | H1 | after run');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
