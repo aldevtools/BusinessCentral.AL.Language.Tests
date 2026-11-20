@@ -3,7 +3,8 @@
 // local object: the hosts and parts each vary one fact of the refill measured in PartRefillTestFilter.al, which is what is under test
 // Fixtures used: shared Assert (60021); from PartRefillTestFilter.al the tables "LT PR Op" (97100), "LT PR Booking" (97101),
 //   "LT PR Load Line" (97102), codeunits "LT PR Load Calc" (97103) and "LT PR Load Task" (97108), page "LT PR Load Part" (97104);
-//   Base Application table "Load Buffer" (933, temporary); own enums 90440-90441, pages 90442-90459 and 90462, test codeunit 90461
+//   Base Application table "Load Buffer" (933, temporary); own enums 90440-90441, pages 90442-90459, 90462 and 90464-90466,
+//   codeunit 90463, test codeunit 90461
 // Probe (al-runner issue 8537, follow-up of PartRefillTestFilter.al): the measured Worksheet cell (a host's OnAfterGetCurrRecord makes
 //   a ListPart on a temporary table delete and insert its rows through two part procedures, each ending with CurrPage.Update(false);
 //   the Refresh action marks the part stale and calls CurrPage.Update(false); the test filters the part with Filter.SetFilter and
@@ -12,9 +13,10 @@
 //   part control; more host code in OnAfterGetCurrRecord; a page background task with OnPageBackgroundTaskError; host view filters
 //   (filter group 2) applied in Refresh; the part over a temporary Load Buffer (key Period Type, Period Start); a group with an
 //   enum variable control (OnValidate) and a non-editable control above an Editable = false repeater; fields with OnDrillDown and
-//   StyleExpr, OnOpenPage and OnAfterGetRecord on the part; part procedures with an enum parameter; and all of them together, with
-//   First, First-Next-Previous and Last. Results are `name=Found:Period Start - TheDay:Allocated Qty.`; every cell finds the
-//   refilled row (30). Measured on a local BC 29.1 OnPrem w1 container (12/12 green); BC 27.5, 28.5 and 29.0 are left to CI.
+//   StyleExpr, OnOpenPage and OnAfterGetRecord on the part; part procedures with an enum parameter; the part handing Rec by var to a
+//   codeunit that inserts the rows (and clearing them in a local procedure); OnOpenPage and OnAfterGetRecord on the host; and all of
+//   them together, with First, First-Next-Previous and Last. Results are `name=Found:Period Start - TheDay:Allocated Qty.`; every cell finds the
+//   refilled row (30). Measured on a local BC 29.1 OnPrem w1 container (14/14 green); BC 27.5, 28.5 and 29.0 are left to CI.
 // BC versions: 27, 28, 29
 enum 90440 "LT PS Load Level"
 {
@@ -28,6 +30,34 @@ enum 90441 "LT PS Res Type"
     Extensible = false;
     value(0; Work) { }
     value(1; Machine) { }
+}
+
+codeunit 90463 "LT PS Filler"
+{
+    procedure FillLines(Results: Dictionary of [Text, Text]; var Lines: Record "LT PR Load Line" temporary)
+    var
+        DayKey: Text;
+    begin
+        foreach DayKey in Results.Keys() do begin
+            Lines.Init();
+            Evaluate(Lines."Period Start", DayKey, 9);
+            Evaluate(Lines."Allocated Qty.", Results.Get(DayKey), 9);
+            Lines.Insert();
+        end;
+    end;
+
+    procedure FillBuffer(Results: Dictionary of [Text, Text]; var Lines: Record "Load Buffer" temporary)
+    var
+        DayKey: Text;
+    begin
+        foreach DayKey in Results.Keys() do begin
+            Lines.Init();
+            Lines."Period Type" := Lines."Period Type"::Day;
+            Evaluate(Lines."Period Start", DayKey, 9);
+            Evaluate(Lines."Allocated Qty.", Results.Get(DayKey), 9);
+            Lines.Insert();
+        end;
+    end;
 }
 
 page 90442 "LT PS Op Lines"
@@ -1044,6 +1074,196 @@ page 90457 "LT PS Enum Host"
     end;
 }
 
+page 90464 "LT PS Filler Part"
+{
+    PageType = ListPart;
+    SourceTable = "LT PR Load Line";
+    SourceTableTemporary = true;
+    InsertAllowed = false;
+    DeleteAllowed = false;
+    Editable = false;
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                field("Period Start"; Rec."Period Start") { ApplicationArea = All; }
+                field("Allocated Qty."; Rec."Allocated Qty.") { ApplicationArea = All; }
+            }
+        }
+    }
+
+    var
+        ResourceNo: Code[20];
+        LinesLoaded: Boolean;
+
+    procedure IsLoadedFor(NewResourceNo: Code[20]): Boolean
+    begin
+        exit(LinesLoaded and (NewResourceNo = ResourceNo));
+    end;
+
+    procedure Invalidate()
+    begin
+        LinesLoaded := false;
+    end;
+
+    procedure ClearLines(NewResourceNo: Code[20])
+    begin
+        ResourceNo := NewResourceNo;
+        LinesLoaded := false;
+        ClearLoadLines();
+        CurrPage.Update(false);
+    end;
+
+    procedure SetLoadLines(Results: Dictionary of [Text, Text])
+    var
+        Filler: Codeunit "LT PS Filler";
+    begin
+        Filler.FillLines(Results, Rec);
+        LinesLoaded := true;
+        if Rec.FindFirst() then;
+        CurrPage.Update(false);
+    end;
+
+    local procedure ClearLoadLines()
+    begin
+        Rec.Reset();
+        Rec.DeleteAll(false);
+    end;
+}
+
+page 90465 "LT PS Filler Host"
+{
+    PageType = Worksheet;
+    SourceTable = "LT PR Op";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Ops)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+                field("Resource No."; Rec."Resource No.") { ApplicationArea = All; }
+            }
+            part(Load; "LT PS Filler Part")
+            {
+                ApplicationArea = All;
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(Refresh)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    CurrPage.Load.Page.Invalidate();
+                    CurrPage.Update(false);
+                end;
+            }
+        }
+    }
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        LoadNow();
+    end;
+
+    local procedure LoadNow()
+    var
+        LoadCalc: Codeunit "LT PR Load Calc";
+    begin
+        if CurrPage.Load.Page.IsLoadedFor(Rec."Resource No.") then
+            exit;
+        CurrPage.Load.Page.ClearLines(Rec."Resource No.");
+        CurrPage.Load.Page.SetLoadLines(LoadCalc.Calculate(Rec."Resource No."));
+    end;
+}
+
+page 90466 "LT PS Trig Host"
+{
+    PageType = Worksheet;
+    SourceTable = "LT PR Op";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Ops)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+                field("Resource No."; Rec."Resource No.") { ApplicationArea = All; }
+            }
+            part(Load; "LT PR Load Part")
+            {
+                ApplicationArea = All;
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(Refresh)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    CurrPage.Load.Page.Invalidate();
+                    CurrPage.Update(false);
+                end;
+            }
+        }
+    }
+
+    var
+        RowStyle: Text;
+        Opened: Boolean;
+
+    trigger OnOpenPage()
+    begin
+        Opened := true;
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        LoadNow();
+    end;
+
+    local procedure LoadNow()
+    var
+        LoadCalc: Codeunit "LT PR Load Calc";
+    begin
+        if CurrPage.Load.Page.IsLoadedFor(Rec."Resource No.") then
+            exit;
+        CurrPage.Load.Page.ClearLines(Rec."Resource No.");
+        CurrPage.Load.Page.SetLoadLines(LoadCalc.Calculate(Rec."Resource No."));
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        RowStyle := 'Standard';
+        if Rec."Resource No." = '' then
+            RowStyle := 'Unfavorable';
+    end;
+}
+
 page 90458 "LT PS Full Part"
 {
     PageType = ListPart;
@@ -1136,22 +1356,15 @@ page 90458 "LT PS Full Part"
         ResourceType := NewType;
         ResourceNo := NewResourceNo;
         LinesLoaded := false;
-        Rec.Reset();
-        Rec.DeleteAll(false);
+        ClearLoadLines();
         CurrPage.Update(false);
     end;
 
     procedure SetLoadLines(Results: Dictionary of [Text, Text])
     var
-        DayKey: Text;
+        Filler: Codeunit "LT PS Filler";
     begin
-        foreach DayKey in Results.Keys() do begin
-            Rec.Init();
-            Rec."Period Type" := Rec."Period Type"::Day;
-            Evaluate(Rec."Period Start", DayKey, 9);
-            Evaluate(Rec."Allocated Qty.", Results.Get(DayKey), 9);
-            Rec.Insert();
-        end;
+        Filler.FillBuffer(Results, Rec);
         LinesLoaded := true;
         if Rec.FindFirst() then;
         CurrPage.Update(false);
@@ -1166,6 +1379,12 @@ page 90458 "LT PS Full Part"
     begin
         LinesLoaded := true;
         CurrPage.Update(false);
+    end;
+
+    local procedure ClearLoadLines()
+    begin
+        Rec.Reset();
+        Rec.DeleteAll(false);
     end;
 }
 
@@ -1235,10 +1454,13 @@ page 90459 "LT PS Full Host"
         IsMachine: Boolean;
         CurrentCount: Integer;
         LoadTaskId: Integer;
+        RowStyle: Text;
+        Opened: Boolean;
 
     trigger OnOpenPage()
     begin
         ShowLoad := true;
+        Opened := true;
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -1279,6 +1501,13 @@ page 90459 "LT PS Full Host"
         CurrPage.Load.Page.ClearLines("LT PS Res Type"::Machine, Rec."Resource No.");
         Params := CurrPage.Load.Page.TaskParameters();
         CurrPage.EnqueueBackgroundTask(LoadTaskId, Codeunit::"LT PR Load Task", Params, 120000, PageBackgroundTaskErrorLevel::Warning);
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        RowStyle := 'Standard';
+        if Rec."Resource No." = '' then
+            RowStyle := 'Unfavorable';
     end;
 
     local procedure ApplyViewFilters()
@@ -1558,6 +1787,54 @@ codeunit 90461 "LT PS Tests"
         Seen += Fact('after', Found, Host.Load."Period Start".AsDate(), Host.Load."Allocated Qty.".AsDecimal());
         Host.Close();
         Assert.AreEqual('before=T:0:10;after=T:0:30;', Seen, 'part procedures with an enum and a Code parameter: Refresh, then Filter.SetFilter and first on the part');
+    end;
+
+    [Test]
+    procedure PartRefillShape_RecHandedToCodeunit_FindsRefilledRow()
+    var
+        Op: Record "LT PR Op";
+        Host: TestPage "LT PS Filler Host";
+        Found: Boolean;
+        Seen: Text;
+    begin
+        Initialize();
+        Seed(Op);
+        Host.OpenView();
+        Host.GoToRecord(Op);
+        Host.Load.Filter.SetFilter("Period Start", Format(TheDay()));
+        Found := Host.Load.First();
+        Seen := Fact('before', Found, Host.Load."Period Start".AsDate(), Host.Load."Allocated Qty.".AsDecimal());
+        AddBooking(3, TheDay(), 20);
+        Host.Refresh.Invoke();
+        Host.Load.Filter.SetFilter("Period Start", Format(TheDay()));
+        Found := Host.Load.First();
+        Seen += Fact('after', Found, Host.Load."Period Start".AsDate(), Host.Load."Allocated Qty.".AsDecimal());
+        Host.Close();
+        Assert.AreEqual('before=T:0:10;after=T:0:30;', Seen, 'the part hands Rec by var to a codeunit that inserts the rows, and clears them in a local procedure: Refresh, then Filter.SetFilter and first on the part');
+    end;
+
+    [Test]
+    procedure PartRefillShape_HostRowTriggers_FindsRefilledRow()
+    var
+        Op: Record "LT PR Op";
+        Host: TestPage "LT PS Trig Host";
+        Found: Boolean;
+        Seen: Text;
+    begin
+        Initialize();
+        Seed(Op);
+        Host.OpenView();
+        Host.GoToRecord(Op);
+        Host.Load.Filter.SetFilter("Period Start", Format(TheDay()));
+        Found := Host.Load.First();
+        Seen := Fact('before', Found, Host.Load."Period Start".AsDate(), Host.Load."Allocated Qty.".AsDecimal());
+        AddBooking(3, TheDay(), 20);
+        Host.Refresh.Invoke();
+        Host.Load.Filter.SetFilter("Period Start", Format(TheDay()));
+        Found := Host.Load.First();
+        Seen += Fact('after', Found, Host.Load."Period Start".AsDate(), Host.Load."Allocated Qty.".AsDecimal());
+        Host.Close();
+        Assert.AreEqual('before=T:0:10;after=T:0:30;', Seen, 'OnOpenPage and OnAfterGetRecord on the host: Refresh, then Filter.SetFilter and first on the part');
     end;
 
     [Test]
