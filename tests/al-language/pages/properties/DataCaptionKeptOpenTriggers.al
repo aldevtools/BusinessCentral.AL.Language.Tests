@@ -124,11 +124,11 @@ page 77614 "DKT N Init Pure"
         {
             group(Header)
             {
-                field(DocCtl; DocNo) { }
+                field(DocCtl; DocNo) { ApplicationArea = All; }
             }
             repeater(Lines)
             {
-                field(NameCtl; Rec."Doc Name") { }
+                field(NameCtl; Rec."Doc Name") { ApplicationArea = All; }
             }
         }
     }
@@ -139,6 +139,7 @@ page 77614 "DKT N Init Pure"
         {
             action(Show)
             {
+                ApplicationArea = All;
                 Enabled = ActEnabled;
 
                 trigger OnAction()
@@ -202,11 +203,11 @@ page 77615 "DKT N Init Logged"
         {
             group(Header)
             {
-                field(DocCtl; DocNo) { }
+                field(DocCtl; DocNo) { ApplicationArea = All; }
             }
             repeater(Lines)
             {
-                field(NameCtl; Rec."Doc Name") { }
+                field(NameCtl; Rec."Doc Name") { ApplicationArea = All; }
             }
         }
     }
@@ -217,6 +218,7 @@ page 77615 "DKT N Init Logged"
         {
             action(Show)
             {
+                ApplicationArea = All;
                 Enabled = ActEnabled;
 
                 trigger OnAction()
@@ -282,11 +284,11 @@ page 77616 "DKT N Init Plain"
         {
             group(Header)
             {
-                field(DocCtl; DocNo) { }
+                field(DocCtl; DocNo) { ApplicationArea = All; }
             }
             repeater(Lines)
             {
-                field(NameCtl; Rec."Doc Name") { }
+                field(NameCtl; Rec."Doc Name") { ApplicationArea = All; }
             }
         }
     }
@@ -297,6 +299,7 @@ page 77616 "DKT N Init Plain"
         {
             action(Show)
             {
+                ApplicationArea = All;
                 Enabled = ActEnabled;
 
                 trigger OnAction()
@@ -352,11 +355,11 @@ page 77617 "DKT N Close Pure"
         {
             group(Header)
             {
-                field(DocCtl; DocNo) { }
+                field(DocCtl; DocNo) { ApplicationArea = All; }
             }
             repeater(Lines)
             {
-                field(NameCtl; Rec."Doc Name") { }
+                field(NameCtl; Rec."Doc Name") { ApplicationArea = All; }
             }
         }
     }
@@ -367,6 +370,7 @@ page 77617 "DKT N Close Pure"
         {
             action(Show)
             {
+                ApplicationArea = All;
 
                 trigger OnAction()
                 begin
@@ -427,11 +431,11 @@ page 77618 "DKT N Close Logged"
         {
             group(Header)
             {
-                field(DocCtl; DocNo) { }
+                field(DocCtl; DocNo) { ApplicationArea = All; }
             }
             repeater(Lines)
             {
-                field(NameCtl; Rec."Doc Name") { }
+                field(NameCtl; Rec."Doc Name") { ApplicationArea = All; }
             }
         }
     }
@@ -442,6 +446,7 @@ page 77618 "DKT N Close Logged"
         {
             action(Show)
             {
+                ApplicationArea = All;
 
                 trigger OnAction()
                 begin
@@ -504,11 +509,11 @@ page 77619 "DKT N Close Plain"
         {
             group(Header)
             {
-                field(DocCtl; DocNo) { }
+                field(DocCtl; DocNo) { ApplicationArea = All; }
             }
             repeater(Lines)
             {
-                field(NameCtl; Rec."Doc Name") { }
+                field(NameCtl; Rec."Doc Name") { ApplicationArea = All; }
             }
         }
     }
@@ -519,6 +524,7 @@ page 77619 "DKT N Close Plain"
         {
             action(Show)
             {
+                ApplicationArea = All;
 
                 trigger OnAction()
                 begin
@@ -571,11 +577,11 @@ page 77620 "DKT N Both Pure"
         {
             group(Header)
             {
-                field(DocCtl; DocNo) { }
+                field(DocCtl; DocNo) { ApplicationArea = All; }
             }
             repeater(Lines)
             {
-                field(NameCtl; Rec."Doc Name") { }
+                field(NameCtl; Rec."Doc Name") { ApplicationArea = All; }
             }
         }
     }
@@ -586,6 +592,7 @@ page 77620 "DKT N Both Pure"
         {
             action(Show)
             {
+                ApplicationArea = All;
                 Enabled = ActEnabled;
 
                 trigger OnAction()
@@ -656,11 +663,11 @@ page 77621 "DKT N Both Logged"
         {
             group(Header)
             {
-                field(DocCtl; DocNo) { }
+                field(DocCtl; DocNo) { ApplicationArea = All; }
             }
             repeater(Lines)
             {
-                field(NameCtl; Rec."Doc Name") { }
+                field(NameCtl; Rec."Doc Name") { ApplicationArea = All; }
             }
         }
     }
@@ -671,6 +678,7 @@ page 77621 "DKT N Both Logged"
         {
             action(Show)
             {
+                ApplicationArea = All;
                 Enabled = ActEnabled;
 
                 trigger OnAction()
@@ -743,11 +751,11 @@ page 77622 "DKT N Both Plain"
         {
             group(Header)
             {
-                field(DocCtl; DocNo) { }
+                field(DocCtl; DocNo) { ApplicationArea = All; }
             }
             repeater(Lines)
             {
-                field(NameCtl; Rec."Doc Name") { }
+                field(NameCtl; Rec."Doc Name") { ApplicationArea = All; }
             }
         }
     }
@@ -758,6 +766,7 @@ page 77622 "DKT N Both Plain"
         {
             action(Show)
             {
+                ApplicationArea = All;
                 Enabled = ActEnabled;
 
                 trigger OnAction()
@@ -820,11 +829,11 @@ page 77623 "DKT N NoOpen Pure"
         {
             group(Header)
             {
-                field(DocCtl; DocNo) { }
+                field(DocCtl; DocNo) { ApplicationArea = All; }
             }
             repeater(Lines)
             {
-                field(NameCtl; Rec."Doc Name") { }
+                field(NameCtl; Rec."Doc Name") { ApplicationArea = All; }
             }
         }
     }
@@ -835,6 +844,7 @@ page 77623 "DKT N NoOpen Pure"
         {
             action(Show)
             {
+                ApplicationArea = All;
                 Enabled = ActEnabled;
 
                 trigger OnAction()
@@ -893,11 +903,11 @@ page 77624 "DKT N NoOpen Logged"
         {
             group(Header)
             {
-                field(DocCtl; DocNo) { }
+                field(DocCtl; DocNo) { ApplicationArea = All; }
             }
             repeater(Lines)
             {
-                field(NameCtl; Rec."Doc Name") { }
+                field(NameCtl; Rec."Doc Name") { ApplicationArea = All; }
             }
         }
     }
@@ -908,6 +918,7 @@ page 77624 "DKT N NoOpen Logged"
         {
             action(Show)
             {
+                ApplicationArea = All;
                 Enabled = ActEnabled;
 
                 trigger OnAction()
@@ -968,11 +979,11 @@ page 77625 "DKT N NoOpen Plain"
         {
             group(Header)
             {
-                field(DocCtl; DocNo) { }
+                field(DocCtl; DocNo) { ApplicationArea = All; }
             }
             repeater(Lines)
             {
-                field(NameCtl; Rec."Doc Name") { }
+                field(NameCtl; Rec."Doc Name") { ApplicationArea = All; }
             }
         }
     }
@@ -983,6 +994,7 @@ page 77625 "DKT N NoOpen Plain"
         {
             action(Show)
             {
+                ApplicationArea = All;
                 Enabled = ActEnabled;
 
                 trigger OnAction()
@@ -1033,7 +1045,7 @@ page 77626 "DKT L Init Pure"
         {
             repeater(Lines)
             {
-                field(QtyCtl; Rec.Qty) { }
+                field(QtyCtl; Rec.Qty) { ApplicationArea = All; }
             }
         }
     }
@@ -1044,6 +1056,7 @@ page 77626 "DKT L Init Pure"
         {
             action(Calc)
             {
+                ApplicationArea = All;
                 Enabled = ActEnabled;
 
                 trigger OnAction()
@@ -1100,7 +1113,7 @@ page 77627 "DKT L Init Logged"
         {
             repeater(Lines)
             {
-                field(QtyCtl; Rec.Qty) { }
+                field(QtyCtl; Rec.Qty) { ApplicationArea = All; }
             }
         }
     }
@@ -1111,6 +1124,7 @@ page 77627 "DKT L Init Logged"
         {
             action(Calc)
             {
+                ApplicationArea = All;
                 Enabled = ActEnabled;
 
                 trigger OnAction()
@@ -1166,7 +1180,7 @@ page 77628 "DKT L Init Plain"
         {
             repeater(Lines)
             {
-                field(QtyCtl; Rec.Qty) { }
+                field(QtyCtl; Rec.Qty) { ApplicationArea = All; }
             }
         }
     }
@@ -1177,6 +1191,7 @@ page 77628 "DKT L Init Plain"
         {
             action(Calc)
             {
+                ApplicationArea = All;
                 Enabled = ActEnabled;
 
                 trigger OnAction()
@@ -1233,7 +1248,7 @@ page 77629 "DKT L Close Pure"
         {
             repeater(Lines)
             {
-                field(QtyCtl; Rec.Qty) { }
+                field(QtyCtl; Rec.Qty) { ApplicationArea = All; }
             }
         }
     }
@@ -1244,6 +1259,7 @@ page 77629 "DKT L Close Pure"
         {
             action(Calc)
             {
+                ApplicationArea = All;
 
                 trigger OnAction()
                 begin
@@ -1297,7 +1313,7 @@ page 77630 "DKT L Close Logged"
         {
             repeater(Lines)
             {
-                field(QtyCtl; Rec.Qty) { }
+                field(QtyCtl; Rec.Qty) { ApplicationArea = All; }
             }
         }
     }
@@ -1308,6 +1324,7 @@ page 77630 "DKT L Close Logged"
         {
             action(Calc)
             {
+                ApplicationArea = All;
 
                 trigger OnAction()
                 begin
@@ -1360,7 +1377,7 @@ page 77631 "DKT L Close Plain"
         {
             repeater(Lines)
             {
-                field(QtyCtl; Rec.Qty) { }
+                field(QtyCtl; Rec.Qty) { ApplicationArea = All; }
             }
         }
     }
@@ -1371,6 +1388,7 @@ page 77631 "DKT L Close Plain"
         {
             action(Calc)
             {
+                ApplicationArea = All;
 
                 trigger OnAction()
                 begin
@@ -1424,7 +1442,7 @@ page 77632 "DKT L Both Pure"
         {
             repeater(Lines)
             {
-                field(QtyCtl; Rec.Qty) { }
+                field(QtyCtl; Rec.Qty) { ApplicationArea = All; }
             }
         }
     }
@@ -1435,6 +1453,7 @@ page 77632 "DKT L Both Pure"
         {
             action(Calc)
             {
+                ApplicationArea = All;
                 Enabled = ActEnabled;
 
                 trigger OnAction()
@@ -1498,7 +1517,7 @@ page 77633 "DKT L Both Logged"
         {
             repeater(Lines)
             {
-                field(QtyCtl; Rec.Qty) { }
+                field(QtyCtl; Rec.Qty) { ApplicationArea = All; }
             }
         }
     }
@@ -1509,6 +1528,7 @@ page 77633 "DKT L Both Logged"
         {
             action(Calc)
             {
+                ApplicationArea = All;
                 Enabled = ActEnabled;
 
                 trigger OnAction()
@@ -1571,7 +1591,7 @@ page 77634 "DKT L Both Plain"
         {
             repeater(Lines)
             {
-                field(QtyCtl; Rec.Qty) { }
+                field(QtyCtl; Rec.Qty) { ApplicationArea = All; }
             }
         }
     }
@@ -1582,6 +1602,7 @@ page 77634 "DKT L Both Plain"
         {
             action(Calc)
             {
+                ApplicationArea = All;
                 Enabled = ActEnabled;
 
                 trigger OnAction()
@@ -1645,7 +1666,7 @@ page 77635 "DKT L NoOpen Pure"
         {
             repeater(Lines)
             {
-                field(QtyCtl; Rec.Qty) { }
+                field(QtyCtl; Rec.Qty) { ApplicationArea = All; }
             }
         }
     }
@@ -1656,6 +1677,7 @@ page 77635 "DKT L NoOpen Pure"
         {
             action(Calc)
             {
+                ApplicationArea = All;
                 Enabled = ActEnabled;
 
                 trigger OnAction()
@@ -1707,7 +1729,7 @@ page 77636 "DKT L NoOpen Logged"
         {
             repeater(Lines)
             {
-                field(QtyCtl; Rec.Qty) { }
+                field(QtyCtl; Rec.Qty) { ApplicationArea = All; }
             }
         }
     }
@@ -1718,6 +1740,7 @@ page 77636 "DKT L NoOpen Logged"
         {
             action(Calc)
             {
+                ApplicationArea = All;
                 Enabled = ActEnabled;
 
                 trigger OnAction()
@@ -1768,7 +1791,7 @@ page 77637 "DKT L NoOpen Plain"
         {
             repeater(Lines)
             {
-                field(QtyCtl; Rec.Qty) { }
+                field(QtyCtl; Rec.Qty) { ApplicationArea = All; }
             }
         }
     }
@@ -1779,6 +1802,7 @@ page 77637 "DKT L NoOpen Plain"
         {
             action(Calc)
             {
+                ApplicationArea = All;
                 Enabled = ActEnabled;
 
                 trigger OnAction()
@@ -1830,7 +1854,7 @@ page 77638 "DKT L Base Pure"
         {
             repeater(Lines)
             {
-                field(QtyCtl; Rec.Qty) { }
+                field(QtyCtl; Rec.Qty) { ApplicationArea = All; }
             }
         }
     }
@@ -1841,6 +1865,7 @@ page 77638 "DKT L Base Pure"
         {
             action(Calc)
             {
+                ApplicationArea = All;
 
                 trigger OnAction()
                 begin
@@ -1887,7 +1912,7 @@ page 77639 "DKT L Base Logged"
         {
             repeater(Lines)
             {
-                field(QtyCtl; Rec.Qty) { }
+                field(QtyCtl; Rec.Qty) { ApplicationArea = All; }
             }
         }
     }
@@ -1898,6 +1923,7 @@ page 77639 "DKT L Base Logged"
         {
             action(Calc)
             {
+                ApplicationArea = All;
 
                 trigger OnAction()
                 begin
@@ -1943,7 +1969,7 @@ page 77640 "DKT L Base Plain"
         {
             repeater(Lines)
             {
-                field(QtyCtl; Rec.Qty) { }
+                field(QtyCtl; Rec.Qty) { ApplicationArea = All; }
             }
         }
     }
@@ -1954,6 +1980,7 @@ page 77640 "DKT L Base Plain"
         {
             action(Calc)
             {
+                ApplicationArea = All;
 
                 trigger OnAction()
                 begin
@@ -2000,7 +2027,7 @@ page 77641 "DKT L Base SI Pure"
         {
             repeater(Lines)
             {
-                field(QtyCtl; Rec.Qty) { }
+                field(QtyCtl; Rec.Qty) { ApplicationArea = All; }
             }
         }
     }
@@ -2011,6 +2038,7 @@ page 77641 "DKT L Base SI Pure"
         {
             action(Calc)
             {
+                ApplicationArea = All;
 
                 trigger OnAction()
                 begin
@@ -2057,7 +2085,7 @@ page 77642 "DKT L Base SI Logged"
         {
             repeater(Lines)
             {
-                field(QtyCtl; Rec.Qty) { }
+                field(QtyCtl; Rec.Qty) { ApplicationArea = All; }
             }
         }
     }
@@ -2068,6 +2096,7 @@ page 77642 "DKT L Base SI Logged"
         {
             action(Calc)
             {
+                ApplicationArea = All;
 
                 trigger OnAction()
                 begin
