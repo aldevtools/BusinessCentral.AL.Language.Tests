@@ -1317,3 +1317,5 @@ stem	area
 3273-table-field-trigger-var-named-key	language
 3274-page-action-trigger-var-named-key	language
 3275-xmlport-textelement-trigger-var-named-key	language
+3276-reportextension-requestpage-var-named-key	language
+3277-xmlport-requestpage-var-named-key	language

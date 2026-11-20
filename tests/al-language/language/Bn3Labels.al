@@ -172,7 +172,7 @@ codeunit 83853 "LT BN3 Labels Tests"
 
     // al-runner issue 8539: the compiler rejects 18 words as the first unquoted name of a variable declaration (Actions, Area,
     // ChartPart, CueGroup, Event, Extends, False, FieldAttribute, FieldElement, FieldGroups, Key, PageExtension, ProfileExtension,
-    // TableElement, TableExtension, TextAttribute, TextElement, True): must-not-compile cases 3222-3275. With an attribute such as
+    // TableElement, TableExtension, TextAttribute, TextElement, True): must-not-compile cases 3222-3277. With an attribute such as
     // [NonDebuggable] in front of the declaration, 15 of them (not Event, True, False) compile as variable names, in a procedure and
     // in a global var section; and after a comma (Other, Local) the word Local compiles. These tests pin the shapes that compile.
     // Measured with the AL compilers of BC 27.4, 28.5 and 29.1.
