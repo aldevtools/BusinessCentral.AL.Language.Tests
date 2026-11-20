@@ -3,13 +3,16 @@
 // Fixtures used: Probe Observer (codeunit 69160); the relation shapes of table 75924 "RFN Source" and its table extension 75925
 //                (FieldRelationFieldNo.al, same folder); self-contained queries 75950, 75955, 75956, pages 75951, 75952,
 //                codeunits 75954, 75957; Base Application table Item (field "Item Category Code")
-// Probe: written against local BC 27.5, 28.5 and 29.0 service tiers (Windows); every literal asserted below is what those tiers produced.
+// Probe: written against local BC 27.5 and 28.5 service tiers (Windows) and the corpus CI leg of BC 29.0 (Linux); every literal asserted
+//        below is what those tiers produced.
 //        Other builds are checked by the corpus CI matrix. Asked by al-runner issue 8249 (readers other than a Record variable).
 // Facts (FieldRelationFieldNo.al pins the Record reads: Get and a filtered FindSet):
 //  - RecordRef.Open(Field) reads RelationTableNo/RelationFieldNo through FieldRef.Value as a Record does: 0 for every TableRelation
 //    that names no field (key on field 1, key on field 5, two-field key, with where, ValidateTableRelation = false, FlowFilter, Guid to
 //    User, table extension field, Item."Item Category Code" 5722/0); the named field otherwise; 0/0 for conditional relations and for a
 //    field without a relation. The same after FindFirst, FindSet over all rows of a table, Get(RecordId) and GetTable.
+//  - A scan of every Field row of a table lists system fields 2000000000 to 2000000004 on BC 27.5 and 28.5, and also 2000000005 to
+//    2000000008 on BC 29.0 (corpus CI, Linux); all 0/0 except SystemCreatedBy and SystemModifiedBy (2000000120/0).
 //  - FieldRef.SetRange/SetFilter on RelationFieldNo and a SetView WHERE on it select the same rows as the Record filter; Count agrees.
 //  - A query over the Field table does not run: Open raises "A query cannot be based on a virtual table. Please contact your system
 //    administrator." (GetLastErrorCode DB:Ok), with plain columns, a run-time filter on RelationFieldNo, a DataItemTableFilter or a
@@ -243,7 +246,12 @@ codeunit 75953 "RFR Relation Readers Tests"
                 Rows += Format(RecRef.Field(FieldRec.FieldNo("No.")).Value) + '=' + Format(RecRef.Field(FieldRec.FieldNo(RelationTableNo)).Value) + '/' + Format(RecRef.Field(FieldRec.FieldNo(RelationFieldNo)).Value) + ',';
             until RecRef.Next() = 0;
         Observer.Observe('rows', Rows);
+        // BC 29 lists four more system fields of the table (2000000005 to 2000000008), all without a relation.
+#if BC29PLUS
+        Observer.Expect('rows', '1=0/0,2=0/0,10=75920/0,11=75920/1,12=75920/2,13=75921/0,14=75921/5,15=75922/0,16=75922/2,17=75922/1,18=75920/0,19=75922/0,20=0/0,21=0/0,22=0/0,23=0/0,24=75920/0,25=2000000120/0,26=0/0,27=75920/0,75925=75920/0,75926=75920/2,2000000000=0/0,2000000001=0/0,2000000002=2000000120/0,2000000003=0/0,2000000004=2000000120/0,2000000005=0/0,2000000006=0/0,2000000007=0/0,2000000008=0/0,');
+#else
         Observer.Expect('rows', '1=0/0,2=0/0,10=75920/0,11=75920/1,12=75920/2,13=75921/0,14=75921/5,15=75922/0,16=75922/2,17=75922/1,18=75920/0,19=75922/0,20=0/0,21=0/0,22=0/0,23=0/0,24=75920/0,25=2000000120/0,26=0/0,27=75920/0,75925=75920/0,75926=75920/2,2000000000=0/0,2000000001=0/0,2000000002=2000000120/0,2000000003=0/0,2000000004=2000000120/0,');
+#endif
         Observer.Verify();
     end;
 
@@ -261,7 +269,12 @@ codeunit 75953 "RFR Relation Readers Tests"
                 Rows += Format(FieldRec."No.") + '=' + Format(FieldRec.RelationTableNo) + '/' + Format(FieldRec.RelationFieldNo) + ',';
             until FieldRec.Next() = 0;
         Observer.Observe('rows', Rows);
+        // BC 29 lists four more system fields of the table (2000000005 to 2000000008), all without a relation.
+#if BC29PLUS
+        Observer.Expect('rows', '1=0/0,2=0/0,10=75920/0,11=75920/1,12=75920/2,13=75921/0,14=75921/5,15=75922/0,16=75922/2,17=75922/1,18=75920/0,19=75922/0,20=0/0,21=0/0,22=0/0,23=0/0,24=75920/0,25=2000000120/0,26=0/0,27=75920/0,75925=75920/0,75926=75920/2,2000000000=0/0,2000000001=0/0,2000000002=2000000120/0,2000000003=0/0,2000000004=2000000120/0,2000000005=0/0,2000000006=0/0,2000000007=0/0,2000000008=0/0,');
+#else
         Observer.Expect('rows', '1=0/0,2=0/0,10=75920/0,11=75920/1,12=75920/2,13=75921/0,14=75921/5,15=75922/0,16=75922/2,17=75922/1,18=75920/0,19=75922/0,20=0/0,21=0/0,22=0/0,23=0/0,24=75920/0,25=2000000120/0,26=0/0,27=75920/0,75925=75920/0,75926=75920/2,2000000000=0/0,2000000001=0/0,2000000002=2000000120/0,2000000003=0/0,2000000004=2000000120/0,');
+#endif
         Observer.Verify();
     end;
 
@@ -353,7 +366,12 @@ codeunit 75953 "RFR Relation Readers Tests"
             until not ListPage.Next();
         ListPage.Close();
         Observer.Observe('rows', Rows);
+        // BC 29 lists four more system fields of the table (2000000005 to 2000000008), all without a relation.
+#if BC29PLUS
+        Observer.Expect('rows', '1=0/0,2=0/0,10=75920/0,11=75920/1,12=75920/2,13=75921/0,14=75921/5,15=75922/0,16=75922/2,17=75922/1,18=75920/0,19=75922/0,20=0/0,21=0/0,22=0/0,23=0/0,24=75920/0,25=2000000120/0,26=0/0,27=75920/0,75925=75920/0,75926=75920/2,2000000000=0/0,2000000001=0/0,2000000002=2000000120/0,2000000003=0/0,2000000004=2000000120/0,2000000005=0/0,2000000006=0/0,2000000007=0/0,2000000008=0/0,');
+#else
         Observer.Expect('rows', '1=0/0,2=0/0,10=75920/0,11=75920/1,12=75920/2,13=75921/0,14=75921/5,15=75922/0,16=75922/2,17=75922/1,18=75920/0,19=75922/0,20=0/0,21=0/0,22=0/0,23=0/0,24=75920/0,25=2000000120/0,26=0/0,27=75920/0,75925=75920/0,75926=75920/2,2000000000=0/0,2000000001=0/0,2000000002=2000000120/0,2000000003=0/0,2000000004=2000000120/0,');
+#endif
         Observer.Verify();
     end;
 
