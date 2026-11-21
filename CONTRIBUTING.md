@@ -108,8 +108,9 @@ batch, and the old rules "one claim per codeunit" and "never define an object in
    A file that defines its own object for one of these reasons says so in one line: `// local object: <reason>`.
 3. **Object budget.** A new test codeunit may add at most 3 objects that are not tests (tables, pages, reports, xmlports and so on)
    without the `// local object:` line. Enforced by an object budget check in CI (added in a later restructure pull request).
-   Shared fixtures do not change once they are merged: never change their fields, keys or triggers. Add a new fixture instead,
-   with an id in 50000..50999.
+   A merged shared fixture may change in place. Every change to a file that is already under `tests/*/_fixtures/` (an edit, a
+   deletion, or a move out of the folder) makes CI run every test codeunit for that pull request (see "When everything runs").
+   A new fixture file, with an id in 50000..50999, is selected as usual.
 4. **Look for a duplicate before writing.** Run `find-similar.py <draft>`: it lists existing tests with the same calls and asserted
    values (enforced by `find-similar.py`, added in a later restructure pull request; until then, search the corpus by hand). When it
    finds one, cite the existing test and write nothing.
@@ -129,6 +130,14 @@ batch, and the old rules "one claim per codeunit" and "never define an object in
    must-not-compile case also adds its line `<file stem><TAB><area>` to `tests/must-not-compile/areas.tsv`.
 9. **No build outputs.** Do not commit build outputs or generated layouts (`.app` files, `bc-full-results.json`). Microsoft's symbol packages are not committed either; `.alpackages/` folders are git-ignored.
    One claim per test procedure; many test procedures per codeunit of a topic.
+10. **Name the objects you assert on.** A test must not assert over an object id range that other files can add to. CI runs a
+    test again only when it names a changed object, and results of tests that did not run are reused. So a test that counts
+    the rows of `AllObj`, `Table Metadata`, `CodeUnit Metadata` or a similar table over an id range keeps an old result when
+    another pull request adds an object in that range. Filter single ids, or add a filter on the name field with a fixed list
+    of names (`SetFilter("Object Name", '%1|%2', ...)`). Keep at least one listed object below the low bound and one above
+    the high bound, so the range still has to exclude a listed row on each side. A range is fine when an object of the table's kind already exists at
+    every id in it, or when it lies outside every app's `idRanges`. `.github/scripts/check-id-ranges.py` checks this in the
+    `Object IDs must be unique and in range` job.
 
 ---
 
@@ -199,8 +208,9 @@ Some behavior only shows when code is spread over several apps: an extension of 
 | `tests/al-language-xapp-d` | `e92be076-de11-44ed-895e-17031341df29` | AL Language XApp D | Mike Probe Publisher | 61160-61169 | A | a subscriber of an event of A, in an app that only C depends on and that depends on none of B, C and the main test app (subscriber order of apps that do not depend on each other) |
 | `tests/al-language-xapp-n` | `01a5e2c7-4f3b-4d1e-9b6a-2c8d7e1f0a53` | AL Language XApp N | Yankee Probe Publisher | 97810-97814 | nothing | a subscriber app with no dependencies and the lowest app id of all, that only T depends on (two-top subscriber order probe, `TtSubscriberOrderTests.al`) |
 | `tests/al-language-xapp-t` | `f7c3b9d2-6a41-4e85-8d0f-b3a97c5e1d26` | AL Language XApp T | Aaa Probe Publisher | 97815-97819 | N | a second top-level app (no app depends on it, next to the main test app) with the highest app id of all and a publisher that sorts first (two-top subscriber order probe) |
+| `tests/al-language-xapp-e` | `b4f0ccbc-b970-4e2c-8d83-94481f40e804` | AL Language XApp E | Echo Probe Publisher | 98030-98034 | nothing | an app with an 8 x 8 JPEG logo and an `OnRegisterAssistedSetup` subscriber, published last (after T) so it changes no subscriber order; read by `tests/al-language-onprem/session-system/UsAppLogoJpeg.al` |
 
-CI publishes the fixture, A, D, B, C, N, T and then the main test app (D right after A, before B, on purpose; N and T after C, before the main test app, on purpose) (`app_dirs` of every job in `ci.yml` that compiles `al-language`, and `$apps` in `nightly-windows.yml`). A change to one of these apps is a change to a dependency app, so the pull request gets a full run.
+CI publishes the fixture, A, D, B, C, N, T, E and then the main test app (D right after A, before B, on purpose; N, T and E after C, before the main test app) (`app_dirs` of every job in `ci.yml` that compiles `al-language`, and `$apps` in `nightly-windows.yml`). A change to one of these apps is a change to a dependency app, so the pull request gets a full run.
 
 **The ids, names and publishers are fixed on purpose.** The cross-app subscriber order probe (`tests/al-language/events/subscriber-order/`) needs every candidate rule to predict another order of the four apps A, B, C and the main app (M):
 
@@ -353,7 +363,7 @@ The summary of the `prepare` job lists every selected codeunit and the reason it
 
 Every test codeunit runs when one of these is true:
 
-- The run is a push to master (so every merge gets a full run), or a manual run without `select_base` and without `select_codeunits`.
+- The run is a push to master (so every merge gets a full run), the nightly run (see "Nightly full run"), or a manual run without `select_base` and without `select_codeunits`.
 - The pull request comes from `al-runtime-rs-staging` (a corpus bump).
 - The pull request has the label `full-run`.
 - The change touches one of these:
@@ -369,6 +379,7 @@ Every test codeunit runs when one of these is true:
   - an `Install` or `Upgrade` codeunit that uses an object the change touches;
   - a codeunit with `Subtype = Install`, `Upgrade` or `TestRunner`;
   - a permission set, permission set extension or entitlement;
+  - a shared fixture file that the base branch already has: an edit, a deletion or a move (standing rule 3);
   - more than 50 files in the test apps;
   - a file outside the test apps that CI may read. These paths are known to be unused by CI and do not count: `docs/`, `scripts/`, `.claude/`, `tests/must-not-compile/`, Markdown files, `tests/al-surface*.json`, `v2-classification.json`, `.gitignore`, and apps under `tests/` that no CI job builds (the isolation probe).
 - The selection is uncertain: a changed object that no test codeunit uses (a test can still reach it through metadata, for example `AllObj` filtered on an id range), an AL file with no object the script can read, or a changed non-AL file that no object names.
@@ -382,7 +393,7 @@ To force a full run on a pull request, add the label `full-run` and then push a 
 - A test that depends on data an earlier codeunit left in the database. A full run executes all codeunits one after the other on one database; a subset run skips most of them.
 - A reference the scan cannot see, for example an object id computed at run time.
 
-The full run on master after the merge covers both.
+The full run on master after the merge covers both, and so does the nightly full run.
 
 ### Running a selection by hand
 
@@ -408,7 +419,7 @@ python3 .github/scripts/select-tests.py --head HEAD --codeunits '{"tests/al-lang
 Each test job of `ci.yml` (one test app on one BC version, a "leg") calls `.github/workflows/bc-leg.yml`. That workflow runs the leg in one or more shards, each in a BC container of its own, and then merges their JUnit. The `al-language` legs run in three or four shards; the other test apps run in one.
 
 - **Check names.** The leg "BC 29.0" has the checks `BC 29.0 / shard 1 of 3 / test` to `BC 29.0 / shard 3 of 3 / test`, one per shard, and `BC 29.0 / test`. The last one is the job that merges and reports; it is the check the master ruleset requires. It fails when any shard failed or was cancelled.
-- **Artifact.** Each shard uploads `junit-test-results-<bc version>`. The merging job uploads the merged file under the same name and deletes the shards' artifacts, so each leg still has one artifact with one JUnit file. After **Re-run failed jobs**, the merge takes the earlier merged file and replaces the codeunits of the re-run shard.
+- **Artifact.** Each shard uploads `junit-test-results-<bc version>`. The merging job merges them (also when there is only one), adds the provenance of each codeunit (see "BC build and result provenance"), uploads the result under the same name and deletes the shards' artifacts, so each leg still has one artifact with one JUnit file. After **Re-run failed jobs**, the merge takes the earlier merged file and replaces the codeunits of the re-run shard.
 - **Shard ranges.** A shard is a range of codeunit ids. `.github/ci-shards.json` holds the first id of each shard per BC major. The ranges are balanced by the wall time of each codeunit in a full master run. A new codeunit falls into the shard of its neighbours, so adding tests needs no edit there. When the shards' times drift apart (see the "Run AL tests" step of each shard), measure them again from the JUnit files of a green master run:
 
   ```bash
@@ -432,6 +443,53 @@ python3 .github/scripts/ci-shards.py plan --ci-yml .github/workflows/ci.yml --fi
   --event pull_request --selection /tmp/sel.json --versions '{"include":[{"bc_version":"29.0"}]}'
 ```
 
+## BC build and result provenance
+
+al-runtime-rs takes the JUnit files of a green master run as its oracle. These files now say which BC build produced each result, and a green master run writes a manifest of its results.
+
+- **One build per version and run attempt.** The `prepare` job resolves the BC build of each version once (`provenance.py resolve`). For a short version like `27.5` it takes the newest `27.5.x` build from Microsoft's index file, the same way bc-linux does: the released storage, and the insider storage only when the released index was read and has no build of the minor. A read error is retried; it never moves the run to an insider build. A full build like `28.5.54151.58194` is used as it is. Every leg and shard of the run gets the same `bc_artifact_url` from the matrix; the matrix also carries `bc_build` for the job summary and the manifest. Before, each shard resolved the newest build on its own, so two shards of one run could run different builds when Microsoft published a build during the run. The job summary of `prepare` lists the builds. When a version has no build in either index, `prepare` fails and no BC container starts. **Re-run failed jobs** keeps the builds of the first attempt. **Re-run all jobs** resolves again, so one attempt can run another build than the attempt before it. A codeunit that keeps the stamp of an earlier attempt must name the same build, or the merging job fails.
+- **The BC 29 pin.** `PINNED` in `provenance.py` holds the artifact URL that every `29.x` version uses, with the reason (#561). It used to be written into each test job of `ci.yml`.
+- **Provenance in the JUnit file.** The merging job of each leg (`bc-leg.yml`) gives every `<testsuite>` (one per codeunit) a `<properties>` element (`provenance.py stamp`):
+
+  | Property | Value |
+  |---|---|
+  | `source_run` | the run that ran the codeunit on BC |
+  | `source_attempt` | the attempt of that run in which the merging job first wrote the codeunit |
+  | `source_commit` | the commit of that run; on a pull request run, the temporary merge commit GitHub made for it |
+  | `bc_build` | the full BC build, taken from the artifact URL the leg's shards ran |
+  | `app` | `full`: the run published the full test app |
+
+  After **Re-run failed jobs**, a codeunit that the earlier attempt stamped keeps its stamp; a codeunit of a re-run shard gets the new attempt. The test results and the timestamps do not change.
+- **Results manifest.** When every leg of a push run (master) or of the nightly run succeeded, the job `manifest` writes `results-manifest.json` and uploads it as the artifact `results-manifest` (`provenance.py manifest`). It names the run, the attempt, the commit and, per BC version, the build, the artifact URL and, per leg, the number of codeunits. The job fails when a leg has no JUnit file or no codeunit, or a codeunit lacks this run's provenance (run, commit, `app` full) or names another build. The manifest of a full run has `base_run` null. The nightly run's job "Nightly comparison" adds the comparison to it (see "Nightly full run"). Pull request runs and dispatched runs do not write a manifest.
+- **When a manifest counts.** Only for the run's latest attempt, and only when the run's conclusion is success. A later attempt (**Re-run all jobs**, or a re-run of one job) replaces the legs' JUnit files; when it ends red, the job `manifest` is skipped and the manifest of the earlier attempt stays. Every reader checks this with `provenance.py check-manifest --manifest results-manifest.json --run-json run.json`, where `run.json` is `gh api repos/<repo>/actions/runs/<run id>`.
+- **Downloads.** The merging job and the job `manifest` download the run's artifacts with `.github/scripts/run-artifacts.sh`. A download that answers HTTP 404 is skipped only when the artifact itself is gone, that is when `gh api repos/<repo>/actions/artifacts/<id>` also answers HTTP 404: another leg's merging job deleted that shard artifact after the listing. A 404 download of an artifact that still exists fails the job, and so does every other failure, including any other answer of that metadata call.
+
+To see the builds a run would use, and to check a JUnit file:
+
+```bash
+python3 .github/scripts/provenance.py resolve --versions '{"include":[{"bc_version":"27.5"},{"bc_version":"28.5"},{"bc_version":"29.0"}]}'
+python3 .github/scripts/provenance.py stamp --run 1 --attempt 1 --commit HEAD --app full \
+  --bc-artifact-url https://bcartifacts-exdbf9fwegejdqak.b02.azurefd.net/sandbox/27.5.0.0/w1 /tmp/junit-al-language.xml
+```
+
+## Nightly full run
+
+Every night at 01:30 UTC, `ci.yml` runs on master from the schedule trigger. It is the same workflow as the push runs, not a workflow of its own. al-runtime-rs looks for the nightly among the schedule runs of the workflow it takes its oracle from.
+
+- **What runs.** Every leg runs every test codeunit, as on a push to master. When every leg succeeded, the job `manifest` writes the results manifest (see "BC build and result provenance").
+- **The comparison.** The job "Nightly comparison" (`.github/scripts/compare-results.py nightly`) then compares the results of this run, per BC version, with those of the base run. The base run is the newest green push run of `ci.yml` on master whose commit is the nightly's commit or an ancestor of it, and whose manifest counts (`provenance.py check-manifest`). A git error while checking the ancestry stops the comparison.
+- **What is compared.** Only the codeunits that a master run at the nightly's commit would have taken from the base run instead of running them. When the base run is at the nightly's commit, that is every codeunit. Otherwise `select-tests.py` selects from the base commit to the nightly's commit, and the codeunits the shard plan of that selection does not run (`ci-shards.py plan`) are compared. A full selection compares nothing, unless every changed file is one CI does not read. Each test of these codeunits is compared by leg, codeunit and test name; the value is the list of outcomes (passed, failure, error, skipped).
+- **Differences.** A compared codeunit without a base result is a difference, and so is a test that one side lacks or that has another outcome. A compared codeunit that the base run has and this run lacks is a difference too, unless the commits differ and the diff between them deleted or renamed every file that declared it under the leg's test app. It is then counted as dropped.
+- **Reused results in the base run.** The base run may hold results it reused from earlier runs. The job counts them per version (`base_reused`) and counts how many of them were compared or dropped (`base_reused_compared`). When the two differ, the version is `incomplete`: it cannot confirm the earlier results. `source_runs` lists, per run, how many compared codeunits came from that run.
+- **Nothing to compare.** A BC version whose base run ran another build, a version the base run does not have, or no base run at all: nothing is compared. The version is `identical` (with `compared` 0 and the reason in `note`) when the base run reused nothing there, else `incomplete`.
+- **The result.** The job writes `versions.<v>.comparison` (`identical`, `differs` or `incomplete`) and `versions.<v>.comparison_detail` into the manifest. The detail holds the run compared with (`compared_run`, `compared_attempt` the attempt of it that was downloaded, `compared_commit`), the counts, `source_runs`, the differences with the source run, commit and time of the base result, and the note. The job uploads the manifest again under the same name, `results-manifest`. Unless every version is `identical`, the job then fails and lists the counts and differences in its summary. When the comparison cannot run, the job fails and the manifest keeps no comparison.
+- **Why.** al-runtime-rs refuses a corpus bump while the newest nightly at or before the bump's commit does not say `identical` for every BC version. A nightly whose only failed job is "Nightly comparison" can still be taken itself, because every result in it ran fresh. al-runtime-rs takes a run that reuses results only when the first nightly after it names that run in `comparison_detail.compared_run` and its attempt in `comparison_detail.compared_attempt`, so do not rename these two keys without changing al-runtime-rs.
+- **Re-running.** When the job "Nightly comparison" fails or crashes, use **Re-run all jobs**, never **Re-run failed jobs**. A re-run of the failed job moves the run to a new attempt, while the manifest keeps the attempt in which the job `manifest` wrote it. al-runtime-rs then refuses that manifest, also for a bump from the nightly itself. A red test leg is different: **Re-run failed jobs** then runs the job `manifest` again in the new attempt, and that manifest counts.
+
+Both runs of a comparison are green, so every test in them passed or was skipped. A failing test shows up as a red nightly leg, not as a difference. A difference is a codeunit or a test that one side lacks, or a test that passed on one side and was skipped on the other. While master push runs are full runs, a difference means that the same commit and BC build gave another result: a test that depends on time, order or chance.
+
+To compare two runs by hand, download their `results-manifest` and `junit-test-results-<v>` artifacts with `run-artifacts.sh` (it takes the run id from `GITHUB_RUN_ID`) and call `compare_version` or `compare` of `compare-results.py` from Python.
+
 ## Pull request checklist
 
 Before opening a PR, verify:
@@ -440,6 +498,7 @@ Before opening a PR, verify:
 - [ ] `Initialize()` calls `DeleteAll()` on every table used in the codeunit
 - [ ] The file is in `<area>/<topic>/` (no writer id, issue number or batch name in a folder name), and a new topic is in the area README
 - [ ] Shared fixtures used; each local object has a `// local object: <reason>` line
+- [ ] No test asserts over an object id range that other files can add to (standing rule 10)
 - [ ] New tests are at the end of the topic's existing codeunit; no codeunit renumbered, no test or must-not-compile case renamed
 - [ ] A removed or merged test has a line in `tests/rename-map.tsv`
 - [ ] Test name uniquely identifies the claim without opening the body
