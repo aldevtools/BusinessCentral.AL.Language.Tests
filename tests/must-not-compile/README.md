@@ -713,5 +713,6 @@ BC container. Run locally with the tools in `~/.al-tool-cache` it passes today w
 | 3216 to 3218 | AL0104 | an event subscriber names its publisher as `Codeunit::<id>`, `Database::<id>` or `Page::<id>`: a syntax error; the bare id compiles (tests/al-language/events/subscriber-by-id/SbiSubscriberByIdTests.al) |
 | 3219, 3220 | AL0185 | an event subscriber names a codeunit or a table by a bare id that no object has |
 | 3221 | AL0284 | a table event subscriber by bare id is type-checked against that table: Rec of another table |
+| 3290 to 3293 | AL0132, AL0122, AL0133, AL0122 | in a namespace with its own enum named like the enum of an Enum field of another app, `Rec.Field` is of the field's enum: a member only the file's enum has, the field into a variable or a parameter of the file's enum, a member of the file's enum into the field (tests/al-language/types/enum-option/EnumMemberFieldType_Twin.al compiles `Line.Kind := Line.Kind::Production` there) |
 
 Legacy Statistics compatibility: cases 2971 (extension anchor, AL0271) and 2972 (TestPage member, AL0132) apply from BC29. The public replacements are SalesOrderStatistics and SalesStatistics.
