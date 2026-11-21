@@ -284,6 +284,7 @@ codeunit 72022 "LT HtT Headers Errors"
     procedure InvalidNames()
     var
         Headers: HttpHeaders;
+        PlatformBuild: Codeunit "ALT Platform Build";
     begin
         NewHeaders(Headers);
         asserterror Headers.Add('', 'v');
@@ -304,7 +305,10 @@ codeunit 72022 "LT HtT Headers Errors"
 #if BC29PLUS
         Observer.Expect('blankName|code', 'InvalidHeader:Format');
 #else
-        Observer.Expect('blankName|code', 'InvalidHeader:Argument');
+        if PlatformBuild.IsNet10Build() then
+            Observer.Expect('blankName|code', 'InvalidHeader:Format')
+        else
+            Observer.Expect('blankName|code', 'InvalidHeader:Argument');
 #endif
         Observer.Expect('spaceInName|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
         Observer.Expect('spaceInName|code', 'InvalidHeader:Format');
@@ -455,6 +459,7 @@ codeunit 72022 "LT HtT Headers Errors"
     procedure PW_InvalidNames_Bc27()
     var
         Headers: HttpHeaders;
+        PlatformBuild: Codeunit "ALT Platform Build";
     begin
         NewHeaders(Headers);
         asserterror Headers.Add('', 'v');
@@ -470,9 +475,17 @@ codeunit 72022 "LT HtT Headers Errors"
         Observer.Expect('emptyName|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
         Observer.Expect('emptyName|code', 'InvalidHeader:Argument');
         Observer.Expect('blankName|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
-        Observer.Expect('blankName|code', 'InvalidHeader:Argument');
+        // The .NET 10 build of 27.5 answers a name of one blank with InvalidHeader:Format, as BC 29 and the .NET 10 build of 28.5 do (corpus CI
+        // 2026-11-17). The code of three blanks gives InvalidHeader:Format on that build too (corpus CI run 44239002147, 2026-11-18).
+        if PlatformBuild.IsNet10Build() then
+            Observer.Expect('blankName|code', 'InvalidHeader:Format')
+        else
+            Observer.Expect('blankName|code', 'InvalidHeader:Argument');
         Observer.Expect('threeBlanksName|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
-        Observer.Expect('threeBlanksName|code', 'InvalidHeader:Argument');
+        if PlatformBuild.IsNet10Build() then
+            Observer.Expect('threeBlanksName|code', 'InvalidHeader:Format')
+        else
+            Observer.Expect('threeBlanksName|code', 'InvalidHeader:Argument');
         Observer.Expect('spaceInName|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
         Observer.Expect('spaceInName|code', 'InvalidHeader:Format');
         Observer.Expect('colonInName|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');

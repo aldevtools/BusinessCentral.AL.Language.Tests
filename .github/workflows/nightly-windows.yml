@@ -722,7 +722,8 @@ jobs:
           # published right after A, before B, as in ci.yml (subscriber order of apps that do not depend on each other).
           $apps = @('tests/al-language-internals-fixture', 'tests/al-language-xapp-a', 'tests/al-language-xapp-d',
                     'tests/al-language-xapp-b', 'tests/al-language-xapp-c', 'tests/al-language-xapp-n',
-                    'tests/al-language-xapp-t', 'tests/al-language', 'tests/al-language-onprem')
+                    'tests/al-language-xapp-t', 'tests/al-language-xapp-e', 'tests/al-language',
+                    'tests/al-language-onprem')
           $outDir = Join-Path $env:GITHUB_WORKSPACE '.output'
           New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 
@@ -994,7 +995,16 @@ jobs:
             @{ runner = '61331'; range = '61330..61349'; out = 'xunit-runner-probe-function.xml' },
             # Microsoft's own Test Runner (130450), for "LT SW OnRun ..." (97010..97019): what it
             # reports for a test codeunit's OnRun (al-runtime-rs assumption test-codeunit-onrun-rows).
-            @{ runner = '130450'; range = '97010..97019'; out = 'xunit-onrun-runner.xml' }
+            @{ runner = '130450'; range = '97010..97019'; out = 'xunit-onrun-runner.xml' },
+            # NumberSequence and manual bindings after a test that commits and fails (76040..76089): "LT SQ Reader"
+            # (76089) states what TestIsolation = Codeunit leaves; under 61300 its failures carry the Function readings.
+            @{ runner = '130450'; range = '76040..76089'; out = 'xunit-sequence-after-fail-130450.xml' },
+            @{ runner = '61301'; range = '76040..76089'; out = 'xunit-sequence-after-fail-codeunit.xml' },
+            @{ runner = '61300'; range = '76040..76089'; out = 'xunit-sequence-after-fail-function.xml' },
+            # The C14 and C2 cells with RecordRef access in the failed test (76239..76269): "LT SQ Ref Reader" (76239).
+            @{ runner = '130450'; range = '76239..76269'; out = 'xunit-sequence-recordref-130450.xml' },
+            @{ runner = '61301'; range = '76239..76269'; out = 'xunit-sequence-recordref-codeunit.xml' },
+            @{ runner = '61300'; range = '76239..76269'; out = 'xunit-sequence-recordref-function.xml' }
           )
           foreach ($r in $runs) {
             Write-Host "::group::isolation probe under runner $($r.runner), test codeunits $($r.range)"
@@ -1061,6 +1071,36 @@ jobs:
             --fixture tests/al-language-isolation-probe/src/SwOnRunRunner.al \
             --run "Runner 130450=xunit-onrun-runner.xml" \
             --outdir test-results/onrun-runner
+
+      # NumberSequence and manual bindings after a test that commits and fails: every test of "LT SQ Reader" (76089).
+      - name: Sequence after a failed test -- per-test rows
+        if: always()
+        continue-on-error: true
+        shell: bash
+        run: |
+          python .github/scripts/isolation-probe-results.py \
+            --title "NumberSequence and manual bindings after a test that commits and fails" \
+            --note "Not part of the headline above. Each test of LT SQ Reader (76089) states what a cell left under TestIsolation = Codeunit; a failure message carries what was observed. The cell codeunits 76045-76081 fail on purpose." \
+            --fixture tests/al-language-isolation-probe/src/SqReader.al \
+            --run "Runner 130450=xunit-sequence-after-fail-130450.xml" \
+            --run "TestIsolation = Codeunit (runner 61301)=xunit-sequence-after-fail-codeunit.xml" \
+            --run "TestIsolation = Function (runner 61300)=xunit-sequence-after-fail-function.xml" \
+            --outdir test-results/sequence-after-fail
+
+      # The same with RecordRef access in the failed test: every test of "LT SQ Ref Reader" (76239).
+      - name: Sequence after a failed test with RecordRef access -- per-test rows
+        if: always()
+        continue-on-error: true
+        shell: bash
+        run: |
+          python .github/scripts/isolation-probe-results.py \
+            --title "NumberSequence after a failed test that accesses a table through a RecordRef" \
+            --note "Not part of the headline above. Each test of LT SQ Ref Reader (76239) states what a cell left under TestIsolation = Codeunit; a failure message carries what was observed. The cell codeunits 76241-76255 fail on purpose." \
+            --fixture tests/al-language-isolation-probe/src/SqRecordRefReader.al \
+            --run "Runner 130450=xunit-sequence-recordref-130450.xml" \
+            --run "TestIsolation = Codeunit (runner 61301)=xunit-sequence-recordref-codeunit.xml" \
+            --run "TestIsolation = Function (runner 61300)=xunit-sequence-recordref-function.xml" \
+            --outdir test-results/sequence-recordref
 
       # Fails the job, loudly, when a test codeunit is silently missing: neither reported nor
       # recorded as a runner stop. It
