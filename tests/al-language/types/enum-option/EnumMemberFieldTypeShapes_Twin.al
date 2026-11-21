@@ -6,7 +6,7 @@
 // "LT EMF GKind" (here, Production at ordinal 5) have the names of the enums of LT EMF Line.Kind and "G Kind" (Production
 // at ordinal 1 in both). The code here names `Field::Production` where the file's own namespace finds the twin first: on a
 // temporary record, on a field a table extension adds, on a field whose enum is in the global namespace, through Rec and
-// the bare field name in a table extension and in a page.
+// the bare field name in a table extension and in a page, and on a global record variable of the reader codeunit.
 // local object: the twin enum and the readers of EnumMemberFieldTypeShapes_Tests.al.
 
 namespace ALLanguage.Coverage.EmfTwin;
@@ -21,6 +21,21 @@ enum 97048 "LT EMF GKind"
 
 codeunit 97048 "LT EMF Twin Shapes Reader"
 {
+    var
+        GlobalLine: Record "LT EMF Line";
+
+    procedure GlobalRecordOrdinal(): Integer
+    begin
+        GlobalLine.Kind := GlobalLine.Kind::Production;
+        exit(GlobalLine.Kind.AsInteger());
+    end;
+
+    procedure GlobalRecordReadWithoutMember(Line: Record "LT EMF Line"): Text
+    begin
+        GlobalLine := Line;
+        exit(Format(GlobalLine.Kind) + '|' + Format(GlobalLine.Kind.AsInteger()));
+    end;
+
     procedure TemporaryOrdinal(): Integer
     var
         Line: Record "LT EMF Line" temporary;
