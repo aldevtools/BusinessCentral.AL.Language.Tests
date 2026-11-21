@@ -170,7 +170,29 @@ codeunit 74073 "REC PhWildSfx Tests"
     begin
         Initialize();
         Values(Observer, true);
-        Observer.Finish();
+        Observer.Expect('ne XYZ-* getfilter', '<>XYZ-*');
+        Observer.Expect('ne XYZ-* rows', '4 6 7 9 13 14 15 ');
+        Observer.Expect('ne xyz-* getfilter', '<>XYZ-*');
+        Observer.Expect('ne xyz-* rows', '4 6 7 9 13 14 15 ');
+        Observer.Expect('ne XYZ-? getfilter', '<>XYZ-?');
+        Observer.Expect('ne XYZ-? rows', '3 4 6 7 9 10 13 14 15 ');
+        Observer.Expect('ne XYZ-** getfilter', '<>XYZ-**');
+        Observer.Expect('ne XYZ-** rows', '4 6 7 9 13 14 15 ');
+        Observer.Expect('ne XYZ* getfilter', '<>XYZ*');
+        Observer.Expect('ne XYZ* rows', '6 7 9 13 ');
+        Observer.Expect('ne *XYZ* getfilter', '<>*XYZ*');
+        Observer.Expect('ne *XYZ* rows', '6 7 13 ');
+        Observer.Expect('ne *-1 getfilter', '<>*-1');
+        Observer.Expect('ne *-1 rows', '2 3 4 5 7 8 10 12 13 14 15 ');
+        Observer.Expect('ne star getfilter', '<>''*''');
+        Observer.Expect('ne star rows', '1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 ');
+        Observer.Expect('ne XYZ-* blank after getfilter', '<>XYZ-*');
+        Observer.Expect('ne XYZ-* blank after rows', '4 6 7 9 13 14 15 ');
+        Observer.Expect('ne XYZ-* blank before getfilter', '<>XYZ-*');
+        Observer.Expect('ne XYZ-* blank before rows', '4 6 7 9 13 14 15 ');
+        Observer.Expect('ne XYZ- * getfilter', '<>XYZ- *');
+        Observer.Expect('ne XYZ- * rows', '1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -180,7 +202,29 @@ codeunit 74073 "REC PhWildSfx Tests"
     begin
         Initialize();
         Values(Observer, false);
-        Observer.Finish();
+        Observer.Expect('ne XYZ-* getfilter', '<>XYZ-*');
+        Observer.Expect('ne XYZ-* rows', '4 6 7 9 11 13 14 15 ');
+        Observer.Expect('ne xyz-* getfilter', '<>xyz-*');
+        Observer.Expect('ne xyz-* rows', '1 2 3 4 5 6 7 8 9 10 12 13 14 15 ');
+        Observer.Expect('ne XYZ-? getfilter', '<>XYZ-?');
+        Observer.Expect('ne XYZ-? rows', '3 4 6 7 9 10 11 13 14 15 ');
+        Observer.Expect('ne XYZ-** getfilter', '<>XYZ-**');
+        Observer.Expect('ne XYZ-** rows', '4 6 7 9 11 13 14 15 ');
+        Observer.Expect('ne XYZ* getfilter', '<>XYZ*');
+        Observer.Expect('ne XYZ* rows', '6 7 9 11 13 ');
+        Observer.Expect('ne *XYZ* getfilter', '<>*XYZ*');
+        Observer.Expect('ne *XYZ* rows', '6 7 11 13 ');
+        Observer.Expect('ne *-1 getfilter', '<>*-1');
+        Observer.Expect('ne *-1 rows', '2 3 4 5 7 8 10 12 13 14 15 ');
+        Observer.Expect('ne star getfilter', '<>''*''');
+        Observer.Expect('ne star rows', '1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 ');
+        Observer.Expect('ne XYZ-* blank after getfilter', '<>''XYZ-* ''');
+        Observer.Expect('ne XYZ-* blank after rows', '1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 ');
+        Observer.Expect('ne XYZ-* blank before getfilter', '<>'' XYZ-*''');
+        Observer.Expect('ne XYZ-* blank before rows', '1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 ');
+        Observer.Expect('ne XYZ- * getfilter', '<>XYZ- *');
+        Observer.Expect('ne XYZ- * rows', '1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -190,7 +234,25 @@ codeunit 74073 "REC PhWildSfx Tests"
     begin
         Initialize();
         Forms(Observer, true);
-        Observer.Finish();
+        Observer.Expect('eq XYZ-* getfilter', 'XYZ-*');
+        Observer.Expect('eq XYZ-* rows', '1 2 3 5 8 10 11 12 ');
+        Observer.Expect('eqsign XYZ-* getfilter', '=''XYZ-*''');
+        Observer.Expect('eqsign XYZ-* rows', '5 ');
+        Observer.Expect('ne XYZ-* and ne ABC-* getfilter', '<>XYZ-*&<>ABC-*');
+        Observer.Expect('ne XYZ-* and ne ABC-* rows', '4 9 13 14 15 ');
+        Observer.Expect('ne XYZ-* or ne ABC-* getfilter', '<>XYZ-*|<>ABC-*');
+        Observer.Expect('ne XYZ-* or ne ABC-* rows', '1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 ');
+        Observer.Expect('written ne XYZ-* getfilter', '<>XYZ-*');
+        Observer.Expect('written ne XYZ-* rows', '4 6 7 9 13 14 15 ');
+        Observer.Expect('written ne quoted XYZ-* getfilter', '<>XYZ-*');
+        Observer.Expect('written ne quoted XYZ-* rows', '4 6 7 9 13 14 15 ');
+        Observer.Expect('ne long 25 set|text', 'The length of the string is 25, but it must be less than or equal to 20 characters. Value: XYZ-ABCDEFGHIJKLMNOPQRST*');
+        Observer.Expect('ne long 25 set|code', 'StringLengthExceeded');
+        Observer.Expect('ne long 21 set|text', 'The length of the string is 21, but it must be less than or equal to 20 characters. Value: XYZ-ABCDEFGHIJKLMNOP*');
+        Observer.Expect('ne long 21 set|code', 'StringLengthExceeded');
+        Observer.Expect('ne long 35 set|text', 'The length of the string is 35, but it must be less than or equal to 20 characters. Value: XYZ-ABCDEFGHIJKLMNOPQRSTUVWXYZ1234*');
+        Observer.Expect('ne long 35 set|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -200,7 +262,25 @@ codeunit 74073 "REC PhWildSfx Tests"
     begin
         Initialize();
         Forms(Observer, false);
-        Observer.Finish();
+        Observer.Expect('eq XYZ-* getfilter', 'XYZ-*');
+        Observer.Expect('eq XYZ-* rows', '1 2 3 5 8 10 12 ');
+        Observer.Expect('eqsign XYZ-* getfilter', '=''XYZ-*''');
+        Observer.Expect('eqsign XYZ-* rows', '5 ');
+        Observer.Expect('ne XYZ-* and ne ABC-* getfilter', '<>XYZ-*&<>ABC-*');
+        Observer.Expect('ne XYZ-* and ne ABC-* rows', '4 9 11 13 14 15 ');
+        Observer.Expect('ne XYZ-* or ne ABC-* getfilter', '<>XYZ-*|<>ABC-*');
+        Observer.Expect('ne XYZ-* or ne ABC-* rows', '1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 ');
+        Observer.Expect('written ne XYZ-* getfilter', '<>XYZ-*');
+        Observer.Expect('written ne XYZ-* rows', '4 6 7 9 11 13 14 15 ');
+        Observer.Expect('written ne quoted XYZ-* getfilter', '<>XYZ-*');
+        Observer.Expect('written ne quoted XYZ-* rows', '4 6 7 9 11 13 14 15 ');
+        Observer.Expect('ne long 25 getfilter', '<>XYZ-ABCDEFGHIJKLMNOPQRST*');
+        Observer.Expect('ne long 25 rows', '1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 ');
+        Observer.Expect('ne long 21 getfilter', '<>XYZ-ABCDEFGHIJKLMNOP*');
+        Observer.Expect('ne long 21 rows', '1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 ');
+        Observer.Expect('ne long 35 getfilter', '<>XYZ-ABCDEFGHIJKLMNOPQRSTUVWXYZ1234*');
+        Observer.Expect('ne long 35 rows', '1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -218,7 +298,11 @@ codeunit 74073 "REC PhWildSfx Tests"
         if not R.IsEmpty() then
             R.ModifyAll(Enabled, false);
         Observer.Observe('enabled after', EnabledIds());
-        Observer.Finish();
+        Observer.Expect('getfilters', 'Cd: <>XYZ-*, Enabled: Yes');
+        Observer.Expect('isempty', 'No');
+        Observer.Expect('count', '6');
+        Observer.Expect('enabled after', '1 2 3 5 10 11 12 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -239,7 +323,10 @@ codeunit 74073 "REC PhWildSfx Tests"
         if not R.IsEmpty() then
             R.ModifyAll(Enabled, false);
         Observer.Observe('enabled after', EnabledIds());
-        Observer.Finish();
+        Observer.Expect('isempty', 'Yes');
+        Observer.Expect('count', '0');
+        Observer.Expect('enabled after', '1 2 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -263,6 +350,11 @@ codeunit 74073 "REC PhWildSfx Tests"
         Observer.Observe('text getfilter', Fld.GetFilter());
         Observer.Observe('text rows', RefIds(Ref));
         Ref.Close();
-        Observer.Finish();
+        Observer.Expect('code getfilter', '<>XYZ-*');
+        Observer.Expect('code rows', '4 6 9 13 14 15 ');
+        Observer.Expect('code isempty', 'No');
+        Observer.Expect('text getfilter', '<>XYZ-*');
+        Observer.Expect('text rows', '4 6 9 11 13 14 15 ');
+        Observer.Verify();
     end;
 }

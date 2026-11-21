@@ -122,7 +122,6 @@ codeunit 74074 "FE ShortUsDate Tests"
         Cell(Observer, '00/01/25', ToDateTime, Fmt);
         Cell(Observer, '010425', ToDateTime, Fmt);
         Cell(Observer, '01-04-25', ToDateTime, Fmt);
-        Cell(Observer, '01/04', ToDateTime, Fmt);
     end;
 
     local procedure DatesWithTime(var Observer: Codeunit "Probe Observer"; ToDateTime: Boolean; Fmt: Integer)
@@ -179,7 +178,12 @@ codeunit 74074 "FE ShortUsDate Tests"
         Observer.Observe('local noon in utc', Format(CreateDateTime(DMY2Date(4, 1, 2025), 120000T), 0, 9));
         Observer.Observe('globallanguage', Format(GlobalLanguage()));
         Observer.Observe('windowslanguage', Format(WindowsLanguage()));
-        Observer.Finish();
+        Observer.Expect('format date', '01/04/25');
+        Observer.Expect('format datetime', '01/04/25 12:00 PM');
+        Observer.Expect('local noon in utc', '2025-01-04T12:00:00Z');
+        Observer.Expect('globallanguage', '1033');
+        Observer.Expect('windowslanguage', '1033');
+        Observer.Verify();
     end;
 
     [Test]
@@ -188,7 +192,20 @@ codeunit 74074 "FE ShortUsDate Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ShortDates(Observer, true, -1);
-        Observer.Finish();
+        Observer.Expect('02/01/25', 'Yes|2025-02-01T00:00:00Z|lasterr=');
+        Observer.Expect('01/01/25', 'Yes|2025-01-01T00:00:00Z|lasterr=');
+        Observer.Expect('12/31/24', 'Yes|2024-12-31T00:00:00Z|lasterr=');
+        Observer.Expect('01/01/28', 'Yes|2028-01-01T00:00:00Z|lasterr=');
+        Observer.Expect('1/4/25', 'Yes|2025-01-04T00:00:00Z|lasterr=');
+        Observer.Expect('01/04/2025', 'Yes|2025-01-04T00:00:00Z|lasterr=');
+        Observer.Expect('12/31/29', 'Yes|2029-12-31T00:00:00Z|lasterr=');
+        Observer.Expect('01/01/30', 'Yes|2030-01-01T00:00:00Z|lasterr=');
+        Observer.Expect('13/01/25', 'No||lasterr=Evaluate');
+        Observer.Expect('02/30/25', 'No||lasterr=Evaluate');
+        Observer.Expect('00/01/25', 'No||lasterr=Evaluate');
+        Observer.Expect('010425', 'Yes|2025-01-04T00:00:00Z|lasterr=');
+        Observer.Expect('01-04-25', 'Yes|2025-01-04T00:00:00Z|lasterr=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -197,7 +214,20 @@ codeunit 74074 "FE ShortUsDate Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ShortDates(Observer, true, 0);
-        Observer.Finish();
+        Observer.Expect('02/01/25', 'Yes|2025-02-01T00:00:00Z|lasterr=');
+        Observer.Expect('01/01/25', 'Yes|2025-01-01T00:00:00Z|lasterr=');
+        Observer.Expect('12/31/24', 'Yes|2024-12-31T00:00:00Z|lasterr=');
+        Observer.Expect('01/01/28', 'Yes|2028-01-01T00:00:00Z|lasterr=');
+        Observer.Expect('1/4/25', 'Yes|2025-01-04T00:00:00Z|lasterr=');
+        Observer.Expect('01/04/2025', 'Yes|2025-01-04T00:00:00Z|lasterr=');
+        Observer.Expect('12/31/29', 'Yes|2029-12-31T00:00:00Z|lasterr=');
+        Observer.Expect('01/01/30', 'Yes|2030-01-01T00:00:00Z|lasterr=');
+        Observer.Expect('13/01/25', 'No||lasterr=Evaluate');
+        Observer.Expect('02/30/25', 'No||lasterr=Evaluate');
+        Observer.Expect('00/01/25', 'No||lasterr=Evaluate');
+        Observer.Expect('010425', 'Yes|2025-01-04T00:00:00Z|lasterr=');
+        Observer.Expect('01-04-25', 'Yes|2025-01-04T00:00:00Z|lasterr=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -206,7 +236,20 @@ codeunit 74074 "FE ShortUsDate Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ShortDates(Observer, true, 9);
-        Observer.Finish();
+        Observer.Expect('02/01/25', 'No||lasterr=');
+        Observer.Expect('01/01/25', 'No||lasterr=');
+        Observer.Expect('12/31/24', 'No||lasterr=');
+        Observer.Expect('01/01/28', 'No||lasterr=');
+        Observer.Expect('1/4/25', 'No||lasterr=');
+        Observer.Expect('01/04/2025', 'No||lasterr=');
+        Observer.Expect('12/31/29', 'No||lasterr=');
+        Observer.Expect('01/01/30', 'No||lasterr=');
+        Observer.Expect('13/01/25', 'No||lasterr=');
+        Observer.Expect('02/30/25', 'No||lasterr=');
+        Observer.Expect('00/01/25', 'No||lasterr=');
+        Observer.Expect('010425', 'No||lasterr=');
+        Observer.Expect('01-04-25', 'No||lasterr=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -215,7 +258,20 @@ codeunit 74074 "FE ShortUsDate Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ShortDates(Observer, false, -1);
-        Observer.Finish();
+        Observer.Expect('02/01/25', 'Yes|2025-02-01|lasterr=');
+        Observer.Expect('01/01/25', 'Yes|2025-01-01|lasterr=');
+        Observer.Expect('12/31/24', 'Yes|2024-12-31|lasterr=');
+        Observer.Expect('01/01/28', 'Yes|2028-01-01|lasterr=');
+        Observer.Expect('1/4/25', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01/04/2025', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('12/31/29', 'Yes|2029-12-31|lasterr=');
+        Observer.Expect('01/01/30', 'Yes|2030-01-01|lasterr=');
+        Observer.Expect('13/01/25', 'No||lasterr=Evaluate');
+        Observer.Expect('02/30/25', 'No||lasterr=Evaluate');
+        Observer.Expect('00/01/25', 'No||lasterr=Evaluate');
+        Observer.Expect('010425', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01-04-25', 'Yes|2025-01-04|lasterr=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -224,7 +280,20 @@ codeunit 74074 "FE ShortUsDate Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ShortDates(Observer, false, 0);
-        Observer.Finish();
+        Observer.Expect('02/01/25', 'Yes|2025-02-01|lasterr=');
+        Observer.Expect('01/01/25', 'Yes|2025-01-01|lasterr=');
+        Observer.Expect('12/31/24', 'Yes|2024-12-31|lasterr=');
+        Observer.Expect('01/01/28', 'Yes|2028-01-01|lasterr=');
+        Observer.Expect('1/4/25', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01/04/2025', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('12/31/29', 'Yes|2029-12-31|lasterr=');
+        Observer.Expect('01/01/30', 'Yes|2030-01-01|lasterr=');
+        Observer.Expect('13/01/25', 'No||lasterr=Evaluate');
+        Observer.Expect('02/30/25', 'No||lasterr=Evaluate');
+        Observer.Expect('00/01/25', 'No||lasterr=Evaluate');
+        Observer.Expect('010425', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01-04-25', 'Yes|2025-01-04|lasterr=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -233,7 +302,20 @@ codeunit 74074 "FE ShortUsDate Tests"
         Observer: Codeunit "Probe Observer";
     begin
         DatesWithTime(Observer, false, -1);
-        Observer.Finish();
+        Observer.Expect('01/04/25 12:00 PM', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01/04/25 12:00 AM', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('1/4/25 1:20 AM', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01/04/2025 12:00 PM', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01/04/25 12:00', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01/04/25 23:59:59', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01/04/25 00:00', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01/04/25 25:00', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01/04/25 13:00 PM', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01/04/25 noon', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('13/04/25 12:00 PM', 'No||lasterr=Evaluate');
+        Observer.Expect('01/04/25  12:00 PM', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01/04/25T12:00', 'Yes|2025-01-04|lasterr=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -242,7 +324,20 @@ codeunit 74074 "FE ShortUsDate Tests"
         Observer: Codeunit "Probe Observer";
     begin
         DatesWithTime(Observer, false, 0);
-        Observer.Finish();
+        Observer.Expect('01/04/25 12:00 PM', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01/04/25 12:00 AM', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('1/4/25 1:20 AM', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01/04/2025 12:00 PM', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01/04/25 12:00', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01/04/25 23:59:59', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01/04/25 00:00', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01/04/25 25:00', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01/04/25 13:00 PM', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01/04/25 noon', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('13/04/25 12:00 PM', 'No||lasterr=Evaluate');
+        Observer.Expect('01/04/25  12:00 PM', 'Yes|2025-01-04|lasterr=');
+        Observer.Expect('01/04/25T12:00', 'Yes|2025-01-04|lasterr=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -251,7 +346,20 @@ codeunit 74074 "FE ShortUsDate Tests"
         Observer: Codeunit "Probe Observer";
     begin
         DatesWithTime(Observer, false, 9);
-        Observer.Finish();
+        Observer.Expect('01/04/25 12:00 PM', 'No||lasterr=');
+        Observer.Expect('01/04/25 12:00 AM', 'No||lasterr=');
+        Observer.Expect('1/4/25 1:20 AM', 'No||lasterr=');
+        Observer.Expect('01/04/2025 12:00 PM', 'No||lasterr=');
+        Observer.Expect('01/04/25 12:00', 'No||lasterr=');
+        Observer.Expect('01/04/25 23:59:59', 'No||lasterr=');
+        Observer.Expect('01/04/25 00:00', 'No||lasterr=');
+        Observer.Expect('01/04/25 25:00', 'No||lasterr=');
+        Observer.Expect('01/04/25 13:00 PM', 'No||lasterr=');
+        Observer.Expect('01/04/25 noon', 'No||lasterr=');
+        Observer.Expect('13/04/25 12:00 PM', 'No||lasterr=');
+        Observer.Expect('01/04/25  12:00 PM', 'No||lasterr=');
+        Observer.Expect('01/04/25T12:00', 'No||lasterr=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -260,7 +368,20 @@ codeunit 74074 "FE ShortUsDate Tests"
         Observer: Codeunit "Probe Observer";
     begin
         DatesWithTime(Observer, true, -1);
-        Observer.Finish();
+        Observer.Expect('01/04/25 12:00 PM', 'Yes|2025-01-04T12:00:00Z|lasterr=');
+        Observer.Expect('01/04/25 12:00 AM', 'Yes|2025-01-04T00:00:00Z|lasterr=');
+        Observer.Expect('1/4/25 1:20 AM', 'Yes|2025-01-04T01:20:00Z|lasterr=');
+        Observer.Expect('01/04/2025 12:00 PM', 'Yes|2025-01-04T12:00:00Z|lasterr=');
+        Observer.Expect('01/04/25 12:00', 'Yes|2025-01-04T12:00:00Z|lasterr=');
+        Observer.Expect('01/04/25 23:59:59', 'Yes|2025-01-04T23:59:59Z|lasterr=');
+        Observer.Expect('01/04/25 00:00', 'Yes|2025-01-04T00:00:00Z|lasterr=');
+        Observer.Expect('01/04/25 25:00', 'No||lasterr=Evaluate');
+        Observer.Expect('01/04/25 13:00 PM', 'No||lasterr=DateInvalid');
+        Observer.Expect('01/04/25 noon', 'No||lasterr=');
+        Observer.Expect('13/04/25 12:00 PM', 'No||lasterr=Evaluate');
+        Observer.Expect('01/04/25  12:00 PM', 'Yes|2025-01-04T12:00:00Z|lasterr=');
+        Observer.Expect('01/04/25T12:00', 'Yes|2025-01-04T00:00:00Z|lasterr=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -269,7 +390,20 @@ codeunit 74074 "FE ShortUsDate Tests"
         Observer: Codeunit "Probe Observer";
     begin
         DatesWithTime(Observer, true, 0);
-        Observer.Finish();
+        Observer.Expect('01/04/25 12:00 PM', 'Yes|2025-01-04T12:00:00Z|lasterr=');
+        Observer.Expect('01/04/25 12:00 AM', 'Yes|2025-01-04T00:00:00Z|lasterr=');
+        Observer.Expect('1/4/25 1:20 AM', 'Yes|2025-01-04T01:20:00Z|lasterr=');
+        Observer.Expect('01/04/2025 12:00 PM', 'Yes|2025-01-04T12:00:00Z|lasterr=');
+        Observer.Expect('01/04/25 12:00', 'Yes|2025-01-04T12:00:00Z|lasterr=');
+        Observer.Expect('01/04/25 23:59:59', 'Yes|2025-01-04T23:59:59Z|lasterr=');
+        Observer.Expect('01/04/25 00:00', 'Yes|2025-01-04T00:00:00Z|lasterr=');
+        Observer.Expect('01/04/25 25:00', 'No||lasterr=Evaluate');
+        Observer.Expect('01/04/25 13:00 PM', 'No||lasterr=DateInvalid');
+        Observer.Expect('01/04/25 noon', 'No||lasterr=');
+        Observer.Expect('13/04/25 12:00 PM', 'No||lasterr=Evaluate');
+        Observer.Expect('01/04/25  12:00 PM', 'Yes|2025-01-04T12:00:00Z|lasterr=');
+        Observer.Expect('01/04/25T12:00', 'Yes|2025-01-04T00:00:00Z|lasterr=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -278,7 +412,14 @@ codeunit 74074 "FE ShortUsDate Tests"
         Observer: Codeunit "Probe Observer";
     begin
         StatementTexts(Observer, false, -1);
-        Observer.Finish();
+        Observer.Expect('02/01/25', 'ok|2025-02-01');
+        Observer.Expect('13/01/25', 'err:The format of the Date ''13/01/25'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.|Evaluate|');
+        Observer.Expect('02/30/25', 'err:The format of the Date ''02/30/25'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.|Evaluate|');
+        Observer.Expect('01/04/25 12:00 PM', 'ok|2025-01-04');
+        Observer.Expect('01/04/25 25:00', 'ok|2025-01-04');
+        Observer.Expect('01/04/25 noon', 'ok|2025-01-04');
+        Observer.Expect('13/04/25 12:00 PM', 'err:The format of the Date ''13/04/25 12:00 PM'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.|Evaluate|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -287,7 +428,14 @@ codeunit 74074 "FE ShortUsDate Tests"
         Observer: Codeunit "Probe Observer";
     begin
         StatementTexts(Observer, false, 0);
-        Observer.Finish();
+        Observer.Expect('02/01/25', 'ok|2025-02-01');
+        Observer.Expect('13/01/25', 'err:The format of the Date ''13/01/25'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.|Evaluate|');
+        Observer.Expect('02/30/25', 'err:The format of the Date ''02/30/25'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.|Evaluate|');
+        Observer.Expect('01/04/25 12:00 PM', 'ok|2025-01-04');
+        Observer.Expect('01/04/25 25:00', 'ok|2025-01-04');
+        Observer.Expect('01/04/25 noon', 'ok|2025-01-04');
+        Observer.Expect('13/04/25 12:00 PM', 'err:The format of the Date ''13/04/25 12:00 PM'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.|Evaluate|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -296,7 +444,14 @@ codeunit 74074 "FE ShortUsDate Tests"
         Observer: Codeunit "Probe Observer";
     begin
         StatementTexts(Observer, true, -1);
-        Observer.Finish();
+        Observer.Expect('02/01/25', 'ok|2025-02-01T00:00:00Z');
+        Observer.Expect('13/01/25', 'err:The value "13/01/25" can''t be evaluated into type DateTime.|Evaluate|');
+        Observer.Expect('02/30/25', 'err:The value "02/30/25" can''t be evaluated into type DateTime.|Evaluate|');
+        Observer.Expect('01/04/25 12:00 PM', 'ok|2025-01-04T12:00:00Z');
+        Observer.Expect('01/04/25 25:00', 'err:The value "01/04/25 25:00" can''t be evaluated into type DateTime.|Evaluate|');
+        Observer.Expect('01/04/25 noon', 'err:The value "01/04/25 noon" can''t be evaluated into type DateTime.|Evaluate|');
+        Observer.Expect('13/04/25 12:00 PM', 'err:The value "13/04/25 12:00 PM" can''t be evaluated into type DateTime.|Evaluate|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -305,7 +460,14 @@ codeunit 74074 "FE ShortUsDate Tests"
         Observer: Codeunit "Probe Observer";
     begin
         StatementTexts(Observer, true, 0);
-        Observer.Finish();
+        Observer.Expect('02/01/25', 'ok|2025-02-01T00:00:00Z');
+        Observer.Expect('13/01/25', 'err:The value "13/01/25" can''t be evaluated into type DateTime.|Evaluate|');
+        Observer.Expect('02/30/25', 'err:The value "02/30/25" can''t be evaluated into type DateTime.|Evaluate|');
+        Observer.Expect('01/04/25 12:00 PM', 'ok|2025-01-04T12:00:00Z');
+        Observer.Expect('01/04/25 25:00', 'err:The value "01/04/25 25:00" can''t be evaluated into type DateTime.|Evaluate|');
+        Observer.Expect('01/04/25 noon', 'err:The value "01/04/25 noon" can''t be evaluated into type DateTime.|Evaluate|');
+        Observer.Expect('13/04/25 12:00 PM', 'err:The value "13/04/25 12:00 PM" can''t be evaluated into type DateTime.|Evaluate|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -329,6 +491,11 @@ codeunit 74074 "FE ShortUsDate Tests"
         D := 0D;
         ParseDateViaDateTime('01/04/25 12:00 PM', D);
         Observer.Observe('datetime only 01/04/25 12:00 PM', Format(D, 0, 9));
-        Observer.Finish();
+        Observer.Expect('both 02/01/25', '2025-02-01');
+        Observer.Expect('both 01/04/25 12:00 PM', '2025-01-04');
+        Observer.Expect('datetime only 02/01/25', '2025-02-01');
+        Observer.Expect('datetime only 12/31/24', '2024-12-31');
+        Observer.Expect('datetime only 01/04/25 12:00 PM', '2025-01-04');
+        Observer.Verify();
     end;
 }
