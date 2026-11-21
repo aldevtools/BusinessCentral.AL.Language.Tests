@@ -5,7 +5,9 @@
 // Probe: from al-runner issue 7836: a report that declares ExcelLayoutMultipleDataSheets = true at the report level.
 // Facts:
 //   - Report.SaveAs Xml of a report with the property (no layout, a Word default layout, an Excel default layout) gives the same
-//     dataset as the same report without it (the texts compared after the report name and id are replaced);
+//     dataset as the same report without it (the texts compared after the report name and id are replaced and the clock values of the
+//     header (DateAndTime, Year, MonthNumber, DayNumber, Hour, Minute) are masked: each SaveAs reads the clock again, so two saves that
+//     fall on both sides of a second or minute differ there);
 //   - Report.Run and Report.RunModal with UseRequestPage false of the report with the property (no layout, an Excel default
 //     layout): the error;
 //   - Report.SaveAs Excel of the report with the Excel default layout and of the one without a layout: the answer, the error and
@@ -145,7 +147,47 @@ codeunit 76409 "LT XMS Multiple Data Sheets"
         Report.RunModal(ReportId, false);
     end;
 
-    // The Xml dataset of ReportId with its name and id replaced, or '<failed: error>'.
+    // Every <Tag>...</Tag> of Xml with its content replaced by x.
+    local procedure MaskElement(Xml: Text; Tag: Text): Text
+    var
+        StartTag: Text;
+        EndTag: Text;
+        Result: Text;
+        Rest: Text;
+        StartAt: Integer;
+        EndAt: Integer;
+    begin
+        StartTag := '<' + Tag + '>';
+        EndTag := '</' + Tag + '>';
+        Rest := Xml;
+        while true do begin
+            StartAt := Rest.IndexOf(StartTag);
+            if StartAt = 0 then
+                break;
+            Result += Rest.Substring(1, StartAt + StrLen(StartTag) - 1);
+            Rest := Rest.Substring(StartAt + StrLen(StartTag));
+            EndAt := Rest.IndexOf(EndTag);
+            if EndAt = 0 then
+                exit(Result + Rest);
+            Result += 'x';
+            Rest := Rest.Substring(EndAt);
+        end;
+        exit(Result + Rest);
+    end;
+
+    // The header values a SaveAs takes from the clock at the time it runs.
+    local procedure MaskClock(Xml: Text): Text
+    begin
+        Xml := MaskElement(Xml, 'DateAndTime');
+        Xml := MaskElement(Xml, 'Year');
+        Xml := MaskElement(Xml, 'MonthNumber');
+        Xml := MaskElement(Xml, 'DayNumber');
+        Xml := MaskElement(Xml, 'Hour');
+        Xml := MaskElement(Xml, 'Minute');
+        exit(Xml);
+    end;
+
+    // The Xml dataset of ReportId with its name and id replaced and its clock values masked, or '<failed: error>'.
     local procedure Dataset(ReportId: Integer; ReportName: Text): Text
     var
         TempBlob: Codeunit "Temp Blob";
@@ -158,7 +200,7 @@ codeunit 76409 "LT XMS Multiple Data Sheets"
             exit('<failed: ' + GetLastErrorText() + '>');
         TempBlob.CreateInStream(InS);
         InS.Read(Xml);
-        exit(Format(Saved) + '|' + Xml.Replace(ReportName, '<name>').Replace(Format(ReportId, 0, 9), '<id>'));
+        exit(Format(Saved) + '|' + MaskClock(Xml).Replace(ReportName, '<name>').Replace(Format(ReportId, 0, 9), '<id>'));
     end;
 
     [Test]

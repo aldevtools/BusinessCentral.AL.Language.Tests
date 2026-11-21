@@ -706,5 +706,13 @@ BC container. Run locally with the tools in `~/.al-tool-cache` it passes today w
 | 3158 to 3160 | AL0107 (AL0104, AL0224, AL0111) | an unquoted `::In` after an option field, an Option variable and an enum type (`::"In"` compiles); AL 16 stops the texts after the first sentence |
 | 3161 to 3163 | AL0118 | an unknown quoted name in a table trigger, a page trigger and a codeunit: the text keeps the quotes (`'"Entry No."'`) |
 | 3171 to 3173 | AL0275, AL0118 | an event subscriber names a codeunit by its plain name that two dependency apps declare in two namespaces (XApp A and B): no namespace and no `using`, and a `using` of both namespaces, are AL0275; a namespace without a `using` is AL0118 |
+| 3210 | AL0129 | the bare `Caption := 'X'` in a page that declares its own Caption(): Text (CurrPage.Caption := 'X' compiles there: tests/al-language/pages/lifecycle/CurrPageCaptionOwnPublic.al) |
+| 3211, 3212 | AL0122 | `I := CurrPage.Caption` and `I := CurrPage.Caption()` (I: Integer) in a page that declares its own Caption(): Integer: both reads are the platform caption (Text) |
+| 3213, 3214 | AL0122 | the unqualified Caption() (and the bare Caption) in a page with its own Caption() without a return value / Caption(): Integer calls the own procedure |
+| 3215 | AL0122 | `S := P.Caption()` on a Page variable whose page declares its own Caption() without a return value (inside the page CurrPage.Caption() reads the platform caption) |
+| 3216 to 3218 | AL0104 | an event subscriber names its publisher as `Codeunit::<id>`, `Database::<id>` or `Page::<id>`: a syntax error; the bare id compiles (tests/al-language/events/subscriber-by-id/SbiSubscriberByIdTests.al) |
+| 3219, 3220 | AL0185 | an event subscriber names a codeunit or a table by a bare id that no object has |
+| 3221 | AL0284 | a table event subscriber by bare id is type-checked against that table: Rec of another table |
+| 3290 to 3293 | AL0132, AL0122, AL0133, AL0122 | in a namespace with its own enum named like the enum of an Enum field of another app, `Rec.Field` is of the field's enum: a member only the file's enum has, the field into a variable or a parameter of the file's enum, a member of the file's enum into the field (tests/al-language/types/enum-option/EnumMemberFieldType_Twin.al compiles `Line.Kind := Line.Kind::Production` there) |
 
 Legacy Statistics compatibility: cases 2971 (extension anchor, AL0271) and 2972 (TestPage member, AL0132) apply from BC29. The public replacements are SalesOrderStatistics and SalesStatistics.
